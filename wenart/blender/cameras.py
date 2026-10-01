@@ -6,9 +6,12 @@ objects.
 
 Per room, at 1.4 m above the floor, 24 mm lens on a 36 mm sensor, 1920x1080:
 1. ``cam_<room>_1``: a point of the free area (room polygon shrunk by 0.5 m,
-   minus proxy footprints grown by 0.3 m) looking at the centre of the
+   minus the furniture boxes grown by 0.3 m) looking at the centre of the
    longest wall of the room; the free point farthest from that wall wins so
    the view covers as much of the room as possible.
+Furniture boxes are the fitted ones of Milestone 4 (``parametric.piece_bbox``:
+library bbox times the fit scale, the parametric box, or the proxy box),
+never smaller than the drawn footprint; decor is ignored.
 2. ``cam_<room>_2``: 0.4 m inside the room from the centre of its door
    opening, looking at the room centroid.
 3. ``cam_<room>_3``: next to the largest window of the room, looking across
@@ -32,7 +35,7 @@ import math
 
 from wenart import geometry as G
 from wenart.blender import geom2d
-from wenart.blender.proxies import proxy_height
+from wenart.blender.parametric import obstacle_rect, piece_bbox
 
 CAMERA_HEIGHT = 1.4
 TARGET_HEIGHT = 1.3
@@ -75,11 +78,14 @@ def plan_room_cameras(room: dict, building: dict, floor_z: float) -> list[dict]:
     polygon = [tuple(p[:2]) for p in room["polygon"]]
     if len(polygon) > 1 and G.distance(polygon[0], polygon[-1]) < 1e-9:
         polygon = polygon[:-1]
-    furniture = [f for f in building["furniture"] if f.get("room_id") == room["id"]]
-    obstacles = [f["footprint"] for f in furniture]
-    # Footprints a camera at CAMERA_HEIGHT would be inside of: never allowed.
-    tall = [f["footprint"] for f in furniture
-            if proxy_height(f["type"], f.get("height"))[0] >= CAMERA_HEIGHT]
+    # Decor items (kind decor, when a stage lists them among the furniture)
+    # are ignored: they sit on their hosts and never block a camera.
+    furniture = [f for f in building["furniture"] if f.get("room_id") == room["id"] and f.get("kind") != "decor"]
+    # Obstacles are the fitted boxes (library bbox x fit scale, parametric
+    # box, proxy box), never smaller than the drawn footprint (milestone 4 §2).
+    obstacles = [obstacle_rect(f) for f in furniture]
+    # Boxes a camera at CAMERA_HEIGHT would be inside of: never allowed.
+    tall = [obstacle_rect(f) for f in furniture if piece_bbox(f)[2] >= CAMERA_HEIGHT]
     openings = room_openings(room, polygon, building)
     centroid = G.polygon_centroid(polygon)
     free = geom2d.free_points(polygon, obstacles)
@@ -141,8 +147,8 @@ def plan_room_cameras(room: dict, building: dict, floor_z: float) -> list[dict]:
         plan["visible_furniture"] = [
             f["id"] for f in furniture
             if geom2d.point_in_frustum(
-                (f["footprint"]["center"][0], f["footprint"]["center"][1],
-                 floor_z + proxy_height(f["type"], f.get("height"))[0] / 2.0), pos, tgt, tangents)
+                (f["footprint"]["center"][0], f["footprint"]["center"][1], floor_z + piece_bbox(f)[2] / 2.0),
+                pos, tgt, tangents)
         ]
     return plans
 

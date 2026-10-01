@@ -288,8 +288,29 @@ def _image_node(nodes, path: str, colorspace: str):
     return node
 
 
+def add_unverified_overlay(mat) -> bool:
+    """Red stripes over whatever shader feeds the Material Output of an
+    existing material (an imported furniture asset of an unverified piece,
+    docs/milestone4.md §2). Returns False when the material has no surface
+    link to overlay (left as it is)."""
+    if not mat.use_nodes:
+        mat.use_nodes = True
+    tree = mat.node_tree
+    out = next((n for n in tree.nodes if n.bl_idname == "ShaderNodeOutputMaterial" and n.is_active_output), None)
+    out = out or next((n for n in tree.nodes if n.bl_idname == "ShaderNodeOutputMaterial"), None)
+    if out is None or not out.inputs["Surface"].links:
+        return False
+    _stripes_over_socket(tree, out.inputs["Surface"].links[0].from_socket, out)
+    return True
+
+
 def _add_unverified_stripes(tree, base_shader, out):
-    """Mix red emission stripes (world-space bands, 10 cm period) over the base shader."""
+    """Mix red emission stripes over the base shader node's first output."""
+    _stripes_over_socket(tree, base_shader.outputs[0], out)
+
+
+def _stripes_over_socket(tree, shader_socket, out):
+    """Mix red emission stripes (world-space bands, 10 cm period) over ``shader_socket``."""
     nodes, links = tree.nodes, tree.links
     coord = nodes.new("ShaderNodeTexCoord")
     wave = nodes.new("ShaderNodeTexWave")
@@ -308,7 +329,7 @@ def _add_unverified_stripes(tree, base_shader, out):
     emit.inputs["Strength"].default_value = 3.0
     mix = nodes.new("ShaderNodeMixShader")
     links.new(step.outputs["Value"], mix.inputs["Fac"])
-    links.new(base_shader.outputs[0], mix.inputs[1])
+    links.new(shader_socket, mix.inputs[1])
     links.new(emit.outputs["Emission"], mix.inputs[2])
     links.new(mix.outputs["Shader"], out.inputs["Surface"])
 

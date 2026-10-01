@@ -97,17 +97,20 @@ def test_object_counts_per_kind_match_the_json(built):
     # Floors: one per room plus one threshold per door (kind floor, bound to the door).
     assert ids["floor"] == {r["id"] for r in rooms} | {o["id"] for o in doors}
     assert ids["ceiling"] == {r["id"] for r in rooms}
-    assert ids["furniture_proxy"] == {f"proxy:{f['id']}" for f in furniture}
+    # Milestone 4: furniture objects (kind furniture, wenart_id = piece id) replace the proxies;
+    # synthetic-01 has no ``unknown`` piece, so no proxy box is left.
+    assert ids["furniture"] == {f["id"] for f in furniture} and "furniture_proxy" not in ids
     assert len(ids["camera"]) == 3 * len(rooms)
     # Nothing beyond the JSON: every element-bound object carries the element's evidence.
     for o in m["objects"]:
-        if o["kind"] in ("wall", "door", "window", "floor", "ceiling", "furniture_proxy"):
+        if o["kind"] in ("wall", "door", "window", "floor", "ceiling", "furniture_proxy", "furniture"):
             assert o["evidence"], o["name"]
             assert o["evidence"][0]["method"] in ("vector", "ocr", "ai", "derived")
 
 
 def test_every_blender_object_has_the_custom_properties(built):
-    kinds = {"wall", "floor", "ceiling", "door", "window", "opening", "furniture_proxy", "camera", "light"}
+    kinds = {"wall", "floor", "ceiling", "door", "window", "opening", "furniture_proxy", "furniture", "decor",
+             "camera", "light"}
     by_name = {o["name"]: o for o in built["manifest"]["objects"]}
     assert built["objects"], "no objects in scene.blend"
     for ob in built["objects"]:
@@ -156,16 +159,18 @@ def test_pass_indices_unique_for_proxies_and_openings(built):
     table = m["pass_index"]
     assert len(set(table.values())) == len(table) and min(table.values()) == 1
     furniture = [f for f in built["building"]["furniture"] if f["level_id"] == "L0"]
-    assert all(f"proxy:{f['id']}" in table for f in furniture)
+    assert all(f["id"] in table for f in furniture)   # Milestone 4: one index per piece, keyed by its id
     for ob in built["objects"]:
-        if ob["kind"] in ("furniture_proxy", "door", "window"):
+        if ob["kind"] in ("furniture_proxy", "furniture", "door", "window"):
             assert ob["pass_index"] == table[ob["wenart_id"]], ob
 
 
 def test_proxies_keep_footprint_size_rotation_and_height(built):
+    # Milestone 4: the furniture objects keep every proxy field of Milestone 3.
     m = built["manifest"]
     furniture = {f["id"]: f for f in built["building"]["furniture"]}
-    proxies = [o for o in m["objects"] if o["kind"] == "furniture_proxy"]
+    proxies = [o for o in m["objects"] if o["kind"] in ("furniture_proxy", "furniture")]
+    assert len(proxies) == len([f for f in furniture.values() if f["level_id"] == "L0"])
     for o in proxies:
         f = furniture[o["element_id"]]
         fp = f["footprint"]
@@ -174,9 +179,9 @@ def test_proxies_keep_footprint_size_rotation_and_height(built):
         assert o["rotation_deg"] == pytest.approx(fp["rotation_deg"])
         assert o["front_deg"] == f["front_deg"]
         assert o["assumed"].get("height") == o["size"][2]  # no height in the JSON -> table value, assumed
-        assert o["material"] in ("proxy", "proxy_glass", "proxy_unverified")
+        assert o["material"] in m["materials"]  # a style material (parametric mesh) or a proxy look
     shower = next(o for o in proxies if o["type"] == "shower")
-    assert shower["material"] == "proxy_glass" and shower["size"][2] == 2.0
+    assert "glass" in shower["materials"] and shower["size"][2] == 2.0
 
 
 def test_materials_textured_or_flat_are_recorded(built):
@@ -246,7 +251,7 @@ def test_cpu_render_files_and_passes(built, rendered):
     depth = entry["depth"]
     assert 0.3 < depth["min"] < depth["max"] < 30.0 and depth["coverage"] > 0.9
     cam = next(c for c in built["manifest"]["cameras"] if c["name"] == "cam_r_L0_salon_3")
-    expected = {built["manifest"]["pass_index"][f"proxy:{f}"] for f in cam["visible_furniture"]}
+    expected = {built["manifest"]["pass_index"][f] for f in cam["visible_furniture"]}
     assert expected and expected <= set(entry["index_values"])
     index_png = np.asarray(Image.open(out / entry["index_png"]))
     assert expected <= set(np.unique(index_png).tolist())
