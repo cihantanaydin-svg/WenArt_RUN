@@ -34,7 +34,7 @@
    "dwg_bytes": 25689,
    "dwg2dxf_rc": 0,
    "dwg2dxf_stderr": "ERROR: bit_read_RC buffer overflow at 93.0 >= 93\nWarning: handleoff 0x0 looks wrong, max_handles d62 - last_handle 1F = D43 (@24023)\nWarning: Unstable Class object 505 MLEADERSTYLE (0xfff) 44/0\nWarning: Unstable Class object 505 MLEADERSTYLE (0xfff) 44/2C\n",
-   "seconds": 0.2,
+   "seconds": 0.26,
    "counts_back": {},
    "audit_errors_back": 1,
    "missing": {

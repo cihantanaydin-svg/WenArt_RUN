@@ -1,0 +1,271 @@
+{
+ "project": "synthetic-02",
+ "file": "plan_photo.jpg",
+ "page": 1,
+ "kind": "photo",
+ "model": "Qwen/Qwen3-VL-8B-Instruct",
+ "tiled": true,
+ "extent": [
+  944,
+  685,
+  1530,
+  1190
+ ],
+ "extent_info": {
+  "frames": [
+   {
+    "box": [
+     25,
+     19,
+     2346,
+     1754
+    ],
+    "ink": 98887,
+    "span": [
+     0.936,
+     0.989
+    ],
+    "inner_ink_share": 0.0537
+   }
+  ],
+  "n_components": 3,
+  "n_chosen": 1,
+  "ink_share_in_extent": 0.9413
+ },
+ "tile_px": 1024,
+ "overlap": 0.2,
+ "tiles": [
+  {
+   "index": 0,
+   "box": [
+    944,
+    685,
+    1530,
+    1190
+   ],
+   "n_items": 0,
+   "n_clipped": 0,
+   "latency_s": 200.821,
+   "error": "bad answer: Unterminated string starting at: line 466 column 15 (char 9420)",
+   "sent_size": [
+    586,
+    505
+   ],
+   "crop_size": [
+    586,
+    505
+   ]
+  }
+ ],
+ "symbols": {
+  "items": [],
+  "merge": {
+   "n_input": 0,
+   "n_merged": 0,
+   "n_duplicates": 0,
+   "n_clipped": 0,
+   "n_clipped_absorbed": 0,
+   "type_conflicts": 0
+  }
+ },
+ "scores": {
+  "symbols": {
+   "per_type": {
+    "armchair": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 1,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "bed_double": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 1,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "bookshelf": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 1,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "chair": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 1,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "desk": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 1,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "door": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 5,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "fridge": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 1,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "kitchen_counter": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 1,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "nightstand": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 1,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "shower": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 1,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "sink_kitchen": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 1,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "sofa": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 1,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "stove": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 1,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "table_coffee": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 1,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "table_dining": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 1,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "toilet": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 1,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "tv_unit": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 1,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "wardrobe": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 1,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "washbasin": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 1,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "washing_machine": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 1,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "window": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 5,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    }
+   },
+   "overall": {
+    "tp": 0,
+    "fp": 0,
+    "fn": 29,
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0
+   },
+   "n_pred": 0,
+   "n_truth": 29
+  },
+  "latency_s": {
+   "symbols_tiled": 200.821
+  },
+  "errors": {
+   "tile_0": "bad answer: Unterminated string starting at: line 466 column 15 (char 9420)"
+  },
+  "n_tiles": 1,
+  "merge": {
+   "n_input": 0,
+   "n_merged": 0,
+   "n_duplicates": 0,
+   "n_clipped": 0,
+   "n_clipped_absorbed": 0,
+   "type_conflicts": 0
+  }
+ },
+ "has_errors": true
+}

@@ -1,0 +1,208 @@
+{
+ "project": "synthetic-01",
+ "file": "1_kat_scan.png",
+ "page": 1,
+ "kind": "scan",
+ "model": "Qwen/Qwen3-VL-8B-Instruct",
+ "tiled": true,
+ "extent": [
+  880,
+  633,
+  1599,
+  1200
+ ],
+ "extent_info": {
+  "frames": [
+   {
+    "box": [
+     28,
+     28,
+     2452,
+     1726
+    ],
+    "ink": 29070,
+    "span": [
+     0.977,
+     0.968
+    ],
+    "inner_ink_share": 0.0
+   }
+  ],
+  "n_components": 3,
+  "n_chosen": 1,
+  "ink_share_in_extent": 0.9494
+ },
+ "tile_px": 1024,
+ "overlap": 0.2,
+ "tiles": [
+  {
+   "index": 0,
+   "box": [
+    880,
+    633,
+    1599,
+    1200
+   ],
+   "n_items": 6,
+   "n_clipped": 0,
+   "latency_s": 5.476,
+   "error": null,
+   "sent_size": [
+    719,
+    567
+   ],
+   "crop_size": [
+    719,
+    567
+   ]
+  }
+ ],
+ "symbols": {
+  "items": [
+   {
+    "type": "door",
+    "box": [
+     987.8,
+     871.1,
+     1023.8,
+     1041.2
+    ],
+    "rotation_deg": 0,
+    "confidence": 0.95,
+    "edge_clipped": false,
+    "tiles": [
+     0
+    ]
+   },
+   {
+    "type": "door",
+    "box": [
+     1225.1,
+     871.1,
+     1261.1,
+     1041.2
+    ],
+    "rotation_deg": 0,
+    "confidence": 0.95,
+    "edge_clipped": false,
+    "tiles": [
+     0
+    ]
+   },
+   {
+    "type": "door",
+    "box": [
+     1368.9,
+     871.1,
+     1404.9,
+     1041.2
+    ],
+    "rotation_deg": 0,
+    "confidence": 0.95,
+    "edge_clipped": false,
+    "tiles": [
+     0
+    ]
+   },
+   {
+    "type": "door",
+    "box": [
+     1225.1,
+     757.7,
+     1261.1,
+     927.8
+    ],
+    "rotation_deg": 0,
+    "confidence": 0.95,
+    "edge_clipped": false,
+    "tiles": [
+     0
+    ]
+   },
+   {
+    "type": "door",
+    "box": [
+     1368.9,
+     757.7,
+     1404.9,
+     927.8
+    ],
+    "rotation_deg": 0,
+    "confidence": 0.95,
+    "edge_clipped": false,
+    "tiles": [
+     0
+    ]
+   },
+   {
+    "type": "door",
+    "box": [
+     987.8,
+     757.7,
+     1023.8,
+     927.8
+    ],
+    "rotation_deg": 0,
+    "confidence": 0.95,
+    "edge_clipped": false,
+    "tiles": [
+     0
+    ]
+   }
+  ],
+  "merge": {
+   "n_input": 6,
+   "n_merged": 6,
+   "n_duplicates": 0,
+   "n_clipped": 0,
+   "n_clipped_absorbed": 0,
+   "type_conflicts": 0
+  }
+ },
+ "scores": {
+  "symbols": {
+   "per_type": {
+    "door": {
+     "tp": 0,
+     "fp": 6,
+     "fn": 4,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "window": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 6,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    }
+   },
+   "overall": {
+    "tp": 0,
+    "fp": 6,
+    "fn": 10,
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0
+   },
+   "n_pred": 6,
+   "n_truth": 10
+  },
+  "latency_s": {
+   "symbols_tiled": 5.476
+  },
+  "errors": {},
+  "n_tiles": 1,
+  "merge": {
+   "n_input": 6,
+   "n_merged": 6,
+   "n_duplicates": 0,
+   "n_clipped": 0,
+   "n_clipped_absorbed": 0,
+   "type_conflicts": 0
+  }
+ },
+ "has_errors": false
+}

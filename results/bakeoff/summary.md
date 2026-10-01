@@ -11,10 +11,12 @@ Pages: 3 (synthetic scans and photos). IoU threshold 0.5 for symbols; texts comp
 
 ## Vision-language models
 
-| Model | Pages | Page class | Level label | Scale text | Room labels R / P | Symbols R / P | Mean latency / call | Errors |
-|---|---|---|---|---|---|---|---|---|
-| Qwen/Qwen3-VL-8B-Instruct | 3 | 100 % | 100 % | 100 % | 100 % / 100 % | 0 % / 0 % | 5.08 s | 0 |
-| zai-org/GLM-4.6V-Flash | 3 | 100 % | 100 % | 100 % | 100 % / 100 % | 1 % / 3 % | 5.59 s | 0 |
+Symbols (tiled): the symbol task on the drawing area cut into full-resolution tiles (`--tiled`, wenart/recognition/tiles.py); `-` when that pass was not run.
+
+| Model | Pages | Page class | Level label | Scale text | Room labels R / P | Symbols R / P | Symbols (tiled) R / P | Mean latency / call | Errors |
+|---|---|---|---|---|---|---|---|---|---|
+| Qwen/Qwen3-VL-8B-Instruct | 3 | 100 % | 100 % | 100 % | 100 % / 100 % | 0 % / 0 % | 0 % / 0 % (3 p, 75.08 s / page) | 5.08 s | 1 |
+| zai-org/GLM-4.6V-Flash | 3 | 100 % | 100 % | 100 % | 100 % / 100 % | 1 % / 3 % | 4 % / 10 % (3 p, 9.53 s / page) | 5.59 s | 0 |
 
 ## Symbols per type (recall / precision)
 
@@ -54,17 +56,17 @@ Pages: 3 (synthetic scans and photos). IoU threshold 0.5 for symbols; texts comp
 
 ## Per page
 
-| Project | File | Kind | Who | Room labels R / P | Symbols R / P | Page class | Latency |
-|---|---|---|---|---|---|---|---|
-| synthetic-01 | 1_kat_scan.png | scan | paddleocr | 100 % / 36 % | - | - | 54.67 s |
-| synthetic-01 | 1_kat_scan.png | scan | tesseract | 40 % / 13 % | - | - | 0.36 s |
-| synthetic-01 | 1_kat_scan.png | scan | Qwen/Qwen3-VL-8B-Instruct | 100 % / 100 % | 0 % / 0 % | floor_plan (ok) | 8.6 s |
-| synthetic-01 | 1_kat_scan.png | scan | zai-org/GLM-4.6V-Flash | 100 % / 100 % | 0 % / 0 % | floor_plan (ok) | 10.0 s |
-| synthetic-02 | plan_scan.png | scan | paddleocr | 60 % / 23 % | - | - | 0.44 s |
-| synthetic-02 | plan_scan.png | scan | tesseract | 0 % / 0 % | - | - | 0.41 s |
-| synthetic-02 | plan_scan.png | scan | Qwen/Qwen3-VL-8B-Instruct | 100 % / 100 % | 0 % / 0 % | floor_plan (ok) | 5.5 s |
-| synthetic-02 | plan_scan.png | scan | zai-org/GLM-4.6V-Flash | 100 % / 100 % | 3 % / 8 % | floor_plan (ok) | 16.9 s |
-| synthetic-02 | plan_photo.jpg | photo | paddleocr | 60 % / 21 % | - | - | 0.45 s |
-| synthetic-02 | plan_photo.jpg | photo | tesseract | 20 % / 6 % | - | - | 0.39 s |
-| synthetic-02 | plan_photo.jpg | photo | Qwen/Qwen3-VL-8B-Instruct | 100 % / 100 % | 0 % / 0 % | floor_plan (ok) | 31.6 s |
-| synthetic-02 | plan_photo.jpg | photo | zai-org/GLM-4.6V-Flash | 100 % / 100 % | 0 % / 0 % | floor_plan (ok) | 23.4 s |
+| Project | File | Kind | Who | Room labels R / P | Symbols R / P | Symbols (tiled) R / P | Page class | Latency |
+|---|---|---|---|---|---|---|---|---|
+| synthetic-01 | 1_kat_scan.png | scan | paddleocr | 100 % / 36 % | - | - | - | 54.67 s |
+| synthetic-01 | 1_kat_scan.png | scan | tesseract | 40 % / 13 % | - | - | - | 0.36 s |
+| synthetic-01 | 1_kat_scan.png | scan | Qwen/Qwen3-VL-8B-Instruct | 100 % / 100 % | 0 % / 0 % | 0 % / 0 % (1 tiles) | floor_plan (ok) | 14.1 s |
+| synthetic-01 | 1_kat_scan.png | scan | zai-org/GLM-4.6V-Flash | 100 % / 100 % | 0 % / 0 % | 0 % / 0 % (1 tiles) | floor_plan (ok) | 18.5 s |
+| synthetic-02 | plan_scan.png | scan | paddleocr | 60 % / 23 % | - | - | - | 0.44 s |
+| synthetic-02 | plan_scan.png | scan | tesseract | 0 % / 0 % | - | - | - | 0.41 s |
+| synthetic-02 | plan_scan.png | scan | Qwen/Qwen3-VL-8B-Instruct | 100 % / 100 % | 0 % / 0 % | 0 % / 0 % (1 tiles) | floor_plan (ok) | 24.4 s |
+| synthetic-02 | plan_scan.png | scan | zai-org/GLM-4.6V-Flash | 100 % / 100 % | 3 % / 8 % | 7 % / 18 % (1 tiles) | floor_plan (ok) | 27.1 s |
+| synthetic-02 | plan_photo.jpg | photo | paddleocr | 60 % / 21 % | - | - | - | 0.45 s |
+| synthetic-02 | plan_photo.jpg | photo | tesseract | 20 % / 6 % | - | - | - | 0.39 s |
+| synthetic-02 | plan_photo.jpg | photo | Qwen/Qwen3-VL-8B-Instruct | 100 % / 100 % | 0 % / 0 % | 0 % / 0 % (1 tiles) | floor_plan (ok) | 232.4 s |
+| synthetic-02 | plan_photo.jpg | photo | zai-org/GLM-4.6V-Flash | 100 % / 100 % | 0 % / 0 % | 3 % / 9 % (1 tiles) | floor_plan (ok) | 33.3 s |

@@ -222,7 +222,23 @@
      "median_s": 3.37,
      "max_s": 18.42
     },
-    "errors": 0
+    "errors": 0,
+    "tiled_pages": 3,
+    "symbols_tiled": {
+     "tp": 3,
+     "fp": 26,
+     "fn": 65,
+     "precision": 0.1034,
+     "recall": 0.0441,
+     "f1": 0.0619
+    },
+    "tiled_latency": {
+     "n": 3,
+     "mean_s": 9.53,
+     "median_s": 9.86,
+     "max_s": 10.23
+    },
+    "tiled_errors": 0
    },
    "Qwen/Qwen3-VL-8B-Instruct": {
     "pages": 3,
@@ -429,7 +445,23 @@
      "median_s": 3.74,
      "max_s": 26.39
     },
-    "errors": 0
+    "errors": 0,
+    "tiled_pages": 3,
+    "symbols_tiled": {
+     "tp": 0,
+     "fp": 28,
+     "fn": 68,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "tiled_latency": {
+     "n": 3,
+     "mean_s": 75.08,
+     "median_s": 18.95,
+     "max_s": 200.82
+    },
+    "tiled_errors": 1
    }
   },
   "ocr": {
@@ -505,7 +537,11 @@
    "n_verified": 0,
    "n_unverified": 71
   },
-  "pages": 3
+  "pages": 3,
+  "two_pass_not_computed": {
+   "pages": 0,
+   "reasons": []
+  }
  },
  "pages": [
   {
@@ -682,6 +718,98 @@
      }
     }
    },
+   "tiled": {
+    "zai-org/GLM-4.6V-Flash": {
+     "symbols": {
+      "per_type": {
+       "door": {
+        "tp": 0,
+        "fp": 1,
+        "fn": 4,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "window": {
+        "tp": 0,
+        "fp": 6,
+        "fn": 6,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       }
+      },
+      "overall": {
+       "tp": 0,
+       "fp": 7,
+       "fn": 10,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "n_pred": 7,
+      "n_truth": 10
+     },
+     "latency_s": {
+      "symbols_tiled": 8.484
+     },
+     "errors": {},
+     "n_tiles": 1,
+     "merge": {
+      "n_input": 7,
+      "n_merged": 7,
+      "n_duplicates": 0,
+      "n_clipped": 0,
+      "n_clipped_absorbed": 0,
+      "type_conflicts": 0
+     }
+    },
+    "Qwen/Qwen3-VL-8B-Instruct": {
+     "symbols": {
+      "per_type": {
+       "door": {
+        "tp": 0,
+        "fp": 6,
+        "fn": 4,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "window": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 6,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       }
+      },
+      "overall": {
+       "tp": 0,
+       "fp": 6,
+       "fn": 10,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "n_pred": 6,
+      "n_truth": 10
+     },
+     "latency_s": {
+      "symbols_tiled": 5.476
+     },
+     "errors": {},
+     "n_tiles": 1,
+     "merge": {
+      "n_input": 6,
+      "n_merged": 6,
+      "n_duplicates": 0,
+      "n_clipped": 0,
+      "n_clipped_absorbed": 0,
+      "type_conflicts": 0
+     }
+    }
+   },
    "two_pass": {
     "verified": {
      "per_type": {
@@ -745,7 +873,8 @@
     },
     "n_verified": 0,
     "n_unverified": 7
-   }
+   },
+   "two_pass_not_computed": null
   },
   {
    "project": "synthetic-02",
@@ -1250,6 +1379,426 @@
      }
     }
    },
+   "tiled": {
+    "zai-org/GLM-4.6V-Flash": {
+     "symbols": {
+      "per_type": {
+       "armchair": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "bathtub": {
+        "tp": 0,
+        "fp": 1,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "bed_double": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+       },
+       "bookshelf": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "chair": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "desk": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "door": {
+        "tp": 0,
+        "fp": 1,
+        "fn": 5,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "fridge": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "kitchen_counter": {
+        "tp": 0,
+        "fp": 1,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "kitchen_island": {
+        "tp": 0,
+        "fp": 1,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "nightstand": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "shower": {
+        "tp": 0,
+        "fp": 1,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "sink_kitchen": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "sofa": {
+        "tp": 0,
+        "fp": 1,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "stove": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "table_coffee": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "table_dining": {
+        "tp": 0,
+        "fp": 1,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "toilet": {
+        "tp": 0,
+        "fp": 1,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "tv_unit": {
+        "tp": 0,
+        "fp": 1,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "wardrobe": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+       },
+       "washbasin": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "washing_machine": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "window": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 5,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       }
+      },
+      "overall": {
+       "tp": 2,
+       "fp": 9,
+       "fn": 27,
+       "precision": 0.1818,
+       "recall": 0.069,
+       "f1": 0.1
+      },
+      "n_pred": 11,
+      "n_truth": 29
+     },
+     "latency_s": {
+      "symbols_tiled": 10.229
+     },
+     "errors": {},
+     "n_tiles": 1,
+     "merge": {
+      "n_input": 11,
+      "n_merged": 11,
+      "n_duplicates": 0,
+      "n_clipped": 0,
+      "n_clipped_absorbed": 0,
+      "type_conflicts": 0
+     }
+    },
+    "Qwen/Qwen3-VL-8B-Instruct": {
+     "symbols": {
+      "per_type": {
+       "armchair": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "bed_double": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "bookshelf": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "chair": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "desk": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "door": {
+        "tp": 0,
+        "fp": 4,
+        "fn": 5,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "fridge": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "kitchen_counter": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "nightstand": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "shower": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "sink_kitchen": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "sofa": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "stove": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "table_coffee": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "table_dining": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "toilet": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "tv_unit": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "unknown": {
+        "tp": 0,
+        "fp": 12,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "wardrobe": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "washbasin": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "washing_machine": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "window": {
+        "tp": 0,
+        "fp": 6,
+        "fn": 5,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       }
+      },
+      "overall": {
+       "tp": 0,
+       "fp": 22,
+       "fn": 29,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "n_pred": 22,
+      "n_truth": 29
+     },
+     "latency_s": {
+      "symbols_tiled": 18.953
+     },
+     "errors": {},
+     "n_tiles": 1,
+     "merge": {
+      "n_input": 22,
+      "n_merged": 22,
+      "n_duplicates": 0,
+      "n_clipped": 0,
+      "n_clipped_absorbed": 0,
+      "type_conflicts": 3
+     }
+    }
+   },
    "two_pass": {
     "verified": {
      "per_type": {
@@ -1633,7 +2182,8 @@
     },
     "n_verified": 0,
     "n_unverified": 13
-   }
+   },
+   "two_pass_not_computed": null
   },
   {
    "project": "synthetic-02",
@@ -2137,6 +2687,412 @@
      }
     }
    },
+   "tiled": {
+    "zai-org/GLM-4.6V-Flash": {
+     "symbols": {
+      "per_type": {
+       "armchair": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "bed_double": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "bookshelf": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "chair": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "desk": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "door": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 5,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "fridge": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "kitchen_counter": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+       },
+       "nightstand": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "shower": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "sink_kitchen": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "sofa": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "stove": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "table_coffee": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "table_dining": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "toilet": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "tv_unit": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "unknown": {
+        "tp": 0,
+        "fp": 10,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "wardrobe": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "washbasin": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "washing_machine": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "window": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 5,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       }
+      },
+      "overall": {
+       "tp": 1,
+       "fp": 10,
+       "fn": 28,
+       "precision": 0.0909,
+       "recall": 0.0345,
+       "f1": 0.05
+      },
+      "n_pred": 11,
+      "n_truth": 29
+     },
+     "latency_s": {
+      "symbols_tiled": 9.864
+     },
+     "errors": {},
+     "n_tiles": 1,
+     "merge": {
+      "n_input": 11,
+      "n_merged": 11,
+      "n_duplicates": 0,
+      "n_clipped": 0,
+      "n_clipped_absorbed": 0,
+      "type_conflicts": 0
+     }
+    },
+    "Qwen/Qwen3-VL-8B-Instruct": {
+     "symbols": {
+      "per_type": {
+       "armchair": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "bed_double": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "bookshelf": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "chair": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "desk": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "door": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 5,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "fridge": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "kitchen_counter": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "nightstand": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "shower": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "sink_kitchen": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "sofa": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "stove": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "table_coffee": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "table_dining": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "toilet": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "tv_unit": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "wardrobe": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "washbasin": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "washing_machine": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "window": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 5,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       }
+      },
+      "overall": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 29,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "n_pred": 0,
+      "n_truth": 29
+     },
+     "latency_s": {
+      "symbols_tiled": 200.821
+     },
+     "errors": {
+      "tile_0": "bad answer: Unterminated string starting at: line 466 column 15 (char 9420)"
+     },
+     "n_tiles": 1,
+     "merge": {
+      "n_input": 0,
+      "n_merged": 0,
+      "n_duplicates": 0,
+      "n_clipped": 0,
+      "n_clipped_absorbed": 0,
+      "type_conflicts": 0
+     }
+    }
+   },
    "two_pass": {
     "verified": {
      "per_type": {
@@ -2512,7 +3468,8 @@
     },
     "n_verified": 0,
     "n_unverified": 51
-   }
+   },
+   "two_pass_not_computed": null
   }
  ]
 }
