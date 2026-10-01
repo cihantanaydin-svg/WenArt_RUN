@@ -216,6 +216,11 @@ def cross_check(primary: list[dict], secondary: list[dict], iou_thresh: float = 
     return out
 
 
+def _looks_like_gpu_problem(exc: BaseException) -> bool:
+    text = str(exc).lower()
+    return any(k in text for k in ("gpu architecture", "cuda", "cudnn", "gpu", "device"))
+
+
 def ocr_page(image: str | Path, *, use_paddle: bool = True, use_tesseract: bool = True,
              device: Optional[str] = None) -> dict:
     """OCR one page with both engines.
@@ -232,6 +237,18 @@ def ocr_page(image: str | Path, *, use_paddle: bool = True, use_tesseract: bool 
             paddle_items = ocr_paddle(image, device=device)
         except Exception as exc:  # noqa: BLE001 - reported, never hidden
             errors["paddle"] = f"{type(exc).__name__}: {exc}"
+            # A PaddlePaddle wheel without kernels for this GPU (seen on Blackwell with the
+            # CUDA 12.6 wheel: "Unsupported GPU architecture") still works on the CPU. The
+            # GPU error stays recorded; the CPU result is marked as such.
+            if device != "cpu" and _looks_like_gpu_problem(exc):
+                _paddle_pipelines.pop((PADDLE_LANG, PADDLE_OCR_VERSION, device), None)
+                try:
+                    paddle_items = ocr_paddle(image, device="cpu")
+                    errors["paddle"] += " -> retried on the CPU, which worked"
+                    for item in paddle_items:
+                        item["engine"] += "-cpu"
+                except Exception as exc2:  # noqa: BLE001
+                    errors["paddle_cpu"] = f"{type(exc2).__name__}: {exc2}"
     if use_tesseract:
         try:
             tess_items = ocr_tesseract(image)

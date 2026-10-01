@@ -145,7 +145,7 @@ run_stage dwg-roundtrip "$PY" -m wenart.recognition.bakeoff --stage dwg --projec
   --libredwg-bin "$WS/tools/libredwg/bin"
 
 # 3. OCR on every raster page (PaddleOCR on the GPU while vLLM is not running, Tesseract on CPU).
-run_stage ocr "$PY" -m wenart.recognition.bakeoff --stage ocr --projects projects --out "$OUT"
+run_stage ocr "$PY" -m wenart.recognition.bakeoff --stage ocr --projects projects --out "$OUT" --retry-errors
 
 # 4. Per model: server up, (GPU tests once), VLM stage, server down.
 first=1
@@ -161,7 +161,7 @@ for model in "${MODELS[@]}"; do
       --junitxml="$RESULTS/junit-recognition.xml"
   fi
   run_stage "vlm-$(slug "$model")" "$PY" -m wenart.recognition.bakeoff --stage vlm --projects projects \
-    --out "$OUT" --models "$model" --server "$VLM_SERVER"
+    --out "$OUT" --models "$model" --server "$VLM_SERVER" --retry-errors
   stop_server
 done
 

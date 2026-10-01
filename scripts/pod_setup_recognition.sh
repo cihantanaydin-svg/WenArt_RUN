@@ -106,11 +106,21 @@ if [ ! -f "$VENV_PADDLE/.paddleocr-$PADDLEOCR_VERSION" ]; then
   "$PIP" install -q --upgrade pip
   PADDLE_SOURCE=""
   # Fallback chain for the framework wheel; the first index that installs wins.
-  for idx in cu126 cu129; do
-    if "$PIP" install -q "paddlepaddle-gpu==$PADDLE_VERSION" -i "https://www.paddlepaddle.org.cn/packages/stable/$idx/" 2>>"$PADDLE_LOG"; then
-      PADDLE_SOURCE="paddlepaddle-gpu==$PADDLE_VERSION from $idx index"; break
+  # Blackwell GPUs (compute capability 12.x) need the CUDA 12.9 build: the cu126 wheel
+  # installs fine but fails at run time with "Unsupported GPU architecture" (seen on an
+  # RTX PRO 4000 on 1 Oct 2026), so they try cu129 with the newest Paddle first.
+  CC=$(nvidia-smi --query-gpu=compute_cap --format=csv,noheader 2>/dev/null | head -1 | cut -d. -f1)
+  if [ -n "$CC" ] && [ "$CC" -ge 12 ]; then
+    CANDIDATES="3.3.1:cu129 $PADDLE_VERSION:cu129 $PADDLE_VERSION:cu126"
+  else
+    CANDIDATES="$PADDLE_VERSION:cu126 $PADDLE_VERSION:cu129"
+  fi
+  for cand in $CANDIDATES; do
+    ver=${cand%%:*}; idx=${cand##*:}
+    if "$PIP" install -q "paddlepaddle-gpu==$ver" -i "https://www.paddlepaddle.org.cn/packages/stable/$idx/" 2>>"$PADDLE_LOG"; then
+      PADDLE_SOURCE="paddlepaddle-gpu==$ver from $idx index (compute capability ${CC:-?})"; break
     fi
-    log "paddlepaddle-gpu $PADDLE_VERSION from $idx index failed (see $PADDLE_LOG)"
+    log "paddlepaddle-gpu $ver from $idx index failed (see $PADDLE_LOG)"
   done
   if [ -z "$PADDLE_SOURCE" ]; then
     if "$PIP" install -q "paddlepaddle-gpu==$PADDLE_VERSION" 2>>"$PADDLE_LOG"; then
@@ -177,7 +187,7 @@ for model in "${MODELS[@]}"; do
   SNAP_DIR=$("$VENV_VLLM/bin/hf" download "$model" 2> "$LOGS/hf-download-$(echo "$model" | tr '/' '_').log" \
              | tail -1 | sed -E 's/^[[:space:]]*path:[[:space:]]*//')
   T1=$(date +%s)
-  BYTES=$(du -sb "$SNAP_DIR" 2>/dev/null | cut -f1 || echo 0)
+  BYTES=$(du -sbL "$SNAP_DIR" 2>/dev/null | cut -f1 || echo 0)   # -L: snapshot files are symlinks into blobs/
   SECS=$(( T1 - T0 ))
   if [ "$SECS" -gt 5 ]; then
     log "$model: $(( BYTES / 1048576 )) MB in $SECS s = $(( BYTES / 1048576 / SECS )) MB/s -> $SNAP_DIR"
