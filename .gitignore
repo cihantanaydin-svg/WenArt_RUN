@@ -34,3 +34,4 @@ results/**/*.png
 .vscode/
 *.log
 logs/
+runs/
