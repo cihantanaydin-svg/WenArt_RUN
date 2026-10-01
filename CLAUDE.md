@@ -16,7 +16,11 @@ Plan: `docs/plan.md`. Status: `docs/progress.md`. GPU spending: `docs/gpu-log.md
 - CPU work (parsing, validation, unit tests) runs where you are.
 - GPU work (model inference, Cycles renders, AI polish, GPU tests, fine-tuning)
   always goes to RunPod through `scripts/gpu_run.py`. Never build Mac-GPU variants.
-- If a domain is blocked by the proxy, tell the user exactly which domain to add.
+- If a domain is blocked by the proxy, tell the user exactly which domain to add
+  (the list is in `docs/setup.md`, step 4.1).
+- RunPod API: use REST v2 `https://api.runpod.io/v2` (v1 retires 15 Nov 2026).
+  Pods: image `runpod/pytorch:1.4.0-cu1281-torch291-ubuntu2404`, Network Volume in EU-RO-1,
+  default GPU RTX A5000 (then RTX 4090, RTX A6000), prices read live from `/v2/catalog/gpus`.
 
 ## Secrets
 - `RUNPOD_API_KEY` comes from the environment (cloud) or the user's local store (Mac).

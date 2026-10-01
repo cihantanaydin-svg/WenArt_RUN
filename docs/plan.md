@@ -128,3 +128,209 @@ Example (shortened):
                "block": "KANEPE_3LU", "method": "vector", "confidence": 1.0}]}
 ```
 
+## 4. Options per stage and our picks
+
+Verified on 1 Oct 2026 against GitHub READMEs / LICENSE files, PyPI and the RunPod docs
+source. Hugging Face pages were **blocked** in this cloud session, so model-card-only facts
+(exact VRAM tables, "last updated" dates) come from search snippets and are marked (S).
+"Commercial" = licence allows commercial use later. VRAM = bf16 weights unless stated.
+
+### 4.1 Document classification (floor plan / furniture plan / section / photo / other)
+
+| Option | Licence | Commercial | VRAM | Speed | Quality | Last update | Link |
+|---|---|---|---|---|---|---|---|
+| **Qwen3-VL-8B-Instruct** (pick) | Apache-2.0 | yes | ~16–19 GB | ~2–5 s/page on 24 GB GPU | best open VLM at this size; native boxes | Oct 2025 | https://github.com/QwenLM/Qwen3-VL |
+| GLM-4.6V-Flash (9B) (second pass) | MIT (weights, S) | yes | ~18 GB | similar | strong grounding | Dec 2025 | https://github.com/zai-org/GLM-V |
+| Text-layer heuristics via pdfplumber + Docling (pre-filter) | MIT | yes | CPU | ms/page | finds "PLAN", "KESİT", scale text; no vision | 2026 | https://github.com/docling-project/docling |
+
+Pick: cheap CPU heuristics first (page has text layer? contains "KAT PLANI", "KESİT", "GÖRÜNÜŞ"?),
+then Qwen3-VL-8B with a fixed JSON schema; GLM-4.6V-Flash is the independent second opinion.
+
+### 4.2 Recognition and OCR (walls, openings, labels, dimensions, furniture and fixture symbols)
+
+| Option | Licence | Commercial | VRAM | Speed | Quality | Last update | Link |
+|---|---|---|---|---|---|---|---|
+| **Vector path (DXF / PDF paths)** (pick, trust level 1) | ezdxf MIT, pdfplumber MIT, pypdfium2 Apache/BSD | yes | CPU | fast | exact | ezdxf 1.4.4 May 2026; pdfplumber 0.11.10; pypdfium2 5.13.0 | https://pypi.org/project/ezdxf https://pypi.org/project/pdfplumber https://pypi.org/project/pypdfium2 |
+| **PaddleOCR 3.7 (PP-OCRv5 latin model, Turkish listed)** (pick, trust level 2) | Apache-2.0 | yes | ~2 GB | ~0.5 s/page | good on printed Turkish, boxes | Jun 2026 | https://github.com/PaddlePaddle/PaddleOCR |
+| Tesseract 5 + `tur` (cross-check) | Apache-2.0 | yes | CPU | ~1–3 s/page | weak on rotated dimension text | – | https://github.com/tesseract-ocr/tesseract |
+| **Qwen3-VL-8B + GLM-4.6V-Flash two-pass symbol detection** (pick, trust level 3) | Apache-2.0 / MIT | yes | 16–18 GB each (run one at a time) | ~5–15 s/page | best semantic understanding of furniture symbols | 2025 | see 4.1 |
+| Florence-2-large / OWLv2 / Grounding DINO 1.0 (box proposals) | MIT / Apache-2.0 / Apache-2.0 | yes | <2 GB / ~2 GB / ~2 GB | fast | generic objects; weak on plan symbols | 2024 | https://github.com/IDEA-Research/GroundingDINO |
+| SAM 2.1 (wall / room masks on scans) | Apache-2.0 | yes | ~2–4 GB | fast | good masks, needs prompts | Sep 2024 | https://github.com/facebookresearch/sam2 |
+| Fine-tuned D-FINE / RF-DETR (Nano–Large) on **our synthetic DXF renders** (Milestone 7 option) | Apache-2.0 | yes | ~4 GB | very fast | best for a fixed symbol set | 2025–2026 | https://github.com/Peterande/D-FINE https://github.com/roboflow/rf-detr |
+| dots.ocr (layout + text for scans) | MIT | yes | ~6 GB | fast | good layout JSON | 2025 | https://github.com/rednote-hilab/dots.ocr |
+| Not picked: Ultralytics YOLO (AGPL-3.0), YOLO-World (GPL-3.0), MinerU VLM weights (AGPL-3.0), Surya / Chandra (OpenRAIL revenue caps), Nanonets-OCR2 and Qwen2.5-VL-3B (research licence), Llama 3.2/4 Vision (EU restriction) | | | | | | | |
+| Datasets: CubiCasa5k, FloorPlanCAD = CC BY-NC (evaluation only); ResPlan = CC BY 4.0 (usable); Raster2Seq (MIT, SIGGRAPH 2026) checkpoints for raster vectorisation | | | | | | | https://github.com/m-agour/ResPlan https://github.com/Cornell-VAILab/Raster2Seq |
+
+Realistic accuracy on scans (literature on CubiCasa5k, S): walls ~0.9+ IoU, doors ~0.85, windows ~0.2–0.9
+depending on method. That is why windows and furniture on scans will often be "unverified".
+
+### 4.3 DWG conversion
+
+| Option | Licence | Commercial | Headless Linux | Reliability | Last update | Link |
+|---|---|---|---|---|---|---|
+| **GNU LibreDWG `dwg2dxf`** (pick) | GPL-3.0 (used as a separate command, our code stays MIT) | yes | yes | reads all DWG versions, DXF export "~90 % coverage", 0.14.x is beta with known DXF-writer bugs → every output is audited with `ezdxf.recover` | 0.14.1 Jul 2026 | https://github.com/LibreDWG/libredwg |
+| ezdwg (Rust core, read-only DWG) (fallback) | MIT | yes | yes | new, "growing entity coverage" | 0.12.9 Sep 2026 | https://pypi.org/project/ezdwg |
+| ODA File Converter | freeware; ODA FAQ: non-members may use it for **non-commercial** use only | **no** (without ODA membership) | needs Xvfb | best fidelity | 27.x | https://www.opendesign.com (blocked here, S) |
+
+Pick: LibreDWG first, ezdwg as fallback, failures → `needs review`. ODA only as a manual rescue tool on your Mac, never in the pipeline.
+
+### 4.4 PDF handling
+
+| Option | Licence | Commercial | Note |
+|---|---|---|---|
+| **pdfplumber** (paths, chars with rotation matrix) + **pypdfium2** (fast rasterising, path segments) (pick) | MIT / Apache-2.0+BSD-3 | yes | pure Python; fine for plan sheets |
+| pdftocairo (poppler-utils) for 200–300 dpi page images | GPL (separate command) | yes | |
+| PyMuPDF | **AGPL-3.0** or paid | flagged, not used | best API, but copyleft |
+
+### 4.5 Phone photos of plans and photos of real rooms
+
+Photos of paper plans: OpenCV (Apache-2.0) page detection + perspective correction, then the scan path.
+Photos of real rooms (out of scope for the PoC): we compared **AI virtual staging** (paint furniture into the photo
+with an image model) vs **3D reconstruction** (recover room geometry from photos). Recommendation for later: virtual
+staging only as a separate "marketing" output; it cannot feed the measurable building JSON. 3D reconstruction from
+a few phone photos is still unreliable for cm-level walls; plans stay the source of truth.
+
+### 4.6 3D shell
+
+| Option | Licence | Commercial | Note |
+|---|---|---|---|
+| **Blender 5.2 LTS, direct `bpy` from the building JSON** (pick) | GPL-3.0 (renders are ours) | yes | shapely polygons → extruded walls, floor, ceiling; boolean openings; glTF/`.blend` export |
+| IfcOpenShell 0.9.0 → IFC → Blender | LGPL-3.0 | yes | extra schema layer, nothing gained for rendering; optional exporter later |
+| Infinigen Indoors procedural rooms | BSD-3 | yes | pins Blender 4.2 / Python 3.11; too heavy to adopt now; its constraint ideas are reused |
+
+Blender 5.2.2 Linux build: `https://download.blender.org/release/Blender5.2/blender-5.2.2-linux-x64.tar.xz`
+(sha256 `84098912789dc450e95697c4184fb8a90acbe5111c2ba4aede3fecb57806a168`, from the Flathub manifest; Blender's
+own site was blocked here → re-check in Milestone 1). Cycles GPU: `compute_device_type = 'OPTIX'`, NVIDIA driver ≥ 575 (S).
+
+### 4.7 Furniture layout for rooms the documents leave empty
+
+| Option | Licence | Commercial | Note |
+|---|---|---|---|
+| **Qwen3-VL-8B (already loaded) proposes a JSON layout; deterministic shapely placer checks collisions, wall contact, door swing and window clearances (Holodeck-style constraints + backtracking)** (pick) | Apache-2.0 | yes | one model for vision and layout; temperature 0; two passes |
+| gpt-oss-20b as independent second proposer | Apache-2.0 | yes | 16 GB, structured outputs; harmony format |
+| Qwen3-30B-A3B-Instruct-2507 (AWQ) | Apache-2.0 | yes | stronger reasoning, needs 4-bit to fit 24 GB |
+| Learned models on 3D-FRONT (ATISS, DiffuScene, InstructScene) | data licence research-only | **no** | not used |
+| Holodeck / LayoutVLM / I-Design code | Apache-2.0 / unverified / unverified | partly | pattern reused, Unity/NeRF stacks not adopted |
+
+### 4.8 Furniture assets matched to drawn types and footprints
+
+| Option | Licence | Commercial | VRAM | Speed | Quality | Last update | Link |
+|---|---|---|---|---|---|---|---|
+| **Poly Haven models** (pick, first choice) | CC0 | yes | – | API download | high, PBR, few hundred models | 2026 | https://github.com/Poly-Haven/Public-API |
+| **Objaverse 1.0 filtered to CC0 / CC-BY, LVIS furniture classes** (pick, second) | per object | yes with attribution | – | bulk download | mixed quality and scale | 2023 | https://github.com/allenai/objaverse-xl |
+| BlenderKit CC0 / Royalty-Free | mixed | yes | – | API key | large catalogue | 2026 | https://github.com/BlenderKit/BlenderKit |
+| **TRELLIS.2-4B image-to-3D** (pick, generative fallback for types with no library match) | MIT | yes | ≥24 GB | 3–17 s/object (H100), slower on 24 GB cards | PBR GLB | Jun 2026 | https://github.com/microsoft/TRELLIS.2 |
+| 3DTopia-XL / Step1X-3D | Apache-2.0 | yes | n/a / 27 GB | slow | PBR / textured | 2025 | https://github.com/3DTopia/3DTopia-XL |
+| Hunyuan3D-2.1 / Omni (bbox control would fit footprints perfectly) | Tencent community licence, **EU/UK/South Korea excluded** | flagged | 10–29 GB | fast | best | 2025 | https://github.com/Tencent-Hunyuan/Hunyuan3D-2.1 |
+| SAM 3D Objects | SAM licence (commercial ok) | yes | ~32 GB (S) | 10–30 s | Gaussian splats, awkward for Blender | Jun 2026 | https://github.com/facebookresearch/sam-3d-objects |
+| Not usable: 3D-FUTURE/3D-FRONT, HSSD, ShapeNet (non-commercial) | | | | | | | |
+
+Fitting rule: pick the asset of the right type whose bounding box ratio is closest to the drawn footprint,
+scale it to the footprint (non-uniform scale capped at 15 %, else next asset or TRELLIS.2), rotate to `front_deg`.
+Every fit is logged (asset id, licence, scale factors).
+
+### 4.9 Materials and HDRIs
+
+| Option | Licence | Commercial | Note |
+|---|---|---|---|
+| **ambientCG + Poly Haven PBR sets** (pick) | CC0 | yes | ambientCG API v2 `full_json`; Poly Haven `/assets`, `/files/{id}` |
+| MatSynth (4k CC0 materials) | per item, mostly CC0 | yes | for a material-retrieval index |
+| Material Anything (mesh → PBR maps) | MIT | yes | optional for untextured assets |
+| AI material generation (CHORD) | research-only | **no** | not used |
+| **Poly Haven HDRIs** (pick) | CC0 | yes | |
+
+### 4.10 Lighting and cameras
+
+Rule-based (no AI): HDRI from the style profile (warm daylight), sun through windows, interior fill from windows,
+cameras at 1.4 m height, 24 mm equivalent, placed in the free area of the room polygon looking at the longest wall,
+at a window and from the door. Three views per room.
+
+### 4.11 Cycles rendering
+
+Blender 5.2 LTS Cycles, OptiX, 1920×1080, 256–512 samples + OpenImageDenoise, passes: RGB, depth, normal, object
+index (for the change check). ~1–3 min per view on RTX A5000 / 4090.
+
+### 4.12 AI polish (gated)
+
+| Option | Licence | Commercial | VRAM | Speed | Quality | Last update | Link |
+|---|---|---|---|---|---|---|---|
+| **Z-Image-Turbo + Z-Image-Turbo-Fun-Controlnet-Union (depth + canny)** (pick) | Apache-2.0 | yes | ~16 GB | ~2–5 s/image | strong, 8 steps | Nov 2025 / 2026 | https://github.com/Tongyi-MAI/Z-Image https://github.com/aigc-apps/VideoX-Fun |
+| SDXL + xinsir controlnet-union-sdxl-1.0 (fallback) | OpenRAIL++-M / Apache-2.0 | yes | ~10 GB | fast | older look, 1024 px tiles | 2024 | https://github.com/xinsir6/ControlNetPlus |
+| Qwen-Image-Edit-2511 + Fun-Controlnet-Union | Apache-2.0 | yes | 40 GB bf16 (needs offload or 4-bit) | slow | best Apache editor | Dec 2025 | https://github.com/QwenLM/Qwen-Image |
+| FLUX.1-Depth-dev / Canny-dev, FLUX.2-dev, Qwen-Image-2.1 | non-commercial | **no** | | | | | flagged, not used |
+| FLUX.2 [klein] 4B | Apache-2.0 | yes | ~8–13 GB | fast | no official depth/canny control | Jan 2026 | https://github.com/black-forest-labs/flux2 |
+
+Change check (rule 7): Depth Anything 3 `DA3MONO-LARGE` (Apache-2.0) depth maps + OpenCV Canny edges + DINOv2 features
+before/after; reject when edge IoU < 0.9, depth mean abs diff > 2 % or object-mask overlap (from the Cycles object-index
+pass vs SAM 2.1 masks on the polished image) < 0.95. Thresholds are tuned on the synthetic projects in Milestone 5.
+
+### 4.13 Final render check
+
+Qwen3-VL-8B compares each render with the building JSON (expected doors/windows/furniture in view, computed from
+camera frustum) and the plan crop; GLM-4.6V-Flash as second opinion; disagreements are listed, never auto-fixed.
+
+### 4.14 Serving and runtime
+
+vLLM 0.30.0 (Apache-2.0) with structured outputs (`xgrammar`), temperature 0, seed 0, same GPU type and version
+for both passes; transformers 5.18 / diffusers 0.40 / torch version pinned by vLLM at Milestone 1 (torch 2.14.1
+is current; the RunPod base image provides CUDA 12.8.1).
+
+## 5. RunPod setup
+
+| Item | Choice | Why |
+|---|---|---|
+| API | **REST v2 `https://api.runpod.io/v2`** (v1 `rest.runpod.io/v1` is retired on 15 Nov 2026; GraphQL early 2027) | current, documented OpenAPI at `api.runpod.io/v2/openapi.json` |
+| Datacenter | **EU-RO-1** (Secure Cloud, network volumes, S3-compatible API available) | large DC, Europe, S3 access for results if needed; checked for A5000/4090 availability in Milestone 1 before the volume is created |
+| Network Volume | 120 GB STANDARD in EU-RO-1 ≈ $8.40/month ($0.07/GB/month) | models ≈ 60 GB, venv + Blender ≈ 15 GB, assets ≈ 10 GB, projects/outputs ≈ 10 GB |
+| GPU (default, quick tests + recognition + renders) | **RTX A5000 24 GB, Secure ≈ $0.27/h (S)**; has RT cores (Ampere) | cheapest 24 GB card with RT cores; fits Qwen3-VL-8B, Z-Image, Cycles |
+| GPU (faster renders / TRELLIS.2) | RTX 4090 24 GB ≈ $0.74/h (S); RTX A6000 48 GB ≈ $0.53/h (S) when 24 GB is too tight | RT cores, more VRAM |
+| GPU (fine-tuning, Milestone 7 only) | RTX A6000 48 GB ≈ $0.53/h; spot/interruptible via console if REST v2 has no field (UNVERIFIED) | |
+| Base image | `runpod/pytorch:1.4.0-cu1281-torch291-ubuntu2404` (CUDA 12.8.1, Ubuntu 24.04, SSH + nginx + rsync, runpodctl injected by RunPod) | official, current (30 Sep 2026) |
+| Container disk | 30 GB (wiped on stop) | pip temp, logs; everything persistent is in /workspace |
+| Secrets | `hf_token` → pods get `HF_TOKEN={{ RUNPOD_SECRET_hf_token }}` | never printed |
+| Reaching pods from a cloud session | HTTPS only: job status and small results through a token-protected file server on port 8000 → `https://<POD_ID>-8000.proxy.runpod.net`; pod logs via `GET /v2/pods/{id}/logs`; full outputs stay on the volume (S3 API `s3api-eu-ro-1.runpod.io` as optional second path) | SSH is not possible through the session proxy |
+| Reaching pods from your Mac (later) | `ssh root@<ip> -p <port>` + rsync (`22/tcp` exposed, `startSsh: true`) | |
+| Self-shutdown | the pod's start command runs `( sleep 7200; runpodctl pod stop $RUNPOD_POD_ID ) &` as a watchdog, and the job script calls `runpodctl pod stop $RUNPOD_POD_ID` at the end; both tested in Milestone 1 | rule: never rely on the session |
+| Prices | read live from `GET /v2/catalog/gpus` before every run; the runner refuses anything above $1.00/h | the table above is from search snippets |
+
+## 6. Cost estimate for the whole PoC
+
+| Item | Estimate |
+|---|---|
+| Network Volume, 120 GB, ~2 months | ≈ $17 |
+| Milestone 1: runner + setup + smoke tests (A5000) | 2–3 h ≈ $1 |
+| Milestone 2: recognition bake-off (3 VLM/OCR candidates on sample pages) + tests | 4–6 h ≈ $2 |
+| Milestones 3–4: shell, materials, furniture fitting, TRELLIS.2 tests | 4–6 h ≈ $2–4 |
+| Milestone 5: Cycles renders + polish tuning (A5000 / 4090) | 8–10 h ≈ $3–7 |
+| Milestone 6: 3+ full project runs | 3–5 h ≈ $2–4 |
+| Buffer for failed runs | ≈ $5 |
+| **Total without fine-tuning** | **≈ $35–45 of your $100** |
+| Milestone 7 (optional LoRA on Qwen3-VL-8B, A6000, ~4 h) | ≈ $3–5 |
+
+## 7. Milestones and test projects
+
+- Synthetic test projects (generated by code, ground truth known): `synthetic-01` (2 floors: ground floor DXF with
+  furniture blocks in 3 of 5 rooms, first floor vector PDF, plus a rasterised "scan" of it; brief "Scandinavian style"),
+  `synthetic-02` (1 floor, scan only + a perspective-distorted "phone photo"; no brief → defaults),
+  `synthetic-03` (3 floors as one multi-page PDF + a separate furniture plan DWG; one room label with "24,50 m²" area text;
+  two style prompts for the consistency test).
+- Your real projects go into `projects/<name>/` later (never committed if they are confidential; add them to `.gitignore`).
+- Milestones 1–7 as in your brief; after each one: commit, push, `docs/progress.md`.
+
+## 8. Licence flags (summary)
+
+Not used because of licence: FLUX.1-dev family, FLUX.2-dev, Qwen-Image-2.1 (non-commercial); Hunyuan3D (EU/UK/KR
+excluded); Llama 3.2/4 Vision (EU); Ultralytics YOLO, MinerU weights, PyMuPDF (AGPL); YOLO-World (GPL);
+ODA File Converter (non-commercial for non-members); 3D-FRONT/FUTURE, HSSD, ShapeNet, CubiCasa5k, FloorPlanCAD
+(non-commercial datasets, evaluation only). Custom-but-commercial licences we accept with a flag: SAM 3 (not needed),
+Gemma 3 (not needed), Stability Community Licence (not needed).
+
+GPL tools we call as separate programs (allowed, our code is not derived from them): Blender, LibreDWG, poppler.
+
+## 9. Sources
+
+RunPod docs source: https://github.com/runpod/docs (api-reference-v2, pods/manage-pods.mdx, pods/templates/secrets.mdx,
+storage/network-volumes.mdx, storage/s3-api.mdx, pods/pricing.mdx, get-started/credentials.mdx);
+runpodctl: https://github.com/runpod/runpodctl (v2.14.0); images: https://hub.docker.com/r/runpod/pytorch/tags;
+vLLM docs: https://github.com/vllm-project/vllm/tree/main/docs; model repos as linked in §4;
+Claude Code cloud environments: https://code.claude.com/docs/en/cloud-environments.
