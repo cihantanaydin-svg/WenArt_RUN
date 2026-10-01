@@ -83,7 +83,7 @@ def resolve_asset(asset: dict | None, assets_dir: str | None) -> tuple[Path | No
     licence = asset_licence(asset)
     if str(licence or "").strip().upper() != CC0:
         return None, f"asset {asset.get('asset_id')!r} licence {licence!r} is not {CC0}; refused"
-    file = asset.get("file")
+    file = asset.get("file") or asset.get("gltf")   # the fitter records the catalogue's `gltf` path
     candidates: list[Path] = []
     if file:
         p = Path(file)
@@ -92,7 +92,8 @@ def resolve_asset(asset: dict | None, assets_dir: str | None) -> tuple[Path | No
         candidates.append(p)
     elif asset.get("asset_id") and assets_dir:
         base = Path(assets_dir) / "models" / str(asset["asset_id"])
-        candidates += [base / f"{asset['asset_id']}.gltf", base / f"{asset['asset_id']}.glb"]
+        candidates += [base / f"{asset['asset_id']}_1k.gltf", base / f"{asset['asset_id']}.gltf",
+                       base / f"{asset['asset_id']}.glb"]
     for p in candidates:
         if p.is_file():
             return p, None
