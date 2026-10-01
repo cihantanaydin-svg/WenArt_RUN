@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Milestone 2 recognition bake-off job. Run by scripts/pod_entry.sh on a RunPod pod
-# (cwd /workspace/repo, WENART_RESULTS set, HF_HOME=/workspace/hf). Stages:
+# (cwd /workspace/repo, WENART_RESULTS set; HF_HOME is moved to the container disk). Stages:
 #   1. scripts/pod_setup_recognition.sh      (venvs, tesseract, LibreDWG, model downloads)
 #   2. DWG round trip  dxf2dwg -> dwg2dxf on the synthetic DXFs   -> results/bakeoff/dwg_roundtrip.json
 #   3. OCR (PaddleOCR + Tesseract) on every synthetic scan/photo  -> results/bakeoff/*_ocr.json
@@ -30,8 +30,10 @@ exec > >(tee -a "$LOG") 2>&1
 
 OUT=$REPO/results/bakeoff
 RESULTS="${WENART_RESULTS:-$WS/jobs/$JOB/results}"
-VENV_VLLM=$WS/venv-vllm
-VENV_PADDLE=$WS/venv-paddle
+FAST=/opt/wenart                      # container disk (see pod_setup_recognition.sh)
+VENV_VLLM=$FAST/venv-vllm
+VENV_PADDLE=$FAST/venv-paddle
+export HF_HOME="${WENART_HF_HOME:-$FAST/hf}"
 PY=$VENV_PADDLE/bin/python
 VLM_PORT="${VLM_PORT:-8001}"
 VLM_SERVER="http://127.0.0.1:$VLM_PORT/v1"

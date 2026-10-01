@@ -217,13 +217,14 @@ def append_gpu_log(text: str, row: dict) -> str:
     return upsert_gpu_log(text, row)
 
 
-def pod_create_body(name: str, gpu_id: str, volume_id: str | None, env: dict, dc: str | None) -> dict:
+def pod_create_body(name: str, gpu_id: str, volume_id: str | None, env: dict, dc: str | None,
+                    disk_gb: int = CONTAINER_DISK_GB) -> dict:
     body = {
         "name": name,
         "image": IMAGE,
         "cloud": "SECURE",
         "gpu": {"id": gpu_id, "count": 1, "minCudaVersion": "12.8"},
-        "disk": CONTAINER_DISK_GB,
+        "disk": disk_gb,
         "ports": ["8000/http"],
         "env": env,
         "cmd": ["bash", "-c", "echo \"$WENART_ENTRY\" | base64 -d > /tmp/pod_entry.sh && bash /tmp/pod_entry.sh"],
@@ -467,7 +468,7 @@ def cmd_run(a: argparse.Namespace) -> int:
     t0 = time.time()
     pod_id = None
     try:
-        pod = api("POST", "/v2/pods", pod_create_body(name, gpu["id"], volume["id"] if volume else None, env, dc), retries=1)
+        pod = api("POST", "/v2/pods", pod_create_body(name, gpu["id"], volume["id"] if volume else None, env, dc, a.disk), retries=1)
         pod_id = pod["id"]
     except ApiError as e:
         print(f"pod creation failed: {e}; checking for an orphan named {name}")
@@ -634,6 +635,7 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--gpu", help="force one GPU name, e.g. 'RTX A5000'")
     r.add_argument("--max-minutes", type=int, default=MAX_MINUTES)
     r.add_argument("--grace", type=int, default=120, help="seconds the pod waits after the job before stopping")
+    r.add_argument("--disk", type=int, default=CONTAINER_DISK_GB, help="container disk GB (wiped with the pod; ~$0.10/GB/month)")
     r.add_argument("--purpose", help="text for docs/gpu-log.md")
     r.add_argument("--no-volume", action="store_true", help="run without the network volume (nothing persists)")
     r.add_argument("--keep", action="store_true", help="do not terminate the stopped pod")

@@ -3,15 +3,18 @@
 # everything persistent lands under /workspace (the Network Volume); finished steps
 # are skipped on the next pod. Every step is timed and printed.
 #
-# Installs:
-#   /workspace/venv-vllm     vllm==0.30.0 (brings torch 2.13.0; own venv, no system site packages
+# Installs (the two venvs and the model cache live on the CONTAINER DISK, /opt/wenart:
+# the network volume writes small files at a few MB/s, a pip install of vLLM took > 55 min
+# there on 1 Oct 2026 and never finished; on the container disk it takes minutes. They are
+# rebuilt per pod; the runner gives the bake-off pod an 80 GB container disk):
+#   /opt/wenart/venv-vllm    vllm==0.30.0 (brings torch 2.13.0; own venv, no system site packages
 #                            because the image ships torch 2.9.1) + the `hf` download CLI
-#   /workspace/venv-paddle   paddlepaddle-gpu 3.x (PaddlePaddle wheel index, cu126 -> cu129 -> CPU
+#   /opt/wenart/venv-paddle  paddlepaddle-gpu 3.x (PaddlePaddle wheel index, cu126 -> cu129 -> CPU
 #                            fallback, the winner is logged) + paddleocr==3.7.0 + the repo's CPU deps
+#   /opt/wenart/hf           the two VLM checkpoints (HF cache; download speed logged in MB/s)
 #   apt                      tesseract-ocr tesseract-ocr-tur + build tools for LibreDWG
 #   /workspace/tools/libredwg  GNU LibreDWG 0.13.3 built from the GNU tarball
 #                            (./configure --disable-bindings --disable-python --prefix=...)
-#   /workspace/hf            the two VLM checkpoints (download speed logged in MB/s)
 #
 # Sources checked on 1 Oct 2026:
 #   vLLM 0.30.0 requirements/cuda.txt: torch==2.13.0; PyPI vllm 0.30.0: python >=3.10,<3.15.
@@ -28,9 +31,13 @@ trap 'echo "[setup-recognition] ERROR at line $LINENO" >&2' ERR
 WS=/workspace
 LOGS=$WS/logs
 TOOLS=$WS/tools
-mkdir -p "$LOGS" "$TOOLS" "$WS/hf"
+FAST=/opt/wenart                       # container disk: fast, wiped with the pod
+mkdir -p "$LOGS" "$TOOLS" "$FAST"
 REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-export HF_HOME="${HF_HOME:-$WS/hf}"
+export HF_HOME="${WENART_HF_HOME:-$FAST/hf}"
+mkdir -p "$HF_HOME"
+# Leftovers of the earlier layout on the volume (half-built venvs) only waste space.
+rm -rf /workspace/venv-vllm /workspace/venv-paddle
 export HF_HUB_ENABLE_HF_TRANSFER=1
 export HF_XET_HIGH_PERFORMANCE=1
 export PIP_DISABLE_PIP_VERSION_CHECK=1
@@ -64,7 +71,7 @@ step_end
 
 # --- venv-vllm -------------------------------------------------------------------
 step_start "venv-vllm (vllm==$VLLM_VERSION)"
-VENV_VLLM=$WS/venv-vllm
+VENV_VLLM=$FAST/venv-vllm
 if [ ! -f "$VENV_VLLM/.vllm-$VLLM_VERSION" ]; then
   [ -x "$VENV_VLLM/bin/python" ] || python3 -m venv "$VENV_VLLM"
   "$VENV_VLLM/bin/pip" install -q --upgrade pip
@@ -77,7 +84,7 @@ step_end
 
 # --- venv-paddle -----------------------------------------------------------------
 step_start "venv-paddle (paddlepaddle-gpu $PADDLE_VERSION, paddleocr==$PADDLEOCR_VERSION)"
-VENV_PADDLE=$WS/venv-paddle
+VENV_PADDLE=$FAST/venv-paddle
 PADDLE_LOG=$LOGS/paddle-install.txt
 if [ ! -f "$VENV_PADDLE/.paddleocr-$PADDLEOCR_VERSION" ]; then
   [ -x "$VENV_PADDLE/bin/python" ] || python3 -m venv "$VENV_PADDLE"
@@ -128,7 +135,7 @@ step_end
 step_start "LibreDWG $LIBREDWG_VERSION"
 LIBREDWG_PREFIX=$TOOLS/libredwg
 if [ ! -x "$LIBREDWG_PREFIX/bin/dwg2dxf" ] || [ ! -x "$LIBREDWG_PREFIX/bin/dxf2dwg" ]; then
-  SRC=$TOOLS/src
+  SRC=$FAST/src                       # build on the container disk, install into the volume
   mkdir -p "$SRC"
   TAR=$SRC/libredwg-$LIBREDWG_VERSION.tar.xz
   if [ ! -s "$TAR" ]; then
@@ -147,7 +154,7 @@ fi
 log "LibreDWG: $(head -1 "$LIBREDWG_PREFIX/VERSION" 2>/dev/null || "$LIBREDWG_PREFIX/bin/dwg2dxf" --version 2>&1 | head -1)"
 step_end
 
-# --- Model checkpoints (hf CLI, cached in HF_HOME on the volume) -----------------
+# --- Model checkpoints (hf CLI, cached in HF_HOME on the container disk) ----------
 for model in "${MODELS[@]}"; do
   step_start "download $model"
   T0=$(date +%s)
