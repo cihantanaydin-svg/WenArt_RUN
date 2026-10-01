@@ -12,6 +12,10 @@
 # pages with an existing result JSON are skipped. Every stage is timed. A failing
 # stage is recorded and the later stages still run, so one pod run collects as
 # much as possible; the exit code is 1 if anything failed.
+# The small result files are copied into $WENART_RESULTS after every stage and
+# again from the EXIT trap (cp -f, idempotent): the pod_entry.sh watchdog stops
+# the pod at MAX_RUNTIME_S without signalling the job, and the runner collects
+# $WENART_RESULTS once at that moment, so finished stages must already be there.
 #
 # vLLM listens on port 8001 (not 8000: pod_entry.sh's status server owns 8000).
 # `vllm serve` flags (vLLM 0.30.0 docs/cli/README.md and vllm/engine/arg_utils.py):
@@ -71,13 +75,21 @@ copy_results() {
 
 on_error() {
   log "ERROR at line $1"
-  stop_server
-  copy_results
-  exit 1
+  exit 1          # the EXIT trap stops the server and flushes the results
 }
 trap 'on_error $LINENO' ERR
 
-# run_stage <name> <command...>: timed, failure recorded, job continues.
+# Any exit (end of job, error, TERM from a kill): server down, results flushed.
+on_exit() {
+  trap - ERR
+  stop_server
+  copy_results
+}
+trap 'on_exit' EXIT
+trap 'exit 143' TERM
+
+# run_stage <name> <command...>: timed, failure recorded, job continues, results
+# of the finished stages flushed to $RESULTS right away.
 run_stage() {
   local name=$1; shift
   local t0; t0=$(date +%s)
@@ -88,6 +100,7 @@ run_stage() {
   "$@" || rc=$?
   log "stage end: $name rc=$rc in $(( $(date +%s) - t0 )) s"
   if [ "$rc" -ne 0 ]; then FAILED+=("$name"); fi
+  copy_results
   return 0
 }
 
@@ -183,7 +196,7 @@ done
 run_stage twopass-summary "$PY" -m wenart.recognition.bakeoff --stage twopass --projects projects --out "$OUT" \
   --models "${MODELS[@]}"
 
-# 6. Results.
+# 6. Results (also copied after every stage and from the EXIT trap).
 copy_results
 if [ "${#FAILED[@]}" -gt 0 ]; then
   log "FAILED stages: ${FAILED[*]}"

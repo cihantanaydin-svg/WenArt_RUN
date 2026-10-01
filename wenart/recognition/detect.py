@@ -6,6 +6,13 @@ models with box IoU >= 0.5 and the same type is ``verified`` with
 proposal in its evidence, tagged ``pass`` 1 (model A) or 2 (model B). Nothing
 is dropped silently: an unverified symbol still appears, so the report can list it.
 
+Rotation is part of the agreement too (CLAUDE.md: "keep only what agrees",
+orientation is part of the furniture contract): when both passes give a
+rotation and they differ by more than ``ROTATION_TOL_DEG``, the type and box
+stay agreed (``agreement: "type_box"``) but ``rotation_deg`` is null, the symbol
+is ``unverified`` and both values are kept in ``rotation_candidates`` and in the
+evidence entries.
+
 Matching is greedy by descending IoU over pairs of equal type. Pairs that
 overlap (IoU >= threshold) but disagree on the type are joined into one
 unverified item with ``type_candidates`` listing both types, because that is
@@ -24,6 +31,7 @@ from wenart import geometry as G
 from wenart.recognition import vlm_client
 
 IOU_THRESHOLD = 0.5
+ROTATION_TOL_DEG = 15.0   # two passes agree on the rotation within this (symbol rotations are coarse)
 
 Runner = Callable[[str, object], list[dict]]
 
@@ -63,34 +71,65 @@ def match_proposals(a_items: list[dict], b_items: list[dict], iou_thresh: float 
 
 
 def _evidence(file: str, model: str, pass_no: int, item: dict) -> dict:
-    """Evidence entry for one proposal; ``text`` keeps the type the model answered."""
-    return B.evidence(file, "ai", float(item.get("confidence", 0.0)), model=model, pass_=pass_no,
-                      pixel_box=[float(v) for v in item["box"]], text=item["type"])
+    """Evidence entry for one proposal; ``text`` keeps the type the model answered.
+
+    The rotation the model answered is kept as well (``rotation_deg``), so a
+    rotation disagreement stays traceable to the pass that said it.
+    """
+    ev = B.evidence(file, "ai", float(item.get("confidence", 0.0)), model=model, pass_=pass_no,
+                    pixel_box=[float(v) for v in item["box"]], text=item["type"])
+    if item.get("rotation_deg") is not None:
+        ev["rotation_deg"] = item["rotation_deg"]
+    return ev
+
+
+def agreed_rotation(a_rot, b_rot, tol_deg: float = ROTATION_TOL_DEG) -> tuple:
+    """Rotation of a type/box-agreed pair: ``(rotation_deg, agrees)``.
+
+    Both given and within ``tol_deg``: pass 1's value, agrees. Only one given:
+    that value (the other pass did not contradict it). Both given but apart by
+    more than ``tol_deg``: ``None`` and ``agrees = False``.
+    """
+    if a_rot is None:
+        return b_rot, True
+    if b_rot is None:
+        return a_rot, True
+    if G.angle_difference_deg(float(a_rot), float(b_rot)) <= tol_deg:
+        return a_rot, True
+    return None, False
 
 
 def combine(a_items: list[dict], b_items: list[dict], model_a: str, model_b: str, file: str,
-            iou_thresh: float = IOU_THRESHOLD) -> list[dict]:
+            iou_thresh: float = IOU_THRESHOLD, rotation_tol: float = ROTATION_TOL_DEG) -> list[dict]:
     """Merge the proposals of two models into verified / unverified symbols (pure).
 
     Each result: ``{"type", "box", "rotation_deg", "confidence", "status",
     "type_candidates", "evidence": [...]}``. Verified symbols use the mean box
-    and the rotation of pass 1 (pass 2's rotation when pass 1 has none).
+    and the rotation of pass 1 (pass 2's rotation when pass 1 has none). Type/box
+    pairs whose rotations differ by more than ``rotation_tol`` are ``unverified``
+    with ``rotation_deg`` null, ``agreement: "type_box"`` and
+    ``rotation_candidates: [pass 1, pass 2]``; fully agreed symbols carry
+    ``agreement: "type_box_rotation"``.
     """
     agreed, clashes, rest_a, rest_b = match_proposals(a_items, b_items, iou_thresh)
     out = []
     for i, j, iou in agreed:
         a, b = a_items[i], b_items[j]
-        rotation = a.get("rotation_deg") if a.get("rotation_deg") is not None else b.get("rotation_deg")
-        out.append({
+        rotation, rotation_agrees = agreed_rotation(a.get("rotation_deg"), b.get("rotation_deg"), rotation_tol)
+        symbol = {
             "type": a["type"],
             "box": _mean_box(a["box"], b["box"]),
             "rotation_deg": rotation,
             "confidence": round(min(float(a["confidence"]), float(b["confidence"])), 4),
-            "status": "verified",
+            "status": "verified" if rotation_agrees else "unverified",
+            "agreement": "type_box_rotation" if rotation_agrees else "type_box",
             "type_candidates": [a["type"]],
             "iou": round(iou, 3),
             "evidence": [_evidence(file, model_a, 1, a), _evidence(file, model_b, 2, b)],
-        })
+        }
+        if not rotation_agrees:
+            symbol["rotation_candidates"] = [a["rotation_deg"], b["rotation_deg"]]
+        out.append(symbol)
     for i, j, iou in clashes:
         a, b = a_items[i], b_items[j]
         out.append({

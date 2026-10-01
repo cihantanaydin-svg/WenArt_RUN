@@ -9,6 +9,7 @@ bookkeeping with stand-in converters.
 """
 import json
 import os
+import re
 import shutil
 import stat
 import subprocess
@@ -21,7 +22,25 @@ from wenart.recognition import bakeoff, detect, metrics, ocr, prompts, schemas, 
 
 ROOT = Path(__file__).resolve().parents[1]
 PROJECTS = ROOT / "projects"
-HAS_TESSERACT = shutil.which("tesseract") is not None
+
+
+def tesseract_has_lang(lang: str, binary: str = "tesseract") -> bool:
+    """True when the tesseract ``binary`` exists and ``--list-langs`` names ``lang``.
+
+    ``ocr.ocr_tesseract`` always passes ``-l tur``; a tesseract without the
+    language pack exits 1, so the tests must skip, not fail, without it.
+    """
+    if shutil.which(binary) is None:
+        return False
+    try:
+        proc = subprocess.run([binary, "--list-langs"], capture_output=True, text=True, timeout=30)
+    except (OSError, subprocess.SubprocessError):
+        return False
+    langs = {line.strip() for line in (proc.stdout + proc.stderr).splitlines()}
+    return lang in langs
+
+
+HAS_TESSERACT_TUR = tesseract_has_lang("tur")
 
 
 # --------------------------------------------------------------------------
@@ -174,6 +193,30 @@ def test_two_pass_verified_unverified_and_type_clash():
     assert len(symbols) == 4
 
 
+def test_two_pass_rotation_disagreement_is_unverified():
+    """Same box and type but rotations 0 vs 180: type/box agree, the rotation does not."""
+    a = [_sym("bed_double", [500, 500, 660, 700], 0.8, 0), _sym("sofa", [100, 100, 300, 190], 0.9, 90),
+         _sym("chair", [900, 900, 945, 945], 0.7, 270)]
+    b = [_sym("bed_double", [500, 500, 660, 700], 0.7, 180), _sym("sofa", [100, 100, 300, 190], 0.6, 100),
+         _sym("chair", [900, 900, 945, 945], 0.9, None)]
+    out = detect.combine(a, b, "A", "B", "plan_scan.png")
+    by_type = {s["type"]: s for s in out}
+    assert len(out) == 3
+    bed = by_type["bed_double"]
+    assert bed["status"] == "unverified" and bed["rotation_deg"] is None
+    assert bed["rotation_candidates"] == [0, 180] and bed["type_candidates"] == ["bed_double"]
+    assert bed["agreement"] == "type_box" and len(bed["evidence"]) == 2
+    assert [e.get("rotation_deg") for e in bed["evidence"]] == [0, 180]
+    # Within the tolerance (10 degrees apart): verified, pass 1 rotation kept.
+    sofa = by_type["sofa"]
+    assert sofa["status"] == "verified" and sofa["rotation_deg"] == 90 and "rotation_candidates" not in sofa
+    assert sofa["agreement"] == "type_box_rotation"
+    # Only one pass gave a rotation: verified, that rotation is used.
+    chair = by_type["chair"]
+    assert chair["status"] == "verified" and chair["rotation_deg"] == 270
+    assert detect.ROTATION_TOL_DEG == 15.0
+
+
 def test_match_proposals_is_one_to_one_and_prefers_high_iou():
     a = [_sym("chair", [0, 0, 10, 10])]
     b = [_sym("chair", [1, 1, 11, 11]), _sym("chair", [0, 0, 10, 10])]
@@ -317,7 +360,16 @@ def test_cross_check_marks_agreement():
     assert "agrees" not in primary[0]
 
 
-@pytest.mark.skipif(not HAS_TESSERACT, reason="tesseract binary not installed")
+def test_tesseract_gate_needs_the_tur_language_pack(tmp_path):
+    """The skip condition reads ``tesseract --list-langs``: eng-only installs skip, not fail."""
+    eng_only = _write_tool(tmp_path / "tess-eng", 'echo "List of available languages (2):"; echo eng; echo osd\n')
+    with_tur = _write_tool(tmp_path / "tess-tur", 'echo "List of available languages (3):"; echo eng; echo osd; echo tur\n')
+    assert not tesseract_has_lang("tur", str(eng_only))
+    assert tesseract_has_lang("tur", str(with_tur)) and tesseract_has_lang("eng", str(with_tur))
+    assert not tesseract_has_lang("tur", str(tmp_path / "no-such-binary"))
+
+
+@pytest.mark.skipif(not HAS_TESSERACT_TUR, reason="tesseract with the tur language pack (tesseract-ocr-tur) not installed")
 def test_tesseract_reads_title_and_scale_of_synthetic_scan():
     page = [p for p in bakeoff.raster_pages(PROJECTS) if p.slug == "synthetic-01_1_kat_scan"][0]
     result = ocr.ocr_page(page.image_path, use_paddle=False)
@@ -414,7 +466,46 @@ def test_bakeoff_two_pass_and_summary_from_saved_answers(tmp_path):
     assert (tmp_path / "summary.json").is_file()
 
 
-@pytest.mark.skipif(not HAS_TESSERACT, reason="tesseract binary not installed")
+class _FailingSymbolsClient(_FakeClient):
+    """Like _FakeClient, but the symbols call fails (transport error, data None)."""
+    model = "fake/Model-B"
+
+    def run_task(self, task, image):
+        if task != "symbols":
+            return super().run_task(task, image)
+        self.calls += 1
+        return vlm_client.VLMResult(task=task, model=self.model, data=None, raw_text="", latency_s=0.01, attempts=1,
+                                    error="HTTP 400 Bad Request", image_size=(1600, 1131), page_size=(2481, 1754))
+
+
+def test_bakeoff_two_pass_with_failed_answer_is_not_computed(tmp_path):
+    """A pass that never happened must not produce an agreement score."""
+    pages = bakeoff.raster_pages(PROJECTS)
+    page = pages[1]
+    client_a = _FakeClient(page.truth)
+    client_b = _FailingSymbolsClient(page.truth)
+    bakeoff.run_model_page(page, client_a.model, client_a, tmp_path, retry_errors=False)
+    rec_b = bakeoff.run_model_page(page, client_b.model, client_b, tmp_path, retry_errors=False)
+    assert rec_b["has_errors"] and rec_b["tasks"]["symbols"]["data"] is None
+    two = bakeoff.run_two_pass_page(page, client_a.model, client_b.model, tmp_path)
+    assert two is not None and "fake/Model-B" in two["not_computed"] and "HTTP 400" in two["not_computed"]
+    assert "n_verified" not in two and "verified" not in two and two["symbols"] == []
+    assert (tmp_path / "synthetic-02_plan_scan_twopass.json").is_file()
+    assert not (tmp_path / "synthetic-02_plan_scan_twopass.jpg").exists()
+    results = bakeoff.collect_page_results(pages, tmp_path)
+    entry = next(r for r in results if r["file"] == page.file)
+    assert entry["two_pass"] is None and "fake/Model-B" in entry["two_pass_not_computed"]
+    agg = bakeoff.write_summary(pages, tmp_path)
+    assert agg["two_pass"] is None                       # no page could be computed
+    assert agg["two_pass_not_computed"]["pages"] == 1
+    assert agg["two_pass_not_computed"]["reasons"][0]["file"] == page.file
+    summary = (tmp_path / "summary.md").read_text(encoding="utf-8")
+    assert "not computed" in summary and "fake/Model-B" in summary
+    written = json.loads((tmp_path / "summary.json").read_text(encoding="utf-8"))
+    assert written["aggregate"]["two_pass_not_computed"]["pages"] == 1
+
+
+@pytest.mark.skipif(not HAS_TESSERACT_TUR, reason="tesseract with the tur language pack (tesseract-ocr-tur) not installed")
 def test_bakeoff_ocr_stage_without_paddle(tmp_path):
     page = bakeoff.raster_pages(PROJECTS)[0]
     rec = bakeoff.run_ocr_page(page, tmp_path, use_paddle=False, use_tesseract=True, device=None, retry_errors=False)
@@ -472,3 +563,37 @@ def test_job_scripts_follow_the_conventions():
     assert "pytest -m gpu tests/gpu/test_recognition.py" in job and "--stage dwg" in job
     assert "--limit-mm-per-prompt '{\"image\":2}'" in job and "--max-model-len 16384" in job
     assert "--gpu-memory-utilization 0.90" in job and "WENART_RESULTS" in job
+
+
+def _bash_function_body(text: str, name: str) -> str:
+    match = re.search(rf"^{re.escape(name)}\(\) \{{\n(.*?)^\}}", text, re.S | re.M)
+    assert match, f"function {name} not found"
+    return match.group(1)
+
+
+def test_bakeoff_job_flushes_results_after_every_stage_and_on_exit():
+    """A watchdog stop mid-run must not lose the finished stages' results."""
+    job = (ROOT / "scripts/jobs/bakeoff.sh").read_text(encoding="utf-8")
+    assert "copy_results" in _bash_function_body(job, "run_stage")
+    exit_trap = re.search(r"^trap '([^']*)' EXIT", job, re.M)
+    assert exit_trap, "no EXIT trap"
+    handler = exit_trap.group(1).split()[0]
+    assert "copy_results" in _bash_function_body(job, handler)
+    # The ERR path exits through the same EXIT trap.
+    assert "exit 1" in _bash_function_body(job, "on_error")
+
+
+def test_pod_setup_stamps_paddle_only_after_a_real_gpu_op():
+    """The venv-paddle stamp depends on a kernel launch on gpu:0, not on an import."""
+    text = (ROOT / "scripts/pod_setup_recognition.sh").read_text(encoding="utf-8")
+    check = re.search(r"^\s*PADDLE_CHECK=\$\(cat <<'PY'\n(.*?)^PY\n\s*\)", text, re.S | re.M)
+    assert check, "PADDLE_CHECK python snippet not found"
+    snippet = check.group(1)
+    compile(snippet, "PADDLE_CHECK", "exec")  # must be valid Python
+    assert 'paddle.set_device("gpu:0")' in snippet and "@" in snippet and ".numpy()" in snippet
+    assert "import paddleocr" in snippet
+    # The stamp is written only when the check passed; the check sees whether a GPU is present.
+    stamp = text.index('touch "$VENV_PADDLE/.paddleocr-$PADDLEOCR_VERSION"')
+    check_call = text.index('-c "$PADDLE_CHECK"')
+    assert check_call < stamp
+    assert "no GPU" in snippet or "cpu" in snippet.lower()

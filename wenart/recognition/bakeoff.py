@@ -10,7 +10,10 @@ For every raster page (``kind`` scan or photo in ``<project>/truth/pages.json``)
   answers of one model with scores and latency (``<model>`` = last part of the
   Hugging Face ID).
 - ``<out>/<project>_<page>_twopass.json``: two-pass agreement of the first two
-  models, computed from the saved answers (no extra calls).
+  models, computed from the saved answers (no extra calls). A page where one
+  model's symbol answer failed (``data`` null) gets a record with
+  ``not_computed`` and no scores: a pass that never happened is not
+  "zero proposals"; the summary counts these pages as not computed.
 - ``<out>/<project>_<page>_<who>.jpg``: small debug images (truth green, model
   symbols orange, OCR blue), each <= 300 KB.
 - ``<out>/summary.json`` and ``<out>/summary.md``.
@@ -267,22 +270,38 @@ def run_model_page(page: RasterPage, model: str, client: vlm_client.VLMClient, o
 # --------------------------------------------------------------------------
 
 def run_two_pass_page(page: RasterPage, model_a: str, model_b: str, out_dir: Path) -> Optional[dict]:
-    """Combine the saved symbol answers of two models; None when one of them is missing."""
+    """Combine the saved symbol answers of two models; None when one of them is missing.
+
+    When a model's symbol answer failed (``data`` null: call error or schema
+    rejection), the record only says ``not_computed`` (which model, which error)
+    and carries no agreement scores, so the summary cannot mistake a failed pass
+    for a pass that proposed nothing.
+    """
     paths = [out_dir / f"{page.slug}_{model_slug(m)}.json" for m in (model_a, model_b)]
     if not all(p.is_file() for p in paths):
         print(f"  two-pass: missing model results for {page.slug}")
         return None
     answers = []
-    for path in paths:
-        data = read_json(path)["tasks"].get("symbols", {}).get("data")
+    failed = []
+    for model, path in zip((model_a, model_b), paths):
+        symbols_task = read_json(path).get("tasks", {}).get("symbols") or {}
+        data = symbols_task.get("data")
+        if data is None:
+            failed.append(f"{model} symbols: {symbols_task.get('error') or 'no answer'}")
         answers.append(data["items"] if data else [])
+    base = {"project": page.project, "file": page.file, "page": page.page, "kind": page.kind,
+            "models": [model_a, model_b]}
+    if failed:
+        reason = "; ".join(failed)
+        record = dict(base, symbols=[], not_computed=reason)
+        write_json(out_dir / f"{page.slug}_twopass.json", record)
+        print(f"  two-pass: not computed for {page.slug} ({reason})")
+        return record
     symbols = detect.combine(answers[0], answers[1], model_a, model_b, page.file)
     verified = [s for s in symbols if s["status"] == "verified"]
     truth = page.truth_symbols()
-    record = {"project": page.project, "file": page.file, "page": page.page, "kind": page.kind,
-              "models": [model_a, model_b], "symbols": symbols,
-              "n_verified": len(verified), "n_unverified": len(symbols) - len(verified),
-              "verified": metrics.symbol_scores(verified, truth), "all": metrics.symbol_scores(symbols, truth)}
+    record = dict(base, symbols=symbols, n_verified=len(verified), n_unverified=len(symbols) - len(verified),
+                  verified=metrics.symbol_scores(verified, truth), all=metrics.symbol_scores(symbols, truth))
     write_json(out_dir / f"{page.slug}_twopass.json", record)
     draw_debug(page.image_path, out_dir / f"{page.slug}_twopass.jpg", [
         ("truth symbols", truth, "#00a000"),
@@ -299,11 +318,15 @@ def run_two_pass_page(page: RasterPage, model_a: str, model_b: str, out_dir: Pat
 # --------------------------------------------------------------------------
 
 def collect_page_results(pages: Sequence[RasterPage], out_dir: Path) -> list[dict]:
-    """Per-page records for ``metrics.aggregate`` from the JSON files in ``out_dir``."""
+    """Per-page records for ``metrics.aggregate`` from the JSON files in ``out_dir``.
+
+    ``two_pass`` is None for pages without a computed two-pass record;
+    ``two_pass_not_computed`` then names the reason when a record says so.
+    """
     page_results = []
     for page in pages:
         entry: dict = {"project": page.project, "file": page.file, "page": page.page, "kind": page.kind,
-                       "ocr": {}, "models": {}, "two_pass": None}
+                       "ocr": {}, "models": {}, "two_pass": None, "two_pass_not_computed": None}
         ocr_json = out_dir / f"{page.slug}_ocr.json"
         if ocr_json.is_file():
             for engine, data in read_json(ocr_json).get("engines", {}).items():
@@ -317,16 +340,42 @@ def collect_page_results(pages: Sequence[RasterPage], out_dir: Path) -> list[dic
         two = out_dir / f"{page.slug}_twopass.json"
         if two.is_file():
             data = read_json(two)
-            entry["two_pass"] = {k: data[k] for k in ("verified", "all", "n_verified", "n_unverified")}
+            if data.get("not_computed"):
+                entry["two_pass_not_computed"] = data["not_computed"]
+            else:
+                entry["two_pass"] = {k: data[k] for k in ("verified", "all", "n_verified", "n_unverified")}
         page_results.append(entry)
     return page_results
+
+
+def two_pass_not_computed(page_results: Sequence[dict]) -> dict:
+    """``{"pages": n, "reasons": [{"project", "file", "page", "reason"}, ...]}`` for the summary."""
+    reasons = [{"project": p.get("project"), "file": p.get("file"), "page": p.get("page"), "reason": p["two_pass_not_computed"]}
+               for p in page_results if p.get("two_pass_not_computed")]
+    return {"pages": len(reasons), "reasons": reasons}
+
+
+def summarise_not_computed(not_computed: dict) -> str:
+    """Markdown lines listing the pages whose two-pass agreement could not be computed."""
+    if not not_computed["pages"]:
+        return ""
+    lines = ["", "## Two-pass agreement not computed", "",
+             f"{not_computed['pages']} page(s) excluded from the two-pass table because one model's symbol "
+             "answer failed (a pass that did not happen is not 'zero proposals'):", "",
+             "| Project | File | Page | Reason |", "|---|---|---|---|"]
+    for r in not_computed["reasons"]:
+        lines.append(f"| {r['project']} | {r['file']} | {r['page']} | {r['reason']} |")
+    return "\n".join(lines) + "\n"
 
 
 def write_summary(pages: Sequence[RasterPage], out_dir: Path) -> dict:
     page_results = collect_page_results(pages, out_dir)
     agg = metrics.aggregate(page_results)
+    not_computed = two_pass_not_computed(page_results)
+    agg["two_pass_not_computed"] = not_computed
     write_json(out_dir / "summary.json", {"aggregate": agg, "pages": page_results})
-    (out_dir / "summary.md").write_text(metrics.summarise(page_results), encoding="utf-8")
+    text = metrics.summarise(page_results) + summarise_not_computed(not_computed)
+    (out_dir / "summary.md").write_text(text, encoding="utf-8")
     print(f"summary: {out_dir / 'summary.md'}")
     return agg
 
