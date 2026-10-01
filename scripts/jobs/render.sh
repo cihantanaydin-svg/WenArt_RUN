@@ -11,9 +11,14 @@
 # Projects whose building.json is `needs_review` (synthetic-02: raster only) are skipped
 # after the pipeline stage. Style and asset stages are optional: when they fail the
 # build runs with the default style profile and flat colours (recorded in the manifest).
-# Idempotent: the pipeline output, the scene and the renders live on the volume; renders
-# whose PNG exists are skipped unless FORCE_RENDER=1. Every stage is timed, a failing
-# stage is recorded and the later stages still run (exit code 1 at the end).
+# Idempotent: the pipeline output, the scene and the renders live on the volume; a render
+# is reused when its PNG, EXR and preview exist and were made from the current scene.blend
+# (fingerprint in render_manifest.json), FORCE_RENDER=1 re-renders everything. The render
+# stage of a project runs only when its build stage succeeded in this run (an old
+# scene.blend on the volume would be stale). RENDER_PROJECTS limits the projects; the GPU
+# tests get the projects whose render stage ran via RENDER_TEST_PROJECTS and are skipped
+# when there is none. Every stage is timed, a failing stage is recorded and the later
+# stages still run (exit code 1 at the end).
 # Results are copied after every stage and from the EXIT trap: the pod_entry.sh
 # watchdog stops the pod at MAX_RUNTIME_S without signalling the job.
 set -Eeuo pipefail
@@ -35,6 +40,7 @@ RES="${RENDER_RES:-1920x1080}"
 FORCE_ARG=""; [ "${FORCE_RENDER:-0}" = "1" ] && FORCE_ARG="--force"
 read -r -a PROJECTS <<< "${RENDER_PROJECTS:-$(ls -d projects/*/ 2>/dev/null | xargs -n1 basename | tr '\n' ' ')}"
 FAILED=()
+RENDERED=()   # projects whose render stage ran and succeeded: what the GPU tests check
 
 ts() { date -u +%Y-%m-%dT%H:%M:%SZ; }
 log() { echo "[$(ts)] render: $*"; }
@@ -85,6 +91,13 @@ run_stage() {
 
 building_status() { "$PY" -c 'import json,sys; print(json.load(open(sys.argv[1])).get("status",""))' "$1" 2>/dev/null || echo ""; }
 
+# stage_failed <name>: true when run_stage recorded that stage as failed in this run.
+stage_failed() {
+  local f
+  for f in "${FAILED[@]}"; do [ "$f" = "$1" ] && return 0; done
+  return 1
+}
+
 cd "$REPO"
 mkdir -p "$RESULTS" "$ASSETS" outputs
 log "job $JOB, projects: ${PROJECTS[*]}, samples $SAMPLES, res $RES, blender $("$WENART_BLENDER" --version 2>/dev/null | head -1)"
@@ -110,16 +123,26 @@ for p in "${PROJECTS[@]}"; do
   ASSET_ARG=(); [ -f "$ASSETS/manifest.json" ] && ASSET_ARG=(--assets "$ASSETS")
   run_stage "build-$p" "$PY" -m wenart.blender.cli build --building "$out/building.json" \
     "${STYLE_ARG[@]}" "${ASSET_ARG[@]}" --out "$out/scene" --preview-samples 32
-  if [ -f "$out/scene/scene.blend" ]; then
+  if stage_failed "build-$p"; then
+    log "$p: build failed in this run, render stage skipped (scene.blend on the volume would be stale)"
+  elif [ -f "$out/scene/scene.blend" ]; then
     # shellcheck disable=SC2086
     run_stage "render-$p" "$PY" -m wenart.blender.cli render --scene "$out/scene/scene.blend" \
       --out "$out/renders" --cameras all --samples "$SAMPLES" --res "$RES" $FORCE_ARG
-    [ -f "$out/renders/render.log" ] && grep -E "^(DEVICE|RENDERED|SKIP)" "$out/renders/render.log" || true
+    [ -f "$out/renders/render.log" ] && grep -E "^(DEVICE|RENDERED|RERENDER|SKIP)" "$out/renders/render.log" || true
+    if ! stage_failed "render-$p"; then RENDERED+=("$p"); fi
   fi
 done
 
 export WENART_OUTPUTS="$REPO/outputs"
-run_stage gpu-tests "$PY" -m pytest -m gpu tests/gpu/test_render.py -v -ra --junitxml="$RESULTS/junit-render.xml"
+if [ "${#RENDERED[@]}" -eq 0 ]; then
+  log "no project rendered in this run, GPU tests skipped"
+else
+  # The tests check exactly the projects this job rendered, not a hard-coded list.
+  export RENDER_TEST_PROJECTS="${RENDERED[*]}"
+  log "GPU tests for: $RENDER_TEST_PROJECTS"
+  run_stage gpu-tests "$PY" -m pytest -m gpu tests/gpu/test_render.py -v -ra --junitxml="$RESULTS/junit-render.xml"
+fi
 
 copy_results
 if [ "${#FAILED[@]}" -gt 0 ]; then

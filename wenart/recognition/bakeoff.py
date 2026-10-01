@@ -282,13 +282,18 @@ def tiled_symbol_items(image_path: Path, client, *, tile_px: int = tiles.DEFAULT
     are then shifted by the tile's top-left corner into page pixels. The crop is
     not downscaled as long as the tile side is <= the client's ``max_side``
     (1024 px tiles against the default 1600 px). Nothing is dropped: a tile
-    whose call failed is recorded with its error and contributes no items.
+    whose call failed is recorded with its error and contributes no items. A
+    proposal whose box touches an inner tile edge (the tile cut the symbol) is
+    marked ``edge_clipped`` so the merge can fold it into the whole view from
+    the neighbouring tile.
 
-    Returns ``{"extent", "tile_px", "overlap", "tiles": [per-tile records],
-    "items": merged items in page pixels, "merge": stats, "latency_s", "errors"}``.
+    Returns ``{"extent", "extent_info" (dropped page frames and the ink share
+    of the box), "tile_px", "overlap", "tiles": [per-tile records], "items":
+    merged items in page pixels, "merge": stats, "latency_s", "errors"}``.
     """
     img = vlm_client.load_image(image_path)
-    extent = tiles.drawing_extent(img)
+    extent_info = tiles.drawing_extent_info(img)
+    extent = extent_info.pop("extent")
     boxes = tiles.tiles(extent, tile_px, overlap)
     raw_items: list[dict] = []
     tile_records: list[dict] = []
@@ -298,22 +303,24 @@ def tiled_symbol_items(image_path: Path, client, *, tile_px: int = tiles.DEFAULT
         crop = img.crop(tuple(int(v) for v in tile))
         res = client.run_task("symbols", crop)
         latency += res.latency_s
-        n_items = 0
+        n_items = n_clipped = 0
         if res.data is not None:
             for item in res.data.get("items", []):
                 moved = dict(item)
                 moved["box"] = tiles.offset_box(item["box"], tile[0], tile[1])
                 moved["tile"] = index
+                moved["edge_clipped"] = tiles.touches_inner_edge(item["box"], tile, extent)
+                n_clipped += moved["edge_clipped"]
                 raw_items.append(moved)
                 n_items += 1
         else:
             errors[f"tile_{index}"] = res.error or "no answer"
         tile_records.append({"index": index, "box": [int(v) for v in tile], "n_items": n_items,
-                             "latency_s": round(res.latency_s, 3), "error": res.error,
+                             "n_clipped": n_clipped, "latency_s": round(res.latency_s, 3), "error": res.error,
                              "sent_size": list(res.image_size), "crop_size": list(res.page_size)})
     merged, stats = tiles.merge_tile_items(raw_items)
-    return {"extent": [int(v) for v in extent], "tile_px": tile_px, "overlap": overlap, "tiles": tile_records,
-            "items": merged, "merge": stats, "latency_s": round(latency, 3), "errors": errors}
+    return {"extent": [int(v) for v in extent], "extent_info": extent_info, "tile_px": tile_px, "overlap": overlap,
+            "tiles": tile_records, "items": merged, "merge": stats, "latency_s": round(latency, 3), "errors": errors}
 
 
 def run_symbols_tiled(page: RasterPage, model: str, client, out_dir: Path, *,
@@ -336,7 +343,8 @@ def run_symbols_tiled(page: RasterPage, model: str, client, out_dir: Path, *,
               "latency_s": {"symbols_tiled": run["latency_s"]},
               "errors": run["errors"], "n_tiles": len(run["tiles"]), "merge": run["merge"]}
     record = {"project": page.project, "file": page.file, "page": page.page, "kind": page.kind, "model": model,
-              "tiled": True, "extent": run["extent"], "tile_px": run["tile_px"], "overlap": run["overlap"],
+              "tiled": True, "extent": run["extent"], "extent_info": run["extent_info"],
+              "tile_px": run["tile_px"], "overlap": run["overlap"],
               "tiles": run["tiles"], "symbols": {"items": run["items"], "merge": run["merge"]},
               "scores": scores, "has_errors": bool(run["errors"])}
     write_json(out_json, record)

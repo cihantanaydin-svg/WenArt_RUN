@@ -64,8 +64,77 @@ def test_drawing_extent_ignores_the_page_frame_and_handles_blank_pages():
     extent = tiles.drawing_extent(img)
     assert tiles.box_contains(extent, [500, 300, 700, 504], tiles.MIN_MARGIN_PX)
     assert extent[0] > 100 and extent[1] > 100 and extent[2] < 1100 and extent[3] < 700
+    frames = tiles.drawing_extent_info(img)["frames"]
+    assert len(frames) == 1 and frames[0]["box"] == [20, 20, 1180, 780] and frames[0]["inner_ink_share"] == 0.0
     # Blank page: the whole page, so the caller still gets one tile.
     assert tiles.drawing_extent(np.full((300, 400), 255, np.uint8)) == [0, 0, 400, 300]
+
+
+def _sheet_with_plan(span: float, *, border: bool = False, dimension_gap_px: int | None = None) -> tuple[np.ndarray, dict]:
+    """A3-size page (2481 x 1754) with a plan spanning ``span`` of both sides: 6 px outer
+    walls, two inner walls, three 80 px symbols and a title text at the bottom. With
+    ``border`` a 4 px sheet frame along the page edges; with ``dimension_gap_px`` a
+    dimension chain that runs that close to the frame (joined to it by the closing).
+    Returns the image and the boxes that must stay inside the extent."""
+    width, height = 2481, 1754
+    img = np.full((height, width), 255, np.uint8)
+    pw, ph = int(span * width), int(span * height)
+    x0, y0 = (width - pw) // 2, (height - ph) // 2 - 20
+    x1, y1 = x0 + pw, y0 + ph
+    t = 6
+    img[y0:y0 + t, x0:x1] = 0
+    img[y1 - t:y1, x0:x1] = 0
+    img[y0:y1, x0:x0 + t] = 0
+    img[y0:y1, x1 - t:x1] = 0
+    mx, my = (x0 + x1) // 2, (y0 + y1) // 2
+    img[y0:y1, mx:mx + t] = 0                     # inner walls
+    img[my:my + t, x0:x1] = 0
+    symbols = []
+    for cx, cy in ((x0 + 150, y0 + 150), (mx + 200, y0 + 300), (x0 + 400, my + 200)):
+        img[cy:cy + 80, cx:cx + 2] = 0
+        img[cy:cy + 80, cx + 78:cx + 80] = 0
+        img[cy:cy + 2, cx:cx + 80] = 0
+        img[cy + 78:cy + 80, cx:cx + 80] = 0
+        symbols.append([cx, cy, cx + 80, cy + 80])
+    img[height - 60:height - 40, width // 2 - 300:width // 2 + 300:3] = 0   # "title text" below the plan
+    if border:
+        img[8:12, 8:width - 8] = 0
+        img[height - 12:height - 8, 8:width - 8] = 0
+        img[8:height - 8, 8:12] = 0
+        img[8:height - 8, width - 12:width - 8] = 0
+    if dimension_gap_px is not None:
+        yd = 12 + dimension_gap_px
+        img[yd:yd + 2, x0:x1] = 0                 # dimension line above the plan
+        img[yd:y0, x0:x0 + 2] = 0                 # extension lines down to the walls
+        img[yd:y0, x1 - 2:x1] = 0
+    return img, {"plan": [x0, y0, x1, y1], "symbols": symbols}
+
+
+@pytest.mark.parametrize("span,border", [(0.9, False), (0.9, True), (0.86, False), (0.8, False)])
+def test_drawing_extent_keeps_a_plan_that_fills_the_sheet(span, border):
+    # A plan with 5-10 % margins spans the page like a frame does, but it is not a thin
+    # ring: its ink lies inside the box, so it must not be dropped as the page frame.
+    img, truth = _sheet_with_plan(span, border=border)
+    info = tiles.drawing_extent_info(img)
+    extent = info["extent"]
+    assert extent == tiles.drawing_extent(img)
+    assert tiles.box_contains(extent, truth["plan"], 0), f"plan {truth['plan']} outside {extent}"
+    for box in truth["symbols"]:
+        assert tiles.box_contains(extent, box, SYMBOL_MARGIN_PX), f"symbol {box} outside {extent}"
+    frames = info["frames"]
+    assert len(frames) == (1 if border else 0), "only the sheet border is a frame"
+    if border:
+        assert frames[0]["inner_ink_share"] < tiles.FRAME_INNER_INK_SHARE and frames[0]["box"][0] <= 8
+
+
+def test_drawing_extent_keeps_a_drawing_joined_to_the_frame_by_a_dimension_chain():
+    # The dimension line runs 20 px (< the 25 px closing) from the sheet border, so the
+    # border and the drawing become one component: not a thin ring, nothing may be dropped.
+    img, truth = _sheet_with_plan(0.7, border=True, dimension_gap_px=20)
+    info = tiles.drawing_extent_info(img)
+    assert info["frames"] == []
+    for box in truth["symbols"]:
+        assert tiles.box_contains(info["extent"], box, SYMBOL_MARGIN_PX), f"symbol {box} outside {info['extent']}"
 
 
 def test_drawing_extent_accepts_pil_and_scales_large_pages_back():
@@ -143,7 +212,8 @@ def test_merge_tile_items_keeps_higher_confidence_and_counts_conflicts():
     table_over_sofa = {"type": "table_coffee", "box": [101, 100, 220, 160], "confidence": 0.5, "rotation_deg": None, "tile": 2}
     far_sofa = {"type": "sofa", "box": [100, 300, 220, 360], "confidence": 0.4, "rotation_deg": 0, "tile": 2}
     merged, stats = tiles.merge_tile_items([sofa_a, sofa_b, chair, table_over_sofa, far_sofa])
-    assert stats == {"n_input": 5, "n_merged": 4, "n_duplicates": 1, "type_conflicts": 1}
+    assert stats == {"n_input": 5, "n_merged": 4, "n_duplicates": 1, "n_clipped": 0, "n_clipped_absorbed": 0,
+                     "type_conflicts": 1}
     by_type = {}
     for item in merged:
         by_type.setdefault(item["type"], []).append(item)
@@ -152,7 +222,31 @@ def test_merge_tile_items_keeps_higher_confidence_and_counts_conflicts():
     assert kept["confidence"] == 0.9 and kept["rotation_deg"] == 90 and kept["tiles"] == [0, 1]
     assert "tile" not in kept
     assert by_type["chair"][0]["tiles"] == [1] and by_type["table_coffee"][0]["tiles"] == [2]
-    assert tiles.merge_tile_items([]) == ([], {"n_input": 0, "n_merged": 0, "n_duplicates": 0, "type_conflicts": 0})
+    assert tiles.merge_tile_items([]) == ([], {"n_input": 0, "n_merged": 0, "n_duplicates": 0, "n_clipped": 0,
+                                                "n_clipped_absorbed": 0, "type_conflicts": 0})
+
+
+def test_merge_tile_items_absorbs_a_fragment_clipped_at_a_tile_edge():
+    # A 140 px sofa whose right 60 px fall into tile 0: tile 0 answers the visible part
+    # (IoU 60/140 = 0.43 with the whole sofa seen in tile 1). The fragment touches the
+    # inner tile edge, so it is absorbed by the whole view that contains it, whichever
+    # confidence is higher; the whole box is kept.
+    whole = {"type": "sofa", "box": [1332, 800, 1472, 860], "confidence": 0.7, "rotation_deg": 0, "tile": 1}
+    part = {"type": "sofa", "box": [1332, 800, 1392, 860], "confidence": 0.9, "rotation_deg": 0, "tile": 0,
+            "edge_clipped": True}
+    merged, stats = tiles.merge_tile_items([part, whole])
+    assert stats["n_merged"] == 1 and stats["n_duplicates"] == 1 and stats["n_clipped_absorbed"] == 1
+    assert merged[0]["box"] == whole["box"] and merged[0]["tiles"] == [0, 1] and merged[0]["confidence"] == 0.7
+    assert merged[0]["edge_clipped"] is False
+    # Not clipped (the model saw the whole symbol, the boxes just disagree): IoU rules, two sofas remain.
+    merged, stats = tiles.merge_tile_items([dict(part, edge_clipped=False), whole])
+    assert stats["n_merged"] == 2 and stats["n_clipped_absorbed"] == 0
+    # A clipped fragment of another type is never absorbed; a sliver overlapping < 80 % of itself neither.
+    merged, stats = tiles.merge_tile_items([dict(part, type="bed_double"), whole])
+    assert stats["n_merged"] == 2
+    sliver = dict(part, box=[1300, 800, 1392, 860])          # 60 of 92 px inside the sofa: 65 %
+    merged, stats = tiles.merge_tile_items([sliver, whole])
+    assert stats["n_merged"] == 2 and stats["n_clipped_absorbed"] == 0
 
 
 def test_offset_box_maps_crop_pixels_to_page_pixels():
@@ -172,12 +266,14 @@ class _TileFakeClient:
     """
     model = "fake/Tiler"
 
-    def __init__(self, truth_symbols: list[dict], tile_list: list[list[int]], fail_tiles=()):
+    def __init__(self, truth_symbols: list[dict], tile_list: list[list[int]], fail_tiles=(), clip: bool = False):
         self.truth = truth_symbols
         self.tiles = tile_list
         self.fail_tiles = set(fail_tiles)
+        self.clip = clip          # also answer the visible part of a symbol cut by the tile edge
         self.calls = 0
         self.crop_sizes = []
+        self.n_clipped = 0
 
     def run_task(self, task, image):
         assert task == "symbols" and isinstance(image, Image.Image)
@@ -191,10 +287,17 @@ class _TileFakeClient:
                                         attempts=3, error="cannot reach server", image_size=image.size, page_size=image.size)
         items = []
         for sym in self.truth:
-            if tiles.box_contains(tile, sym["box"], 0):
-                b = sym["box"]
-                items.append({"type": sym["type"], "box": [b[0] - tile[0], b[1] - tile[1], b[2] - tile[0], b[3] - tile[1]],
-                              "rotation_deg": None, "confidence": 0.8})
+            b = sym["box"]
+            whole = tiles.box_contains(tile, b, 0)
+            if not whole and self.clip:
+                b = [max(b[0], tile[0]), max(b[1], tile[1]), min(b[2], tile[2]), min(b[3], tile[3])]
+                if b[2] - b[0] < 4 or b[3] - b[1] < 4:
+                    continue                      # a few pixels of a symbol are not a proposal
+                self.n_clipped += 1
+            elif not whole:
+                continue
+            items.append({"type": sym["type"], "box": [b[0] - tile[0], b[1] - tile[1], b[2] - tile[0], b[3] - tile[1]],
+                          "rotation_deg": None, "confidence": 0.8 if whole else 0.6})
         data = {"items": items}
         return vlm_client.VLMResult(task=task, model=self.model, data=data, raw_text=json.dumps(data), latency_s=0.01,
                                     attempts=1, image_size=image.size, page_size=image.size)
@@ -227,6 +330,33 @@ def test_run_symbols_tiled_merges_duplicates_and_scores_against_truth(tmp_path):
     # Resumable: no new calls on the second run.
     again = bakeoff.run_symbols_tiled(page, client.model, client, tmp_path, tile_px=512, overlap=0.3)
     assert client.calls == 4 and again["scores"]["symbols"]["overall"]["tp"] == len(truth)
+
+
+def test_run_symbols_tiled_absorbs_symbols_clipped_at_tile_edges(tmp_path):
+    # The fake also answers the part of a symbol that a tile cuts off (as a model does for
+    # a symbol at the crop border). Fragments under half the symbol have IoU < 0.5 with the
+    # whole view from the neighbouring tile and must still end up as one symbol.
+    page = bakeoff.raster_pages(PROJECTS)[1]            # synthetic-02 plan_scan.png
+    extent = tiles.drawing_extent(page.image_path)
+    tile_list = tiles.tiles(extent, tile_px=512, overlap=0.3)
+    client = _TileFakeClient(page.truth_symbols(), tile_list, clip=True)
+    rec = bakeoff.run_symbols_tiled(page, client.model, client, tmp_path, tile_px=512, overlap=0.3)
+    truth = page.truth_symbols()
+    assert client.n_clipped >= 3, "the test page must have symbols cut by an inner tile edge"
+    merge = rec["symbols"]["merge"]
+    # Every fragment is flagged (a whole symbol within 3 px of a tile edge is flagged too).
+    assert merge["n_clipped"] >= client.n_clipped and merge["n_clipped_absorbed"] >= 1
+    assert merge["n_merged"] == len(truth) and merge["type_conflicts"] == 0
+    scores = rec["scores"]["symbols"]["overall"]
+    assert scores["tp"] == len(truth) and scores["fp"] == 0 and scores["fn"] == 0
+    # The whole view wins over the fragment: every merged box is a truth box.
+    truth_boxes = {tuple(float(v) for v in t["box"]) for t in truth}
+    for item in rec["symbols"]["items"]:
+        assert tuple(item["box"]) in truth_boxes, item
+        assert item["edge_clipped"] is False
+    # The per-tile records say how many proposals touched an inner tile edge.
+    assert sum(t["n_clipped"] for t in rec["tiles"]) == merge["n_clipped"]
+    assert rec["extent_info"]["frames"] and rec["extent_info"]["ink_share_in_extent"] >= tiles.INK_SHARE
 
 
 def test_run_symbols_tiled_records_failed_tiles_instead_of_dropping_them(tmp_path):

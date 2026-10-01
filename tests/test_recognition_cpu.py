@@ -161,6 +161,44 @@ def test_client_reports_unreachable_server_without_raising():
     assert res.page_size == (2481, 1754)
 
 
+def _stub_symbol_answer(box_1000, sent_sizes: list) -> callable:
+    """A ``post_json`` stand-in: records the size of the image sent and answers one symbol."""
+    def post_json(url, body, timeout_s):
+        data_url = body["messages"][1]["content"][0]["image_url"]["url"]
+        from io import BytesIO
+        import base64
+        from PIL import Image
+        with Image.open(BytesIO(base64.b64decode(data_url.split(",", 1)[1]))) as img:
+            sent_sizes.append(img.size)
+        answer = {"items": [{"type": "sofa", "box": box_1000, "rotation_deg": None, "confidence": 0.9}]}
+        return {"choices": [{"message": {"content": json.dumps(answer)}}], "usage": {}}
+    return post_json
+
+
+def test_run_task_on_a_crop_returns_crop_pixels_and_the_tiled_stage_offsets_them(monkeypatch):
+    # The crop-pixel contract the tiled stage relies on (bakeoff.tiled_symbol_items adds the
+    # tile origin): for a PIL crop the real client reports page_size = crop size and maps the
+    # 0..1000 grid to it, whatever downscale was applied to the image as sent.
+    sent = []
+    monkeypatch.setattr(vlm_client, "post_json", _stub_symbol_answer([100, 200, 300, 400], sent))
+    img = vlm_client.load_image(PROJECTS / "synthetic-01" / "1_kat_scan.png")
+    crop = img.crop((880, 633, 1599, 1200))
+    client = vlm_client.VLMClient("http://127.0.0.1:9/v1", model="x", retries=1, timeout_s=1)
+    res = client.run_task("symbols", crop)
+    assert res.error is None and res.page_size == (719, 567) and res.image_size == (719, 567)
+    assert res.data["items"][0]["box"] == [71.9, 113.4, 215.7, 226.8]
+    # A tile larger than max_side is downscaled for sending, the boxes stay in crop pixels.
+    small = vlm_client.VLMClient("http://127.0.0.1:9/v1", model="x", retries=1, timeout_s=1, max_side=300)
+    res = small.run_task("symbols", crop)
+    assert res.image_size == (300, 237) and sent[-1] == (300, 237) and res.page_size == (719, 567)
+    assert res.data["items"][0]["box"] == [71.9, 113.4, 215.7, 226.8]
+    # Through the tiled stage: the extent of this page is one tile at [880, 633, 1599, 1200].
+    run = bakeoff.tiled_symbol_items(PROJECTS / "synthetic-01" / "1_kat_scan.png", client)
+    assert run["extent"] == [880, 633, 1599, 1200] and len(run["tiles"]) == 1
+    assert run["tiles"][0]["crop_size"] == [719, 567] and run["items"][0]["box"] == [951.9, 746.4, 1095.7, 859.8]
+    assert run["items"][0]["edge_clipped"] is False and run["items"][0]["tiles"] == [0]
+
+
 # --------------------------------------------------------------------------
 # Two-pass agreement
 # --------------------------------------------------------------------------

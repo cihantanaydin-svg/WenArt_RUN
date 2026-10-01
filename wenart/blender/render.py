@@ -10,9 +10,18 @@ unique ``pass_index`` from the scene manifest). Files per camera:
 ``<cam>_preview.jpg`` (<= 300 KB), plus ``<cam>_depth.png`` (16-bit, near
 = dark) and ``<cam>_index.png`` (8-bit, pixel value = pass index) so tools
 without an EXR reader can check the passes. ``render_manifest.json`` lists
-camera, samples, device, seconds, the depth range and the index values seen.
+camera, samples, device, seconds, the depth range and the index values seen,
+the pass index table keyed by wenart id (identical to the scene manifest's)
+and the scene fingerprint (``scene_sha256`` of ``scene.blend``).
 
-Idempotent: a camera whose PNG exists is skipped unless ``--force``.
+Idempotent and resumable: the manifest is rewritten after every camera, so a
+killed run keeps what it rendered. A camera is reused ("skipped") only when
+its PNG, EXR and preview exist and its manifest entry carries the fingerprint
+of the current scene.blend; its statistics are read again from the EXR and its
+measured seconds are kept. Anything else (no entry, rebuilt scene, missing
+file) is rendered again and the reason is printed. A ``--cameras`` subset
+merges into the previous manifest; entries of cameras that no longer exist in
+the scene are dropped with a warning. ``--force`` re-renders everything asked.
 
 Why no compositor: Blender 5.x replaced ``scene.node_tree`` by
 ``compositing_node_group`` and reworked the File Output node; the multilayer
@@ -22,6 +31,7 @@ module bundled with Blender (3.1 in 5.2.2).
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import sys
@@ -225,6 +235,52 @@ def _write_png(oiio, path: Path, array, dtype: str) -> None:
     out.close()
 
 
+def scene_fingerprint(blend_path: str) -> str | None:
+    """sha256 of the scene file; None when the scene is unsaved (no file to fingerprint)."""
+    if not blend_path or not Path(blend_path).is_file():
+        return None
+    digest = hashlib.sha256()
+    with open(blend_path, "rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def pass_index_table(scene) -> dict[str, int]:
+    """``{wenart_id: pass_index}`` of every object with an index, the table of the scene
+    manifest (a door's frame and leaf share the id and the index, so one key each)."""
+    table: dict[str, int] = {}
+    for o in scene.objects:
+        if o.pass_index > 0:
+            key = o.get("wenart_id") or o.name
+            table[key] = int(o.pass_index)
+    return table
+
+
+def load_previous(manifest_path: Path) -> dict[str, dict]:
+    """Entries of the last render manifest keyed by camera; empty when absent or unreadable."""
+    if not manifest_path.exists():
+        return {}
+    try:
+        return {r["camera"]: r for r in json.loads(manifest_path.read_text(encoding="utf-8")).get("renders", [])}
+    except (ValueError, KeyError, TypeError):
+        return {}
+
+
+def reuse_reason(cam_name: str, previous: dict | None, fingerprint: str | None, files: list[Path]) -> str | None:
+    """Why a camera must be rendered again, or None when its files can be reused."""
+    missing = [p.name for p in files if not p.exists()]
+    if missing:
+        return f"missing {', '.join(missing)}"
+    if previous is None:
+        return "no manifest entry for its files (run cut before the manifest was written?)"
+    if fingerprint is None:
+        return "scene file not fingerprinted"
+    if previous.get("scene_sha256") != fingerprint:
+        return "scene.blend changed since the render (stale files)"
+    return None
+
+
 def main(argv: list[str]) -> int:
     import bpy
 
@@ -240,11 +296,12 @@ def main(argv: list[str]) -> int:
     except TypeError:
         pass
 
-    cameras = [o for o in scene.objects if o.type == "CAMERA" and o.get("wenart_kind") == "camera"]
-    cameras.sort(key=lambda o: o.name)
+    all_cameras = [o for o in scene.objects if o.type == "CAMERA" and o.get("wenart_kind") == "camera"]
+    all_cameras.sort(key=lambda o: o.name)
+    cameras = all_cameras
     if args.cameras != "all":
         wanted = set(args.cameras.split(","))
-        cameras = [o for o in cameras if o.name in wanted]
+        cameras = [o for o in all_cameras if o.name in wanted]
         missing = wanted - {o.name for o in cameras}
         if missing:
             print(f"unknown cameras: {sorted(missing)}")
@@ -253,34 +310,76 @@ def main(argv: list[str]) -> int:
         print("no cameras to render")
         return 2
 
-    pass_index = {o.name: o.pass_index for o in scene.objects if o.pass_index > 0}
+    fingerprint = scene_fingerprint(bpy.data.filepath)
+    pass_index = pass_index_table(scene)
     manifest_path = out / "render_manifest.json"
-    previous = {}
-    if manifest_path.exists():
-        try:
-            previous = {r["camera"]: r for r in json.loads(manifest_path.read_text(encoding="utf-8")).get("renders", [])}
-        except (ValueError, KeyError):
-            previous = {}
-
-    renders = []
+    previous = load_previous(manifest_path)
     warnings: list[str] = []
+    if fingerprint is None:
+        warnings.append("scene has no file on disk: no fingerprint, every camera is rendered")
+
+    # The manifest is cumulative: entries of cameras not asked for in this run are
+    # carried over (a --cameras subset must not forget the others), entries of cameras
+    # that no longer exist in the scene are dropped, and each one says what it is.
+    scene_names = {o.name for o in all_cameras}
+    run_names = {o.name for o in cameras}
+    entries: dict[str, dict] = {}
+    for name, entry in previous.items():
+        if name not in scene_names:
+            warnings.append(f"{name}: no such camera in the scene, manifest entry dropped")
+            continue
+        if name not in run_names and entry.get("scene_sha256") != fingerprint:
+            warnings.append(f"{name}: rendered from another scene build and not asked for in this run")
+        entries[name] = entry
+
+    def write_manifest() -> None:
+        manifest = {
+            "schema_version": "0.1",
+            "scene": bpy.data.filepath,
+            "scene_sha256": fingerprint,
+            "device": device,
+            "device_requested": args.device,
+            "blender_version": bpy.app.version_string,
+            "samples": args.samples,
+            "resolution": [width, height],
+            "denoiser": denoiser,
+            "pass_index": pass_index,
+            "renders": [entries[name] for name in sorted(entries)],
+            "warnings": warnings,
+        }
+        manifest_path.write_text(json.dumps(manifest, indent=1), encoding="utf-8")
+
+    write_manifest()
+    n_rendered = n_skipped = 0
     for cam in cameras:
         png = out / f"{cam.name}.png"
         exr = out / f"{cam.name}_passes.exr"
         preview = out / f"{cam.name}_preview.jpg"
         depth_png = out / f"{cam.name}_depth.png"
         index_png = out / f"{cam.name}_index.png"
-        if png.exists() and not args.force:
-            entry = previous.get(cam.name) or {
+        prev = previous.get(cam.name)
+        reason = "--force" if args.force else reuse_reason(cam.name, prev, fingerprint, [png, exr, preview])
+        if reason is None:
+            # Reuse: the statistics come from the EXR on disk (cheap), the time from the run that made it.
+            stats, values = read_passes(exr, depth_png, index_png)
+            if stats is None and prev.get("depth") is not None:
+                stats, values = prev["depth"], list(prev.get("index_values", []))
+                warnings.append(f"{cam.name}: pass readback failed, statistics copied from the previous manifest")
+            entries[cam.name] = {
                 "camera": cam.name, "png": png.name, "exr": exr.name, "preview": preview.name,
                 "depth_png": depth_png.name if depth_png.exists() else None,
                 "index_png": index_png.name if index_png.exists() else None,
-                "seconds": 0.0, "samples": args.samples, "resolution": [width, height],
-                "depth": None, "index_values": []}
-            entry["skipped"] = True
-            renders.append(entry)
-            print(f"SKIP {cam.name} (exists)")
+                "preview_bytes": preview.stat().st_size, "seconds": prev["seconds"],
+                "samples": prev.get("samples", args.samples), "resolution": prev.get("resolution", [width, height]),
+                "depth": stats, "index_values": values, "skipped": True, "room_id": cam.get("wenart_room"),
+                "scene_sha256": fingerprint,
+            }
+            n_skipped += 1
+            write_manifest()
+            print(f"SKIP {cam.name} (rendered from this scene, {prev['seconds']}s) depth={stats} indices={values}")
             continue
+        if png.exists():
+            print(f"RERENDER {cam.name}: {reason}")
         scene.camera = cam
         set_output(scene, "OPEN_EXR_MULTILAYER")
         scene.render.filepath = str(exr)
@@ -292,31 +391,20 @@ def main(argv: list[str]) -> int:
         result.save_render(str(png), scene=scene)
         preview_bytes = save_preview(scene, result, preview)
         stats, values = read_passes(exr, depth_png, index_png)
-        renders.append({
+        entries[cam.name] = {
             "camera": cam.name, "png": png.name, "exr": exr.name, "preview": preview.name,
             "depth_png": depth_png.name if depth_png.exists() else None,
             "index_png": index_png.name if index_png.exists() else None,
             "preview_bytes": preview_bytes, "seconds": round(seconds, 2), "samples": args.samples,
             "resolution": [width, height], "depth": stats, "index_values": values, "skipped": False,
-            "room_id": cam.get("wenart_room"),
-        })
+            "room_id": cam.get("wenart_room"), "scene_sha256": fingerprint,
+        }
+        n_rendered += 1
+        write_manifest()   # after every camera: a killed run keeps what it rendered
         print(f"RENDERED {cam.name} in {seconds:.1f}s depth={stats} indices={values}")
 
-    manifest = {
-        "schema_version": "0.1",
-        "scene": bpy.data.filepath,
-        "device": device,
-        "device_requested": args.device,
-        "blender_version": bpy.app.version_string,
-        "samples": args.samples,
-        "resolution": [width, height],
-        "denoiser": denoiser,
-        "pass_index": pass_index,
-        "renders": renders,
-        "warnings": warnings,
-    }
-    manifest_path.write_text(json.dumps(manifest, indent=1), encoding="utf-8")
-    print(f"RENDER_DONE {out} cameras={len(renders)} device={device}")
+    print(f"RENDER_DONE {out} cameras={len(cameras)} rendered={n_rendered} skipped={n_skipped} "
+          f"listed={len(entries)} device={device}")
     return 0
 
 
