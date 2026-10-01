@@ -27,8 +27,9 @@ room polygon, the walls, the doors and the windows of the building JSON:
 - ``wall_contact``  an ``against_wall`` piece touches the room boundary with its
                     back edge (three points of the edge within 5 cm).
 
-Repairs run for at most ``MAX_ITERATIONS`` (20) steps per proposal, one step
-per iteration on the last failing piece (the model lists the main piece first,
+Repairs run for at most ``MAX_ITERATIONS`` (40) steps per proposal, one step
+per iteration on the last failing non-anchor piece (the room's anchor piece, bed
+or sofa, is repaired only when nothing else fails and dropped last; the model lists the main piece first,
 so later pieces give way): ``snap`` (against-wall pieces onto the nearest wall
 with the back to it; free pieces back into the room), ``slide`` (along that
 wall in 10 cm steps up to 2.5 m; free pieces on a 10 cm grid within 1 m, also
@@ -69,7 +70,7 @@ WALL_TOUCH_M = 0.05
 SNAP_GAP_M = ROOM_SHRINK_M + 0.001   # back edge to wall face after a snap (see _snap_to_segment)
 DEFAULT_SILL_M = 0.9
 DEFAULT_WALL_THICKNESS_M = 0.15
-MAX_ITERATIONS = 20
+MAX_ITERATIONS = 40
 SLIDE_STEP_M = 0.1
 SLIDE_MAX_M = 2.5
 SHIFT_MAX_M = 1.0
@@ -611,16 +612,29 @@ def place(proposal: list[dict], ctx: RoomContext, max_iterations: int = MAX_ITER
     def own_ok(piece: Piece) -> bool:
         return not failed_checks(check_all(pieces, ctx)[piece.index])
 
+    anchors = set(schemas.ANCHOR_TYPES.get(ctx.room.get("room_type", ""), ()))
+
+    def is_anchor(piece: Piece) -> bool:
+        return piece.type in anchors
+
     while True:
         checks = check_all(pieces, ctx)
         failing = [i for i, c in enumerate(checks) if failed_checks(c)]
         if not failing:
             break
         if iterations >= max_iterations:
+            # The room's anchor piece (bed, sofa, ...) is dropped last: first the other
+            # failing pieces go, then the anchor only if it still fails on its own.
             for i in reversed(failing):
-                drop(pieces[i], failed_checks(checks[i]), "iteration cap", False)
+                if not is_anchor(pieces[i]):
+                    drop(pieces[i], failed_checks(checks[i]), "iteration cap", False)
+            checks = check_all(pieces, ctx)
+            for i in reversed([i for i, c in enumerate(checks) if failed_checks(c)]):
+                drop(pieces[i], failed_checks(checks[i]), "iteration cap (anchor still failing alone)", False)
             break
-        piece = pieces[failing[-1]]
+        # Repair the last failing non-anchor piece; the anchor itself only when nothing else fails.
+        non_anchor = [i for i in failing if not is_anchor(pieces[i])]
+        piece = pieces[(non_anchor or failing)[-1]]
         failed = failed_checks(checks[piece.index])
         before = piece.state()
         if piece.stage == 0:                                   # snap

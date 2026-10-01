@@ -255,8 +255,23 @@ def test_iteration_cap_drops_the_rest():
     result = P.place(proposal, ctx, max_iterations=2)
     assert result.iterations == 2 and not result.pieces
     reasons = {d["type"]: d["reason"] for d in result.dropped}
-    assert reasons["bed_double"] == "iteration cap"
+    assert reasons["bed_double"].startswith("iteration cap")
     assert all(e["iteration"] <= 2 for e in result.log)
+
+
+def test_anchor_piece_survives_the_iteration_cap():
+    """A bedroom keeps its bed: at the cap the other failing pieces are dropped first."""
+    building, room = make_building()
+    ctx = P.room_context(building, room)
+    bed = piece("bed_double", (2.0, 1.1), against_wall=True)
+    alone = P.place([dict(bed)], ctx)
+    assert len(alone.pieces) == 1, alone.dropped          # the bed fits on its own
+    proposal = [dict(bed), piece("nightstand", (2.0, 1.1), against_wall=True),
+                piece("desk", (2.0, 1.1), against_wall=True), piece("chair", (2.0, 1.1))]
+    result = P.place(proposal, ctx, max_iterations=2)
+    kept = {pc.type for pc in result.pieces}
+    assert "bed_double" in kept, [d["type"] for d in result.dropped]
+    assert all(d["type"] != "bed_double" for d in result.dropped)
 
 
 def test_later_pieces_give_way_first(ctx):
