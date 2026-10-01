@@ -218,7 +218,8 @@ def pod_logs(pod_id: str, tail: int = 2000) -> str:
                 s = line.decode(errors="replace").rstrip("\n")
                 if s.startswith("data:"):
                     try:
-                        out.append(json.loads(s[5:]).get("message", s[5:]))
+                        d = json.loads(s[5:])
+                        out.append(d.get("line", d.get("message", s[5:])))
                     except (json.JSONDecodeError, AttributeError):
                         out.append(s[5:].strip())
     except (socket.timeout, TimeoutError, urllib.error.URLError, OSError):
