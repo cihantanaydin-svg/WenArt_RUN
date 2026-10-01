@@ -53,8 +53,33 @@ MATERIALS: dict[str, dict] = {
     "painted_metal_white": {"source": "ambientcg", "asset": "Metal032",          "kind": "metal",   "flat": [0.85, 0.85, 0.85], "roughness": 0.35},
 }
 
-FLAT_COLOURS: dict[str, list[float]] = {slug: entry["flat"] for slug, entry in MATERIALS.items()}
-ROUGHNESS: dict[str, float] = {slug: entry["roughness"] for slug, entry in MATERIALS.items()}
+# Flat-colour-only slugs for the parametric furniture and decor of Milestone 4
+# (wenart.blender.parametric): fabric, bedding, sanitary ceramic, appliance
+# steel, worktop stone, dark lacquer and plant green. They have no texture
+# asset on purpose (no download, nothing to verify against the APIs), so
+# they live beside MATERIALS instead of inside it; FLAT_COLOURS / ROUGHNESS
+# below cover both tables and wenart.blender.materials reads those.
+FURNITURE_MATERIALS: dict[str, dict] = {
+    "fabric_linen":  {"kind": "fabric",  "flat": [0.72, 0.66, 0.55], "roughness": 0.9},
+    "fabric_white":  {"kind": "fabric",  "flat": [0.86, 0.85, 0.82], "roughness": 0.9},
+    "ceramic_white": {"kind": "ceramic", "flat": [0.92, 0.92, 0.90], "roughness": 0.12},
+    "steel_brushed": {"kind": "metal",   "flat": [0.58, 0.58, 0.58], "roughness": 0.35},
+    "stone_worktop": {"kind": "hard",    "flat": [0.24, 0.24, 0.25], "roughness": 0.3},
+    "lacquer_dark":  {"kind": "painted", "flat": [0.04, 0.04, 0.045], "roughness": 0.4},
+    "plant_green":   {"kind": "organic", "flat": [0.10, 0.28, 0.09], "roughness": 0.8},
+}
+# The style slot the parametric fabric comes from; the Milestone 3 profile
+# has no such slot, so this is the slug used (recorded as assumed).
+DEFAULT_TEXTILE_MATERIAL = "fabric_linen"
+
+FLAT_COLOURS: dict[str, list[float]] = {
+    **{slug: entry["flat"] for slug, entry in MATERIALS.items()},
+    **{slug: entry["flat"] for slug, entry in FURNITURE_MATERIALS.items()},
+}
+ROUGHNESS: dict[str, float] = {
+    **{slug: entry["roughness"] for slug, entry in MATERIALS.items()},
+    **{slug: entry["roughness"] for slug, entry in FURNITURE_MATERIALS.items()},
+}
 
 # Multiplied into the albedo of the wall material (linear RGB).
 WALL_TINTS: dict[str, list[float]] = {
