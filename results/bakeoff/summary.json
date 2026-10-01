@@ -1,0 +1,2518 @@
+{
+ "aggregate": {
+  "models": {
+   "zai-org/GLM-4.6V-Flash": {
+    "pages": 3,
+    "page_class_accuracy": 1.0,
+    "level_label_accuracy": 1.0,
+    "scale_text_accuracy": 1.0,
+    "room_labels": {
+     "tp": 15,
+     "fp": 0,
+     "fn": 0,
+     "precision": 1.0,
+     "recall": 1.0,
+     "f1": 1.0
+    },
+    "symbols": {
+     "tp": 1,
+     "fp": 36,
+     "fn": 67,
+     "precision": 0.027,
+     "recall": 0.0147,
+     "f1": 0.019
+    },
+    "symbols_per_type": {
+     "armchair": {
+      "tp": 0,
+      "fp": 1,
+      "fn": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "bathtub": {
+      "tp": 0,
+      "fp": 1,
+      "fn": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "bed_double": {
+      "tp": 1,
+      "fp": 0,
+      "fn": 1,
+      "precision": 1.0,
+      "recall": 0.5,
+      "f1": 0.6667
+     },
+     "bookshelf": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "chair": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "desk": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "door": {
+      "tp": 0,
+      "fp": 3,
+      "fn": 14,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "fridge": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "kitchen_counter": {
+      "tp": 0,
+      "fp": 2,
+      "fn": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "kitchen_island": {
+      "tp": 0,
+      "fp": 1,
+      "fn": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "nightstand": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "shower": {
+      "tp": 0,
+      "fp": 1,
+      "fn": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "sink_kitchen": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "sofa": {
+      "tp": 0,
+      "fp": 1,
+      "fn": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "stove": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "table_coffee": {
+      "tp": 0,
+      "fp": 1,
+      "fn": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "table_dining": {
+      "tp": 0,
+      "fp": 1,
+      "fn": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "toilet": {
+      "tp": 0,
+      "fp": 1,
+      "fn": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "tv_unit": {
+      "tp": 0,
+      "fp": 1,
+      "fn": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "unknown": {
+      "tp": 0,
+      "fp": 20,
+      "fn": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "wardrobe": {
+      "tp": 0,
+      "fp": 1,
+      "fn": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "washbasin": {
+      "tp": 0,
+      "fp": 1,
+      "fn": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "washing_machine": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "window": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 16,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     }
+    },
+    "latency": {
+     "n": 9,
+     "mean_s": 5.59,
+     "median_s": 3.37,
+     "max_s": 18.42
+    },
+    "errors": 0
+   },
+   "Qwen/Qwen3-VL-8B-Instruct": {
+    "pages": 3,
+    "page_class_accuracy": 1.0,
+    "level_label_accuracy": 1.0,
+    "scale_text_accuracy": 1.0,
+    "room_labels": {
+     "tp": 15,
+     "fp": 0,
+     "fn": 0,
+     "precision": 1.0,
+     "recall": 1.0,
+     "f1": 1.0
+    },
+    "symbols": {
+     "tp": 0,
+     "fp": 34,
+     "fn": 68,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "symbols_per_type": {
+     "armchair": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "bed_double": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "bookshelf": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "chair": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "desk": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "door": {
+      "tp": 0,
+      "fp": 14,
+      "fn": 14,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "fridge": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "kitchen_counter": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "nightstand": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "shower": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "sink_kitchen": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "sofa": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "stove": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "table_coffee": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "table_dining": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "toilet": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "tv_unit": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "unknown": {
+      "tp": 0,
+      "fp": 10,
+      "fn": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "wardrobe": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "washbasin": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "washing_machine": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "window": {
+      "tp": 0,
+      "fp": 10,
+      "fn": 16,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     }
+    },
+    "latency": {
+     "n": 9,
+     "mean_s": 5.08,
+     "median_s": 3.74,
+     "max_s": 26.39
+    },
+    "errors": 0
+   }
+  },
+  "ocr": {
+   "paddleocr": {
+    "pages": 3,
+    "all_texts": {
+     "tp": 26,
+     "fp": 15,
+     "fn": 14,
+     "precision": 0.6341,
+     "recall": 0.65,
+     "f1": 0.642
+    },
+    "room_labels": {
+     "tp": 11,
+     "fp": 30,
+     "fn": 4,
+     "precision": 0.2683,
+     "recall": 0.7333,
+     "f1": 0.3929
+    },
+    "latency": {
+     "n": 3,
+     "mean_s": 18.52,
+     "median_s": 0.45,
+     "max_s": 54.67
+    }
+   },
+   "tesseract": {
+    "pages": 3,
+    "all_texts": {
+     "tp": 19,
+     "fp": 35,
+     "fn": 21,
+     "precision": 0.3519,
+     "recall": 0.475,
+     "f1": 0.4043
+    },
+    "room_labels": {
+     "tp": 3,
+     "fp": 51,
+     "fn": 12,
+     "precision": 0.0556,
+     "recall": 0.2,
+     "f1": 0.087
+    },
+    "latency": {
+     "n": 3,
+     "mean_s": 0.39,
+     "median_s": 0.39,
+     "max_s": 0.41
+    }
+   }
+  },
+  "two_pass": {
+   "pages": 3,
+   "verified": {
+    "tp": 0,
+    "fp": 0,
+    "fn": 68,
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0
+   },
+   "all": {
+    "tp": 1,
+    "fp": 70,
+    "fn": 67,
+    "precision": 0.0141,
+    "recall": 0.0147,
+    "f1": 0.0144
+   },
+   "n_verified": 0,
+   "n_unverified": 71
+  },
+  "pages": 3
+ },
+ "pages": [
+  {
+   "project": "synthetic-01",
+   "file": "1_kat_scan.png",
+   "page": 1,
+   "kind": "scan",
+   "ocr": {
+    "paddleocr": {
+     "all_texts": {
+      "tp": 11,
+      "fp": 3,
+      "fn": 3,
+      "precision": 0.7857,
+      "recall": 0.7857,
+      "f1": 0.7857,
+      "missed": [
+       "3.00",
+       "4.20",
+       "7.20"
+      ]
+     },
+     "room_labels": {
+      "tp": 5,
+      "fp": 9,
+      "fn": 0,
+      "precision": 0.3571,
+      "recall": 1.0,
+      "f1": 0.5263,
+      "missed": []
+     },
+     "latency_s": 54.67
+    },
+    "tesseract": {
+     "all_texts": {
+      "tp": 8,
+      "fp": 7,
+      "fn": 6,
+      "precision": 0.5333,
+      "recall": 0.5714,
+      "f1": 0.5517,
+      "missed": [
+       "3.00",
+       "4.20",
+       "7.20",
+       "banyo",
+       "ebeveyn yatak odası",
+       "yatak odası"
+      ]
+     },
+     "room_labels": {
+      "tp": 2,
+      "fp": 13,
+      "fn": 3,
+      "precision": 0.1333,
+      "recall": 0.4,
+      "f1": 0.2,
+      "missed": [
+       "banyo",
+       "ebeveyn yatak odası",
+       "yatak odası"
+      ]
+     },
+     "latency_s": 0.36
+    }
+   },
+   "models": {
+    "zai-org/GLM-4.6V-Flash": {
+     "latency_s": {
+      "page_class": 3.56,
+      "room_labels": 3.49,
+      "symbols": 2.95
+     },
+     "errors": {},
+     "page_class": {
+      "class_correct": true,
+      "level_label_correct": true,
+      "scale_text_correct": true,
+      "pred_class": "floor_plan",
+      "truth_class": "floor_plan"
+     },
+     "room_labels": {
+      "tp": 5,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "missed": []
+     },
+     "symbols": {
+      "per_type": {
+       "door": {
+        "tp": 0,
+        "fp": 3,
+        "fn": 4,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "window": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 6,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       }
+      },
+      "overall": {
+       "tp": 0,
+       "fp": 3,
+       "fn": 10,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "n_pred": 3,
+      "n_truth": 10
+     }
+    },
+    "Qwen/Qwen3-VL-8B-Instruct": {
+     "latency_s": {
+      "page_class": 0.89,
+      "room_labels": 4.0,
+      "symbols": 3.74
+     },
+     "errors": {},
+     "page_class": {
+      "class_correct": true,
+      "level_label_correct": true,
+      "scale_text_correct": true,
+      "pred_class": "floor_plan",
+      "truth_class": "floor_plan"
+     },
+     "room_labels": {
+      "tp": 5,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "missed": []
+     },
+     "symbols": {
+      "per_type": {
+       "door": {
+        "tp": 0,
+        "fp": 4,
+        "fn": 4,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "window": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 6,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       }
+      },
+      "overall": {
+       "tp": 0,
+       "fp": 4,
+       "fn": 10,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "n_pred": 4,
+      "n_truth": 10
+     }
+    }
+   },
+   "two_pass": {
+    "verified": {
+     "per_type": {
+      "door": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 4,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "window": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 6,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      }
+     },
+     "overall": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 10,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "n_pred": 0,
+     "n_truth": 10
+    },
+    "all": {
+     "per_type": {
+      "door": {
+       "tp": 0,
+       "fp": 7,
+       "fn": 4,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "window": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 6,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      }
+     },
+     "overall": {
+      "tp": 0,
+      "fp": 7,
+      "fn": 10,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "n_pred": 7,
+     "n_truth": 10
+    },
+    "n_verified": 0,
+    "n_unverified": 7
+   }
+  },
+  {
+   "project": "synthetic-02",
+   "file": "plan_scan.png",
+   "page": 1,
+   "kind": "scan",
+   "ocr": {
+    "paddleocr": {
+     "all_texts": {
+      "tp": 8,
+      "fp": 5,
+      "fn": 5,
+      "precision": 0.6154,
+      "recall": 0.6154,
+      "f1": 0.6154,
+      "missed": [
+       "2.40",
+       "3.90",
+       "4.50",
+       "salon",
+       "yatak odası"
+      ]
+     },
+     "room_labels": {
+      "tp": 3,
+      "fp": 10,
+      "fn": 2,
+      "precision": 0.2308,
+      "recall": 0.6,
+      "f1": 0.3333,
+      "missed": [
+       "salon",
+       "yatak odası"
+      ]
+     },
+     "latency_s": 0.44
+    },
+    "tesseract": {
+     "all_texts": {
+      "tp": 5,
+      "fp": 18,
+      "fn": 8,
+      "precision": 0.2174,
+      "recall": 0.3846,
+      "f1": 0.2778,
+      "missed": [
+       "2.40",
+       "4.20",
+       "6.60",
+       "antre",
+       "banyo",
+       "mutfak",
+       "salon",
+       "yatak odası"
+      ]
+     },
+     "room_labels": {
+      "tp": 0,
+      "fp": 23,
+      "fn": 5,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "missed": [
+       "antre",
+       "banyo",
+       "mutfak",
+       "salon",
+       "yatak odası"
+      ]
+     },
+     "latency_s": 0.41
+    }
+   },
+   "models": {
+    "zai-org/GLM-4.6V-Flash": {
+     "latency_s": {
+      "page_class": 1.6,
+      "room_labels": 3.35,
+      "symbols": 11.97
+     },
+     "errors": {},
+     "page_class": {
+      "class_correct": true,
+      "level_label_correct": true,
+      "scale_text_correct": true,
+      "pred_class": "floor_plan",
+      "truth_class": "floor_plan"
+     },
+     "room_labels": {
+      "tp": 5,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "missed": []
+     },
+     "symbols": {
+      "per_type": {
+       "armchair": {
+        "tp": 0,
+        "fp": 1,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "bathtub": {
+        "tp": 0,
+        "fp": 1,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "bed_double": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+       },
+       "bookshelf": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "chair": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "desk": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "door": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 5,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "fridge": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "kitchen_counter": {
+        "tp": 0,
+        "fp": 1,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "kitchen_island": {
+        "tp": 0,
+        "fp": 1,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "nightstand": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "shower": {
+        "tp": 0,
+        "fp": 1,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "sink_kitchen": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "sofa": {
+        "tp": 0,
+        "fp": 1,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "stove": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "table_coffee": {
+        "tp": 0,
+        "fp": 1,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "table_dining": {
+        "tp": 0,
+        "fp": 1,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "toilet": {
+        "tp": 0,
+        "fp": 1,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "tv_unit": {
+        "tp": 0,
+        "fp": 1,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "wardrobe": {
+        "tp": 0,
+        "fp": 1,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "washbasin": {
+        "tp": 0,
+        "fp": 1,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "washing_machine": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "window": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 5,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       }
+      },
+      "overall": {
+       "tp": 1,
+       "fp": 12,
+       "fn": 28,
+       "precision": 0.0769,
+       "recall": 0.0345,
+       "f1": 0.0476
+      },
+      "n_pred": 13,
+      "n_truth": 29
+     }
+    },
+    "Qwen/Qwen3-VL-8B-Instruct": {
+     "latency_s": {
+      "page_class": 1.33,
+      "room_labels": 3.89,
+      "symbols": 0.27
+     },
+     "errors": {},
+     "page_class": {
+      "class_correct": true,
+      "level_label_correct": true,
+      "scale_text_correct": true,
+      "pred_class": "floor_plan",
+      "truth_class": "floor_plan"
+     },
+     "room_labels": {
+      "tp": 5,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "missed": []
+     },
+     "symbols": {
+      "per_type": {
+       "armchair": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "bed_double": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "bookshelf": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "chair": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "desk": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "door": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 5,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "fridge": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "kitchen_counter": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "nightstand": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "shower": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "sink_kitchen": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "sofa": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "stove": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "table_coffee": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "table_dining": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "toilet": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "tv_unit": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "wardrobe": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "washbasin": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "washing_machine": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "window": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 5,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       }
+      },
+      "overall": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 29,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "n_pred": 0,
+      "n_truth": 29
+     }
+    }
+   },
+   "two_pass": {
+    "verified": {
+     "per_type": {
+      "armchair": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "bed_double": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "bookshelf": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "chair": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "desk": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "door": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 5,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "fridge": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "kitchen_counter": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "nightstand": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "shower": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "sink_kitchen": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "sofa": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "stove": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "table_coffee": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "table_dining": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "toilet": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "tv_unit": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "wardrobe": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "washbasin": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "washing_machine": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "window": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 5,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      }
+     },
+     "overall": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 29,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "n_pred": 0,
+     "n_truth": 29
+    },
+    "all": {
+     "per_type": {
+      "armchair": {
+       "tp": 0,
+       "fp": 1,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "bathtub": {
+       "tp": 0,
+       "fp": 1,
+       "fn": 0,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "bed_double": {
+       "tp": 1,
+       "fp": 0,
+       "fn": 0,
+       "precision": 1.0,
+       "recall": 1.0,
+       "f1": 1.0
+      },
+      "bookshelf": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "chair": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "desk": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "door": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 5,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "fridge": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "kitchen_counter": {
+       "tp": 0,
+       "fp": 1,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "kitchen_island": {
+       "tp": 0,
+       "fp": 1,
+       "fn": 0,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "nightstand": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "shower": {
+       "tp": 0,
+       "fp": 1,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "sink_kitchen": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "sofa": {
+       "tp": 0,
+       "fp": 1,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "stove": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "table_coffee": {
+       "tp": 0,
+       "fp": 1,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "table_dining": {
+       "tp": 0,
+       "fp": 1,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "toilet": {
+       "tp": 0,
+       "fp": 1,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "tv_unit": {
+       "tp": 0,
+       "fp": 1,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "wardrobe": {
+       "tp": 0,
+       "fp": 1,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "washbasin": {
+       "tp": 0,
+       "fp": 1,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "washing_machine": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "window": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 5,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      }
+     },
+     "overall": {
+      "tp": 1,
+      "fp": 12,
+      "fn": 28,
+      "precision": 0.0769,
+      "recall": 0.0345,
+      "f1": 0.0476
+     },
+     "n_pred": 13,
+     "n_truth": 29
+    },
+    "n_verified": 0,
+    "n_unverified": 13
+   }
+  },
+  {
+   "project": "synthetic-02",
+   "file": "plan_photo.jpg",
+   "page": 1,
+   "kind": "photo",
+   "ocr": {
+    "paddleocr": {
+     "all_texts": {
+      "tp": 7,
+      "fp": 7,
+      "fn": 6,
+      "precision": 0.5,
+      "recall": 0.5385,
+      "f1": 0.5185,
+      "missed": [
+       "4.20",
+       "6.60",
+       "antre",
+       "banyo",
+       "zemin kat planı",
+       "ölçek 1/100"
+      ]
+     },
+     "room_labels": {
+      "tp": 3,
+      "fp": 11,
+      "fn": 2,
+      "precision": 0.2143,
+      "recall": 0.6,
+      "f1": 0.3158,
+      "missed": [
+       "antre",
+       "banyo"
+      ]
+     },
+     "latency_s": 0.45
+    },
+    "tesseract": {
+     "all_texts": {
+      "tp": 6,
+      "fp": 10,
+      "fn": 7,
+      "precision": 0.375,
+      "recall": 0.4615,
+      "f1": 0.4138,
+      "missed": [
+       "2.40",
+       "4.20",
+       "6.60",
+       "antre",
+       "banyo",
+       "mutfak",
+       "salon"
+      ]
+     },
+     "room_labels": {
+      "tp": 1,
+      "fp": 15,
+      "fn": 4,
+      "precision": 0.0625,
+      "recall": 0.2,
+      "f1": 0.0952,
+      "missed": [
+       "antre",
+       "banyo",
+       "mutfak",
+       "salon"
+      ]
+     },
+     "latency_s": 0.39
+    }
+   },
+   "models": {
+    "zai-org/GLM-4.6V-Flash": {
+     "latency_s": {
+      "page_class": 1.6,
+      "room_labels": 3.37,
+      "symbols": 18.42
+     },
+     "errors": {},
+     "page_class": {
+      "class_correct": true,
+      "level_label_correct": true,
+      "scale_text_correct": true,
+      "pred_class": "floor_plan",
+      "truth_class": "floor_plan"
+     },
+     "room_labels": {
+      "tp": 5,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "missed": []
+     },
+     "symbols": {
+      "per_type": {
+       "armchair": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "bed_double": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "bookshelf": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "chair": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "desk": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "door": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 5,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "fridge": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "kitchen_counter": {
+        "tp": 0,
+        "fp": 1,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "nightstand": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "shower": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "sink_kitchen": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "sofa": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "stove": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "table_coffee": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "table_dining": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "toilet": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "tv_unit": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "unknown": {
+        "tp": 0,
+        "fp": 20,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "wardrobe": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "washbasin": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "washing_machine": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "window": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 5,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       }
+      },
+      "overall": {
+       "tp": 0,
+       "fp": 21,
+       "fn": 29,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "n_pred": 21,
+      "n_truth": 29
+     }
+    },
+    "Qwen/Qwen3-VL-8B-Instruct": {
+     "latency_s": {
+      "page_class": 1.33,
+      "room_labels": 3.88,
+      "symbols": 26.39
+     },
+     "errors": {},
+     "page_class": {
+      "class_correct": true,
+      "level_label_correct": true,
+      "scale_text_correct": true,
+      "pred_class": "floor_plan",
+      "truth_class": "floor_plan"
+     },
+     "room_labels": {
+      "tp": 5,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "missed": []
+     },
+     "symbols": {
+      "per_type": {
+       "armchair": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "bed_double": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "bookshelf": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "chair": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "desk": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "door": {
+        "tp": 0,
+        "fp": 10,
+        "fn": 5,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "fridge": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "kitchen_counter": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "nightstand": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "shower": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "sink_kitchen": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "sofa": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "stove": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "table_coffee": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "table_dining": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "toilet": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "tv_unit": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "unknown": {
+        "tp": 0,
+        "fp": 10,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "wardrobe": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "washbasin": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "washing_machine": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       },
+       "window": {
+        "tp": 0,
+        "fp": 10,
+        "fn": 5,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+       }
+      },
+      "overall": {
+       "tp": 0,
+       "fp": 30,
+       "fn": 29,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "n_pred": 30,
+      "n_truth": 29
+     }
+    }
+   },
+   "two_pass": {
+    "verified": {
+     "per_type": {
+      "armchair": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "bed_double": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "bookshelf": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "chair": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "desk": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "door": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 5,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "fridge": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "kitchen_counter": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "nightstand": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "shower": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "sink_kitchen": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "sofa": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "stove": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "table_coffee": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "table_dining": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "toilet": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "tv_unit": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "wardrobe": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "washbasin": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "washing_machine": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "window": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 5,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      }
+     },
+     "overall": {
+      "tp": 0,
+      "fp": 0,
+      "fn": 29,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "n_pred": 0,
+     "n_truth": 29
+    },
+    "all": {
+     "per_type": {
+      "armchair": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "bed_double": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "bookshelf": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "chair": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "desk": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "door": {
+       "tp": 0,
+       "fp": 10,
+       "fn": 5,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "fridge": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "kitchen_counter": {
+       "tp": 0,
+       "fp": 1,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "nightstand": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "shower": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "sink_kitchen": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "sofa": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "stove": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "table_coffee": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "table_dining": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "toilet": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "tv_unit": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "unknown": {
+       "tp": 0,
+       "fp": 30,
+       "fn": 0,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "wardrobe": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "washbasin": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "washing_machine": {
+       "tp": 0,
+       "fp": 0,
+       "fn": 1,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      },
+      "window": {
+       "tp": 0,
+       "fp": 10,
+       "fn": 5,
+       "precision": 0.0,
+       "recall": 0.0,
+       "f1": 0.0
+      }
+     },
+     "overall": {
+      "tp": 0,
+      "fp": 51,
+      "fn": 29,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+     },
+     "n_pred": 51,
+     "n_truth": 29
+    },
+    "n_verified": 0,
+    "n_unverified": 51
+   }
+  }
+ ]
+}

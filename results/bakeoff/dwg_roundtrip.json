@@ -1,0 +1,51 @@
+{
+ "dxf2dwg": "dxf2dwg 0.13.3",
+ "dwg2dxf": "dwg2dxf 0.13.3",
+ "files": [
+  {
+   "dxf": "projects/synthetic-01/zemin_kat.dxf",
+   "ok": false,
+   "counts_in": {
+    "DIMENSION@OLCU": 6,
+    "INSERT@KAPI": 5,
+    "INSERT@MOBILYA": 13,
+    "INSERT@PENCERE": 6,
+    "LWPOLYLINE@DUVAR": 8,
+    "TEXT@YAZI": 7
+   },
+   "audit_errors_in": 0,
+   "dxf2dwg_rc": 1,
+   "dxf2dwg_stderr": "Warning: Unknown HEADER.TEXTSTYLE OpenSans dxf:7\nWarning: Unknown HEADER.DIMBLK ARCHTICK dxf:1\nWarning: Unknown HEADER.DIMSTYLE EZDXF dxf:3\nWarning: Unknown HEADER.DIMTXSTY OpenSansCondensed-Light dxf:7\nWarning: Unknown HEADER.CMLSTYLE Standard dxf:2\nERROR: Invalid DXF code 50 for MTEXT\nERROR: Failed to decode DXF file: projects/synthetic-01/zemin_kat.dxf\n\nREAD ERROR 0x800 projects/synthetic-01/zemin_kat.dxf\n",
+   "error": "RuntimeError: dxf2dwg failed (rc 1)"
+  },
+  {
+   "dxf": "projects/synthetic-03/mobilya_plani.dxf",
+   "ok": false,
+   "counts_in": {
+    "INSERT@KAPI": 7,
+    "INSERT@MOBILYA": 21,
+    "INSERT@PENCERE": 6,
+    "LWPOLYLINE@DUVAR": 10,
+    "TEXT@YAZI": 9
+   },
+   "audit_errors_in": 0,
+   "dxf2dwg_rc": 0,
+   "dxf2dwg_stderr": "T.layer MOBILYA\nWarning: Unknown INSERT.block_header KOMIDIN\nWarning: Unknown INSERT.layer MOBILYA\nWarning: Unknown INSERT.block_header KOMIDIN\nWarning: Unknown INSERT.layer MOBILYA\nWarning: Unknown INSERT.block_header DOLAP\nWarning: Unknown INSERT.layer MOBILYA\nWarning: Unknown INSERT.block_header SIFONYER\nWarning: Unknown INSERT.layer MOBILYA\nWarning: Unknown INSERT.block_header KLOZET\nWarning: Unknown INSERT.layer MOBILYA\nWarning: Unknown INSERT.block_header LAVABO\nWarning: Unknown INSERT.layer MOBILYA\nWarning: Unknown INSERT.block_header BLOK_A\nWarning: Unknown TEXT.layer YAZI\nWarning: Unknown TEXT.layer YAZI\nWarning: Unknown TEXT.layer YAZI\nWarning: Unknown TEXT.layer YAZI\nWarning: Unknown TEXT.layer YAZI\nWarning: Unknown TEXT.layer YAZI\nWarning: Unknown TEXT.layer YAZI\nWarning: Unknown TEXT.layer YAZI\nWarning: Unknown TEXT.layer YAZI\nWarning: Object handle not found 356/0x164\nWarning: \nObject MLEADERSTYLE unsupported\nWarning: Unstable Class object 505 MLEADERSTYLE (0xfff) 293/2C\n",
+   "dwg_bytes": 25689,
+   "dwg2dxf_rc": 0,
+   "dwg2dxf_stderr": "ERROR: bit_read_RC buffer overflow at 93.0 >= 93\nWarning: handleoff 0x0 looks wrong, max_handles d62 - last_handle 1F = D43 (@24023)\nWarning: Unstable Class object 505 MLEADERSTYLE (0xfff) 44/0\nWarning: Unstable Class object 505 MLEADERSTYLE (0xfff) 44/2C\n",
+   "seconds": 0.2,
+   "counts_back": {},
+   "audit_errors_back": 1,
+   "missing": {
+    "INSERT@KAPI": 7,
+    "INSERT@MOBILYA": 21,
+    "INSERT@PENCERE": 6,
+    "LWPOLYLINE@DUVAR": 10,
+    "TEXT@YAZI": 9
+   },
+   "extra": {}
+  }
+ ],
+ "all_ok": false
+}

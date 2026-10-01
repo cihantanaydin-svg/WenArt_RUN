@@ -146,6 +146,10 @@ source. Hugging Face pages were **blocked** in this cloud session, so model-card
 Pick: cheap CPU heuristics first (page has text layer? contains "KAT PLANI", "KESİT", "GÖRÜNÜŞ"?),
 then Qwen3-VL-8B with a fixed JSON schema; GLM-4.6V-Flash is the independent second opinion.
 
+**Bake-off result (1 Oct 2026, `results/bakeoff/summary.md`, 3 synthetic scan/photo pages, RTX PRO 4000 24 GB, fp8 weights,
+8192 context):** both models classify every page, read the level title, the scale note and all room labels correctly
+(100 % on all four tasks, scan and phone photo alike); Qwen3-VL-8B ≈ 5.1 s per call, GLM-4.6V-Flash ≈ 5.6 s. Pick confirmed.
+
 ### 4.2 Recognition and OCR (walls, openings, labels, dimensions, furniture and fixture symbols)
 
 | Option | Licence | Commercial | VRAM | Speed | Quality | Last update | Link |
@@ -163,6 +167,15 @@ then Qwen3-VL-8B with a fixed JSON schema; GLM-4.6V-Flash is the independent sec
 
 Realistic accuracy on scans (literature on CubiCasa5k, S): walls ~0.9+ IoU, doors ~0.85, windows ~0.2–0.9
 depending on method. That is why windows and furniture on scans will often be "unverified".
+
+**Bake-off result (1 Oct 2026, `results/bakeoff/summary.md`):** PaddleOCR PP-OCRv5 (`lang="tr"`) reads 73 % of the room
+labels and 65 % of all texts on the synthetic scans and photo; Tesseract 5 `tur` reads 20 % / 48 % (furniture lines inside
+rooms break its line segmentation). PaddleOCR stays the primary OCR, Tesseract the cross-check. Symbol detection by the two
+VLMs on the full page is unusable as run: 0–1 % recall (Qwen returns no boxes on two pages, GLM a hallucinated grid; two
+near-hits with IoU 0.46–0.58). Cause: the 1:100 plan covers ~20 % of the A3 sheet, so after the 1600 px downscale a door is
+~15 px wide. Next step (Milestone 3): crop to the drawing extents and tile per room at full resolution before the symbol pass,
+and keep the fine-tuned detector (D-FINE / RF-DETR on synthetic renders, §4.2) as the planned fallback. The two-pass
+agreement logic works (0 verified symbols, all 71 proposals `unverified`, nothing guessed).
 
 ### 4.3 DWG conversion
 
@@ -293,6 +306,14 @@ in Milestone 2 (the RunPod base image provides CUDA 12.8.1).
 | Reaching pods from your Mac (later) | `ssh root@<ip> -p <port>` + rsync (`22/tcp` exposed, `startSsh: true`) | |
 | Self-shutdown | the pod's start command runs `( sleep 7200; runpodctl pod stop $RUNPOD_POD_ID ) &` as a watchdog, and the job script calls `runpodctl pod stop $RUNPOD_POD_ID` at the end; both tested in Milestone 1 | rule: never rely on the session |
 | Prices | read live from `GET /v2/catalog/gpus` before every run; the runner refuses anything above $1.00/h | the table above is from search snippets |
+
+**Measured on 1 Oct 2026 (Milestone 2):** the STANDARD Network Volume in EU-RO-1 writes small files at a few MB/s: a
+`pip install vllm` onto it ran for 55 minutes without finishing, while the same install takes 3 minutes on the pod's container
+disk. Rule from now on: venvs, build trees and the Hugging Face cache live on the container disk (`/opt/wenart`, rebuilt per pod,
+the runner gives such pods `--disk 80`); the volume keeps the repo, outputs, results, Blender and the pip wheel cache. Model
+downloads on the pod run at ≈ 1.1 GB/s (17.5 GB in 14 s), so re-downloading per pod costs seconds, not minutes. Blackwell
+pods (RTX PRO 4000/4500, sm_120) need the CUDA 12.9 PaddlePaddle wheel and `VLLM_USE_FLASHINFER_SAMPLER=0`; on 24 GB cards
+both VLMs run with `--quantization fp8 --max-model-len 8192`.
 
 ## 6. Cost estimate for the whole PoC
 

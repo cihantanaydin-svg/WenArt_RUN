@@ -57,6 +57,46 @@ Findings:
 
 GPU cost so far: $0.05 (plus $16.37 of earlier pod use on the account in September, not ours).
 
-Next step: your OK to create the 120 GB STANDARD Network Volume `wenart` in EU-RO-1
-(≈ $8.40/month). Then one more smoke run on the volume (first run installs, second run
-must skip the install) and Milestone 2: recognition bake-off.
+Volume created (1 Oct 2026): `h9er811d55`, 120 GB STANDARD, EU-RO-1. Two smoke runs on it: the
+first installed Blender + venv (10 min, $0.10), the second reused them (setup 10 s, $0.05).
+
+## Milestone 2 – recognition (done, 1 Oct 2026)
+
+What works:
+- Synthetic test projects with ground truth (`wenart/synthetic`, `docs/synthetic.md`): synthetic-01
+  (DXF + vector PDF + scan), synthetic-02 (scan + phone photo), synthetic-03 (3-page PDF + furniture
+  DXF with deliberate conflicts). Previews in `results/synthetic/`.
+- Vector path (`wenart/ingest`): DXF and vector-PDF extraction, room polygons from walls, openings and
+  furniture linked to walls/rooms, cross-checks (dimension vs measured, area label vs computed, counts
+  across documents, outline across floors), conflicts, unverified, `needs_review` stop, debug images,
+  `report.md`. Reproduces the truth of all three projects (`pytest -m "not gpu"`: 194 passed).
+- Recognition bake-off on the pod (`wenart/recognition`, `scripts/jobs/bakeoff.sh`, results in
+  `results/bakeoff/`): PaddleOCR vs Tesseract, Qwen3-VL-8B vs GLM-4.6V-Flash via vLLM 0.30, two-pass
+  agreement. Numbers:
+
+| Task (3 scan/photo pages) | PaddleOCR | Tesseract | Qwen3-VL-8B (fp8) | GLM-4.6V-Flash (fp8) |
+|---|---|---|---|---|
+| Page class / level title / scale text | - | - | 100 % | 100 % |
+| Room labels (recall) | 73 % | 20 % | 100 % | 100 % |
+| All texts (recall / precision) | 65 % / 63 % | 48 % / 35 % | - | - |
+| Furniture + door + window symbols (recall) | - | - | 0 % | 1 % |
+| Latency per page / call | 0.4 s (18 s with model load) | 0.4 s | 5.1 s | 5.6 s |
+
+What fails / open:
+- Symbol detection on the full page is unusable (see `docs/plan.md` §4.2): the drawing is ~20 % of the
+  sheet, so symbols are ~15 px after downscaling. Milestone 3 adds crop-to-drawing + per-room tiles.
+- LibreDWG 0.13.3 `dxf2dwg` rejects DXFs with DIMENSION blocks ("Invalid DXF code 50 for MTEXT");
+  `mobilya_plani.dxf` (no dimensions) round-trips. Try 0.14.1 on the pod next.
+- The Milestone 2 code review (4 lenses, adversarial verification) is still running; its confirmed
+  findings get fixed in a follow-up commit.
+
+Lessons (all recorded in `docs/plan.md` §5): the network volume is far too slow for venvs (55 min vs 3 min
+on the container disk); model downloads run at 1.1 GB/s on the pod; Blackwell pods need the cu129
+PaddlePaddle wheel and `VLLM_USE_FLASHINFER_SAMPLER=0`; 24 GB cards need fp8 + 8192 context for these VLMs.
+Four bake-off pod runs were needed (volume stall, stage-trap bug, vLLM memory/sampler); every pod stopped
+itself, see `docs/gpu-log.md`.
+
+GPU cost so far: ≈ $1.50 (`docs/gpu-log.md` has the exact rows).
+
+Next step: fix the review findings, then Milestone 3: 3D shell in Blender from the building JSON
+(+ crop/tiling for the symbol pass).
