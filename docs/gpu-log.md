@@ -13,6 +13,6 @@ runner could not write it). Costs are estimates from the on-demand price at star
 | 2026-10-01 16:00 | ib8rk52cos62l2 | NVIDIA RTX PRO 4000 Blackwell | 25 | 0.24 | M2 recognition bake-off, run 3 (stage trap fixed) | exit 1, self-stop ok |
 | 2026-10-01 16:28 | 81v79dcc2d335t | NVIDIA RTX PRO 4000 Blackwell | 28 | 0.27 | M2 recognition bake-off, run 4 (fp8, 8192 ctx, sampler fix, OCR CPU fallback) | exit 1, self-stop ok |
 | 2026-10-01 17:28 | z9zsnvqjme4xt1 | NVIDIA L4 | 16 | 0.13 | M2 verification run (review fixes, GPU tests before vLLM) | exit 1, self-stop ok |
-| 2026-10-01 18:16 | pending:20261001-181615-render | L4 | 120 | 0.98 | M3 renders: 3 synthetic projects, 3 views per room, 128 samples | creating (provisional, worst case) |
+| 2026-10-01 18:35 | yydldegr7x1xi8 | NVIDIA L4 | 20 | 0.16 | M3 renders: 3 synthetic projects, 3 views per room, 128 samples | exit 1, self-stop ok |
 
-**Total spent so far: $2.61** (budget: $100; limits: $1.00/GPU-hour, $10/day, 2 h/run)
+**Total spent so far: $1.79** (budget: $100; limits: $1.00/GPU-hour, $10/day, 2 h/run)
