@@ -71,6 +71,34 @@ def test_unclosed_outer_walls():
     assert any("closed loop" in w or "no enclosed room" in w for w in result.warnings)
 
 
+def test_open_outer_wall_with_an_enclosed_room_is_not_closed():
+    """One half of the top wall is missing: the right room is still a hole of
+    the union, so the ring count alone says 'closed'. The left outer wall now
+    ends in the open, which is what the closure check must catch."""
+    size, t = 5.0, 0.25
+    h = t / 2
+    ev = B.evidence("x.dxf", "vector", 1.0, entity="w")
+    walls = [WallItem((0.0, h), (size, h), t, [0, 0, 0, 0], "bottom", ev),
+             WallItem((size - h, 0.0), (size - h, size), t, [0, 0, 0, 0], "right", ev),
+             WallItem((h, 0.0), (h, size), t, [0, 0, 0, 0], "left", ev),
+             WallItem((2.5, size - h), (size, size - h), t, [0, 0, 0, 0], "top-right", ev),
+             WallItem((2.5, t), (2.5, size - t), 0.1, [0, 0, 0, 0], "inner", ev)]
+    assert R.wall_union(walls).geom_type == "Polygon" and len(R.wall_union(walls).interiors) == 1
+    assert not R.outer_walls_closed(walls)
+    labels = [label("SALON", (1, 1), "TEXT:1"), label("MUTFAK", (3.5, 3), "TEXT:2")]
+    result = R.derive_rooms("L0", walls, labels, [(1, 1), (3.5, 3)], None, "x.dxf")
+    assert not result.closed
+    assert any("closed loop" in w and "left" in w for w in result.warnings)
+    # The enclosed room is still derived so the review report can show it.
+    assert [r["label"] for r in result.rooms] == ["Mutfak"]
+    assert result.unplaced_labels == [labels[0]]
+    # The complete drawing is closed.
+    walls.append(WallItem((0.0, size - h), (2.5, size - h), t, [0, 0, 0, 0], "top-left", ev))
+    assert R.outer_walls_closed(walls)
+    result = R.derive_rooms("L0", walls, labels, [(1, 1), (3.5, 3)], None, "x.dxf")
+    assert result.closed and [r["label"] for r in result.rooms] == ["Salon", "Mutfak"]
+
+
 def test_room_without_label_is_unverified():
     result = R.derive_rooms("L0", square_walls(), [], [], None, "x.dxf")
     assert result.closed and len(result.rooms) == 1

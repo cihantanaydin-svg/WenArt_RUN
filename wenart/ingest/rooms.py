@@ -4,8 +4,16 @@ Each interior ring of the union is a room polygon. A room label (TEXT inside
 the face) names it; the label's area suffix becomes ``area_label``. Faces
 without a label, with several labels, or labels outside every face are
 reported, never fixed silently. The exterior ring tells which walls are
-exterior and whether the outer walls close (one polygon with at least one
-hole); if they do not, the pipeline stops the project with ``needs_review``.
+exterior and whether the outer walls close; if they do not, the pipeline
+stops the project with ``needs_review``.
+
+Closure check: the union must be one polygon with at least one hole, and no
+wall may end in the open. A wall end (the short side of its rectangle) that
+lies on the exterior ring but is touched by no other wall is a loose end:
+when an outer wall segment is missing, the neighbouring walls end exactly
+there, while the remaining enclosed rooms still show up as holes (so the
+ring count alone would say "closed"). Free-standing partitions inside a room
+end on an interior ring, not the exterior one, and are not loose ends.
 
 Coordinates are snapped to 1 mm and the union is closed by a 2 mm
 morphological pass so that sub-millimetre gaps between touching rectangles
@@ -16,7 +24,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Optional
 
-from shapely.geometry import Point as ShapelyPoint, Polygon
+from shapely.geometry import LineString, Point as ShapelyPoint, Polygon
 from shapely.geometry.polygon import orient
 from shapely.ops import unary_union
 
@@ -27,6 +35,7 @@ from wenart.ingest.model import TextItem, WallItem
 SNAP_M = 0.001          # wall corner snapping (metres)
 CLOSE_M = 0.002         # gap closing radius (metres)
 TOUCH_M = 0.001         # "touches" tolerance for wall <-> ring tests
+END_TOUCH_M = 2 * CLOSE_M  # a wall end this close to another wall is supported, not loose
 
 UNLABELLED_LABEL = "Oda"   # Turkish "room", used for faces with no label text
 
@@ -57,9 +66,45 @@ def wall_union(walls: list[WallItem]):
     return union.buffer(CLOSE_M, join_style="mitre").buffer(-CLOSE_M, join_style="mitre")
 
 
+def _wall_end_edges(wall: WallItem) -> list[LineString]:
+    """The two short sides of the wall rectangle (at ``start`` and at ``end``)."""
+    c = [G.snap_point(p, 3) for p in G.centerline_to_rectangle(wall.start, wall.end, wall.thickness)]
+    return [LineString([c[3], c[0]]), LineString([c[1], c[2]])]
+
+
+def loose_wall_ends(walls: list[WallItem], polys: list[Polygon], exterior) -> list[tuple[int, str]]:
+    """``(wall index, "start" | "end")`` for every wall end that lies on the
+    exterior ring and touches no other wall: the outer loop is open there."""
+    loose = []
+    for i, wall in enumerate(walls):
+        for which, edge in zip(("start", "end"), _wall_end_edges(wall)):
+            if edge.length < 1e-9 or edge.distance(exterior) >= TOUCH_M:
+                continue
+            supported = any(j != i and poly.distance(edge) <= END_TOUCH_M for j, poly in enumerate(polys))
+            if not supported:
+                loose.append((i, which))
+    return loose
+
+
+def closure_problem(walls: list[WallItem], union=None) -> Optional[str]:
+    """Why the outer walls do not form one closed loop, or None when they do."""
+    if not walls:
+        return "no walls"
+    union = wall_union(walls) if union is None else union
+    if union.geom_type != "Polygon":
+        parts = getattr(union, "geoms", [])
+        return f"outer walls do not form one closed loop ({union.geom_type}, {len(parts)} parts)"
+    if len(union.interiors) == 0:
+        return "walls form no enclosed room"
+    loose = loose_wall_ends(walls, wall_polygons(walls), union.exterior)
+    if loose:
+        where = ", ".join(f"{walls[i].entity} ({which} at {G.snap_point(getattr(walls[i], which), 3)})" for i, which in loose)
+        return f"outer walls do not form a closed loop: wall ends open to the outside at {where}"
+    return None
+
+
 def outer_walls_closed(walls: list[WallItem]) -> bool:
-    union = wall_union(walls)
-    return union.geom_type == "Polygon" and len(union.interiors) >= 1
+    return closure_problem(walls) is None
 
 
 def ring_to_polygon(ring) -> list[tuple[float, float]]:
@@ -97,16 +142,14 @@ def derive_rooms(level_id: str, walls: list[WallItem], labels: list[TextItem], l
         result.warnings.append(f"{level_id}: no walls")
         return result
     union = wall_union(walls)
-    if union.geom_type != "Polygon":
+    problem = closure_problem(walls, union)
+    if problem is not None:
         result.closed = False
-        parts = getattr(union, "geoms", [])
-        result.warnings.append(f"{level_id}: outer walls do not form one closed loop "
-                               f"({union.geom_type}, {len(parts)} parts)")
-        return result
-    if len(union.interiors) == 0:
-        result.closed = False
-        result.warnings.append(f"{level_id}: walls form no enclosed room")
-        return result
+        result.warnings.append(f"{level_id}: {problem}")
+        if union.geom_type != "Polygon" or len(union.interiors) == 0:
+            return result
+        # Loose ends: the rooms that are still enclosed are derived below so
+        # the review report can show them; the level stays "not closed".
 
     polys = wall_polygons(walls)
     exterior = union.exterior

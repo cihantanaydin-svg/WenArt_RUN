@@ -11,6 +11,15 @@ Several documents may show the same level. The best source becomes the
 order); the others add evidence to the master's elements. Elements the
 master lacks are added as ``unverified`` with a ``count_mismatch`` conflict,
 elements a secondary page lacks are kept (the master wins) and reported.
+A matched element that the second document draws differently (furniture
+footprint or facing, room label) keeps the master's values, carries both
+evidences, becomes ``unverified`` and gets a ``type_disagreement`` conflict.
+
+Furniture is class-aware: a floor plan commonly draws none, so a floor plan
+without furniture never conflicts with a page that has it. When the master
+draws no furniture, a furniture plan of the same level is the furniture
+source (its pieces keep the status the extractor gave them); any other page
+that draws furniture the master lacks goes through the count check above.
 
 ``status`` is ``needs_review`` when a plan page has no scale source, the
 outer walls of a level do not close, a DWG cannot be converted, a floor plan
@@ -23,6 +32,7 @@ CLI: ``python -m wenart.ingest.pipeline projects/synthetic-01 --out outputs/synt
 from __future__ import annotations
 
 import argparse
+import math
 import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -44,7 +54,9 @@ DEFAULT_CEILING_HEIGHT = 2.70
 LEVEL_PITCH = 3.00              # assumed floor-to-floor height when no section exists
 WALL_TOL = 0.005                # metres: centre line and thickness matching
 OPENING_TOL = 0.010             # metres: opening centre and width matching
-FURNITURE_TOL = 0.010           # metres: furniture centre matching
+FURNITURE_TOL = 0.010           # metres: furniture centre and footprint corner matching
+ROTATION_TOL = 1.0              # degrees: furniture facing across documents
+SWING_MARGIN = 0.05             # metres past the wall face where the door swing probe is placed
 AREA_TOL = 0.03                 # label vs computed area: conflict beyond, unverified beyond this
 DIMENSION_TOL = 0.01            # printed vs measured dimension
 PRINT_EPS = 0.0051              # texts show two decimals: smaller differences are rounding
@@ -140,6 +152,23 @@ def _nearest_wall(point, rotation_deg: float, walls: list[dict]) -> tuple[Option
     return best, best_d
 
 
+def _swing_probe(opening: OpeningItem, wall: Optional[dict], dist: float) -> tuple[float, float]:
+    """A point just past the face of ``wall`` on the side the door opens into.
+
+    The extractor's ``swing_point`` only gives the direction: it sits a fixed
+    distance from the door centre and lands inside the wall itself when the
+    wall is thick. ``dist`` is how far the door centre is from the wall's
+    centre line, added so an off-centre insert still clears the face.
+    """
+    sx, sy = opening.swing_point
+    dx, dy = sx - opening.center[0], sy - opening.center[1]
+    length = math.hypot(dx, dy)
+    if wall is None or length < 1e-9:
+        return (sx, sy)
+    reach = wall["thickness"] / 2 + dist + SWING_MARGIN
+    return (opening.center[0] + dx / length * reach, opening.center[1] + dy / length * reach)
+
+
 def _opening_dict(level_id: str, opening: OpeningItem, opening_id: str, walls: list[dict], rooms: list[dict],
                   build: ProjectBuild) -> dict:
     opening.element_id = opening_id
@@ -150,8 +179,15 @@ def _opening_dict(level_id: str, opening: OpeningItem, opening_id: str, walls: l
         build.warn(f"{opening_id}: not on any wall of {level_id} (nearest {dist:.3f} m)")
     swing_side = None
     if opening.kind == "door" and opening.swing_point is not None:
-        room = R.room_containing(rooms, opening.swing_point)
-        swing_side = room["id"] if room else None
+        probe = _swing_probe(opening, wall, dist)
+        room = R.room_containing(rooms, probe)
+        if room is not None:
+            swing_side = room["id"]
+        elif wall is None or not wall["exterior"]:
+            # The drawing shows a swing side but no room lies there: not a
+            # door to the outside (the wall is not exterior), so do not guess.
+            status = "unverified"
+            build.warn(f"{opening_id}: swing side ({probe[0]:.2f}, {probe[1]:.2f}) lies in no room of {level_id}")
     return {"id": opening_id, "type": opening.kind, "level_id": level_id, "wall_id": wall["id"] if wall else "",
             "center": list(opening.center), "width": opening.width, "height": None, "sill_height": None,
             "swing_side": swing_side, "status": status, "evidence": [opening.evidence]}
@@ -259,6 +295,25 @@ def _match(items, candidates, match_fn):
     return pairs, unmatched, left
 
 
+def _footprint_disagreement(item: FurnitureItem, piece: dict, master_where: str, item_where: str) -> Optional[str]:
+    """How the secondary page draws a matched piece differently, or None.
+
+    The footprint is compared corner by corner (so a rectangle given with
+    swapped width/depth and a 90 degree turn still agrees); the facing is
+    compared only when both documents mark a front side.
+    """
+    fp = piece["footprint"]
+    theirs = G.rotated_rectangle(item.center, item.size, item.rotation_deg)
+    mine = G.rotated_rectangle(fp["center"], fp["size"], fp["rotation_deg"])
+    if any(min(G.distance(a, b) for b in mine) > FURNITURE_TOL for a in theirs):
+        return (f"footprint {fp['size'][0]:.2f} x {fp['size'][1]:.2f} m at {fp['rotation_deg']:.0f} deg in {master_where}, "
+                f"{item.size[0]:.2f} x {item.size[1]:.2f} m at {item.rotation_deg:.0f} deg in {item_where}")
+    if (item.front_deg is not None and piece["front_deg"] is not None
+            and G.angle_difference_deg(item.rotation_deg, fp["rotation_deg"]) > ROTATION_TOL):
+        return f"rotation {fp['rotation_deg']:.0f} deg in {master_where}, {item.rotation_deg:.0f} deg in {item_where}"
+    return None
+
+
 def _merge_secondary(build: ProjectBuild, level_id: str, level_label: str, master: PageWork, work: PageWork,
                      walls: list[dict], openings: list[dict], furniture: list[dict], rooms: list[dict]) -> None:
     ex = work.extraction
@@ -276,24 +331,50 @@ def _merge_secondary(build: ProjectBuild, level_id: str, level_label: str, maste
         same_type = item.type == piece["type"] or "unknown" in (item.type, piece["type"])
         return same_type and G.distance(item.center, piece["footprint"]["center"]) <= FURNITURE_TOL
 
+    def furniture_disagreement(item: FurnitureItem, piece: dict) -> Optional[str]:
+        return _footprint_disagreement(item, piece, master.where, work.where)
+
+    def make_furniture(item: FurnitureItem, element_id: str) -> dict:
+        return _furniture_dict(level_id, item, element_id, rooms, build)
+
+    # (kind, secondary items, master elements, match, build element, describe a disagreement)
     groups = [
-        ("wall", ex.walls, walls, wall_match, lambda it, eid: _wall_dict(level_id, it, eid, DEFAULT_CEILING_HEIGHT)),
+        ("wall", ex.walls, walls, wall_match, lambda it, eid: _wall_dict(level_id, it, eid, DEFAULT_CEILING_HEIGHT), None),
         ("door", ex.doors(), [o for o in openings if o["type"] == "door"], opening_match,
-         lambda it, eid: _opening_dict(level_id, it, eid, walls, rooms, build)),
+         lambda it, eid: _opening_dict(level_id, it, eid, walls, rooms, build), None),
         ("window", ex.windows(), [o for o in openings if o["type"] == "window"], opening_match,
-         lambda it, eid: _opening_dict(level_id, it, eid, walls, rooms, build)),
+         lambda it, eid: _opening_dict(level_id, it, eid, walls, rooms, build), None),
     ]
-    if ex.furniture and furniture:
-        groups.append(("furniture", ex.furniture, furniture, furniture_match,
-                       lambda it, eid: _furniture_dict(level_id, it, eid, rooms, build)))
+    furniture_plan = work.record.page_class == "furniture_plan"
+    if ex.furniture and not furniture and furniture_plan:
+        # The master (a floor plan) draws no furniture: the furniture plan is
+        # the furniture source of this level. Pieces keep the extractor's status.
+        for item in ex.furniture:
+            element = make_furniture(item, build.ids.next("furniture", level_id))
+            build.building["furniture"].append(element)
+            furniture.append(element)
+        build.warn(f"{level_label}: furniture taken from {work.where} ({len(ex.furniture)} pieces); "
+                   f"{master.where} draws none")
+    elif ex.furniture or (furniture and furniture_plan):
+        # Both pages draw furniture, a page other than a furniture plan draws
+        # what the master lacks, or a furniture plan draws none: cross-check.
+        # A floor plan without furniture is normal and is not compared.
+        groups.append(("furniture", ex.furniture, furniture, furniture_match, make_furniture, furniture_disagreement))
     target = {"wall": build.building["walls"], "door": build.building["openings"],
               "window": build.building["openings"], "furniture": build.building["furniture"]}
     plural = {"wall": "walls", "door": "doors", "window": "windows", "furniture": "furniture pieces"}
-    for kind, items, candidates, match_fn, make in groups:
+    for kind, items, candidates, match_fn, make, disagreement in groups:
+        master_count, secondary_count = len(candidates), len(items)
         pairs, extra, missing = _match(items, candidates, match_fn)
         for item, element in pairs:
             element["evidence"].append(item.evidence)
             item.element_id = element["id"]
+            text = disagreement(item, element) if disagreement else None
+            if text is not None:
+                element["status"] = item.status = "unverified"
+                build.conflict("type_disagreement", [element["id"]],
+                               f"{level_label}: {element['id']} ({element.get('type', kind)}) {text}",
+                               f"{master_name} wins over {sec_name}, {kind} kept as drawn there")
         if not extra and not missing:
             continue
         element_ids = [m["id"] for m in missing]
@@ -309,24 +390,35 @@ def _merge_secondary(build: ProjectBuild, level_id: str, level_label: str, maste
             else:
                 furniture.append(element)
             element_ids.append(element["id"])
-        description = (f"{level_label}: {master.where} has {len(candidates)} {plural[kind]}, "
-                       f"{work.where} has {len(items)}")
+        description = (f"{level_label}: {master.where} has {master_count} {plural[kind]}, "
+                       f"{work.where} has {secondary_count}")
         resolution = f"{master_name} wins over {sec_name}, {kind} kept"
         if extra:
             resolution += f"; {len(extra)} extra from {sec_name} added as unverified"
         build.conflict("count_mismatch", element_ids, description, resolution)
 
-    # Room labels of the secondary page confirm the master's rooms.
+    # Room labels of the secondary page confirm the master's rooms, or disagree.
     for text in ex.labels:
         label, _, _ = B.normalise_room_label(text.text)
         anchor = _to_building(ex, text.start)
         room = R.room_containing(rooms, anchor) or R.room_containing(rooms, _to_building(ex, G.box_center(text.box)))
-        if room is not None and room["label"] == label:
-            room["evidence"].insert(len([e for e in room["evidence"] if e["method"] != "derived"]), text.evidence)
-            text.element_id = room["id"]
-        else:
-            build.warn(f"{work.where}: label '{text.text}' matches no room of {level_id}"
-                       + (f" (found '{room['label']}')" if room else ""))
+        if room is None:
+            build.warn(f"{work.where}: label '{text.text}' lies in no room of {level_id}")
+            continue
+        room["evidence"].insert(len([e for e in room["evidence"] if e["method"] != "derived"]), text.evidence)
+        text.element_id = room["id"]
+        if room["label"] == label:
+            continue
+        if room["label_raw"] is None:
+            # The master page has no label for this face; it stays unverified
+            # under the master's placeholder name, the secondary's text is evidence.
+            build.warn(f"{work.where}: label '{text.text}' names room {room['id']}, which has no label in {master.where}")
+            continue
+        room["status"] = "unverified"
+        build.conflict("type_disagreement", [room["id"]],
+                       f"{level_label}: {master.where} labels room {room['id']} '{room['label']}', "
+                       f"{work.where} labels it '{label}'",
+                       f"{master_name} wins over {sec_name}, label kept")
 
 
 def _link_dimension_walls(dim: DimensionItem, walls: list[dict]) -> list[str]:
@@ -393,7 +485,17 @@ def _check_areas(build: ProjectBuild, rooms: list[dict], master: PageWork) -> No
 
 def _check_outlines(build: ProjectBuild) -> None:
     """Exterior rings of all levels should coincide (same building footprint)."""
-    levels = [lv for lv in build.building["levels"] if build.unions.get(lv["id"]) is not None]
+    levels = []
+    for lv in build.building["levels"]:
+        union = build.unions.get(lv["id"])
+        if union is None:
+            continue
+        if union.geom_type != "Polygon":
+            # Disconnected wall groups have no single exterior ring; the level
+            # is already a review reason, so only say why it is not compared.
+            build.warn(f"outline check skipped for {lv['id']}: walls do not form one closed loop ({union.geom_type})")
+            continue
+        levels.append(lv)
     if len(levels) < 2:
         return
     base = next((lv for lv in levels if lv["id"] == "L0"), levels[0])
