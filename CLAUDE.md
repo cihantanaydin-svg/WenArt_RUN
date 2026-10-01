@@ -33,7 +33,7 @@ Plan: `docs/plan.md`. Status: `docs/progress.md`. GPU spending: `docs/gpu-log.md
 - Ask the user before: going over any limit, creating or deleting a Network Volume,
   deleting any data, or any single action costing more than $5.
 - Every pod must shut itself down when its job ends or at the max runtime
-  (watchdog inside the pod, e.g. `runpodctl stop pod $RUNPOD_POD_ID`). Never rely on
+  (watchdog inside the pod, `runpodctl pod stop $RUNPOD_POD_ID` or REST fallback, see `scripts/pod_entry.sh`). Never rely on
   the session to stop a pod. If a job fails or hangs: stop the pod first, then debug.
 - Before ending a session, check that no pod is running.
 - Log every run in `docs/gpu-log.md`: pod ID, GPU, minutes, cost, purpose.

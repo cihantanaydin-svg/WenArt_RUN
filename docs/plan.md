@@ -272,15 +272,16 @@ camera frustum) and the plan crop; GLM-4.6V-Flash as second opinion; disagreemen
 ### 4.14 Serving and runtime
 
 vLLM 0.30.0 (Apache-2.0) with structured outputs (`xgrammar`), temperature 0, seed 0, same GPU type and version
-for both passes; transformers 5.18 / diffusers 0.40 / torch version pinned by vLLM at Milestone 1 (torch 2.14.1
-is current; the RunPod base image provides CUDA 12.8.1).
+for both passes. Checked 1 Oct 2026 (Milestone 1): vLLM 0.30.0 pins `torch==2.13.0`, `transformers>=5.10.4`,
+`xgrammar>=0.2.1`; the base image ships torch 2.9.1, so vLLM gets its own venv on the volume (`/workspace/venv-vllm`)
+in Milestone 2 (the RunPod base image provides CUDA 12.8.1).
 
 ## 5. RunPod setup
 
 | Item | Choice | Why |
 |---|---|---|
 | API | **REST v2 `https://api.runpod.io/v2`** (v1 `rest.runpod.io/v1` is retired on 15 Nov 2026; GraphQL early 2027) | current, documented OpenAPI at `api.runpod.io/v2/openapi.json` |
-| Datacenter | **EU-RO-1** (Secure Cloud, network volumes, S3-compatible API available) | large DC, Europe, S3 access for results if needed; checked for A5000/4090 availability in Milestone 1 before the volume is created |
+| Datacenter | **EU-RO-1** (Secure Cloud, STANDARD network volumes, S3-compatible API available) | large DC, Europe. Checked 1 Oct 2026: RTX A5000 / 4090 / A6000 had no stock in any volume-capable EU DC; EU-RO-1 had RTX PRO 4000 (24 GB, $0.57), RTX PRO 4500 (32 GB, $0.72) and L4 (24 GB, $0.49). Stock changes hourly; the runner picks live from `GPU_PRIORITY` in `scripts/gpu_run.py` |
 | Network Volume | 120 GB STANDARD in EU-RO-1 ≈ $8.40/month ($0.07/GB/month) | models ≈ 60 GB, venv + Blender ≈ 15 GB, assets ≈ 10 GB, projects/outputs ≈ 10 GB |
 | GPU (default, quick tests + recognition + renders) | **RTX A5000 24 GB, Secure ≈ $0.27/h (S)**; has RT cores (Ampere) | cheapest 24 GB card with RT cores; fits Qwen3-VL-8B, Z-Image, Cycles |
 | GPU (faster renders / TRELLIS.2) | RTX 4090 24 GB ≈ $0.74/h (S); RTX A6000 48 GB ≈ $0.53/h (S) when 24 GB is too tight | RT cores, more VRAM |
