@@ -14,7 +14,8 @@ from typing import Sequence
 
 from wenart.blender import geom2d
 
-KINDS = ("wall", "floor", "ceiling", "door", "window", "opening", "furniture_proxy", "camera", "light")
+KINDS = ("wall", "floor", "ceiling", "door", "window", "opening", "furniture_proxy", "furniture", "decor",
+         "camera", "light")
 STATUSES = ("verified", "unverified", "assumed")
 
 

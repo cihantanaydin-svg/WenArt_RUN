@@ -15,7 +15,14 @@ SCENE_OBJECT = {
     "properties": {
         "name": {"type": "string"},
         "wenart_id": {"type": "string"},
-        "kind": {"enum": ["wall", "floor", "ceiling", "door", "window", "opening", "furniture_proxy", "camera", "light"]},
+        "kind": {"enum": ["wall", "floor", "ceiling", "door", "window", "opening", "furniture_proxy", "furniture",
+                          "decor", "camera", "light"]},
+        # Milestone 4 per-piece fields (furniture and decor entries only).
+        "method": {"type": ["string", "null"]},
+        "fit_scale": {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3},
+        "bbox_m": {"type": ["array", "null"], "items": {"type": "number"}, "minItems": 3, "maxItems": 3},
+        "asset": {"type": ["object", "null"]},
+        "decor": {"type": "array", "items": {"type": "object", "required": ["name", "type", "method"]}},
         "status": {"enum": ["verified", "unverified", "assumed"]},
         "level_id": {"type": ["string", "null"]},
         "element_id": {"type": ["string", "null"]},
@@ -74,6 +81,15 @@ SCENE_MANIFEST = {
         }},
         "previews": {"type": "object", "additionalProperties": {"type": "string"}},
         "files": {"type": "object"},
+        "furniture": {"type": "object", "required": ["pieces", "by_method", "fallbacks", "proxies", "decor"],
+                      "properties": {
+                          "pieces": {"type": "integer"},
+                          "by_method": {"type": "object", "additionalProperties": {"type": "integer"}},
+                          "fallbacks": {"type": "array", "items": {
+                              "type": "object", "required": ["id", "type", "reason"]}},
+                          "proxies": {"type": "integer"},
+                          "decor": {"type": "integer"},
+                      }},
     },
 }
 

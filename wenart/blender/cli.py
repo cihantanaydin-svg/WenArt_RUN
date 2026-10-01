@@ -71,8 +71,10 @@ def run_blender(script: Path, args: list[str], blend: str | None = None, log_pat
 
 
 def build(building: str, out: str, style: str | None = None, assets: str | None = None, level: str | None = None,
-          no_textures: bool = False, preview_samples: int | None = None, timeout: int = 3600) -> Path:
-    """Build the scene; returns the path of ``scene_manifest.json``."""
+          no_textures: bool = False, preview_samples: int | None = None, timeout: int = 3600,
+          proxies: bool = False) -> Path:
+    """Build the scene; returns the path of ``scene_manifest.json``.
+    ``proxies`` keeps the Milestone 3 proxy boxes for every furniture piece."""
     args = ["--building", str(building), "--out", str(out)]
     if style:
         args += ["--style", str(style)]
@@ -84,6 +86,8 @@ def build(building: str, out: str, style: str | None = None, assets: str | None 
         args.append("--no-textures")
     if preview_samples is not None:
         args += ["--preview-samples", str(preview_samples)]
+    if proxies:
+        args.append("--proxies")
     run_blender(BUILD_SCRIPT, args, log_path=Path(out) / "build.log", timeout=timeout)
     return Path(out) / "scene_manifest.json"
 
@@ -114,6 +118,7 @@ def main(argv: list[str] | None = None) -> int:
     b.add_argument("--level")
     b.add_argument("--no-textures", action="store_true")
     b.add_argument("--preview-samples", type=int)
+    b.add_argument("--proxies", action="store_true", help="Milestone 3 proxy boxes instead of furniture assets")
     r = sub.add_parser("render", help="render cameras of a built scene with Cycles")
     r.add_argument("--scene", required=True)
     r.add_argument("--out", required=True)
@@ -130,7 +135,8 @@ def main(argv: list[str] | None = None) -> int:
             print(path or "")
             return 0 if path else 1
         if ns.command == "build":
-            path = build(ns.building, ns.out, ns.style, ns.assets, ns.level, ns.no_textures, ns.preview_samples)
+            path = build(ns.building, ns.out, ns.style, ns.assets, ns.level, ns.no_textures, ns.preview_samples,
+                         proxies=ns.proxies)
         else:
             path = render(ns.scene, ns.out, ns.cameras, ns.samples, ns.res, ns.force, ns.device)
     except (BlenderNotFound, RuntimeError, subprocess.TimeoutExpired) as exc:

@@ -2,17 +2,24 @@
 
     blender -b --python wenart/blender/build.py -- --building outputs/<p>/building.json \
         --style outputs/<p>/style.json --assets assets --out outputs/<p>/scene \
-        [--level L0] [--no-textures] [--preview-samples 16]
+        [--level L0] [--no-textures] [--preview-samples 16] [--proxies]
 
 Writes into ``--out``: ``scene.blend``, ``scene.glb``, ``scene_manifest.json``
 (every object with its wenart id, kind, status, the element evidence copied
-from the JSON, material, textured/flat, assumed defaults; cameras with the
-ids in their frustum; the pass-index table; door ray checks) and one
+from the JSON, material, textured/flat, assumed defaults; furniture pieces
+with ``asset``, ``fit_scale``, ``method``, ``bbox_m`` and ``decor``; cameras
+with the ids in their frustum; the pass-index table; door ray checks) and one
 top-down orthographic PNG per level at 100 px/m (``level_<id>_top.png``).
 
+Furniture (docs/milestone4.md §2): fitted library glTF assets from
+``--assets`` on the drawn footprints, the parametric mesh when a piece has
+no usable asset (``method: parametric (fallback: <reason>)``), the Milestone
+3 proxy box for ``unknown`` pieces and for every piece with ``--proxies``;
+decor items (``building.decor``) on their host pieces.
+
 Nothing is added, moved or removed relative to the JSON: walls, openings,
-rooms and furniture come from the building file one to one; cameras and
-lights are the only objects that are not elements and they carry
+rooms, furniture and decor come from the building file one to one; cameras
+and lights are the only objects that are not elements and they carry
 ``wenart_status = assumed``.
 """
 from __future__ import annotations
@@ -50,6 +57,8 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--preview-samples", type=int, default=16)
     parser.add_argument("--no-preview", action="store_true")
     parser.add_argument("--no-glb", action="store_true")
+    parser.add_argument("--proxies", action="store_true",
+                        help="Milestone 3 proxy boxes for every furniture piece instead of assets")
     return parser.parse_args(argv)
 
 
@@ -145,7 +154,7 @@ def main(argv: list[str]) -> int:
     import bpy
 
     from wenart.blender import cameras as cams
-    from wenart.blender import common, lighting, materials, proxies, shell
+    from wenart.blender import common, furniture, lighting, materials, shell
     from wenart.blender.materials import MaterialLibrary
     from wenart.blender.render import configure_device
 
@@ -185,6 +194,8 @@ def main(argv: list[str]) -> int:
     camera_plans: list[dict] = []
     checks: dict = {"door_rays": []}
     level_collections = {}
+    furniture_summary = {"pieces": 0, "by_method": {}, "fallbacks": [], "proxies": 0, "decor": 0,
+                         "proxies_forced": bool(args.proxies)}
 
     for level in levels:
         col = common.get_or_make_collection(f"level_{level['id']}")
@@ -192,9 +203,13 @@ def main(argv: list[str]) -> int:
         shell.build_walls(building, level, col, library, style, manifest_objects, assumed, warnings)
         shell.build_openings(building, level, col, library, style, pass_indices, manifest_objects, assumed, warnings)
         shell.build_floors_ceilings(building, level, col, library, style, manifest_objects, warnings)
-        proxies.create_proxies(building, level, col, {
-            "proxy": library.proxy("proxy"), "proxy_glass": library.proxy("proxy_glass"),
-            "proxy_unverified": library.proxy("proxy_unverified")}, pass_indices, manifest_objects, assumed)
+        summary = furniture.create_furniture(building, level, col, library, style, args.assets, pass_indices,
+                                             manifest_objects, assumed, warnings, use_proxies=args.proxies)
+        for key in ("pieces", "proxies", "decor"):
+            furniture_summary[key] += summary[key]
+        for method, count in summary["by_method"].items():
+            furniture_summary["by_method"][method] = furniture_summary["by_method"].get(method, 0) + count
+        furniture_summary["fallbacks"].extend(summary["fallbacks"])
         plans = cams.plan_cameras(building, level["id"])
         cams.create_cameras(plans, col, manifest_objects)
         camera_plans.extend(plans)
@@ -263,14 +278,15 @@ def main(argv: list[str]) -> int:
         "checks": checks,
         "previews": previews,
         "files": files,
+        "furniture": furniture_summary,
         "seconds": round(time.time() - t0, 1),
     }
     (out / "scene_manifest.json").write_text(json.dumps(manifest, indent=1, ensure_ascii=False), encoding="utf-8")
     kinds = {}
     for o in manifest_objects:
         kinds[o["kind"]] = kinds.get(o["kind"], 0) + 1
-    print(f"BUILD_DONE {out} objects={kinds} cameras={len(camera_plans)} warnings={len(warnings)} "
-          f"seconds={manifest['seconds']}")
+    print(f"BUILD_DONE {out} objects={kinds} cameras={len(camera_plans)} furniture={furniture_summary['by_method']} "
+          f"decor={furniture_summary['decor']} warnings={len(warnings)} seconds={manifest['seconds']}")
     return 0
 
 
