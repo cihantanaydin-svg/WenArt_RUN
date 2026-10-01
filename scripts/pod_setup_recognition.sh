@@ -168,7 +168,10 @@ step_end
 for model in "${MODELS[@]}"; do
   step_start "download $model"
   T0=$(date +%s)
-  SNAP_DIR=$("$VENV_VLLM/bin/hf" download "$model" 2> "$LOGS/hf-download-$(echo "$model" | tr '/' '_').log" | tail -1)
+  # `hf download` prints the snapshot path last; depending on the version the line is
+  # "<path>" or "  path: <path>", so strip that prefix before measuring the folder.
+  SNAP_DIR=$("$VENV_VLLM/bin/hf" download "$model" 2> "$LOGS/hf-download-$(echo "$model" | tr '/' '_').log" \
+             | tail -1 | sed -E 's/^[[:space:]]*path:[[:space:]]*//')
   T1=$(date +%s)
   BYTES=$(du -sb "$SNAP_DIR" 2>/dev/null | cut -f1 || echo 0)
   SECS=$(( T1 - T0 ))
