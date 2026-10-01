@@ -155,6 +155,11 @@ run_stage dwg-roundtrip "$PY" -m wenart.recognition.bakeoff --stage dwg --projec
 
 # 3. OCR on every raster page (PaddleOCR on the GPU while vLLM is not running, Tesseract on CPU).
 run_stage ocr "$PY" -m wenart.recognition.bakeoff --stage ocr --projects projects --out "$OUT" --retry-errors
+# The PaddleOCR GPU test runs here, before a vLLM server holds 90 % of the GPU memory
+# (run 4: it ran out of memory next to the server). The vLLM tests run once the first
+# server is up.
+run_stage gpu-tests-ocr "$PY" -m pytest -m gpu tests/gpu/test_recognition.py -v -ra -k paddleocr \
+  --junitxml="$RESULTS/junit-recognition-ocr.xml"
 
 # 4. Per model: server up, (GPU tests once), VLM stage, server down.
 first=1
@@ -166,8 +171,8 @@ for model in "${MODELS[@]}"; do
   if [ "$first" -eq 1 ]; then
     first=0
     export VLM_SERVER
-    run_stage gpu-tests "$PY" -m pytest -m gpu tests/gpu/test_recognition.py -v -ra \
-      --junitxml="$RESULTS/junit-recognition.xml"
+    run_stage gpu-tests-vlm "$PY" -m pytest -m gpu tests/gpu/test_recognition.py -v -ra -k "not paddleocr" \
+      --junitxml="$RESULTS/junit-recognition-vlm.xml"
   fi
   run_stage "vlm-$(slug "$model")" "$PY" -m wenart.recognition.bakeoff --stage vlm --projects projects \
     --out "$OUT" --models "$model" --server "$VLM_SERVER" --retry-errors
