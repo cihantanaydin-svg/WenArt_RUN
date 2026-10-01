@@ -8,5 +8,6 @@ runner could not write it). Costs are estimates from the on-demand price at star
 | 2026-10-01 12:07 | hnltxoyrkeqry4 | NVIDIA A40 | 7 | 0.05 | M1 smoke test, no volume | ok, self-stop ok |
 | 2026-10-01 12:23 | mjc9fjlc771w3u | NVIDIA RTX PRO 4000 Blackwell | 10 | 0.10 | M1 smoke on volume, first run (installs) | ok, self-stop ok |
 | 2026-10-01 12:28 | vlxccfsnjrosbb | NVIDIA RTX PRO 4000 Blackwell | 5 | 0.05 | M1 smoke on volume, second run (must skip install) | ok, self-stop ok |
+| 2026-10-01 14:11 | pending:20261001-141150-bakeoff | RTX PRO 4000 | 120 | 1.14 | M2 recognition bake-off (setup, downloads, OCR, 2 VLMs) | creating (provisional, worst case) |
 
-**Total spent so far: $0.20** (budget: $100; limits: $1.00/GPU-hour, $10/day, 2 h/run)
+**Total spent so far: $1.34** (budget: $100; limits: $1.00/GPU-hour, $10/day, 2 h/run)
