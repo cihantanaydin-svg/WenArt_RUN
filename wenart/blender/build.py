@@ -169,7 +169,12 @@ def main(argv: list[str]) -> int:
             if plan.get("warning"):
                 warnings.append(f"{plan['name']}: {plan['warning']}")
         bpy.context.view_layer.update()
-        checks["door_rays"].extend(shell.door_ray_checks(building, level, scene))
+        rays = shell.door_ray_checks(building, level, scene)
+        checks["door_rays"].extend(rays)
+        for ray in rays:  # a ray through a door centre must cross the wall unhindered
+            if ray["hit"]:
+                warnings.append(f"{ray['opening_id']}: door ray hits {ray['hit_object']} ({ray['hit_kind']}); "
+                                f"the opening is not cut through its wall")
         if level.get("ceiling_height_source") == "assumed_default":
             assumed.append({"object": f"level_{level['id']}", "field": "ceiling_height",
                             "value": level["ceiling_height"], "reason": "building JSON: assumed_default"})

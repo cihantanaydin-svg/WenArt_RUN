@@ -163,13 +163,50 @@ def test_opening_defaults_are_recorded_as_assumed():
     _b, t, a = shell.opening_vertical({"type": "window", "width": 1.8, "height": None, "sill_height": None}, level, False)
     assert t == pytest.approx(5.3) and a["height"] == 1.4
     b, t, a = shell.opening_vertical({"type": "opening", "width": 1.0, "height": None, "sill_height": None}, level, False)
-    assert b == 3.0 and t == pytest.approx(5.699) and "height" in a
+    assert b == 3.0 and t == pytest.approx(5.7) and a == {"height": pytest.approx(2.7)}  # full wall height
+    # Doors and windows taller than the ceiling are clamped just below it.
+    _b, t, a = shell.opening_vertical({"type": "door", "width": 0.9, "height": 3.0, "sill_height": 0.0}, level, False)
+    assert t == pytest.approx(5.699) and a == {}
     _b, t, a = shell.opening_vertical({"type": "door", "width": 0.9, "height": 2.0, "sill_height": 0.0}, level, False)
     assert t == pytest.approx(5.0) and a == {}
     h, a = shell.wall_height({"height": None}, level, True)
     assert h == pytest.approx(3.0) and a == {"height": 2.7, "slab_thickness": 0.3}
     h, a = shell.wall_height({"height": 2.5}, level, False)
     assert h == 2.5 and a == {}
+
+
+def test_opening_centre_is_projected_onto_the_wall_line():
+    wall = {"id": "w", "start": [0.0, 7.075], "end": [9.6, 7.075], "thickness": 0.25}
+    # A door block inserted on the wall face (y = 7.2): the cutter must still sit on the centre line.
+    cx, cy, shift = shell.opening_centre_on_wall({"center": [6.15, 7.195]}, wall)
+    assert (cx, cy) == (pytest.approx(6.15), pytest.approx(7.075)) and shift == pytest.approx(0.12)
+    cx, cy, shift = shell.opening_centre_on_wall({"center": [6.15, 7.075]}, wall)
+    assert (cx, cy) == (pytest.approx(6.15), pytest.approx(7.075)) and shift == pytest.approx(0.0)
+    # Diagonal wall: the projection keeps the position along the wall.
+    wall = {"id": "w", "start": [0.0, 0.0], "end": [4.0, 4.0], "thickness": 0.1}
+    cx, cy, shift = shell.opening_centre_on_wall({"center": [2.0 + 0.05, 2.0 - 0.05]}, wall)
+    assert (cx, cy) == (pytest.approx(2.0), pytest.approx(2.0)) and shift == pytest.approx(0.05 * math.sqrt(2))
+
+
+def test_wall_outward_side_on_an_l_shaped_footprint():
+    """10 x 10 m envelope with the quadrant x 3..10, y 3..10 cut out: the bbox
+    centre (5, 5) lies outside the building, so the old centre rule flipped
+    the two re-entrant exterior walls. Probing the room polygons decides."""
+    t = 0.25
+    rooms = [{"id": "a", "polygon": [[t, t], [3.0 - t, t], [3.0 - t, 10.0 - t], [t, 10.0 - t]]},
+             {"id": "b", "polygon": [[3.0 - t, t], [10.0 - t, t], [10.0 - t, 3.0 - t], [3.0 - t, 3.0 - t]]}]
+    # Re-entrant walls on the centre lines y = 2.875 (x 3..10) and x = 2.875 (y 3..10), both drawing directions.
+    for start, end, expected in (([3.0, 2.875], [10.0, 2.875], (0.0, 1.0)), ([10.0, 2.875], [3.0, 2.875], (0.0, 1.0)),
+                                 ([2.875, 3.0], [2.875, 10.0], (1.0, 0.0)), ([2.875, 10.0], [2.875, 3.0], (1.0, 0.0)),
+                                 ([0.0, 0.125], [10.0, 0.125], (0.0, -1.0))):
+        wall = {"id": "w", "start": start, "end": end, "thickness": t, "exterior": True}
+        outward, ambiguous = shell.wall_outward_normal(wall, rooms, (5.0, 5.0))
+        assert not ambiguous
+        assert outward[0] == pytest.approx(expected[0]) and outward[1] == pytest.approx(expected[1]), (start, end)
+    # No room on either side: fall back to the centre rule and say so.
+    wall = {"id": "w", "start": [3.0, 2.875], "end": [10.0, 2.875], "thickness": t, "exterior": True}
+    outward, ambiguous = shell.wall_outward_normal(wall, [], (5.0, 5.0))
+    assert ambiguous and outward[1] == pytest.approx(-1.0)
 
 
 # --------------------------------------------------------------------------

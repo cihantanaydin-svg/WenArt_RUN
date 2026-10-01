@@ -10,10 +10,26 @@ Faces get material slots by what they face: interior (style walls), exterior
 
 Openings: a boolean difference per opening with a cutter box of
 width x (thickness + 2 cm) x height centred on the wall centre line; doors
-start at the floor, windows at the sill. The cutters are temporary objects,
-the modifiers are applied through the depsgraph (``common.evaluated_mesh``),
-then the cutters are deleted. The EXACT solver is the default in Blender 5.2
-(solver items: FLOAT, EXACT, MANIFOLD).
+start at the floor, windows at the sill. The JSON centre is projected onto
+the wall centre line first (a door block inserted on the wall face is the
+normal CAD convention and the ingest accepts it); the shift is recorded as
+``center_shift`` in the manifest, as ``assumed`` when it exceeds 1 mm and as a
+warning when it exceeds half the wall thickness. The cutters are temporary
+objects, the modifiers are applied through the depsgraph
+(``common.evaluated_mesh``), then the cutters are deleted. The EXACT solver
+is the default in Blender 5.2 (solver items: FLOAT, EXACT, MANIFOLD).
+
+Every door and plain opening gets a threshold face (``<id>_threshold``, kind
+``floor``, the material of the adjacent room floor) because the room floors
+stop at the wall faces and the cutter removes the wall bottom. A plain
+opening without a height is cut through the full wall height; on a level
+with nothing above it a soffit face (``<id>_soffit``, kind ``ceiling``)
+closes the wall top over the opening.
+
+The outward side of an exterior wall is found by probing both sides of the
+wall against the room polygons of the level (the side that lies in no room
+is outside); when both or neither side is in a room the bounding-box centre
+of the level decides and a warning is recorded.
 
 Defaults for ``null`` values are recorded as ``assumed`` in the manifest:
 door height 2.10 m, window sill 0.90 m, window height 1.20 m (1.40 m when the
@@ -39,6 +55,9 @@ DEFAULTS = {
     "leaf_thickness": 0.04,
     "glass_thickness": 0.006,
     "cutter_extra": 0.02,
+    "face_probe": 0.05,          # distance beyond a wall face for the room probes
+    "threshold_lift": 0.001,     # thresholds above a stacked wall top (no coplanar faces)
+    "shift_assumed": 0.001,      # centre shift recorded as assumed above this
 }
 WET_ROOM_TYPES = {"bathroom", "wc", "kitchen"}
 
@@ -78,7 +97,14 @@ def opening_vertical(opening: dict, level: dict, levels_above: bool) -> tuple[fl
             height = ceiling - float(sill)
             assumed["height"] = height
     bottom = floor_z + float(sill)
-    top = min(bottom + float(height), floor_z + ceiling - 0.001)
+    if kind == "opening":
+        # Runs up to the ceiling; build_walls cuts through the wall top when the
+        # opening reaches it and build_openings closes it with a soffit face.
+        top = min(bottom + float(height), floor_z + ceiling)
+    else:
+        # A door or window taller than the ceiling stops 1 mm below it so the
+        # cutter never shares a face with the wall top.
+        top = min(bottom + float(height), floor_z + ceiling - 0.001)
     return bottom, top, assumed
 
 
@@ -94,6 +120,67 @@ def wall_height(wall: dict, level: dict, has_level_above: bool) -> tuple[float, 
         h += DEFAULTS["slab_thickness"]
         assumed["slab_thickness"] = DEFAULTS["slab_thickness"]
     return h, assumed
+
+
+def opening_centre_on_wall(opening: dict, wall: dict) -> tuple[float, float, float]:
+    """``(cx, cy, shift)``: the opening centre projected onto the wall centre
+    line and the distance it moved. A door block drawn on the wall face sits
+    half a thickness off the centre line; the cutter and the frame must still
+    be centred in the wall."""
+    ax, ay = float(wall["start"][0]), float(wall["start"][1])
+    bx, by = float(wall["end"][0]), float(wall["end"][1])
+    px, py = float(opening["center"][0]), float(opening["center"][1])
+    dx, dy = bx - ax, by - ay
+    length_sq = dx * dx + dy * dy
+    if length_sq < 1e-12:
+        return px, py, 0.0
+    t = ((px - ax) * dx + (py - ay) * dy) / length_sq
+    cx, cy = ax + t * dx, ay + t * dy
+    return cx, cy, math.hypot(px - cx, py - cy)
+
+
+def cut_full_height(top: float, floor_z: float, wall_h: float) -> bool:
+    """True when an opening reaches the top of its wall (plain opening on a
+    level with nothing above): the cutter then runs through the wall top."""
+    return top >= floor_z + wall_h - 1e-6
+
+
+def wall_outward_normal(wall: dict, rooms: list[dict], level_centre) -> tuple[tuple[float, float], bool]:
+    """``((nx, ny), ambiguous)``: unit normal pointing to the outside of a wall.
+
+    Three points along the wall are probed ``face_probe`` beyond each face
+    against the room polygons; the side with fewer room hits is outside. When
+    both sides score the same (no rooms, or rooms on both sides) the side away
+    from ``level_centre`` is used and ``ambiguous`` is True."""
+    nx, ny = G.unit_normal_left(wall["start"], wall["end"])
+    reach = float(wall["thickness"]) / 2.0 + DEFAULTS["face_probe"]
+    polys = [r["polygon"] for r in rooms if len(r["polygon"]) >= 3]
+    hits = {1: 0, -1: 0}
+    for t in (0.25, 0.5, 0.75):
+        px, py = G.point_along_segment(wall["start"], wall["end"], t)
+        for side in (1, -1):
+            probe = (px + side * nx * reach, py + side * ny * reach)
+            if any(G.point_in_polygon(probe, poly) for poly in polys):
+                hits[side] += 1
+    if hits[1] != hits[-1]:
+        side = 1 if hits[1] < hits[-1] else -1
+        return (side * nx, side * ny), False
+    mid = G.segment_midpoint(wall["start"], wall["end"])
+    side = -1 if (level_centre[0] - mid[0]) * nx + (level_centre[1] - mid[1]) * ny > 0 else 1
+    return (side * nx, side * ny), True
+
+
+def adjacent_room(centre, wall: dict, rooms: list[dict]) -> dict | None:
+    """The room next to an opening: the left side of the wall direction is
+    probed first, then the right. None when no room polygon is there."""
+    nx, ny = G.unit_normal_left(wall["start"], wall["end"])
+    reach = float(wall["thickness"]) / 2.0 + DEFAULTS["face_probe"]
+    for side in (1, -1):
+        probe = (centre[0] + side * nx * reach, centre[1] + side * ny * reach)
+        for room in rooms:
+            if len(room["polygon"]) >= 3 and G.point_in_polygon(probe, room["polygon"]):
+                return room
+    return None
 
 
 # --------------------------------------------------------------------------
@@ -240,13 +327,15 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
             if opening["wall_id"] != wall["id"]:
                 continue
             bottom, top, _ = opening_vertical(opening, level, has_above)
-            cz = (bottom + top) / 2.0
             extra = DEFAULTS["cutter_extra"]
-            # Door cutters start a little below the floor so no coplanar faces remain.
-            cv, cf = geom2d.box((opening["center"][0], opening["center"][1],
-                                 cz - (extra / 2.0 if opening["type"] != "window" else 0.0)),
-                                (float(opening["width"]), float(wall["thickness"]) + extra,
-                                 top - bottom + (extra if opening["type"] != "window" else 0.0)), angle)
+            # Door cutters start a little below the floor so no coplanar faces
+            # remain; an opening that reaches the wall top also runs above it.
+            cut_bottom = bottom if opening["type"] == "window" else bottom - extra
+            cut_top = top + extra if cut_full_height(top, floor_z, height) else top
+            cx, cy, _shift = opening_centre_on_wall(opening, wall)  # shift recorded in build_openings
+            cv, cf = geom2d.box((cx, cy, (cut_bottom + cut_top) / 2.0),
+                                (float(opening["width"]), float(wall["thickness"]) + extra, cut_top - cut_bottom),
+                                angle)
             cutter = common.new_mesh_object(f"cut_{opening['id']}", cv, cf, collection=collection,
                                             wenart_id=opening["id"], kind="opening", status="assumed")
             cutter.hide_render = True
@@ -282,7 +371,11 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
                 idx = next((i for i, m in enumerate(mesh.materials) if m is None), len(mesh.materials) - 1)
                 mesh.materials.pop(index=idx)
             common.assign_box_uvs(ob.data)
-        _assign_wall_face_materials(ob, wall, rooms, footprint_centre)
+        outward, ambiguous = wall_outward_normal(wall, rooms, footprint_centre)
+        if ambiguous and wall.get("exterior"):
+            warnings.append(f"{wall['id']}: exterior wall with rooms on both sides or on neither; "
+                            f"outward side taken from the level centre")
+        _assign_wall_face_materials(ob, wall, rooms, outward)
     for cutter in cutters:
         common.delete_object(cutter)
     bpy.context.view_layer.update()
@@ -297,14 +390,11 @@ def _level_centre(walls: list[dict]) -> tuple[float, float]:
     return G.box_center(box)
 
 
-def _assign_wall_face_materials(ob, wall: dict, rooms: list[dict], centre) -> None:
-    """Slot 0 interior, 1 exterior (outward faces of exterior walls), 2 wet-room faces."""
+def _assign_wall_face_materials(ob, wall: dict, rooms: list[dict], outward) -> None:
+    """Slot 0 interior, 1 exterior (faces of exterior walls whose normal
+    points ``outward``, see ``wall_outward_normal``), 2 wet-room faces."""
     mesh = ob.data
     nx, ny = G.unit_normal_left(wall["start"], wall["end"])
-    mid = G.segment_midpoint(wall["start"], wall["end"])
-    outward = (nx, ny)
-    if (centre[0] - mid[0]) * nx + (centre[1] - mid[1]) * ny > 0:
-        outward = (-nx, -ny)
     wet_polys = [r["polygon"] for r in rooms if r.get("room_type") in WET_ROOM_TYPES]
     for poly in mesh.polygons:
         n = poly.normal
@@ -332,7 +422,9 @@ def build_openings(building: dict, level: dict, collection, library, style: dict
     level_id = level["id"]
     floor_z = float(level["elevation"])
     has_above = any(float(lv["elevation"]) > floor_z for lv in building["levels"])
+    has_below = any(float(lv["elevation"]) < floor_z for lv in building["levels"])
     walls = {w["id"]: w for w in building["walls"] if w["level_id"] == level_id}
+    rooms = [r for r in building["rooms"] if r["level_id"] == level_id]
     trim = style.get("trim") or {"material": "painted_wood_white"}
     door_style = style.get("door") or {"material": "wood_oak_light"}
     win_style = style.get("window_frame") or {"material": "painted_metal_white"}
@@ -353,18 +445,39 @@ def build_openings(building: dict, level: dict, collection, library, style: dict
         for field, value in op_assumed.items():
             assumed.append({"object": opening["id"], "field": field, "value": value,
                             "reason": f"{opening['type']} {field} not in the JSON; default"})
-        if opening["type"] == "opening":
-            manifest_objects.append(_opening_entry(opening, None, level_id, None, False, None, op_assumed))
-            continue
         angle = G.segment_angle_deg(wall["start"], wall["end"])
-        cx, cy = float(opening["center"][0]), float(opening["center"][1])
         width = float(opening["width"])
         thickness = float(wall["thickness"])
+        status = opening.get("status", "verified")
+        # The centre is used on the wall centre line; an off-centre JSON centre
+        # (block on the wall face) is recorded, never silently moved.
+        cx, cy, shift = opening_centre_on_wall(opening, wall)
+        if shift > DEFAULTS["shift_assumed"]:
+            op_assumed["center_shift"] = round(shift, 4)
+            assumed.append({"object": opening["id"], "field": "center_shift", "value": round(shift, 4),
+                            "reason": f"opening centre {shift * 1000:.0f} mm off the centre line of "
+                                      f"{wall['id']}; projected onto it"})
+            if shift > thickness / 2.0:
+                warnings.append(f"{opening['id']}: centre {shift:.3f} m off the centre line of {wall['id']}, "
+                                f"more than half its thickness ({thickness:.3f} m); projected onto the wall")
+
+        if opening["type"] in ("door", "opening"):
+            # Threshold: the room floors stop at the wall faces and the cutter
+            # removes the wall bottom, so the footprint needs its own floor face.
+            created.append(_threshold(opening, wall, (cx, cy), angle, floor_z, has_below, rooms, style, library,
+                                      collection, manifest_objects, warnings, op_assumed, shift))
+        if opening["type"] == "opening":
+            wall_h, _ = wall_height(wall, level, has_above)
+            if cut_full_height(top, floor_z, wall_h):
+                # Nothing above the wall: close the wall top over the opening.
+                created.append(_soffit(opening, wall, (cx, cy), angle, floor_z + wall_h, style, library,
+                                       collection, manifest_objects, op_assumed, shift))
+            manifest_objects.append(_opening_entry(opening, None, level_id, None, False, None, op_assumed, shift))
+            continue
         fw = DEFAULTS["frame_width"]
         height = top - bottom
         index = len(pass_indices) + 1
         pass_indices[opening["id"]] = index
-        status = opening.get("status", "verified")
 
         if opening["type"] == "door":
             # Frame: two jambs and a head, as deep as the wall.
@@ -379,7 +492,7 @@ def build_openings(building: dict, level: dict, collection, library, style: dict
             ob.pass_index = index
             created.append(ob)
             manifest_objects.append(_opening_entry(opening, ob.name, level_id, frame_mat.name,
-                                                   _textured(library, frame_mat), index, op_assumed))
+                                                   _textured(library, frame_mat), index, op_assumed, shift))
             # Leaf: closed (0 deg), slightly smaller than the frame opening.
             leaf = _local_to_world([geom2d.box((0.0, 0.0, (height - fw) / 2.0),
                                                (width - 2 * fw - 0.01, DEFAULTS["leaf_thickness"], height - fw - 0.01))],
@@ -389,7 +502,7 @@ def build_openings(building: dict, level: dict, collection, library, style: dict
             ob.pass_index = index
             created.append(ob)
             manifest_objects.append(_opening_entry(opening, ob.name, level_id, leaf_mat.name,
-                                                   _textured(library, leaf_mat), index, op_assumed))
+                                                   _textured(library, leaf_mat), index, op_assumed, shift))
         else:
             depth = min(thickness, 0.08)
             parts = [
@@ -404,7 +517,7 @@ def build_openings(building: dict, level: dict, collection, library, style: dict
             ob.pass_index = index
             created.append(ob)
             manifest_objects.append(_opening_entry(opening, ob.name, level_id, win_mat.name,
-                                                   _textured(library, win_mat), index, op_assumed))
+                                                   _textured(library, win_mat), index, op_assumed, shift))
             pane = _local_to_world([geom2d.box((0.0, 0.0, height / 2.0),
                                                (width - 2 * fw, DEFAULTS["glass_thickness"], height - 2 * fw))],
                                    (cx, cy, bottom), angle)
@@ -412,7 +525,7 @@ def build_openings(building: dict, level: dict, collection, library, style: dict
                                         wenart_id=opening["id"], kind="window", status=status, materials=[glass_mat])
             ob.pass_index = index
             created.append(ob)
-            manifest_objects.append(_opening_entry(opening, ob.name, level_id, glass_mat.name, False, index, op_assumed))
+            manifest_objects.append(_opening_entry(opening, ob.name, level_id, glass_mat.name, False, index, op_assumed, shift))
     return created
 
 
@@ -420,14 +533,73 @@ def _textured(library, mat) -> bool:
     return library.textured(mat)
 
 
-def _opening_entry(opening, name, level_id, material, textured, index, op_assumed) -> dict:
+def _opening_entry(opening, name, level_id, material, textured, index, op_assumed, shift) -> dict:
     return {
         "name": name or opening["id"], "wenart_id": opening["id"], "kind": opening["type"],
         "status": opening.get("status", "verified"), "level_id": level_id, "element_id": opening["id"],
         "evidence": opening.get("evidence", []), "material": material, "textured": textured,
         "pass_index": index, "assumed": dict(op_assumed), "wall_id": opening["wall_id"],
-        "has_geometry": name is not None,
+        "has_geometry": name is not None, "center_shift": round(shift, 4),
     }
+
+
+def floor_material(room: dict, style: dict, library):
+    """``(material, wet)`` of a room floor: the style floor, the wet-room floor
+    for bathroom / wc / kitchen, the dashed-red overlay for unverified rooms."""
+    wet = room.get("room_type") in WET_ROOM_TYPES
+    floor_style = (style.get("wet_floor") if wet else None) or style["floor"]
+    mat = library.get(floor_style["material"], floor_style.get("asset"), floor_style.get("tint"),
+                      unverified=room.get("status") == "unverified")
+    return mat, wet
+
+
+def _threshold(opening, wall, centre, angle, floor_z, has_below, rooms, style, library, collection,
+               manifest_objects, warnings, op_assumed, shift):
+    """Floor face of opening width x wall thickness under a door or plain
+    opening, with the material of the adjacent room floor. Lifted 1 mm when a
+    level lies below so it never shares a face with a stacked wall top."""
+    from wenart.blender import common
+
+    room = adjacent_room(centre, wall, rooms)
+    if room is None:
+        warnings.append(f"{opening['id']}: no room on either side; threshold gets the style floor material")
+    mat, wet = floor_material(room or {}, style, library)
+    z = floor_z + (DEFAULTS["threshold_lift"] if has_below else 0.0)
+    verts, faces = geom2d.polygon_face(
+        G.rotated_rectangle(centre, (float(opening["width"]), float(wall["thickness"])), angle), z, facing_up=True)
+    ob = common.new_mesh_object(f"{opening['id']}_threshold", verts, faces, collection=collection,
+                                wenart_id=opening["id"], kind="floor", status=opening.get("status", "verified"),
+                                materials=[mat])
+    manifest_objects.append({
+        "name": ob.name, "wenart_id": opening["id"], "kind": "floor", "status": opening.get("status", "verified"),
+        "level_id": opening["level_id"], "element_id": opening["id"], "evidence": opening.get("evidence", []),
+        "material": mat.name, "textured": library.textured(mat), "pass_index": None, "assumed": dict(op_assumed),
+        "wall_id": opening["wall_id"], "room_id": room["id"] if room else None,
+        "room_type": room.get("room_type") if room else None, "wet": wet, "center_shift": round(shift, 4),
+        "lifted": z - floor_z,
+    })
+    return ob
+
+
+def _soffit(opening, wall, centre, angle, z, style, library, collection, manifest_objects, op_assumed, shift):
+    """Downward face closing the wall top over a plain opening that was cut
+    through the full wall height (a level with nothing above it)."""
+    from wenart.blender import common
+
+    ceiling_style = style.get("ceiling") or {"material": "plaster_white"}
+    mat = library.get(ceiling_style["material"], ceiling_style.get("asset"), ceiling_style.get("tint"))
+    verts, faces = geom2d.polygon_face(
+        G.rotated_rectangle(centre, (float(opening["width"]), float(wall["thickness"])), angle), z, facing_up=False)
+    ob = common.new_mesh_object(f"{opening['id']}_soffit", verts, faces, collection=collection,
+                                wenart_id=opening["id"], kind="ceiling", status=opening.get("status", "verified"),
+                                materials=[mat])
+    manifest_objects.append({
+        "name": ob.name, "wenart_id": opening["id"], "kind": "ceiling", "status": opening.get("status", "verified"),
+        "level_id": opening["level_id"], "element_id": opening["id"], "evidence": opening.get("evidence", []),
+        "material": mat.name, "textured": library.textured(mat), "pass_index": None, "assumed": dict(op_assumed),
+        "wall_id": opening["wall_id"], "room_type": None, "wet": False, "center_shift": round(shift, 4),
+    })
+    return ob
 
 
 def _local_to_world(parts, origin, angle_deg):
@@ -457,12 +629,8 @@ def build_floors_ceilings(building: dict, level: dict, collection, library, styl
     for room in building["rooms"]:
         if room["level_id"] != level_id:
             continue
-        wet = room.get("room_type") in WET_ROOM_TYPES
-        floor_style = (style.get("wet_floor") if wet else None) or style["floor"]
+        floor_mat, wet = floor_material(room, style, library)
         ceiling_style = style.get("ceiling") or {"material": "plaster_white"}
-        unverified = room.get("status") == "unverified"
-        floor_mat = library.get(floor_style["material"], floor_style.get("asset"), floor_style.get("tint"),
-                                unverified=unverified)
         ceil_mat = library.get(ceiling_style["material"], ceiling_style.get("asset"), ceiling_style.get("tint"))
         if len(room["polygon"]) < 3:
             warnings.append(f"{room['id']}: polygon with fewer than 3 points, no floor")
@@ -494,10 +662,15 @@ def build_floors_ceilings(building: dict, level: dict, collection, library, styl
 # Checks
 # --------------------------------------------------------------------------
 
+RAY_IGNORED_KINDS = ("door", "window")
+
+
 def door_ray_checks(building: dict, level: dict, scene) -> list[dict]:
-    """Cast a ray through every door centre across its wall at 1 m height and
-    record what it hits. After the booleans a door ray must hit no wall (the
-    closed leaf may be hit; that is kind ``door``)."""
+    """Cast a ray through every door / plain opening centre (on the wall
+    centre line) across its wall at 1 m height and record what it hits.
+    Door and window objects (frame, leaf, glass) are stepped over so the ray
+    tests the wall itself: after the booleans ``hit`` must be False and
+    ``hit_kind`` None; the stepped-over objects are listed in ``passed``."""
     import bpy
     from mathutils import Vector
 
@@ -513,13 +686,28 @@ def door_ray_checks(building: dict, level: dict, scene) -> list[dict]:
         if wall is None:
             continue
         nx, ny = G.unit_normal_left(wall["start"], wall["end"])
+        cx, cy, _shift = opening_centre_on_wall(opening, wall)
         reach = float(wall["thickness"]) / 2.0 + 0.3
-        origin = Vector((opening["center"][0] + nx * reach, opening["center"][1] + ny * reach, floor_z + 1.0))
+        origin = Vector((cx + nx * reach, cy + ny * reach, floor_z + 1.0))
         direction = Vector((-nx, -ny, 0.0))
-        hit, _loc, _normal, _index, ob, _matrix = scene.ray_cast(depsgraph, origin, direction, distance=2 * reach)
+        remaining = 2 * reach
+        passed = []
+        hit, ob = False, None
+        for _ in range(16):  # at most a few door/window parts sit on the ray
+            hit, loc, _normal, _index, ob, _matrix = scene.ray_cast(depsgraph, origin, direction, distance=remaining)
+            if not hit or ob is None or ob.get("wenart_kind") not in RAY_IGNORED_KINDS:
+                break
+            passed.append(ob.name)
+            # Continue just behind the door/window part that was hit.
+            remaining -= (loc - origin).length + 0.002
+            origin = loc + direction * 0.002
+            if remaining <= 0:
+                hit, ob = False, None
+                break
         results.append({
             "opening_id": opening["id"], "hit": bool(hit),
             "hit_object": ob.name if hit and ob is not None else None,
             "hit_kind": ob.get("wenart_kind") if hit and ob is not None else None,
+            "passed": passed,
         })
     return results

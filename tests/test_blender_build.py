@@ -16,7 +16,7 @@ import pytest
 from PIL import Image
 
 from wenart import geometry as G
-from wenart.blender import cli, schemas
+from wenart.blender import cli, schemas, shell
 from wenart.ingest.pipeline import build_project
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -94,7 +94,9 @@ def test_object_counts_per_kind_match_the_json(built):
     assert ids["wall"] == {w["id"] for w in walls}
     assert ids["door"] == {o["id"] for o in doors}
     assert ids["window"] == {o["id"] for o in windows}
-    assert ids["floor"] == ids["ceiling"] == {r["id"] for r in rooms}
+    # Floors: one per room plus one threshold per door (kind floor, bound to the door).
+    assert ids["floor"] == {r["id"] for r in rooms} | {o["id"] for o in doors}
+    assert ids["ceiling"] == {r["id"] for r in rooms}
     assert ids["furniture_proxy"] == {f"proxy:{f['id']}" for f in furniture}
     assert len(ids["camera"]) == 3 * len(rooms)
     # Nothing beyond the JSON: every element-bound object carries the element's evidence.
@@ -126,8 +128,27 @@ def test_door_rays_hit_no_wall(built):
     doors = [o for o in built["building"]["openings"] if o["level_id"] == "L0" and o["type"] == "door"]
     assert {r["opening_id"] for r in rays} == {d["id"] for d in doors}
     for r in rays:
-        assert r["hit_kind"] != "wall", r
-        assert r["hit_kind"] == "door", "the closed leaf should be hit"  # leaf sits in the opening
+        # Door parts are stepped over, so the ray tests the wall: it must pass through.
+        assert r["hit"] is False and r["hit_kind"] is None and r["hit_object"] is None, r
+        assert f"{r['opening_id']}_leaf" in r["passed"], r  # the closed leaf sits in the opening
+    assert not [w for w in built["manifest"]["warnings"] if "door ray" in w]
+
+
+def test_threshold_floor_under_every_door(built):
+    """The room floors stop at the wall faces and the cutter removes the wall
+    bottom: a threshold face with the adjacent floor's material fills the gap."""
+    objects = built["manifest"]["objects"]
+    doors = [o for o in built["building"]["openings"] if o["level_id"] == "L0" and o["type"] == "door"]
+    thresholds = {o["wenart_id"]: o for o in objects if o["name"].endswith("_threshold")}
+    assert set(thresholds) == {d["id"] for d in doors}
+    floors = {o["wenart_id"]: o for o in objects if o["kind"] == "floor" and not o["name"].endswith("_threshold")}
+    by_name = {o["name"] for o in built["objects"]}
+    for door in doors:
+        t = thresholds[door["id"]]
+        assert t["kind"] == "floor" and t["name"] == f"{door['id']}_threshold" and t["name"] in by_name
+        assert t["evidence"] == door["evidence"] and t["element_id"] == door["id"]
+        assert t["room_id"] in floors and t["material"] == floors[t["room_id"]]["material"]
+        assert t["lifted"] == 0.0  # lowest level: nothing stacked below
 
 
 def test_pass_indices_unique_for_proxies_and_openings(built):
@@ -267,6 +288,134 @@ def test_synthetic_03_unverified_piece_and_three_levels(tmp_path):
     lifted = [a for a in manifest["assumed"] if a["field"] == "height_lift"]
     assert lifted
     assert manifest["previews"] == {}
+
+
+PROBE_SCRIPT = textwrap.dedent("""
+    import bpy, json, sys
+    from mathutils import Vector
+    spec = json.load(open(sys.argv[sys.argv.index("--") + 1]))
+    depsgraph = bpy.context.evaluated_depsgraph_get()
+    scene = bpy.context.scene
+    out = {"rays": {}, "bounds": {}}
+    for name, ray in spec["rays"].items():
+        hit, loc, _n, _i, ob, _m = scene.ray_cast(depsgraph, Vector(ray["origin"]), Vector(ray["direction"]),
+                                                  distance=ray["distance"])
+        out["rays"][name] = {"hit": bool(hit), "object": ob.name if hit else None,
+                             "kind": ob.get("wenart_kind") if hit else None, "location": list(loc) if hit else None}
+    for name in spec["bounds"]:
+        ob = bpy.data.objects[name]
+        pts = [ob.matrix_world @ v.co for v in ob.data.vertices]
+        out["bounds"][name] = [[min(p[i] for p in pts), max(p[i] for p in pts)] for i in range(3)]
+    json.dump(out, open(spec["out"], "w"))
+""")
+
+
+@pytest.fixture(scope="module")
+def built_variant(tmp_path_factory):
+    """synthetic-01 with hand-edited openings, both levels, flat colours:
+    two L0 doors moved off the wall centre line (a door block drawn on the
+    wall face, which the ingest accepts) and the L1 door d_L1_001 turned into
+    a plain opening without a height on the top level."""
+    tmp = tmp_path_factory.mktemp("blender01_variant")
+    building = build_project(ROOT / "projects" / "synthetic-01", tmp / "pipeline")
+    assert building["status"] == "ok"
+    openings = {o["id"]: o for o in building["openings"]}
+    openings["d_L0_001"]["center"] = [6.15, 7.195]   # w_L0_003 (0.25 m, centre y 7.075): 0.12 m, on the face
+    openings["d_L0_003"]["center"] = [5.36, 6.1]     # w_L0_005 (0.10 m, centre x 5.3): 0.06 m, past the face
+    openings["d_L1_001"].update({"type": "opening", "height": None, "sill_height": None})
+    path = tmp / "building.json"
+    path.write_text(json.dumps(building), encoding="utf-8")
+    out = tmp / "scene"
+    cli.run_blender(Path(cli.BUILD_SCRIPT), ["--building", str(path), "--style", str(STYLE), "--out", str(out),
+                                             "--no-textures", "--no-preview", "--no-glb"])
+    manifest = json.loads((out / "scene_manifest.json").read_text(encoding="utf-8"))
+    schemas.validate_scene_manifest(manifest)
+    return {"building": building, "out": out, "manifest": manifest, "tmp": tmp}
+
+
+def _probe(variant, rays: dict, bounds: list) -> dict:
+    """Ray casts and world bounds evaluated inside Blender on the variant scene."""
+    tmp = variant["tmp"]
+    spec = tmp / f"probe_{len(list(tmp.glob('probe_*.json')))}.json"
+    result = spec.with_suffix(".out.json")
+    spec.write_text(json.dumps({"rays": rays, "bounds": bounds, "out": str(result)}), encoding="utf-8")
+    (tmp / "probe.py").write_text(PROBE_SCRIPT, encoding="utf-8")
+    cli.run_blender(tmp / "probe.py", [str(spec)], blend=str(variant["out"] / "scene.blend"))
+    return json.loads(result.read_text(encoding="utf-8"))
+
+
+def test_off_centre_door_is_cut_through_and_recorded(built_variant):
+    m = built_variant["manifest"]
+    rays = {r["opening_id"]: r for r in m["checks"]["door_rays"]}
+    for door in ("d_L0_001", "d_L0_003"):
+        assert rays[door]["hit"] is False and rays[door]["hit_kind"] is None, rays[door]
+        assert f"{door}_leaf" in rays[door]["passed"]
+    assert not [w for w in m["warnings"] if "door ray" in w]
+    # The shift is recorded (assumed above 1 mm, warning above half the thickness), never applied silently.
+    shifts = {a["object"]: a["value"] for a in m["assumed"] if a["field"] == "center_shift"}
+    assert shifts == {"d_L0_001": pytest.approx(0.12), "d_L0_003": pytest.approx(0.06)}
+    assert [w for w in m["warnings"] if w.startswith("d_L0_003:") and "half its thickness" in w]
+    assert not [w for w in m["warnings"] if w.startswith("d_L0_001:")]
+    entries = {o["name"]: o for o in m["objects"]}
+    assert entries["d_L0_001_leaf"]["center_shift"] == pytest.approx(0.12)
+    assert entries["d_L0_002_leaf"]["center_shift"] == 0.0
+    # Wall-only rays from both sides pass through the moved doors; the leaf and frame sit inside the wall.
+    probe = _probe(built_variant, {
+        "d1_from_hall": {"origin": [6.15, 6.5, 1.0], "direction": [0, 1, 0], "distance": 1.2},
+        "d1_from_outside": {"origin": [6.15, 7.7, 1.0], "direction": [0, -1, 0], "distance": 1.2},
+        "d3_from_salon": {"origin": [4.8, 6.1, 1.0], "direction": [1, 0, 0], "distance": 1.0},
+    }, ["d_L0_001_leaf", "d_L0_001_frame", "d_L0_003_leaf", "w_L0_003"])
+    for name, r in probe["rays"].items():
+        assert r["kind"] in (None, "door"), (name, r)  # nothing but the door parts on the way
+    for name in ("d_L0_001_leaf", "d_L0_001_frame"):
+        y0, y1 = probe["bounds"][name][1]
+        assert 6.95 - 1e-6 <= y0 and y1 <= 7.2 + 1e-6, (name, probe["bounds"][name])
+    x0, x1 = probe["bounds"]["d_L0_003_leaf"][0]
+    assert 5.25 - 1e-6 <= x0 and x1 <= 5.35 + 1e-6
+
+
+def test_downward_ray_in_a_door_hits_the_threshold_floor(built_variant):
+    building = built_variant["building"]
+    walls = {w["id"]: w for w in building["walls"]}
+    rays = {}
+    for o in building["openings"]:
+        if o["type"] not in ("door", "opening"):
+            continue
+        wall = walls[o["wall_id"]]
+        cx, cy, _ = shell.opening_centre_on_wall(o, wall)
+        nx, ny = G.unit_normal_left(wall["start"], wall["end"])
+        z = {"L0": 0.0, "L1": 3.0}[o["level_id"]] + 0.5
+        for side in (1, -1):  # beside the closed leaf, inside the wall footprint
+            d = side * (wall["thickness"] / 2.0 - 0.01)
+            rays[f"{o['id']}_{side}"] = {"origin": [cx + nx * d, cy + ny * d, z], "direction": [0, 0, -1],
+                                        "distance": 1.0}
+    probe = _probe(built_variant, rays, [])
+    for name, r in probe["rays"].items():
+        opening_id = name.rsplit("_", 1)[0]
+        assert r["kind"] == "floor" and r["object"] == f"{opening_id}_threshold", (name, r)
+
+
+def test_plain_opening_runs_to_the_ceiling_with_a_soffit(built_variant):
+    m = built_variant["manifest"]
+    entries = {o["name"]: o for o in m["objects"]}
+    assert entries["d_L1_001"]["kind"] == "opening" and not entries["d_L1_001"]["has_geometry"]
+    assert entries["d_L1_001"]["assumed"]["height"] == pytest.approx(2.7)
+    assert "d_L1_001_frame" not in entries and "d_L1_001_leaf" not in entries
+    assert entries["d_L1_001_soffit"]["kind"] == "ceiling" and entries["d_L1_001_threshold"]["kind"] == "floor"
+    assert entries["d_L1_001_threshold"]["lifted"] == pytest.approx(0.001)  # L0 lies below
+    ray = {r["opening_id"]: r for r in m["checks"]["door_rays"]}["d_L1_001"]
+    assert ray["hit"] is False and ray["passed"] == []
+    # L1: floor 3.0, ceiling 5.7, wall w_L1_005 at x 4.25..4.35, opening 0.9 wide at y 2.0.
+    probe = _probe(built_variant, {
+        "just_below_ceiling": {"origin": [3.9, 2.0, 5.6995], "direction": [1, 0, 0], "distance": 0.8},
+        "up_inside_opening": {"origin": [4.3, 2.0, 4.0], "direction": [0, 0, 1], "distance": 3.0},
+        "up_beside_opening": {"origin": [4.3, 1.4, 4.0], "direction": [0, 0, 1], "distance": 3.0},
+    }, ["w_L1_005"])
+    assert probe["rays"]["just_below_ceiling"]["hit"] is False, probe["rays"]["just_below_ceiling"]
+    soffit = probe["rays"]["up_inside_opening"]
+    assert soffit["object"] == "d_L1_001_soffit" and soffit["kind"] == "ceiling"
+    assert soffit["location"][2] == pytest.approx(5.7, abs=1e-4)
+    assert probe["rays"]["up_beside_opening"]["object"] == "w_L1_005"  # the wall head stays closed elsewhere
 
 
 def test_needs_review_building_is_refused(tmp_path):
