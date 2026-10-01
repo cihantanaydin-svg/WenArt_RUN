@@ -1,7 +1,7 @@
 {
   "source_text": "Scandinavian, light oak floor, white walls, linen textiles, warm daylight",
   "floor": {"material": "wood_oak_light", "asset": "WoodFloor051"},
-  "walls": {"material": "plaster_white", "asset": "Plaster001", "tint": [0.95, 0.94, 0.90]},
+  "walls": {"material": "plaster_white", "asset": "white_plaster_02", "tint": [0.95, 0.94, 0.90]},
   "ceiling": {"material": "plaster_white"},
   "wet_floor": {"material": "tiles_light", "asset": "Tiles074"},
   "wet_walls": {"material": "tiles_light"},

@@ -188,7 +188,7 @@ def test_materials_textured_or_flat_are_recorded(built):
     assert mats["wood_oak_light"]["albedo_gain"] is None  # flat materials carry no gain
     assert mats["wood_oak_light"]["textured"] is False  # the door leaf: no asset in the style
     walls = next(m for m in mats.values() if m["slug"] == "plaster_white" and m["tint"])
-    assert walls["textured"] is False and "Plaster001" in walls["reason"]
+    assert walls["textured"] is False and "white_plaster_02" in walls["reason"]  # not in the fake manifest
     floors = [o for o in built["manifest"]["objects"] if o["kind"] == "floor"]
     assert all(o["textured"] and o["material"] == "wood_oak_light__WoodFloor051" for o in floors if not o["wet"])
     assert all(o["material"].startswith("tiles_light") and not o["textured"] for o in floors if o["wet"])
