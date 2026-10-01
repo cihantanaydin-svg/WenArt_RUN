@@ -18,6 +18,7 @@
 #   --port, --max-model-len, --limit-mm-per-prompt '{"image":2}', --gpu-memory-utilization,
 #   --reasoning-parser glm45 (GLM-4.xV thinking goes to the `reasoning` field, content stays JSON),
 #   --max-num-seqs, --quantization fp8 (on-the-fly weight quantisation; Marlin kernels on Ampere).
+# Env VLLM_USE_FLASHINFER_SAMPLER (vllm/envs.py v0.30.0): 0 disables the FlashInfer sampler.
 set -Eeuo pipefail
 
 WS=/workspace
@@ -101,11 +102,16 @@ model_args() {
   case "$model" in
     *GLM-4*V*) args="--reasoning-parser glm45" ;;
   esac
-  # bf16 weights: Qwen3-VL-8B 17.5 GB, GLM-4.6V-Flash 20.6 GB. On a 24 GB card the GLM
-  # weights leave no room for the KV cache, so quantise its weights to fp8 on the fly
-  # (vLLM "Online Dynamic Quantization": --quantization fp8, W8A16 Marlin on Ampere).
-  if [ "${mem:-0}" -lt 40000 ] && [[ "$model" == *GLM-4* ]]; then args="$args --quantization fp8"; fi
-  echo "$args --max-num-seqs 4"
+  # bf16 weights: Qwen3-VL-8B 17.5 GB, GLM-4.6V-Flash 20.6 GB. On a 24 GB card (run 3,
+  # 1 Oct 2026) Qwen3-VL in bf16 loaded but left only 1.92 GiB for the KV cache, too
+  # little for a 16384 context, so below 40 GB both models get fp8 weights (vLLM online
+  # dynamic quantisation, --quantization fp8), an 8192 context and 2 concurrent sequences.
+  # The prompts use one image at <= 1600 px plus a short text, well under 8192 tokens.
+  if [ "${mem:-0}" -lt 40000 ]; then
+    echo "$args --quantization fp8 --max-model-len 8192 --max-num-seqs 2"
+  else
+    echo "$args --max-model-len 16384 --max-num-seqs 4"
+  fi
 }
 
 start_server() {
@@ -113,8 +119,11 @@ start_server() {
   local extra; extra=$(model_args "$model")
   local slog="$LOGS/vllm-$(slug "$model").log"
   log "starting vllm serve $model --port $VLM_PORT $extra (log $slog)"
+  # VLLM_USE_FLASHINFER_SAMPLER=0: on the RTX PRO 4000 (Blackwell, sm_120) FlashInfer's
+  # sampling kernel failed its capability check ("FlashInfer requires GPUs with sm75 or
+  # higher", run 3) and killed the GLM server; vLLM's own sampler is used instead.
   # shellcheck disable=SC2086
-  "$VENV_VLLM/bin/vllm" serve "$model" --port "$VLM_PORT" --max-model-len 16384 \
+  VLLM_USE_FLASHINFER_SAMPLER=0 "$VENV_VLLM/bin/vllm" serve "$model" --port "$VLM_PORT" \
     --limit-mm-per-prompt '{"image":2}' --gpu-memory-utilization 0.90 $extra > "$slog" 2>&1 &
   VLLM_PID=$!
   local t0; t0=$(date +%s)
