@@ -87,8 +87,15 @@ What fails / open:
   sheet, so symbols are ~15 px after downscaling. Milestone 3 adds crop-to-drawing + per-room tiles.
 - LibreDWG 0.13.3 `dxf2dwg` rejects DXFs with DIMENSION blocks ("Invalid DXF code 50 for MTEXT");
   `mobilya_plani.dxf` (no dimensions) round-trips. Try 0.14.1 on the pod next.
-- The Milestone 2 code review (4 lenses, adversarial verification) is still running; its confirmed
-  findings get fixed in a follow-up commit.
+- Code review of Milestone 2 (4 lenses, 3 independent verifiers per finding): 24 confirmed findings,
+  all fixed with a failing-then-passing test each (`pytest -m "not gpu"`: 220 passed). The important
+  ones: furniture drawn only on a separate furniture plan was dropped (now the furniture plan is the
+  furniture source of its level), an open outer wall without a label did not stop the project (now a
+  loose-end check sets `needs_review`), a known block drawn at another size kept the table size (now the
+  drawn size wins and the piece is `unverified` with a conflict), cross-document furniture and room-label
+  disagreements were silent (now `unverified` + conflict), the page scale could follow a wrong dimension
+  text (now the scale note wins), rotated dimensions were measured wrong, and the bake-off job lost its
+  results on a watchdog stop (now copied after every stage).
 
 Lessons (all recorded in `docs/plan.md` §5): the network volume is far too slow for venvs (55 min vs 3 min
 on the container disk); model downloads run at 1.1 GB/s on the pod; Blackwell pods need the cu129
