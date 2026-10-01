@@ -15,8 +15,9 @@
 #                            (a matmul): pip accepts any wheel, the GPU does not.
 #   /opt/wenart/hf           the two VLM checkpoints (HF cache; download speed logged in MB/s)
 #   apt                      tesseract-ocr tesseract-ocr-tur + build tools for LibreDWG
-#   /workspace/tools/libredwg  GNU LibreDWG 0.13.3 built from the GNU tarball
-#                            (./configure --disable-bindings --disable-python --prefix=...)
+#   /workspace/tools/libredwg  GNU LibreDWG 0.14.1 built from the GNU tarball, 0.13.3 when the
+#                            0.14.1 download fails (./configure --disable-bindings --disable-python
+#                            --prefix=...); rebuilt when the installed VERSION differs
 #
 # Sources checked on 1 Oct 2026:
 #   vLLM 0.30.0 requirements/cuda.txt: torch==2.13.0; PyPI vllm 0.30.0: python >=3.10,<3.15.
@@ -24,6 +25,8 @@
 #     paddlepaddle-gpu==3.2.0 -i https://www.paddlepaddle.org.cn/packages/stable/cu126/
 #     (PaddleOCR 3.7.x needs PaddlePaddle >= 3.0.0 per paddleocr_and_paddlex.en.md).
 #   LibreDWG 0.13.3 README: ./configure [--disable-bindings] [--disable-python] ...; NEWS: 0.13.3 of 2023-02-26.
+#   LibreDWG 0.14.1 tarball URL from docs/milestone3.md (ftp.gnu.org is not reachable from the
+#     cloud session's proxy, so the URL is verified on the pod: a failed download falls back to 0.13.3).
 #   huggingface_hub >= 1.0 (vllm needs >= 1.31): hf_transfer is no longer used; the fast path is
 #     hf_xet with HF_XET_HIGH_PERFORMANCE=1. HF_HUB_ENABLE_HF_TRANSFER=1 is still exported for
 #     older hubs and only warns when HF_XET_HIGH_PERFORMANCE is unset.
@@ -51,9 +54,14 @@ mkdir -p "$PIP_CACHE_DIR"
 VLLM_VERSION=0.30.0
 PADDLEOCR_VERSION=3.7.0
 PADDLE_VERSION=3.2.0
-LIBREDWG_VERSION=0.13.3
-LIBREDWG_URL="https://ftp.gnu.org/gnu/libredwg/libredwg-$LIBREDWG_VERSION.tar.xz"
-LIBREDWG_URL_FALLBACK="https://github.com/LibreDWG/libredwg/releases/download/$LIBREDWG_VERSION/libredwg-$LIBREDWG_VERSION.tar.xz"
+# LibreDWG: 0.14.1 first (docs/milestone3.md section 5); when neither the GNU mirror nor the
+# GitHub release serves that tarball, 0.13.3 (the Milestone 2 build) is used and logged.
+# The version that was built ends up in $TOOLS/libredwg/VERSION and, through
+# `dwg2dxf --version`, in results/bakeoff/dwg_roundtrip.json.
+LIBREDWG_VERSION=0.14.1
+LIBREDWG_FALLBACK_VERSION=0.13.3
+libredwg_url() { echo "https://ftp.gnu.org/gnu/libredwg/libredwg-$1.tar.xz"; }
+libredwg_url_fallback() { echo "https://github.com/LibreDWG/libredwg/releases/download/$1/libredwg-$1.tar.xz"; }
 # Space-separated list, overridable from the job (BAKEOFF_MODELS="a/b c/d").
 read -r -a MODELS <<< "${BAKEOFF_MODELS:-Qwen/Qwen3-VL-8B-Instruct zai-org/GLM-4.6V-Flash}"
 
@@ -188,26 +196,64 @@ PY
 step_end
 
 # --- LibreDWG from the GNU tarball ----------------------------------------------
-step_start "LibreDWG $LIBREDWG_VERSION"
+step_start "LibreDWG $LIBREDWG_VERSION (fallback $LIBREDWG_FALLBACK_VERSION)"
 LIBREDWG_PREFIX=$TOOLS/libredwg
-if [ ! -x "$LIBREDWG_PREFIX/bin/dwg2dxf" ] || [ ! -x "$LIBREDWG_PREFIX/bin/dxf2dwg" ]; then
-  SRC=$FAST/src                       # build on the container disk, install into the volume
-  mkdir -p "$SRC"
-  TAR=$SRC/libredwg-$LIBREDWG_VERSION.tar.xz
-  if [ ! -s "$TAR" ]; then
-    curl -sSL --retry 3 -o "$TAR" "$LIBREDWG_URL" || curl -sSL --retry 3 -o "$TAR" "$LIBREDWG_URL_FALLBACK"
+SRC=$FAST/src                         # build on the container disk, install into the volume
+mkdir -p "$SRC"
+
+# fetch_libredwg <version> <tarball>: GNU mirror first, then the GitHub release. `-f` makes a
+# 404 a failure instead of an HTML "tarball"; a partial file is removed so the next try is clean.
+fetch_libredwg() {
+  local ver=$1 tar=$2
+  [ -s "$tar" ] && return 0
+  if curl -fsSL --retry 3 -o "$tar" "$(libredwg_url "$ver")"; then return 0; fi
+  log "LibreDWG $ver: GNU mirror failed, trying the GitHub release"
+  if curl -fsSL --retry 3 -o "$tar" "$(libredwg_url_fallback "$ver")"; then return 0; fi
+  rm -f "$tar"
+  return 1
+}
+# The version that is installed on the volume (empty when none): first x.y.z in the VERSION file.
+libredwg_installed() {
+  { grep -oE '[0-9]+\.[0-9]+\.[0-9]+' "$LIBREDWG_PREFIX/VERSION" 2>/dev/null || true; } | head -1
+}
+libredwg_usable() {
+  [ -x "$LIBREDWG_PREFIX/bin/dwg2dxf" ] && [ -x "$LIBREDWG_PREFIX/bin/dxf2dwg" ]
+}
+
+# Decide which version this pod builds: the wanted one when its tarball can be fetched (or is
+# already installed), otherwise the fallback. The decision is logged either way.
+LIBREDWG_BUILD=""
+if libredwg_usable && [ "$(libredwg_installed)" = "$LIBREDWG_VERSION" ]; then
+  LIBREDWG_BUILD=$LIBREDWG_VERSION
+elif fetch_libredwg "$LIBREDWG_VERSION" "$SRC/libredwg-$LIBREDWG_VERSION.tar.xz"; then
+  LIBREDWG_BUILD=$LIBREDWG_VERSION
+else
+  log "LibreDWG $LIBREDWG_VERSION tarball not available; falling back to $LIBREDWG_FALLBACK_VERSION"
+  if libredwg_usable && [ "$(libredwg_installed)" = "$LIBREDWG_FALLBACK_VERSION" ]; then
+    LIBREDWG_BUILD=$LIBREDWG_FALLBACK_VERSION
+  elif fetch_libredwg "$LIBREDWG_FALLBACK_VERSION" "$SRC/libredwg-$LIBREDWG_FALLBACK_VERSION.tar.xz"; then
+    LIBREDWG_BUILD=$LIBREDWG_FALLBACK_VERSION
+  else
+    log "LibreDWG: no tarball could be downloaded ($LIBREDWG_VERSION, $LIBREDWG_FALLBACK_VERSION); the DWG round trip will report the missing tools"
   fi
-  rm -rf "$SRC/libredwg-$LIBREDWG_VERSION"
+fi
+
+if [ -n "$LIBREDWG_BUILD" ] && { ! libredwg_usable || [ "$(libredwg_installed)" != "$LIBREDWG_BUILD" ]; }; then
+  TAR=$SRC/libredwg-$LIBREDWG_BUILD.tar.xz
+  rm -rf "$SRC/libredwg-$LIBREDWG_BUILD"
   tar -xJf "$TAR" -C "$SRC"
+  rm -rf "$LIBREDWG_PREFIX"            # an older build must not survive next to the new one
   (
-    cd "$SRC/libredwg-$LIBREDWG_VERSION"
+    cd "$SRC/libredwg-$LIBREDWG_BUILD"
     ./configure --disable-bindings --disable-python --prefix="$LIBREDWG_PREFIX" > "$LOGS/libredwg-configure.log" 2>&1
     make -j"$(nproc)" > "$LOGS/libredwg-make.log" 2>&1
     make install > "$LOGS/libredwg-install.log" 2>&1
   )
   "$LIBREDWG_PREFIX/bin/dwg2dxf" --version > "$LIBREDWG_PREFIX/VERSION" 2>&1 || true
+  # Some releases print only the program name; make sure the file names the version.
+  grep -qE '[0-9]+\.[0-9]+\.[0-9]+' "$LIBREDWG_PREFIX/VERSION" 2>/dev/null || echo "libredwg $LIBREDWG_BUILD" >> "$LIBREDWG_PREFIX/VERSION"
 fi
-log "LibreDWG: $(head -1 "$LIBREDWG_PREFIX/VERSION" 2>/dev/null || "$LIBREDWG_PREFIX/bin/dwg2dxf" --version 2>&1 | head -1)"
+log "LibreDWG: $(head -1 "$LIBREDWG_PREFIX/VERSION" 2>/dev/null || echo "not installed") (wanted $LIBREDWG_VERSION, built $LIBREDWG_BUILD)"
 step_end
 
 # --- Model checkpoints (hf CLI, cached in HF_HOME on the container disk) ----------
