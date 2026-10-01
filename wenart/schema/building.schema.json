@@ -1,0 +1,188 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wenart.run/schema/building.schema.json",
+  "title": "WenArt building model",
+  "description": "One merged building model per project. Every element carries evidence. Units: metres, degrees. Coordinates: building-local XY, Z up; each level has its own elevation.",
+  "type": "object",
+  "required": ["schema_version", "project", "status", "documents", "levels", "walls", "openings", "rooms", "furniture", "conflicts", "unverified", "warnings"],
+  "properties": {
+    "schema_version": {"const": "0.1"},
+    "project": {
+      "type": "object",
+      "required": ["id", "source_folder", "created_utc", "pipeline_commit"],
+      "properties": {
+        "id": {"type": "string"},
+        "source_folder": {"type": "string"},
+        "created_utc": {"type": "string", "format": "date-time"},
+        "pipeline_commit": {"type": "string"},
+        "brief": {"type": "object", "description": "Parsed brief.yaml or defaults"}
+      }
+    },
+    "status": {"enum": ["ok", "needs_review"], "description": "needs_review = something critical is missing (scale, closed outer walls). The pipeline stops after the report."},
+    "documents": {"type": "array", "items": {"$ref": "#/$defs/document"}},
+    "levels": {"type": "array", "items": {"$ref": "#/$defs/level"}},
+    "walls": {"type": "array", "items": {"$ref": "#/$defs/wall"}},
+    "openings": {"type": "array", "items": {"$ref": "#/$defs/opening"}},
+    "rooms": {"type": "array", "items": {"$ref": "#/$defs/room"}},
+    "furniture": {"type": "array", "items": {"$ref": "#/$defs/furniture"}},
+    "conflicts": {"type": "array", "items": {"$ref": "#/$defs/conflict"}},
+    "unverified": {"type": "array", "items": {"type": "string"}, "description": "IDs of elements with status=unverified (copied here for the report)"},
+    "warnings": {"type": "array", "items": {"type": "string"}}
+  },
+  "$defs": {
+    "evidence": {
+      "type": "object",
+      "description": "Where this fact comes from. At least one evidence entry per element.",
+      "required": ["file", "method", "confidence"],
+      "properties": {
+        "file": {"type": "string", "description": "Path relative to the project folder"},
+        "page": {"type": ["integer", "null"], "description": "1-based page for PDFs; null for DXF/images"},
+        "layer": {"type": ["string", "null"], "description": "DXF layer name, e.g. DUVAR, KAPI, MOBILYA"},
+        "entity": {"type": ["string", "null"], "description": "DXF entity handle or PDF path index, e.g. INSERT:1F3A"},
+        "block": {"type": ["string", "null"], "description": "DXF block name for INSERTs"},
+        "pixel_box": {"type": ["array", "null"], "items": {"type": "number"}, "minItems": 4, "maxItems": 4, "description": "[x0,y0,x1,y1] in page pixels at the recorded dpi"},
+        "dpi": {"type": ["number", "null"]},
+        "method": {"enum": ["vector", "ocr", "ai", "derived"], "description": "Trust order: vector > ocr > ai. derived = computed from other verified elements (e.g. room polygon from walls)."},
+        "model": {"type": ["string", "null"], "description": "Model ID for ocr/ai methods"},
+        "pass": {"type": ["integer", "null"], "description": "AI pass number (1 or 2) for two-pass agreement"},
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "text": {"type": ["string", "null"], "description": "Raw text read, e.g. 'Salon 24,50 m²' or '3,45'"}
+      }
+    },
+    "point": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2},
+    "document": {
+      "type": "object",
+      "required": ["id", "file", "format", "pages"],
+      "properties": {
+        "id": {"type": "string"},
+        "file": {"type": "string"},
+        "format": {"enum": ["dwg", "dxf", "pdf", "image"]},
+        "converter": {"type": ["string", "null"], "description": "e.g. libredwg dwg2dxf 0.13.3"},
+        "pages": {"type": "array", "items": {
+          "type": "object",
+          "required": ["page", "class", "kind", "confidence"],
+          "properties": {
+            "page": {"type": "integer"},
+            "class": {"enum": ["floor_plan", "furniture_plan", "section", "elevation", "site_plan", "detail", "photo_of_plan", "photo_of_room", "other"]},
+            "skip_reason": {"type": ["string", "null"]},
+            "kind": {"enum": ["vector", "scan", "photo"]},
+            "level_id": {"type": ["string", "null"]},
+            "level_label_raw": {"type": ["string", "null"], "description": "e.g. 'ZEMİN KAT PLANI'"},
+            "scale": {"type": ["object", "null"], "properties": {
+              "metres_per_unit": {"type": "number"},
+              "method": {"enum": ["dxf_insunits", "pdf_scale_text", "dimension_text", "area_label", "fallback_door_width"]},
+              "confidence": {"type": "number"},
+              "evidence": {"$ref": "#/$defs/evidence"}
+            }},
+            "transform_to_building": {"type": ["array", "null"], "items": {"type": "number"}, "minItems": 6, "maxItems": 6, "description": "Affine [a,b,c,d,e,f] mapping page/model coords to building coords"},
+            "confidence": {"type": "number"},
+            "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}},
+            "debug_image": {"type": ["string", "null"]}
+          }
+        }}
+      }
+    },
+    "level": {
+      "type": "object",
+      "required": ["id", "label", "elevation", "ceiling_height", "ceiling_height_source"],
+      "properties": {
+        "id": {"type": "string"},
+        "label": {"type": "string", "description": "Normalised: Bodrum Kat, Zemin Kat, 1. Kat, Çatı Katı ..."},
+        "order": {"type": "integer"},
+        "elevation": {"type": "number"},
+        "ceiling_height": {"type": "number"},
+        "ceiling_height_source": {"enum": ["section", "elevation_drawing", "assumed_default"]},
+        "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}}
+      }
+    },
+    "wall": {
+      "type": "object",
+      "required": ["id", "level_id", "start", "end", "thickness", "status", "evidence"],
+      "properties": {
+        "id": {"type": "string"},
+        "level_id": {"type": "string"},
+        "start": {"$ref": "#/$defs/point"},
+        "end": {"$ref": "#/$defs/point"},
+        "thickness": {"type": "number"},
+        "height": {"type": ["number", "null"]},
+        "exterior": {"type": "boolean"},
+        "status": {"enum": ["verified", "unverified"]},
+        "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/evidence"}}
+      }
+    },
+    "opening": {
+      "type": "object",
+      "required": ["id", "type", "level_id", "wall_id", "center", "width", "status", "evidence"],
+      "properties": {
+        "id": {"type": "string"},
+        "type": {"enum": ["door", "window", "opening"]},
+        "level_id": {"type": "string"},
+        "wall_id": {"type": "string"},
+        "center": {"$ref": "#/$defs/point"},
+        "width": {"type": "number"},
+        "height": {"type": ["number", "null"]},
+        "sill_height": {"type": ["number", "null"]},
+        "swing_side": {"type": ["string", "null"], "description": "Room id the door opens into, if drawn"},
+        "status": {"enum": ["verified", "unverified"]},
+        "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/evidence"}}
+      }
+    },
+    "room": {
+      "type": "object",
+      "required": ["id", "level_id", "label", "polygon", "area_computed", "has_documented_furniture", "status", "evidence"],
+      "properties": {
+        "id": {"type": "string"},
+        "level_id": {"type": "string"},
+        "label": {"type": "string", "description": "Normalised Turkish label, e.g. Salon, Yatak Odası, Mutfak, Banyo, Balkon"},
+        "label_raw": {"type": ["string", "null"]},
+        "room_type": {"enum": ["living", "bedroom", "kitchen", "bathroom", "wc", "hall", "balcony", "storage", "other", "unknown"]},
+        "polygon": {"type": "array", "items": {"$ref": "#/$defs/point"}, "minItems": 3},
+        "area_computed": {"type": "number"},
+        "area_label": {"type": ["number", "null"], "description": "Area read from the drawing, e.g. 24.5 from 'Salon 24,50 m²'"},
+        "has_documented_furniture": {"type": "boolean"},
+        "style_override": {"type": ["string", "null"]},
+        "status": {"enum": ["verified", "unverified"]},
+        "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/evidence"}}
+      }
+    },
+    "furniture": {
+      "type": "object",
+      "required": ["id", "level_id", "room_id", "type", "source", "footprint", "status", "evidence"],
+      "properties": {
+        "id": {"type": "string"},
+        "level_id": {"type": "string"},
+        "room_id": {"type": ["string", "null"]},
+        "type": {"enum": ["bed_single", "bed_double", "sofa", "armchair", "table_dining", "table_coffee", "desk", "chair", "wardrobe", "kitchen_counter", "kitchen_island", "fridge", "stove", "sink_kitchen", "washbasin", "toilet", "shower", "bathtub", "tv_unit", "bookshelf", "nightstand", "dresser", "washing_machine", "unknown"]},
+        "type_raw": {"type": ["string", "null"], "description": "Block name or label as drawn, e.g. KANEPE_3LU, yatak"},
+        "source": {"enum": ["from_documents", "added_by_ai"]},
+        "footprint": {
+          "type": "object",
+          "required": ["center", "size", "rotation_deg"],
+          "properties": {
+            "center": {"$ref": "#/$defs/point"},
+            "size": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2, "description": "[width, depth] in metres, in the piece's own frame"},
+            "rotation_deg": {"type": "number", "description": "Rotation of the footprint around +Z"}
+          }
+        },
+        "front_deg": {"type": ["number", "null"], "description": "Direction the piece faces (e.g. away from a bed headboard, out of a sofa back). null = not determinable"},
+        "height": {"type": ["number", "null"]},
+        "asset": {"type": ["object", "null"], "description": "Chosen 3D asset: library, id, license, fit scale", "properties": {
+          "library": {"type": "string"}, "asset_id": {"type": "string"}, "license": {"type": "string"}, "fit_scale": {"type": "array", "items": {"type": "number"}}
+        }},
+        "status": {"enum": ["verified", "unverified"]},
+        "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/evidence"}}
+      }
+    },
+    "conflict": {
+      "type": "object",
+      "required": ["id", "kind", "element_ids", "description", "resolution"],
+      "properties": {
+        "id": {"type": "string"},
+        "kind": {"enum": ["dimension_vs_measured", "area_label_vs_computed", "count_mismatch", "outline_mismatch", "type_disagreement", "scale_disagreement", "other"]},
+        "element_ids": {"type": "array", "items": {"type": "string"}},
+        "description": {"type": "string"},
+        "resolution": {"type": "string", "description": "Which source won (DWG > vector PDF > scan > photo) or 'unresolved'"}
+      }
+    }
+  }
+}

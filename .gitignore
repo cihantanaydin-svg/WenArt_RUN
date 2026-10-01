@@ -1,0 +1,36 @@
+# Secrets and local config - never commit
+.env
+.env.*
+*.pem
+*.key
+secrets/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# Large or generated outputs (full-size outputs live on the RunPod Network Volume)
+outputs/
+*.blend1
+*.exr
+*.hdr
+*.safetensors
+*.ckpt
+*.pt
+*.bin
+projects/*/outputs/
+results/**/*.png
+!results/**/*.jpg
+!results/**/*.jpeg
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.log
+logs/
