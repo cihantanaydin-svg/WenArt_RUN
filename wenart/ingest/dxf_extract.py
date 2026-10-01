@@ -7,11 +7,16 @@ What is read, by layer (names matched case-insensitively):
   (``KAPI_90`` -> door 0.90 m). Unknown names fall back to the layer for the
   type and the block's drawn extent for the width, marked ``unverified``.
 - ``MOBILYA``: INSERTs. Block name -> type via ``wenart.synthetic.blocks.BLOCKS``
-  (a lookup, never a guess); unknown names -> ``unknown`` + ``unverified`` with
-  the footprint read from the rectangle inside the block definition.
+  (a lookup, never a guess). The footprint is the rectangle drawn inside the
+  block definition, like a wall: a known name drawn at another size than the
+  table says keeps the drawn size, becomes ``unverified`` and raises a
+  ``type_disagreement`` conflict. Unknown names -> ``unknown`` + ``unverified``.
+  A known block without any geometry gets the table size and is ``unverified``.
 - ``YAZI``: TEXT/MTEXT; roles title / scale / dimension / room label.
-- ``OLCU``: DIMENSION; measured = distance of the two definition points, printed
-  = text override or the measurement formatted with the dimension style.
+- ``OLCU``: DIMENSION, linear only. A rotated dimension (dimtype 0) measures the
+  definition points projected onto its direction, as CAD prints it; an aligned
+  one (dimtype 1) measures their distance. Printed = text override or the
+  measurement formatted with the dimension style.
 
 Units: ``$INSUNITS`` gives metres per drawing unit (4 = mm). The building
 origin is the minimum corner of all wall rectangles, so the transform is
@@ -19,6 +24,7 @@ origin is the minimum corner of all wall rectangles, so the transform is
 """
 from __future__ import annotations
 
+import math
 from pathlib import Path
 from typing import Optional
 
@@ -31,10 +37,11 @@ from wenart import geometry as G
 from wenart.ingest.model import (DOOR_SWING_PROBE, DimensionItem, FurnitureItem, LevelExtraction, OpeningItem,
                                  TextItem, WallItem, parse_number, text_role)
 from wenart.synthetic import blocks
-from wenart.synthetic.dxf_writer import dimension_printed_text
+from wenart.synthetic.model import format_metres
 
-# Drawn block size vs the BLOCKS table: larger differences are reported.
-SIZE_WARNING_M = 0.01
+# Drawn block size vs the BLOCKS table: a larger difference means the name and the
+# geometry disagree (drawn size kept, piece unverified, conflict).
+SIZE_TOLERANCE_M = 0.01
 
 
 def read_dxf(path: str | Path):
@@ -157,10 +164,7 @@ def extract_dxf(path: str | Path, level_id: str, file_rel: Optional[str] = None)
         if layer in (blocks.LAYER_DOORS, blocks.LAYER_WINDOWS):
             ex.openings.append(_opening_from_insert(doc, ent, layer, mpu, tb, file_rel))
         elif layer == blocks.LAYER_FURNITURE:
-            item, warning = _furniture_from_insert(doc, ent, mpu, tb, file_rel)
-            ex.furniture.append(item)
-            if warning:
-                ex.warnings.append(warning)
+            ex.furniture.append(_furniture_from_insert(doc, ent, mpu, tb, ex))
 
     # Texts.
     for ent in msp.query("TEXT MTEXT"):
@@ -196,13 +200,10 @@ def extract_dxf(path: str | Path, level_id: str, file_rel: Optional[str] = None)
             ex.warnings.append(f"{file_rel}: DIMENSION:{ent.dxf.handle} has dimtype {ent.dimtype}; only linear "
                                "dimensions are read")
             continue
-        p2, p3 = ent.dxf.defpoint2, ent.dxf.defpoint3
-        p1_b, p2_b = tb((p2.x, p2.y)), tb((p3.x, p3.y))
-        measured = G.distance(p1_b, p2_b)
-        try:
-            printed = dimension_printed_text(ent)
-        except Exception:  # noqa: BLE001 - missing dimstyle etc.
-            printed = ent.dxf.text if ent.dxf.text and ent.dxf.text != "<>" else f"{measured:.2f}".replace(".", ",")
+        span_units, measured_units = _linear_dimension_span(ent)
+        p1_b, p2_b = tb(span_units[0]), tb(span_units[1])
+        measured = measured_units * mpu
+        printed = _dimension_printed_text(ent, measured_units)
         mid = ent.dxf.get("text_midpoint") or ent.dxf.defpoint
         try:
             text_height = float(ent.override().get("dimtxt", 200.0)) or 200.0
@@ -216,6 +217,48 @@ def extract_dxf(path: str | Path, level_id: str, file_rel: Optional[str] = None)
             entity=entity, evidence=B.evidence(file_rel, "vector", 1.0, layer=blocks.LAYER_DIMENSIONS, entity=entity,
                                                text=printed), tick_count=2))
     return ex
+
+
+def _linear_dimension_span(ent) -> tuple[list[tuple[float, float]], float]:
+    """End points (drawing units) of the measured span of a linear DIMENSION and its length.
+
+    Rotated dimensions (dimtype 0) measure along ``dxf.angle``: ezdxf's ``get_measurement()``
+    (``linear_measurement`` in ezdxf 1.4.4) projects defpoint2 -> defpoint3 onto that
+    direction, which is what CAD prints. The span end points are the definition points
+    projected onto the dimension line (through ``dxf.defpoint``), so wall linking sees the
+    printed span even when the definition points lie on different faces.
+
+    Aligned dimensions (dimtype 1) measure the distance of the definition points. ezdxf
+    would project them onto ``dxf.angle`` as well, but DXF files store no meaningful angle
+    for aligned dimensions, so the distance is computed here.
+    """
+    p2, p3 = ent.dxf.defpoint2, ent.dxf.defpoint3
+    a, b = (float(p2.x), float(p2.y)), (float(p3.x), float(p3.y))
+    if ent.dimtype == 1:
+        return [a, b], G.distance(a, b)
+    angle = math.radians(float(ent.dxf.get("angle", 0.0)))
+    ux, uy = math.cos(angle), math.sin(angle)
+    base = ent.dxf.defpoint
+    bx, by = float(base.x), float(base.y)
+    projected = []
+    for x, y in (a, b):
+        t = (x - bx) * ux + (y - by) * uy
+        projected.append((bx + t * ux, by + t * uy))
+    return projected, float(ent.get_measurement())
+
+
+def _dimension_printed_text(ent, measured_units: float) -> str:
+    """What the drawing shows: the text override, or the measurement formatted with the
+    dimension style (``dimlfac`` scales drawing units to the printed unit, 0.001 for a
+    millimetre drawing printed in metres; the DXF default is 1.0)."""
+    text = ent.dxf.text
+    if text and text != "<>":
+        return text
+    try:
+        factor = float(ent.override().get("dimlfac", 1.0))
+    except Exception:  # noqa: BLE001 - missing dimstyle etc.
+        factor = 1.0
+    return format_metres(measured_units * factor)
 
 
 def _opening_from_insert(doc, ent, layer: str, mpu: float, tb, file_rel: str) -> OpeningItem:
@@ -252,45 +295,63 @@ def _opening_from_insert(doc, ent, layer: str, mpu: float, tb, file_rel: str) ->
                        swing_point=swing, block=name, status=status)
 
 
-def _furniture_from_insert(doc, ent, mpu: float, tb, file_rel: str) -> tuple[FurnitureItem, Optional[str]]:
+def _drawn_footprint(doc, name: str, mpu: float, sx: float, sy: float):
+    """``(size in metres, centre offset in block units)`` of what the block draws, scaled by
+    the insert: the rectangle inside the block, else the extent of its geometry, else
+    ``(None, (0, 0))`` for a block without geometry."""
+    rect = _block_rectangle(doc, name)
+    if rect is not None:
+        box = G.bbox(rect)
+    else:
+        box = _block_extent(doc, name)
+        if box is None:
+            return None, (0.0, 0.0)
+    size = ((box[2] - box[0]) * mpu * sx, (box[3] - box[1]) * mpu * sy)
+    offset = (((box[0] + box[2]) / 2) * sx, ((box[1] + box[3]) / 2) * sy)
+    return size, offset
+
+
+def _furniture_from_insert(doc, ent, mpu: float, tb, ex: LevelExtraction) -> FurnitureItem:
+    """Furniture piece from a MOBILYA insert. The footprint is what the block draws (vector
+    geometry first); the BLOCKS table only names the type. Disagreements go to
+    ``ex.conflicts``, missing geometry to ``ex.warnings``."""
     name = ent.dxf.name
+    handle = f"INSERT:{ent.dxf.handle}"
     ftype = blocks.furniture_type(name)
     rotation = G.normalise_angle(float(ent.dxf.rotation))
     sx, sy = abs(float(ent.dxf.xscale)), abs(float(ent.dxf.yscale))
-    rect = _block_rectangle(doc, name)
-    warning = None
-    offset_local = (0.0, 0.0)
-    drawn = None
-    if rect is not None:
-        rbox = G.bbox(rect)
-        drawn = ((rbox[2] - rbox[0]) * mpu * sx, (rbox[3] - rbox[1]) * mpu * sy)
-        offset_local = (((rbox[0] + rbox[2]) / 2) * sx, ((rbox[1] + rbox[3]) / 2) * sy)
-    else:
-        extent = _block_extent(doc, name)
-        if extent is not None:
-            drawn = ((extent[2] - extent[0]) * mpu * sx, (extent[3] - extent[1]) * mpu * sy)
-            offset_local = (((extent[0] + extent[2]) / 2) * sx, ((extent[1] + extent[3]) / 2) * sy)
+    drawn, offset_local = _drawn_footprint(doc, name, mpu, sx, sy)
     table = blocks.furniture_size(name)
-    if table is not None:
+    status = "verified" if table is not None else "unverified"
+    if drawn is not None:
+        size = drawn
+        if table is not None:
+            expected = (table[0] * sx, table[1] * sy)
+            if abs(drawn[0] - expected[0]) > SIZE_TOLERANCE_M or abs(drawn[1] - expected[1]) > SIZE_TOLERANCE_M:
+                # Name and geometry disagree: the drawn footprint counts, the name no longer
+                # identifies our block with certainty, so the type lookup is unverified.
+                status = "unverified"
+                ex.conflicts.append({
+                    "kind": "type_disagreement", "element_ids": [],
+                    "description": f"{ex.file}: block {name} ({handle}) is drawn {drawn[0]:.2f} x {drawn[1]:.2f} m "
+                                   f"but the block table says {expected[0]:.2f} x {expected[1]:.2f} m",
+                    "resolution": "drawn footprint kept (vector geometry), piece marked unverified"})
+    elif table is not None:
+        # Nothing drawn: the table size is the only footprint source, which the document cannot confirm.
         size = (table[0] * sx, table[1] * sy)
-        status = "verified"
-        if drawn is not None and (abs(drawn[0] - size[0]) > SIZE_WARNING_M or abs(drawn[1] - size[1]) > SIZE_WARNING_M):
-            warning = (f"{file_rel}: block {name} (INSERT:{ent.dxf.handle}) is drawn {drawn[0]:.2f} x {drawn[1]:.2f} m "
-                       f"but the block table says {size[0]:.2f} x {size[1]:.2f} m; table size used")
-    else:
-        size = drawn if drawn is not None else (0.0, 0.0)
         status = "unverified"
-        if drawn is None:
-            warning = f"{file_rel}: block {name} (INSERT:{ent.dxf.handle}) has no drawn footprint"
+        ex.warnings.append(f"{ex.file}: block {name} ({handle}) has no drawn footprint; table size "
+                           f"{size[0]:.2f} x {size[1]:.2f} m used, piece marked unverified")
+    else:
+        size = (0.0, 0.0)
+        ex.warnings.append(f"{ex.file}: block {name} ({handle}) has no drawn footprint")
     ix, iy = ent.dxf.insert.x, ent.dxf.insert.y
     ox, oy = G.rotate_point(offset_local, rotation)
     center_units = (ix + ox, iy + oy)
     center = tb(center_units)
     corners = G.rotated_rectangle(center_units, (size[0] / mpu, size[1] / mpu), rotation)
-    entity = f"INSERT:{ent.dxf.handle}"
-    item = FurnitureItem(type=ftype, type_raw=name, center=center, size=(G.snap(size[0], 6), G.snap(size[1], 6)),
+    return FurnitureItem(type=ftype, type_raw=name, center=center, size=(G.snap(size[0], 6), G.snap(size[1], 6)),
                          rotation_deg=rotation, front_deg=G.front_direction_deg(rotation) if status == "verified" else None,
-                         box=[round(float(v), 3) for v in G.bbox(corners)], entity=entity,
-                         evidence=B.evidence(file_rel, "vector", 1.0, layer=blocks.LAYER_FURNITURE, entity=entity, block=name),
+                         box=[round(float(v), 3) for v in G.bbox(corners)], entity=handle,
+                         evidence=B.evidence(ex.file, "vector", 1.0, layer=blocks.LAYER_FURNITURE, entity=handle, block=name),
                          status=status)
-    return item, warning

@@ -6,7 +6,7 @@ from wenart import geometry as G
 from wenart.ingest.model import METRES_PER_POINT
 from wenart.ingest.pdf_extract import extract_pdf_page, merge_chars, read_page_objects
 from wenart.synthetic.pdf_writer import write_pdf
-from wenart.synthetic.projects import PageSpec, level_01_birinci
+from wenart.synthetic.projects import PageSpec, level_01_birinci, level_03_bodrum
 
 from conftest import PROJECTS, assert_one_to_one, furniture_matches, load_pages, load_truth, opening_matches, wall_matches
 
@@ -172,3 +172,75 @@ def test_read_page_objects_order_matches_stream():
     assert objects.paths[0].kind == "rect" and objects.paths[0].linewidth == 1.0   # page border = path:0
     assert objects.paths[1].entity == "path:1" and objects.paths[1].linewidth == 0.5  # first wall
     assert objects.n_chars > 0 and objects.n_images == 0
+
+
+@pytest.fixture(scope="module")
+def bodrum_pages(tmp_path_factory):
+    """Variants of the synthetic-03 Bodrum page, whose left chain prints 3,99 for a 3,80 segment.
+    Returns ``(write, override, correct)``: ``write(name, dimensions, note)`` -> path of a one-page PDF."""
+    out = tmp_path_factory.mktemp("bodrum")
+    level = level_03_bodrum()
+
+    def write(name: str, dimensions, note: bool = True):
+        level.scale_text = "ÖLÇEK 1/100" if note else ""
+        write_pdf([{"level": level, "title_raw": level.title_raw, "page_class": "floor_plan",
+                    "openings": level.openings, "furniture": [], "dimensions": dimensions}], out / name, name)
+        return out / name
+
+    override = [d for d in level.dimensions if d.text_override]
+    correct = [d for d in level.dimensions if not d.text_override]
+    assert len(override) == 1 and override[0].text_override == "3,99" and len(correct) == 6
+    return write, override, correct
+
+
+def _scale_conflicts(ex):
+    return [c for c in ex.conflicts if c["kind"] == "scale_disagreement"]
+
+
+@pytest.mark.parametrize("n_correct", [0, 1])
+def test_override_does_not_rescale_page_with_scale_note(bodrum_pages, n_correct):
+    write, override, correct = bodrum_pages
+    name = f"note_override_{n_correct}.pdf"
+    ex = extract_pdf_page(write(name, override + correct[:n_correct]), 1, "L-1", name)
+    # The scale note wins; the text override cannot move the page scale.
+    assert ex.scale["method"] == "pdf_scale_text"
+    assert ex.scale["metres_per_unit"] == pytest.approx(100 * METRES_PER_POINT)
+    assert ex.scale["confidence"] < 0.9
+    assert ex.scale["evidence"]["text"] == "ÖLÇEK 1/100"
+    conflicts = _scale_conflicts(ex)
+    assert len(conflicts) == 1 and len(ex.conflicts) == 1
+    assert "scale note kept" in conflicts[0]["resolution"]
+    assert "3,99" in conflicts[0]["description"] and "5.0%" in conflicts[0]["description"]
+    # Geometry at the note's scale: the outer wall is 0.25 m thick and the override still measures 3,80.
+    assert max(w.thickness for w in ex.walls) == pytest.approx(0.25, abs=0.002)
+    bad = next(d for d in ex.dimensions if d.printed == "3,99")
+    assert bad.measured == pytest.approx(3.80, abs=0.005)
+    for dim in ex.dimensions:
+        if dim.printed != "3,99":
+            assert dim.measured == pytest.approx(dim.printed_value, abs=0.005)
+
+
+def test_lone_or_split_dimension_texts_give_no_scale_without_note(bodrum_pages):
+    write, override, correct = bodrum_pages
+    ex = extract_pdf_page(write("lone.pdf", override, note=False), 1, "L-1", "lone.pdf")
+    assert ex.scale is None and ex.transform_to_building is None
+    assert any("dimension text" in w for w in ex.warnings)
+    # Three ratios of which one disagrees: not enough agreement to trust the dimension texts.
+    ex = extract_pdf_page(write("split.pdf", override + correct[:2], note=False), 1, "L-1", "split.pdf")
+    assert ex.scale is None
+    assert any("3,99" in w for w in ex.warnings)
+
+
+def test_three_agreeing_dimension_texts_give_scale_without_note(bodrum_pages):
+    write, override, correct = bodrum_pages
+    ex = extract_pdf_page(write("three.pdf", correct[:3], note=False), 1, "L-1", "three.pdf")
+    assert ex.scale["method"] == "dimension_text" and ex.scale["confidence"] == 0.9
+    assert ex.scale["metres_per_unit"] == pytest.approx(100 * METRES_PER_POINT, rel=1e-4)
+    assert ex.conflicts == [] and ex.warnings == []
+    # A majority of agreeing texts still gives the scale, with lower confidence and the odd one named.
+    ex = extract_pdf_page(write("majority.pdf", override + correct, note=False), 1, "L-1", "majority.pdf")
+    assert ex.scale["method"] == "dimension_text" and ex.scale["confidence"] == 0.7
+    assert ex.scale["metres_per_unit"] == pytest.approx(100 * METRES_PER_POINT, rel=1e-4)
+    assert any("3,99" in w for w in ex.warnings)
+    bad = next(d for d in ex.dimensions if d.printed == "3,99")
+    assert bad.measured == pytest.approx(3.80, abs=0.005)
