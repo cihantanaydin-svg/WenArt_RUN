@@ -1,0 +1,308 @@
+"""Catalogue and fitting (wenart/furniture/catalog.py, fit.py, Milestone 4 section 1).
+
+Catalogue: every entry complete (bbox, frame fields, CC0, Poly Haven), every
+furniture type of the schema covered by a library or a parametric entry,
+malformed catalogues refused. Fitting: aspect-closest candidate, the 15 %
+non-uniform cap moves to the next candidate or the parametric fallback,
+the three synthetic buildings (truth JSON of all three, pipeline output of
+the two vector projects) get a fit on every piece with the footprint and
+every other field byte-identical, the fitted JSON validates, the report
+lists every fallback and the licence of every library fit. CLI offline.
+"""
+import copy
+import json
+from pathlib import Path
+
+import pytest
+
+from wenart import building as B
+from wenart.furniture import catalog as C
+from wenart.furniture import fit as F
+from wenart.furniture.__main__ import main as furniture_main
+from wenart.ingest.pipeline import build_project
+
+from conftest import PROJECTS, SYNTHETIC, load_truth
+
+ROOT = Path(__file__).resolve().parents[1]
+SCHEMA_TYPES = set(B.load_schema()["$defs"]["furniture"]["properties"]["type"]["enum"])
+
+
+@pytest.fixture(scope="module")
+def catalog():
+    return C.load()
+
+
+@pytest.fixture(scope="module")
+def buildings(tmp_path_factory):
+    """(name, building) for the truth of all three synthetic projects plus the pipeline output of 01 and 03."""
+    out = tmp_path_factory.mktemp("fit_outputs")
+    result = [(name + " (truth)", load_truth(name)) for name in SYNTHETIC]
+    for name in ("synthetic-01", "synthetic-03"):
+        built = build_project(PROJECTS / name, out / name)
+        assert built["status"] == "ok" and built["furniture"]
+        result.append((name + " (pipeline)", built))
+    return result
+
+
+# --------------------------------------------------------------------------
+# Catalogue
+# --------------------------------------------------------------------------
+
+def test_catalog_covers_every_schema_type(catalog):
+    assert set(C.FURNITURE_TYPES) == SCHEMA_TYPES
+    assert set(catalog.types()) == SCHEMA_TYPES
+    assert len(catalog.models) >= 25 and len(catalog.parametric_types) >= 8
+    for ftype in ("sofa", "armchair", "chair", "table_dining", "table_coffee", "desk", "bed_single", "bed_double",
+                  "nightstand", "bookshelf", "tv_unit", "dresser"):
+        assert 1 <= len(catalog.candidates(ftype)) <= 3, ftype
+    for ftype in ("toilet", "washbasin", "shower", "bathtub", "fridge", "washing_machine", "kitchen_counter",
+                  "kitchen_island", "sink_kitchen", "wardrobe", "unknown"):
+        assert ftype in catalog.parametric_types and catalog.candidates(ftype) == []
+    assert len(set(catalog.ids())) == len(catalog.ids())
+
+
+def test_catalog_entries_are_complete(catalog):
+    for entry in catalog.models + catalog.decor:
+        for key in C.REQUIRED_MODEL_FIELDS:
+            assert key in entry, (entry.get("id"), key)
+        assert entry["source"] == "polyhaven" and entry["licence"] == "CC0"
+        assert entry["url"] == f"https://polyhaven.com/a/{entry['id']}"
+        assert entry["gltf"] == f"models/{entry['id']}/{entry['id']}_1k.gltf"
+        assert all(0.05 < v < 3.0 for v in entry["bbox_m"]), entry["id"]
+        assert entry["bbox_m"] == C.oriented_bbox(entry["bbox_model_m"], entry["front_axis"])
+        assert entry["origin_offset"] == C.origin_offset(entry["bbox_min_m"], entry["bbox_max_m"])
+        assert abs(entry["origin_offset"][2]) < 0.02, entry["id"]  # origin on the floor
+        assert entry["front_axis_confidence"] in ("high", "medium", "low") and entry["front_axis_note"]
+        assert entry["up_axis"] == "+Z" and entry["front_axis"] in C.AXES
+        assert 0.2 < C.bbox_aspect(entry) < 6.0
+    # low confidence is stated for every piece whose front cannot be read from the geometry
+    low = {e["id"] for e in catalog.models if e["front_axis_confidence"] == "low"}
+    assert {"wooden_table_02", "painted_wooden_table", "modern_coffee_table_02", "side_table_01"} <= low
+    for entry in catalog.entries:
+        if entry.get("parametric"):
+            assert entry["reason"]
+
+
+def test_catalog_validation_refuses_broken_files(catalog):
+    data = copy.deepcopy(catalog.data)
+    good = next(e for e in data["entries"] if not e.get("parametric"))
+    broken = copy.deepcopy(data)
+    broken["entries"][broken["entries"].index(good)]["licence"] = "CC-BY"
+    with pytest.raises(C.CatalogError):
+        C.validate(broken)
+    broken = copy.deepcopy(data)
+    del broken["entries"][broken["entries"].index(good)]["front_axis"]
+    with pytest.raises(C.CatalogError):
+        C.validate(broken)
+    broken = copy.deepcopy(data)
+    broken["entries"][broken["entries"].index(good)]["bbox_m"] = [9.0, 9.0, 9.0]
+    with pytest.raises(C.CatalogError, match="does not match"):
+        C.validate(broken)
+    broken = copy.deepcopy(data)
+    broken["entries"] = [e for e in broken["entries"] if e.get("type") != "toilet"]
+    with pytest.raises(C.CatalogError, match="toilet"):
+        C.validate(broken)
+    broken = copy.deepcopy(data)
+    broken["entries"].append({"type": "sofa", "parametric": True})
+    with pytest.raises(C.CatalogError):
+        C.validate(broken)
+
+
+def test_frame_helpers():
+    assert C.reorient_rotation_deg({"front_axis": "-Y"}) == 0.0
+    assert C.reorient_rotation_deg({"front_axis": "+Y"}) == 180.0
+    assert C.reorient_rotation_deg({"front_axis": "+X"}) == 270.0
+    assert C.reorient_rotation_deg({"front_axis": "-X"}) == 90.0
+    assert C.oriented_bbox([0.6, 1.2, 0.4], "-X") == [1.2, 0.6, 0.4]
+    assert C.oriented_bbox([0.6, 1.2, 0.4], "+Y") == [0.6, 1.2, 0.4]
+    assert C.origin_offset([-0.5, -0.2, 0.0], [0.5, 0.6, 1.0]) == [0.0, 0.2, 0.0]
+    assert C.parametric_height("wardrobe") == 2.1 and C.parametric_height("weird") == 0.8
+
+
+# --------------------------------------------------------------------------
+# Fitting rule on a hand-made catalogue
+# --------------------------------------------------------------------------
+
+def _entry(asset_id, ftype, w, d, h):
+    return {"id": asset_id, "type": ftype, "source": "polyhaven", "licence": "CC0", "bbox_m": [w, d, h],
+            "bbox_model_m": [w, d, h], "bbox_min_m": [-w / 2, -d / 2, 0.0], "bbox_max_m": [w / 2, d / 2, h],
+            "front_axis": "-Y", "up_axis": "+Z", "origin_offset": [0.0, 0.0, 0.0], "front_axis_confidence": "high",
+            "url": f"https://polyhaven.com/a/{asset_id}", "gltf": f"models/{asset_id}/{asset_id}_1k.gltf"}
+
+
+def _piece(ftype, w, d, source="from_documents", pid="f_L0_001"):
+    return {"id": pid, "level_id": "L0", "room_id": "r_L0_salon", "type": ftype, "type_raw": None, "source": source,
+            "footprint": {"center": [1.0, 2.0], "size": [w, d], "rotation_deg": 90.0}, "front_deg": 0.0,
+            "height": None, "asset": None, "status": "verified",
+            "evidence": [{"file": "a.dxf", "method": "vector", "confidence": 1.0}]}
+
+
+@pytest.fixture
+def small_catalog():
+    entries = [
+        _entry("sofa_wide", "sofa", 2.0, 0.8, 0.8),      # aspect 2.5
+        _entry("sofa_deep", "sofa", 1.6, 1.0, 0.8),      # aspect 1.6
+        _entry("sofa_odd", "sofa", 3.0, 0.5, 0.8),       # aspect 6.0
+        _entry("tv_long", "tv_unit", 2.4, 0.5, 0.6),     # aspect 4.8 -> fails the cap on 1.6 x 0.45
+    ]
+    entries += [{"type": t, "parametric": True, "reason": "test"} for t in C.FURNITURE_TYPES
+                if t not in ("sofa", "tv_unit")]
+    return C.Catalog({"entries": entries})
+
+
+def test_fit_picks_the_aspect_closest_candidate(small_catalog):
+    piece = _piece("sofa", 2.2, 0.9)
+    before = json.dumps(piece, sort_keys=True)
+    fit = F.fit_piece(piece, small_catalog)
+    assert json.dumps(piece, sort_keys=True) == before  # pure
+    assert fit["method"] == "library" and fit["asset_id"] == "sofa_wide" and fit["licence"] == fit["license"] == "CC0"
+    assert fit["fit_scale"] == [1.1, 1.125, 1.1125]
+    assert fit["bbox_m"] == [2.2, 0.9, 0.89]
+    assert fit["gltf"] == "models/sofa_wide/sofa_wide_1k.gltf" and fit["rotation_fix_deg"] == 0.0
+    assert [c["id"] for c in fit["candidates"]] == ["sofa_wide"]
+    assert fit["candidates"][0]["accepted"] and fit["aspect_error"] == pytest.approx(0.0223, abs=1e-3)
+
+
+def test_cap_moves_to_the_next_candidate_or_parametric(small_catalog):
+    # 1.0 x 0.48 (aspect 2.08): sofa_wide is closest (2.5) but scales 0.5 / 0.6 -> 20 % non-uniform; sofa_deep
+    # (1.6) scales 0.625 / 0.48 -> 30 %; sofa_odd (6.0) 0.333 / 0.96 -> way off -> parametric
+    fit = F.fit_piece(_piece("sofa", 1.0, 0.48), small_catalog)
+    assert fit["method"] == "parametric" and fit["asset_id"] == "parametric:sofa"
+    assert fit["library"] == "parametric" and fit["licence"] == "n/a" and fit["fit_scale"] == [1.0, 1.0, 1.0]
+    assert fit["bbox_m"] == [1.0, 0.48, C.parametric_height("sofa")]
+    assert "no sofa candidate within 15 %" in fit["fallback_reason"]
+    assert [c["id"] for c in fit["candidates"]] == ["sofa_wide", "sofa_deep", "sofa_odd"]
+    assert not any(c["accepted"] for c in fit["candidates"])
+    # 2.0 x 0.9 (aspect 2.22): sofa_wide first (2.5): 1.0 / 1.125 -> 12.5 % ok
+    fit = F.fit_piece(_piece("sofa", 2.0, 0.9), small_catalog)
+    assert fit["asset_id"] == "sofa_wide" and fit["method"] == "library"
+    # 1.6 x 0.9 (aspect 1.78): sofa_deep closest (1.6): 1.0 / 0.9 -> 11 % ok
+    fit = F.fit_piece(_piece("sofa", 1.6, 0.9), small_catalog)
+    assert fit["asset_id"] == "sofa_deep"
+    # 1.7 x 0.8 (aspect 2.125): sofa_wide (2.5) 0.85 / 1.0 -> 17.6 % fails; sofa_deep (1.6) 1.0625 / 0.8 -> 33 % fails
+    fit = F.fit_piece(_piece("sofa", 1.7, 0.8), small_catalog)
+    assert fit["method"] == "parametric" and fit["candidates"][0]["id"] == "sofa_wide"
+    assert "closest: sofa_wide at 17." in fit["fallback_reason"]
+    # a tighter cap is honoured
+    assert F.fit_piece(_piece("sofa", 2.0, 0.9), small_catalog, cap=1.10)["method"] == "parametric"
+
+
+def test_parametric_types_and_unknown(small_catalog):
+    fit = F.fit_piece(_piece("toilet", 0.4, 0.7), small_catalog)
+    assert fit["method"] == "parametric" and fit["bbox_m"] == [0.4, 0.7, 0.4]
+    assert "parametric in the catalogue" in fit["fallback_reason"] and fit["candidates"] == []
+    fit = F.fit_piece(_piece("unknown", 1.2, 0.5), small_catalog)
+    assert fit["asset_id"] == "parametric:unknown" and fit["bbox_m"][2] == 0.8
+    fit = F.fit_piece(_piece("tv_unit", 1.6, 0.45), small_catalog)
+    assert fit["method"] == "parametric" and fit["candidates"][0]["id"] == "tv_long"
+    assert F.fit_piece(_piece("sofa", 0.0, 0.9), small_catalog)["method"] == "parametric"
+
+
+def test_added_by_ai_pieces_get_a_fit_too(small_catalog):
+    building = {"furniture": []}
+    building["furniture"] = [_piece("sofa", 2.2, 0.9), _piece("sofa", 2.0, 0.9, source="added_by_ai", pid="f_L0_900")]
+    fitted = F.fit_building(building, small_catalog)
+    assert all(p["asset"]["method"] == "library" for p in fitted["furniture"])
+    assert fitted["furniture"][1]["source"] == "added_by_ai"
+    assert building["furniture"][0]["asset"] is None  # input untouched
+    F.assert_only_assets_changed(building, fitted)
+    fitted["furniture"][0]["footprint"]["size"] = [2.0, 0.9]
+    with pytest.raises(AssertionError):
+        F.assert_only_assets_changed(building, fitted)
+
+
+# --------------------------------------------------------------------------
+# The synthetic buildings
+# --------------------------------------------------------------------------
+
+def test_fit_synthetic_buildings(catalog, buildings):
+    assert len(buildings) == 5
+    for name, building in buildings:
+        before = json.dumps(building, sort_keys=True)
+        fitted = F.fit_building(building, catalog)
+        assert json.dumps(building, sort_keys=True) == before, name  # input never modified
+        assert len(fitted["furniture"]) == len(building["furniture"]) >= 10, name
+        F.assert_only_assets_changed(building, fitted)
+        for original, piece in zip(building["furniture"], fitted["furniture"]):
+            asset = piece["asset"]
+            assert asset and asset["method"] in ("library", "parametric"), (name, piece["id"])
+            # byte-identical footprint and frozen fields
+            assert json.dumps(piece["footprint"], sort_keys=True) == json.dumps(original["footprint"], sort_keys=True)
+            for key in F.FROZEN_KEYS:
+                assert json.dumps(piece.get(key), sort_keys=True) == json.dumps(original.get(key), sort_keys=True)
+            assert asset["bbox_m"][0] == round(piece["footprint"]["size"][0], 4)
+            assert asset["bbox_m"][1] == round(piece["footprint"]["size"][1], 4)
+            if asset["method"] == "library":
+                sx, sy, sz = asset["fit_scale"]
+                assert max(sx, sy, sz) / min(sx, sy, sz) <= F.NON_UNIFORM_CAP + 1e-6, (name, piece["id"], asset)
+                assert sz == pytest.approx((sx + sy) / 2, abs=1e-3)
+                assert asset["licence"] == "CC0" and asset["library"] == "polyhaven"
+                entry = catalog.entry(asset["asset_id"])
+                assert entry["type"] == piece["type"] and asset["gltf"] == entry["gltf"]
+                assert asset["bbox_m"][2] == pytest.approx(entry["bbox_m"][2] * sz, abs=1e-3)
+            else:
+                assert asset["fallback_reason"] and asset["licence"] == "n/a"
+                assert piece["type"] in catalog.parametric_types or asset["candidates"]
+        B.validate(fitted)
+        methods = {p["asset"]["method"] for p in fitted["furniture"]}
+        assert methods == {"library", "parametric"}, name  # sofas, beds, chairs fit; sanitary ware falls back
+        library_types = {p["type"] for p in fitted["furniture"] if p["asset"]["method"] == "library"}
+        assert {"sofa", "bed_double", "nightstand"} & library_types, name
+
+        report = F.fit_report(fitted, title=name)
+        assert "## Parametric fallbacks" in report and "## Library assets and licences" in report
+        for piece in fitted["furniture"]:
+            asset = piece["asset"]
+            assert f"| {piece['id']} |" in report
+            if asset["method"] == "parametric":
+                assert f"- {piece['id']} ({piece['type']}): {asset['fallback_reason']}" in report
+            else:
+                assert f"- {asset['asset_id']} (polyhaven, CC0)" in report
+
+
+def test_fit_is_deterministic(catalog):
+    building = load_truth("synthetic-01")
+    a = F.fit_building(building, catalog)
+    b = F.fit_building(building, catalog)
+    assert json.dumps(a, sort_keys=True) == json.dumps(b, sort_keys=True)
+
+
+# --------------------------------------------------------------------------
+# CLI (offline: the model fetcher is replaced)
+# --------------------------------------------------------------------------
+
+def test_cli_offline_falls_back_and_says_so(tmp_path, monkeypatch, capsys):
+    from wenart.assets import models, web
+
+    src = tmp_path / "building.json"
+    B.save(load_truth("synthetic-01"), src)
+    out = tmp_path / "building_fitted.json"
+
+    def failing_fetch(asset_id, out_dir, size="1k", source="polyhaven", licence=None):
+        raise web.NetworkError("blocked host (simulated)")
+
+    monkeypatch.setattr(models, "fetch_model", failing_fetch)
+    assert furniture_main(["fit", str(src), "--out", str(out), "--assets", str(tmp_path / "assets")]) == 0
+    text = capsys.readouterr().out
+    assert "download(s) failed" in text and "FAILED" in text
+    fitted = B.load(out)
+    assert all(p["asset"]["method"] == "parametric" for p in fitted["furniture"])
+    assert any("download of" in p["asset"]["fallback_reason"] and "NetworkError" in p["asset"]["fallback_reason"]
+               for p in fitted["furniture"])
+    report = (tmp_path / "building_fitted_report.md").read_text(encoding="utf-8")
+    assert "download of" in report and "parametric fallback" in report
+    F.assert_only_assets_changed(load_truth("synthetic-01"), fitted)
+
+    # with downloads working (fake), the library fits stay
+    fetched = []
+    monkeypatch.setattr(models, "fetch_model", lambda a, d, size="1k", source="polyhaven", licence=None: fetched.append(a))
+    assert F.main([str(src), "--out", str(out), "--assets", str(tmp_path / "assets"), "--report", str(tmp_path / "r.md")]) == 0
+    fitted = B.load(out)
+    assert {p["asset"]["method"] for p in fitted["furniture"]} == {"library", "parametric"}
+    assert sorted(set(fetched)) == sorted({p["asset"]["asset_id"] for p in fitted["furniture"]
+                                           if p["asset"]["method"] == "library"})
+    assert (tmp_path / "r.md").is_file()
+    # no --assets: nothing downloaded, library fits recorded
+    fetched.clear()
+    assert F.main([str(src), "--out", str(out)]) == 0 and fetched == []
+    assert furniture_main([]) == 2

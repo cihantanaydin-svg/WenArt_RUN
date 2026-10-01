@@ -1,0 +1,1826 @@
+{
+  "schema_version": "0.1",
+  "surveyed_utc": "2026-10-01",
+  "source": "polyhaven",
+  "licence": "CC0",
+  "licence_url": "https://polyhaven.com/license",
+  "api": "https://api.polyhaven.com/assets?type=models",
+  "models_on_api": 521,
+  "furniture_category_on_api": 85,
+  "notes": [
+    "Chosen by hand from the model listing on 2026-10-01; boxes measured from the downloaded 1k glTF (wenart.assets.models.measure_gltf), Z-up metres.",
+    "bbox_m is [width, depth, height] in the piece frame after re-orientation (front_axis -> -Y); bbox_model_m / bbox_min_m / bbox_max_m are in the model frame.",
+    "origin_offset = model-frame point (bbox centre x, bbox centre y, bbox min z) that lands on the piece origin (footprint centre on the floor).",
+    "front_axis_confidence low = the piece has no visible front (tables, plants) or the geometry does not show it; see front_axis_note.",
+    "Excluded after inspection: drawer_cabinet (tall (1.88 m) shelving unit with drawers, not a dresser); vintage_cabinet_01 (glass-front china cabinet, not a wardrobe); chinese_cabinet (2.87 m tall display cabinet, taller than a room); chinese_sofa (bench-like wooden daybed with a low back rail; three sofas is the limit per type); chinese_armchair (1.59 m high-back ceremonial chair; scaled to a 0.9 m footprint it is 1.75 m tall)."
+  ],
+  "entries": [
+    {
+      "id": "sofa_02",
+      "type": "sofa",
+      "source": "polyhaven",
+      "licence": "CC0",
+      "licence_url": "https://polyhaven.com/license",
+      "name": "Sofa 02",
+      "category": "Furniture/Seating/Sofas & Couches",
+      "bbox_m": [
+        1.8072,
+        0.8178,
+        0.7095
+      ],
+      "bbox_model_m": [
+        1.8072,
+        0.8178,
+        0.7095
+      ],
+      "bbox_min_m": [
+        -0.9033,
+        -0.3401,
+        0.0002
+      ],
+      "bbox_max_m": [
+        0.9039,
+        0.4777,
+        0.7097
+      ],
+      "front_axis": "-Y",
+      "up_axis": "+Z",
+      "origin_offset": [
+        0.0003,
+        0.0688,
+        0.0002
+      ],
+      "front_axis_confidence": "high",
+      "front_axis_note": "seating: the taller side (back) is at +Y in the geometry (top-30 % centroid), confirmed on the -Y/+Y renders",
+      "url": "https://polyhaven.com/a/sofa_02",
+      "api_url": "https://api.polyhaven.com/files/sofa_02",
+      "gltf": "models/sofa_02/sofa_02_1k.gltf",
+      "resolution": "1k",
+      "polycount": 2728,
+      "vertices": 1828,
+      "dimensions_api_mm": [
+        1807,
+        818,
+        709
+      ],
+      "sha256_gltf": "5df114209f9b956ccd4831eaeef469a81339ab371d0056eb6d5d29eee08eb431"
+    },
+    {
+      "id": "Sofa_01",
+      "type": "sofa",
+      "source": "polyhaven",
+      "licence": "CC0",
+      "licence_url": "https://polyhaven.com/license",
+      "name": "Sofa 01",
+      "category": "Furniture/Seating/Sofas & Couches",
+      "bbox_m": [
+        1.5715,
+        0.658,
+        0.7965
+      ],
+      "bbox_model_m": [
+        1.5715,
+        0.658,
+        0.7965
+      ],
+      "bbox_min_m": [
+        -0.7781,
+        -0.2968,
+        -0.0006
+      ],
+      "bbox_max_m": [
+        0.7934,
+        0.3612,
+        0.7959
+      ],
+      "front_axis": "-Y",
+      "up_axis": "+Z",
+      "origin_offset": [
+        0.0076,
+        0.0322,
+        -0.0006
+      ],
+      "front_axis_confidence": "high",
+      "front_axis_note": "seating: the taller side (back) is at +Y in the geometry (top-30 % centroid), confirmed on the -Y/+Y renders",
+      "url": "https://polyhaven.com/a/Sofa_01",
+      "api_url": "https://api.polyhaven.com/files/Sofa_01",
+      "gltf": "models/Sofa_01/Sofa_01_1k.gltf",
+      "resolution": "1k",
+      "polycount": 4101,
+      "vertices": 2708,
+      "dimensions_api_mm": [
+        1571,
+        658,
+        797
+      ],
+      "sha256_gltf": "dc9d331a24fc8994606ae5a283826cb28feb3166782f59d006d0f10cc92cc830"
+    },
+    {
+      "id": "sofa_03",
+      "type": "sofa",
+      "source": "polyhaven",
+      "licence": "CC0",
+      "licence_url": "https://polyhaven.com/license",
+      "name": "Sofa 03",
+      "category": "Furniture/Seating/Sofas & Couches",
+      "bbox_m": [
+        2.7312,
+        0.9251,
+        1.1183
+      ],
+      "bbox_model_m": [
+        2.7312,
+        0.9251,
+        1.1183
+      ],
+      "bbox_min_m": [
+        -1.3656,
+        -0.4612,
+        0.0006
+      ],
+      "bbox_max_m": [
+        1.3656,
+        0.4639,
+        1.1189
+      ],
+      "front_axis": "-Y",
+      "up_axis": "+Z",
+      "origin_offset": [
+        0.0,
+        0.0013,
+        0.0006
+      ],
+      "front_axis_confidence": "high",
+      "front_axis_note": "seating: the taller side (back) is at +Y in the geometry (top-30 % centroid), confirmed on the -Y/+Y renders",
+      "url": "https://polyhaven.com/a/sofa_03",
+      "api_url": "https://api.polyhaven.com/files/sofa_03",
+      "gltf": "models/sofa_03/sofa_03_1k.gltf",
+      "resolution": "1k",
+      "polycount": 8004,
+      "vertices": 5655,
+      "dimensions_api_mm": [
+        2731,
+        925,
+        1118
+      ],
+      "sha256_gltf": "123f491bef4e9bda153bda770a5d12810bfc9b87ce56aa5973aed041ea17fd92"
+    },
+    {
+      "id": "ArmChair_01",
+      "type": "armchair",
+      "source": "polyhaven",
+      "licence": "CC0",
+      "licence_url": "https://polyhaven.com/license",
+      "name": "Arm Chair 01",
+      "category": "Furniture/Seating/Chairs",
+      "bbox_m": [
+        0.8484,
+        0.7658,
+        1.0651
+      ],
+      "bbox_model_m": [
+        0.8484,
+        0.7658,
+        1.0651
+      ],
+      "bbox_min_m": [
+        -0.4242,
+        -0.3485,
+        -0.0004
+      ],
+      "bbox_max_m": [
+        0.4242,
+        0.4173,
+        1.0647
+      ],
+      "front_axis": "-Y",
+      "up_axis": "+Z",
+      "origin_offset": [
+        0.0,
+        0.0344,
+        -0.0004
+      ],
+      "front_axis_confidence": "high",
+      "front_axis_note": "seating: the taller side (back) is at +Y in the geometry (top-30 % centroid), confirmed on the -Y/+Y renders",
+      "url": "https://polyhaven.com/a/ArmChair_01",
+      "api_url": "https://api.polyhaven.com/files/ArmChair_01",
+      "gltf": "models/ArmChair_01/ArmChair_01_1k.gltf",
+      "resolution": "1k",
+      "polycount": 5626,
+      "vertices": 3758,
+      "dimensions_api_mm": [
+        848,
+        766,
+        1065
+      ],
+      "sha256_gltf": "91e39d5b35f36c8074b7b6432f6fd77f5f1a257c4d6af3924c0b263eb674286b"
+    },
+    {
+      "id": "modern_arm_chair_01",
+      "type": "armchair",
+      "source": "polyhaven",
+      "licence": "CC0",
+      "licence_url": "https://polyhaven.com/license",
+      "name": "Modern Arm Chair 01",
+      "category": "Furniture/Seating/Chairs",
+      "bbox_m": [
+        0.8203,
+        0.9866,
+        1.0229
+      ],
+      "bbox_model_m": [
+        0.8203,
+        0.9866,
+        1.0229
+      ],
+      "bbox_min_m": [
+        -0.4068,
+        -0.4111,
+        0.0004
+      ],
+      "bbox_max_m": [
+        0.4135,
+        0.5755,
+        1.0232
+      ],
+      "front_axis": "-Y",
+      "up_axis": "+Z",
+      "origin_offset": [
+        0.0033,
+        0.0822,
+        0.0004
+      ],
+      "front_axis_confidence": "high",
+      "front_axis_note": "seating: the taller side (back) is at +Y in the geometry (top-30 % centroid), confirmed on the -Y/+Y renders",
+      "url": "https://polyhaven.com/a/modern_arm_chair_01",
+      "api_url": "https://api.polyhaven.com/files/modern_arm_chair_01",
+      "gltf": "models/modern_arm_chair_01/modern_arm_chair_01_1k.gltf",
+      "resolution": "1k",
+      "polycount": 8916,
+      "vertices": 5851,
+      "dimensions_api_mm": [
+        820,
+        987,
+        1023
+      ],
+      "sha256_gltf": "d31be520add2603447b43acedbdacf9516866f7c89e9ea9230c9edbac9cc6e6a"
+    },
+    {
+      "id": "mid_century_lounge_chair",
+      "type": "armchair",
+      "source": "polyhaven",
+      "licence": "CC0",
+      "licence_url": "https://polyhaven.com/license",
+      "name": "Mid Century Lounge Chair",
+      "category": "Furniture/Seating/Chairs",
+      "bbox_m": [
+        1.0086,
+        1.1903,
+        1.1691
+      ],
+      "bbox_model_m": [
+        1.0086,
+        1.1903,
+        1.1691
+      ],
+      "bbox_min_m": [
+        -0.5043,
+        -0.5289,
+        -0.0
+      ],
+      "bbox_max_m": [
+        0.5043,
+        0.6614,
+        1.1691
+      ],
+      "front_axis": "-Y",
+      "up_axis": "+Z",
+      "origin_offset": [
+        0.0,
+        0.0662,
+        -0.0
+      ],
+      "front_axis_confidence": "high",
+      "front_axis_note": "seating: the taller side (back) is at +Y in the geometry (top-30 % centroid), confirmed on the -Y/+Y renders (top-30 % centroid +0.43 m)",
+      "url": "https://polyhaven.com/a/mid_century_lounge_chair",
+      "api_url": "https://api.polyhaven.com/files/mid_century_lounge_chair",
+      "gltf": "models/mid_century_lounge_chair/mid_century_lounge_chair_1k.gltf",
+      "resolution": "1k",
+      "polycount": 6148,
+      "vertices": 4203,
+      "dimensions_api_mm": [
+        1009,
+        1190,
+        1169
+      ],
+      "sha256_gltf": "47c5769ee4dfa350e2506a6a76d8ef58a1e1060344acda35c503ddff46645d26"
+    },
+    {
+      "id": "gallinera_chair",
+      "type": "chair",
+      "source": "polyhaven",
+      "licence": "CC0",
+      "licence_url": "https://polyhaven.com/license",
+      "name": "Gallinera Chair",
+      "category": "Furniture/Seating/Chairs",
+      "bbox_m": [
+        0.5808,
+        0.6039,
+        1.0337
+      ],
+      "bbox_model_m": [
+        0.5808,
+        0.6039,
+        1.0337
+      ],
+      "bbox_min_m": [
+        -0.2907,
+        -0.3383,
+        -0.0002
+      ],
+      "bbox_max_m": [
+        0.2901,
+        0.2656,
+        1.0335
+      ],
+      "front_axis": "-Y",
+      "up_axis": "+Z",
+      "origin_offset": [
+        -0.0003,
+        -0.0363,
+        -0.0002
+      ],
+      "front_axis_confidence": "high",
+      "front_axis_note": "seating: the taller side (back) is at +Y in the geometry (top-30 % centroid), confirmed on the -Y/+Y renders",
+      "url": "https://polyhaven.com/a/gallinera_chair",
+      "api_url": "https://api.polyhaven.com/files/gallinera_chair",
+      "gltf": "models/gallinera_chair/gallinera_chair_1k.gltf",
+      "resolution": "1k",
+      "polycount": 11560,
+      "vertices": 8888,
+      "dimensions_api_mm": [
+        581,
+        604,
+        1034
+      ],
+      "sha256_gltf": "0fd80d1f770fb6ce0be9ff1e07f925e18e582c8a55358d3c77d6e0fdb3f13536"
+    },
+    {
+      "id": "painted_wooden_chair_02",
+      "type": "chair",
+      "source": "polyhaven",
+      "licence": "CC0",
+      "licence_url": "https://polyhaven.com/license",
+      "name": "Painted Wooden Chair 02",
+      "category": "Furniture/Seating/Chairs",
+      "bbox_m": [
+        0.6394,
+        0.6621,
+        1.2638
+      ],
+      "bbox_model_m": [
+        0.6394,
+        0.6621,
+        1.2638
+      ],
+      "bbox_min_m": [
+        -0.3349,
+        -0.2988,
+        -0.0
+      ],
+      "bbox_max_m": [
+        0.3045,
+        0.3633,
+        1.2638
+      ],
+      "front_axis": "-Y",
+      "up_axis": "+Z",
+      "origin_offset": [
+        -0.0152,
+        0.0323,
+        -0.0
+      ],
+      "front_axis_confidence": "high",
+      "front_axis_note": "seating: the taller side (back) is at +Y in the geometry (top-30 % centroid), confirmed on the -Y/+Y renders",
+      "url": "https://polyhaven.com/a/painted_wooden_chair_02",
+      "api_url": "https://api.polyhaven.com/files/painted_wooden_chair_02",
+      "gltf": "models/painted_wooden_chair_02/painted_wooden_chair_02_1k.gltf",
+      "resolution": "1k",
+      "polycount": 1246,
+      "vertices": 986,
+      "dimensions_api_mm": [
+        639,
+        662,
+        1264
+      ],
+      "sha256_gltf": "e69f4558d236e0fcc9d31a85ab75117e75d224d21e04836aa438821ccf1fd2c1"
+    },
+    {
+      "id": "dining_chair_02",
+      "type": "chair",
+      "source": "polyhaven",
+      "licence": "CC0",
+      "licence_url": "https://polyhaven.com/license",
+      "name": "Dining Chair 02",
+      "category": "Furniture/Seating/Chairs",
+      "bbox_m": [
+        0.4336,
+        0.5764,
+        0.9734
+      ],
+      "bbox_model_m": [
+        0.4336,
+        0.5764,
+        0.9734
+      ],
+      "bbox_min_m": [
+        -0.2168,
+        -0.2454,
+        0.0013
+      ],
+      "bbox_max_m": [
+        0.2168,
+        0.331,
+        0.9747
+      ],
+      "front_axis": "-Y",
+      "up_axis": "+Z",
+      "origin_offset": [
+        0.0,
+        0.0428,
+        0.0013
+      ],
+      "front_axis_confidence": "high",
+      "front_axis_note": "seating: the taller side (back) is at +Y in the geometry (top-30 % centroid), confirmed on the -Y/+Y renders",
+      "url": "https://polyhaven.com/a/dining_chair_02",
+      "api_url": "https://api.polyhaven.com/files/dining_chair_02",
+      "gltf": "models/dining_chair_02/dining_chair_02_1k.gltf",
+      "resolution": "1k",
+      "polycount": 22013,
+      "vertices": 12891,
+      "dimensions_api_mm": [
+        434,
+        576,
+        973
+      ],
+      "sha256_gltf": "88352a44a17319846f61fe03ce75c79fb1849aa508b6a262366c149c1bbd06b8"
+    },
+    {
+      "id": "dining_table",
+      "type": "table_dining",
+      "source": "polyhaven",
+      "licence": "CC0",
+      "licence_url": "https://polyhaven.com/license",
+      "name": "Dining Table",
+      "category": "Furniture/Tables/Dining Tables",
+      "bbox_m": [
+        2.2559,
+        1.3902,
+        0.877
+      ],
+      "bbox_model_m": [
+        2.2559,
+        1.3902,
+        0.877
+      ],
+      "bbox_min_m": [
+        -1.1329,
+        -0.712,
+        -0.0043
+      ],
+      "bbox_max_m": [
+        1.123,
+        0.6782,
+        0.8727
+      ],
+      "front_axis": "-Y",
+      "up_axis": "+Z",
+      "origin_offset": [
+        -0.005,
+        -0.0169,
+        -0.0043
+      ],
+      "front_axis_confidence": "low",
+      "front_axis_note": "no front: symmetric piece; -Y chosen by convention (tablecloth drapes unevenly)",
+      "url": "https://polyhaven.com/a/dining_table",
+      "api_url": "https://api.polyhaven.com/files/dining_table",
+      "gltf": "models/dining_table/dining_table_1k.gltf",
+      "resolution": "1k",
+      "polycount": 1048,
+      "vertices": 772,
+      "dimensions_api_mm": [
+        2256,
+        1390,
+        877
+      ],
+      "sha256_gltf": "6af2b850b0524d364b4c89869c6c70112b8d340317a256cf35fbe739040654c7"
+    },
+    {
+      "id": "wooden_table_02",
+      "type": "table_dining",
+      "source": "polyhaven",
+      "licence": "CC0",
+      "licence_url": "https://polyhaven.com/license",
+      "name": "Wooden Table 02",
+      "category": "Furniture/Tables/Dining Tables",
+      "bbox_m": [
+        1.1344,
+        0.706,
+        0.7995
+      ],
+      "bbox_model_m": [
+        1.1344,
+        0.706,
+        0.7995
+      ],
+      "bbox_min_m": [
+        -0.5672,
+        -0.353,
+        -0.0001
+      ],
+      "bbox_max_m": [
+        0.5672,
+        0.353,
+        0.7994
+      ],
+      "front_axis": "-Y",
+      "up_axis": "+Z",
+      "origin_offset": [
+        0.0,
+        0.0,
+        -0.0001
+      ],
+      "front_axis_confidence": "low",
+      "front_axis_note": "no front: symmetric piece; -Y chosen by convention",
+      "url": "https://polyhaven.com/a/wooden_table_02",
+      "api_url": "https://api.polyhaven.com/files/wooden_table_02",
+      "gltf": "models/wooden_table_02/wooden_table_02_1k.gltf",
+      "resolution": "1k",
+      "polycount": 196,
+      "vertices": 200,
+      "dimensions_api_mm": [
+        1134,
+        706,
+        800
+      ],
+      "sha256_gltf": "bb38e301840cb629d72c43c83fdb7fb308518efe2d0bc01e1ed0e9a9e43ed9d3"
+    },
+    {
+      "id": "painted_wooden_table",
+      "type": "table_dining",
+      "source": "polyhaven",
+      "licence": "CC0",
+      "licence_url": "https://polyhaven.com/license",
+      "name": "Painted Wooden Table",
+      "category": "Furniture/Tables/Dining Tables",
+      "bbox_m": [
+        2.4056,
+        1.137,
+        0.9586
+      ],
+      "bbox_model_m": [
+        2.4056,
+        1.137,
+        0.9586
+      ],
+      "bbox_min_m": [
+        -1.2033,
+        -0.5658,
+        -0.0005
+      ],
+      "bbox_max_m": [
+        1.2023,
+        0.5712,
+        0.9581
+      ],
+      "front_axis": "-Y",
+      "up_axis": "+Z",
+      "origin_offset": [
+        -0.0005,
+        0.0027,
+        -0.0005
+      ],
+      "front_axis_confidence": "low",
+      "front_axis_note": "no front: symmetric piece; -Y chosen by convention",
+      "url": "https://polyhaven.com/a/painted_wooden_table",
+      "api_url": "https://api.polyhaven.com/files/painted_wooden_table",
+      "gltf": "models/painted_wooden_table/painted_wooden_table_1k.gltf",
+      "resolution": "1k",
+      "polycount": 600,
+      "vertices": 686,
+      "dimensions_api_mm": [
+        2406,
+        1137,
+        959
+      ],
+      "sha256_gltf": "7e1ba86ae2c570e3464c42556e4e6cc09186a99127b86eaf54e7dbecb2fbafc3"
+    },
+    {
+      "id": "CoffeeTable_01",
+      "type": "table_coffee",
+      "source": "polyhaven",
+      "licence": "CC0",
+      "licence_url": "https://polyhaven.com/license",
+      "name": "Coffee Table 01",
+      "category": "Furniture/Tables/Coffee Tables",
+      "bbox_m": [
+        1.54,
+        0.9728,
+        0.5232
+      ],
+      "bbox_model_m": [
+        1.54,
+        0.9728,
+        0.5232
+      ],
+      "bbox_min_m": [
+        -0.77,
+        -0.4864,
+        0.0019
+      ],
+      "bbox_max_m": [
+        0.77,
+        0.4864,
+        0.5252
+      ],
+      "front_axis": "-Y",
+      "up_axis": "+Z",
+      "origin_offset": [
+        0.0,
+        0.0,
+        0.0019
+      ],
+      "front_axis_confidence": "high",
+      "front_axis_note": "drawer front at -Y (render from -Y shows the drawer and knobs)",
+      "url": "https://polyhaven.com/a/CoffeeTable_01",
+      "api_url": "https://api.polyhaven.com/files/CoffeeTable_01",
+      "gltf": "models/CoffeeTable_01/CoffeeTable_01_1k.gltf",
+      "resolution": "1k",
+      "polycount": 10404,
+      "vertices": 6927,
+      "dimensions_api_mm": [
+        1540,
+        973,
+        523
+      ],
+      "sha256_gltf": "c0b7ce378fc13886c220236941b4d258389d252e337297dc89505b80e43617fb"
+    },
+    {
+      "id": "modern_coffee_table_01",
+      "type": "table_coffee",
+      "source": "polyhaven",
+      "licence": "CC0",
+      "licence_url": "https://polyhaven.com/license",
+      "name": "Modern Coffee Table 01",
+      "category": "Furniture/Tables/Coffee Tables",
+      "bbox_m": [
+        1.2018,
+        0.6,
+        0.39
+      ],
+      "bbox_model_m": [
+        0.6,
+        1.2018,
+        0.39
+      ],
+      "bbox_min_m": [
+        -0.3,
+        -0.6012,
+        -0.0001
+      ],
+      "bbox_max_m": [
+        0.3,
+        0.6007,
+        0.3899
+      ],
+      "front_axis": "-X",
+      "up_axis": "+Z",
+      "origin_offset": [
+        0.0,
+        -0.0002,
+        -0.0001
+      ],
+      "front_axis_confidence": "low",
+      "front_axis_note": "no front; the long side (1.20 m) runs along the model's Y, so -X puts it along the piece's X",
+      "url": "https://polyhaven.com/a/modern_coffee_table_01",
+      "api_url": "https://api.polyhaven.com/files/modern_coffee_table_01",
+      "gltf": "models/modern_coffee_table_01/modern_coffee_table_01_1k.gltf",
+      "resolution": "1k",
+      "polycount": 4504,
+      "vertices": 3995,
+      "dimensions_api_mm": [
+        1202,
+        600,
+        390
+      ],
+      "sha256_gltf": "a35d811da4c174d0c888f23353dda21501763dbf5505c66f57fef4b3f613e50c"
+    },
+    {
+      "id": "modern_coffee_table_02",
+      "type": "table_coffee",
+      "source": "polyhaven",
+      "licence": "CC0",
+      "licence_url": "https://polyhaven.com/license",
+      "name": "Modern Coffee Table 02",
+      "category": "Furniture/Tables/Coffee Tables",
+      "bbox_m": [
+        1.1991,
+        1.1997,
+        0.3692
+      ],
+      "bbox_model_m": [
+        1.1991,
+        1.1997,
+        0.3692
+      ],
+      "bbox_min_m": [
+        -0.5986,
+        -0.6023,
+        -0.0002
+      ],
+      "bbox_max_m": [
+        0.6005,
+        0.5973,
+        0.3691
+      ],
+      "front_axis": "-Y",
+      "up_axis": "+Z",
+      "origin_offset": [
+        0.001,
+        -0.0025,
+        -0.0002
+      ],
+      "front_axis_confidence": "low",
+      "front_axis_note": "no front: symmetric piece; -Y chosen by convention (square)",
+      "url": "https://polyhaven.com/a/modern_coffee_table_02",
+      "api_url": "https://api.polyhaven.com/files/modern_coffee_table_02",
+      "gltf": "models/modern_coffee_table_02/modern_coffee_table_02_1k.gltf",
+      "resolution": "1k",
+      "polycount": 13645,
+      "vertices": 25035,
+      "dimensions_api_mm": [
+        1199,
+        1200,
+        369
+      ],
+      "sha256_gltf": "59acb8abec936a74d52d83f9208aa0314accc4363586b5b94f89ab2d8b85ad76"
+    },
+    {
+      "id": "metal_office_desk",
+      "type": "desk",
+      "source": "polyhaven",
+      "licence": "CC0",
+      "licence_url": "https://polyhaven.com/license",
+      "name": "Metal Office Desk",
+      "category": "Furniture/Tables/Desks",
+      "bbox_m": [
+        2.0,
+        0.9472,
+        0.7875
+      ],
+      "bbox_model_m": [
+        2.0,
+        0.9472,
+        0.7875
+      ],
+      "bbox_min_m": [
+        -1.0,
+        -0.4781,
+        0.0
+      ],
+      "bbox_max_m": [
+        1.0,
+        0.4691,
+        0.7875
+      ],
+      "front_axis": "-Y",
+      "up_axis": "+Z",
+      "origin_offset": [
+        0.0,
+        -0.0045,
+        0.0
+      ],
+      "front_axis_confidence": "high",
+      "front_axis_note": "pedestal drawers face -Y (sitter side), back panel at +Y",
+      "url": "https://polyhaven.com/a/metal_office_desk",
+      "api_url": "https://api.polyhaven.com/files/metal_office_desk",
+      "gltf": "models/metal_office_desk/metal_office_desk_1k.gltf",
+      "resolution": "1k",
+      "polycount": 6898,
+      "vertices": 6070,
+      "dimensions_api_mm": [
+        2000,
+        947,
+        788
+      ],
+      "sha256_gltf": "f07032a5ee89aacceebf10fd9fa192c22775ae81861cfb0bdb1594497179373c"
+    },
+    {
+      "id": "WoodenTable_01",
+      "type": "desk",
+      "source": "polyhaven",
+      "licence": "CC0",
+      "licence_url": "https://polyhaven.com/license",
+      "name": "Wooden Table 01",
+      "category": "Furniture/Tables/Coffee Tables",
+      "bbox_m": [
+        1.7996,
+        0.6572,
+        0.5488
+      ],
+      "bbox_model_m": [
+        1.7996,
+        0.6572,
+        0.5488
+      ],
+      "bbox_min_m": [
+        -0.8998,
+        -0.3286,
+        -0.0
+      ],
+      "bbox_max_m": [
+        0.8998,
+        0.3286,
+        0.5488
+      ],
+      "front_axis": "-Y",
+      "up_axis": "+Z",
+      "origin_offset": [
+        0.0,
+        0.0,
+        -0.0
+      ],
+      "front_axis_confidence": "low",
+      "front_axis_note": "no front: symmetric piece; -Y chosen by convention (stretcher-base table, tagged desk)",
+      "url": "https://polyhaven.com/a/WoodenTable_01",
+      "api_url": "https://api.polyhaven.com/files/WoodenTable_01",
+      "gltf": "models/WoodenTable_01/WoodenTable_01_1k.gltf",
+      "resolution": "1k",
+      "polycount": 952,
+      "vertices": 1136,
+      "dimensions_api_mm": [
+        1800,
+        657,
+        549
+      ],
+      "sha256_gltf": "413804e054055c397b4cfbd0916027097d2a20853b165b533007a46d131e1d17"
+    },
+    {
+      "id": "SchoolDesk_01",
+      "type": "desk",
+      "source": "polyhaven",
+      "licence": "CC0",
+      "licence_url": "https://polyhaven.com/license",
+      "name": "School Desk 01",
+      "category": "Furniture/Tables/Desks",
+      "bbox_m": [
+        0.7118,
+        0.546,
+        0.8826
+      ],
+      "bbox_model_m": [
+        0.7118,
+        0.546,
+        0.8826
+      ],
+      "bbox_min_m": [
+        -0.3559,
+        -0.2683,
+        -0.0005
+      ],
+      "bbox_max_m": [
+        0.3559,
+        0.2776,
+        0.8822
+      ],
+      "front_axis": "-Y",
+      "up_axis": "+Z",
+      "origin_offset": [
+        0.0,
+        0.0047,
+        -0.0005
+      ],
+      "front_axis_confidence": "low",
+      "front_axis_note": "open storage shelf under the top; which side it opens to is not clear from the geometry or the renders",
+      "url": "https://polyhaven.com/a/SchoolDesk_01",
+      "api_url": "https://api.polyhaven.com/files/SchoolDesk_01",
+      "gltf": "models/SchoolDesk_01/SchoolDesk_01_1k.gltf",
+      "resolution": "1k",
+      "polycount": 4162,
+      "vertices": 3206,
+      "dimensions_api_mm": [
+        712,
+        546,
+        883
+      ],
+      "sha256_gltf": "9d840b58a9e66ce9dc3d8d5396fb97cf954b12dc27adaf41b8cc78ae1a6404eb"
+    },
+    {
+      "id": "GothicBed_01",
+      "type": "bed_double",
+      "source": "polyhaven",
+      "licence": "CC0",
+      "licence_url": "https://polyhaven.com/license",
+      "name": "Gothic Bed 01",
+      "category": "Furniture/Beds",
+      "bbox_m": [
+        1.4938,
+        2.04,
+        1.5338
+      ],
+      "bbox_model_m": [
+        1.4938,
+        2.04,
+        1.5338
+      ],
+      "bbox_min_m": [
+        -0.7113,
+        -0.9869,
+        -0.0
+      ],
+      "bbox_max_m": [
+        0.7824,
+        1.0531,
+        1.5338
+      ],
+      "front_axis": "-Y",
+      "up_axis": "+Z",
+      "origin_offset": [
+        0.0355,
+        0.0331,
+        -0.0
+      ],
+      "front_axis_confidence": "high",
+      "front_axis_note": "bed: the taller end (headboard) is at +Y in the geometry (top-30 % centroid); pillows at the +Y end in the top render",
+      "url": "https://polyhaven.com/a/GothicBed_01",
+      "api_url": "https://api.polyhaven.com/files/GothicBed_01",
+      "gltf": "models/GothicBed_01/GothicBed_01_1k.gltf",
+      "resolution": "1k",
+      "polycount": 18741,
+      "vertices": 17068,
+      "dimensions_api_mm": [
+        1494,
+        2040,
+        1534
+      ],
+      "sha256_gltf": "67df189dd3a645936827f3cc123fb9e97ca9d2201d1e4090762bf477cab82fc0"
+    },
+    {
+      "id": "old_bed_frame",
+      "type": "bed_single",
+      "source": "polyhaven",
+      "licence": "CC0",
+      "licence_url": "https://polyhaven.com/license",
+      "name": "Old Bed Frame",
+      "category": "Furniture/Beds",
+      "bbox_m": [
+        0.9047,
+        2.0017,
+        1.2015
+      ],
+      "bbox_model_m": [
+        0.9047,
+        2.0017,
+        1.2015
+      ],
+      "bbox_min_m": [
+        -0.4476,
+        -1.0033,
+        0.0
+      ],
+      "bbox_max_m": [
+        0.4571,
+        0.9985,
+        1.2015
+      ],
+      "front_axis": "-Y",
+      "up_axis": "+Z",
+      "origin_offset": [
+        0.0048,
+        -0.0024,
+        0.0
+      ],
+      "front_axis_confidence": "high",
+      "front_axis_note": "bed: the taller end (headboard) is at +Y in the geometry (top-30 % centroid); both ends have rails, the +Y end is the higher one",
+      "url": "https://polyhaven.com/a/old_bed_frame",
+      "api_url": "https://api.polyhaven.com/files/old_bed_frame",
+      "gltf": "models/old_bed_frame/old_bed_frame_1k.gltf",
+      "resolution": "1k",
+      "polycount": 49990,
+      "vertices": 35560,
+      "dimensions_api_mm": [
+        905,
+        2002,
+        1201
+      ],
+      "sha256_gltf": "661055e76d292ae5ec812f05077a6870414527c2d63947574ea8fc739e16de08"
+    },
+    {
+      "id": "ClassicNightstand_01",
+      "type": "nightstand",
+      "source": "polyhaven",
+      "licence": "CC0",
+      "licence_url": "https://polyhaven.com/license",
+      "name": "Classic Nightstand 01",
+      "category": "Furniture/Tables/Side & End Tables",
+      "bbox_m": [
+        0.5678,
+        0.4242,
+        0.7
+      ],
+      "bbox_model_m": [
+        0.5678,
+        0.4242,
+        0.7
+      ],
+      "bbox_min_m": [
+        -0.2839,
+        -0.2121,
+        -0.0
+      ],
+      "bbox_max_m": [
+        0.2839,
+        0.2121,
+        0.7
+      ],
+      "front_axis": "-Y",
+      "up_axis": "+Z",
+      "origin_offset": [
+        0.0,
+        0.0,
+        -0.0
+      ],
+      "front_axis_confidence": "high",
+      "front_axis_note": "open shelf faces -Y, back panel at +Y",
+      "url": "https://polyhaven.com/a/ClassicNightstand_01",
+      "api_url": "https://api.polyhaven.com/files/ClassicNightstand_01",
+      "gltf": "models/ClassicNightstand_01/ClassicNightstand_01_1k.gltf",
+      "resolution": "1k",
+      "polycount": 2002,
+      "vertices": 1771,
+      "dimensions_api_mm": [
+        568,
+        424,
+        700
+      ],
+      "sha256_gltf": "e8218ceead6c07d2641a0bd54974a67b13dd7ebc110e07e9738e17c206c7b892"
+    },
+    {
+      "id": "side_table_01",
+      "type": "nightstand",
+      "source": "polyhaven",
+      "licence": "CC0",
+      "licence_url": "https://polyhaven.com/license",
+      "name": "Side Table 01",
+      "category": "Furniture/Tables/Side & End Tables",
+      "bbox_m": [
+        0.55,
+        0.45,
+        0.5507
+      ],
+      "bbox_model_m": [
+        0.55,
+        0.45,
+        0.5507
+      ],
+      "bbox_min_m": [
+        -0.275,
+        -0.225,
+        -0.0024
+      ],
+      "bbox_max_m": [
+        0.275,
+        0.225,
+        0.5483
+      ],
+      "front_axis": "-Y",
+      "up_axis": "+Z",
+      "origin_offset": [
+        0.0,
+        0.0,
+        -0.0024
+      ],
+      "front_axis_confidence": "low",
+      "front_axis_note": "no front: symmetric piece; -Y chosen by convention (open on both sides)",
+      "url": "https://polyhaven.com/a/side_table_01",
+      "api_url": "https://api.polyhaven.com/files/side_table_01",
+      "gltf": "models/side_table_01/side_table_01_1k.gltf",
+      "resolution": "1k",
+      "polycount": 2756,
+      "vertices": 3164,
+      "dimensions_api_mm": [
+        550,
+        450,
+        551
+      ],
+      "sha256_gltf": "a441125a4f660a23a31601aedd9aa379c6febf2b35171c08814187b5ec5a3309"
+    },
+    {
+      "id": "painted_wooden_nightstand",
+      "type": "nightstand",
+      "source": "polyhaven",
+      "licence": "CC0",
+      "licence_url": "https://polyhaven.com/license",
+      "name": "Painted Wooden Nightstand",
+      "category": "Furniture/Tables/Side & End Tables",
+      "bbox_m": [
+        0.5046,
+        0.5087,
+        0.6155
+      ],
+      "bbox_model_m": [
+        0.5046,
+        0.5087,
+        0.6155
+      ],
+      "bbox_min_m": [
+        -0.2534,
+        -0.2595,
+        -0.0
+      ],
+      "bbox_max_m": [
+        0.2512,
+        0.2492,
+        0.6155
+      ],
+      "front_axis": "-Y",
+      "up_axis": "+Z",
+      "origin_offset": [
+        -0.0011,
+        -0.0052,
+        -0.0
+      ],
+      "front_axis_confidence": "high",
+      "front_axis_note": "drawer with knob at -Y",
+      "url": "https://polyhaven.com/a/painted_wooden_nightstand",
+      "api_url": "https://api.polyhaven.com/files/painted_wooden_nightstand",
+      "gltf": "models/painted_wooden_nightstand/painted_wooden_nightstand_1k.gltf",
+      "resolution": "1k",
+      "polycount": 470,
+      "vertices": 503,
+      "dimensions_api_mm": [
+        505,
+        509,
+        616
+      ],
+      "sha256_gltf": "fbdc51ee41f2ee2dc7c455cd6f8321ff14e80c7a7d1e7736b194ca0b3e48b304"
+    },
+    {
+      "id": "wooden_display_shelves_01",
+      "type": "bookshelf",
+      "source": "polyhaven",
+      "licence": "CC0",
+      "licence_url": "https://polyhaven.com/license",
+      "name": "Wooden Display Shelves 01",
+      "category": "Furniture/Storage Furniture/Shelving & Bookcases",
+      "bbox_m": [
+        1.0778,
+        0.3715,
+        1.5562
+      ],
+      "bbox_model_m": [
+        0.3715,
+        1.0778,
+        1.5562
+      ],
+      "bbox_min_m": [
+        -0.1858,
+        -0.5389,
+        0.0004
+      ],
+      "bbox_max_m": [
+        0.1858,
+        0.5389,
+        1.5566
+      ],
+      "front_axis": "-X",
+      "up_axis": "+Z",
+      "origin_offset": [
+        0.0,
+        0.0,
+        0.0004
+      ],
+      "front_axis_confidence": "low",
+      "front_axis_note": "cubbies open to both -X and +X (no back panel); the long side (1.08 m) runs along the model's Y, so -X puts it along the piece's X",
+      "url": "https://polyhaven.com/a/wooden_display_shelves_01",
+      "api_url": "https://api.polyhaven.com/files/wooden_display_shelves_01",
+      "gltf": "models/wooden_display_shelves_01/wooden_display_shelves_01_1k.gltf",
+      "resolution": "1k",
+      "polycount": 3174,
+      "vertices": 2717,
+      "dimensions_api_mm": [
+        1078,
+        372,
+        1556
+      ],
+      "sha256_gltf": "3784953c451b088d24ac1b0e6946c7f7bd589115f51e6549fdb8fe9f7c10600e"
+    },
+    {
+      "id": "Shelf_01",
+      "type": "bookshelf",
+      "source": "polyhaven",
+      "licence": "CC0",
+      "licence_url": "https://polyhaven.com/license",
+      "name": "Shelf 01",
+      "category": "Furniture/Storage Furniture/Shelving & Bookcases",
+      "bbox_m": [
+        1.0034,
+        0.257,
+        2.0803
+      ],
+      "bbox_model_m": [
+        1.0034,
+        0.257,
+        2.0803
+      ],
+      "bbox_min_m": [
+        -0.5017,
+        -0.257,
+        0.0
+      ],
+      "bbox_max_m": [
+        0.5017,
+        0.0,
+        2.0803
+      ],
+      "front_axis": "-Y",
+      "up_axis": "+Z",
+      "origin_offset": [
+        0.0,
+        -0.1285,
+        0.0
+      ],
+      "front_axis_confidence": "high",
+      "front_axis_note": "shelves open to -Y, back panel at +Y",
+      "url": "https://polyhaven.com/a/Shelf_01",
+      "api_url": "https://api.polyhaven.com/files/Shelf_01",
+      "gltf": "models/Shelf_01/Shelf_01_1k.gltf",
+      "resolution": "1k",
+      "polycount": 182,
+      "vertices": 362,
+      "dimensions_api_mm": [
+        1003,
+        257,
+        2080
+      ],
+      "sha256_gltf": "715bce6ff1886eccdd43d558f5cf9242a24396e0eb9e8ae391905186bb339e52"
+    },
+    {
+      "id": "wooden_bookshelf_worn",
+      "type": "bookshelf",
+      "source": "polyhaven",
+      "licence": "CC0",
+      "licence_url": "https://polyhaven.com/license",
+      "name": "Wooden Bookshelf Worn",
+      "category": "Furniture/Storage Furniture/Shelving & Bookcases",
+      "bbox_m": [
+        1.374,
+        0.5813,
+        2.0634
+      ],
+      "bbox_model_m": [
+        1.374,
+        0.5813,
+        2.0634
+      ],
+      "bbox_min_m": [
+        -0.687,
+        -0.2907,
+        -0.0
+      ],
+      "bbox_max_m": [
+        0.687,
+        0.2907,
+        2.0634
+      ],
+      "front_axis": "-Y",
+      "up_axis": "+Z",
+      "origin_offset": [
+        0.0,
+        0.0,
+        -0.0
+      ],
+      "front_axis_confidence": "medium",
+      "front_axis_note": "open on both sides; -Y has the denser front edge geometry (2139 vs 549 vertices within 5 % of the faces)",
+      "url": "https://polyhaven.com/a/wooden_bookshelf_worn",
+      "api_url": "https://api.polyhaven.com/files/wooden_bookshelf_worn",
+      "gltf": "models/wooden_bookshelf_worn/wooden_bookshelf_worn_1k.gltf",
+      "resolution": "1k",
+      "polycount": 10106,
+      "vertices": 6479,
+      "dimensions_api_mm": [
+        1374,
+        581,
+        2063
+      ],
+      "sha256_gltf": "a1c5b3f1e71ae0b5eb73047e8097bceaa5f17e5d2d0d7ae1b8053d5ec0878fc6"
+    },
+    {
+      "id": "modern_wooden_cabinet",
+      "type": "tv_unit",
+      "source": "polyhaven",
+      "licence": "CC0",
+      "licence_url": "https://polyhaven.com/license",
+      "name": "Modern Wooden Cabinet",
+      "category": "Furniture/Storage Furniture/Cabinets & Cupboards",
+      "bbox_m": [
+        2.44,
+        0.52,
+        0.6801
+      ],
+      "bbox_model_m": [
+        2.44,
+        0.52,
+        0.6801
+      ],
+      "bbox_min_m": [
+        -1.22,
+        -0.25,
+        0.0
+      ],
+      "bbox_max_m": [
+        1.22,
+        0.27,
+        0.6802
+      ],
+      "front_axis": "-Y",
+      "up_axis": "+Z",
+      "origin_offset": [
+        0.0,
+        0.01,
+        0.0
+      ],
+      "front_axis_confidence": "high",
+      "front_axis_note": "slatted sliding doors at -Y (low 0.68 m cabinet)",
+      "url": "https://polyhaven.com/a/modern_wooden_cabinet",
+      "api_url": "https://api.polyhaven.com/files/modern_wooden_cabinet",
+      "gltf": "models/modern_wooden_cabinet/modern_wooden_cabinet_1k.gltf",
+      "resolution": "1k",
+      "polycount": 24976,
+      "vertices": 31535,
+      "dimensions_api_mm": [
+        2440,
+        520,
+        680
+      ],
+      "sha256_gltf": "9c0765063297018e854d11bc27da3cbab3c33904a3be2f5c15f46635df7e857f"
+    },
+    {
+      "id": "WoodenTable_03",
+      "type": "tv_unit",
+      "source": "polyhaven",
+      "licence": "CC0",
+      "licence_url": "https://polyhaven.com/license",
+      "name": "Wooden Table 03",
+      "category": "Furniture/Storage Furniture/Sideboards",
+      "bbox_m": [
+        1.3269,
+        0.5753,
+        0.8301
+      ],
+      "bbox_model_m": [
+        1.3269,
+        0.5753,
+        0.8301
+      ],
+      "bbox_min_m": [
+        -0.6587,
+        -0.2944,
+        -0.0
+      ],
+      "bbox_max_m": [
+        0.6681,
+        0.2809,
+        0.8301
+      ],
+      "front_axis": "-Y",
+      "up_axis": "+Z",
+      "origin_offset": [
+        0.0047,
+        -0.0068,
+        -0.0
+      ],
+      "front_axis_confidence": "high",
+      "front_axis_note": "sideboard: drawers and mesh door at -Y",
+      "url": "https://polyhaven.com/a/WoodenTable_03",
+      "api_url": "https://api.polyhaven.com/files/WoodenTable_03",
+      "gltf": "models/WoodenTable_03/WoodenTable_03_1k.gltf",
+      "resolution": "1k",
+      "polycount": 2298,
+      "vertices": 3262,
+      "dimensions_api_mm": [
+        1327,
+        562,
+        830
+      ],
+      "sha256_gltf": "d7e7fc5f8941a45c5135cdad7b449ef47447dafe093a1fa6ad4f0d1c5d5046b1"
+    },
+    {
+      "id": "GothicCommode_01",
+      "type": "dresser",
+      "source": "polyhaven",
+      "licence": "CC0",
+      "licence_url": "https://polyhaven.com/license",
+      "name": "Gothic Commode 01",
+      "category": "Furniture/Storage Furniture/Drawers & Dressers",
+      "bbox_m": [
+        1.2014,
+        0.5807,
+        1.212
+      ],
+      "bbox_model_m": [
+        1.2014,
+        0.5807,
+        1.212
+      ],
+      "bbox_min_m": [
+        -0.6018,
+        -0.2916,
+        -0.0
+      ],
+      "bbox_max_m": [
+        0.5996,
+        0.2891,
+        1.212
+      ],
+      "front_axis": "-Y",
+      "up_axis": "+Z",
+      "origin_offset": [
+        -0.0011,
+        -0.0013,
+        -0.0
+      ],
+      "front_axis_confidence": "high",
+      "front_axis_note": "three drawers at -Y",
+      "url": "https://polyhaven.com/a/GothicCommode_01",
+      "api_url": "https://api.polyhaven.com/files/GothicCommode_01",
+      "gltf": "models/GothicCommode_01/GothicCommode_01_1k.gltf",
+      "resolution": "1k",
+      "polycount": 3897,
+      "vertices": 3495,
+      "dimensions_api_mm": [
+        1201,
+        581,
+        1212
+      ],
+      "sha256_gltf": "290602a9d999ddff0073288758e162fbfbb69834c0cd93e83f6691996e94d775"
+    },
+    {
+      "id": "vintage_wooden_drawer_01",
+      "type": "dresser",
+      "source": "polyhaven",
+      "licence": "CC0",
+      "licence_url": "https://polyhaven.com/license",
+      "name": "Vintage Wooden Drawer 01",
+      "category": "Furniture/Storage Furniture/Drawers & Dressers",
+      "bbox_m": [
+        0.8576,
+        0.4574,
+        0.5454
+      ],
+      "bbox_model_m": [
+        0.8576,
+        0.4574,
+        0.5454
+      ],
+      "bbox_min_m": [
+        -0.4288,
+        -0.2372,
+        -0.0003
+      ],
+      "bbox_max_m": [
+        0.4288,
+        0.2202,
+        0.5451
+      ],
+      "front_axis": "-Y",
+      "up_axis": "+Z",
+      "origin_offset": [
+        0.0,
+        -0.0085,
+        -0.0003
+      ],
+      "front_axis_confidence": "high",
+      "front_axis_note": "six drawers with brass handles at -Y",
+      "url": "https://polyhaven.com/a/vintage_wooden_drawer_01",
+      "api_url": "https://api.polyhaven.com/files/vintage_wooden_drawer_01",
+      "gltf": "models/vintage_wooden_drawer_01/vintage_wooden_drawer_01_1k.gltf",
+      "resolution": "1k",
+      "polycount": 5184,
+      "vertices": 4936,
+      "dimensions_api_mm": [
+        858,
+        457,
+        545
+      ],
+      "sha256_gltf": "d39f4172d6fcbb285272168d585f4929c3ed27f05e7101d4fe1c4580408fb8e1"
+    },
+    {
+      "id": "electric_stove",
+      "type": "stove",
+      "source": "polyhaven",
+      "licence": "CC0",
+      "licence_url": "https://polyhaven.com/license",
+      "name": "Electric Stove",
+      "category": "Electronics & Appliances/Home Appliances/Stoves & Heaters",
+      "bbox_m": [
+        0.5026,
+        0.6476,
+        0.8587
+      ],
+      "bbox_model_m": [
+        0.5026,
+        0.6476,
+        0.8587
+      ],
+      "bbox_min_m": [
+        -0.2513,
+        -0.3476,
+        0.0
+      ],
+      "bbox_max_m": [
+        0.2513,
+        0.3,
+        0.8587
+      ],
+      "front_axis": "-Y",
+      "up_axis": "+Z",
+      "origin_offset": [
+        0.0,
+        -0.0238,
+        0.0
+      ],
+      "front_axis_confidence": "high",
+      "front_axis_note": "knobs and oven door at -Y",
+      "url": "https://polyhaven.com/a/electric_stove",
+      "api_url": "https://api.polyhaven.com/files/electric_stove",
+      "gltf": "models/electric_stove/electric_stove_1k.gltf",
+      "resolution": "1k",
+      "polycount": 13914,
+      "vertices": 11989,
+      "dimensions_api_mm": [
+        503,
+        648,
+        859
+      ],
+      "sha256_gltf": "3be4d1b9ec0ead3c41ea8ef09d61e3b7611b69cbeea26a40ea87355acb0b3c55"
+    },
+    {
+      "type": "wardrobe",
+      "parametric": true,
+      "reason": "no CC0 wardrobe on Poly Haven (the cabinets are a glass-front china cabinet, a 2.87 m display cabinet and gothic cupboards)"
+    },
+    {
+      "type": "kitchen_counter",
+      "parametric": true,
+      "reason": "no CC0 kitchen counter model on Poly Haven"
+    },
+    {
+      "type": "kitchen_island",
+      "parametric": true,
+      "reason": "no CC0 kitchen island model on Poly Haven"
+    },
+    {
+      "type": "fridge",
+      "parametric": true,
+      "reason": "no CC0 fridge model on Poly Haven"
+    },
+    {
+      "type": "sink_kitchen",
+      "parametric": true,
+      "reason": "no CC0 kitchen sink model on Poly Haven"
+    },
+    {
+      "type": "washbasin",
+      "parametric": true,
+      "reason": "no CC0 washbasin model on Poly Haven"
+    },
+    {
+      "type": "toilet",
+      "parametric": true,
+      "reason": "no CC0 toilet model on Poly Haven"
+    },
+    {
+      "type": "shower",
+      "parametric": true,
+      "reason": "no CC0 shower model on Poly Haven"
+    },
+    {
+      "type": "bathtub",
+      "parametric": true,
+      "reason": "no CC0 bathtub model on Poly Haven"
+    },
+    {
+      "type": "washing_machine",
+      "parametric": true,
+      "reason": "no CC0 washing machine model on Poly Haven"
+    },
+    {
+      "type": "unknown",
+      "parametric": true,
+      "reason": "type unknown: the Milestone 3 striped proxy box"
+    }
+  ],
+  "decor": [
+    {
+      "id": "throw_pillows_01",
+      "type": "decor_cushion",
+      "source": "polyhaven",
+      "licence": "CC0",
+      "licence_url": "https://polyhaven.com/license",
+      "name": "Throw Pillows 01",
+      "category": "Decor & Art/Ornaments/Cushions & Pillows",
+      "bbox_m": [
+        0.9401,
+        0.4519,
+        0.4502
+      ],
+      "bbox_model_m": [
+        0.9401,
+        0.4519,
+        0.4502
+      ],
+      "bbox_min_m": [
+        -0.4635,
+        -0.2761,
+        -0.0021
+      ],
+      "bbox_max_m": [
+        0.4765,
+        0.1758,
+        0.4481
+      ],
+      "front_axis": "-Y",
+      "up_axis": "+Z",
+      "origin_offset": [
+        0.0065,
+        -0.0502,
+        -0.0021
+      ],
+      "front_axis_confidence": "low",
+      "front_axis_note": "two loose pillows; no front",
+      "url": "https://polyhaven.com/a/throw_pillows_01",
+      "api_url": "https://api.polyhaven.com/files/throw_pillows_01",
+      "gltf": "models/throw_pillows_01/throw_pillows_01_1k.gltf",
+      "resolution": "1k",
+      "polycount": 6362,
+      "vertices": 3370,
+      "dimensions_api_mm": [
+        1022,
+        627,
+        450
+      ],
+      "sha256_gltf": "dd3f985a4446c82035028392ae905b9d996b8be10316a4572a870561a57f76fa"
+    },
+    {
+      "id": "potted_plant_01",
+      "type": "decor_plant",
+      "source": "polyhaven",
+      "licence": "CC0",
+      "licence_url": "https://polyhaven.com/license",
+      "name": "Potted Plant 01",
+      "category": "Nature/Plants/Potted Plants",
+      "bbox_m": [
+        0.5874,
+        0.6336,
+        1.3502
+      ],
+      "bbox_model_m": [
+        0.5874,
+        0.6336,
+        1.3502
+      ],
+      "bbox_min_m": [
+        -0.3384,
+        -0.2699,
+        -0.0137
+      ],
+      "bbox_max_m": [
+        0.249,
+        0.3637,
+        1.3365
+      ],
+      "front_axis": "-Y",
+      "up_axis": "+Z",
+      "origin_offset": [
+        -0.0447,
+        0.0469,
+        -0.0137
+      ],
+      "front_axis_confidence": "low",
+      "front_axis_note": "no front: symmetric piece; -Y chosen by convention",
+      "url": "https://polyhaven.com/a/potted_plant_01",
+      "api_url": "https://api.polyhaven.com/files/potted_plant_01",
+      "gltf": "models/potted_plant_01/potted_plant_01_1k.gltf",
+      "resolution": "1k",
+      "polycount": 96030,
+      "vertices": 113951,
+      "dimensions_api_mm": [
+        589,
+        637,
+        1351
+      ],
+      "sha256_gltf": "23b30294407684b02f14800d6685bd8938da5d2111e17753ac8dd3c37d8c88a0"
+    },
+    {
+      "id": "potted_plant_02",
+      "type": "decor_plant",
+      "source": "polyhaven",
+      "licence": "CC0",
+      "licence_url": "https://polyhaven.com/license",
+      "name": "Potted Plant 02",
+      "category": "Nature/Plants/Potted Plants",
+      "bbox_m": [
+        0.7012,
+        0.6574,
+        0.8412
+      ],
+      "bbox_model_m": [
+        0.7012,
+        0.6574,
+        0.8412
+      ],
+      "bbox_min_m": [
+        -0.3967,
+        -0.2371,
+        0.0001
+      ],
+      "bbox_max_m": [
+        0.3045,
+        0.4203,
+        0.8412
+      ],
+      "front_axis": "-Y",
+      "up_axis": "+Z",
+      "origin_offset": [
+        -0.0461,
+        0.0916,
+        0.0001
+      ],
+      "front_axis_confidence": "low",
+      "front_axis_note": "no front: symmetric piece; -Y chosen by convention",
+      "url": "https://polyhaven.com/a/potted_plant_02",
+      "api_url": "https://api.polyhaven.com/files/potted_plant_02",
+      "gltf": "models/potted_plant_02/potted_plant_02_1k.gltf",
+      "resolution": "1k",
+      "polycount": 69806,
+      "vertices": 44794,
+      "dimensions_api_mm": [
+        701,
+        657,
+        841
+      ],
+      "sha256_gltf": "c533dcce0d1aa4379eb7db04601a04983f8df2422b28578de922655a416e64a9"
+    },
+    {
+      "id": "potted_plant_04",
+      "type": "decor_plant",
+      "source": "polyhaven",
+      "licence": "CC0",
+      "licence_url": "https://polyhaven.com/license",
+      "name": "Potted Plant 04",
+      "category": "Nature/Plants/Potted Plants",
+      "bbox_m": [
+        0.1679,
+        0.1848,
+        0.2675
+      ],
+      "bbox_model_m": [
+        0.1679,
+        0.1848,
+        0.2675
+      ],
+      "bbox_min_m": [
+        -0.0839,
+        -0.1008,
+        0.0004
+      ],
+      "bbox_max_m": [
+        0.0839,
+        0.0839,
+        0.2678
+      ],
+      "front_axis": "-Y",
+      "up_axis": "+Z",
+      "origin_offset": [
+        0.0,
+        -0.0084,
+        0.0004
+      ],
+      "front_axis_confidence": "low",
+      "front_axis_note": "no front: symmetric piece; -Y chosen by convention",
+      "url": "https://polyhaven.com/a/potted_plant_04",
+      "api_url": "https://api.polyhaven.com/files/potted_plant_04",
+      "gltf": "models/potted_plant_04/potted_plant_04_1k.gltf",
+      "resolution": "1k",
+      "polycount": 6097,
+      "vertices": 5882,
+      "dimensions_api_mm": [
+        170,
+        186,
+        268
+      ],
+      "sha256_gltf": "b3a3bc3e97da75844999c4da07b7104b6c023f729a7c045979929b9504184339"
+    }
+  ]
+}

@@ -10,7 +10,9 @@ Shared interface (both the asset code and the Blender code follow it): a
 texture set is ``{"id", "source", "licence": "CC0", "size_m": [w, h],
 "files": {"albedo", "normal", "roughness"[, "displacement"]}}`` with paths
 relative to the assets dir; the manifest keeps them under ``"textures"``
-and HDRIs under ``"hdris": {id: {"file", "licence", "source"}}``.
+and HDRIs under ``"hdris": {id: {"file", "licence", "source"}}``. Models
+(Milestone 4, ``wenart/assets/models.py``) live under ``"models": {id:
+{"files", "sha256", "licence", "bbox_m", ...}}``.
 
 Licence rule: only CC0 is accepted. Neither API carries a per-asset licence
 field; the site-wide CC0 statements are recorded in ``LICENCES`` and anything
@@ -71,7 +73,7 @@ def manifest_path(assets_dir: Path) -> Path:
 
 
 def empty_manifest() -> dict:
-    return {"schema_version": MANIFEST_VERSION, "textures": {}, "hdris": {}}
+    return {"schema_version": MANIFEST_VERSION, "textures": {}, "hdris": {}, "models": {}}
 
 
 def load_manifest(assets_dir: Path) -> dict:
@@ -82,7 +84,8 @@ def load_manifest(assets_dir: Path) -> dict:
     manifest = json.loads(path.read_text(encoding="utf-8"))
     manifest.setdefault("textures", {})
     manifest.setdefault("hdris", {})
-    for kind in ("textures", "hdris"):
+    manifest.setdefault("models", {})
+    for kind in ("textures", "hdris", "models"):
         for asset_id, entry in manifest[kind].items():
             check_licence(entry.get("source", "?"), entry.get("licence"))
     return manifest
