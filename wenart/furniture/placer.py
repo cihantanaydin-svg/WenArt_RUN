@@ -44,6 +44,13 @@ still failing at the cap are dropped and logged as such.
 
 Sizes that are not one of the type's options are snapped to the nearest
 option before the checks (logged as ``size_snapped``).
+
+Anchor first: when the proposal names the room's anchor piece but the first
+attempt dropped it (the other pieces, repaired earlier, took the floor it
+needed), the anchor is placed alone, locked, and the rest of the proposal is
+placed around it; a piece that still conflicts with the locked anchor gives
+way (dropped, ``gives way to the anchor``). The retry is logged as an
+``anchor_first`` step and ``PlacementResult.anchor_first`` is set.
 """
 from __future__ import annotations
 
@@ -103,6 +110,7 @@ class Piece:
     proposed: dict = field(default_factory=dict)
     repairs: list[dict] = field(default_factory=list)
     stage: int = 0            # next repair step: 0 snap, 1 slide, 2 shrink, 3 drop
+    locked: bool = False      # placed alone first (anchor first): never repaired or dropped
 
     @classmethod
     def from_proposal(cls, item: dict, index: int, log: Optional[list] = None) -> "Piece":
@@ -571,6 +579,7 @@ class PlacementResult:
     dropped: list[dict]
     log: list[dict]
     iterations: int
+    anchor_first: bool = False
 
     @property
     def all_ok(self) -> bool:
@@ -578,7 +587,8 @@ class PlacementResult:
 
     def to_dict(self) -> dict:
         return {"pieces": [dict(p.to_dict(), checks=c) for p, c in zip(self.pieces, self.checks)],
-                "dropped": list(self.dropped), "log": list(self.log), "iterations": self.iterations}
+                "dropped": list(self.dropped), "log": list(self.log), "iterations": self.iterations,
+                "anchor_first": self.anchor_first}
 
 
 def _log(log: list, iteration: int, piece: Piece, step: str, before: dict, failed: list[str], ok: bool,
@@ -593,9 +603,38 @@ def _log(log: list, iteration: int, piece: Piece, step: str, before: dict, faile
 
 
 def place(proposal: list[dict], ctx: RoomContext, max_iterations: int = MAX_ITERATIONS) -> PlacementResult:
-    """Check and repair a proposal (list of schema-shaped piece dicts) in ``ctx``."""
+    """Check and repair a proposal (list of schema-shaped piece dicts) in ``ctx``.
+    If the proposal names the room's anchor piece and the first attempt dropped
+    it, the anchor is placed alone and locked and the rest is placed around it."""
+    result = _place(proposal, ctx, max_iterations)
+    anchors = set(schemas.ANCHOR_TYPES.get(ctx.room.get("room_type", ""), ()))
+    first = next((i for i, item in enumerate(proposal) if item["type"] in anchors), None)
+    if first is None or any(p.type in anchors for p in result.pieces):
+        return result
+    alone = _place([proposal[first]], ctx, max_iterations)
+    if not alone.pieces:
+        return result                                          # the anchor does not fit the room on its own
+    anchor = alone.pieces[0]
+    anchor.locked = True
+    rest = [item for i, item in enumerate(proposal) if i != first]
+    retry = _place(rest, ctx, max_iterations, locked=[anchor])
+    if not any(p.type in anchors for p in retry.pieces):      # cannot happen (locked), kept as a guard
+        return result
+    marker = {"iteration": alone.iterations, "piece": 0, "type": anchor.type, "step": "anchor_first",
+              "before": dict(anchor.proposed), "after": anchor.state(), "failed": [], "ok": True,
+              "note": "the anchor was dropped in the first attempt; placed alone first, the other pieces give way"}
+    anchor.repairs.append({k: v for k, v in marker.items() if k != "piece"})
+    retry.log = alone.log + [marker] + retry.log
+    retry.iterations += alone.iterations
+    retry.anchor_first = True
+    return retry
+
+
+def _place(proposal: list[dict], ctx: RoomContext, max_iterations: int = MAX_ITERATIONS,
+           locked: Optional[list[Piece]] = None) -> PlacementResult:
+    """One placement attempt; ``locked`` pieces are already placed and never repaired or dropped."""
     log: list[dict] = []
-    pieces = [Piece.from_proposal(item, i, log) for i, item in enumerate(proposal)]
+    pieces = list(locked or []) + [Piece.from_proposal(item, i, log) for i, item in enumerate(proposal)]
     dropped: list[dict] = []
     iterations = 0
 
@@ -619,30 +658,53 @@ def place(proposal: list[dict], ctx: RoomContext, max_iterations: int = MAX_ITER
     def is_anchor(piece: Piece) -> bool:
         return piece.type in anchors
 
+    def give_way(failing: list[int], checks: list[dict], reason: str) -> bool:
+        """Only locked pieces fail: drop the last free piece that sits on a failing
+        locked piece or its front clearance (else the last free piece)."""
+        free = [p for p in pieces if not p.locked]
+        if not free:
+            return False
+        blockers = [pieces[i] for i in failing if pieces[i].locked]
+        zones = unary_union([p.polygon() for p in blockers]
+                            + [p.front_zone() for p in blockers if p.type in schemas.CLEARANCE_TYPES])
+        culprit = next((p for p in reversed(free) if p.polygon().intersection(zones).area > AREA_EPS), free[-1])
+        drop(culprit, failed_checks(checks[culprit.index]), reason, False)
+        return True
+
     while True:
         checks = check_all(pieces, ctx)
         failing = [i for i, c in enumerate(checks) if failed_checks(c)]
         if not failing:
             break
+        repairable = [i for i in failing if not pieces[i].locked]
+        if not repairable:
+            if not give_way(failing, checks, "gives way to the anchor"):
+                break
+            continue
         if iterations >= budget:
             # The room's anchor piece (bed, sofa, ...) goes last: at the cap the other
             # failing pieces are dropped, and the anchor gets one fresh repair budget of
             # its own before it is dropped too.
-            for i in reversed(failing):
+            for i in reversed(repairable):
                 if not is_anchor(pieces[i]):
                     drop(pieces[i], failed_checks(checks[i]), "iteration cap", False)
-            still = [i for i, c in enumerate(check_all(pieces, ctx)) if failed_checks(c)]
+            still = [i for i, c in enumerate(check_all(pieces, ctx)) if failed_checks(c) and not pieces[i].locked]
             if still and not anchor_budget_given:
                 anchor_budget_given = True
                 budget = iterations + max_iterations
                 continue
             checks = check_all(pieces, ctx)
-            for i in reversed([i for i, c in enumerate(checks) if failed_checks(c)]):
+            for i in reversed([i for i, c in enumerate(checks) if failed_checks(c) and not pieces[i].locked]):
                 drop(pieces[i], failed_checks(checks[i]), "iteration cap (anchor still failing alone)", False)
+            while True:                                        # a locked anchor never goes: the rest does
+                checks = check_all(pieces, ctx)
+                failing = [i for i, c in enumerate(checks) if failed_checks(c)]
+                if not failing or not give_way(failing, checks, "gives way to the anchor (iteration cap)"):
+                    break
             break
         # Repair the last failing non-anchor piece; the anchor itself only when nothing else fails.
-        non_anchor = [i for i in failing if not is_anchor(pieces[i])]
-        piece = pieces[(non_anchor or failing)[-1]]
+        non_anchor = [i for i in repairable if not is_anchor(pieces[i])]
+        piece = pieces[(non_anchor or repairable)[-1]]
         failed = failed_checks(checks[piece.index])
         before = piece.state()
         if piece.stage == 0:                                   # snap

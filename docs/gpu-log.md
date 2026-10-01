@@ -18,6 +18,6 @@ runner could not write it). Costs are estimates from the on-demand price at star
 | 2026-10-01 21:07 | bodeqlsdru5ws8 | NVIDIA RTX PRO 4000 Blackwell | 16 | 0.15 | M3 final renders after review fixes (thresholds, cameras, albedo), GPU tests | ok, self-stop ok |
 | 2026-10-01 21:37 | i4h5dj2fdee5ys | NVIDIA RTX PRO 4000 Blackwell | 24 | 0.23 | M4: bake-off re-run with tiled symbol pass and LibreDWG 0.14.1 | exit 1, self-stop ok |
 | 2026-10-01 22:24 | a1jrdpb5qxf2xz | NVIDIA RTX PRO 4000 Blackwell | 31 | 0.29 | M4 furnish: fit, AI layout (Qwen), decor, build with assets, renders, GPU tests | exit 1, self-stop ok |
-| 2026-10-01 22:26 | pending:20261001-222630-furnish | RTX PRO 4000 | 120 | 1.14 | M4 furnish run 2: anchor-safe placer, library assets resolved, GPU tests | creating (provisional, worst case) |
+| 2026-10-01 23:05 | ubfnmea29jobm5 | NVIDIA RTX PRO 4000 Blackwell | 38 | 0.37 | M4 furnish run 2: anchor-safe placer, library assets resolved, 128 samples, GPU tests | exit 1 (furnish tests), self-stop ok (reattached) |
 
-**Total spent so far: $3.73** (budget: $100; limits: $1.00/GPU-hour, $10/day, 2 h/run)
+**Total spent so far: $2.96** (budget: $100; limits: $1.00/GPU-hour, $10/day, 2 h/run)

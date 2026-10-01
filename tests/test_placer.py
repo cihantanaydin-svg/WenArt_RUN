@@ -316,3 +316,84 @@ def test_piece_from_furniture_roundtrip():
     p = P.piece_from_furniture(item)
     assert p.type == "sofa" and p.center == (2.75, 4.65) and p.size == (2.2, 0.9)
     assert p.polygon().bounds == pytest.approx((1.65, 4.2, 3.85, 5.1))
+
+
+# --------------------------------------------------------------------------
+# Anchor first (furnish run 2: both L1 bedrooms lost their bed)
+# --------------------------------------------------------------------------
+
+def make_small_bedroom():
+    """synthetic-01 L1 'Yatak Odası': 3.3 x 3.7 m, door on the west wall at y = 2.0
+    (opens into the room), window on the south wall at x = 7.7 (1.8 m)."""
+    walls = [
+        {"id": "w_s", "level_id": "L1", "start": [6.05, 0.2], "end": [9.35, 0.2], "thickness": 0.1, "exterior": True},
+        {"id": "w_e", "level_id": "L1", "start": [9.4, 0.25], "end": [9.4, 3.95], "thickness": 0.1, "exterior": True},
+        {"id": "w_n", "level_id": "L1", "start": [6.05, 4.0], "end": [9.35, 4.0], "thickness": 0.1, "exterior": False},
+        {"id": "w_w", "level_id": "L1", "start": [6.0, 0.25], "end": [6.0, 3.95], "thickness": 0.1, "exterior": False},
+    ]
+    room = {"id": "r_L1_yatak_odasi", "level_id": "L1", "label": "Yatak Odası", "room_type": "bedroom",
+            "polygon": [[6.05, 0.25], [9.35, 0.25], [9.35, 3.95], [6.05, 3.95]], "area_computed": 12.21,
+            "has_documented_furniture": False, "status": "verified", "evidence": []}
+    openings = [
+        {"id": "d_L1_003", "type": "door", "level_id": "L1", "wall_id": "w_w", "center": [6.0, 2.0], "width": 0.9,
+         "swing_side": room["id"]},
+        {"id": "win_L1_002", "type": "window", "level_id": "L1", "wall_id": "w_s", "center": [7.7, 0.2],
+         "width": 1.8, "sill_height": None},
+    ]
+    return {"walls": walls, "openings": openings, "rooms": [room]}, room
+
+
+# Qwen's pass-1 proposal for that room (furnish run 2): the bed first, as asked.
+RUN2_PROPOSAL = [
+    piece("bed_double", (7.2, 2.5), size=(1.8, 2.0), against_wall=True),
+    piece("nightstand", (6.7, 2.5), size=(0.5, 0.4), against_wall=True),
+    piece("nightstand", (7.7, 2.5), size=(0.5, 0.4), against_wall=True),
+    piece("wardrobe", (6.0, 1.0), size=(1.8, 0.6), against_wall=True),
+    piece("desk", (8.0, 2.0), size=(1.4, 0.7), against_wall=True),
+    piece("chair", (8.1, 1.9), size=(0.5, 0.5)),
+]
+
+
+def test_anchor_first_keeps_the_bed_the_first_attempt_dropped():
+    building, room = make_small_bedroom()
+    ctx = P.room_context(building, room)
+    first = P._place(RUN2_PROPOSAL, ctx)
+    assert "bed_double" in {d["type"] for d in first.dropped}, "the first attempt should lose the bed here"
+    result = P.place(RUN2_PROPOSAL, ctx)
+    assert result.anchor_first and result.all_ok
+    bed = next(pc for pc in result.pieces if pc.type == "bed_double")
+    assert bed.locked and bed.center == pytest.approx((7.9, 2.929), abs=1e-3)   # where it fits alone
+    assert bed.proposed["center"] == [7.2, 2.5]                                 # the proposal is kept for the debug image
+    marker = [e for e in result.log if e["step"] == "anchor_first"]
+    assert len(marker) == 1 and marker[0]["type"] == "bed_double" and marker[0]["after"]["center"] == [7.9, 2.929]
+    assert [e["step"] for e in result.log[:3]] == ["snap", "slide", "anchor_first"]
+    assert all(d["type"] != "bed_double" for d in result.dropped)
+    assert len(result.pieces) >= 3                                               # bed plus at least two others
+    assert result.to_dict()["anchor_first"] is True
+
+
+def test_anchor_first_is_not_used_when_the_anchor_fits_first_time(ctx):
+    result = P.place([piece("bed_double", (1.5, 1.979), against_wall=True), piece("chair", (1.5, 1.2))], ctx)
+    assert result.all_ok and not result.anchor_first
+    assert not [e for e in result.log if e["step"] == "anchor_first"]
+
+
+def test_anchor_first_gives_up_when_the_anchor_fits_nowhere():
+    building, room = make_tiny_building()
+    ctx = P.room_context(building, room)
+    result = P.place([piece("bed_double", (1.0, 0.5), against_wall=True), piece("chair", (1.0, 0.5))], ctx)
+    assert not result.anchor_first and "bed_double" in {d["type"] for d in result.dropped}
+
+
+def test_a_piece_in_the_locked_anchors_clearance_gives_way():
+    building, room = make_building(doors=[], windows=[])      # no walkways: only the clearance can fail
+    ctx = P.room_context(building, room)
+    bed = P.place([piece("bed_double", (1.5, 1.979), against_wall=True)], ctx).pieces[0]
+    bed.locked = True
+    # A chair in front of the bed passes its own checks; only the bed's clearance fails.
+    chair = piece("chair", (1.5, 0.75))
+    result = P._place([chair], ctx, locked=[bed])
+    assert [pc.type for pc in result.pieces] == ["bed_double"] and result.all_ok
+    assert result.dropped[0]["type"] == "chair" and result.dropped[0]["reason"] == "gives way to the anchor"
+    assert "clearance_ok" not in result.dropped[0]["failed"]                     # the chair itself was fine
+    assert result.log[-1]["step"] == "drop"
