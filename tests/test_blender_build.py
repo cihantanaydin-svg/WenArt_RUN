@@ -162,6 +162,9 @@ def test_materials_textured_or_flat_are_recorded(built):
     mats = built["manifest"]["materials"]
     floor = mats["wood_oak_light__WoodFloor051"]
     assert floor["textured"] is True and floor["asset"] == "WoodFloor051" and floor["slug"] == "wood_oak_light"
+    # the fake albedo (150,110,70) is 0.18 linear luminance, darker than light oak (0.47): gain ~2.6
+    assert 2.0 < floor["albedo_gain"] <= 4.0 and 0.1 < floor["albedo_mean_luminance"] < 0.3
+    assert mats["wood_oak_light"]["albedo_gain"] is None  # flat materials carry no gain
     assert mats["wood_oak_light"]["textured"] is False  # the door leaf: no asset in the style
     walls = next(m for m in mats.values() if m["slug"] == "plaster_white" and m["tint"])
     assert walls["textured"] is False and "Plaster001" in walls["reason"]

@@ -120,6 +120,7 @@ class MaterialLibrary:
             "source": tset["source"] if tset else None, "licence": tset["licence"] if tset else None,
             "size_m": tset["size_m"] if tset else None, "flat_colour": list(flat_colour(slug)),
             "tint": list(tint) if tint else None, "unverified": unverified, "reason": reason,
+            "albedo_gain": mat.get("wenart_albedo_gain"), "albedo_mean_luminance": mat.get("wenart_albedo_mean"),
         }
         return mat
 
@@ -180,6 +181,19 @@ def pbr_material(name: str, slug: str, texture_set: dict | None, tint=None, scal
         albedo = _image_node(nodes, texture_set["files"]["albedo"], "sRGB")
         links.new(mapping.outputs["Vector"], albedo.inputs["Vector"])
         colour_out = albedo.outputs["Color"]
+        # Photographed albedo maps carry the lighting of the photo: Poly Haven's
+        # "white_plaster_02" averages 0.27 linear, far from a white wall. The map
+        # is scaled so its mean luminance matches the slug's intended colour
+        # (gain clamped to 0.5..4.0 and recorded on the material and in the manifest).
+        gain, mean_lum = albedo_gain(albedo.image, slug)
+        mat["wenart_albedo_gain"] = gain
+        mat["wenart_albedo_mean"] = mean_lum
+        if abs(gain - 1.0) > 1e-3:
+            scale = nodes.new("ShaderNodeVectorMath")
+            scale.operation = "MULTIPLY"
+            scale.inputs[1].default_value = (gain, gain, gain)
+            links.new(colour_out, scale.inputs[0])
+            colour_out = scale.outputs["Vector"]
         if tint:
             mul = nodes.new("ShaderNodeVectorMath")
             mul.operation = "MULTIPLY"
@@ -208,6 +222,39 @@ def pbr_material(name: str, slug: str, texture_set: dict | None, tint=None, scal
     if unverified:
         _add_unverified_stripes(tree, bsdf, out)
     return mat
+
+
+ALBEDO_GAIN_RANGE = (0.5, 4.0)
+
+
+def luminance(rgb) -> float:
+    return 0.2126 * float(rgb[0]) + 0.7152 * float(rgb[1]) + 0.0722 * float(rgb[2])
+
+
+def albedo_gain(image, slug: str) -> tuple[float, float]:
+    """Gain that brings the mean linear luminance of an albedo image to the
+    luminance of the slug's intended flat colour. Returns (gain, mean_luminance);
+    (1.0, mean) when the image cannot be read or the slug has no colour."""
+    try:
+        import numpy as np
+        px = np.empty(len(image.pixels), dtype=np.float32)
+        image.pixels.foreach_get(px)   # scene-linear floats, RGBA
+        px = px.reshape(-1, 4)[:, :3]
+        if len(px) > 262_144:          # a 512x512 sample is plenty for a mean
+            px = px[:: max(1, len(px) // 262_144)]
+        # image.pixels of a byte image are the stored (sRGB-encoded) values, not
+        # scene-linear ones: decode before averaging (checked on Blender 5.2.2).
+        if image.colorspace_settings.name == "sRGB":
+            px = np.where(px > 0.04045, ((px + 0.055) / 1.055) ** 2.4, px / 12.92)
+        mean = px.mean(axis=0)
+        mean_lum = float(0.2126 * mean[0] + 0.7152 * mean[1] + 0.0722 * mean[2])
+    except Exception:  # noqa: BLE001 - never fail a build over a brightness tweak
+        return 1.0, -1.0
+    target = luminance(flat_colour(slug))
+    if mean_lum <= 1e-4 or target <= 0:
+        return 1.0, mean_lum
+    gain = min(ALBEDO_GAIN_RANGE[1], max(ALBEDO_GAIN_RANGE[0], target / mean_lum))
+    return round(gain, 4), round(mean_lum, 4)
 
 
 def _image_node(nodes, path: str, colorspace: str):
