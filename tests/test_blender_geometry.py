@@ -3,7 +3,6 @@ geometry, wall overlap trimming, opening defaults, camera placement, the
 manifest schemas and the Blender-binary lookup. No Blender needed."""
 import json
 import math
-import os
 import stat
 from pathlib import Path
 
@@ -342,6 +341,19 @@ def test_find_blender_prefers_env(tmp_path, monkeypatch):
     fake.chmod(fake.stat().st_mode | stat.S_IXUSR)
     monkeypatch.setenv("WENART_BLENDER", str(fake))
     assert cli.find_blender() == str(fake)
+    # A missing env path is ignored: the candidates decide, in order, then PATH.
     monkeypatch.setenv("WENART_BLENDER", str(tmp_path / "missing"))
-    found = cli.find_blender()
-    assert found is None or os.access(found, os.X_OK)
+    first, second, on_path = tmp_path / "ws" / "blender", tmp_path / "opt" / "blender", tmp_path / "bin" / "blender"
+    for exe in (first, second, on_path):
+        exe.parent.mkdir()
+        exe.write_text("#!/bin/sh\necho fake\n")
+        exe.chmod(exe.stat().st_mode | stat.S_IXUSR)
+    monkeypatch.setattr(cli, "CANDIDATES", (str(first), str(second)))
+    monkeypatch.setenv("PATH", str(on_path.parent))
+    assert cli.find_blender() == str(first)
+    first.unlink()
+    assert cli.find_blender() == str(second)
+    second.unlink()
+    assert cli.find_blender() == str(on_path)
+    on_path.unlink()
+    assert cli.find_blender() is None
