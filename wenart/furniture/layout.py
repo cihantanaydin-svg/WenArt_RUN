@@ -62,6 +62,7 @@ class Proposal:
     error: Optional[str] = None
     prompt: str = ""
     model: str = ""
+    rejected_types: list = field(default_factory=list)   # proposed types the room type does not allow
 
     def to_dict(self) -> dict:
         return {"pass": self.pass_no, "model": self.model, "latency_s": round(self.latency_s, 3),
@@ -165,7 +166,9 @@ class RoomLayout:
             placement = self.placements.get(p.pass_no)
             if placement is not None:
                 entry.update({"pieces_placed": len(placement.pieces), "pieces_dropped": len(placement.dropped),
-                              "iterations": placement.iterations, "repair_steps": len(placement.log)})
+                              "iterations": placement.iterations, "repair_steps": len(placement.log),
+                              "anchor_first": placement.anchor_first})
+            entry["rejected_types"] = list(p.rejected_types)
             passes.append(entry)
         return {"room_id": self.room_id, "label": self.label, "room_type": self.room_type, "passes": passes,
                 "chosen_pass": self.chosen_pass, "latency_s": round(self.latency_s, 3), "skipped": self.skipped,
@@ -238,7 +241,14 @@ def propose_layouts(room: dict, building: dict, style_text: str, client, passes:
         proposal.pass_no = pass_no
         result.proposals.append(proposal)
         if proposal.data is not None:
-            result.placements[pass_no] = placer.place(proposal.data["pieces"], ctx)
+            # AI proposes, checks decide: a type the room type does not allow (a toilet in a
+            # bedroom) is removed before placement and listed in the proposal record.
+            allowed = schemas.ALLOWED_TYPES.get(result.room_type)
+            pieces = proposal.data["pieces"]
+            if allowed is not None:
+                proposal.rejected_types = [p["type"] for p in pieces if p["type"] not in allowed]
+                pieces = [p for p in pieces if p["type"] in allowed]
+            result.placements[pass_no] = placer.place(pieces, ctx)
     usable = [(len(result.placements[p].dropped), p) for p in sorted(result.placements)
               if result.placements[p].pieces]
     if not usable:

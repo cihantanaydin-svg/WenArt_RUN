@@ -225,6 +225,10 @@ def collect_decor(building: dict, level_id: str) -> list[tuple[dict, dict]]:
     pieces = {p["id"]: p for p in building.get("furniture", [])}
     out = []
     for item in building.get("decor") or []:
+        if item.get("host_id") is None:                      # a plant on the floor: no host
+            if item.get("level_id") == level_id and item.get("center"):
+                out.append((item, None))
+            continue
         host = pieces.get(item.get("host_id"))
         if host is not None and host["level_id"] == level_id:
             out.append((item, host))
@@ -238,7 +242,8 @@ def collect_decor(building: dict, level_id: str) -> list[tuple[dict, dict]]:
 
 def unknown_decor_hosts(building: dict) -> list[str]:
     pieces = {p["id"] for p in building.get("furniture", [])}
-    return [str(item.get("host_id")) for item in building.get("decor") or [] if item.get("host_id") not in pieces]
+    return [str(item.get("host_id")) for item in building.get("decor") or []
+            if item.get("host_id") is not None and item.get("host_id") not in pieces]
 
 
 def decor_height_above_floor(item: dict, host: dict) -> tuple[float, str]:
@@ -247,6 +252,8 @@ def decor_height_above_floor(item: dict, host: dict) -> tuple[float, str]:
     center = item.get("center") or []
     if len(center) > 2 and center[2] is not None:
         return float(center[2]), "center[2]"
+    if host is None:
+        return 0.0, "floor"
     host_h, _ = proxy_height(host["type"], host.get("height"))
     return P.decor_rest_height(host["type"], host_h, item["type"]), f"on {host['type']} {host['id']}"
 
@@ -461,16 +468,19 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
                 warnings.append(msg)
     manifest_by_id = {o["wenart_id"]: o for o in manifest_objects if o.get("kind") in ("furniture", "furniture_proxy")}
     for n, (item, host) in enumerate(collect_decor(building, level["id"]), start=1):
-        host_entry = entries.get(host["id"]) or manifest_by_id.get(f"proxy:{host['id']}")
-        if host_entry is None:
-            continue
+        host_entry = None
+        if host is not None:
+            host_entry = entries.get(host["id"]) or manifest_by_id.get(f"proxy:{host['id']}")
+            if host_entry is None:
+                continue
         entry = _create_decor(item, host, n, level, floor_z, collection, library, mats, assets_dir, pass_indices,
                               host_entry, warnings, geo_cache)
         if entry is None:
             continue
         manifest_objects.append(entry)
-        host_entry.setdefault("decor", []).append({"name": entry["name"], "type": entry["type"],
-                                                   "method": entry["method"]})
+        if host_entry is not None:
+            host_entry.setdefault("decor", []).append({"name": entry["name"], "type": entry["type"],
+                                                       "method": entry["method"]})
         summary["decor"] += 1
     return summary
 
@@ -583,28 +593,37 @@ def _parametric_object(piece, name, status, floor_z, height, collection, mats, e
 def _create_decor(item, host, n, level, floor_z, collection, library, mats, assets_dir, pass_indices, host_entry,
                   warnings, geo_cache) -> dict | None:
     dtype = item.get("type")
+    where = f"on {host['id']}" if host is not None else f"{item.get('id')} (no host)"
     if dtype not in P.DECOR_TYPES:
-        warnings.append(f"decor on {host['id']}: unknown decor type {dtype!r}; skipped")
+        warnings.append(f"decor {where}: unknown decor type {dtype!r}; skipped")
         return None
     center = item.get("center") or host["footprint"]["center"]
-    rot = float(item.get("rotation_deg", host["footprint"]["rotation_deg"]))
+    rot = float(item.get("rotation_deg", host["footprint"]["rotation_deg"] if host is not None else 0.0))
     w, d, h = P.decor_size(dtype, item.get("size") or [0.4, 0.4])
     size_in = item.get("size") or []
     if any(float(v) > P.DECOR_MAX_M for v in size_in if v):
-        warnings.append(f"decor {dtype} on {host['id']}: size {size_in} capped at {P.DECOR_MAX_M} m")
+        warnings.append(f"decor {dtype} {where}: size {size_in} capped at {P.DECOR_MAX_M} m")
     z_above, z_how = decor_height_above_floor(item, host)
-    name = f"decor_{host['id']}_{n}"
-    index = pass_indices.get(host["id"]) or pass_indices.get(f"proxy:{host['id']}") or 0
+    if host is not None:
+        owner_id, room_id = host["id"], host.get("room_id")
+        name = f"decor_{host['id']}_{n}"
+        index = pass_indices.get(host["id"]) or pass_indices.get(f"proxy:{host['id']}") or 0
+        text = f"{dtype} on {host['type']} {host['id']} ({z_how})"
+    else:                                                     # hostless decor: its own id and pass index
+        owner_id, room_id = str(item.get("id") or f"decor_{n}"), item.get("room_id")
+        name = f"decor_{owner_id}"
+        index = pass_indices.get(owner_id) or len(pass_indices) + 1
+        pass_indices[owner_id] = index
+        text = f"{dtype} in {room_id} on the {z_how}"
     status = item.get("status") or "assumed"
     if status not in ("verified", "unverified", "assumed"):
         status = "assumed"
     footprint = {"center": [float(center[0]), float(center[1])], "size": [w, d], "rotation_deg": rot}
     entry = {
-        "name": name, "wenart_id": host["id"], "kind": "decor", "status": status, "level_id": level["id"],
-        "element_id": host["id"], "host_id": host["id"], "room_id": host.get("room_id"), "type": dtype,
-        "source": "added_by_ai",
-        "evidence": [{"file": "decor", "method": "rule", "confidence": 1.0,
-                      "text": f"{dtype} on {host['type']} {host['id']} ({z_how})"}],
+        "name": name, "wenart_id": owner_id, "kind": "decor", "status": status, "level_id": level["id"],
+        "element_id": owner_id, "host_id": host["id"] if host is not None else None, "room_id": room_id,
+        "type": dtype, "source": "added_by_ai",
+        "evidence": [{"file": "decor", "method": "rule", "confidence": 1.0, "text": text}],
         "pass_index": index, "assumed": {"rest_height": z_above} if z_how != "center[2]" else {},
         "center": [footprint["center"][0], footprint["center"][1], floor_z + z_above + h / 2.0],
         "size": [w, d, h], "rotation_deg": rot, "asset": item.get("asset"), "method": None, "bbox_m": None,
@@ -621,7 +640,7 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
                                        target_size=[w, d, h] if len(size_in) > 2 else [w, d])
             fallback = library.proxy("proxy")
             ob = _mesh_object(name, verts, geo["faces"], geo["materials"], geo["face_materials"], collection,
-                              host["id"], "decor", status, uvs=geo["uvs"], uv_name=geo["uv_name"],
+                              owner_id, "decor", status, uvs=geo["uvs"], uv_name=geo["uv_name"],
                               fallback_material=fallback)
             entry.update({"method": "library", "fit_scale": info["fit_scale"], "bbox_m": info["bbox_m"], "fit": info,
                           "file": str(file), "materials": [m.name for m in ob.data.materials if m is not None],
@@ -631,14 +650,14 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
             entry["center"][2] = floor_z + z_above + info["bbox_m"][2] / 2.0
         except Exception as exc:  # noqa: BLE001
             reason = f"import of {file} failed: {type(exc).__name__}: {exc}"
-            warnings.append(f"decor {dtype} on {host['id']}: {reason}; parametric mesh used")
+            warnings.append(f"decor {dtype} {where}: {reason}; parametric mesh used")
             ob = None
     if ob is None:
         parts = P.decor_parts(dtype, w, d, h)
         verts, faces, keys = P.world_mesh(parts, footprint["center"], rot, floor_z + z_above)
         used_keys = sorted(set(keys), key=keys.index)
         slots = [mats.get(k) for k in used_keys]
-        ob = _mesh_object(name, verts, faces, slots, [used_keys.index(k) for k in keys], collection, host["id"],
+        ob = _mesh_object(name, verts, faces, slots, [used_keys.index(k) for k in keys], collection, owner_id,
                           "decor", status)
         x0, y0, z0, x1, y1, z1 = P.parts_bbox(parts)
         entry.update({"method": f"parametric (fallback: {reason})", "fallback_reason": reason,
@@ -646,9 +665,9 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
                       "materials": [m.name for m in slots], "material": slots[0].name,
                       "textured": any(mats.library.textured(m) for m in slots)})
     ob["wenart_type"] = dtype
-    ob["wenart_room"] = host.get("room_id") or ""
+    ob["wenart_room"] = room_id or ""
     ob["wenart_source"] = "added_by_ai"
-    ob["wenart_host"] = host["id"]
+    ob["wenart_host"] = host["id"] if host is not None else ""
     ob["wenart_asset"] = (item.get("asset") or {}).get("asset_id") if entry["method"] == "library" else "parametric"
     ob.pass_index = index
     return entry

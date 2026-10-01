@@ -112,6 +112,10 @@ def plant_position(room: dict, furniture: list[dict], building: dict) -> tuple[O
         plant = placer.Piece("plant", center, 0.0, PLANT_SIZE, False, index=len(pieces))
         checks = placer.check_piece(plant, pieces, ctx)
         failed = placer.failed_checks(checks)
+        if not failed and any(p.type in placer.schemas.CLEARANCE_TYPES
+                              and plant.polygon().intersection(p.front_zone()).area > placer.AREA_EPS
+                              for p in pieces):
+            failed = ["clearance of another piece"]
         if not failed and placer.walkway_failures(pieces + [plant], ctx):
             failed = ["walkway"]
         if not failed:

@@ -169,7 +169,7 @@ def test_cap_moves_to_the_next_candidate_or_parametric(small_catalog):
     fit = F.fit_piece(_piece("sofa", 1.0, 0.48), small_catalog)
     assert fit["method"] == "parametric" and fit["asset_id"] == "parametric:sofa"
     assert fit["library"] == "parametric" and fit["licence"] == "n/a" and fit["fit_scale"] == [1.0, 1.0, 1.0]
-    assert fit["bbox_m"] == [1.0, 0.48, C.parametric_height("sofa")]
+    assert fit["bbox_m"] == F.parametric_box(_piece("sofa", 1.0, 0.48))     # the box Blender builds
     assert "no sofa candidate within 15 %" in fit["fallback_reason"]
     assert [c["id"] for c in fit["candidates"]] == ["sofa_wide", "sofa_deep", "sofa_odd"]
     assert not any(c["accepted"] for c in fit["candidates"])
@@ -189,10 +189,11 @@ def test_cap_moves_to_the_next_candidate_or_parametric(small_catalog):
 
 def test_parametric_types_and_unknown(small_catalog):
     fit = F.fit_piece(_piece("toilet", 0.4, 0.7), small_catalog)
-    assert fit["method"] == "parametric" and fit["bbox_m"] == [0.4, 0.7, 0.4]
+    assert fit["method"] == "parametric" and fit["bbox_m"] == F.parametric_box(_piece("toilet", 0.4, 0.7))
+    assert fit["bbox_m"][:2] == [0.4, 0.7] and fit["bbox_m"][2] >= 0.4
     assert "parametric in the catalogue" in fit["fallback_reason"] and fit["candidates"] == []
     fit = F.fit_piece(_piece("unknown", 1.2, 0.5), small_catalog)
-    assert fit["asset_id"] == "parametric:unknown" and fit["bbox_m"][2] == 0.8
+    assert fit["asset_id"] == "parametric:unknown" and fit["bbox_m"] == [1.2, 0.5, 0.8]
     fit = F.fit_piece(_piece("tv_unit", 1.6, 0.45), small_catalog)
     assert fit["method"] == "parametric" and fit["candidates"][0]["id"] == "tv_long"
     assert F.fit_piece(_piece("sofa", 0.0, 0.9), small_catalog)["method"] == "parametric"
@@ -319,3 +320,35 @@ def test_uniform_scale_cap_rejects_stretched_models():
             assert F.UNIFORM_RANGE[0] <= t["mean_scale"] <= F.UNIFORM_RANGE[1]
     wide = F.fit_piece(piece, cat, uniform_range=(0.99, 1.01))
     assert wide["method"] == "parametric" and "mean scale" in wide["fallback_reason"]
+
+
+def test_plants_get_a_library_model_and_cushions_stay_parametric(catalog):
+    building = load_truth("synthetic-01")
+    building["decor"] = [
+        {"id": "dec_L0_001", "kind": "decor", "type": "plant", "level_id": "L0", "room_id": "r_L0_salon",
+         "center": [0.25, 0.25], "rotation_deg": 0.0, "size": [0.4, 0.4], "asset": None, "host_id": None,
+         "source": "added_by_ai", "method": "rule", "reason": "potted plant in a free corner"},
+        {"id": "dec_L0_002", "kind": "decor", "type": "cushion", "level_id": "L0", "room_id": "r_L0_salon",
+         "center": [1.0, 1.0], "rotation_deg": 0.0, "size": [0.45, 0.15], "asset": None, "host_id": "f_L0_001",
+         "source": "added_by_ai", "method": "rule", "reason": "cushion"},
+    ]
+    fitted = F.fit_building(building, catalog)
+    F.assert_only_assets_changed(building, fitted)
+    plant, cushion = fitted["decor"]
+    assert plant["asset"]["method"] == "library" and plant["asset"]["asset_id"].startswith("potted_plant")
+    assert plant["asset"]["licence"] == "CC0" and plant["asset"]["gltf"].endswith(".gltf")
+    assert plant["asset"]["bbox_m"][:2] == [0.4, 0.4] and plant["asset"]["target"] == "size"
+    assert cushion["asset"] is None
+    report = F.fit_report(fitted)
+    assert "## Decor" in report and "plant: potted_plant" in report and "parametric by design" in report
+
+
+def test_parametric_box_is_what_blender_builds():
+    from wenart.blender import parametric as P
+    bed = _piece("bed_double", 1.6, 2.0)
+    fit = F.parametric_fit(bed, "test")
+    assert fit["bbox_m"][:2] == [1.6, 2.0]
+    assert fit["bbox_m"][2] == pytest.approx(P.parametric_bbox("bed_double", 1.6, 2.0, P.proxy_height("bed_double", None)[0])[2])
+    assert fit["bbox_m"][2] > 0.5                                           # the headboard rises above the mattress
+    tall = dict(_piece("wardrobe", 1.2, 0.6), height=2.4)
+    assert F.parametric_fit(tall, "test")["bbox_m"][2] == pytest.approx(P.parametric_bbox("wardrobe", 1.2, 0.6, 2.4)[2])

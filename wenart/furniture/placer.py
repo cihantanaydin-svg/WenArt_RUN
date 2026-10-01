@@ -60,7 +60,7 @@ from typing import Optional
 
 from shapely.geometry import LineString, Point, Polygon
 from shapely.geometry.polygon import orient
-from shapely.ops import unary_union
+from shapely.ops import nearest_points, unary_union
 
 from wenart import geometry as G
 from wenart.furniture import schemas
@@ -111,23 +111,34 @@ class Piece:
     repairs: list[dict] = field(default_factory=list)
     stage: int = 0            # next repair step: 0 snap, 1 slide, 2 shrink, 3 drop
     locked: bool = False      # placed alone first (anchor first): never repaired or dropped
+    proposal_index: int = 0   # position in the model's proposal (the "#n" of the reports)
 
     @classmethod
     def from_proposal(cls, item: dict, index: int, log: Optional[list] = None) -> "Piece":
         ftype = item["type"]
         size = (float(item["size"][0]), float(item["size"][1]))
-        if ftype in schemas.SIZE_OPTIONS and schemas.size_index(ftype, size) is None:
-            options = schemas.SIZE_OPTIONS[ftype]
-            nearest = min(options, key=lambda o: abs(o[0] - size[0]) + abs(o[1] - size[1]))
-            if log is not None:
-                log.append({"iteration": 0, "piece": index, "type": ftype, "step": "size_snapped",
-                            "before": {"size": list(size)}, "after": {"size": list(nearest)}, "failed": [], "ok": True})
-            size = nearest
         center = (round(float(item["center"][0]), 3), round(float(item["center"][1]), 3))
         rotation = G.normalise_angle(float(item.get("rotation_deg", 0.0)))
+        if ftype in schemas.SIZE_OPTIONS and schemas.size_index(ftype, size) is None:
+            options = schemas.SIZE_OPTIONS[ftype]
+            swapped = (size[1], size[0])
+            if schemas.size_index(ftype, swapped) is not None:
+                # width and depth given the other way round: the same piece turned by 90 degrees
+                nearest, turned = options[schemas.size_index(ftype, swapped)], True
+                rotation = G.normalise_angle(rotation + 90.0)
+            else:
+                nearest, turned = min(options, key=lambda o: abs(o[0] - size[0]) + abs(o[1] - size[1])), False
+            if log is not None:
+                entry = {"iteration": 0, "piece": index, "type": ftype, "step": "size_snapped",
+                         "before": {"size": list(size)}, "after": {"size": list(nearest)}, "failed": [], "ok": True}
+                if turned:
+                    entry["note"] = "width and depth swapped: size option taken with the rotation turned by 90 degrees"
+                log.append(entry)
+            size = nearest
         return cls(type=ftype, center=center, rotation_deg=rotation, size=size,
                    against_wall=bool(item.get("against_wall", False)), reason=str(item.get("reason", "")),
-                   index=index, proposed={"center": list(center), "rotation_deg": rotation, "size": list(size)})
+                   index=index, proposal_index=index,
+                   proposed={"center": list(center), "rotation_deg": rotation, "size": list(size)})
 
     def polygon(self) -> Polygon:
         return _rect(self.center, self.size, self.rotation_deg, -self.size[1] / 2.0, self.size[1] / 2.0)
@@ -282,6 +293,13 @@ def room_context(building: dict, room: dict) -> RoomContext:
             half_plane = _strip(inner, d, n, width + 0.1, width + 0.1)
             swing = Point(inner).buffer(width, 32).intersection(half_plane).intersection(polygon)
         approach = (inner[0] + n[0] * (WALKWAY_M / 2 + 0.01), inner[1] + n[1] * (WALKWAY_M / 2 + 0.01))
+        # A door flush with a corner: the point straight in front of it lies outside the
+        # eroded free floor, which would silently drop its walkways. Start at the nearest
+        # point of the empty room's walkable region instead.
+        eroded = polygon.buffer(-ERODE_M, join_style="mitre")
+        if not eroded.is_empty and eroded.distance(Point(approach)) > POINT_TOL_M:
+            near = nearest_points(eroded, Point(approach))[0]
+            approach = (round(near.x, 3), round(near.y, 3))
         doors.append(DoorZone(op["id"], inner, approach, zone, swing, width))
     windows = []
     for op in window_items:
@@ -404,7 +422,9 @@ def check_piece(piece: Piece, others: list[Piece], ctx: RoomContext, walkway_bla
     """The six checks of one piece against the room and the other pieces."""
     poly = piece.polygon()
     other_polys = [o.polygon() for o in others]
-    inside = poly.difference(ctx.shrunk).area < AREA_EPS
+    # Containment (1 mm tolerance), not a leftover-area test: a rotated corner tip
+    # outside the shrunk polygon has almost no area but is still outside.
+    inside = ctx.shrunk.buffer(1e-3, join_style="mitre").contains(poly)
     no_overlap = all(poly.intersection(op).area < AREA_EPS for op in other_polys)
     clearance = True
     if piece.type in schemas.CLEARANCE_TYPES:
@@ -593,8 +613,8 @@ class PlacementResult:
 
 def _log(log: list, iteration: int, piece: Piece, step: str, before: dict, failed: list[str], ok: bool,
          note: str = "") -> dict:
-    entry = {"iteration": iteration, "piece": piece.index, "type": piece.type, "step": step, "before": before,
-             "after": piece.state(), "failed": failed, "ok": ok}
+    entry = {"iteration": iteration, "piece": piece.proposal_index, "type": piece.type, "step": step,
+             "before": before, "after": piece.state(), "failed": failed, "ok": ok}
     if note:
         entry["note"] = note
     log.append(entry)
@@ -616,11 +636,15 @@ def place(proposal: list[dict], ctx: RoomContext, max_iterations: int = MAX_ITER
         return result                                          # the anchor does not fit the room on its own
     anchor = alone.pieces[0]
     anchor.locked = True
+    anchor.proposal_index = first
+    for entry in alone.log:
+        entry["piece"] = first
     rest = [item for i, item in enumerate(proposal) if i != first]
-    retry = _place(rest, ctx, max_iterations, locked=[anchor])
+    retry = _place(rest, ctx, max_iterations, locked=[anchor],
+                   proposal_indices=[i for i in range(len(proposal)) if i != first])
     if not any(p.type in anchors for p in retry.pieces):      # cannot happen (locked), kept as a guard
         return result
-    marker = {"iteration": alone.iterations, "piece": 0, "type": anchor.type, "step": "anchor_first",
+    marker = {"iteration": alone.iterations, "piece": first, "type": anchor.type, "step": "anchor_first",
               "before": dict(anchor.proposed), "after": anchor.state(), "failed": [], "ok": True,
               "note": "the anchor was dropped in the first attempt; placed alone first, the other pieces give way"}
     anchor.repairs.append({k: v for k, v in marker.items() if k != "piece"})
@@ -631,10 +655,12 @@ def place(proposal: list[dict], ctx: RoomContext, max_iterations: int = MAX_ITER
 
 
 def _place(proposal: list[dict], ctx: RoomContext, max_iterations: int = MAX_ITERATIONS,
-           locked: Optional[list[Piece]] = None) -> PlacementResult:
-    """One placement attempt; ``locked`` pieces are already placed and never repaired or dropped."""
+           locked: Optional[list[Piece]] = None, proposal_indices: Optional[list[int]] = None) -> PlacementResult:
+    """One placement attempt; ``locked`` pieces are already placed and never repaired or
+    dropped; ``proposal_indices`` are the items' positions in the original proposal."""
     log: list[dict] = []
-    pieces = list(locked or []) + [Piece.from_proposal(item, i, log) for i, item in enumerate(proposal)]
+    indices = proposal_indices or list(range(len(proposal)))
+    pieces = list(locked or []) + [Piece.from_proposal(item, i, log) for i, item in zip(indices, proposal)]
     dropped: list[dict] = []
     iterations = 0
 

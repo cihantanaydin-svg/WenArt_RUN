@@ -60,13 +60,25 @@ def scale_for(entry: dict, width: float, depth: float) -> tuple[list[float], flo
     return [round(s, 4) for s in scales], round(max(scales) / min(scales), 4)
 
 
+def parametric_box(piece: dict) -> list[float]:
+    """The box Blender's parametric mesh will occupy: the piece's ``height`` when
+    the JSON has one, else the proxy table height (the same rule as the scene
+    builder), measured on the built parts when the type has a builder."""
+    from wenart.blender import parametric as P   # pure Python (no bpy)
+
+    width, depth = (float(v) for v in piece["footprint"]["size"])
+    height, _ = P.proxy_height(piece["type"], piece.get("height"))
+    if piece["type"] in P._BUILDERS:
+        height = P.parametric_bbox(piece["type"], width, depth, height)[2]   # a headboard rises above the type height
+    return [round(width, 4), round(depth, 4), round(height, 4)]
+
+
 def parametric_fit(piece: dict, reason: str, candidates: Optional[list[dict]] = None) -> dict:
-    width, depth = piece["footprint"]["size"]
     ftype = piece["type"]
     return {
         "library": PARAMETRIC_LIBRARY, "asset_id": f"parametric:{ftype}", "licence": PARAMETRIC_LICENCE,
         "license": PARAMETRIC_LICENCE, "method": "parametric", "fit_scale": [1.0, 1.0, 1.0],
-        "bbox_m": [round(width, 4), round(depth, 4), C.parametric_height(ftype)], "aspect_error": None,
+        "bbox_m": parametric_box(piece), "aspect_error": None,
         "front_axis": "-Y", "up_axis": "+Z", "origin_offset": [0.0, 0.0, 0.0],
         "candidates": candidates or [], "fallback_reason": reason, "cap": NON_UNIFORM_CAP,
     }
@@ -119,26 +131,63 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
     return parametric_fit(piece, reason, tried)
 
 
+# Decor types that use a catalogue model (``catalog.json`` ``decor`` section);
+# cushions and books stay parametric: the pillow model is two loose pillows
+# lying flat, which squashed to a standing cushion looks wrong.
+DECOR_LIBRARY_TYPES: dict[str, str] = {"plant": "decor_plant"}
+
+
+def fit_decor_item(item: dict, catalog: C.Catalog) -> Optional[dict]:
+    """``asset`` for a decor item: the catalogue decor model of its type whose
+    footprint aspect is closest to the item's (Blender scales it to the item's
+    size, height by the mean of x and y), else None (parametric decor)."""
+    kind = DECOR_LIBRARY_TYPES.get(item.get("type", ""))
+    if kind is None:
+        return None
+    width, depth = (float(v) for v in item["size"][:2])
+    entries = [e for e in catalog.decor if e.get("type") == kind and e.get("licence") == "CC0" and e.get("gltf")]
+    if not entries:
+        return None
+    entry = min(entries, key=lambda e: (C.aspect_error(e, width, depth), e["id"]))
+    sx, sy = width / entry["bbox_m"][0], depth / entry["bbox_m"][1]
+    sz = (sx + sy) / 2.0
+    return {
+        "library": entry["source"], "asset_id": entry["id"], "licence": entry["licence"], "license": entry["licence"],
+        "method": "library", "fit_scale": [round(sx, 4), round(sy, 4), round(sz, 4)],
+        "bbox_m": [round(width, 4), round(depth, 4), round(entry["bbox_m"][2] * sz, 4)],
+        "aspect_error": round(C.aspect_error(entry, width, depth), 4), "gltf": entry["gltf"],
+        "front_axis": entry["front_axis"], "up_axis": entry["up_axis"], "origin_offset": list(entry["origin_offset"]),
+        "front_axis_confidence": entry.get("front_axis_confidence"), "target": "size",
+    }
+
+
 def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP) -> dict:
-    """A deep copy of ``building`` with ``asset`` set on every furniture piece, nothing else changed."""
+    """A deep copy of ``building`` with ``asset`` set on every furniture piece
+    and on every decor item of a library decor type, nothing else changed."""
     fitted = copy.deepcopy(building)
     for original, piece in zip(building.get("furniture", []), fitted.get("furniture", [])):
         piece["asset"] = fit_piece(piece, catalog, cap=cap)
         for key in FROZEN_KEYS:
             if original.get(key) != piece.get(key):  # cannot happen; guards future edits
                 raise RuntimeError(f"fit changed {key} of {piece['id']}")
+    for item in fitted.get("decor") or []:
+        asset = fit_decor_item(item, catalog)
+        if asset is not None:
+            item["asset"] = asset
     return fitted
 
 
 def assert_only_assets_changed(before: dict, after: dict) -> None:
-    """Raise AssertionError unless ``after`` equals ``before`` except for ``furniture[].asset``."""
+    """Raise AssertionError unless ``after`` equals ``before`` except for
+    ``furniture[].asset`` and ``decor[].asset``."""
     a, b = copy.deepcopy(before), copy.deepcopy(after)
-    for piece in a.get("furniture", []):
-        piece.pop("asset", None)
-    for piece in b.get("furniture", []):
-        piece.pop("asset", None)
+    for doc in (a, b):
+        for piece in doc.get("furniture", []):
+            piece.pop("asset", None)
+        for item in doc.get("decor") or []:
+            item.pop("asset", None)
     if json.dumps(a, sort_keys=True) != json.dumps(b, sort_keys=True):
-        raise AssertionError("fit changed something other than furniture[].asset")
+        raise AssertionError("fit changed something other than furniture[].asset and decor[].asset")
 
 
 # --------------------------------------------------------------------------
@@ -192,6 +241,12 @@ def fit_report(building: dict, title: Optional[str] = None) -> str:
         lines.append("- none")
     if missing:
         lines += ["", "## Pieces without a fit", ""] + [f"- {pid}" for pid in missing]
+    decor = building.get("decor") or []
+    if decor:
+        by_kind = Counter((d["type"], (d.get("asset") or {}).get("asset_id") or "parametric") for d in decor)
+        lines += ["", "## Decor", ""]
+        lines += [f"- {kind}: {aid} x {n}" for (kind, aid), n in sorted(by_kind.items())]
+        lines.append("- cushions and books are parametric by design (the catalogue pillow model lies flat)")
     return "\n".join(lines) + "\n"
 
 
@@ -211,7 +266,7 @@ def download_fitted(building: dict, assets_dir: Path, log=print) -> dict:
 
     result = {"fetched": [], "failed": {}}
     cache: dict[str, Optional[str]] = {}
-    for piece in building.get("furniture", []):
+    for piece in list(building.get("furniture", [])) + list(building.get("decor") or []):
         asset = piece.get("asset") or {}
         if asset.get("method") != "library":
             continue
@@ -228,9 +283,12 @@ def download_fitted(building: dict, assets_dir: Path, log=print) -> dict:
                 result["failed"][asset_id] = cache[asset_id]
                 log(f"model {asset_id:<28} FAILED: {exc}")
         if cache[asset_id] is not None:
-            piece["asset"] = parametric_fit(
-                piece, f"download of {asset_id} failed ({cache[asset_id]}); parametric fallback",
-                candidates=asset.get("candidates"))
+            if piece.get("kind") == "decor":
+                piece["asset"] = None            # decor: the parametric mesh, reason in the log above
+            else:
+                piece["asset"] = parametric_fit(
+                    piece, f"download of {asset_id} failed ({cache[asset_id]}); parametric fallback",
+                    candidates=asset.get("candidates"))
     return result
 
 

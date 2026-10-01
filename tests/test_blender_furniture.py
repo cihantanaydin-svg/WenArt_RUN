@@ -150,9 +150,10 @@ def test_piece_bbox_uses_the_fitted_or_parametric_box():
     bed = _piece("b", "bed_double", (0, 0), (1.6, 2.0))
     *box, source = P.piece_bbox(bed)
     assert box == pytest.approx([1.6, 2.0, 1.0]) and source == "parametric"
+    # asset.bbox_m is the fitted box (the fitter already applied fit_scale): no second scaling
     lib = _piece("a", "tv_unit", (0, 0), (1.6, 0.45), asset=_library_asset([1.6, 0.45, 1.2], (1.0, 1.0, 1.5)))
     *box, source = P.piece_bbox(lib)
-    assert box == pytest.approx([1.6, 0.45, 1.8]) and source == "library"
+    assert box == pytest.approx([1.6, 0.45, 1.2]) and source == "library"
     unknown = _piece("u", "unknown", (0, 0), (1.0, 0.5))
     assert P.piece_bbox(unknown) == (1.0, 0.5, 0.8, "proxy")
     small = _piece("s", "chair", (0, 0), (0.5, 0.5), asset=_library_asset([0.4, 0.4, 0.9]))  # box smaller than drawn
@@ -411,6 +412,9 @@ def _building(assets_dir: Path) -> dict:
          "rotation_deg": 0.0, "size": [0.4, 0.25], "asset": _library_asset([0.8, 0.5, 0.9], asset_id="test_cube")},
         {"type": "cushion", "host_id": "f_nope", "center": [1, 1], "rotation_deg": 0.0, "size": [0.4, 0.4],
          "asset": None},
+        # a potted plant on the floor: no host (decor.py writes host_id None for plants)
+        {"id": "dec_L0_001", "kind": "decor", "type": "plant", "level_id": "L0", "room_id": "r_L0_salon",
+         "center": [0.3, 0.3], "rotation_deg": 0.0, "size": [0.4, 0.4], "asset": None, "host_id": None},
     ]
     return {"schema_version": "0.1", "status": "ok", "project": {"id": "furniture-test"},
             "levels": [{"id": "L0", "elevation": 0.0, "ceiling_height": 2.7}],
@@ -457,7 +461,7 @@ def test_manifest_validates_and_summarises_the_furniture(scene):
     m = scene["manifest"]
     schemas.validate_scene_manifest(m)
     s = m["furniture"]
-    assert s["pieces"] == len(scene["building"]["furniture"]) and s["proxies"] == 1 and s["decor"] == 4
+    assert s["pieces"] == len(scene["building"]["furniture"]) and s["proxies"] == 1 and s["decor"] == 5
     assert s["by_method"] == {"proxy": 1, "library": 2, "parametric": len(P.PARAMETRIC_TYPES) + 2}
     reasons = {f["id"]: f["reason"] for f in s["fallbacks"]}
     assert set(reasons) == {f["id"] for f in scene["building"]["furniture"]
@@ -572,7 +576,18 @@ def test_decor_sits_on_its_hosts_and_shares_their_pass_index(scene):
     m, objects = scene["manifest"], scene["objects"]
     building = scene["building"]
     decor = [o for o in m["objects"] if o["kind"] == "decor"]
-    assert len(decor) == 4 and all(o["source"] == "added_by_ai" and o["status"] == "assumed" for o in decor)
+    assert len(decor) == 5 and all(o["source"] == "added_by_ai" and o["status"] == "assumed" for o in decor)
+    # The hostless plant stands on the floor with its own id and pass index.
+    (floor_plant,) = [o for o in decor if o["host_id"] is None]
+    assert floor_plant["wenart_id"] == floor_plant["element_id"] == "dec_L0_001" and floor_plant["type"] == "plant"
+    assert floor_plant["name"] == "decor_dec_L0_001" and floor_plant["room_id"] == "r_L0_salon"
+    assert floor_plant["pass_index"] == m["pass_index"]["dec_L0_001"] == objects[floor_plant["name"]]["pass_index"]
+    assert list(m["pass_index"].values()).count(floor_plant["pass_index"]) == 1
+    (x0, x1), (y0, y1), (z0, z1) = objects[floor_plant["name"]]["bounds"]
+    assert z0 == pytest.approx(0.0, abs=1e-4) and ((x0 + x1) / 2, (y0 + y1) / 2) == pytest.approx((0.3, 0.3), abs=1e-3)
+    assert objects[floor_plant["name"]]["props"]["wenart_host"] == ""
+    assert not [w for w in m["warnings"] if "'None'" in w]
+    decor = [o for o in decor if o["host_id"] is not None]
     by_host: dict[str, list] = {}
     for o in decor:
         by_host.setdefault(o["host_id"], []).append(o)
@@ -607,7 +622,7 @@ def test_decor_sits_on_its_hosts_and_shares_their_pass_index(scene):
     assert (x1 - x0, y1 - y0) == pytest.approx((0.4, 0.25), abs=1e-3) and z0 == pytest.approx(0.55, abs=1e-4)
     assert lib_cushion["fit"]["fit_scale"] == pytest.approx([0.5, 0.5, 0.5])
     assert [w for w in m["warnings"] if "decor host 'f_nope'" in w]
-    assert hosts and m["furniture"]["decor"] == 4
+    assert hosts and m["furniture"]["decor"] == 5
 
 
 @needs_blender
@@ -624,6 +639,9 @@ def test_proxies_flag_restores_the_milestone_3_boxes(tmp_path, glb):
     assert not [n for n in scene["objects"] if n.startswith("furn_")]
     # Decor still lands on the proxies (same pass index as the host proxy).
     decor = [o for o in m["objects"] if o["kind"] == "decor"]
-    assert len(decor) == 4
+    assert len(decor) == 5
     for o in decor:
-        assert o["pass_index"] == m["pass_index"][f"proxy:{o['host_id']}"]
+        if o["host_id"] is None:                      # the floor plant has its own index
+            assert o["pass_index"] == m["pass_index"][o["wenart_id"]]
+        else:
+            assert o["pass_index"] == m["pass_index"][f"proxy:{o['host_id']}"]

@@ -459,18 +459,19 @@ def parametric_bbox(ftype: str, w: float, d: float, h: float) -> tuple[float, fl
 
 def piece_bbox(piece: dict) -> tuple[float, float, float, str]:
     """``(width, depth, height, source)`` of the box a piece occupies in its
-    own frame, as the scene will build it: the catalogue box times the fit
-    scale for a fitted library asset, the parametric box otherwise, the
-    proxy box for ``unknown``. The camera planner uses this (docs/
-    milestone4.md §2: free points from fitted boxes, not only footprints)."""
+    own frame, as the scene will build it: the fitted box recorded by the
+    fitter (``asset.bbox_m`` is already scaled: footprint width and depth,
+    catalogue height times the z scale) for a library asset, the parametric
+    box otherwise, the proxy box for ``unknown``. The camera planner uses
+    this (docs/milestone4.md §2: free points from fitted boxes, not only
+    footprints)."""
     fp = piece["footprint"]
     w, d = float(fp["size"][0]), float(fp["size"][1])
     h, _ = proxy_height(piece["type"], piece.get("height"))
     asset = piece.get("asset") or {}
     if asset.get("method") == "library" and asset.get("bbox_m"):
-        sx, sy, sz = (list(asset.get("fit_scale") or [1.0, 1.0, 1.0]) + [1.0, 1.0, 1.0])[:3]
         bw, bd, bh = (float(v) for v in asset["bbox_m"][:3])
-        return (bw * float(sx), bd * float(sy), bh * float(sz), "library")
+        return (bw, bd, bh, "library")
     if piece["type"] in _BUILDERS:
         bw, bd, bh = parametric_bbox(piece["type"], w, d, h)
         return (bw, bd, bh, "parametric")

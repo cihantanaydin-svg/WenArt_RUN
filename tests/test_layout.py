@@ -287,3 +287,22 @@ def test_cli_refuses_a_needs_review_building(tmp_path):
     B.save(building, src)
     rc = L.main([str(src), "--out", str(tmp_path / "x.json")], client_factory=FakeClient)
     assert rc == 2 and not (tmp_path / "x.json").exists()
+
+
+def test_types_the_room_does_not_allow_are_rejected_before_placement():
+    """AI proposes, checks decide: a toilet in a bedroom never becomes added_by_ai."""
+    building = load_truth("synthetic-01")
+    room = next(r for r in building["rooms"] if r["room_type"] == "bedroom" and not r["has_documented_furniture"])
+    cx, cy = Polygon(room["polygon"]).centroid.coords[0]
+    answer = {"pieces": [
+        {"type": "toilet", "center": [cx, cy], "rotation_deg": 0, "size": [0.4, 0.7], "against_wall": False,
+         "reason": "wrong room"},
+        {"type": "bed_double", "center": [cx, cy], "rotation_deg": 0, "size": [1.6, 2.0], "against_wall": True,
+         "reason": "bed"},
+    ]}
+    client = FakeClient({(room["id"], 1): answer, (room["id"], 2): answer})
+    layout = L.propose_layouts(room, building, "test style", client, passes=2)
+    assert {p["type"] for p in layout.pieces} == {"bed_double"}
+    assert all(p.rejected_types == ["toilet"] for p in layout.proposals)
+    record = layout.to_dict()
+    assert record["passes"][0]["rejected_types"] == ["toilet"] and "anchor_first" in record["passes"][0]

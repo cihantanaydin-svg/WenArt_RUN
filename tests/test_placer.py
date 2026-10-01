@@ -397,3 +397,56 @@ def test_a_piece_in_the_locked_anchors_clearance_gives_way():
     assert result.dropped[0]["type"] == "chair" and result.dropped[0]["reason"] == "gives way to the anchor"
     assert "clearance_ok" not in result.dropped[0]["failed"]                     # the chair itself was fine
     assert result.log[-1]["step"] == "drop"
+
+
+# --------------------------------------------------------------------------
+# Review fixes (Milestone 4 review)
+# --------------------------------------------------------------------------
+
+def test_a_door_flush_with_a_corner_keeps_its_walkways():
+    """The point straight in front of a narrow corner door lies outside the eroded
+    free floor; the walkway start moves to the nearest walkable point instead of
+    the door losing every walkway pair."""
+    corner_door = [{"id": "d1", "type": "door", "level_id": "L0", "wall_id": "w_s", "center": [0.36, -0.05],
+                    "width": 0.7, "swing_side": "r_L0_other"},
+                   {"id": "d2", "type": "door", "level_id": "L0", "wall_id": "w_n", "center": [3.0, 3.05],
+                    "width": 0.8, "swing_side": "r_L0_other"}]
+    building, room = make_building(doors=corner_door)
+    ctx = P.room_context(building, room)
+    assert len(ctx.baseline_pairs) == 3                       # d1-d2, d1-win1, d2-win1
+    d1 = next(d for d in ctx.doors if d.id == "d1")
+    assert d1.approach_point[0] >= P.ERODE_M - P.POINT_TOL_M  # moved into the eroded region
+    # A wall of storage across the room between the two doors is caught.
+    wall = [piece("wardrobe", (1.5, 1.5), 90.0, (2.4, 0.6), against_wall=False),
+            piece("dresser", (1.5, 0.4), 90.0, (1.4, 0.5)), piece("dresser", (1.5, 2.6), 90.0, (1.4, 0.5))]
+    assert P.walkway_failures([P.Piece.from_proposal(it, i) for i, it in enumerate(wall)], ctx)
+
+
+def test_inside_room_catches_a_rotated_corner_tip(ctx):
+    """A corner tip 5 mm outside the shrunk polygon has almost no area but is outside."""
+    tip = P.Piece.from_proposal(piece("washing_machine", (0.40, 1.5), 110.0, (0.6, 0.6)), 0)
+    assert tip.polygon().difference(ctx.shrunk).area < P.AREA_EPS      # the old area test let it through
+    assert not Polygon(ctx.room["polygon"]).buffer(-0.019).contains(tip.polygon())
+    assert P.check_piece(tip, [], ctx)["inside_room"] is False
+    ok = P.Piece.from_proposal(piece("washing_machine", (0.6, 1.5), 110.0, (0.6, 0.6)), 0)
+    assert P.check_piece(ok, [], ctx)["inside_room"] is True
+
+
+def test_swapped_size_is_taken_as_the_turned_piece(ctx):
+    log = []
+    p = P.Piece.from_proposal(piece("bed_double", (2.0, 1.5), 0.0, (2.0, 1.6), against_wall=True), 3, log)
+    assert p.size == (1.6, 2.0) and p.rotation_deg == 90.0 and p.proposal_index == 3
+    assert log[0]["step"] == "size_snapped" and "swapped" in log[0]["note"] and log[0]["piece"] == 3
+    q = P.Piece.from_proposal(piece("bed_double", (2.0, 1.5), 0.0, (1.7, 2.1), against_wall=True), 0, [])
+    assert q.size == (1.6, 2.0) and q.rotation_deg == 0.0                # not a swap: nearest option, no turn
+
+
+def test_log_piece_numbers_are_proposal_positions_in_the_anchor_first_retry():
+    building, room = make_small_bedroom()
+    ctx = P.room_context(building, room)
+    result = P.place(RUN2_PROPOSAL, ctx)
+    assert result.anchor_first
+    by_type = {}
+    for e in result.log:
+        by_type.setdefault(e["type"], set()).add(e["piece"])
+    assert by_type["bed_double"] == {0} and by_type["chair"] == {5} and by_type["desk"] == {4}

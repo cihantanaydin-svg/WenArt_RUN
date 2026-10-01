@@ -150,3 +150,18 @@ def test_cli_writes_building_and_report(tmp_path):
     assert result["decor"]
     report = (out.parent / "decor_report.md").read_text(encoding="utf-8")
     assert report.startswith("# Decor: synthetic-01") and "| Salon (r_L0_salon) |" in report
+
+
+def test_plant_never_stands_in_another_pieces_clearance():
+    """A free corner inside a desk's 0.6 m front clearance is not free."""
+    parts, room = make_building(doors=[], windows=[])
+    room["room_type"] = "living"
+    room["has_documented_furniture"] = True
+    # Desk 1.2 x 0.6 facing the south wall, front edge 0.6 m from it: corner (0.25, 0.25) is in its clearance.
+    b = wrap(parts, room, [("desk", (0.7, 0.9), 0.0, (1.2, 0.6)),          # front = -Y: faces the south wall
+                           ("wardrobe", (3.1, 0.321), 180.0, (1.8, 0.6)), ("wardrobe", (3.1, 2.679), 0.0, (1.8, 0.6)),
+                           ("bookshelf", (0.5, 2.8), 0.0, (1.0, 0.35))])
+    out, rows = D.add_decor(b)
+    assert not [d for d in out["decor"] if d["type"] == "plant"]
+    row = next(r for r in rows if r["room_id"] == ROOM_ID)
+    assert "clearance of another piece" in row["note"]
