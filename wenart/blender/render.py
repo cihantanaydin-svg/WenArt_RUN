@@ -116,6 +116,9 @@ def configure_render(scene, samples: int, res: tuple[int, int], device: str, den
     vl.use_pass_z = True
     vl.use_pass_normal = True
     vl.use_pass_object_index = True
+    # Data passes (depth, normal, index) are written at the first surface whose
+    # alpha reaches this threshold: thin glass (alpha = Fresnel) is seen through.
+    vl.pass_alpha_threshold = 0.5
     return denoiser
 
 

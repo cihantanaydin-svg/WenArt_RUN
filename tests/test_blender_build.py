@@ -181,7 +181,7 @@ def test_proxies_keep_footprint_size_rotation_and_height(built):
         assert o["assumed"].get("height") == o["size"][2]  # no height in the JSON -> table value, assumed
         assert o["material"] in m["materials"]  # a style material (parametric mesh) or a proxy look
     shower = next(o for o in proxies if o["type"] == "shower")
-    assert "glass" in shower["materials"] and shower["size"][2] == 2.0
+    assert "thin_glass" in shower["materials"] and shower["size"][2] == 2.0
 
 
 def test_materials_textured_or_flat_are_recorded(built):

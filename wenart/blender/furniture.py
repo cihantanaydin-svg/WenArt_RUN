@@ -398,7 +398,7 @@ class _Materials:
         if asset and self.library.texture_set(asset)[0] is None:
             asset = None  # no usable texture: share the flat material of the same slug
         if slug == "glass":
-            mat = self.library.glass()
+            mat = self.library.thin_glass()  # shower panels: the index pass must see the piece behind
         else:
             mat = self.library.get(slug, asset, tint, unverified=unverified)
         self._cache[ck] = mat

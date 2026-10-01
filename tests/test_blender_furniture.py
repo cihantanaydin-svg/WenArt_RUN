@@ -506,7 +506,7 @@ def test_parametric_pieces_sit_on_their_footprints(scene):
     assert sofa["status"] == "unverified" and all(m.endswith("__unverified") for m in sofa["materials"])
     assert all(scene["materials"][name]["stripes"] for name in sofa["materials"])
     shower = entries[next(f["id"] for f in scene["building"]["furniture"] if f["type"] == "shower")]
-    assert "glass" in shower["materials"] and shower["material_keys"]["glass"] == "glass"
+    assert "thin_glass" in shower["materials"] and shower["material_keys"]["glass"] == "glass"  # thin pane: the index pass sees through
     bed = entries[next(f["id"] for f in scene["building"]["furniture"] if f["type"] == "bed_double")]
     assert bed["material_keys"] == {"wood": "wood_oak_light", "bedding": "fabric_white"}
     assert bed["bbox_m"][2] == pytest.approx(1.0) and bed["size"][2] == 0.55

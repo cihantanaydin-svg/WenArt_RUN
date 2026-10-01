@@ -12,7 +12,8 @@ so the Mapping node scales by ``1 / size_m`` and a tile has its real size.
 
 Node names were checked against Blender 5.2.2: Principled BSDF inputs 'Base
 Color', 'Roughness', 'Normal', 'Emission Color', 'Emission Strength', 'Metallic';
-Glass BSDF inputs 'Color', 'Roughness', 'IOR'; ShaderNodeTexSky sky_type
+Glass BSDF inputs 'Color', 'Roughness', 'IOR'; Glossy BSDF (ShaderNodeBsdfAnisotropic) 'Color', 'Roughness';
+Fresnel 'IOR'; ShaderNodeTexSky sky_type
 'MULTIPLE_SCATTERING' with sun_elevation / sun_rotation (radians).
 """
 from __future__ import annotations
@@ -143,6 +144,9 @@ class MaterialLibrary:
         return bool(self.records.get(mat.name, {}).get("textured", False))
 
     def glass(self):
+        """Window panes: Glass BSDF. Camera rays stop at the pane, so the depth
+        and index passes record the window itself (nothing of the room is
+        behind a window)."""
         if "glass" not in self._cache:
             self._cache["glass"] = glass_material("glass")
             self.records["glass"] = {"slug": "glass", "textured": False, "asset": None, "source": None,
@@ -150,12 +154,26 @@ class MaterialLibrary:
                                      "unverified": False, "reason": "glass BSDF"}
         return self._cache["glass"]
 
+    def thin_glass(self):
+        """Glass inside the room (shower panels): transparent + glossy by Fresnel.
+        A Glass BSDF pane counts as opaque for Cycles' data passes, so a toilet
+        seen through a shower panel was missing from the object-index pass; a
+        transparent closure with alpha below the view layer's threshold lets
+        the depth and index passes reach the piece behind it."""
+        if "thin_glass" not in self._cache:
+            self._cache["thin_glass"] = thin_glass_material("thin_glass")
+            self.records["thin_glass"] = {"slug": "glass", "textured": False, "asset": None, "source": None,
+                                          "licence": None, "size_m": None, "flat_colour": [1.0, 1.0, 1.0],
+                                          "tint": None, "unverified": False,
+                                          "reason": "thin glass (transparent + glossy by Fresnel): data passes see through"}
+        return self._cache["thin_glass"]
+
     def proxy(self, look: str = "proxy"):
         """``proxy`` (grey), ``proxy_glass`` (shower) or ``proxy_unverified``."""
         if look in self._cache:
             return self._cache[look]
         if look == "proxy_glass":
-            mat = glass_material("proxy_glass", roughness=0.15)
+            mat = thin_glass_material("proxy_glass", roughness=0.15)
         elif look == "proxy_unverified":
             mat = pbr_material("proxy_unverified", "proxy_grey", None, None, unverified=True)
         else:
@@ -357,6 +375,44 @@ def glass_material(name: str, roughness: float = 0.0, ior: float = 1.45):
     links.new(path.outputs["Is Shadow Ray"], mix.inputs["Fac"])
     links.new(glass.outputs["BSDF"], mix.inputs[1])
     links.new(transparent.outputs["BSDF"], mix.inputs[2])
+    links.new(mix.outputs["Shader"], out.inputs["Surface"])
+    mat.surface_render_method = "BLENDED"
+    return mat
+
+
+def thin_glass_material(name: str, roughness: float = 0.0, ior: float = 1.45):
+    """Thin pane without refraction: Transparent BSDF mixed with a Glossy BSDF by
+    Fresnel (about 4 % reflection head-on, more at grazing angles). Cycles writes
+    the depth, normal and index passes at the first surface whose alpha is at or
+    above the view layer's ``pass_alpha_threshold`` (0.5); this pane's alpha is
+    the Fresnel factor, so the passes see through it except at grazing angles.
+    Shadow rays see it as fully transparent, like glass_material."""
+    import bpy
+
+    mat = bpy.data.materials.new(name)
+    mat.use_nodes = True
+    tree = mat.node_tree
+    nodes, links = tree.nodes, tree.links
+    for n in list(nodes):
+        if n.bl_idname == "ShaderNodeBsdfPrincipled":
+            nodes.remove(n)
+    out = nodes.get("Material Output")
+    fresnel = nodes.new("ShaderNodeFresnel")
+    fresnel.inputs["IOR"].default_value = ior
+    glossy = nodes.new("ShaderNodeBsdfAnisotropic")  # the Glossy BSDF (merged with Anisotropic in 4.0)
+    glossy.inputs["Color"].default_value = (1.0, 1.0, 1.0, 1.0)
+    glossy.inputs["Roughness"].default_value = roughness
+    transparent = nodes.new("ShaderNodeBsdfTransparent")
+    pane = nodes.new("ShaderNodeMixShader")
+    links.new(fresnel.outputs["Fac"], pane.inputs["Fac"])
+    links.new(transparent.outputs["BSDF"], pane.inputs[1])
+    links.new(glossy.outputs["BSDF"], pane.inputs[2])
+    path = nodes.new("ShaderNodeLightPath")
+    shadow = nodes.new("ShaderNodeBsdfTransparent")
+    mix = nodes.new("ShaderNodeMixShader")
+    links.new(path.outputs["Is Shadow Ray"], mix.inputs["Fac"])
+    links.new(pane.outputs["Shader"], mix.inputs[1])
+    links.new(shadow.outputs["BSDF"], mix.inputs[2])
     links.new(mix.outputs["Shader"], out.inputs["Surface"])
     mat.surface_render_method = "BLENDED"
     return mat
