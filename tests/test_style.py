@@ -1,5 +1,7 @@
 """Style profile from the brief (wenart/style, Milestone 3 section 1): table, defaults, CLI."""
 import json
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -180,3 +182,30 @@ def test_fixture_is_current():
     """tests/fixtures/style_synthetic-01.json is what the CLI writes for projects/synthetic-01."""
     brief = yaml.safe_load((PROJECTS / "synthetic-01" / "brief.yaml").read_text(encoding="utf-8"))
     assert P.profile_from_brief(brief) == json.loads(FIXTURE.read_text(encoding="utf-8"))
+
+
+# --------------------------------------------------------------------------
+# No PyYAML (Blender's Python): the vocabulary and the default profile still work
+# --------------------------------------------------------------------------
+
+NO_YAML = ("import sys, json; sys.modules['yaml'] = None\n"            # 'import yaml' now raises ImportError
+           "import wenart.style.vocabulary, wenart.style.__main__\n"
+           "from wenart.style import default_profile\n"
+           "print(json.dumps(default_profile()))\n")
+
+
+def test_default_profile_without_yaml():
+    """build.py runs inside Blender, whose Python has no PyYAML: the style package must import
+    and give the default profile (through the vocabulary) all the same."""
+    proc = subprocess.run([sys.executable, "-c", NO_YAML], capture_output=True, text=True, cwd=str(ROOT), timeout=60)
+    assert proc.returncode == 0, proc.stderr[-2000:]
+    assert json.loads(proc.stdout) == P.load_defaults()["style"]["profile"]
+
+
+def test_builtin_defaults_match_defaults_yaml():
+    """The copy of the default text and slot fallbacks the code carries for Blender equals wenart/defaults.yaml."""
+    defaults = P.load_defaults()
+    assert P.BUILTIN_DEFAULTS["style"]["text"] == defaults["style"]["text"]
+    assert P.BUILTIN_DEFAULTS["style"]["fallback"] == defaults["style"]["fallback"]
+    assert P.default_profile() == defaults["style"]["profile"]
+    assert P.default_profile()["walls"]["asset"] == V.MATERIALS["plaster_white"]["asset"]

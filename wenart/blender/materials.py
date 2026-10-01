@@ -22,72 +22,87 @@ import os
 from pathlib import Path
 
 # Flat colours (linear RGB) and roughness per material slug, used when no
-# texture set is available. wenart.style.vocabulary.FLAT_COLOURS overrides
-# these when it is importable (the style module is maintained separately).
-FLAT_COLOURS: dict[str, tuple[float, float, float]] = {
-    "wood_oak_light": (0.62, 0.45, 0.28),
-    "wood_walnut": (0.25, 0.14, 0.08),
-    "wood_parquet": (0.50, 0.33, 0.18),
-    "concrete_polished": (0.42, 0.42, 0.41),
-    "terracotta": (0.60, 0.30, 0.18),
-    "marble_white": (0.85, 0.84, 0.82),
-    "tiles_light": (0.80, 0.80, 0.78),
-    "carpet": (0.45, 0.42, 0.38),
-    "plaster_white": (0.90, 0.88, 0.84),
-    "plaster_cream": (0.88, 0.80, 0.64),
-    "paint_charcoal": (0.08, 0.08, 0.09),
-    "brick": (0.45, 0.20, 0.14),
-    "wood_panel": (0.48, 0.32, 0.18),
-    "painted_wood_white": (0.90, 0.90, 0.88),
-    "painted_metal_white": (0.88, 0.88, 0.88),
-    "plaster_exterior": (0.70, 0.68, 0.64),
+# texture set is available. The style vocabulary (wenart.style.vocabulary,
+# importable inside Blender: no PyYAML needed) is the source of truth for
+# every style slug; the local table only adds the slugs of the scene builder
+# itself and is the last resort when the vocabulary cannot be imported
+# (``VOCABULARY_IMPORT_ERROR`` then says why and build.py warns).
+_LOCAL_FLAT_COLOURS: dict[str, tuple[float, float, float]] = {
+    "plaster_exterior": (0.55, 0.54, 0.52),
     "proxy_grey": (0.45, 0.45, 0.45),
     "unknown": (0.50, 0.50, 0.50),
 }
-ROUGHNESS: dict[str, float] = {
-    "wood_oak_light": 0.45, "wood_walnut": 0.4, "wood_parquet": 0.4, "concrete_polished": 0.25,
-    "terracotta": 0.7, "marble_white": 0.15, "tiles_light": 0.2, "carpet": 0.95,
-    "plaster_white": 0.85, "plaster_cream": 0.85, "paint_charcoal": 0.6, "brick": 0.9,
-    "wood_panel": 0.5, "painted_wood_white": 0.4, "painted_metal_white": 0.35,
-    "plaster_exterior": 0.9, "proxy_grey": 0.6, "unknown": 0.6,
-}
+_LOCAL_ROUGHNESS: dict[str, float] = {"plaster_exterior": 0.9, "proxy_grey": 0.6, "unknown": 0.6}
 UNVERIFIED_RED = (1.0, 0.03, 0.02)
+# Sources whose assets are CC0 (the same list as wenart.assets.fetch.LICENCES;
+# repeated here because that module needs packages Blender's Python lacks).
+CC0_SOURCES = ("polyhaven", "ambientcg")
+CC0 = "CC0"
+
+
+def _vocabulary_tables() -> tuple[dict, dict, str | None]:
+    """``(flat_colours, roughness, error)`` from the style vocabulary."""
+    try:
+        from wenart.style import vocabulary as V
+        flat = {slug: (float(c[0]), float(c[1]), float(c[2])) for slug, c in V.FLAT_COLOURS.items()}
+        rough = {slug: float(r) for slug, r in V.ROUGHNESS.items()}
+    except Exception as exc:  # noqa: BLE001 - the build must not die over a colour table
+        return {}, {}, f"{type(exc).__name__}: {exc}"
+    return flat, rough, None
+
+
+_FLAT, _ROUGH, VOCABULARY_IMPORT_ERROR = _vocabulary_tables()
+FLAT_COLOURS: dict[str, tuple[float, float, float]] = {**_LOCAL_FLAT_COLOURS, **_FLAT}
+ROUGHNESS: dict[str, float] = {**_LOCAL_ROUGHNESS, **_ROUGH}
 
 
 def flat_colour(slug: str) -> tuple[float, float, float]:
-    """Flat colour for a slug: style vocabulary first, then the local table."""
-    try:  # the style module is optional here
-        from wenart.style.vocabulary import FLAT_COLOURS as STYLE_COLOURS  # type: ignore
-        value = STYLE_COLOURS.get(slug)
-        if isinstance(value, dict):
-            value = value.get("rgb") or value.get("colour") or value.get("color")
-        if value is not None and len(value) >= 3:
-            return (float(value[0]), float(value[1]), float(value[2]))
-    except Exception:  # noqa: BLE001 - missing module or different shape: use ours
-        pass
+    """Flat colour for a slug (vocabulary, then the local table, then grey)."""
     return FLAT_COLOURS.get(slug, FLAT_COLOURS["unknown"])
+
+
+def licence_problem(entry: dict, asset_id: str) -> str | None:
+    """Why a manifest entry may not be used, or None: assets must be CC0 and
+    come from a source of the CC0 list (docs/milestone3.md §2)."""
+    source, licence = entry.get("source"), entry.get("licence")
+    if source not in CC0_SOURCES:
+        return f"asset {asset_id}: source {source!r} is not in the CC0 source list {list(CC0_SOURCES)}; refused"
+    if str(licence or "").strip().upper() != CC0:
+        return f"asset {asset_id}: licence {licence!r} is not {CC0}; refused"
+    return None
 
 
 class MaterialLibrary:
     """Creates and caches Blender materials per slug and records, for the
     scene manifest, whether each one is textured or flat and why."""
 
-    def __init__(self, textures: dict | None, assets_dir: str | None, use_textures: bool = True):
+    def __init__(self, textures: dict | None, assets_dir: str | None, use_textures: bool = True,
+                 refused: dict | None = None):
         self.textures = textures or {}
         self.assets_dir = Path(assets_dir) if assets_dir else None
         self.use_textures = use_textures
+        # asset id -> why build.load_assets left it out (licence); the reason
+        # goes into the material record instead of "not in the manifest".
+        self.refused = refused or {}
         self.records: dict[str, dict] = {}
         self._cache: dict = {}
 
     # -- texture lookup ----------------------------------------------------
     def texture_set(self, asset_id: str | None) -> tuple[dict | None, str]:
+        """``(texture set, reason)``: the set when it is usable (CC0 from a
+        known source, every map present), else None and why."""
         if not self.use_textures:
             return None, "textures disabled (--no-textures)"
         if not asset_id:
             return None, "style names no asset for this material"
+        if asset_id in self.refused:
+            return None, self.refused[asset_id]
         tset = self.textures.get(asset_id)
         if tset is None:
             return None, f"asset {asset_id} not in the assets manifest"
+        problem = licence_problem(tset, asset_id)
+        if problem:
+            return None, problem
         files = {}
         for key in ("albedo", "normal", "roughness"):
             p = tset.get("files", {}).get(key)

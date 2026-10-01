@@ -21,8 +21,6 @@ import re
 from pathlib import Path
 from typing import Optional
 
-import yaml
-
 from wenart.style import vocabulary as V
 
 DEFAULTS_PATH = Path(__file__).resolve().parents[1] / "defaults.yaml"
@@ -31,10 +29,33 @@ DEFAULTS_PATH = Path(__file__).resolve().parents[1] / "defaults.yaml"
 PROFILE_KEYS = ("source_text", "floor", "walls", "ceiling", "wet_floor", "wet_walls", "trim", "door",
                 "window_frame", "lighting", "matched_terms", "unmatched_terms", "warnings")
 
+# The default style text and slot fallbacks of wenart/defaults.yaml, repeated
+# here so the scene builder inside Blender (whose Python has no PyYAML) gets
+# the same default profile through the vocabulary. tests/test_style.py checks
+# that this copy and the YAML file agree; edit both.
+BUILTIN_DEFAULTS = {
+    "style": {
+        "text": "Scandinavian, light oak floor, white walls, linen textiles, warm daylight",
+        "fallback": {"floor": "wood_oak_light", "walls": "plaster_white", "light": "warm daylight"},
+    },
+}
+
 
 def load_defaults() -> dict:
-    """``wenart/defaults.yaml`` as a dict (style text, default profile, brief defaults)."""
+    """``wenart/defaults.yaml`` as a dict (style text, default profile, brief defaults).
+
+    Raises ImportError where PyYAML is missing (Blender's Python); callers
+    that only need the default profile use ``default_profile``."""
+    import yaml  # lazy: the vocabulary must stay importable without PyYAML
+
     return yaml.safe_load(DEFAULTS_PATH.read_text(encoding="utf-8"))
+
+
+def _defaults_or_builtin() -> dict:
+    try:
+        return load_defaults()
+    except ImportError:
+        return copy.deepcopy(BUILTIN_DEFAULTS)
 
 
 # --------------------------------------------------------------------------
@@ -130,7 +151,7 @@ def _take(found: dict, slot: str, value: str, phrase: str, notes: list[str]) -> 
 
 def profile_from_text(text: str, defaults: Optional[dict] = None) -> dict:
     """The style profile of one brief text (see module docstring)."""
-    defaults = defaults or load_defaults()
+    defaults = defaults or _defaults_or_builtin()
     family_defaults = dict(defaults["style"]["fallback"])
     scan = match_text(text)
     warnings = list(scan["notes"])
@@ -190,7 +211,7 @@ def style_texts(brief: Optional[dict]) -> list[str]:
 
 def profiles_from_brief(brief: Optional[dict], defaults: Optional[dict] = None) -> list[dict]:
     """One profile per style text of the brief; the default text when there is none."""
-    defaults = defaults or load_defaults()
+    defaults = defaults or _defaults_or_builtin()
     texts = style_texts(brief)
     if not texts:
         profile = profile_from_text(defaults["style"]["text"], defaults)
@@ -205,8 +226,14 @@ def profile_from_brief(brief: Optional[dict], defaults: Optional[dict] = None) -
 
 
 def default_profile() -> dict:
-    """The profile stored in ``wenart/defaults.yaml`` (a copy)."""
-    return copy.deepcopy(load_defaults()["style"]["profile"])
+    """The default profile: the default style text run through the vocabulary.
+
+    Equal to the ``style.profile`` block of ``wenart/defaults.yaml`` (checked
+    by tests/test_style.py) but computed, so the asset ids always come from
+    the vocabulary and no PyYAML is needed (the scene builder in Blender).
+    """
+    defaults = _defaults_or_builtin()
+    return profile_from_text(defaults["style"]["text"], defaults)
 
 
 # --------------------------------------------------------------------------

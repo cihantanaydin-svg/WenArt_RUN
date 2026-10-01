@@ -35,21 +35,6 @@ def _repo_root() -> Path:
 
 sys.path.insert(0, str(_repo_root()))
 
-# Style used when no --style is given or the file is missing (docs/milestone3.md §1).
-DEFAULT_STYLE = {
-    "source_text": "(default) Scandinavian, light oak floor, white walls, warm daylight",
-    "floor": {"material": "wood_oak_light", "asset": "WoodFloor051"},
-    "walls": {"material": "plaster_white", "asset": "Plaster001", "tint": [0.95, 0.94, 0.90]},
-    "ceiling": {"material": "plaster_white"},
-    "wet_floor": {"material": "tiles_light", "asset": "Tiles074"},
-    "wet_walls": {"material": "tiles_light"},
-    "trim": {"material": "painted_wood_white"},
-    "door": {"material": "wood_oak_light"},
-    "window_frame": {"material": "painted_metal_white"},
-    "lighting": {"hdri": "kloppenheim_06", "sun_elevation_deg": 35, "sun_azimuth_deg": 210,
-                 "sun_strength": 3.0, "colour_temperature_k": 5200, "mood": "warm daylight"},
-    "matched_terms": [], "unmatched_terms": [], "warnings": [],
-}
 PREVIEW_PX_PER_M = 100
 PREVIEW_MARGIN_M = 0.5
 
@@ -68,36 +53,81 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def load_style(path: str | None, warnings: list[str]) -> tuple[dict, str | None]:
-    if not path:
-        warnings.append("no --style given: default style profile assumed")
-        return json.loads(json.dumps(DEFAULT_STYLE)), None
+def default_style() -> dict:
+    """The default profile of wenart.style (docs/milestone3.md §1): the default
+    style text run through the vocabulary, so the asset ids are the ones the
+    fetcher downloads. No private copy here, so the two cannot drift."""
+    from wenart.style.profile import default_profile
+
+    return default_profile()
+
+
+def _loud(message: str, warnings: list[str]) -> None:
+    """A warning the manifest keeps and the build log shows at a glance."""
+    warnings.append(message)
+    print(f"WARNING: {message}", file=sys.stderr, flush=True)
+
+
+def load_style(path: str | None, warnings: list[str], assumed: list[dict] | None = None) -> tuple[dict, str | None]:
+    """``(style, path)``: the style file, or the default profile when none is
+    given or the file is missing (a loud warning plus an ``assumed`` entry).
+    Slots a partial style file leaves out are filled from the default profile
+    and each fill is recorded in ``assumed`` and ``warnings``."""
+    assumed = assumed if assumed is not None else []
+    default = default_style()
+    if not path or not Path(path).exists():
+        why = "no --style given" if not path else f"style file {path} missing"
+        _loud(f"{why}: default style profile assumed ({default['source_text']!r})", warnings)
+        assumed.append({"object": "style", "field": "profile", "value": default["source_text"],
+                        "reason": f"{why}; default profile of wenart.style used"})
+        return default, None
     p = Path(path)
-    if not p.exists():
-        warnings.append(f"style file {p} missing: default style profile assumed")
-        return json.loads(json.dumps(DEFAULT_STYLE)), None
     style = json.loads(p.read_text(encoding="utf-8"))
     if isinstance(style, list):  # profiles_from_brief output: render the first, note the others
         if len(style) > 1:
             warnings.append(f"style file lists {len(style)} profiles; the first is used")
         style = style[0]
-    for key, value in DEFAULT_STYLE.items():
-        style.setdefault(key, json.loads(json.dumps(value)))
+    for key, value in default.items():
+        if key in style:
+            continue
+        style[key] = value
+        if key in ("matched_terms", "unmatched_terms", "warnings"):
+            continue  # bookkeeping lists, not a styling choice
+        _loud(f"style file {p} has no {key!r}: default {json.dumps(value)} assumed", warnings)
+        assumed.append({"object": "style", "field": key, "value": value,
+                        "reason": f"missing in {p}; default profile of wenart.style used"})
     return style, str(p)
 
 
-def load_assets(assets_dir: str | None, no_textures: bool, warnings: list[str]) -> tuple[dict, dict]:
-    """``(textures, hdris)`` from ``<assets>/manifest.json`` (empty when absent)."""
+def load_assets(assets_dir: str | None, no_textures: bool, warnings: list[str]) -> tuple[dict, dict, dict]:
+    """``(textures, hdris, refused)`` from ``<assets>/manifest.json`` (empty when absent).
+
+    Every entry must be CC0 from a known source (docs/milestone3.md §2);
+    anything else is left out of ``textures`` / ``hdris`` with a warning, so
+    it is neither rendered nor recorded as used; ``refused`` maps its id to
+    the reason so the material record can say why it is flat."""
+    from wenart.blender.materials import licence_problem
+
     if no_textures or not assets_dir:
         if not no_textures:
             warnings.append("no --assets given: flat colours and sky lighting")
-        return {}, {}
+        return {}, {}, {}
     manifest = Path(assets_dir) / "manifest.json"
     if not manifest.exists():
         warnings.append(f"assets manifest {manifest} missing: flat colours and sky lighting")
-        return {}, {}
+        return {}, {}, {}
     data = json.loads(manifest.read_text(encoding="utf-8"))
-    return data.get("textures", {}) or {}, data.get("hdris", {}) or {}
+    accepted = {"textures": {}, "hdris": {}}
+    refused = {}
+    for kind in accepted:
+        for asset_id, entry in (data.get(kind) or {}).items():
+            problem = licence_problem(entry or {}, asset_id)
+            if problem:
+                _loud(f"{manifest} {kind}: {problem}", warnings)
+                refused[asset_id] = problem
+                continue
+            accepted[kind][asset_id] = entry
+    return accepted["textures"], accepted["hdris"], refused
 
 
 def hdri_file(hdris: dict, assets_dir: str | None, style: dict) -> str | None:
@@ -115,7 +145,7 @@ def main(argv: list[str]) -> int:
     import bpy
 
     from wenart.blender import cameras as cams
-    from wenart.blender import common, lighting, proxies, shell
+    from wenart.blender import common, lighting, materials, proxies, shell
     from wenart.blender.materials import MaterialLibrary
     from wenart.blender.render import configure_device
 
@@ -128,8 +158,12 @@ def main(argv: list[str]) -> int:
         print(f"building status is {building.get('status')!r}: nothing to build (needs review first)")
         return 2
     warnings: list[str] = list(building.get("warnings", []))
-    style, style_path = load_style(args.style, warnings)
-    textures, hdris = load_assets(args.assets, args.no_textures, warnings)
+    assumed: list[dict] = []
+    if materials.VOCABULARY_IMPORT_ERROR:
+        _loud(f"style vocabulary not importable ({materials.VOCABULARY_IMPORT_ERROR}): "
+              "flat colours from the local table of materials.py", warnings)
+    style, style_path = load_style(args.style, warnings, assumed)
+    textures, hdris, refused = load_assets(args.assets, args.no_textures, warnings)
     hdri = hdri_file(hdris, args.assets, style)
     if (style.get("lighting") or {}).get("hdri") and hdri is None and not args.no_textures:
         warnings.append(f"HDRI {style['lighting'].get('hdri')} not available: physical sky used")
@@ -144,10 +178,9 @@ def main(argv: list[str]) -> int:
     scene.name = building["project"]["id"]
     scene.unit_settings.system = "METRIC"
     scene.unit_settings.scale_length = 1.0
-    library = MaterialLibrary(textures, args.assets, use_textures=not args.no_textures)
+    library = MaterialLibrary(textures, args.assets, use_textures=not args.no_textures, refused=refused)
 
     manifest_objects: list[dict] = []
-    assumed: list[dict] = []
     pass_indices: dict[str, int] = {}
     camera_plans: list[dict] = []
     checks: dict = {"door_rays": []}

@@ -11,13 +11,13 @@ import json
 import sys
 from pathlib import Path
 
-import yaml
-
 from wenart.style.profile import profiles_from_brief, write_profiles
 
 
 def load_brief(source: Path) -> dict | None:
     """The brief dict of a project folder (``brief.yaml``) or of a building JSON."""
+    import yaml  # lazy: the package must import where PyYAML is missing (Blender)
+
     if source.is_dir():
         brief_path = source / "brief.yaml"
         if not brief_path.is_file():
