@@ -1,14 +1,20 @@
 """Milestone 3 GPU tests: run on the pod by scripts/jobs/render.sh after the
 renders (pytest -m gpu tests/gpu/test_render.py). They read the manifests the
-job wrote under $WENART_OUTPUTS (default /workspace/repo/outputs):
+job wrote under $WENART_OUTPUTS (default /workspace/repo/outputs) for the
+projects in $RENDER_TEST_PROJECTS (the job exports the projects whose render
+stage ran; default synthetic-01 synthetic-03):
 
 - Cycles used the GPU (OPTIX or CUDA), every camera of every room rendered at
-  1920x1080, one view takes under 4 minutes on an A5000-class card;
+  1920x1080, one view takes under 4 minutes on an A5000-class card (measured
+  in this run or carried over from the run that rendered the view);
 - the passes exist, the depth pass has a sensible indoor range;
 - the object index pass of every view contains the index of every proxy the
   camera plan lists as inside its frustum;
+- every render comes from the scene.blend of this build (fingerprint) and the
+  two pass index tables agree;
 - previews are small enough to copy into the results.
 """
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -23,7 +29,8 @@ MAX_SECONDS_PER_VIEW = 240.0
 
 def _load(project: str, name: str) -> dict:
     path = OUTPUTS / project / name
-    assert path.exists(), f"{path} missing: did the job run the build/render stages?"
+    assert path.exists(), (f"{path} missing: did the job run the build/render stages for {project}? "
+                           f"(RENDER_TEST_PROJECTS={' '.join(PROJECTS)})")
     return json.loads(path.read_text(encoding="utf-8"))
 
 
@@ -54,10 +61,24 @@ def test_every_room_has_three_views(project):
 
 def test_view_time_under_four_minutes(project):
     name, _scene, render = project
-    timed = [r for r in render["renders"] if not r.get("skipped")]
-    assert timed, f"{name}: every render was skipped, nothing was timed in this run"
+    # A skipped view keeps the seconds of the run that rendered it, so a resumed or
+    # idempotent re-run is judged on the same measured times.
+    timed = [r for r in render["renders"] if isinstance(r.get("seconds"), (int, float)) and r["seconds"] > 0]
+    untimed = sorted(r["camera"] for r in render["renders"] if r not in timed)
+    assert timed and not untimed, (f"{name}: views without a measured time {untimed}; "
+                                   f"re-render them with FORCE_RENDER=1")
     slow = [(r["camera"], r["seconds"]) for r in timed if r["seconds"] > MAX_SECONDS_PER_VIEW]
     assert not slow, f"{name}: views over {MAX_SECONDS_PER_VIEW}s: {slow}"
+
+
+def test_render_matches_the_scene_build(project):
+    name, scene, render = project
+    blend = OUTPUTS / name / "scene" / "scene.blend"
+    fingerprint = hashlib.sha256(blend.read_bytes()).hexdigest()
+    assert render["scene_sha256"] == fingerprint, f"{name}: render_manifest.json is not from this scene.blend"
+    stale = sorted(r["camera"] for r in render["renders"] if r.get("scene_sha256") != fingerprint)
+    assert not stale, f"{name}: renders of another scene build (re-render them): {stale}"
+    assert render["pass_index"] == scene["pass_index"], f"{name}: the two pass index tables differ"
 
 
 def test_passes_exist_and_depth_is_plausible(project):
