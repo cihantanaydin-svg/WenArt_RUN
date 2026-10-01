@@ -385,6 +385,11 @@ def _mesh_object(name: str, verts, faces, materials_list, face_materials, collec
             for li, co in zip(poly.loop_indices, uv):
                 layer.data[li].uv = co
         mesh.uv_layers.active = layer
+        # Image Texture nodes without a UV Map node sample the *render* UV layer,
+        # which stays the first layer created (box_m) unless set here: without
+        # this the asset's atlas was sampled with box UVs in metres (scrambled
+        # wood on every library piece in furnish run 3).
+        layer.active_render = True
     return ob
 
 

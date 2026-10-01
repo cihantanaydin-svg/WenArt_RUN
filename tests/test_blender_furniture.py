@@ -334,6 +334,7 @@ DUMP_SCRIPT = textwrap.dedent("""
             row["bounds"] = [[min(p[i] for p in pts), max(p[i] for p in pts)] for i in range(3)]
             row["verts"] = [list(p) for p in pts] if len(pts) <= 64 else []
             row["uv"] = [l.name for l in ob.data.uv_layers]
+            row["uv_render"] = ob.data.uv_layers.active_render.name if ob.data.uv_layers else None
             row["uv_active"] = ob.data.uv_layers.active.name if ob.data.uv_layers.active else None
             row["materials"] = [m.name if m else None for m in ob.data.materials]
         rows.append(row)
@@ -534,6 +535,7 @@ def test_library_asset_is_imported_oriented_fitted_and_placed(scene):
     # One import per file and build: three pieces use the GLB, no "cube_a_mat.001" copies appear.
     assert not [n for n in scene["materials"] if n.startswith("cube_") and ".00" in n], sorted(scene["materials"])
     assert "box_m" in ob["uv"] and ob["uv_active"] == "UVMap"   # the asset's own UVs stay active
+    assert ob["uv_render"] == "UVMap"                             # ... and are what the textures sample
     assert e["pass_index"] == ob["pass_index"] == m["pass_index"]["f_lib"]
     # The imported source objects and the importer's collection are gone.
     assert not {"cube_a", "cube_b", "cube_root"} & set(objects)
