@@ -13,10 +13,18 @@ Per room, at 1.4 m above the floor, 24 mm lens on a 36 mm sensor, 1920x1080:
    opening, looking at the room centroid.
 3. ``cam_<room>_3``: next to the largest window of the room, looking across
    the room (through the centroid to the far side).
-When a placement has no usable point it falls back to the room centroid and
-records a warning. Each plan lists the openings and furniture of the room
-whose centre is inside the camera frustum (used by the final vision check
-later; pieces of other rooms are hidden by walls and are left out).
+Every camera position must be free: inside the room polygon with
+``CAMERA_WALL_CLEARANCE`` to the walls and ``CAMERA_OBSTACLE_CLEARANCE`` to
+every furniture footprint of the room (a camera at 1.4 m inside a 2.1 m
+wardrobe proxy renders the inside of a grey box). When the nominal point of
+a door or window camera is not free, the search tries larger insets and side
+steps along the wall, then the free-area grid point nearest to the opening,
+then the room centroid, and as a last resort a point that is only clear of
+the proxies at least as tall as the camera. Every move away from the nominal
+point is recorded in the plan's ``warning`` (nothing is moved silently).
+Each plan lists the openings and furniture of the room whose centre is
+inside the camera frustum (used by the final vision check later; pieces of
+other rooms are hidden by walls and are left out).
 """
 from __future__ import annotations
 
@@ -34,8 +42,20 @@ RESOLUTION = (1920, 1080)
 DOOR_INSET = 0.4
 WINDOW_INSET = 0.6
 WINDOW_SIDE_STEP = 0.5
-# An opening belongs to a room when its centre (on the wall centre line) is
-# within this distance of a room polygon edge: half the thickest wall plus slack.
+# Alternatives tried when the nominal door / window point is not free:
+# further into the room and sideways along the wall (metres).
+DOOR_INSETS = (DOOR_INSET, 0.6, 0.8, 1.0, 1.2)
+DOOR_SIDE_STEPS = (0.0, 0.3, -0.3, 0.6, -0.6)
+WINDOW_INSETS = (WINDOW_INSET, 0.9, 1.2, 1.5)
+WINDOW_SIDE_STEPS = (WINDOW_SIDE_STEP, -WINDOW_SIDE_STEP, 0.0, 1.0, -1.0)
+# Minimum clearances of a camera to the walls and to furniture footprints.
+CAMERA_WALL_CLEARANCE = 0.3
+CAMERA_OBSTACLE_CLEARANCE = 0.2
+# An opening belongs to a room when its centre is within half its wall's
+# thickness (plus its offset from the wall centre line and this slack) of a
+# room polygon edge, measured along the edge normal with the foot on the edge.
+OPENING_EDGE_SLACK = 0.05
+# Tolerance when the opening's wall is unknown (no wall_id match).
 OPENING_EDGE_TOLERANCE = 0.2
 
 
@@ -57,58 +77,47 @@ def plan_room_cameras(room: dict, building: dict, floor_z: float) -> list[dict]:
         polygon = polygon[:-1]
     furniture = [f for f in building["furniture"] if f.get("room_id") == room["id"]]
     obstacles = [f["footprint"] for f in furniture]
+    # Footprints a camera at CAMERA_HEIGHT would be inside of: never allowed.
+    tall = [f["footprint"] for f in furniture
+            if proxy_height(f["type"], f.get("height"))[0] >= CAMERA_HEIGHT]
     openings = room_openings(room, polygon, building)
     centroid = G.polygon_centroid(polygon)
     free = geom2d.free_points(polygon, obstacles)
+    search = _Search(polygon, obstacles, tall, free, centroid)
 
     plans = []
     # 1. Free area, looking at the centre of the longest wall.
     a, b = geom2d.longest_edge(polygon)
     wall_mid = G.segment_midpoint(a, b)
-    warning = None
     candidates = [p for p in free if G.distance(p, wall_mid) >= 1.0] or free
     if candidates:
-        pos2 = max(candidates, key=lambda p: G.distance(p, wall_mid))
+        pos2, warning = max(candidates, key=lambda p: G.distance(p, wall_mid)), None
     else:
-        pos2, warning = centroid, "no free point in the room; camera at the centroid"
+        pos2, warning = search.fallback(centroid, "no free point in the room")
     plans.append(_plan(room, 1, pos2, wall_mid, floor_z, warning, "free area -> longest wall"))
 
     # 2. From the door opening, looking at the centroid.
     doors = [o for o in openings if o["type"] in ("door", "opening")]
-    warning = None
     if doors:
         door = max(doors, key=lambda o: (o["type"] == "door", o["width"]))
-        pos2 = _inset_point(door["center"], polygon, DOOR_INSET)
+        options = _opening_points(door["center"], polygon, DOOR_INSETS, DOOR_SIDE_STEPS)
+        pos2, warning = search.place(options, primary=1, anchor=door["center"], what=f"door camera {door['id']}")
         target = centroid
         if G.distance(pos2, centroid) < 0.3:
             target = wall_mid
-        plans.append(_plan(room, 2, pos2, target, floor_z, None, f"door {door['id']} -> centroid",
+        plans.append(_plan(room, 2, pos2, target, floor_z, warning, f"door {door['id']} -> centroid",
                            anchor=door["id"]))
     else:
-        warning = "room has no door opening on its edges; camera at the centroid"
-        plans.append(_plan(room, 2, centroid, wall_mid, floor_z, warning, "centroid fallback"))
+        pos2, warning = search.fallback(centroid, "room has no door opening on its edges")
+        plans.append(_plan(room, 2, pos2, wall_mid, floor_z, warning, "centroid fallback"))
 
     # 3. Next to the largest window, looking across the room.
     windows = [o for o in openings if o["type"] == "window"]
     if windows:
         win = max(windows, key=lambda o: o["width"])
-        edge = geom2d.nearest_edge(win["center"], polygon)[1]
-        inward = geom2d.inward_normal(edge[0], edge[1], polygon)
-        along = _unit(edge[0], edge[1])
-        base = (win["center"][0] + inward[0] * WINDOW_INSET, win["center"][1] + inward[1] * WINDOW_INSET)
-        options = [
-            (base[0] + along[0] * WINDOW_SIDE_STEP, base[1] + along[1] * WINDOW_SIDE_STEP),
-            (base[0] - along[0] * WINDOW_SIDE_STEP, base[1] - along[1] * WINDOW_SIDE_STEP),
-            base,
-        ]
-        warning = None
-        pos2 = next((p for p in options if geom2d.point_is_free(p, polygon, obstacles, 0.3, 0.2)), None)
-        if pos2 is None:
-            pos2 = next((p for p in options if G.point_in_polygon(p, polygon)), None)
-            if pos2 is not None:
-                warning = "window camera stands in a proxy footprint or close to a wall"
-        if pos2 is None:
-            pos2, warning = centroid, "no usable point next to the window; camera at the centroid"
+        options = _opening_points(win["center"], polygon, WINDOW_INSETS, WINDOW_SIDE_STEPS)
+        # Any of the three points at the nominal inset counts as the nominal placement.
+        pos2, warning = search.place(options, primary=3, anchor=win["center"], what=f"window camera {win['id']}")
         # Look through the centroid to the far side of the room.
         far = (centroid[0] + (centroid[0] - pos2[0]) * 0.75, centroid[1] + (centroid[1] - pos2[1]) * 0.75)
         if G.distance(far, pos2) < 0.5:
@@ -116,8 +125,8 @@ def plan_room_cameras(room: dict, building: dict, floor_z: float) -> list[dict]:
         plans.append(_plan(room, 3, pos2, far, floor_z, warning, f"window {win['id']} -> across",
                            anchor=win["id"]))
     else:
-        warning = "room has no window on its edges; camera at the centroid"
-        plans.append(_plan(room, 3, centroid, wall_mid, floor_z, warning, "centroid fallback"))
+        pos2, warning = search.fallback(centroid, "room has no window on its edges")
+        plans.append(_plan(room, 3, pos2, wall_mid, floor_z, warning, "centroid fallback"))
 
     # Frustum lists are limited to the camera's own room (its openings and its
     # furniture): walls hide everything else, so other rooms' pieces inside the
@@ -138,27 +147,110 @@ def plan_room_cameras(room: dict, building: dict, floor_z: float) -> list[dict]:
     return plans
 
 
+class _Search:
+    """Free-point search of one room: the candidates of a camera in order of
+    preference, then the free-area grid, then the centroid, then any point
+    clear of the tall proxies. Returns ``(point, warning)``; the warning is
+    None only when a primary candidate was free."""
+
+    def __init__(self, polygon, obstacles, tall, free, centroid):
+        self.polygon, self.obstacles, self.tall, self.free, self.centroid = polygon, obstacles, tall, free, centroid
+
+    def is_free(self, p, obstacles=None) -> bool:
+        return geom2d.point_is_free(p, self.polygon, self.obstacles if obstacles is None else obstacles,
+                                    CAMERA_WALL_CLEARANCE, CAMERA_OBSTACLE_CLEARANCE)
+
+    def place(self, options, primary: int, anchor, what: str) -> tuple[tuple[float, float], str | None]:
+        """First free option; the first ``primary`` options count as the
+        nominal placement (no warning), later ones as a move."""
+        for i, p in enumerate(options):
+            if self.is_free(p):
+                if i < primary:
+                    return p, None
+                return p, f"{what} moved: the nominal point is in a proxy footprint or too close to a wall"
+        if self.free:
+            p = min(self.free, key=lambda q: G.distance(q, anchor))
+            return p, f"{what} moved to the nearest free point: no free point next to the opening"
+        return self.fallback(self.centroid, f"{what}: no free point in the room")
+
+    def fallback(self, point, reason: str) -> tuple[tuple[float, float], str]:
+        """``point`` (the centroid) when it is clear of the tall proxies, else
+        the nearest grid point that is; the warning says what happened."""
+        if self.is_free(point, self.tall):
+            return point, f"{reason}; camera at the centroid"
+        clear = geom2d.free_points(self.polygon, self.tall, wall_clearance=CAMERA_WALL_CLEARANCE,
+                                   obstacle_clearance=CAMERA_OBSTACLE_CLEARANCE)
+        if clear:
+            p = min(clear, key=lambda q: G.distance(q, point))
+            return p, f"{reason}; centroid inside a tall proxy, camera at the nearest point clear of tall proxies"
+        return point, f"{reason}; no point clear of the tall proxies, camera at the centroid INSIDE a proxy"
+
+
 def room_openings(room: dict, polygon, building: dict) -> list[dict]:
-    """Openings whose centre lies on an edge of the room polygon."""
+    """Openings whose centre lies on an edge of the room polygon.
+
+    The centre sits on (or, by the pipeline's tolerance, up to half a wall
+    off) the wall centre line, i.e. up to ``thickness / 2`` plus that offset
+    from the room edge on the inner wall face; the tolerance is derived per
+    opening from its wall so thick walls keep their doors and windows.
+    """
+    walls = {w["id"]: w for w in building.get("walls", []) if w["level_id"] == room["level_id"]}
     out = []
     for o in building["openings"]:
         if o["level_id"] != room["level_id"]:
             continue
-        d, _edge = geom2d.nearest_edge(o["center"], polygon)
-        if d <= OPENING_EDGE_TOLERANCE:
+        tolerance = opening_edge_tolerance(o, walls)
+        if _distance_to_edge_line(o["center"], polygon, tolerance) is not None:
             out.append(o)
     return out
 
 
-def _inset_point(center, polygon, inset: float) -> tuple[float, float]:
-    """Point ``inset`` metres into the room from an opening centre."""
+def opening_edge_tolerance(opening: dict, walls: dict) -> float:
+    """How far an opening centre may lie from a room edge: half its wall's
+    thickness plus its offset from the wall centre line plus slack."""
+    wall = walls.get(opening.get("wall_id"))
+    if wall is None:
+        return OPENING_EDGE_TOLERANCE
+    offset = G.point_segment_distance(opening["center"], wall["start"], wall["end"])
+    return float(wall["thickness"]) / 2.0 + offset + OPENING_EDGE_SLACK
+
+
+def _distance_to_edge_line(p, polygon, tolerance: float) -> float | None:
+    """Distance from ``p`` to the nearest polygon edge whose line is within
+    ``tolerance`` and whose span (extended by the slack) covers the foot of
+    the perpendicular; None when no edge qualifies. The span test keeps an
+    opening of the next room, past the end of this room's edge, out."""
+    best = None
+    n = len(polygon)
+    for i in range(n):
+        a, b = polygon[i], polygon[(i + 1) % n]
+        length = G.distance(a, b)
+        if length < 1e-9:
+            continue
+        ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
+        along = (p[0] - a[0]) * ux + (p[1] - a[1]) * uy
+        across = abs((p[0] - a[0]) * -uy + (p[1] - a[1]) * ux)
+        if across <= tolerance and -OPENING_EDGE_SLACK <= along <= length + OPENING_EDGE_SLACK:
+            if best is None or across < best:
+                best = across
+    return best
+
+
+def _opening_points(center, polygon, insets, side_steps) -> list[tuple[float, float]]:
+    """Candidate camera points in front of an opening: for each inset (into
+    the room from the room edge) every side step along the edge, in the
+    given order. The opening centre sits on the wall centre line, half a wall
+    outside the room edge; the inset is measured from the room boundary."""
     edge = geom2d.nearest_edge(center, polygon)[1]
     nx, ny = geom2d.inward_normal(edge[0], edge[1], polygon)
-    # The opening centre sits on the wall centre line, half a wall outside the
-    # room edge; project it onto the edge first so the inset is measured from
-    # the room boundary.
+    ax, ay = _unit(edge[0], edge[1])
     d = G.point_segment_distance(center, edge[0], edge[1])
-    return (center[0] + nx * (d + inset), center[1] + ny * (d + inset))
+    points = []
+    for inset in insets:
+        base = (center[0] + nx * (d + inset), center[1] + ny * (d + inset))
+        for step in side_steps:
+            points.append((base[0] + ax * step, base[1] + ay * step))
+    return points
 
 
 def _unit(a, b) -> tuple[float, float]:
