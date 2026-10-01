@@ -41,6 +41,10 @@ rm -rf /workspace/venv-vllm /workspace/venv-paddle
 export HF_HUB_ENABLE_HF_TRANSFER=1
 export HF_XET_HIGH_PERFORMANCE=1
 export PIP_DISABLE_PIP_VERSION_CHECK=1
+# Wheels are few large files, so the pip cache can live on the volume and survive pods
+# (the venvs themselves cannot: tens of thousands of small files are far too slow there).
+export PIP_CACHE_DIR=/workspace/pip-cache
+mkdir -p "$PIP_CACHE_DIR"
 
 VLLM_VERSION=0.30.0
 PADDLEOCR_VERSION=3.7.0

@@ -81,10 +81,10 @@ run_stage() {
   local name=$1; shift
   local t0; t0=$(date +%s)
   log "stage start: $name"
-  set +e
-  "$@"
-  local rc=$?
-  set -e
+  # `cmd || rc=$?` is exempt from both errexit and the ERR trap (a plain `set +e` is
+  # not enough: the ERR trap still fires on a failing command and would end the job).
+  local rc=0
+  "$@" || rc=$?
   log "stage end: $name rc=$rc in $(( $(date +%s) - t0 )) s"
   if [ "$rc" -ne 0 ]; then FAILED+=("$name"); fi
   return 0
