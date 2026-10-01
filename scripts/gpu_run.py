@@ -457,6 +457,11 @@ def cmd_run(a: argparse.Namespace) -> int:
         "HF_TOKEN": "{{ RUNPOD_SECRET_hf_token }}", "HF_HOME": "/workspace/hf",
         "WENART_IMAGE": IMAGE, "WENART_EXPECT_VOLUME": "1" if volume else "0",
     }
+    for extra in a.env or []:  # job knobs such as RENDER_SAMPLES=128; reserved names stay ours
+        key, _, value = extra.partition("=")
+        if not key or key in env or key.startswith(("RUNPOD_", "HF_")):
+            raise RuntimeError(f"--env {extra!r}: empty, reserved or already set")
+        env[key] = value
     name = f"{POD_PREFIX}{job_id}"
     # Provisional log row before the pod exists: a crashed runner still leaves a trace.
     pending_key = f"pending:{job_id}"
@@ -636,6 +641,7 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--max-minutes", type=int, default=MAX_MINUTES)
     r.add_argument("--grace", type=int, default=120, help="seconds the pod waits after the job before stopping")
     r.add_argument("--disk", type=int, default=CONTAINER_DISK_GB, help="container disk GB (wiped with the pod; ~$0.10/GB/month)")
+    r.add_argument("--env", action="append", metavar="KEY=VALUE", help="extra environment variable for the job (repeatable)")
     r.add_argument("--purpose", help="text for docs/gpu-log.md")
     r.add_argument("--no-volume", action="store_true", help="run without the network volume (nothing persists)")
     r.add_argument("--keep", action="store_true", help="do not terminate the stopped pod")
