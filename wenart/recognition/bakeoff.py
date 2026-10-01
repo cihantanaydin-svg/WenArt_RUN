@@ -9,6 +9,10 @@ For every raster page (``kind`` scan or photo in ``<project>/truth/pages.json``)
 - ``<out>/<project>_<page>_<model>.json``: the page-class, room-label and symbol
   answers of one model with scores and latency (``<model>`` = last part of the
   Hugging Face ID).
+- ``<out>/<project>_<page>_<model>_tiled.json`` (``--stage vlm --tiled``): the
+  symbol answer of the tiled pass (``wenart.recognition.tiles``: crop to the
+  drawing, one call per tile at full resolution, boxes mapped back to page
+  pixels, duplicates merged across tiles), scored like the plain symbol task.
 - ``<out>/<project>_<page>_twopass.json``: two-pass agreement of the first two
   models, computed from the saved answers (no extra calls). A page where one
   model's symbol answer failed (``data`` null) gets a record with
@@ -40,7 +44,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Sequence
 
-from wenart.recognition import detect, metrics, ocr, vlm_client
+from wenart.recognition import detect, metrics, ocr, tiles, vlm_client
 from wenart.recognition.schemas import TASKS
 
 RASTER_KINDS = ("scan", "photo")
@@ -266,6 +270,89 @@ def run_model_page(page: RasterPage, model: str, client: vlm_client.VLMClient, o
 
 
 # --------------------------------------------------------------------------
+# Tiled symbol pass (crop to the drawing, one call per tile)
+# --------------------------------------------------------------------------
+
+def tiled_symbol_items(image_path: Path, client, *, tile_px: int = tiles.DEFAULT_TILE_PX,
+                       overlap: float = tiles.DEFAULT_OVERLAP) -> dict:
+    """Run the ``symbols`` task on every tile of the drawing area and merge the answers.
+
+    The client receives each tile as a PIL crop, so it maps the model's 0..1000
+    grid to the CROP size (``VLMResult.page_size`` is the crop size); the boxes
+    are then shifted by the tile's top-left corner into page pixels. The crop is
+    not downscaled as long as the tile side is <= the client's ``max_side``
+    (1024 px tiles against the default 1600 px). Nothing is dropped: a tile
+    whose call failed is recorded with its error and contributes no items.
+
+    Returns ``{"extent", "tile_px", "overlap", "tiles": [per-tile records],
+    "items": merged items in page pixels, "merge": stats, "latency_s", "errors"}``.
+    """
+    img = vlm_client.load_image(image_path)
+    extent = tiles.drawing_extent(img)
+    boxes = tiles.tiles(extent, tile_px, overlap)
+    raw_items: list[dict] = []
+    tile_records: list[dict] = []
+    errors: dict[str, str] = {}
+    latency = 0.0
+    for index, tile in enumerate(boxes):
+        crop = img.crop(tuple(int(v) for v in tile))
+        res = client.run_task("symbols", crop)
+        latency += res.latency_s
+        n_items = 0
+        if res.data is not None:
+            for item in res.data.get("items", []):
+                moved = dict(item)
+                moved["box"] = tiles.offset_box(item["box"], tile[0], tile[1])
+                moved["tile"] = index
+                raw_items.append(moved)
+                n_items += 1
+        else:
+            errors[f"tile_{index}"] = res.error or "no answer"
+        tile_records.append({"index": index, "box": [int(v) for v in tile], "n_items": n_items,
+                             "latency_s": round(res.latency_s, 3), "error": res.error,
+                             "sent_size": list(res.image_size), "crop_size": list(res.page_size)})
+    merged, stats = tiles.merge_tile_items(raw_items)
+    return {"extent": [int(v) for v in extent], "tile_px": tile_px, "overlap": overlap, "tiles": tile_records,
+            "items": merged, "merge": stats, "latency_s": round(latency, 3), "errors": errors}
+
+
+def run_symbols_tiled(page: RasterPage, model: str, client, out_dir: Path, *,
+                      tile_px: int = tiles.DEFAULT_TILE_PX, overlap: float = tiles.DEFAULT_OVERLAP,
+                      retry_errors: bool = False) -> dict:
+    """The tiled symbol pass of one model on one page: JSON + debug image, resumable.
+
+    Writes ``<slug>_<model>_tiled.json`` with the per-tile records, the merged
+    symbols (page pixels, each with the ``tiles`` that saw it) and the symbol
+    scores against the truth, plus ``<slug>_<model>_tiled.jpg`` (truth green,
+    tiles grey, merged symbols orange).
+    """
+    out_json = out_dir / f"{page.slug}_{model_slug(model)}_tiled.json"
+    if has_result(out_json, retry_errors):
+        print(f"  skip (exists): {out_json.name}")
+        return read_json(out_json)
+    run = tiled_symbol_items(page.image_path, client, tile_px=tile_px, overlap=overlap)
+    truth = page.truth_symbols()
+    scores = {"symbols": metrics.symbol_scores(run["items"], truth),
+              "latency_s": {"symbols_tiled": run["latency_s"]},
+              "errors": run["errors"], "n_tiles": len(run["tiles"]), "merge": run["merge"]}
+    record = {"project": page.project, "file": page.file, "page": page.page, "kind": page.kind, "model": model,
+              "tiled": True, "extent": run["extent"], "tile_px": run["tile_px"], "overlap": run["overlap"],
+              "tiles": run["tiles"], "symbols": {"items": run["items"], "merge": run["merge"]},
+              "scores": scores, "has_errors": bool(run["errors"])}
+    write_json(out_json, record)
+    draw_debug(page.image_path, out_dir / f"{page.slug}_{model_slug(model)}_tiled.jpg", [
+        ("tiles", [{"box": t["box"], "type": f"tile {t['index']}"} for t in run["tiles"]], "#909090"),
+        ("truth symbols", truth, "#00a000"),
+        (f"{model_slug(model)} symbols (tiled)", run["items"], "#ff7f00"),
+    ])
+    ov = scores["symbols"]["overall"]
+    print(f"  {model_slug(model)} symbols (tiled): {len(run['tiles'])} tiles, {run['merge']['n_input']} proposals -> "
+          f"{run['merge']['n_merged']} symbols, recall {ov['recall']:.2f} precision {ov['precision']:.2f}, "
+          f"{run['latency_s']:.1f} s, {len(run['errors'])} tile errors")
+    return record
+
+
+# --------------------------------------------------------------------------
 # Two-pass stage (from saved answers)
 # --------------------------------------------------------------------------
 
@@ -322,11 +409,13 @@ def collect_page_results(pages: Sequence[RasterPage], out_dir: Path) -> list[dic
 
     ``two_pass`` is None for pages without a computed two-pass record;
     ``two_pass_not_computed`` then names the reason when a record says so.
+    ``tiled`` holds the scores of the tiled symbol pass per model
+    (``*_tiled.json``), separate from the plain ``models`` scores.
     """
     page_results = []
     for page in pages:
         entry: dict = {"project": page.project, "file": page.file, "page": page.page, "kind": page.kind,
-                       "ocr": {}, "models": {}, "two_pass": None, "two_pass_not_computed": None}
+                       "ocr": {}, "models": {}, "tiled": {}, "two_pass": None, "two_pass_not_computed": None}
         ocr_json = out_dir / f"{page.slug}_ocr.json"
         if ocr_json.is_file():
             for engine, data in read_json(ocr_json).get("engines", {}).items():
@@ -335,7 +424,11 @@ def collect_page_results(pages: Sequence[RasterPage], out_dir: Path) -> list[dic
             if path.name.endswith(("_ocr.json", "_twopass.json")):
                 continue
             data = read_json(path)
-            if "model" in data:
+            if "model" not in data:
+                continue
+            if data.get("tiled"):
+                entry["tiled"][data["model"]] = data["scores"]
+            else:
                 entry["models"][data["model"]] = data["scores"]
         two = out_dir / f"{page.slug}_twopass.json"
         if two.is_file():
@@ -465,6 +558,10 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     ap.add_argument("--no-tesseract", action="store_true", help="skip Tesseract")
     ap.add_argument("--ocr-device", default=None, help="PaddleOCR device, e.g. gpu:0 or cpu (default: auto)")
     ap.add_argument("--max-side", type=int, default=vlm_client.DEFAULT_MAX_SIDE, help="longest image side sent to the model (0 = full)")
+    ap.add_argument("--tiled", action="store_true",
+                    help="vlm stage: also run the tiled symbol pass (crop to the drawing, one call per tile)")
+    ap.add_argument("--tile-px", type=int, default=tiles.DEFAULT_TILE_PX, help="tile side in page pixels")
+    ap.add_argument("--tile-overlap", type=float, default=tiles.DEFAULT_OVERLAP, help="tile overlap as a share of the side")
     ap.add_argument("--timeout", type=float, default=600.0, help="seconds per model call")
     ap.add_argument("--retry-errors", action="store_true", help="re-run pages whose result recorded an error")
     ap.add_argument("--libredwg-bin", default=None, help="folder with dxf2dwg/dwg2dxf (default: PATH)")
@@ -505,6 +602,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                 print(f"VLM {page.slug} {model}")
                 rec = run_model_page(page, model, client, out_dir, tasks=a.tasks, retry_errors=a.retry_errors)
                 failures += int(bool(rec.get("has_errors")))
+                if a.tiled:
+                    rec = run_symbols_tiled(page, model, client, out_dir, tile_px=a.tile_px, overlap=a.tile_overlap,
+                                            retry_errors=a.retry_errors)
+                    failures += int(bool(rec.get("has_errors")))
 
     if a.stage in ("all", "twopass") and len(a.models) >= 2:
         for page in pages:

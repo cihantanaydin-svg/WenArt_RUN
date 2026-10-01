@@ -597,3 +597,114 @@ def test_pod_setup_stamps_paddle_only_after_a_real_gpu_op():
     check_call = text.index('-c "$PADDLE_CHECK"')
     assert check_call < stamp
     assert "no GPU" in snippet or "cpu" in snippet.lower()
+
+
+# --------------------------------------------------------------------------
+# Milestone 3 follow-ups: tiled symbol column, --tiled flag, LibreDWG 0.14.1 first
+# --------------------------------------------------------------------------
+
+def test_summary_has_a_tiled_symbols_column_that_is_empty_without_the_pass():
+    """The ``symbols (tiled)`` column exists for every model; '-' when the pass was not run."""
+    plain = _fake_page_results()
+    agg = metrics.aggregate(plain)
+    assert agg["models"]["M1"]["symbols_tiled"] is None and agg["models"]["M1"]["tiled_pages"] == 0
+    md = metrics.summarise(plain)
+    assert "Symbols (tiled) R / P" in md
+    assert "| M1 | 2 | 50 % | 100 % | 50 % | 80 % / 89 % | 60 % / 60 % | - | 4.0 s | 1 |" in md
+    # Tiled results on one page: their own totals, not mixed into the plain symbol scores.
+    tiled = _fake_page_results()
+    tiled[0]["tiled"] = {"M1": {"symbols": {"per_type": {}, "overall": metrics.precision_recall(4, 0, 1)},
+                                "latency_s": {"symbols_tiled": 12.0}, "errors": {}, "n_tiles": 4,
+                                "merge": {"n_input": 6, "n_merged": 4, "n_duplicates": 2, "type_conflicts": 0}}}
+    agg = metrics.aggregate(tiled)
+    m = agg["models"]["M1"]
+    assert m["symbols"]["tp"] == 3 and m["symbols_tiled"]["tp"] == 4 and m["symbols_tiled"]["recall"] == 0.8
+    assert m["tiled_pages"] == 1 and m["tiled_latency"]["mean_s"] == 12.0 and m["latency"]["n"] == 6
+    md = metrics.summarise(tiled)
+    assert "| 60 % / 60 % | 80 % / 100 % (1 p, 12.0 s / page) | 4.0 s | 1 |" in md
+    assert "| 80 % / 100 % (4 tiles) | floor_plan (ok) | 27.0 s |" in md      # per-page row: plain + tiled latency
+    assert "| - | other (wrong) | 9.0 s |" in md                               # the page without a tiled pass
+
+
+def test_bakeoff_cli_has_the_tiled_flags_and_runs_without_a_server(tmp_path):
+    a = bakeoff.parse_args(["--stage", "vlm", "--tiled", "--tile-px", "768", "--tile-overlap", "0.25"])
+    assert a.tiled and a.tile_px == 768 and a.tile_overlap == 0.25
+    assert not bakeoff.parse_args([]).tiled and bakeoff.parse_args([]).tile_px == 1024
+    rc = bakeoff.main(["--projects", str(PROJECTS), "--out", str(tmp_path), "--stage", "vlm", "--tiled",
+                       "--models", "a/b", "--server", "http://127.0.0.1:9/v1"])
+    assert rc == 0 and not list(tmp_path.glob("*_tiled.json"))   # no server: nothing invented
+
+
+def test_pod_setup_builds_libredwg_0_14_1_first_with_0_13_3_fallback():
+    text = (ROOT / "scripts/pod_setup_recognition.sh").read_text(encoding="utf-8")
+    assert "LIBREDWG_VERSION=0.14.1" in text and "LIBREDWG_FALLBACK_VERSION=0.13.3" in text
+    assert "https://ftp.gnu.org/gnu/libredwg/libredwg-$1.tar.xz" in text
+    assert text.index("LIBREDWG_VERSION=0.14.1") < text.index("LIBREDWG_FALLBACK_VERSION=0.13.3")
+    assert subprocess.run(["bash", "-n", str(ROOT / "scripts/pod_setup_recognition.sh")], capture_output=True).returncode == 0
+
+
+def _libredwg_decision(tmp_path: Path, available_versions: set, installed) -> tuple:
+    """Run the LibreDWG download decision of the setup script with a fake ``curl``.
+
+    The fake curl writes a file only for URLs of ``available_versions`` and logs
+    every URL it was asked for. Returns ``(LIBREDWG_BUILD, urls_in_order)``.
+    """
+    text = (ROOT / "scripts/pod_setup_recognition.sh").read_text(encoding="utf-8")
+    start = text.index("# fetch_libredwg <version> <tarball>")
+    end = text.index('if [ -n "$LIBREDWG_BUILD" ]')
+    decision = text[start:end]
+    tmp_path.mkdir(parents=True, exist_ok=True)
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir()
+    urls_log = tmp_path / "urls.txt"
+    versions = " ".join(sorted(available_versions)) or "none"
+    _write_tool(bin_dir / "curl", f"""url="${{@: -1}}"
+echo "$url" >> "{urls_log}"
+out=""
+while [ $# -gt 0 ]; do [ "$1" = "-o" ] && out="$2"; shift; done
+for v in {versions}; do
+  case "$url" in *"libredwg-$v.tar.xz") echo tarball > "$out"; exit 0;; esac
+done
+exit 22
+""")
+    prefix = tmp_path / "tools" / "libredwg"
+    if installed:
+        (prefix / "bin").mkdir(parents=True)
+        for name in ("dwg2dxf", "dxf2dwg"):
+            _write_tool(prefix / "bin" / name, "exit 0\n")
+        (prefix / "VERSION").write_text(f"dwg2dxf {installed}\n", encoding="utf-8")
+    script = "\n".join([
+        "set -Eeuo pipefail",
+        f'export PATH="{bin_dir}:$PATH"',
+        'log() { echo "log: $*"; }',
+        "LIBREDWG_VERSION=0.14.1", "LIBREDWG_FALLBACK_VERSION=0.13.3",
+        'libredwg_url() { echo "https://ftp.gnu.org/gnu/libredwg/libredwg-$1.tar.xz"; }',
+        'libredwg_url_fallback() { echo "https://github.com/LibreDWG/libredwg/releases/download/$1/libredwg-$1.tar.xz"; }',
+        f'LIBREDWG_PREFIX="{prefix}"', f'SRC="{tmp_path / "src"}"', 'mkdir -p "$SRC"',
+        decision,
+        'echo "BUILD=$LIBREDWG_BUILD"',
+    ])
+    proc = subprocess.run(["bash", "-c", script], capture_output=True, text=True, timeout=60)
+    assert proc.returncode == 0, proc.stderr + proc.stdout
+    build = re.search(r"^BUILD=(.*)$", proc.stdout, re.M).group(1)
+    urls = urls_log.read_text(encoding="utf-8").split() if urls_log.is_file() else []
+    return build, urls
+
+
+def test_libredwg_decision_prefers_0_14_1_and_falls_back_to_0_13_3(tmp_path):
+    # 0.14.1 available on the GNU mirror: first and only request.
+    build, urls = _libredwg_decision(tmp_path / "a", {"0.14.1", "0.13.3"}, installed=None)
+    assert build == "0.14.1" and urls == ["https://ftp.gnu.org/gnu/libredwg/libredwg-0.14.1.tar.xz"]
+    # 0.14.1 nowhere: GNU then GitHub for 0.14.1, then 0.13.3 from the GNU mirror.
+    build, urls = _libredwg_decision(tmp_path / "b", {"0.13.3"}, installed=None)
+    assert build == "0.13.3" and len(urls) == 3
+    assert urls[0].endswith("libredwg-0.14.1.tar.xz") and "github.com" in urls[1] and urls[2].endswith("libredwg-0.13.3.tar.xz")
+    # Nothing downloadable: no build, no crash (the round trip reports the missing tools).
+    build, urls = _libredwg_decision(tmp_path / "c", set(), installed=None)
+    assert build == "" and len(urls) == 4
+    # 0.14.1 already on the volume: no download at all.
+    build, urls = _libredwg_decision(tmp_path / "d", set(), installed="0.14.1")
+    assert build == "0.14.1" and urls == []
+    # 0.13.3 on the volume (Milestone 2) but 0.14.1 downloadable: upgrade.
+    build, urls = _libredwg_decision(tmp_path / "e", {"0.14.1"}, installed="0.13.3")
+    assert build == "0.14.1" and len(urls) == 1

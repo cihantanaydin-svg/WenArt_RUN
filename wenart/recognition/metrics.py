@@ -199,10 +199,23 @@ def aggregate(page_results: Sequence[dict]) -> dict:
          "ocr": {engine: {"all_texts": text_scores, "room_labels": text_scores, "latency_s": float}},
          "models": {model: {"page_class": page_class_scores, "room_labels": text_scores,
                             "symbols": symbol_scores, "latency_s": {task: float}, "errors": {task: str}}},
+         "tiled": {model: {"symbols": symbol_scores, "latency_s": {"symbols_tiled": float},
+                           "errors": {tile: str}, "n_tiles": int}},
          "two_pass": {"verified": symbol_scores, "all": symbol_scores, "n_verified", "n_unverified"} | None}
+
+    ``tiled`` (the tiled symbol pass, ``bakeoff.run_symbols_tiled``) is optional;
+    its totals land in ``models[model]["symbols_tiled"]`` (None when the model
+    has no tiled results) with ``tiled_pages`` and ``tiled_latency``.
     """
     models: dict[str, dict] = {}
     engines: dict[str, dict] = {}
+
+    def model_slot(model: str) -> dict:
+        return models.setdefault(model, {"pages": 0, "class_ok": 0, "label_ok": 0, "scale_ok": 0,
+                                         "room_labels": [], "symbols_overall": [], "symbols_per_type": defaultdict(list),
+                                         "latency": [], "errors": 0,
+                                         "tiled_pages": 0, "tiled_overall": [], "tiled_latency": [], "tiled_errors": 0})
+
     for page in page_results:
         for engine, scores in (page.get("ocr") or {}).items():
             e = engines.setdefault(engine, {"all_texts": [], "room_labels": [], "latency": [], "pages": 0})
@@ -211,10 +224,14 @@ def aggregate(page_results: Sequence[dict]) -> dict:
             e["room_labels"].append(scores.get("room_labels", {}))
             if scores.get("latency_s") is not None:
                 e["latency"].append(scores["latency_s"])
+        for model, scores in (page.get("tiled") or {}).items():
+            m = model_slot(model)
+            m["tiled_pages"] += 1
+            m["tiled_overall"].append((scores.get("symbols") or {}).get("overall", {}))
+            m["tiled_latency"].extend(v for v in (scores.get("latency_s") or {}).values() if v is not None)
+            m["tiled_errors"] += len(scores.get("errors") or {})
         for model, scores in (page.get("models") or {}).items():
-            m = models.setdefault(model, {"pages": 0, "class_ok": 0, "label_ok": 0, "scale_ok": 0,
-                                          "room_labels": [], "symbols_overall": [], "symbols_per_type": defaultdict(list),
-                                          "latency": [], "errors": 0})
+            m = model_slot(model)
             m["pages"] += 1
             pc = scores.get("page_class") or {}
             m["class_ok"] += int(bool(pc.get("class_correct")))
@@ -241,6 +258,10 @@ def aggregate(page_results: Sequence[dict]) -> dict:
             "symbols_per_type": {name: _sum_pr(parts) for name, parts in sorted(m["symbols_per_type"].items())},
             "latency": latency_stats(m["latency"]),
             "errors": m["errors"],
+            "tiled_pages": m["tiled_pages"],
+            "symbols_tiled": _sum_pr(m["tiled_overall"]) if m["tiled_pages"] else None,
+            "tiled_latency": latency_stats(m["tiled_latency"]),
+            "tiled_errors": m["tiled_errors"],
         }
     out_engines = {}
     for engine, e in engines.items():
@@ -283,14 +304,21 @@ def summarise(page_results: Sequence[dict]) -> str:
         lines.append("| (no OCR results) | | | | | | |")
 
     lines += ["", "## Vision-language models", "",
-              "| Model | Pages | Page class | Level label | Scale text | Room labels R / P | Symbols R / P | Mean latency / call | Errors |",
-              "|---|---|---|---|---|---|---|---|---|"]
+              "Symbols (tiled): the symbol task on the drawing area cut into full-resolution tiles "
+              "(`--tiled`, wenart/recognition/tiles.py); `-` when that pass was not run.", "",
+              "| Model | Pages | Page class | Level label | Scale text | Room labels R / P | Symbols R / P | "
+              "Symbols (tiled) R / P | Mean latency / call | Errors |",
+              "|---|---|---|---|---|---|---|---|---|---|"]
     for model, m in sorted(agg["models"].items()):
+        tiled = m.get("symbols_tiled")
+        tiled_cell = (f"{_pct(tiled['recall'])} / {_pct(tiled['precision'])} ({m['tiled_pages']} p, "
+                      f"{m['tiled_latency']['mean_s']} s / page)" if tiled else "-")
         lines.append(f"| {model} | {m['pages']} | {_pct(m['page_class_accuracy'])} | {_pct(m['level_label_accuracy'])} | "
                      f"{_pct(m['scale_text_accuracy'])} | {_pct(m['room_labels']['recall'])} / {_pct(m['room_labels']['precision'])} | "
-                     f"{_pct(m['symbols']['recall'])} / {_pct(m['symbols']['precision'])} | {m['latency']['mean_s']} s | {m['errors']} |")
+                     f"{_pct(m['symbols']['recall'])} / {_pct(m['symbols']['precision'])} | {tiled_cell} | "
+                     f"{m['latency']['mean_s']} s | {m['errors'] + m.get('tiled_errors', 0)} |")
     if not agg["models"]:
-        lines.append("| (no model results) | | | | | | | | |")
+        lines.append("| (no model results) | | | | | | | | | |")
 
     types = sorted({name for m in agg["models"].values() for name in m["symbols_per_type"]})
     if types:
@@ -311,19 +339,31 @@ def summarise(page_results: Sequence[dict]) -> str:
                   f"| verified (both models agree) | {t['n_verified']} | {_pct(t['verified']['recall'])} | {_pct(t['verified']['precision'])} |",
                   f"| all proposals (verified + unverified) | {t['n_verified'] + t['n_unverified']} | {_pct(t['all']['recall'])} | {_pct(t['all']['precision'])} |"]
 
-    lines += ["", "## Per page", "", "| Project | File | Kind | Who | Room labels R / P | Symbols R / P | Page class | Latency |",
-              "|---|---|---|---|---|---|---|---|"]
+    lines += ["", "## Per page", "",
+              "| Project | File | Kind | Who | Room labels R / P | Symbols R / P | Symbols (tiled) R / P | Page class | Latency |",
+              "|---|---|---|---|---|---|---|---|---|"]
     for page in page_results:
         where = f"| {page.get('project')} | {page.get('file')} | {page.get('kind')} |"
         for engine, s in sorted((page.get("ocr") or {}).items()):
             rl = s.get("room_labels", {})
-            lines.append(f"{where} {engine} | {_pct(rl.get('recall', 0))} / {_pct(rl.get('precision', 0))} | - | - | {s.get('latency_s', 0)} s |")
-        for model, s in sorted((page.get("models") or {}).items()):
+            lines.append(f"{where} {engine} | {_pct(rl.get('recall', 0))} / {_pct(rl.get('precision', 0))} | - | - | - | "
+                         f"{s.get('latency_s', 0)} s |")
+        plain = page.get("models") or {}
+        tiled = page.get("tiled") or {}
+        for model in sorted(set(plain) | set(tiled)):
+            s = plain.get(model) or {}
             rl = s.get("room_labels") or {}
             sy = (s.get("symbols") or {}).get("overall", {})
             pc = s.get("page_class") or {}
             lat = sum(v for v in (s.get("latency_s") or {}).values() if v)
-            klass = f"{pc.get('pred_class')} ({'ok' if pc.get('class_correct') else 'wrong'})"
-            lines.append(f"{where} {model} | {_pct(rl.get('recall', 0))} / {_pct(rl.get('precision', 0))} | "
-                         f"{_pct(sy.get('recall', 0))} / {_pct(sy.get('precision', 0))} | {klass} | {lat:.1f} s |")
+            t = tiled.get(model) or {}
+            tsy = (t.get("symbols") or {}).get("overall", {})
+            lat += sum(v for v in (t.get("latency_s") or {}).values() if v)
+            tiled_cell = f"{_pct(tsy.get('recall', 0))} / {_pct(tsy.get('precision', 0))} ({t.get('n_tiles', '?')} tiles)" if t else "-"
+            if s:
+                plain_cell = f"{_pct(rl.get('recall', 0))} / {_pct(rl.get('precision', 0))} | {_pct(sy.get('recall', 0))} / {_pct(sy.get('precision', 0))}"
+                klass = f"{pc.get('pred_class')} ({'ok' if pc.get('class_correct') else 'wrong'})"
+            else:
+                plain_cell, klass = "- | -", "-"
+            lines.append(f"{where} {model} | {plain_cell} | {tiled_cell} | {klass} | {lat:.1f} s |")
     return "\n".join(lines) + "\n"
