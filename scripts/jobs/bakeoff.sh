@@ -188,7 +188,7 @@ for model in "${MODELS[@]}"; do
       --junitxml="$RESULTS/junit-recognition-vlm.xml"
   fi
   run_stage "vlm-$(slug "$model")" "$PY" -m wenart.recognition.bakeoff --stage vlm --projects projects \
-    --out "$OUT" --models "$model" --server "$VLM_SERVER" --retry-errors
+    --out "$OUT" --models "$model" --server "$VLM_SERVER" --retry-errors --tiled
   stop_server
 done
 

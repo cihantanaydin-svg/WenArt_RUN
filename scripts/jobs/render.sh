@@ -98,7 +98,7 @@ for p in "${PROJECTS[@]}"; do
   # Style profile and assets (modules maintained with the style/assets work; optional here).
   run_stage "style-$p" "$PY" -m wenart.style "projects/$p" --out "$out/style.json"
   STYLE_ARG=(); [ -f "$out/style.json" ] && STYLE_ARG=(--style "$out/style.json")
-  run_stage "assets-$p" "$PY" -m wenart.assets --style "$out/style.json" --out "$ASSETS"
+  run_stage "assets-$p" "$PY" -m wenart.assets fetch --style "$out/style.json" --assets "$ASSETS" --size 2k
   ASSET_ARG=(); [ -f "$ASSETS/manifest.json" ] && ASSET_ARG=(--assets "$ASSETS")
   run_stage "build-$p" "$PY" -m wenart.blender.cli build --building "$out/building.json" \
     "${STYLE_ARG[@]}" "${ASSET_ARG[@]}" --out "$out/scene" --preview-samples 32

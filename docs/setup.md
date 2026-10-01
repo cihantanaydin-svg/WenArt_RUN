@@ -59,6 +59,7 @@ api.polyhaven.com
 polyhaven.com
 dl.polyhaven.org
 ambientcg.com
+acg-download.struffelproductions.com
 ```
 
 4.2 **RunPod key** – choose one:
