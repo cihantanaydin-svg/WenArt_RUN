@@ -43,6 +43,9 @@ copy_results() {
   # Small files only: manifests, reports, logs, JPEG previews (<= 300 KB each) and the
   # top-down level PNGs. Full-size PNGs and EXR passes stay on the volume.
   mkdir -p "$RESULTS"
+  # `local p`: this runs after every stage, inside the main loop over the projects; without
+  # it the loop variable was overwritten (run 1 rendered synthetic-01 with synthetic-03's style).
+  local p
   for p in "${PROJECTS[@]}"; do
     local src=$REPO/outputs/$p dst=$RESULTS/$p
     [ -d "$src" ] || continue
