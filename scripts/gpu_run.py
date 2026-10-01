@@ -174,12 +174,12 @@ def live_pods() -> list[dict]:
 
 
 def spent_today() -> float:
-    start = utc_now().strftime("%Y-%m-%dT00:00:00Z")
+    """Pod spend in the current UTC day bucket. A billing error refuses the run (never assume 0)."""
     try:
-        d = api("GET", f"/v2/billing/pods?startTime={start}&bucketSize=day")
+        d = api("GET", "/v2/billing/pods?bucketSize=day&lastN=1")
         return float(d["metadata"]["totals"]["totalAmount"])
-    except (ApiError, KeyError, TypeError):
-        return 0.0
+    except (ApiError, KeyError, TypeError, ValueError) as e:
+        raise RuntimeError(f"cannot read today's spend from /v2/billing/pods: {e}") from None
 
 
 def catalog() -> list[dict]:
