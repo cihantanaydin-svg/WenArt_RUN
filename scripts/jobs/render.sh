@@ -96,6 +96,11 @@ for p in "${PROJECTS[@]}"; do
   status=$(building_status "$out/building.json")
   if [ "$status" != "ok" ]; then
     log "$p: building status '${status:-missing}', scene build skipped (needs review)"
+    # A needs_review building is the pipeline doing its job, not a failed stage.
+    if [ "$status" = "needs_review" ]; then
+      FAILED=("${FAILED[@]/pipeline-$p}")
+      FAILED=($(printf '%s\n' "${FAILED[@]}" | grep -v '^$' || true))
+    fi
     continue
   fi
   # Style profile and assets (modules maintained with the style/assets work; optional here).

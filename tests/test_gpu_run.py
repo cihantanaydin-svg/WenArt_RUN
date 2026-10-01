@@ -106,3 +106,10 @@ def test_pod_create_body():
     assert b["gpu"]["count"] == 1 and b["cloud"] == "SECURE"
     b2 = gpu_run.pod_create_body("n", "NVIDIA L4", None, {}, None)
     assert "mounts" not in b2 and "dataCenterIds" not in b2
+
+
+def test_parse_listing_separates_files_and_dirs():
+    html = ('<ul><li><a href="summary.md">summary.md</a></li><li><a href="synthetic-01/">synthetic-01/</a></li>'
+            '<li><a href="a%20b.jpg">a b.jpg</a></li><li><a href="../">../</a></li><li><a href="?C=M">x</a></li></ul>')
+    files, dirs = gpu_run.parse_listing(html)
+    assert files == ["summary.md", "a b.jpg"] and dirs == ["synthetic-01"]

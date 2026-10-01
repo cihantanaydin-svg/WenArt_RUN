@@ -386,29 +386,59 @@ def cmd_volume_create(a: argparse.Namespace) -> int:
     return 0
 
 
+COLLECT_MAX_DEPTH = 4
+COLLECT_MAX_FILE = 20_000_000
+COLLECT_MAX_TOTAL = 400_000_000
+
+
+def parse_listing(html: str) -> tuple[list[str], list[str]]:
+    """Files and sub-directories of a python http.server directory listing (names unquoted)."""
+    files, dirs = [], []
+    for href in re.findall(r'href="([^"?]+)"', html):
+        if href.startswith(("/", "..", "?")) or "/" in href.rstrip("/"):
+            continue
+        name = urllib.parse.unquote(href)
+        (dirs if href.endswith("/") else files).append(name.rstrip("/"))
+    return files, dirs
+
+
 def collect(status_url: str, run_dir: Path) -> int:
-    """Download job.log and everything listed in results/ (small files only). Returns the file count."""
+    """Download job.log and everything under results/ on the pod, recursively (jobs put
+    previews in per-project folders). Small files only. Returns the file count."""
     for name in ("status.json", "job.log"):
         raw = fetch(status_url + name, timeout=60)
         if raw:
             (run_dir / name).write_bytes(raw)
-    listing = None
-    for _ in range(5):
-        listing = fetch(status_url + "results/", timeout=30)
-        if listing:
-            break
-        time.sleep(10)
-    if not listing:
-        print("warning: could not list results/ on the pod")
-        return 0
-    (run_dir / "results").mkdir(exist_ok=True)
-    n = 0
-    for name in re.findall(r'href="([^"/?]+)"', listing.decode(errors="replace")):
-        raw = fetch(status_url + "results/" + name, timeout=120)
-        if raw is not None and len(raw) < 20_000_000:
-            (run_dir / "results" / urllib.parse.unquote(name)).write_bytes(raw)
-            n += 1
-    print(f"collected {n} result files")
+    n, total = 0, 0
+
+    def walk(rel: str, depth: int) -> None:
+        nonlocal n, total
+        listing = None
+        for _ in range(5 if depth == 0 else 2):
+            listing = fetch(status_url + "results/" + rel, timeout=30)
+            if listing:
+                break
+            time.sleep(10)
+        if not listing:
+            print(f"warning: could not list results/{rel} on the pod")
+            return
+        files, dirs = parse_listing(listing.decode(errors="replace"))
+        (run_dir / "results" / rel).mkdir(parents=True, exist_ok=True)
+        for name in files:
+            if total > COLLECT_MAX_TOTAL:
+                print("warning: result size cap reached, stopping the download")
+                return
+            raw = fetch(status_url + "results/" + rel + urllib.parse.quote(name), timeout=120)
+            if raw is not None and len(raw) < COLLECT_MAX_FILE:
+                (run_dir / "results" / rel / name).write_bytes(raw)
+                n += 1
+                total += len(raw)
+        if depth < COLLECT_MAX_DEPTH:
+            for d in dirs:
+                walk(rel + d + "/", depth + 1)
+
+    walk("", 0)
+    print(f"collected {n} result files ({total / 1e6:.1f} MB)")
     return n
 
 
