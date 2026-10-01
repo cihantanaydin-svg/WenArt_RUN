@@ -145,3 +145,105 @@ def test_unknown_opening_block_and_bad_wall(tmp_path):
     door = ex.openings[0]
     assert door.kind == "door" and door.status == "unverified" and door.width == pytest.approx(0.7)
     assert door.center == (2.5, 0.125)
+
+
+def _dxf_with_furniture_block(path, name: str, rect_mm):
+    """One wall plus one MOBILYA insert of block ``name``; ``rect_mm`` = (width, depth) of the
+    rectangle drawn inside the block, or None for a block without any geometry."""
+    doc = ezdxf.new("R2010")
+    doc.header["$INSUNITS"] = 4
+    for layer in ("DUVAR", "MOBILYA"):
+        doc.layers.add(layer)
+    blk = doc.blocks.new(name)
+    if rect_mm is not None:
+        w, d = rect_mm
+        blk.add_lwpolyline([(-w / 2, -d / 2), (w / 2, -d / 2), (w / 2, d / 2), (-w / 2, d / 2)], close=True)
+        blk.add_line((-w / 4, -d / 2 + 50), (w / 4, -d / 2 + 50))
+    msp = doc.modelspace()
+    msp.add_lwpolyline([(0, 0), (6000, 0), (6000, 250), (0, 250)], close=True, dxfattribs={"layer": "DUVAR"})
+    insert = msp.add_blockref(name, (3000, 2000), dxfattribs={"layer": "MOBILYA"})
+    doc.saveas(path)
+    return f"INSERT:{insert.dxf.handle}"
+
+
+def test_known_block_drawn_larger_keeps_drawn_size_and_is_unverified(tmp_path):
+    # KANEPE_3LU is 2.2 x 0.9 m in the block table; here it is drawn 1.3 times larger.
+    entity = _dxf_with_furniture_block(tmp_path / "big.dxf", "KANEPE_3LU", (2860, 1170))
+    ex = extract_dxf(tmp_path / "big.dxf", "L0", "big.dxf")
+    assert len(ex.furniture) == 1
+    piece = ex.furniture[0]
+    assert piece.type == "sofa" and piece.type_raw == "KANEPE_3LU"
+    assert piece.size == pytest.approx((2.86, 1.17))          # the drawn rectangle is the footprint
+    assert piece.center == (3.0, 2.0) and piece.status == "unverified" and piece.front_deg is None
+    assert piece.box == pytest.approx([1570.0, 1415.0, 4430.0, 2585.0])
+    assert len(ex.conflicts) == 1
+    conflict = ex.conflicts[0]
+    assert conflict["kind"] == "type_disagreement" and conflict["element_ids"] == []
+    assert entity in conflict["description"] and "KANEPE_3LU" in conflict["description"]
+    assert "2.86 x 1.17" in conflict["description"] and "2.20 x 0.90" in conflict["description"]
+    assert "drawn" in conflict["resolution"] and "unverified" in conflict["resolution"]
+
+
+def test_known_block_drawn_at_table_size_stays_verified(tmp_path):
+    _dxf_with_furniture_block(tmp_path / "ok.dxf", "KANEPE_3LU", (2200, 900))
+    ex = extract_dxf(tmp_path / "ok.dxf", "L0", "ok.dxf")
+    piece = ex.furniture[0]
+    assert piece.size == (2.2, 0.9) and piece.status == "verified" and piece.front_deg == 270.0
+    assert ex.conflicts == [] and ex.warnings == []
+
+
+def test_known_block_without_geometry_uses_table_size_but_is_unverified(tmp_path):
+    entity = _dxf_with_furniture_block(tmp_path / "empty.dxf", "DOLAP", None)
+    ex = extract_dxf(tmp_path / "empty.dxf", "L0", "empty.dxf")
+    piece = ex.furniture[0]
+    assert piece.type == "wardrobe" and piece.size == (1.8, 0.6) and piece.status == "unverified"
+    assert ex.conflicts == []
+    assert any(entity in w and "no drawn footprint" in w for w in ex.warnings)
+
+
+def test_rotated_and_aligned_dimensions_measure_like_cad(tmp_path):
+    from wenart.synthetic.dxf_writer import DIMSTYLE, DIMSTYLE_ATTRIBS
+
+    doc = ezdxf.new("R2010", setup=True)
+    doc.header["$INSUNITS"] = 4
+    for layer in ("DUVAR", "OLCU"):
+        doc.layers.add(layer)
+    doc.dimstyles.new(DIMSTYLE, dxfattribs=DIMSTYLE_ATTRIBS)
+    msp = doc.modelspace()
+    msp.add_lwpolyline([(0, 0), (5300, 0), (5300, 250), (0, 250)], close=True, dxfattribs={"layer": "DUVAR"})
+    dim_attribs = {"layer": "OLCU"}
+    # Horizontal (rotated) dimension from the wall corner to a point on another face: CAD prints the
+    # projection onto the dimension direction (5300), not the distance of the definition points (5393.5).
+    rotated = msp.add_linear_dim(base=(0, -600), p1=(0, 0), p2=(5300, 1000), angle=0, dimstyle=DIMSTYLE,
+                                 dxfattribs=dim_attribs)
+    rotated.render()
+    # Aligned dimension between diagonal points, as ezdxf writes it (dimtype 0 with the angle set).
+    aligned = msp.add_aligned_dim(p1=(0, 250), p2=(3000, 4250), distance=300, dimstyle=DIMSTYLE, dxfattribs=dim_attribs)
+    aligned.render()
+    # A true aligned dimension (dimtype 1) as CAD programs write it: no rotation angle stored.
+    cad_aligned = msp.add_aligned_dim(p1=(5300, 250), p2=(2300, 4250), distance=300, dimstyle=DIMSTYLE,
+                                      dxfattribs=dim_attribs)
+    cad_aligned.render()
+    cad_aligned.dimension.dxf.dimtype = (cad_aligned.dimension.dxf.dimtype & ~15) | 1
+    cad_aligned.dimension.dxf.discard("angle")
+    path = tmp_path / "dims.dxf"
+    doc.saveas(path)
+
+    ex = extract_dxf(path, "L0", "dims.dxf")
+    by_entity = {d.entity: d for d in ex.dimensions}
+    assert len(by_entity) == 3
+
+    rot = by_entity[f"DIMENSION:{rotated.dimension.dxf.handle}"]
+    assert rot.printed == "5,30" and rot.printed_value == 5.3
+    assert rot.measured == pytest.approx(5.30, abs=1e-6)
+    # Span end points lie on the dimension line (y = -0.6 m), so wall linking sees a horizontal span.
+    assert rot.p1 == pytest.approx((0.0, -0.6), abs=1e-6) and rot.p2 == pytest.approx((5.3, -0.6), abs=1e-6)
+
+    ali = by_entity[f"DIMENSION:{aligned.dimension.dxf.handle}"]
+    assert ali.printed == "5,00" and ali.measured == pytest.approx(5.0, abs=1e-6)
+    # Span on the dimension line: 300 mm to the left of p1 -> p2 (direction (0.6, 0.8)).
+    assert ali.p1 == pytest.approx((-0.24, 0.43), abs=1e-6) and ali.p2 == pytest.approx((2.76, 4.43), abs=1e-6)
+
+    cad = by_entity[f"DIMENSION:{cad_aligned.dimension.dxf.handle}"]
+    assert cad.printed == "5,00" and cad.measured == pytest.approx(5.0, abs=1e-6)
+    assert cad.p1 == pytest.approx((5.3, 0.25), abs=1e-6) and cad.p2 == pytest.approx((2.3, 4.25), abs=1e-6)

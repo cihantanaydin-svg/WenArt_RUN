@@ -14,8 +14,12 @@ they are drawn:
 - Windows: four opening-width lines forming a thin closed rectangle (two
   parallel lines of the clear width joined by two short end lines).
 - Dimensions: number texts (``3,45``) next to a parallel line with 45-degree
-  ticks at its ends. The ratio printed value / line length gives the scale
-  (``method: dimension_text``); the ``ÖLÇEK 1/100`` note is the cross-check.
+  ticks at its ends. The ``ÖLÇEK 1/100`` note gives the scale; the ratios
+  printed value / line length cross-check it (a disagreement is a
+  ``scale_disagreement`` conflict, the note still wins). Without a note the
+  ratios give the scale (``method: dimension_text``) only when at least
+  ``MIN_AGREEING_DIMENSIONS`` of them agree, because a dimension text can be
+  an override that must not rescale the drawn geometry.
 
 Coordinates: page points, origin bottom-left (pdfminer's user space), which
 is what ``truth/pages.json`` uses. Path indices (``path:<n>``) count the
@@ -46,7 +50,9 @@ LW_TOLERANCE = 0.06
 POINT_TOLERANCE = 0.5          # points: endpoints "touch" when closer than this
 MAX_WINDOW_DEPTH_M = 0.5       # a window symbol is a thin rectangle on the wall
 MAX_FURNITURE_INSET_M = 0.08   # the front marker lies within this distance of the front edge
-SCALE_AGREEMENT = 0.01         # dimension-derived scale vs ÖLÇEK text (1 %)
+SCALE_AGREEMENT = 0.01         # dimension ratio vs ÖLÇEK text or vs the other ratios (1 %)
+MIN_AGREEING_DIMENSIONS = 3    # without a scale note, this many agreeing ratios set the scale
+SCALE_NOTE_DISPUTED_CONFIDENCE = 0.5  # note kept although the dimension texts disagree
 
 
 @dataclass
@@ -305,41 +311,78 @@ def _find_dimensions(texts: list[TextItem], lines: list[PathObj]) -> list[dict]:
 
 def _resolve_scale(raw_dims: list[dict], scale_text: Optional[TextItem], ex: LevelExtraction,
                    file_rel: str, page_number: int) -> Optional[dict]:
-    """Scale block for the page from dimension texts and/or the ÖLÇEK note."""
-    ratios = []
+    """Scale block for the page: the ÖLÇEK note first, dimension texts as cross-check or fallback.
+
+    A dimension ratio is printed text divided by drawn length, so a text override moves
+    every scale derived from it, and the overridden dimension would then measure exactly
+    its printed value and hide its own conflict. Hence:
+
+    - With a note, the note is the scale. Ratios whose median agrees with it (within
+      ``SCALE_AGREEMENT``) confirm it (confidence 1.0). A disagreeing set lowers the
+      confidence and raises a ``scale_disagreement`` conflict naming the odd texts; the
+      pipeline then checks every dimension text against its measured length.
+    - Without a note, the median of the ratios is the scale only when at least
+      ``MIN_AGREEING_DIMENSIONS`` ratios agree with it and they are the majority. A lone
+      or split set gives no scale source (``needs_review`` downstream).
+    """
+    where = f"{file_rel} p{page_number}"
+    ratios: list[tuple[TextItem, float]] = []   # (dimension text, metres per point it implies)
     for raw in raw_dims:
         value = parse_number(raw["text"].text)
         if value and raw["length_pt"] > 0:
-            ratios.append(value / raw["length_pt"])
-    from_dims = statistics.median(ratios) if ratios else None
+            ratios.append((raw["text"], value / raw["length_pt"]))
     from_text = None
     if scale_text is not None:
         denominator = parse_scale_text(scale_text.text)
         if denominator:
             from_text = denominator * METRES_PER_POINT
 
-    def ev_text():
-        return B.evidence(file_rel, "vector", 1.0, page=page_number, entity=scale_text.entity, text=scale_text.text)
+    def off_pct(ratio: float, reference: float) -> float:
+        return (ratio - reference) / reference * 100.0
 
-    if from_dims is not None and from_text is not None:
-        if abs(from_dims - from_text) / from_text <= SCALE_AGREEMENT:
-            # Both agree: keep the exact value of the scale note; the dimensions confirm it.
-            return {"metres_per_unit": from_text, "method": "pdf_scale_text", "confidence": 1.0, "evidence": ev_text()}
-        ex.conflicts.append({"kind": "scale_disagreement", "element_ids": [],
-                             "description": f"{file_rel} p{page_number}: '{scale_text.text}' gives "
-                                            f"{from_text:.6f} m/pt but {len(ratios)} dimension texts give "
-                                            f"{from_dims:.6f} m/pt ({abs(from_dims - from_text) / from_text * 100:.1f}%)",
-                             "resolution": "dimension texts win (measured geometry), scale note ignored"})
-        best = raw_dims[0]["text"]
-        return {"metres_per_unit": from_dims, "method": "dimension_text", "confidence": 0.7,
-                "evidence": B.evidence(file_rel, "vector", 0.7, page=page_number, entity=best.entity, text=best.text)}
-    if from_dims is not None:
-        best = raw_dims[0]["text"]
-        return {"metres_per_unit": from_dims, "method": "dimension_text", "confidence": 0.9,
-                "evidence": B.evidence(file_rel, "vector", 0.9, page=page_number, entity=best.entity, text=best.text)}
+    def disagreeing(reference: float) -> list[tuple[TextItem, float]]:
+        return [(t, r) for t, r in ratios if abs(off_pct(r, reference)) > SCALE_AGREEMENT * 100.0]
+
+    def describe(items, reference: float) -> str:
+        return ", ".join(f"'{t.text}' ({off_pct(r, reference):+.1f}%)" for t, r in items)
+
     if from_text is not None:
-        return {"metres_per_unit": from_text, "method": "pdf_scale_text", "confidence": 0.9, "evidence": ev_text()}
-    return None
+        def note_scale(confidence: float) -> dict:
+            return {"metres_per_unit": from_text, "method": "pdf_scale_text", "confidence": confidence,
+                    "evidence": B.evidence(file_rel, "vector", confidence, page=page_number, entity=scale_text.entity,
+                                           text=scale_text.text)}
+        if not ratios:
+            return note_scale(0.9)
+        median = statistics.median(r for _, r in ratios)
+        if abs(off_pct(median, from_text)) <= SCALE_AGREEMENT * 100.0:
+            # The dimension texts confirm the note; keep its exact value.
+            return note_scale(1.0)
+        ex.conflicts.append({
+            "kind": "scale_disagreement", "element_ids": [],
+            "description": f"{where}: '{scale_text.text}' gives {from_text:.6f} m/pt but the median of {len(ratios)} "
+                           f"dimension texts gives {median:.6f} m/pt ({off_pct(median, from_text):+.1f}%); "
+                           f"disagreeing texts: {describe(disagreeing(from_text), from_text)}",
+            "resolution": "scale note kept (drawn standard scale); every dimension text is checked against "
+                          "the length measured at that scale"})
+        return note_scale(SCALE_NOTE_DISPUTED_CONFIDENCE)
+
+    if not ratios:
+        return None
+    median = statistics.median(r for _, r in ratios)
+    odd = disagreeing(median)
+    agreeing = [(t, r) for t, r in ratios if abs(off_pct(r, median)) <= SCALE_AGREEMENT * 100.0]
+    if len(agreeing) < MIN_AGREEING_DIMENSIONS or len(agreeing) * 2 <= len(ratios):
+        ex.warnings.append(f"{where}: no scale note and only {len(agreeing)} of {len(ratios)} dimension texts agree "
+                           f"on a scale (need {MIN_AGREEING_DIMENSIONS})"
+                           + (f"; disagreeing: {describe(odd, median)}" if odd else ""))
+        return None
+    confidence = 0.9 if not odd else 0.7
+    if odd:
+        ex.warnings.append(f"{where}: scale from {len(agreeing)} of {len(ratios)} agreeing dimension texts; "
+                           f"disagreeing: {describe(odd, median)}")
+    best = agreeing[0][0]
+    return {"metres_per_unit": median, "method": "dimension_text", "confidence": confidence,
+            "evidence": B.evidence(file_rel, "vector", confidence, page=page_number, entity=best.entity, text=best.text)}
 
 
 # --------------------------------------------------------------------------

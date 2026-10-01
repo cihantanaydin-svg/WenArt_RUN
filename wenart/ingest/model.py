@@ -128,7 +128,11 @@ class LevelExtraction:
     openings: list[OpeningItem] = field(default_factory=list)
     furniture: list[FurnitureItem] = field(default_factory=list)
     dimensions: list[DimensionItem] = field(default_factory=list)
-    conflicts: list[dict] = field(default_factory=list)    # page-level, e.g. scale disagreement (no id yet)
+    # Conflicts found while reading the page, as schema conflict dicts without an id
+    # (kind, element_ids, description, resolution): scale disagreements, blocks drawn at
+    # another size than their name says, etc. Items have no element id yet, so the
+    # description names the source entity; the pipeline copies them into the building.
+    conflicts: list[dict] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
 
     @property
