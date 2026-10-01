@@ -10,17 +10,28 @@ Usage:
   gpu_run.py gpus [--dc EU-RO-1]         live prices and availability of the allowed GPUs
   gpu_run.py volume-create [--size 120]  create the Network Volume (asks first)
   gpu_run.py run --job scripts/jobs/smoke.sh [--gpu "RTX A5000"] [--max-minutes 120] [--no-volume]
-  gpu_run.py logs POD_ID | stop POD_ID | terminate POD_ID | sweep
+  gpu_run.py logs POD_ID | stop POD_ID | terminate POD_ID | sweep [--yes]
 Only stdlib; works in the cloud session (HTTPS proxy) and on the Mac.
+
+Safety notes:
+- Only pods named `wenart-*` are ever stopped or terminated; other pods on the account
+  are reported, never touched.
+- Today's spend = max(billing API, rows of docs/gpu-log.md dated today) + worst case of
+  live wenart pods, because the billing API lags by minutes to hours.
+- A provisional gpu-log row is written before the pod exists and corrected at the end,
+  so a crashed runner still leaves a trace. SIGTERM unwinds through the cleanup.
 """
 from __future__ import annotations
 
 import argparse
 import base64
 import datetime as dt
+import http.client
 import json
 import os
+import re
 import secrets
+import signal
 import socket
 import subprocess
 import sys
@@ -43,16 +54,14 @@ DATACENTER = "EU-RO-1"
 VOLUME_NAME = "wenart"
 VOLUME_SIZE_GB = 120
 CONTAINER_DISK_GB = 30
+POD_PREFIX = "wenart-"
 # Allowed GPUs in order of preference: 24 GB+, RT cores, under $1/h.
 GPU_PRIORITY = ["RTX A5000", "A40", "RTX A6000", "RTX PRO 4000", "L4", "RTX 4090", "RTX PRO 4500"]
-GPU_IDS = {  # catalog ids (GET /v2/catalog/gpus)
-    "RTX A5000": "NVIDIA RTX A5000", "A40": "NVIDIA A40", "RTX A6000": "NVIDIA RTX A6000",
-    "RTX PRO 4000": "NVIDIA RTX PRO 4000 Blackwell", "L4": "NVIDIA L4", "RTX 4090": "NVIDIA GeForce RTX 4090",
-    "RTX PRO 4500": "NVIDIA RTX PRO 4500 Blackwell",
-}
 POLL_S = 20
 BOOT_TIMEOUT_S = 15 * 60  # pod RUNNING but no status server -> stop it
-UA = "wenart-gpu-run/0.1 (+https://github.com/cihantanaydin-svg/WenArt_RUN)"  # Cloudflare bans urllib's default UA
+API_FAIL_LIMIT = 30  # consecutive failed polls (~10 min) before the runner gives up watching
+UA = "wenart-gpu-run/0.2 (+https://github.com/cihantanaydin-svg/WenArt_RUN)"  # Cloudflare bans urllib's default UA
+JOB_RE = re.compile(r"^scripts/jobs/[A-Za-z0-9_.-]+\.sh$")
 
 
 # ----------------------------------------------------------------------------- API
@@ -60,23 +69,33 @@ class ApiError(RuntimeError):
     pass
 
 
-def api(method: str, path: str, body: dict | None = None, timeout: int = 60) -> dict | list | None:
+def api(method: str, path: str, body: dict | None = None, timeout: int = 60, retries: int = 3) -> dict | list | None:
+    """Call the REST API. Network and HTTP errors become ApiError; GETs and the
+    stop/terminate calls are retried with backoff, pod creation is not (orphan risk)."""
     key = os.environ.get("RUNPOD_API_KEY", "")
-    req = urllib.request.Request(API + path, method=method)
-    req.add_header("Authorization", f"Bearer {key}")
-    req.add_header("User-Agent", UA)
-    req.add_header("Accept", "application/json")
-    data = None
-    if body is not None:
-        data = json.dumps(body).encode()
-        req.add_header("Content-Type", "application/json")
-    try:
-        with urllib.request.urlopen(req, data=data, timeout=timeout) as r:
-            raw = r.read()
-            return json.loads(raw) if raw.strip() else None
-    except urllib.error.HTTPError as e:
-        detail = e.read().decode(errors="replace")[:800]
-        raise ApiError(f"{method} {path} -> HTTP {e.code}: {detail}") from None
+    data = json.dumps(body).encode() if body is not None else None
+    last: Exception | None = None
+    for attempt in range(retries):
+        req = urllib.request.Request(API + path, method=method)
+        req.add_header("Authorization", f"Bearer {key}")
+        req.add_header("Accept", "application/json")
+        req.add_header("User-Agent", UA)
+        if data is not None:
+            req.add_header("Content-Type", "application/json")
+        try:
+            with urllib.request.urlopen(req, data=data, timeout=timeout) as r:
+                raw = r.read()
+                return json.loads(raw) if raw.strip() else None
+        except urllib.error.HTTPError as e:
+            detail = e.read().decode(errors="replace")[:800]
+            last = ApiError(f"{method} {path} -> HTTP {e.code}: {detail}")
+            if e.code < 500 and e.code != 429:
+                break
+        except (urllib.error.URLError, socket.timeout, TimeoutError, OSError, http.client.HTTPException) as e:
+            last = ApiError(f"{method} {path} -> network error: {e}")
+        if attempt + 1 < retries:
+            time.sleep(2 ** attempt)
+    raise last  # type: ignore[misc]
 
 
 def fetch(url: str, timeout: int = 20) -> bytes | None:
@@ -85,7 +104,7 @@ def fetch(url: str, timeout: int = 20) -> bytes | None:
         req = urllib.request.Request(url, headers={"User-Agent": UA})
         with urllib.request.urlopen(req, timeout=timeout) as r:
             return r.read()
-    except (urllib.error.URLError, urllib.error.HTTPError, socket.timeout, OSError):
+    except (urllib.error.URLError, urllib.error.HTTPError, socket.timeout, OSError, http.client.HTTPException):
         return None
 
 
@@ -128,26 +147,74 @@ def check_limits(price: float, minutes: int, spent_today: float) -> None:
                            f"would pass the ${MAX_PER_DAY:.2f}/day limit")
 
 
-def append_gpu_log(text: str, row: dict) -> str:
-    """Insert a row into the gpu-log table and recompute the total. Returns new text."""
-    lines = text.splitlines()
-    last_row = max(i for i, l in enumerate(lines) if l.startswith("|"))
-    new = (f"| {row['date']} | {row['pod_id']} | {row['gpu']} | {row['minutes']} | "
-           f"{row['cost']:.2f} | {row['purpose']} | {row['result']} |")
-    lines.insert(last_row + 1, new)
-    total = 0.0
-    for l in lines:
-        cells = [c.strip() for c in l.strip().strip("|").split("|")]
+def our_pods(pods: list[dict]) -> list[dict]:
+    """Pods created by this runner (name prefix). Everything else belongs to someone else."""
+    return [p for p in pods if str(p.get("name", "")).startswith(POD_PREFIX)]
+
+
+def validate_job_path(job: str) -> str:
+    """A job is a committed shell script under scripts/jobs/; the path is passed to the pod as is."""
+    job = job.replace("\\", "/")
+    if not JOB_RE.match(job):
+        raise RuntimeError(f"job must look like scripts/jobs/<name>.sh, got {job!r}")
+    if not (ROOT / job).is_file():
+        raise RuntimeError(f"job script not found: {job}")
+    return job
+
+
+def gpu_log_rows(text: str) -> list[list[str]]:
+    rows = []
+    for line in text.splitlines():
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
         if len(cells) == 7 and cells[0] not in ("Date (UTC)", "---"):
+            rows.append(cells)
+    return rows
+
+
+def local_spent_on(text: str, day: str) -> float:
+    """Sum of the Cost cells of gpu-log rows whose date starts with `day` (YYYY-MM-DD)."""
+    total = 0.0
+    for cells in gpu_log_rows(text):
+        if cells[0].startswith(day):
             try:
                 total += float(cells[4])
             except ValueError:
                 pass
+    return total
+
+
+def upsert_gpu_log(text: str, row: dict, key: str | None = None) -> str:
+    """Insert a row into the gpu-log table (or replace the row whose Pod ID cell equals
+    `key`) and recompute the total. Returns the new text."""
+    lines = text.splitlines()
+    new = (f"| {row['date']} | {row['pod_id']} | {row['gpu']} | {row['minutes']} | "
+           f"{row['cost']:.2f} | {row['purpose']} | {row['result']} |")
+    replaced = False
+    if key:
+        for i, l in enumerate(lines):
+            cells = [c.strip() for c in l.strip().strip("|").split("|")]
+            if len(cells) == 7 and cells[1] == key:
+                lines[i] = new
+                replaced = True
+                break
+    if not replaced:
+        last_row = max(i for i, l in enumerate(lines) if l.startswith("|"))
+        lines.insert(last_row + 1, new)
+    total = 0.0
+    for cells in gpu_log_rows("\n".join(lines)):
+        try:
+            total += float(cells[4])
+        except ValueError:
+            pass
     for i, l in enumerate(lines):
         if l.startswith("**Total spent so far:"):
             rest = l.split("**", 2)[2]
             lines[i] = f"**Total spent so far: ${total:.2f}**{rest}"
     return "\n".join(lines) + "\n"
+
+
+def append_gpu_log(text: str, row: dict) -> str:
+    return upsert_gpu_log(text, row)
 
 
 def pod_create_body(name: str, gpu_id: str, volume_id: str | None, env: dict, dc: str | None) -> dict:
@@ -169,17 +236,37 @@ def pod_create_body(name: str, gpu_id: str, volume_id: str | None, env: dict, dc
 
 
 # ------------------------------------------------------------------------ helpers
-def live_pods() -> list[dict]:
-    return [p for p in api("GET", "/v2/pods")["pods"] if p["status"] not in ("EXITED", "TERMINATED")]
+def all_pods() -> list[dict]:
+    return api("GET", "/v2/pods")["pods"]
 
 
-def spent_today() -> float:
-    """Pod spend in the current UTC day bucket. A billing error refuses the run (never assume 0)."""
+def live_pods(pods: list[dict] | None = None) -> list[dict]:
+    """Live pods of ours. Foreign live pods are printed as a warning, never touched."""
+    pods = all_pods() if pods is None else pods
+    live = [p for p in pods if p["status"] not in ("EXITED", "TERMINATED")]
+    foreign = [p for p in live if p not in our_pods(live)]
+    for p in foreign:
+        print(f"warning: foreign pod {p['id']} ({p.get('name')}) is {p['status']} on this account; not ours, left alone")
+    return our_pods(live)
+
+
+def billing_today() -> float:
+    """Pod spend in the current UTC day bucket from the billing API. A billing error refuses the run."""
     try:
         d = api("GET", "/v2/billing/pods?bucketSize=day&lastN=1")
         return float(d["metadata"]["totals"]["totalAmount"])
     except (ApiError, KeyError, TypeError, ValueError) as e:
         raise RuntimeError(f"cannot read today's spend from /v2/billing/pods: {e}") from None
+
+
+def spent_today(pods: list[dict] | None = None) -> float:
+    """max(billing, local log for today) + worst case of every live wenart pod (2 h at its rate)."""
+    billing = billing_today()
+    local = local_spent_on(GPU_LOG.read_text(), utc_now().strftime("%Y-%m-%d")) if GPU_LOG.exists() else 0.0
+    live = sum(float(p.get("cost") or 0) * MAX_MINUTES / 60 for p in live_pods(pods))
+    if billing < local:
+        print(f"note: billing API says ${billing:.2f} today but docs/gpu-log.md has ${local:.2f} (billing lags); using the larger")
+    return max(billing, local) + live
 
 
 def catalog() -> list[dict]:
@@ -202,16 +289,18 @@ def git(*args: str) -> str:
     return subprocess.check_output(["git", *args], cwd=ROOT, text=True).strip()
 
 
-def pod_logs(pod_id: str, tail: int = 2000) -> str:
-    """Read the SSE log stream until it goes quiet."""
+def pod_logs(pod_id: str, tail: int = 2000, idle_s: float = 6.0, cap_s: float = 60.0) -> str:
+    """Read the SSE log stream until it goes quiet (idle cutoff) or the cap is reached."""
     key = os.environ.get("RUNPOD_API_KEY", "")
     req = urllib.request.Request(f"{API}/v2/pods/{pod_id}/logs?source=container&tail={tail}")
     req.add_header("Authorization", f"Bearer {key}")
     req.add_header("User-Agent", UA)
-    out = []
+    out: list[str] = []
+    t0 = time.time()
     try:
-        with urllib.request.urlopen(req, timeout=8) as r:
-            while True:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            r.fp.raw._sock.settimeout(idle_s)  # type: ignore[attr-defined]
+            while time.time() - t0 < cap_s:
                 line = r.readline()
                 if not line:
                     break
@@ -219,48 +308,55 @@ def pod_logs(pod_id: str, tail: int = 2000) -> str:
                 if s.startswith("data:"):
                     try:
                         d = json.loads(s[5:])
-                        out.append(d.get("line", d.get("message", s[5:])))
+                        out.append(str(d.get("line", d.get("message", s[5:]))))
                     except (json.JSONDecodeError, AttributeError):
                         out.append(s[5:].strip())
-    except (socket.timeout, TimeoutError, urllib.error.URLError, OSError):
+    except Exception:  # noqa: BLE001 - best effort, return what was read
         pass
-    return "\n".join(str(x) for x in out)
+    return "\n".join(out)
 
 
-def terminate(pod_id: str) -> None:
+def terminate(pod_id: str) -> bool:
     try:
         api("DELETE", f"/v2/pods/{pod_id}")
         print(f"pod {pod_id} terminated")
+        return True
     except ApiError as e:
         print(f"terminate failed: {e}")
+        return False
 
 
-def stop(pod_id: str) -> None:
+def stop(pod_id: str) -> bool:
     try:
         api("POST", f"/v2/pods/{pod_id}/action", {"action": "stop"})
         print(f"pod {pod_id} stop requested")
+        return True
     except ApiError as e:
         print(f"stop failed: {e}")
+        return False
 
 
-def log_run(pod_id: str, gpu: str, minutes: float, cost: float, purpose: str, result: str) -> None:
+def log_run(pod_id: str, gpu: str, minutes: float, cost: float, purpose: str, result: str,
+            key: str | None = None) -> None:
     row = {"date": utc_now().strftime("%Y-%m-%d %H:%M"), "pod_id": pod_id, "gpu": gpu,
            "minutes": int(round(minutes)), "cost": cost, "purpose": purpose, "result": result}
-    GPU_LOG.write_text(append_gpu_log(GPU_LOG.read_text(), row))
+    GPU_LOG.write_text(upsert_gpu_log(GPU_LOG.read_text(), row, key))
     print(f"logged to docs/gpu-log.md: {row}")
 
 
 # ----------------------------------------------------------------------- commands
 def cmd_status(_: argparse.Namespace) -> int:
-    pods = api("GET", "/v2/pods")["pods"]
+    pods = all_pods()
     print(f"pods: {len(pods)}")
     for p in pods:
-        print(f"  {p['id']} {p['status']} {p.get('gpu', {}).get('id', '-')} ${p.get('cost', 0)}/h {p.get('dataCenterId')}")
+        mine = "ours" if p in our_pods(pods) else "NOT ours"
+        print(f"  {p['id']} {p['status']} {p.get('name')} {p.get('gpu', {}).get('id', '-')} ${p.get('cost', 0)}/h {p.get('dataCenterId')} [{mine}]")
     vols = api("GET", "/v2/network-volumes")["networkVolumes"]
     print(f"network volumes: {len(vols)}")
     for v in vols:
         print(f"  {v['id']} {v['name']} {v['size']} GB {v['dataCenter']}")
-    print(f"spent today (UTC): ${spent_today():.2f} of ${MAX_PER_DAY:.2f}")
+    print(f"spent today (UTC): ${spent_today(pods):.2f} of ${MAX_PER_DAY:.2f} "
+          f"(billing ${billing_today():.2f}, local log ${local_spent_on(GPU_LOG.read_text(), utc_now().strftime('%Y-%m-%d')):.2f})")
     return 0
 
 
@@ -289,28 +385,59 @@ def cmd_volume_create(a: argparse.Namespace) -> int:
     return 0
 
 
+def collect(status_url: str, run_dir: Path) -> int:
+    """Download job.log and everything listed in results/ (small files only). Returns the file count."""
+    for name in ("status.json", "job.log"):
+        raw = fetch(status_url + name, timeout=60)
+        if raw:
+            (run_dir / name).write_bytes(raw)
+    listing = None
+    for _ in range(5):
+        listing = fetch(status_url + "results/", timeout=30)
+        if listing:
+            break
+        time.sleep(10)
+    if not listing:
+        print("warning: could not list results/ on the pod")
+        return 0
+    (run_dir / "results").mkdir(exist_ok=True)
+    n = 0
+    for name in re.findall(r'href="([^"/?]+)"', listing.decode(errors="replace")):
+        raw = fetch(status_url + "results/" + name, timeout=120)
+        if raw is not None and len(raw) < 20_000_000:
+            (run_dir / "results" / urllib.parse.unquote(name)).write_bytes(raw)
+            n += 1
+    print(f"collected {n} result files")
+    return n
+
+
 def cmd_run(a: argparse.Namespace) -> int:
-    job_path = Path(a.job)
-    if not (ROOT / job_path).exists():
-        raise RuntimeError(f"job script not found: {job_path}")
+    job = validate_job_path(a.job)
     commit = git("rev-parse", "HEAD")
     if not a.allow_dirty:
-        if git("status", "--porcelain"):
+        dirty = git("status", "--porcelain", "--", ".", ":!docs/gpu-log.md")
+        if dirty:
             raise RuntimeError("working tree not clean; commit and push first (or --allow-dirty)")
         if not git("branch", "-r", "--contains", commit):
             raise RuntimeError("HEAD is not pushed; the pod clones from GitHub (or --allow-dirty)")
+        if job not in git("ls-files", "--", job):
+            raise RuntimeError(f"{job} is not committed")
     minutes = min(a.max_minutes, MAX_MINUTES)
 
-    running = live_pods()
+    pods = all_pods()
+    running = live_pods(pods)
     if running:
-        raise RuntimeError("a pod is already live (one at a time): " + ", ".join(p["id"] for p in running))
+        raise RuntimeError("a wenart pod is already live (one at a time): " + ", ".join(p["id"] for p in running))
+    stale = [p for p in our_pods(pods) if p["status"] in ("EXITED",)]
+    for p in stale:
+        print(f"warning: stopped wenart pod {p['id']} still exists (disk billing); terminate it with 'terminate {p['id']}'")
 
     volume = None if a.no_volume else find_volume()
     if not a.no_volume and volume is None:
         raise RuntimeError(f"no network volume '{VOLUME_NAME}'; run 'volume-create' or use --no-volume")
     dc = volume["dataCenter"] if volume else None
     gpu = pick_gpu(catalog(), dc_availability(dc) if dc else None, a.gpu)
-    today = spent_today()
+    today = spent_today(pods)
     check_limits(gpu["price"], minutes, today)
     worst = gpu["price"] * minutes / 60
     print(f"GPU {gpu['name']} ({gpu['memory']} GB) ${gpu['price']}/h, stock {gpu['availability']}, "
@@ -318,22 +445,40 @@ def cmd_run(a: argparse.Namespace) -> int:
     if a.dry_run:
         print("dry run, no pod created"); return 0
 
-    job_id = utc_now().strftime("%Y%m%d-%H%M%S") + "-" + job_path.stem
+    job_id = utc_now().strftime("%Y%m%d-%H%M%S") + "-" + Path(job).stem
+    purpose = a.purpose or Path(job).stem
     token = secrets.token_urlsafe(24)
     entry = base64.b64encode((ROOT / "scripts" / "pod_entry.sh").read_bytes()).decode()
     env = {
-        "WENART_ENTRY": entry, "JOB_ID": job_id, "JOB_TOKEN": token,
-        "JOB_CMD": f"bash {job_path.as_posix()}",
+        "WENART_ENTRY": entry, "JOB_ID": job_id, "JOB_TOKEN": token, "JOB_SCRIPT": job,
         "REPO_URL": a.repo_url, "REPO_COMMIT": commit,
         "MAX_RUNTIME_S": str(minutes * 60), "GRACE_S": str(a.grace),
         "HF_TOKEN": "{{ RUNPOD_SECRET_hf_token }}", "HF_HOME": "/workspace/hf",
+        "WENART_IMAGE": IMAGE, "WENART_EXPECT_VOLUME": "1" if volume else "0",
     }
-    body = pod_create_body(f"wenart-{job_id}", gpu["id"], volume["id"] if volume else None, env, dc)
-    pod = api("POST", "/v2/pods", body)
-    pod_id = pod["id"]
-    t0 = time.time()
+    name = f"{POD_PREFIX}{job_id}"
+    # Provisional log row before the pod exists: a crashed runner still leaves a trace.
+    pending_key = f"pending:{job_id}"
+    log_run(pending_key, gpu["name"], minutes, worst, purpose, "creating (provisional, worst case)")
+    signal.signal(signal.SIGTERM, lambda *_: sys.exit(143))
+
     run_dir = RUNS_DIR / job_id
     run_dir.mkdir(parents=True, exist_ok=True)
+    t0 = time.time()
+    pod_id = None
+    try:
+        pod = api("POST", "/v2/pods", pod_create_body(name, gpu["id"], volume["id"] if volume else None, env, dc), retries=1)
+        pod_id = pod["id"]
+    except ApiError as e:
+        print(f"pod creation failed: {e}; checking for an orphan named {name}")
+        for p in our_pods(all_pods()):
+            if p.get("name") == name:
+                pod_id = p["id"]
+                print(f"orphan {pod_id} found; terminating it")
+                stop(pod_id); terminate(pod_id)
+        log_run(pending_key if pod_id is None else pod_id, gpu["name"], 0, 0.0, purpose,
+                "pod creation failed" + ("; orphan terminated" if pod_id else ""), key=pending_key)
+        return 1
     print(f"pod {pod_id} created ({pod['status']}); job {job_id}; local dir runs/{job_id}")
     status_url = f"https://{pod_id}-8000.proxy.runpod.net/{token}/"
     result = "unknown"
@@ -344,38 +489,60 @@ def cmd_run(a: argparse.Namespace) -> int:
     self_stopped = False
     first_running = None
     seen_status = False
+    api_fails = 0
+    pod_status = pod["status"]
+
+    def save_pod_log(tag: str) -> None:
+        text = pod_logs(pod_id)
+        if text:
+            (run_dir / f"pod-{tag}.log").write_text(text)
+
     try:
         deadline = t0 + minutes * 60 + a.grace + 600
         while time.time() < deadline:
-            p = api("GET", f"/v2/pods/{pod_id}")
-            if p["status"] == "RUNNING" and first_running is None:
+            try:
+                p = api("GET", f"/v2/pods/{pod_id}")
+                api_fails = 0
+            except ApiError as e:
+                api_fails += 1
+                if api_fails in (1, 10, 20):
+                    print(f"poll failed ({api_fails}x): {e}")
+                if api_fails >= API_FAIL_LIMIT:
+                    result = "api unreachable (pod self-stops)"
+                    break
+                time.sleep(POLL_S)
+                continue
+            pod_status = p["status"]
+            price = p.get("cost") or price
+            gpu_name = (p.get("gpu") or {}).get("id", gpu_name)
+            if pod_status == "RUNNING" and first_running is None:
                 first_running = time.time()
             if first_running and not seen_status and time.time() - first_running > BOOT_TIMEOUT_S:
                 result = "no status server after boot timeout"
                 print(f"{result}; stopping the pod")
+                save_pod_log("boot-timeout")
                 break
-            price = p.get("cost") or price
-            gpu_name = (p.get("gpu") or {}).get("id", gpu_name)
             st = None
-            raw = fetch(status_url + "status.json") if p["status"] == "RUNNING" else None
+            raw = fetch(status_url + "status.json") if pod_status == "RUNNING" else None
             if raw:
                 try:
                     st = json.loads(raw)
                     seen_status = True
                 except json.JSONDecodeError:
                     st = None
-            state = f"{p['status']}/{st['state'] if st else '-'}"
+            state = f"{pod_status}/{st['state'] if st else '-'}"
             if state != last_state:
                 print(f"[{int(time.time() - t0):5d}s] {state}  ${price}/h")
                 last_state = state
-            if st and st.get("state") == "done" and final_status is None:
+            if st and st.get("state") in ("done", "timeout") and final_status is None:
                 final_status = st
-                print(f"job done, exit code {st['exit_code']}; collecting results")
+                print(f"job {st['state']}, exit code {st['exit_code']}; collecting results")
                 collect(status_url, run_dir)
-            if p["status"] in ("EXITED", "TERMINATED"):
+                save_pod_log("done")
+            if pod_status in ("EXITED", "TERMINATED"):
                 self_stopped = final_status is not None
                 break
-            if p["status"] == "ERROR":
+            if pod_status == "ERROR":
                 result = "pod ERROR"
                 break
             time.sleep(POLL_S)
@@ -383,44 +550,43 @@ def cmd_run(a: argparse.Namespace) -> int:
             result = "runner timeout"
     except KeyboardInterrupt:
         result = "interrupted"
+        save_pod_log("interrupted")
+    except SystemExit:
+        result = "runner terminated (SIGTERM)"
+        raise
     finally:
         minutes_used = (time.time() - t0) / 60
-        (run_dir / "pod.log").write_text(pod_logs(pod_id))
-        p = api("GET", f"/v2/pods/{pod_id}")
-        if p["status"] not in ("EXITED", "TERMINATED"):
-            print(f"pod still {p['status']} -> stopping it from here")
-            stop(pod_id)
-            for _ in range(30):
-                time.sleep(5)
-                if api("GET", f"/v2/pods/{pod_id}")["status"] in ("EXITED", "TERMINATED"):
-                    break
+        try:
+            p = api("GET", f"/v2/pods/{pod_id}")
+            pod_status = p["status"]
+            price = p.get("cost") or price
+        except ApiError as e:
+            print(f"final status read failed: {e}")
+        if pod_status not in ("EXITED", "TERMINATED") and not result.startswith("api unreachable"):
+            print(f"pod still {pod_status} -> stopping it from here")
+            if stop(pod_id):
+                for _ in range(30):
+                    time.sleep(5)
+                    try:
+                        if api("GET", f"/v2/pods/{pod_id}")["status"] in ("EXITED", "TERMINATED"):
+                            break
+                    except ApiError:
+                        pass
         if final_status is not None:
             code = final_status["exit_code"]
-            result = ("ok" if code == 0 else f"exit {code}") + (", self-stop ok" if self_stopped else ", stopped by runner")
+            tag = "ok" if code == 0 else f"exit {code}"
+            if final_status.get("state") == "timeout":
+                tag = "timeout (watchdog)"
+            result = tag + (", self-stop ok" if self_stopped else ", stopped by runner")
         cost = price * minutes_used / 60
-        log_run(pod_id, gpu_name, minutes_used, cost, a.purpose or job_path.stem, result)
-        if not a.keep:
+        try:
+            log_run(pod_id, gpu_name, minutes_used, cost, purpose, result, key=pending_key)
+        except Exception as e:  # noqa: BLE001
+            print(f"could not write docs/gpu-log.md: {e}")
+        if not a.keep and not result.startswith("api unreachable"):
             terminate(pod_id)
         print(f"result: {result}; {minutes_used:.1f} min, ~${cost:.2f}; files in runs/{job_id}/")
     return 0 if final_status and final_status["exit_code"] == 0 else 1
-
-
-def collect(status_url: str, run_dir: Path) -> None:
-    """Download job.log and everything listed in results/ (small files only)."""
-    for name in ("status.json", "job.log"):
-        raw = fetch(status_url + name, timeout=60)
-        if raw:
-            (run_dir / name).write_bytes(raw)
-    listing = fetch(status_url + "results/", timeout=30)
-    if not listing:
-        return
-    import re
-    (run_dir / "results").mkdir(exist_ok=True)
-    for name in re.findall(r'href="([^"/?]+)"', listing.decode(errors="replace")):
-        raw = fetch(status_url + "results/" + name, timeout=120)
-        if raw is not None and len(raw) < 20_000_000:
-            (run_dir / "results" / urllib.parse.unquote(name)).write_bytes(raw)
-    print(f"collected {len(list((run_dir / 'results').iterdir()))} result files")
 
 
 def cmd_logs(a: argparse.Namespace) -> int:
@@ -435,14 +601,24 @@ def cmd_terminate(a: argparse.Namespace) -> int:
     terminate(a.pod_id); return 0
 
 
-def cmd_sweep(_: argparse.Namespace) -> int:
-    pods = api("GET", "/v2/pods")["pods"]
-    for p in pods:
+def cmd_sweep(a: argparse.Namespace) -> int:
+    pods = all_pods()
+    ours = our_pods(pods)
+    foreign = [p for p in pods if p not in ours and p["status"] not in ("EXITED", "TERMINATED")]
+    for p in foreign:
+        print(f"foreign live pod left alone: {p['id']} {p.get('name')} {p['status']}")
+    if not ours:
+        print("no wenart pods to sweep"); return 0
+    for p in ours:
+        print(f"  will stop/terminate {p['id']} {p.get('name')} {p['status']}")
+    if not a.yes and input("type 'yes' to confirm: ").strip() != "yes":
+        print("cancelled"); return 1
+    for p in ours:
         if p["status"] not in ("EXITED", "TERMINATED"):
             stop(p["id"])
-    for p in pods:
+    for p in ours:
         terminate(p["id"])
-    print("sweep done" if pods else "nothing to sweep")
+    print("sweep done")
     return 0
 
 
@@ -454,7 +630,7 @@ def main(argv: list[str] | None = None) -> int:
     v = sub.add_parser("volume-create"); v.add_argument("--size", type=int, default=VOLUME_SIZE_GB)
     v.add_argument("--dc", default=DATACENTER); v.add_argument("--yes", action="store_true"); v.set_defaults(fn=cmd_volume_create)
     r = sub.add_parser("run")
-    r.add_argument("--job", required=True, help="job script path relative to the repo root")
+    r.add_argument("--job", required=True, help="job script path relative to the repo root (scripts/jobs/<name>.sh)")
     r.add_argument("--gpu", help="force one GPU name, e.g. 'RTX A5000'")
     r.add_argument("--max-minutes", type=int, default=MAX_MINUTES)
     r.add_argument("--grace", type=int, default=120, help="seconds the pod waits after the job before stopping")
@@ -467,7 +643,8 @@ def main(argv: list[str] | None = None) -> int:
     r.set_defaults(fn=cmd_run)
     for name, fn in (("logs", cmd_logs), ("stop", cmd_stop), ("terminate", cmd_terminate)):
         s = sub.add_parser(name); s.add_argument("pod_id"); s.set_defaults(fn=fn)
-    sub.add_parser("sweep", help="stop and terminate every pod").set_defaults(fn=cmd_sweep)
+    sw = sub.add_parser("sweep", help="stop and terminate every wenart-* pod (asks first)")
+    sw.add_argument("--yes", action="store_true"); sw.set_defaults(fn=cmd_sweep)
     a = ap.parse_args(argv)
     if not os.environ.get("RUNPOD_API_KEY"):
         print("RUNPOD_API_KEY is not set", file=sys.stderr); return 2

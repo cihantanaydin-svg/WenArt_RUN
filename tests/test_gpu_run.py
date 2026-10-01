@@ -16,6 +16,15 @@ CATALOG = [
     {"name": "RTX 4090", "id": "NVIDIA GeForce RTX 4090", "memory": 24, "price": {"secure": 0.74}, "availability": "LOW"},
     {"name": "H100 SXM", "id": "NVIDIA H100", "memory": 80, "price": {"secure": 2.69}, "availability": "HIGH"},
 ]
+LOG_FIXTURE = """# GPU run log
+
+| Date (UTC) | Pod ID | GPU | Minutes | Cost (USD) | Purpose | Result |
+|---|---|---|---|---|---|---|
+
+**Total spent so far: $0.00** (budget: $100; limits: $1.00/GPU-hour, $10/day, 2 h/run)
+"""
+ROW = {"date": "2026-10-01 12:00", "pod_id": "abc", "gpu": "L4", "minutes": 12, "cost": 0.1,
+       "purpose": "smoke", "result": "ok"}
 
 
 def test_pick_gpu_prefers_priority_order_and_stock():
@@ -46,16 +55,48 @@ def test_check_limits():
 
 
 def test_append_gpu_log_keeps_table_and_total():
-    text = (gpu_run.GPU_LOG).read_text()
-    row = {"date": "2026-10-01 12:00", "pod_id": "abc", "gpu": "L4", "minutes": 12, "cost": 0.1,
-           "purpose": "smoke", "result": "ok"}
-    out = gpu_run.append_gpu_log(text, row)
-    out = gpu_run.append_gpu_log(out, dict(row, pod_id="def", cost=0.25))
+    out = gpu_run.append_gpu_log(LOG_FIXTURE, ROW)
+    out = gpu_run.append_gpu_log(out, dict(ROW, pod_id="def", cost=0.25))
     assert "| abc |" in out and "| def |" in out
-    assert "**Total spent so far: $0.35**" in out
+    assert "**Total spent so far: $0.35** (budget: $100;" in out
     lines = out.splitlines()
     i = lines.index("|---|---|---|---|---|---|---|")
     assert lines[i + 1].startswith("| 2026-10-01 12:00 | abc |")
+    assert lines[i + 2].startswith("| 2026-10-01 12:00 | def |")
+
+
+def test_upsert_replaces_provisional_row():
+    out = gpu_run.upsert_gpu_log(LOG_FIXTURE, dict(ROW, pod_id="pending:job1", cost=0.98, result="creating"))
+    assert "pending:job1" in out and "$0.98" in out
+    out = gpu_run.upsert_gpu_log(out, dict(ROW, pod_id="realpod", cost=0.05), key="pending:job1")
+    assert "pending:job1" not in out and "| realpod |" in out
+    assert "**Total spent so far: $0.05**" in out
+    # a missing key falls back to insert
+    out = gpu_run.upsert_gpu_log(out, dict(ROW, pod_id="other", cost=0.10), key="nope")
+    assert "| other |" in out and "**Total spent so far: $0.15**" in out
+
+
+def test_local_spent_on_sums_only_that_day():
+    out = gpu_run.append_gpu_log(LOG_FIXTURE, ROW)
+    out = gpu_run.append_gpu_log(out, dict(ROW, date="2026-09-30 23:59", pod_id="old", cost=1.5))
+    assert gpu_run.local_spent_on(out, "2026-10-01") == pytest.approx(0.1)
+    assert gpu_run.local_spent_on(out, "2026-09-30") == pytest.approx(1.5)
+    assert gpu_run.local_spent_on(out, "2026-10-02") == 0.0
+
+
+def test_our_pods_filters_by_name_prefix():
+    pods = [{"id": "1", "name": "wenart-20261001-smoke", "status": "RUNNING"},
+            {"id": "2", "name": "someone-elses-pod", "status": "RUNNING"},
+            {"id": "3", "name": None, "status": "EXITED"}]
+    assert [p["id"] for p in gpu_run.our_pods(pods)] == ["1"]
+    assert [p["id"] for p in gpu_run.live_pods(pods)] == ["1"]
+
+
+def test_validate_job_path():
+    assert gpu_run.validate_job_path("scripts/jobs/smoke.sh") == "scripts/jobs/smoke.sh"
+    for bad in ("scripts/jobs/../pod_entry.sh", "/etc/passwd", "scripts/jobs/x.sh; rm -rf /", "scripts/jobs/missing.sh"):
+        with pytest.raises(RuntimeError):
+            gpu_run.validate_job_path(bad)
 
 
 def test_pod_create_body():

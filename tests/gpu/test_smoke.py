@@ -26,7 +26,21 @@ def test_workspace_is_volume_and_writable():
     p.write_text("ok")
     assert p.read_text() == "ok"
     p.unlink()
-    (RESULTS / "volume.txt").write_text(f"RUNPOD_VOLUME_ID={os.environ.get('RUNPOD_VOLUME_ID', '')}\n")
+    volume_id = os.environ.get("RUNPOD_VOLUME_ID", "")
+    (RESULTS / "volume.txt").write_text(f"RUNPOD_VOLUME_ID={volume_id}\nmount={os.path.ismount('/workspace')}\n")
+    if os.environ.get("WENART_EXPECT_VOLUME") == "1":
+        assert volume_id, "runner expected a network volume but the pod has none"
+        assert os.path.ismount("/workspace"), "/workspace is not a mount point"
+
+
+def test_setup_recorded_what_it_did():
+    """pod_setup.sh writes setup.json; on a volume the second pod must reuse Blender and the venv."""
+    import json
+    info = json.loads((RESULTS / "setup.json").read_text())
+    assert set(info) >= {"apt", "blender", "venv", "python", "image"}
+    assert info["blender"] in ("reused", "installed") and info["venv"] in ("reused", "installed")
+    if os.environ.get("WENART_EXPECT_REUSE") == "1":
+        assert info["blender"] == "reused" and info["venv"] == "reused", info
 
 
 def test_hf_token_and_cache():
