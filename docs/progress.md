@@ -103,7 +103,13 @@ PaddlePaddle wheel and `VLLM_USE_FLASHINFER_SAMPLER=0`; 24 GB cards need fp8 + 8
 Four bake-off pod runs were needed (volume stall, stage-trap bug, vLLM memory/sampler); every pod stopped
 itself, see `docs/gpu-log.md`.
 
-GPU cost so far: ≈ $1.50 (`docs/gpu-log.md` has the exact rows).
+Verification run after the fixes (L4, 16 min, $0.13): both vLLM servers up in about 2 minutes each,
+`tests/gpu/test_recognition.py` vLLM tests green. Open item: PaddleOCR reads 3/5 room labels on the
+synthetic-02 scan (SALON and YATAK ODASI are crossed by furniture lines), under the 80 % target of the
+spec; the test stays as a strict expected failure with that reason, and both VLMs read 5/5 on the same
+page, so the pipeline will take room labels from the VLM pass with OCR as cross-check (Milestone 3).
 
-Next step: fix the review findings, then Milestone 3: 3D shell in Blender from the building JSON
-(+ crop/tiling for the symbol pass).
+GPU cost so far: $1.63 (`docs/gpu-log.md` has the exact rows).
+
+Next step: Milestone 3: 3D shell in Blender from the building JSON, plus crop-to-drawing and per-room
+tiles for the symbol pass, LibreDWG 0.14.1 for the DWG round trip.
