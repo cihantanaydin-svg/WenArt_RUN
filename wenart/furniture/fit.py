@@ -72,8 +72,16 @@ def parametric_fit(piece: dict, reason: str, candidates: Optional[list[dict]] = 
     }
 
 
-def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP) -> dict:
-    """The ``asset`` dict for one piece (pure: the piece is not modified)."""
+UNIFORM_RANGE = (0.75, 1.30)   # a model stretched more than this looks wrong (a 1.1 m tall sofa)
+
+
+def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
+              uniform_range: tuple[float, float] = UNIFORM_RANGE) -> dict:
+    """The ``asset`` dict for one piece (pure: the piece is not modified).
+
+    A candidate is accepted when its non-uniform scale (max/min of sx, sy, sz) is
+    within ``cap`` and its mean scale within ``uniform_range``; otherwise the next
+    candidate by aspect error is tried, then the parametric fallback."""
     ftype = piece["type"]
     width, depth = piece["footprint"]["size"]
     if not (width > 0 and depth > 0):
@@ -90,9 +98,10 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP) -> 
     for entry in ordered:
         scales, non_uniform = scale_for(entry, width, depth)
         err = round(C.aspect_error(entry, width, depth), 4)
-        accepted = non_uniform <= cap + 1e-9
+        mean_scale = round(sum(scales) / 3.0, 4)
+        accepted = non_uniform <= cap + 1e-9 and uniform_range[0] <= mean_scale <= uniform_range[1]
         tried.append({"id": entry["id"], "aspect_error": err, "scale": scales, "non_uniform": non_uniform,
-                      "accepted": accepted})
+                      "mean_scale": mean_scale, "accepted": accepted})
         if accepted:
             return {
                 "library": entry["source"], "asset_id": entry["id"], "licence": entry["licence"],
@@ -101,11 +110,12 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP) -> 
                 "aspect_error": err, "gltf": entry["gltf"], "front_axis": entry["front_axis"],
                 "up_axis": entry["up_axis"], "origin_offset": list(entry["origin_offset"]),
                 "rotation_fix_deg": C.reorient_rotation_deg(entry),
-                "front_axis_confidence": entry["front_axis_confidence"], "candidates": tried, "cap": cap,
+                "front_axis_confidence": entry["front_axis_confidence"], "candidates": tried, "cap": cap, "uniform_range": list(uniform_range),
             }
     best = min(tried, key=lambda t: t["non_uniform"])
-    reason = (f"no {ftype} candidate within {round((cap - 1) * 100)} % non-uniform scale "
-              f"(closest: {best['id']} at {round((best['non_uniform'] - 1) * 100, 1)} %)")
+    reason = (f"no {ftype} candidate within {round((cap - 1) * 100)} % non-uniform scale and "
+              f"{uniform_range[0]}..{uniform_range[1]} mean scale (closest: {best['id']} at "
+              f"{round((best['non_uniform'] - 1) * 100, 1)} % non-uniform, mean scale {best['mean_scale']})")
     return parametric_fit(piece, reason, tried)
 
 

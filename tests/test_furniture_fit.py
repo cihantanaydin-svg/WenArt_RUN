@@ -306,3 +306,16 @@ def test_cli_offline_falls_back_and_says_so(tmp_path, monkeypatch, capsys):
     fetched.clear()
     assert F.main([str(src), "--out", str(out)]) == 0 and fetched == []
     assert furniture_main([]) == 2
+
+
+def test_uniform_scale_cap_rejects_stretched_models():
+    """A 1.57 m sofa model must not be stretched 1.4x onto a 2.2 m footprint."""
+    from wenart.furniture import catalog as C, fit as F
+    cat = C.load()
+    piece = {"id": "f", "type": "sofa", "footprint": {"center": [0, 0], "size": [2.2, 0.9], "rotation_deg": 0}}
+    asset = F.fit_piece(piece, cat)
+    for t in asset["candidates"]:
+        if t["accepted"]:
+            assert F.UNIFORM_RANGE[0] <= t["mean_scale"] <= F.UNIFORM_RANGE[1]
+    wide = F.fit_piece(piece, cat, uniform_range=(0.99, 1.01))
+    assert wide["method"] == "parametric" and "mean scale" in wide["fallback_reason"]
