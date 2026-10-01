@@ -11,6 +11,6 @@ runner could not write it). Costs are estimates from the on-demand price at star
 | 2026-10-01 15:13 | 5ge4m2jbfysiue | NVIDIA RTX PRO 4000 Blackwell | 62 | 0.59 | M2 recognition bake-off (setup, downloads, OCR, 2 VLMs) | stopped by me: pip install of vLLM stalled on the network volume |
 | 2026-10-01 15:35 | nrxzbuon1dgho7 | NVIDIA RTX PRO 4000 Blackwell | 21 | 0.20 | M2 recognition bake-off, container-disk layout | exit 1, self-stop ok |
 | 2026-10-01 16:00 | ib8rk52cos62l2 | NVIDIA RTX PRO 4000 Blackwell | 25 | 0.24 | M2 recognition bake-off, run 3 (stage trap fixed) | exit 1, self-stop ok |
-| 2026-10-01 16:01 | pending:20261001-160101-bakeoff | RTX PRO 4000 | 120 | 1.14 | M2 recognition bake-off, run 4 (fp8, 8192 ctx, sampler fix, OCR CPU fallback) | creating (provisional, worst case) |
+| 2026-10-01 16:28 | 81v79dcc2d335t | NVIDIA RTX PRO 4000 Blackwell | 28 | 0.27 | M2 recognition bake-off, run 4 (fp8, 8192 ctx, sampler fix, OCR CPU fallback) | exit 1, self-stop ok |
 
-**Total spent so far: $2.37** (budget: $100; limits: $1.00/GPU-hour, $10/day, 2 h/run)
+**Total spent so far: $1.50** (budget: $100; limits: $1.00/GPU-hour, $10/day, 2 h/run)
