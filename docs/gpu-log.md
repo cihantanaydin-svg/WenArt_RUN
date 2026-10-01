@@ -6,5 +6,6 @@ runner could not write it). Costs are estimates from the on-demand price at star
 | Date (UTC) | Pod ID | GPU | Minutes | Cost (USD) | Purpose | Result |
 |---|---|---|---|---|---|---|
 | 2026-10-01 12:07 | hnltxoyrkeqry4 | NVIDIA A40 | 7 | 0.05 | M1 smoke test, no volume | ok, self-stop ok |
+| 2026-10-01 12:23 | mjc9fjlc771w3u | NVIDIA RTX PRO 4000 Blackwell | 10 | 0.10 | M1 smoke on volume, first run (installs) | ok, self-stop ok |
 
-**Total spent so far: $0.05** (budget: $100; limits: $1.00/GPU-hour, $10/day, 2 h/run)
+**Total spent so far: $0.15** (budget: $100; limits: $1.00/GPU-hour, $10/day, 2 h/run)
