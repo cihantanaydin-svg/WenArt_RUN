@@ -99,7 +99,9 @@ def test_index_pass_contains_every_visible_proxy(project):
     plans = {c["name"]: c for c in scene["cameras"]}
     missing = []
     for r in render["renders"]:
-        expected = {table[f"proxy:{f}"] for f in plans[r["camera"]]["visible_furniture"] if f"proxy:{f}" in table}
+        # Milestone 4 keys furniture by its id (proxies by proxy:<id>): accept both.
+        expected = {table[k] for f in plans[r["camera"]]["visible_furniture"]
+                    for k in (f, f"proxy:{f}") if k in table}
         seen = set(r["index_values"])
         if not expected <= seen:
             missing.append((r["camera"], sorted(expected - seen)))
