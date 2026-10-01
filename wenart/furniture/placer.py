@@ -613,6 +613,8 @@ def place(proposal: list[dict], ctx: RoomContext, max_iterations: int = MAX_ITER
         return not failed_checks(check_all(pieces, ctx)[piece.index])
 
     anchors = set(schemas.ANCHOR_TYPES.get(ctx.room.get("room_type", ""), ()))
+    budget = max_iterations
+    anchor_budget_given = False
 
     def is_anchor(piece: Piece) -> bool:
         return piece.type in anchors
@@ -622,12 +624,18 @@ def place(proposal: list[dict], ctx: RoomContext, max_iterations: int = MAX_ITER
         failing = [i for i, c in enumerate(checks) if failed_checks(c)]
         if not failing:
             break
-        if iterations >= max_iterations:
-            # The room's anchor piece (bed, sofa, ...) is dropped last: first the other
-            # failing pieces go, then the anchor only if it still fails on its own.
+        if iterations >= budget:
+            # The room's anchor piece (bed, sofa, ...) goes last: at the cap the other
+            # failing pieces are dropped, and the anchor gets one fresh repair budget of
+            # its own before it is dropped too.
             for i in reversed(failing):
                 if not is_anchor(pieces[i]):
                     drop(pieces[i], failed_checks(checks[i]), "iteration cap", False)
+            still = [i for i, c in enumerate(check_all(pieces, ctx)) if failed_checks(c)]
+            if still and not anchor_budget_given:
+                anchor_budget_given = True
+                budget = iterations + max_iterations
+                continue
             checks = check_all(pieces, ctx)
             for i in reversed([i for i, c in enumerate(checks) if failed_checks(c)]):
                 drop(pieces[i], failed_checks(checks[i]), "iteration cap (anchor still failing alone)", False)

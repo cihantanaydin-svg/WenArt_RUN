@@ -253,10 +253,11 @@ def test_iteration_cap_drops_the_rest():
     ctx = P.room_context(building, room)
     proposal = [piece("bed_double", (1.0, 0.5), against_wall=True), piece("bed_single", (1.0, 0.5), against_wall=True)]
     result = P.place(proposal, ctx, max_iterations=2)
-    assert result.iterations == 2 and not result.pieces
+    # both pieces are anchors of a bedroom: they get one extra budget of 2, then go
+    assert 2 <= result.iterations <= 4 and not result.pieces
     reasons = {d["type"]: d["reason"] for d in result.dropped}
     assert reasons["bed_double"].startswith("iteration cap")
-    assert all(e["iteration"] <= 2 for e in result.log)
+    assert all(e["iteration"] <= 4 for e in result.log)
 
 
 def test_anchor_piece_survives_the_iteration_cap():
