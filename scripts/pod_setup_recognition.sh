@@ -75,7 +75,17 @@ VENV_VLLM=$FAST/venv-vllm
 if [ ! -f "$VENV_VLLM/.vllm-$VLLM_VERSION" ]; then
   [ -x "$VENV_VLLM/bin/python" ] || python3 -m venv "$VENV_VLLM"
   "$VENV_VLLM/bin/pip" install -q --upgrade pip
-  "$VENV_VLLM/bin/pip" install -q "vllm==$VLLM_VERSION" hf_transfer 2>&1 | tail -n 5 || true
+  # The PyPI vllm wheel pulls torch built for CUDA 13.0, which needs an R580+ host driver.
+  # Hosts with an older driver (CUDA 12.8/12.9, e.g. driver 570) get the cu128 torch index
+  # instead (vLLM docs, "Install vLLM with CUDA 12.x": --extra-index-url download.pytorch.org/whl/cuXXX).
+  HOST_CUDA=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader 2>/dev/null | head -1 | cut -d. -f1)
+  TORCH_INDEX=""
+  if [ -n "$HOST_CUDA" ] && [ "$HOST_CUDA" -lt 580 ]; then
+    TORCH_INDEX="--extra-index-url https://download.pytorch.org/whl/cu128"
+    log "host driver $HOST_CUDA < 580: installing the CUDA 12.8 torch variant"
+  fi
+  # shellcheck disable=SC2086
+  "$VENV_VLLM/bin/pip" install -q "vllm==$VLLM_VERSION" hf_transfer $TORCH_INDEX 2>&1 | tail -n 5 || true
   "$VENV_VLLM/bin/python" -c "import vllm, torch; print('vllm', vllm.__version__, 'torch', torch.__version__)"
   rm -f "$VENV_VLLM"/.vllm-*; touch "$VENV_VLLM/.vllm-$VLLM_VERSION"
 fi
