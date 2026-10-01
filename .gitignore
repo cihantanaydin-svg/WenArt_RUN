@@ -35,3 +35,6 @@ results/**/*.png
 *.log
 logs/
 runs/
+
+# Claude Code worktrees used by review/fix agents
+.claude/worktrees/
