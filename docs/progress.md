@@ -16,5 +16,17 @@ What fails / is blocked:
 
 GPU cost so far: $0.00
 
-Next step: you finish `docs/setup.md` steps 1, 2 and 4, start a new session, and give your OK on
-`docs/plan.md`. Then Milestone 1: `setup.sh` + `scripts/gpu_run.py` tested on a real pod.
+## Setup checks (1 Oct 2026, done)
+
+Read-only checks from `docs/setup.md` step 5, all HTTP 200:
+- Pods: none running. Network volumes: none (expected before Milestone 1).
+- Secret `hf_token`: exists. RunPod key: present as environment variable, read scope works.
+- Hugging Face API: reachable. All allow-listed domains reachable except
+  `cdn-lfs.huggingface.co` (proxy 502; not needed, models download on the pod).
+- Setup script: all CPU tools installed (poppler, tesseract, ezdxf, pdfplumber, shapely, opencv, pytest).
+- Live secure-cloud prices (USD/h): RTX A5000 0.27, RTX A6000 0.53, RTX 4090 0.74, A40 0.49, L4 0.49.
+  All within the $1.00/h limit; availability was LOW for each.
+- Not checkable by API: RunPod balance and auto-top-up setting (please confirm on the billing page).
+
+Next step: your OK on `docs/plan.md`. Then Milestone 1: `setup.sh` + `scripts/gpu_run.py`
+tested on a real pod.
