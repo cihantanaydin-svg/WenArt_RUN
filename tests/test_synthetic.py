@@ -111,14 +111,71 @@ def test_deterministic(generated, tmp_path):
             assert a == b, f"{name}/{rel} differs between runs"
 
 
+RASTER_SUFFIXES = (".png", ".jpg")
+RASTER_MAX_MEAN_DIFF = 2.0          # grey levels; encoder/anti-aliasing noise is far below this
+RASTER_STRONG_DIFF = 64             # a pixel differing by more than this is content, not noise
+RASTER_MAX_STRONG_FRACTION = 0.001  # at most 0.1 % such pixels (a missing symbol gives more)
+
+
+def rasters_match(a: Path, b: Path, max_mean_diff: float = RASTER_MAX_MEAN_DIFF,
+                  max_strong_fraction: float = RASTER_MAX_STRONG_FRACTION) -> bool:
+    """Same size and mode, mean absolute pixel difference below ``max_mean_diff`` and
+    fewer than ``max_strong_fraction`` of the pixels differing by more than
+    ``RASTER_STRONG_DIFF`` grey levels.
+
+    The scans and photos come from pdftoppm (poppler + freetype) and OpenCV, whose
+    anti-aliasing and encoders differ by a few grey levels between builds, so the
+    rasters are compared by content; the vector files and the truth JSON stay
+    byte-identical across machines. The pages are mostly white, so the mean alone
+    would miss a blanked region; the strong-difference fraction catches that.
+    """
+    with Image.open(a) as ia, Image.open(b) as ib:
+        if ia.size != ib.size or ia.mode != ib.mode:
+            return False
+        diff = np.abs(np.asarray(ia, dtype=np.float32) - np.asarray(ib, dtype=np.float32))
+    return float(diff.mean()) < max_mean_diff and float((diff > RASTER_STRONG_DIFF).mean()) < max_strong_fraction
+
+
+def test_rasters_match_tolerates_encoder_noise_but_not_content(tmp_path):
+    src = COMMITTED / "synthetic-02" / "plan_scan.png"
+    img = np.asarray(Image.open(src), dtype=np.int16)
+    rng = np.random.default_rng(0)
+    noisy = img.copy()
+    mask = rng.random(img.shape) < 0.01                      # 1 % of the pixels off by one level
+    noisy[mask] += rng.choice([-1, 1], size=int(mask.sum()))
+    noisy_png = tmp_path / "noisy.png"
+    Image.fromarray(np.clip(noisy, 0, 255).astype(np.uint8), "L").save(noisy_png)
+    assert rasters_match(src, noisy_png)
+    # A moved sheet or a missing symbol is content, not noise.
+    shifted = np.roll(img, 30, axis=1)
+    shifted_png = tmp_path / "shifted.png"
+    Image.fromarray(shifted.astype(np.uint8), "L").save(shifted_png)
+    assert not rasters_match(src, shifted_png)
+    blanked = img.copy()
+    blanked[300:900, 300:1200] = 255
+    blanked_png = tmp_path / "blanked.png"
+    Image.fromarray(blanked.astype(np.uint8), "L").save(blanked_png)
+    assert not rasters_match(src, blanked_png)
+    # A different size never matches.
+    small_png = tmp_path / "small.png"
+    Image.fromarray(img[:-1].astype(np.uint8), "L").save(small_png)
+    assert not rasters_match(src, small_png)
+
+
 @pytest.mark.skipif(not COMMITTED.exists(), reason="projects/ not present")
 @pytest.mark.parametrize("name", NAMES)
 def test_committed_projects_are_current(generated, name):
     for rel in EXPECTED_FILES[name]:
         committed = COMMITTED / name / rel
+        fresh = generated[0] / name / rel
         assert committed.is_file(), f"run python -m wenart.synthetic.generate --out projects ({rel} missing)"
-        assert committed.read_bytes() == (generated[0] / name / rel).read_bytes(), \
-            f"{name}/{rel} is stale: run python -m wenart.synthetic.generate --out projects"
+        if committed.suffix in RASTER_SUFFIXES:
+            # Rasters: by content (pdftoppm/OpenCV builds differ in the last grey level).
+            assert rasters_match(committed, fresh), \
+                f"{name}/{rel} differs in content: run python -m wenart.synthetic.generate --out projects"
+        else:
+            assert committed.read_bytes() == fresh.read_bytes(), \
+                f"{name}/{rel} is stale: run python -m wenart.synthetic.generate --out projects"
 
 
 def test_cli_runs(tmp_path):

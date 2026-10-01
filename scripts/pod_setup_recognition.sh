@@ -10,7 +10,9 @@
 #   /opt/wenart/venv-vllm    vllm==0.30.0 (brings torch 2.13.0; own venv, no system site packages
 #                            because the image ships torch 2.9.1) + the `hf` download CLI
 #   /opt/wenart/venv-paddle  paddlepaddle-gpu 3.x (PaddlePaddle wheel index, cu126 -> cu129 -> CPU
-#                            fallback, the winner is logged) + paddleocr==3.7.0 + the repo's CPU deps
+#                            fallback, the winner is logged) + paddleocr==3.7.0 + the repo's CPU deps.
+#                            The venv is stamped as good only after a real kernel launch on gpu:0
+#                            (a matmul): pip accepts any wheel, the GPU does not.
 #   /opt/wenart/hf           the two VLM checkpoints (HF cache; download speed logged in MB/s)
 #   apt                      tesseract-ocr tesseract-ocr-tur + build tools for LibreDWG
 #   /workspace/tools/libredwg  GNU LibreDWG 0.13.3 built from the GNU tarball
@@ -136,12 +138,42 @@ if [ ! -f "$VENV_PADDLE/.paddleocr-$PADDLEOCR_VERSION" ]; then
   log "PaddlePaddle: $PADDLE_SOURCE"
   "$PIP" install -q "paddleocr==$PADDLEOCR_VERSION" 2>&1 | tail -n 3 || true
   "$PIP" install -q -r "$REPO_DIR/scripts/pod_requirements.txt" 2>&1 | tail -n 3 || true
-  # The stamp is written only when the import check below passes, so a broken
-  # install is retried on the next pod instead of being skipped.
-  if "$VENV_PADDLE/bin/python" -c "import paddleocr, paddle, pytest, ezdxf"; then
+  # The stamp is written only when the check below passes, so a broken install is
+  # retried on the next pod instead of being skipped. With a GPU present the check
+  # is a real kernel launch (matmul on gpu:0): a wheel built without kernels for
+  # this GPU imports fine and only fails here ("no kernel image is available",
+  # "Unsupported GPU architecture"). On failure nothing is stamped, the failure is
+  # logged, and the OCR stage falls back to PaddleOCR on the CPU (wenart/recognition/ocr.py).
+  PADDLE_CHECK=$(cat <<'PY'
+import sys
+import ezdxf  # noqa: F401 - the venv must be complete (repo CPU deps)
+import pytest  # noqa: F401
+import paddle
+import paddleocr
+expect = sys.argv[1] if len(sys.argv) > 1 else "cpu"
+print("paddleocr", paddleocr.__version__, "paddle", paddle.__version__,
+      "cuda", paddle.is_compiled_with_cuda(), "gpus", paddle.device.cuda.device_count())
+if expect == "gpu":
+    if not paddle.is_compiled_with_cuda() or paddle.device.cuda.device_count() < 1:
+        sys.exit("paddle sees no GPU although nvidia-smi reports one")
+    paddle.set_device("gpu:0")
+    x = paddle.ones([64, 64], dtype="float32")
+    y = (x @ x).numpy()                      # the kernel launch that a wrong wheel cannot do
+    if float(y[0, 0]) != 64.0:
+        sys.exit(f"paddle gpu matmul returned {y[0, 0]!r}, expected 64.0")
+    print("paddle gpu:0 matmul ok")
+else:
+    print("paddle: no GPU reported by nvidia-smi, import check only (CPU)")
+PY
+)
+  EXPECT=cpu
+  if [ -n "$CC" ]; then EXPECT=gpu; fi   # nvidia-smi reported a GPU: the kernel launch must work
+  if "$VENV_PADDLE/bin/python" -c "$PADDLE_CHECK" "$EXPECT" 2>&1 | tee -a "$PADDLE_LOG"; then   # pipefail: python decides
+    echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) check ok ($EXPECT): venv-paddle stamped" >> "$PADDLE_LOG"
     rm -f "$VENV_PADDLE"/.paddleocr-*; touch "$VENV_PADDLE/.paddleocr-$PADDLEOCR_VERSION"
   else
-    log "venv-paddle incomplete (PaddleOCR stage will record the error; Tesseract still runs)"
+    echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) check FAILED ($EXPECT): venv-paddle not stamped" >> "$PADDLE_LOG"
+    log "venv-paddle check failed ($EXPECT), not stamped: PaddleOCR runs on the CPU fallback or records the error; Tesseract still runs"
   fi
 fi
 "$VENV_PADDLE/bin/python" - <<'PY' || log "paddle check failed (see above)"
