@@ -111,5 +111,42 @@ page, so the pipeline will take room labels from the VLM pass with OCR as cross-
 
 GPU cost so far: $1.63 (`docs/gpu-log.md` has the exact rows).
 
-Next step: Milestone 3: 3D shell in Blender from the building JSON, plus crop-to-drawing and per-room
-tiles for the symbol pass, LibreDWG 0.14.1 for the DWG round trip.
+## Milestone 3 – 3D shell, materials, lighting, first renders (done, 1 Oct 2026)
+
+What works (`docs/milestone3.md` is the spec):
+- `wenart/style`: brief text → deterministic style profile (floor, walls, wet rooms, trim, lighting mood);
+  unmatched words are listed, assumed slots are warned, never guessed. `wenart/assets`: CC0 textures and
+  HDRIs from Poly Haven and ambientCG with a licence-checked manifest (anything not CC0 is refused).
+- `wenart/blender` (Blender 5.2 LTS, headless): walls from centre lines, openings cut with exact booleans
+  (centre projected onto the wall line, shift recorded), door frames and leaves, window frames and glass,
+  thresholds under doors, floors and ceilings per room, furniture proxies at the drawn footprints with a
+  front marker (unverified pieces striped red), PBR materials with box-projected textures in metres and
+  albedo normalised to the intended colour (gain recorded), HDRI + sun from the style, three cameras per
+  room with a free-point search (never inside a proxy), Cycles passes (RGB, depth, normal, object index,
+  multilayer EXR), `scene.blend`, `scene.glb`, `scene_manifest.json` (every object → element id, evidence,
+  material, assumed defaults) and `render_manifest.json` (per view: device, seconds, depth range, index
+  values, scene fingerprint for resumes).
+- Pod job `scripts/jobs/render.sh`: pipeline → style → assets → build → render → GPU tests, resumable,
+  results copied after every stage. Final run (RTX PRO 4000): 87 views of synthetic-01 and synthetic-03 at
+  1920×1080, 128 samples, 4.4–6.2 s per view with OptiX (8 s on an L4), scene build 30 s per project, whole
+  job 16 min, $0.15; `tests/gpu/test_render.py`: 12 passed. Previews: `results/renders/`.
+- Recognition follow-ups: `wenart/recognition/tiles.py` (crop to the drawing, 1024 px tiles, merge across
+  tiles) and the `--tiled` symbol stage, LibreDWG 0.14.1 first in the pod setup. CPU-tested; the next
+  bake-off run measures them on the pod.
+- Code review (4 lenses, 3 verifiers per finding): 21 confirmed findings, all fixed with a failing-then-
+  passing test (`pytest -m "not gpu"`: 356 passed). The important ones: doors on a wall face were not cut
+  through, no floor under doorways, render manifest only written at the end, cameras inside tall proxies,
+  the drawing-extent heuristic dropping a plan that fills the sheet, no CC0 check in the scene build.
+
+Open items:
+- The white plaster photo shows mottling after the brightness gain; blend with the flat colour (Milestone 5 polish).
+- Rooms without documented furniture stay empty; real assets and AI layout are Milestone 4.
+- synthetic-02 (scan + photo only) stops at `needs_review` until the recognition path writes a building JSON.
+- The pod venv lacked matplotlib, so the DXF debug images were skipped there (added to
+  `scripts/pod_requirements.txt`, takes effect on the next pod).
+
+GPU cost so far: $2.07 (`docs/gpu-log.md`).
+
+Next step: Milestone 4: furniture assets fitted to the drawn footprints (Poly Haven, Objaverse CC0/CC-BY,
+TRELLIS.2 fallback), AI layout for empty rooms with clearance checks, and the bake-off re-run with the
+tiled symbol pass.

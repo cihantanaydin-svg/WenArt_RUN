@@ -263,6 +263,12 @@ at a window and from the door. Three views per room.
 Blender 5.2 LTS Cycles, OptiX, 1920×1080, 256–512 samples + OpenImageDenoise, passes: RGB, depth, normal, object
 index (for the change check). ~1–3 min per view on RTX A5000 / 4090.
 
+**Measured on 1 Oct 2026 (Milestone 3, `results/renders/`):** Cycles with OptiX renders a 1920×1080 view at 128 samples
+with OIDN in 4.4–6.2 s on an RTX PRO 4000 and ≈ 8 s on an L4 (scenes of 130–240 objects, box-projected 2K textures);
+the scene build takes ≈ 30 s per project. A full project (10 rooms, 30 views) is therefore ≈ 4 min of GPU, far below
+the 1–3 min per view estimated above, so 256–512 samples are affordable. Albedo maps from photo-based CC0 sets must be
+normalised to the intended colour (Poly Haven's white plaster averages 0.24 linear): the material builder records the gain.
+
 ### 4.12 AI polish (gated)
 
 | Option | Licence | Commercial | VRAM | Speed | Quality | Last update | Link |

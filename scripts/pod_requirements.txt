@@ -10,3 +10,4 @@ shapely==2.1.2
 pdfplumber==0.11.10
 pypdfium2==5.13.0
 opencv-python-headless
+matplotlib
