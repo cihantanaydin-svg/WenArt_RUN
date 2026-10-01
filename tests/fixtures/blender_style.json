@@ -1,0 +1,16 @@
+{
+  "source_text": "Scandinavian, light oak floor, white walls, linen textiles, warm daylight",
+  "floor": {"material": "wood_oak_light", "asset": "WoodFloor051"},
+  "walls": {"material": "plaster_white", "asset": "Plaster001", "tint": [0.95, 0.94, 0.90]},
+  "ceiling": {"material": "plaster_white"},
+  "wet_floor": {"material": "tiles_light", "asset": "Tiles074"},
+  "wet_walls": {"material": "tiles_light"},
+  "trim": {"material": "painted_wood_white"},
+  "door": {"material": "wood_oak_light"},
+  "window_frame": {"material": "painted_metal_white"},
+  "lighting": {"hdri": "kloppenheim_06", "sun_elevation_deg": 35, "sun_azimuth_deg": 210,
+               "sun_strength": 3.0, "colour_temperature_k": 5200, "mood": "warm daylight"},
+  "matched_terms": ["Scandinavian", "light oak floor", "white walls", "warm daylight"],
+  "unmatched_terms": ["linen textiles"],
+  "warnings": []
+}
