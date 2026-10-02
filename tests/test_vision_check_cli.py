@@ -10,6 +10,8 @@ the style-photo pass.
 """
 import json
 import sys
+import threading
+import time
 import types
 from pathlib import Path
 
@@ -156,12 +158,18 @@ def test_deadline_starts_no_new_call(tmp_path, monkeypatch):
     assert main(["run", "--project-out", str(out), "--model-key", "qwen"], client_factory=factory_for(clients)) == 0
     answers = read(out / "check" / "answers_qwen3-vl-8b.json")
     assert answers["incomplete"] is True and answers["calls"] == {} and not clients["qwen"].calls
-    # run_specs with a clock that passes the deadline after the first call.
+    # run_specs with a clock that passes the deadline while the first call runs.
     project = Project(out)
     specs = C.build_specs(project, C.check_kinds(project, ["cycles", "polished"]), [], "fake/qwen")
     store = C.AnswerStore(tmp_path / "a.json", "qwen", "qwen3-vl-8b", "fake/qwen")
-    ticks = iter([0.0, 10.0, 10.0])
-    stats = C.run_specs(specs, store, T.FakeClient(model="fake/qwen"), deadline=5.0, clock=lambda: next(ticks),
+    now = [0.0]
+
+    class Ticking(T.FakeClient):
+        def run_schema(self, *a, **kw):
+            now[0] = 10.0
+            return super().run_schema(*a, **kw)
+
+    stats = C.run_specs(specs, store, Ticking(model="fake/qwen"), deadline=5.0, clock=lambda: now[0],
                         log=lambda *_: None)
     assert stats == {"asked": 1, "reused": 0, "failed": 0, "left": 1, "incomplete": True}
     assert read(tmp_path / "a.json")["incomplete"] is True
@@ -171,16 +179,102 @@ def test_answers_file_is_written_after_every_call(tmp_path):
     out = T.write_toy_project(tmp_path, polished=True)
 
     class Crashing(T.FakeClient):
-        def run_schema(self, *a, **kw):
-            if len(self.calls) >= 1:
+        def run_schema(self, images, *a, **kw):
+            if Path(str(images[0])).name == f"{CAM}_a1.png":
                 raise KeyboardInterrupt("pod stopped")
-            return super().run_schema(*a, **kw)
+            return super().run_schema(images, *a, **kw)
 
     with pytest.raises(KeyboardInterrupt):
         main(["run", "--project-out", str(out), "--model-key", "qwen"],
              client_factory=lambda k, u: Crashing(model="fake/qwen", truth={CYC: T.TOY_TYPES}))
     calls = read(out / "check" / "answers_qwen3-vl-8b.json")["calls"]
     assert list(calls) == [f"check|{CAM}|cycles"]
+
+
+class Timed(T.FakeClient):
+    """A fake model that takes ``delay(image name)`` seconds per call and records how many calls overlap."""
+
+    def __init__(self, delay=lambda name: 0.02, **kw):
+        super().__init__(**kw)
+        self.delay, self.active, self.peak, self.lock = delay, 0, 0, threading.Lock()
+
+    def run_schema(self, images, *a, **kw):
+        with self.lock:
+            self.active += 1
+            self.peak = max(self.peak, self.active)
+        try:
+            time.sleep(self.delay(f"{Path(str(images[0])).parent.name}/{Path(str(images[0])).name}"))
+            return super().run_schema(images, *a, **kw)
+        finally:
+            with self.lock:
+                self.active -= 1
+
+
+def test_run_and_preference_send_two_calls_at_once_and_the_file_does_not_depend_on_their_order(tmp_path):
+    """The vLLM servers take 2 sequences at once (--max-num-seqs 2): two calls run together, and the answers
+    file is the same whichever call finishes first (one writer, call-key order)."""
+    files = []
+    for name, slow in (("a", CYC), ("b", POL)):
+        out = T.write_toy_project(tmp_path / name, polished=True)
+        assert main(["select-controls", "--project-out", str(out)]) == 0
+        for c in read(out / "check" / "controls.json")["controls"]:
+            T.write_control(out, c["id"])
+        client = Timed(model="fake/qwen", truth={CYC: T.TOY_TYPES, POL: T.TOY_TYPES}, prefer={POL: 1},
+                       delay=lambda n, slow=slow: 0.15 if n == slow else 0.02)
+        for cmd in (["run", "--kinds", "cycles,polished,controls"], ["preference"]):
+            assert main([cmd[0], "--project-out", str(out), "--model-key", "qwen", *cmd[1:]],
+                        client_factory=lambda k, u: client) == 0
+        assert client.peak == 2 and len(client.calls) == 9 + 2
+        data = read(out / "check" / "answers_qwen3-vl-8b.json")
+        assert list(data["calls"]) == sorted(data["calls"]) and not data["incomplete"]
+        for rec in data["calls"].values():
+            rec.pop("latency_s")
+        files.append(data)
+    assert files[0] == files[1]
+
+
+def test_a_stuck_call_never_runs_past_the_deadline(tmp_path, capsys):
+    """A wedged server answers nothing: the run returns at the deadline (the call is left for the next run)
+    instead of waiting out the client's timeout and retries (up to 30 min after WENART_DEADLINE)."""
+    out = T.write_toy_project(tmp_path, polished=True)
+    release = threading.Event()
+
+    class Stuck(T.FakeClient):
+        def run_schema(self, images, *a, **kw):
+            if Path(str(images[0])).name == f"{CAM}_a1.png":
+                release.wait(6.0)
+            return super().run_schema(images, *a, **kw)
+
+    t0 = time.time()
+    try:
+        assert main(["run", "--project-out", str(out), "--model-key", "qwen", "--deadline", str(t0 + 1.0)],
+                    client_factory=lambda k, u: Stuck(model="fake/qwen", truth={CYC: T.TOY_TYPES})) == 0
+        elapsed = time.time() - t0
+    finally:
+        release.set()
+    assert elapsed < 3.0
+    answers = read(out / "check" / "answers_qwen3-vl-8b.json")
+    assert answers["incomplete"] is True and list(answers["calls"]) == [f"check|{CAM}|cycles"]
+    assert "1 left (deadline: incomplete)" in capsys.readouterr().out
+    # The style-photo pass too: a stuck call ends at the deadline and is asked again next time.
+    photo = Path(__file__).resolve().parent / "fixtures" / "style_photo_synthetic-03_salon.jpg"
+    release.clear()
+
+    class StuckPhoto(T.FakeClient):
+        def run_schema(self, *a, **kw):
+            release.wait(6.0)
+            return super().run_schema(*a, **kw)
+
+    t0 = time.time()
+    try:
+        assert main(["style-photo", "--project-out", str(out), "--model-key", "qwen", "--photo", str(photo),
+                     "--deadline", str(t0 + 1.0)], client_factory=lambda k, u: StuckPhoto(model="fake/qwen")) == 0
+        elapsed = time.time() - t0
+    finally:
+        release.set()
+    assert elapsed < 3.0
+    data = read(out / "check" / "style_photos.json")
+    assert data["incomplete"] is True and data["calls"] == []
 
 
 def test_unknown_kind_or_model_key_exits_2(tmp_path, capsys):
@@ -302,6 +396,25 @@ def test_end_to_end_polish_rejected_and_needs_review(tmp_path):
 CB_NOTE = "added_by_ai: render/polish issue, not a document conflict"
 
 
+def test_the_manifest_records_the_hash_of_every_checked_image(tmp_path):
+    from wenart.vision_check.project import sha256_file
+    out = T.write_toy_project(tmp_path, polished=True)
+    run_flow(out, truth={CYC: set(T.TOY_TYPES), POL: set(T.TOY_TYPES)}, kinds="cycles,polished")
+    view = read(out / "check" / "check_manifest.json")["views"][CAM]
+    assert view["cycles"]["image_sha256"] == [sha256_file(out / CYC)]
+    assert view["polished"]["image_sha256"] == [sha256_file(out / POL)]
+
+
+def test_a_misplaced_piece_needs_review_and_is_reported_with_its_outside_share(tmp_path):
+    out = T.write_toy_project(tmp_path, shift={"f_sofa": (-0.9, 0.0)})
+    run_flow(out, truth={CYC: set(T.TOY_TYPES)}, kinds="cycles")
+    view = read(out / "check" / "check_manifest.json")["views"][CAM]
+    assert view["needs_review"] and view["needs_review_reasons"] == ["json cross-check misplaced: f_sofa"]
+    report = (out / "check" / "check_report.md").read_text(encoding="utf-8")
+    line = next(l for l in report.splitlines() if "misplaced: f_sofa" in l)
+    assert "rendered pixels lie more than 0.10 m outside the drawn shape" in line
+
+
 def test_end_to_end_check_incomplete_and_single_pass(tmp_path):
     out = T.write_toy_project(tmp_path, polished=True)
     truth = {CYC: set(T.TOY_TYPES), POL: set(T.TOY_TYPES)}
@@ -346,6 +459,96 @@ def test_stale_render_answers_are_not_used(tmp_path):
     m = read(out / "check" / "check_manifest.json")
     assert m["views"][CAM]["cycles"]["verdict"] == "not_computed"
     assert any("stale answer" in w for w in m["warnings"])
+
+
+def test_every_decoy_box_is_bare_structure_on_the_image_the_model_is_shown(tmp_path):
+    """§5.3: the decoy sits over bare structure of the checked image. An insertion call shows the normal render
+    (with the element) but asks about the list of the control render: its decoy must not cover the element."""
+    out = T.write_toy_project(tmp_path)
+    assert main(["select-controls", "--project-out", str(out)]) == 0
+    for c in read(out / "check" / "controls.json")["controls"]:
+        T.write_control(out, c["id"])
+    project = Project(out)
+    normal = project.views()[CAM]
+    checked = 0
+    for cam, kind in C.check_kinds(project, ["cycles", "controls"]):
+        spec = C.check_spec(project, cam, kind, "fake/qwen")
+        shown = normal
+        if kind.startswith("removal:"):
+            shown = project.control_view(next(c for c in project.controls() if c["id"] == spec.target))
+        assert spec.images[0] == shown.png
+        index, depth = shown.read_index(), shown.read_depth_mm()
+        x0, y0, x1, y1 = spec.decoy["box_px"]
+        bare = ((index[y0:y1, x0:x1] == 0) & (depth[y0:y1, x0:x1] > 0)).mean()
+        assert bare >= 0.98, (kind, spec.decoy["box_px"], round(float(bare), 3))
+        # One camera, one decoy: the same box on every image of the camera (Cycles and polished line up).
+        assert spec.decoy["box_px"] == C.check_spec(project, cam, "cycles", "fake/qwen").decoy["box_px"], kind
+        checked += 1
+    assert checked == 1 + 2 * 3 + 1          # cycles, removal + insertion of 3 controls, one swap
+
+
+def test_plan_image_switch_sends_the_plan_crop_with_every_element_check(tmp_path):
+    """check.yaml plan_image: false (default): one image. true (adopted after the plan A/B): the source-plan crop
+    is Image 2 of every element check of the camera (Cycles, polished, controls), so both sides of the
+    differential decision are asked the same way."""
+    import copy
+    from wenart.vision_check import expected as X
+    from wenart.vision_check import prompts as P
+    out = T.write_toy_project(tmp_path, polished=True)
+    assert main(["plan-crops", "--project-out", str(out)]) == 0
+    assert main(["select-controls", "--project-out", str(out)]) == 0
+    for c in read(out / "check" / "controls.json")["controls"]:
+        T.write_control(out, c["id"])
+    plan = out / "check" / f"{CAM}_plan.jpg"
+    kinds = ["cycles", "polished", "controls"]
+    assert X.load_cfg()["plan_image"] is False
+    project = Project(out)
+    for cam, kind in C.check_kinds(project, kinds):
+        spec = C.check_spec(project, cam, kind, "m")
+        assert len(spec.images) == 1 and spec.image_labels == [P.IMAGE_LABEL] and "Image 2" not in spec.prompt
+    cfg = copy.deepcopy(X.load_cfg())
+    cfg["plan_image"] = True
+    project = Project(out, cfg=cfg)
+    pairs = C.check_kinds(project, kinds)
+    assert {k.split(":")[0] for _, k in pairs} == {"cycles", "polished", "removal", "insertion", "swap"}
+    for cam, kind in pairs:
+        spec = C.check_spec(project, cam, kind, "m")
+        assert spec.images[1] == plan and spec.image_labels == [P.IMAGE_LABEL, P.PLAN_LABEL], kind
+        assert "Image 2 is the source floor plan" in spec.prompt and spec.prompt_kind == "check", kind
+    # Without a crop for the camera no call of it gets one (never only one side), with a warning.
+    plan.unlink()
+    project = Project(out, cfg=cfg)
+    assert all(len(C.check_spec(project, cam, kind, "m").images) == 1 for cam, kind in C.check_kinds(project, kinds))
+    assert any("plan_image" in w and CAM in w for w in project.warnings)
+
+
+def test_insertion_extra_in_front_of_another_element_is_not_dropped_as_listed(tmp_path):
+    """The coffee table stands in front of the sofa. Hidden, the sofa shows where it stood, but on the image
+    shown (the normal render) that place is the table: an extra reported there is the inserted element."""
+    out = T.write_toy_project(tmp_path)
+    assert main(["expected", "--project-out", str(out)]) == 0
+    table = next(e for e in read(out / "check" / "expected_views.json")["views"][CAM]["elements"]
+                 if e["wenart_id"] == "f_table")
+    controls = {"schema_version": "0.1", "swaps": [], "controls": [
+        {"id": "f_table", "index": table["index"], "kind": "furniture", "camera": CAM, "room_id": "r_salon",
+         "plug": False, "area_frac": table["area_frac"], "source": "from_documents", "dir": "controls/hide_f_table"}]}
+    hidden = V.load_views(T.write_control(out, "f_table"))[CAM]
+    x0, y0, x1, y1 = table["box_px"]
+    assert (hidden.read_index()[y0:y1, x0:x1] == 3).mean() > 0.5     # the sofa fills the table's box once hidden
+    clients = {}
+    extras = {CYC: [{"category": "table_coffee", "box": table["box_1000"], "confidence": 0.9}]}
+    for key in ("qwen", "glm"):
+        (out / "check" / "controls.json").write_text(json.dumps(controls), encoding="utf-8")
+        f = factory_for(clients, truth={CYC: set(T.TOY_TYPES), f"hide_f_table/{CAM}.png": set(T.TOY_TYPES)},
+                        extras=extras)
+        assert main(["run", "--project-out", str(out), "--model-key", key, "--kinds", "cycles,controls"],
+                    client_factory=f) == 0
+    assert main(["combine", "--project-out", str(out)]) == 0
+    entry = read(out / "check" / "check_manifest.json")["views"][CAM]["insertion:f_table"]
+    assert entry["extras_dropped"] == {"qwen": 0, "glm": 0} and entry["control"]["confirmed"]
+    # On the Cycles image the same box is the listed table: dropped there.
+    assert read(out / "check" / "check_manifest.json")["views"][CAM]["cycles"]["extras_dropped"] == {"qwen": 1,
+                                                                                                    "glm": 1}
 
 
 def test_controls_with_missing_or_unhidden_renders_are_dropped(tmp_path):
@@ -473,6 +676,51 @@ def test_style_photo_pass_appends_and_resumes(tmp_path, monkeypatch):
     assert data["kind"] == "style_photo_passes" and [c["model_key"] for c in data["calls"]] == ["qwen", "glm"]
     assert data["calls"][0]["result"]["passes"]["qwen"]["data"]["walls"] == "plaster_charcoal"
     assert seen == [(photo.name, ["qwen"]), (photo.name, ["glm"])]                  # the third run reused qwen's
+
+
+def test_style_photo_failed_pass_is_an_error_and_is_asked_again(tmp_path, capsys):
+    """read_style_photo never raises: a 503 or a bad answer comes back as a pass without data. That call is
+    an error (not 'ok'), and the next run asks it again (also for a record written before the fix)."""
+    from wenart.recognition.vlm_client import VLMResult
+    out = T.write_toy_project(tmp_path)
+    photo = Path(__file__).resolve().parent / "fixtures" / "style_photo_synthetic-03_salon.jpg"
+    answer = {"floor": "concrete_polished", "walls": "plaster_charcoal", "light": "cool daylight",
+              "family": "modern minimal"}
+
+    class Flaky:
+        model = "fake/qwen"
+        calls, fail = 0, True
+
+        def run_schema(self, images, prompt, schema, **kw):
+            self.calls += 1
+            if self.fail:
+                return VLMResult(task="style_photo", model=self.model, data=None, raw_text="", latency_s=0.1,
+                                 attempts=3, error="HTTP 503 from http://fake/v1/chat/completions: busy")
+            return VLMResult(task="style_photo", model=self.model, data=dict(answer), raw_text=json.dumps(answer),
+                             latency_s=0.1, attempts=1)
+
+    client = Flaky()
+    args = ["style-photo", "--project-out", str(out), "--model-key", "qwen", "--photo", str(photo)]
+    target = out / "check" / "style_photos.json"
+    assert main(args, client_factory=lambda k, u: client) == 0
+    rec = read(target)["calls"][0]
+    assert "HTTP 503" in rec["error"] and rec["result"]["passes"][0]["error"]
+    printed = capsys.readouterr().out
+    assert "HTTP 503" in printed and not printed.rstrip().endswith(": ok")
+    client.fail = False
+    assert main(args, client_factory=lambda k, u: client) == 0
+    calls = read(target)["calls"]
+    assert client.calls == 2 and len(calls) == 1 and calls[0]["error"] is None
+    assert calls[0]["result"]["passes"][0]["data"]["walls"] == "plaster_charcoal"
+    assert capsys.readouterr().out.rstrip().endswith(": ok")
+    assert main(args, client_factory=lambda k, u: client) == 0 and client.calls == 2       # answered: reused
+    # A record written before the fix: call error None, but the pass has no data.
+    data = read(target)
+    data["calls"][0]["error"] = None
+    data["calls"][0]["result"]["passes"][0].update(data=None, error="HTTP 503")
+    target.write_text(json.dumps(data), encoding="utf-8")
+    assert main(args, client_factory=lambda k, u: client) == 0 and client.calls == 3
+    assert read(target)["calls"][0]["result"]["passes"][0]["data"]["walls"] == "plaster_charcoal"
 
 
 def test_style_photo_without_the_photos_module_records_the_error(tmp_path, monkeypatch):

@@ -31,7 +31,13 @@ crosscheck:
   depth_tolerance_m: 0.05         # a projected sample is visible within 5 cm of the rendered depth
   min_visible_share: 0.35         # in_json_not_rendered: projected visible share >= 0.35
   min_area_frac: 0.01             #   and projected area >= 0.01 of the frame, index absent
-  misplaced_frac_w: 0.05          # misplaced: index box centre vs projected centre > 5 % of W
+  # misplaced: the element's rendered pixels, put back into the world with depth_mm, lie more than
+  # misplaced_margin_m outside its drawn footprint (furniture) or wall rectangle (doors, windows) for more
+  # than misplaced_max_outside of them (elements with fewer pixels are not judged). Clean Blender renders
+  # of synthetic-01 at 192x108 to 960x540: share 0.000-0.004; drawn 0.3 m off: mostly > 0.1.
+  misplaced_margin_m: 0.10
+  misplaced_max_outside: 0.10
+  misplaced_min_pixels: 20
 
 # Sentinel decoy label (§5.3).
 decoy:
@@ -56,9 +62,19 @@ controls:
   swaps: 3                        # type-swap controls per project (one per room, largest first)
 
 # Plan A/B (§5.2, §5.5): the control cameras plus this many sweep views get the
-# source-plan crop as Image 2; adopted only if removal detection rises and false alarms do not.
+# source-plan crop as Image 2; it favours the crop only if removal detection rises and false alarms do not.
 plan_ab:
   views: 4
+
+# Source-plan crop as Image 2 of every element check (cycles, polished, removal/insertion/swap controls).
+# Set by the session, by hand, only when calibrate's plan A/B favours the crop (check_calibration.json
+# plan_ab.favours_plan); a camera without a crop is checked without it on every image.
+plan_image: false
+
+# Model calls (§5.7): `run` and `preference` send this many calls at once to one server (vLLM serves
+# --max-num-seqs 2 below 40 GB of VRAM, 4 above); one thread writes the answers file, in call-key order.
+calls:
+  workers: 2
 
 # Realism preference (§5.6): preferred when >= 3 of 4 answers pick the polished image.
 preference:

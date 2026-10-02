@@ -148,8 +148,8 @@ def test_check_config_values():
     assert (roles["ignore_area_frac"], roles["required_area_frac"], roles["required_min_area_frac"],
             roles["required_min_visibility"]) == (0.002, 0.03, 0.01, 0.35)
     cross = cfg["crosscheck"]
-    assert (cross["depth_tolerance_m"], cross["min_visible_share"], cross["min_area_frac"],
-            cross["misplaced_frac_w"]) == (0.05, 0.35, 0.01, 0.05)
+    assert (cross["depth_tolerance_m"], cross["min_visible_share"], cross["min_area_frac"]) == (0.05, 0.35, 0.01)
+    assert (cross["misplaced_margin_m"], cross["misplaced_max_outside"], cross["misplaced_min_pixels"]) == (0.10, 0.10, 20)
     assert cfg["decoy"]["fallback_types"] == ["armchair", "desk", "bookshelf", "bathtub"]
     assert cfg["targets"] == {"fa_missing_max": 0.05, "fa_extra_max": 0.10, "removal_flagged_min": 0.80,
                               "removal_confirmed_min": 0.60, "insertion_min": 0.60, "decoy_accept_max": 0.10}

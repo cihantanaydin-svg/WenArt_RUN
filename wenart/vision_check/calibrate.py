@@ -16,7 +16,10 @@ From ``check_manifest.json`` (written by ``combine``):
   the user's OK before the milestone is called done. The differential
   decision on polished images stays active either way;
 - plan A/B: the same metrics with the source-plan crop as Image 2 on the A/B
-  cameras; adopted only when removal detection rises and false alarms do not.
+  cameras; it favours the crop only when removal detection rises and false
+  alarms do not. That is reported as a proposal ("set plan_image: true to
+  adopt"); the crop goes into the element checks only with ``check.yaml:
+  plan_image: true``, set by hand.
 """
 from __future__ import annotations
 
@@ -27,7 +30,8 @@ from wenart.vision_check.combine import MISMATCH_RESULTS
 
 NOT_ADOPTED_TEXT = ("source plan compared through the evidence chain, the projected cross-check and the "
                     "side-by-side crop")
-ADOPTED_TEXT = "source-plan crop adopted as Image 2 of the element check"
+FAVOURS_TEXT = "A/B favours the plan crop: set plan_image: true to adopt"
+USED_TEXT = "source-plan crop used as Image 2 of every element check (check.yaml plan_image: true)"
 
 # (target key in check.yaml, metric, op)
 TARGETS = (
@@ -98,8 +102,13 @@ def control_rates(views_out: dict, prefix: str) -> dict:
             "confirmed": ratio(sum(r["confirmed"] for r in rows), len(rows)), "rows": rows}
 
 
-def plan_ab(views_out: dict, single_pass: bool) -> dict:
-    """The plan A/B: false alarms and removal detection without and with the plan crop."""
+def plan_ab(views_out: dict, single_pass: bool, plan_image: bool = False) -> dict:
+    """The plan A/B: false alarms and removal detection without and with the plan crop.
+
+    ``favours_plan``: removal detection rises and false alarms do not. That
+    is a proposal: the crop is sent with the element checks only when
+    ``check.yaml: plan_image`` is true (``used``; ``adopted`` = ``used``).
+    """
     cams = sorted(cam for cam, kinds in views_out.items() if f"plan_ab:{cam}" in kinds)
     pairs = [(kinds.get("cycles"), kinds.get(f"plan_ab:{cam}")) for cam, kinds in views_out.items() if cam in cams]
     pairs = [(a, b) for a, b in pairs if _computed(a) and _computed(b)]
@@ -122,12 +131,13 @@ def plan_ab(views_out: dict, single_pass: bool) -> dict:
            "removal_confirmed_with": ratio(sum(rem_with), len(rem_with))}
     vals = [out[k] for k in ("fa_missing_without", "fa_missing_with", "fa_extra_without", "fa_extra_with",
                              "removal_confirmed_without", "removal_confirmed_with")]
-    adopted = (all(v is not None for v in vals)
+    favours = (all(v is not None for v in vals)
                and out["removal_confirmed_with"] > out["removal_confirmed_without"]
                and out["fa_missing_with"] <= out["fa_missing_without"]
                and out["fa_extra_with"] <= out["fa_extra_without"])
-    out["adopted"] = bool(adopted)
-    out["text"] = ADOPTED_TEXT if adopted else NOT_ADOPTED_TEXT
+    out["favours_plan"] = bool(favours)
+    out["used"] = out["adopted"] = bool(plan_image)
+    out["text"] = USED_TEXT if plan_image else FAVOURS_TEXT if favours else NOT_ADOPTED_TEXT
     if not all(v is not None for v in vals):
         out["note"] = "not enough plan A/B answers to compare"
     return out
@@ -179,4 +189,4 @@ def calibrate(manifest: dict, cfg: dict) -> dict:
         reasons.append(f"{m['metric']} {m['value']} misses {m['op']} {m['threshold']}{why}")
     return {"schema_version": "0.1", "project": manifest.get("project"), "model_keys": keys, "single_pass": single,
             "metrics": metrics, "targets": targets, "missed": missed, "advisory": bool(missed) or single,
-            "advisory_reasons": reasons, "plan_ab": plan_ab(views_out, single)}
+            "advisory_reasons": reasons, "plan_ab": plan_ab(views_out, single, bool(cfg.get("plan_image")))}

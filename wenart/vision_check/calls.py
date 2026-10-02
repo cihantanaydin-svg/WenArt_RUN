@@ -15,14 +15,23 @@ What:
   source-plan crop as Image 2) and ``plan_ab:removal:<id>`` (control render +
   plan crop; added so the A/B can measure removal detection with the plan);
   ``polished`` / ``sweep:a<k>`` for the realism preference (both orders).
+  With ``check.yaml: plan_image: true`` every element check of a camera
+  with a crop sends it as Image 2 (prompt kind stays ``check``).
 - ``AnswerStore``: ``check/answers_<slug>.json`` = ``{schema_version,
   model_key, model, slug, incomplete, calls: {<call_key>: {camera,
   image_kind, prompt_kind: check|plan_ab|preference, order, prompt,
   raw_text, data, latency_s, error, input_sha256, labels, images, ...}}}``,
   rewritten after every call. A call is reused when its key, input hash
   and answer are there; a failed or stale one is asked again.
-- ``run_specs``: the loop with ``--deadline`` (no new call after it; the
-  file gets ``incomplete: true``).
+- ``run_specs``: the loop with ``--deadline``. ``workers`` calls run at once
+  (``check.yaml: calls.workers``, 2: vLLM serves ``--max-num-seqs 2`` below
+  40 GB), each in a daemon thread; only the calling thread writes the
+  answers file, whose calls are kept in call-key order, so the file does
+  not depend on which call finishes first. No call starts after the
+  deadline, and nothing waits past it: a call still running then (a wedged
+  server; the client's own timeout and retries can take 30 min) is
+  abandoned unanswered and asked again by the next run; the file gets
+  ``incomplete: true``. ``call_before_deadline`` does the same for one call.
 
 The call key is ``<prompt_kind>|<camera>|<image_kind>`` (``|<order>`` for the
 preference); the inputs live in ``input_sha256``, so a re-rendered image or a
@@ -30,8 +39,11 @@ changed list makes the stored answer stale instead of silently reused.
 """
 from __future__ import annotations
 
+import functools
 import hashlib
 import json
+import queue
+import threading
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -90,24 +102,34 @@ def kind_slug(image_kind: str) -> str:
 # Specs
 # --------------------------------------------------------------------------
 
-def _decoy(project: Project, base_view: "views.View", exp: dict) -> Optional[dict]:
+def _decoy(project: Project, view: "views.View", lists: list) -> Optional[dict]:
+    """The sentinel decoy of a camera: placed on its normal Cycles render ``view``, a type absent from ``lists``.
+
+    The box is bare structure (index 0, >= 98 %) of the normal render, so it
+    is bare on every image the model is shown for that camera: hiding a
+    control element only turns that element's pixels into something else
+    (removal shows the control render, insertion and swap the normal render).
+    One camera therefore gets one decoy box on every call.
+    """
     dcfg = project.cfg["decoy"]
 
     def place():
-        index, depth = project.maps(base_view)
+        index, depth = project.maps(view)
         return P.place_decoy(index, depth, tuple(dcfg["box_frac"]), float(dcfg["min_bare_frac"]),
                              float(dcfg["step_frac"]))
 
-    box = project.cached(("decoy_box", str(base_view.index), str(base_view.depth_mm)), place)
+    box = project.cached(("decoy_box", str(view.index), str(view.depth_mm)), place)
     if box is None:
         return None
+    exp = lists[0]
     room_id = exp.get("room_id")
     present = {p.get("type") for p in project.building.get("furniture") or [] if p.get("room_id") == room_id}
-    present |= {e.get("type") for e in exp.get("elements") or []}
+    for listed in lists:
+        present |= {e.get("type") for e in listed.get("elements") or []}
     dtype = P.decoy_type(exp.get("room_type"), present, dcfg["fallback_types"])
     if dtype is None:
         return None
-    W, H = base_view.size
+    W, H = view.size
     return {"type": dtype, "box_px": box, "box_1000": views.box_to_1000(box, W, H)}
 
 
@@ -170,7 +192,16 @@ def check_spec(project: Project, camera: str, image_kind: str, model: str = "") 
         target = sid
     else:
         raise ValueError(f"unknown image kind {image_kind!r}")
-    decoy = _decoy(project, base_view, exp)
+    if plan is None and project.cfg.get("plan_image"):
+        # check.yaml plan_image (adopted after the plan A/B): the crop is Image 2 of every element check of
+        # the camera, so the Cycles and the polished answers are asked the same way.
+        plan = project.plan_path(camera)
+        if not plan.is_file():
+            project.warn(f"plan_image: no plan crop for {camera} (run plan-crops); its checks have no Image 2")
+            plan = None
+    # The decoy goes on the camera's normal render (never the control render the list came from), so it
+    # is bare structure on the image actually shown, and its type is absent from both lists.
+    decoy = _decoy(project, view, [exp, project.expected(camera)])
     items = P.check_items(exp, decoy, swap)
     room = project.room(exp.get("room_id"))
     size = tuple(view.size)
@@ -307,6 +338,8 @@ class AnswerStore:
         self.save()
 
     def save(self) -> None:
+        """Write the file (calls in call-key order: the content does not depend on the answer order)."""
+        self.data["calls"] = dict(sorted(self.calls.items()))
         write_json(self.path, self.data)
 
 
@@ -321,34 +354,98 @@ def record_of(spec: CallSpec, result, check_dir: Path, model: str, seed: int) ->
     }
 
 
+def _spawn(fn: Callable, tag, results: "queue.Queue") -> None:
+    """Run ``fn()`` in a daemon thread and put ``(tag, value, exception)`` on ``results``.
+
+    Daemon: a call that never returns (a wedged server) cannot keep the
+    process alive once the caller has stopped waiting for it.
+    """
+    def target():
+        try:
+            results.put((tag, fn(), None))
+        except BaseException as exc:  # noqa: BLE001 - handed to the waiting thread, raised there
+            results.put((tag, None, exc))
+
+    threading.Thread(target=target, name=f"vision-check-call-{tag}", daemon=True).start()
+
+
+def _time_left(deadline: Optional[float], clock: Callable[[], float]) -> Optional[float]:
+    return None if deadline is None else max(0.0, deadline - clock())
+
+
+def call_before_deadline(fn: Callable, deadline: Optional[float], clock: Callable[[], float] = time.time):
+    """``(True, fn())`` when ``fn`` returns before ``deadline`` (epoch s), ``(False, None)`` when the deadline
+    comes first (the call is abandoned in its daemon thread, its result dropped). Exceptions of ``fn`` are
+    raised here."""
+    results: "queue.Queue" = queue.Queue()
+    _spawn(fn, 0, results)
+    try:
+        _, value, exc = results.get(timeout=_time_left(deadline, clock))
+    except queue.Empty:
+        return False, None
+    if exc is not None:
+        raise exc
+    return True, value
+
+
 def run_specs(specs: list[CallSpec], store: AnswerStore, client, *, deadline: Optional[float] = None,
               seed: int = 0, max_side: Optional[int] = None, log: Callable = print,
-              clock: Callable[[], float] = time.time) -> dict:
-    """Ask every spec that has no current answer; stop starting calls after ``deadline`` (epoch s).
+              clock: Callable[[], float] = time.time, workers: int = 1) -> dict:
+    """Ask every spec that has no current answer, ``workers`` calls at once, until ``deadline`` (epoch s).
 
-    Returns ``{"asked", "reused", "failed", "left", "incomplete"}``. The
-    answers file is written after every call and at the end.
+    No call starts after the deadline and none is waited for past it: calls
+    still running then are abandoned unanswered (asked again next run).
+    Only this thread writes the answers file: after every answer and at the
+    end. An exception of a call is raised after the other running calls are
+    written. Returns ``{"asked", "reused", "failed", "left", "incomplete"}``.
     """
     stats = {"asked": 0, "reused": 0, "failed": 0, "left": 0, "incomplete": False}
     model = getattr(client, "model", "") or store.data.get("model") or ""
-    for i, spec in enumerate(specs):
-        if store.valid(spec) is not None:
+    pending = []
+    for spec in specs:
+        if store.valid(spec) is None:
+            pending.append(spec)
+        else:
             stats["reused"] += 1
-            continue
-        if deadline is not None and clock() >= deadline:
-            stats["left"] = sum(1 for s in specs[i:] if store.valid(s) is None)
-            stats["incomplete"] = True
-            log(f"vision_check: deadline reached, {stats['left']} call(s) left for the next run")
+    results: "queue.Queue" = queue.Queue()
+    running: dict[int, CallSpec] = {}
+    started, raised, abandoned = 0, None, 0
+    while True:
+        while raised is None and started < len(pending) and len(running) < max(1, int(workers)):
+            if deadline is not None and clock() >= deadline:
+                break
+            spec = pending[started]
+            running[started] = spec
+            _spawn(functools.partial(client.run_schema, list(spec.images), spec.prompt, spec.schema, seed=seed,
+                                     task=f"{spec.prompt_kind}:{spec.image_kind}", max_side=max_side,
+                                     labels=list(spec.image_labels)), started, results)
+            started += 1
+        if not running:
             break
-        result = client.run_schema(list(spec.images), spec.prompt, spec.schema, seed=seed,
-                                   task=f"{spec.prompt_kind}:{spec.image_kind}", max_side=max_side,
-                                   labels=list(spec.image_labels))
+        try:
+            tag, result, exc = results.get(timeout=_time_left(deadline, clock))
+        except queue.Empty:
+            abandoned = len(running)
+            log(f"vision_check: deadline reached with {abandoned} call(s) unanswered: "
+                f"{', '.join(s.key for s in running.values())}")
+            break
+        spec = running.pop(tag)
+        if exc is not None:
+            raised = raised or exc
+            continue
         store.put(spec.key, record_of(spec, result, store.path.parent, str(model), seed))
         stats["asked"] += 1
         if result.data is None:
             stats["failed"] += 1
             log(f"vision_check: {spec.key}: {result.error}")
+    if raised is None:
+        stats["left"] = len(pending) - started + abandoned
+        stats["incomplete"] = stats["left"] > 0
+        if stats["left"]:
+            log(f"vision_check: deadline reached, {stats['left']} call(s) left for the next run")
     store.data["incomplete"] = stats["incomplete"]
     store.data["model"] = str(model) or store.data.get("model")
     store.save()
+    if raised is not None:
+        raise raised
     return stats
