@@ -2,13 +2,22 @@
 # Milestone 5 job: Cycles look, AI polish, change gate, final vision check, report and GPU tests
 # (docs/milestone5.md §8.2). Run by scripts/pod_entry.sh on a RunPod pod (cwd /workspace/repo,
 # WENART_RESULTS and WENART_DEADLINE set, /workspace/venv has the CPU deps, Blender at
-# /workspace/tools/blender/blender). Start it with (§8.3):
+# /workspace/tools/blender/blender). Run 2 (§8.3) is split into pods that each end before
+# WENART_DEADLINE; every pod resumes from the volume (polish attempts, gate results, check answers):
 #
-#   scripts/gpu_run.py run --job scripts/jobs/polish.sh --gpu 'RTX PRO 4500' --disk 130 --grace 420 \
-#     --env POLISH_MODE=final --env POLISH_PHASES='look polish check report tests'
+#   2a, one project per pod; the same command again until outputs/<p>/polish/polish_manifest.json
+#   has "incomplete": false (synthetic-03, 57 views, likely needs two pods):
+#   scripts/gpu_run.py run --job scripts/jobs/polish.sh --gpu 'RTX PRO 4500' --disk 130 --grace 840 \
+#     --env POLISH_MODE=final --env POLISH_PHASES='look polish' --env POLISH_PROJECTS=synthetic-01
+#   2b, both projects (again if the deadline cut it: the answers resume):
+#   scripts/gpu_run.py run --job scripts/jobs/polish.sh --gpu 'RTX PRO 4500' --disk 130 --grace 840 \
+#     --env POLISH_MODE=final --env POLISH_PHASES='check report tests'
 #
-# ('RTX PRO 4000' when the 4500 has no stock; never L4: diffusion there is 2-3x slower and run 2
-# would pass the 2 h limit.)
+# ('RTX PRO 4000' when the 4500 has no stock; never L4: diffusion there is 2-3x slower.) One pod
+# for 'look polish check report tests' of both projects (87 views) does not fit: at run 0/0b's
+# speeds the polish alone takes 3.5-5 h and the check of both VLMs about 70 min. --grace 840: the
+# runner fetches the results one file at a time (0.81 s per file in runs 0/0b), and from run 1b on
+# a run's results hold 500-1000 files (840 s stays below the 900 s deadline margin).
 #
 # Env: POLISH_PROJECTS (default "synthetic-01 synthetic-03"), POLISH_MODE smoke|sweep|final
 # (default final), POLISH_PHASES (default per mode: smoke "look polish check", sweep "look
@@ -16,7 +25,17 @@
 # uses "check report tests"), RENDER_SAMPLES (128), FORCE_RENDER=1 (re-render), FORCE_POLISH=1
 # (no reuse of polish attempts), CHECK_MODELS (check.yaml model keys, default "qwen glm"),
 # SMOKE_VIEWS (cameras for the polish smoke, comma separated; default auto), CHECK_KINDS /
-# CHECK_PREF_KINDS (override the image kinds of `vision_check run` / `preference`).
+# CHECK_PREF_KINDS (override the image kinds of `vision_check run` / `preference`), POLISH_THREADS
+# (CPU threads per process; default: the pod's cgroup CPU quota, see below).
+#
+# CPU threads: os.cpu_count() and /proc/meminfo show the host (run 0b: 112 CPUs, 251 GiB) while the
+# pod runs under a cgroup CPU quota; numpy/OpenBLAS, OpenCV and torch each started 112 threads and
+# the gate's CPU work ran 10-50x slower. The job exports OMP_NUM_THREADS, OPENBLAS_NUM_THREADS,
+# MKL_NUM_THREADS, NUMEXPR_NUM_THREADS, VECLIB_MAXIMUM_THREADS and OPENCV_FOR_THREADS_NUM (OpenCV's
+# own variable; it ignores OMP_NUM_THREADS) = the quota from /sys/fs/cgroup/cpu.max (v2) or
+# cpu/cpu.cfs_quota_us / cpu.cfs_period_us (v1), rounded up, at most nproc; nproc without a quota.
+# Every stage inherits them (torch sizes its intra-op pool from OMP_NUM_THREADS); the setup records
+# them with the quota and the cgroup memory limit in setup_polish.json (pod_limits).
 #
 # Phases, always in this order (cwd /workspace/repo; PY=/workspace/venv/bin/python,
 # POLISH_PY=/opt/wenart/venv-polish/bin/python):
@@ -56,8 +75,13 @@
 # Results: copy_results mirrors the committed layout into $WENART_RESULTS: renders/<p>/ (+
 # controls/hide_<id>/), polish/<p>/ (+ sweep/, smoke/), gate/<p>/, check/<p>/, final/<p>/: JSON,
 # MD, *_preview.jpg, *_gate.jpg, *_check.jpg, *_plan.jpg, contact_*.jpg (each <= 300 KB), log
-# tails, junit. It runs after every stage, from the EXIT trap and every 300 s in the background
-# (under flock): the pod_entry.sh watchdog stops the pod without signalling the job.
+# tails (+ controls/render.log), junit. It runs after every stage, from the EXIT trap and every 300 s
+# in the background (under flock): the pod_entry.sh watchdog stops the pod without signalling the
+# job. Each copy takes only the files changed since the last one (stamp on the volume, 2 s back for
+# 1 s timestamps), many files per cp: run 0b paid about 45 ms per file and every copy took every
+# file again (25-40 min in run 2). The job's first copy and the one from the EXIT trap are full.
+# From /workspace/logs (shared by every pod) only what this job wrote: its vLLM, pip and download
+# logs and setup_polish.json; style_<n>.json only when written together with this style.json.
 # Every stage is timed; a failing stage is recorded and the later stages still run (exit 1).
 set -Eeuo pipefail
 
@@ -89,6 +113,10 @@ STYLE_TEST_PHOTO=tests/fixtures/style_photo_synthetic-03_salon.jpg
 CHECK_YAML=wenart/vision_check/check.yaml
 COPY_EVERY_S="${POLISH_COPY_EVERY_S:-300}"
 LOCK=$LOGS/polish-$JOB.copy.lock
+START_STAMP=$LOGS/polish-$JOB.start     # files older than this were written by earlier jobs
+COPY_STAMP=$LOGS/polish-$JOB.copied     # start of the last finished results copy (minus the overlap)
+COPY_OVERLAP_S=2                        # stamps lie 2 s back: the volume's timestamps may have 1 s steps
+CGROUP="${WENART_CGROUP:-/sys/fs/cgroup}"   # CPU tests only
 FORCE_RENDER_ARG=()
 if [ "${FORCE_RENDER:-0}" = "1" ]; then FORCE_RENDER_ARG=(--force); fi
 FORCE_POLISH_ARG=()
@@ -142,34 +170,68 @@ deadline_left() {
   else echo "no deadline"; fi
 }
 
-# copy_files <src dir> <dst dir>: JSON and markdown (< 8 MB), log tails and the small JPEGs.
+# stamp <file>: an empty file whose mtime is the volume's own time minus COPY_OVERLAP_S, so a file
+# written in the same second as the stamp still counts as newer (and the stamp shares the volume's
+# clock with the files it is compared with).
+stamp() {
+  local t
+  rm -f "$1" 2>/dev/null || true
+  : > "$1" || return 1
+  t=$(stat -c %Y "$1" 2>/dev/null) || return 0
+  touch -d "@$(( t - COPY_OVERLAP_S ))" "$1" 2>/dev/null || true
+}
+
+# changed <file>: true when COPY_SINCE (set by copy_results) is empty or <file> is newer than it.
+changed() { [ -z "${COPY_SINCE:-}" ] || [ "$1" -nt "$COPY_SINCE" ]; }
+
+# copy_files <src dir> <dst dir>: JSON and markdown (< 8 MB), log tails and the small JPEGs that
+# changed since COPY_SINCE (all of them when it is empty); one cp per batch, not one per file.
 copy_files() {
   local src=$1 dst=$2 f
   [ -d "$src" ] || return 0
-  mkdir -p "$dst" 2>/dev/null || return 0
-  find "$src" -maxdepth 1 -type f \( -name '*.json' -o -name '*.md' \) -size -8000k \
-    -exec cp -f {} "$dst/" \; 2>/dev/null || true
-  find "$src" -maxdepth 1 -type f \( -name '*_preview.jpg' -o -name '*_gate.jpg' -o -name '*_check.jpg' \
-    -o -name '*_plan.jpg' -o -name 'contact_*.jpg' \) -size -301k -exec cp -f {} "$dst/" \; 2>/dev/null || true
+  local -a newer=() files=()
+  if [ -n "${COPY_SINCE:-}" ]; then newer=(-newer "$COPY_SINCE"); fi
+  mapfile -d '' files < <(find "$src" -maxdepth 1 -type f \( \
+      \( \( -name '*.json' -o -name '*.md' \) -size -8000k \) -o \
+      \( \( -name '*_preview.jpg' -o -name '*_gate.jpg' -o -name '*_check.jpg' -o -name '*_plan.jpg' \
+         -o -name 'contact_*.jpg' \) -size -301k \) \) "${newer[@]}" -print0 2>/dev/null) || true
+  if [ "${#files[@]}" -gt 0 ]; then
+    mkdir -p "$dst" 2>/dev/null || return 0
+    if cp -f -t "$dst/" "${files[@]}" 2>/dev/null; then COPIED=$(( COPIED + ${#files[@]} )); fi
+  fi
   for f in "$src"/*.log; do
-    if [ -f "$f" ]; then tail -n 400 "$f" > "$dst/$(basename "$f")" 2>/dev/null || true; fi
+    if [ -f "$f" ] && changed "$f"; then
+      mkdir -p "$dst" 2>/dev/null || return 0
+      tail -n 400 "$f" > "$dst/$(basename "$f")" 2>/dev/null && COPIED=$(( COPIED + 1 ))
+    fi
   done
   return 0
 }
 
+# copy_results [full]: small files only, in the layout of the committed results/<area>/<p>/ folders
+# (full-size PNGs, EXR passes and model files stay on the volume / container disk). Only the files
+# changed since the last finished copy; the job's first copy and 'full' (EXIT trap) copy all of them.
+# Logs and setup_polish.json only when this job wrote them (/workspace/logs keeps every earlier pod's).
 copy_results() {
-  # Small files only, in the layout of the committed results/<area>/<p>/ folders. Full-size
-  # PNGs, EXR passes and model files stay on the volume / container disk.
   mkdir -p "$RESULTS" 2>/dev/null || return 0
-  local p src d f
+  local p src d f COPY_SINCE="" COPIED=0
+  if [ "${1:-}" != "full" ] && [ -f "$COPY_STAMP" ]; then COPY_SINCE=$COPY_STAMP; fi
+  stamp "$COPY_STAMP.next" 2>/dev/null || true      # before the scan: files written during it go next time
   for p in "${PROJECTS[@]}"; do
     src=$REPO/outputs/$p
     [ -d "$src" ] || continue
     copy_files "$src/renders" "$RESULTS/renders/$p"
     copy_files "$src/scene" "$RESULTS/renders/$p"
+    # style_<n>.json (a brief with several styles) only when written together with style.json: an
+    # older brief's extra profile stays on the volume.
     for f in "$src"/style*.json; do
-      if [ -f "$f" ]; then cp -f "$f" "$RESULTS/renders/$p/" 2>/dev/null || true; fi
+      [ -f "$f" ] && [ -f "$src/style.json" ] && changed "$f" || continue
+      if [ "$f" = "$src/style.json" ] || ! [ "$f" -ot "$src/style.json" ]; then
+        mkdir -p "$RESULTS/renders/$p" 2>/dev/null && cp -f "$f" "$RESULTS/renders/$p/" 2>/dev/null \
+          && COPIED=$(( COPIED + 1 ))
+      fi
     done
+    copy_files "$src/controls" "$RESULTS/renders/$p/controls"     # render.log of the control renders
     for d in "$src"/controls/hide_*; do
       if [ -d "$d" ]; then copy_files "$d" "$RESULTS/renders/$p/controls/$(basename "$d")"; fi
     done
@@ -181,21 +243,74 @@ copy_results() {
     copy_files "$src/final" "$RESULTS/final/$p"
   done
   mkdir -p "$RESULTS/logs" 2>/dev/null || true
-  for f in "$LOGS"/vllm-*.log "$LOGS"/setup-polish-*.log "$LOGS"/hf-download-*.log; do
-    if [ -f "$f" ]; then tail -n 200 "$f" > "$RESULTS/logs/$(basename "$f")" 2>/dev/null || true; fi
+  for f in "$LOGS"/vllm-*.log "$LOGS"/setup-polish-*.log "$LOGS"/hf-download-*.log "$LOGS/setup_polish.json"; do
+    if [ -f "$f" ] && [ "$f" -nt "$START_STAMP" ] && changed "$f"; then
+      case "$f" in
+        *.json) cp -f "$f" "$RESULTS/" 2>/dev/null || true ;;
+        *) tail -n 200 "$f" > "$RESULTS/logs/$(basename "$f")" 2>/dev/null || true ;;
+      esac
+    fi
   done
-  if [ -f "$LOGS/setup_polish.json" ]; then cp -f "$LOGS/setup_polish.json" "$RESULTS/" 2>/dev/null || true; fi
   cp -f "$LOG" "$RESULTS/" 2>/dev/null || true
-  log "results copied to $RESULTS: $(find "$RESULTS" -type f 2>/dev/null | wc -l) files"
+  mv -f "$COPY_STAMP.next" "$COPY_STAMP" 2>/dev/null || true
+  if [ -n "$COPY_SINCE" ]; then
+    log "results copied to $RESULTS: $COPIED changed file(s)"
+  else
+    log "results copied to $RESULTS (full copy): $COPIED file(s)"
+  fi
 }
 
-# copy_results_locked [wait_s]: one copy at a time (stages, the background loop, the EXIT trap).
+# copy_results_locked [wait_s] [full]: one copy at a time (stages, the background loop, the EXIT trap).
 copy_results_locked() {
   if command -v flock >/dev/null 2>&1; then
-    ( flock -w "${1:-120}" 9 || { log "results copy busy, skipped"; exit 0; }; copy_results ) 9>"$LOCK"
+    ( flock -w "${1:-120}" 9 || { log "results copy busy, skipped"; exit 0; }; copy_results "${2:-}" ) 9>"$LOCK"
   else
-    copy_results
+    copy_results "${2:-}"
   fi
+}
+
+# cpu_budget: the CPUs this pod may use: its cgroup CPU quota (v2 cpu.max '<quota> <period>' or
+# 'max ...'; v1 cpu/cpu.cfs_quota_us and cpu.cfs_period_us, -1 = none) rounded up, at most the CPUs
+# this process may run on (nproc, without the OMP_* variables nproc honours), at least 1. Run 0b:
+# os.cpu_count() saw the host's 112 CPUs; numpy/OpenBLAS, OpenCV and torch each started that many
+# threads under a much smaller quota and the gate's CPU work ran 10-50x slower.
+cpu_budget() {
+  local n quota="" period=""
+  n=$(env -u OMP_NUM_THREADS -u OMP_THREAD_LIMIT nproc 2>/dev/null) || n=1
+  if [ -r "$CGROUP/cpu.max" ]; then
+    read -r quota period < "$CGROUP/cpu.max" || true
+  elif [ -r "$CGROUP/cpu/cpu.cfs_quota_us" ] && [ -r "$CGROUP/cpu/cpu.cfs_period_us" ]; then
+    quota=$(cat "$CGROUP/cpu/cpu.cfs_quota_us" 2>/dev/null) || quota=""
+    period=$(cat "$CGROUP/cpu/cpu.cfs_period_us" 2>/dev/null) || period=""
+  fi
+  if [[ "$quota" =~ ^[0-9]+$ ]] && [[ "$period" =~ ^[0-9]+$ ]] && [ "$quota" -gt 0 ] && [ "$period" -gt 0 ]; then
+    local q=$(( (quota + period - 1) / period ))
+    if [ "$q" -lt "$n" ]; then n=$q; fi
+  fi
+  if ! [[ "$n" =~ ^[0-9]+$ ]] || [ "$n" -lt 1 ]; then n=1; fi
+  echo "$n"
+}
+
+# set_threads: export the thread budget (POLISH_THREADS, else cpu_budget) to every stage: OpenMP
+# (torch intra-op, libgomp), OpenBLAS (numpy), MKL (torch on x86), numexpr, Accelerate, and OpenCV
+# (OPENCV_FOR_THREADS_NUM; opencv-python-headless 4.14.0.94 ignores OMP_NUM_THREADS, checked
+# 2 Oct 2026). WENART_CPU_THREADS goes into setup_polish.json.
+set_threads() {
+  local n="${POLISH_THREADS:-}" src="POLISH_THREADS" quota="none"
+  if ! [[ "$n" =~ ^[1-9][0-9]*$ ]]; then
+    if [ -n "$n" ]; then log "POLISH_THREADS '$n' is not a positive number: ignored"; fi
+    n=$(cpu_budget); src="cgroup CPU quota / nproc"
+  fi
+  if [ -r "$CGROUP/cpu.max" ]; then quota="cpu.max '$(cat "$CGROUP/cpu.max" 2>/dev/null)'"
+  elif [ -r "$CGROUP/cpu/cpu.cfs_quota_us" ]; then
+    quota="cfs_quota_us $(cat "$CGROUP/cpu/cpu.cfs_quota_us" 2>/dev/null)"
+    quota+=" / cfs_period_us $(cat "$CGROUP/cpu/cpu.cfs_period_us" 2>/dev/null)"
+  fi
+  local cpus; cpus=$(env -u OMP_NUM_THREADS -u OMP_THREAD_LIMIT nproc 2>/dev/null) || cpus="?"
+  export WENART_CPU_THREADS=$n OMP_NUM_THREADS=$n OPENBLAS_NUM_THREADS=$n MKL_NUM_THREADS=$n \
+    NUMEXPR_NUM_THREADS=$n VECLIB_MAXIMUM_THREADS=$n OPENCV_FOR_THREADS_NUM=$n
+  log "CPU budget: $n thread(s) per process (from $src; $quota; nproc $cpus," \
+      "host $(nproc --all 2>/dev/null || echo ?)): OMP/OPENBLAS/MKL/NUMEXPR/VECLIB/OPENCV_FOR_THREADS_NUM=$n"
 }
 
 copy_loop() {
@@ -226,7 +341,7 @@ on_exit() {
     kill "$COPY_PID" 2>/dev/null || true
     wait "$COPY_PID" 2>/dev/null || true
   fi
-  copy_results_locked 300
+  copy_results_locked 300 full      # one full copy at the end, in case a timestamp misled a copy
 }
 trap 'on_exit' EXIT
 trap 'exit 143' TERM
@@ -527,10 +642,13 @@ phase_tests() {
   fi
 }
 
+stamp "$START_STAMP" || log "warning: no start stamp $START_STAMP: earlier jobs' logs may be copied"
+rm -f "$COPY_STAMP" "$COPY_STAMP.next"      # the job's first results copy is a full one
 cd "$REPO"
 mkdir -p "$RESULTS" "$ASSETS" outputs
 log "job $JOB: mode $MODE, phases: ${PHASES[*]}; projects: ${PROJECTS[*]}; check models: ${CHECK_KEYS[*]};" \
     "samples $SAMPLES, res $RES; $(deadline_left)"
+set_threads
 nvidia-smi --query-gpu=name,memory.total --format=csv,noheader 2>/dev/null || log "nvidia-smi failed"
 copy_loop &
 COPY_PID=$!

@@ -27,7 +27,9 @@
 #            wenart/vision_check/check.yaml, each with its pinned revision ("<id>@<revision>").
 #            Needed by the phase check.
 # Writes setup_polish.json ($WENART_RESULTS, else /workspace/logs): per part state and seconds,
-# model sizes and seconds, free disk, MemTotal, MemAvailable, nproc and the versions the check
+# model sizes and seconds, free disk, MemTotal, MemAvailable, nproc (the host's: /proc/meminfo and
+# os.cpu_count() in a container), pod_limits (the pod's cgroup v2/v1 CPU quota, memory limit and
+# usage, CPU affinity, and the thread budget polish.sh exported) and the versions the check
 # printed. Exit 1 when a needed part failed (the job then skips the phases that need it).
 # POLISH_SETUP_PLAN_ONLY=1 prints the plan (parts, BAKEOFF_MODELS) and exits without changes.
 #
@@ -333,11 +335,59 @@ models_json = Path(state_dir) / "models.json"
 models = json.loads(models_json.read_text())["models"] if models_json.is_file() else []
 def gib(v):
     return round(int(v) / 2**30, 1) if v.strip().isdigit() else None
+
+
+# The pod's own limits: /proc/meminfo and os.cpu_count() show the host (run 0: 251 GiB, 112 CPUs)
+# while the container runs under a cgroup (vLLM saw about 26 GiB free on the same pod).
+def read(path):
+    try:
+        return path.read_text(encoding="utf-8").strip()
+    except OSError:
+        return None
+
+
+def number(text, no_limit_from=2**62):
+    """A cgroup value in bytes or microseconds; None for 'max', -1, the v1 'unlimited' value or junk."""
+    return int(text) if text and text.isdigit() and int(text) < no_limit_from else None
+
+
+cg = Path(os.environ.get("WENART_CGROUP") or "/sys/fs/cgroup")   # WENART_CGROUP: CPU tests only
+quota = period = limit = current = None
+if (cg / "cgroup.controllers").is_file():                          # cgroup v2
+    version = "v2"
+    cpu_max = read(cg / "cpu.max")
+    if cpu_max:
+        q, _, p = cpu_max.partition(" ")
+        quota, period = number(q), number(p)
+    limit, current = number(read(cg / "memory.max")), number(read(cg / "memory.current"))
+elif (cg / "cpu").is_dir() or (cg / "memory").is_dir():          # cgroup v1
+    version = "v1"
+    q, p = read(cg / "cpu" / "cpu.cfs_quota_us"), read(cg / "cpu" / "cpu.cfs_period_us")
+    cpu_max = f"{q} {p}" if q is not None and p is not None else None
+    quota, period = number(q), number(p)
+    limit = number(read(cg / "memory" / "memory.limit_in_bytes"))
+    current = number(read(cg / "memory" / "memory.usage_in_bytes"))
+else:
+    version = cpu_max = None
+thread_env = {k: os.environ[k] for k in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS",
+              "NUMEXPR_NUM_THREADS", "VECLIB_MAXIMUM_THREADS", "OPENCV_FOR_THREADS_NUM") if k in os.environ}
+threads = os.environ.get("WENART_CPU_THREADS", "")
+pod_limits = {
+    "note": "MemTotal_gib, MemAvailable_gib and nproc are the host's (/proc/meminfo, os.cpu_count()); "
+            "the pod may use only these cgroup limits",
+    "cgroup": version, "cpu_max": cpu_max,
+    "cpu_quota": round(quota / period, 2) if quota and period else None,
+    "affinity_cpus": len(os.sched_getaffinity(0)) if hasattr(os, "sched_getaffinity") else None,
+    "mem_limit_gib": round(limit / 2**30, 2) if limit is not None else None,
+    "mem_current_gib": round(current / 2**30, 2) if current is not None else None,
+    "threads": int(threads) if threads.isdigit() else None,         # exported by scripts/jobs/polish.sh
+    "thread_env": thread_env,
+}
 data = {"schema_version": "0.1", "kind": "setup_polish", "date": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "mode": mode, "phases": phases.split(), "check_models": check_keys.split(), "parts": parts,
         "models": models, "models_gb": round(sum(m.get("bytes") or 0 for m in models) / 1e9, 2),
         "disk_free_gib_before": gib(disk_before), "disk_free_gib_after": gib(disk_after),
-        **mem, "nproc": os.cpu_count(), "versions": versions,
+        **mem, "nproc": os.cpu_count(), "pod_limits": pod_limits, "versions": versions,
         "image_constraints": Path(constraints).read_text().split() if Path(constraints).is_file() else [],
         "hf_home": os.environ.get("HF_HOME"), "image": os.environ.get("WENART_IMAGE")}
 Path(out).write_text(json.dumps(data, indent=1, ensure_ascii=False), encoding="utf-8")

@@ -16,6 +16,7 @@ import importlib.util
 import json
 import os
 import re
+import shutil
 import stat
 import subprocess
 import sys
@@ -127,7 +128,10 @@ def test_documented_run_command_uses_the_rtx_pro_4500_never_l4():
     assert lines, "no documented run command"
     i = text.splitlines().index(lines[0])
     command = " ".join(text.splitlines()[i:i + 2])
-    assert "--gpu 'RTX PRO 4500'" in command and "--disk 130" in command and "--grace 420" in command
+    assert "--gpu 'RTX PRO 4500'" in command and "--disk 130" in command
+    # The grace (results collection, 0.81 s per file) stays below the 900 s deadline margin.
+    grace = re.search(r"--grace (\d+)", command)
+    assert grace and 420 <= int(grace.group(1)) < 900
     assert "--env POLISH_MODE=" in command and "--env POLISH_PHASES=" in command
     assert "L4" not in command
 
@@ -378,10 +382,15 @@ argv = sys.argv[1:]
 if argv[:1] in (["-c"], ["-"]):
     os.execv(REAL, [REAL] + argv)
 ENV_KEYS = ("HF_HUB_OFFLINE", "PYTORCH_CUDA_ALLOC_CONF", "WENART_DEADLINE", "RENDER_TEST_PROJECTS",
-            "CHECK_TEST_PROJECTS", "POLISH_TEST_PROJECTS", "CHECK_MODELS", "WENART_OUTPUTS", "HF_HOME")
+            "CHECK_TEST_PROJECTS", "POLISH_TEST_PROJECTS", "CHECK_MODELS", "WENART_OUTPUTS", "HF_HOME",
+            "WENART_CPU_THREADS", "OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS",
+            "NUMEXPR_NUM_THREADS", "VECLIB_MAXIMUM_THREADS", "OPENCV_FOR_THREADS_NUM")
+record = {"role": ROLE, "argv": argv, "cwd": os.getcwd(), "env": {k: os.environ.get(k) for k in ENV_KEYS}}
+if os.environ.get("FAKE_SEEN"):        # what the results folder holds when this stage starts
+    res = Path(os.environ["WENART_RESULTS"])
+    record["results"] = sorted(str(f.relative_to(res)) for f in res.rglob("*") if f.is_file()) if res.is_dir() else []
 with open(os.environ["FAKE_CALLS"], "a", encoding="utf-8") as fh:
-    fh.write(json.dumps({"role": ROLE, "argv": argv, "cwd": os.getcwd(),
-                         "env": {k: os.environ.get(k) for k in ENV_KEYS}}) + "\n")
+    fh.write(json.dumps(record) + "\n")
 fail = os.environ.get("FAKE_FAIL")
 if fail and re.search(fail, " ".join(argv)):
     print("fake failure", file=sys.stderr)
@@ -406,6 +415,8 @@ sub = argv[2] if len(argv) > 2 else None
 out = Path(opt("--project-out", ".")) if "--project-out" in argv else None
 if mod == "wenart.style":
     write(opt("--out"))
+    for i in range(2, int(os.environ.get("FAKE_STYLE_PROFILES", "1")) + 1):   # a brief with several styles
+        write(Path(opt("--out")).with_name(f"style_{i}.json"))
 elif mod == "wenart.blender.cli" and sub == "build":
     d = Path(opt("--out"))
     write(d / "scene.blend", size=10)
@@ -415,6 +426,7 @@ elif mod == "wenart.blender.cli" and sub == "build":
 elif mod == "wenart.blender.cli" and sub == "render":
     d = Path(opt("--out"))
     if "--hide-sets" in argv:
+        write(d / "render.log", "control renders\n")      # run_blender's log_path = <out>/render.log
         for item in opt("--hide-sets").split(";"):
             cam, rest = item.split(":")
             hid = rest.split("+")[0]
@@ -445,6 +457,10 @@ elif mod == "wenart.vision_check":
     elif sub == "combine":
         write(c / "check_manifest.json")
         write(c / "cam_a_cycles_check.jpg", size=1500)
+        if os.environ.get("FAKE_COARSE_MTIME"):     # 1 s timestamps: the mtime lags the write by up to 1 s
+            import time
+            t = time.time() - 1.0
+            os.utime(c / "check_manifest.json", (t, t))
     elif sub == "calibrate":
         write(c / "check_calibration.json")
         write(c / "check_report.md", "# Check\n")
@@ -475,16 +491,24 @@ elif mod == "pytest":
 
 FAKE_SETUP = """#!/usr/bin/env bash
 echo "fake setup: offline=${HF_HUB_OFFLINE:-unset} phases=$POLISH_PHASES mode=$POLISH_MODE models=$CHECK_MODELS" \
-  >> "$FAKE_SETUP_LOG"
+  "threads=${WENART_CPU_THREADS:-unset} omp=${OMP_NUM_THREADS:-unset}" >> "$FAKE_SETUP_LOG"
 mkdir -p "$WENART_FAST/venv-polish"
 if [ "${FAKE_SETUP_STAMP:-1}" = "1" ]; then touch "$WENART_FAST/venv-polish/.polish-test"; fi
-echo '{"kind": "setup_polish"}' > "$WS_LOGS/setup_polish.json"
+if [ "${FAKE_SETUP_JSON:-1}" = "1" ]; then echo '{"kind": "setup_polish"}' > "$WS_LOGS/setup_polish.json"; fi
 exit "${FAKE_SETUP_RC:-0}"
 """
 
 FAKE_VLLM = """#!/usr/bin/env bash
 echo "VLLM_USE_FLASHINFER_SAMPLER=$VLLM_USE_FLASHINFER_SAMPLER HF_HUB_OFFLINE=$HF_HUB_OFFLINE ARGS $*" >> "$FAKE_VLLM_LOG"
 exec sleep 300
+"""
+
+# cp on the job's PATH: one JSON line of arguments per process, then the real cp.
+FAKE_CP = """#!/usr/bin/env bash
+if [ -n "${FAKE_CP_LOG:-}" ]; then
+  __PYTHON__ -c 'import json, sys; print(json.dumps(sys.argv[1:]))' "$@" >> "$FAKE_CP_LOG"
+fi
+exec __CP__ "$@"
 """
 
 
@@ -507,8 +531,10 @@ class Sandbox:
         self.calls_log = tmp_path / "calls.jsonl"
         self.vllm_log = tmp_path / "vllm.log"
         self.setup_log = tmp_path / "setup.log"
+        self.cp_log = tmp_path / "cp.jsonl"
         bin_dir = tmp_path / "bin"
         _exe(bin_dir / "curl", "#!/usr/bin/env bash\nexit 0\n")
+        _exe(bin_dir / "cp", FAKE_CP.replace("__PYTHON__", sys.executable).replace("__CP__", shutil.which("cp")))
         self.py = _exe(tmp_path / "venv" / "bin" / "python",
                        FAKE_PY.replace("__PYTHON__", sys.executable).replace("__ROLE__", "PY"))
         self.polish_py = _exe(self.fast / "venv-polish" / "bin" / "python",
@@ -530,7 +556,7 @@ class Sandbox:
             "WENART_WS": str(self.ws), "WENART_FAST": str(self.fast), "WENART_PY": str(self.py),
             "WENART_RESULTS": str(self.results), "JOB_ID": "test", "FAKE_CALLS": str(self.calls_log),
             "FAKE_VLLM_LOG": str(self.vllm_log), "FAKE_SETUP_LOG": str(self.setup_log),
-            "WS_LOGS": str(self.ws / "logs"), "SERVER_WAIT_S": "30",
+            "WS_LOGS": str(self.ws / "logs"), "SERVER_WAIT_S": "30", "FAKE_CP_LOG": str(self.cp_log),
         }
 
     def run(self, **env) -> subprocess.CompletedProcess:
@@ -555,6 +581,20 @@ class Sandbox:
 
     def vllm_starts(self) -> list[str]:
         return self.vllm_log.read_text(encoding="utf-8").splitlines() if self.vllm_log.is_file() else []
+
+    def cp_calls(self) -> list[list[str]]:
+        """The arguments of every cp process the job started, in order."""
+        if not self.cp_log.is_file():
+            return []
+        return [json.loads(ln) for ln in self.cp_log.read_text(encoding="utf-8").splitlines() if ln.strip()]
+
+    def write_old(self, path: Path, data: bytes = b"x" * 500, age_s: float = 3600) -> Path:
+        """A file an earlier job left on the volume (``age_s`` old)."""
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(data)
+        t = time.time() - age_s
+        os.utime(path, (t, t))
+        return path
 
 
 def _find(calls, module, sub=None, project=None):
@@ -831,3 +871,181 @@ def test_hide_sets_from_control_lines(tmp_path):
     assert out == "cam_r_L0_salon_1:sofa_1;cam_r_L1_oda_2:win_3+plug"
     lines.write_text("no controls\n", encoding="utf-8")
     assert subprocess.run(["bash", "-c", script], capture_output=True, text=True, check=True).stdout == ""
+
+
+# --------------------------------------------------------------------------
+# Review findings (2 Oct 2026): results copy, stale files, CPU threads, run plan
+# --------------------------------------------------------------------------
+
+def test_results_copy_is_incremental_and_batched(tmp_path):
+    """Every stage copied every result file again, one cp per file (run 0b: about 45 ms per file on
+    the network volume; about 1000 files and 45 copies in run 2). Unchanged files of earlier runs are
+    now copied once by the job's first copy and once by the full copy on exit; one cp takes many files;
+    a file a stage wrote is in the results when the next stage starts, also when its timestamp lags
+    by up to 1 s (1 s timestamps on the volume)."""
+    box = Sandbox(tmp_path)
+    out3 = box.repo / "outputs" / "synthetic-03"
+    earlier = [box.write_old(out3 / "polish" / "sweep" / name) for name in
+               ("cam_s_a1_preview.jpg", "cam_s_a1_gate.jpg", "polish_manifest.json")]
+    earlier.append(box.write_old(out3 / "check" / "cam_s_plan.jpg"))
+    proc = box.run(POLISH_MODE="final", FAKE_SEEN="1", FAKE_COARSE_MTIME="1")
+    assert proc.returncode == 0, box.output
+    cps = box.cp_calls()
+    for f in earlier:
+        n = sum(str(f) in argv for argv in cps)
+        assert 1 <= n <= 2, f"{f.relative_to(box.repo)} copied {n} times"
+    assert (box.results / "polish/synthetic-03/sweep/cam_s_a1_preview.jpg").is_file()
+    assert (box.results / "check/synthetic-03/cam_s_plan.jpg").is_file()
+    preview, gate = (str(f) for f in earlier[:2])
+    assert any(preview in argv and gate in argv for argv in cps), "one cp per file, not per batch"
+    for p in ("synthetic-01", "synthetic-03"):
+        (report,) = _find(box.calls(), "wenart.report", "final", p)
+        assert f"polish/{p}/polish_manifest.json" in report["results"]
+        assert f"check/{p}/check_manifest.json" in report["results"]
+        assert f"check/{p}/check_report.md" in report["results"]
+    # The results equal the outputs at the end (the full copy on exit).
+    for p in ("synthetic-01", "synthetic-03"):
+        src = box.repo / "outputs" / p / "check" / "check_manifest.json"
+        assert (box.results / "check" / p / "check_manifest.json").read_bytes() == src.read_bytes()
+
+
+def test_results_hold_only_this_jobs_logs_and_style_profiles(tmp_path):
+    """/workspace/logs and outputs/ keep the files of every earlier pod: the M4 vLLM logs, an earlier
+    pod's download logs and a style_2.json of an older brief ended up in run 0/0b's results as if
+    they were that run's. The control renders' Blender log was not copied."""
+    box = Sandbox(tmp_path)
+    logs = box.ws / "logs"
+    stale_logs = ("vllm-GLM-4.6V-Flash.log", "vllm-Qwen3-VL-8B-Instruct.log", "vllm-qwen.log", "vllm-glm.log",
+                  "hf-download-zai-org_GLM-4.6V-Flash.log", "setup-polish-pip.log")
+    for name in stale_logs:
+        box.write_old(logs / name, b"an earlier pod\n")
+    box.write_old(logs / "setup_polish.json", b'{"kind": "setup_polish", "old": true}')
+    out3 = box.repo / "outputs" / "synthetic-03"
+    box.write_old(out3 / "style_2.json", b'{"old brief": true}')
+    # Run without the check phase (1a): no vLLM, no downloads, no pip, no setup_polish.json in this job.
+    proc = box.run(POLISH_MODE="sweep", POLISH_PROJECTS="synthetic-03", FAKE_SETUP_JSON="0")
+    assert proc.returncode == 0, box.output
+    r = box.results
+    assert sorted(f.name for f in (r / "logs").glob("*")) == []
+    assert not (r / "setup_polish.json").exists()
+    assert (r / "renders/synthetic-03/style.json").is_file()
+    assert not (r / "renders/synthetic-03/style_2.json").exists()
+    assert (r / "renders/synthetic-03/controls/render.log").read_text() == "control renders\n"
+    assert (r / "renders/synthetic-03/controls/hide_sofa_1/render_manifest.json").is_file()
+
+    # A run with the check phase: this job's vLLM logs, not the M4 ones; a brief with two styles.
+    box2 = Sandbox(tmp_path / "check")
+    for name in stale_logs:
+        box2.write_old(box2.ws / "logs" / name, b"an earlier pod\n")
+    box2.write_old(box2.repo / "outputs" / "synthetic-03" / "style_3.json", b'{"old brief": true}')
+    proc = box2.run(POLISH_MODE="final", POLISH_PROJECTS="synthetic-03", FAKE_STYLE_PROFILES="2")
+    assert proc.returncode == 0, box2.output
+    r = box2.results
+    assert sorted(f.name for f in (r / "logs").glob("*")) == ["vllm-glm.log", "vllm-qwen.log"]
+    assert (r / "setup_polish.json").is_file()
+    assert (r / "renders/synthetic-03/style_2.json").is_file()       # written with this style.json
+    assert not (r / "renders/synthetic-03/style_3.json").exists()    # older than this style.json
+
+
+def _cgroup(root: Path, files: dict[str, str]) -> Path:
+    root.mkdir(parents=True, exist_ok=True)
+    for rel, text in files.items():
+        (root / rel).parent.mkdir(parents=True, exist_ok=True)
+        (root / rel).write_text(text, encoding="utf-8")
+    return root
+
+
+THREAD_VARS = ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS", "NUMEXPR_NUM_THREADS",
+               "VECLIB_MAXIMUM_THREADS", "OPENCV_FOR_THREADS_NUM", "WENART_CPU_THREADS")
+
+
+@pytest.mark.parametrize("files, env, want", [
+    ({"cgroup.controllers": "cpu memory\n", "cpu.max": "200000 100000\n"}, {}, 2),
+    ({"cgroup.controllers": "cpu memory\n", "cpu.max": "150000 100000\n"}, {}, 2),       # 1.5 CPUs: rounded up
+    ({"cpu/cpu.cfs_quota_us": "300000\n", "cpu/cpu.cfs_period_us": "100000\n"}, {}, 3),  # cgroup v1
+    ({"cpu/cpu.cfs_quota_us": "-1\n", "cpu/cpu.cfs_period_us": "100000\n"}, {}, None),   # v1, no quota
+    ({"cgroup.controllers": "cpu\n", "cpu.max": "max 100000\n"}, {}, None),              # v2, no quota
+    ({}, {}, None),                                                                      # no cgroup files
+    ({"cgroup.controllers": "cpu\n", "cpu.max": "200000 100000\n"}, {"POLISH_THREADS": "5"}, 5),
+], ids=["v2", "v2-fraction", "v1", "v1-none", "v2-max", "none", "override"])
+def test_cpu_thread_budget_from_the_cgroup_reaches_every_stage(tmp_path, files, env, want):
+    """Run 0b: os.cpu_count() saw the host's 112 CPUs; numpy/OpenBLAS, OpenCV and torch each started
+    that many threads under the pod's much smaller CPU quota and the gate's CPU work ran 10-50x
+    slower. The job exports the quota (rounded up, at most nproc) to every stage."""
+    nproc = len(os.sched_getaffinity(0))
+    want = nproc if want is None else (want if env else min(want, nproc))
+    box = Sandbox(tmp_path)
+    cgroup = _cgroup(tmp_path / "cgroup", files)
+    proc = box.run(POLISH_MODE="final", POLISH_PHASES="look report", POLISH_PROJECTS="synthetic-03",
+                   WENART_CGROUP=str(cgroup), **env)
+    assert proc.returncode == 0, box.output
+    calls = box.calls()
+    assert len(calls) >= 5
+    for c in calls:
+        assert {k: c["env"][k] for k in THREAD_VARS} == {k: str(want) for k in THREAD_VARS}, c["argv"]
+    assert f"threads={want} omp={want}" in box.setup_log.read_text()       # the setup (setup_polish.json) too
+    assert re.search(rf"CPU budget: {want} thread", box.output), box.output
+
+
+def test_setup_summary_records_the_pod_limits(tmp_path):
+    """setup_polish.json had only the host's RAM and CPU count (251 GiB, 112 CPUs) while vLLM saw a
+    cgroup limit of about 26 GiB free on the same pod: the pod's own limits are recorded too."""
+    snippet = _heredoc(_text(SETUP), 'python3 - "$out_dir/setup_polish.json" "$STATE_DIR"')
+    script = tmp_path / "summary.py"
+    script.write_text(snippet, encoding="utf-8")
+    state = tmp_path / "state"
+    state.mkdir()
+    constraints = tmp_path / "image-constraints.txt"
+    constraints.write_text("torch==2.9.1+cu128\n")
+
+    def summary(cgroup: Path, **env) -> dict:
+        out = tmp_path / "setup_polish.json"
+        run_env = {k: v for k, v in os.environ.items() if k not in THREAD_VARS}
+        run_env.update(WENART_CGROUP=str(cgroup), **env)
+        proc = subprocess.run([sys.executable, str(script), str(out), str(state), "final", "look polish", "qwen",
+                               "venv=ok:1", "models=ok:1", "check=skipped:0", "", "", str(constraints)],
+                              capture_output=True, text=True, env=run_env)
+        assert proc.returncode == 0, proc.stderr
+        return json.loads(out.read_text())
+
+    v2 = _cgroup(tmp_path / "v2", {"cgroup.controllers": "cpu memory\n", "cpu.max": "1200000 100000\n",
+                                   "memory.max": str(25 * 2**30) + "\n", "memory.current": str(5 * 2**30) + "\n"})
+    data = summary(v2, WENART_CPU_THREADS="12", OMP_NUM_THREADS="12", OPENCV_FOR_THREADS_NUM="12")
+    limits = data["pod_limits"]
+    assert limits["cgroup"] == "v2" and limits["cpu_max"] == "1200000 100000" and limits["cpu_quota"] == 12.0
+    assert limits["mem_limit_gib"] == 25.0 and limits["mem_current_gib"] == 5.0
+    assert limits["threads"] == 12 and limits["thread_env"] == {"OMP_NUM_THREADS": "12", "OPENCV_FOR_THREADS_NUM": "12"}
+    assert limits["affinity_cpus"] == len(os.sched_getaffinity(0))
+    assert "host" in limits["note"]
+    assert "MemTotal_gib" in data and data["nproc"] >= 1           # the host values stay, labelled by the note
+
+    v1 = _cgroup(tmp_path / "v1", {"cpu/cpu.cfs_quota_us": "900000\n", "cpu/cpu.cfs_period_us": "100000\n",
+                                   "memory/memory.limit_in_bytes": "9223372036854771712\n",
+                                   "memory/memory.usage_in_bytes": str(2**30) + "\n"})
+    limits = summary(v1)["pod_limits"]
+    assert limits["cgroup"] == "v1" and limits["cpu_quota"] == 9.0 and limits["cpu_max"] == "900000 100000"
+    assert limits["mem_limit_gib"] is None and limits["mem_current_gib"] == 1.0   # no memory limit
+    assert limits["threads"] is None and limits["thread_env"] == {}               # not started by polish.sh
+
+    limits = summary(tmp_path / "missing")["pod_limits"]
+    assert limits["cgroup"] is None and limits["cpu_quota"] is None and limits["mem_limit_gib"] is None
+
+
+def test_run_2_is_split_into_pods_that_each_fit():
+    """Run 2 in one pod (look, polish, check with both VLMs, report and tests for 87 views) cannot end
+    before WENART_DEADLINE (105 min of a 2 h run) at the speeds runs 0 and 0b measured: it is split
+    into pods that resume from the volume, in the plan and in the job's documented commands."""
+    doc = _text(ROOT / "docs" / "milestone5.md")
+    plan = doc[doc.index("### 8.3 Pod plan"):doc.index("## 9. Tests")]
+    rows = {m.group(1): m.group(0) for m in re.finditer(r"^\| (\w+) \|.*$", plan, re.M)}
+    assert "2" not in rows, "run 2 as one pod"
+    assert "`look polish`" in rows["2a"] and "`check report tests`" in rows["2b"]
+    assert "POLISH_PROJECTS" in rows["2a"]                     # one project per pod
+    header = _text(JOB).split("set -Eeuo pipefail")[0]
+    lines = header.splitlines()
+    commands = [" ".join(lines[i:i + 2]) for i, ln in enumerate(lines) if "gpu_run.py run" in ln]
+    phases = [re.search(r"POLISH_PHASES='([^']*)'", c).group(1) for c in commands]
+    assert "look polish" in phases and "check report tests" in phases, phases
+    assert "look polish check report tests" not in phases
+    for c in commands:
+        assert "--gpu 'RTX PRO 4500'" in c and "--disk 130" in c and "L4" not in c
