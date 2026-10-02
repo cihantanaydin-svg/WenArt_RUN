@@ -182,18 +182,19 @@ What works (`docs/milestone4.md` is the spec):
 - Pod job `scripts/jobs/furnish.sh`: setup → pipeline → style → assets → fit → layout (vLLM server once for
   both projects) → decor → refit → build → render → GPU tests, resumable, results copied after every stage.
 
-Measured (RTX PRO 4000, 1 Oct 2026, `results/furniture/`, `results/renders/`):
+Measured (RTX PRO 4000, furnish run 5, 2 Oct 2026, `results/furniture/`, `results/renders/`):
 
 | Item | synthetic-01 | synthetic-03 |
 |---|---|---|
 | Pieces from the documents | 13 (6 library, 7 parametric) | 21 (9 library, 12 parametric) |
-| Empty rooms furnished by AI | 7 rooms, 23 pieces | 11 rooms, 33 pieces |
-| Model time per room (2 passes) | 10.7 s mean | 8.4 s mean |
-| Decor | 15 pieces | 18 pieces |
-| Views rendered (128 samples, OptiX) | 30 at 6.4 s | 57 at 4.7 s |
+| Empty rooms furnished by AI | 7 rooms, 26 pieces (12 library) | 11 rooms, 32 pieces (17 library) |
+| Model time per room (2 passes) | 10.6 s mean | 8.3 s mean |
+| Decor (cushions, books, plants) | 16 pieces | 19 pieces |
+| Views rendered (128 samples, OptiX) | 30 at 6.7 s | 57 at 5.1 s |
 | GPU tests | `test_furnish.py` 8 passed, `test_render.py` 12 passed | |
 
-Whole job ≈ 37 min including setup, ≈ $0.35 per run. Five pod runs for this milestone: $1.39.
+Whole job 40 min including setup, $0.38. Anchor-first fired in 3 of 36 model passes; no proposed type was
+rejected. Five pod runs for this milestone: $1.42 (two failed runs, one stopped early).
 
 Found and fixed on the way (each with a failing-then-passing test):
 - Run 1: library models fell back to parametric (resolver looked for `<id>.gltf`, the catalogue has `<id>_1k.gltf`);

@@ -1,7 +1,7 @@
 {
  "schema_version": "0.1",
  "project": "synthetic-03",
- "building": "outputs/synthetic-03/building.json",
+ "building": "outputs/synthetic-03/building_final.json",
  "style": "outputs/synthetic-03/style.json",
  "style_profile": {
   "source_text": "Modern minimal, polished concrete floor, charcoal and white, brass details, cool daylight",
@@ -1326,6 +1326,1533 @@
    "wet": true
   },
   {
+   "name": "furn_f_L-1_001",
+   "wenart_id": "f_L-1_001",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L-1",
+   "element_id": "f_L-1_001",
+   "room_id": "r_L-1_hol",
+   "type": "dresser",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Slim dresser against wall for modern minimal storage."
+    }
+   ],
+   "pass_index": 9,
+   "assumed": {},
+   "decor": [],
+   "center": [
+    4.596,
+    1.1,
+    -2.6
+   ],
+   "size": [
+    1.0,
+    0.45,
+    0.8
+   ],
+   "rotation_deg": 90.0,
+   "front_deg": 0.0,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "GothicCommode_01",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.8324,
+     0.7749,
+     0.8036
+    ],
+    "bbox_m": [
+     1.0,
+     0.45,
+     0.974
+    ],
+    "aspect_error": 0.0715,
+    "gltf": "models/GothicCommode_01/GothicCommode_01_1k.gltf",
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0011,
+     -0.0013,
+     -0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "GothicCommode_01",
+      "aspect_error": 0.0715,
+      "scale": [
+       0.8324,
+       0.7749,
+       0.8036
+      ],
+      "non_uniform": 1.0741,
+      "mean_scale": 0.8036,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ]
+   },
+   "fit_scale": [
+    0.8324,
+    0.7749,
+    0.8036
+   ],
+   "method": "library",
+   "bbox_m": [
+    1.0,
+    0.45,
+    0.974
+   ],
+   "fallback_reason": null,
+   "materials": [
+    "GothicCommode_01"
+   ],
+   "material": "GothicCommode_01",
+   "textured": true,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     -0.0011,
+     -0.0013,
+     -0.0
+    ],
+    "origin_offset_applied": [
+     0.0011,
+     0.0012,
+     0.0
+    ],
+    "bbox_raw_m": [
+     1.2014,
+     0.5807,
+     1.212
+    ],
+    "bbox_m": [
+     1.0,
+     0.45,
+     0.974
+    ],
+    "fit_scale": [
+     0.8324,
+     0.7749,
+     0.8036
+    ]
+   },
+   "file": "/workspace/assets/models/GothicCommode_01/GothicCommode_01_1k.gltf",
+   "imported_objects": [
+    "GothicCommode_01",
+    "GothicCommode_01_door01",
+    "GothicCommode_01_door02",
+    "GothicCommode_01_door03"
+   ]
+  },
+  {
+   "name": "furn_f_L-1_002",
+   "wenart_id": "f_L-1_002",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L-1",
+   "element_id": "f_L-1_002",
+   "room_id": "r_L-1_hol",
+   "type": "chair",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Chair placed centrally for seating without blocking walkway."
+    }
+   ],
+   "pass_index": 10,
+   "assumed": {},
+   "decor": [],
+   "center": [
+    5.684,
+    3.599,
+    -2.55
+   ],
+   "size": [
+    0.45,
+    0.45,
+    0.9
+   ],
+   "rotation_deg": 0.0,
+   "front_deg": 270.0,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "gallinera_chair",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.7748,
+     0.7452,
+     0.76
+    ],
+    "bbox_m": [
+     0.45,
+     0.45,
+     0.7856
+    ],
+    "aspect_error": 0.039,
+    "gltf": "models/gallinera_chair/gallinera_chair_1k.gltf",
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0003,
+     -0.0363,
+     -0.0002
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "painted_wooden_chair_02",
+      "aspect_error": 0.0349,
+      "scale": [
+       0.7038,
+       0.6797,
+       0.6917
+      ],
+      "non_uniform": 1.0355,
+      "mean_scale": 0.6917,
+      "accepted": false
+     },
+     {
+      "id": "gallinera_chair",
+      "aspect_error": 0.039,
+      "scale": [
+       0.7748,
+       0.7452,
+       0.76
+      ],
+      "non_uniform": 1.0398,
+      "mean_scale": 0.76,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ]
+   },
+   "fit_scale": [
+    0.7748,
+    0.7452,
+    0.76
+   ],
+   "method": "library",
+   "bbox_m": [
+    0.45,
+    0.45,
+    0.7856
+   ],
+   "fallback_reason": null,
+   "materials": [
+    "gallinera_chair"
+   ],
+   "material": "gallinera_chair",
+   "textured": true,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     -0.0003,
+     -0.0363,
+     -0.0002
+    ],
+    "origin_offset_applied": [
+     0.0003,
+     0.0363,
+     0.0002
+    ],
+    "bbox_raw_m": [
+     0.5808,
+     0.6039,
+     1.0337
+    ],
+    "bbox_m": [
+     0.45,
+     0.45,
+     0.7856
+    ],
+    "fit_scale": [
+     0.7748,
+     0.7452,
+     0.76
+    ]
+   },
+   "file": "/workspace/assets/models/gallinera_chair/gallinera_chair_1k.gltf",
+   "imported_objects": [
+    "gallinera_chair"
+   ]
+  },
+  {
+   "name": "furn_f_L-1_003",
+   "wenart_id": "f_L-1_003",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L-1",
+   "element_id": "f_L-1_003",
+   "room_id": "r_L-1_yatak_odasi",
+   "type": "bed_double",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Main bed placed against wall with headboard clear of door."
+    }
+   ],
+   "pass_index": 11,
+   "assumed": {},
+   "decor": [
+    {
+     "name": "decor_f_L-1_003_1",
+     "type": "cushion",
+     "method": "parametric (fallback: no asset in the building JSON)"
+    },
+    {
+     "name": "decor_f_L-1_003_2",
+     "type": "cushion",
+     "method": "parametric (fallback: no asset in the building JSON)"
+    }
+   ],
+   "center": [
+    7.471,
+    4.429,
+    -2.75
+   ],
+   "size": [
+    1.4,
+    2.0,
+    0.5
+   ],
+   "rotation_deg": 0.0,
+   "front_deg": 270.0,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "GothicBed_01",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.9372,
+     0.9804,
+     0.9588
+    ],
+    "bbox_m": [
+     1.4,
+     2.0,
+     1.4706
+    ],
+    "aspect_error": 0.045,
+    "gltf": "models/GothicBed_01/GothicBed_01_1k.gltf",
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0355,
+     0.0331,
+     -0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "GothicBed_01",
+      "aspect_error": 0.045,
+      "scale": [
+       0.9372,
+       0.9804,
+       0.9588
+      ],
+      "non_uniform": 1.0461,
+      "mean_scale": 0.9588,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ]
+   },
+   "fit_scale": [
+    0.9372,
+    0.9804,
+    0.9588
+   ],
+   "method": "library",
+   "bbox_m": [
+    1.3999,
+    2.0,
+    1.4706
+   ],
+   "fallback_reason": null,
+   "materials": [
+    "GothicBed_01"
+   ],
+   "material": "GothicBed_01",
+   "textured": true,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0355,
+     0.0331,
+     -0.0
+    ],
+    "origin_offset_applied": [
+     -0.0356,
+     -0.0331,
+     0.0
+    ],
+    "bbox_raw_m": [
+     1.4938,
+     2.04,
+     1.5338
+    ],
+    "bbox_m": [
+     1.3999,
+     2.0,
+     1.4706
+    ],
+    "fit_scale": [
+     0.9372,
+     0.9804,
+     0.9588
+    ]
+   },
+   "file": "/workspace/assets/models/GothicBed_01/GothicBed_01_1k.gltf",
+   "imported_objects": [
+    "GothicBed_01"
+   ]
+  },
+  {
+   "name": "furn_f_L-1_004",
+   "wenart_id": "f_L-1_004",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L-1",
+   "element_id": "f_L-1_004",
+   "room_id": "r_L-1_yatak_odasi",
+   "type": "nightstand",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Nightstand beside bed for easy access."
+    }
+   ],
+   "pass_index": 12,
+   "assumed": {},
+   "decor": [],
+   "center": [
+    6.271,
+    1.1,
+    -2.75
+   ],
+   "size": [
+    0.5,
+    0.4,
+    0.5
+   ],
+   "rotation_deg": 90.0,
+   "front_deg": 0.0,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "side_table_01",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.9091,
+     0.8889,
+     0.899
+    ],
+    "bbox_m": [
+     0.5,
+     0.4,
+     0.4951
+    ],
+    "aspect_error": 0.0225,
+    "gltf": "models/side_table_01/side_table_01_1k.gltf",
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     -0.0024
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "low",
+    "candidates": [
+     {
+      "id": "side_table_01",
+      "aspect_error": 0.0225,
+      "scale": [
+       0.9091,
+       0.8889,
+       0.899
+      ],
+      "non_uniform": 1.0227,
+      "mean_scale": 0.899,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ]
+   },
+   "fit_scale": [
+    0.9091,
+    0.8889,
+    0.899
+   ],
+   "method": "library",
+   "bbox_m": [
+    0.5,
+    0.4,
+    0.495
+   ],
+   "fallback_reason": null,
+   "materials": [
+    "side_table_01"
+   ],
+   "material": "side_table_01",
+   "textured": true,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0,
+     0.0,
+     -0.0024
+    ],
+    "origin_offset_applied": [
+     -0.0,
+     -0.0,
+     0.0024
+    ],
+    "bbox_raw_m": [
+     0.55,
+     0.45,
+     0.5507
+    ],
+    "bbox_m": [
+     0.5,
+     0.4,
+     0.495
+    ],
+    "fit_scale": [
+     0.9091,
+     0.8889,
+     0.899
+    ]
+   },
+   "file": "/workspace/assets/models/side_table_01/side_table_01_1k.gltf",
+   "imported_objects": [
+    "side_table_01"
+   ]
+  },
+  {
+   "name": "furn_f_L-1_005",
+   "wenart_id": "f_L-1_005",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L-1",
+   "element_id": "f_L-1_005",
+   "room_id": "r_L-1_yatak_odasi",
+   "type": "nightstand",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Second nightstand for symmetry and balance."
+    }
+   ],
+   "pass_index": 13,
+   "assumed": {},
+   "decor": [],
+   "center": [
+    6.271,
+    4.3,
+    -2.75
+   ],
+   "size": [
+    0.5,
+    0.4,
+    0.5
+   ],
+   "rotation_deg": 90.0,
+   "front_deg": 0.0,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "side_table_01",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.9091,
+     0.8889,
+     0.899
+    ],
+    "bbox_m": [
+     0.5,
+     0.4,
+     0.4951
+    ],
+    "aspect_error": 0.0225,
+    "gltf": "models/side_table_01/side_table_01_1k.gltf",
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     -0.0024
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "low",
+    "candidates": [
+     {
+      "id": "side_table_01",
+      "aspect_error": 0.0225,
+      "scale": [
+       0.9091,
+       0.8889,
+       0.899
+      ],
+      "non_uniform": 1.0227,
+      "mean_scale": 0.899,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ]
+   },
+   "fit_scale": [
+    0.9091,
+    0.8889,
+    0.899
+   ],
+   "method": "library",
+   "bbox_m": [
+    0.5,
+    0.4,
+    0.495
+   ],
+   "fallback_reason": null,
+   "materials": [
+    "side_table_01"
+   ],
+   "material": "side_table_01",
+   "textured": true,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0,
+     0.0,
+     -0.0024
+    ],
+    "origin_offset_applied": [
+     -0.0,
+     -0.0,
+     0.0024
+    ],
+    "bbox_raw_m": [
+     0.55,
+     0.45,
+     0.5507
+    ],
+    "bbox_m": [
+     0.5,
+     0.4,
+     0.495
+    ],
+    "fit_scale": [
+     0.9091,
+     0.8889,
+     0.899
+    ]
+   },
+   "file": "/workspace/assets/models/side_table_01/side_table_01_1k.gltf",
+   "imported_objects": [
+    "side_table_01"
+   ]
+  },
+  {
+   "name": "furn_f_L-1_006",
+   "wenart_id": "f_L-1_006",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L-1",
+   "element_id": "f_L-1_006",
+   "room_id": "r_L-1_yatak_odasi",
+   "type": "desk",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Desk placed against wall near window for natural light."
+    }
+   ],
+   "pass_index": 14,
+   "assumed": {},
+   "decor": [
+    {
+     "name": "decor_f_L-1_006_3",
+     "type": "book_set",
+     "method": "parametric (fallback: no asset in the building JSON)"
+    }
+   ],
+   "center": [
+    9.579,
+    3.5,
+    -2.625
+   ],
+   "size": [
+    1.4,
+    0.7,
+    0.75
+   ],
+   "rotation_deg": 270.0,
+   "front_deg": 180.0,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:desk",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     1.4,
+     0.7,
+     0.75
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [
+     {
+      "id": "metal_office_desk",
+      "aspect_error": 0.0542,
+      "scale": [
+       0.7,
+       0.739,
+       0.7195
+      ],
+      "non_uniform": 1.0557,
+      "mean_scale": 0.7195,
+      "accepted": false
+     },
+     {
+      "id": "WoodenTable_01",
+      "aspect_error": 0.3142,
+      "scale": [
+       0.778,
+       1.0651,
+       0.9215
+      ],
+      "non_uniform": 1.3691,
+      "mean_scale": 0.9215,
+      "accepted": false
+     },
+     {
+      "id": "SchoolDesk_01",
+      "aspect_error": 0.428,
+      "scale": [
+       1.9668,
+       1.2821,
+       1.6244
+      ],
+      "non_uniform": 1.5341,
+      "mean_scale": 1.6244,
+      "accepted": false
+     }
+    ],
+    "fallback_reason": "no desk candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: metal_office_desk at 5.6 % non-uniform, mean scale 0.7195)",
+    "cap": 1.15
+   },
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "bbox_m": [
+    1.4,
+    0.7,
+    0.75
+   ],
+   "fallback_reason": "fitting chose the parametric mesh",
+   "materials": [
+    "wood_oak_light",
+    "painted_wood_white",
+    "steel_brushed"
+   ],
+   "material": "wood_oak_light",
+   "textured": false,
+   "material_keys": {
+    "wood": "wood_oak_light",
+    "painted": "painted_wood_white",
+    "steel": "steel_brushed"
+   }
+  },
+  {
+   "name": "furn_f_L-1_007",
+   "wenart_id": "f_L-1_007",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L-1",
+   "element_id": "f_L-1_007",
+   "room_id": "r_L-1_wc",
+   "type": "toilet",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Toilet placed against the back wall for modern minimal style."
+    }
+   ],
+   "pass_index": 15,
+   "assumed": {},
+   "decor": [],
+   "center": [
+    7.554,
+    6.55,
+    -2.6
+   ],
+   "size": [
+    0.45,
+    0.75,
+    0.8
+   ],
+   "rotation_deg": 270.0,
+   "front_deg": 180.0,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:toilet",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     0.45,
+     0.75,
+     1.2
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type toilet is parametric in the catalogue",
+    "cap": 1.15
+   },
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "bbox_m": [
+    0.45,
+    0.75,
+    1.2
+   ],
+   "fallback_reason": "fitting chose the parametric mesh",
+   "materials": [
+    "ceramic_white",
+    "painted_wood_white"
+   ],
+   "material": "ceramic_white",
+   "textured": false,
+   "material_keys": {
+    "ceramic": "ceramic_white",
+    "painted": "painted_wood_white"
+   }
+  },
+  {
+   "name": "furn_f_L-1_008",
+   "wenart_id": "f_L-1_008",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L-1",
+   "element_id": "f_L-1_008",
+   "room_id": "r_L-1_wc",
+   "type": "washbasin",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Washbasin placed against the side wall near the door for functional access."
+    }
+   ],
+   "pass_index": 16,
+   "assumed": {},
+   "decor": [],
+   "center": [
+    6.971,
+    5.796,
+    -2.575
+   ],
+   "size": [
+    0.6,
+    0.45,
+    0.85
+   ],
+   "rotation_deg": 180.0,
+   "front_deg": 90.0,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:washbasin",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     0.6,
+     0.45,
+     1.0
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type washbasin is parametric in the catalogue",
+    "cap": 1.15
+   },
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "bbox_m": [
+    0.6,
+    0.45,
+    1.0
+   ],
+   "fallback_reason": "fitting chose the parametric mesh",
+   "materials": [
+    "ceramic_white",
+    "steel_brushed"
+   ],
+   "material": "ceramic_white",
+   "textured": false,
+   "material_keys": {
+    "ceramic": "ceramic_white",
+    "steel": "steel_brushed"
+   }
+  },
+  {
+   "name": "furn_f_L-1_009",
+   "wenart_id": "f_L-1_009",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L-1",
+   "element_id": "f_L-1_009",
+   "room_id": "r_L-1_banyo",
+   "type": "shower",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Shower placed against the right wall, away from door for privacy."
+    }
+   ],
+   "pass_index": 17,
+   "assumed": {},
+   "decor": [],
+   "center": [
+    9.479,
+    6.85,
+    -2.0
+   ],
+   "size": [
+    0.9,
+    0.9,
+    2.0
+   ],
+   "rotation_deg": 270.0,
+   "front_deg": 180.0,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:shower",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     0.9,
+     0.9,
+     2.0
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type shower is parametric in the catalogue",
+    "cap": 1.15
+   },
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "bbox_m": [
+    0.9,
+    0.9,
+    2.0
+   ],
+   "fallback_reason": "fitting chose the parametric mesh",
+   "materials": [
+    "ceramic_white",
+    "thin_glass",
+    "steel_brushed"
+   ],
+   "material": "ceramic_white",
+   "textured": false,
+   "material_keys": {
+    "ceramic": "ceramic_white",
+    "glass": "glass",
+    "steel": "steel_brushed"
+   }
+  },
+  {
+   "name": "furn_f_L-1_010",
+   "wenart_id": "f_L-1_010",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L-1",
+   "element_id": "f_L-1_010",
+   "room_id": "r_L-1_banyo",
+   "type": "toilet",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Toilet placed against the left wall, not directly opposite the door."
+    }
+   ],
+   "pass_index": 18,
+   "assumed": {},
+   "decor": [],
+   "center": [
+    8.421,
+    6.55,
+    -2.6
+   ],
+   "size": [
+    0.4,
+    0.7,
+    0.8
+   ],
+   "rotation_deg": 90.0,
+   "front_deg": 0.0,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:toilet",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     0.4,
+     0.7,
+     1.2
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type toilet is parametric in the catalogue",
+    "cap": 1.15
+   },
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "bbox_m": [
+    0.4,
+    0.7,
+    1.2
+   ],
+   "fallback_reason": "fitting chose the parametric mesh",
+   "materials": [
+    "ceramic_white",
+    "painted_wood_white"
+   ],
+   "material": "ceramic_white",
+   "textured": false,
+   "material_keys": {
+    "ceramic": "ceramic_white",
+    "painted": "painted_wood_white"
+   }
+  },
+  {
+   "name": "furn_f_L-1_011",
+   "wenart_id": "f_L-1_011",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L-1",
+   "element_id": "f_L-1_011",
+   "room_id": "r_L-1_banyo",
+   "type": "washbasin",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Washbasin placed against the left wall, near the door for convenience."
+    }
+   ],
+   "pass_index": 19,
+   "assumed": {},
+   "decor": [],
+   "center": [
+    8.296,
+    7.229,
+    -2.575
+   ],
+   "size": [
+    0.6,
+    0.45,
+    0.85
+   ],
+   "rotation_deg": 90.0,
+   "front_deg": 0.0,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:washbasin",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     0.6,
+     0.45,
+     1.0
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type washbasin is parametric in the catalogue",
+    "cap": 1.15
+   },
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "bbox_m": [
+    0.6,
+    0.45,
+    1.0
+   ],
+   "fallback_reason": "fitting chose the parametric mesh",
+   "materials": [
+    "ceramic_white",
+    "steel_brushed"
+   ],
+   "material": "ceramic_white",
+   "textured": false,
+   "material_keys": {
+    "ceramic": "ceramic_white",
+    "steel": "steel_brushed"
+   }
+  },
+  {
+   "name": "decor_f_L-1_003_1",
+   "wenart_id": "f_L-1_003",
+   "kind": "decor",
+   "status": "assumed",
+   "level_id": "L-1",
+   "element_id": "f_L-1_003",
+   "host_id": "f_L-1_003",
+   "room_id": "r_L-1_yatak_odasi",
+   "type": "cushion",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "decor",
+     "method": "rule",
+     "confidence": 1.0,
+     "text": "cushion on bed_double f_L-1_003 (on bed_double f_L-1_003)"
+    }
+   ],
+   "pass_index": 11,
+   "assumed": {
+    "rest_height": 0.5
+   },
+   "center": [
+    7.121,
+    5.179,
+    -2.44
+   ],
+   "size": [
+    0.5,
+    0.3,
+    0.12
+   ],
+   "rotation_deg": 0.0,
+   "asset": null,
+   "method": "parametric (fallback: no asset in the building JSON)",
+   "bbox_m": [
+    0.5,
+    0.3,
+    0.12
+   ],
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "materials": [
+    "fabric_linen"
+   ],
+   "material": "fabric_linen",
+   "textured": false,
+   "fallback_reason": "no asset in the building JSON"
+  },
+  {
+   "name": "decor_f_L-1_003_2",
+   "wenart_id": "f_L-1_003",
+   "kind": "decor",
+   "status": "assumed",
+   "level_id": "L-1",
+   "element_id": "f_L-1_003",
+   "host_id": "f_L-1_003",
+   "room_id": "r_L-1_yatak_odasi",
+   "type": "cushion",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "decor",
+     "method": "rule",
+     "confidence": 1.0,
+     "text": "cushion on bed_double f_L-1_003 (on bed_double f_L-1_003)"
+    }
+   ],
+   "pass_index": 11,
+   "assumed": {
+    "rest_height": 0.5
+   },
+   "center": [
+    7.821,
+    5.179,
+    -2.44
+   ],
+   "size": [
+    0.5,
+    0.3,
+    0.12
+   ],
+   "rotation_deg": 0.0,
+   "asset": null,
+   "method": "parametric (fallback: no asset in the building JSON)",
+   "bbox_m": [
+    0.5,
+    0.3,
+    0.12
+   ],
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "materials": [
+    "fabric_linen"
+   ],
+   "material": "fabric_linen",
+   "textured": false,
+   "fallback_reason": "no asset in the building JSON"
+  },
+  {
+   "name": "decor_f_L-1_006_3",
+   "wenart_id": "f_L-1_006",
+   "kind": "decor",
+   "status": "assumed",
+   "level_id": "L-1",
+   "element_id": "f_L-1_006",
+   "host_id": "f_L-1_006",
+   "room_id": "r_L-1_yatak_odasi",
+   "type": "book_set",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "decor",
+     "method": "rule",
+     "confidence": 1.0,
+     "text": "book_set on desk f_L-1_006 (on desk f_L-1_006)"
+    }
+   ],
+   "pass_index": 14,
+   "assumed": {
+    "rest_height": 0.75
+   },
+   "center": [
+    9.769,
+    3.0,
+    -2.14
+   ],
+   "size": [
+    0.3,
+    0.22,
+    0.22
+   ],
+   "rotation_deg": 270.0,
+   "asset": null,
+   "method": "parametric (fallback: no asset in the building JSON)",
+   "bbox_m": [
+    0.296,
+    0.22,
+    0.22
+   ],
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "materials": [
+    "lacquer_dark",
+    "painted_wood_white",
+    "wood_oak_light",
+    "terracotta"
+   ],
+   "material": "lacquer_dark",
+   "textured": false,
+   "fallback_reason": "no asset in the building JSON"
+  },
+  {
+   "name": "decor_dec_L-1_004",
+   "wenart_id": "dec_L-1_004",
+   "kind": "decor",
+   "status": "assumed",
+   "level_id": "L-1",
+   "element_id": "dec_L-1_004",
+   "host_id": null,
+   "room_id": "r_L-1_yatak_odasi",
+   "type": "plant",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "decor",
+     "method": "rule",
+     "confidence": 1.0,
+     "text": "plant in r_L-1_yatak_odasi on the floor"
+    }
+   ],
+   "pass_index": 20,
+   "assumed": {
+    "rest_height": 0.0
+   },
+   "center": [
+    6.3,
+    0.5,
+    -2.75205
+   ],
+   "size": [
+    0.4,
+    0.4,
+    0.4959
+   ],
+   "rotation_deg": 0.0,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "potted_plant_02",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.5705,
+     0.6085,
+     0.5895
+    ],
+    "bbox_m": [
+     0.4,
+     0.4,
+     0.4958
+    ],
+    "aspect_error": 0.0645,
+    "gltf": "models/potted_plant_02/potted_plant_02_1k.gltf",
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0461,
+     0.0916,
+     0.0001
+    ],
+    "front_axis_confidence": "low",
+    "target": "size"
+   },
+   "method": "library",
+   "bbox_m": [
+    0.4,
+    0.4,
+    0.4959
+   ],
+   "fit_scale": [
+    0.5705,
+    0.6085,
+    0.5895
+   ],
+   "materials": [
+    "potted_plant_02_pot",
+    "potted_plant_02_leaves"
+   ],
+   "material": "potted_plant_02_pot",
+   "textured": true,
+   "fallback_reason": null,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     -0.0461,
+     0.0916,
+     0.0001
+    ],
+    "origin_offset_applied": [
+     0.0461,
+     -0.0916,
+     -0.0001
+    ],
+    "bbox_raw_m": [
+     0.7012,
+     0.6574,
+     0.8412
+    ],
+    "bbox_m": [
+     0.4,
+     0.4,
+     0.4959
+    ],
+    "fit_scale": [
+     0.5705,
+     0.6085,
+     0.5895
+    ]
+   },
+   "file": "/workspace/assets/models/potted_plant_02/potted_plant_02_1k.gltf"
+  },
+  {
    "name": "cam_r_L-1_kiler_1",
    "wenart_id": "cam_r_L-1_kiler_1",
    "kind": "camera",
@@ -2039,7 +3566,7 @@
    ],
    "material": "painted_wood_white",
    "textured": false,
-   "pass_index": 9,
+   "pass_index": 21,
    "assumed": {
     "height": 2.1
    },
@@ -2073,7 +3600,7 @@
    ],
    "material": "painted_wood_white",
    "textured": false,
-   "pass_index": 9,
+   "pass_index": 21,
    "assumed": {
     "height": 2.1
    },
@@ -2144,7 +3671,7 @@
    ],
    "material": "painted_wood_white",
    "textured": false,
-   "pass_index": 10,
+   "pass_index": 22,
    "assumed": {
     "height": 2.1
    },
@@ -2178,7 +3705,7 @@
    ],
    "material": "painted_wood_white",
    "textured": false,
-   "pass_index": 10,
+   "pass_index": 22,
    "assumed": {
     "height": 2.1
    },
@@ -2249,7 +3776,7 @@
    ],
    "material": "painted_wood_white",
    "textured": false,
-   "pass_index": 11,
+   "pass_index": 23,
    "assumed": {
     "height": 2.1
    },
@@ -2283,7 +3810,7 @@
    ],
    "material": "painted_wood_white",
    "textured": false,
-   "pass_index": 11,
+   "pass_index": 23,
    "assumed": {
     "height": 2.1
    },
@@ -2354,7 +3881,7 @@
    ],
    "material": "painted_wood_white",
    "textured": false,
-   "pass_index": 12,
+   "pass_index": 24,
    "assumed": {
     "height": 2.1
    },
@@ -2388,7 +3915,7 @@
    ],
    "material": "painted_wood_white",
    "textured": false,
-   "pass_index": 12,
+   "pass_index": 24,
    "assumed": {
     "height": 2.1
    },
@@ -2459,7 +3986,7 @@
    ],
    "material": "painted_wood_white",
    "textured": false,
-   "pass_index": 13,
+   "pass_index": 25,
    "assumed": {
     "height": 2.1
    },
@@ -2493,7 +4020,7 @@
    ],
    "material": "painted_wood_white",
    "textured": false,
-   "pass_index": 13,
+   "pass_index": 25,
    "assumed": {
     "height": 2.1
    },
@@ -2564,7 +4091,7 @@
    ],
    "material": "painted_wood_white",
    "textured": false,
-   "pass_index": 14,
+   "pass_index": 26,
    "assumed": {
     "height": 2.1
    },
@@ -2598,7 +4125,7 @@
    ],
    "material": "painted_wood_white",
    "textured": false,
-   "pass_index": 14,
+   "pass_index": 26,
    "assumed": {
     "height": 2.1
    },
@@ -2669,7 +4196,7 @@
    ],
    "material": "painted_wood_white",
    "textured": false,
-   "pass_index": 15,
+   "pass_index": 27,
    "assumed": {
     "height": 2.1
    },
@@ -2703,7 +4230,7 @@
    ],
    "material": "painted_wood_white",
    "textured": false,
-   "pass_index": 15,
+   "pass_index": 27,
    "assumed": {
     "height": 2.1
    },
@@ -2737,7 +4264,7 @@
    ],
    "material": "painted_metal_white",
    "textured": false,
-   "pass_index": 16,
+   "pass_index": 28,
    "assumed": {
     "sill_height": 0.9,
     "height": 1.4
@@ -2772,7 +4299,7 @@
    ],
    "material": "glass",
    "textured": false,
-   "pass_index": 16,
+   "pass_index": 28,
    "assumed": {
     "sill_height": 0.9,
     "height": 1.4
@@ -2807,7 +4334,7 @@
    ],
    "material": "painted_metal_white",
    "textured": false,
-   "pass_index": 17,
+   "pass_index": 29,
    "assumed": {
     "sill_height": 0.9,
     "height": 1.2
@@ -2842,7 +4369,7 @@
    ],
    "material": "glass",
    "textured": false,
-   "pass_index": 17,
+   "pass_index": 29,
    "assumed": {
     "sill_height": 0.9,
     "height": 1.2
@@ -2877,7 +4404,7 @@
    ],
    "material": "painted_metal_white",
    "textured": false,
-   "pass_index": 18,
+   "pass_index": 30,
    "assumed": {
     "sill_height": 0.9,
     "height": 1.2
@@ -2912,7 +4439,7 @@
    ],
    "material": "glass",
    "textured": false,
-   "pass_index": 18,
+   "pass_index": 30,
    "assumed": {
     "sill_height": 0.9,
     "height": 1.2
@@ -2940,7 +4467,7 @@
    ],
    "material": "painted_metal_white",
    "textured": false,
-   "pass_index": 19,
+   "pass_index": 31,
    "assumed": {
     "sill_height": 0.9,
     "height": 1.2
@@ -2968,7 +4495,7 @@
    ],
    "material": "glass",
    "textured": false,
-   "pass_index": 19,
+   "pass_index": 31,
    "assumed": {
     "sill_height": 0.9,
     "height": 1.2
@@ -3003,7 +4530,7 @@
    ],
    "material": "painted_metal_white",
    "textured": false,
-   "pass_index": 20,
+   "pass_index": 32,
    "assumed": {
     "sill_height": 0.9,
     "height": 1.2
@@ -3038,7 +4565,7 @@
    ],
    "material": "glass",
    "textured": false,
-   "pass_index": 20,
+   "pass_index": 32,
    "assumed": {
     "sill_height": 0.9,
     "height": 1.2
@@ -3073,7 +4600,7 @@
    ],
    "material": "painted_metal_white",
    "textured": false,
-   "pass_index": 21,
+   "pass_index": 33,
    "assumed": {
     "sill_height": 0.9,
     "height": 1.2
@@ -3108,7 +4635,7 @@
    ],
    "material": "glass",
    "textured": false,
-   "pass_index": 21,
+   "pass_index": 33,
    "assumed": {
     "sill_height": 0.9,
     "height": 1.2
@@ -3650,788 +5177,6 @@
    "wet": false
   },
   {
-   "name": "proxy_f_L0_001",
-   "wenart_id": "proxy:f_L0_001",
-   "kind": "furniture_proxy",
-   "status": "verified",
-   "level_id": "L0",
-   "element_id": "f_L0_001",
-   "room_id": "r_L0_salon",
-   "type": "sofa",
-   "source": "from_documents",
-   "evidence": [
-    {
-     "file": "mobilya_plani.dxf",
-     "method": "vector",
-     "confidence": 1.0,
-     "layer": "MOBILYA",
-     "entity": "INSERT:12E",
-     "block": "KANEPE_3LU"
-    }
-   ],
-   "material": "proxy",
-   "textured": false,
-   "pass_index": 22,
-   "center": [
-    2.5,
-    4.45,
-    0.425
-   ],
-   "size": [
-    2.2,
-    0.9,
-    0.85
-   ],
-   "rotation_deg": 0.0,
-   "front_deg": 270.0,
-   "assumed": {
-    "height": 0.85
-   }
-  },
-  {
-   "name": "proxy_f_L0_002",
-   "wenart_id": "proxy:f_L0_002",
-   "kind": "furniture_proxy",
-   "status": "verified",
-   "level_id": "L0",
-   "element_id": "f_L0_002",
-   "room_id": "r_L0_salon",
-   "type": "armchair",
-   "source": "from_documents",
-   "evidence": [
-    {
-     "file": "mobilya_plani.dxf",
-     "method": "vector",
-     "confidence": 1.0,
-     "layer": "MOBILYA",
-     "entity": "INSERT:130",
-     "block": "KOLTUK"
-    }
-   ],
-   "material": "proxy",
-   "textured": false,
-   "pass_index": 23,
-   "center": [
-    4.5,
-    4.4,
-    0.425
-   ],
-   "size": [
-    0.9,
-    0.9,
-    0.85
-   ],
-   "rotation_deg": 270.0,
-   "front_deg": 180.0,
-   "assumed": {
-    "height": 0.85
-   }
-  },
-  {
-   "name": "proxy_f_L0_003",
-   "wenart_id": "proxy:f_L0_003",
-   "kind": "furniture_proxy",
-   "status": "verified",
-   "level_id": "L0",
-   "element_id": "f_L0_003",
-   "room_id": "r_L0_salon",
-   "type": "armchair",
-   "source": "from_documents",
-   "evidence": [
-    {
-     "file": "mobilya_plani.dxf",
-     "method": "vector",
-     "confidence": 1.0,
-     "layer": "MOBILYA",
-     "entity": "INSERT:132",
-     "block": "KOLTUK"
-    }
-   ],
-   "material": "proxy",
-   "textured": false,
-   "pass_index": 24,
-   "center": [
-    0.75,
-    3.9,
-    0.425
-   ],
-   "size": [
-    0.9,
-    0.9,
-    0.85
-   ],
-   "rotation_deg": 90.0,
-   "front_deg": 0.0,
-   "assumed": {
-    "height": 0.85
-   }
-  },
-  {
-   "name": "proxy_f_L0_004",
-   "wenart_id": "proxy:f_L0_004",
-   "kind": "furniture_proxy",
-   "status": "verified",
-   "level_id": "L0",
-   "element_id": "f_L0_004",
-   "room_id": "r_L0_salon",
-   "type": "table_coffee",
-   "source": "from_documents",
-   "evidence": [
-    {
-     "file": "mobilya_plani.dxf",
-     "method": "vector",
-     "confidence": 1.0,
-     "layer": "MOBILYA",
-     "entity": "INSERT:134",
-     "block": "SEHPA"
-    }
-   ],
-   "material": "proxy",
-   "textured": false,
-   "pass_index": 25,
-   "center": [
-    2.5,
-    3.3,
-    0.225
-   ],
-   "size": [
-    1.0,
-    0.6,
-    0.45
-   ],
-   "rotation_deg": 0.0,
-   "front_deg": 270.0,
-   "assumed": {
-    "height": 0.45
-   }
-  },
-  {
-   "name": "proxy_f_L0_005",
-   "wenart_id": "proxy:f_L0_005",
-   "kind": "furniture_proxy",
-   "status": "verified",
-   "level_id": "L0",
-   "element_id": "f_L0_005",
-   "room_id": "r_L0_salon",
-   "type": "tv_unit",
-   "source": "from_documents",
-   "evidence": [
-    {
-     "file": "mobilya_plani.dxf",
-     "method": "vector",
-     "confidence": 1.0,
-     "layer": "MOBILYA",
-     "entity": "INSERT:136",
-     "block": "TV_UNITESI"
-    }
-   ],
-   "material": "proxy",
-   "textured": false,
-   "pass_index": 26,
-   "center": [
-    2.5,
-    0.525,
-    0.25
-   ],
-   "size": [
-    1.6,
-    0.45,
-    0.5
-   ],
-   "rotation_deg": 180.0,
-   "front_deg": 90.0,
-   "assumed": {
-    "height": 0.5
-   }
-  },
-  {
-   "name": "proxy_f_L0_006",
-   "wenart_id": "proxy:f_L0_006",
-   "kind": "furniture_proxy",
-   "status": "verified",
-   "level_id": "L0",
-   "element_id": "f_L0_006",
-   "room_id": "r_L0_salon",
-   "type": "bookshelf",
-   "source": "from_documents",
-   "evidence": [
-    {
-     "file": "mobilya_plani.dxf",
-     "method": "vector",
-     "confidence": 1.0,
-     "layer": "MOBILYA",
-     "entity": "INSERT:138",
-     "block": "KITAPLIK"
-    }
-   ],
-   "material": "proxy",
-   "textured": false,
-   "pass_index": 27,
-   "center": [
-    4.7,
-    1.0,
-    0.9
-   ],
-   "size": [
-    1.0,
-    0.35,
-    1.8
-   ],
-   "rotation_deg": 270.0,
-   "front_deg": 180.0,
-   "assumed": {
-    "height": 1.8
-   }
-  },
-  {
-   "name": "proxy_f_L0_007",
-   "wenart_id": "proxy:f_L0_007",
-   "kind": "furniture_proxy",
-   "status": "verified",
-   "level_id": "L0",
-   "element_id": "f_L0_007",
-   "room_id": "r_L0_mutfak",
-   "type": "kitchen_counter",
-   "source": "from_documents",
-   "evidence": [
-    {
-     "file": "mobilya_plani.dxf",
-     "method": "vector",
-     "confidence": 1.0,
-     "layer": "MOBILYA",
-     "entity": "INSERT:13A",
-     "block": "TEZGAH"
-    }
-   ],
-   "material": "proxy",
-   "textured": false,
-   "pass_index": 28,
-   "center": [
-    1.5,
-    7.2,
-    0.45
-   ],
-   "size": [
-    2.4,
-    0.6,
-    0.9
-   ],
-   "rotation_deg": 0.0,
-   "front_deg": 270.0,
-   "assumed": {
-    "height": 0.9
-   }
-  },
-  {
-   "name": "proxy_f_L0_008",
-   "wenart_id": "proxy:f_L0_008",
-   "kind": "furniture_proxy",
-   "status": "verified",
-   "level_id": "L0",
-   "element_id": "f_L0_008",
-   "room_id": "r_L0_mutfak",
-   "type": "sink_kitchen",
-   "source": "from_documents",
-   "evidence": [
-    {
-     "file": "mobilya_plani.dxf",
-     "method": "vector",
-     "confidence": 1.0,
-     "layer": "MOBILYA",
-     "entity": "INSERT:13C",
-     "block": "EVIYE"
-    }
-   ],
-   "material": "proxy",
-   "textured": false,
-   "pass_index": 29,
-   "center": [
-    0.75,
-    7.2,
-    0.4525
-   ],
-   "size": [
-    0.8,
-    0.5,
-    0.905
-   ],
-   "rotation_deg": 0.0,
-   "front_deg": 270.0,
-   "assumed": {
-    "height": 0.905,
-    "height_lift": 0.005
-   }
-  },
-  {
-   "name": "proxy_f_L0_009",
-   "wenart_id": "proxy:f_L0_009",
-   "kind": "furniture_proxy",
-   "status": "verified",
-   "level_id": "L0",
-   "element_id": "f_L0_009",
-   "room_id": "r_L0_mutfak",
-   "type": "stove",
-   "source": "from_documents",
-   "evidence": [
-    {
-     "file": "mobilya_plani.dxf",
-     "method": "vector",
-     "confidence": 1.0,
-     "layer": "MOBILYA",
-     "entity": "INSERT:13E",
-     "block": "OCAK"
-    }
-   ],
-   "material": "proxy",
-   "textured": false,
-   "pass_index": 30,
-   "center": [
-    2.25,
-    7.2,
-    0.4525
-   ],
-   "size": [
-    0.6,
-    0.6,
-    0.905
-   ],
-   "rotation_deg": 0.0,
-   "front_deg": 270.0,
-   "assumed": {
-    "height": 0.905,
-    "height_lift": 0.005
-   }
-  },
-  {
-   "name": "proxy_f_L0_010",
-   "wenart_id": "proxy:f_L0_010",
-   "kind": "furniture_proxy",
-   "status": "verified",
-   "level_id": "L0",
-   "element_id": "f_L0_010",
-   "room_id": "r_L0_mutfak",
-   "type": "fridge",
-   "source": "from_documents",
-   "evidence": [
-    {
-     "file": "mobilya_plani.dxf",
-     "method": "vector",
-     "confidence": 1.0,
-     "layer": "MOBILYA",
-     "entity": "INSERT:140",
-     "block": "BUZDOLABI"
-    }
-   ],
-   "material": "proxy",
-   "textured": false,
-   "pass_index": 31,
-   "center": [
-    3.15,
-    7.15,
-    0.9
-   ],
-   "size": [
-    0.7,
-    0.7,
-    1.8
-   ],
-   "rotation_deg": 0.0,
-   "front_deg": 270.0,
-   "assumed": {
-    "height": 1.8
-   }
-  },
-  {
-   "name": "proxy_f_L0_011",
-   "wenart_id": "proxy:f_L0_011",
-   "kind": "furniture_proxy",
-   "status": "verified",
-   "level_id": "L0",
-   "element_id": "f_L0_011",
-   "room_id": "r_L0_mutfak",
-   "type": "table_dining",
-   "source": "from_documents",
-   "evidence": [
-    {
-     "file": "mobilya_plani.dxf",
-     "method": "vector",
-     "confidence": 1.0,
-     "layer": "MOBILYA",
-     "entity": "INSERT:142",
-     "block": "YEMEK_MASASI"
-    }
-   ],
-   "material": "proxy",
-   "textured": false,
-   "pass_index": 32,
-   "center": [
-    1.6,
-    6.0,
-    0.375
-   ],
-   "size": [
-    1.6,
-    0.9,
-    0.75
-   ],
-   "rotation_deg": 0.0,
-   "front_deg": 270.0,
-   "assumed": {
-    "height": 0.75
-   }
-  },
-  {
-   "name": "proxy_f_L0_012",
-   "wenart_id": "proxy:f_L0_012",
-   "kind": "furniture_proxy",
-   "status": "verified",
-   "level_id": "L0",
-   "element_id": "f_L0_012",
-   "room_id": "r_L0_mutfak",
-   "type": "chair",
-   "source": "from_documents",
-   "evidence": [
-    {
-     "file": "mobilya_plani.dxf",
-     "method": "vector",
-     "confidence": 1.0,
-     "layer": "MOBILYA",
-     "entity": "INSERT:144",
-     "block": "SANDALYE"
-    }
-   ],
-   "material": "proxy",
-   "textured": false,
-   "pass_index": 33,
-   "center": [
-    1.2,
-    5.3,
-    0.45
-   ],
-   "size": [
-    0.45,
-    0.45,
-    0.9
-   ],
-   "rotation_deg": 180.0,
-   "front_deg": 90.0,
-   "assumed": {
-    "height": 0.9
-   }
-  },
-  {
-   "name": "proxy_f_L0_013",
-   "wenart_id": "proxy:f_L0_013",
-   "kind": "furniture_proxy",
-   "status": "verified",
-   "level_id": "L0",
-   "element_id": "f_L0_013",
-   "room_id": "r_L0_mutfak",
-   "type": "chair",
-   "source": "from_documents",
-   "evidence": [
-    {
-     "file": "mobilya_plani.dxf",
-     "method": "vector",
-     "confidence": 1.0,
-     "layer": "MOBILYA",
-     "entity": "INSERT:146",
-     "block": "SANDALYE"
-    }
-   ],
-   "material": "proxy",
-   "textured": false,
-   "pass_index": 34,
-   "center": [
-    2.0,
-    5.3,
-    0.45
-   ],
-   "size": [
-    0.45,
-    0.45,
-    0.9
-   ],
-   "rotation_deg": 180.0,
-   "front_deg": 90.0,
-   "assumed": {
-    "height": 0.9
-   }
-  },
-  {
-   "name": "proxy_f_L0_014",
-   "wenart_id": "proxy:f_L0_014",
-   "kind": "furniture_proxy",
-   "status": "verified",
-   "level_id": "L0",
-   "element_id": "f_L0_014",
-   "room_id": "r_L0_yatak_odasi",
-   "type": "bed_double",
-   "source": "from_documents",
-   "evidence": [
-    {
-     "file": "mobilya_plani.dxf",
-     "method": "vector",
-     "confidence": 1.0,
-     "layer": "MOBILYA",
-     "entity": "INSERT:148",
-     "block": "YATAK_CIFT"
-    }
-   ],
-   "material": "proxy",
-   "textured": false,
-   "pass_index": 35,
-   "center": [
-    8.5,
-    4.4,
-    0.275
-   ],
-   "size": [
-    1.6,
-    2.0,
-    0.55
-   ],
-   "rotation_deg": 0.0,
-   "front_deg": 270.0,
-   "assumed": {
-    "height": 0.55
-   }
-  },
-  {
-   "name": "proxy_f_L0_015",
-   "wenart_id": "proxy:f_L0_015",
-   "kind": "furniture_proxy",
-   "status": "verified",
-   "level_id": "L0",
-   "element_id": "f_L0_015",
-   "room_id": "r_L0_yatak_odasi",
-   "type": "nightstand",
-   "source": "from_documents",
-   "evidence": [
-    {
-     "file": "mobilya_plani.dxf",
-     "method": "vector",
-     "confidence": 1.0,
-     "layer": "MOBILYA",
-     "entity": "INSERT:14A",
-     "block": "KOMIDIN"
-    }
-   ],
-   "material": "proxy",
-   "textured": false,
-   "pass_index": 36,
-   "center": [
-    7.35,
-    5.2,
-    0.25
-   ],
-   "size": [
-    0.5,
-    0.4,
-    0.5
-   ],
-   "rotation_deg": 0.0,
-   "front_deg": 270.0,
-   "assumed": {
-    "height": 0.5
-   }
-  },
-  {
-   "name": "proxy_f_L0_016",
-   "wenart_id": "proxy:f_L0_016",
-   "kind": "furniture_proxy",
-   "status": "verified",
-   "level_id": "L0",
-   "element_id": "f_L0_016",
-   "room_id": "r_L0_yatak_odasi",
-   "type": "nightstand",
-   "source": "from_documents",
-   "evidence": [
-    {
-     "file": "mobilya_plani.dxf",
-     "method": "vector",
-     "confidence": 1.0,
-     "layer": "MOBILYA",
-     "entity": "INSERT:14C",
-     "block": "KOMIDIN"
-    }
-   ],
-   "material": "proxy",
-   "textured": false,
-   "pass_index": 37,
-   "center": [
-    9.65,
-    5.2,
-    0.25
-   ],
-   "size": [
-    0.5,
-    0.4,
-    0.5
-   ],
-   "rotation_deg": 0.0,
-   "front_deg": 270.0,
-   "assumed": {
-    "height": 0.5
-   }
-  },
-  {
-   "name": "proxy_f_L0_017",
-   "wenart_id": "proxy:f_L0_017",
-   "kind": "furniture_proxy",
-   "status": "verified",
-   "level_id": "L0",
-   "element_id": "f_L0_017",
-   "room_id": "r_L0_yatak_odasi",
-   "type": "wardrobe",
-   "source": "from_documents",
-   "evidence": [
-    {
-     "file": "mobilya_plani.dxf",
-     "method": "vector",
-     "confidence": 1.0,
-     "layer": "MOBILYA",
-     "entity": "INSERT:14E",
-     "block": "DOLAP"
-    }
-   ],
-   "material": "proxy",
-   "textured": false,
-   "pass_index": 38,
-   "center": [
-    8.0,
-    0.6,
-    1.05
-   ],
-   "size": [
-    1.8,
-    0.6,
-    2.1
-   ],
-   "rotation_deg": 180.0,
-   "front_deg": 90.0,
-   "assumed": {
-    "height": 2.1
-   }
-  },
-  {
-   "name": "proxy_f_L0_018",
-   "wenart_id": "proxy:f_L0_018",
-   "kind": "furniture_proxy",
-   "status": "verified",
-   "level_id": "L0",
-   "element_id": "f_L0_018",
-   "room_id": "r_L0_yatak_odasi",
-   "type": "dresser",
-   "source": "from_documents",
-   "evidence": [
-    {
-     "file": "mobilya_plani.dxf",
-     "method": "vector",
-     "confidence": 1.0,
-     "layer": "MOBILYA",
-     "entity": "INSERT:150",
-     "block": "SIFONYER"
-    }
-   ],
-   "material": "proxy",
-   "textured": false,
-   "pass_index": 39,
-   "center": [
-    9.65,
-    1.5,
-    0.4
-   ],
-   "size": [
-    1.2,
-    0.5,
-    0.8
-   ],
-   "rotation_deg": 270.0,
-   "front_deg": 180.0,
-   "assumed": {
-    "height": 0.8
-   }
-  },
-  {
-   "name": "proxy_f_L0_019",
-   "wenart_id": "proxy:f_L0_019",
-   "kind": "furniture_proxy",
-   "status": "verified",
-   "level_id": "L0",
-   "element_id": "f_L0_019",
-   "room_id": "r_L0_wc",
-   "type": "toilet",
-   "source": "from_documents",
-   "evidence": [
-    {
-     "file": "mobilya_plani.dxf",
-     "method": "vector",
-     "confidence": 1.0,
-     "layer": "MOBILYA",
-     "entity": "INSERT:152",
-     "block": "KLOZET"
-    }
-   ],
-   "material": "proxy",
-   "textured": false,
-   "pass_index": 40,
-   "center": [
-    8.05,
-    5.95,
-    0.2
-   ],
-   "size": [
-    0.4,
-    0.7,
-    0.4
-   ],
-   "rotation_deg": 270.0,
-   "front_deg": 180.0,
-   "assumed": {
-    "height": 0.4
-   }
-  },
-  {
-   "name": "proxy_f_L0_020",
-   "wenart_id": "proxy:f_L0_020",
-   "kind": "furniture_proxy",
-   "status": "verified",
-   "level_id": "L0",
-   "element_id": "f_L0_020",
-   "room_id": "r_L0_wc",
-   "type": "washbasin",
-   "source": "from_documents",
-   "evidence": [
-    {
-     "file": "mobilya_plani.dxf",
-     "method": "vector",
-     "confidence": 1.0,
-     "layer": "MOBILYA",
-     "entity": "INSERT:154",
-     "block": "LAVABO"
-    }
-   ],
-   "material": "proxy",
-   "textured": false,
-   "pass_index": 41,
-   "center": [
-    8.175,
-    7.1,
-    0.425
-   ],
-   "size": [
-    0.6,
-    0.45,
-    0.85
-   ],
-   "rotation_deg": 270.0,
-   "front_deg": 180.0,
-   "assumed": {
-    "height": 0.85
-   }
-  },
-  {
    "name": "proxy_f_L0_021",
    "wenart_id": "proxy:f_L0_021",
    "kind": "furniture_proxy",
@@ -4453,7 +5198,7 @@
    ],
    "material": "proxy_unverified",
    "textured": false,
-   "pass_index": 42,
+   "pass_index": 34,
    "center": [
     9.65,
     6.5,
@@ -4469,6 +5214,3198 @@
    "assumed": {
     "height": 0.8
    }
+  },
+  {
+   "name": "furn_f_L0_001",
+   "wenart_id": "f_L0_001",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "f_L0_001",
+   "room_id": "r_L0_salon",
+   "type": "sofa",
+   "source": "from_documents",
+   "evidence": [
+    {
+     "file": "mobilya_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:12E",
+     "block": "KANEPE_3LU"
+    }
+   ],
+   "pass_index": 35,
+   "assumed": {
+    "height": 0.85
+   },
+   "decor": [
+    {
+     "name": "decor_f_L0_001_1",
+     "type": "cushion",
+     "method": "parametric (fallback: no asset in the building JSON)"
+    },
+    {
+     "name": "decor_f_L0_001_2",
+     "type": "cushion",
+     "method": "parametric (fallback: no asset in the building JSON)"
+    }
+   ],
+   "center": [
+    2.5,
+    4.45,
+    0.425
+   ],
+   "size": [
+    2.2,
+    0.9,
+    0.85
+   ],
+   "rotation_deg": 0.0,
+   "front_deg": 270.0,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "sofa_02",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     1.2174,
+     1.1005,
+     1.1589
+    ],
+    "bbox_m": [
+     2.2,
+     0.9,
+     0.8222
+    ],
+    "aspect_error": 0.1009,
+    "gltf": "models/sofa_02/sofa_02_1k.gltf",
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0003,
+     0.0688,
+     0.0002
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "Sofa_01",
+      "aspect_error": 0.0232,
+      "scale": [
+       1.3999,
+       1.3678,
+       1.3839
+      ],
+      "non_uniform": 1.0235,
+      "mean_scale": 1.3839,
+      "accepted": false
+     },
+     {
+      "id": "sofa_02",
+      "aspect_error": 0.1009,
+      "scale": [
+       1.2174,
+       1.1005,
+       1.1589
+      ],
+      "non_uniform": 1.1062,
+      "mean_scale": 1.1589,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ]
+   },
+   "fit_scale": [
+    1.2174,
+    1.1005,
+    1.1589
+   ],
+   "method": "library",
+   "bbox_m": [
+    2.2,
+    0.8999,
+    0.8222
+   ],
+   "fallback_reason": null,
+   "materials": [
+    "sofa_02"
+   ],
+   "material": "sofa_02",
+   "textured": true,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0003,
+     0.0688,
+     0.0002
+    ],
+    "origin_offset_applied": [
+     -0.0003,
+     -0.0688,
+     -0.0002
+    ],
+    "bbox_raw_m": [
+     1.8072,
+     0.8178,
+     0.7095
+    ],
+    "bbox_m": [
+     2.2,
+     0.8999,
+     0.8222
+    ],
+    "fit_scale": [
+     1.2174,
+     1.1005,
+     1.1589
+    ]
+   },
+   "file": "/workspace/assets/models/sofa_02/sofa_02_1k.gltf",
+   "imported_objects": [
+    "sofa_02_Base",
+    "sofa_02_Seat"
+   ]
+  },
+  {
+   "name": "furn_f_L0_002",
+   "wenart_id": "f_L0_002",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "f_L0_002",
+   "room_id": "r_L0_salon",
+   "type": "armchair",
+   "source": "from_documents",
+   "evidence": [
+    {
+     "file": "mobilya_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:130",
+     "block": "KOLTUK"
+    }
+   ],
+   "pass_index": 36,
+   "assumed": {
+    "height": 0.85
+   },
+   "decor": [],
+   "center": [
+    4.5,
+    4.4,
+    0.425
+   ],
+   "size": [
+    0.9,
+    0.9,
+    0.85
+   ],
+   "rotation_deg": 270.0,
+   "front_deg": 180.0,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "ArmChair_01",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     1.0608,
+     1.1752,
+     1.118
+    ],
+    "bbox_m": [
+     0.9,
+     0.9,
+     1.1908
+    ],
+    "aspect_error": 0.1024,
+    "gltf": "models/ArmChair_01/ArmChair_01_1k.gltf",
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0344,
+     -0.0004
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "ArmChair_01",
+      "aspect_error": 0.1024,
+      "scale": [
+       1.0608,
+       1.1752,
+       1.118
+      ],
+      "non_uniform": 1.1079,
+      "mean_scale": 1.118,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ]
+   },
+   "fit_scale": [
+    1.0608,
+    1.1752,
+    1.118
+   ],
+   "method": "library",
+   "bbox_m": [
+    0.9,
+    0.8999,
+    1.1908
+   ],
+   "fallback_reason": null,
+   "materials": [
+    "Armchair_01"
+   ],
+   "material": "Armchair_01",
+   "textured": true,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0,
+     0.0344,
+     -0.0004
+    ],
+    "origin_offset_applied": [
+     -0.0,
+     -0.0344,
+     0.0004
+    ],
+    "bbox_raw_m": [
+     0.8484,
+     0.7658,
+     1.0651
+    ],
+    "bbox_m": [
+     0.9,
+     0.8999,
+     1.1908
+    ],
+    "fit_scale": [
+     1.0608,
+     1.1752,
+     1.118
+    ]
+   },
+   "file": "/workspace/assets/models/ArmChair_01/ArmChair_01_1k.gltf",
+   "imported_objects": [
+    "ArmChair_01"
+   ]
+  },
+  {
+   "name": "furn_f_L0_003",
+   "wenart_id": "f_L0_003",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "f_L0_003",
+   "room_id": "r_L0_salon",
+   "type": "armchair",
+   "source": "from_documents",
+   "evidence": [
+    {
+     "file": "mobilya_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:132",
+     "block": "KOLTUK"
+    }
+   ],
+   "pass_index": 37,
+   "assumed": {
+    "height": 0.85
+   },
+   "decor": [],
+   "center": [
+    0.75,
+    3.9,
+    0.425
+   ],
+   "size": [
+    0.9,
+    0.9,
+    0.85
+   ],
+   "rotation_deg": 90.0,
+   "front_deg": 0.0,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "ArmChair_01",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     1.0608,
+     1.1752,
+     1.118
+    ],
+    "bbox_m": [
+     0.9,
+     0.9,
+     1.1908
+    ],
+    "aspect_error": 0.1024,
+    "gltf": "models/ArmChair_01/ArmChair_01_1k.gltf",
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0344,
+     -0.0004
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "ArmChair_01",
+      "aspect_error": 0.1024,
+      "scale": [
+       1.0608,
+       1.1752,
+       1.118
+      ],
+      "non_uniform": 1.1079,
+      "mean_scale": 1.118,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ]
+   },
+   "fit_scale": [
+    1.0608,
+    1.1752,
+    1.118
+   ],
+   "method": "library",
+   "bbox_m": [
+    0.9,
+    0.8999,
+    1.1908
+   ],
+   "fallback_reason": null,
+   "materials": [
+    "Armchair_01"
+   ],
+   "material": "Armchair_01",
+   "textured": true,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0,
+     0.0344,
+     -0.0004
+    ],
+    "origin_offset_applied": [
+     -0.0,
+     -0.0344,
+     0.0004
+    ],
+    "bbox_raw_m": [
+     0.8484,
+     0.7658,
+     1.0651
+    ],
+    "bbox_m": [
+     0.9,
+     0.8999,
+     1.1908
+    ],
+    "fit_scale": [
+     1.0608,
+     1.1752,
+     1.118
+    ]
+   },
+   "file": "/workspace/assets/models/ArmChair_01/ArmChair_01_1k.gltf",
+   "imported_objects": [
+    "ArmChair_01"
+   ]
+  },
+  {
+   "name": "furn_f_L0_004",
+   "wenart_id": "f_L0_004",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "f_L0_004",
+   "room_id": "r_L0_salon",
+   "type": "table_coffee",
+   "source": "from_documents",
+   "evidence": [
+    {
+     "file": "mobilya_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:134",
+     "block": "SEHPA"
+    }
+   ],
+   "pass_index": 38,
+   "assumed": {
+    "height": 0.45
+   },
+   "decor": [],
+   "center": [
+    2.5,
+    3.3,
+    0.225
+   ],
+   "size": [
+    1.0,
+    0.6,
+    0.45
+   ],
+   "rotation_deg": 0.0,
+   "front_deg": 270.0,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:table_coffee",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     1.0,
+     0.6,
+     0.45
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [
+     {
+      "id": "CoffeeTable_01",
+      "aspect_error": 0.0515,
+      "scale": [
+       0.6494,
+       0.6168,
+       0.6331
+      ],
+      "non_uniform": 1.0528,
+      "mean_scale": 0.6331,
+      "accepted": false
+     },
+     {
+      "id": "modern_coffee_table_01",
+      "aspect_error": 0.1838,
+      "scale": [
+       0.8321,
+       1.0,
+       0.916
+      ],
+      "non_uniform": 1.2018,
+      "mean_scale": 0.916,
+      "accepted": false
+     },
+     {
+      "id": "modern_coffee_table_02",
+      "aspect_error": 0.5113,
+      "scale": [
+       0.834,
+       0.5001,
+       0.667
+      ],
+      "non_uniform": 1.6675,
+      "mean_scale": 0.667,
+      "accepted": false
+     }
+    ],
+    "fallback_reason": "no table_coffee candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: CoffeeTable_01 at 5.3 % non-uniform, mean scale 0.6331)",
+    "cap": 1.15
+   },
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "bbox_m": [
+    1.0,
+    0.6,
+    0.45
+   ],
+   "fallback_reason": "fitting chose the parametric mesh",
+   "materials": [
+    "wood_oak_light"
+   ],
+   "material": "wood_oak_light",
+   "textured": false,
+   "material_keys": {
+    "wood": "wood_oak_light"
+   }
+  },
+  {
+   "name": "furn_f_L0_005",
+   "wenart_id": "f_L0_005",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "f_L0_005",
+   "room_id": "r_L0_salon",
+   "type": "tv_unit",
+   "source": "from_documents",
+   "evidence": [
+    {
+     "file": "mobilya_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:136",
+     "block": "TV_UNITESI"
+    }
+   ],
+   "pass_index": 39,
+   "assumed": {
+    "height": 0.5
+   },
+   "decor": [],
+   "center": [
+    2.5,
+    0.525,
+    0.25
+   ],
+   "size": [
+    1.6,
+    0.45,
+    0.5
+   ],
+   "rotation_deg": 180.0,
+   "front_deg": 90.0,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:tv_unit",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     1.6,
+     0.45,
+     0.5
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [
+     {
+      "id": "modern_wooden_cabinet",
+      "aspect_error": 0.2774,
+      "scale": [
+       0.6557,
+       0.8654,
+       0.7606
+      ],
+      "non_uniform": 1.3197,
+      "mean_scale": 0.7606,
+      "accepted": false
+     },
+     {
+      "id": "WoodenTable_03",
+      "aspect_error": 0.4328,
+      "scale": [
+       1.2058,
+       0.7822,
+       0.994
+      ],
+      "non_uniform": 1.5416,
+      "mean_scale": 0.994,
+      "accepted": false
+     }
+    ],
+    "fallback_reason": "no tv_unit candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: modern_wooden_cabinet at 32.0 % non-uniform, mean scale 0.7606)",
+    "cap": 1.15
+   },
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "bbox_m": [
+    1.6,
+    0.458,
+    0.5
+   ],
+   "fallback_reason": "fitting chose the parametric mesh",
+   "materials": [
+    "wood_oak_light",
+    "painted_wood_white",
+    "steel_brushed"
+   ],
+   "material": "wood_oak_light",
+   "textured": false,
+   "material_keys": {
+    "wood": "wood_oak_light",
+    "painted": "painted_wood_white",
+    "steel": "steel_brushed"
+   }
+  },
+  {
+   "name": "furn_f_L0_006",
+   "wenart_id": "f_L0_006",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "f_L0_006",
+   "room_id": "r_L0_salon",
+   "type": "bookshelf",
+   "source": "from_documents",
+   "evidence": [
+    {
+     "file": "mobilya_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:138",
+     "block": "KITAPLIK"
+    }
+   ],
+   "pass_index": 40,
+   "assumed": {
+    "height": 1.8
+   },
+   "decor": [
+    {
+     "name": "decor_f_L0_006_3",
+     "type": "book_set",
+     "method": "parametric (fallback: no asset in the building JSON)"
+    }
+   ],
+   "center": [
+    4.7,
+    1.0,
+    0.9
+   ],
+   "size": [
+    1.0,
+    0.35,
+    1.8
+   ],
+   "rotation_deg": 270.0,
+   "front_deg": 180.0,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "wooden_display_shelves_01",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.9278,
+     0.9421,
+     0.935
+    ],
+    "bbox_m": [
+     1.0,
+     0.35,
+     1.455
+    ],
+    "aspect_error": 0.0153,
+    "gltf": "models/wooden_display_shelves_01/wooden_display_shelves_01_1k.gltf",
+    "front_axis": "-X",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0004
+    ],
+    "rotation_fix_deg": 90.0,
+    "front_axis_confidence": "low",
+    "candidates": [
+     {
+      "id": "wooden_display_shelves_01",
+      "aspect_error": 0.0153,
+      "scale": [
+       0.9278,
+       0.9421,
+       0.935
+      ],
+      "non_uniform": 1.0154,
+      "mean_scale": 0.935,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ]
+   },
+   "fit_scale": [
+    0.9278,
+    0.9421,
+    0.935
+   ],
+   "method": "library",
+   "bbox_m": [
+    0.9999,
+    0.35,
+    1.455
+   ],
+   "fallback_reason": null,
+   "materials": [
+    "wooden_display_shelves_01"
+   ],
+   "material": "wooden_display_shelves_01",
+   "textured": true,
+   "fit": {
+    "front_axis": "-X",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0,
+     0.0,
+     0.0004
+    ],
+    "origin_offset_applied": [
+     -0.0,
+     -0.0,
+     -0.0004
+    ],
+    "bbox_raw_m": [
+     1.0778,
+     0.3715,
+     1.5562
+    ],
+    "bbox_m": [
+     0.9999,
+     0.35,
+     1.455
+    ],
+    "fit_scale": [
+     0.9278,
+     0.9421,
+     0.935
+    ]
+   },
+   "file": "/workspace/assets/models/wooden_display_shelves_01/wooden_display_shelves_01_1k.gltf",
+   "imported_objects": [
+    "wooden_display_shelves_01",
+    "wooden_display_shelves_01_drawer_01",
+    "wooden_display_shelves_01_drawer_02",
+    "wooden_display_shelves_01_drawer_03"
+   ]
+  },
+  {
+   "name": "furn_f_L0_007",
+   "wenart_id": "f_L0_007",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "f_L0_007",
+   "room_id": "r_L0_mutfak",
+   "type": "kitchen_counter",
+   "source": "from_documents",
+   "evidence": [
+    {
+     "file": "mobilya_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:13A",
+     "block": "TEZGAH"
+    }
+   ],
+   "pass_index": 41,
+   "assumed": {
+    "height": 0.9
+   },
+   "decor": [],
+   "center": [
+    1.5,
+    7.2,
+    0.45
+   ],
+   "size": [
+    2.4,
+    0.6,
+    0.9
+   ],
+   "rotation_deg": 0.0,
+   "front_deg": 270.0,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:kitchen_counter",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     2.4,
+     0.6,
+     0.9
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type kitchen_counter is parametric in the catalogue",
+    "cap": 1.15
+   },
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "bbox_m": [
+    2.4,
+    0.6,
+    0.9
+   ],
+   "fallback_reason": "fitting chose the parametric mesh",
+   "materials": [
+    "lacquer_dark",
+    "painted_wood_white",
+    "stone_worktop",
+    "steel_brushed"
+   ],
+   "material": "lacquer_dark",
+   "textured": false,
+   "material_keys": {
+    "dark": "lacquer_dark",
+    "painted": "painted_wood_white",
+    "worktop": "stone_worktop",
+    "steel": "steel_brushed"
+   }
+  },
+  {
+   "name": "furn_f_L0_008",
+   "wenart_id": "f_L0_008",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "f_L0_008",
+   "room_id": "r_L0_mutfak",
+   "type": "sink_kitchen",
+   "source": "from_documents",
+   "evidence": [
+    {
+     "file": "mobilya_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:13C",
+     "block": "EVIYE"
+    }
+   ],
+   "pass_index": 42,
+   "assumed": {
+    "height_lift": 0.005,
+    "height": 0.9
+   },
+   "decor": [],
+   "center": [
+    0.75,
+    7.2,
+    0.45
+   ],
+   "size": [
+    0.8,
+    0.5,
+    0.9
+   ],
+   "rotation_deg": 0.0,
+   "front_deg": 270.0,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:sink_kitchen",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     0.8,
+     0.5,
+     1.15
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type sink_kitchen is parametric in the catalogue",
+    "cap": 1.15
+   },
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "bbox_m": [
+    0.8,
+    0.5,
+    1.155
+   ],
+   "fallback_reason": "fitting chose the parametric mesh",
+   "materials": [
+    "painted_wood_white",
+    "steel_brushed"
+   ],
+   "material": "painted_wood_white",
+   "textured": false,
+   "material_keys": {
+    "painted": "painted_wood_white",
+    "steel": "steel_brushed"
+   }
+  },
+  {
+   "name": "furn_f_L0_009",
+   "wenart_id": "f_L0_009",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "f_L0_009",
+   "room_id": "r_L0_mutfak",
+   "type": "stove",
+   "source": "from_documents",
+   "evidence": [
+    {
+     "file": "mobilya_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:13E",
+     "block": "OCAK"
+    }
+   ],
+   "pass_index": 43,
+   "assumed": {
+    "height_lift": 0.005,
+    "height": 0.9
+   },
+   "decor": [],
+   "center": [
+    2.25,
+    7.2,
+    0.45
+   ],
+   "size": [
+    0.6,
+    0.6,
+    0.9
+   ],
+   "rotation_deg": 0.0,
+   "front_deg": 270.0,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:stove",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     0.6,
+     0.6,
+     0.908
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [
+     {
+      "id": "electric_stove",
+      "aspect_error": 0.2535,
+      "scale": [
+       1.1938,
+       0.9265,
+       1.0601
+      ],
+      "non_uniform": 1.2885,
+      "mean_scale": 1.0601,
+      "accepted": false
+     }
+    ],
+    "fallback_reason": "no stove candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: electric_stove at 28.8 % non-uniform, mean scale 1.0601)",
+    "cap": 1.15
+   },
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "bbox_m": [
+    0.6,
+    0.608,
+    0.913
+   ],
+   "fallback_reason": "fitting chose the parametric mesh",
+   "materials": [
+    "steel_brushed",
+    "lacquer_dark"
+   ],
+   "material": "steel_brushed",
+   "textured": false,
+   "material_keys": {
+    "steel": "steel_brushed",
+    "dark": "lacquer_dark"
+   }
+  },
+  {
+   "name": "furn_f_L0_010",
+   "wenart_id": "f_L0_010",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "f_L0_010",
+   "room_id": "r_L0_mutfak",
+   "type": "fridge",
+   "source": "from_documents",
+   "evidence": [
+    {
+     "file": "mobilya_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:140",
+     "block": "BUZDOLABI"
+    }
+   ],
+   "pass_index": 44,
+   "assumed": {
+    "height": 1.8
+   },
+   "decor": [],
+   "center": [
+    3.15,
+    7.15,
+    0.9
+   ],
+   "size": [
+    0.7,
+    0.7,
+    1.8
+   ],
+   "rotation_deg": 0.0,
+   "front_deg": 270.0,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:fridge",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     0.7,
+     0.7,
+     1.8
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type fridge is parametric in the catalogue",
+    "cap": 1.15
+   },
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "bbox_m": [
+    0.7,
+    0.708,
+    1.8
+   ],
+   "fallback_reason": "fitting chose the parametric mesh",
+   "materials": [
+    "steel_brushed",
+    "lacquer_dark"
+   ],
+   "material": "steel_brushed",
+   "textured": false,
+   "material_keys": {
+    "steel": "steel_brushed",
+    "dark": "lacquer_dark"
+   }
+  },
+  {
+   "name": "furn_f_L0_011",
+   "wenart_id": "f_L0_011",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "f_L0_011",
+   "room_id": "r_L0_mutfak",
+   "type": "table_dining",
+   "source": "from_documents",
+   "evidence": [
+    {
+     "file": "mobilya_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:142",
+     "block": "YEMEK_MASASI"
+    }
+   ],
+   "pass_index": 45,
+   "assumed": {
+    "height": 0.75
+   },
+   "decor": [],
+   "center": [
+    1.6,
+    6.0,
+    0.375
+   ],
+   "size": [
+    1.6,
+    0.9,
+    0.75
+   ],
+   "rotation_deg": 0.0,
+   "front_deg": 270.0,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:table_dining",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     1.6,
+     0.9,
+     0.75
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [
+     {
+      "id": "dining_table",
+      "aspect_error": 0.0913,
+      "scale": [
+       0.7093,
+       0.6474,
+       0.6783
+      ],
+      "non_uniform": 1.0956,
+      "mean_scale": 0.6783,
+      "accepted": false
+     },
+     {
+      "id": "wooden_table_02",
+      "aspect_error": 0.1011,
+      "scale": [
+       1.4104,
+       1.2748,
+       1.3426
+      ],
+      "non_uniform": 1.1064,
+      "mean_scale": 1.3426,
+      "accepted": false
+     },
+     {
+      "id": "painted_wooden_table",
+      "aspect_error": 0.174,
+      "scale": [
+       0.6651,
+       0.7916,
+       0.7283
+      ],
+      "non_uniform": 1.1901,
+      "mean_scale": 0.7283,
+      "accepted": false
+     }
+    ],
+    "fallback_reason": "no table_dining candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: dining_table at 9.6 % non-uniform, mean scale 0.6783)",
+    "cap": 1.15
+   },
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "bbox_m": [
+    1.6,
+    0.9,
+    0.75
+   ],
+   "fallback_reason": "fitting chose the parametric mesh",
+   "materials": [
+    "wood_oak_light"
+   ],
+   "material": "wood_oak_light",
+   "textured": false,
+   "material_keys": {
+    "wood": "wood_oak_light"
+   }
+  },
+  {
+   "name": "furn_f_L0_012",
+   "wenart_id": "f_L0_012",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "f_L0_012",
+   "room_id": "r_L0_mutfak",
+   "type": "chair",
+   "source": "from_documents",
+   "evidence": [
+    {
+     "file": "mobilya_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:144",
+     "block": "SANDALYE"
+    }
+   ],
+   "pass_index": 46,
+   "assumed": {
+    "height": 0.9
+   },
+   "decor": [],
+   "center": [
+    1.2,
+    5.3,
+    0.45
+   ],
+   "size": [
+    0.45,
+    0.45,
+    0.9
+   ],
+   "rotation_deg": 180.0,
+   "front_deg": 90.0,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "gallinera_chair",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.7748,
+     0.7452,
+     0.76
+    ],
+    "bbox_m": [
+     0.45,
+     0.45,
+     0.7856
+    ],
+    "aspect_error": 0.039,
+    "gltf": "models/gallinera_chair/gallinera_chair_1k.gltf",
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0003,
+     -0.0363,
+     -0.0002
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "painted_wooden_chair_02",
+      "aspect_error": 0.0349,
+      "scale": [
+       0.7038,
+       0.6797,
+       0.6917
+      ],
+      "non_uniform": 1.0355,
+      "mean_scale": 0.6917,
+      "accepted": false
+     },
+     {
+      "id": "gallinera_chair",
+      "aspect_error": 0.039,
+      "scale": [
+       0.7748,
+       0.7452,
+       0.76
+      ],
+      "non_uniform": 1.0398,
+      "mean_scale": 0.76,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ]
+   },
+   "fit_scale": [
+    0.7748,
+    0.7452,
+    0.76
+   ],
+   "method": "library",
+   "bbox_m": [
+    0.45,
+    0.45,
+    0.7856
+   ],
+   "fallback_reason": null,
+   "materials": [
+    "gallinera_chair.001"
+   ],
+   "material": "gallinera_chair.001",
+   "textured": true,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     -0.0003,
+     -0.0363,
+     -0.0002
+    ],
+    "origin_offset_applied": [
+     0.0003,
+     0.0363,
+     0.0002
+    ],
+    "bbox_raw_m": [
+     0.5808,
+     0.6039,
+     1.0337
+    ],
+    "bbox_m": [
+     0.45,
+     0.45,
+     0.7856
+    ],
+    "fit_scale": [
+     0.7748,
+     0.7452,
+     0.76
+    ]
+   },
+   "file": "/workspace/assets/models/gallinera_chair/gallinera_chair_1k.gltf",
+   "imported_objects": [
+    "gallinera_chair"
+   ]
+  },
+  {
+   "name": "furn_f_L0_013",
+   "wenart_id": "f_L0_013",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "f_L0_013",
+   "room_id": "r_L0_mutfak",
+   "type": "chair",
+   "source": "from_documents",
+   "evidence": [
+    {
+     "file": "mobilya_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:146",
+     "block": "SANDALYE"
+    }
+   ],
+   "pass_index": 47,
+   "assumed": {
+    "height": 0.9
+   },
+   "decor": [],
+   "center": [
+    2.0,
+    5.3,
+    0.45
+   ],
+   "size": [
+    0.45,
+    0.45,
+    0.9
+   ],
+   "rotation_deg": 180.0,
+   "front_deg": 90.0,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "gallinera_chair",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.7748,
+     0.7452,
+     0.76
+    ],
+    "bbox_m": [
+     0.45,
+     0.45,
+     0.7856
+    ],
+    "aspect_error": 0.039,
+    "gltf": "models/gallinera_chair/gallinera_chair_1k.gltf",
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0003,
+     -0.0363,
+     -0.0002
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "painted_wooden_chair_02",
+      "aspect_error": 0.0349,
+      "scale": [
+       0.7038,
+       0.6797,
+       0.6917
+      ],
+      "non_uniform": 1.0355,
+      "mean_scale": 0.6917,
+      "accepted": false
+     },
+     {
+      "id": "gallinera_chair",
+      "aspect_error": 0.039,
+      "scale": [
+       0.7748,
+       0.7452,
+       0.76
+      ],
+      "non_uniform": 1.0398,
+      "mean_scale": 0.76,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ]
+   },
+   "fit_scale": [
+    0.7748,
+    0.7452,
+    0.76
+   ],
+   "method": "library",
+   "bbox_m": [
+    0.45,
+    0.45,
+    0.7856
+   ],
+   "fallback_reason": null,
+   "materials": [
+    "gallinera_chair.001"
+   ],
+   "material": "gallinera_chair.001",
+   "textured": true,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     -0.0003,
+     -0.0363,
+     -0.0002
+    ],
+    "origin_offset_applied": [
+     0.0003,
+     0.0363,
+     0.0002
+    ],
+    "bbox_raw_m": [
+     0.5808,
+     0.6039,
+     1.0337
+    ],
+    "bbox_m": [
+     0.45,
+     0.45,
+     0.7856
+    ],
+    "fit_scale": [
+     0.7748,
+     0.7452,
+     0.76
+    ]
+   },
+   "file": "/workspace/assets/models/gallinera_chair/gallinera_chair_1k.gltf",
+   "imported_objects": [
+    "gallinera_chair"
+   ]
+  },
+  {
+   "name": "furn_f_L0_014",
+   "wenart_id": "f_L0_014",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "f_L0_014",
+   "room_id": "r_L0_yatak_odasi",
+   "type": "bed_double",
+   "source": "from_documents",
+   "evidence": [
+    {
+     "file": "mobilya_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:148",
+     "block": "YATAK_CIFT"
+    }
+   ],
+   "pass_index": 48,
+   "assumed": {
+    "height": 0.55
+   },
+   "decor": [
+    {
+     "name": "decor_f_L0_014_5",
+     "type": "cushion",
+     "method": "parametric (fallback: no asset in the building JSON)"
+    },
+    {
+     "name": "decor_f_L0_014_6",
+     "type": "cushion",
+     "method": "parametric (fallback: no asset in the building JSON)"
+    }
+   ],
+   "center": [
+    8.5,
+    4.4,
+    0.275
+   ],
+   "size": [
+    1.6,
+    2.0,
+    0.55
+   ],
+   "rotation_deg": 0.0,
+   "front_deg": 270.0,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "GothicBed_01",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     1.0711,
+     0.9804,
+     1.0257
+    ],
+    "bbox_m": [
+     1.6,
+     2.0,
+     1.5732
+    ],
+    "aspect_error": 0.0885,
+    "gltf": "models/GothicBed_01/GothicBed_01_1k.gltf",
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0355,
+     0.0331,
+     -0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "GothicBed_01",
+      "aspect_error": 0.0885,
+      "scale": [
+       1.0711,
+       0.9804,
+       1.0257
+      ],
+      "non_uniform": 1.0925,
+      "mean_scale": 1.0257,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ]
+   },
+   "fit_scale": [
+    1.0711,
+    0.9804,
+    1.0257
+   ],
+   "method": "library",
+   "bbox_m": [
+    1.6,
+    2.0,
+    1.5733
+   ],
+   "fallback_reason": null,
+   "materials": [
+    "GothicBed_01.001"
+   ],
+   "material": "GothicBed_01.001",
+   "textured": true,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0355,
+     0.0331,
+     -0.0
+    ],
+    "origin_offset_applied": [
+     -0.0356,
+     -0.0331,
+     0.0
+    ],
+    "bbox_raw_m": [
+     1.4938,
+     2.04,
+     1.5338
+    ],
+    "bbox_m": [
+     1.6,
+     2.0,
+     1.5733
+    ],
+    "fit_scale": [
+     1.0711,
+     0.9804,
+     1.0257
+    ]
+   },
+   "file": "/workspace/assets/models/GothicBed_01/GothicBed_01_1k.gltf",
+   "imported_objects": [
+    "GothicBed_01"
+   ]
+  },
+  {
+   "name": "furn_f_L0_015",
+   "wenart_id": "f_L0_015",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "f_L0_015",
+   "room_id": "r_L0_yatak_odasi",
+   "type": "nightstand",
+   "source": "from_documents",
+   "evidence": [
+    {
+     "file": "mobilya_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:14A",
+     "block": "KOMIDIN"
+    }
+   ],
+   "pass_index": 49,
+   "assumed": {
+    "height": 0.5
+   },
+   "decor": [],
+   "center": [
+    7.35,
+    5.2,
+    0.25
+   ],
+   "size": [
+    0.5,
+    0.4,
+    0.5
+   ],
+   "rotation_deg": 0.0,
+   "front_deg": 270.0,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "side_table_01",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.9091,
+     0.8889,
+     0.899
+    ],
+    "bbox_m": [
+     0.5,
+     0.4,
+     0.4951
+    ],
+    "aspect_error": 0.0225,
+    "gltf": "models/side_table_01/side_table_01_1k.gltf",
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     -0.0024
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "low",
+    "candidates": [
+     {
+      "id": "side_table_01",
+      "aspect_error": 0.0225,
+      "scale": [
+       0.9091,
+       0.8889,
+       0.899
+      ],
+      "non_uniform": 1.0227,
+      "mean_scale": 0.899,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ]
+   },
+   "fit_scale": [
+    0.9091,
+    0.8889,
+    0.899
+   ],
+   "method": "library",
+   "bbox_m": [
+    0.5,
+    0.4,
+    0.495
+   ],
+   "fallback_reason": null,
+   "materials": [
+    "side_table_01.001"
+   ],
+   "material": "side_table_01.001",
+   "textured": true,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0,
+     0.0,
+     -0.0024
+    ],
+    "origin_offset_applied": [
+     -0.0,
+     -0.0,
+     0.0024
+    ],
+    "bbox_raw_m": [
+     0.55,
+     0.45,
+     0.5507
+    ],
+    "bbox_m": [
+     0.5,
+     0.4,
+     0.495
+    ],
+    "fit_scale": [
+     0.9091,
+     0.8889,
+     0.899
+    ]
+   },
+   "file": "/workspace/assets/models/side_table_01/side_table_01_1k.gltf",
+   "imported_objects": [
+    "side_table_01"
+   ]
+  },
+  {
+   "name": "furn_f_L0_016",
+   "wenart_id": "f_L0_016",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "f_L0_016",
+   "room_id": "r_L0_yatak_odasi",
+   "type": "nightstand",
+   "source": "from_documents",
+   "evidence": [
+    {
+     "file": "mobilya_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:14C",
+     "block": "KOMIDIN"
+    }
+   ],
+   "pass_index": 50,
+   "assumed": {
+    "height": 0.5
+   },
+   "decor": [],
+   "center": [
+    9.65,
+    5.2,
+    0.25
+   ],
+   "size": [
+    0.5,
+    0.4,
+    0.5
+   ],
+   "rotation_deg": 0.0,
+   "front_deg": 270.0,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "side_table_01",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.9091,
+     0.8889,
+     0.899
+    ],
+    "bbox_m": [
+     0.5,
+     0.4,
+     0.4951
+    ],
+    "aspect_error": 0.0225,
+    "gltf": "models/side_table_01/side_table_01_1k.gltf",
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     -0.0024
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "low",
+    "candidates": [
+     {
+      "id": "side_table_01",
+      "aspect_error": 0.0225,
+      "scale": [
+       0.9091,
+       0.8889,
+       0.899
+      ],
+      "non_uniform": 1.0227,
+      "mean_scale": 0.899,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ]
+   },
+   "fit_scale": [
+    0.9091,
+    0.8889,
+    0.899
+   ],
+   "method": "library",
+   "bbox_m": [
+    0.5,
+    0.4,
+    0.495
+   ],
+   "fallback_reason": null,
+   "materials": [
+    "side_table_01.001"
+   ],
+   "material": "side_table_01.001",
+   "textured": true,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0,
+     0.0,
+     -0.0024
+    ],
+    "origin_offset_applied": [
+     -0.0,
+     -0.0,
+     0.0024
+    ],
+    "bbox_raw_m": [
+     0.55,
+     0.45,
+     0.5507
+    ],
+    "bbox_m": [
+     0.5,
+     0.4,
+     0.495
+    ],
+    "fit_scale": [
+     0.9091,
+     0.8889,
+     0.899
+    ]
+   },
+   "file": "/workspace/assets/models/side_table_01/side_table_01_1k.gltf",
+   "imported_objects": [
+    "side_table_01"
+   ]
+  },
+  {
+   "name": "furn_f_L0_017",
+   "wenart_id": "f_L0_017",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "f_L0_017",
+   "room_id": "r_L0_yatak_odasi",
+   "type": "wardrobe",
+   "source": "from_documents",
+   "evidence": [
+    {
+     "file": "mobilya_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:14E",
+     "block": "DOLAP"
+    }
+   ],
+   "pass_index": 51,
+   "assumed": {
+    "height": 2.1
+   },
+   "decor": [],
+   "center": [
+    8.0,
+    0.6,
+    1.05
+   ],
+   "size": [
+    1.8,
+    0.6,
+    2.1
+   ],
+   "rotation_deg": 180.0,
+   "front_deg": 90.0,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:wardrobe",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     1.8,
+     0.6,
+     2.1
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type wardrobe is parametric in the catalogue",
+    "cap": 1.15
+   },
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "bbox_m": [
+    1.8,
+    0.608,
+    2.1
+   ],
+   "fallback_reason": "fitting chose the parametric mesh",
+   "materials": [
+    "wood_oak_light",
+    "painted_wood_white",
+    "steel_brushed"
+   ],
+   "material": "wood_oak_light",
+   "textured": false,
+   "material_keys": {
+    "wood": "wood_oak_light",
+    "painted": "painted_wood_white",
+    "steel": "steel_brushed"
+   }
+  },
+  {
+   "name": "furn_f_L0_018",
+   "wenart_id": "f_L0_018",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "f_L0_018",
+   "room_id": "r_L0_yatak_odasi",
+   "type": "dresser",
+   "source": "from_documents",
+   "evidence": [
+    {
+     "file": "mobilya_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:150",
+     "block": "SIFONYER"
+    }
+   ],
+   "pass_index": 52,
+   "assumed": {
+    "height": 0.8
+   },
+   "decor": [],
+   "center": [
+    9.65,
+    1.5,
+    0.4
+   ],
+   "size": [
+    1.2,
+    0.5,
+    0.8
+   ],
+   "rotation_deg": 270.0,
+   "front_deg": 180.0,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:dresser",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     1.2,
+     0.5,
+     0.8
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [
+     {
+      "id": "GothicCommode_01",
+      "aspect_error": 0.1485,
+      "scale": [
+       0.9988,
+       0.861,
+       0.9299
+      ],
+      "non_uniform": 1.16,
+      "mean_scale": 0.9299,
+      "accepted": false
+     },
+     {
+      "id": "vintage_wooden_drawer_01",
+      "aspect_error": 0.2469,
+      "scale": [
+       1.3993,
+       1.0931,
+       1.2462
+      ],
+      "non_uniform": 1.28,
+      "mean_scale": 1.2462,
+      "accepted": false
+     }
+    ],
+    "fallback_reason": "no dresser candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: GothicCommode_01 at 16.0 % non-uniform, mean scale 0.9299)",
+    "cap": 1.15
+   },
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "bbox_m": [
+    1.2,
+    0.508,
+    0.8
+   ],
+   "fallback_reason": "fitting chose the parametric mesh",
+   "materials": [
+    "wood_oak_light",
+    "painted_wood_white",
+    "steel_brushed"
+   ],
+   "material": "wood_oak_light",
+   "textured": false,
+   "material_keys": {
+    "wood": "wood_oak_light",
+    "painted": "painted_wood_white",
+    "steel": "steel_brushed"
+   }
+  },
+  {
+   "name": "furn_f_L0_019",
+   "wenart_id": "f_L0_019",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "f_L0_019",
+   "room_id": "r_L0_wc",
+   "type": "toilet",
+   "source": "from_documents",
+   "evidence": [
+    {
+     "file": "mobilya_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:152",
+     "block": "KLOZET"
+    }
+   ],
+   "pass_index": 53,
+   "assumed": {
+    "height": 0.4
+   },
+   "decor": [],
+   "center": [
+    8.05,
+    5.95,
+    0.2
+   ],
+   "size": [
+    0.4,
+    0.7,
+    0.4
+   ],
+   "rotation_deg": 270.0,
+   "front_deg": 180.0,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:toilet",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     0.4,
+     0.7,
+     0.8
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type toilet is parametric in the catalogue",
+    "cap": 1.15
+   },
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "bbox_m": [
+    0.4,
+    0.7,
+    0.8
+   ],
+   "fallback_reason": "fitting chose the parametric mesh",
+   "materials": [
+    "ceramic_white",
+    "painted_wood_white"
+   ],
+   "material": "ceramic_white",
+   "textured": false,
+   "material_keys": {
+    "ceramic": "ceramic_white",
+    "painted": "painted_wood_white"
+   }
+  },
+  {
+   "name": "furn_f_L0_020",
+   "wenart_id": "f_L0_020",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "f_L0_020",
+   "room_id": "r_L0_wc",
+   "type": "washbasin",
+   "source": "from_documents",
+   "evidence": [
+    {
+     "file": "mobilya_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:154",
+     "block": "LAVABO"
+    }
+   ],
+   "pass_index": 54,
+   "assumed": {
+    "height": 0.85
+   },
+   "decor": [],
+   "center": [
+    8.175,
+    7.1,
+    0.425
+   ],
+   "size": [
+    0.6,
+    0.45,
+    0.85
+   ],
+   "rotation_deg": 270.0,
+   "front_deg": 180.0,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:washbasin",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     0.6,
+     0.45,
+     1.0
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type washbasin is parametric in the catalogue",
+    "cap": 1.15
+   },
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "bbox_m": [
+    0.6,
+    0.45,
+    1.0
+   ],
+   "fallback_reason": "fitting chose the parametric mesh",
+   "materials": [
+    "ceramic_white",
+    "steel_brushed"
+   ],
+   "material": "ceramic_white",
+   "textured": false,
+   "material_keys": {
+    "ceramic": "ceramic_white",
+    "steel": "steel_brushed"
+   }
+  },
+  {
+   "name": "furn_f_L0_022",
+   "wenart_id": "f_L0_022",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "f_L0_022",
+   "room_id": "r_L0_hol",
+   "type": "dresser",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Slim dresser against wall for modern minimal storage."
+    }
+   ],
+   "pass_index": 55,
+   "assumed": {},
+   "decor": [],
+   "center": [
+    5.596,
+    1.5,
+    0.4
+   ],
+   "size": [
+    1.0,
+    0.45,
+    0.8
+   ],
+   "rotation_deg": 90.0,
+   "front_deg": 0.0,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "GothicCommode_01",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.8324,
+     0.7749,
+     0.8036
+    ],
+    "bbox_m": [
+     1.0,
+     0.45,
+     0.974
+    ],
+    "aspect_error": 0.0715,
+    "gltf": "models/GothicCommode_01/GothicCommode_01_1k.gltf",
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0011,
+     -0.0013,
+     -0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "GothicCommode_01",
+      "aspect_error": 0.0715,
+      "scale": [
+       0.8324,
+       0.7749,
+       0.8036
+      ],
+      "non_uniform": 1.0741,
+      "mean_scale": 0.8036,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ]
+   },
+   "fit_scale": [
+    0.8324,
+    0.7749,
+    0.8036
+   ],
+   "method": "library",
+   "bbox_m": [
+    1.0,
+    0.45,
+    0.974
+   ],
+   "fallback_reason": null,
+   "materials": [
+    "GothicCommode_01.001"
+   ],
+   "material": "GothicCommode_01.001",
+   "textured": true,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     -0.0011,
+     -0.0013,
+     -0.0
+    ],
+    "origin_offset_applied": [
+     0.0011,
+     0.0012,
+     0.0
+    ],
+    "bbox_raw_m": [
+     1.2014,
+     0.5807,
+     1.212
+    ],
+    "bbox_m": [
+     1.0,
+     0.45,
+     0.974
+    ],
+    "fit_scale": [
+     0.8324,
+     0.7749,
+     0.8036
+    ]
+   },
+   "file": "/workspace/assets/models/GothicCommode_01/GothicCommode_01_1k.gltf",
+   "imported_objects": [
+    "GothicCommode_01",
+    "GothicCommode_01_door01",
+    "GothicCommode_01_door02",
+    "GothicCommode_01_door03"
+   ]
+  },
+  {
+   "name": "furn_f_L0_023",
+   "wenart_id": "f_L0_023",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "f_L0_023",
+   "room_id": "r_L0_hol",
+   "type": "chair",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Chair placed centrally for seating without blocking walkway."
+    }
+   ],
+   "pass_index": 56,
+   "assumed": {},
+   "decor": [],
+   "center": [
+    6.682,
+    3.634,
+    0.45
+   ],
+   "size": [
+    0.45,
+    0.45,
+    0.9
+   ],
+   "rotation_deg": 0.0,
+   "front_deg": 270.0,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "gallinera_chair",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.7748,
+     0.7452,
+     0.76
+    ],
+    "bbox_m": [
+     0.45,
+     0.45,
+     0.7856
+    ],
+    "aspect_error": 0.039,
+    "gltf": "models/gallinera_chair/gallinera_chair_1k.gltf",
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0003,
+     -0.0363,
+     -0.0002
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "painted_wooden_chair_02",
+      "aspect_error": 0.0349,
+      "scale": [
+       0.7038,
+       0.6797,
+       0.6917
+      ],
+      "non_uniform": 1.0355,
+      "mean_scale": 0.6917,
+      "accepted": false
+     },
+     {
+      "id": "gallinera_chair",
+      "aspect_error": 0.039,
+      "scale": [
+       0.7748,
+       0.7452,
+       0.76
+      ],
+      "non_uniform": 1.0398,
+      "mean_scale": 0.76,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ]
+   },
+   "fit_scale": [
+    0.7748,
+    0.7452,
+    0.76
+   ],
+   "method": "library",
+   "bbox_m": [
+    0.45,
+    0.45,
+    0.7856
+   ],
+   "fallback_reason": null,
+   "materials": [
+    "gallinera_chair.001"
+   ],
+   "material": "gallinera_chair.001",
+   "textured": true,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     -0.0003,
+     -0.0363,
+     -0.0002
+    ],
+    "origin_offset_applied": [
+     0.0003,
+     0.0363,
+     0.0002
+    ],
+    "bbox_raw_m": [
+     0.5808,
+     0.6039,
+     1.0337
+    ],
+    "bbox_m": [
+     0.45,
+     0.45,
+     0.7856
+    ],
+    "fit_scale": [
+     0.7748,
+     0.7452,
+     0.76
+    ]
+   },
+   "file": "/workspace/assets/models/gallinera_chair/gallinera_chair_1k.gltf",
+   "imported_objects": [
+    "gallinera_chair"
+   ]
+  },
+  {
+   "name": "furn_f_L0_024",
+   "wenart_id": "f_L0_024",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "f_L0_024",
+   "room_id": "r_L0_antre",
+   "type": "dresser",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Slim dresser against wall for minimal storage, charcoal finish matches style."
+    }
+   ],
+   "pass_index": 57,
+   "assumed": {},
+   "decor": [],
+   "center": [
+    4.171,
+    5.296,
+    0.4
+   ],
+   "size": [
+    1.0,
+    0.45,
+    0.8
+   ],
+   "rotation_deg": 180.0,
+   "front_deg": 90.0,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "GothicCommode_01",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.8324,
+     0.7749,
+     0.8036
+    ],
+    "bbox_m": [
+     1.0,
+     0.45,
+     0.974
+    ],
+    "aspect_error": 0.0715,
+    "gltf": "models/GothicCommode_01/GothicCommode_01_1k.gltf",
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0011,
+     -0.0013,
+     -0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "GothicCommode_01",
+      "aspect_error": 0.0715,
+      "scale": [
+       0.8324,
+       0.7749,
+       0.8036
+      ],
+      "non_uniform": 1.0741,
+      "mean_scale": 0.8036,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ]
+   },
+   "fit_scale": [
+    0.8324,
+    0.7749,
+    0.8036
+   ],
+   "method": "library",
+   "bbox_m": [
+    1.0,
+    0.45,
+    0.974
+   ],
+   "fallback_reason": null,
+   "materials": [
+    "GothicCommode_01.001"
+   ],
+   "material": "GothicCommode_01.001",
+   "textured": true,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     -0.0011,
+     -0.0013,
+     -0.0
+    ],
+    "origin_offset_applied": [
+     0.0011,
+     0.0012,
+     0.0
+    ],
+    "bbox_raw_m": [
+     1.2014,
+     0.5807,
+     1.212
+    ],
+    "bbox_m": [
+     1.0,
+     0.45,
+     0.974
+    ],
+    "fit_scale": [
+     0.8324,
+     0.7749,
+     0.8036
+    ]
+   },
+   "file": "/workspace/assets/models/GothicCommode_01/GothicCommode_01_1k.gltf",
+   "imported_objects": [
+    "GothicCommode_01",
+    "GothicCommode_01_door01",
+    "GothicCommode_01_door02",
+    "GothicCommode_01_door03"
+   ]
+  },
+  {
+   "name": "decor_f_L0_001_1",
+   "wenart_id": "f_L0_001",
+   "kind": "decor",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "f_L0_001",
+   "host_id": "f_L0_001",
+   "room_id": "r_L0_salon",
+   "type": "cushion",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "decor",
+     "method": "rule",
+     "confidence": 1.0,
+     "text": "cushion on sofa f_L0_001 (on sofa f_L0_001)"
+    }
+   ],
+   "pass_index": 35,
+   "assumed": {
+    "rest_height": 0.45
+   },
+   "center": [
+    1.95,
+    4.725,
+    0.51
+   ],
+   "size": [
+    0.45,
+    0.15,
+    0.12
+   ],
+   "rotation_deg": 0.0,
+   "asset": null,
+   "method": "parametric (fallback: no asset in the building JSON)",
+   "bbox_m": [
+    0.45,
+    0.15,
+    0.12
+   ],
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "materials": [
+    "fabric_linen"
+   ],
+   "material": "fabric_linen",
+   "textured": false,
+   "fallback_reason": "no asset in the building JSON"
+  },
+  {
+   "name": "decor_f_L0_001_2",
+   "wenart_id": "f_L0_001",
+   "kind": "decor",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "f_L0_001",
+   "host_id": "f_L0_001",
+   "room_id": "r_L0_salon",
+   "type": "cushion",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "decor",
+     "method": "rule",
+     "confidence": 1.0,
+     "text": "cushion on sofa f_L0_001 (on sofa f_L0_001)"
+    }
+   ],
+   "pass_index": 35,
+   "assumed": {
+    "rest_height": 0.45
+   },
+   "center": [
+    3.05,
+    4.725,
+    0.51
+   ],
+   "size": [
+    0.45,
+    0.15,
+    0.12
+   ],
+   "rotation_deg": 0.0,
+   "asset": null,
+   "method": "parametric (fallback: no asset in the building JSON)",
+   "bbox_m": [
+    0.45,
+    0.15,
+    0.12
+   ],
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "materials": [
+    "fabric_linen"
+   ],
+   "material": "fabric_linen",
+   "textured": false,
+   "fallback_reason": "no asset in the building JSON"
+  },
+  {
+   "name": "decor_f_L0_006_3",
+   "wenart_id": "f_L0_006",
+   "kind": "decor",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "f_L0_006",
+   "host_id": "f_L0_006",
+   "room_id": "r_L0_salon",
+   "type": "book_set",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "decor",
+     "method": "rule",
+     "confidence": 1.0,
+     "text": "book_set on bookshelf f_L0_006 (on bookshelf f_L0_006)"
+    }
+   ],
+   "pass_index": 40,
+   "assumed": {
+    "rest_height": 0.7
+   },
+   "center": [
+    4.7,
+    1.0,
+    0.8099999999999999
+   ],
+   "size": [
+    0.3,
+    0.22,
+    0.22
+   ],
+   "rotation_deg": 270.0,
+   "asset": null,
+   "method": "parametric (fallback: no asset in the building JSON)",
+   "bbox_m": [
+    0.296,
+    0.22,
+    0.22
+   ],
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "materials": [
+    "lacquer_dark",
+    "painted_wood_white",
+    "wood_oak_light",
+    "terracotta"
+   ],
+   "material": "lacquer_dark",
+   "textured": false,
+   "fallback_reason": "no asset in the building JSON"
+  },
+  {
+   "name": "decor_dec_L0_004",
+   "wenart_id": "dec_L0_004",
+   "kind": "decor",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "dec_L0_004",
+   "host_id": null,
+   "room_id": "r_L0_salon",
+   "type": "plant",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "decor",
+     "method": "rule",
+     "confidence": 1.0,
+     "text": "plant in r_L0_salon on the floor"
+    }
+   ],
+   "pass_index": 58,
+   "assumed": {
+    "rest_height": 0.0
+   },
+   "center": [
+    0.5,
+    0.5,
+    0.24795
+   ],
+   "size": [
+    0.4,
+    0.4,
+    0.4959
+   ],
+   "rotation_deg": 0.0,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "potted_plant_02",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.5705,
+     0.6085,
+     0.5895
+    ],
+    "bbox_m": [
+     0.4,
+     0.4,
+     0.4958
+    ],
+    "aspect_error": 0.0645,
+    "gltf": "models/potted_plant_02/potted_plant_02_1k.gltf",
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0461,
+     0.0916,
+     0.0001
+    ],
+    "front_axis_confidence": "low",
+    "target": "size"
+   },
+   "method": "library",
+   "bbox_m": [
+    0.4,
+    0.4,
+    0.4959
+   ],
+   "fit_scale": [
+    0.5705,
+    0.6085,
+    0.5895
+   ],
+   "materials": [
+    "potted_plant_02_pot.001",
+    "potted_plant_02_leaves.001"
+   ],
+   "material": "potted_plant_02_pot.001",
+   "textured": true,
+   "fallback_reason": null,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     -0.0461,
+     0.0916,
+     0.0001
+    ],
+    "origin_offset_applied": [
+     0.0461,
+     -0.0916,
+     -0.0001
+    ],
+    "bbox_raw_m": [
+     0.7012,
+     0.6574,
+     0.8412
+    ],
+    "bbox_m": [
+     0.4,
+     0.4,
+     0.4959
+    ],
+    "fit_scale": [
+     0.5705,
+     0.6085,
+     0.5895
+    ]
+   },
+   "file": "/workspace/assets/models/potted_plant_02/potted_plant_02_1k.gltf"
+  },
+  {
+   "name": "decor_f_L0_014_5",
+   "wenart_id": "f_L0_014",
+   "kind": "decor",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "f_L0_014",
+   "host_id": "f_L0_014",
+   "room_id": "r_L0_yatak_odasi",
+   "type": "cushion",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "decor",
+     "method": "rule",
+     "confidence": 1.0,
+     "text": "cushion on bed_double f_L0_014 (on bed_double f_L0_014)"
+    }
+   ],
+   "pass_index": 48,
+   "assumed": {
+    "rest_height": 0.55
+   },
+   "center": [
+    8.1,
+    5.15,
+    0.6100000000000001
+   ],
+   "size": [
+    0.5,
+    0.3,
+    0.12
+   ],
+   "rotation_deg": 0.0,
+   "asset": null,
+   "method": "parametric (fallback: no asset in the building JSON)",
+   "bbox_m": [
+    0.5,
+    0.3,
+    0.12
+   ],
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "materials": [
+    "fabric_linen"
+   ],
+   "material": "fabric_linen",
+   "textured": false,
+   "fallback_reason": "no asset in the building JSON"
+  },
+  {
+   "name": "decor_f_L0_014_6",
+   "wenart_id": "f_L0_014",
+   "kind": "decor",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "f_L0_014",
+   "host_id": "f_L0_014",
+   "room_id": "r_L0_yatak_odasi",
+   "type": "cushion",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "decor",
+     "method": "rule",
+     "confidence": 1.0,
+     "text": "cushion on bed_double f_L0_014 (on bed_double f_L0_014)"
+    }
+   ],
+   "pass_index": 48,
+   "assumed": {
+    "rest_height": 0.55
+   },
+   "center": [
+    8.9,
+    5.15,
+    0.6100000000000001
+   ],
+   "size": [
+    0.5,
+    0.3,
+    0.12
+   ],
+   "rotation_deg": 0.0,
+   "asset": null,
+   "method": "parametric (fallback: no asset in the building JSON)",
+   "bbox_m": [
+    0.5,
+    0.3,
+    0.12
+   ],
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "materials": [
+    "fabric_linen"
+   ],
+   "material": "fabric_linen",
+   "textured": false,
+   "fallback_reason": "no asset in the building JSON"
   },
   {
    "name": "cam_r_L0_salon_1",
@@ -5085,7 +9022,7 @@
    ],
    "material": "painted_wood_white",
    "textured": false,
-   "pass_index": 43,
+   "pass_index": 59,
    "assumed": {
     "height": 2.1
    },
@@ -5111,7 +9048,7 @@
    ],
    "material": "painted_wood_white",
    "textured": false,
-   "pass_index": 43,
+   "pass_index": 59,
    "assumed": {
     "height": 2.1
    },
@@ -5166,7 +9103,7 @@
    ],
    "material": "painted_wood_white",
    "textured": false,
-   "pass_index": 44,
+   "pass_index": 60,
    "assumed": {
     "height": 2.1
    },
@@ -5192,7 +9129,7 @@
    ],
    "material": "painted_wood_white",
    "textured": false,
-   "pass_index": 44,
+   "pass_index": 60,
    "assumed": {
     "height": 2.1
    },
@@ -5247,7 +9184,7 @@
    ],
    "material": "painted_wood_white",
    "textured": false,
-   "pass_index": 45,
+   "pass_index": 61,
    "assumed": {
     "height": 2.1
    },
@@ -5273,7 +9210,7 @@
    ],
    "material": "painted_wood_white",
    "textured": false,
-   "pass_index": 45,
+   "pass_index": 61,
    "assumed": {
     "height": 2.1
    },
@@ -5328,7 +9265,7 @@
    ],
    "material": "painted_wood_white",
    "textured": false,
-   "pass_index": 46,
+   "pass_index": 62,
    "assumed": {
     "height": 2.1
    },
@@ -5354,7 +9291,7 @@
    ],
    "material": "painted_wood_white",
    "textured": false,
-   "pass_index": 46,
+   "pass_index": 62,
    "assumed": {
     "height": 2.1
    },
@@ -5409,7 +9346,7 @@
    ],
    "material": "painted_wood_white",
    "textured": false,
-   "pass_index": 47,
+   "pass_index": 63,
    "assumed": {
     "height": 2.1
    },
@@ -5435,7 +9372,7 @@
    ],
    "material": "painted_wood_white",
    "textured": false,
-   "pass_index": 47,
+   "pass_index": 63,
    "assumed": {
     "height": 2.1
    },
@@ -5461,7 +9398,7 @@
    ],
    "material": "painted_metal_white",
    "textured": false,
-   "pass_index": 48,
+   "pass_index": 64,
    "assumed": {
     "sill_height": 0.9,
     "height": 1.4
@@ -5488,7 +9425,7 @@
    ],
    "material": "glass",
    "textured": false,
-   "pass_index": 48,
+   "pass_index": 64,
    "assumed": {
     "sill_height": 0.9,
     "height": 1.4
@@ -5515,7 +9452,7 @@
    ],
    "material": "painted_metal_white",
    "textured": false,
-   "pass_index": 49,
+   "pass_index": 65,
    "assumed": {
     "sill_height": 0.9,
     "height": 1.4
@@ -5542,7 +9479,7 @@
    ],
    "material": "glass",
    "textured": false,
-   "pass_index": 49,
+   "pass_index": 65,
    "assumed": {
     "sill_height": 0.9,
     "height": 1.4
@@ -5569,7 +9506,7 @@
    ],
    "material": "painted_metal_white",
    "textured": false,
-   "pass_index": 50,
+   "pass_index": 66,
    "assumed": {
     "sill_height": 0.9,
     "height": 1.2
@@ -5596,7 +9533,7 @@
    ],
    "material": "glass",
    "textured": false,
-   "pass_index": 50,
+   "pass_index": 66,
    "assumed": {
     "sill_height": 0.9,
     "height": 1.2
@@ -5623,7 +9560,7 @@
    ],
    "material": "painted_metal_white",
    "textured": false,
-   "pass_index": 51,
+   "pass_index": 67,
    "assumed": {
     "sill_height": 0.9,
     "height": 1.2
@@ -5650,7 +9587,7 @@
    ],
    "material": "glass",
    "textured": false,
-   "pass_index": 51,
+   "pass_index": 67,
    "assumed": {
     "sill_height": 0.9,
     "height": 1.2
@@ -5677,7 +9614,7 @@
    ],
    "material": "painted_metal_white",
    "textured": false,
-   "pass_index": 52,
+   "pass_index": 68,
    "assumed": {
     "sill_height": 0.9,
     "height": 1.2
@@ -5704,7 +9641,7 @@
    ],
    "material": "glass",
    "textured": false,
-   "pass_index": 52,
+   "pass_index": 68,
    "assumed": {
     "sill_height": 0.9,
     "height": 1.2
@@ -5731,7 +9668,7 @@
    ],
    "material": "painted_metal_white",
    "textured": false,
-   "pass_index": 53,
+   "pass_index": 69,
    "assumed": {
     "sill_height": 0.9,
     "height": 1.2
@@ -5758,7 +9695,7 @@
    ],
    "material": "glass",
    "textured": false,
-   "pass_index": 53,
+   "pass_index": 69,
    "assumed": {
     "sill_height": 0.9,
     "height": 1.2
@@ -5785,7 +9722,7 @@
    ],
    "material": "painted_metal_white",
    "textured": false,
-   "pass_index": 54,
+   "pass_index": 70,
    "assumed": {
     "sill_height": 0.9,
     "height": 1.4
@@ -5812,7 +9749,7 @@
    ],
    "material": "glass",
    "textured": false,
-   "pass_index": 54,
+   "pass_index": 70,
    "assumed": {
     "sill_height": 0.9,
     "height": 1.4
@@ -6180,6 +10117,2777 @@
    "assumed": {},
    "room_type": "balcony",
    "wet": false
+  },
+  {
+   "name": "furn_f_L1_001",
+   "wenart_id": "f_L1_001",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L1",
+   "element_id": "f_L1_001",
+   "room_id": "r_L1_ebeveyn_yatak_odasi",
+   "type": "bed_double",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Main bed placed against wall with headboard clear of door."
+    }
+   ],
+   "pass_index": 71,
+   "assumed": {},
+   "decor": [
+    {
+     "name": "decor_f_L1_001_1",
+     "type": "cushion",
+     "method": "parametric (fallback: no asset in the building JSON)"
+    },
+    {
+     "name": "decor_f_L1_001_2",
+     "type": "cushion",
+     "method": "parametric (fallback: no asset in the building JSON)"
+    }
+   ],
+   "center": [
+    1.171,
+    3.129,
+    3.25
+   ],
+   "size": [
+    1.8,
+    2.0,
+    0.5
+   ],
+   "rotation_deg": 0.0,
+   "front_deg": 270.0,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:bed_double",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     1.8,
+     2.0,
+     1.0
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [
+     {
+      "id": "GothicBed_01",
+      "aspect_error": 0.2063,
+      "scale": [
+       1.205,
+       0.9804,
+       1.0927
+      ],
+      "non_uniform": 1.2291,
+      "mean_scale": 1.0927,
+      "accepted": false
+     }
+    ],
+    "fallback_reason": "no bed_double candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: GothicBed_01 at 22.9 % non-uniform, mean scale 1.0927)",
+    "cap": 1.15
+   },
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "bbox_m": [
+    1.8,
+    2.0,
+    1.0
+   ],
+   "fallback_reason": "fitting chose the parametric mesh",
+   "materials": [
+    "wood_oak_light",
+    "fabric_white"
+   ],
+   "material": "wood_oak_light",
+   "textured": false,
+   "material_keys": {
+    "wood": "wood_oak_light",
+    "bedding": "fabric_white"
+   }
+  },
+  {
+   "name": "furn_f_L1_002",
+   "wenart_id": "f_L1_002",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L1",
+   "element_id": "f_L1_002",
+   "room_id": "r_L1_ebeveyn_yatak_odasi",
+   "type": "nightstand",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Nightstand beside bed for easy access."
+    }
+   ],
+   "pass_index": 72,
+   "assumed": {},
+   "decor": [],
+   "center": [
+    0.471,
+    1.1,
+    3.25
+   ],
+   "size": [
+    0.5,
+    0.4,
+    0.5
+   ],
+   "rotation_deg": 90.0,
+   "front_deg": 0.0,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "side_table_01",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.9091,
+     0.8889,
+     0.899
+    ],
+    "bbox_m": [
+     0.5,
+     0.4,
+     0.4951
+    ],
+    "aspect_error": 0.0225,
+    "gltf": "models/side_table_01/side_table_01_1k.gltf",
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     -0.0024
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "low",
+    "candidates": [
+     {
+      "id": "side_table_01",
+      "aspect_error": 0.0225,
+      "scale": [
+       0.9091,
+       0.8889,
+       0.899
+      ],
+      "non_uniform": 1.0227,
+      "mean_scale": 0.899,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ]
+   },
+   "fit_scale": [
+    0.9091,
+    0.8889,
+    0.899
+   ],
+   "method": "library",
+   "bbox_m": [
+    0.5,
+    0.4,
+    0.495
+   ],
+   "fallback_reason": null,
+   "materials": [
+    "side_table_01.002"
+   ],
+   "material": "side_table_01.002",
+   "textured": true,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0,
+     0.0,
+     -0.0024
+    ],
+    "origin_offset_applied": [
+     -0.0,
+     -0.0,
+     0.0024
+    ],
+    "bbox_raw_m": [
+     0.55,
+     0.45,
+     0.5507
+    ],
+    "bbox_m": [
+     0.5,
+     0.4,
+     0.495
+    ],
+    "fit_scale": [
+     0.9091,
+     0.8889,
+     0.899
+    ]
+   },
+   "file": "/workspace/assets/models/side_table_01/side_table_01_1k.gltf",
+   "imported_objects": [
+    "side_table_01"
+   ]
+  },
+  {
+   "name": "furn_f_L1_003",
+   "wenart_id": "f_L1_003",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L1",
+   "element_id": "f_L1_003",
+   "room_id": "r_L1_ebeveyn_yatak_odasi",
+   "type": "nightstand",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Second nightstand for symmetry and balance."
+    }
+   ],
+   "pass_index": 73,
+   "assumed": {},
+   "decor": [],
+   "center": [
+    3.55,
+    3.929,
+    3.25
+   ],
+   "size": [
+    0.5,
+    0.4,
+    0.5
+   ],
+   "rotation_deg": 0.0,
+   "front_deg": 270.0,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "side_table_01",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.9091,
+     0.8889,
+     0.899
+    ],
+    "bbox_m": [
+     0.5,
+     0.4,
+     0.4951
+    ],
+    "aspect_error": 0.0225,
+    "gltf": "models/side_table_01/side_table_01_1k.gltf",
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     -0.0024
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "low",
+    "candidates": [
+     {
+      "id": "side_table_01",
+      "aspect_error": 0.0225,
+      "scale": [
+       0.9091,
+       0.8889,
+       0.899
+      ],
+      "non_uniform": 1.0227,
+      "mean_scale": 0.899,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ]
+   },
+   "fit_scale": [
+    0.9091,
+    0.8889,
+    0.899
+   ],
+   "method": "library",
+   "bbox_m": [
+    0.5,
+    0.4,
+    0.495
+   ],
+   "fallback_reason": null,
+   "materials": [
+    "side_table_01.002"
+   ],
+   "material": "side_table_01.002",
+   "textured": true,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0,
+     0.0,
+     -0.0024
+    ],
+    "origin_offset_applied": [
+     -0.0,
+     -0.0,
+     0.0024
+    ],
+    "bbox_raw_m": [
+     0.55,
+     0.45,
+     0.5507
+    ],
+    "bbox_m": [
+     0.5,
+     0.4,
+     0.495
+    ],
+    "fit_scale": [
+     0.9091,
+     0.8889,
+     0.899
+    ]
+   },
+   "file": "/workspace/assets/models/side_table_01/side_table_01_1k.gltf",
+   "imported_objects": [
+    "side_table_01"
+   ]
+  },
+  {
+   "name": "furn_f_L1_004",
+   "wenart_id": "f_L1_004",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L1",
+   "element_id": "f_L1_004",
+   "room_id": "r_L1_ebeveyn_yatak_odasi",
+   "type": "chair",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Chair placed beside desk for work or reading."
+    }
+   ],
+   "pass_index": 74,
+   "assumed": {},
+   "decor": [],
+   "center": [
+    1.55,
+    0.75,
+    3.45
+   ],
+   "size": [
+    0.5,
+    0.5,
+    0.9
+   ],
+   "rotation_deg": 0.0,
+   "front_deg": 270.0,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "painted_wooden_chair_02",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.782,
+     0.7552,
+     0.7686
+    ],
+    "bbox_m": [
+     0.5,
+     0.5,
+     0.9714
+    ],
+    "aspect_error": 0.0349,
+    "gltf": "models/painted_wooden_chair_02/painted_wooden_chair_02_1k.gltf",
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0152,
+     0.0323,
+     -0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "painted_wooden_chair_02",
+      "aspect_error": 0.0349,
+      "scale": [
+       0.782,
+       0.7552,
+       0.7686
+      ],
+      "non_uniform": 1.0355,
+      "mean_scale": 0.7686,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ]
+   },
+   "fit_scale": [
+    0.782,
+    0.7552,
+    0.7686
+   ],
+   "method": "library",
+   "bbox_m": [
+    0.5,
+    0.5,
+    0.9713
+   ],
+   "fallback_reason": null,
+   "materials": [
+    "painted_wooden_chair_02"
+   ],
+   "material": "painted_wooden_chair_02",
+   "textured": true,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     -0.0152,
+     0.0323,
+     -0.0
+    ],
+    "origin_offset_applied": [
+     0.0152,
+     -0.0322,
+     0.0
+    ],
+    "bbox_raw_m": [
+     0.6394,
+     0.6621,
+     1.2638
+    ],
+    "bbox_m": [
+     0.5,
+     0.5,
+     0.9713
+    ],
+    "fit_scale": [
+     0.782,
+     0.7552,
+     0.7686
+    ]
+   },
+   "file": "/workspace/assets/models/painted_wooden_chair_02/painted_wooden_chair_02_1k.gltf",
+   "imported_objects": [
+    "painted_wooden_chair_02"
+   ]
+  },
+  {
+   "name": "furn_f_L1_005",
+   "wenart_id": "f_L1_005",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L1",
+   "element_id": "f_L1_005",
+   "room_id": "r_L1_hol",
+   "type": "dresser",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Slim dresser against wall for minimal storage with charcoal and brass accents."
+    }
+   ],
+   "pass_index": 75,
+   "assumed": {},
+   "decor": [],
+   "center": [
+    4.596,
+    1.0,
+    3.4
+   ],
+   "size": [
+    1.0,
+    0.45,
+    0.8
+   ],
+   "rotation_deg": 90.0,
+   "front_deg": 0.0,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "GothicCommode_01",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.8324,
+     0.7749,
+     0.8036
+    ],
+    "bbox_m": [
+     1.0,
+     0.45,
+     0.974
+    ],
+    "aspect_error": 0.0715,
+    "gltf": "models/GothicCommode_01/GothicCommode_01_1k.gltf",
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0011,
+     -0.0013,
+     -0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "GothicCommode_01",
+      "aspect_error": 0.0715,
+      "scale": [
+       0.8324,
+       0.7749,
+       0.8036
+      ],
+      "non_uniform": 1.0741,
+      "mean_scale": 0.8036,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ]
+   },
+   "fit_scale": [
+    0.8324,
+    0.7749,
+    0.8036
+   ],
+   "method": "library",
+   "bbox_m": [
+    1.0,
+    0.45,
+    0.974
+   ],
+   "fallback_reason": null,
+   "materials": [
+    "GothicCommode_01.002"
+   ],
+   "material": "GothicCommode_01.002",
+   "textured": true,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     -0.0011,
+     -0.0013,
+     -0.0
+    ],
+    "origin_offset_applied": [
+     0.0011,
+     0.0012,
+     0.0
+    ],
+    "bbox_raw_m": [
+     1.2014,
+     0.5807,
+     1.212
+    ],
+    "bbox_m": [
+     1.0,
+     0.45,
+     0.974
+    ],
+    "fit_scale": [
+     0.8324,
+     0.7749,
+     0.8036
+    ]
+   },
+   "file": "/workspace/assets/models/GothicCommode_01/GothicCommode_01_1k.gltf",
+   "imported_objects": [
+    "GothicCommode_01",
+    "GothicCommode_01_door01",
+    "GothicCommode_01_door02",
+    "GothicCommode_01_door03"
+   ]
+  },
+  {
+   "name": "furn_f_L1_006",
+   "wenart_id": "f_L1_006",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L1",
+   "element_id": "f_L1_006",
+   "room_id": "r_L1_hol",
+   "type": "chair",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Chair placed centrally for seating without blocking walkways."
+    }
+   ],
+   "pass_index": 76,
+   "assumed": {},
+   "decor": [],
+   "center": [
+    5.684,
+    3.299,
+    3.45
+   ],
+   "size": [
+    0.45,
+    0.45,
+    0.9
+   ],
+   "rotation_deg": 0.0,
+   "front_deg": 270.0,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "gallinera_chair",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.7748,
+     0.7452,
+     0.76
+    ],
+    "bbox_m": [
+     0.45,
+     0.45,
+     0.7856
+    ],
+    "aspect_error": 0.039,
+    "gltf": "models/gallinera_chair/gallinera_chair_1k.gltf",
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0003,
+     -0.0363,
+     -0.0002
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "painted_wooden_chair_02",
+      "aspect_error": 0.0349,
+      "scale": [
+       0.7038,
+       0.6797,
+       0.6917
+      ],
+      "non_uniform": 1.0355,
+      "mean_scale": 0.6917,
+      "accepted": false
+     },
+     {
+      "id": "gallinera_chair",
+      "aspect_error": 0.039,
+      "scale": [
+       0.7748,
+       0.7452,
+       0.76
+      ],
+      "non_uniform": 1.0398,
+      "mean_scale": 0.76,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ]
+   },
+   "fit_scale": [
+    0.7748,
+    0.7452,
+    0.76
+   ],
+   "method": "library",
+   "bbox_m": [
+    0.45,
+    0.45,
+    0.7856
+   ],
+   "fallback_reason": null,
+   "materials": [
+    "gallinera_chair.002"
+   ],
+   "material": "gallinera_chair.002",
+   "textured": true,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     -0.0003,
+     -0.0363,
+     -0.0002
+    ],
+    "origin_offset_applied": [
+     0.0003,
+     0.0363,
+     0.0002
+    ],
+    "bbox_raw_m": [
+     0.5808,
+     0.6039,
+     1.0337
+    ],
+    "bbox_m": [
+     0.45,
+     0.45,
+     0.7856
+    ],
+    "fit_scale": [
+     0.7748,
+     0.7452,
+     0.76
+    ]
+   },
+   "file": "/workspace/assets/models/gallinera_chair/gallinera_chair_1k.gltf",
+   "imported_objects": [
+    "gallinera_chair"
+   ]
+  },
+  {
+   "name": "furn_f_L1_007",
+   "wenart_id": "f_L1_007",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L1",
+   "element_id": "f_L1_007",
+   "room_id": "r_L1_yatak_odasi",
+   "type": "bed_double",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Main bed placed against wall with headboard clear of door."
+    }
+   ],
+   "pass_index": 77,
+   "assumed": {},
+   "decor": [
+    {
+     "name": "decor_f_L1_007_4",
+     "type": "cushion",
+     "method": "parametric (fallback: no asset in the building JSON)"
+    },
+    {
+     "name": "decor_f_L1_007_5",
+     "type": "cushion",
+     "method": "parametric (fallback: no asset in the building JSON)"
+    }
+   ],
+   "center": [
+    7.871,
+    1.271,
+    3.25
+   ],
+   "size": [
+    1.8,
+    2.0,
+    0.5
+   ],
+   "rotation_deg": 180.0,
+   "front_deg": 90.0,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:bed_double",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     1.8,
+     2.0,
+     1.0
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [
+     {
+      "id": "GothicBed_01",
+      "aspect_error": 0.2063,
+      "scale": [
+       1.205,
+       0.9804,
+       1.0927
+      ],
+      "non_uniform": 1.2291,
+      "mean_scale": 1.0927,
+      "accepted": false
+     }
+    ],
+    "fallback_reason": "no bed_double candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: GothicBed_01 at 22.9 % non-uniform, mean scale 1.0927)",
+    "cap": 1.15
+   },
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "bbox_m": [
+    1.8,
+    2.0,
+    1.0
+   ],
+   "fallback_reason": "fitting chose the parametric mesh",
+   "materials": [
+    "wood_oak_light",
+    "fabric_white"
+   ],
+   "material": "wood_oak_light",
+   "textured": false,
+   "material_keys": {
+    "wood": "wood_oak_light",
+    "bedding": "fabric_white"
+   }
+  },
+  {
+   "name": "furn_f_L1_008",
+   "wenart_id": "f_L1_008",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L1",
+   "element_id": "f_L1_008",
+   "room_id": "r_L1_yatak_odasi",
+   "type": "nightstand",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Nightstand on left side of bed for easy access."
+    }
+   ],
+   "pass_index": 78,
+   "assumed": {},
+   "decor": [],
+   "center": [
+    6.671,
+    0.471,
+    3.25
+   ],
+   "size": [
+    0.4,
+    0.4,
+    0.5
+   ],
+   "rotation_deg": 180.0,
+   "front_deg": 90.0,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "painted_wooden_nightstand",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.7927,
+     0.7863,
+     0.7895
+    ],
+    "bbox_m": [
+     0.4,
+     0.4,
+     0.4859
+    ],
+    "aspect_error": 0.0081,
+    "gltf": "models/painted_wooden_nightstand/painted_wooden_nightstand_1k.gltf",
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0011,
+     -0.0052,
+     -0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "painted_wooden_nightstand",
+      "aspect_error": 0.0081,
+      "scale": [
+       0.7927,
+       0.7863,
+       0.7895
+      ],
+      "non_uniform": 1.0081,
+      "mean_scale": 0.7895,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ]
+   },
+   "fit_scale": [
+    0.7927,
+    0.7863,
+    0.7895
+   ],
+   "method": "library",
+   "bbox_m": [
+    0.4,
+    0.4,
+    0.486
+   ],
+   "fallback_reason": null,
+   "materials": [
+    "painted_wooden_nightstand"
+   ],
+   "material": "painted_wooden_nightstand",
+   "textured": true,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     -0.0011,
+     -0.0052,
+     -0.0
+    ],
+    "origin_offset_applied": [
+     0.0011,
+     0.0051,
+     0.0
+    ],
+    "bbox_raw_m": [
+     0.5046,
+     0.5087,
+     0.6155
+    ],
+    "bbox_m": [
+     0.4,
+     0.4,
+     0.486
+    ],
+    "fit_scale": [
+     0.7927,
+     0.7863,
+     0.7895
+    ]
+   },
+   "file": "/workspace/assets/models/painted_wooden_nightstand/painted_wooden_nightstand_1k.gltf",
+   "imported_objects": [
+    "painted_wooden_nightstand",
+    "painted_wooden_nightstand_drawer"
+   ]
+  },
+  {
+   "name": "furn_f_L1_009",
+   "wenart_id": "f_L1_009",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L1",
+   "element_id": "f_L1_009",
+   "room_id": "r_L1_yatak_odasi",
+   "type": "nightstand",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Nightstand on right side of bed for symmetry."
+    }
+   ],
+   "pass_index": 79,
+   "assumed": {},
+   "decor": [],
+   "center": [
+    6.271,
+    0.8,
+    3.25
+   ],
+   "size": [
+    0.5,
+    0.4,
+    0.5
+   ],
+   "rotation_deg": 90.0,
+   "front_deg": 0.0,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "side_table_01",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.9091,
+     0.8889,
+     0.899
+    ],
+    "bbox_m": [
+     0.5,
+     0.4,
+     0.4951
+    ],
+    "aspect_error": 0.0225,
+    "gltf": "models/side_table_01/side_table_01_1k.gltf",
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     -0.0024
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "low",
+    "candidates": [
+     {
+      "id": "side_table_01",
+      "aspect_error": 0.0225,
+      "scale": [
+       0.9091,
+       0.8889,
+       0.899
+      ],
+      "non_uniform": 1.0227,
+      "mean_scale": 0.899,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ]
+   },
+   "fit_scale": [
+    0.9091,
+    0.8889,
+    0.899
+   ],
+   "method": "library",
+   "bbox_m": [
+    0.5,
+    0.4,
+    0.495
+   ],
+   "fallback_reason": null,
+   "materials": [
+    "side_table_01.002"
+   ],
+   "material": "side_table_01.002",
+   "textured": true,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0,
+     0.0,
+     -0.0024
+    ],
+    "origin_offset_applied": [
+     -0.0,
+     -0.0,
+     0.0024
+    ],
+    "bbox_raw_m": [
+     0.55,
+     0.45,
+     0.5507
+    ],
+    "bbox_m": [
+     0.5,
+     0.4,
+     0.495
+    ],
+    "fit_scale": [
+     0.9091,
+     0.8889,
+     0.899
+    ]
+   },
+   "file": "/workspace/assets/models/side_table_01/side_table_01_1k.gltf",
+   "imported_objects": [
+    "side_table_01"
+   ]
+  },
+  {
+   "name": "furn_f_L1_010",
+   "wenart_id": "f_L1_010",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L1",
+   "element_id": "f_L1_010",
+   "room_id": "r_L1_yatak_odasi",
+   "type": "wardrobe",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Wardrobe against wall to maximize storage without blocking walkway."
+    }
+   ],
+   "pass_index": 80,
+   "assumed": {},
+   "decor": [],
+   "center": [
+    6.971,
+    3.829,
+    4.05
+   ],
+   "size": [
+    1.8,
+    0.6,
+    2.1
+   ],
+   "rotation_deg": 0.0,
+   "front_deg": 270.0,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:wardrobe",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     1.8,
+     0.6,
+     2.1
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type wardrobe is parametric in the catalogue",
+    "cap": 1.15
+   },
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "bbox_m": [
+    1.8,
+    0.608,
+    2.1
+   ],
+   "fallback_reason": "fitting chose the parametric mesh",
+   "materials": [
+    "wood_oak_light",
+    "painted_wood_white",
+    "steel_brushed"
+   ],
+   "material": "wood_oak_light",
+   "textured": false,
+   "material_keys": {
+    "wood": "wood_oak_light",
+    "painted": "painted_wood_white",
+    "steel": "steel_brushed"
+   }
+  },
+  {
+   "name": "furn_f_L1_011",
+   "wenart_id": "f_L1_011",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L1",
+   "element_id": "f_L1_011",
+   "room_id": "r_L1_cocuk_odasi",
+   "type": "bed_single",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Single bed placed against the wall for minimalistic modern style."
+    }
+   ],
+   "pass_index": 81,
+   "assumed": {},
+   "decor": [
+    {
+     "name": "decor_f_L1_011_7",
+     "type": "cushion",
+     "method": "parametric (fallback: no asset in the building JSON)"
+    }
+   ],
+   "center": [
+    1.0,
+    6.5,
+    3.25
+   ],
+   "size": [
+    1.2,
+    2.0,
+    0.5
+   ],
+   "rotation_deg": 0.0,
+   "front_deg": 270.0,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:bed_single",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     1.2,
+     2.0,
+     1.0
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [
+     {
+      "id": "old_bed_frame",
+      "aspect_error": 0.2833,
+      "scale": [
+       1.3264,
+       0.9992,
+       1.1628
+      ],
+      "non_uniform": 1.3275,
+      "mean_scale": 1.1628,
+      "accepted": false
+     }
+    ],
+    "fallback_reason": "no bed_single candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: old_bed_frame at 32.7 % non-uniform, mean scale 1.1628)",
+    "cap": 1.15
+   },
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "bbox_m": [
+    1.2,
+    2.0,
+    1.0
+   ],
+   "fallback_reason": "fitting chose the parametric mesh",
+   "materials": [
+    "wood_oak_light",
+    "fabric_white"
+   ],
+   "material": "wood_oak_light",
+   "textured": false,
+   "material_keys": {
+    "wood": "wood_oak_light",
+    "bedding": "fabric_white"
+   }
+  },
+  {
+   "name": "furn_f_L1_012",
+   "wenart_id": "f_L1_012",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L1",
+   "element_id": "f_L1_012",
+   "room_id": "r_L1_cocuk_odasi",
+   "type": "nightstand",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Nightstand placed beside the bed for convenience."
+    }
+   ],
+   "pass_index": 82,
+   "assumed": {},
+   "decor": [],
+   "center": [
+    0.471,
+    4.6,
+    3.25
+   ],
+   "size": [
+    0.5,
+    0.4,
+    0.5
+   ],
+   "rotation_deg": 90.0,
+   "front_deg": 0.0,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "side_table_01",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.9091,
+     0.8889,
+     0.899
+    ],
+    "bbox_m": [
+     0.5,
+     0.4,
+     0.4951
+    ],
+    "aspect_error": 0.0225,
+    "gltf": "models/side_table_01/side_table_01_1k.gltf",
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     -0.0024
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "low",
+    "candidates": [
+     {
+      "id": "side_table_01",
+      "aspect_error": 0.0225,
+      "scale": [
+       0.9091,
+       0.8889,
+       0.899
+      ],
+      "non_uniform": 1.0227,
+      "mean_scale": 0.899,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ]
+   },
+   "fit_scale": [
+    0.9091,
+    0.8889,
+    0.899
+   ],
+   "method": "library",
+   "bbox_m": [
+    0.5,
+    0.4,
+    0.495
+   ],
+   "fallback_reason": null,
+   "materials": [
+    "side_table_01.002"
+   ],
+   "material": "side_table_01.002",
+   "textured": true,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0,
+     0.0,
+     -0.0024
+    ],
+    "origin_offset_applied": [
+     -0.0,
+     -0.0,
+     0.0024
+    ],
+    "bbox_raw_m": [
+     0.55,
+     0.45,
+     0.5507
+    ],
+    "bbox_m": [
+     0.5,
+     0.4,
+     0.495
+    ],
+    "fit_scale": [
+     0.9091,
+     0.8889,
+     0.899
+    ]
+   },
+   "file": "/workspace/assets/models/side_table_01/side_table_01_1k.gltf",
+   "imported_objects": [
+    "side_table_01"
+   ]
+  },
+  {
+   "name": "furn_f_L1_013",
+   "wenart_id": "f_L1_013",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L1",
+   "element_id": "f_L1_013",
+   "room_id": "r_L1_cocuk_odasi",
+   "type": "wardrobe",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Wardrobe against the wall to maximize storage without clutter."
+    }
+   ],
+   "pass_index": 83,
+   "assumed": {},
+   "decor": [],
+   "center": [
+    3.5,
+    7.229,
+    4.05
+   ],
+   "size": [
+    1.2,
+    0.6,
+    2.1
+   ],
+   "rotation_deg": 0.0,
+   "front_deg": 270.0,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:wardrobe",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     1.2,
+     0.6,
+     2.1
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type wardrobe is parametric in the catalogue",
+    "cap": 1.15
+   },
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "bbox_m": [
+    1.2,
+    0.608,
+    2.1
+   ],
+   "fallback_reason": "fitting chose the parametric mesh",
+   "materials": [
+    "wood_oak_light",
+    "painted_wood_white",
+    "steel_brushed"
+   ],
+   "material": "wood_oak_light",
+   "textured": false,
+   "material_keys": {
+    "wood": "wood_oak_light",
+    "painted": "painted_wood_white",
+    "steel": "steel_brushed"
+   }
+  },
+  {
+   "name": "furn_f_L1_014",
+   "wenart_id": "f_L1_014",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L1",
+   "element_id": "f_L1_014",
+   "room_id": "r_L1_cocuk_odasi",
+   "type": "desk",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Desk placed against the wall for study or work area."
+    }
+   ],
+   "pass_index": 84,
+   "assumed": {},
+   "decor": [
+    {
+     "name": "decor_f_L1_014_8",
+     "type": "book_set",
+     "method": "parametric (fallback: no asset in the building JSON)"
+    }
+   ],
+   "center": [
+    2.3,
+    4.621,
+    3.375
+   ],
+   "size": [
+    1.4,
+    0.7,
+    0.75
+   ],
+   "rotation_deg": 180.0,
+   "front_deg": 90.0,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:desk",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     1.4,
+     0.7,
+     0.75
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [
+     {
+      "id": "metal_office_desk",
+      "aspect_error": 0.0542,
+      "scale": [
+       0.7,
+       0.739,
+       0.7195
+      ],
+      "non_uniform": 1.0557,
+      "mean_scale": 0.7195,
+      "accepted": false
+     },
+     {
+      "id": "WoodenTable_01",
+      "aspect_error": 0.3142,
+      "scale": [
+       0.778,
+       1.0651,
+       0.9215
+      ],
+      "non_uniform": 1.3691,
+      "mean_scale": 0.9215,
+      "accepted": false
+     },
+     {
+      "id": "SchoolDesk_01",
+      "aspect_error": 0.428,
+      "scale": [
+       1.9668,
+       1.2821,
+       1.6244
+      ],
+      "non_uniform": 1.5341,
+      "mean_scale": 1.6244,
+      "accepted": false
+     }
+    ],
+    "fallback_reason": "no desk candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: metal_office_desk at 5.6 % non-uniform, mean scale 0.7195)",
+    "cap": 1.15
+   },
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "bbox_m": [
+    1.4,
+    0.7,
+    0.75
+   ],
+   "fallback_reason": "fitting chose the parametric mesh",
+   "materials": [
+    "wood_oak_light",
+    "painted_wood_white",
+    "steel_brushed"
+   ],
+   "material": "wood_oak_light",
+   "textured": false,
+   "material_keys": {
+    "wood": "wood_oak_light",
+    "painted": "painted_wood_white",
+    "steel": "steel_brushed"
+   }
+  },
+  {
+   "name": "furn_f_L1_015",
+   "wenart_id": "f_L1_015",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L1",
+   "element_id": "f_L1_015",
+   "room_id": "r_L1_cocuk_odasi",
+   "type": "chair",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Chair placed in front of the desk for functional use."
+    }
+   ],
+   "pass_index": 85,
+   "assumed": {},
+   "decor": [],
+   "center": [
+    2.072,
+    5.845,
+    3.45
+   ],
+   "size": [
+    0.45,
+    0.45,
+    0.9
+   ],
+   "rotation_deg": 0.0,
+   "front_deg": 270.0,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "gallinera_chair",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.7748,
+     0.7452,
+     0.76
+    ],
+    "bbox_m": [
+     0.45,
+     0.45,
+     0.7856
+    ],
+    "aspect_error": 0.039,
+    "gltf": "models/gallinera_chair/gallinera_chair_1k.gltf",
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0003,
+     -0.0363,
+     -0.0002
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "painted_wooden_chair_02",
+      "aspect_error": 0.0349,
+      "scale": [
+       0.7038,
+       0.6797,
+       0.6917
+      ],
+      "non_uniform": 1.0355,
+      "mean_scale": 0.6917,
+      "accepted": false
+     },
+     {
+      "id": "gallinera_chair",
+      "aspect_error": 0.039,
+      "scale": [
+       0.7748,
+       0.7452,
+       0.76
+      ],
+      "non_uniform": 1.0398,
+      "mean_scale": 0.76,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ]
+   },
+   "fit_scale": [
+    0.7748,
+    0.7452,
+    0.76
+   ],
+   "method": "library",
+   "bbox_m": [
+    0.45,
+    0.45,
+    0.7856
+   ],
+   "fallback_reason": null,
+   "materials": [
+    "gallinera_chair.002"
+   ],
+   "material": "gallinera_chair.002",
+   "textured": true,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     -0.0003,
+     -0.0363,
+     -0.0002
+    ],
+    "origin_offset_applied": [
+     0.0003,
+     0.0363,
+     0.0002
+    ],
+    "bbox_raw_m": [
+     0.5808,
+     0.6039,
+     1.0337
+    ],
+    "bbox_m": [
+     0.45,
+     0.45,
+     0.7856
+    ],
+    "fit_scale": [
+     0.7748,
+     0.7452,
+     0.76
+    ]
+   },
+   "file": "/workspace/assets/models/gallinera_chair/gallinera_chair_1k.gltf",
+   "imported_objects": [
+    "gallinera_chair"
+   ]
+  },
+  {
+   "name": "furn_f_L1_016",
+   "wenart_id": "f_L1_016",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L1",
+   "element_id": "f_L1_016",
+   "room_id": "r_L1_banyo",
+   "type": "shower",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Shower placed against the back wall for modern minimal style."
+    }
+   ],
+   "pass_index": 86,
+   "assumed": {},
+   "decor": [],
+   "center": [
+    7.479,
+    4.9,
+    4.0
+   ],
+   "size": [
+    0.9,
+    0.9,
+    2.0
+   ],
+   "rotation_deg": 270.0,
+   "front_deg": 180.0,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:shower",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     0.9,
+     0.9,
+     2.0
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type shower is parametric in the catalogue",
+    "cap": 1.15
+   },
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "bbox_m": [
+    0.9,
+    0.9,
+    2.0
+   ],
+   "fallback_reason": "fitting chose the parametric mesh",
+   "materials": [
+    "ceramic_white",
+    "thin_glass",
+    "steel_brushed"
+   ],
+   "material": "ceramic_white",
+   "textured": false,
+   "material_keys": {
+    "ceramic": "ceramic_white",
+    "glass": "glass",
+    "steel": "steel_brushed"
+   }
+  },
+  {
+   "name": "furn_f_L1_017",
+   "wenart_id": "f_L1_017",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L1",
+   "element_id": "f_L1_017",
+   "room_id": "r_L1_banyo",
+   "type": "toilet",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Toilet placed against the left wall, not directly opposite the door."
+    }
+   ],
+   "pass_index": 87,
+   "assumed": {},
+   "decor": [],
+   "center": [
+    6.421,
+    6.9,
+    3.4
+   ],
+   "size": [
+    0.4,
+    0.7,
+    0.8
+   ],
+   "rotation_deg": 90.0,
+   "front_deg": 0.0,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:toilet",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     0.4,
+     0.7,
+     1.2
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type toilet is parametric in the catalogue",
+    "cap": 1.15
+   },
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "bbox_m": [
+    0.4,
+    0.7,
+    1.2
+   ],
+   "fallback_reason": "fitting chose the parametric mesh",
+   "materials": [
+    "ceramic_white",
+    "painted_wood_white"
+   ],
+   "material": "ceramic_white",
+   "textured": false,
+   "material_keys": {
+    "ceramic": "ceramic_white",
+    "painted": "painted_wood_white"
+   }
+  },
+  {
+   "name": "furn_f_L1_018",
+   "wenart_id": "f_L1_018",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L1",
+   "element_id": "f_L1_018",
+   "room_id": "r_L1_banyo",
+   "type": "washbasin",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Washbasin placed against the left wall for functional access."
+    }
+   ],
+   "pass_index": 88,
+   "assumed": {},
+   "decor": [],
+   "center": [
+    6.5,
+    4.496,
+    3.425
+   ],
+   "size": [
+    0.6,
+    0.45,
+    0.85
+   ],
+   "rotation_deg": 180.0,
+   "front_deg": 90.0,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:washbasin",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     0.6,
+     0.45,
+     1.0
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type washbasin is parametric in the catalogue",
+    "cap": 1.15
+   },
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "bbox_m": [
+    0.6,
+    0.45,
+    1.0
+   ],
+   "fallback_reason": "fitting chose the parametric mesh",
+   "materials": [
+    "ceramic_white",
+    "steel_brushed"
+   ],
+   "material": "ceramic_white",
+   "textured": false,
+   "material_keys": {
+    "ceramic": "ceramic_white",
+    "steel": "steel_brushed"
+   }
+  },
+  {
+   "name": "decor_f_L1_001_1",
+   "wenart_id": "f_L1_001",
+   "kind": "decor",
+   "status": "assumed",
+   "level_id": "L1",
+   "element_id": "f_L1_001",
+   "host_id": "f_L1_001",
+   "room_id": "r_L1_ebeveyn_yatak_odasi",
+   "type": "cushion",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "decor",
+     "method": "rule",
+     "confidence": 1.0,
+     "text": "cushion on bed_double f_L1_001 (on bed_double f_L1_001)"
+    }
+   ],
+   "pass_index": 71,
+   "assumed": {
+    "rest_height": 0.5
+   },
+   "center": [
+    0.721,
+    3.879,
+    3.56
+   ],
+   "size": [
+    0.5,
+    0.3,
+    0.12
+   ],
+   "rotation_deg": 0.0,
+   "asset": null,
+   "method": "parametric (fallback: no asset in the building JSON)",
+   "bbox_m": [
+    0.5,
+    0.3,
+    0.12
+   ],
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "materials": [
+    "fabric_linen"
+   ],
+   "material": "fabric_linen",
+   "textured": false,
+   "fallback_reason": "no asset in the building JSON"
+  },
+  {
+   "name": "decor_f_L1_001_2",
+   "wenart_id": "f_L1_001",
+   "kind": "decor",
+   "status": "assumed",
+   "level_id": "L1",
+   "element_id": "f_L1_001",
+   "host_id": "f_L1_001",
+   "room_id": "r_L1_ebeveyn_yatak_odasi",
+   "type": "cushion",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "decor",
+     "method": "rule",
+     "confidence": 1.0,
+     "text": "cushion on bed_double f_L1_001 (on bed_double f_L1_001)"
+    }
+   ],
+   "pass_index": 71,
+   "assumed": {
+    "rest_height": 0.5
+   },
+   "center": [
+    1.621,
+    3.879,
+    3.56
+   ],
+   "size": [
+    0.5,
+    0.3,
+    0.12
+   ],
+   "rotation_deg": 0.0,
+   "asset": null,
+   "method": "parametric (fallback: no asset in the building JSON)",
+   "bbox_m": [
+    0.5,
+    0.3,
+    0.12
+   ],
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "materials": [
+    "fabric_linen"
+   ],
+   "material": "fabric_linen",
+   "textured": false,
+   "fallback_reason": "no asset in the building JSON"
+  },
+  {
+   "name": "decor_dec_L1_003",
+   "wenart_id": "dec_L1_003",
+   "kind": "decor",
+   "status": "assumed",
+   "level_id": "L1",
+   "element_id": "dec_L1_003",
+   "host_id": null,
+   "room_id": "r_L1_ebeveyn_yatak_odasi",
+   "type": "plant",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "decor",
+     "method": "rule",
+     "confidence": 1.0,
+     "text": "plant in r_L1_ebeveyn_yatak_odasi on the floor"
+    }
+   ],
+   "pass_index": 89,
+   "assumed": {
+    "rest_height": 0.0
+   },
+   "center": [
+    0.5,
+    0.5,
+    3.24795
+   ],
+   "size": [
+    0.4,
+    0.4,
+    0.4959
+   ],
+   "rotation_deg": 0.0,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "potted_plant_02",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.5705,
+     0.6085,
+     0.5895
+    ],
+    "bbox_m": [
+     0.4,
+     0.4,
+     0.4958
+    ],
+    "aspect_error": 0.0645,
+    "gltf": "models/potted_plant_02/potted_plant_02_1k.gltf",
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0461,
+     0.0916,
+     0.0001
+    ],
+    "front_axis_confidence": "low",
+    "target": "size"
+   },
+   "method": "library",
+   "bbox_m": [
+    0.4,
+    0.4,
+    0.4959
+   ],
+   "fit_scale": [
+    0.5705,
+    0.6085,
+    0.5895
+   ],
+   "materials": [
+    "potted_plant_02_pot.002",
+    "potted_plant_02_leaves.002"
+   ],
+   "material": "potted_plant_02_pot.002",
+   "textured": true,
+   "fallback_reason": null,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     -0.0461,
+     0.0916,
+     0.0001
+    ],
+    "origin_offset_applied": [
+     0.0461,
+     -0.0916,
+     -0.0001
+    ],
+    "bbox_raw_m": [
+     0.7012,
+     0.6574,
+     0.8412
+    ],
+    "bbox_m": [
+     0.4,
+     0.4,
+     0.4959
+    ],
+    "fit_scale": [
+     0.5705,
+     0.6085,
+     0.5895
+    ]
+   },
+   "file": "/workspace/assets/models/potted_plant_02/potted_plant_02_1k.gltf"
+  },
+  {
+   "name": "decor_f_L1_007_4",
+   "wenart_id": "f_L1_007",
+   "kind": "decor",
+   "status": "assumed",
+   "level_id": "L1",
+   "element_id": "f_L1_007",
+   "host_id": "f_L1_007",
+   "room_id": "r_L1_yatak_odasi",
+   "type": "cushion",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "decor",
+     "method": "rule",
+     "confidence": 1.0,
+     "text": "cushion on bed_double f_L1_007 (on bed_double f_L1_007)"
+    }
+   ],
+   "pass_index": 77,
+   "assumed": {
+    "rest_height": 0.5
+   },
+   "center": [
+    8.321,
+    0.521,
+    3.56
+   ],
+   "size": [
+    0.5,
+    0.3,
+    0.12
+   ],
+   "rotation_deg": 180.0,
+   "asset": null,
+   "method": "parametric (fallback: no asset in the building JSON)",
+   "bbox_m": [
+    0.5,
+    0.3,
+    0.12
+   ],
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "materials": [
+    "fabric_linen"
+   ],
+   "material": "fabric_linen",
+   "textured": false,
+   "fallback_reason": "no asset in the building JSON"
+  },
+  {
+   "name": "decor_f_L1_007_5",
+   "wenart_id": "f_L1_007",
+   "kind": "decor",
+   "status": "assumed",
+   "level_id": "L1",
+   "element_id": "f_L1_007",
+   "host_id": "f_L1_007",
+   "room_id": "r_L1_yatak_odasi",
+   "type": "cushion",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "decor",
+     "method": "rule",
+     "confidence": 1.0,
+     "text": "cushion on bed_double f_L1_007 (on bed_double f_L1_007)"
+    }
+   ],
+   "pass_index": 77,
+   "assumed": {
+    "rest_height": 0.5
+   },
+   "center": [
+    7.421,
+    0.521,
+    3.56
+   ],
+   "size": [
+    0.5,
+    0.3,
+    0.12
+   ],
+   "rotation_deg": 180.0,
+   "asset": null,
+   "method": "parametric (fallback: no asset in the building JSON)",
+   "bbox_m": [
+    0.5,
+    0.3,
+    0.12
+   ],
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "materials": [
+    "fabric_linen"
+   ],
+   "material": "fabric_linen",
+   "textured": false,
+   "fallback_reason": "no asset in the building JSON"
+  },
+  {
+   "name": "decor_dec_L1_006",
+   "wenart_id": "dec_L1_006",
+   "kind": "decor",
+   "status": "assumed",
+   "level_id": "L1",
+   "element_id": "dec_L1_006",
+   "host_id": null,
+   "room_id": "r_L1_yatak_odasi",
+   "type": "plant",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "decor",
+     "method": "rule",
+     "confidence": 1.0,
+     "text": "plant in r_L1_yatak_odasi on the floor"
+    }
+   ],
+   "pass_index": 90,
+   "assumed": {
+    "rest_height": 0.0
+   },
+   "center": [
+    9.7,
+    0.5,
+    3.24795
+   ],
+   "size": [
+    0.4,
+    0.4,
+    0.4959
+   ],
+   "rotation_deg": 0.0,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "potted_plant_02",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.5705,
+     0.6085,
+     0.5895
+    ],
+    "bbox_m": [
+     0.4,
+     0.4,
+     0.4958
+    ],
+    "aspect_error": 0.0645,
+    "gltf": "models/potted_plant_02/potted_plant_02_1k.gltf",
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0461,
+     0.0916,
+     0.0001
+    ],
+    "front_axis_confidence": "low",
+    "target": "size"
+   },
+   "method": "library",
+   "bbox_m": [
+    0.4,
+    0.4,
+    0.4959
+   ],
+   "fit_scale": [
+    0.5705,
+    0.6085,
+    0.5895
+   ],
+   "materials": [
+    "potted_plant_02_pot.002",
+    "potted_plant_02_leaves.002"
+   ],
+   "material": "potted_plant_02_pot.002",
+   "textured": true,
+   "fallback_reason": null,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     -0.0461,
+     0.0916,
+     0.0001
+    ],
+    "origin_offset_applied": [
+     0.0461,
+     -0.0916,
+     -0.0001
+    ],
+    "bbox_raw_m": [
+     0.7012,
+     0.6574,
+     0.8412
+    ],
+    "bbox_m": [
+     0.4,
+     0.4,
+     0.4959
+    ],
+    "fit_scale": [
+     0.5705,
+     0.6085,
+     0.5895
+    ]
+   },
+   "file": "/workspace/assets/models/potted_plant_02/potted_plant_02_1k.gltf"
+  },
+  {
+   "name": "decor_f_L1_011_7",
+   "wenart_id": "f_L1_011",
+   "kind": "decor",
+   "status": "assumed",
+   "level_id": "L1",
+   "element_id": "f_L1_011",
+   "host_id": "f_L1_011",
+   "room_id": "r_L1_cocuk_odasi",
+   "type": "cushion",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "decor",
+     "method": "rule",
+     "confidence": 1.0,
+     "text": "cushion on bed_single f_L1_011 (on bed_single f_L1_011)"
+    }
+   ],
+   "pass_index": 81,
+   "assumed": {
+    "rest_height": 0.5
+   },
+   "center": [
+    1.0,
+    7.25,
+    3.56
+   ],
+   "size": [
+    0.5,
+    0.3,
+    0.12
+   ],
+   "rotation_deg": 0.0,
+   "asset": null,
+   "method": "parametric (fallback: no asset in the building JSON)",
+   "bbox_m": [
+    0.5,
+    0.3,
+    0.12
+   ],
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "materials": [
+    "fabric_linen"
+   ],
+   "material": "fabric_linen",
+   "textured": false,
+   "fallback_reason": "no asset in the building JSON"
+  },
+  {
+   "name": "decor_f_L1_014_8",
+   "wenart_id": "f_L1_014",
+   "kind": "decor",
+   "status": "assumed",
+   "level_id": "L1",
+   "element_id": "f_L1_014",
+   "host_id": "f_L1_014",
+   "room_id": "r_L1_cocuk_odasi",
+   "type": "book_set",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "decor",
+     "method": "rule",
+     "confidence": 1.0,
+     "text": "book_set on desk f_L1_014 (on desk f_L1_014)"
+    }
+   ],
+   "pass_index": 84,
+   "assumed": {
+    "rest_height": 0.75
+   },
+   "center": [
+    1.8,
+    4.431,
+    3.86
+   ],
+   "size": [
+    0.3,
+    0.22,
+    0.22
+   ],
+   "rotation_deg": 180.0,
+   "asset": null,
+   "method": "parametric (fallback: no asset in the building JSON)",
+   "bbox_m": [
+    0.296,
+    0.22,
+    0.22
+   ],
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "materials": [
+    "lacquer_dark",
+    "painted_wood_white",
+    "wood_oak_light",
+    "terracotta"
+   ],
+   "material": "lacquer_dark",
+   "textured": false,
+   "fallback_reason": "no asset in the building JSON"
+  },
+  {
+   "name": "decor_dec_L1_009",
+   "wenart_id": "dec_L1_009",
+   "kind": "decor",
+   "status": "assumed",
+   "level_id": "L1",
+   "element_id": "dec_L1_009",
+   "host_id": null,
+   "room_id": "r_L1_cocuk_odasi",
+   "type": "plant",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "decor",
+     "method": "rule",
+     "confidence": 1.0,
+     "text": "plant in r_L1_cocuk_odasi on the floor"
+    }
+   ],
+   "pass_index": 91,
+   "assumed": {
+    "rest_height": 0.0
+   },
+   "center": [
+    4.0,
+    4.5,
+    3.24795
+   ],
+   "size": [
+    0.4,
+    0.4,
+    0.4959
+   ],
+   "rotation_deg": 0.0,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "potted_plant_02",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.5705,
+     0.6085,
+     0.5895
+    ],
+    "bbox_m": [
+     0.4,
+     0.4,
+     0.4958
+    ],
+    "aspect_error": 0.0645,
+    "gltf": "models/potted_plant_02/potted_plant_02_1k.gltf",
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0461,
+     0.0916,
+     0.0001
+    ],
+    "front_axis_confidence": "low",
+    "target": "size"
+   },
+   "method": "library",
+   "bbox_m": [
+    0.4,
+    0.4,
+    0.4959
+   ],
+   "fit_scale": [
+    0.5705,
+    0.6085,
+    0.5895
+   ],
+   "materials": [
+    "potted_plant_02_pot.002",
+    "potted_plant_02_leaves.002"
+   ],
+   "material": "potted_plant_02_pot.002",
+   "textured": true,
+   "fallback_reason": null,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     -0.0461,
+     0.0916,
+     0.0001
+    ],
+    "origin_offset_applied": [
+     0.0461,
+     -0.0916,
+     -0.0001
+    ],
+    "bbox_raw_m": [
+     0.7012,
+     0.6574,
+     0.8412
+    ],
+    "bbox_m": [
+     0.4,
+     0.4,
+     0.4959
+    ],
+    "fit_scale": [
+     0.5705,
+     0.6085,
+     0.5895
+    ]
+   },
+   "file": "/workspace/assets/models/potted_plant_02/potted_plant_02_1k.gltf"
   },
   {
    "name": "cam_r_L1_ebeveyn_yatak_odasi_1",
@@ -6667,7 +13375,10 @@
     "d_L-1_001",
     "d_L-1_003"
    ],
-   "visible_furniture": []
+   "visible_furniture": [
+    "f_L-1_001",
+    "f_L-1_002"
+   ]
   },
   {
    "name": "cam_r_L-1_hol_2",
@@ -6732,7 +13443,7 @@
    "level_id": "L-1",
    "index": 1,
    "position": [
-    6.55,
+    6.85,
     0.75,
     -1.6
    ],
@@ -6753,7 +13464,9 @@
    "visible_openings": [
     "d_L-1_005"
    ],
-   "visible_furniture": []
+   "visible_furniture": [
+    "f_L-1_006"
+   ]
   },
   {
    "name": "cam_r_L-1_yatak_odasi_2",
@@ -6780,7 +13493,9 @@
    "anchor": "d_L-1_003",
    "warning": null,
    "visible_openings": [],
-   "visible_furniture": []
+   "visible_furniture": [
+    "f_L-1_006"
+   ]
   },
   {
    "name": "cam_r_L-1_yatak_odasi_3",
@@ -6809,7 +13524,11 @@
    "visible_openings": [
     "d_L-1_005"
    ],
-   "visible_furniture": []
+   "visible_furniture": [
+    "f_L-1_003",
+    "f_L-1_005",
+    "f_L-1_006"
+   ]
   },
   {
    "name": "cam_r_L-1_kiler_2_1",
@@ -6903,7 +13622,7 @@
    "index": 1,
    "position": [
     6.55,
-    6.05,
+    7.05,
     -1.6
    ],
    "target": [
@@ -7002,7 +13721,9 @@
    "anchor": null,
    "warning": null,
    "visible_openings": [],
-   "visible_furniture": []
+   "visible_furniture": [
+    "f_L-1_009"
+   ]
   },
   {
    "name": "cam_r_L-1_banyo_2",
@@ -7029,7 +13750,9 @@
    "anchor": "d_L-1_005",
    "warning": null,
    "visible_openings": [],
-   "visible_furniture": []
+   "visible_furniture": [
+    "f_L-1_009"
+   ]
   },
   {
    "name": "cam_r_L-1_banyo_3",
@@ -7037,8 +13760,8 @@
    "level_id": "L-1",
    "index": 3,
    "position": [
-    9.000000000000005,
-    6.550000000000003,
+    8.75,
+    6.55,
     -1.6
    ],
    "target": [
@@ -7054,7 +13777,7 @@
    ],
    "placement": "centroid fallback",
    "anchor": null,
-   "warning": "room has no window on its edges; camera at the centroid",
+   "warning": "room has no window on its edges; centroid inside a tall proxy, camera at the nearest point clear of tall proxies",
    "visible_openings": [],
    "visible_furniture": []
   },
@@ -7182,7 +13905,10 @@
     "d_L0_004",
     "d_L0_005"
    ],
-   "visible_furniture": []
+   "visible_furniture": [
+    "f_L0_022",
+    "f_L0_023"
+   ]
   },
   {
    "name": "cam_r_L0_hol_2",
@@ -7431,7 +14157,7 @@
    "index": 1,
    "position": [
     4.15,
-    5.55,
+    7.05,
     1.4
    ],
    "target": [
@@ -7478,7 +14204,9 @@
    "anchor": "d_L0_001",
    "warning": null,
    "visible_openings": [],
-   "visible_furniture": []
+   "visible_furniture": [
+    "f_L0_024"
+   ]
   },
   {
    "name": "cam_r_L0_antre_3",
@@ -7683,7 +14411,7 @@
    "level_id": "L1",
    "index": 1,
    "position": [
-    0.75,
+    2.95,
     3.6500000000000004,
     4.4
    ],
@@ -7704,7 +14432,10 @@
    "visible_openings": [
     "win_L1_001"
    ],
-   "visible_furniture": []
+   "visible_furniture": [
+    "f_L1_002",
+    "f_L1_004"
+   ]
   },
   {
    "name": "cam_r_L1_ebeveyn_yatak_odasi_2",
@@ -7733,7 +14464,11 @@
    "visible_openings": [
     "win_L1_003"
    ],
-   "visible_furniture": []
+   "visible_furniture": [
+    "f_L1_001",
+    "f_L1_002",
+    "f_L1_004"
+   ]
   },
   {
    "name": "cam_r_L1_ebeveyn_yatak_odasi_3",
@@ -7760,7 +14495,10 @@
    "anchor": "win_L1_001",
    "warning": null,
    "visible_openings": [],
-   "visible_furniture": []
+   "visible_furniture": [
+    "f_L1_001",
+    "f_L1_003"
+   ]
   },
   {
    "name": "cam_r_L1_hol_1",
@@ -7791,7 +14529,10 @@
     "d_L1_003",
     "d_L1_004"
    ],
-   "visible_furniture": []
+   "visible_furniture": [
+    "f_L1_005",
+    "f_L1_006"
+   ]
   },
   {
    "name": "cam_r_L1_hol_2",
@@ -7857,7 +14598,7 @@
    "index": 1,
    "position": [
     6.55,
-    0.75,
+    3.1500000000000004,
     4.4
    ],
    "target": [
@@ -7874,9 +14615,7 @@
    "placement": "free area -> longest wall",
    "anchor": null,
    "warning": null,
-   "visible_openings": [
-    "d_L1_005"
-   ],
+   "visible_openings": [],
    "visible_furniture": []
   },
   {
@@ -7914,12 +14653,12 @@
    "level_id": "L1",
    "index": 3,
    "position": [
-    8.5,
+    9.0,
     0.85,
     4.4
    ],
    "target": [
-    7.624999999999998,
+    7.249999999999998,
     3.2124999999999995,
     4.3
    ],
@@ -7931,11 +14670,14 @@
    ],
    "placement": "window win_L1_002 -> across",
    "anchor": "win_L1_002",
-   "warning": null,
+   "warning": "window camera win_L1_002 moved: the nominal point is in a proxy footprint or too close to a wall",
    "visible_openings": [
+    "d_L1_003",
     "d_L1_005"
    ],
-   "visible_furniture": []
+   "visible_furniture": [
+    "f_L1_010"
+   ]
   },
   {
    "name": "cam_r_L1_cocuk_odasi_1",
@@ -7943,7 +14685,7 @@
    "level_id": "L1",
    "index": 1,
    "position": [
-    0.75,
+    1.9500000000000002,
     7.050000000000001,
     4.4
    ],
@@ -7962,7 +14704,9 @@
    "anchor": null,
    "warning": null,
    "visible_openings": [],
-   "visible_furniture": []
+   "visible_furniture": [
+    "f_L1_014"
+   ]
   },
   {
    "name": "cam_r_L1_cocuk_odasi_2",
@@ -7991,7 +14735,10 @@
    "visible_openings": [
     "win_L1_004"
    ],
-   "visible_furniture": []
+   "visible_furniture": [
+    "f_L1_011",
+    "f_L1_012"
+   ]
   },
   {
    "name": "cam_r_L1_cocuk_odasi_3",
@@ -7999,13 +14746,13 @@
    "level_id": "L1",
    "index": 3,
    "position": [
-    0.85,
-    5.4,
+    1.15,
+    4.9,
     4.4
    ],
    "target": [
-    3.3000000000000007,
-    6.275,
+    3.075000000000001,
+    6.65,
     4.3
    ],
    "lens_mm": 24.0,
@@ -8016,11 +14763,14 @@
    ],
    "placement": "window win_L1_004 -> across",
    "anchor": "win_L1_004",
-   "warning": null,
+   "warning": "window camera win_L1_004 moved: the nominal point is in a proxy footprint or too close to a wall",
    "visible_openings": [
-    "d_L1_002"
+    "d_L1_002",
+    "win_L1_005"
    ],
-   "visible_furniture": []
+   "visible_furniture": [
+    "f_L1_013"
+   ]
   },
   {
    "name": "cam_r_L1_banyo_1",
@@ -8029,7 +14779,7 @@
    "index": 1,
    "position": [
     6.55,
-    4.75,
+    5.05,
     4.4
    ],
    "target": [
@@ -8082,12 +14832,12 @@
    "level_id": "L1",
    "index": 3,
    "position": [
-    6.5,
+    7.5,
     6.95,
     4.4
    ],
    "target": [
-    7.375,
+    6.625,
     5.112500000000001,
     4.3
    ],
@@ -8100,8 +14850,13 @@
    "placement": "window win_L1_006 -> across",
    "anchor": "win_L1_006",
    "warning": null,
-   "visible_openings": [],
-   "visible_furniture": []
+   "visible_openings": [
+    "d_L1_004"
+   ],
+   "visible_furniture": [
+    "f_L1_016",
+    "f_L1_018"
+   ]
   },
   {
    "name": "cam_r_L1_balkon_1",
@@ -8341,6 +15096,166 @@
    "reason": "style names no asset for this material",
    "albedo_gain": null,
    "albedo_mean_luminance": null
+  },
+  "wood_oak_light": {
+   "slug": "wood_oak_light",
+   "textured": false,
+   "asset": null,
+   "source": null,
+   "licence": null,
+   "size_m": null,
+   "flat_colour": [
+    0.62,
+    0.47,
+    0.3
+   ],
+   "tint": null,
+   "unverified": false,
+   "reason": "style names no asset for this material",
+   "albedo_gain": null,
+   "albedo_mean_luminance": null
+  },
+  "steel_brushed": {
+   "slug": "steel_brushed",
+   "textured": false,
+   "asset": null,
+   "source": null,
+   "licence": null,
+   "size_m": null,
+   "flat_colour": [
+    0.58,
+    0.58,
+    0.58
+   ],
+   "tint": null,
+   "unverified": false,
+   "reason": "style names no asset for this material",
+   "albedo_gain": null,
+   "albedo_mean_luminance": null
+  },
+  "ceramic_white": {
+   "slug": "ceramic_white",
+   "textured": false,
+   "asset": null,
+   "source": null,
+   "licence": null,
+   "size_m": null,
+   "flat_colour": [
+    0.92,
+    0.92,
+    0.9
+   ],
+   "tint": null,
+   "unverified": false,
+   "reason": "style names no asset for this material",
+   "albedo_gain": null,
+   "albedo_mean_luminance": null
+  },
+  "thin_glass": {
+   "slug": "glass",
+   "textured": false,
+   "asset": null,
+   "source": null,
+   "licence": null,
+   "size_m": null,
+   "flat_colour": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "tint": null,
+   "unverified": false,
+   "reason": "thin glass (transparent + glossy by Fresnel): data passes see through"
+  },
+  "fabric_linen": {
+   "slug": "fabric_linen",
+   "textured": false,
+   "asset": null,
+   "source": null,
+   "licence": null,
+   "size_m": null,
+   "flat_colour": [
+    0.72,
+    0.66,
+    0.55
+   ],
+   "tint": null,
+   "unverified": false,
+   "reason": "style names no asset for this material",
+   "albedo_gain": null,
+   "albedo_mean_luminance": null
+  },
+  "lacquer_dark": {
+   "slug": "lacquer_dark",
+   "textured": false,
+   "asset": null,
+   "source": null,
+   "licence": null,
+   "size_m": null,
+   "flat_colour": [
+    0.04,
+    0.04,
+    0.045
+   ],
+   "tint": null,
+   "unverified": false,
+   "reason": "style names no asset for this material",
+   "albedo_gain": null,
+   "albedo_mean_luminance": null
+  },
+  "terracotta": {
+   "slug": "terracotta",
+   "textured": false,
+   "asset": null,
+   "source": null,
+   "licence": null,
+   "size_m": null,
+   "flat_colour": [
+    0.55,
+    0.27,
+    0.16
+   ],
+   "tint": null,
+   "unverified": false,
+   "reason": "style names no asset for this material",
+   "albedo_gain": null,
+   "albedo_mean_luminance": null
+  },
+  "stone_worktop": {
+   "slug": "stone_worktop",
+   "textured": false,
+   "asset": null,
+   "source": null,
+   "licence": null,
+   "size_m": null,
+   "flat_colour": [
+    0.24,
+    0.24,
+    0.25
+   ],
+   "tint": null,
+   "unverified": false,
+   "reason": "style names no asset for this material",
+   "albedo_gain": null,
+   "albedo_mean_luminance": null
+  },
+  "fabric_white": {
+   "slug": "fabric_white",
+   "textured": false,
+   "asset": null,
+   "source": null,
+   "licence": null,
+   "size_m": null,
+   "flat_colour": [
+    0.86,
+    0.85,
+    0.82
+   ],
+   "tint": null,
+   "unverified": false,
+   "reason": "style names no asset for this material",
+   "albedo_gain": null,
+   "albedo_mean_luminance": null
   }
  },
  "lighting": {
@@ -8374,52 +15289,89 @@
   "win_L-1_001": 6,
   "win_L-1_002": 7,
   "win_L-1_003": 8,
-  "d_L0_001": 9,
-  "d_L0_002": 10,
-  "d_L0_003": 11,
-  "d_L0_004": 12,
-  "d_L0_005": 13,
-  "d_L0_006": 14,
-  "d_L0_007": 15,
-  "win_L0_001": 16,
-  "win_L0_002": 17,
-  "win_L0_003": 18,
-  "win_L0_004": 19,
-  "win_L0_005": 20,
-  "win_L0_006": 21,
-  "proxy:f_L0_001": 22,
-  "proxy:f_L0_002": 23,
-  "proxy:f_L0_003": 24,
-  "proxy:f_L0_004": 25,
-  "proxy:f_L0_005": 26,
-  "proxy:f_L0_006": 27,
-  "proxy:f_L0_007": 28,
-  "proxy:f_L0_008": 29,
-  "proxy:f_L0_009": 30,
-  "proxy:f_L0_010": 31,
-  "proxy:f_L0_011": 32,
-  "proxy:f_L0_012": 33,
-  "proxy:f_L0_013": 34,
-  "proxy:f_L0_014": 35,
-  "proxy:f_L0_015": 36,
-  "proxy:f_L0_016": 37,
-  "proxy:f_L0_017": 38,
-  "proxy:f_L0_018": 39,
-  "proxy:f_L0_019": 40,
-  "proxy:f_L0_020": 41,
-  "proxy:f_L0_021": 42,
-  "d_L1_001": 43,
-  "d_L1_002": 44,
-  "d_L1_003": 45,
-  "d_L1_004": 46,
-  "d_L1_005": 47,
-  "win_L1_001": 48,
-  "win_L1_002": 49,
-  "win_L1_003": 50,
-  "win_L1_004": 51,
-  "win_L1_005": 52,
-  "win_L1_006": 53,
-  "win_L1_007": 54
+  "f_L-1_001": 9,
+  "f_L-1_002": 10,
+  "f_L-1_003": 11,
+  "f_L-1_004": 12,
+  "f_L-1_005": 13,
+  "f_L-1_006": 14,
+  "f_L-1_007": 15,
+  "f_L-1_008": 16,
+  "f_L-1_009": 17,
+  "f_L-1_010": 18,
+  "f_L-1_011": 19,
+  "dec_L-1_004": 20,
+  "d_L0_001": 21,
+  "d_L0_002": 22,
+  "d_L0_003": 23,
+  "d_L0_004": 24,
+  "d_L0_005": 25,
+  "d_L0_006": 26,
+  "d_L0_007": 27,
+  "win_L0_001": 28,
+  "win_L0_002": 29,
+  "win_L0_003": 30,
+  "win_L0_004": 31,
+  "win_L0_005": 32,
+  "win_L0_006": 33,
+  "proxy:f_L0_021": 34,
+  "f_L0_001": 35,
+  "f_L0_002": 36,
+  "f_L0_003": 37,
+  "f_L0_004": 38,
+  "f_L0_005": 39,
+  "f_L0_006": 40,
+  "f_L0_007": 41,
+  "f_L0_008": 42,
+  "f_L0_009": 43,
+  "f_L0_010": 44,
+  "f_L0_011": 45,
+  "f_L0_012": 46,
+  "f_L0_013": 47,
+  "f_L0_014": 48,
+  "f_L0_015": 49,
+  "f_L0_016": 50,
+  "f_L0_017": 51,
+  "f_L0_018": 52,
+  "f_L0_019": 53,
+  "f_L0_020": 54,
+  "f_L0_022": 55,
+  "f_L0_023": 56,
+  "f_L0_024": 57,
+  "dec_L0_004": 58,
+  "d_L1_001": 59,
+  "d_L1_002": 60,
+  "d_L1_003": 61,
+  "d_L1_004": 62,
+  "d_L1_005": 63,
+  "win_L1_001": 64,
+  "win_L1_002": 65,
+  "win_L1_003": 66,
+  "win_L1_004": 67,
+  "win_L1_005": 68,
+  "win_L1_006": 69,
+  "win_L1_007": 70,
+  "f_L1_001": 71,
+  "f_L1_002": 72,
+  "f_L1_003": 73,
+  "f_L1_004": 74,
+  "f_L1_005": 75,
+  "f_L1_006": 76,
+  "f_L1_007": 77,
+  "f_L1_008": 78,
+  "f_L1_009": 79,
+  "f_L1_010": 80,
+  "f_L1_011": 81,
+  "f_L1_012": 82,
+  "f_L1_013": 83,
+  "f_L1_014": 84,
+  "f_L1_015": 85,
+  "f_L1_016": 86,
+  "f_L1_017": 87,
+  "f_L1_018": 88,
+  "dec_L1_003": 89,
+  "dec_L1_006": 90,
+  "dec_L1_009": 91
  },
  "assumed": [
   {
@@ -8541,6 +15493,18 @@
    "field": "height",
    "value": 1.2,
    "reason": "window height not in the JSON; default"
+  },
+  {
+   "object": "furniture",
+   "field": "wood",
+   "value": "wood_oak_light",
+   "reason": "style floor 'concrete_polished' is not wood; default wood for furniture frames"
+  },
+  {
+   "object": "furniture",
+   "field": "fabric",
+   "value": "fabric_linen",
+   "reason": "style profile has no textiles slot; default fabric for sofas and chairs"
   },
   {
    "object": "level_L-1",
@@ -8723,142 +15687,154 @@
    "reason": "window height not in the JSON; default"
   },
   {
-   "object": "proxy_f_L0_001",
-   "field": "height",
-   "value": 0.85,
-   "reason": "no height in the JSON; proxy table value for sofa"
+   "object": "furniture",
+   "field": "wood",
+   "value": "wood_oak_light",
+   "reason": "style floor 'concrete_polished' is not wood; default wood for furniture frames"
   },
   {
-   "object": "proxy_f_L0_002",
-   "field": "height",
-   "value": 0.85,
-   "reason": "no height in the JSON; proxy table value for armchair"
-  },
-  {
-   "object": "proxy_f_L0_003",
-   "field": "height",
-   "value": 0.85,
-   "reason": "no height in the JSON; proxy table value for armchair"
-  },
-  {
-   "object": "proxy_f_L0_004",
-   "field": "height",
-   "value": 0.45,
-   "reason": "no height in the JSON; proxy table value for table_coffee"
-  },
-  {
-   "object": "proxy_f_L0_005",
-   "field": "height",
-   "value": 0.5,
-   "reason": "no height in the JSON; proxy table value for tv_unit"
-  },
-  {
-   "object": "proxy_f_L0_006",
-   "field": "height",
-   "value": 1.8,
-   "reason": "no height in the JSON; proxy table value for bookshelf"
-  },
-  {
-   "object": "proxy_f_L0_007",
-   "field": "height",
-   "value": 0.9,
-   "reason": "no height in the JSON; proxy table value for kitchen_counter"
-  },
-  {
-   "object": "proxy_f_L0_008",
-   "field": "height",
-   "value": 0.905,
-   "reason": "no height in the JSON; proxy table value for sink_kitchen"
-  },
-  {
-   "object": "proxy_f_L0_008",
-   "field": "height_lift",
-   "value": 0.005,
-   "reason": "footprint overlaps another piece of the same height; lifted so the top faces do not coincide"
-  },
-  {
-   "object": "proxy_f_L0_009",
-   "field": "height",
-   "value": 0.905,
-   "reason": "no height in the JSON; proxy table value for stove"
-  },
-  {
-   "object": "proxy_f_L0_009",
-   "field": "height_lift",
-   "value": 0.005,
-   "reason": "footprint overlaps another piece of the same height; lifted so the top faces do not coincide"
-  },
-  {
-   "object": "proxy_f_L0_010",
-   "field": "height",
-   "value": 1.8,
-   "reason": "no height in the JSON; proxy table value for fridge"
-  },
-  {
-   "object": "proxy_f_L0_011",
-   "field": "height",
-   "value": 0.75,
-   "reason": "no height in the JSON; proxy table value for table_dining"
-  },
-  {
-   "object": "proxy_f_L0_012",
-   "field": "height",
-   "value": 0.9,
-   "reason": "no height in the JSON; proxy table value for chair"
-  },
-  {
-   "object": "proxy_f_L0_013",
-   "field": "height",
-   "value": 0.9,
-   "reason": "no height in the JSON; proxy table value for chair"
-  },
-  {
-   "object": "proxy_f_L0_014",
-   "field": "height",
-   "value": 0.55,
-   "reason": "no height in the JSON; proxy table value for bed_double"
-  },
-  {
-   "object": "proxy_f_L0_015",
-   "field": "height",
-   "value": 0.5,
-   "reason": "no height in the JSON; proxy table value for nightstand"
-  },
-  {
-   "object": "proxy_f_L0_016",
-   "field": "height",
-   "value": 0.5,
-   "reason": "no height in the JSON; proxy table value for nightstand"
-  },
-  {
-   "object": "proxy_f_L0_017",
-   "field": "height",
-   "value": 2.1,
-   "reason": "no height in the JSON; proxy table value for wardrobe"
-  },
-  {
-   "object": "proxy_f_L0_018",
-   "field": "height",
-   "value": 0.8,
-   "reason": "no height in the JSON; proxy table value for dresser"
-  },
-  {
-   "object": "proxy_f_L0_019",
-   "field": "height",
-   "value": 0.4,
-   "reason": "no height in the JSON; proxy table value for toilet"
-  },
-  {
-   "object": "proxy_f_L0_020",
-   "field": "height",
-   "value": 0.85,
-   "reason": "no height in the JSON; proxy table value for washbasin"
+   "object": "furniture",
+   "field": "fabric",
+   "value": "fabric_linen",
+   "reason": "style profile has no textiles slot; default fabric for sofas and chairs"
   },
   {
    "object": "proxy_f_L0_021",
    "field": "height",
    "value": 0.8,
    "reason": "no height in the JSON; proxy table value for unknown"
+  },
+  {
+   "object": "furn_f_L0_001",
+   "field": "height",
+   "value": 0.85,
+   "reason": "no height in the JSON; type height for sofa"
+  },
+  {
+   "object": "furn_f_L0_002",
+   "field": "height",
+   "value": 0.85,
+   "reason": "no height in the JSON; type height for armchair"
+  },
+  {
+   "object": "furn_f_L0_003",
+   "field": "height",
+   "value": 0.85,
+   "reason": "no height in the JSON; type height for armchair"
+  },
+  {
+   "object": "furn_f_L0_004",
+   "field": "height",
+   "value": 0.45,
+   "reason": "no height in the JSON; type height for table_coffee"
+  },
+  {
+   "object": "furn_f_L0_005",
+   "field": "height",
+   "value": 0.5,
+   "reason": "no height in the JSON; type height for tv_unit"
+  },
+  {
+   "object": "furn_f_L0_006",
+   "field": "height",
+   "value": 1.8,
+   "reason": "no height in the JSON; type height for bookshelf"
+  },
+  {
+   "object": "furn_f_L0_007",
+   "field": "height",
+   "value": 0.9,
+   "reason": "no height in the JSON; type height for kitchen_counter"
+  },
+  {
+   "object": "furn_f_L0_008",
+   "field": "height_lift",
+   "value": 0.005,
+   "reason": "footprint overlaps another piece of the same height; lifted so the top faces do not coincide"
+  },
+  {
+   "object": "furn_f_L0_008",
+   "field": "height",
+   "value": 0.9,
+   "reason": "no height in the JSON; type height for sink_kitchen"
+  },
+  {
+   "object": "furn_f_L0_009",
+   "field": "height_lift",
+   "value": 0.005,
+   "reason": "footprint overlaps another piece of the same height; lifted so the top faces do not coincide"
+  },
+  {
+   "object": "furn_f_L0_009",
+   "field": "height",
+   "value": 0.9,
+   "reason": "no height in the JSON; type height for stove"
+  },
+  {
+   "object": "furn_f_L0_010",
+   "field": "height",
+   "value": 1.8,
+   "reason": "no height in the JSON; type height for fridge"
+  },
+  {
+   "object": "furn_f_L0_011",
+   "field": "height",
+   "value": 0.75,
+   "reason": "no height in the JSON; type height for table_dining"
+  },
+  {
+   "object": "furn_f_L0_012",
+   "field": "height",
+   "value": 0.9,
+   "reason": "no height in the JSON; type height for chair"
+  },
+  {
+   "object": "furn_f_L0_013",
+   "field": "height",
+   "value": 0.9,
+   "reason": "no height in the JSON; type height for chair"
+  },
+  {
+   "object": "furn_f_L0_014",
+   "field": "height",
+   "value": 0.55,
+   "reason": "no height in the JSON; type height for bed_double"
+  },
+  {
+   "object": "furn_f_L0_015",
+   "field": "height",
+   "value": 0.5,
+   "reason": "no height in the JSON; type height for nightstand"
+  },
+  {
+   "object": "furn_f_L0_016",
+   "field": "height",
+   "value": 0.5,
+   "reason": "no height in the JSON; type height for nightstand"
+  },
+  {
+   "object": "furn_f_L0_017",
+   "field": "height",
+   "value": 2.1,
+   "reason": "no height in the JSON; type height for wardrobe"
+  },
+  {
+   "object": "furn_f_L0_018",
+   "field": "height",
+   "value": 0.8,
+   "reason": "no height in the JSON; type height for dresser"
+  },
+  {
+   "object": "furn_f_L0_019",
+   "field": "height",
+   "value": 0.4,
+   "reason": "no height in the JSON; type height for toilet"
+  },
+  {
+   "object": "furn_f_L0_020",
+   "field": "height",
+   "value": 0.85,
+   "reason": "no height in the JSON; type height for washbasin"
   },
   {
    "object": "level_L0",
@@ -8981,6 +15957,18 @@
    "reason": "window height not in the JSON; default"
   },
   {
+   "object": "furniture",
+   "field": "wood",
+   "value": "wood_oak_light",
+   "reason": "style floor 'concrete_polished' is not wood; default wood for furniture frames"
+  },
+  {
+   "object": "furniture",
+   "field": "fabric",
+   "value": "fabric_linen",
+   "reason": "style profile has no textiles slot; default fabric for sofas and chairs"
+  },
+  {
    "object": "level_L1",
    "field": "ceiling_height",
    "value": 2.7,
@@ -9033,10 +16021,9 @@
   "Level L-1: ceiling height assumed 2.70 m (no section drawing found)",
   "Level L0: ceiling height assumed 2.70 m (no section drawing found)",
   "Level L1: ceiling height assumed 2.70 m (no section drawing found)",
-  "mobilya_plani.dxf p1: debug image not rendered (No module named 'matplotlib')",
   "cam_r_L-1_hol_3: room has no window on its edges; camera at the centroid",
   "cam_r_L-1_wc_3: room has no window on its edges; camera at the centroid",
-  "cam_r_L-1_banyo_3: room has no window on its edges; camera at the centroid",
+  "cam_r_L-1_banyo_3: room has no window on its edges; centroid inside a tall proxy, camera at the nearest point clear of tall proxies",
   "cam_r_L0_salon_3: window camera win_L0_001 moved: the nominal point is in a proxy footprint or too close to a wall",
   "cam_r_L0_hol_3: room has no window on its edges; camera at the centroid",
   "cam_r_L0_yatak_odasi_3: window camera win_L0_002 moved: the nominal point is in a proxy footprint or too close to a wall",
@@ -9044,7 +16031,9 @@
   "cam_r_L0_antre_3: room has no window on its edges; camera at the centroid",
   "cam_r_L0_wc_3: room has no window on its edges; camera at the centroid",
   "cam_r_L0_kiler_3: window camera win_L0_005 moved to the nearest free point: no free point next to the opening",
-  "cam_r_L1_hol_3: room has no window on its edges; camera at the centroid"
+  "cam_r_L1_hol_3: room has no window on its edges; camera at the centroid",
+  "cam_r_L1_yatak_odasi_3: window camera win_L1_002 moved: the nominal point is in a proxy footprint or too close to a wall",
+  "cam_r_L1_cocuk_odasi_3: window camera win_L1_004 moved: the nominal point is in a proxy footprint or too close to a wall"
  ],
  "checks": {
   "door_rays": [
@@ -9229,5 +16218,148 @@
   "blend": "scene.blend",
   "glb": "scene.glb"
  },
- "seconds": 19.6
+ "furniture": {
+  "pieces": 53,
+  "by_method": {
+   "library": 26,
+   "parametric": 26,
+   "proxy": 1
+  },
+  "fallbacks": [
+   {
+    "id": "f_L-1_006",
+    "type": "desk",
+    "reason": "fitting chose the parametric mesh"
+   },
+   {
+    "id": "f_L-1_007",
+    "type": "toilet",
+    "reason": "fitting chose the parametric mesh"
+   },
+   {
+    "id": "f_L-1_008",
+    "type": "washbasin",
+    "reason": "fitting chose the parametric mesh"
+   },
+   {
+    "id": "f_L-1_009",
+    "type": "shower",
+    "reason": "fitting chose the parametric mesh"
+   },
+   {
+    "id": "f_L-1_010",
+    "type": "toilet",
+    "reason": "fitting chose the parametric mesh"
+   },
+   {
+    "id": "f_L-1_011",
+    "type": "washbasin",
+    "reason": "fitting chose the parametric mesh"
+   },
+   {
+    "id": "f_L0_004",
+    "type": "table_coffee",
+    "reason": "fitting chose the parametric mesh"
+   },
+   {
+    "id": "f_L0_005",
+    "type": "tv_unit",
+    "reason": "fitting chose the parametric mesh"
+   },
+   {
+    "id": "f_L0_007",
+    "type": "kitchen_counter",
+    "reason": "fitting chose the parametric mesh"
+   },
+   {
+    "id": "f_L0_008",
+    "type": "sink_kitchen",
+    "reason": "fitting chose the parametric mesh"
+   },
+   {
+    "id": "f_L0_009",
+    "type": "stove",
+    "reason": "fitting chose the parametric mesh"
+   },
+   {
+    "id": "f_L0_010",
+    "type": "fridge",
+    "reason": "fitting chose the parametric mesh"
+   },
+   {
+    "id": "f_L0_011",
+    "type": "table_dining",
+    "reason": "fitting chose the parametric mesh"
+   },
+   {
+    "id": "f_L0_017",
+    "type": "wardrobe",
+    "reason": "fitting chose the parametric mesh"
+   },
+   {
+    "id": "f_L0_018",
+    "type": "dresser",
+    "reason": "fitting chose the parametric mesh"
+   },
+   {
+    "id": "f_L0_019",
+    "type": "toilet",
+    "reason": "fitting chose the parametric mesh"
+   },
+   {
+    "id": "f_L0_020",
+    "type": "washbasin",
+    "reason": "fitting chose the parametric mesh"
+   },
+   {
+    "id": "f_L1_001",
+    "type": "bed_double",
+    "reason": "fitting chose the parametric mesh"
+   },
+   {
+    "id": "f_L1_007",
+    "type": "bed_double",
+    "reason": "fitting chose the parametric mesh"
+   },
+   {
+    "id": "f_L1_010",
+    "type": "wardrobe",
+    "reason": "fitting chose the parametric mesh"
+   },
+   {
+    "id": "f_L1_011",
+    "type": "bed_single",
+    "reason": "fitting chose the parametric mesh"
+   },
+   {
+    "id": "f_L1_013",
+    "type": "wardrobe",
+    "reason": "fitting chose the parametric mesh"
+   },
+   {
+    "id": "f_L1_014",
+    "type": "desk",
+    "reason": "fitting chose the parametric mesh"
+   },
+   {
+    "id": "f_L1_016",
+    "type": "shower",
+    "reason": "fitting chose the parametric mesh"
+   },
+   {
+    "id": "f_L1_017",
+    "type": "toilet",
+    "reason": "fitting chose the parametric mesh"
+   },
+   {
+    "id": "f_L1_018",
+    "type": "washbasin",
+    "reason": "fitting chose the parametric mesh"
+   }
+  ],
+  "proxies": 1,
+  "decor": 19,
+  "proxies_forced": false
+ },
+ "seconds": 46.6
 }
