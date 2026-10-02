@@ -51,6 +51,7 @@ import pytest
 
 from wenart import views as V
 from wenart.blender import cli as blender_cli
+from conftest import START_THRESHOLDS  # the gate start limits the fakes were built for
 
 ROOT = Path(__file__).resolve().parents[1]
 PROJECT = "synthetic-01"
@@ -300,7 +301,7 @@ def run(tmp_path_factory):
     backend = FakeBackend(erase=(h, largest[SALON]["box_px"]))
 
     def gate_factory(device):
-        return Gate(models=FakeGateModels(), device="cpu")
+        return Gate(thresholds=START_THRESHOLDS, models=FakeGateModels(), device="cpu")
 
     deps = Deps(backend_factory=lambda cfg, device: backend, gate_factory=gate_factory, log=lambda s: None)
     stage("polish_run", lambda: polish_main(["run", "--project-out", str(out), "--device", "cpu"], deps=deps))
@@ -482,7 +483,7 @@ def test_polish_rerun_reuses_every_attempt(run):
     out = run["out"]
     backend = FakeBackend()
     deps = Deps(backend_factory=lambda cfg, device: backend,
-                gate_factory=lambda device: Gate(models=FakeGateModels(), device="cpu"), log=lambda s: None)
+                gate_factory=lambda device: Gate(thresholds=START_THRESHOLDS, models=FakeGateModels(), device="cpu"), log=lambda s: None)
     before = _json(out / "polish" / "polish_manifest.json")
     m = run_polish(out, "run", deps=deps, device="cpu")
     assert backend.calls == []                                   # nothing generated again (attempt_key reuse)
@@ -565,6 +566,9 @@ def test_gpu_test_logic_passes_on_the_dry_run(run, monkeypatch):
     out = run["out"]
     tp = _load_gpu_test("test_polish")
     monkeypatch.setattr(tp, "OUTPUTS", out.parent)
+    # The dry run's polish used the gate start limits (its fakes were built for them); the pod tests
+    # recompute with the package limits the pod run used.
+    monkeypatch.setattr(tp, "current_thresholds", lambda: START_THRESHOLDS)
     project = (PROJECT, _json(out / "polish" / "polish_manifest.json"))
     tp.test_manifest_is_a_complete_run(project)
     tp.test_manifest_records_the_pinned_models(project)

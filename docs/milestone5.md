@@ -380,18 +380,39 @@ window panes are excluded from edges, depth and colour (their pixels are the Cyc
 ### 4.2 Checks (`thresholds.yaml`)
 
 ```yaml
-edges:       {hard: true,  global_min: 0.95, region_min: 0.85, region_min_ref_px: 200, radius_px: 3,
+edges:       {hard: true,  global_min: 0.935, region_min: 0.87, region_min_ref_px: 200, radius_px: 3,
               canny: {sigma: 1.5, low: 25, high: 75}}
 added_lines: {hard: true,  region_max_len_frac: 0.04, min_len_frac: 0.04, unmatched_frac: 0.70}
-depth:       {hard: true,  global_max: 0.02, region_max: 0.05, region_min_frac: 0.01}
-masks:       {hard: true,  region_min: 0.90, region_min_frac: 0.005, sam_reliable_min: 0.70}
-colour:      {hard: true,  global_max: 10.0, region_max: 15.0, region_min_frac: 0.01}
-neutral:     {hard: true,  region_max_dchroma: 5.0}     # wall/ceiling regions of albedo_mode flat
+depth:       {hard: true,  global_max: 0.05, region_max: 0.14, region_min_frac: 0.01}
+masks:       {hard: true,  region_min: 0.62, region_min_frac: 0.005, sam_reliable_min: 0.70}
+colour:      {hard: true,  global_max: 7.5, region_max: 8.0, region_min_frac: 0.01}
+neutral:     {hard: true,  region_max_dchroma: 2.0}     # wall/ceiling regions of albedo_mode flat
 features:    {hard: false, region_min: 0.80, region_min_frac: 0.01}
-calibration: {source: null, date: null, separability: {}, accepted_shortfall: null}
+calibration: {source: "run 1a, job 20261002-135133-polish", date: "2026-10-02",
+              rule: "worst benign value of both projects with a 15 % margin, rounded",
+              benign_accept: 1.0, negative_reject: 0.934, small_geometric_reject: 0.915,
+              looser_than_start: ["edges.global_min 0.95", "depth.global_max 0.02", "depth.region_max 0.05",
+                                  "masks.region_min 0.90"],
+              tighter_than_start: ["edges.region_min 0.85", "colour.global_max 10", "colour.region_max 15",
+                                   "neutral.region_max_dchroma 5"],
+              user_ok: pending, accepted_shortfall: null}
 ```
 `*_min`: value ≥ threshold passes; `*_max`: value ≤ threshold passes; `region_min_frac` = region pixels /
 (W·H).
+
+Calibrated on 2 Oct 2026 from run 1a (`results/gate/<p>/gate_calibration.md`; 16 views of both projects, 128
+benign and 348 negative comparisons, 88 sweep polishes). The start values (0.95 / 0.85 edges, 0.02 / 0.05
+depth, 0.90 masks, 10 / 15 colour, 5 neutral) rejected 12 % of the benign controls (JPEG q75, noise σ 3,
+blur σ 1): Depth Anything V2 Small and SAM wobble on a few flat regions (two doors seen at an angle, two
+beds), up to 0.12 depth error and 0.67 mask IoU from compression noise alone, and on their own neither check
+caught a negative that another check missed. Rule: each limit = the worst benign value of both projects with a
+15 % margin, rounded. Result with `decide`: benign 128/128 accepted, negatives 326/348 rejected (93.7 %; shifts
+6–25 px, scales ×1.04–1.15 and 2° rotations 91.5 %), presumed-bad polishes 8/8 rejected. Cross-check: limits
+taken from one project alone reject 3–45 % of the other project's benign controls, so both projects are needed
+and real projects should be calibrated again. The negatives that pass are mostly doors seen edge-on in halls
+(shifted or scaled on their own region) and a floor darkened by 15 L*; the vision check is the second line for
+doors. Looser than the start: edges global, depth, masks; tighter: edges per region, colour, neutral. The
+looser limits are used from run 2 on and wait for the user's OK (`calibration.user_ok`).
 - edges: reference = `views.geometry_edges` kept where Canny on the reference (gray → Gaussian σ → Canny
   low/high, L2) has an edge within `radius_px`; recall = share of reference pixels with a test Canny edge
   within `radius_px` (`cv2.distanceTransform`); global and per object.

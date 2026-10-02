@@ -255,7 +255,8 @@ def test_index_table_matches_the_committed_scene_manifests(project, n, counts):
         if e["kind"] in ("furniture", "decor"):
             assert e["room_id"] and e["room_ids"] == [e["room_id"]] and e["box3d"]["size"]
         else:
-            assert e["type"] == e["kind"] and e["box3d"] is None and e["room_ids"] == []   # pre-M5 manifest
+            # Openings (M5 manifests): the rooms whose edge carries them, one (outer wall) or two (inner wall).
+            assert e["type"] == e["kind"] and e["box3d"] is None and 1 <= len(e["room_ids"]) <= 2
     assert got == counts
     hosted = {o["pass_index"] for o in scene["objects"] if o["kind"] == "decor" and o.get("host_id")}
     for pi in hosted:
@@ -475,9 +476,12 @@ def test_load_views_controls_layout_finds_the_scene_manifest(tmp_path):
 
 
 def test_view_from_entry_rejects_pre_m5_entries():
-    committed = json.loads((RESULTS / "synthetic-01" / "render_manifest.json").read_text(encoding="utf-8"))
+    # An M4 render entry: an M5 entry without the fields Milestone 5 added (the committed results now hold
+    # M5 manifests, so the pre-M5 shape is built here).
+    pre_m5 = {k: v for k, v in m5_entry("cam_a", "r_L0_salon").items()
+              if k not in ("render_key", "index_stats", "files")}
     with pytest.raises(V.StaleRender) as err:
-        V.view_from_entry(committed["renders"][0], RESULTS / "synthetic-01")
+        V.view_from_entry(pre_m5, RESULTS / "synthetic-01")
     assert set(err.value.missing) == {"render_key", "index_stats", "files.depth_mm", "files.normal"}
     empty_view = m5_entry("cam_e", "r", index_stats={})       # a view with no indexed object is not stale
     assert V.view_from_entry(empty_view, "/tmp").index_stats == {}

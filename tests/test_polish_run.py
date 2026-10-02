@@ -291,7 +291,7 @@ def test_run_ladder_first_accepted_attempt_wins(tmp_path):
     # Attempt records.
     r = a["attempts"][0]
     assert (r["strength"], r["control"], r["scale"], r["size"], r["mode"], r["role"]) == (
-        0.375, "depth", 0.8, "native", "plain", "ladder")
+        0.375, "geometry", 0.8, "native", "plain", "ladder")
     assert r["seed"] == 1 and r["steps"] == 8 and r["sigmas"] == [0.375, 0.25, 0.125]
     assert r["sigma0"] == pytest.approx(0.642857, abs=1e-5) and r["forwards"] == 3
     assert r["png"] == "cam_a_a1.png" and len(r["attempt_key"]) == 64 and r["panes_restored"] == 1
@@ -299,7 +299,9 @@ def test_run_ladder_first_accepted_attempt_wins(tmp_path):
     assert [x["seed"] for x in c["attempts"]] == [1, 2, 3]
     # Files and paths.
     pol = out / "polish"
-    assert a["source_png"] == "../renders/cam_a.png" and a["controls"] == {"depth": "cam_a_control_depth.png"}
+    # One control image per control type of the ladder, written once per view.
+    assert a["source_png"] == "../renders/cam_a.png" and a["controls"] == {
+        c: f"cam_a_control_{c}.png" for c in ("geometry", "canny", "depth")}
     for name in ("cam_a_a1.png", "cam_a_control_depth.png", "cam_a_a1_gate.jpg", "cam_a_a1_preview.jpg",
                  "cam_b_a2_preview.jpg", MANIFEST_NAME, REPORT_NAME, DETERMINISM_NAME):
         assert (pol / name).is_file(), name

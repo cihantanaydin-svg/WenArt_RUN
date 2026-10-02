@@ -83,6 +83,9 @@ def build_room(W=640, H=360, sofa=True, chair=True, seed=0):
             "depth_mm": V.encode_depth_mm(depth_m), "normal": V.encode_normal(normal, np.abs(normal).sum(axis=2) > 0),
             "boxes": {"wall": [side_x, ceil_y, W, floor_y], "window": [wx0, wy0, wx1, wy1]}}
 
+from conftest import START_THRESHOLDS  # noqa: E402 - the §4.2 start values (see conftest.py)
+
+
 
 def scene_manifest(wall_mode="flat"):
     def furn(wid, idx, ftype, room="r_1"):
@@ -195,7 +198,7 @@ def room(tmp_path_factory):
     out = tmp_path_factory.mktemp("gate") / "toy"
     data = write_project(out, W=960, H=540)
     view = V.load_views(out / "renders")["cam_a"]
-    gate = api.Gate(models=FakeModels(), device="cpu")
+    gate = api.Gate(thresholds=START_THRESHOLDS, models=FakeModels(), device="cpu")
     ref = gate.prepare(view, data["rgb"])
     return {"out": out, "data": data, "view": view, "gate": gate, "ref": ref}
 
@@ -374,7 +377,7 @@ def tiled(tmp_path_factory):
     out = tmp_path_factory.mktemp("tiled") / "toy"
     data = write_project(out, W=1920, H=1080)
     rgb, floor_mask = tiled_floor(data["rgb"], data["index"])
-    gate = api.Gate(models=FakeModels(), device="cpu")
+    gate = api.Gate(thresholds=START_THRESHOLDS, models=FakeModels(), device="cpu")
     ref = gate.prepare(V.load_views(out / "renders")["cam_a"], rgb)
     return {"data": data, "rgb": rgb, "floor": floor_mask, "gate": gate, "ref": ref}
 
@@ -565,7 +568,7 @@ def test_neutral_check_rejects_a_tinted_flat_wall_and_skips_textured_walls(tmp_p
     for mode, expect in (("flat", "reject"), ("texture", "accept")):
         out = tmp_path / mode
         data = write_project(out, wall_mode=mode)
-        gate = api.Gate(models=FakeModels(), device="cpu")
+        gate = api.Gate(thresholds=START_THRESHOLDS, models=FakeModels(), device="cpu")
         ref = gate.prepare(V.load_views(out / "renders")["cam_a"], data["rgb"])
         x0, y0, x1, y1 = data["boxes"]["wall"]
         test = data["rgb"].copy()
@@ -694,7 +697,7 @@ def test_gate_key_depends_on_models_reference_and_metric_parameters_not_limits()
 def test_model_outputs_on_the_reference_are_computed_once(tmp_path):
     data = write_project(tmp_path / "p")
     fake = FakeModels()
-    gate = api.Gate(models=fake, device="cpu")
+    gate = api.Gate(thresholds=START_THRESHOLDS, models=fake, device="cpu")
     ref = gate.prepare(V.load_views(tmp_path / "p" / "renders")["cam_a"], data["rgb"])
     r1 = gate.compare(ref, data["rgb"])
     r2 = gate.compare(ref, texture(data["rgb"], 6))
@@ -712,7 +715,7 @@ def test_model_outputs_on_the_reference_are_computed_once(tmp_path):
 
 def test_a_failing_model_fails_the_check_closed(tmp_path):
     data = write_project(tmp_path / "p")
-    gate = api.Gate(models=FakeModels(fail={"sam"}), device="cpu")
+    gate = api.Gate(thresholds=START_THRESHOLDS, models=FakeModels(fail={"sam"}), device="cpu")
     ref = gate.prepare(V.load_views(tmp_path / "p" / "renders")["cam_a"], data["rgb"])
     res = gate.compare(ref, data["rgb"])
     assert res["metrics"]["masks"]["error"] == "RuntimeError: sam model failed"
@@ -740,7 +743,7 @@ def test_without_torch_the_default_models_fail_closed(tmp_path, monkeypatch):
 def test_gate_without_a_scene_manifest_uses_index_regions(tmp_path):
     data = write_project(tmp_path / "p")
     (tmp_path / "p" / "scene" / "scene_manifest.json").unlink()
-    gate = api.Gate(models=FakeModels(), device="cpu")
+    gate = api.Gate(thresholds=START_THRESHOLDS, models=FakeModels(), device="cpu")
     ref = gate.prepare(V.load_views(tmp_path / "p" / "renders")["cam_a"], data["rgb"])
     assert "index:12" in ref.regions.masks and ref.albedo == {} and ref.warnings
     assert gate.compare(ref, data["rgb"])["metrics"]["neutral"]["regions"] == {}
@@ -834,7 +837,7 @@ def test_fast_paths_give_the_mask_based_metrics(tmp_path):
     index, the cached reference tokens and patch selections give the numbers of the mask-based
     functions (within 1e-4: float sums in another order, Lab without BLAS) and the same decisions."""
     data = furnished_project(tmp_path / "p")
-    gate = api.Gate(models=FakeModels(), device="cpu")
+    gate = api.Gate(thresholds=START_THRESHOLDS, models=FakeModels(), device="cpu")
     ref = gate.prepare(V.load_views(tmp_path / "p" / "renders")["cam_a"], data["rgb"])
     assert len(ref.regions.object_ids()) >= 15 and len(ref.regions.structure_ids()) == 3
     rgb = data["rgb"]
@@ -1413,7 +1416,7 @@ def project(tmp_path):
 
 
 def test_calibration_end_to_end(project):
-    gate = api.Gate(models=FakeModels(), device="cpu")
+    gate = api.Gate(thresholds=START_THRESHOLDS, models=FakeModels(), device="cpu")
     logs = []
     cal = calibrate.run_calibration(project, gate=gate, expected_api=FakeExpected(), log=logs.append)
     js = json.loads((project / "gate" / "gate_calibration.json").read_text(encoding="utf-8"))
@@ -1447,7 +1450,7 @@ def test_calibration_end_to_end(project):
     assert md.startswith("# Change-gate calibration: toy\n") and "## Per metric" in md and "| edges | region_min |" in md
     assert "hide:win_1" in md and cal["rates"] == js["rates"] and logs
     # Area D's API missing -> the index-pass fallback, said in the warnings.
-    cal2 = calibrate.run_calibration(project, gate=api.Gate(models=FakeModels(), device="cpu"),
+    cal2 = calibrate.run_calibration(project, gate=api.Gate(thresholds=START_THRESHOLDS, models=FakeModels(), device="cpu"),
                                      expected_api=FakeExpected(broken=True), out_dir=project / "gate2",
                                      cameras=["cam_b"], log=lambda *_: None)
     assert cal2["views"] == ["cam_b"] and any("not implemented" in w for w in cal2["warnings"])
@@ -1455,7 +1458,7 @@ def test_calibration_end_to_end(project):
 
 
 def test_calibration_stops_at_the_deadline_and_the_cli_runs(project, monkeypatch):
-    cal = calibrate.run_calibration(project, gate=api.Gate(models=FakeModels(), device="cpu"),
+    cal = calibrate.run_calibration(project, gate=api.Gate(thresholds=START_THRESHOLDS, models=FakeModels(), device="cpu"),
                                     expected_api=FakeExpected(), deadline=time.time() - 1, log=lambda *_: None)
     assert cal["incomplete"] is True and cal["benign"] == [] and cal["negative"] == []
     js = json.loads((project / "gate" / "gate_calibration.json").read_text(encoding="utf-8"))
@@ -1464,18 +1467,18 @@ def test_calibration_stops_at_the_deadline_and_the_cli_runs(project, monkeypatch
     # CLI: calibrate with the env deadline in the past, then compare one image.
     monkeypatch.setenv("WENART_DEADLINE", str(time.time() - 1))
     rc = gate_main(["calibrate", "--project-out", str(project), "--out", str(project / "gate_cli"), "--views", "1"],
-                   gate=api.Gate(models=FakeModels(), device="cpu"), expected_api=FakeExpected())
+                   gate=api.Gate(thresholds=START_THRESHOLDS, models=FakeModels(), device="cpu"), expected_api=FakeExpected())
     assert rc == 0 and json.loads((project / "gate_cli" / "gate_calibration.json").read_text())["incomplete"]
     with pytest.raises(KeyError):
         gate_main(["calibrate", "--project-out", str(project), "--views", "cam_zz"],
-                  gate=api.Gate(models=FakeModels(), device="cpu"), expected_api=FakeExpected())
+                  gate=api.Gate(thresholds=START_THRESHOLDS, models=FakeModels(), device="cpu"), expected_api=FakeExpected())
     renders = project / "renders"
     rc = gate_main(["compare", "--render-dir", str(renders), "--camera", "cam_a", "--test", str(renders / "cam_a.png"),
                     "--debug", str(project / "cmp" / "dbg.jpg"), "--json", str(project / "cmp" / "res.json")],
-                   gate=api.Gate(models=FakeModels(), device="cpu"))
+                   gate=api.Gate(thresholds=START_THRESHOLDS, models=FakeModels(), device="cpu"))
     assert rc == 0 and (project / "cmp" / "dbg.jpg").is_file()
     assert json.loads((project / "cmp" / "res.json").read_text())["decision"] == "accept"
     rc = gate_main(["compare", "--render-dir", str(renders), "--camera", "cam_a",
                     "--test", str(project / "polish" / "sweep" / "cam_a_a11.png")],
-                   gate=api.Gate(models=FakeModels(), device="cpu"))
+                   gate=api.Gate(thresholds=START_THRESHOLDS, models=FakeModels(), device="cpu"))
     assert rc == 1

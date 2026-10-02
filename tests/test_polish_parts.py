@@ -393,7 +393,7 @@ def test_ladder_and_grids_parse_into_checked_attempts(tmp_path):
     cfg = PC.load_config()
     ladder = PC.ladder(cfg)
     assert [(a["role"], a["strength"], a["control"]) for a in ladder] == [
-        ("ladder", 0.375, "depth"), ("ladder", 0.25, "depth"), ("ladder", 0.125, "depth")]
+        ("ladder", 0.375, "geometry"), ("ladder", 0.25, "canny"), ("ladder", 0.125, "depth")]
     sweep = PC.grid(cfg, "sweep")
     assert len(sweep) == 11 and sweep[-1]["role"] == "presumed_bad" and sweep[-1]["control"] is None
     assert sweep[-1]["scale"] is None and {a["mode"] for a in sweep} == {"plain", "anchor"}

@@ -70,3 +70,18 @@ def assert_one_to_one(items, candidates, match_fn, what: str) -> None:
         assert len(hits) == 1, f"{what}: {item} matches {len(hits)} truth elements"
         assert hits[0] not in used, f"{what}: truth element {candidates[hits[0]]['id']} matched twice"
         used.add(hits[0])
+
+
+# The Milestone 5 gate start values (docs/milestone5.md §4.2 before run 1a). The gate tests check the gate's mechanics on synthetic rooms, so they keep the
+# limits they were written for; the calibrated package limits (thresholds.yaml, run 1a) are checked in
+# tests/test_m5_config.py and against real calibration data on the pod (tests/gpu/test_polish.py).
+START_THRESHOLDS = {
+    "edges": {"hard": True, "global_min": 0.95, "region_min": 0.85, "region_min_ref_px": 200, "radius_px": 3,
+              "canny": {"sigma": 1.5, "low": 25, "high": 75}},
+    "added_lines": {"hard": True, "region_max_len_frac": 0.04, "min_len_frac": 0.04, "unmatched_frac": 0.70},
+    "depth": {"hard": True, "global_max": 0.02, "region_max": 0.05, "region_min_frac": 0.01},
+    "masks": {"hard": True, "region_min": 0.90, "region_min_frac": 0.005, "sam_reliable_min": 0.70},
+    "colour": {"hard": True, "global_max": 10.0, "region_max": 15.0, "region_min_frac": 0.01},
+    "neutral": {"hard": True, "region_max_dchroma": 5.0},
+    "features": {"hard": False, "region_min": 0.80, "region_min_frac": 0.01},
+}

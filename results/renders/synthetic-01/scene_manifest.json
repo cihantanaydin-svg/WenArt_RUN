@@ -11,12 +11,7 @@
   },
   "walls": {
    "material": "plaster_white",
-   "asset": "white_plaster_02",
-   "tint": [
-    0.95,
-    0.94,
-    0.9
-   ]
+   "asset": "white_plaster_02"
   },
   "ceiling": {
    "material": "plaster_white"
@@ -410,7 +405,10 @@
    },
    "wall_id": "w_L0_003",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_hol"
+   ]
   },
   {
    "name": "d_L0_001_leaf",
@@ -437,7 +435,10 @@
    },
    "wall_id": "w_L0_003",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_hol"
+   ]
   },
   {
    "name": "d_L0_002_threshold",
@@ -494,7 +495,11 @@
    },
    "wall_id": "w_L0_005",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_salon",
+    "r_L0_hol"
+   ]
   },
   {
    "name": "d_L0_002_leaf",
@@ -521,7 +526,11 @@
    },
    "wall_id": "w_L0_005",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_salon",
+    "r_L0_hol"
+   ]
   },
   {
    "name": "d_L0_003_threshold",
@@ -578,7 +587,11 @@
    },
    "wall_id": "w_L0_005",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_hol",
+    "r_L0_mutfak"
+   ]
   },
   {
    "name": "d_L0_003_leaf",
@@ -605,7 +618,11 @@
    },
    "wall_id": "w_L0_005",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_hol",
+    "r_L0_mutfak"
+   ]
   },
   {
    "name": "d_L0_004_threshold",
@@ -662,7 +679,11 @@
    },
    "wall_id": "w_L0_007",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_yatak_odasi",
+    "r_L0_hol"
+   ]
   },
   {
    "name": "d_L0_004_leaf",
@@ -689,7 +710,11 @@
    },
    "wall_id": "w_L0_007",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_yatak_odasi",
+    "r_L0_hol"
+   ]
   },
   {
    "name": "d_L0_005_threshold",
@@ -746,7 +771,11 @@
    },
    "wall_id": "w_L0_008",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_hol",
+    "r_L0_banyo"
+   ]
   },
   {
    "name": "d_L0_005_leaf",
@@ -773,7 +802,11 @@
    },
    "wall_id": "w_L0_008",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_hol",
+    "r_L0_banyo"
+   ]
   },
   {
    "name": "win_L0_001_frame",
@@ -801,7 +834,10 @@
    },
    "wall_id": "w_L0_001",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_salon"
+   ]
   },
   {
    "name": "win_L0_001_glass",
@@ -829,7 +865,10 @@
    },
    "wall_id": "w_L0_001",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_salon"
+   ]
   },
   {
    "name": "win_L0_002_frame",
@@ -857,7 +896,10 @@
    },
    "wall_id": "w_L0_001",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_salon"
+   ]
   },
   {
    "name": "win_L0_002_glass",
@@ -885,7 +927,10 @@
    },
    "wall_id": "w_L0_001",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_salon"
+   ]
   },
   {
    "name": "win_L0_003_frame",
@@ -913,7 +958,10 @@
    },
    "wall_id": "w_L0_001",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_yatak_odasi"
+   ]
   },
   {
    "name": "win_L0_003_glass",
@@ -941,7 +989,10 @@
    },
    "wall_id": "w_L0_001",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_yatak_odasi"
+   ]
   },
   {
    "name": "win_L0_004_frame",
@@ -969,7 +1020,10 @@
    },
    "wall_id": "w_L0_004",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_salon"
+   ]
   },
   {
    "name": "win_L0_004_glass",
@@ -997,7 +1051,10 @@
    },
    "wall_id": "w_L0_004",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_salon"
+   ]
   },
   {
    "name": "win_L0_005_frame",
@@ -1025,7 +1082,10 @@
    },
    "wall_id": "w_L0_003",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_mutfak"
+   ]
   },
   {
    "name": "win_L0_005_glass",
@@ -1053,7 +1113,10 @@
    },
    "wall_id": "w_L0_003",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_mutfak"
+   ]
   },
   {
    "name": "win_L0_006_frame",
@@ -1081,7 +1144,10 @@
    },
    "wall_id": "w_L0_003",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_banyo"
+   ]
   },
   {
    "name": "win_L0_006_glass",
@@ -1109,7 +1175,10 @@
    },
    "wall_id": "w_L0_003",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_banyo"
+   ]
   },
   {
    "name": "r_L0_salon_floor",
@@ -1568,7 +1637,20 @@
    "imported_objects": [
     "sofa_02_Base",
     "sofa_02_Seat"
-   ]
+   ],
+   "box3d": {
+    "center": [
+     2.75,
+     4.65,
+     0.4111
+    ],
+    "size": [
+     2.2,
+     0.8999,
+     0.8222
+    ],
+    "rotation_deg": 0.0
+   }
   },
   {
    "name": "furn_f_L0_002",
@@ -1691,6 +1773,19 @@
    "textured": true,
    "material_keys": {
     "wood": "wood_oak_light"
+   },
+   "box3d": {
+    "center": [
+     2.75,
+     3.5,
+     0.225
+    ],
+    "size": [
+     1.0,
+     0.6,
+     0.45
+    ],
+    "rotation_deg": 0.0
    }
   },
   {
@@ -1806,6 +1901,19 @@
     "wood": "wood_oak_light",
     "painted": "painted_wood_white",
     "steel": "steel_brushed"
+   },
+   "box3d": {
+    "center": [
+     2.75,
+     0.529,
+     0.25
+    ],
+    "size": [
+     1.6,
+     0.458,
+     0.5
+    ],
+    "rotation_deg": 180.0
    }
   },
   {
@@ -1941,7 +2049,20 @@
    "file": "/workspace/assets/models/ArmChair_01/ArmChair_01_1k.gltf",
    "imported_objects": [
     "ArmChair_01"
-   ]
+   ],
+   "box3d": {
+    "center": [
+     4.5,
+     3.4,
+     0.5954
+    ],
+    "size": [
+     0.9,
+     0.8999,
+     1.1908
+    ],
+    "rotation_deg": 270.0
+   }
   },
   {
    "name": "furn_f_L0_005",
@@ -2085,7 +2206,20 @@
     "wooden_display_shelves_01_drawer_01",
     "wooden_display_shelves_01_drawer_02",
     "wooden_display_shelves_01_drawer_03"
-   ]
+   ],
+   "box3d": {
+    "center": [
+     0.475,
+     4.3,
+     0.7275
+    ],
+    "size": [
+     0.9999,
+     0.35,
+     1.455
+    ],
+    "rotation_deg": 90.0
+   }
   },
   {
    "name": "furn_f_L0_006",
@@ -2231,7 +2365,20 @@
    "file": "/workspace/assets/models/GothicBed_01/GothicBed_01_1k.gltf",
    "imported_objects": [
     "GothicBed_01"
-   ]
+   ],
+   "box3d": {
+    "center": [
+     7.8,
+     2.7,
+     0.7866
+    ],
+    "size": [
+     1.6,
+     2.0,
+     1.5733
+    ],
+    "rotation_deg": 0.0
+   }
   },
   {
    "name": "furn_f_L0_007",
@@ -2366,7 +2513,20 @@
    "file": "/workspace/assets/models/side_table_01/side_table_01_1k.gltf",
    "imported_objects": [
     "side_table_01"
-   ]
+   ],
+   "box3d": {
+    "center": [
+     6.65,
+     3.5,
+     0.2475
+    ],
+    "size": [
+     0.5,
+     0.4,
+     0.495
+    ],
+    "rotation_deg": 0.0
+   }
   },
   {
    "name": "furn_f_L0_008",
@@ -2501,7 +2661,20 @@
    "file": "/workspace/assets/models/side_table_01/side_table_01_1k.gltf",
    "imported_objects": [
     "side_table_01"
-   ]
+   ],
+   "box3d": {
+    "center": [
+     8.95,
+     3.5,
+     0.2475
+    ],
+    "size": [
+     0.5,
+     0.4,
+     0.495
+    ],
+    "rotation_deg": 0.0
+   }
   },
   {
    "name": "furn_f_L0_009",
@@ -2591,6 +2764,19 @@
     "wood": "wood_oak_light",
     "painted": "painted_wood_white",
     "steel": "steel_brushed"
+   },
+   "box3d": {
+    "center": [
+     8.996,
+     1.5,
+     1.05
+    ],
+    "size": [
+     1.8,
+     0.608,
+     2.1
+    ],
+    "rotation_deg": 270.0
    }
   },
   {
@@ -2679,6 +2865,19 @@
    "material_keys": {
     "ceramic": "ceramic_white",
     "painted": "painted_wood_white"
+   },
+   "box3d": {
+    "center": [
+     8.95,
+     4.4,
+     0.4
+    ],
+    "size": [
+     0.4,
+     0.7,
+     0.8
+    ],
+    "rotation_deg": 270.0
    }
   },
   {
@@ -2767,6 +2966,19 @@
    "material_keys": {
     "ceramic": "ceramic_white",
     "steel": "steel_brushed"
+   },
+   "box3d": {
+    "center": [
+     9.075,
+     5.4,
+     0.5
+    ],
+    "size": [
+     0.6,
+     0.45,
+     1.0
+    ],
+    "rotation_deg": 270.0
    }
   },
   {
@@ -2857,6 +3069,19 @@
     "ceramic": "ceramic_white",
     "glass": "glass",
     "steel": "steel_brushed"
+   },
+   "box3d": {
+    "center": [
+     7.55,
+     6.45,
+     1.0
+    ],
+    "size": [
+     0.9,
+     0.9,
+     2.0
+    ],
+    "rotation_deg": 0.0
    }
   },
   {
@@ -2947,6 +3172,19 @@
     "painted": "painted_wood_white",
     "steel": "steel_brushed",
     "dark": "lacquer_dark"
+   },
+   "box3d": {
+    "center": [
+     8.95,
+     6.546,
+     0.425
+    ],
+    "size": [
+     0.6,
+     0.608,
+     0.85
+    ],
+    "rotation_deg": 0.0
    }
   },
   {
@@ -3083,7 +3321,20 @@
     "GothicCommode_01_door01",
     "GothicCommode_01_door02",
     "GothicCommode_01_door03"
-   ]
+   ],
+   "box3d": {
+    "center": [
+     6.704,
+     4.429,
+     0.487
+    ],
+    "size": [
+     1.0,
+     0.45,
+     0.974
+    ],
+    "rotation_deg": 270.0
+   }
   },
   {
    "name": "furn_f_L0_015",
@@ -3173,6 +3424,19 @@
     "painted": "painted_wood_white",
     "worktop": "stone_worktop",
     "steel": "steel_brushed"
+   },
+   "box3d": {
+    "center": [
+     2.75,
+     6.629,
+     0.45
+    ],
+    "size": [
+     3.0,
+     0.6,
+     0.9
+    ],
+    "rotation_deg": 0.0
    }
   },
   {
@@ -3259,6 +3523,19 @@
    "material_keys": {
     "painted": "painted_wood_white",
     "steel": "steel_brushed"
+   },
+   "box3d": {
+    "center": [
+     0.75,
+     5.521,
+     0.575
+    ],
+    "size": [
+     0.6,
+     0.5,
+     1.15
+    ],
+    "rotation_deg": 180.0
    }
   },
   {
@@ -3358,6 +3635,19 @@
    "material_keys": {
     "steel": "steel_brushed",
     "dark": "lacquer_dark"
+   },
+   "box3d": {
+    "center": [
+     1.35,
+     5.575,
+     0.454
+    ],
+    "size": [
+     0.6,
+     0.608,
+     0.908
+    ],
+    "rotation_deg": 180.0
    }
   },
   {
@@ -3444,6 +3734,19 @@
    "material_keys": {
     "steel": "steel_brushed",
     "dark": "lacquer_dark"
+   },
+   "box3d": {
+    "center": [
+     0.621,
+     6.575,
+     0.9
+    ],
+    "size": [
+     0.7,
+     0.708,
+     1.8
+    ],
+    "rotation_deg": 0.0
    }
   },
   {
@@ -3577,7 +3880,20 @@
    "file": "/workspace/assets/models/wooden_table_02/wooden_table_02_1k.gltf",
    "imported_objects": [
     "wooden_table_02"
-   ]
+   ],
+   "box3d": {
+    "center": [
+     2.25,
+     5.75,
+     0.4379
+    ],
+    "size": [
+     1.2,
+     0.8,
+     0.8759
+    ],
+    "rotation_deg": 0.0
+   }
   },
   {
    "name": "decor_f_L0_001_1",
@@ -3630,7 +3946,20 @@
    ],
    "material": "fabric_linen",
    "textured": false,
-   "fallback_reason": "no asset in the building JSON"
+   "fallback_reason": "no asset in the building JSON",
+   "box3d": {
+    "center": [
+     2.2,
+     4.925,
+     0.51
+    ],
+    "size": [
+     0.45,
+     0.15,
+     0.12
+    ],
+    "rotation_deg": 0.0
+   }
   },
   {
    "name": "decor_f_L0_001_2",
@@ -3683,7 +4012,20 @@
    ],
    "material": "fabric_linen",
    "textured": false,
-   "fallback_reason": "no asset in the building JSON"
+   "fallback_reason": "no asset in the building JSON",
+   "box3d": {
+    "center": [
+     3.3,
+     4.925,
+     0.51
+    ],
+    "size": [
+     0.45,
+     0.15,
+     0.12
+    ],
+    "rotation_deg": 0.0
+   }
   },
   {
    "name": "decor_f_L0_005_3",
@@ -3739,7 +4081,20 @@
    ],
    "material": "lacquer_dark",
    "textured": true,
-   "fallback_reason": "no asset in the building JSON"
+   "fallback_reason": "no asset in the building JSON",
+   "box3d": {
+    "center": [
+     0.475,
+     4.3,
+     0.81
+    ],
+    "size": [
+     0.296,
+     0.22,
+     0.22
+    ],
+    "rotation_deg": 90.0
+   }
   },
   {
    "name": "decor_f_L0_006_4",
@@ -3792,7 +4147,20 @@
    ],
    "material": "fabric_linen",
    "textured": false,
-   "fallback_reason": "no asset in the building JSON"
+   "fallback_reason": "no asset in the building JSON",
+   "box3d": {
+    "center": [
+     7.4,
+     3.45,
+     0.61
+    ],
+    "size": [
+     0.5,
+     0.3,
+     0.12
+    ],
+    "rotation_deg": 0.0
+   }
   },
   {
    "name": "decor_f_L0_006_5",
@@ -3845,7 +4213,20 @@
    ],
    "material": "fabric_linen",
    "textured": false,
-   "fallback_reason": "no asset in the building JSON"
+   "fallback_reason": "no asset in the building JSON",
+   "box3d": {
+    "center": [
+     8.2,
+     3.45,
+     0.61
+    ],
+    "size": [
+     0.5,
+     0.3,
+     0.12
+    ],
+    "rotation_deg": 0.0
+   }
   },
   {
    "name": "decor_dec_L0_006",
@@ -3956,7 +4337,20 @@
      0.5895
     ]
    },
-   "file": "/workspace/assets/models/potted_plant_02/potted_plant_02_1k.gltf"
+   "file": "/workspace/assets/models/potted_plant_02/potted_plant_02_1k.gltf",
+   "box3d": {
+    "center": [
+     5.6,
+     0.5,
+     0.2479
+    ],
+    "size": [
+     0.4,
+     0.4,
+     0.4959
+    ],
+    "rotation_deg": 0.0
+   }
   },
   {
    "name": "cam_r_L0_salon_1",
@@ -4469,7 +4863,11 @@
    },
    "wall_id": "w_L1_005",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L1_ebeveyn_yatak_odasi",
+    "r_L1_hol"
+   ]
   },
   {
    "name": "d_L1_001_leaf",
@@ -4495,7 +4893,11 @@
    },
    "wall_id": "w_L1_005",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L1_ebeveyn_yatak_odasi",
+    "r_L1_hol"
+   ]
   },
   {
    "name": "d_L1_002_threshold",
@@ -4550,7 +4952,11 @@
    },
    "wall_id": "w_L1_005",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L1_hol",
+    "r_L1_cocuk_odasi"
+   ]
   },
   {
    "name": "d_L1_002_leaf",
@@ -4576,7 +4982,11 @@
    },
    "wall_id": "w_L1_005",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L1_hol",
+    "r_L1_cocuk_odasi"
+   ]
   },
   {
    "name": "d_L1_003_threshold",
@@ -4631,7 +5041,11 @@
    },
    "wall_id": "w_L1_006",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L1_hol",
+    "r_L1_yatak_odasi"
+   ]
   },
   {
    "name": "d_L1_003_leaf",
@@ -4657,7 +5071,11 @@
    },
    "wall_id": "w_L1_006",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L1_hol",
+    "r_L1_yatak_odasi"
+   ]
   },
   {
    "name": "d_L1_004_threshold",
@@ -4712,7 +5130,11 @@
    },
    "wall_id": "w_L1_006",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L1_hol",
+    "r_L1_banyo"
+   ]
   },
   {
    "name": "d_L1_004_leaf",
@@ -4738,7 +5160,11 @@
    },
    "wall_id": "w_L1_006",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L1_hol",
+    "r_L1_banyo"
+   ]
   },
   {
    "name": "win_L1_001_frame",
@@ -4765,7 +5191,10 @@
    },
    "wall_id": "w_L1_001",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L1_ebeveyn_yatak_odasi"
+   ]
   },
   {
    "name": "win_L1_001_glass",
@@ -4792,7 +5221,10 @@
    },
    "wall_id": "w_L1_001",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L1_ebeveyn_yatak_odasi"
+   ]
   },
   {
    "name": "win_L1_002_frame",
@@ -4819,7 +5251,10 @@
    },
    "wall_id": "w_L1_001",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L1_yatak_odasi"
+   ]
   },
   {
    "name": "win_L1_002_glass",
@@ -4846,7 +5281,10 @@
    },
    "wall_id": "w_L1_001",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L1_yatak_odasi"
+   ]
   },
   {
    "name": "win_L1_003_frame",
@@ -4873,7 +5311,10 @@
    },
    "wall_id": "w_L1_004",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L1_ebeveyn_yatak_odasi"
+   ]
   },
   {
    "name": "win_L1_003_glass",
@@ -4900,7 +5341,10 @@
    },
    "wall_id": "w_L1_004",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L1_ebeveyn_yatak_odasi"
+   ]
   },
   {
    "name": "win_L1_004_frame",
@@ -4927,7 +5371,10 @@
    },
    "wall_id": "w_L1_003",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L1_cocuk_odasi"
+   ]
   },
   {
    "name": "win_L1_004_glass",
@@ -4954,7 +5401,10 @@
    },
    "wall_id": "w_L1_003",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L1_cocuk_odasi"
+   ]
   },
   {
    "name": "win_L1_005_frame",
@@ -4981,7 +5431,10 @@
    },
    "wall_id": "w_L1_003",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L1_hol"
+   ]
   },
   {
    "name": "win_L1_005_glass",
@@ -5008,7 +5461,10 @@
    },
    "wall_id": "w_L1_003",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L1_hol"
+   ]
   },
   {
    "name": "win_L1_006_frame",
@@ -5035,7 +5491,10 @@
    },
    "wall_id": "w_L1_003",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L1_banyo"
+   ]
   },
   {
    "name": "win_L1_006_glass",
@@ -5062,7 +5521,10 @@
    },
    "wall_id": "w_L1_003",
    "has_geometry": true,
-   "center_shift": 0.0
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L1_banyo"
+   ]
   },
   {
    "name": "r_L1_ebeveyn_yatak_odasi_floor",
@@ -5472,6 +5934,19 @@
    "material_keys": {
     "wood": "wood_oak_light",
     "bedding": "fabric_white"
+   },
+   "box3d": {
+    "center": [
+     1.271,
+     2.0,
+     3.5
+    ],
+    "size": [
+     1.8,
+     2.0,
+     1.0
+    ],
+    "rotation_deg": 90.0
    }
   },
   {
@@ -5605,7 +6080,20 @@
    "file": "/workspace/assets/models/side_table_01/side_table_01_1k.gltf",
    "imported_objects": [
     "side_table_01"
-   ]
+   ],
+   "box3d": {
+    "center": [
+     0.471,
+     3.8,
+     3.2475
+    ],
+    "size": [
+     0.5,
+     0.4,
+     0.495
+    ],
+    "rotation_deg": 90.0
+   }
   },
   {
    "name": "furn_f_L1_003",
@@ -5738,7 +6226,20 @@
    "file": "/workspace/assets/models/side_table_01/side_table_01_1k.gltf",
    "imported_objects": [
     "side_table_01"
-   ]
+   ],
+   "box3d": {
+    "center": [
+     0.471,
+     3.3,
+     3.2475
+    ],
+    "size": [
+     0.5,
+     0.4,
+     0.495
+    ],
+    "rotation_deg": 90.0
+   }
   },
   {
    "name": "furn_f_L1_004",
@@ -5826,6 +6327,19 @@
     "wood": "wood_oak_light",
     "painted": "painted_wood_white",
     "steel": "steel_brushed"
+   },
+   "box3d": {
+    "center": [
+     3.0,
+     3.825,
+     4.05
+    ],
+    "size": [
+     1.8,
+     0.608,
+     2.1
+    ],
+    "rotation_deg": 0.0
    }
   },
   {
@@ -5957,6 +6471,19 @@
     "wood": "wood_oak_light",
     "painted": "painted_wood_white",
     "steel": "steel_brushed"
+   },
+   "box3d": {
+    "center": [
+     1.5,
+     3.829,
+     3.375
+    ],
+    "size": [
+     1.2,
+     0.6,
+     0.75
+    ],
+    "rotation_deg": 0.0
    }
   },
   {
@@ -6102,7 +6629,20 @@
    "file": "/workspace/assets/models/gallinera_chair/gallinera_chair_1k.gltf",
    "imported_objects": [
     "gallinera_chair"
-   ]
+   ],
+   "box3d": {
+    "center": [
+     3.5,
+     1.0,
+     3.3928
+    ],
+    "size": [
+     0.45,
+     0.45,
+     0.7856
+    ],
+    "rotation_deg": 0.0
+   }
   },
   {
    "name": "furn_f_L1_007",
@@ -6238,7 +6778,20 @@
     "GothicCommode_01_door01",
     "GothicCommode_01_door02",
     "GothicCommode_01_door03"
-   ]
+   ],
+   "box3d": {
+    "center": [
+     4.596,
+     1.0,
+     3.487
+    ],
+    "size": [
+     1.0,
+     0.45,
+     0.974
+    ],
+    "rotation_deg": 90.0
+   }
   },
   {
    "name": "furn_f_L1_008",
@@ -6383,7 +6936,20 @@
    "file": "/workspace/assets/models/gallinera_chair/gallinera_chair_1k.gltf",
    "imported_objects": [
     "gallinera_chair"
-   ]
+   ],
+   "box3d": {
+    "center": [
+     4.75,
+     3.0,
+     3.3928
+    ],
+    "size": [
+     0.45,
+     0.45,
+     0.7856
+    ],
+    "rotation_deg": 0.0
+   }
   },
   {
    "name": "furn_f_L1_009",
@@ -6493,6 +7059,19 @@
    "material_keys": {
     "wood": "wood_oak_light",
     "bedding": "fabric_white"
+   },
+   "box3d": {
+    "center": [
+     7.9,
+     2.929,
+     3.5
+    ],
+    "size": [
+     1.8,
+     2.0,
+     1.0
+    ],
+    "rotation_deg": 0.0
    }
   },
   {
@@ -6626,7 +7205,20 @@
    "file": "/workspace/assets/models/side_table_01/side_table_01_1k.gltf",
    "imported_objects": [
     "side_table_01"
-   ]
+   ],
+   "box3d": {
+    "center": [
+     6.271,
+     3.2,
+     3.2475
+    ],
+    "size": [
+     0.5,
+     0.4,
+     0.495
+    ],
+    "rotation_deg": 90.0
+   }
   },
   {
    "name": "furn_f_L1_011",
@@ -6759,7 +7351,20 @@
    "file": "/workspace/assets/models/side_table_01/side_table_01_1k.gltf",
    "imported_objects": [
     "side_table_01"
-   ]
+   ],
+   "box3d": {
+    "center": [
+     9.129,
+     2.0,
+     3.2475
+    ],
+    "size": [
+     0.5,
+     0.4,
+     0.495
+    ],
+    "rotation_deg": 270.0
+   }
   },
   {
    "name": "furn_f_L1_012",
@@ -6892,7 +7497,20 @@
    "file": "/workspace/assets/models/painted_wooden_chair_02/painted_wooden_chair_02_1k.gltf",
    "imported_objects": [
     "painted_wooden_chair_02"
-   ]
+   ],
+   "box3d": {
+    "center": [
+     9.0,
+     0.8,
+     3.4857
+    ],
+    "size": [
+     0.5,
+     0.5,
+     0.9713
+    ],
+    "rotation_deg": 0.0
+   }
   },
   {
    "name": "furn_f_L1_013",
@@ -6980,6 +7598,19 @@
     "ceramic": "ceramic_white",
     "glass": "glass",
     "steel": "steel_brushed"
+   },
+   "box3d": {
+    "center": [
+     7.15,
+     4.521,
+     4.0
+    ],
+    "size": [
+     0.9,
+     0.9,
+     2.0
+    ],
+    "rotation_deg": 180.0
    }
   },
   {
@@ -7066,6 +7697,19 @@
    "material_keys": {
     "ceramic": "ceramic_white",
     "painted": "painted_wood_white"
+   },
+   "box3d": {
+    "center": [
+     6.421,
+     6.5,
+     3.6
+    ],
+    "size": [
+     0.4,
+     0.7,
+     1.2
+    ],
+    "rotation_deg": 90.0
    }
   },
   {
@@ -7152,6 +7796,19 @@
    "material_keys": {
     "ceramic": "ceramic_white",
     "steel": "steel_brushed"
+   },
+   "box3d": {
+    "center": [
+     6.296,
+     4.371,
+     3.5
+    ],
+    "size": [
+     0.6,
+     0.45,
+     1.0
+    ],
+    "rotation_deg": 90.0
    }
   },
   {
@@ -7257,6 +7914,19 @@
    "material_keys": {
     "wood": "wood_oak_light",
     "bedding": "fabric_white"
+   },
+   "box3d": {
+    "center": [
+     1.0,
+     5.929,
+     3.5
+    ],
+    "size": [
+     1.2,
+     2.0,
+     1.0
+    ],
+    "rotation_deg": 0.0
    }
   },
   {
@@ -7390,7 +8060,20 @@
    "file": "/workspace/assets/models/side_table_01/side_table_01_1k.gltf",
    "imported_objects": [
     "side_table_01"
-   ]
+   ],
+   "box3d": {
+    "center": [
+     1.871,
+     6.729,
+     3.2475
+    ],
+    "size": [
+     0.5,
+     0.4,
+     0.495
+    ],
+    "rotation_deg": 0.0
+   }
   },
   {
    "name": "furn_f_L1_018",
@@ -7478,6 +8161,19 @@
     "wood": "wood_oak_light",
     "painted": "painted_wood_white",
     "steel": "steel_brushed"
+   },
+   "box3d": {
+    "center": [
+     3.5,
+     6.625,
+     4.05
+    ],
+    "size": [
+     1.2,
+     0.608,
+     2.1
+    ],
+    "rotation_deg": 0.0
    }
   },
   {
@@ -7599,6 +8295,19 @@
    "textured": true,
    "material_keys": {
     "wood": "wood_oak_light"
+   },
+   "box3d": {
+    "center": [
+     1.853,
+     5.795,
+     3.45
+    ],
+    "size": [
+     0.4,
+     0.4,
+     0.9
+    ],
+    "rotation_deg": 0.0
    }
   },
   {
@@ -7741,7 +8450,20 @@
     "wooden_display_shelves_01_drawer_01",
     "wooden_display_shelves_01_drawer_02",
     "wooden_display_shelves_01_drawer_03"
-   ]
+   ],
+   "box3d": {
+    "center": [
+     3.2,
+     4.446,
+     3.7275
+    ],
+    "size": [
+     0.9999,
+     0.35,
+     1.455
+    ],
+    "rotation_deg": 180.0
+   }
   },
   {
    "name": "decor_f_L1_001_1",
@@ -7794,7 +8516,20 @@
    ],
    "material": "fabric_linen",
    "textured": false,
-   "fallback_reason": "no asset in the building JSON"
+   "fallback_reason": "no asset in the building JSON",
+   "box3d": {
+    "center": [
+     0.521,
+     1.55,
+     3.56
+    ],
+    "size": [
+     0.5,
+     0.3,
+     0.12
+    ],
+    "rotation_deg": 90.0
+   }
   },
   {
    "name": "decor_f_L1_001_2",
@@ -7847,7 +8582,20 @@
    ],
    "material": "fabric_linen",
    "textured": false,
-   "fallback_reason": "no asset in the building JSON"
+   "fallback_reason": "no asset in the building JSON",
+   "box3d": {
+    "center": [
+     0.521,
+     2.45,
+     3.56
+    ],
+    "size": [
+     0.5,
+     0.3,
+     0.12
+    ],
+    "rotation_deg": 90.0
+   }
   },
   {
    "name": "decor_f_L1_005_3",
@@ -7903,7 +8651,20 @@
    ],
    "material": "lacquer_dark",
    "textured": true,
-   "fallback_reason": "no asset in the building JSON"
+   "fallback_reason": "no asset in the building JSON",
+   "box3d": {
+    "center": [
+     1.9,
+     3.969,
+     3.86
+    ],
+    "size": [
+     0.296,
+     0.22,
+     0.22
+    ],
+    "rotation_deg": 0.0
+   }
   },
   {
    "name": "decor_dec_L1_004",
@@ -8014,7 +8775,20 @@
      0.5895
     ]
    },
-   "file": "/workspace/assets/models/potted_plant_02/potted_plant_02_1k.gltf"
+   "file": "/workspace/assets/models/potted_plant_02/potted_plant_02_1k.gltf",
+   "box3d": {
+    "center": [
+     0.5,
+     0.5,
+     3.2479
+    ],
+    "size": [
+     0.4,
+     0.4,
+     0.4959
+    ],
+    "rotation_deg": 0.0
+   }
   },
   {
    "name": "decor_f_L1_009_5",
@@ -8067,7 +8841,20 @@
    ],
    "material": "fabric_linen",
    "textured": false,
-   "fallback_reason": "no asset in the building JSON"
+   "fallback_reason": "no asset in the building JSON",
+   "box3d": {
+    "center": [
+     7.45,
+     3.679,
+     3.56
+    ],
+    "size": [
+     0.5,
+     0.3,
+     0.12
+    ],
+    "rotation_deg": 0.0
+   }
   },
   {
    "name": "decor_f_L1_009_6",
@@ -8120,7 +8907,20 @@
    ],
    "material": "fabric_linen",
    "textured": false,
-   "fallback_reason": "no asset in the building JSON"
+   "fallback_reason": "no asset in the building JSON",
+   "box3d": {
+    "center": [
+     8.35,
+     3.679,
+     3.56
+    ],
+    "size": [
+     0.5,
+     0.3,
+     0.12
+    ],
+    "rotation_deg": 0.0
+   }
   },
   {
    "name": "decor_dec_L1_007",
@@ -8231,7 +9031,20 @@
      0.5895
     ]
    },
-   "file": "/workspace/assets/models/potted_plant_02/potted_plant_02_1k.gltf"
+   "file": "/workspace/assets/models/potted_plant_02/potted_plant_02_1k.gltf",
+   "box3d": {
+    "center": [
+     6.3,
+     0.5,
+     3.2479
+    ],
+    "size": [
+     0.4,
+     0.4,
+     0.4959
+    ],
+    "rotation_deg": 0.0
+   }
   },
   {
    "name": "decor_f_L1_016_8",
@@ -8284,7 +9097,20 @@
    ],
    "material": "fabric_linen",
    "textured": false,
-   "fallback_reason": "no asset in the building JSON"
+   "fallback_reason": "no asset in the building JSON",
+   "box3d": {
+    "center": [
+     1.0,
+     6.679,
+     3.56
+    ],
+    "size": [
+     0.5,
+     0.3,
+     0.12
+    ],
+    "rotation_deg": 0.0
+   }
   },
   {
    "name": "decor_f_L1_020_9",
@@ -8340,7 +9166,20 @@
    ],
    "material": "lacquer_dark",
    "textured": true,
-   "fallback_reason": "no asset in the building JSON"
+   "fallback_reason": "no asset in the building JSON",
+   "box3d": {
+    "center": [
+     3.2,
+     4.446,
+     3.81
+    ],
+    "size": [
+     0.296,
+     0.22,
+     0.22
+    ],
+    "rotation_deg": 180.0
+   }
   },
   {
    "name": "decor_dec_L1_010",
@@ -8451,7 +9290,20 @@
      0.5895
     ]
    },
-   "file": "/workspace/assets/models/potted_plant_02/potted_plant_02_1k.gltf"
+   "file": "/workspace/assets/models/potted_plant_02/potted_plant_02_1k.gltf",
+   "box3d": {
+    "center": [
+     4.0,
+     4.5,
+     3.2479
+    ],
+    "size": [
+     0.4,
+     0.4,
+     0.4959
+    ],
+    "rotation_deg": 0.0
+   }
   },
   {
    "name": "cam_r_L1_ebeveyn_yatak_odasi_1",
@@ -8664,6 +9516,414 @@
     "azimuth_deg": 210.0,
     "strength": 3.0,
     "temperature_k": 5200.0
+   }
+  },
+  {
+   "name": "portal_win_L0_001",
+   "wenart_id": "portal_win_L0_001",
+   "kind": "light",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "win_L0_001",
+   "evidence": [],
+   "material": null,
+   "textured": false,
+   "pass_index": null,
+   "reason": "portal",
+   "center": [
+    1.5,
+    0.24,
+    1.6
+   ],
+   "size": [
+    1.7,
+    1.3
+   ],
+   "inward": [
+    -0.0,
+    1.0
+   ],
+   "assumed": {
+    "reason": "portal",
+    "size_m": [
+     1.7,
+     1.3
+    ],
+    "faces_room": "r_L0_salon"
+   }
+  },
+  {
+   "name": "portal_win_L0_002",
+   "wenart_id": "portal_win_L0_002",
+   "kind": "light",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "win_L0_002",
+   "evidence": [],
+   "material": null,
+   "textured": false,
+   "pass_index": null,
+   "reason": "portal",
+   "center": [
+    3.8,
+    0.24,
+    1.5
+   ],
+   "size": [
+    1.1,
+    1.1
+   ],
+   "inward": [
+    -0.0,
+    1.0
+   ],
+   "assumed": {
+    "reason": "portal",
+    "size_m": [
+     1.1,
+     1.1
+    ],
+    "faces_room": "r_L0_salon"
+   }
+  },
+  {
+   "name": "portal_win_L0_003",
+   "wenart_id": "portal_win_L0_003",
+   "kind": "light",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "win_L0_003",
+   "evidence": [],
+   "material": null,
+   "textured": false,
+   "pass_index": null,
+   "reason": "portal",
+   "center": [
+    7.35,
+    0.24,
+    1.6
+   ],
+   "size": [
+    1.7,
+    1.3
+   ],
+   "inward": [
+    -0.0,
+    1.0
+   ],
+   "assumed": {
+    "reason": "portal",
+    "size_m": [
+     1.7,
+     1.3
+    ],
+    "faces_room": "r_L0_yatak_odasi"
+   }
+  },
+  {
+   "name": "portal_win_L0_004",
+   "wenart_id": "portal_win_L0_004",
+   "kind": "light",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "win_L0_004",
+   "evidence": [],
+   "material": null,
+   "textured": false,
+   "pass_index": null,
+   "reason": "portal",
+   "center": [
+    0.24,
+    2.7,
+    1.5
+   ],
+   "size": [
+    1.1,
+    1.1
+   ],
+   "inward": [
+    1.0,
+    -0.0
+   ],
+   "assumed": {
+    "reason": "portal",
+    "size_m": [
+     1.1,
+     1.1
+    ],
+    "faces_room": "r_L0_salon"
+   }
+  },
+  {
+   "name": "portal_win_L0_005",
+   "wenart_id": "portal_win_L0_005",
+   "kind": "light",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "win_L0_005",
+   "evidence": [],
+   "material": null,
+   "textured": false,
+   "pass_index": null,
+   "reason": "portal",
+   "center": [
+    2.75,
+    6.96,
+    1.5
+   ],
+   "size": [
+    1.1,
+    1.1
+   ],
+   "inward": [
+    0.0,
+    -1.0
+   ],
+   "assumed": {
+    "reason": "portal",
+    "size_m": [
+     1.1,
+     1.1
+    ],
+    "faces_room": "r_L0_mutfak"
+   }
+  },
+  {
+   "name": "portal_win_L0_006",
+   "wenart_id": "portal_win_L0_006",
+   "kind": "light",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "win_L0_006",
+   "evidence": [],
+   "material": null,
+   "textured": false,
+   "pass_index": null,
+   "reason": "portal",
+   "center": [
+    8.2,
+    6.96,
+    1.5
+   ],
+   "size": [
+    0.5,
+    1.1
+   ],
+   "inward": [
+    0.0,
+    -1.0
+   ],
+   "assumed": {
+    "reason": "portal",
+    "size_m": [
+     0.5,
+     1.1
+    ],
+    "faces_room": "r_L0_banyo"
+   }
+  },
+  {
+   "name": "portal_win_L1_001",
+   "wenart_id": "portal_win_L1_001",
+   "kind": "light",
+   "status": "assumed",
+   "level_id": "L1",
+   "element_id": "win_L1_001",
+   "evidence": [],
+   "material": null,
+   "textured": false,
+   "pass_index": null,
+   "reason": "portal",
+   "center": [
+    2.25,
+    0.24,
+    4.6
+   ],
+   "size": [
+    1.7,
+    1.3
+   ],
+   "inward": [
+    -0.0,
+    1.0
+   ],
+   "assumed": {
+    "reason": "portal",
+    "size_m": [
+     1.7,
+     1.3
+    ],
+    "faces_room": "r_L1_ebeveyn_yatak_odasi"
+   }
+  },
+  {
+   "name": "portal_win_L1_002",
+   "wenart_id": "portal_win_L1_002",
+   "kind": "light",
+   "status": "assumed",
+   "level_id": "L1",
+   "element_id": "win_L1_002",
+   "evidence": [],
+   "material": null,
+   "textured": false,
+   "pass_index": null,
+   "reason": "portal",
+   "center": [
+    7.7,
+    0.24,
+    4.6
+   ],
+   "size": [
+    1.7,
+    1.3
+   ],
+   "inward": [
+    -0.0,
+    1.0
+   ],
+   "assumed": {
+    "reason": "portal",
+    "size_m": [
+     1.7,
+     1.3
+    ],
+    "faces_room": "r_L1_yatak_odasi"
+   }
+  },
+  {
+   "name": "portal_win_L1_003",
+   "wenart_id": "portal_win_L1_003",
+   "kind": "light",
+   "status": "assumed",
+   "level_id": "L1",
+   "element_id": "win_L1_003",
+   "evidence": [],
+   "material": null,
+   "textured": false,
+   "pass_index": null,
+   "reason": "portal",
+   "center": [
+    0.24,
+    2.2,
+    4.5
+   ],
+   "size": [
+    1.1,
+    1.1
+   ],
+   "inward": [
+    1.0,
+    -0.0
+   ],
+   "assumed": {
+    "reason": "portal",
+    "size_m": [
+     1.1,
+     1.1
+    ],
+    "faces_room": "r_L1_ebeveyn_yatak_odasi"
+   }
+  },
+  {
+   "name": "portal_win_L1_004",
+   "wenart_id": "portal_win_L1_004",
+   "kind": "light",
+   "status": "assumed",
+   "level_id": "L1",
+   "element_id": "win_L1_004",
+   "evidence": [],
+   "material": null,
+   "textured": false,
+   "pass_index": null,
+   "reason": "portal",
+   "center": [
+    2.25,
+    6.96,
+    4.5
+   ],
+   "size": [
+    1.1,
+    1.1
+   ],
+   "inward": [
+    0.0,
+    -1.0
+   ],
+   "assumed": {
+    "reason": "portal",
+    "size_m": [
+     1.1,
+     1.1
+    ],
+    "faces_room": "r_L1_cocuk_odasi"
+   }
+  },
+  {
+   "name": "portal_win_L1_005",
+   "wenart_id": "portal_win_L1_005",
+   "kind": "light",
+   "status": "assumed",
+   "level_id": "L1",
+   "element_id": "win_L1_005",
+   "evidence": [],
+   "material": null,
+   "textured": false,
+   "pass_index": null,
+   "reason": "portal",
+   "center": [
+    5.15,
+    6.96,
+    4.5
+   ],
+   "size": [
+    0.5,
+    1.1
+   ],
+   "inward": [
+    0.0,
+    -1.0
+   ],
+   "assumed": {
+    "reason": "portal",
+    "size_m": [
+     0.5,
+     1.1
+    ],
+    "faces_room": "r_L1_hol"
+   }
+  },
+  {
+   "name": "portal_win_L1_006",
+   "wenart_id": "portal_win_L1_006",
+   "kind": "light",
+   "status": "assumed",
+   "level_id": "L1",
+   "element_id": "win_L1_006",
+   "evidence": [],
+   "material": null,
+   "textured": false,
+   "pass_index": null,
+   "reason": "portal",
+   "center": [
+    7.7,
+    6.96,
+    4.5
+   ],
+   "size": [
+    0.5,
+    1.1
+   ],
+   "inward": [
+    0.0,
+    -1.0
+   ],
+   "assumed": {
+    "reason": "portal",
+    "size_m": [
+     0.5,
+     1.1
+    ],
+    "faces_room": "r_L1_banyo"
    }
   },
   {
@@ -9627,15 +10887,14 @@
     0.84,
     0.8
    ],
-   "tint": [
-    0.95,
-    0.94,
-    0.9
-   ],
+   "tint": null,
    "unverified": false,
    "reason": "textured",
-   "albedo_gain": 3.335,
-   "albedo_mean_luminance": 0.2516
+   "albedo_mode": "flat",
+   "detail": 0.35,
+   "albedo_gain": null,
+   "albedo_mean_luminance": 0.2516,
+   "gain_clamped": null
   },
   "plaster_exterior": {
    "slug": "plaster_exterior",
@@ -9652,8 +10911,11 @@
    "tint": null,
    "unverified": false,
    "reason": "style names no asset for this material",
+   "albedo_mode": "flat",
+   "detail": 0.5,
    "albedo_gain": null,
-   "albedo_mean_luminance": null
+   "albedo_mean_luminance": null,
+   "gain_clamped": null
   },
   "tiles_light": {
    "slug": "tiles_light",
@@ -9670,8 +10932,11 @@
    "tint": null,
    "unverified": false,
    "reason": "style names no asset for this material",
+   "albedo_mode": "texture",
+   "detail": null,
    "albedo_gain": null,
-   "albedo_mean_luminance": null
+   "albedo_mean_luminance": null,
+   "gain_clamped": null
   },
   "painted_wood_white": {
    "slug": "painted_wood_white",
@@ -9688,8 +10953,11 @@
    "tint": null,
    "unverified": false,
    "reason": "style names no asset for this material",
+   "albedo_mode": "flat",
+   "detail": 0.5,
    "albedo_gain": null,
-   "albedo_mean_luminance": null
+   "albedo_mean_luminance": null,
+   "gain_clamped": null
   },
   "wood_oak_light": {
    "slug": "wood_oak_light",
@@ -9706,8 +10974,11 @@
    "tint": null,
    "unverified": false,
    "reason": "style names no asset for this material",
+   "albedo_mode": "texture",
+   "detail": null,
    "albedo_gain": null,
-   "albedo_mean_luminance": null
+   "albedo_mean_luminance": null,
+   "gain_clamped": null
   },
   "painted_metal_white": {
    "slug": "painted_metal_white",
@@ -9724,8 +10995,11 @@
    "tint": null,
    "unverified": false,
    "reason": "style names no asset for this material",
+   "albedo_mode": "flat",
+   "detail": 0.15,
    "albedo_gain": null,
-   "albedo_mean_luminance": null
+   "albedo_mean_luminance": null,
+   "gain_clamped": null
   },
   "glass": {
    "slug": "glass",
@@ -9741,7 +11015,10 @@
    ],
    "tint": null,
    "unverified": false,
-   "reason": "glass BSDF"
+   "albedo_mode": null,
+   "detail": null,
+   "gain_clamped": null,
+   "reason": "camera-only glass: Glass BSDF (IOR 1.45) for camera rays and singular rays (both faces refract the view), Transparent BSDF for every other ray"
   },
   "wood_oak_light__WoodFloor051": {
    "slug": "wood_oak_light",
@@ -9761,8 +11038,11 @@
    "tint": null,
    "unverified": false,
    "reason": "textured",
+   "albedo_mode": "texture",
+   "detail": null,
    "albedo_gain": 2.2125,
-   "albedo_mean_luminance": 0.2213
+   "albedo_mean_luminance": 0.2213,
+   "gain_clamped": false
   },
   "tiles_light__Tiles074": {
    "slug": "tiles_light",
@@ -9782,8 +11062,11 @@
    "tint": null,
    "unverified": false,
    "reason": "textured",
-   "albedo_gain": 4.0,
-   "albedo_mean_luminance": 0.1279
+   "albedo_mode": "texture",
+   "detail": null,
+   "albedo_gain": 2.5,
+   "albedo_mean_luminance": 0.1279,
+   "gain_clamped": true
   },
   "plaster_white": {
    "slug": "plaster_white",
@@ -9800,8 +11083,11 @@
    "tint": null,
    "unverified": false,
    "reason": "style names no asset for this material",
+   "albedo_mode": "flat",
+   "detail": 0.35,
    "albedo_gain": null,
-   "albedo_mean_luminance": null
+   "albedo_mean_luminance": null,
+   "gain_clamped": null
   },
   "steel_brushed": {
    "slug": "steel_brushed",
@@ -9818,8 +11104,11 @@
    "tint": null,
    "unverified": false,
    "reason": "style names no asset for this material",
+   "albedo_mode": "texture",
+   "detail": null,
    "albedo_gain": null,
-   "albedo_mean_luminance": null
+   "albedo_mean_luminance": null,
+   "gain_clamped": null
   },
   "ceramic_white": {
    "slug": "ceramic_white",
@@ -9836,8 +11125,11 @@
    "tint": null,
    "unverified": false,
    "reason": "style names no asset for this material",
+   "albedo_mode": "texture",
+   "detail": null,
    "albedo_gain": null,
-   "albedo_mean_luminance": null
+   "albedo_mean_luminance": null,
+   "gain_clamped": null
   },
   "thin_glass": {
    "slug": "glass",
@@ -9853,6 +11145,9 @@
    ],
    "tint": null,
    "unverified": false,
+   "albedo_mode": null,
+   "detail": null,
+   "gain_clamped": null,
    "reason": "thin glass (transparent + glossy by Fresnel): data passes see through"
   },
   "lacquer_dark": {
@@ -9870,8 +11165,11 @@
    "tint": null,
    "unverified": false,
    "reason": "style names no asset for this material",
+   "albedo_mode": "texture",
+   "detail": null,
    "albedo_gain": null,
-   "albedo_mean_luminance": null
+   "albedo_mean_luminance": null,
+   "gain_clamped": null
   },
   "stone_worktop": {
    "slug": "stone_worktop",
@@ -9888,8 +11186,11 @@
    "tint": null,
    "unverified": false,
    "reason": "style names no asset for this material",
+   "albedo_mode": "texture",
+   "detail": null,
    "albedo_gain": null,
-   "albedo_mean_luminance": null
+   "albedo_mean_luminance": null,
+   "gain_clamped": null
   },
   "fabric_linen": {
    "slug": "fabric_linen",
@@ -9906,8 +11207,11 @@
    "tint": null,
    "unverified": false,
    "reason": "style names no asset for this material",
+   "albedo_mode": "texture",
+   "detail": null,
    "albedo_gain": null,
-   "albedo_mean_luminance": null
+   "albedo_mean_luminance": null,
+   "gain_clamped": null
   },
   "terracotta": {
    "slug": "terracotta",
@@ -9924,8 +11228,11 @@
    "tint": null,
    "unverified": false,
    "reason": "style names no asset for this material",
+   "albedo_mode": "texture",
+   "detail": null,
    "albedo_gain": null,
-   "albedo_mean_luminance": null
+   "albedo_mean_luminance": null,
+   "gain_clamped": null
   },
   "fabric_white": {
    "slug": "fabric_white",
@@ -9942,8 +11249,11 @@
    "tint": null,
    "unverified": false,
    "reason": "style names no asset for this material",
+   "albedo_mode": "texture",
+   "detail": null,
    "albedo_gain": null,
-   "albedo_mean_luminance": null
+   "albedo_mean_luminance": null,
+   "gain_clamped": null
   }
  },
  "lighting": {
@@ -9960,6 +11270,20 @@
   },
   "area_lights": [
    "light_r_L0_hol"
+  ],
+  "portals": [
+   "portal_win_L0_001",
+   "portal_win_L0_002",
+   "portal_win_L0_003",
+   "portal_win_L0_004",
+   "portal_win_L0_005",
+   "portal_win_L0_006",
+   "portal_win_L1_001",
+   "portal_win_L1_002",
+   "portal_win_L1_003",
+   "portal_win_L1_004",
+   "portal_win_L1_005",
+   "portal_win_L1_006"
   ]
  },
  "pass_index": {
@@ -10489,6 +11813,49 @@
   "L0": "level_L0_top.png",
   "L1": "level_L1_top.png"
  },
+ "preview_maps": {
+  "L0": {
+   "png": "level_L0_top.png",
+   "bbox_m": [
+    -0.5,
+    -0.5,
+    10.1,
+    7.7
+   ],
+   "m_per_px": 0.01,
+   "resolution": [
+    1060,
+    820
+   ]
+  },
+  "L1": {
+   "png": "level_L1_top.png",
+   "bbox_m": [
+    -0.5,
+    -0.5,
+    10.1,
+    7.7
+   ],
+   "m_per_px": 0.01,
+   "resolution": [
+    1060,
+    820
+   ]
+  }
+ },
+ "wenart_mood": "warm daylight",
+ "build_fingerprint": "f110abde4e1d1513dcb74f0ecd040dc4bcb6c02246b883b6bb92f7b1c1c6b8a4",
+ "build_args": {
+  "building": "outputs/synthetic-01/building_final.json",
+  "style": "outputs/synthetic-01/style.json",
+  "assets": "/workspace/assets",
+  "level": null,
+  "no_textures": false,
+  "preview_samples": 32,
+  "no_preview": false,
+  "no_glb": false,
+  "proxies": false
+ },
  "files": {
   "blend": "scene.blend",
   "glb": "scene.glb"
@@ -10610,5 +11977,5 @@
   "decor": 16,
   "proxies_forced": false
  },
- "seconds": 36.4
+ "seconds": 19.5
 }

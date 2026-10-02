@@ -27,12 +27,12 @@ steps: 8         # default sigmas: get_default_z_image_sigmas(8) (§3.2)
 size: native     # native = 1920x1080 reflect-padded to 1920x1088; or WxH (multiples of 16) (§3.3)
 
 # Ordered attempts, each gated at once; the first accepted one is the view's
-# candidate (§3.6). Default before calibration; set from run 1's numbers.
+# candidate (§3.6). Set from run 1a's sweep (results/final/<p>/sweep_report.md).
 # mode: plain = ZImageControlNetPipeline; anchor = ZImageControlNetInpaintPipeline
 # with an all-black mask (sweep only).
-ladder:
-  - {strength: 0.375, control: depth, scale: 0.8, size: native, mode: plain}
-  - {strength: 0.25, control: depth, scale: 0.8, size: native, mode: plain}
+ladder:   # set from run 1a's sweep (2 Oct 2026): each rung passed the calibrated gate on all 8 sweep views
+  - {strength: 0.375, control: geometry, scale: 0.8, size: native, mode: plain}
+  - {strength: 0.25, control: canny, scale: 0.8, size: native, mode: plain}
   - {strength: 0.125, control: depth, scale: 0.8, size: native, mode: plain}
 
 # Named grids for `python -m wenart.polish sweep --grid <name>` and `smoke`.

@@ -756,7 +756,9 @@ def test_sweep_report_reads_the_ladder_from_polish_yaml_when_the_manifest_has_no
     sweep = sweep_manifest()
     sweep["config"] = {}
     md = S.report_markdown("toy", sweep, None, None)
-    assert "Current ladder (polish.yaml): s 0.375 depth x0.8; s 0.25 depth x0.8; s 0.125 depth x0.8." in md
+    from wenart.polish.config import load_config
+    rungs = "; ".join(f"s {a['strength']} {a['control']} x{a['scale']}" for a in load_config()["ladder"])
+    assert f"Current ladder (polish.yaml): {rungs}." in md
 
 
 def test_broken_brief_does_not_stop_the_report(tmp_path):

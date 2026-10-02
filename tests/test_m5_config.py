@@ -102,8 +102,8 @@ def test_polish_config_ladder_and_grids():
     assert (cfg["seed"], cfg["steps"], cfg["size"], cfg["determinism_view"]) == (0, 8, "native", None)
     keys = ("strength", "control", "scale", "size", "mode")
     assert [tuple(a[k] for k in keys) for a in cfg["ladder"]] == [
-        (0.375, "depth", 0.8, "native", "plain"), (0.25, "depth", 0.8, "native", "plain"),
-        (0.125, "depth", 0.8, "native", "plain")]
+        (0.375, "geometry", 0.8, "native", "plain"), (0.25, "canny", 0.8, "native", "plain"),
+        (0.125, "depth", 0.8, "native", "plain")]                     # from run 1a's sweep
     sweep = cfg["grids"]["sweep"]
     grid = [a for a in sweep if a["role"] == "grid"]
     bad = [a for a in sweep if a["role"] == "presumed_bad"]
@@ -165,10 +165,15 @@ def test_default_client_factory_maps_keys_to_check_yaml_ids():
         check_config.client_factory("llava", "http://x/v1")
 
 
+# sha256 of results/renders/synthetic-03/cam_r_L0_salon_1_preview.jpg at the end of Milestone 4 (commit
+# c2656af: charcoal walls, polished concrete floor). The results preview is replaced by every new render,
+# the fixture is not.
+M4_SALON_SHA256 = "ed0b6d708bb55c9b40733f1972ff8caeacd3a86688be55023b21bcb0ecde0089"
+
+
 def test_style_photo_fixture_is_a_byte_copy_of_the_m4_render():
     fixture = ROOT / "tests" / "fixtures" / "style_photo_synthetic-03_salon.jpg"
-    source = ROOT / "results" / "renders" / "synthetic-03" / "cam_r_L0_salon_1_preview.jpg"
-    assert fixture.read_bytes() == source.read_bytes()
+    assert hashlib.sha256(fixture.read_bytes()).hexdigest() == M4_SALON_SHA256
 
 
 # --------------------------------------------------------------------------
