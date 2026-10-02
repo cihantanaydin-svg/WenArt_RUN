@@ -252,7 +252,7 @@ def test_render_key_covers_every_setting():
     assert R.render_key(R.key_settings(**dict(base, exposure_mode="off"))) == \
         R.render_key(R.key_settings(**dict(base, exposure_mode="off", target=0.5)))
     settings = R.key_settings(**base)
-    assert settings["code"] == R.RENDER_CODE_VERSION == "m5.1" and settings["passes"] == list(R.PASSES)
+    assert settings["code"] == R.RENDER_CODE_VERSION == "m5.2" and settings["passes"] == list(R.PASSES)
 
 
 def test_reuse_needs_files_fingerprint_and_render_key(tmp_path):
@@ -319,6 +319,47 @@ def test_plug_box_closes_the_hole_along_the_wall():
     assert (min(xs), max(xs)) == pytest.approx((4.948, 5.052)) and (min(ys), max(ys)) == pytest.approx((1.0, 1.8))
     with pytest.raises(ValueError):
         R.plug_box(wall, [])
+
+
+def _wall_side(y, normal_y, slot, pieces):
+    """Faces of one side of a wall along X at ``y``: rectangles (x0, x1, z0, z1) in the plane."""
+    return [((0.0, normal_y, 0.0), [(x0, y, z0), (x1, y, z0), (x1, y, z1), (x0, y, z1)], s)
+            for (x0, x1, z0, z1), s in zip(pieces, slot if isinstance(slot, list) else [slot] * len(pieces))]
+
+
+def _slots_by_normal(verts, faces, slots):
+    return {tuple(round(c) for c in geom2d.face_normal(verts, f)): s for f, s in zip(faces, slots)}
+
+
+def test_plug_faces_take_the_material_of_the_wall_face_next_to_the_hole():
+    """A plug reads as the wall around it: room side tiles in a bathroom (slot 2), outside the exterior
+    plaster (slot 1), top, bottom and ends slot 0, as shell._assign_wall_face_materials sets the wall."""
+    wall = {"wenart_id": "w", "start": [0.0, 0.0], "end": [4.0, 0.0], "thickness": 0.2}
+    verts, faces, _ = R.plug_box(wall, [(1.4, -0.04, 0.9), (2.6, 0.04, 2.1)])
+    around = [(0.0, 1.4, 0.0, 2.7), (2.6, 4.0, 0.0, 2.7), (1.4, 2.6, 0.0, 0.9), (1.4, 2.6, 2.1, 2.7)]
+    jambs = [((1.0, 0.0, 0.0), [(1.4, -0.1, 0.9), (1.4, 0.1, 0.9), (1.4, 0.1, 2.1), (1.4, -0.1, 2.1)], 0),
+             ((0.0, 0.0, 1.0), [(0.0, -0.1, 2.7), (4.0, -0.1, 2.7), (4.0, 0.1, 2.7), (0.0, 0.1, 2.7)], 0)]
+    wet = _wall_side(0.1, 1.0, 2, around) + _wall_side(-0.1, -1.0, 1, around) + jambs
+    by_normal = _slots_by_normal(verts, faces, R.plug_face_slots(wall, verts, faces, wet))
+    assert by_normal == {(0, 1, 0): 2, (0, -1, 0): 1, (1, 0, 0): 0, (-1, 0, 0): 0, (0, 0, 1): 0, (0, 0, -1): 0}
+    # A dry room: slot 0 on the room side.
+    dry = _wall_side(0.1, 1.0, 0, around) + _wall_side(-0.1, -1.0, 1, around)
+    assert _slots_by_normal(verts, faces, R.plug_face_slots(wall, verts, faces, dry))[(0, 1, 0)] == 0
+    # The room side runs on into a dry room (left piece): the faces above and below the hole decide.
+    mixed = _wall_side(0.1, 1.0, [0, 2, 2, 2], around) + _wall_side(-0.1, -1.0, 1, around)
+    assert _slots_by_normal(verts, faces, R.plug_face_slots(wall, verts, faces, mixed))[(0, 1, 0)] == 2
+    # No face next to the hole on that side: the nearest face of that side; none at all: slot 0.
+    far = _wall_side(0.1, 1.0, 2, [(3.5, 4.0, 0.0, 2.7)])
+    got = _slots_by_normal(verts, faces, R.plug_face_slots(wall, verts, faces, far))
+    assert got[(0, 1, 0)] == 2 and got[(0, -1, 0)] == 0
+    # A wall along Y: the frame turns with it.
+    wall_y = {"wenart_id": "w", "start": [5.0, 0.0], "end": [5.0, 3.0], "thickness": 0.2}
+    verts_y, faces_y, _ = R.plug_box(wall_y, [(5.0, 1.0, 0.9), (5.0, 1.8, 2.1)])
+    side = [(0.0, 1.0, 0.0, 2.7), (1.8, 3.0, 0.0, 2.7), (1.0, 1.8, 0.0, 0.9), (1.0, 1.8, 2.1, 2.7)]
+    turned = [((nx, 0.0, 0.0), [(x, a, z0), (x, b, z0), (x, b, z1), (x, a, z1)], s)
+              for nx, x, s in ((1.0, 5.1, 2), (-1.0, 4.9, 1)) for a, b, z0, z1 in side]
+    got = _slots_by_normal(verts_y, faces_y, R.plug_face_slots(wall_y, verts_y, faces_y, turned))
+    assert got[(1, 0, 0)] == 2 and got[(-1, 0, 0)] == 1 and got[(0, 1, 0)] == 0
 
 
 def test_oriented_box_measures_in_the_piece_frame():
@@ -480,7 +521,9 @@ PROBE_SCRIPT = textwrap.dedent("""
                               and not o.data.cycles.is_portal]
         glass = bpy.data.materials["glass"]
         mix = next(n for n in glass.node_tree.nodes if n.bl_idname == "ShaderNodeMixShader")
-        out["glass"] = {"fac_from": mix.inputs["Fac"].links[0].from_socket.name,
+        fac = mix.inputs["Fac"].links[0].from_node
+        out["glass"] = {"fac_from": [fac.bl_idname, fac.operation,
+                                     sorted(link.from_socket.name for i in fac.inputs for link in i.links)],
                         "camera_shader": mix.inputs[2].links[0].from_node.bl_idname,
                         "other_shader": mix.inputs[1].links[0].from_node.bl_idname,
                         "ior": next(n for n in glass.node_tree.nodes
@@ -603,7 +646,9 @@ def test_materials_record_albedo_modes(room):
 @needs_blender
 def test_portals_glass_and_no_fill_light(room):
     p = _probe(room, portals=True)
-    assert p["glass"] == {"fac_from": "Is Camera Ray", "camera_shader": "ShaderNodeBsdfGlass",
+    # Glass for camera rays and singular rays (tests/test_blender_glass.py renders why).
+    assert p["glass"] == {"fac_from": ["ShaderNodeMath", "MAXIMUM", ["Is Camera Ray", "Is Singular Ray"]],
+                          "camera_shader": "ShaderNodeBsdfGlass",
                           "other_shader": "ShaderNodeBsdfTransparent", "ior": pytest.approx(1.45)}
     assert len(p["portals"]) == 1 and p["fill_lights"] == []          # the room has a window: no fill light
     portal = p["portals"][0]
@@ -797,6 +842,54 @@ def test_hide_plug_and_hide_sets(room, tmp_path):
     assert cli.main(["render", "--scene", str(room["scene"] / "scene.blend"), "--out", str(tmp_path / "bad2"),
                      "--cameras", CAM_DOOR, "--res", RES, "--samples", "1", "--device", "cpu",
                      "--hide-sets", f"{CAM_DOOR}:nope_1"]) == 2
+
+
+PLUG_SCRIPT = textwrap.dedent("""
+    import bpy, json, os, sys
+    sys.path.insert(0, os.environ["WENART_REPO_ROOT"])
+    from pathlib import Path
+    from wenart.blender import render as R
+    out = sys.argv[sys.argv.index("--") + 1]
+    manifest = json.loads((Path(bpy.data.filepath).parent / "scene_manifest.json").read_text(encoding="utf-8"))
+    hider = R.Hider(bpy.context.scene, manifest)
+    hider.apply(["win_1"], plug=True)
+
+    def faces(ob):
+        m3 = ob.matrix_world.to_3x3()
+        return [[[round(c) for c in (m3 @ p.normal)], ob.data.materials[p.material_index].name]
+                for p in ob.data.polygons]
+
+    json.dump({"plug": faces(hider.plugs[0]), "wall": faces(bpy.data.objects["w_s"]),
+               "info": hider.info["win_1"]}, open(out, "w"))
+""")
+
+
+@needs_blender
+def test_a_plugged_window_in_a_bathroom_shows_the_wall_tiles(room, tmp_path):
+    """The plug takes the faces' materials of the wall around the hole: the bathroom tiles on the room
+    side, the exterior plaster outside, not the dry wall plaster everywhere."""
+    building = room_building()
+    building["rooms"][0]["room_type"] = "bathroom"
+    (tmp_path / "building.json").write_text(json.dumps(building), encoding="utf-8")
+    scene = tmp_path / "scene"
+    cli.build(tmp_path / "building.json", scene, **room["build_kw"])
+    (tmp_path / "plug.py").write_text(PLUG_SCRIPT, encoding="utf-8")
+    cli.run_blender(tmp_path / "plug.py", [str(tmp_path / "plug.json")], blend=str(scene / "scene.blend"),
+                    timeout=600)
+    got = json.loads((tmp_path / "plug.json").read_text(encoding="utf-8"))
+
+    def side(rows, normal):
+        return {m for n, m in rows if n == normal}
+
+    room_side, outside = side(got["wall"], [0, 1, 0]), side(got["wall"], [0, -1, 0])   # room at +Y of w_s
+    assert len(room_side) == 1 and next(iter(room_side)).startswith("tiles_light"), got["wall"]
+    assert len(outside) == 1 and next(iter(outside)).startswith("plaster_exterior"), got["wall"]
+    assert side(got["plug"], [0, 1, 0]) == room_side and side(got["plug"], [0, -1, 0]) == outside
+    ends = {m for n, m in got["plug"] if n[1] == 0}
+    assert len(ends) == 1 and next(iter(ends)).startswith("plaster_white"), got["plug"]
+    # Recorded per side of the wall axis (w_s runs towards +X: its left side is +Y, the room).
+    assert got["info"]["materials"] == {"left": next(iter(room_side)), "right": next(iter(outside)),
+                                        "ends": next(iter(ends))}
 
 
 @needs_blender
