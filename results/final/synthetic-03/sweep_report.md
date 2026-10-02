@@ -1,6 +1,6 @@
 # Sweep report: synthetic-03
 
-Polish sweep: 4 views, 11 settings, 44 attempts. Gate calibration: run. Vision-check calibration: not run. Thresholds and the ladder are set by hand from these numbers and committed with them (§8.3); a threshold looser than §4.2 needs the user's OK.
+Polish sweep: 4 views, 11 settings, 44 attempts. Gate calibration: run. Vision-check calibration: run. Thresholds and the ladder are set by hand from these numbers and committed with them (§8.3); a threshold looser than §4.2 needs the user's OK.
 
 ## Polish sweep
 
@@ -8,14 +8,14 @@ Polish sweep: 4 views, 11 settings, 44 attempts. Gate calibration: run. Vision-c
 |---|---|---|---|---|---|---|---|---|---|---|
 | S1 | s 0.125 depth x0.8 | 1 | 4 | 4 | 3 | 75 % | masks 1 | 3.3 s | - | 0 |
 | S2 | s 0.25 depth x0.8 | 2 | 4 | 4 | 2 | 50 % | depth 2, masks 1 | 5.4 s | - | 0 |
-| S3 | s 0.375 depth x0.8 | 3 | 4 | 4 | 2 | 50 % | depth 2, edges 1 | 7.3 s | - | 0 |
+| S3 | s 0.375 depth x0.8 | 3 | 4 | 4 | 2 | 50 % | depth 2, edges 1 | 7.3 s | 0/2 | 0 |
 | S4 | s 0.5 depth x0.8 | 4 | 4 | 4 | 0 | 0 % | depth 4, edges 3, masks 2 | 9.2 s | - | 0 |
 | S5 | s 0.25 canny x0.8 | 5 | 4 | 4 | 2 | 50 % | depth 2, masks 1 | 5.1 s | - | 0 |
-| S6 | s 0.375 canny x0.8 | 6 | 4 | 4 | 3 | 75 % | depth 1 | 7.5 s | - | 0 |
-| S7 | s 0.25 geometry x0.8 | 7 | 4 | 4 | 4 | 100 % | - | 5.1 s | - | 0 |
+| S6 | s 0.375 canny x0.8 | 6 | 4 | 4 | 3 | 75 % | depth 1 | 7.5 s | 0/3 | 0 |
+| S7 | s 0.25 geometry x0.8 | 7 | 4 | 4 | 4 | 100 % | - | 5.1 s | 0/1 | 0 |
 | S8 | s 0.375 geometry x0.8 | 8 | 4 | 4 | 2 | 50 % | depth 1, masks 1 | 6.9 s | - | 0 |
 | S9 | s 0.375 depth x0.8 1536x864 | 9 | 4 | 4 | 2 | 50 % | depth 2, edges 1, masks 1 | 3.7 s | - | 0 |
-| S10 | s 0.375 depth x0.8 anchor | 10 | 4 | 4 | 4 | 100 % | - | 7.4 s | - | 0 |
+| S10 | s 0.375 depth x0.8 anchor | 10 | 4 | 4 | 4 | 100 % | - | 7.4 s | 0/2 | 0 |
 | S11 | s 0.75 no control [presumed_bad] | 11 | 4 | 4 | 0 | 0 % | added_lines 4, depth 4, edges 4, masks 4 | 7.3 s | - | 0 |
 
 Median global gate metrics per setting:
@@ -195,7 +195,33 @@ Explanations:
 
 ## Vision-check calibration
 
-Not run (check/check_calibration.json not found).
+| metric | value | target | result |
+|---|---|---|---|
+| fa_missing | 0.081 | <= 0.05 | MISSED |
+| fa_extra | 0.000 | <= 0.1 | met |
+| removal_flagged | 1.000 | >= 0.8 | met |
+| removal_confirmed | 0.714 | >= 0.6 | met |
+| insertion | 0.143 | >= 0.6 | MISSED |
+| decoy_accept | qwen 0.000, glm 0.018 | <= 0.1 | met |
+
+Advisory: yes (fa_missing 0.0808 misses <= 0.05; insertion 0.1429 misses >= 0.6).
+
+Per model (Cycles views):
+
+| model | answer rate | decoy accepted | false missing (single pass) |
+|---|---|---|---|
+| qwen | 100 % | 0 % | 17 % |
+| glm | 100 % | 2 % | 8 % |
+
+Plan A/B: not adopted: source plan compared through the evidence chain, the projected cross-check and the side-by-side crop.
+| metric | value |
+|---|---|
+| fa_missing_without | 0.103 |
+| fa_missing_with | 0.103 |
+| fa_extra_without | 0.000 |
+| fa_extra_with | 0.000 |
+| removal_confirmed_without | 0.714 |
+| removal_confirmed_with | 0.714 |
 
 ## Warnings
 

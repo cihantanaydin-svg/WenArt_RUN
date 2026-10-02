@@ -262,16 +262,31 @@ def box_visibility(box3d: Optional[dict], camera: Optional[dict], size, pixels: 
 # Roles
 # --------------------------------------------------------------------------
 
-def role_of(kind: str, own_room: bool, area_frac: float, visibility: Optional[float], roles: dict) -> str:
-    """``ignore`` / ``required`` / ``optional`` by the §5.1 rule (thresholds from ``check.yaml: roles``)."""
+def role_of(kind: str, own_room: bool, area_frac: float, visibility: Optional[float], roles: dict,
+            touches_border: bool = False) -> str:
+    """``ignore`` / ``required`` / ``optional`` by the §5.1 rule (thresholds from ``check.yaml: roles``).
+
+    Calibrated on run 1b (2 Oct 2026, 87 clean Cycles views, both models): 34 of the 36 required elements
+    the models did not confirm touched the image border, mostly furniture whose visible share was below
+    0.35 (a wardrobe side filling an edge) and doors at the frame edge. Furniture therefore needs
+    ``furniture_min_visibility`` and openings that touch the border are optional unless
+    ``border_openings_required``; optional elements are still asked and still count in the differential
+    polish decision (§5.5)."""
     if area_frac < float(roles["ignore_area_frac"]):
         return "ignore"
-    if kind in REQUIRED_KINDS and own_room:
-        if area_frac >= float(roles["required_area_frac"]):
-            return "required"
-        if area_frac >= float(roles["required_min_area_frac"]) and (
-                visibility is None or visibility >= float(roles["required_min_visibility"])):
-            return "required"
+    if kind not in REQUIRED_KINDS or not own_room:
+        return "optional"
+    if kind == "furniture":
+        floor = roles.get("furniture_min_visibility")
+        if floor is not None and visibility is not None and visibility < float(floor):
+            return "optional"
+    elif touches_border and not roles.get("border_openings_required", True):
+        return "optional"
+    if area_frac >= float(roles["required_area_frac"]):
+        return "required"
+    if area_frac >= float(roles["required_min_area_frac"]) and (
+            visibility is None or visibility >= float(roles["required_min_visibility"])):
+        return "required"
     return "optional"
 
 
@@ -425,7 +440,7 @@ def expected_view(view: "views.View", scene_manifest: dict, building: dict, cfg:
             "unoccluded": None if vis is None else vis["unoccluded"],
             "evidence": entry.get("evidence") or [],
             "host_decor": list(entry.get("host_decor") or []),
-            "role": role_of(kind, bool(own), area_frac, visibility, roles),
+            "role": role_of(kind, bool(own), area_frac, visibility, roles, touches_border=_touches_border(box, W, H)),
         })
     elements.sort(key=lambda e: (-e["pixels"], e["index"]))
 

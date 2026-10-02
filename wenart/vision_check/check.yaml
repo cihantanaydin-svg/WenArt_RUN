@@ -25,6 +25,10 @@ roles:
   required_area_frac: 0.03        # own-room door/window/furniture with area_frac >= 0.03 -> required,
   required_min_area_frac: 0.01    # or area_frac >= 0.01 and (visibility is None or >= 0.35)
   required_min_visibility: 0.35   # everything else -> optional (decor, other rooms: never required)
+  # From run 1b (2 Oct 2026): 34 of 36 required elements the models did not confirm on clean renders
+  # touched the image border (furniture slivers with visibility < 0.35, doors at the frame edge).
+  furniture_min_visibility: 0.35  # furniture with a smaller visible share of its box -> optional
+  border_openings_required: false # doors/windows touching the image border -> optional
 
 # Building-JSON cross-check, projected with a depth test (§5.1).
 crosscheck:

@@ -1,0 +1,367 @@
+{
+ "schema_version": "0.1",
+ "project": "synthetic-01",
+ "views": {
+  "cam_r_L0_banyo_1": {
+   "plan": "cam_r_L0_banyo_1_plan.jpg",
+   "document": "zemin_kat.dxf",
+   "page": 1,
+   "format": "dxf",
+   "crop_origin_px": [
+    1264,
+    273
+   ],
+   "scale": 1.24805,
+   "bytes": 52696
+  },
+  "cam_r_L0_banyo_2": {
+   "plan": "cam_r_L0_banyo_2_plan.jpg",
+   "document": "zemin_kat.dxf",
+   "page": 1,
+   "format": "dxf",
+   "crop_origin_px": [
+    1264,
+    273
+   ],
+   "scale": 1.24805,
+   "bytes": 54598
+  },
+  "cam_r_L0_banyo_3": {
+   "plan": "cam_r_L0_banyo_3_plan.jpg",
+   "document": "zemin_kat.dxf",
+   "page": 1,
+   "format": "dxf",
+   "crop_origin_px": [
+    1264,
+    273
+   ],
+   "scale": 1.24805,
+   "bytes": 54090
+  },
+  "cam_r_L0_hol_1": {
+   "plan": "cam_r_L0_hol_1_plan.jpg",
+   "document": "zemin_kat.dxf",
+   "page": 1,
+   "format": "dxf",
+   "crop_origin_px": [
+    999,
+    273
+   ],
+   "scale": 1.24805,
+   "bytes": 42726
+  },
+  "cam_r_L0_hol_2": {
+   "plan": "cam_r_L0_hol_2_plan.jpg",
+   "document": "zemin_kat.dxf",
+   "page": 1,
+   "format": "dxf",
+   "crop_origin_px": [
+    999,
+    273
+   ],
+   "scale": 1.24805,
+   "bytes": 47876
+  },
+  "cam_r_L0_hol_3": {
+   "plan": "cam_r_L0_hol_3_plan.jpg",
+   "document": "zemin_kat.dxf",
+   "page": 1,
+   "format": "dxf",
+   "crop_origin_px": [
+    999,
+    273
+   ],
+   "scale": 1.24805,
+   "bytes": 39093
+  },
+  "cam_r_L0_mutfak_1": {
+   "plan": "cam_r_L0_mutfak_1_plan.jpg",
+   "document": "zemin_kat.dxf",
+   "page": 1,
+   "format": "dxf",
+   "crop_origin_px": [
+    203,
+    273
+   ],
+   "scale": 1.0,
+   "bytes": 50643
+  },
+  "cam_r_L0_mutfak_2": {
+   "plan": "cam_r_L0_mutfak_2_plan.jpg",
+   "document": "zemin_kat.dxf",
+   "page": 1,
+   "format": "dxf",
+   "crop_origin_px": [
+    203,
+    273
+   ],
+   "scale": 1.0,
+   "bytes": 53747
+  },
+  "cam_r_L0_mutfak_3": {
+   "plan": "cam_r_L0_mutfak_3_plan.jpg",
+   "document": "zemin_kat.dxf",
+   "page": 1,
+   "format": "dxf",
+   "crop_origin_px": [
+    203,
+    273
+   ],
+   "scale": 1.0,
+   "bytes": 53929
+  },
+  "cam_r_L0_salon_1": {
+   "plan": "cam_r_L0_salon_1_plan.jpg",
+   "document": "zemin_kat.dxf",
+   "page": 1,
+   "format": "dxf",
+   "crop_origin_px": [
+    203,
+    554
+   ],
+   "scale": 1.0,
+   "bytes": 78457
+  },
+  "cam_r_L0_salon_2": {
+   "plan": "cam_r_L0_salon_2_plan.jpg",
+   "document": "zemin_kat.dxf",
+   "page": 1,
+   "format": "dxf",
+   "crop_origin_px": [
+    203,
+    554
+   ],
+   "scale": 1.0,
+   "bytes": 81563
+  },
+  "cam_r_L0_salon_3": {
+   "plan": "cam_r_L0_salon_3_plan.jpg",
+   "document": "zemin_kat.dxf",
+   "page": 1,
+   "format": "dxf",
+   "crop_origin_px": [
+    203,
+    554
+   ],
+   "scale": 1.0,
+   "bytes": 66220
+  },
+  "cam_r_L0_yatak_odasi_1": {
+   "plan": "cam_r_L0_yatak_odasi_1_plan.jpg",
+   "document": "zemin_kat.dxf",
+   "page": 1,
+   "format": "dxf",
+   "crop_origin_px": [
+    999,
+    772
+   ],
+   "scale": 1.02433,
+   "bytes": 64064
+  },
+  "cam_r_L0_yatak_odasi_2": {
+   "plan": "cam_r_L0_yatak_odasi_2_plan.jpg",
+   "document": "zemin_kat.dxf",
+   "page": 1,
+   "format": "dxf",
+   "crop_origin_px": [
+    999,
+    772
+   ],
+   "scale": 1.02433,
+   "bytes": 58556
+  },
+  "cam_r_L0_yatak_odasi_3": {
+   "plan": "cam_r_L0_yatak_odasi_3_plan.jpg",
+   "document": "zemin_kat.dxf",
+   "page": 1,
+   "format": "dxf",
+   "crop_origin_px": [
+    999,
+    772
+   ],
+   "scale": 1.02433,
+   "bytes": 57614
+  },
+  "cam_r_L1_banyo_1": {
+   "plan": "cam_r_L1_banyo_1_plan.jpg",
+   "document": "1_kat.pdf",
+   "page": 1,
+   "format": "pdf",
+   "crop_origin_px": [
+    2645,
+    1310
+   ],
+   "scale": 1.57171,
+   "bytes": 50810
+  },
+  "cam_r_L1_banyo_2": {
+   "plan": "cam_r_L1_banyo_2_plan.jpg",
+   "document": "1_kat.pdf",
+   "page": 1,
+   "format": "pdf",
+   "crop_origin_px": [
+    2645,
+    1310
+   ],
+   "scale": 1.57171,
+   "bytes": 46822
+  },
+  "cam_r_L1_banyo_3": {
+   "plan": "cam_r_L1_banyo_3_plan.jpg",
+   "document": "1_kat.pdf",
+   "page": 1,
+   "format": "pdf",
+   "crop_origin_px": [
+    2645,
+    1310
+   ],
+   "scale": 1.57171,
+   "bytes": 45357
+  },
+  "cam_r_L1_cocuk_odasi_1": {
+   "plan": "cam_r_L1_cocuk_odasi_1_plan.jpg",
+   "document": "1_kat.pdf",
+   "page": 1,
+   "format": "pdf",
+   "crop_origin_px": [
+    1960,
+    1310
+   ],
+   "scale": 1.35135,
+   "bytes": 49558
+  },
+  "cam_r_L1_cocuk_odasi_2": {
+   "plan": "cam_r_L1_cocuk_odasi_2_plan.jpg",
+   "document": "1_kat.pdf",
+   "page": 1,
+   "format": "pdf",
+   "crop_origin_px": [
+    1960,
+    1310
+   ],
+   "scale": 1.35135,
+   "bytes": 56063
+  },
+  "cam_r_L1_cocuk_odasi_3": {
+   "plan": "cam_r_L1_cocuk_odasi_3_plan.jpg",
+   "document": "1_kat.pdf",
+   "page": 1,
+   "format": "pdf",
+   "crop_origin_px": [
+    1960,
+    1310
+   ],
+   "scale": 1.35135,
+   "bytes": 48289
+  },
+  "cam_r_L1_ebeveyn_yatak_odasi_1": {
+   "plan": "cam_r_L1_ebeveyn_yatak_odasi_1_plan.jpg",
+   "document": "1_kat.pdf",
+   "page": 1,
+   "format": "pdf",
+   "crop_origin_px": [
+    1960,
+    1641
+   ],
+   "scale": 1.35135,
+   "bytes": 68200
+  },
+  "cam_r_L1_ebeveyn_yatak_odasi_2": {
+   "plan": "cam_r_L1_ebeveyn_yatak_odasi_2_plan.jpg",
+   "document": "1_kat.pdf",
+   "page": 1,
+   "format": "pdf",
+   "crop_origin_px": [
+    1960,
+    1641
+   ],
+   "scale": 1.35135,
+   "bytes": 78724
+  },
+  "cam_r_L1_ebeveyn_yatak_odasi_3": {
+   "plan": "cam_r_L1_ebeveyn_yatak_odasi_3_plan.jpg",
+   "document": "1_kat.pdf",
+   "page": 1,
+   "format": "pdf",
+   "crop_origin_px": [
+    1960,
+    1641
+   ],
+   "scale": 1.35135,
+   "bytes": 76343
+  },
+  "cam_r_L1_hol_1": {
+   "plan": "cam_r_L1_hol_1_plan.jpg",
+   "document": "1_kat.pdf",
+   "page": 1,
+   "format": "pdf",
+   "crop_origin_px": [
+    2444,
+    1310
+   ],
+   "scale": 1.0,
+   "bytes": 36857
+  },
+  "cam_r_L1_hol_2": {
+   "plan": "cam_r_L1_hol_2_plan.jpg",
+   "document": "1_kat.pdf",
+   "page": 1,
+   "format": "pdf",
+   "crop_origin_px": [
+    2444,
+    1310
+   ],
+   "scale": 1.0,
+   "bytes": 31984
+  },
+  "cam_r_L1_hol_3": {
+   "plan": "cam_r_L1_hol_3_plan.jpg",
+   "document": "1_kat.pdf",
+   "page": 1,
+   "format": "pdf",
+   "crop_origin_px": [
+    2444,
+    1310
+   ],
+   "scale": 1.0,
+   "bytes": 38057
+  },
+  "cam_r_L1_yatak_odasi_1": {
+   "plan": "cam_r_L1_yatak_odasi_1_plan.jpg",
+   "document": "1_kat.pdf",
+   "page": 1,
+   "format": "pdf",
+   "crop_origin_px": [
+    2645,
+    1665
+   ],
+   "scale": 1.43885,
+   "bytes": 57159
+  },
+  "cam_r_L1_yatak_odasi_2": {
+   "plan": "cam_r_L1_yatak_odasi_2_plan.jpg",
+   "document": "1_kat.pdf",
+   "page": 1,
+   "format": "pdf",
+   "crop_origin_px": [
+    2645,
+    1665
+   ],
+   "scale": 1.43885,
+   "bytes": 57748
+  },
+  "cam_r_L1_yatak_odasi_3": {
+   "plan": "cam_r_L1_yatak_odasi_3_plan.jpg",
+   "document": "1_kat.pdf",
+   "page": 1,
+   "format": "pdf",
+   "crop_origin_px": [
+    2645,
+    1665
+   ],
+   "scale": 1.43885,
+   "bytes": 57871
+  }
+ },
+ "warnings": []
+}

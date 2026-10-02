@@ -1,0 +1,691 @@
+{
+ "schema_version": "0.1",
+ "project": "synthetic-03",
+ "views": {
+  "cam_r_L-1_banyo_1": {
+   "plan": "cam_r_L-1_banyo_1_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 1,
+   "format": "pdf",
+   "crop_origin_px": [
+    2846,
+    1275
+   ],
+   "scale": 2.25352,
+   "bytes": 53129
+  },
+  "cam_r_L-1_banyo_2": {
+   "plan": "cam_r_L-1_banyo_2_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 1,
+   "format": "pdf",
+   "crop_origin_px": [
+    2846,
+    1275
+   ],
+   "scale": 2.25352,
+   "bytes": 58104
+  },
+  "cam_r_L-1_banyo_3": {
+   "plan": "cam_r_L-1_banyo_3_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 1,
+   "format": "pdf",
+   "crop_origin_px": [
+    2846,
+    1275
+   ],
+   "scale": 2.25352,
+   "bytes": 52039
+  },
+  "cam_r_L-1_hol_1": {
+   "plan": "cam_r_L-1_hol_1_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 1,
+   "format": "pdf",
+   "crop_origin_px": [
+    2409,
+    1275
+   ],
+   "scale": 1.0,
+   "bytes": 39521
+  },
+  "cam_r_L-1_hol_2": {
+   "plan": "cam_r_L-1_hol_2_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 1,
+   "format": "pdf",
+   "crop_origin_px": [
+    2409,
+    1275
+   ],
+   "scale": 1.0,
+   "bytes": 30874
+  },
+  "cam_r_L-1_hol_3": {
+   "plan": "cam_r_L-1_hol_3_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 1,
+   "format": "pdf",
+   "crop_origin_px": [
+    2409,
+    1275
+   ],
+   "scale": 1.0,
+   "bytes": 25260
+  },
+  "cam_r_L-1_kiler_1": {
+   "plan": "cam_r_L-1_kiler_1_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 1,
+   "format": "pdf",
+   "crop_origin_px": [
+    1925,
+    1724
+   ],
+   "scale": 1.35364,
+   "bytes": 43631
+  },
+  "cam_r_L-1_kiler_2": {
+   "plan": "cam_r_L-1_kiler_2_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 1,
+   "format": "pdf",
+   "crop_origin_px": [
+    1925,
+    1724
+   ],
+   "scale": 1.35364,
+   "bytes": 47449
+  },
+  "cam_r_L-1_kiler_2_1": {
+   "plan": "cam_r_L-1_kiler_2_1_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 1,
+   "format": "pdf",
+   "crop_origin_px": [
+    1925,
+    1275
+   ],
+   "scale": 1.35364,
+   "bytes": 44987
+  },
+  "cam_r_L-1_kiler_2_2": {
+   "plan": "cam_r_L-1_kiler_2_2_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 1,
+   "format": "pdf",
+   "crop_origin_px": [
+    1925,
+    1275
+   ],
+   "scale": 1.35364,
+   "bytes": 48598
+  },
+  "cam_r_L-1_kiler_2_3": {
+   "plan": "cam_r_L-1_kiler_2_3_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 1,
+   "format": "pdf",
+   "crop_origin_px": [
+    1925,
+    1275
+   ],
+   "scale": 1.35364,
+   "bytes": 45359
+  },
+  "cam_r_L-1_kiler_3": {
+   "plan": "cam_r_L-1_kiler_3_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 1,
+   "format": "pdf",
+   "crop_origin_px": [
+    1925,
+    1724
+   ],
+   "scale": 1.35364,
+   "bytes": 44650
+  },
+  "cam_r_L-1_wc_1": {
+   "plan": "cam_r_L-1_wc_1_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 1,
+   "format": "pdf",
+   "crop_origin_px": [
+    2610,
+    1275
+   ],
+   "scale": 2.25352,
+   "bytes": 49113
+  },
+  "cam_r_L-1_wc_2": {
+   "plan": "cam_r_L-1_wc_2_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 1,
+   "format": "pdf",
+   "crop_origin_px": [
+    2610,
+    1275
+   ],
+   "scale": 2.25352,
+   "bytes": 49393
+  },
+  "cam_r_L-1_wc_3": {
+   "plan": "cam_r_L-1_wc_3_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 1,
+   "format": "pdf",
+   "crop_origin_px": [
+    2610,
+    1275
+   ],
+   "scale": 2.25352,
+   "bytes": 46765
+  },
+  "cam_r_L-1_yatak_odasi_1": {
+   "plan": "cam_r_L-1_yatak_odasi_1_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 1,
+   "format": "pdf",
+   "crop_origin_px": [
+    2610,
+    1523
+   ],
+   "scale": 1.09141,
+   "bytes": 49984
+  },
+  "cam_r_L-1_yatak_odasi_2": {
+   "plan": "cam_r_L-1_yatak_odasi_2_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 1,
+   "format": "pdf",
+   "crop_origin_px": [
+    2610,
+    1523
+   ],
+   "scale": 1.09141,
+   "bytes": 51923
+  },
+  "cam_r_L-1_yatak_odasi_3": {
+   "plan": "cam_r_L-1_yatak_odasi_3_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 1,
+   "format": "pdf",
+   "crop_origin_px": [
+    2610,
+    1523
+   ],
+   "scale": 1.09141,
+   "bytes": 59976
+  },
+  "cam_r_L0_antre_1": {
+   "plan": "cam_r_L0_antre_1_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 2,
+   "format": "pdf",
+   "crop_origin_px": [
+    2326,
+    1275
+   ],
+   "scale": 1.93237,
+   "bytes": 45220
+  },
+  "cam_r_L0_antre_2": {
+   "plan": "cam_r_L0_antre_2_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 2,
+   "format": "pdf",
+   "crop_origin_px": [
+    2326,
+    1275
+   ],
+   "scale": 1.93237,
+   "bytes": 51165
+  },
+  "cam_r_L0_antre_3": {
+   "plan": "cam_r_L0_antre_3_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 2,
+   "format": "pdf",
+   "crop_origin_px": [
+    2326,
+    1275
+   ],
+   "scale": 1.93237,
+   "bytes": 42599
+  },
+  "cam_r_L0_hol_1": {
+   "plan": "cam_r_L0_hol_1_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 2,
+   "format": "pdf",
+   "crop_origin_px": [
+    2527,
+    1275
+   ],
+   "scale": 1.0,
+   "bytes": 38284
+  },
+  "cam_r_L0_hol_2": {
+   "plan": "cam_r_L0_hol_2_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 2,
+   "format": "pdf",
+   "crop_origin_px": [
+    2527,
+    1275
+   ],
+   "scale": 1.0,
+   "bytes": 33666
+  },
+  "cam_r_L0_hol_3": {
+   "plan": "cam_r_L0_hol_3_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 2,
+   "format": "pdf",
+   "crop_origin_px": [
+    2527,
+    1275
+   ],
+   "scale": 1.0,
+   "bytes": 27178
+  },
+  "cam_r_L0_kiler_1": {
+   "plan": "cam_r_L0_kiler_1_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 2,
+   "format": "pdf",
+   "crop_origin_px": [
+    2905,
+    1275
+   ],
+   "scale": 2.25352,
+   "bytes": 50082
+  },
+  "cam_r_L0_kiler_2": {
+   "plan": "cam_r_L0_kiler_2_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 2,
+   "format": "pdf",
+   "crop_origin_px": [
+    2905,
+    1275
+   ],
+   "scale": 2.25352,
+   "bytes": 53523
+  },
+  "cam_r_L0_kiler_3": {
+   "plan": "cam_r_L0_kiler_3_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 2,
+   "format": "pdf",
+   "crop_origin_px": [
+    2905,
+    1275
+   ],
+   "scale": 2.25352,
+   "bytes": 51763
+  },
+  "cam_r_L0_mutfak_1": {
+   "plan": "cam_r_L0_mutfak_1_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 2,
+   "format": "pdf",
+   "crop_origin_px": [
+    1925,
+    1275
+   ],
+   "scale": 1.5748,
+   "bytes": 50270
+  },
+  "cam_r_L0_mutfak_2": {
+   "plan": "cam_r_L0_mutfak_2_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 2,
+   "format": "pdf",
+   "crop_origin_px": [
+    1925,
+    1275
+   ],
+   "scale": 1.5748,
+   "bytes": 65001
+  },
+  "cam_r_L0_mutfak_3": {
+   "plan": "cam_r_L0_mutfak_3_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 2,
+   "format": "pdf",
+   "crop_origin_px": [
+    1925,
+    1275
+   ],
+   "scale": 1.5748,
+   "bytes": 46720
+  },
+  "cam_r_L0_salon_1": {
+   "plan": "cam_r_L0_salon_1_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 2,
+   "format": "pdf",
+   "crop_origin_px": [
+    1925,
+    1582
+   ],
+   "scale": 1.12835,
+   "bytes": 58389
+  },
+  "cam_r_L0_salon_2": {
+   "plan": "cam_r_L0_salon_2_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 2,
+   "format": "pdf",
+   "crop_origin_px": [
+    1925,
+    1582
+   ],
+   "scale": 1.12835,
+   "bytes": 70900
+  },
+  "cam_r_L0_salon_3": {
+   "plan": "cam_r_L0_salon_3_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 2,
+   "format": "pdf",
+   "crop_origin_px": [
+    1925,
+    1582
+   ],
+   "scale": 1.12835,
+   "bytes": 66017
+  },
+  "cam_r_L0_wc_1": {
+   "plan": "cam_r_L0_wc_1_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 2,
+   "format": "pdf",
+   "crop_origin_px": [
+    2728,
+    1275
+   ],
+   "scale": 2.25352,
+   "bytes": 48544
+  },
+  "cam_r_L0_wc_2": {
+   "plan": "cam_r_L0_wc_2_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 2,
+   "format": "pdf",
+   "crop_origin_px": [
+    2728,
+    1275
+   ],
+   "scale": 2.25352,
+   "bytes": 48523
+  },
+  "cam_r_L0_wc_3": {
+   "plan": "cam_r_L0_wc_3_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 2,
+   "format": "pdf",
+   "crop_origin_px": [
+    2728,
+    1275
+   ],
+   "scale": 2.25352,
+   "bytes": 43396
+  },
+  "cam_r_L0_yatak_odasi_1": {
+   "plan": "cam_r_L0_yatak_odasi_1_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 2,
+   "format": "pdf",
+   "crop_origin_px": [
+    2728,
+    1523
+   ],
+   "scale": 1.09141,
+   "bytes": 48263
+  },
+  "cam_r_L0_yatak_odasi_2": {
+   "plan": "cam_r_L0_yatak_odasi_2_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 2,
+   "format": "pdf",
+   "crop_origin_px": [
+    2728,
+    1523
+   ],
+   "scale": 1.09141,
+   "bytes": 47204
+  },
+  "cam_r_L0_yatak_odasi_3": {
+   "plan": "cam_r_L0_yatak_odasi_3_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 2,
+   "format": "pdf",
+   "crop_origin_px": [
+    2728,
+    1523
+   ],
+   "scale": 1.09141,
+   "bytes": 50658
+  },
+  "cam_r_L1_balkon_1": {
+   "plan": "cam_r_L1_balkon_1_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 3,
+   "format": "pdf",
+   "crop_origin_px": [
+    2846,
+    1275
+   ],
+   "scale": 1.57171,
+   "bytes": 40799
+  },
+  "cam_r_L1_balkon_2": {
+   "plan": "cam_r_L1_balkon_2_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 3,
+   "format": "pdf",
+   "crop_origin_px": [
+    2846,
+    1275
+   ],
+   "scale": 1.57171,
+   "bytes": 43086
+  },
+  "cam_r_L1_balkon_3": {
+   "plan": "cam_r_L1_balkon_3_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 3,
+   "format": "pdf",
+   "crop_origin_px": [
+    2846,
+    1275
+   ],
+   "scale": 1.57171,
+   "bytes": 42425
+  },
+  "cam_r_L1_banyo_1": {
+   "plan": "cam_r_L1_banyo_1_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 3,
+   "format": "pdf",
+   "crop_origin_px": [
+    2610,
+    1275
+   ],
+   "scale": 1.57171,
+   "bytes": 42139
+  },
+  "cam_r_L1_banyo_2": {
+   "plan": "cam_r_L1_banyo_2_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 3,
+   "format": "pdf",
+   "crop_origin_px": [
+    2610,
+    1275
+   ],
+   "scale": 1.57171,
+   "bytes": 42211
+  },
+  "cam_r_L1_banyo_3": {
+   "plan": "cam_r_L1_banyo_3_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 3,
+   "format": "pdf",
+   "crop_origin_px": [
+    2610,
+    1275
+   ],
+   "scale": 1.57171,
+   "bytes": 48847
+  },
+  "cam_r_L1_cocuk_odasi_1": {
+   "plan": "cam_r_L1_cocuk_odasi_1_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 3,
+   "format": "pdf",
+   "crop_origin_px": [
+    1925,
+    1275
+   ],
+   "scale": 1.35364,
+   "bytes": 59226
+  },
+  "cam_r_L1_cocuk_odasi_2": {
+   "plan": "cam_r_L1_cocuk_odasi_2_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 3,
+   "format": "pdf",
+   "crop_origin_px": [
+    1925,
+    1275
+   ],
+   "scale": 1.35364,
+   "bytes": 65416
+  },
+  "cam_r_L1_cocuk_odasi_3": {
+   "plan": "cam_r_L1_cocuk_odasi_3_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 3,
+   "format": "pdf",
+   "crop_origin_px": [
+    1925,
+    1275
+   ],
+   "scale": 1.35364,
+   "bytes": 55057
+  },
+  "cam_r_L1_ebeveyn_yatak_odasi_1": {
+   "plan": "cam_r_L1_ebeveyn_yatak_odasi_1_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 3,
+   "format": "pdf",
+   "crop_origin_px": [
+    1925,
+    1677
+   ],
+   "scale": 1.35364,
+   "bytes": 69201
+  },
+  "cam_r_L1_ebeveyn_yatak_odasi_2": {
+   "plan": "cam_r_L1_ebeveyn_yatak_odasi_2_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 3,
+   "format": "pdf",
+   "crop_origin_px": [
+    1925,
+    1677
+   ],
+   "scale": 1.35364,
+   "bytes": 71807
+  },
+  "cam_r_L1_ebeveyn_yatak_odasi_3": {
+   "plan": "cam_r_L1_ebeveyn_yatak_odasi_3_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 3,
+   "format": "pdf",
+   "crop_origin_px": [
+    1925,
+    1677
+   ],
+   "scale": 1.35364,
+   "bytes": 66462
+  },
+  "cam_r_L1_hol_1": {
+   "plan": "cam_r_L1_hol_1_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 3,
+   "format": "pdf",
+   "crop_origin_px": [
+    2409,
+    1275
+   ],
+   "scale": 1.0,
+   "bytes": 39984
+  },
+  "cam_r_L1_hol_2": {
+   "plan": "cam_r_L1_hol_2_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 3,
+   "format": "pdf",
+   "crop_origin_px": [
+    2409,
+    1275
+   ],
+   "scale": 1.0,
+   "bytes": 32578
+  },
+  "cam_r_L1_hol_3": {
+   "plan": "cam_r_L1_hol_3_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 3,
+   "format": "pdf",
+   "crop_origin_px": [
+    2409,
+    1275
+   ],
+   "scale": 1.0,
+   "bytes": 24959
+  },
+  "cam_r_L1_yatak_odasi_1": {
+   "plan": "cam_r_L1_yatak_odasi_1_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 3,
+   "format": "pdf",
+   "crop_origin_px": [
+    2610,
+    1677
+   ],
+   "scale": 1.38169,
+   "bytes": 64550
+  },
+  "cam_r_L1_yatak_odasi_2": {
+   "plan": "cam_r_L1_yatak_odasi_2_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 3,
+   "format": "pdf",
+   "crop_origin_px": [
+    2610,
+    1677
+   ],
+   "scale": 1.38169,
+   "bytes": 59058
+  },
+  "cam_r_L1_yatak_odasi_3": {
+   "plan": "cam_r_L1_yatak_odasi_3_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 3,
+   "format": "pdf",
+   "crop_origin_px": [
+    2610,
+    1677
+   ],
+   "scale": 1.38169,
+   "bytes": 58565
+  }
+ },
+ "warnings": []
+}

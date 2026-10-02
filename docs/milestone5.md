@@ -575,6 +575,28 @@ conflict".
 - Sweep mode: element checks on the Cycles views, the controls and the plan A/B set; polished sweep
   attempts get only the realism preference, for the 2 best gate-accepted settings per view.
 
+Calibrated on 2 Oct 2026 from run 1b (`results/check/<p>/check_calibration.json`; 87 clean Cycles views,
+15 removal, 15 insertion and 3 type-swap controls, both models, 312 calls, none failed):
+
+| Metric | synthetic-01 | synthetic-03 | Target |
+|---|---|---|---|
+| Decoy accepted (Qwen / GLM) | 0 % / 0 % | 0 % / 1.8 % | ≤ 10 % |
+| False extras on clean renders | 0 % | 0 % | ≤ 10 % |
+| False missing on clean renders (start roles) | 9.1 % | 8.1 % | ≤ 5 % |
+| Removal flagged / confirmed | 100 % / 62.5 % | 100 % / 71.4 % | ≥ 80 % / ≥ 60 % |
+| Insertion confirmed (flagged) | 0 % (62.5 %) | 14.3 % (42.9 %) | ≥ 60 % |
+| Type swap flagged / confirmed | 100 % / 100 % | 100 % / 100 % | – |
+| Plan crop as Image 2 | no gain (removal confirmed +12.5 points on synthetic-01, false missing up) | no change | adopt only on a gain |
+
+34 of the 36 required elements the two models did not confirm on clean renders touched the image border
+(furniture whose visible share was below 0.35, doors at the frame edge). `check.yaml: roles` therefore makes
+furniture with visibility < 0.35 and openings that touch the border optional (`furniture_min_visibility`,
+`border_openings_required: false`): on the run 1b answers that leaves 95 required elements with 0 confirmed
+false misses (6 disputed). The models rarely report an unlisted element (insertion), so the check stays
+`advisory` for its absolute flags; the differential polish decision stays active. The realism preference
+answered "same" in 55 of 56 comparisons of gate-accepted sweep polishes with their Cycles renders: at the
+strengths the gate accepts, the polish is barely visible to the judges.
+
 ### 5.6 Realism preference (`preference.py`, info only)
 
 Both models, both orders: "Which image looks more like a real photograph of a room?" `{"choice":

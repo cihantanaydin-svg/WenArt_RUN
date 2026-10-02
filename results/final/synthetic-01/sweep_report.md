@@ -13,9 +13,9 @@ Polish sweep: 4 views, 11 settings, 44 attempts. Gate calibration: run. Vision-c
 | S5 | s 0.25 canny x0.8 | 5 | 4 | 4 | 1 | 25 % | depth 3, masks 1 | 4.8 s | - | 0 |
 | S6 | s 0.375 canny x0.8 | 6 | 4 | 4 | 0 | 0 % | depth 3, masks 3 | 6.7 s | - | 0 |
 | S7 | s 0.25 geometry x0.8 | 7 | 4 | 4 | 1 | 25 % | depth 3, masks 1 | 4.8 s | - | 0 |
-| S8 | s 0.375 geometry x0.8 | 8 | 4 | 4 | 2 | 50 % | depth 2, masks 1 | 6.7 s | - | 0 |
-| S9 | s 0.375 depth x0.8 1536x864 | 9 | 4 | 4 | 2 | 50 % | depth 2, masks 2 | 3.7 s | - | 0 |
-| S10 | s 0.375 depth x0.8 anchor | 10 | 4 | 4 | 3 | 75 % | depth 1 | 7.0 s | - | 0 |
+| S8 | s 0.375 geometry x0.8 | 8 | 4 | 4 | 2 | 50 % | depth 2, masks 1 | 6.7 s | 0/2 | 0 |
+| S9 | s 0.375 depth x0.8 1536x864 | 9 | 4 | 4 | 2 | 50 % | depth 2, masks 2 | 3.7 s | 0/2 | 0 |
+| S10 | s 0.375 depth x0.8 anchor | 10 | 4 | 4 | 3 | 75 % | depth 1 | 7.0 s | 0/2 | 0 |
 | S11 | s 0.75 no control [presumed_bad] | 11 | 4 | 4 | 0 | 0 % | depth 4, edges 4, masks 4, added_lines 3, colour 2 | 7.4 s | - | 0 |
 
 Median global gate metrics per setting:
@@ -202,31 +202,31 @@ Explanations:
 
 | metric | value | target | result |
 |---|---|---|---|
-| fa_missing | 0.080 | <= 0.05 | MISSED |
+| fa_missing | 0.091 | <= 0.05 | MISSED |
 | fa_extra | 0.000 | <= 0.1 | met |
-| removal_flagged | - | >= 0.8 | MISSED |
-| removal_confirmed | - | >= 0.6 | MISSED |
-| insertion | - | >= 0.6 | MISSED |
+| removal_flagged | 1.000 | >= 0.8 | met |
+| removal_confirmed | 0.625 | >= 0.6 | met |
+| insertion | 0.000 | >= 0.6 | MISSED |
 | decoy_accept | qwen 0.000, glm 0.000 | <= 0.1 | met |
 
-Advisory: yes (fa_missing 0.0795 misses <= 0.05; removal_flagged None misses >= 0.8 (no data); removal_confirmed None misses >= 0.6 (no data); insertion None misses >= 0.6 (no data)).
+Advisory: yes (fa_missing 0.0909 misses <= 0.05; insertion 0.0 misses >= 0.6).
 
 Per model (Cycles views):
 
 | model | answer rate | decoy accepted | false missing (single pass) |
 |---|---|---|---|
 | qwen | 100 % | 0 % | 19 % |
-| glm | 100 % | 0 % | 8 % |
+| glm | 100 % | 0 % | 9 % |
 
 Plan A/B: not adopted: source plan compared through the evidence chain, the projected cross-check and the side-by-side crop.
 | metric | value |
 |---|---|
-| fa_missing_without | - |
-| fa_missing_with | - |
-| fa_extra_without | - |
-| fa_extra_with | - |
-| removal_confirmed_without | - |
-| removal_confirmed_with | - |
+| fa_missing_without | 0.051 |
+| fa_missing_with | 0.077 |
+| fa_extra_without | 0.000 |
+| fa_extra_with | 0.000 |
+| removal_confirmed_without | 0.625 |
+| removal_confirmed_with | 0.750 |
 
 ## Warnings
 

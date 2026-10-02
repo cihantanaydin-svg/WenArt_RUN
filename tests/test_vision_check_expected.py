@@ -124,7 +124,15 @@ def test_roles_follow_the_spec_rule(tmp_path):
     assert ids["dec_plant"]["area_frac"] < 0.002 and ids["dec_plant"]["role"] == "ignore"
     roles = CFG["roles"]
     assert X.role_of("furniture", True, 0.0019, None, roles) == "ignore"
-    assert X.role_of("furniture", True, 0.03, 0.01, roles) == "required"         # big enough on its own
+    assert X.role_of("furniture", True, 0.03, 0.5, roles) == "required"          # big enough on its own
+    # Run 1b calibration: furniture mostly out of the frame (visibility < 0.35) is optional however large
+    # its pixel area, and so are doors and windows that touch the image border.
+    assert X.role_of("furniture", True, 0.30, 0.01, roles) == "optional"
+    assert X.role_of("furniture", True, 0.30, None, roles) == "required"         # visibility unknown
+    assert X.role_of("door", True, 0.25, None, roles, touches_border=True) == "optional"
+    assert X.role_of("window", True, 0.05, None, roles, touches_border=False) == "required"
+    assert X.role_of("door", True, 0.25, None, {**roles, "border_openings_required": True},
+                     touches_border=True) == "required"
     assert X.role_of("furniture", True, 0.02, 0.5, roles) == "required"          # 1 % + visible
     assert X.role_of("furniture", True, 0.02, None, roles) == "required"         # visibility unknown
     assert X.role_of("furniture", True, 0.02, 0.2, roles) == "optional"          # a sliver of a big piece

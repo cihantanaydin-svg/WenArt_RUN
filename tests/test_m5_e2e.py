@@ -295,8 +295,10 @@ def run(tmp_path_factory):
     # expected elements first (the fakes need the boxes), then the polish with the real gate.
     stage("expected", lambda: vc_main(["expected", "--project-out", str(out)]))
     exp = _json(out / "check" / "expected_views.json")["views"]
-    largest = {cam: next(e for e in exp[cam]["elements"] if e["role"] == "required" and e["kind"] == "furniture")
-               for cam in CAMS}
+    # The largest furniture piece of each view, required first (since run 1b's calibration a piece that is
+    # mostly out of the frame is optional).
+    largest = {cam: sorted((e for e in exp[cam]["elements"] if e["kind"] == "furniture"),
+                           key=lambda e: (e["role"] != "required", -e["pixels"]))[0] for cam in CAMS}
     h = int(RES.split("x")[1])
     backend = FakeBackend(erase=(h, largest[SALON]["box_px"]))
 
