@@ -9,8 +9,8 @@ import pytest
 from wenart import views
 from wenart.blender import cameras
 from wenart.canonical import canonical_sha256, strip_volatile
-from wenart.run.projects import (ProjectError, ProjectRef, check_alias, private_project, public_project,
-                                 upload_dir)
+from wenart.run.projects import (ProjectError, ProjectRef, check_alias, check_name, private_project,
+                                 public_project, upload_dir)
 
 
 def _write(path: Path, obj) -> Path:
@@ -49,19 +49,35 @@ def test_public_and_private_project_refs(tmp_path):
     assert pub.results_area("final") == tmp_path / "results" / "final" / "synthetic-01"
     priv = private_project("real-01", private_root=tmp_path / "pp", outputs_root=tmp_path / "po",
                            results_root=tmp_path / "pr", repo_root=repo)
-    assert priv.private and priv.project_dir == tmp_path / "po" / "real-01" / "input"
+    assert priv.private and priv.project_dir == tmp_path / "po" / "real-01" / "input" / "real-01"
     assert priv.results_area("check") == tmp_path / "pr" / "real-01" / "check"
     assert upload_dir("real-01", tmp_path / "pp") == tmp_path / "pp" / "real-01"
     with pytest.raises(ProjectError):
         private_project("synthetic-01", repo_root=repo)
+    (repo / "projects" / "real-02").mkdir()
+    with pytest.raises(ProjectError):
+        private_project("real-02", repo_root=repo)
+    assert private_project("selftest-02", repo_root=repo).name == "selftest-02"
     with pytest.raises(ProjectError):
         pub.results_area("secrets")
 
 
-@pytest.mark.parametrize("alias", ["", "..", ".", "a/b", "../x", "-x", "x" * 65, "a b", "çay"])
+@pytest.mark.parametrize("alias", ["", "..", ".", "a/b", "../x", "-x", "real-1", "real-0001", "Yilmaz-Villa",
+                                   "real-01/..", "synthetic-01", "selftest-03"])
 def test_bad_aliases_are_refused(alias):
     with pytest.raises(ProjectError):
         check_alias(alias)
+
+
+@pytest.mark.parametrize("name", ["", "..", ".", "a/b", "-x", "x" * 65, "a b", "çay"])
+def test_bad_public_names_are_refused(name):
+    with pytest.raises(ProjectError):
+        check_name(name)
+
+
+def test_good_names_and_aliases():
+    assert check_alias("real-01") == "real-01" and check_alias("real-123") == "real-123"
+    assert check_name("synthetic-05") == "synthetic-05"
 
 
 def test_repo_path_helpers(tmp_path):
