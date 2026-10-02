@@ -22,6 +22,6 @@ runner could not write it). Costs are estimates from the on-demand price at star
 | 2026-10-01 23:51 | mbiozud3c2dmfw | NVIDIA RTX PRO 4000 Blackwell | 37 | 0.35 | M4 furnish run 3: anchor-first placer, thin shower glass, 128 samples, GPU tests | ok, self-stop ok |
 | 2026-10-01 23:55 | ju9pt0hh89dahn | NVIDIA RTX PRO 4000 Blackwell | 3 | 0.03 | M4 furnish run 4: review fixes (plants, camera boxes, corner-door walkways, allowed types), 128 samples, GPU tests | stopped by me after 3 min: library-asset UV bug found in run 3 previews, fixed before run 5 |
 | 2026-10-02 00:37 | dn0gxnfxqtd5yr | NVIDIA RTX PRO 4000 Blackwell | 40 | 0.38 | M4 furnish run 5: review fixes + asset UV render layer, 128 samples, GPU tests | ok, self-stop ok |
-| 2026-10-02 09:39 | pending:20261002-093946-polish | RTX PRO 4500 | 75 | 0.90 | M5 run 0 smoke: look synthetic-01, polish smoke 2 views x 4 settings, check 2 models | creating (provisional, worst case) |
+| 2026-10-02 10:14 | 6js4pqqxk0j7of | NVIDIA RTX PRO 4500 Blackwell | 35 | 0.41 | M5 run 0 smoke: look synthetic-01, polish smoke 2 views x 4 settings, check 2 models | exit 1: polish could not load the tokenizer offline (fixed: local snapshot paths); setup 4.4 min, look 30 views ok, check 60 calls ok; self-stop ok |
 
-**Total spent so far: $4.62** (budget: $100; limits: $1.00/GPU-hour, $10/day, 2 h/run)
+**Total spent so far: $4.13** (budget: $100; limits: $1.00/GPU-hour, $10/day, 2 h/run)

@@ -22,6 +22,7 @@ misspelt keyword fails here instead of on the pod. What is checked:
 
 The real numerics run on the pod (``tests/gpu/test_polish.py``).
 """
+import json
 import sys
 import types
 
@@ -300,7 +301,7 @@ def loader(name):
 
 
 @pytest.fixture
-def fakes(monkeypatch):
+def fakes(monkeypatch, tmp_path):
     LOG.clear()
     torch = fake_torch()
     diffusers = types.ModuleType("diffusers")
@@ -322,15 +323,22 @@ def fakes(monkeypatch):
 
     cn_mod.retrieve_latents = retrieve_latents
     transformers = types.ModuleType("transformers")
-    transformers.AutoTokenizer = loader("tokenizer")
+    transformers.Qwen2Tokenizer = loader("tokenizer")
     transformers.Qwen3Model = loader("text_encoder")
     hub = types.ModuleType("huggingface_hub")
 
-    def hf_hub_download(repo_id, filename, *, revision=None, **kwargs):
-        LOG["download"] = (repo_id, filename, revision)
-        return f"/opt/wenart/hf/{filename}"
+    def snapshot_download(repo_id, *, revision=None, allow_patterns=None, local_files_only=False):
+        """The pinned snapshot folder (with the real model_index.json of Z-Image-Turbo)."""
+        LOG.setdefault("snapshot", []).append((repo_id, revision, tuple(allow_patterns or ()), local_files_only))
+        folder = tmp_path / "snapshots" / repo_id.replace("/", "--") / revision
+        folder.mkdir(parents=True, exist_ok=True)
+        (folder / "model_index.json").write_text(json.dumps({
+            "_class_name": "ZImagePipeline", "scheduler": ["diffusers", "FlowMatchEulerDiscreteScheduler"],
+            "text_encoder": ["transformers", "Qwen3Model"], "tokenizer": ["transformers", "Qwen2Tokenizer"],
+            "transformer": ["diffusers", "ZImageTransformer2DModel"], "vae": ["diffusers", "AutoencoderKL"]}))
+        return str(folder)
 
-    hub.hf_hub_download = hf_hub_download
+    hub.snapshot_download = snapshot_download
     for name, mod in (("torch", torch), ("diffusers", diffusers), ("transformers", transformers),
                       ("huggingface_hub", hub), ("diffusers.pipelines", types.ModuleType("diffusers.pipelines")),
                       ("diffusers.pipelines.z_image", types.ModuleType("diffusers.pipelines.z_image")),
@@ -356,16 +364,26 @@ def test_loading_follows_the_memory_plan(fakes):
     loads = LOG["from_pretrained"]
     names = [n for n, _, _ in loads]
     assert names == ["tokenizer", "text_encoder", "transformer", "vae", "scheduler"]   # encoder first
-    for name, repo, kwargs in loads:
-        assert repo == base["repo"] and kwargs["revision"] == base["revision"]
-        assert kwargs["subfolder"] == name
+    # Local snapshot folders only (pod run 0: AutoTokenizer(repo, subfolder=...) failed offline),
+    # resolved cache-only with the pinned revision and allow patterns.
+    snap = LOG["snapshot"]
+    assert all(local for *_, local in snap)
+    assert {(r, rev) for r, rev, _, _ in snap} == {(base["repo"], base["revision"]), (cn["repo"], cn["revision"])}
+    base_dir = next(p for n, p, _ in loads if n == "transformer")
+    assert base_dir.endswith(base["revision"])
+    for name, path, kwargs in loads:
+        assert "revision" not in kwargs
+        if name in ("tokenizer", "text_encoder"):
+            assert path == f"{base_dir}/{name}" and "subfolder" not in kwargs
+        else:
+            assert path == base_dir and kwargs["subfolder"] == name
     kw = {n: k for n, _, k in loads}
     assert kw["text_encoder"]["dtype"] == "bfloat16" and kw["text_encoder"]["device_map"] == "cuda"
     assert kw["transformer"]["dtype"] == "bfloat16" and kw["transformer"]["device_map"] == "cuda"
     assert kw["vae"]["dtype"] == "bfloat16"
-    assert LOG["download"] == (cn["repo"], cn["files"][0], cn["revision"])
     path, single = LOG["single_file"]
-    assert path.endswith(cn["files"][0]) and single == {"config": str(PC.config_dir(cfg)), "dtype": "bfloat16"}
+    assert path.endswith(f"{cn['revision']}/{cn['files'][0]}")
+    assert single == {"config": str(PC.config_dir(cfg)), "dtype": "bfloat16"}
     scheduler, vae, text_encoder, tokenizer, transformer, controlnet = LOG["pipeline_init"]
     assert text_encoder is None and controlnet == ("controlnet on", "cuda") and transformer.name == "transformer"
     assert tokenizer.name == "tokenizer" and isinstance(vae, FakeVAE)

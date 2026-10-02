@@ -1,9 +1,10 @@
 """Model wrappers of the change gate (docs/milestone5.md §1.3, §1.6, §4.2): DAv2-Small, SAM 2.1, DINOv2.
 
 What: ``Models`` loads the three gate models lazily (first use) from the
-repos and pinned revisions in ``models.yaml`` (``revision=`` on every
-``from_pretrained``; with ``HF_HUB_OFFLINE=1`` the Hugging Face hub reads
-only the local cache in ``HF_HOME``) and gives numpy results:
+local folders of the pinned snapshots of ``models.yaml``
+(``wenart.hfcache.local_snapshot``: the repo and revision resolve to a folder
+of the ``HF_HOME`` cache, so ``HF_HUB_OFFLINE=1`` needs no hub lookup) and
+gives numpy results:
 
 - ``depth(rgb) -> float32 H x W`` relative disparity (Depth Anything V2
   Small: ``AutoImageProcessor`` + ``AutoModelForDepthEstimation``, upsampled
@@ -58,16 +59,13 @@ def dino_size(width: int, height: int, patch: int = 14, target_h: int = DINO_HEI
 class Models:
     """Lazy DAv2-Small / SAM 2.1 / DINOv2 wrappers for one device (see the module docstring)."""
 
-    def __init__(self, config: Optional[dict] = None, device: str = "cuda", cache_dir: Optional[str] = None,
-                 local_files_only: Optional[bool] = None) -> None:
+    def __init__(self, config: Optional[dict] = None, device: str = "cuda") -> None:
         cfg = config if config is not None else load_models_config()
         self.config = cfg.get("models", cfg)
         missing = [k for k in MODEL_KEYS if k not in self.config]
         if missing:
             raise KeyError(f"models.yaml lacks {', '.join(missing)}")
         self.device = device
-        self.cache_dir = cache_dir
-        self.local_files_only = local_files_only
         self.resident: Optional[bool] = None          # None until settle(): stay on the device
         self._loaded: dict[str, tuple] = {}            # key -> (processor, model)
         self.load_seconds: dict[str, float] = {}
@@ -85,13 +83,10 @@ class Models:
 
     # --------------------------------------------------------------- loading
 
-    def _kwargs(self) -> dict:
-        kw = {}
-        if self.cache_dir:
-            kw["cache_dir"] = self.cache_dir
-        if self.local_files_only is not None:
-            kw["local_files_only"] = bool(self.local_files_only)
-        return kw
+    def _snapshot(self, cfg: dict):
+        """Local folder of a model's pinned snapshot (downloaded by scripts/pod_setup_polish.sh)."""
+        from wenart.hfcache import local_snapshot
+        return local_snapshot(cfg["repo"], cfg["revision"], cfg.get("allow_patterns"))
 
     def _load(self, key: str) -> tuple:
         import time
@@ -99,20 +94,21 @@ class Models:
         import torch
         start = time.time()
         cfg = self.config[key]
-        repo, rev = cfg["repo"], cfg["revision"]
-        kw = self._kwargs()
+        # The local folder of the pinned snapshot, not the repo id: with HF_HUB_OFFLINE=1 a
+        # repo-id load can fail on a missing optional file (wenart/hfcache.py).
+        path = str(self._snapshot(cfg))
         if key == "depth":
             from transformers import AutoImageProcessor, AutoModelForDepthEstimation
-            proc = AutoImageProcessor.from_pretrained(repo, revision=rev, **kw)
-            model = AutoModelForDepthEstimation.from_pretrained(repo, revision=rev, dtype=torch.float32, **kw)
+            proc = AutoImageProcessor.from_pretrained(path)
+            model = AutoModelForDepthEstimation.from_pretrained(path, dtype=torch.float32)
         elif key == "sam":
             from transformers import Sam2Model, Sam2Processor
-            proc = Sam2Processor.from_pretrained(repo, revision=rev, **kw)
-            model = Sam2Model.from_pretrained(repo, revision=rev, dtype=torch.float32, **kw)
+            proc = Sam2Processor.from_pretrained(path)
+            model = Sam2Model.from_pretrained(path, dtype=torch.float32)
         elif key == "dino":
             from transformers import AutoImageProcessor, AutoModel
-            proc = AutoImageProcessor.from_pretrained(repo, revision=rev, **kw)
-            model = AutoModel.from_pretrained(repo, revision=rev, dtype=torch.float32, **kw)
+            proc = AutoImageProcessor.from_pretrained(path)
+            model = AutoModel.from_pretrained(path, dtype=torch.float32)
         else:
             raise KeyError(key)
         model.eval()

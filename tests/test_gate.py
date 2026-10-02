@@ -968,6 +968,13 @@ def fake_hf(log):
     def auto_proc(repo, **kwargs):
         return loader("depth" if "Depth" in repo else "dino").from_pretrained(repo, **kwargs)
     tf.AutoImageProcessor = types.SimpleNamespace(from_pretrained=auto_proc)
+    hub = types.ModuleType("huggingface_hub")
+
+    def snapshot_download(repo, *, revision=None, allow_patterns=None, local_files_only=False):
+        log.append(("snapshot", repo, revision, tuple(allow_patterns or ()), local_files_only))
+        return f"/snap/{repo}@{revision}"
+    hub.snapshot_download = snapshot_download
+    tf.hub = hub
     return torch, tf
 
 
@@ -976,6 +983,7 @@ def test_models_wrapper_calls_the_transformers_apis_as_documented(monkeypatch):
     torch, tf = fake_hf(log)
     monkeypatch.setitem(sys.modules, "torch", torch)
     monkeypatch.setitem(sys.modules, "transformers", tf)
+    monkeypatch.setitem(sys.modules, "huggingface_hub", tf.hub)
     cfg = api.load_models_config()
     m = gate_models.Models(device="cuda")
     assert m.info() == {k: {"repo": cfg["models"][k]["repo"], "revision": cfg["models"][k]["revision"],
@@ -992,12 +1000,19 @@ def test_models_wrapper_calls_the_transformers_apis_as_documented(monkeypatch):
     tok = m.dino_tokens(np.zeros((1080, 1920, 3), np.uint8))
     assert tok.shape == (37, 66, 4) and tok[0, 0, 0] == 4.0          # CLS token dropped
     assert ("dino_proc", {"height": 518, "width": 924}, False) in log
+    # Every model and processor loads from the local folder of its pinned snapshot (no repo-id
+    # loads: offline they fail on missing optional files, pod run 0), resolved cache-only first.
+    snap = {k: f"/snap/{cfg['models'][k]['repo']}@{cfg['models'][k]['revision']}" for k in ("depth", "sam", "dino")}
     loads = [e for e in log if e[0] == "load"]
     assert [(e[1], e[2], e[3], e[4]) for e in loads] == [
-        ("depth", cfg["models"]["depth"]["repo"], cfg["models"]["depth"]["revision"], "float32"),
-        ("sam", cfg["models"]["sam"]["repo"], cfg["models"]["sam"]["revision"], "float32"),
-        ("dino", cfg["models"]["dino"]["repo"], cfg["models"]["dino"]["revision"], "float32")]
-    assert all(e[3] == cfg["models"][e[1]]["revision"] for e in log if e[0] == "proc")
+        ("depth", snap["depth"], None, "float32"), ("sam", snap["sam"], None, "float32"),
+        ("dino", snap["dino"], None, "float32")]
+    assert all(e[2] == snap[e[1]] and e[3] is None for e in log if e[0] == "proc")
+    snaps = [e for e in log if e[0] == "snapshot"]
+    assert snaps and all(e[4] is True for e in snaps)
+    assert {(e[1], e[2], e[3]) for e in snaps} == {
+        (cfg["models"][k]["repo"], cfg["models"][k]["revision"], tuple(cfg["models"][k]["allow_patterns"]))
+        for k in ("depth", "sam", "dino")}
     # 2 GiB free < 4 GiB: not resident; every model goes back to the CPU after its call.
     assert m.settle() is False and m.memory()["resident"] is False
     sam_model = m._loaded["sam"][1]

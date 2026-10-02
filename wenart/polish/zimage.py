@@ -33,8 +33,9 @@ Memory plan (§3.1, no CPU offload by default; it would move ~19 GB per call):
    tensor while loading), ``ZImageControlNetModel.from_single_file(<file in
    the HF cache>, config=<vendored config dir>, dtype=bf16).to("cuda")``,
    ``AutoencoderKL`` (bf16, cuda; ``enable_tiling()`` above 1.5 MP),
-   ``FlowMatchEulerDiscreteScheduler`` from the repo, all with the pinned
-   ``revision``; ``ZImageControlNetPipeline(scheduler, vae, None, tokenizer,
+   ``FlowMatchEulerDiscreteScheduler`` from the repo, all from the local
+   folder of the pinned snapshot (``wenart.hfcache.local_snapshot``: no hub
+   lookups, so ``HF_HUB_OFFLINE=1`` works); ``ZImageControlNetPipeline(scheduler, vae, None, tokenizer,
    transformer, controlnet)`` (its ``__init__`` shares the transformer's
    embedders with the ControlNet via ``ZImageControlNetModel.from_transformer``).
 3. ``PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True`` (set before torch is
@@ -75,12 +76,15 @@ takes both ``strength`` and ``control_image``):
 from __future__ import annotations
 
 import gc
+import json
 import os
 import time
+from pathlib import Path
 from typing import Optional
 
 import numpy as np
 
+from wenart.hfcache import local_snapshot
 from wenart.polish import schedule as S
 from wenart.polish.config import config_dir
 
@@ -106,6 +110,16 @@ def to_uint8(image) -> np.ndarray:
     """Pipeline ``output_type="np"`` image (float 0..1, H x W x 3) -> uint8, rounded as diffusers' numpy_to_pil."""
     a = np.asarray(image, dtype=np.float32)
     return np.clip(np.rint(a * 255.0), 0, 255).astype(np.uint8)
+
+
+def text_classes(base_dir: Path) -> tuple[str, str]:
+    """transformers class names of the tokenizer and the text encoder from the snapshot's
+    ``model_index.json`` (``["transformers", "Qwen2Tokenizer"]``, ``["transformers", "Qwen3Model"]``)."""
+    index = json.loads((Path(base_dir) / "model_index.json").read_text(encoding="utf-8"))
+    tok, enc = index["tokenizer"], index["text_encoder"]
+    if tok[0] != "transformers" or enc[0] != "transformers":
+        raise ValueError(f"unexpected tokenizer/text encoder libraries in model_index.json: {tok}, {enc}")
+    return tok[1], enc[1]
 
 
 class ZImageBackend:
@@ -181,14 +195,16 @@ class ZImageBackend:
     def _encode_prompts(self, prompts: list[str]) -> None:
         import torch
         from diffusers import ZImagePipeline
-        from transformers import AutoTokenizer, Qwen3Model
+        import transformers
 
-        base = self.cfg["models"]["base"]
         t0 = time.time()
-        self.tokenizer = AutoTokenizer.from_pretrained(base["repo"], subfolder="tokenizer",
-                                                       revision=base["revision"])
-        encoder = Qwen3Model.from_pretrained(base["repo"], subfolder="text_encoder", revision=base["revision"],
-                                             dtype=torch.bfloat16, device_map=self.device)
+        base_dir = self._base_dir()
+        tok_cls, enc_cls = text_classes(base_dir)
+        # Local folders only: AutoTokenizer(repo, subfolder=...) asks AutoConfig for a
+        # tokenizer/config.json that does not exist and fails offline (wenart/hfcache.py).
+        self.tokenizer = getattr(transformers, tok_cls).from_pretrained(str(base_dir / "tokenizer"))
+        encoder = getattr(transformers, enc_cls).from_pretrained(str(base_dir / "text_encoder"),
+                                                                 dtype=torch.bfloat16, device_map=self.device)
         shell = ZImagePipeline(scheduler=None, vae=None, text_encoder=encoder, tokenizer=self.tokenizer,
                                transformer=None)
         todo = [p for p in dict.fromkeys(prompts) if p not in self.embeddings]
@@ -204,25 +220,26 @@ class ZImageBackend:
         self.free_cache()
         self.encode_seconds = round(time.time() - t0, 1)
 
+    def _base_dir(self) -> Path:
+        """Local folder of the pinned Z-Image-Turbo snapshot (wenart/hfcache.py)."""
+        base = self.cfg["models"]["base"]
+        return local_snapshot(base["repo"], base["revision"], base.get("allow_patterns"))
+
     def _load(self) -> None:
         import torch
         from diffusers import (AutoencoderKL, FlowMatchEulerDiscreteScheduler, ZImageControlNetModel,
                                ZImageControlNetPipeline, ZImageTransformer2DModel)
-        from huggingface_hub import hf_hub_download
-
-        base = self.cfg["models"]["base"]
         cn = self.cfg["models"]["controlnet"]
         t0 = time.time()
+        base_dir = str(self._base_dir())
         transformer = ZImageTransformer2DModel.from_pretrained(
-            base["repo"], subfolder="transformer", revision=base["revision"], dtype=torch.bfloat16,
-            device_map=self.device)
-        weights = hf_hub_download(repo_id=cn["repo"], filename=cn["files"][0], revision=cn["revision"])
+            base_dir, subfolder="transformer", dtype=torch.bfloat16, device_map=self.device)
+        cn_dir = local_snapshot(cn["repo"], cn["revision"], cn.get("allow_patterns") or list(cn["files"]))
+        weights = str(cn_dir / cn["files"][0])
         controlnet = ZImageControlNetModel.from_single_file(
             weights, config=str(config_dir(self.cfg)), dtype=torch.bfloat16).to(self.device)
-        vae = AutoencoderKL.from_pretrained(base["repo"], subfolder="vae", revision=base["revision"],
-                                            dtype=torch.bfloat16).to(self.device)
-        scheduler = FlowMatchEulerDiscreteScheduler.from_pretrained(base["repo"], subfolder="scheduler",
-                                                                    revision=base["revision"])
+        vae = AutoencoderKL.from_pretrained(base_dir, subfolder="vae", dtype=torch.bfloat16).to(self.device)
+        scheduler = FlowMatchEulerDiscreteScheduler.from_pretrained(base_dir, subfolder="scheduler")
         self.pipe = ZImageControlNetPipeline(scheduler, vae, None, self.tokenizer, transformer, controlnet)
         self.pipe.set_progress_bar_config(disable=True)
         if torch.cuda.is_available():

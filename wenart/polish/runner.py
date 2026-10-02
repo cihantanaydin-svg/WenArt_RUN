@@ -360,6 +360,7 @@ class PolishRun:
         self.versions: dict = {"torch": None, "diffusers": None, "device": None}
         self.gate = None
         self._ready = False
+        self._load_error: Optional[str] = None   # a failed model load is not retried per attempt
         self._reuse: dict = {}
         self._previous_stats: dict = {}
         self._wall_masks: dict = {}
@@ -507,11 +508,18 @@ class PolishRun:
             self.versions = dict(self.backend.versions())
 
     def _ensure_ready(self) -> None:
+        if self._load_error is not None:
+            # Pod run 0 reloaded ~40 GB of models for every attempt after the first load failed.
+            raise RuntimeError(f"polish models could not be loaded: {self._load_error}")
         self._ensure_backend()
         if not self._ready:
             prompts = list(dict.fromkeys(j.prompt for j in self.jobs))
             self.log(f"loading the polish models ({len(prompts)} prompts)")
-            self.backend.ensure_ready(prompts)
+            try:
+                self.backend.ensure_ready(prompts)
+            except Exception as exc:  # noqa: BLE001 - recorded on every attempt that needed the models
+                self._load_error = f"{type(exc).__name__}: {exc}"
+                raise
             self._ready = True
 
     def _ensure_gate(self):

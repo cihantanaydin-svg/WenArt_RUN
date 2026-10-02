@@ -368,6 +368,27 @@ def test_failed_attempt_moves_on_and_is_reported(tmp_path):
     assert (view_of(m, "cam_a")["final"], view_of(m, "cam_a")["reason"]) == ("cycles", "error")
 
 
+class FailingLoadBackend(FakeBackend):
+    """A backend whose model load fails (pod run 0: offline tokenizer lookup)."""
+
+    def ensure_ready(self, prompts):
+        self.ready.append(list(prompts))
+        raise OSError("We couldn't connect to 'https://huggingface.co' to load the files")
+
+
+def test_a_failed_model_load_is_not_retried_for_every_attempt(tmp_path):
+    out = make_project(tmp_path, cameras=("cam_a", "cam_b"))
+    backend = FailingLoadBackend()
+    deps, backend, gate = make_deps(backend=backend)
+    m = run_polish(out, "run", deps=deps)
+    assert len(backend.ready) == 1 and backend.calls == []          # one load attempt in the whole run
+    for cam in ("cam_a", "cam_b"):
+        v = view_of(m, cam)
+        assert (v["final"], v["reason"]) == ("cycles", "error")
+        assert all("OSError" in a["error"] for a in v["attempts"])
+    assert validate_manifest(m) == []
+
+
 def test_gate_prepare_failure_falls_back_to_cycles(tmp_path):
     out = make_project(tmp_path, cameras=("cam_a",))
 
