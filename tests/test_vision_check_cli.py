@@ -277,6 +277,30 @@ def test_a_stuck_call_never_runs_past_the_deadline(tmp_path, capsys):
     assert data["incomplete"] is True and data["calls"] == []
 
 
+def test_the_deadline_reaches_the_client(tmp_path):
+    """The run's deadline is handed to a client that takes one (``VLMClient.deadline``): it caps each HTTP
+    request and its retries, so a call abandoned at the deadline also stops holding a vLLM slot."""
+    out = T.write_toy_project(tmp_path, polished=True)
+    seen = []
+
+    class Bounded(T.FakeClient):
+        deadline = None
+
+        def run_schema(self, *a, **kw):
+            seen.append(self.deadline)
+            return super().run_schema(*a, **kw)
+
+    deadline = time.time() + 600.0
+    assert main(["run", "--project-out", str(out), "--model-key", "qwen", "--deadline", str(deadline)],
+                client_factory=lambda k, u: Bounded(model="fake/qwen", truth={CYC: T.TOY_TYPES})) == 0
+    assert seen and set(seen) == {deadline}
+    seen.clear()
+    photo = Path(__file__).resolve().parent / "fixtures" / "style_photo_synthetic-03_salon.jpg"
+    assert main(["style-photo", "--project-out", str(out), "--model-key", "qwen", "--photo", str(photo),
+                 "--deadline", str(deadline)], client_factory=lambda k, u: Bounded(model="fake/qwen")) == 0
+    assert seen and set(seen) == {deadline}
+
+
 def test_unknown_kind_or_model_key_exits_2(tmp_path, capsys):
     out = T.write_toy_project(tmp_path)
     f = factory_for({})

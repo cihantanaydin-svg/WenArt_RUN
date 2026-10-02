@@ -111,7 +111,7 @@ def test_manifest_is_a_complete_run(project):
     assert not missing, f"{name}: polish_manifest.json lacks {missing}"
     assert m["schema_version"] == "0.1" and m["kind"] == "run" and m["project"] == name
     assert m["incomplete"] is False, f"{name}: the polish run was cut by the deadline (incomplete)"
-    assert m["memory_mode"] in ("resident", "offload")
+    assert m["memory_mode"] == "resident"           # no CPU offload (§3.1, review G1)
     assert m["views"], f"{name}: no view polished"
     for v in m["views"]:
         cam = v.get("camera")

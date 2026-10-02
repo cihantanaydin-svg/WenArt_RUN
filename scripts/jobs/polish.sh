@@ -51,14 +51,17 @@
 #                 smoke --views $SMOKE_VIEWS (smoke)
 #   gate      POLISH_PY  wenart.gate calibrate
 #   check     PY  wenart.vision_check expected, plan-crops; per model key of CHECK_MODELS: vLLM up
-#                 (port 8001), run (+ preference, style-photo of the project photos and of
+#                 (port 8001), run (+ preference; both with --workers = the server's sequences:
+#                 2 below 40 GB of VRAM, 4 above), style-photo of the project photos and of
 #                 tests/fixtures/style_photo_synthetic-03_salon.jpg -> check/style_photo_test.json),
 #                 vLLM down; then combine, calibrate and wenart.style.photos combine of the project
 #                 photos (-> check/style_photo_terms.json, read by the next look phase through
 #                 wenart.style --photo-terms) and of the test photo
 #   report    PY  wenart.report final (final) | sweep (sweep, smoke)
 #   tests     PY  pytest -m gpu tests/gpu/test_render.py tests/gpu/test_check.py;
-#             POLISH_PY  pytest -m gpu tests/gpu/test_polish.py (junit files into the results)
+#             POLISH_PY  pytest -m gpu tests/gpu/test_polish.py tests/gpu/test_polish_backend.py
+#                 (junit files into the results; the backend test loads the pinned polish models,
+#                 which the setup therefore downloads for the tests phase too)
 # vLLM flags as in bakeoff.sh / furnish.sh (vLLM 0.30.0): --limit-mm-per-prompt '{"image":2}'
 # (render + source-plan crop), fp8 weights, 8192 context and 2 sequences below 40 GB of VRAM,
 # VLLM_USE_FLASHINFER_SAMPLER=0, the per-model flags of check.yaml (GLM: --reasoning-parser
@@ -407,10 +410,16 @@ print("" if value is None else value)
 PY
 }
 
+# server_seqs: sequences the vLLM server takes at once (2 below 40 GB of VRAM, else 4); `vision_check
+# run` and `preference` send that many calls at once (--workers).
+server_seqs() {
+  local mem; mem=$(gpu_mem_mib)
+  if [ "${mem:-0}" -lt 40000 ]; then echo 2; else echo 4; fi
+}
+
 # Size flags as in bakeoff.sh: fp8 weights, 8192 context and 2 sequences below 40 GB of VRAM.
 server_args() {
-  local mem; mem=$(gpu_mem_mib)
-  if [ "${mem:-0}" -lt 40000 ]; then
+  if [ "$(server_seqs)" = "2" ]; then
     echo "--quantization fp8 --max-model-len 8192 --max-num-seqs 2"
   else
     echo "--max-model-len 16384 --max-num-seqs 4"
@@ -557,7 +566,7 @@ phase_gate() {
 }
 
 phase_check() {
-  local p out key kinds pref
+  local p out key kinds pref workers
   case "$MODE" in
     final) kinds=cycles,polished; pref=polished ;;
     sweep) kinds=cycles,controls,plan_ab; pref=sweep ;;
@@ -573,13 +582,14 @@ phase_check() {
   for key in "${CHECK_KEYS[@]}"; do
     if past_deadline; then log "deadline passed: no vllm server for $key"; SKIPPED+=("check-$key"); continue; fi
     if ! start_server "$key"; then FAILED+=("vllm-serve-$key"); continue; fi
+    workers=$(server_seqs)
     for p in "${ACTIVE[@]}"; do
       out=outputs/$p
       heavy "check-run-$key-$p" "$PY" -m wenart.vision_check run --project-out "$out" \
-        --model-key "$key" --server "$VLM_SERVER" --kinds "$kinds"
+        --model-key "$key" --server "$VLM_SERVER" --kinds "$kinds" --workers "$workers"
       if [ -n "$pref" ]; then
         heavy "preference-$key-$p" "$PY" -m wenart.vision_check preference --project-out "$out" \
-          --model-key "$key" --server "$VLM_SERVER" --kinds "$pref"
+          --model-key "$key" --server "$VLM_SERVER" --kinds "$pref" --workers "$workers"
       fi
       heavy "style-photo-$key-$p" "$PY" -m wenart.vision_check style-photo --project-out "$out" \
         --model-key "$key" --server "$VLM_SERVER"
@@ -637,7 +647,9 @@ phase_tests() {
   elif [ ! -x "$POLISH_PY" ]; then
     log "no venv-polish ($POLISH_PY): polish GPU tests not run"; FAILED+=("gpu-tests-polish")
   else
-    run_stage gpu-tests-polish "$POLISH_PY" -m pytest -m gpu tests/gpu/test_polish.py \
+    # test_polish_backend.py loads the pinned polish models (about 20 GiB of VRAM) and forces the CUDA
+    # OOM retry: it runs here, after the check phase stopped its vLLM server (the GPU is free).
+    run_stage gpu-tests-polish "$POLISH_PY" -m pytest -m gpu tests/gpu/test_polish.py tests/gpu/test_polish_backend.py \
       -v -ra --junitxml="$RESULTS/junit-polish.xml"
   fi
 }

@@ -32,6 +32,8 @@ What:
   server; the client's own timeout and retries can take 30 min) is
   abandoned unanswered and asked again by the next run; the file gets
   ``incomplete: true``. ``call_before_deadline`` does the same for one call.
+  ``bound_client`` also hands the deadline to the client (``VLMClient``
+  caps each HTTP request and retry to it).
 
 The call key is ``<prompt_kind>|<camera>|<image_kind>`` (``|<order>`` for the
 preference); the inputs live in ``input_sha256``, so a re-rendered image or a
@@ -388,6 +390,14 @@ def call_before_deadline(fn: Callable, deadline: Optional[float], clock: Callabl
     return True, value
 
 
+def bound_client(client, deadline: Optional[float]):
+    """Hand ``deadline`` (epoch s) to a client that takes one (``VLMClient.deadline``: each HTTP request
+    and retry is capped to it, so a call abandoned at the deadline also frees its vLLM slot)."""
+    if deadline is not None and hasattr(client, "deadline"):
+        client.deadline = float(deadline)
+    return client
+
+
 def run_specs(specs: list[CallSpec], store: AnswerStore, client, *, deadline: Optional[float] = None,
               seed: int = 0, max_side: Optional[int] = None, log: Callable = print,
               clock: Callable[[], float] = time.time, workers: int = 1) -> dict:
@@ -400,6 +410,7 @@ def run_specs(specs: list[CallSpec], store: AnswerStore, client, *, deadline: Op
     written. Returns ``{"asked", "reused", "failed", "left", "incomplete"}``.
     """
     stats = {"asked": 0, "reused": 0, "failed": 0, "left": 0, "incomplete": False}
+    bound_client(client, deadline)
     model = getattr(client, "model", "") or store.data.get("model") or ""
     pending = []
     for spec in specs:

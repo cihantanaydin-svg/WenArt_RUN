@@ -38,8 +38,9 @@ run them; CPU tests use fakes with the same three methods.
 Memory (§1.3): models stay on the GPU when ``torch.cuda.mem_get_info()``
 shows at least 4 GiB free after the first comparison (``settle()``),
 otherwise each model is moved to the GPU for its call and back to the CPU
-afterwards (``torch.cuda.empty_cache()`` after the move). All three run in
-float32 (small models; the gate is a measurement).
+afterwards (``torch.cuda.empty_cache()`` after the move). ``release_gpu()``
+switches to that per-call path at any time (the polish's CUDA OOM retry).
+All three run in float32 (small models; the gate is a measurement).
 
 torch and transformers are imported inside the methods only.
 """
@@ -156,6 +157,22 @@ class Models:
                 self._loaded[key][1].to("cpu")
             torch.cuda.empty_cache()
         return self.resident
+
+    def release_gpu(self) -> bool:
+        """Move every loaded model to the CPU for the rest of the run (``resident`` False: later calls
+        move each model in and out) and empty the CUDA cache. True when something was moved; a no-op
+        (False) with no model loaded or on a CPU device.
+
+        The polish calls it (through ``Gate.release_gpu``) after a CUDA OOM of the diffusion pipeline,
+        before its single retry (docs/milestone5.md §3.1)."""
+        if not self._loaded or not str(self.device).startswith("cuda"):
+            return False
+        import torch
+        for key in list(self._loaded):
+            self._loaded[key][1].to("cpu")
+        self.resident = False
+        torch.cuda.empty_cache()
+        return True
 
     # ----------------------------------------------------------------- calls
 

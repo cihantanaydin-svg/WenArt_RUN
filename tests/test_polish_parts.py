@@ -466,6 +466,11 @@ def test_schema_rejects_bad_manifests():
     assert any("kind" in e for e in errors) and any("views" in e for e in errors)
     assert validate_determinism({"camera": "c", "max_abs_diff": 0, "seconds": 1.0}) == []
     assert validate_determinism({"camera": "c", "max_abs_diff": -1, "seconds": 1.0})
+    # Review G1: the CPU-offload fallback is gone, so a manifest never records memory_mode "offload".
+    base = {"schema_version": "0.1", "kind": "run"}
+    assert any(e.startswith("memory_mode:") for e in validate_manifest(dict(base, memory_mode="offload")))
+    for mode in ("resident", None):
+        assert not [e for e in validate_manifest(dict(base, memory_mode=mode)) if e.startswith("memory_mode:")]
 
 
 def test_write_preview_stays_under_the_byte_limit(tmp_path):

@@ -218,7 +218,9 @@ def test_setup_parts_follow_the_phases(tmp_path):
     want = f"{models['qwen']['id']}@{models['qwen']['revision']} {models['glm']['id']}@{models['glm']['revision']}"
     assert f"PLAN BAKEOFF_MODELS={want}" in plan
     plan = _setup_plan(tmp_path, POLISH_MODE="sweep", POLISH_PHASES="check report tests", CHECK_MODELS="glm")
-    assert "PLAN venv=1 models=0 check=1" in plan        # test_polish runs with the polish venv
+    # test_polish runs with the polish venv; tests/gpu/test_polish_backend.py loads the pinned polish models
+    # (CUDA OOM retry of the review fix G1), so a tests pod downloads them too.
+    assert "PLAN venv=1 models=1 check=1" in plan
     assert f"PLAN BAKEOFF_MODELS={models['glm']['id']}@{models['glm']['revision']}\n" in plan
     plan = _setup_plan(tmp_path, POLISH_MODE="sweep", POLISH_PHASES="look controls gate report")
     assert "PLAN venv=1 models=1 check=0" in plan and "BAKEOFF_MODELS" not in plan
@@ -226,6 +228,8 @@ def test_setup_parts_follow_the_phases(tmp_path):
     assert "PLAN venv=1 models=1 check=0" in plan
     plan = _setup_plan(tmp_path, POLISH_MODE="final", POLISH_PHASES="look report")
     assert "PLAN venv=0 models=0 check=0" in plan
+    plan = _setup_plan(tmp_path, POLISH_MODE="final", POLISH_PHASES="report tests")
+    assert "PLAN venv=1 models=1 check=0" in plan
 
 
 def test_setup_installs_with_the_image_constraints_and_stamps_after_the_gpu_checks():
@@ -661,6 +665,8 @@ def test_final_mode_commands_and_environment(final_run):
                    for c in runs)
         prefs = _find(calls, "wenart.vision_check", "preference", p)
         assert [_arg(c, "--kinds") for c in prefs] == ["polished", "polished"]
+        # As many calls at once as the server takes sequences (--max-num-seqs 2 below 40 GB).
+        assert [_arg(c, "--workers") for c in runs + prefs] == ["2"] * 4
         photos = _find(calls, "wenart.vision_check", "style-photo", p)
         tests = [c for c in photos if "--photo" in c["argv"]]
         assert len(photos) == 4 and len(tests) == 2
@@ -683,6 +689,8 @@ def test_final_mode_commands_and_environment(final_run):
     assert [c["role"] for c in pytests] == ["PY", "POLISH_PY"]
     assert "tests/gpu/test_render.py" in pytests[0]["argv"] and "tests/gpu/test_check.py" in pytests[0]["argv"]
     assert "tests/gpu/test_polish.py" in pytests[1]["argv"]
+    # The Z-Image backend's CUDA OOM retry with the real models (review fix G1), in the same polish-venv run.
+    assert "tests/gpu/test_polish_backend.py" in pytests[1]["argv"]
     for c in pytests:
         assert c["env"]["RENDER_TEST_PROJECTS"] == "synthetic-01 synthetic-03"
         assert c["env"]["CHECK_TEST_PROJECTS"] == "synthetic-01 synthetic-03"
@@ -789,6 +797,29 @@ def test_check_only_sweep_run_and_a_failing_stage(tmp_path):
     assert pytests[0]["env"]["RENDER_TEST_PROJECTS"] == "" and pytests[0]["env"]["POLISH_TEST_PROJECTS"] == ""
     assert pytests[0]["env"]["CHECK_TEST_PROJECTS"] == "synthetic-01 synthetic-03"
     assert len(box.vllm_starts()) == 1 and "--reasoning-parser glm45" in box.vllm_starts()[0]
+
+
+FAKE_NVIDIA_SMI = """#!/usr/bin/env bash
+case "$*" in
+  *nounits*) echo "49140" ;;
+  *) echo "NVIDIA RTX A6000, 49140 MiB" ;;
+esac
+"""
+
+
+def test_check_calls_on_a_48_gb_card_match_the_server_sequences(tmp_path):
+    """From 40 GB of VRAM vLLM serves 4 sequences (bf16, 16384 context): `vision_check run` and
+    `preference` then send 4 calls at once (review G4: check.yaml calls.workers 2 matches the 2 sequences
+    below 40 GB only)."""
+    box = Sandbox(tmp_path)
+    _exe(tmp_path / "bin" / "nvidia-smi", FAKE_NVIDIA_SMI)
+    proc = box.run(POLISH_MODE="sweep", POLISH_PHASES="check", POLISH_PROJECTS="synthetic-01", CHECK_MODELS="qwen")
+    assert proc.returncode == 0, box.output
+    (start,) = box.vllm_starts()
+    assert "--max-model-len 16384 --max-num-seqs 4" in start and "--quantization" not in start
+    calls = box.calls()
+    asked = _find(calls, "wenart.vision_check", "run") + _find(calls, "wenart.vision_check", "preference")
+    assert len(asked) == 2 and [_arg(c, "--workers") for c in asked] == ["4", "4"]
 
 
 def test_deadline_skips_the_heavy_phases_but_reports_and_copies(tmp_path):

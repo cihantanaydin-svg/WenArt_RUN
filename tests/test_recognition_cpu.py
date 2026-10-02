@@ -309,6 +309,66 @@ def test_run_schema_failures_give_no_data_and_an_error(monkeypatch):
         client.run_schema([page], "p", CHECK_SCHEMA, labels=["a", "b"])
 
 
+def test_a_client_deadline_caps_each_request_and_ends_the_retries(monkeypatch):
+    """Review G4 (a stuck vision-check call): the check abandons a call still running at WENART_DEADLINE,
+    but the HTTP request kept its vLLM slot for up to ``timeout_s`` x ``retries`` (30 min). With
+    ``deadline`` (epoch s) each request's timeout is capped to the time left, no pause or retry runs past
+    it, and no request starts after it. Without one nothing changes."""
+    import time
+    page = PROJECTS / "synthetic-02" / "plan_scan.png"
+    timeouts = []
+
+    def refused(url, body, timeout_s):
+        timeouts.append(timeout_s)
+        raise vlm_client.VLMError("connection refused")
+    monkeypatch.setattr(vlm_client, "post_json", refused)
+    client = vlm_client.VLMClient("http://127.0.0.1:9/v1", model="x", retries=3, timeout_s=600, max_side=100)
+    assert client.deadline is None
+    client.deadline = time.time() + 1.0
+    t0 = time.monotonic()
+    res = client.run_schema([page], "p", CHECK_SCHEMA)
+    # One request with at most the 1 s left; the 2 s pause before the retry would pass the deadline.
+    assert len(timeouts) == 1 and 0 < timeouts[0] <= 1.0 and time.monotonic() - t0 < 0.9
+    assert res.data is None and res.attempts == 1 and "connection refused" in res.error and "deadline" in res.error
+    timeouts.clear()
+    client.deadline = time.time() - 1.0                       # already past: nothing is sent
+    res = client.run_schema([page], "p", CHECK_SCHEMA)
+    assert timeouts == [] and res.attempts == 0 and res.data is None and "deadline" in res.error
+    good = json.dumps({"status": "absent", "box": [0, 0, 1000, 1000]})
+    bodies = []
+    stub = _stub_answers([good], bodies)
+    monkeypatch.setattr(vlm_client, "post_json", lambda url, body, timeout_s: (timeouts.append(timeout_s),
+                                                                             stub(url, body, timeout_s))[1])
+    client.deadline = None
+    res = client.run_schema([page], "p", CHECK_SCHEMA)
+    assert res.error is None and timeouts == [600] and res.attempts == 1
+    client.deadline = time.time() + 300.0
+    res = client.run_schema([page], "p", CHECK_SCHEMA)
+    assert res.error is None and 299.0 < timeouts[-1] <= 300.0
+
+
+def test_encode_image_is_lossless_without_the_slow_png_optimize_pass(monkeypatch):
+    """Review G4: ``optimize=True`` made each 1600x900 image cost 0.6 s of encoding (0.13 s without, file
+    5 % larger) for every check call; the PNG stays lossless."""
+    import base64
+    from io import BytesIO
+
+    import numpy as np
+    from PIL import Image
+    saved = []
+    real_save = Image.Image.save
+
+    def save(self, fp, format=None, **params):
+        saved.append(params)
+        return real_save(self, fp, format, **params)
+    monkeypatch.setattr(Image.Image, "save", save)
+    rgb = np.random.default_rng(0).integers(0, 256, (90, 160, 3), dtype=np.uint8)
+    data_url, sent, original = vlm_client.encode_image(Image.fromarray(rgb), max_side=0)
+    assert sent == original == (160, 90) and saved and not saved[-1].get("optimize")
+    with Image.open(BytesIO(base64.b64decode(data_url.split(",", 1)[1]))) as img:
+        assert img.format == "PNG" and np.array_equal(np.asarray(img.convert("RGB")), rgb)
+
+
 def test_run_schema_reports_an_unreachable_server_without_raising():
     client = vlm_client.VLMClient("http://127.0.0.1:9/v1", model="x", retries=1, timeout_s=1, max_side=100)
     res = client.run_schema([PROJECTS / "synthetic-02" / "plan_scan.png"], "p", CHECK_SCHEMA)

@@ -21,7 +21,8 @@
 #            (wenart/gate/models.yaml): huggingface_hub.snapshot_download with the pinned
 #            revision and allow patterns of those files, into HF_HOME=/opt/wenart/hf (container
 #            disk; the job runs the polish and the gate with HF_HUB_OFFLINE=1 afterwards).
-#            Needed by the phases polish and gate (and POLISH_MODE=smoke).
+#            Needed by the phases polish, gate and tests (tests/gpu/test_polish_backend.py
+#            loads the polish models) and by POLISH_MODE=smoke.
 #   check    scripts/pod_setup_recognition.sh with RECOG_SETUP_PARTS="vllm models" (no PaddleOCR,
 #            no LibreDWG) and BAKEOFF_MODELS = the ids of CHECK_MODELS (default "qwen glm") from
 #            wenart/vision_check/check.yaml, each with its pinned revision ("<id>@<revision>").
@@ -80,7 +81,8 @@ has_phase() { local p; for p in "${PHASES[@]}"; do [ "$p" = "$1" ] && return 0; 
 # Which parts this job needs (see the header).
 NEED_VENV=0; NEED_MODELS=0; NEED_CHECK=0
 if has_phase polish || has_phase gate || has_phase tests || [ "$MODE" = "smoke" ]; then NEED_VENV=1; fi
-if has_phase polish || has_phase gate || [ "$MODE" = "smoke" ]; then NEED_MODELS=1; NEED_VENV=1; fi
+# tests: tests/gpu/test_polish_backend.py loads the pinned polish models (CUDA OOM retry, §3.1).
+if has_phase polish || has_phase gate || has_phase tests || [ "$MODE" = "smoke" ]; then NEED_MODELS=1; NEED_VENV=1; fi
 if has_phase check; then NEED_CHECK=1; fi
 
 # vlm_entries: "<id>@<revision> ..." of CHECK_MODELS from check.yaml (the single source, §1.6).

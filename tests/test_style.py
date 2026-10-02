@@ -192,6 +192,25 @@ def test_cli_on_synthetic_projects(tmp_path):
     assert json.loads(out.read_text(encoding="utf-8")) == json.loads(FIXTURE.read_text(encoding="utf-8"))
 
 
+def test_write_profiles_removes_the_extra_profiles_of_an_earlier_brief(tmp_path):
+    """Review G5: a brief with two styles left ``style_2.json`` next to ``style.json``; after the brief
+    changed to one style the old extra profile stayed in outputs/ (and reached a pod run's results as if
+    it were current). The writer now replaces its whole set: extras beyond the new count are removed;
+    other files next to it stay."""
+    out = tmp_path / "style.json"
+    keep = [tmp_path / "style_photo_terms.json", tmp_path / "style_2.json.bak", tmp_path / "other_2.json",
+            tmp_path / "style_x.json"]
+    for f in keep:
+        f.write_text("{}", encoding="utf-8")
+    written = P.write_profiles([{"n": 1}, {"n": 2}, {"n": 3}], out)
+    assert [f.name for f in written] == ["style.json", "style_2.json", "style_3.json"]
+    written = P.write_profiles([{"n": 1}, {"n": 2}], out)
+    assert [f.name for f in written] == ["style.json", "style_2.json"] and not (tmp_path / "style_3.json").exists()
+    P.write_profiles([{"n": 1}], out)
+    assert json.loads(out.read_text(encoding="utf-8")) == {"n": 1}
+    assert sorted(f.name for f in tmp_path.iterdir()) == sorted(["style.json"] + [f.name for f in keep])
+
+
 def test_fixture_is_current():
     """tests/fixtures/style_synthetic-01.json is what the CLI writes for projects/synthetic-01."""
     brief = yaml.safe_load((PROJECTS / "synthetic-01" / "brief.yaml").read_text(encoding="utf-8"))

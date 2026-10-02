@@ -27,6 +27,8 @@ Contract (§1.3):
 - ``Gate.compare(ref, test_rgb) -> {"decision": "accept"|"reject", "reasons",
   "notes", "metrics", "gate_key"}``; ValueError when ``test_rgb`` is not the
   view size.
+- ``Gate.release_gpu() -> bool``: the gate models off the GPU for the rest
+  of the run (the polish calls it after a CUDA OOM, before its retry).
 - ``decide(metrics, thresholds) -> (decision, reasons, notes)``: pure.
 
 Metrics (§4.2): ``{"<check>": {"global": float|None, "regions": {id: float},
@@ -238,6 +240,16 @@ class Gate:
             from wenart.gate.models import Models
             self.models = Models(device=self.device)
         return self.models
+
+    def release_gpu(self) -> bool:
+        """Move the gate's models off the GPU for the rest of the run (``Models.release_gpu``).
+
+        The polish runner calls it from the Z-Image backend's release hook after a CUDA OOM, before
+        the single retry (§3.1). A no-op (False) when no model wrapper exists yet (none is created),
+        the wrapper has no ``release_gpu`` (test fakes) or nothing is on a CUDA device.
+        """
+        release = getattr(self.models, "release_gpu", None)
+        return bool(release()) if callable(release) else False
 
     def model_info(self) -> dict:
         """``{"depth"|"sam"|"dino": {"repo", "revision", "licence"}}`` of the models in use (models.yaml otherwise)."""

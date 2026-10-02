@@ -91,7 +91,7 @@ MANIFEST = {
         "device": STR,
         "torch": STR,
         "diffusers": STR,
-        "memory_mode": {"enum": ["resident", "offload", None]},
+        "memory_mode": {"enum": ["resident", None]},          # no CPU offload (§3.1)
         "peak_vram_gib": NUM,
         "load_seconds": NUM,
         "seconds_per_forward": NUM,

@@ -280,7 +280,7 @@ def cmd_style_photo(project: Project, args, client_factory) -> int:
         write_json(out, data)
         return 0
     deadline = deadline_of(args.deadline)
-    client = _client(project, args, client_factory)
+    client = C.bound_client(_client(project, args, client_factory), deadline)
     model = str(client.model)
     slug = project.cfg["models"][args.model_key]["slug"]
     try:

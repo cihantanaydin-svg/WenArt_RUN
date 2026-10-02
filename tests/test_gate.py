@@ -1318,6 +1318,42 @@ def test_models_wrapper_calls_the_transformers_apis_as_documented(monkeypatch):
     assert gate_models.dino_size(1920, 1080) == (518, 924) and gate_models.dino_size(1080, 1080) == (518, 518)
 
 
+def test_release_gpu_moves_the_gate_models_off_the_device(monkeypatch):
+    """Review G1 (polish CUDA OOM): before its single retry the Z-Image backend calls the gate's
+    ``release_gpu()`` through the runner. It moves every loaded gate model to the CPU, makes the later
+    calls use the per-call move in/out path (``resident`` False) and empties the CUDA cache; with no
+    model loaded, on a CPU device or without a model wrapper it does nothing."""
+    log = []
+    torch, tf = fake_hf(log)
+    torch.cuda.mem_get_info = lambda: (20 * 1024 ** 3, 24 * 1024 ** 3)     # plenty free: resident
+    monkeypatch.setitem(sys.modules, "torch", torch)
+    monkeypatch.setitem(sys.modules, "transformers", tf)
+    monkeypatch.setitem(sys.modules, "huggingface_hub", tf.hub)
+    bare = api.Gate()
+    assert bare.release_gpu() is False and bare.models is None              # creates no model wrapper
+    m = gate_models.Models(device="cuda")
+    gate = api.Gate(models=m)
+    assert gate.release_gpu() is False and ("empty_cache",) not in log      # nothing loaded yet
+    rgb = np.zeros((90, 160, 3), np.uint8)
+    m.depth(rgb)
+    m.sam_masks(rgb, [[10, 5, 40, 50]])
+    m.dino_tokens(rgb)
+    assert m.settle() is True
+    models = {k: m._loaded[k][1] for k in ("depth", "sam", "dino")}
+    assert all(model.devices[-1] == "cuda" for model in models.values())
+    assert gate.release_gpu() is True
+    assert all(model.devices[-1] == "cpu" for model in models.values())
+    assert m.resident is False and m.memory()["resident"] is False and ("empty_cache",) in log
+    assert m.settle() is False                                              # stays off the device
+    m.depth(rgb)                                                            # moved in for the call, out after
+    assert models["depth"].devices[-2:] == ["cuda", "cpu"]
+    # A CPU gate and a fake model wrapper without release_gpu: nothing to do.
+    cpu = gate_models.Models(device="cpu")
+    cpu.depth(rgb)
+    assert api.Gate(models=cpu, device="cpu").release_gpu() is False and cpu._loaded["depth"][1].devices[-1] == "cpu"
+    assert api.Gate(models=types.SimpleNamespace()).release_gpu() is False
+
+
 def test_models_wrapper_needs_every_model_key():
     with pytest.raises(KeyError):
         gate_models.Models(config={"models": {"depth": {}}})

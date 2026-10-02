@@ -348,7 +348,11 @@ def assets_in_profile(profile: dict) -> dict:
 
 
 def write_profiles(profiles: list[dict], out_path: Path) -> list[Path]:
-    """Write the first profile to ``out_path`` and the others to ``<stem>_2.json`` ... next to it."""
+    """Write the first profile to ``out_path`` and the others to ``<stem>_2.json`` ... next to it.
+
+    The set is replaced as a whole: an extra profile this writer made for an earlier brief with more
+    styles (``<stem>_<n>.json``, n > the new count) is removed, so no stale profile looks current.
+    """
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     written = []
@@ -356,4 +360,9 @@ def write_profiles(profiles: list[dict], out_path: Path) -> list[Path]:
         path = out_path if i == 0 else out_path.with_name(f"{out_path.stem}_{i + 1}{out_path.suffix}")
         path.write_text(json.dumps(profile, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
         written.append(path)
+    extra = re.compile(rf"{re.escape(out_path.stem)}_([0-9]+){re.escape(out_path.suffix)}")
+    for old in out_path.parent.iterdir():
+        m = extra.fullmatch(old.name)
+        if m and int(m.group(1)) > max(1, len(profiles)) and old.is_file():
+            old.unlink()
     return written

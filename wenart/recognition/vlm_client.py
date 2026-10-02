@@ -149,7 +149,9 @@ def encode_image(image, max_side: int = DEFAULT_MAX_SIDE) -> tuple[str, tuple[in
         new_size = (max(1, round(img.width * scale)), max(1, round(img.height * scale)))
         img = img.resize(new_size, Image.LANCZOS)
     buf = io.BytesIO()
-    img.save(buf, format="PNG", optimize=True)
+    # Lossless PNG at the default zlib level; no ``optimize`` pass (0.6 s instead of 0.13 s per 1600x900
+    # image for a 5 % smaller file: it was a large part of every vision-check call's overhead).
+    img.save(buf, format="PNG")
     data = base64.b64encode(buf.getvalue()).decode("ascii")
     return f"data:image/png;base64,{data}", img.size, original
 
@@ -266,7 +268,12 @@ def wait_for_server(base_url: str = DEFAULT_BASE_URL, timeout_s: float = 900.0, 
 # --------------------------------------------------------------------------
 
 class VLMClient:
-    """Talks to one vLLM server. ``model`` defaults to the first served model."""
+    """Talks to one vLLM server. ``model`` defaults to the first served model.
+
+    ``deadline`` (attribute, epoch seconds or None): no request starts after it, each request's timeout
+    is capped to the time left, and no retry pause runs past it (the vision check sets it to
+    ``WENART_DEADLINE``, so a call it abandons at the deadline also stops holding a vLLM slot).
+    """
 
     def __init__(self, base_url: str = DEFAULT_BASE_URL, model: Optional[str] = None, *,
                  timeout_s: float = 600.0, retries: int = 3, max_side: int = DEFAULT_MAX_SIDE,
@@ -278,6 +285,7 @@ class VLMClient:
         self.max_side = max_side
         self.max_tokens = max_tokens
         self.enable_thinking = enable_thinking
+        self.deadline: Optional[float] = None
 
     @property
     def model(self) -> str:
@@ -361,14 +369,25 @@ class VLMClient:
 
         Transport errors are retried with a growing pause; an answer that is
         not JSON is asked again (same request) until the retries are used up.
+        With ``self.deadline`` no request starts after it, each timeout is
+        capped to the time left and a pause that would end past it ends the
+        retries (``attempts`` = requests sent).
         """
         url = self.base_url + "/chat/completions"
         t0 = time.monotonic()
         raw_text, error, usage, parsed = "", None, {}, None
         attempts = 0
-        for attempts in range(1, self.retries + 1):
+        while attempts < self.retries:
+            timeout = self.timeout_s
+            if self.deadline is not None:
+                left = float(self.deadline) - time.time()
+                if left <= 0:
+                    error = (f"{error}; " if error else "") + "deadline reached: no request sent"
+                    break
+                timeout = min(timeout, left)
+            attempts += 1
             try:
-                resp = post_json(url, body, self.timeout_s)
+                resp = post_json(url, body, timeout)
                 raw_text = resp["choices"][0]["message"].get("content") or ""
                 usage = resp.get("usage") or {}
                 parsed = parse_answer(raw_text)
@@ -377,7 +396,11 @@ class VLMClient:
             except VLMError as exc:
                 error = str(exc)
                 if attempts < self.retries:
-                    time.sleep(min(30.0, 2.0 * attempts))
+                    pause = min(30.0, 2.0 * attempts)
+                    if self.deadline is not None and time.time() + pause >= float(self.deadline):
+                        error += "; deadline reached: no retry"
+                        break
+                    time.sleep(pause)
             except (KeyError, IndexError, json.JSONDecodeError, ValueError) as exc:
                 error = f"bad answer: {exc}"
         return raw_text, error, usage, parsed, attempts, time.monotonic() - t0
