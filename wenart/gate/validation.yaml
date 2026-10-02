@@ -1,0 +1,10 @@
+# Per-project gate validation limits (docs/milestone6.md §0, §7.3; read by wenart/gate/validate.py).
+# `python -m wenart.gate calibrate` runs the benign and negative controls on the project right
+# before its polish; `python -m wenart.gate validate` compares the calibration's rates with these
+# limits (value >= limit passes):
+#   ok               both pass: the polish runs;
+#   flagged          only the benign limit fails: the polish runs, the final report flags it;
+#   polish_disabled  the negative limit fails: no polish, every final image is the Cycles render;
+#   not_validated    no complete calibration (or one made with other thresholds): no polish.
+benign_accept_min: 0.95      # share of harmless edits (jpeg, blur, exposure, ...) the gate accepts
+negative_reject_min: 0.90    # share of geometry changes (shift, scale, erase, removal, ...) it rejects

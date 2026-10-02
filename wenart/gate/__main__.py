@@ -3,6 +3,11 @@
 ``python -m wenart.gate calibrate --project-out outputs/<p> [--out DIR] [--views N|cam,...] [--deadline S]``
     benign and negative controls, rates and threshold proposals
     (``gate/gate_calibration.json`` + ``.md``; see ``wenart.gate.calibrate``).
+``python -m wenart.gate validate --project-out outputs/<p> [--out DIR] [--config validation.yaml]``
+    per-project validation of that calibration (docs/milestone6.md §7.3):
+    ``gate/gate_validation.json`` with the decision ``ok | flagged |
+    polish_disabled | not_validated`` (see ``wenart.gate.validate``); exit 0
+    whenever the file was written.
 ``python -m wenart.gate compare --render-dir outputs/<p>/renders --camera CAM --test polished.png
 [--debug out.jpg] [--json out.json]``
     one comparison of an image with a rendered view (prints the decision and
@@ -16,12 +21,14 @@ from pathlib import Path
 
 
 def main(argv=None, gate=None, expected_api=None) -> int:
-    from wenart.gate import calibrate
+    from wenart.gate import calibrate, validate
 
-    parser = argparse.ArgumentParser(prog="python -m wenart.gate", description="change gate (milestone 5)")
+    parser = argparse.ArgumentParser(prog="python -m wenart.gate", description="change gate (milestones 5 and 6)")
     sub = parser.add_subparsers(dest="command", required=True)
     cal = sub.add_parser("calibrate", help="benign/negative controls and threshold proposals for one project")
     calibrate.add_arguments(cal)
+    val = sub.add_parser("validate", help="decide from the project's calibration whether its polish may run")
+    validate.add_arguments(val)
     cmp_ = sub.add_parser("compare", help="compare one image with a rendered view")
     cmp_.add_argument("--render-dir", required=True, help="folder with render_manifest.json")
     cmp_.add_argument("--camera", required=True)
@@ -34,6 +41,8 @@ def main(argv=None, gate=None, expected_api=None) -> int:
 
     if args.command == "calibrate":
         return calibrate.run_from_args(args, gate=gate, expected_api=expected_api)
+    if args.command == "validate":
+        return validate.run_from_args(args)
 
     from wenart import views as V
     from wenart.gate.api import Gate

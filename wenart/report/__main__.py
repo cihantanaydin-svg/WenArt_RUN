@@ -1,8 +1,14 @@
-"""CLI: ``python -m wenart.report final|sweep --project-out outputs/<p> [--out DIR]``.
+"""CLI: ``python -m wenart.report final|sweep --project-out outputs/<p> [--out DIR] [--private]``.
 
-- ``final``: everything of ``<project-out>/final/`` (docs/milestone5.md §7);
-  exit 1 when there is no render manifest (nothing to report), else 0, also
-  when the polish or the vision check did not run (the report says so).
+- ``final``: everything of ``<project-out>/final/`` (docs/milestone5.md §7,
+  docs/milestone6.md §7.4). Exit 0 for a report of rendered views (also when
+  the polish, the gate validation or the vision check did not run: the report
+  says so) and for the needs-review report of a project that stopped with
+  ``needs_review`` (``final_manifest.json`` ``status: needs_review``); exit 1
+  when there is no render manifest and the project is not ``needs_review``
+  (nothing to report; ``status: not_rendered``). ``--private`` treats the
+  project as private (no plan crop or debug image copied into ``final/``)
+  even when nothing in the project output says so.
 - ``sweep``: ``<project-out>/final/sweep_report.md`` (polish sweep, gate and
   vision-check calibration); exit 0 even when nothing ran yet.
 Exit 2 for a missing ``--project-out`` folder.
@@ -16,10 +22,12 @@ from pathlib import Path
 
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(prog="python -m wenart.report",
-                                     description="Milestone 5 final report and sweep report")
+                                     description="final report (milestones 5 and 6) and sweep report")
     parser.add_argument("command", choices=["final", "sweep"])
     parser.add_argument("--project-out", required=True, help="outputs/<p>")
     parser.add_argument("--out", default=None, help="output folder (default <project-out>/final)")
+    parser.add_argument("--private", action="store_true",
+                        help="private project: name plan crops and debug images, never copy them (§7.4)")
     args = parser.parse_args(argv)
 
     project_out = Path(args.project_out)
@@ -32,9 +40,15 @@ def main(argv=None) -> int:
         print(f"report sweep -> {path}")
         return 0
     from wenart.report.final import MANIFEST_NAME, REPORT_NAME, write_final
-    manifest = write_final(project_out, args.out)
-    s = manifest["summary"]
+    manifest = write_final(project_out, args.out, private=args.private)
     out_dir = Path(args.out) if args.out else project_out / "final"
+    if manifest.get("status") == "needs_review":
+        print(f"report final {manifest['project']}: needs_review ({len(manifest['reasons'])} reason(s)) "
+              f"-> {out_dir / REPORT_NAME}, {out_dir / MANIFEST_NAME}")
+        for reason in manifest["reasons"]:
+            print(f"  reason: {reason}")
+        return 0
+    s = manifest["summary"]
     reasons = ", ".join(f"{k} {n}" for k, n in s["cycles_by_reason"].items()) or "none"
     print(f"report final {manifest['project']}: {s['views']} views, {s['polished']} polished, {s['cycles']} Cycles "
           f"({reasons}), {s['needs_review']} needs_review -> {out_dir / REPORT_NAME}, {out_dir / MANIFEST_NAME}")
