@@ -1,7 +1,9 @@
-# Synthetic test projects (Milestone 2, §1)
+# Synthetic test projects (Milestone 2 §1, Milestone 6 §3)
 
-Three generated projects with known ground truth, used to test the vector path
-(`wenart/ingest`) and the raster bake-off (`wenart/recognition`).
+Five generated projects with known ground truth, used to test the vector path
+(`wenart/ingest`), the raster bake-off (`wenart/recognition`) and, from
+Milestone 6, the one-command full runs (`wenart/run`): synthetic-01..03 were made
+in Milestone 2, synthetic-04 and synthetic-05 in Milestone 6 (docs/milestone6.md §3).
 
 ```
 python -m wenart.synthetic.generate --out projects --results results/synthetic
@@ -10,25 +12,59 @@ python -m wenart.synthetic.generate --out projects --results results/synthetic
 The command is deterministic and idempotent: fixed seeds, fixed DXF/PDF metadata,
 byte-identical files on every run (`tests/test_synthetic.py::test_deterministic`
 and `test_committed_projects_are_current` check this). After changing the
-generator, run it again and commit `projects/` and `results/synthetic/`.
+generator, run it again and commit `projects/` and `results/synthetic/`
+(`--only synthetic-05` regenerates one project).
 
-## The three projects
+## The five projects
 
 | Project | Documents | Levels / rooms | Furniture in documents | Brief | Deliberate conflicts |
 |---|---|---|---|---|---|
 | `synthetic-01` | `zemin_kat.dxf` (L0), `1_kat.pdf` (L1, vector), `1_kat_scan.png` (scan of the PDF) | L0: Salon 24,50 m², Mutfak, Yatak Odası, Banyo, Hol; L1: Ebeveyn Yatak Odası, Çocuk Odası, Hol, Yatak Odası, Banyo | L0 only, in Salon, Yatak Odası, Banyo (13 pieces) | `brief.yaml`: one `style` | none (the Salon label matches the polygon exactly) |
 | `synthetic-02` | `plan_scan.png` (scan), `plan_photo.jpg` (phone photo). The source vector PDF is hidden in `truth/plan.pdf` | L0: Salon, Mutfak, Antre, Banyo, Yatak Odası (1+1 flat) | all rooms (19 pieces) | none (defaults) | none |
 | `synthetic-03` | `kat_planlari.pdf` (3 pages: Bodrum, Zemin, 1. Kat), `mobilya_plani.dxf` (furniture plan of Zemin Kat: walls, openings, furniture, no dimensions) | L-1: Kiler ×2, Hol, Yatak Odası, WC, Banyo; L0: Salon, Mutfak, Antre, Hol, Yatak Odası, WC, Kiler; L1: Ebeveyn Yatak Odası, Çocuk Odası, Hol, Yatak Odası, Banyo, Balkon | L0 only, DXF only (21 pieces incl. one `BLOK_A` of unknown type) | `brief.yaml`: `styles: [two prompts]` | `c_001` Salon label 24,00 m² vs 23,50 m² computed (2 %, within tolerance); `c_002` Bodrum left dimension prints `3,99` for 3,80 m (5 %); `c_003` the PDF Zemin page lacks the Mutfak window that the DXF has (count mismatch, DXF wins) |
+| `synthetic-04` | `3_kat_plani.dxf` and `3_kat_plani_pdf.pdf` (vector): the same level twice, both with walls, openings, furniture and dimensions | L3 (`3. KAT PLANI`, elevation 9.0): Salon + Mutfak 39,05 m² (L-shaped, 6 vertices), Hol (L-shaped, 8.32 m²), Yatak Odası, Banyo, Çocuk Odası (2+1 flat) | Salon + Mutfak, Yatak Odası, Banyo (21 pieces, each on both documents; the armchair at 45°; a `KUVET` bathtub); Hol and Çocuk Odası empty | `brief.yaml`: `style` (Japandi, walnut floor, cream walls) | none |
+| `synthetic-05` | `zemin_kat.dxf` (floor plan: walls, openings, dimensions, **no furniture**), `zemin_kat_mobilya.dxf` (furniture plan `ZEMİN KAT MOBİLYA PLANI`: walls, openings, furniture, no dimensions), `style_photos/salon_referans.jpg` (not a document) | L0: Salon 19,76 m², Ebeveyn Yatak Odası, Ebeveyn Banyo (en-suite), Mutfak, Hol, Antre, Banyo, Yatak Odası, Çalışma Odası (3+1 flat, notched outline) | furniture plan only (26 pieces incl. two `YATAK_TEK` single beds); Hol, Antre and Çalışma Odası empty | `brief.yaml`: `style` (Modern, white walls), `style_photos: [salon_referans.jpg]`, `polish: false` | none |
 
 Footprints: 01 = 9.6 × 7.2 m, 02 = 8.4 × 6.6 m, 03 = 10.2 × 7.8 m (all levels of a
-project share the outline). Outer walls 0.25 m, inner walls 0.10 m, ceiling 2.70 m
-assumed (no section: one warning per level).
+project share the outline), 04 = 12.0 × 8.0 m, 05 = 13.5 × 9.0 m with a 3.0 × 1.75 m
+recess at the bottom right (six outer walls). Outer walls 0.25 m, inner walls 0.10 m,
+ceiling 2.70 m assumed (no section: one warning per level).
+
+### What synthetic-04 and synthetic-05 add
+
+| Project | Purpose (what no earlier project covers) | Expected ingest result |
+|---|---|---|
+| `synthetic-04` | non-rectangular rooms (two L shapes); a single-level vector project on a level other than L-1/L0/L1; the same level as DXF and vector PDF, both with furniture (the PDF footprints carry no type and must match the typed DXF pieces); furniture at a non-right angle; the bathtub block; a combined `SALON + MUTFAK` label (room type `living`, its kitchen pieces stay kitchen pieces); a walnut floor and the Japandi family | status ok, 10 walls (4 exterior), 15 openings (5 doors, 10 windows), 5 rooms, 21 pieces with 2 evidence entries each (DXF `INSERT` + PDF `path`), 0 conflicts, 0 unverified, the 45° armchair (rotation 315°, front 225°) matched across DXF and PDF; 2 rooms for the AI layout (Hol, Çocuk Odası) |
+| `synthetic-05` | a notched outline (`LevelBuilder(outline=...)`); the branch "floor plan without furniture + furniture plan = the furniture source" end to end; an en-suite labelled `EBEVEYN BANYO` (room type `bathroom`); two bathrooms on one level; room type `other` (`ÇALIŞMA ODASI`); single beds; a style photo; `polish: false` | status ok, 14 walls (6 exterior, each with evidence from both DXFs), 19 openings (9 doors, 10 windows), 9 rooms, 26 pieces (furniture-plan evidence only), 0 conflicts, 0 unverified, warning `Zemin Kat: furniture taken from zemin_kat_mobilya.dxf (26 pieces); zemin_kat.dxf draws none`; 3 rooms for the AI layout (Hol, Antre, Çalışma Odası); with the photo terms the floor becomes `concrete_polished` (photo), the walls stay white (the brief wins) |
+
+The style photo of synthetic-05 is a byte copy of
+`tests/fixtures/style_photo_synthetic-03_salon.jpg` (our own Milestone 4 render of
+the synthetic-03 Salon, no third-party image), listed in `Project.style_photos` and
+copied by `generate_project`. The ingest reads only the top level of a project
+folder (`wenart/ingest/classify.py`), so `style_photos/` is never a document.
+
+Room types come from `wenart.building.room_type_for` (also used for the truth): a
+keyword matches at the start of a word (`banyosu` → `banyo`), and when several match
+the type earliest in `wc > bathroom > storage > balcony > bedroom > living > kitchen >
+hall > other` wins (`EBEVEYN BANYO` → bathroom, `SALON + MUTFAK` → living). The
+Milestone 6 keywords `lavabo`/`tuvalet` → wc, `dus` → bathroom, `giris` → hall,
+`teras` → balcony, `calisma` → other left the room types of synthetic-01..03
+unchanged (`tests/test_building.py` pins every room of the five projects).
 
 All layouts live in `wenart/synthetic/projects.py` as readable code; the room
 polygons, IDs, door rotations and furniture-to-room links are derived from the
 walls by `wenart/synthetic/model.py` (shapely union of the wall rectangles,
 interior rings = rooms). The generator refuses inconsistent layouts (label in
 no room, opening off its wall, furniture crossing a wall).
+
+Outer walls: `LevelBuilder(title, width, height)` draws the four walls of the
+rectangle (indices 0..3: bottom, right, top, left). `LevelBuilder(title,
+outline=[(x, y), ...])` takes the outer face of a non-rectangular building
+(axis-aligned edges, bounding box from the origin) and draws one outer wall per
+edge, in edge order: each wall runs to the outer corner at a convex vertex and
+on to the inner corner (one wall thickness past the vertex) at a reflex vertex,
+so the wall rectangles overlap at every corner and their union is one closed
+ring. The default rectangle is the same rule with four vertices.
 
 ## Coordinate conventions
 
@@ -127,7 +163,18 @@ walls, dimensions}`. Boxes are `[x0, y0, x1, y1]` in page units. `texts` carry
   `char:<n>` is verified against `page.chars` order in the tests.
 - The photo page has no single scale (`scale: null`, `transform_to_building: null`
   in building.json); use `H_building_to_pixels` from pages.json.
-- Scans are ~1.4 MB each (noise does not compress well); the whole set is ~3.3 MB.
+- Scans are ~1.4 MB each (noise does not compress well); the whole set is ~3.8 MB
+  (synthetic-04 and -05 together ~0.5 MB, most of it the 78 KB style photo and the DXFs).
 - Previews: `results/synthetic/<project>_<file stem>_p<page>.jpg`, ≤ 1200 px wide,
-  ≤ 300 KB. The DXF previews are rendered from the written file with ezdxf's
-  matplotlib backend.
+  ≤ 300 KB (13 files for the five projects). The DXF previews are rendered from the
+  written file with ezdxf's matplotlib backend. The names derive from the file stem,
+  so two documents of one project need different stems: synthetic-04's PDF is
+  `3_kat_plani_pdf.pdf` next to `3_kat_plani.dxf`.
+- pdfplumber lists a straight-sided closed path that is not an axis-aligned
+  rectangle under `curves` too: on synthetic-04's PDF page the 45° armchair is such
+  a "curve"; the door arcs are the only paths with Bézier segments.
+- Prototype record (2 Oct 2026, session scratch): synthetic-04/05 were prototyped
+  end to end on CPU (ingest 0 problems against the truth, fit, decor, the AI-layout
+  placer on the L-shaped Hol, a Blender CPU build of synthetic-04). Issues found
+  there are fixed in Milestone 6 outside this generator (wall-face materials per
+  room span, the windowless-room light position, searched cameras).

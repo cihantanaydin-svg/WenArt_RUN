@@ -1,9 +1,10 @@
-"""CPU tests for the synthetic project generator (docs/milestone2.md §1).
+"""CPU tests for the synthetic project generator (docs/milestone2.md §1, docs/milestone6.md §3).
 
 The generator runs once into a temp folder (module fixture). Tests then check
 files, schema validity, DXF content via ezdxf, PDF content via pdfplumber,
-raster sizes and ink under the truth boxes, determinism, and that the
-committed projects/ folder matches a fresh run.
+raster sizes and ink under the truth boxes, determinism, that the
+committed projects/ folder matches a fresh run, the five projects' counts,
+the non-rectangular outline builder and the copied style photo.
 """
 import json
 import shutil
@@ -14,24 +15,38 @@ import ezdxf
 import numpy as np
 import pdfplumber
 import pytest
+import yaml
 from ezdxf import recover
 from PIL import Image
+from shapely.geometry import Point, Polygon
 
 from wenart import building as B
 from wenart import geometry as G
 from wenart.synthetic import blocks
 from wenart.synthetic.dxf_writer import dimension_printed_text
-from wenart.synthetic.generate import generate_project, main
-from wenart.synthetic.projects import all_projects
+from wenart.synthetic.generate import generate_project, main, write_style_photos
+from wenart.synthetic.model import LevelBuilder, outer_wall_lines, wall_union
+from wenart.synthetic.projects import OUTLINE_05, STYLE_PHOTO_05, Project, all_projects
 
 ROOT = Path(__file__).resolve().parents[1]
 COMMITTED = ROOT / "projects"
-NAMES = ["synthetic-01", "synthetic-02", "synthetic-03"]
+NAMES = ["synthetic-01", "synthetic-02", "synthetic-03", "synthetic-04", "synthetic-05"]
 
 EXPECTED_FILES = {
     "synthetic-01": ["zemin_kat.dxf", "1_kat.pdf", "1_kat_scan.png", "brief.yaml", "truth/building.json", "truth/pages.json"],
     "synthetic-02": ["plan_scan.png", "plan_photo.jpg", "truth/plan.pdf", "truth/building.json", "truth/pages.json"],
     "synthetic-03": ["kat_planlari.pdf", "mobilya_plani.dxf", "brief.yaml", "truth/building.json", "truth/pages.json"],
+    "synthetic-04": ["3_kat_plani.dxf", "3_kat_plani_pdf.pdf", "brief.yaml", "truth/building.json", "truth/pages.json"],
+    "synthetic-05": ["zemin_kat.dxf", "zemin_kat_mobilya.dxf", "style_photos/salon_referans.jpg", "brief.yaml",
+                     "truth/building.json", "truth/pages.json"],
+}
+# Preview JPEGs per project: one per visible page (results/synthetic/<project>_<file stem>_p<page>.jpg).
+EXPECTED_PREVIEWS = {
+    "synthetic-01": ["zemin_kat_p1", "1_kat_p1", "1_kat_scan_p1"],
+    "synthetic-02": ["plan_scan_p1", "plan_photo_p1"],
+    "synthetic-03": ["kat_planlari_p1", "kat_planlari_p2", "kat_planlari_p3", "mobilya_plani_p1"],
+    "synthetic-04": ["3_kat_plani_p1", "3_kat_plani_pdf_p1"],
+    "synthetic-05": ["zemin_kat_p1", "zemin_kat_mobilya_p1"],
 }
 
 
@@ -56,12 +71,20 @@ def pages(generated, name):
 # Files, schema, determinism
 # --------------------------------------------------------------------------
 
+def test_all_projects_lists_five():
+    assert [p.name for p in all_projects()] == NAMES
+
+
 @pytest.mark.parametrize("name", NAMES)
 def test_files_exist(generated, name):
     out = generated[0] / name
     for rel in EXPECTED_FILES[name]:
         assert (out / rel).is_file(), rel
     assert (out / "brief.yaml").exists() == (name != "synthetic-02")
+    # Nothing but the expected files (a stale or misnamed document would be read by the ingest).
+    written = sorted(p.relative_to(out).as_posix() for p in out.rglob("*") if p.is_file())
+    assert written == sorted(EXPECTED_FILES[name])
+    assert (out / "style_photos").is_dir() == (name == "synthetic-05")
 
 
 @pytest.mark.parametrize("name", NAMES)
@@ -98,6 +121,116 @@ def test_counts_match_spec(generated):
     assert len(unknown) == 1 and unknown[0]["type_raw"] == "BLOK_A" and unknown[0]["status"] == "unverified"
     assert b3["unverified"] == [unknown[0]["id"]]
     assert {r["id"] for r in b3["rooms"] if r["level_id"] == "L-1"} >= {"r_L-1_kiler", "r_L-1_kiler_2"}
+
+
+def _counts(b) -> tuple:
+    """(walls, exterior walls, openings, doors, windows, rooms, furniture, conflicts, unverified)."""
+    return (len(b["walls"]), sum(w["exterior"] for w in b["walls"]), len(b["openings"]),
+            sum(o["type"] == "door" for o in b["openings"]), sum(o["type"] == "window" for o in b["openings"]),
+            len(b["rooms"]), len(b["furniture"]), len(b["conflicts"]), len(b["unverified"]))
+
+
+def _wall_ids_of(b, room) -> set:
+    """Walls whose rectangle touches the room polygon (as the generator's ``derive_rooms`` does)."""
+    shp = Polygon(room["polygon"])
+    return {w["id"] for w in b["walls"] if w["level_id"] == room["level_id"]
+            and Polygon(G.centerline_to_rectangle(w["start"], w["end"], w["thickness"])).distance(shp) < 1e-6}
+
+
+def _openings_on(b, room, kind: str) -> list:
+    """Openings of ``kind`` in the room's walls along the room itself (not on a neighbour's stretch of a
+    shared wall): the opening centre sits half the wall thickness from the room polygon."""
+    walls = {w["id"]: w for w in b["walls"] if w["id"] in _wall_ids_of(b, room)}
+    shp = Polygon(room["polygon"])
+    return [o for o in b["openings"] if o["type"] == kind and o["wall_id"] in walls
+            and shp.distance(Point(o["center"])) <= walls[o["wall_id"]]["thickness"] / 2 + 1e-6]
+
+
+def _doors_on(b, room) -> list:
+    return _openings_on(b, room, "door")
+
+
+def _windows_on(b, room) -> list:
+    return _openings_on(b, room, "window")
+
+
+def test_counts_match_spec_synthetic_04(generated):
+    """docs/milestone6.md §3.1: one level L3 drawn as DXF and vector PDF, two L-shaped rooms."""
+    b = truth(generated, "synthetic-04")
+    assert [(lv["id"], lv["label"], lv["elevation"]) for lv in b["levels"]] == [("L3", "3. Kat", 9.0)]
+    assert _counts(b) == (10, 4, 15, 5, 10, 5, 21, 0, 0)
+    assert b["project"]["brief"] == {"style": "Japandi, walnut floor, cream walls, warm daylight, linen and paper lamps"}
+    assert [d["file"] for d in b["documents"]] == ["3_kat_plani.dxf", "3_kat_plani_pdf.pdf"]
+    rooms = {r["id"]: r for r in b["rooms"]}
+    expected = {  # id: (vertices, area, area label, documented pieces, doors on its walls, windows)
+        "r_L3_salon_mutfak": (6, 39.05, 39.05, 14, 1, 5), "r_L3_hol": (6, 8.32, None, 0, 5, 0),
+        "r_L3_yatak_odasi": (4, 20.21, None, 4, 1, 2), "r_L3_banyo": (4, 4.86, None, 3, 1, 1),
+        "r_L3_cocuk_odasi": (4, 11.47, None, 0, 1, 2),
+    }
+    assert set(rooms) == set(expected)
+    for room_id, (n, area, label_area, pieces, doors, windows) in expected.items():
+        r = rooms[room_id]
+        assert (len(r["polygon"]), r["area_computed"], r["area_label"]) == (n, area, label_area), room_id
+        assert sum(f["room_id"] == room_id for f in b["furniture"]) == pieces, room_id
+        assert r["has_documented_furniture"] == (pieces > 0)
+        assert (len(_doors_on(b, r)), len(_windows_on(b, r))) == (doors, windows), room_id
+    # The living room's five windows are on three walls.
+    assert len({o["wall_id"] for o in _windows_on(b, rooms["r_L3_salon_mutfak"])}) == 3
+    assert rooms["r_L3_salon_mutfak"]["room_type"] == "living"   # combined living + kitchen label
+    kitchen = {f["type"] for f in b["furniture"] if f["room_id"] == "r_L3_salon_mutfak"}
+    assert {"kitchen_counter", "sink_kitchen", "stove", "fridge"} <= kitchen  # kitchen pieces stay kitchen pieces
+    armchair = next(f for f in b["furniture"] if f["type_raw"] == "KOLTUK")
+    assert armchair["footprint"]["rotation_deg"] == 315.0 and armchair["front_deg"] == 225.0
+    bathtub = next(f for f in b["furniture"] if f["type_raw"] == "KUVET")
+    assert bathtub["type"] == "bathtub" and bathtub["room_id"] == "r_L3_banyo"
+    # Both documents show every piece: DXF INSERT + PDF path.
+    for f in b["furniture"]:
+        assert [(e["file"], e["entity"].split(":")[0]) for e in f["evidence"]] == [
+            ("3_kat_plani.dxf", "INSERT"), ("3_kat_plani_pdf.pdf", "path")], f["id"]
+    assert [w for w in b["warnings"] if "ceiling height" not in w] == []
+
+
+def test_counts_match_spec_synthetic_05(generated):
+    """docs/milestone6.md §3.2: notched outline, floor plan without furniture + furniture plan, style photo."""
+    b = truth(generated, "synthetic-05")
+    assert [(lv["id"], lv["label"], lv["elevation"]) for lv in b["levels"]] == [("L0", "Zemin Kat", 0.0)]
+    assert _counts(b) == (14, 6, 19, 9, 10, 9, 26, 0, 0)
+    assert b["project"]["brief"] == {"style": "Modern, white walls, warm daylight, linen textiles, brass details",
+                                     "style_photos": ["salon_referans.jpg"], "polish": False}
+    assert [(d["file"], d["pages"][0]["class"]) for d in b["documents"]] == [
+        ("zemin_kat.dxf", "floor_plan"), ("zemin_kat_mobilya.dxf", "furniture_plan")]
+    rooms = {r["id"]: r for r in b["rooms"]}
+    expected = {  # id: (room_type, area, documented pieces, doors on its walls, windows)
+        "r_L0_salon": ("living", 19.76, 6, 1, 2), "r_L0_ebeveyn_yatak_odasi": ("bedroom", 17.86, 5, 2, 1),
+        "r_L0_ebeveyn_banyo": ("bathroom", 5.945, 3, 1, 1), "r_L0_mutfak": ("kitchen", 14.72, 6, 1, 2),
+        "r_L0_hol": ("hall", 7.92, 0, 7, 0), "r_L0_antre": ("hall", 4.95, 0, 2, 0),
+        "r_L0_banyo": ("bathroom", 6.6, 3, 1, 1), "r_L0_yatak_odasi": ("bedroom", 9.57, 3, 1, 1),
+        "r_L0_calisma_odasi": ("other", 13.8, 0, 1, 2),
+    }
+    assert set(rooms) == set(expected)
+    for room_id, (room_type, area, pieces, doors, windows) in expected.items():
+        r = rooms[room_id]
+        assert (r["room_type"], r["area_computed"], len(r["polygon"])) == (room_type, area, 4), room_id
+        assert sum(f["room_id"] == room_id for f in b["furniture"]) == pieces, room_id
+        assert (len(_doors_on(b, r)), len(_windows_on(b, r))) == (doors, windows), room_id
+    assert rooms["r_L0_salon"]["area_label"] == 19.76
+    # The en-suite is reached through the master bedroom only; its window looks onto the recess.
+    en_suite_door = _doors_on(b, rooms["r_L0_ebeveyn_banyo"])[0]
+    assert en_suite_door["swing_side"] == "r_L0_ebeveyn_banyo"
+    assert en_suite_door["wall_id"] in _wall_ids_of(b, rooms["r_L0_ebeveyn_yatak_odasi"])
+    assert _windows_on(b, rooms["r_L0_ebeveyn_banyo"])[0]["wall_id"] == "w_L0_003"
+    assert sorted(f["type_raw"] for f in b["furniture"] if f["type"] == "bed_single") == ["YATAK_TEK", "YATAK_TEK"]
+    # Furniture comes from the furniture plan only; walls are on both documents.
+    assert all([e["file"] for e in f["evidence"]] == ["zemin_kat_mobilya.dxf"] for f in b["furniture"])
+    assert all([e["file"] for e in w["evidence"]] == ["zemin_kat.dxf", "zemin_kat_mobilya.dxf"] for w in b["walls"])
+    assert [w for w in b["warnings"] if "ceiling height" not in w] == [
+        "Zemin Kat: furniture taken from zemin_kat_mobilya.dxf (26 pieces); zemin_kat.dxf draws none"]
+    # The six outer walls follow the notched outline (outer faces on the outline edges).
+    outer = [w for w in b["walls"] if w["exterior"]]
+    assert [(w["id"], w["start"], w["end"]) for w in outer] == [
+        ("w_L0_001", [0.0, 0.125], [10.5, 0.125]), ("w_L0_002", [10.375, 0.0], [10.375, 2.0]),
+        ("w_L0_003", [10.25, 1.875], [13.5, 1.875]), ("w_L0_004", [13.375, 1.75], [13.375, 9.0]),
+        ("w_L0_005", [0.0, 8.875], [13.5, 8.875]), ("w_L0_006", [0.125, 0.0], [0.125, 9.0])]
 
 
 def test_deterministic(generated, tmp_path):
@@ -169,8 +302,9 @@ def test_committed_projects_are_current(generated, name):
         committed = COMMITTED / name / rel
         fresh = generated[0] / name / rel
         assert committed.is_file(), f"run python -m wenart.synthetic.generate --out projects ({rel} missing)"
-        if committed.suffix in RASTER_SUFFIXES:
+        if committed.suffix in RASTER_SUFFIXES and not rel.startswith("style_photos/"):
             # Rasters: by content (pdftoppm/OpenCV builds differ in the last grey level).
+            # Style photos are byte copies and compared by bytes.
             assert rasters_match(committed, fresh), \
                 f"{name}/{rel} differs in content: run python -m wenart.synthetic.generate --out projects"
         else:
@@ -182,6 +316,122 @@ def test_cli_runs(tmp_path):
     assert main(["--out", str(tmp_path / "p"), "--results", "", "--only", "synthetic-02"]) == 0
     assert (tmp_path / "p" / "synthetic-02" / "plan_photo.jpg").is_file()
     assert not (tmp_path / "p" / "synthetic-01").exists()
+    assert main(["--out", str(tmp_path / "p"), "--results", str(tmp_path / "r"), "--only", "synthetic-05"]) == 0
+    assert (tmp_path / "p" / "synthetic-05" / "style_photos" / "salon_referans.jpg").is_file()
+    assert sorted(p.name for p in (tmp_path / "r").iterdir()) == [
+        "synthetic-05_zemin_kat_mobilya_p1.jpg", "synthetic-05_zemin_kat_p1.jpg"]
+
+
+@pytest.mark.skipif(not COMMITTED.exists(), reason="projects/ not present")
+def test_committed_previews_are_current(generated):
+    """results/synthetic holds exactly one preview per visible page of the five projects."""
+    committed = sorted(p.stem for p in (ROOT / "results" / "synthetic").glob("*.jpg"))
+    assert committed == sorted(p.stem for p in generated[1].glob("*.jpg"))
+
+
+# --------------------------------------------------------------------------
+# Style photos (synthetic-05)
+# --------------------------------------------------------------------------
+
+def test_style_photo_copied_byte_for_byte(generated):
+    src = ROOT / STYLE_PHOTO_05
+    copied = generated[0] / "synthetic-05" / "style_photos" / "salon_referans.jpg"
+    assert copied.read_bytes() == src.read_bytes()
+    brief = yaml.safe_load((generated[0] / "synthetic-05" / "brief.yaml").read_text(encoding="utf-8"))
+    assert brief["style_photos"] == ["salon_referans.jpg"] and brief["polish"] is False
+    # The photo is not a document: not in the truth, not in pages.json.
+    b = truth(generated, "synthetic-05")
+    assert all(not d["file"].startswith("style_photos") for d in b["documents"])
+    assert all(not p["file"].startswith("style_photos") for p in pages(generated, "synthetic-05"))
+
+
+def test_style_photo_sources_and_copy(tmp_path):
+    photo = tmp_path / "ref.jpg"
+    photo.write_bytes(b"\xff\xd8 not really a jpeg")
+    project = Project(name="p", brief=None, levels=[], documents=[],
+                      style_photos={"a.jpg": str(photo), "b.jpg": STYLE_PHOTO_05})
+    assert project.style_photo_sources() == {"a.jpg": photo, "b.jpg": ROOT / STYLE_PHOTO_05}
+    written = write_style_photos(project, tmp_path / "out")
+    assert [p.relative_to(tmp_path / "out").as_posix() for p in written] == ["style_photos/a.jpg", "style_photos/b.jpg"]
+    assert (tmp_path / "out" / "style_photos" / "a.jpg").read_bytes() == photo.read_bytes()
+    # No style photos: nothing written, no folder.
+    assert write_style_photos(Project(name="q", brief=None, levels=[], documents=[]), tmp_path / "q") == []
+    assert not (tmp_path / "q").exists()
+    # A missing source is an error, never a silently missing photo.
+    with pytest.raises(FileNotFoundError):
+        write_style_photos(Project(name="r", brief=None, levels=[], documents=[],
+                                   style_photos={"x.jpg": str(tmp_path / "missing.jpg")}), tmp_path / "r")
+
+
+# --------------------------------------------------------------------------
+# Outline of a level (LevelBuilder(outline=...))
+# --------------------------------------------------------------------------
+
+def _wall_lines(level):
+    return [(w.start, w.end, w.thickness, w.exterior) for w in level.walls]
+
+
+def test_default_outline_is_the_rectangle():
+    """The default builder and an explicit rectangle outline give the same four outer walls (indices 0..3:
+    bottom, right, top, left), so synthetic-01..03 are unchanged."""
+    default = LevelBuilder("ZEMİN KAT PLANI", 9.6, 7.2)
+    explicit = LevelBuilder("ZEMİN KAT PLANI", outline=[(0, 0), (9.6, 0), (9.6, 7.2), (0, 7.2)])
+    assert _wall_lines(default.level) == _wall_lines(explicit.level) == [
+        ((0.0, 0.125), (9.6, 0.125), 0.25, True), ((9.475, 0.0), (9.475, 7.2), 0.25, True),
+        ((0.0, 7.075), (9.6, 7.075), 0.25, True), ((0.125, 0.0), (0.125, 7.2), 0.25, True)]
+    assert (explicit.width, explicit.height, explicit.level.title_at) == (9.6, 7.2, (0.0, 8.4))
+
+
+def test_notched_outline_walls_close_and_meet_at_the_reflex_corner():
+    b = LevelBuilder("ZEMİN KAT PLANI", outline=OUTLINE_05)
+    assert (b.width, b.height) == (13.5, 9.0)
+    lines = [(w.start, w.end) for w in b.level.walls]
+    assert lines == [((0.0, 0.125), (10.5, 0.125)), ((10.375, 0.0), (10.375, 2.0)), ((10.25, 1.875), (13.5, 1.875)),
+                     ((13.375, 1.75), (13.375, 9.0)), ((0.0, 8.875), (13.5, 8.875)), ((0.125, 0.0), (0.125, 9.0))]
+    union = wall_union(b.level)
+    assert union.geom_type == "Polygon" and len(union.interiors) == 1
+    # Outer face = the outline; inner face = the outline moved in by the wall thickness.
+    assert union.exterior.equals(Polygon(OUTLINE_05).exterior)
+    assert Polygon(union.interiors[0]).equals(Polygon(OUTLINE_05).buffer(-0.25, join_style=2))
+    # One room filling the inside: the derived polygon keeps the notch (6 vertices).
+    b.label("SALON", (1.0, 1.0))
+    level = b.build()
+    assert len(level.rooms) == 1 and len(level.rooms[0].polygon) == 6
+    assert level.rooms[0].area_computed == pytest.approx(13.0 * 8.5 - 3.0 * 1.75)
+
+
+def test_outline_orientation_does_not_change_the_walls():
+    ccw = outer_wall_lines(OUTLINE_05, 0.25)
+    cw = outer_wall_lines(list(reversed(OUTLINE_05)), 0.25)
+
+    def norm(lines):
+        return sorted(tuple(sorted([G.snap_point(a), G.snap_point(b)])) for a, b in lines)
+
+    assert norm(ccw) == norm(cw)
+    # A closing point equal to the first vertex is ignored.
+    assert outer_wall_lines(OUTLINE_05 + [OUTLINE_05[0]], 0.25) == ccw
+
+
+@pytest.mark.parametrize("outline, message", [
+    ([(0, 0), (4, 0), (0, 3)], "at least 4"),
+    ([(0, 0), (4, 0), (5, 3), (0, 3)], "horizontal or vertical"),
+    ([(0, 0), (4, 0), (4, 0), (4, 3), (0, 3)], "horizontal or vertical"),
+    ([(0, 0), (2, 0), (4, 0), (4, 3), (0, 3)], "collinear"),
+    ([(0, 0), (4, 0), (4, 3), (2, 3), (2, -1), (0, -1)], "simple polygon"),
+])
+def test_bad_outline_is_refused(outline, message):
+    with pytest.raises(ValueError, match=message):
+        outer_wall_lines(outline, 0.25)
+
+
+def test_level_builder_outline_arguments_are_checked():
+    with pytest.raises(ValueError, match="width and height"):
+        LevelBuilder("ZEMİN KAT PLANI")
+    with pytest.raises(ValueError, match="origin"):
+        LevelBuilder("ZEMİN KAT PLANI", outline=[(1, 1), (5, 1), (5, 4), (1, 4)])
+    with pytest.raises(ValueError, match="do not match"):
+        LevelBuilder("ZEMİN KAT PLANI", 13.0, 9.0, outline=OUTLINE_05)
+    assert LevelBuilder("ZEMİN KAT PLANI", 13.5, 9.0, outline=OUTLINE_05).width == 13.5
 
 
 # --------------------------------------------------------------------------
@@ -223,7 +473,9 @@ def test_truth_geometry_is_consistent(generated, name):
 # DXF
 # --------------------------------------------------------------------------
 
-@pytest.mark.parametrize("name, file", [("synthetic-01", "zemin_kat.dxf"), ("synthetic-03", "mobilya_plani.dxf")])
+@pytest.mark.parametrize("name, file", [("synthetic-01", "zemin_kat.dxf"), ("synthetic-03", "mobilya_plani.dxf"),
+                                        ("synthetic-04", "3_kat_plani.dxf"), ("synthetic-05", "zemin_kat.dxf"),
+                                        ("synthetic-05", "zemin_kat_mobilya.dxf")])
 def test_dxf_content(generated, name, file):
     path = generated[0] / name / file
     doc, auditor = recover.readfile(str(path))
@@ -236,7 +488,11 @@ def test_dxf_content(generated, name, file):
     level_id = page["level_id"]
     level_walls = [w for w in b["walls"] if w["level_id"] == level_id]
     level_openings = [o for o in b["openings"] if o["level_id"] == level_id]
-    level_furniture = [f for f in b["furniture"] if f["level_id"] == level_id]
+    # Pieces this page draws (a floor plan next to a furniture plan draws none).
+    level_furniture = [f for f in b["furniture"] if f["level_id"] == level_id
+                       and any(e["file"] == file for e in f["evidence"])]
+    assert len(level_furniture) == (0 if (name, file) == ("synthetic-05", "zemin_kat.dxf") else
+                                    sum(f["level_id"] == level_id for f in b["furniture"]))
 
     # Walls: closed 4-point LWPOLYLINEs on DUVAR whose centre line matches the truth within 5 mm.
     polylines = {e.dxf.handle: e for e in msp.query("LWPOLYLINE")}
@@ -302,12 +558,23 @@ def test_dxf_content(generated, name, file):
         assert abs(measured - rec["measured"]) < 1e-6
 
 
-def test_dxf_furniture_plan_has_no_dimensions(generated):
-    doc = ezdxf.readfile(str(generated[0] / "synthetic-03" / "mobilya_plani.dxf"))
+@pytest.mark.parametrize("name, file", [("synthetic-03", "mobilya_plani.dxf"), ("synthetic-05", "zemin_kat_mobilya.dxf")])
+def test_dxf_furniture_plan_has_no_dimensions(generated, name, file):
+    doc = ezdxf.readfile(str(generated[0] / name / file))
     assert len(doc.modelspace().query("DIMENSION")) == 0
     titles = {e.dxf.text for e in doc.modelspace().query("TEXT")}
     assert "ZEMİN KAT MOBİLYA PLANI" in titles
     assert B.normalise_level_label("ZEMİN KAT MOBİLYA PLANI") == ("Zemin Kat", 0)
+
+
+def test_dxf_floor_plan_of_synthetic_05_draws_no_furniture(generated):
+    msp = ezdxf.readfile(str(generated[0] / "synthetic-05" / "zemin_kat.dxf")).modelspace()
+    assert not [e for e in msp.query("INSERT") if e.dxf.layer == blocks.LAYER_FURNITURE]
+    assert {e.dxf.name for e in msp.query("INSERT")} <= set(blocks.DOOR_BLOCKS + blocks.WINDOW_BLOCKS)
+    assert len(msp.query("DIMENSION")) == 6   # two chains of two segments plus two overall dimensions
+    furniture_plan = ezdxf.readfile(str(generated[0] / "synthetic-05" / "zemin_kat_mobilya.dxf")).modelspace()
+    assert {e.dxf.name for e in furniture_plan.query("INSERT") if e.dxf.layer == blocks.LAYER_FURNITURE} >= {
+        "YATAK_TEK", "KUVET", "DUS", "SIFONYER", "CAMASIR_MAK"}
 
 
 # --------------------------------------------------------------------------
@@ -315,7 +582,8 @@ def test_dxf_furniture_plan_has_no_dimensions(generated):
 # --------------------------------------------------------------------------
 
 @pytest.mark.parametrize("name, file, n_pages", [("synthetic-01", "1_kat.pdf", 1), ("synthetic-03", "kat_planlari.pdf", 3),
-                                                 ("synthetic-02", "truth/plan.pdf", 1)])
+                                                 ("synthetic-02", "truth/plan.pdf", 1),
+                                                 ("synthetic-04", "3_kat_plani_pdf.pdf", 1)])
 def test_pdf_content(generated, name, file, n_pages):
     recs = [p for p in pages(generated, name) if p["file"] == file]
     b = truth(generated, name)
@@ -342,9 +610,15 @@ def test_pdf_content(generated, name, file, n_pages):
                 box = next(x for x in rec["walls"] if x["id"] == w["id"])["box"]
                 hit = [r for r in wall_rects if G.box_iou([r["x0"], page.height - r["bottom"], r["x1"], page.height - r["top"]], box) > 0.9]
                 assert len(hit) == 1, w["id"]
-            # Door arcs are the only curves on the page.
+            # Door arcs are the only Bezier curves on the page; a piece of furniture at a non-right angle is a
+            # straight-sided polygon, which pdfplumber also lists under ``curves``.
             n_doors = sum(1 for s in rec["symbols"] if s["type"] == "door")
-            assert len(page.curves) == n_doors
+            arcs = [c for c in page.curves if any(op[0] == "c" for op in c["path"])]
+            assert len(arcs) == n_doors
+            n_angled = sum(1 for s in rec["symbols"] if s["type"] not in ("door", "window") and s["rotation_deg"] % 90)
+            assert len(page.curves) - len(arcs) == n_angled
+            if name == "synthetic-04":
+                assert n_angled == 1   # the armchair at 45 degrees
 
 
 def test_pdf_page_2_of_synthetic_03_misses_one_window(generated):
@@ -458,7 +732,9 @@ def test_documents_in_truth(generated):
 def test_previews_are_small(generated):
     results = generated[1]
     jpgs = sorted(results.glob("*.jpg"))
-    assert len(jpgs) == 9
+    # One preview per visible page; different file stems keep the names unique (synthetic-04: DXF + PDF).
+    assert sorted(j.stem for j in jpgs) == sorted(f"{name}_{stem}" for name, stems in EXPECTED_PREVIEWS.items()
+                                                  for stem in stems)
     for jpg in jpgs:
         assert jpg.stat().st_size <= 300 * 1024, jpg.name
         with Image.open(jpg) as im:

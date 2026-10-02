@@ -1,4 +1,4 @@
-"""The three synthetic projects (docs/milestone2.md §1, docs/plan.md §7).
+"""The five synthetic projects (docs/milestone2.md §1, docs/milestone6.md §3, docs/synthetic.md).
 
 Everything is written out by hand so the ground truth is readable: room
 rectangles, doors with the room they open into, windows, furniture with the
@@ -6,21 +6,36 @@ block name, position and rotation, and the dimension chains. ``finalise``
 (via ``LevelBuilder.build``) derives rooms, IDs and links and refuses layouts
 that are inconsistent.
 
+- synthetic-01..03 (Milestone 2): DXF, vector PDF, scan and photo; deliberate conflicts.
+- synthetic-04 (Milestone 6): one level on the 3rd floor drawn twice (DXF and
+  vector PDF, both with furniture), two L-shaped rooms, an armchair at 45°.
+- synthetic-05 (Milestone 6): notched outline, a floor-plan DXF without
+  furniture plus a furniture-plan DXF, an en-suite, a study (room type
+  ``other``), a style photo and ``polish: false``.
+
 Coordinates: metres in the building frame (origin = outer corner of the
 outer wall, X right, Y up). Rotations: degrees counter-clockwise.
 """
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Optional
 
 from wenart.synthetic.model import Level, LevelBuilder, Opening, format_metres
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
 
 BRIEF_01 = {"style": "Scandinavian, light oak floor, white walls, linen textiles, warm daylight"}
 BRIEF_03 = {"styles": [
     "Modern minimal, polished concrete floor, charcoal and white, brass details, cool daylight",
     "Warm Mediterranean, terracotta floor, cream plaster walls, rattan and linen, golden evening light",
 ]}
+BRIEF_04 = {"style": "Japandi, walnut floor, cream walls, warm daylight, linen and paper lamps"}
+BRIEF_05 = {"style": "Modern, white walls, warm daylight, linen textiles, brass details",
+            "style_photos": ["salon_referans.jpg"], "polish": False}
+# synthetic-05's style photo: our own Milestone 4 render of the synthetic-03 Salon (no third-party image).
+STYLE_PHOTO_05 = "tests/fixtures/style_photo_synthetic-03_salon.jpg"
 
 
 @dataclass
@@ -73,12 +88,26 @@ class RasterDoc:
 
 @dataclass
 class Project:
+    """One synthetic project. ``warnings`` are the extra warnings the pipeline
+    must report (besides the per-level ceiling-height warning).
+    ``style_photos`` maps a file name in ``<project>/style_photos/`` to its
+    source file (relative to the repo root, or absolute); ``generate_project``
+    copies it byte for byte. The brief names the same files (``style_photos:``)."""
     name: str
     brief: Optional[dict]
     levels: list[Level]
     documents: list
     conflicts: list[dict] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
+    style_photos: dict[str, str] = field(default_factory=dict)
+
+    def style_photo_sources(self) -> dict[str, Path]:
+        """``style_photos`` with every source resolved (relative paths join the repo root)."""
+        out = {}
+        for name, src in self.style_photos.items():
+            path = Path(src)
+            out[name] = path if path.is_absolute() else REPO_ROOT / path
+        return out
 
 
 # --------------------------------------------------------------------------
@@ -408,5 +437,192 @@ def project_03() -> Project:
     )
 
 
+# --------------------------------------------------------------------------
+# synthetic-04: 2+1 flat on the 3rd floor, DXF + vector PDF of the same level
+# (both with furniture), L-shaped living room and hall, armchair at 45°
+# --------------------------------------------------------------------------
+
+W4, H4 = 12.0, 8.0
+
+
+def level_04() -> Level:
+    b = LevelBuilder("3. KAT PLANI", W4, H4)
+    b.wall((3.50, 4.65), (3.50, 7.75))       # 4: kitchen leg | hall (vertical leg)
+    a = b.wall((3.45, 4.60), (11.75, 4.60))  # 5: living + bedroom | hall, bath, child room
+    b.wall((7.00, 0.25), (7.00, 4.55))       # 6: living | bedroom
+    b.wall((5.15, 5.90), (7.95, 5.90))       # 7: corridor leg | bath
+    vh = b.wall((5.20, 5.95), (5.20, 7.75))  # 8: hall | bath
+    vc = b.wall((8.00, 4.65), (8.00, 7.75))  # 9: corridor + bath | child room
+    # Rooms: Salon + Mutfak L = 6.7 x 4.3 + 3.2 x 3.2 = 39.05 (label matches); Hol L = 4.4 x 1.2 + 1.6 x 1.9
+    # = 8.32; Yatak 4.7 x 4.3 = 20.21; Banyo 2.7 x 1.8 = 4.86; Çocuk 3.7 x 3.1 = 11.47
+    b.label("SALON + MUTFAK 39,05 m²", (0.6, 3.9))
+    b.label("HOL", (3.8, 7.2))
+    b.label("YATAK ODASI", (7.4, 0.6))
+    b.label("BANYO", (5.5, 7.4))
+    b.label("ÇOCUK ODASI", (8.4, 7.2))
+    # Doors
+    b.door(2, (4.35, 7.875), 90, "HOL")                       # entrance, top wall
+    b.door(a, (4.40, 4.60), 90, "SALON + MUTFAK 39,05 m²")
+    b.door(vh, (5.20, 6.85), 80, "BANYO")
+    b.door(vc, (8.00, 5.25), 80, "ÇOCUK ODASI")
+    b.door(a, (7.50, 4.60), 80, "YATAK ODASI")
+    # Windows: living 5 on three walls, bedroom and child room 2 each, bath 1
+    b.window(0, (2.00, 0.125), 180)
+    b.window(0, (5.00, 0.125), 180)
+    b.window(3, (0.125, 2.30), 120)
+    b.window(3, (0.125, 6.20), 120)
+    b.window(2, (1.85, 7.875), 120)
+    b.window(2, (6.60, 7.875), 60)
+    b.window(2, (9.90, 7.875), 120)
+    b.window(1, (11.875, 6.20), 120)
+    b.window(0, (9.40, 0.125), 180)
+    b.window(1, (11.875, 2.40), 120)
+    # Salon + Mutfak: kitchen leg
+    b.furniture("TEZGAH", (1.45, 7.45), 0)
+    b.furniture("EVIYE", (0.85, 7.50), 0)
+    b.furniture("OCAK", (2.05, 7.45), 0)
+    b.furniture("BUZDOLABI", (3.05, 7.40), 0)
+    b.furniture("YEMEK_MASASI", (1.85, 5.60), 0)
+    b.furniture("SANDALYE", (1.45, 4.80), 180)
+    b.furniture("SANDALYE", (2.25, 4.80), 180)
+    b.furniture("SANDALYE", (1.45, 6.40), 0)
+    b.furniture("SANDALYE", (2.25, 6.40), 0)
+    # Salon + Mutfak: living bar
+    b.furniture("KANEPE_3LU", (3.40, 2.40), 90)
+    b.furniture("SEHPA", (4.60, 2.40), 90)
+    b.furniture("TV_UNITESI", (6.725, 2.40), 270)
+    b.furniture("KOLTUK", (6.25, 3.85), 315)       # 45 degrees: faces the room centre
+    b.furniture("KITAPLIK", (0.425, 3.60), 90)
+    # Yatak Odası
+    b.furniture("YATAK_CIFT", (9.60, 3.55), 0)
+    b.furniture("KOMIDIN", (8.50, 4.35), 0)
+    b.furniture("KOMIDIN", (10.70, 4.35), 0)
+    b.furniture("DOLAP", (7.35, 1.50), 90)
+    # Banyo (bathtub block KUVET)
+    b.furniture("KUVET", (7.10, 7.375), 0)
+    b.furniture("KLOZET", (7.60, 6.35), 270)
+    b.furniture("LAVABO", (6.00, 6.175), 180)
+    b.dimension_chain("bottom", [0.0, 7.00, W4])
+    b.dimension_chain("left", [0.0, 4.60, H4])
+    return b.build()
+
+
+def project_04() -> Project:
+    lv = level_04()
+    # Different file stems: the preview names derive from the stem (generate.write_previews).
+    return Project(name="synthetic-04", brief=BRIEF_04, levels=[lv], documents=[
+        DxfDoc("3_kat_plani.dxf", PageSpec(lv)),
+        PdfDoc("3_kat_plani_pdf.pdf", [PageSpec(lv)]),
+    ])
+
+
+# --------------------------------------------------------------------------
+# synthetic-05: 3+1 flat, notched outline, floor-plan DXF without furniture +
+# furniture-plan DXF, en-suite, study, twin beds, style photo, polish off
+# --------------------------------------------------------------------------
+
+W5, H5 = 13.5, 9.0
+# Outer face: 13.5 x 9.0 m with a 3.0 x 1.75 m recess at the bottom right.
+OUTLINE_05 = [(0.0, 0.0), (10.5, 0.0), (10.5, 1.75), (W5, 1.75), (W5, H5), (0.0, H5)]
+
+
+def level_05() -> Level:
+    b = LevelBuilder("ZEMİN KAT PLANI", outline=OUTLINE_05)
+    # Outer walls 0..5 follow the outline edges: bottom, recess vertical (inner face x = 10.25),
+    # recess horizontal (inner face y = 2.00), right, top, left.
+    h = b.t_out / 2.0
+    o_bottom, o_notch_h, o_right, o_top, o_left = 0, 2, 3, 4, 5
+    h1 = b.wall((0.25, 4.10), (13.25, 4.10))   # 6: bottom band | kitchen, hall, study
+    h2 = b.wall((3.55, 5.40), (10.15, 5.40))   # 7: hall | antre, bath, bedroom
+    vk = b.wall((3.50, 4.15), (3.50, 8.75))    # 8: kitchen | hall + antre
+    vc = b.wall((10.20, 4.15), (10.20, 8.75))  # 9: hall + bedroom | study
+    b.wall((5.10, 5.45), (5.10, 8.75))         # 10: antre | bath
+    b.wall((7.20, 5.45), (7.20, 8.75))         # 11: bath | bedroom
+    b.wall((5.50, 0.25), (5.50, 4.05))         # 12: salon | master bedroom
+    ve = b.wall((10.30, 2.00), (10.30, 4.05))  # 13: master bedroom | en-suite
+    # Rooms: Salon 5.2 x 3.8 = 19.76 (label matches), Ebeveyn 4.7 x 3.8 = 17.86, en-suite 2.9 x 2.05 = 5.945,
+    # Mutfak 3.2 x 4.6 = 14.72, Hol 6.6 x 1.2 = 7.92, Antre 1.5 x 3.3 = 4.95, Banyo 2.0 x 3.3 = 6.6,
+    # Yatak 2.9 x 3.3 = 9.57, Çalışma 3.0 x 4.6 = 13.8
+    b.label("SALON 19,76 m²", (0.6, 3.6))
+    b.label("EBEVEYN YATAK ODASI", (5.8, 0.5))
+    b.label("EBEVEYN BANYO", (10.5, 2.6))
+    b.label("MUTFAK", (1.2, 6.0))
+    b.label("HOL", (8.6, 4.6))
+    b.label("ANTRE", (3.7, 6.3))
+    b.label("BANYO", (5.4, 6.4))
+    b.label("YATAK ODASI", (7.5, 6.5))
+    b.label("ÇALIŞMA ODASI", (10.5, 7.0))
+    # Doors
+    b.door(o_top, (4.30, H5 - h), 90, "ANTRE")           # entrance
+    b.door(h2, (4.30, 5.40), 80, "HOL")
+    b.door(h1, (4.50, 4.10), 90, "SALON 19,76 m²")
+    b.door(vk, (3.50, 4.75), 80, "MUTFAK")
+    b.door(h1, (6.20, 4.10), 90, "EBEVEYN YATAK ODASI")
+    b.door(ve, (10.30, 3.30), 80, "EBEVEYN BANYO")      # en-suite: reached through the master bedroom only
+    b.door(h2, (6.15, 5.40), 80, "BANYO")
+    b.door(h2, (8.00, 5.40), 80, "YATAK ODASI")
+    b.door(vc, (10.20, 4.75), 80, "ÇALIŞMA ODASI")
+    # Windows
+    b.window(o_bottom, (1.80, h), 180)
+    b.window(o_bottom, (4.20, h), 120)
+    b.window(o_bottom, (7.90, h), 180)
+    b.window(o_notch_h, (11.80, 1.75 + h), 60)           # en-suite window onto the recess
+    b.window(o_left, (h, 6.50), 120)
+    b.window(o_top, (1.85, H5 - h), 120)
+    b.window(o_top, (6.15, H5 - h), 60)
+    b.window(o_top, (8.70, H5 - h), 120)
+    b.window(o_right, (W5 - h, 6.50), 120)
+    b.window(o_top, (11.75, H5 - h), 120)
+    # Furniture: only on the furniture plan (the floor-plan DXF draws none)
+    b.furniture("KANEPE_3LU", (0.70, 2.15), 90)
+    b.furniture("SEHPA", (1.95, 2.15), 90)
+    b.furniture("TV_UNITESI", (5.225, 2.15), 270)
+    b.furniture("YEMEK_MASASI", (3.20, 3.35), 0)
+    b.furniture("SANDALYE", (2.80, 2.45), 180)
+    b.furniture("SANDALYE", (3.60, 2.45), 180)
+    b.furniture("YATAK_CIFT", (8.40, 3.05), 0)
+    b.furniture("KOMIDIN", (7.10, 3.85), 0)
+    b.furniture("KOMIDIN", (9.70, 3.85), 0)
+    b.furniture("DOLAP", (5.85, 1.60), 90)
+    b.furniture("SIFONYER", (9.50, 0.50), 180)
+    b.furniture("DUS", (12.80, 3.60), 0)
+    b.furniture("KLOZET", (11.60, 2.35), 180)
+    b.furniture("LAVABO", (11.70, 3.825), 0)
+    b.furniture("TEZGAH", (1.45, 8.45), 0)
+    b.furniture("TEZGAH", (0.55, 6.50), 90)
+    b.furniture("EVIYE", (0.85, 8.50), 0)
+    b.furniture("OCAK", (2.05, 8.45), 0)
+    b.furniture("BUZDOLABI", (3.05, 8.40), 0)
+    b.furniture("CAMASIR_MAK", (0.55, 4.90), 90)
+    b.furniture("KUVET", (6.00, 8.375), 0)
+    b.furniture("KLOZET", (5.50, 7.20), 90)
+    b.furniture("LAVABO", (6.925, 7.00), 270)
+    b.furniture("YATAK_TEK", (8.00, 7.75), 0)
+    b.furniture("YATAK_TEK", (9.60, 7.75), 0)
+    b.furniture("KOMIDIN", (8.80, 8.55), 0)
+    b.dimension_chain("bottom", [0.0, 5.50, 10.50])
+    b.dimension_chain("left", [0.0, 4.10, H5])
+    return b.build()
+
+
+def project_05() -> Project:
+    lv = level_05()
+    floor_plan, furniture_plan = "zemin_kat.dxf", "zemin_kat_mobilya.dxf"
+    return Project(
+        name="synthetic-05",
+        brief=BRIEF_05,
+        levels=[lv],
+        documents=[
+            DxfDoc(floor_plan, PageSpec(lv, with_furniture=False)),
+            DxfDoc(furniture_plan, PageSpec(lv, page_class="furniture_plan", title_raw="ZEMİN KAT MOBİLYA PLANI",
+                                            with_dimensions=False)),
+        ],
+        # The pipeline's warning for a floor plan without furniture plus a furniture plan (ingest/pipeline.py).
+        warnings=[f"{lv.label}: furniture taken from {furniture_plan} ({len(lv.furniture)} pieces); "
+                  f"{floor_plan} draws none"],
+        style_photos={"salon_referans.jpg": STYLE_PHOTO_05},
+    )
+
+
 def all_projects() -> list[Project]:
-    return [project_01(), project_02(), project_03()]
+    return [project_01(), project_02(), project_03(), project_04(), project_05()]

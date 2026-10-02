@@ -42,8 +42,9 @@ ID_PREFIX = {
     "conflict": "c",
 }
 
-# Keyword (lower-case, Turkish letters folded to ASCII) -> room_type, in the
-# order given by docs/milestone2.md. First match wins.
+# Keyword (lower-case, Turkish letters folded to ASCII) -> room_type
+# (docs/milestone2.md, extended in docs/milestone6.md §3.3). A keyword matches
+# at the start of a word, so inflected forms count (``banyosu`` -> ``banyo``).
 _ROOM_TYPE_KEYWORDS = [
     ("salon", "living"),
     ("yatak", "bedroom"),
@@ -51,14 +52,24 @@ _ROOM_TYPE_KEYWORDS = [
     ("ebeveyn", "bedroom"),
     ("mutfak", "kitchen"),
     ("banyo", "bathroom"),
+    ("dus", "bathroom"),
     ("wc", "wc"),
+    ("lavabo", "wc"),
+    ("tuvalet", "wc"),
     ("hol", "hall"),
     ("antre", "hall"),
     ("koridor", "hall"),
+    ("giris", "hall"),
     ("balkon", "balcony"),
+    ("teras", "balcony"),
     ("kiler", "storage"),
     ("depo", "storage"),
+    ("calisma", "other"),
 ]
+# When several keywords match, the room type that comes first here wins:
+# ``EBEVEYN BANYO`` is a bathroom, ``SALON + MUTFAK`` a living room (its
+# documented kitchen pieces stay kitchen pieces).
+ROOM_TYPE_PRIORITY = ("wc", "bathroom", "storage", "balcony", "bedroom", "living", "kitchen", "hall", "other")
 
 # Area suffix such as "24,50 m²", "24.5 m2", "24,50m²".
 _AREA_RE = re.compile(r"\s*(\d+(?:[.,]\d+)?)\s*m(?:²|2)\s*$", re.IGNORECASE)
@@ -183,11 +194,18 @@ def parse_area_label(text: str) -> tuple[str, Optional[float]]:
 
 
 def room_type_for(label: str) -> str:
-    """Map a (normalised or raw) room label to the schema ``room_type``."""
+    """Map a (normalised or raw) room label to the schema ``room_type``.
+
+    Every keyword of ``_ROOM_TYPE_KEYWORDS`` that starts a word of the folded
+    label matches (``EBEVEYN BANYOSU`` -> ``ebeveyn`` and ``banyo``); among the
+    matches the type earliest in ``ROOM_TYPE_PRIORITY`` wins. No match ->
+    ``other``.
+    """
     folded = fold_ascii(label)
-    for keyword, room_type in _ROOM_TYPE_KEYWORDS:
-        # Match whole words so that e.g. "hol" does not fire on "holding".
-        if re.search(rf"(^|[^a-z]){keyword}([^a-z]|$)", folded):
+    matched = {room_type for keyword, room_type in _ROOM_TYPE_KEYWORDS
+               if re.search(rf"(^|[^a-z]){keyword}", folded)}
+    for room_type in ROOM_TYPE_PRIORITY:
+        if room_type in matched:
             return room_type
     return "other"
 

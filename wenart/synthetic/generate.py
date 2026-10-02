@@ -17,11 +17,16 @@ Truth assembly rules (what the pipeline is expected to reproduce):
   not show them. Ceiling height is the assumed default with a warning.
 - Furniture from unknown blocks (``BLOK_A``) is ``unknown`` + ``unverified``
   and listed in ``unverified``.
+
+Style photos (``Project.style_photos``, synthetic-05) are copied byte for byte
+into ``<project>/style_photos/``; the ingest never reads that folder (top
+level only), the style stage does (docs/milestone6.md §3.2).
 """
 from __future__ import annotations
 
 import argparse
 import json
+import shutil
 from pathlib import Path
 from typing import Optional
 
@@ -29,6 +34,7 @@ import yaml
 
 from wenart import building as B
 from wenart import geometry as G
+from wenart.style.photos import PHOTO_DIR
 from wenart.synthetic import blocks
 from wenart.synthetic.dxf_writer import write_dxf
 from wenart.synthetic.model import Level, PageRecord
@@ -315,6 +321,17 @@ def write_previews(project: Project, pages: list[tuple[object, PageRecord]], pro
     return written
 
 
+def write_style_photos(project: Project, project_dir: Path) -> list[Path]:
+    """Copy the project's style photos into ``<project_dir>/style_photos/`` (none: nothing written)."""
+    written = []
+    for name, src in project.style_photo_sources().items():
+        dst = project_dir / PHOTO_DIR / name
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(src, dst)
+        written.append(dst)
+    return written
+
+
 def generate_project(project: Project, out_root: Path, results_dir: Optional[Path] = None) -> dict:
     project_dir = Path(out_root) / project.name
     project_dir.mkdir(parents=True, exist_ok=True)
@@ -323,6 +340,7 @@ def generate_project(project: Project, out_root: Path, results_dir: Optional[Pat
     if project.brief is not None:
         (project_dir / "brief.yaml").write_text(yaml.safe_dump(project.brief, allow_unicode=True, sort_keys=False),
                                                 encoding="utf-8")
+    write_style_photos(project, project_dir)
     truth = build_truth(project, pages)
     B.save(truth, project_dir / "truth" / "building.json")
     (project_dir / "truth" / "pages.json").write_text(
