@@ -26,6 +26,7 @@ OpenCV is imported inside the functions so ``wenart.gate`` imports without it.
 """
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Iterable, Optional
 
 import numpy as np
@@ -46,13 +47,45 @@ def to_gray(rgb) -> np.ndarray:
     return cv2.cvtColor(np.ascontiguousarray(a[:, :, :3], dtype=np.uint8), cv2.COLOR_RGB2GRAY)
 
 
-def canny(rgb, sigma: float = 1.5, low: float = 25, high: float = 75) -> np.ndarray:
-    """bool H x W Canny edges: grey -> Gaussian blur (sigma) -> Canny(low, high, aperture 3, L2 gradient)."""
+def blurred_gray(rgb, sigma: float = 1.5) -> np.ndarray:
+    """uint8 H x W: grey, Gaussian-blurred with ``sigma`` (the input of every Canny of the gate)."""
     import cv2
     g = to_gray(rgb)
     if sigma and sigma > 0:
         g = cv2.GaussianBlur(g, (0, 0), float(sigma))
-    return cv2.Canny(g, float(low), float(high), apertureSize=3, L2gradient=True) > 0
+    return g
+
+
+def canny_blurred(gray, low: float = 25, high: float = 75) -> np.ndarray:
+    """bool H x W Canny edges (aperture 3, L2 gradient) of an already blurred grey image."""
+    import cv2
+    return cv2.Canny(gray, float(low), float(high), apertureSize=3, L2gradient=True) > 0
+
+
+def canny(rgb, sigma: float = 1.5, low: float = 25, high: float = 75) -> np.ndarray:
+    """bool H x W Canny edges: grey -> Gaussian blur (sigma) -> Canny(low, high, aperture 3, L2 gradient)."""
+    return canny_blurred(blurred_gray(rgb, sigma), low, high)
+
+
+NO_ANGLE = 255                 # edge_angles value of a pixel without an edge
+
+
+def edge_angles(gray, low: float, high: float) -> np.ndarray:
+    """uint8 H x W: gradient orientation (degrees mod 180, rounded) of each Canny edge pixel, else NO_ANGLE.
+
+    ``gray`` is the blurred grey image (``blurred_gray``); the orientation is
+    ``atan2(gy, gx)`` of the 3 x 3 Sobel gradient (the one Canny uses), so a
+    vertical edge (a step along x) is 0 and a horizontal edge is 90.
+    """
+    import cv2
+    out = np.full(gray.shape, NO_ANGLE, dtype=np.uint8)
+    idx = np.flatnonzero(canny_blurred(gray, low, high))
+    if idx.size:
+        gx = cv2.Sobel(gray, cv2.CV_32F, 1, 0, ksize=3).reshape(-1)[idx]
+        gy = cv2.Sobel(gray, cv2.CV_32F, 0, 1, ksize=3).reshape(-1)[idx]
+        deg = np.mod(np.rint(np.degrees(np.arctan2(gy, gx))), 180.0)
+        out.reshape(-1)[idx] = deg.astype(np.uint8)
+    return out
 
 
 def distance_to(mask) -> np.ndarray:
@@ -69,14 +102,22 @@ def distance_to(mask) -> np.ndarray:
 
 
 def grow(mask, radius_px: int) -> np.ndarray:
-    """bool mask dilated with a (2r+1) square."""
+    """bool mask dilated with a (2r+1) square (computed inside the mask's box grown by r)."""
     import cv2
     m = np.asarray(mask, dtype=bool)
     r = int(radius_px)
     if r <= 0:
         return m.copy()
+    out = np.zeros(m.shape, dtype=bool)
+    rows = np.flatnonzero(m.any(axis=1))
+    if rows.size == 0:
+        return out
+    cols = np.flatnonzero(m.any(axis=0))
+    y0, y1 = max(0, rows[0] - r), min(m.shape[0], rows[-1] + 1 + r)
+    x0, x1 = max(0, cols[0] - r), min(m.shape[1], cols[-1] + 1 + r)
     kernel = np.ones((2 * r + 1, 2 * r + 1), np.uint8)
-    return cv2.dilate(m.astype(np.uint8), kernel) > 0
+    out[y0:y1, x0:x1] = cv2.dilate(m[y0:y1, x0:x1].astype(np.uint8), kernel) > 0
+    return out
 
 
 def reference_edges(geometry, ref_canny_dist, radius_px: float, valid=None) -> np.ndarray:
@@ -126,4 +167,42 @@ def edge_metrics(ref_edges, test_dist, regions, object_ids: Iterable[str], radiu
             continue
         out["regions"][rid] = round(float(val), 4)
     missed = ref & (dist > float(radius_px))
+    return out, missed
+
+
+@dataclass
+class EdgeIndex:
+    """The reference edge pixels of a view, built once per reference (``edge_index``).
+
+    ``idx``: their flat indices; ``objects``: per object id the positions in
+    ``idx`` of the pixels inside the object mask grown by ``REGION_GROW_PX``.
+    """
+    idx: np.ndarray
+    objects: dict
+    shape: tuple
+
+
+def edge_index(ref_edges, regions, object_ids: Iterable[str]) -> EdgeIndex:
+    """``EdgeIndex`` of ``ref_edges`` for the objects of a ``views.Regions``."""
+    ref = np.asarray(ref_edges, dtype=bool)
+    idx = np.flatnonzero(ref)
+    objects = {rid: np.flatnonzero(grow(regions.masks[rid], REGION_GROW_PX).reshape(-1)[idx]) for rid in object_ids}
+    return EdgeIndex(idx=idx, objects=objects, shape=tuple(ref.shape))
+
+
+def edge_metrics_indexed(index: EdgeIndex, test_dist, radius_px: float, min_ref_px: int) -> tuple[dict, np.ndarray]:
+    """``edge_metrics`` from an ``EdgeIndex`` (same numbers; one gather of the test distances, no full-image pass)."""
+    hit = np.asarray(test_dist).reshape(-1)[index.idx] <= float(radius_px)
+    n = int(index.idx.size)
+    out = {"global": None if n == 0 else round(int(np.count_nonzero(hit)) / n, 4), "regions": {}, "skipped": {},
+           "ref_px": {"global": n}}
+    for rid, pos in index.objects.items():
+        k = int(pos.size)
+        out["ref_px"][rid] = k
+        if k == 0 or k < int(min_ref_px):
+            out["skipped"][rid] = "no_reference_px"
+            continue
+        out["regions"][rid] = round(int(np.count_nonzero(hit[pos])) / k, 4)
+    missed = np.zeros(index.shape, dtype=bool)
+    missed.reshape(-1)[index.idx[~hit]] = True
     return out, missed

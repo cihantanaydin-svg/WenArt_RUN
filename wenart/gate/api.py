@@ -35,6 +35,18 @@ Metrics (§4.2): ``{"<check>": {"global": float|None, "regions": {id: float},
 (a model failed) carries ``"error"``; ``decide`` then fails it (a hard check
 that was not computed has not passed).
 
+Cost: ``prepare`` indexes what every comparison reuses (the valid pixels
+grouped by region, ``layout.Layout``; the reference edge pixels per object,
+``edges.EdgeIndex``; the reference Lab of the valid pixels) and the first
+comparison caches what depends on the reference model outputs (depth
+samples and range, DINOv2 norms, patch selections). A comparison then makes
+no full-image pass per region (pod run 0b: the colour, depth and features
+checks took 5-24 s per comparison on a contended pod; at 1920 x 1080 with
+15 objects the CPU time per comparison went from 0.76 to 0.30 s on 4 cores).
+The numbers are those of the mask-based functions of the check modules
+(``edges.edge_metrics``, ``colour.colour_metrics``, ``depth.depth_metrics``,
+``features.feature_metrics``) within 1e-4; ``tests/test_gate.py`` checks it.
+
 ``gate_key`` = first 16 hex of sha256 over GATE_CODE_VERSION, the gate model
 repos/revisions, the reference image sha256 and the threshold entries that
 shape the metrics (radius, Canny, minimum region sizes; not the pass/fail
@@ -55,7 +67,7 @@ import numpy as np
 GATE_DIR = Path(__file__).resolve().parent
 THRESHOLDS_PATH = GATE_DIR / "thresholds.yaml"
 MODELS_PATH = GATE_DIR / "models.yaml"
-GATE_CODE_VERSION = "m5.1"
+GATE_CODE_VERSION = "m5.2"          # m5.2: oriented low-threshold reference edges in added_lines
 REFERENCE_CACHE = 2          # references kept in memory (each holds a few full-size arrays)
 
 CHECKS = ("edges", "added_lines", "depth", "masks", "colour", "neutral", "features")
@@ -137,8 +149,15 @@ class Reference:
     (``{"boxes", "skipped", "masks", "reliability"}``), ``dino`` (tokens).
     ``valid`` = not background and not a window pane; ``match_dist`` =
     distance to the nearest reference Canny or geometry edge (added lines);
-    ``lab`` the Lab image; ``albedo`` the wall/ceiling albedo modes;
-    ``valid_pixels`` per region.
+    ``ref_angle`` the oriented low-threshold reference edges
+    (``edges.edge_angles``, added lines; None when ``ref_factor`` is 0);
+    ``layout`` the valid pixels grouped by region (``layout.Layout``);
+    ``lab`` the reference Lab of those pixels (float32 3 x N, layout order);
+    ``edge_index`` the reference edge pixels per object
+    (``edges.EdgeIndex``); ``albedo`` the wall/ceiling albedo modes;
+    ``valid_pixels`` per region; ``cache`` values derived from the model
+    outputs on the reference (depth samples and range, DINOv2 norms, patch
+    selections), filled on first use.
     """
     view: Any
     rgb: Any
@@ -151,10 +170,13 @@ class Reference:
     valid: Any = None
     geometry: Any = None
     match_dist: Any = None
+    ref_angle: Any = None
+    layout: Any = None
     lab: Any = None
+    edge_index: Any = None
     albedo: dict = field(default_factory=dict)
     valid_pixels: dict = field(default_factory=dict)
-    labels: Any = None
+    cache: dict = field(default_factory=dict)
     scene_manifest_path: Optional[str] = None
     warnings: list = field(default_factory=list)
 
@@ -229,6 +251,22 @@ class Gate:
     def _th(self, check: str) -> dict:
         return self.thresholds.get(check) or {}
 
+    def _ref_factor(self) -> float:
+        """``added_lines.ref_factor``: Canny thresholds x this for the oriented reference edges (0/None = off)."""
+        from wenart.gate import lines
+        value = self._th("added_lines").get("ref_factor", lines.REF_FACTOR)
+        return float(value or 0.0)
+
+    def _added_lines(self, ref: "Reference", test_canny) -> tuple[dict, list]:
+        """The added-lines metrics and segments of one test Canny map against ``ref``."""
+        from wenart.gate import lines
+        lth = self._th("added_lines")
+        return lines.added_lines(
+            test_canny, ref.match_dist, ref.regions.masks, ref.regions.structure_ids(), ref.size[0],
+            float(lth.get("min_len_frac", 0.04)), float(lth.get("unmatched_frac", 0.7)), exclude=~ref.valid,
+            match_px=float(lth.get("match_px", lines.MATCH_PX)), ref_angle=ref.ref_angle,
+            angle_tol_deg=float(lth.get("ref_angle_deg", lines.ANGLE_TOL_DEG)))
+
     def _scene_for(self, view) -> tuple[Optional[dict], Optional[str]]:
         if self.scene_manifest is not None:
             return self.scene_manifest, "given"
@@ -246,6 +284,7 @@ class Gate:
         """Regions, reference edges, Lab means of the reference image (cached per view and image)."""
         from wenart import views as V
         from wenart.gate import colour, edges
+        from wenart.gate.layout import Layout
 
         rgb = np.asarray(ref_rgb)
         if rgb.dtype != np.uint8 or rgb.ndim != 3 or rgb.shape[2] < 3:
@@ -275,25 +314,29 @@ class Gate:
         canny_cfg = eth.get("canny") or {}
         sigma, low, high = (canny_cfg.get("sigma", 1.5), canny_cfg.get("low", 25), canny_cfg.get("high", 75))
         geometry = V.geometry_edges(index, depth_mm, normal)
-        ref_canny = edges.canny(rgb, sigma, low, high)
+        gray = edges.blurred_gray(rgb, sigma)
+        ref_canny = edges.canny_blurred(gray, low, high)
         ref_dist = edges.distance_to(ref_canny)
         ref_edges = edges.reference_edges(geometry, ref_dist, float(eth.get("radius_px", 3)), valid)
         match_dist = edges.distance_to(ref_canny | geometry)
+        ref_factor = self._ref_factor()
+        ref_angle = edges.edge_angles(gray, low * ref_factor, high * ref_factor) if ref_factor > 0 else None
 
-        lab = colour.srgb_to_lab(rgb)
+        # Valid pixels grouped by region: every comparison gathers its test pixels once in this order.
         ids = list(regs.masks)
-        labels = colour.region_labels(regs.masks, ids, valid)
-        lab_means = colour.region_means(lab, regs.masks, ids, valid, labels=labels)
-        counts = np.bincount(labels[labels >= 0].ravel(), minlength=len(ids))
-        valid_pixels = {rid: int(counts[k]) for k, rid in enumerate(ids)}
+        lay = Layout.build(regs.masks, ids, valid)
+        lab = colour.lab_planes(lay.planes(rgb))
+        lab_means = colour.layout_means(lab, lay)
+        valid_pixels = {rid: int(n) for rid, n in zip(ids, lay.counts())}
+        edge_idx = edges.edge_index(ref_edges, regs, regs.object_ids())
         albedo = colour.structure_albedo(scene, view.room_id) if scene else {}
 
         ref = Reference(view=view, rgb=rgb, sha256=sha,
                         gate_key=make_gate_key(sha, self.model_info(), self.thresholds),
                         regions=regs, edges=ref_edges, lab_means=lab_means, model_outputs={}, valid=valid,
-                        geometry=geometry, match_dist=match_dist, lab=lab, albedo=albedo,
-                        valid_pixels=valid_pixels, labels=labels, scene_manifest_path=scene_path,
-                        warnings=warnings)
+                        geometry=geometry, match_dist=match_dist, ref_angle=ref_angle, layout=lay, lab=lab,
+                        edge_index=edge_idx, albedo=albedo, valid_pixels=valid_pixels,
+                        scene_manifest_path=scene_path, warnings=warnings)
         self._refs[key] = ref
         while len(self._refs) > REFERENCE_CACHE:
             self._refs.popitem(last=False)
@@ -324,11 +367,35 @@ class Gate:
         ref.model_outputs[name] = value
         return value
 
+    def _ref_depth(self, ref: Reference) -> tuple[np.ndarray, float]:
+        """``(float64 reference disparity in layout order, its p98 - p2 range)``, cached on the reference."""
+        from wenart.gate import depth
+        cached = ref.cache.get("depth")
+        disp = self._ref_output(ref, "depth")
+        if cached is None or cached[0] is not disp:
+            _check_map(disp, ref, "reference depth")
+            y = ref.layout.gather(disp).astype(np.float64)
+            fin = np.isfinite(y)
+            rng = depth.reference_range(y[fin]) if fin.any() else None
+            cached = (disp, y, rng)
+            ref.cache["depth"] = cached
+        return cached[1], cached[2]
+
+    def _ref_dino(self, ref: Reference) -> tuple[np.ndarray, np.ndarray]:
+        """``(float64 reference tokens, their norms)``, cached on the reference."""
+        cached = ref.cache.get("dino")
+        tok = self._ref_output(ref, "dino")
+        if cached is None or cached[0] is not tok:
+            a = np.asarray(tok, dtype=np.float64)
+            cached = (tok, a, np.linalg.norm(a, axis=-1))
+            ref.cache["dino"] = cached
+        return cached[1], cached[2]
+
     # ------------------------------------------------------------- compare
 
     def compare(self, ref: Reference, test_rgb) -> dict:
         """``{"decision", "reasons", "notes", "metrics", "gate_key"}`` for ``test_rgb`` against ``ref``."""
-        from wenart.gate import colour, depth, edges, features, lines
+        from wenart.gate import colour, depth, edges, features
         from wenart.gate import masks as M
 
         test = np.asarray(test_rgb)
@@ -339,42 +406,38 @@ class Gate:
             raise ValueError(f"test image must be uint8, got {test.dtype}")
         test = np.ascontiguousarray(test[:, :, :3])
         regs = ref.regions
+        lay = ref.layout
         total = width * height
-        valid = ref.valid
         all_ids = list(regs.masks)
         seconds: dict[str, float] = {}
         metrics: dict[str, Any] = {}
         artifacts: dict[str, Any] = {"missed": None, "lines": [], "depth_err": None}
 
-        # Lost edges.
+        # Lost edges (one blur for both Canny maps; the reference edges per object are indexed once).
         t0 = time.time()
         eth = self._th("edges")
         canny_cfg = eth.get("canny") or {}
         sigma, low, high = canny_cfg.get("sigma", 1.5), canny_cfg.get("low", 25), canny_cfg.get("high", 75)
         factor = float(eth.get("test_factor", edges.TEST_FACTOR))
-        test_canny = edges.canny(test, sigma, low, high)
-        test_dist = edges.distance_to(edges.canny(test, sigma, low * factor, high * factor))
-        metrics["edges"], artifacts["missed"] = edges.edge_metrics(
-            ref.edges, test_dist, regs, regs.object_ids(), float(eth.get("radius_px", 3)),
-            int(eth.get("region_min_ref_px", 0)))
+        gray = edges.blurred_gray(test, sigma)
+        test_canny = edges.canny_blurred(gray, low, high)
+        test_dist = edges.distance_to(edges.canny_blurred(gray, low * factor, high * factor))
+        metrics["edges"], artifacts["missed"] = edges.edge_metrics_indexed(
+            ref.edge_index, test_dist, float(eth.get("radius_px", 3)), int(eth.get("region_min_ref_px", 0)))
         seconds["edges"] = round(time.time() - t0, 3)
 
-        # Added straight lines on bare structure.
+        # Added straight lines on structure.
         t0 = time.time()
-        lth = self._th("added_lines")
-        metrics["added_lines"], artifacts["lines"] = lines.added_lines(
-            test_canny, ref.match_dist, regs.masks, regs.structure_ids(), width,
-            float(lth.get("min_len_frac", 0.04)), float(lth.get("unmatched_frac", 0.7)), exclude=~valid,
-            match_px=float(lth.get("match_px", lines.MATCH_PX)))
+        metrics["added_lines"], artifacts["lines"] = self._added_lines(ref, test_canny)
         seconds["added_lines"] = round(time.time() - t0, 3)
 
         # Colour and neutral walls.
         t0 = time.time()
         cth = self._th("colour")
-        test_lab = colour.srgb_to_lab(test)
-        metrics["colour"], test_means = colour.colour_metrics(
-            ref.lab, test_lab, ref.lab_means, regs.masks, all_ids, valid, float(cth.get("region_min_frac", 0.0)),
-            labels=ref.labels)
+        test_lab = colour.lab_planes(lay.planes(test))
+        metrics["colour"], test_means = colour.colour_metrics_layout(
+            ref.lab, test_lab, ref.lab_means, lay, float(cth.get("region_min_frac", 0.0)))
+        del test_lab
         nth = self._th("neutral")
         metrics["neutral"] = colour.neutral_metrics(
             ref.lab_means, test_means, ref.valid_pixels, total, ref.albedo,
@@ -385,10 +448,12 @@ class Gate:
         t0 = time.time()
         try:
             dth = self._th("depth")
-            ref_disp = self._ref_output(ref, "depth")
+            ref_y, ref_range = self._ref_depth(ref)
             test_disp = np.asarray(self._models().depth(test), dtype=np.float32)
-            metrics["depth"], artifacts["depth_err"] = depth.depth_metrics(
-                ref_disp, test_disp, valid, regs.masks, all_ids, float(dth.get("region_min_frac", 0.0)))
+            _check_map(test_disp, ref, "test depth")
+            metrics["depth"], err = depth.depth_metrics_layout(
+                ref_y, lay.gather(test_disp), lay, float(dth.get("region_min_frac", 0.0)), ref_range=ref_range)
+            artifacts["depth_err"] = lay.scatter(err)
         except Exception as exc:  # noqa: BLE001 - recorded, the check then fails
             metrics["depth"] = _error_metric(exc)
         seconds["depth"] = round(time.time() - t0, 3)
@@ -409,10 +474,11 @@ class Gate:
         t0 = time.time()
         try:
             fth = self._th("features")
-            ref_tok = self._ref_output(ref, "dino")
+            ref_tok, ref_norm = self._ref_dino(ref)
             test_tok = np.asarray(self._models().dino_tokens(test), dtype=np.float32)
             metrics["features"], _cos = features.feature_metrics(
-                ref_tok, test_tok, regs.masks, regs.object_ids(), total, float(fth.get("region_min_frac", 0.0)))
+                ref_tok, test_tok, regs.masks, regs.object_ids(), total, float(fth.get("region_min_frac", 0.0)),
+                cache=ref.cache.setdefault("patches", {}), ref_norm=ref_norm)
         except Exception as exc:  # noqa: BLE001
             metrics["features"] = _error_metric(exc)
         seconds["features"] = round(time.time() - t0, 3)
@@ -441,7 +507,7 @@ class Gate:
         image, else recomputes the edge and line maps (the depth panel then
         stays empty).
         """
-        from wenart.gate import debug, edges, lines
+        from wenart.gate import debug, edges
 
         test = np.ascontiguousarray(np.asarray(test_rgb)[:, :, :3])
         art = self.last_artifacts
@@ -452,15 +518,18 @@ class Gate:
             factor = float(eth.get("test_factor", edges.TEST_FACTOR))
             test_canny = edges.canny(test, sigma, low, high)
             dist = edges.distance_to(edges.canny(test, sigma, low * factor, high * factor))
-            lth = self._th("added_lines")
-            _m, found = lines.added_lines(test_canny, ref.match_dist, ref.regions.masks,
-                                          ref.regions.structure_ids(), ref.size[0],
-                                          float(lth.get("min_len_frac", 0.04)),
-                                          float(lth.get("unmatched_frac", 0.7)), exclude=~ref.valid)
+            _m, found = self._added_lines(ref, test_canny)
             art = {"missed": ref.edges & (dist > float(eth.get("radius_px", 3))), "lines": found, "depth_err": None}
         return debug.write_debug_image(path, ref.rgb, test, art.get("missed"), art.get("lines") or [],
                                        art.get("depth_err"), ref.regions, result,
                                        depth_scale=float(self._th("depth").get("region_max", 0.05)) * 2.0)
+
+
+def _check_map(arr, ref: Reference, what: str) -> None:
+    """ValueError unless a model output map has the view size (H x W)."""
+    w, h = ref.size
+    if np.asarray(arr).shape != (h, w):
+        raise ValueError(f"{what} is {np.asarray(arr).shape}, the view is {h} x {w}")
 
 
 def _error_metric(exc: Exception) -> dict:

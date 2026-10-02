@@ -16,7 +16,7 @@ numpy only (no model code here; the model wrapper lives in ``models.py``).
 """
 from __future__ import annotations
 
-from typing import Iterable
+from typing import Iterable, Optional
 
 import numpy as np
 
@@ -29,10 +29,11 @@ def _lsq(x: np.ndarray, y: np.ndarray) -> tuple[float, float]:
     """Closed-form least squares ``y ~ s * x + t`` (s = 0 when x is constant)."""
     mx, my = float(x.mean()), float(y.mean())
     dx = x - mx
-    var = float((dx * dx).sum())
+    var = float(np.einsum("i,i->", dx, dx))          # sums of products without temporaries (and without BLAS)
     if var <= 0.0:
         return 0.0, my
-    s = float((dx * (y - my)).sum()) / var
+    dx *= y - my
+    s = float(dx.sum()) / var
     return s, my - s * mx
 
 
@@ -48,12 +49,16 @@ def fit_scale_shift(pred, ref, mask=None, refits: int = REFITS, keep: float = KE
     m = m & np.isfinite(p) & np.isfinite(r)
     if not m.any():
         raise ValueError("fit_scale_shift: no valid pixels")
-    x, y = p[m], r[m]
+    return fit_1d(p[m], r[m], refits, keep)
+
+
+def fit_1d(x: np.ndarray, y: np.ndarray, refits: int = REFITS, keep: float = KEEP) -> tuple[float, float]:
+    """``fit_scale_shift`` on 1-D float64 samples (all finite, at least one)."""
     s, t = _lsq(x, y)
     for _ in range(int(refits)):
         res = np.abs(s * x + t - y)
         sel = res <= np.quantile(res, float(keep))
-        if sel.sum() < 2:
+        if np.count_nonzero(sel) < 2:
             break
         s, t = _lsq(x[sel], y[sel])
     return s, t
@@ -97,5 +102,55 @@ def depth_metrics(ref_disp, test_disp, valid, region_masks: dict, region_ids: It
             out["skipped"][rid] = "too_small"
             continue
         out["regions"][rid] = round(float(err[sel].mean()), 5)
+    return out, err
+
+
+def reference_range(ref_valid) -> float:
+    """``p98 - p2`` of the reference disparity (at least 1e-6): the error scale of ``error_map``."""
+    lo, hi = np.percentile(ref_valid, [RANGE_LO, RANGE_HI])
+    return max(float(hi - lo), 1e-6)
+
+
+def depth_metrics_layout(ref_valid, test_valid, layout, min_frac: float,
+                         ref_range: Optional[float] = None) -> tuple[dict, np.ndarray]:
+    """``depth_metrics`` on the layout's valid pixels (``layout.Layout``; same numbers, no full-image pass).
+
+    ``ref_valid``: float64 reference disparity gathered in layout order;
+    ``test_valid``: the test disparity gathered the same way; ``ref_range``:
+    ``reference_range(ref_valid)`` when the caller cached it (used only when
+    every sample is finite). Returns the metrics and the float32 per-sample
+    error (NaN where a sample is not finite; ``layout.scatter`` makes the map).
+    """
+    r = np.asarray(ref_valid, dtype=np.float64)
+    t = np.asarray(test_valid, dtype=np.float64)
+    fin = np.isfinite(r) & np.isfinite(t)
+    every = bool(fin.all())
+    err = np.full(r.shape, np.nan, dtype=np.float32)
+    out: dict = {"global": None, "regions": {}, "skipped": {}, "fit": {"scale": None, "shift": None, "range": None}}
+    if fin.any():
+        x, y = (t, r) if every else (t[fin], r[fin])
+        s, sh = fit_1d(x, y)
+        rng = float(ref_range) if (every and ref_range is not None) else reference_range(y)
+        e = (np.abs(s * x + sh - y) / rng).astype(np.float32)
+        if every:
+            err = e
+        else:
+            err[fin] = e
+        out["fit"] = {"scale": round(s, 6), "shift": round(sh, 6), "range": round(rng, 6)}
+        out["global"] = round(float(e.mean()), 5)
+    total = layout.size
+    for k, rid in enumerate(layout.ids):
+        span = layout.span(k)
+        seg = err[span]
+        if every:
+            n = int(seg.size)
+        else:
+            f = fin[span]
+            n = int(np.count_nonzero(f))
+            seg = seg[f]
+        if n == 0 or n / total < float(min_frac):
+            out["skipped"][rid] = "too_small"
+            continue
+        out["regions"][rid] = round(float(seg.mean()), 5)
     return out, err
 

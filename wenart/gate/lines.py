@@ -5,16 +5,38 @@ shelf, a window on a bare wall). On each structure region (floor, ceiling,
 walls; window panes and background removed) the test image's Canny edges
 are turned into straight segments with ``cv2.HoughLinesP``; a segment of
 length >= ``min_len_frac`` x W counts when its pixels have no reference
-edge within ``match_px`` (3 px) over >= ``unmatched_frac`` of its length.
+edge within ``match_px`` (3 px) over >= ``unmatched_frac`` of their length.
 Value per region = the unmatched length of the counted segments / W.
 
 Why: edge recall only sees reference edges that disappear; a new edge on a
 bare wall leaves recall at 1.0. Long straight new segments are what painted
-additions look like, while texture gives short, scattered edges.
+additions look like.
 
-Reference edges for the matching = Canny on the Cycles image plus the
-view's geometry edges, so a line along a real but low-contrast boundary
-(white frame on a white wall) is not counted as new.
+Reference edges for the matching:
+
+- Canny on the Cycles image (full thresholds) plus the view's geometry
+  edges, so a line along a real but low-contrast boundary (white frame on a
+  white wall) is not counted as new;
+- plus the *oriented* low-threshold Canny edges of the Cycles image
+  (thresholds x ``ref_factor``, 0.2; ``edges.edge_angles``): a segment
+  pixel is also matched by such an edge within ``match_px`` whose gradient
+  orientation is within ``ref_angle_deg`` (10 deg) of the segment's normal.
+  Texture is not only short and scattered: plank seams, tile grout and
+  herringbone spines are long straight lines that sit just below the Canny
+  thresholds in the Cycles image and rise above them when the polish (or a
+  benign unsharp mask, +0.3 EV) makes the texture crisper. Without this
+  term such views were rejected although nothing moved (review finding G2:
+  real parquet / tile textures at 1920 x 1080 gave 0.05-0.72 for the benign
+  unsharp control, limit 0.04). The orientation test keeps the check
+  sensitive on textured floors: a rug outline painted on the same floors
+  still gives 0.62-0.95 (matching any low-threshold edge regardless of
+  orientation gave 0.0-0.32); a thin dark stripe keeps 0.12-0.18 on the
+  tile and wood floors but is matched by parallel texture edges on the
+  herringbone and laminate floors (0.06-0.09 there before). Like the Hough
+  settings and ``match_px`` these are code constants (``REF_FACTOR``,
+  ``ANGLE_TOL_DEG``) that ``added_lines.ref_factor`` / ``ref_angle_deg`` in
+  thresholds.yaml override (then part of the gate key); ``ref_factor`` 0
+  turns the term off. Calibrated in run 1a.
 
 OpenCV is imported inside the functions.
 """
@@ -25,7 +47,11 @@ from typing import Iterable
 
 import numpy as np
 
+from wenart.gate.edges import NO_ANGLE
+
 MATCH_PX = 3.0                # a segment pixel is matched when a reference edge is within 3 px
+REF_FACTOR = 0.2              # Canny thresholds x this for the oriented reference edges (0 = off)
+ANGLE_TOL_DEG = 10.0          # an oriented reference edge matches a segment within this angle
 HOUGH_RHO = 1.0               # px
 HOUGH_THETA = math.pi / 180.0
 HOUGH_VOTES_FRAC = 0.5        # accumulator votes needed = 0.5 x the minimum length (at least 20)
@@ -56,23 +82,65 @@ def segment_pixels(seg) -> tuple[np.ndarray, np.ndarray]:
     return xs, ys
 
 
-def unmatched_share(seg, match_dist, match_px: float = MATCH_PX) -> float:
-    """Share of the segment's pixels whose nearest reference edge is farther than ``match_px``."""
+def _disk(radius: float) -> list[tuple[int, int]]:
+    """Integer offsets ``(dx, dy)`` with dx^2 + dy^2 <= radius^2 (the pixels within ``radius``)."""
+    r = int(math.floor(float(radius)))
+    return [(dx, dy) for dy in range(-r, r + 1) for dx in range(-r, r + 1) if dx * dx + dy * dy <= radius * radius]
+
+
+def segment_normal_deg(seg) -> float:
+    """Orientation (degrees mod 180) of a segment's normal: the gradient direction of an edge along it."""
+    x0, y0, x1, y1 = (int(v) for v in seg)
+    return math.degrees(math.atan2(x1 - x0, -(y1 - y0))) % 180.0
+
+
+def oriented_hits(seg, xs, ys, ref_angle, match_px: float = MATCH_PX,
+                  angle_tol_deg: float = ANGLE_TOL_DEG) -> np.ndarray:
+    """bool per sample: an edge of ``ref_angle`` lies within ``match_px`` with an orientation within the tolerance."""
+    angle = np.asarray(ref_angle)
+    h, w = angle.shape
+    normal = segment_normal_deg(seg)
+    hit = np.zeros(len(xs), dtype=bool)
+    for dx, dy in _disk(match_px):
+        xx, yy = xs + dx, ys + dy
+        inside = (xx >= 0) & (xx < w) & (yy >= 0) & (yy < h)
+        a = angle[np.clip(yy, 0, h - 1), np.clip(xx, 0, w - 1)].astype(np.float32)
+        diff = np.abs(np.mod(a - normal + 90.0, 180.0) - 90.0)
+        hit |= inside & (a != NO_ANGLE) & (diff <= float(angle_tol_deg))
+    return hit
+
+
+def unmatched_pixels(seg, match_dist, match_px: float = MATCH_PX, ref_angle=None,
+                     angle_tol_deg: float = ANGLE_TOL_DEG) -> np.ndarray:
+    """bool per segment sample: no reference edge within ``match_px`` (``match_dist``), nor a parallel
+    oriented reference edge (``ref_angle``, when given)."""
     xs, ys = segment_pixels(seg)
-    d = np.asarray(match_dist)[ys, xs]
-    return float((d > float(match_px)).mean())
+    unmatched = np.asarray(match_dist)[ys, xs] > float(match_px)
+    if ref_angle is not None and unmatched.any():
+        sel = np.flatnonzero(unmatched)
+        unmatched[sel] = ~oriented_hits(seg, xs[sel], ys[sel], ref_angle, match_px, angle_tol_deg)
+    return unmatched
+
+
+def unmatched_share(seg, match_dist, match_px: float = MATCH_PX, ref_angle=None,
+                    angle_tol_deg: float = ANGLE_TOL_DEG) -> float:
+    """Share of the segment's pixels with no matching reference edge (see ``unmatched_pixels``)."""
+    return float(unmatched_pixels(seg, match_dist, match_px, ref_angle, angle_tol_deg).mean())
 
 
 def added_lines(test_edges, match_dist, region_masks: dict, region_ids: Iterable[str], width: int,
                 min_len_frac: float, unmatched_frac: float, exclude=None,
-                match_px: float = MATCH_PX) -> tuple[dict, list]:
+                match_px: float = MATCH_PX, ref_angle=None,
+                angle_tol_deg: float = ANGLE_TOL_DEG) -> tuple[dict, list]:
     """``({"global", "regions", "skipped"}, lines)`` for the structure regions of one test image.
 
     ``test_edges``: bool Canny map of the test image; ``match_dist``: distance
-    to the nearest reference edge (``edges.distance_to``); ``exclude``: bool
-    mask removed from every region (panes, background). ``lines`` lists
-    every counted segment ``{"region", "seg": [x0, y0, x1, y1], "length",
-    "unmatched"}`` for the debug image. ``global`` = all regions together.
+    to the nearest reference edge (``edges.distance_to``); ``ref_angle``: the
+    oriented low-threshold reference edges (``edges.edge_angles``; None = not
+    used); ``exclude``: bool mask removed from every region (panes,
+    background). ``lines`` lists every counted segment ``{"region", "seg":
+    [x0, y0, x1, y1], "length", "unmatched"}`` for the debug image.
+    ``global`` = all regions together.
     """
     edges = np.asarray(test_edges, dtype=bool)
     keep_out = None if exclude is None else np.asarray(exclude, dtype=bool)
@@ -91,7 +159,7 @@ def added_lines(test_edges, match_dist, region_masks: dict, region_ids: Iterable
         for seg in segments(edges & mask, min_len):
             x0, y0, x1, y1 = (int(v) for v in seg)
             length = math.hypot(x1 - x0, y1 - y0)
-            share = unmatched_share(seg, match_dist, match_px)
+            share = unmatched_share(seg, match_dist, match_px, ref_angle, angle_tol_deg)
             if share >= float(unmatched_frac):
                 length_sum += length * share
                 lines.append({"region": rid, "seg": [x0, y0, x1, y1], "length": round(length, 1),

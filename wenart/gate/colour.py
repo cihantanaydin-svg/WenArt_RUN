@@ -14,8 +14,11 @@ manifest (the material records written by the build, area A adds
 ``albedo_mode``), else from ``wenart.style.vocabulary.MATERIALS``; when
 neither names it, the region is skipped as ``albedo_unknown`` (never guessed).
 
-Conversions are numpy only; ``lab_to_srgb`` is the exact inverse used by
-the colour controls (``controls.py``).
+Conversions are numpy only (``lab_planes`` uses ``cv2.LUT``, imported
+inside); ``lab_to_srgb`` is the exact inverse used by the colour controls
+(``controls.py``). The gate runs ``lab_planes`` / ``colour_metrics_layout``
+on the valid pixels only (``layout.Layout``); ``region_means`` /
+``colour_metrics`` are the same numbers from whole-image masks.
 """
 from __future__ import annotations
 
@@ -94,6 +97,75 @@ def srgb_to_lab(rgb) -> np.ndarray:
     if a.dtype == np.uint8:
         return linear_to_lab(_LUT32[a])
     return linear_to_lab(to_linear(a))
+
+
+# xyz_j / white_j = sum_i _M32[j, i] * linear_i: the float32 matrix of ``linear_to_lab``, transposed.
+_M32 = np.ascontiguousarray((RGB_TO_XYZ.T / WHITE_D65).astype(np.float32).T)
+
+
+def lab_planes(planes) -> np.ndarray:
+    """CIELAB (D65) float32 3 x N of uint8 sRGB planes 3 x N (``layout.Layout.planes``).
+
+    The same conversion as ``srgb_to_lab`` (float32 LUT, the float32 matrix,
+    cbrt / linear branch), channel by channel on contiguous rows, without
+    BLAS (no threads) and without full-image temporaries.
+    """
+    import cv2
+    p = np.ascontiguousarray(planes, dtype=np.uint8)
+    if p.shape[1] == 0:
+        return np.zeros((3, 0), dtype=np.float32)
+    lin = cv2.LUT(p, _LUT32)                                   # exact table lookup, float32
+    f = np.empty_like(lin)
+    tmp = np.empty_like(lin[0])
+    for j in range(3):
+        np.multiply(lin[0], _M32[j, 0], out=f[j])
+        np.multiply(lin[1], _M32[j, 1], out=tmp)
+        f[j] += tmp
+        np.multiply(lin[2], _M32[j, 2], out=tmp)
+        f[j] += tmp
+    small = f <= _EPS
+    t_small = f[small]
+    np.cbrt(f, out=f)
+    f[small] = t_small / _KAPPA + 4.0 / 29.0
+    out = np.empty_like(f)
+    np.multiply(f[1], 116.0, out=out[0])
+    out[0] -= 16.0
+    np.subtract(f[0], f[1], out=out[1])
+    out[1] *= 500.0
+    np.subtract(f[1], f[2], out=out[2])
+    out[2] *= 200.0
+    return out
+
+
+def layout_means(lab_planes_, layout) -> dict:
+    """``{region id: [L, a, b] | None}``: mean of each region's slice of a 3 x N Lab array (float64 sums)."""
+    out = {}
+    for k, rid in enumerate(layout.ids):
+        seg = lab_planes_[:, layout.span(k)]
+        n = seg.shape[1]
+        out[rid] = None if n == 0 else [round(float(x), 4) for x in seg.sum(axis=1, dtype=np.float64) / n]
+    return out
+
+
+def colour_metrics_layout(ref_lab, test_lab, ref_means: dict, layout, min_frac: float) -> tuple[dict, dict]:
+    """``colour_metrics`` on 3 x N Lab arrays of the layout's valid pixels (same numbers, no full-image pass)."""
+    out: dict = {"global": None, "regions": {}, "skipped": {}}
+    if layout.n_valid:
+        d = np.subtract(ref_lab, test_lab, dtype=np.float32)
+        np.multiply(d, d, out=d)
+        de = d[0] + d[1]
+        de += d[2]
+        np.sqrt(de, out=de)
+        out["global"] = round(float(de.mean(dtype=np.float64)), 4)
+    test_means = layout_means(test_lab, layout)
+    counts = layout.counts()
+    total = layout.size
+    for k, rid in enumerate(layout.ids):
+        if ref_means.get(rid) is None or test_means.get(rid) is None or int(counts[k]) / total < float(min_frac):
+            out["skipped"][rid] = "too_small"
+            continue
+        out["regions"][rid] = round(float(delta_e76(ref_means[rid], test_means[rid])), 4)
+    return out, test_means
 
 
 def lab_to_linear(lab) -> np.ndarray:

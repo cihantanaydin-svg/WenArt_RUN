@@ -330,6 +330,115 @@ def test_added_lines_ignore_lines_along_real_geometry():
     assert out["skipped"] == {"struct:walls": "too_small"}
 
 
+def tiled_floor(rgb, index, grout=20.0, tile_m=0.30, seed=0, ss=2):
+    """``(image, floor mask)``: a perspective tile floor on the index-0 floor pixels of ``build_room``.
+
+    Camera 1.4 m above the floor, focal 1280 px at 1920 px wide, floor edge at
+    5 m, tiles turned 20 deg, 4 mm grout ``grout`` grey levels darker, a
+    per-tile tone (sigma 5), 2 x 2 supersampling, a 0.6 px blur and noise
+    sigma 1: long straight grout lines that sit just below Canny high in the
+    "Cycles" image, as on a real tile or plank floor.
+    """
+    H, W = index.shape
+    f = 1280.0 * W / 1920.0
+    floor_y = int(0.62 * H)
+    cy = floor_y - f * 1.4 / 5.0
+    tone = np.random.default_rng(seed).normal(0, 5.0, (64, 64))
+    yaw = math.radians(20.0)
+    acc = np.zeros((H - floor_y, W), np.float64)
+    for i in range(ss):
+        for j in range(ss):
+            v = np.arange(floor_y, H)[:, None] + (i + 0.5) / ss
+            u = np.arange(W)[None, :] + (j + 0.5) / ss
+            t = 1.4 / ((v - cy) / f)
+            x, z = (u - W / 2) / f * t, t + 0 * u
+            a = (math.cos(yaw) * x - math.sin(yaw) * z) / tile_m
+            b = (math.sin(yaw) * x + math.cos(yaw) * z) / tile_m
+            fa, fb = a - np.floor(a), b - np.floor(b)
+            line = (np.minimum(fa, 1 - fa) < 0.004 / tile_m) | (np.minimum(fb, 1 - fb) < 0.004 / tile_m)
+            acc += tone[np.floor(b).astype(int) % 64, np.floor(a).astype(int) % 64] - grout * line
+    add = np.zeros((H, W), np.float32)
+    add[floor_y:] = acc / (ss * ss)
+    add = cv2.GaussianBlur(add, (0, 0), 0.6)
+    floor_mask = np.zeros((H, W), bool)
+    floor_mask[floor_y:] = index[floor_y:] == 0
+    out = rgb.astype(np.float32)
+    out[floor_mask] += add[floor_mask][:, None]
+    out += np.random.default_rng(seed + 1).normal(0, 1.0, out.shape)
+    return np.clip(np.rint(out), 0, 255).astype(np.uint8), floor_mask
+
+
+@pytest.fixture(scope="module")
+def tiled(tmp_path_factory):
+    """A 1920 x 1080 room whose floor is tiled (grout 20 grey levels), its gate and prepared reference."""
+    out = tmp_path_factory.mktemp("tiled") / "toy"
+    data = write_project(out, W=1920, H=1080)
+    rgb, floor_mask = tiled_floor(data["rgb"], data["index"])
+    gate = api.Gate(models=FakeModels(), device="cpu")
+    ref = gate.prepare(V.load_views(out / "renders")["cam_a"], rgb)
+    return {"data": data, "rgb": rgb, "floor": floor_mask, "gate": gate, "ref": ref}
+
+
+def test_crisper_floor_texture_is_not_an_added_line(tiled):
+    """Review finding (G2): grout or plank seams that the Cycles image shows just below the Canny
+    thresholds were counted as new lines once the polish (or a benign control) made them crisper,
+    and the view was rejected although nothing moved. Before the fix: unsharp 0.27, +0.3 EV 0.15,
+    local contrast x1.5 0.29, grout x2.5 6.4 on struct:floor (limit 0.04)."""
+    gate, ref, rgb = tiled["gate"], tiled["ref"], tiled["rgb"]
+    edits = {"unsharp (benign control)": K.unsharp(rgb), "exposure +0.3 EV (benign control)": K.exposure(rgb, 0.3),
+             "local contrast x1.5": K.local_contrast(rgb, 1.5),
+             "grout x2.5 at the same place": tiled_floor(tiled["data"]["rgb"], tiled["data"]["index"], grout=50.0)[0]}
+    for name, img in edits.items():
+        res = gate.compare(ref, img)
+        assert res["metrics"]["added_lines"]["regions"]["struct:floor"] == 0.0, name
+        assert res["decision"] == "accept", (name, res["reasons"])
+
+
+def test_lines_painted_on_a_textured_floor_are_still_added_lines(tiled):
+    """The relaxed matching only accepts a reference edge of the same orientation: a rug outline
+    painted across the grout, or a dark stripe, is still a new line."""
+    gate, ref, rgb = tiled["gate"], tiled["ref"], tiled["rgb"]
+    rug = rgb.copy()
+    cv2.polylines(rug, [np.array([[700, 780], [1250, 780], [1400, 1000], [550, 1000]], np.int32)], True,
+                  (230, 225, 215), 4)
+    stripe = rgb.copy()
+    cv2.line(stripe, (500, 900), (1300, 820), (60, 50, 40), 3)
+    for name, img in (("rug outline", rug), ("stripe", stripe)):
+        res = gate.compare(ref, img)
+        assert res["metrics"]["added_lines"]["regions"]["struct:floor"] > 0.04, name
+        assert ("added_lines", "struct:floor") in {(r["check"], r["region"]) for r in res["reasons"]}, name
+
+
+def test_oriented_reference_edges_match_only_parallel_segments():
+    """lines.added_lines: a faint reference edge (only in ``ref_angle``) matches a test segment of the
+    same orientation (within ``angle_tol_deg``), not a crossing one."""
+    H, W = 120, 200
+    test = np.full((H, W, 3), 180, np.uint8)
+    cv2.line(test, (10, 60), (190, 60), (60, 60, 60), 2)
+    test_edges = edges.canny(test)
+    no_ref = edges.distance_to(np.zeros((H, W), bool))
+    masks_ = {"struct:walls": np.ones((H, W), bool)}
+    angle = np.full((H, W), lines.NO_ANGLE, np.uint8)
+    angle[58:64, :] = 90                       # a horizontal faint edge: its gradient points along y (90 deg)
+    out, found = lines.added_lines(test_edges, no_ref, masks_, ["struct:walls"], W, 0.04, 0.7,
+                                   ref_angle=angle, angle_tol_deg=10)
+    assert out["regions"]["struct:walls"] == 0.0 and found == []
+    angle[58:64, :] = 0                        # the same pixels, a vertical edge: no match
+    out, found = lines.added_lines(test_edges, no_ref, masks_, ["struct:walls"], W, 0.04, 0.7,
+                                   ref_angle=angle, angle_tol_deg=10)
+    assert out["regions"]["struct:walls"] > 0.5 and found
+    angle[58:64, :] = 81                       # 9 deg off: inside the tolerance
+    assert lines.added_lines(test_edges, no_ref, masks_, ["struct:walls"], W, 0.04, 0.7, ref_angle=angle,
+                             angle_tol_deg=10)[0]["regions"]["struct:walls"] == 0.0
+    # The angle map of a reference image: only its low-threshold Canny pixels carry an angle.
+    ref = np.full((H, W, 3), 180, np.uint8)
+    ref[:, 100:] = 190                         # a 10-level vertical step, below the full Canny thresholds
+    assert not edges.canny(ref).any()
+    amap = edges.edge_angles(edges.blurred_gray(ref, 1.5), 25 * 0.2, 75 * 0.2)
+    ys, xs = np.nonzero(amap != lines.NO_ANGLE)
+    assert len(xs) >= H - 4 and np.abs(xs - 99.5).max() <= 2 and set(amap[ys, xs].tolist()) <= {0, 1, 179}
+
+
 def test_segment_helpers():
     xs, ys = lines.segment_pixels([0, 0, 10, 5])
     assert len(xs) == 11 and (xs[0], ys[0], xs[-1], ys[-1]) == (0, 0, 10, 5)
@@ -638,6 +747,171 @@ def test_gate_without_a_scene_manifest_uses_index_regions(tmp_path):
 
 
 # --------------------------------------------------------------------------
+# Fast paths = mask-based functions (performance work, pod run 0b)
+# --------------------------------------------------------------------------
+
+def furnished_project(out: Path, W=1920, H=1080, extra=12, seed=0) -> dict:
+    """``build_room`` plus ``extra`` furniture boxes (15 visible objects + 3 structure regions at the default)."""
+    data = build_room(W, H, seed=seed)
+    rng = np.random.default_rng(seed + 11)
+    rgb = data["rgb"].astype(np.float32)
+    yy, xx = np.mgrid[0:H, 0:W]
+    scene = scene_manifest()
+    up = V.encode_normal(np.array([[[0.0, -1.0, 0.0]]]), np.ones((1, 1), bool))[0, 0]
+    for k in range(extra):
+        idx = 20 + k
+        w, h = int(rng.integers(W // 32, W // 7)), int(rng.integers(H // 20, H // 5))
+        x0, y0 = int(rng.integers(0, W - w)), int(rng.integers(int(0.30 * H), H - h))
+        m = (xx >= x0) & (xx < x0 + w) & (yy >= y0) & (yy < y0 + h)
+        data["index"][m], data["depth_mm"][m], data["normal"][m] = idx, int(rng.uniform(1.5, 4.5) * 1000), up
+        rgb[m] = rng.integers(30, 220, 3)
+        scene["objects"].append({"name": f"furn_x{idx}", "wenart_id": f"f_x{idx}", "kind": "furniture",
+                                 "type": "box", "room_id": "r_1", "source": "from_documents", "status": "verified",
+                                 "pass_index": idx, "level_id": "L0", "center": [0, 0, 0.4], "size": [1, 1, 0.8],
+                                 "rotation_deg": 0})
+    rgb += cv2.GaussianBlur(rng.normal(0, 1.5, (H, W)).astype(np.float32), (0, 0), 1.0)[:, :, None]
+    data["rgb"] = np.clip(np.rint(rgb), 0, 255).astype(np.uint8)
+    renders = out / "renders"
+    renders.mkdir(parents=True)
+    entry = write_view(renders, "cam_a", data)
+    (renders / "render_manifest.json").write_text(json.dumps({"renders": [entry]}), encoding="utf-8")
+    (out / "scene").mkdir()
+    (out / "scene" / "scene_manifest.json").write_text(json.dumps(scene), encoding="utf-8")
+    return data
+
+
+def mask_based_metrics(gate, ref, test) -> dict:
+    """The metrics the way ``Gate.compare`` computed them before the layout / index fast paths
+    (one full-image pass per region, whole-image Lab and float64 maps), from the module functions."""
+    th = gate.thresholds
+    regs, valid = ref.regions, ref.valid
+    H, W = valid.shape
+    ids, objects = list(regs.masks), regs.object_ids()
+    eth, cth = th["edges"], th["colour"]
+    c = eth["canny"]
+    f = eth.get("test_factor", edges.TEST_FACTOR)
+    dist = edges.distance_to(edges.canny(test, c["sigma"], c["low"] * f, c["high"] * f))
+    out = {"edges": edges.edge_metrics(ref.edges, dist, regs, objects, eth["radius_px"], eth["region_min_ref_px"])[0]}
+    ref_lab, test_lab = colour.srgb_to_lab(ref.rgb), colour.srgb_to_lab(test)
+    ref_means = colour.region_means(ref_lab, regs.masks, ids, valid)
+    out["colour"], test_means = colour.colour_metrics(ref_lab, test_lab, ref_means, regs.masks, ids, valid,
+                                                      cth["region_min_frac"])
+    labels = colour.region_labels(regs.masks, ids, valid)
+    counts = np.bincount(labels[labels >= 0], minlength=len(ids))
+    pixels = {rid: int(counts[k]) for k, rid in enumerate(ids)}
+    out["neutral"] = colour.neutral_metrics(ref_means, test_means, pixels, W * H, ref.albedo,
+                                            cth["region_min_frac"])
+    models = gate.models
+    out["depth"] = depth.depth_metrics(ref.model_outputs["depth"], models.depth(test), valid, regs.masks, ids,
+                                       th["depth"]["region_min_frac"])[0]
+    sam = ref.model_outputs["sam"]
+    stack = models.sam_masks(test, [sam["boxes"][i] for i in sam["boxes"]])
+    out["masks"] = masks.mask_metrics(sam["masks"], dict(zip(sam["boxes"], stack)), sam["reliability"],
+                                      sam["skipped"], th["masks"]["sam_reliable_min"])
+    out["features"] = features.feature_metrics(ref.model_outputs["dino"], models.dino_tokens(test), regs.masks,
+                                               objects, W * H, th["features"]["region_min_frac"])[0]
+    return {"metrics": out, "lab_means": ref_means, "valid_pixels": pixels}
+
+
+def assert_close(a, b, path=""):
+    """Same keys, same strings, numbers within 1e-4 (the stored metrics are rounded to 4-5 decimals)."""
+    if isinstance(a, dict):
+        assert set(a) == set(b), (path, sorted(set(a) ^ set(b)))
+        for k in a:
+            assert_close(a[k], b[k], f"{path}/{k}")
+    elif isinstance(a, (list, tuple)):
+        assert len(a) == len(b), path
+        for i, (x, y) in enumerate(zip(a, b)):
+            assert_close(x, y, f"{path}/{i}")
+    elif isinstance(a, float) or isinstance(b, float):
+        assert a is not None and b is not None and abs(a - b) <= 1e-4 + 1e-9, (path, a, b)   # one unit of a 4-decimal rounding
+    else:
+        assert a == b, (path, a, b)
+
+
+def test_fast_paths_give_the_mask_based_metrics(tmp_path):
+    """1920 x 1080, 15 objects + 3 structure regions: the region-sorted layout (colour, depth), the edge
+    index, the cached reference tokens and patch selections give the numbers of the mask-based
+    functions (within 1e-4: float sums in another order, Lab without BLAS) and the same decisions."""
+    data = furnished_project(tmp_path / "p")
+    gate = api.Gate(models=FakeModels(), device="cpu")
+    ref = gate.prepare(V.load_views(tmp_path / "p" / "renders")["cam_a"], data["rgb"])
+    assert len(ref.regions.object_ids()) >= 15 and len(ref.regions.structure_ids()) == 3
+    rgb = data["rgb"]
+    tests = {"noise": texture(rgb, 12), "shift": K.shift_object(rgb, data["index"], data["depth_mm"], SOFA, 25),
+             "white_balance": K.white_balance(rgb, (1.15, 1.0, 0.85)), "local_contrast": K.local_contrast(rgb),
+             "wall_b": K.lab_edit(rgb, ref.regions.masks["struct:walls"], d_b=10.0)}
+    decisions = set()
+    for name, test in tests.items():
+        res = gate.compare(ref, test)
+        slow = mask_based_metrics(gate, ref, test)
+        for check in ("edges", "colour", "neutral", "depth", "masks", "features"):
+            assert_close(res["metrics"][check], slow["metrics"][check], f"{name}/{check}")
+        assert_close(ref.lab_means, slow["lab_means"], "lab_means")
+        assert ref.valid_pixels == slow["valid_pixels"]
+        decision, reasons, _notes = api.decide(dict(res["metrics"], **slow["metrics"]), gate.thresholds)
+        assert decision == res["decision"], name
+        assert {(r["check"], r["region"]) for r in reasons} == {(r["check"], r["region"]) for r in res["reasons"]}
+        decisions.add(res["decision"])
+        # The debug maps: missed edges and the depth error map as the mask-based functions give them.
+        dist = edges.distance_to(edges.canny(test, 1.5, 12.5, 37.5))
+        assert np.array_equal(gate.last_artifacts["missed"], ref.edges & (dist > 3))
+        err = depth.depth_metrics(ref.model_outputs["depth"], gate.models.depth(test), ref.valid, {}, [], 0.0)[1]
+        assert np.array_equal(np.isnan(err), np.isnan(gate.last_artifacts["depth_err"]))
+        assert np.nanmax(np.abs(err - gate.last_artifacts["depth_err"])) <= 1e-6
+    assert decisions == {"accept", "reject"}
+
+
+class CountingMasks(dict):
+    """Region masks that record which ones are read."""
+
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.reads = []
+
+    def __getitem__(self, key):
+        self.reads.append(key)
+        return super().__getitem__(key)
+
+
+def test_a_comparison_makes_no_full_image_pass_per_object(room):
+    """Pod run 0b: the colour, depth and features checks took 5-24 s per comparison. Every object mask
+    used to be read (and swept at full size) by the edges, depth and features checks of every
+    comparison; now only the added-lines check reads the 3 structure masks, the rest uses what
+    ``prepare`` and the first comparison indexed."""
+    gate, data = room["gate"], room["data"]
+    ref = gate.prepare(room["view"], data["rgb"])
+    gate.compare(ref, texture(data["rgb"], 6))                  # the first comparison fills the caches
+    counting = CountingMasks(ref.regions.masks)
+    ref.regions.masks = counting
+    try:
+        res = gate.compare(ref, texture(data["rgb"], 7))
+    finally:
+        ref.regions.masks = dict(counting)
+    assert res["decision"] == "accept"
+    assert set(counting.reads) <= set(ref.regions.structure_ids()), sorted(set(counting.reads))
+
+
+def test_layout_groups_the_valid_pixels_by_region():
+    from wenart.gate.layout import Layout
+    a = np.zeros((4, 5), bool)
+    a[0, :3] = True
+    b = np.zeros((4, 5), bool)
+    b[2:, 3:] = True
+    valid = np.ones((4, 5), bool)
+    valid[0, 0] = valid[3, 4] = False
+    lay = Layout.build({"a": a, "b": b, "empty": np.zeros((4, 5), bool)}, ["a", "b", "empty"], valid)
+    assert lay.counts().tolist() == [2, 3, 0] and lay.n_valid == 18 and lay.size == 20
+    assert lay.order[lay.span(0)].tolist() == [1, 2] and lay.order[lay.span(1)].tolist() == [13, 14, 18]
+    img = np.arange(20).reshape(4, 5)
+    assert lay.gather(img)[lay.span(1)].tolist() == [13, 14, 18]
+    back = lay.scatter(lay.gather(img).astype(np.float32))
+    assert np.isnan(back[0, 0]) and np.isnan(back[3, 4]) and back[2, 3] == 13
+    rgb = np.dstack([img, img + 1, img + 2]).astype(np.uint8)
+    assert lay.planes(rgb)[:, lay.span(0)].tolist() == [[1, 2], [2, 3], [3, 4]]
+
+
+# --------------------------------------------------------------------------
 # Controls
 # --------------------------------------------------------------------------
 
@@ -646,7 +920,7 @@ def test_benign_generators_are_deterministic_and_small(room):
     first = K.benign_controls(rgb, seed=7)
     again = K.benign_controls(rgb, seed=7)
     assert [c["control"] for c in first] == ["exposure", "exposure", "white_balance", "blur", "jpeg", "unsharp",
-                                             "noise"]
+                                             "local_contrast", "noise"]
     for a, b in zip(first, again):
         assert np.array_equal(a["image"], b["image"]), a["control"]
         assert a["image"].shape == rgb.shape and a["image"].dtype == np.uint8
@@ -860,29 +1134,38 @@ def test_debug_image_is_a_small_jpeg_with_four_tiles(room, tmp_path):
 # --------------------------------------------------------------------------
 
 class FT:
-    """A tiny numpy-backed stand-in for a torch tensor."""
+    """A tiny numpy-backed stand-in for a torch tensor (it remembers its device)."""
 
-    def __init__(self, a):
+    def __init__(self, a, device="cpu"):
         self.a = np.asarray(a)
+        self.device = device
 
     @property
     def shape(self):
         return self.a.shape
 
     def to(self, *args, **kwargs):
-        return self
+        dev = next((x for x in args if isinstance(x, str) and x in ("cpu", "cuda")), kwargs.get("device"))
+        return FT(self.a, dev or self.device)
 
     def cpu(self):
-        return self
+        return FT(self.a, "cpu")
 
     def float(self):
-        return FT(self.a.astype(np.float32))
+        return FT(self.a.astype(np.float32), self.device)
+
+    def permute(self, *dims):
+        return FT(np.transpose(self.a, dims), self.device)
+
+    def contiguous(self):
+        return FT(np.ascontiguousarray(self.a), self.device)
 
     def numpy(self):
+        assert self.device == "cpu", "numpy() of a device tensor"
         return self.a
 
     def __getitem__(self, key):
-        return FT(self.a[key])
+        return FT(self.a[key], self.device)
 
     def __len__(self):
         return len(self.a)
@@ -893,6 +1176,7 @@ def fake_hf(log):
     torch = types.ModuleType("torch")
     torch.float32 = "float32"
     torch.inference_mode = contextlib.nullcontext
+    torch.from_numpy = FT
     torch.cuda = types.SimpleNamespace(mem_get_info=lambda: (2 * 1024 ** 3, 24 * 1024 ** 3),
                                        empty_cache=lambda: log.append(("empty_cache",)))
 
@@ -915,7 +1199,7 @@ def fake_hf(log):
 
         def __call__(self, **kw):
             if self.kind == "depth":
-                return types.SimpleNamespace(predicted_depth=FT(np.ones((1, 37, 66))))
+                return types.SimpleNamespace(predicted_depth=FT(np.ones((1, 37, 66)), kw["pixel_values"].device))
             if self.kind == "sam":
                 assert kw["multimask_output"] is False and kw["image_embeddings"] == ["embedding"]
                 boxes = kw["input_boxes"].a[0]
@@ -924,32 +1208,36 @@ def fake_hf(log):
                 out = np.zeros((1, len(boxes), 1, H, W), np.float32)
                 for k, (x0, y0, x1, y1) in enumerate(boxes):
                     out[0, k, 0, int(y0):int(y1), int(x0):int(x1)] = 1.0
-                return types.SimpleNamespace(pred_masks=FT(out))
+                return types.SimpleNamespace(pred_masks=FT(out, kw["input_boxes"].device))
             pv = kw["pixel_values"].a
             gh, gw = pv.shape[2] // 14, pv.shape[3] // 14
             return types.SimpleNamespace(last_hidden_state=FT(np.arange((1 + gh * gw) * 4, dtype=np.float32)
-                                                              .reshape(1, 1 + gh * gw, 4)))
+                                                              .reshape(1, 1 + gh * gw, 4), kw["pixel_values"].device))
 
     class Processor:
         def __init__(self, kind):
             self.kind = kind
 
         def __call__(self, images=None, return_tensors=None, **kw):
-            w, h = images.size
+            # The wrapper hands over a uint8 3 x H x W tensor that is already on the device.
+            log.append(("proc_call", self.kind, images.device, kw.get("device"), images.shape, images.a.dtype))
+            dev = kw.get("device") or "cpu"
+            h, w = images.shape[-2:]
             if self.kind == "sam":
-                return {"pixel_values": FT(np.zeros((1, 3, 1024, 1024))), "original_sizes": FT([[h, w]]),
+                return {"pixel_values": FT(np.zeros((1, 3, 1024, 1024)), dev), "original_sizes": FT([[h, w]]),
                         "input_boxes": FT(np.asarray(kw["input_boxes"], np.float32))}
             if self.kind == "dino":
                 log.append(("dino_proc", kw["size"], kw["do_center_crop"]))
-                return {"pixel_values": FT(np.zeros((1, 3, kw["size"]["height"], kw["size"]["width"])))}
-            return {"pixel_values": FT(np.zeros((1, 3, 518, 924)))}
+                return {"pixel_values": FT(np.zeros((1, 3, kw["size"]["height"], kw["size"]["width"])), dev)}
+            return {"pixel_values": FT(np.zeros((1, 3, 518, 924)), dev)}
 
         def post_process_depth_estimation(self, outputs, target_sizes=None):
-            log.append(("depth_post", target_sizes))
-            return [{"predicted_depth": FT(np.full(target_sizes[0], 0.5))}]
+            log.append(("depth_post", target_sizes, outputs.predicted_depth.device))
+            return [{"predicted_depth": FT(np.full(target_sizes[0], 0.5), outputs.predicted_depth.device)}]
 
         def post_process_masks(self, masks, original_sizes):
-            return [FT(masks.a[0] > 0)]
+            log.append(("mask_post", masks.device))
+            return [FT(masks.a[0] > 0, masks.device)]
 
     def loader(kind):
         def from_pretrained(repo, **kwargs):
@@ -990,7 +1278,7 @@ def test_models_wrapper_calls_the_transformers_apis_as_documented(monkeypatch):
                             "licence": cfg["models"][k]["licence"]} for k in ("depth", "sam", "dino")}
     rgb = np.zeros((90, 160, 3), np.uint8)
     disp = m.depth(rgb)
-    assert disp.shape == (90, 160) and disp.dtype == np.float32 and ("depth_post", [(90, 160)]) in log
+    assert disp.shape == (90, 160) and disp.dtype == np.float32 and ("depth_post", [(90, 160)], "cuda") in log
     boxes = [[10 + k, 5, 40 + k, 50] for k in range(70)]           # more than one decoder chunk
     sam = m.sam_masks(rgb, boxes)
     assert sam.shape == (70, 90, 160) and sam.dtype == bool
@@ -1000,6 +1288,14 @@ def test_models_wrapper_calls_the_transformers_apis_as_documented(monkeypatch):
     tok = m.dino_tokens(np.zeros((1080, 1920, 3), np.uint8))
     assert tok.shape == (37, 66, 4) and tok[0, 0, 0] == 4.0          # CLS token dropped
     assert ("dino_proc", {"height": 518, "width": 924}, False) in log
+    # Pre- and post-processing on the device (pod run 0b: on the CPU they used every host thread):
+    # each processor gets the image as a uint8 3 x H x W tensor already on the device plus device="cuda";
+    # the depth upsampling and the SAM mask upsampling + threshold see device tensors.
+    calls = [e for e in log if e[0] == "proc_call"]
+    assert {c[1] for c in calls} == {"depth", "sam", "dino"}
+    assert all(c[2] == "cuda" and c[3] == "cuda" and c[4][0] == 3 and c[5] == np.uint8 for c in calls), calls
+    posts = [e for e in log if e[0] == "mask_post"]
+    assert posts and all(e[1] == "cuda" for e in posts)
     # Every model and processor loads from the local folder of its pinned snapshot (no repo-id
     # loads: offline they fail on missing optional files, pod run 0), resolved cache-only first.
     snap = {k: f"/snap/{cfg['models'][k]['repo']}@{cfg['models'][k]['revision']}" for k in ("depth", "sam", "dino")}
@@ -1088,7 +1384,7 @@ def test_calibration_end_to_end(project):
     md = (project / "gate" / "gate_calibration.md").read_text(encoding="utf-8")
     assert js["schema_version"] == "0.1" and js["project"] == "toy" and js["incomplete"] is False
     assert js["views"] == ["cam_a", "cam_b"] and [o["wenart_id"] for o in js["objects"]["cam_a"]] == ["f_1", "win_1"]
-    assert len(js["benign"]) == 14 and all(r["decision"] == "accept" for r in js["benign"])
+    assert len(js["benign"]) == 16 and all(r["decision"] == "accept" for r in js["benign"])
     assert js["rates"]["benign_accept"] == 1.0
     controls = {(r["control"], r["camera"]) for r in js["negative"]}
     assert {("removal", "cam_a"), ("insertion", "cam_a"), ("paste", "cam_a"), ("paste", "cam_b")} <= controls
