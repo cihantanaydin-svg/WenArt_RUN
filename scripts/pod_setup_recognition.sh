@@ -19,6 +19,12 @@
 #                            0.14.1 download fails (./configure --disable-bindings --disable-python
 #                            --prefix=...); rebuilt when the installed VERSION differs
 #
+# Parts (Milestone 5): RECOG_SETUP_PARTS, space separated, default all of
+# "vllm paddle libredwg models". The M5 check phase (scripts/pod_setup_polish.sh) runs only
+# "vllm models": PaddleOCR and LibreDWG are skipped. The apt step always runs (stamped per pod).
+# BAKEOFF_MODELS entries may carry a pinned revision as "<repo id>@<revision>" (M5 passes the
+# revisions of wenart/vision_check/check.yaml); without one the main branch is downloaded.
+#
 # Sources checked on 1 Oct 2026:
 #   vLLM 0.30.0 requirements/cuda.txt: torch==2.13.0; PyPI vllm 0.30.0: python >=3.10,<3.15.
 #   PaddleOCR v3.7.0 docs/version3.x/paddlepaddle_installation.en.md: pip install
@@ -62,12 +68,25 @@ LIBREDWG_VERSION=0.14.1
 LIBREDWG_FALLBACK_VERSION=0.13.3
 libredwg_url() { echo "https://ftp.gnu.org/gnu/libredwg/libredwg-$1.tar.xz"; }
 libredwg_url_fallback() { echo "https://github.com/LibreDWG/libredwg/releases/download/$1/libredwg-$1.tar.xz"; }
-# Space-separated list, overridable from the job (BAKEOFF_MODELS="a/b c/d").
+# Space-separated list, overridable from the job (BAKEOFF_MODELS="a/b c/d", or "a/b@<revision>").
 read -r -a MODELS <<< "${BAKEOFF_MODELS:-Qwen/Qwen3-VL-8B-Instruct zai-org/GLM-4.6V-Flash}"
+VENV_VLLM=$FAST/venv-vllm             # also the home of the `hf` CLI used by the model downloads
 
 log() { echo "[$(date -u +%H:%M:%S)] setup-recognition: $*"; }
 step_start() { STEP_NAME="$1"; STEP_T0=$(date +%s); log "start: $STEP_NAME"; }
 step_end() { log "done: $STEP_NAME in $(( $(date +%s) - STEP_T0 )) s"; }
+
+# Parts of this setup (see the header). An unknown part is a typo in the job: stop at once.
+RECOG_PARTS_ALL="vllm paddle libredwg models"
+read -r -a PARTS <<< "${RECOG_SETUP_PARTS:-$RECOG_PARTS_ALL}"
+for part in "${PARTS[@]}"; do
+  case " $RECOG_PARTS_ALL " in
+    *" $part "*) ;;
+    *) log "unknown part '$part' in RECOG_SETUP_PARTS (known: $RECOG_PARTS_ALL)"; exit 2 ;;
+  esac
+done
+part_on() { local p; for p in "${PARTS[@]}"; do [ "$p" = "$1" ] && return 0; done; return 1; }
+log "parts: ${PARTS[*]}"
 
 # --- OS packages (container disk: redone per pod, fast) ------------------------
 step_start "apt packages (tesseract tur, build tools)"
@@ -84,75 +103,79 @@ log "tesseract: $(tesseract --version 2>&1 | head -1); langs: $(tesseract --list
 step_end
 
 # --- venv-vllm -------------------------------------------------------------------
-step_start "venv-vllm (vllm==$VLLM_VERSION)"
-VENV_VLLM=$FAST/venv-vllm
-if [ ! -f "$VENV_VLLM/.vllm-$VLLM_VERSION" ]; then
-  [ -x "$VENV_VLLM/bin/python" ] || python3 -m venv "$VENV_VLLM"
-  "$VENV_VLLM/bin/pip" install -q --upgrade pip
-  # The PyPI vllm wheel pulls torch built for CUDA 13.0, which needs an R580+ host driver.
-  # Hosts with an older driver (CUDA 12.8/12.9, e.g. driver 570) get the cu128 torch index
-  # instead (vLLM docs, "Install vLLM with CUDA 12.x": --extra-index-url download.pytorch.org/whl/cuXXX).
-  HOST_CUDA=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader 2>/dev/null | head -1 | cut -d. -f1)
-  TORCH_INDEX=""
-  if [ -n "$HOST_CUDA" ] && [ "$HOST_CUDA" -lt 580 ]; then
-    TORCH_INDEX="--extra-index-url https://download.pytorch.org/whl/cu128"
-    log "host driver $HOST_CUDA < 580: installing the CUDA 12.8 torch variant"
+if part_on vllm; then
+  step_start "venv-vllm (vllm==$VLLM_VERSION)"
+  if [ ! -f "$VENV_VLLM/.vllm-$VLLM_VERSION" ]; then
+    [ -x "$VENV_VLLM/bin/python" ] || python3 -m venv "$VENV_VLLM"
+    "$VENV_VLLM/bin/pip" install -q --upgrade pip
+    # The PyPI vllm wheel pulls torch built for CUDA 13.0, which needs an R580+ host driver.
+    # Hosts with an older driver (CUDA 12.8/12.9, e.g. driver 570) get the cu128 torch index
+    # instead (vLLM docs, "Install vLLM with CUDA 12.x": --extra-index-url download.pytorch.org/whl/cuXXX).
+    HOST_CUDA=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader 2>/dev/null | head -1 | cut -d. -f1)
+    TORCH_INDEX=""
+    if [ -n "$HOST_CUDA" ] && [ "$HOST_CUDA" -lt 580 ]; then
+      TORCH_INDEX="--extra-index-url https://download.pytorch.org/whl/cu128"
+      log "host driver $HOST_CUDA < 580: installing the CUDA 12.8 torch variant"
+    fi
+    # shellcheck disable=SC2086
+    "$VENV_VLLM/bin/pip" install -q "vllm==$VLLM_VERSION" hf_transfer $TORCH_INDEX 2>&1 | tail -n 5 || true
+    "$VENV_VLLM/bin/python" -c "import vllm, torch; print('vllm', vllm.__version__, 'torch', torch.__version__)"
+    rm -f "$VENV_VLLM"/.vllm-*; touch "$VENV_VLLM/.vllm-$VLLM_VERSION"
   fi
-  # shellcheck disable=SC2086
-  "$VENV_VLLM/bin/pip" install -q "vllm==$VLLM_VERSION" hf_transfer $TORCH_INDEX 2>&1 | tail -n 5 || true
-  "$VENV_VLLM/bin/python" -c "import vllm, torch; print('vllm', vllm.__version__, 'torch', torch.__version__)"
-  rm -f "$VENV_VLLM"/.vllm-*; touch "$VENV_VLLM/.vllm-$VLLM_VERSION"
+  log "$("$VENV_VLLM/bin/python" -c "import vllm, torch, huggingface_hub; print('vllm', vllm.__version__, 'torch', torch.__version__, 'huggingface_hub', huggingface_hub.__version__)")"
+  step_end
+else
+  log "skipped: venv-vllm (RECOG_SETUP_PARTS='${PARTS[*]}')"
 fi
-log "$("$VENV_VLLM/bin/python" -c "import vllm, torch, huggingface_hub; print('vllm', vllm.__version__, 'torch', torch.__version__, 'huggingface_hub', huggingface_hub.__version__)")"
-step_end
 
 # --- venv-paddle -----------------------------------------------------------------
-step_start "venv-paddle (paddlepaddle-gpu $PADDLE_VERSION, paddleocr==$PADDLEOCR_VERSION)"
-VENV_PADDLE=$FAST/venv-paddle
-PADDLE_LOG=$LOGS/paddle-install.txt
-if [ ! -f "$VENV_PADDLE/.paddleocr-$PADDLEOCR_VERSION" ]; then
-  [ -x "$VENV_PADDLE/bin/python" ] || python3 -m venv "$VENV_PADDLE"
-  PIP="$VENV_PADDLE/bin/pip"
-  "$PIP" install -q --upgrade pip
-  PADDLE_SOURCE=""
-  # Fallback chain for the framework wheel; the first index that installs wins.
-  # Blackwell GPUs (compute capability 12.x) need the CUDA 12.9 build: the cu126 wheel
-  # installs fine but fails at run time with "Unsupported GPU architecture" (seen on an
-  # RTX PRO 4000 on 1 Oct 2026), so they try cu129 with the newest Paddle first.
-  CC=$(nvidia-smi --query-gpu=compute_cap --format=csv,noheader 2>/dev/null | head -1 | cut -d. -f1)
-  if [ -n "$CC" ] && [ "$CC" -ge 12 ]; then
-    CANDIDATES="3.3.1:cu129 $PADDLE_VERSION:cu129 $PADDLE_VERSION:cu126"
-  else
-    CANDIDATES="$PADDLE_VERSION:cu126 $PADDLE_VERSION:cu129"
-  fi
-  for cand in $CANDIDATES; do
-    ver=${cand%%:*}; idx=${cand##*:}
-    if "$PIP" install -q "paddlepaddle-gpu==$ver" -i "https://www.paddlepaddle.org.cn/packages/stable/$idx/" 2>>"$PADDLE_LOG"; then
-      PADDLE_SOURCE="paddlepaddle-gpu==$ver from $idx index (compute capability ${CC:-?})"; break
-    fi
-    log "paddlepaddle-gpu $ver from $idx index failed (see $PADDLE_LOG)"
-  done
-  if [ -z "$PADDLE_SOURCE" ]; then
-    if "$PIP" install -q "paddlepaddle-gpu==$PADDLE_VERSION" 2>>"$PADDLE_LOG"; then
-      PADDLE_SOURCE="paddlepaddle-gpu==$PADDLE_VERSION from PyPI"
-    elif "$PIP" install -q "paddlepaddle>=3.0.0" 2>>"$PADDLE_LOG"; then
-      PADDLE_SOURCE="paddlepaddle (CPU) from PyPI - no GPU wheel could be installed"
+if part_on paddle; then
+  step_start "venv-paddle (paddlepaddle-gpu $PADDLE_VERSION, paddleocr==$PADDLEOCR_VERSION)"
+  VENV_PADDLE=$FAST/venv-paddle
+  PADDLE_LOG=$LOGS/paddle-install.txt
+  if [ ! -f "$VENV_PADDLE/.paddleocr-$PADDLEOCR_VERSION" ]; then
+    [ -x "$VENV_PADDLE/bin/python" ] || python3 -m venv "$VENV_PADDLE"
+    PIP="$VENV_PADDLE/bin/pip"
+    "$PIP" install -q --upgrade pip
+    PADDLE_SOURCE=""
+    # Fallback chain for the framework wheel; the first index that installs wins.
+    # Blackwell GPUs (compute capability 12.x) need the CUDA 12.9 build: the cu126 wheel
+    # installs fine but fails at run time with "Unsupported GPU architecture" (seen on an
+    # RTX PRO 4000 on 1 Oct 2026), so they try cu129 with the newest Paddle first.
+    CC=$(nvidia-smi --query-gpu=compute_cap --format=csv,noheader 2>/dev/null | head -1 | cut -d. -f1)
+    if [ -n "$CC" ] && [ "$CC" -ge 12 ]; then
+      CANDIDATES="3.3.1:cu129 $PADDLE_VERSION:cu129 $PADDLE_VERSION:cu126"
     else
-      log "no PaddlePaddle wheel could be installed; PaddleOCR will fail (Tesseract still runs)"
-      PADDLE_SOURCE="none"
+      CANDIDATES="$PADDLE_VERSION:cu126 $PADDLE_VERSION:cu129"
     fi
-  fi
-  echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) $PADDLE_SOURCE" >> "$PADDLE_LOG"
-  log "PaddlePaddle: $PADDLE_SOURCE"
-  "$PIP" install -q "paddleocr==$PADDLEOCR_VERSION" 2>&1 | tail -n 3 || true
-  "$PIP" install -q -r "$REPO_DIR/scripts/pod_requirements.txt" 2>&1 | tail -n 3 || true
-  # The stamp is written only when the check below passes, so a broken install is
-  # retried on the next pod instead of being skipped. With a GPU present the check
-  # is a real kernel launch (matmul on gpu:0): a wheel built without kernels for
-  # this GPU imports fine and only fails here ("no kernel image is available",
-  # "Unsupported GPU architecture"). On failure nothing is stamped, the failure is
-  # logged, and the OCR stage falls back to PaddleOCR on the CPU (wenart/recognition/ocr.py).
-  PADDLE_CHECK=$(cat <<'PY'
+    for cand in $CANDIDATES; do
+      ver=${cand%%:*}; idx=${cand##*:}
+      if "$PIP" install -q "paddlepaddle-gpu==$ver" -i "https://www.paddlepaddle.org.cn/packages/stable/$idx/" 2>>"$PADDLE_LOG"; then
+        PADDLE_SOURCE="paddlepaddle-gpu==$ver from $idx index (compute capability ${CC:-?})"; break
+      fi
+      log "paddlepaddle-gpu $ver from $idx index failed (see $PADDLE_LOG)"
+    done
+    if [ -z "$PADDLE_SOURCE" ]; then
+      if "$PIP" install -q "paddlepaddle-gpu==$PADDLE_VERSION" 2>>"$PADDLE_LOG"; then
+        PADDLE_SOURCE="paddlepaddle-gpu==$PADDLE_VERSION from PyPI"
+      elif "$PIP" install -q "paddlepaddle>=3.0.0" 2>>"$PADDLE_LOG"; then
+        PADDLE_SOURCE="paddlepaddle (CPU) from PyPI - no GPU wheel could be installed"
+      else
+        log "no PaddlePaddle wheel could be installed; PaddleOCR will fail (Tesseract still runs)"
+        PADDLE_SOURCE="none"
+      fi
+    fi
+    echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) $PADDLE_SOURCE" >> "$PADDLE_LOG"
+    log "PaddlePaddle: $PADDLE_SOURCE"
+    "$PIP" install -q "paddleocr==$PADDLEOCR_VERSION" 2>&1 | tail -n 3 || true
+    "$PIP" install -q -r "$REPO_DIR/scripts/pod_requirements.txt" 2>&1 | tail -n 3 || true
+    # The stamp is written only when the check below passes, so a broken install is
+    # retried on the next pod instead of being skipped. With a GPU present the check
+    # is a real kernel launch (matmul on gpu:0): a wheel built without kernels for
+    # this GPU imports fine and only fails here ("no kernel image is available",
+    # "Unsupported GPU architecture"). On failure nothing is stamped, the failure is
+    # logged, and the OCR stage falls back to PaddleOCR on the CPU (wenart/recognition/ocr.py).
+    PADDLE_CHECK=$(cat <<'PY'
 import sys
 import ezdxf  # noqa: F401 - the venv must be complete (repo CPU deps)
 import pytest  # noqa: F401
@@ -173,18 +196,18 @@ if expect == "gpu":
 else:
     print("paddle: no GPU reported by nvidia-smi, import check only (CPU)")
 PY
-)
-  EXPECT=cpu
-  if [ -n "$CC" ]; then EXPECT=gpu; fi   # nvidia-smi reported a GPU: the kernel launch must work
-  if "$VENV_PADDLE/bin/python" -c "$PADDLE_CHECK" "$EXPECT" 2>&1 | tee -a "$PADDLE_LOG"; then   # pipefail: python decides
-    echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) check ok ($EXPECT): venv-paddle stamped" >> "$PADDLE_LOG"
-    rm -f "$VENV_PADDLE"/.paddleocr-*; touch "$VENV_PADDLE/.paddleocr-$PADDLEOCR_VERSION"
-  else
-    echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) check FAILED ($EXPECT): venv-paddle not stamped" >> "$PADDLE_LOG"
-    log "venv-paddle check failed ($EXPECT), not stamped: PaddleOCR runs on the CPU fallback or records the error; Tesseract still runs"
+  )
+    EXPECT=cpu
+    if [ -n "$CC" ]; then EXPECT=gpu; fi   # nvidia-smi reported a GPU: the kernel launch must work
+    if "$VENV_PADDLE/bin/python" -c "$PADDLE_CHECK" "$EXPECT" 2>&1 | tee -a "$PADDLE_LOG"; then   # pipefail: python decides
+      echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) check ok ($EXPECT): venv-paddle stamped" >> "$PADDLE_LOG"
+      rm -f "$VENV_PADDLE"/.paddleocr-*; touch "$VENV_PADDLE/.paddleocr-$PADDLEOCR_VERSION"
+    else
+      echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) check FAILED ($EXPECT): venv-paddle not stamped" >> "$PADDLE_LOG"
+      log "venv-paddle check failed ($EXPECT), not stamped: PaddleOCR runs on the CPU fallback or records the error; Tesseract still runs"
+    fi
   fi
-fi
-"$VENV_PADDLE/bin/python" - <<'PY' || log "paddle check failed (see above)"
+  "$VENV_PADDLE/bin/python" - <<'PY' || log "paddle check failed (see above)"
 import paddleocr
 print("paddleocr", paddleocr.__version__)
 try:
@@ -193,86 +216,104 @@ try:
 except Exception as exc:  # noqa: BLE001
     print("paddle import failed:", exc)
 PY
-step_end
+  step_end
+else
+  log "skipped: venv-paddle (PaddleOCR) (RECOG_SETUP_PARTS='${PARTS[*]}')"
+fi
 
 # --- LibreDWG from the GNU tarball ----------------------------------------------
-step_start "LibreDWG $LIBREDWG_VERSION (fallback $LIBREDWG_FALLBACK_VERSION)"
-LIBREDWG_PREFIX=$TOOLS/libredwg
-SRC=$FAST/src                         # build on the container disk, install into the volume
-mkdir -p "$SRC"
+if part_on libredwg; then
+  step_start "LibreDWG $LIBREDWG_VERSION (fallback $LIBREDWG_FALLBACK_VERSION)"
+  LIBREDWG_PREFIX=$TOOLS/libredwg
+  SRC=$FAST/src                         # build on the container disk, install into the volume
+  mkdir -p "$SRC"
 
-# fetch_libredwg <version> <tarball>: GNU mirror first, then the GitHub release. `-f` makes a
-# 404 a failure instead of an HTML "tarball"; a partial file is removed so the next try is clean.
-fetch_libredwg() {
-  local ver=$1 tar=$2
-  [ -s "$tar" ] && return 0
-  if curl -fsSL --retry 3 -o "$tar" "$(libredwg_url "$ver")"; then return 0; fi
-  log "LibreDWG $ver: GNU mirror failed, trying the GitHub release"
-  if curl -fsSL --retry 3 -o "$tar" "$(libredwg_url_fallback "$ver")"; then return 0; fi
-  rm -f "$tar"
-  return 1
-}
-# The version that is installed on the volume (empty when none): first x.y.z in the VERSION file.
-libredwg_installed() {
-  { grep -oE '[0-9]+\.[0-9]+\.[0-9]+' "$LIBREDWG_PREFIX/VERSION" 2>/dev/null || true; } | head -1
-}
-libredwg_usable() {
-  [ -x "$LIBREDWG_PREFIX/bin/dwg2dxf" ] && [ -x "$LIBREDWG_PREFIX/bin/dxf2dwg" ]
-}
+  # fetch_libredwg <version> <tarball>: GNU mirror first, then the GitHub release. `-f` makes a
+  # 404 a failure instead of an HTML "tarball"; a partial file is removed so the next try is clean.
+  fetch_libredwg() {
+    local ver=$1 tar=$2
+    [ -s "$tar" ] && return 0
+    if curl -fsSL --retry 3 -o "$tar" "$(libredwg_url "$ver")"; then return 0; fi
+    log "LibreDWG $ver: GNU mirror failed, trying the GitHub release"
+    if curl -fsSL --retry 3 -o "$tar" "$(libredwg_url_fallback "$ver")"; then return 0; fi
+    rm -f "$tar"
+    return 1
+  }
+  # The version that is installed on the volume (empty when none): first x.y.z in the VERSION file.
+  libredwg_installed() {
+    { grep -oE '[0-9]+\.[0-9]+\.[0-9]+' "$LIBREDWG_PREFIX/VERSION" 2>/dev/null || true; } | head -1
+  }
+  libredwg_usable() {
+    [ -x "$LIBREDWG_PREFIX/bin/dwg2dxf" ] && [ -x "$LIBREDWG_PREFIX/bin/dxf2dwg" ]
+  }
 
-# Decide which version this pod builds: the wanted one when its tarball can be fetched (or is
-# already installed), otherwise the fallback. The decision is logged either way.
-LIBREDWG_BUILD=""
-if libredwg_usable && [ "$(libredwg_installed)" = "$LIBREDWG_VERSION" ]; then
-  LIBREDWG_BUILD=$LIBREDWG_VERSION
-elif fetch_libredwg "$LIBREDWG_VERSION" "$SRC/libredwg-$LIBREDWG_VERSION.tar.xz"; then
-  LIBREDWG_BUILD=$LIBREDWG_VERSION
-else
-  log "LibreDWG $LIBREDWG_VERSION tarball not available; falling back to $LIBREDWG_FALLBACK_VERSION"
-  if libredwg_usable && [ "$(libredwg_installed)" = "$LIBREDWG_FALLBACK_VERSION" ]; then
-    LIBREDWG_BUILD=$LIBREDWG_FALLBACK_VERSION
-  elif fetch_libredwg "$LIBREDWG_FALLBACK_VERSION" "$SRC/libredwg-$LIBREDWG_FALLBACK_VERSION.tar.xz"; then
-    LIBREDWG_BUILD=$LIBREDWG_FALLBACK_VERSION
+  # Decide which version this pod builds: the wanted one when its tarball can be fetched (or is
+  # already installed), otherwise the fallback. The decision is logged either way.
+  LIBREDWG_BUILD=""
+  if libredwg_usable && [ "$(libredwg_installed)" = "$LIBREDWG_VERSION" ]; then
+    LIBREDWG_BUILD=$LIBREDWG_VERSION
+  elif fetch_libredwg "$LIBREDWG_VERSION" "$SRC/libredwg-$LIBREDWG_VERSION.tar.xz"; then
+    LIBREDWG_BUILD=$LIBREDWG_VERSION
   else
-    log "LibreDWG: no tarball could be downloaded ($LIBREDWG_VERSION, $LIBREDWG_FALLBACK_VERSION); the DWG round trip will report the missing tools"
+    log "LibreDWG $LIBREDWG_VERSION tarball not available; falling back to $LIBREDWG_FALLBACK_VERSION"
+    if libredwg_usable && [ "$(libredwg_installed)" = "$LIBREDWG_FALLBACK_VERSION" ]; then
+      LIBREDWG_BUILD=$LIBREDWG_FALLBACK_VERSION
+    elif fetch_libredwg "$LIBREDWG_FALLBACK_VERSION" "$SRC/libredwg-$LIBREDWG_FALLBACK_VERSION.tar.xz"; then
+      LIBREDWG_BUILD=$LIBREDWG_FALLBACK_VERSION
+    else
+      log "LibreDWG: no tarball could be downloaded ($LIBREDWG_VERSION, $LIBREDWG_FALLBACK_VERSION); the DWG round trip will report the missing tools"
+    fi
   fi
-fi
 
-if [ -n "$LIBREDWG_BUILD" ] && { ! libredwg_usable || [ "$(libredwg_installed)" != "$LIBREDWG_BUILD" ]; }; then
-  TAR=$SRC/libredwg-$LIBREDWG_BUILD.tar.xz
-  rm -rf "$SRC/libredwg-$LIBREDWG_BUILD"
-  tar -xJf "$TAR" -C "$SRC"
-  rm -rf "$LIBREDWG_PREFIX"            # an older build must not survive next to the new one
-  (
-    cd "$SRC/libredwg-$LIBREDWG_BUILD"
-    ./configure --disable-bindings --disable-python --prefix="$LIBREDWG_PREFIX" > "$LOGS/libredwg-configure.log" 2>&1
-    make -j"$(nproc)" > "$LOGS/libredwg-make.log" 2>&1
-    make install > "$LOGS/libredwg-install.log" 2>&1
-  )
-  "$LIBREDWG_PREFIX/bin/dwg2dxf" --version > "$LIBREDWG_PREFIX/VERSION" 2>&1 || true
-  # Some releases print only the program name; make sure the file names the version.
-  grep -qE '[0-9]+\.[0-9]+\.[0-9]+' "$LIBREDWG_PREFIX/VERSION" 2>/dev/null || echo "libredwg $LIBREDWG_BUILD" >> "$LIBREDWG_PREFIX/VERSION"
+  if [ -n "$LIBREDWG_BUILD" ] && { ! libredwg_usable || [ "$(libredwg_installed)" != "$LIBREDWG_BUILD" ]; }; then
+    TAR=$SRC/libredwg-$LIBREDWG_BUILD.tar.xz
+    rm -rf "$SRC/libredwg-$LIBREDWG_BUILD"
+    tar -xJf "$TAR" -C "$SRC"
+    rm -rf "$LIBREDWG_PREFIX"            # an older build must not survive next to the new one
+    (
+      cd "$SRC/libredwg-$LIBREDWG_BUILD"
+      ./configure --disable-bindings --disable-python --prefix="$LIBREDWG_PREFIX" > "$LOGS/libredwg-configure.log" 2>&1
+      make -j"$(nproc)" > "$LOGS/libredwg-make.log" 2>&1
+      make install > "$LOGS/libredwg-install.log" 2>&1
+    )
+    "$LIBREDWG_PREFIX/bin/dwg2dxf" --version > "$LIBREDWG_PREFIX/VERSION" 2>&1 || true
+    # Some releases print only the program name; make sure the file names the version.
+    grep -qE '[0-9]+\.[0-9]+\.[0-9]+' "$LIBREDWG_PREFIX/VERSION" 2>/dev/null || echo "libredwg $LIBREDWG_BUILD" >> "$LIBREDWG_PREFIX/VERSION"
+  fi
+  log "LibreDWG: $(head -1 "$LIBREDWG_PREFIX/VERSION" 2>/dev/null || echo "not installed") (wanted $LIBREDWG_VERSION, built $LIBREDWG_BUILD)"
+  step_end
+else
+  log "skipped: LibreDWG (RECOG_SETUP_PARTS='${PARTS[*]}')"
 fi
-log "LibreDWG: $(head -1 "$LIBREDWG_PREFIX/VERSION" 2>/dev/null || echo "not installed") (wanted $LIBREDWG_VERSION, built $LIBREDWG_BUILD)"
-step_end
 
 # --- Model checkpoints (hf CLI, cached in HF_HOME on the container disk) ----------
-for model in "${MODELS[@]}"; do
-  step_start "download $model"
-  T0=$(date +%s)
-  # `hf download` prints the snapshot path last; depending on the version the line is
-  # "<path>" or "  path: <path>", so strip that prefix before measuring the folder.
-  SNAP_DIR=$("$VENV_VLLM/bin/hf" download "$model" 2> "$LOGS/hf-download-$(echo "$model" | tr '/' '_').log" \
-             | tail -1 | sed -E 's/^[[:space:]]*path:[[:space:]]*//')
-  T1=$(date +%s)
-  BYTES=$(du -sbL "$SNAP_DIR" 2>/dev/null | cut -f1 || echo 0)   # -L: snapshot files are symlinks into blobs/
-  SECS=$(( T1 - T0 ))
-  if [ "$SECS" -gt 5 ]; then
-    log "$model: $(( BYTES / 1048576 )) MB in $SECS s = $(( BYTES / 1048576 / SECS )) MB/s -> $SNAP_DIR"
-  else
-    log "$model: $(( BYTES / 1048576 )) MB already cached -> $SNAP_DIR"
+if part_on models; then
+  if [ ! -x "$VENV_VLLM/bin/hf" ]; then
+    log "no hf CLI in $VENV_VLLM (part 'vllm' never ran on this pod): cannot download the models"; exit 1
   fi
-  step_end
-done
+  for entry in "${MODELS[@]}"; do
+    model=${entry%@*}                 # "<repo id>[@<revision>]"
+    REV_ARG=()
+    if [ "$entry" != "$model" ]; then REV_ARG=(--revision "${entry##*@}"); fi
+    step_start "download $entry"
+    T0=$(date +%s)
+    # `hf download` prints the snapshot path last; depending on the version the line is
+    # "<path>" or "  path: <path>", so strip that prefix before measuring the folder.
+    SNAP_DIR=$("$VENV_VLLM/bin/hf" download "$model" "${REV_ARG[@]}" \
+               2> "$LOGS/hf-download-$(echo "$model" | tr '/' '_').log" \
+               | tail -1 | sed -E 's/^[[:space:]]*path:[[:space:]]*//')
+    T1=$(date +%s)
+    BYTES=$(du -sbL "$SNAP_DIR" 2>/dev/null | cut -f1 || echo 0)   # -L: snapshot files are symlinks into blobs/
+    SECS=$(( T1 - T0 ))
+    if [ "$SECS" -gt 5 ]; then
+      log "$model: $(( BYTES / 1048576 )) MB in $SECS s = $(( BYTES / 1048576 / SECS )) MB/s -> $SNAP_DIR"
+    else
+      log "$model: $(( BYTES / 1048576 )) MB already cached -> $SNAP_DIR"
+    fi
+    step_end
+  done
+else
+  log "skipped: model downloads (RECOG_SETUP_PARTS='${PARTS[*]}')"
+fi
 
 log "setup done"
