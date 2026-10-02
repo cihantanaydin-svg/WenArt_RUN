@@ -34,11 +34,13 @@ import secrets
 import signal
 import socket
 import subprocess
+import threading
 import sys
 import time
 import urllib.error
 import urllib.parse
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 API = "https://api.runpod.io"  # paths below carry /v2
@@ -387,6 +389,7 @@ def cmd_volume_create(a: argparse.Namespace) -> int:
 
 
 COLLECT_MAX_DEPTH = 4
+COLLECT_WORKERS = 8           # parallel result downloads (one at a time: 0.81 s per file)
 COLLECT_MAX_FILE = 20_000_000
 COLLECT_MAX_TOTAL = 400_000_000
 
@@ -402,17 +405,20 @@ def parse_listing(html: str) -> tuple[list[str], list[str]]:
     return files, dirs
 
 
-def collect(status_url: str, run_dir: Path) -> int:
+def collect(status_url: str, run_dir: Path, workers: int = COLLECT_WORKERS) -> int:
     """Download job.log and everything under results/ on the pod, recursively (jobs put
-    previews in per-project folders). Small files only. Returns the file count."""
+    previews in per-project folders). Small files only. Returns the file count.
+
+    The folders are listed first, then the files are fetched with ``workers`` parallel
+    requests: one at a time took 0.81 s per file through the pod proxy (M5 runs 0 and 0b),
+    so the 500-1000 result files of an M5 run would outlast the grace period."""
     for name in ("status.json", "job.log"):
         raw = fetch(status_url + name, timeout=60)
         if raw:
             (run_dir / name).write_bytes(raw)
-    n, total = 0, 0
+    todo: list[str] = []
 
     def walk(rel: str, depth: int) -> None:
-        nonlocal n, total
         listing = None
         for _ in range(5 if depth == 0 else 2):
             listing = fetch(status_url + "results/" + rel, timeout=30)
@@ -424,22 +430,39 @@ def collect(status_url: str, run_dir: Path) -> int:
             return
         files, dirs = parse_listing(listing.decode(errors="replace"))
         (run_dir / "results" / rel).mkdir(parents=True, exist_ok=True)
-        for name in files:
-            if total > COLLECT_MAX_TOTAL:
-                print("warning: result size cap reached, stopping the download")
-                return
-            raw = fetch(status_url + "results/" + rel + urllib.parse.quote(name), timeout=120)
-            if raw is not None and len(raw) < COLLECT_MAX_FILE:
-                (run_dir / "results" / rel / name).write_bytes(raw)
-                n += 1
-                total += len(raw)
+        todo.extend(rel + name for name in files)
         if depth < COLLECT_MAX_DEPTH:
             for d in dirs:
                 walk(rel + d + "/", depth + 1)
 
     walk("", 0)
-    print(f"collected {n} result files ({total / 1e6:.1f} MB)")
-    return n
+    lock = threading.Lock()
+    state = {"n": 0, "total": 0, "capped": False}
+
+    def get(rel_name: str) -> None:
+        with lock:
+            if state["total"] > COLLECT_MAX_TOTAL:
+                state["capped"] = True
+                return
+        rel, _, name = rel_name.rpartition("/")
+        prefix = rel + "/" if rel else ""
+        raw = fetch(status_url + "results/" + prefix + urllib.parse.quote(name), timeout=120)
+        if raw is None or len(raw) >= COLLECT_MAX_FILE:
+            return
+        with lock:
+            if state["total"] > COLLECT_MAX_TOTAL:
+                state["capped"] = True
+                return
+            state["n"] += 1
+            state["total"] += len(raw)
+        (run_dir / "results" / rel_name).write_bytes(raw)
+
+    with ThreadPoolExecutor(max_workers=max(1, workers)) as pool:
+        list(pool.map(get, todo))
+    if state["capped"]:
+        print("warning: result size cap reached, not every file was downloaded")
+    print(f"collected {state['n']} result files ({state['total'] / 1e6:.1f} MB)")
+    return state["n"]
 
 
 def cmd_run(a: argparse.Namespace) -> int:

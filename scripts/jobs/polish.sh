@@ -7,17 +7,17 @@
 #
 #   2a, one project per pod; the same command again until outputs/<p>/polish/polish_manifest.json
 #   has "incomplete": false (synthetic-03, 57 views, likely needs two pods):
-#   scripts/gpu_run.py run --job scripts/jobs/polish.sh --gpu 'RTX PRO 4500' --disk 130 --grace 840 \
+#   scripts/gpu_run.py run --job scripts/jobs/polish.sh --gpu 'RTX PRO 4500' --disk 130 --grace 600 \
 #     --env POLISH_MODE=final --env POLISH_PHASES='look polish' --env POLISH_PROJECTS=synthetic-01
 #   2b, both projects (again if the deadline cut it: the answers resume):
-#   scripts/gpu_run.py run --job scripts/jobs/polish.sh --gpu 'RTX PRO 4500' --disk 130 --grace 840 \
+#   scripts/gpu_run.py run --job scripts/jobs/polish.sh --gpu 'RTX PRO 4500' --disk 130 --grace 600 \
 #     --env POLISH_MODE=final --env POLISH_PHASES='check report tests'
 #
 # ('RTX PRO 4000' when the 4500 has no stock; never L4: diffusion there is 2-3x slower.) One pod
 # for 'look polish check report tests' of both projects (87 views) does not fit: at run 0/0b's
-# speeds the polish alone takes 3.5-5 h and the check of both VLMs about 70 min. --grace 840: the
-# runner fetches the results one file at a time (0.81 s per file in runs 0/0b), and from run 1b on
-# a run's results hold 500-1000 files (840 s stays below the 900 s deadline margin).
+# speeds the polish alone takes 3.5-5 h and the check of both VLMs about 70 min. --grace 600: the
+# runner fetches the results with 8 parallel requests (one at a time took 0.81 s per file in runs
+# 0/0b), so the 500-1000 files of a run arrive in about 2 min.
 #
 # Env: POLISH_PROJECTS (default "synthetic-01 synthetic-03"), POLISH_MODE smoke|sweep|final
 # (default final), POLISH_PHASES (default per mode: smoke "look polish check", sweep "look

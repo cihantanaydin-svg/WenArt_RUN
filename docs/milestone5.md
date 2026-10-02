@@ -708,9 +708,9 @@ that the thread budget of §8.2 is meant to remove; run 1a measures again):
 Every pod must end before `WENART_DEADLINE` (start + 105 min of the 2 h cap); a pod the deadline cuts exits 1
 and the same command continues from the volume. Run 2 is green when the last 2a pod of each project and the
 2b pod exit 0. One pod for all of run 2 does not fit: at the measured speeds the polish of 87 views takes
-3.5–5 h and the check of both models ≈ 70 min. `--grace`: 420 s for runs 0–1a; 840 s from run 1b on, whose
-results hold 500–1000 files at 0.81 s each (840 s stays below the 900 s deadline margin), until
-`gpu_run.py` fetches the results in parallel. Thresholds, ladder and check roles are set here in the session
+3.5–5 h and the check of both models ≈ 70 min. `--grace 600`: `gpu_run.py` fetches the results with 8
+parallel requests (one at a time took 0.81 s per file in runs 0/0b), so the 500–1000 files of a run arrive
+in about 2 min. Thresholds, ladder and check roles are set here in the session
 from run 1's numbers (committed with the numbers). Each run gets its own gpu-log row; runs 1a–2b ≈ 8–9 pod
 hours, ≈ $6 at $0.70/h (within $10 per day).
 
@@ -826,7 +826,7 @@ line per fixed finding (duplicate findings of the review share a line):
 | G4 §5.7: one stuck VLM call could run ≈ 30 min past `WENART_DEADLINE` | `run`/`preference`/`style-photo` wait for no call past the deadline (daemon threads, the call is left for the next run); `run` and `preference` send `calls.workers` (2) calls at once with one writer in call-key order. |
 | G4 §5.2: plan A/B `adopted` was reported though the crop was never sent | `check.yaml: plan_image` (default false) sends the crop as Image 2 with every element check; `plan_ab` reports `favours_plan`, `used`, `adopted` (= used). |
 | G5 §8.2: every stage re-copied all result files (≈ 45 ms per file, 25–40 min in run 2) | Incremental copy since a stamp on the volume (2 s overlap), many files per `cp`; the job's first copy and the EXIT-trap copy stay full. |
-| G5 §8.3: run 2 in one pod could not end before `WENART_DEADLINE` | Run 2 split into 2a (`look polish`, one project per pod, repeated until complete) and 2b (`check report tests`); `--grace 840` from run 1b on; CPU thread budget = the cgroup CPU quota exported to every stage (`OMP_NUM_THREADS`, `OPENBLAS_NUM_THREADS`, `MKL_NUM_THREADS`, `OPENCV_FOR_THREADS_NUM`, …; `POLISH_THREADS` overrides). |
+| G5 §8.3: run 2 in one pod could not end before `WENART_DEADLINE` | Run 2 split into 2a (`look polish`, one project per pod, repeated until complete) and 2b (`check report tests`); `--grace 600` (parallel results fetch); CPU thread budget = the cgroup CPU quota exported to every stage (`OMP_NUM_THREADS`, `OPENBLAS_NUM_THREADS`, `MKL_NUM_THREADS`, `OPENCV_FOR_THREADS_NUM`, …; `POLISH_THREADS` overrides). |
 | G5 §8.2: results held earlier pods' logs and a stale `style_2.json`, and missed the control-render log | Logs and `setup_polish.json` only when written after the job's start stamp; `style_<n>.json` only together with this `style.json`; `controls/render.log` copied; `style.write_profiles` now removes `<stem>_<n>.json` extras of an earlier brief. |
 | G5 §8.1: `setup_polish.json` recorded the host's RAM and CPUs, not the pod's limits | `pod_limits` (cgroup v2/v1 CPU quota, `memory.max`/`memory.current`, affinity, thread budget). The offload guard that read the host's `MemAvailable` is gone with the offload (G1). |
 
@@ -841,4 +841,4 @@ Contract requests between the groups, resolved at the merge:
 | G5 → `wenart/style/profile.py`: stale extra profiles | `write_profiles` replaces its whole set (extras beyond the new count removed). |
 | G2 → next pod run: confirm the device-side processors and gate seconds | Run 1a's purpose (§8.3). |
 | G2 → `wenart/views.py`: `regions`/`geometry_edges` cost ≈ 0.35 s per view in `Gate.prepare` | Not changed: once per view (≈ 90 s per view on the pod, mostly oversubscription), and a float32 rewrite could move boundary pixels; revisit if run 1a shows it matters. |
-| G5: the runner fetches results one file at a time (0.81 s per file) | Not changed: `--grace 840` covers 500–1000 files within the 900 s margin; a parallel fetch in `scripts/gpu_run.py` is an open item. |
+| G5: the runner fetches results one file at a time (0.81 s per file) | `scripts/gpu_run.py collect` lists the folders, then fetches the files with 8 parallel requests (`COLLECT_WORKERS`); `--grace 600`. |
