@@ -1,0 +1,24 @@
+# Change-gate models (docs/milestone5.md §1.6, §4). Ids, revisions, allow
+# patterns and licences live only here; scripts/pod_setup_polish.sh downloads
+# exactly these and wenart/gate/models.py passes the same revision.
+# tests/test_m5_config.py checks the revisions against §1.6.
+
+models:
+  depth:        # relative disparity (monocular depth check)
+    repo: depth-anything/Depth-Anything-V2-Small-hf
+    revision: 5426e4f0f36572d16453bbda7a8389317b1bef99
+    licence: Apache-2.0
+    allow_patterns: ["*.json", "*.safetensors"]
+    size_gb: 0.10
+  sam:          # SAM 2.1 masks from object boxes
+    repo: facebook/sam2.1-hiera-large
+    revision: 665f8e2ad61cf5f53d65644ff27c8ee525124610
+    licence: Apache-2.0
+    allow_patterns: ["*.json", "*.safetensors", "*.txt"]
+    size_gb: 0.90
+  dino:         # DINOv2 patch features
+    repo: facebook/dinov2-base
+    revision: f9e44c814b77203eaa57a6bdbbd535f21ede1415
+    licence: Apache-2.0
+    allow_patterns: ["*.json", "*.safetensors"]
+    size_gb: 0.35

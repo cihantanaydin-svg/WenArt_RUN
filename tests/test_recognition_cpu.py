@@ -200,6 +200,125 @@ def test_run_task_on_a_crop_returns_crop_pixels_and_the_tiled_stage_offsets_them
 
 
 # --------------------------------------------------------------------------
+# vLLM client: several images and caller-made schemas (docs/milestone5.md §1.5)
+# --------------------------------------------------------------------------
+
+def test_build_request_with_several_images_and_labels():
+    body = vlm_client.build_request("m", "prompt", None, {"type": "object"}, images=["data:a", "data:b"],
+                                    labels=["Image 1 (render):", None])
+    content = body["messages"][1]["content"]
+    assert content == [{"type": "text", "text": "Image 1 (render):"},
+                       {"type": "image_url", "image_url": {"url": "data:a"}},
+                       {"type": "image_url", "image_url": {"url": "data:b"}},
+                       {"type": "text", "text": "prompt"}]
+    one = vlm_client.build_request("m", "p", "data:x", {}, labels=["Image 1:"])
+    assert [c["type"] for c in one["messages"][1]["content"]] == ["text", "image_url", "text"]
+    assert vlm_client.build_request("m", "p", None, {}, images=["data:x"]) == \
+        vlm_client.build_request("m", "p", "data:x", {})
+    with pytest.raises(ValueError):
+        vlm_client.build_request("m", "p", "data:x", {}, images=["data:y"])
+    with pytest.raises(ValueError):
+        vlm_client.build_request("m", "p", None, {}, images=["data:x", "data:y"], labels=["only one"])
+
+
+CHECK_SCHEMA = {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object", "additionalProperties": False, "required": ["status", "box"],
+    "properties": {"status": {"enum": ["present", "absent"]},
+                   "box": {"type": "array", "items": {"type": "number", "minimum": 0, "maximum": 1000},
+                           "minItems": 4, "maxItems": 4}},
+}
+
+
+def _stub_answers(answers: list, bodies: list) -> callable:
+    """A ``post_json`` stand-in: records every body, answers the next text of ``answers``."""
+    def post_json(url, body, timeout_s):
+        bodies.append(body)
+        text = answers[min(len(bodies), len(answers)) - 1]
+        return {"choices": [{"message": {"content": text}}], "usage": {"prompt_tokens": 7}}
+    return post_json
+
+
+def _sent_sizes(body: dict) -> list:
+    import base64
+    from io import BytesIO
+    from PIL import Image
+    sizes = []
+    for part in body["messages"][1]["content"]:
+        if part["type"] == "image_url":
+            with Image.open(BytesIO(base64.b64decode(part["image_url"]["url"].split(",", 1)[1]))) as img:
+                sizes.append(img.size)
+    return sizes
+
+
+def test_run_schema_sends_images_in_order_and_validates_without_box_conversion(monkeypatch):
+    bodies = []
+    answer = {"status": "present", "box": [100, 200, 300, 400]}
+    monkeypatch.setattr(vlm_client, "post_json", _stub_answers([json.dumps(answer)], bodies))
+    client = vlm_client.VLMClient("http://127.0.0.1:9/v1", model="x", retries=1, timeout_s=1, max_side=800)
+    page = PROJECTS / "synthetic-02" / "plan_scan.png"
+    crop = vlm_client.load_image(page).crop((0, 0, 300, 200))
+    res = client.run_schema([page, crop], "Check the elements.", CHECK_SCHEMA, seed=2, task="check",
+                            labels=["Image 1 (render):", "Image 2 (plan):"])
+    assert res.error is None and res.data == answer                  # boxes stay on the 0..1000 grid
+    assert res.task == "check" and res.model == "x" and res.attempts == 1 and res.usage == {"prompt_tokens": 7}
+    assert res.image_size == (800, 566) and res.page_size == (2481, 1754)
+    body = bodies[0]
+    assert body["seed"] == 2 and body["temperature"] == 0.0
+    assert body["structured_outputs"] == {"json": vlm_client.grammar_of(CHECK_SCHEMA)}
+    assert "$schema" not in body["structured_outputs"]["json"] and "$schema" in CHECK_SCHEMA
+    assert body["messages"][0]["content"] == vlm_client.SCHEMA_SYSTEM_PROMPT
+    content = body["messages"][1]["content"]
+    assert [c["type"] for c in content] == ["text", "image_url", "text", "image_url", "text"]
+    assert content[0]["text"] == "Image 1 (render):" and content[2]["text"] == "Image 2 (plan):"
+    assert content[-1]["text"] == "Check the elements."
+    assert _sent_sizes(body) == [(800, 566), (300, 200)]
+    # max_side per call and a custom system prompt.
+    client.run_schema([page], "p", CHECK_SCHEMA, max_side=0, system_prompt="sys")
+    assert _sent_sizes(bodies[1]) == [(2481, 1754)] and bodies[1]["messages"][0]["content"] == "sys"
+
+
+def test_run_schema_failures_give_no_data_and_an_error(monkeypatch):
+    page = PROJECTS / "synthetic-02" / "plan_scan.png"
+    client = vlm_client.VLMClient("http://127.0.0.1:9/v1", model="x", retries=2, timeout_s=1, max_side=200)
+    bodies = []
+    monkeypatch.setattr(vlm_client, "post_json",
+                        _stub_answers([json.dumps({"status": "maybe", "box": [0, 0, 1, 1]})], bodies))
+    res = client.run_schema([page], "p", CHECK_SCHEMA)
+    assert res.data is None and res.error.startswith("schema: ") and "status" in res.error
+    assert res.raw_text and res.attempts == 1
+    bodies.clear()
+    monkeypatch.setattr(vlm_client, "post_json", _stub_answers(["not json", "still not json"], bodies))
+    res = client.run_schema([page], "p", CHECK_SCHEMA)
+    assert res.data is None and res.error.startswith("bad answer") and res.attempts == 2 and len(bodies) == 2
+    bodies.clear()
+    monkeypatch.setattr(vlm_client, "post_json", _stub_answers(["null"], bodies))
+    res = client.run_schema([page], "p", CHECK_SCHEMA)
+    assert res.data is None and res.error.startswith("schema: ")
+    # A later valid answer after a broken one is used.
+    bodies.clear()
+    good = json.dumps({"status": "absent", "box": [0, 0, 1000, 1000]})
+    monkeypatch.setattr(vlm_client, "post_json", _stub_answers(["oops", good], bodies))
+    res = client.run_schema([page], "p", CHECK_SCHEMA)
+    assert res.error is None and res.data["status"] == "absent" and res.attempts == 2
+    # Programming errors raise before any call.
+    import jsonschema
+    with pytest.raises(jsonschema.exceptions.SchemaError):
+        client.run_schema([page], "p", {"type": "no-such-type"})
+    with pytest.raises(ValueError):
+        client.run_schema([page], "p", CHECK_SCHEMA, labels=["a", "b"])
+
+
+def test_run_schema_reports_an_unreachable_server_without_raising():
+    client = vlm_client.VLMClient("http://127.0.0.1:9/v1", model="x", retries=1, timeout_s=1, max_side=100)
+    res = client.run_schema([PROJECTS / "synthetic-02" / "plan_scan.png"], "p", CHECK_SCHEMA)
+    assert res.data is None and res.error and res.attempts == 1 and res.page_size == (2481, 1754)
+    no_model = vlm_client.VLMClient("http://127.0.0.1:9/v1", retries=1, timeout_s=1)
+    res = no_model.run_schema([], "p", CHECK_SCHEMA)
+    assert res.data is None and res.model == "?" and "no model served" in res.error
+
+
+# --------------------------------------------------------------------------
 # Two-pass agreement
 # --------------------------------------------------------------------------
 

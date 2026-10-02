@@ -24,6 +24,16 @@ without the ``openai`` package. Pillow is imported lazily for image encoding.
 Box convention: the models answer boxes normalised to 0..1000 of the image
 width/height (schemas.py); ``boxes_to_pixels`` converts them to pixels of the
 original page, which does not depend on any downscaling done before sending.
+
+Milestone 5 (docs/milestone5.md §1.5): ``build_request(..., images=[...],
+labels=[...])`` sends several images in one user message (image parts in
+order, each optionally preceded by a text label, then the prompt), and
+``VLMClient.run_schema`` runs any caller-made JSON schema on a list of images
+with the same transport, retries and jsonschema validation, without box
+conversion. vLLM 0.30.0 accepts several ``image_url`` parts in one message and
+text interleaved with them (docs/features/multimodal_inputs.md, online
+serving); the server must be started with ``--limit-mm-per-prompt`` allowing
+that many images.
 """
 from __future__ import annotations
 
@@ -42,6 +52,12 @@ from wenart.recognition import prompts, schemas
 DEFAULT_BASE_URL = "http://127.0.0.1:8000/v1"
 DEFAULT_MAX_TOKENS = 4096
 DEFAULT_MAX_SIDE = 1600  # longest image side sent to the model, in pixels (0 = original size)
+
+# System prompt of ``run_schema`` (the default of ``build_request`` is about Turkish drawings).
+SCHEMA_SYSTEM_PROMPT = (
+    "You look at images and answer only with JSON that follows the given schema. Report only "
+    "what is visible in the images. Never invent elements. When unsure, say so in the answer."
+)
 
 
 class VLMError(RuntimeError):
@@ -74,18 +90,33 @@ class VLMResult:
 # Pure helpers (no network): request body, image encoding, box conversion
 # --------------------------------------------------------------------------
 
-def build_request(model: str, prompt: str, image_data_url: str, schema: dict, *,
+def build_request(model: str, prompt: str, image_data_url: Optional[str], schema: dict, *,
                   max_tokens: int = DEFAULT_MAX_TOKENS, seed: int = 0, temperature: float = 0.0,
-                  enable_thinking: bool = False, system_prompt: str = prompts.SYSTEM_PROMPT) -> dict:
-    """The JSON body for ``POST /v1/chat/completions`` (see module docstring for the sources)."""
+                  enable_thinking: bool = False, system_prompt: str = prompts.SYSTEM_PROMPT,
+                  images: Optional[list[str]] = None, labels: Optional[list[Optional[str]]] = None) -> dict:
+    """The JSON body for ``POST /v1/chat/completions`` (see module docstring for the sources).
+
+    One image: ``image_data_url``. Several: ``images`` (data URLs, sent in
+    order; ``image_data_url`` must then be None). ``labels`` (one per image,
+    None or "" for no label) puts a text part right before each image, e.g.
+    "Image 1 (render):". The prompt text always comes last.
+    """
+    if images is not None and image_data_url is not None:
+        raise ValueError("pass either image_data_url or images, not both")
+    urls = list(images) if images is not None else ([image_data_url] if image_data_url is not None else [])
+    if labels is not None and len(labels) != len(urls):
+        raise ValueError(f"{len(labels)} labels for {len(urls)} images")
+    content: list[dict] = []
+    for i, url in enumerate(urls):
+        if labels is not None and labels[i]:
+            content.append({"type": "text", "text": labels[i]})
+        content.append({"type": "image_url", "image_url": {"url": url}})
+    content.append({"type": "text", "text": prompt})
     return {
         "model": model,
         "messages": [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": [
-                {"type": "image_url", "image_url": {"url": image_data_url}},
-                {"type": "text", "text": prompt},
-            ]},
+            {"role": "user", "content": content},
         ],
         "temperature": temperature,
         "seed": seed,
@@ -140,6 +171,19 @@ def norm1000_to_pixels(box, width: int, height: int) -> list[float]:
     xs = sorted((x0 * sx, x1 * sx))
     ys = sorted((y0 * sy, y1 * sy))
     return [round(xs[0], 1), round(ys[0], 1), round(xs[1], 1), round(ys[1], 1)]
+
+
+def grammar_of(schema: dict) -> dict:
+    """``schema`` as sent to vLLM: a shallow copy without ``$schema`` (as ``schemas.grammar_schema``)."""
+    return {k: v for k, v in schema.items() if k != "$schema"}
+
+
+def schema_errors(schema: dict, data: Any) -> list[str]:
+    """All violations of ``data`` against a caller-made ``schema`` (jsonschema Draft 2020-12; empty = valid)."""
+    import jsonschema
+    validator = jsonschema.Draft202012Validator(schema)
+    errors = sorted(validator.iter_errors(data), key=lambda e: [str(p) for p in e.absolute_path])
+    return [f"{'/'.join(str(p) for p in err.absolute_path) or '<root>'}: {err.message}" for err in errors]
 
 
 def boxes_to_pixels(data: dict, width: int, height: int) -> dict:
@@ -259,6 +303,65 @@ class VLMClient:
                              error=str(exc), image_size=sent_size, page_size=page_size)
         body = build_request(model, text, data_url, schema, max_tokens=self.max_tokens,
                              enable_thinking=self.enable_thinking)
+        raw_text, error, usage, parsed, attempts, latency = self._post(body)
+        data = None
+        if parsed is not None:
+            problems = schemas.validation_errors(task, parsed)
+            if problems:
+                error = "schema: " + "; ".join(problems[:5])
+            else:
+                data = boxes_to_pixels(parsed, *page_size)
+        return VLMResult(task=task, model=model, data=data, raw_text=raw_text, latency_s=latency,
+                         attempts=attempts, error=error, usage=usage, image_size=sent_size, page_size=page_size)
+
+    def run_schema(self, images: list, prompt: str, schema: dict, *, seed: int = 0, task: str = "custom",
+                   max_side: Optional[int] = None, labels: Optional[list[Optional[str]]] = None,
+                   system_prompt: Optional[str] = None) -> VLMResult:
+        """One call with any JSON schema on a list of images (paths or PIL images), in order.
+
+        ``labels``: optional text before each image (one per image). The answer
+        is validated against ``schema`` (jsonschema Draft 2020-12); boxes are
+        NOT converted (the caller knows its own box convention). On any
+        failure ``data`` is None and ``error`` is set; nothing raises except a
+        broken ``schema`` or a label count that does not match the images.
+        ``image_size``/``page_size`` describe the first image. ``max_side``
+        None means the client's ``max_side``; ``system_prompt`` None means
+        ``SCHEMA_SYSTEM_PROMPT``.
+        """
+        import jsonschema
+        jsonschema.Draft202012Validator.check_schema(schema)
+        if labels is not None and len(labels) != len(images):
+            raise ValueError(f"{len(labels)} labels for {len(images)} images")
+        side = self.max_side if max_side is None else max_side
+        encoded = [encode_image(image, side) for image in images]
+        sent_size = encoded[0][1] if encoded else (0, 0)
+        page_size = encoded[0][2] if encoded else (0, 0)
+        try:
+            model = self.model
+        except VLMError as exc:
+            return VLMResult(task=task, model="?", data=None, raw_text="", latency_s=0.0, attempts=0,
+                             error=str(exc), image_size=sent_size, page_size=page_size)
+        body = build_request(model, prompt, None, grammar_of(schema), max_tokens=self.max_tokens, seed=seed,
+                             enable_thinking=self.enable_thinking,
+                             system_prompt=SCHEMA_SYSTEM_PROMPT if system_prompt is None else system_prompt,
+                             images=[e[0] for e in encoded], labels=labels)
+        raw_text, error, usage, parsed, attempts, latency = self._post(body)
+        data = None
+        if error is None:                 # an answer was parsed (even a JSON null): validate it
+            problems = schema_errors(schema, parsed)
+            if problems:
+                error = "schema: " + "; ".join(problems[:5])
+            else:
+                data = parsed
+        return VLMResult(task=task, model=model, data=data, raw_text=raw_text, latency_s=latency,
+                         attempts=attempts, error=error, usage=usage, image_size=sent_size, page_size=page_size)
+
+    def _post(self, body: dict) -> tuple[str, Optional[str], dict, Any, int, float]:
+        """POST with retries: ``(raw_text, error, usage, parsed, attempts, latency_s)``.
+
+        Transport errors are retried with a growing pause; an answer that is
+        not JSON is asked again (same request) until the retries are used up.
+        """
         url = self.base_url + "/chat/completions"
         t0 = time.monotonic()
         raw_text, error, usage, parsed = "", None, {}, None
@@ -277,13 +380,4 @@ class VLMClient:
                     time.sleep(min(30.0, 2.0 * attempts))
             except (KeyError, IndexError, json.JSONDecodeError, ValueError) as exc:
                 error = f"bad answer: {exc}"
-        latency = time.monotonic() - t0
-        data = None
-        if parsed is not None:
-            problems = schemas.validation_errors(task, parsed)
-            if problems:
-                error = "schema: " + "; ".join(problems[:5])
-            else:
-                data = boxes_to_pixels(parsed, *page_size)
-        return VLMResult(task=task, model=model, data=data, raw_text=raw_text, latency_s=latency,
-                         attempts=attempts, error=error, usage=usage, image_size=sent_size, page_size=page_size)
+        return raw_text, error, usage, parsed, attempts, time.monotonic() - t0

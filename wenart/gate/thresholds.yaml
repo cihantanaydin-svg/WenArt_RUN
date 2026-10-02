@@ -1,0 +1,13 @@
+# Change-gate thresholds (docs/milestone5.md §4.2). *_min: value >= threshold
+# passes; *_max: value <= threshold passes; region_min_frac = region pixels /
+# (W*H). Proposals from `python -m wenart.gate calibrate` are applied here by
+# hand after review; a proposal looser than §4.2 needs the user's OK.
+edges:       {hard: true,  global_min: 0.95, region_min: 0.85, region_min_ref_px: 200, radius_px: 3,
+              canny: {sigma: 1.5, low: 25, high: 75}}
+added_lines: {hard: true,  region_max_len_frac: 0.04, min_len_frac: 0.04, unmatched_frac: 0.70}
+depth:       {hard: true,  global_max: 0.02, region_max: 0.05, region_min_frac: 0.01}
+masks:       {hard: true,  region_min: 0.90, region_min_frac: 0.005, sam_reliable_min: 0.70}
+colour:      {hard: true,  global_max: 10.0, region_max: 15.0, region_min_frac: 0.01}
+neutral:     {hard: true,  region_max_dchroma: 5.0}     # wall/ceiling regions of albedo_mode flat
+features:    {hard: false, region_min: 0.80, region_min_frac: 0.01}
+calibration: {source: null, date: null, separability: {}, accepted_shortfall: null}

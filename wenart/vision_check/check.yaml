@@ -1,0 +1,68 @@
+# Final vision check settings (docs/milestone5.md §5). The two VLM ids and
+# revisions live only here (§1.6); tests/test_m5_config.py checks them
+# against the table in docs/milestone5.md §1.6. `server_flags` are appended to
+# `vllm serve <id>` by the job (scripts/jobs/polish.sh).
+
+models:
+  qwen:                       # pass 1
+    id: Qwen/Qwen3-VL-8B-Instruct
+    revision: 0c351dd01ed87e9c1b53cbc748cba10e6187ff3b
+    licence: Apache-2.0
+    slug: qwen3-vl-8b
+    server_flags: ''
+    size_gb: 17.5
+  glm:                        # pass 2
+    id: zai-org/GLM-4.6V-Flash
+    revision: 411bb4d77144a3f03accbf4b780f5acb8b7cde4e
+    licence: MIT
+    slug: glm-4.6v-flash
+    server_flags: '--reasoning-parser glm45'
+    size_gb: 20.6
+
+# Expected elements per view (§5.1).
+roles:
+  ignore_area_frac: 0.002         # area_frac < 0.002 -> ignore
+  required_area_frac: 0.03        # own-room door/window/furniture with area_frac >= 0.03 -> required,
+  required_min_area_frac: 0.01    # or area_frac >= 0.01 and (visibility is None or >= 0.35)
+  required_min_visibility: 0.35   # everything else -> optional (decor, other rooms: never required)
+
+# Building-JSON cross-check, projected with a depth test (§5.1).
+crosscheck:
+  depth_tolerance_m: 0.05         # a projected sample is visible within 5 cm of the rendered depth
+  min_visible_share: 0.35         # in_json_not_rendered: projected visible share >= 0.35
+  min_area_frac: 0.01             #   and projected area >= 0.01 of the frame, index absent
+  misplaced_frac_w: 0.05          # misplaced: index box centre vs projected centre > 5 % of W
+
+# Sentinel decoy label (§5.3).
+decoy:
+  fallback_types: [armchair, desk, bookshelf, bathtub]   # when every allowed type is in the room
+  box_frac: [0.18, 0.25]          # box size as a share of W and H
+  min_bare_frac: 0.98             # share of bare-structure (index 0) pixels inside the box
+  step_frac: 0.05                 # search grid step; tie-break: lowest centre
+
+# Extras and counts (§5.3, §5.4).
+extras:
+  max: 8
+  covered_frac: 0.5               # extras >= 50 % covered by any indexed mask are dropped
+  match_iou: 0.3                  # pass A/B extras confirmed at IoU >= 0.3 and the same class
+
+# Removal / insertion / type-swap controls (§5.5).
+controls:
+  furniture: 3                    # per project, at least 1 from_documents
+  windows: 3
+  doors: 2
+  min_area_frac: 0.03             # required, own room, not touching the border
+  swap_pairs: [[sofa, bed_double], [armchair, desk]]
+
+# Realism preference (§5.6): preferred when >= 3 of 4 answers pick the polished image.
+preference:
+  min_votes: 3
+
+# Calibration targets (§5.5); a missed target makes the check advisory.
+targets:
+  fa_missing_max: 0.05            # combined false "missing" rate
+  fa_extra_max: 0.10              # share of views with a confirmed non-decor extra
+  removal_flagged_min: 0.80
+  removal_confirmed_min: 0.60
+  insertion_min: 0.60
+  decoy_accept_max: 0.10          # per model
