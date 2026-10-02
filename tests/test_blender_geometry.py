@@ -284,6 +284,43 @@ def test_point_in_frustum():
     assert not geom2d.point_in_frustum((2, 0, 3.5), pos, tgt, tangents)       # outside vertically
 
 
+def test_point_in_frustum_with_lens_shift():
+    """docs/milestone6.md §1.3: shift_y -0.10 moves the frame down by 2 tan(h/2) 0.10 = 0.15 in slope,
+    shift_x > 0 moves it to the right; the frustum tangents themselves do not change."""
+    tangents = geom2d.frustum_tangents(24.0, 36.0, (1920, 1080))
+    pos, tgt = (0.0, 0.0, 1.25), (5.0, 0.0, 1.25)                 # level camera looking +X (right = -Y)
+    low = (4.0, 0.0, 1.25 - 1.9)                                   # slope -0.475: below the plain frame
+    assert not geom2d.point_in_frustum(low, pos, tgt, tangents)
+    assert geom2d.point_in_frustum(low, pos, tgt, tangents, shift_y=-0.10)          # frame -0.572 .. 0.272
+    high = (4.0, 0.0, 1.25 + 1.4)                                  # slope 0.35
+    assert geom2d.point_in_frustum(high, pos, tgt, tangents)
+    assert not geom2d.point_in_frustum(high, pos, tgt, tangents, shift_y=-0.10)
+    right = (4.0, -3.5, 1.25)                                      # slope 0.875 to the right
+    assert not geom2d.point_in_frustum(right, pos, tgt, tangents)
+    assert geom2d.point_in_frustum(right, pos, tgt, tangents, shift_x=0.10)         # frame -0.6 .. 0.9
+    assert not geom2d.point_in_frustum((-1.0, 0.0, 1.25), pos, tgt, tangents, shift_y=-0.10)   # behind
+
+
+@pytest.mark.parametrize("shift", [(0.0, 0.0), (0.0, -0.10), (0.07, -0.10)])
+def test_frustum_agrees_with_the_pixel_projection(shift):
+    """A point is in the shifted frustum exactly when ``expected.project_points`` puts it in the frame."""
+    import numpy as np
+
+    from wenart.vision_check import expected
+
+    rng = np.random.default_rng(3)
+    tangents = geom2d.frustum_tangents(24.0, 36.0, (1920, 1080))
+    camera = {"position": [1.0, 2.0, 1.4], "target": [4.0, 3.0, 1.3], "lens_mm": 24.0, "sensor_mm": 36.0,
+              "shift_x": shift[0], "shift_y": shift[1]}
+    pts = rng.uniform([-3, -3, -1], [9, 9, 4], size=(4000, 3))
+    uv, z = expected.project_points(pts, camera, (1920, 1080))
+    inside_px = (z > 0.05) & (uv[:, 0] >= 0) & (uv[:, 0] <= 1920) & (uv[:, 1] >= 0) & (uv[:, 1] <= 1080)
+    inside = [geom2d.point_in_frustum(tuple(p), camera["position"], camera["target"], tangents,
+                                      shift_x=shift[0], shift_y=shift[1]) for p in pts]
+    assert inside_px.sum() > 300
+    assert list(inside_px) == inside
+
+
 def test_sun_direction():
     x, y, z = lighting.sun_direction(90.0, 0.0)
     assert z == pytest.approx(1.0) and abs(x) < 1e-9 and abs(y) < 1e-9

@@ -118,7 +118,10 @@ def camera_basis(position, target) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
 
 
 def focal_px(camera: dict, width: int) -> float:
-    """Focal length in pixels (horizontal sensor fit: the sensor width spans the image width)."""
+    """Focal length in pixels (horizontal sensor fit: the sensor width spans the image width).
+
+    The lens shift (``shift_x``/``shift_y``) moves the principal point, never
+    the focal length (docs/milestone6.md §1.3)."""
     lens = float(camera.get("lens_mm") or DEFAULT_LENS_MM)
     sensor = float(camera.get("sensor_mm") or DEFAULT_SENSOR_MM)
     return lens / sensor * float(width)
@@ -127,9 +130,11 @@ def focal_px(camera: dict, width: int) -> float:
 def project_points(points, camera: dict, size) -> tuple[np.ndarray, np.ndarray]:
     """World points (N x 3) -> ``(uv N x 2 pixels, z N planar depths)``.
 
-    ``u = W/2 + f * (d.r)/(d.f)``, ``v = H/2 - f * (d.u)/(d.f)`` with
-    ``d = p - position`` (origin at the image's top-left corner). ``uv`` is
-    meaningless where ``z <= 0`` (behind the camera); callers mask it.
+    ``u = W/2 - shift_x W + f * (d.r)/(d.f)``, ``v = H/2 + shift_y W - f *
+    (d.u)/(d.f)`` with ``d = p - position`` (origin at the image's top-left
+    corner; Blender's shift is in units of the larger image side W, the
+    camera's ``shift_x``/``shift_y`` default to 0, docs/milestone6.md §1.3).
+    ``uv`` is meaningless where ``z <= 0`` (behind the camera); callers mask it.
     """
     pts = np.asarray(points, dtype=np.float64).reshape(-1, 3)
     f, r, u = camera_basis(camera["position"], camera["target"])
@@ -137,9 +142,11 @@ def project_points(points, camera: dict, size) -> tuple[np.ndarray, np.ndarray]:
     z = d @ f
     W, H = float(size[0]), float(size[1])
     fpx = focal_px(camera, W)
+    cu = W / 2.0 - float(camera.get("shift_x") or 0.0) * W
+    cv = H / 2.0 + float(camera.get("shift_y") or 0.0) * W
     with np.errstate(divide="ignore", invalid="ignore"):
         safe = np.where(np.abs(z) > 1e-12, z, 1e-12)
-        uv = np.stack([W / 2.0 + fpx * (d @ r) / safe, H / 2.0 - fpx * (d @ u) / safe], axis=1)
+        uv = np.stack([cu + fpx * (d @ r) / safe, cv - fpx * (d @ u) / safe], axis=1)
     return uv, z
 
 
@@ -603,16 +610,19 @@ def unproject_pixels(rows, cols, depth_m: np.ndarray, camera: dict, size) -> np.
     """World points (N x 3) of pixel centres (``rows``, ``cols``) at their planar depth (metres).
 
     The inverse of ``project_points``: ``P = position + z * (f + a * r + b * u)``
-    with ``a = (col + 0.5 - W/2) / f_px`` and ``b = -(row + 0.5 - H/2) / f_px``.
+    with ``a = (col + 0.5 - W/2 + shift_x W) / f_px`` and ``b = -(row + 0.5 -
+    H/2 - shift_y W) / f_px`` (shift 0 when the camera has none).
     """
     W, H = int(size[0]), int(size[1])
     f, r, u = camera_basis(camera["position"], camera["target"])
     fpx = focal_px(camera, W)
+    sx = float(camera.get("shift_x") or 0.0)
+    sy = float(camera.get("shift_y") or 0.0)
     rows = np.asarray(rows)
     cols = np.asarray(cols)
     z = np.asarray(depth_m, dtype=np.float64)[rows, cols]
-    a = (cols + 0.5 - W / 2.0) / fpx
-    b = -(rows + 0.5 - H / 2.0) / fpx
+    a = (cols + 0.5 - W / 2.0 + sx * W) / fpx
+    b = -(rows + 0.5 - H / 2.0 - sy * W) / fpx
     rays = f[None, :] + a[:, None] * r[None, :] + b[:, None] * u[None, :]
     return np.asarray(camera["position"], dtype=np.float64)[None, :] + z[:, None] * rays
 

@@ -5,6 +5,13 @@ of wenart/blender/cameras.py gives index, depth and normal maps whose
 geometry is known: the projection is checked against a known camera, the
 roles and visibility against hand-computed values, and the JSON cross-check
 with a dropped, a moved and an unknown element.
+
+Milestone 6 (docs/milestone6.md §1.3, §4.2): the projection and its inverse
+with lens shift (round trip, principal point), the cross-check of a view
+rendered with ``shift_y = -0.10`` (no misplaced element; the same render read
+without the shift misplaces its openings) and the projection against
+Blender's ``world_to_camera_view`` on cameras made by ``create_cameras``
+(skipped without Blender).
 """
 import json
 import math
@@ -17,6 +24,7 @@ import pytest
 
 import vc_toy as T
 from wenart import views as V
+from wenart.blender.cli import find_blender as cli_find_blender
 from wenart.vision_check import expected as X
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -69,6 +77,124 @@ def test_projection_against_a_known_camera():
     p = (4.5, -0.1, 1.5)
     uv, _ = X.project_points([p], T.CAMERA, T.SIZE)
     assert np.allclose(uv[0], T.project_point(p))
+
+
+def test_projection_with_lens_shift_moves_the_principal_point():
+    """docs/milestone6.md §1.3: u = W/2 - shift_x W + f (d.r)/(d.f), v = H/2 + shift_y W - f (d.u)/(d.f)."""
+    W, H = 1920, 1080
+    fpx = 24.0 / 36.0 * W
+    cam = {"position": [0.0, 0.0, 1.25], "target": [0.0, 5.0, 1.25], "lens_mm": 24.0, "sensor_mm": 36.0,
+           "shift_x": 0.05, "shift_y": -0.10}
+    pts = [(0.0, 4.0, 1.25), (1.0, 2.0, 1.25), (0.0, 2.0, 0.25)]
+    uv, z = X.project_points(pts, cam, (W, H))
+    assert np.allclose(z, [4.0, 2.0, 2.0])
+    assert np.allclose(uv[0], [960 - 96, 540 - 192])                 # straight ahead: the shifted principal point
+    assert np.allclose(uv[1], [960 - 96 + fpx * 0.5, 540 - 192])
+    assert np.allclose(uv[2], [960 - 96, 540 - 192 + fpx * 0.5])
+    # No shift keys (an M5 camera) and shift 0 give the same pixels.
+    plain = {k: v for k, v in cam.items() if not k.startswith("shift")}
+    assert np.array_equal(X.project_points(pts, plain, (W, H))[0],
+                          X.project_points(pts, dict(plain, shift_x=0.0, shift_y=0.0), (W, H))[0])
+    assert X.focal_px(cam, W) == X.focal_px(plain, W) == pytest.approx(fpx)
+
+
+@pytest.mark.parametrize("shift", [(0.0, -0.10), (0.07, -0.10), (0.0, 0.0)])
+def test_unproject_inverts_project_with_shift(shift):
+    W, H = 320, 180
+    cam = {"position": [1.0, 2.0, 1.25], "target": [4.0, 3.0, 0.9], "lens_mm": 24.0, "sensor_mm": 36.0,
+           "shift_x": shift[0], "shift_y": shift[1]}
+    rng = np.random.default_rng(5)
+    rows, cols = rng.integers(0, H, 200), rng.integers(0, W, 200)
+    depth = np.zeros((H, W))
+    depth[rows, cols] = rng.uniform(0.5, 9.0, 200)
+    world = X.unproject_pixels(rows, cols, depth, cam, (W, H))
+    uv, z = X.project_points(world, cam, (W, H))
+    assert np.allclose(uv[:, 0], cols + 0.5, atol=1e-6) and np.allclose(uv[:, 1], rows + 0.5, atol=1e-6)
+    assert np.allclose(z, depth[rows, cols], atol=1e-9)
+    # unproject(project(p)) = p for points that project onto pixel centres.
+    again = X.unproject_pixels(np.floor(uv[:, 1]).astype(int), np.floor(uv[:, 0]).astype(int), depth, cam, (W, H))
+    assert np.allclose(again, world, atol=1e-9)
+
+
+def shifted_toy(tmp_path, shift_y: float = -0.10, record_shift: bool = True):
+    """The toy project rendered by a camera with ``shift_y``: an unshifted render 2k rows taller
+    (k = -shift_y W; the focal length depends on W only) cropped to rows 2k .. 2k + H, whose principal
+    point then sits at H/2 + shift_y W. ``record_shift``: write the shift into the scene manifest camera."""
+    out = T.write_toy_project(tmp_path)
+    W, H = T.SIZE
+    k = int(round(-shift_y * W))
+    index, depth, normal = T.raycast(T.default_boxes(), T.default_openings(), (W, H + 2 * k))
+    rows = slice(2 * k, 2 * k + H)
+    entry = T.write_render(out / "renders", CAM, index[rows], depth[rows], normal[rows])
+    T.write_manifest(out / "renders", [entry])
+    scene_path = out / "scene" / "scene_manifest.json"
+    scene = json.loads(scene_path.read_text(encoding="utf-8"))
+    if record_shift:
+        scene["cameras"][0]["shift_y"] = shift_y
+        scene_path.write_text(json.dumps(scene, indent=1), encoding="utf-8")
+    view = V.load_views(out / "renders")[CAM]
+    return X.expected_view(view, scene, T.toy_building())
+
+
+def test_crosscheck_of_a_shifted_view_reports_no_misplaced_element(tmp_path):
+    exp = shifted_toy(tmp_path / "shifted")
+    cc = exp["json_crosscheck"]
+    assert cc["error"] is None and cc["misplaced"] == [] and cc["in_json_not_rendered"] == []
+    in_view = {eid: p for eid, p in cc["projected"].items() if p["in_view"]}
+    assert {"win_1", "d_1", "f_sofa"} <= set(in_view)
+    assert all(p["outside_share"] == 0.0 for p in in_view.values()), in_view
+    # The same render read as an unshifted view puts every pixel 0.10 W too high: the openings are misplaced.
+    wrong = shifted_toy(tmp_path / "unrecorded", record_shift=False)["json_crosscheck"]
+    assert {"win_1", "d_1"} <= {x["id"] for x in wrong["misplaced"]}
+
+
+@pytest.mark.skipif(cli_find_blender() is None, reason="no Blender binary")
+def test_projection_matches_blender_world_to_camera_view(tmp_path):
+    """Cameras made by ``cameras.create_cameras`` (one with shift (0.07, -0.10), one M5 camera without
+    shift) and Blender's ``world_to_camera_view``: within 0.01 px of ``project_points``."""
+    W, H = 1920, 1080
+    plans = [{"name": "cam_s_1", "room_id": "s", "level_id": "L0", "index": 1, "position": [1.0, 2.0, 1.25],
+              "target": [2.0, 2.5, 1.25], "lens_mm": 24.0, "sensor_mm": 36.0, "resolution": [W, H],
+              "shift_x": 0.07, "shift_y": -0.10},
+             {"name": "cam_s_2", "room_id": "s", "level_id": "L0", "index": 2, "position": [1.0, 2.0, 1.25],
+              "target": [2.0, 3.0, 1.25], "lens_mm": 24.0, "sensor_mm": 36.0, "resolution": [W, H],
+              "shift_x": 0.0, "shift_y": -0.10},
+             {"name": "cam_m_1", "room_id": "s", "level_id": "L0", "index": 1, "position": [0.0, 0.0, 1.4],
+              "target": [3.0, 1.0, 1.3], "lens_mm": 24.0, "sensor_mm": 36.0, "resolution": [W, H]}]
+    pts = [(3.0, 3.0, 0.2), (2.5, 1.0, 2.0), (4.0, 2.0, 1.25), (2.0, 4.0, 0.0), (0.2, 5.0, 2.4), (3.0, 0.5, 0.9)]
+    src, out = tmp_path / "plans.json", tmp_path / "uv.json"
+    src.write_text(json.dumps({"plans": plans, "points": pts}), encoding="utf-8")
+    expr = (f"import sys, json; sys.path.insert(0, {str(ROOT)!r})\n"
+            "import bpy\n"
+            "from bpy_extras.object_utils import world_to_camera_view\n"
+            "from mathutils import Vector\n"
+            "from wenart.blender import cameras\n"
+            "bpy.ops.wm.read_factory_settings(use_empty=True)\n"
+            "scene = bpy.context.scene\n"
+            f"scene.render.resolution_x, scene.render.resolution_y = {W}, {H}\n"
+            "scene.render.resolution_percentage = 100\n"
+            "col = bpy.data.collections.new('c'); scene.collection.children.link(col)\n"
+            f"data = json.load(open({str(src)!r}))\n"
+            "objs = cameras.create_cameras(data['plans'], col, [])\n"
+            "bpy.context.view_layer.update()\n"
+            "res = {}\n"
+            "for ob in objs:\n"
+            "    res[ob.name] = []\n"
+            "    for p in data['points']:\n"
+            "        v = world_to_camera_view(scene, ob, Vector(p))\n"
+            f"        res[ob.name].append([v.x * {W}, (1.0 - v.y) * {H}, v.z])\n"
+            f"json.dump(res, open({str(out)!r}, 'w'))\n")
+    proc = subprocess.run([cli_find_blender(), "-b", "--factory-startup", "--python-exit-code", "1",
+                           "--python-expr", expr], capture_output=True, text=True, timeout=300, cwd=str(ROOT))
+    assert proc.returncode == 0, proc.stdout[-2000:] + proc.stderr[-2000:]
+    res = json.loads(out.read_text(encoding="utf-8"))
+    for plan in plans:
+        uv, z = X.project_points(pts, plan, (W, H))
+        ref = np.array(res[plan["name"]])
+        front = z > 0.1                                  # points on or behind the camera plane have no pixel
+        assert front.sum() >= 4, plan["name"]
+        assert np.abs(uv[front] - ref[front, :2]).max() < 0.01, plan["name"]
+        assert np.allclose(z, ref[:, 2], atol=1e-5), plan["name"]
 
 
 def test_box_corners_rotation_and_near_plane_clipping():
