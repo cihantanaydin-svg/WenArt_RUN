@@ -37,7 +37,8 @@ Plan: `docs/plan.md`. Status: `docs/progress.md`. GPU spending: `docs/gpu-log.md
   the session to stop a pod. If a job fails or hangs: stop the pod first, then debug.
 - Before ending a session, check that no pod is running.
 - Log every run in `docs/gpu-log.md`: pod ID, GPU, minutes, cost, purpose.
-- Models download on the pod into the Network Volume (`HF_HOME=/workspace/hf`), never here.
+- Models download on the pod into the container-disk cache (`HF_HOME=/opt/wenart/hf`, ≈ 1.1 GB/s;
+  the Network Volume is too slow for caches and venvs, plan §5), never here.
 - Batch GPU work: several tests per pod session, not one pod per small check.
 
 ## Furniture rules
