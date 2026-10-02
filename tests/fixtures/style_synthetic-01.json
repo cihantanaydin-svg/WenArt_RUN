@@ -6,12 +6,7 @@
   },
   "walls": {
     "material": "plaster_white",
-    "asset": "white_plaster_02",
-    "tint": [
-      0.95,
-      0.94,
-      0.9
-    ]
+    "asset": "white_plaster_02"
   },
   "ceiling": {
     "material": "plaster_white"

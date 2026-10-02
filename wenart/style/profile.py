@@ -181,7 +181,7 @@ def profile_from_text(text: str, defaults: Optional[dict] = None) -> dict:
     return {
         "source_text": text,
         "floor": {"material": floor, "asset": V.MATERIALS[floor]["asset"]},
-        "walls": {"material": walls, "asset": V.MATERIALS[walls]["asset"], "tint": list(V.WALL_TINTS.get(walls, [1.0, 1.0, 1.0]))},
+        "walls": {"material": walls, "asset": V.MATERIALS[walls]["asset"]},
         "ceiling": {"material": V.CEILING_MATERIAL},
         "wet_floor": {"material": wet_floor, "asset": V.MATERIALS[wet_floor]["asset"]},
         "wet_walls": {"material": V.WET_WALLS_MATERIAL},

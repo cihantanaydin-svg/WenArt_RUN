@@ -188,12 +188,15 @@ def test_materials_textured_or_flat_are_recorded(built):
     mats = built["manifest"]["materials"]
     floor = mats["wood_oak_light__WoodFloor051"]
     assert floor["textured"] is True and floor["asset"] == "WoodFloor051" and floor["slug"] == "wood_oak_light"
-    # the fake albedo (150,110,70) is 0.18 linear luminance, darker than light oak (0.47): gain ~2.6
-    assert 2.0 < floor["albedo_gain"] <= 4.0 and 0.1 < floor["albedo_mean_luminance"] < 0.3
+    # the fake albedo (150,110,70) is 0.18 linear luminance, darker than light oak (0.49): gain ~2.7,
+    # clamped to 2.5 in Milestone 5 (texture albedo mode, docs/milestone5.md §2.2)
+    assert floor["albedo_gain"] == 2.5 and floor["gain_clamped"] is True and 0.1 < floor["albedo_mean_luminance"] < 0.3
+    assert floor["albedo_mode"] == "texture" and floor["detail"] is None
     assert mats["wood_oak_light"]["albedo_gain"] is None  # flat materials carry no gain
     assert mats["wood_oak_light"]["textured"] is False  # the door leaf: no asset in the style
-    walls = next(m for m in mats.values() if m["slug"] == "plaster_white" and m["tint"])
+    walls = mats["plaster_white"]
     assert walls["textured"] is False and "white_plaster_02" in walls["reason"]  # not in the fake manifest
+    assert walls["tint"] is None and walls["albedo_mode"] == "flat" and walls["detail"] == 0.35  # no walls.tint
     floors = [o for o in built["manifest"]["objects"] if o["kind"] == "floor"]
     assert all(o["textured"] and o["material"] == "wood_oak_light__WoodFloor051" for o in floors if not o["wet"])
     assert all(o["material"].startswith("tiles_light") and not o["textured"] for o in floors if o["wet"])
@@ -219,6 +222,10 @@ def test_top_down_preview_is_100_px_per_metre(built):
     assert im.size == (1060, 820)
     arr = np.asarray(im.convert("L"))
     assert arr.std() > 10, "preview looks empty"
+    # Milestone 5: the covered area, so plan pixels map to metres (u = (x - x0) / m, v = (y1 - y) / m).
+    pm = built["manifest"]["preview_maps"]["L0"]
+    assert pm["png"] == png.name and pm["resolution"] == [1060, 820] and pm["m_per_px"] == 0.01
+    assert pm["bbox_m"] == pytest.approx([-0.5, -0.5, 10.1, 7.7])
 
 
 def test_assumed_defaults_are_listed(built):
@@ -254,7 +261,9 @@ def test_cpu_render_files_and_passes(built, rendered):
     expected = {built["manifest"]["pass_index"][f] for f in cam["visible_furniture"]}
     assert expected and expected <= set(entry["index_values"])
     index_png = np.asarray(Image.open(out / entry["index_png"]))
+    assert index_png.dtype == np.uint16  # Milestone 5: uint16, no clipping at 255
     assert expected <= set(np.unique(index_png).tolist())
+    assert entry["files"]["depth_mm"] and entry["files"]["normal"] and len(entry["render_key"]) == 16
     depth_png = np.asarray(Image.open(out / entry["depth_png"]))
     assert depth_png.dtype == np.uint16 and depth_png.min() < depth_png.max()
 

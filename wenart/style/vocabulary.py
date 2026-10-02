@@ -31,27 +31,54 @@ from __future__ import annotations
 # --no-textures); wenart.blender.materials derives its tables from here.
 # "kind" groups slugs for the derived slots (a wood floor gives wood doors;
 # hard floors stay in wet rooms).
+#
+# "albedo_mode" (docs/milestone5.md §2.2) says where a textured material
+# takes its colour from:
+# - "flat": the colour is "flat"; the texture adds luminance detail only,
+#   ``flat * (1 - detail + detail * lum(texture) / mean_lum)``, capped at 0.9.
+#   Plaster and paint: their photos carry the tan light of the shoot
+#   (white_plaster_02 averages linear (0.27, 0.25, 0.20)), so the photo's
+#   hue must not reach the wall. "detail" is the share of the texture's
+#   luminance variation that is kept.
+# - "texture": the texture colour, its mean luminance scaled to the flat
+#   colour's (gain clamped to 0.5..2.5, capped at 0.9): wood, stone, tiles,
+#   brick and carpet, whose colour is the material.
 MATERIALS: dict[str, dict] = {
-    "wood_oak_light":     {"source": "ambientcg", "asset": "WoodFloor051",       "kind": "wood",    "flat": [0.62, 0.47, 0.30], "roughness": 0.45},
-    "wood_walnut":        {"source": "ambientcg", "asset": "WoodFloor046",       "kind": "wood",    "flat": [0.25, 0.14, 0.08], "roughness": 0.4},
-    "wood_parquet":       {"source": "polyhaven", "asset": "herringbone_parquet", "kind": "wood",   "flat": [0.45, 0.30, 0.17], "roughness": 0.4},
-    "concrete_polished":  {"source": "ambientcg", "asset": "Concrete046",        "kind": "hard",    "flat": [0.45, 0.45, 0.44], "roughness": 0.25},
-    "terracotta":         {"source": "polyhaven", "asset": "patio_tiles",        "kind": "hard",    "flat": [0.55, 0.27, 0.16], "roughness": 0.7},
-    "marble":             {"source": "polyhaven", "asset": "marble_01",          "kind": "hard",    "flat": [0.80, 0.78, 0.74], "roughness": 0.15},
-    "tiles_light":        {"source": "ambientcg", "asset": "Tiles074",           "kind": "hard",    "flat": [0.82, 0.82, 0.80], "roughness": 0.2},
-    "carpet":             {"source": "ambientcg", "asset": "Carpet016",          "kind": "soft",    "flat": [0.60, 0.55, 0.45], "roughness": 0.95},
-    "plaster_white":      {"source": "polyhaven", "asset": "white_plaster_02",   "kind": "plaster", "flat": [0.85, 0.84, 0.80], "roughness": 0.85},
-    "plaster_cream":      {"source": "polyhaven", "asset": "beige_wall_001",     "kind": "plaster", "flat": [0.80, 0.72, 0.55], "roughness": 0.85},
-    # Charcoal = the white plaster texture with a dark tint (see WALL_TINTS).
-    "plaster_charcoal":   {"source": "polyhaven", "asset": "white_plaster_02",   "kind": "plaster", "flat": [0.05, 0.05, 0.055], "roughness": 0.6},
-    "plaster_exterior":   {"source": "polyhaven", "asset": "grey_plaster",       "kind": "plaster", "flat": [0.55, 0.54, 0.52], "roughness": 0.9},
-    "brick":              {"source": "polyhaven", "asset": "red_brick_03",       "kind": "brick",   "flat": [0.40, 0.17, 0.12], "roughness": 0.9},
-    "wood_panel":         {"source": "polyhaven", "asset": "wooden_panels",      "kind": "wood",    "flat": [0.28, 0.17, 0.09], "roughness": 0.5},
-    "painted_wood_white": {"source": "polyhaven", "asset": "white_planks_clean", "kind": "painted", "flat": [0.88, 0.87, 0.84], "roughness": 0.4},
+    "wood_oak_light":     {"source": "ambientcg", "asset": "WoodFloor051",       "kind": "wood",    "flat": [0.62, 0.47, 0.30], "roughness": 0.45, "albedo_mode": "texture"},
+    "wood_walnut":        {"source": "ambientcg", "asset": "WoodFloor046",       "kind": "wood",    "flat": [0.25, 0.14, 0.08], "roughness": 0.4,  "albedo_mode": "texture"},
+    "wood_parquet":       {"source": "polyhaven", "asset": "herringbone_parquet", "kind": "wood",   "flat": [0.45, 0.30, 0.17], "roughness": 0.4,  "albedo_mode": "texture"},
+    "concrete_polished":  {"source": "ambientcg", "asset": "Concrete046",        "kind": "hard",    "flat": [0.45, 0.45, 0.44], "roughness": 0.25, "albedo_mode": "texture"},
+    "terracotta":         {"source": "polyhaven", "asset": "patio_tiles",        "kind": "hard",    "flat": [0.55, 0.27, 0.16], "roughness": 0.7,  "albedo_mode": "texture"},
+    "marble":             {"source": "polyhaven", "asset": "marble_01",          "kind": "hard",    "flat": [0.80, 0.78, 0.74], "roughness": 0.15, "albedo_mode": "texture"},
+    "tiles_light":        {"source": "ambientcg", "asset": "Tiles074",           "kind": "hard",    "flat": [0.82, 0.82, 0.80], "roughness": 0.2,  "albedo_mode": "texture"},
+    "carpet":             {"source": "ambientcg", "asset": "Carpet016",          "kind": "soft",    "flat": [0.60, 0.55, 0.45], "roughness": 0.95, "albedo_mode": "texture"},
+    "plaster_white":      {"source": "polyhaven", "asset": "white_plaster_02",   "kind": "plaster", "flat": [0.85, 0.84, 0.80], "roughness": 0.85, "albedo_mode": "flat", "detail": 0.35},
+    "plaster_cream":      {"source": "polyhaven", "asset": "beige_wall_001",     "kind": "plaster", "flat": [0.80, 0.72, 0.55], "roughness": 0.85, "albedo_mode": "flat", "detail": 0.35},
+    # Charcoal = the white plaster texture's luminance detail on the charcoal colour (flat mode).
+    "plaster_charcoal":   {"source": "polyhaven", "asset": "white_plaster_02",   "kind": "plaster", "flat": [0.05, 0.05, 0.055], "roughness": 0.6, "albedo_mode": "flat", "detail": 0.35},
+    "plaster_exterior":   {"source": "polyhaven", "asset": "grey_plaster",       "kind": "plaster", "flat": [0.55, 0.54, 0.52], "roughness": 0.9,  "albedo_mode": "flat", "detail": 0.5},
+    "brick":              {"source": "polyhaven", "asset": "red_brick_03",       "kind": "brick",   "flat": [0.40, 0.17, 0.12], "roughness": 0.9,  "albedo_mode": "texture"},
+    "wood_panel":         {"source": "polyhaven", "asset": "wooden_panels",      "kind": "wood",    "flat": [0.28, 0.17, 0.09], "roughness": 0.5,  "albedo_mode": "texture"},
+    "painted_wood_white": {"source": "polyhaven", "asset": "white_planks_clean", "kind": "painted", "flat": [0.88, 0.87, 0.84], "roughness": 0.4,  "albedo_mode": "flat", "detail": 0.5},
     # Metal032 is bare grey metal (ambientCG has no clean white painted metal);
-    # the window-frame tint makes it white. No real-world size on the API -> 1 m.
-    "painted_metal_white": {"source": "ambientcg", "asset": "Metal032",          "kind": "metal",   "flat": [0.85, 0.85, 0.85], "roughness": 0.35},
+    # flat mode takes the white from "flat" and keeps 15 % of the metal's
+    # luminance detail. No real-world size on the API -> 1 m.
+    "painted_metal_white": {"source": "ambientcg", "asset": "Metal032",          "kind": "metal",   "flat": [0.85, 0.85, 0.85], "roughness": 0.35, "albedo_mode": "flat", "detail": 0.15},
 }
+
+ALBEDO_MODES = ("flat", "texture")
+
+
+def albedo_mode(slug: str) -> tuple[str, float | None]:
+    """``(mode, detail)`` of a material slug: ``("flat", detail)`` or
+    ``("texture", None)``. Slugs outside ``MATERIALS`` (the flat-only
+    furniture colours, local slugs of the scene builder) have no texture
+    and report ``("texture", None)``: their colour is the flat colour anyway."""
+    entry = MATERIALS.get(slug) or {}
+    mode = entry.get("albedo_mode", "texture")
+    if mode == "flat":
+        return "flat", float(entry["detail"])
+    return "texture", None
 
 # Flat-colour-only slugs for the parametric furniture and decor of Milestone 4
 # (wenart.blender.parametric): fabric, bedding, sanitary ceramic, appliance
@@ -81,11 +108,12 @@ ROUGHNESS: dict[str, float] = {
     **{slug: entry["roughness"] for slug, entry in FURNITURE_MATERIALS.items()},
 }
 
-# Multiplied into the albedo of the wall material (linear RGB).
+# Milestone 3 multiplied these into the wall albedo. The plaster entries went
+# in Milestone 5 (§2.2): flat albedo mode takes the plaster colour from
+# "flat" directly, and charcoal had been darkened twice (albedo 0.027 instead
+# of 0.05). The profile no longer has a ``walls.tint``; the identity entries
+# below are kept only for readers of the old table.
 WALL_TINTS: dict[str, list[float]] = {
-    "plaster_white": [0.95, 0.94, 0.90],
-    "plaster_cream": [0.93, 0.87, 0.75],
-    "plaster_charcoal": [0.22, 0.22, 0.23],
     "brick": [1.0, 1.0, 1.0],
     "wood_panel": [1.0, 1.0, 1.0],
 }
