@@ -14,7 +14,9 @@ user removed from the upload is never read again. The upload itself is never mod
 How, per file of the upload (sorted, symlinks never followed):
 
 - junk (``.DS_Store``, ``Thumbs.db``, ``desktop.ini``, ``._*``, everything under ``__MACOSX/``),
-  hidden files and folders, symlinks (refused, never followed), special files and file types outside
+  hidden files and folders, the top-level folders ``debug/``, ``outputs/`` and ``truth/`` (never
+  project documents: ``wenart.ingest.classify.SKIP_DIRS``; the synthetic projects keep their ground
+  truth there), symlinks (refused, never followed), special files and file types outside
   ``ALLOWED_SUFFIXES`` are skipped and listed with the reason;
 - every path part is NFC-normalised (``unicodedata.normalize("NFC", ...)``);
 - a file in a subfolder is staged at the top level as ``<subfolder>__<name>`` (nested folders:
@@ -22,7 +24,8 @@ How, per file of the upload (sorted, symlinks never followed):
   and holds images only (a nested folder inside it is flattened the same way);
 - a DWG is not read by the pipeline (no converter on the pod; users export DXF): a DWG next to a DXF of
   the same stem is skipped ("the DXF of the same name is used"); a DWG alone is staged with the note
-  ``DWG is not read; export DXF from the CAD program`` (the pipeline then says ``needs_review``);
+  ``DWG is not read; export DXF from the CAD program`` (without a converter the pipeline then ends
+  ``needs_review``; with one, its geometry is still checked like any other page);
 - a ``brief.yaml`` that is not at the top level, or a top-level brief with another spelling
   (``Brief.yaml``, ``brief.yml``), is staged with a note: only ``<top>/brief.yaml`` is read.
 
@@ -70,6 +73,9 @@ DOCUMENT_SUFFIXES = (".pdf", ".dxf", ".dwg", ".jpg", ".jpeg", ".png", ".tif", ".
 IMAGE_SUFFIXES = (".jpg", ".jpeg", ".png", ".tif", ".tiff")
 JUNK_NAMES = (".ds_store", "thumbs.db", "desktop.ini")
 JUNK_DIRS = ("__macosx",)
+# Top-level folders that are never project documents (the same names as
+# wenart.ingest.classify.SKIP_DIRS; the synthetic projects keep their ground truth in truth/).
+NOT_DOCUMENT_DIRS = ("debug", "outputs", "truth")
 STYLE_DIR = "style_photos"
 BRIEF_NAME = "brief.yaml"
 SUBFOLDER_SEP = "__"
@@ -207,6 +213,7 @@ def walk_upload(upload: Path, file_cap: int = FILE_CAP_BYTES) -> list[Entry]:
         dir_parts = [] if str(rel_dir) == "." else list(rel_dir.parts)
         in_junk = any(nfc(p).casefold() in JUNK_DIRS for p in dir_parts)
         in_hidden = any(p.startswith(".") for p in dir_parts)
+        not_documents = bool(dir_parts) and nfc(dir_parts[0]).casefold() in NOT_DOCUMENT_DIRS
         dirnames.sort()
         for d in list(dirnames):
             full = here / d
@@ -233,6 +240,10 @@ def walk_upload(upload: Path, file_cap: int = FILE_CAP_BYTES) -> list[Entry]:
                 entries.append(_entry(parts, full, size=st.st_size, reason="junk (system metadata file)"))
             elif in_hidden:
                 entries.append(_entry(parts, full, size=st.st_size, reason="hidden folder"))
+            elif not_documents:
+                entries.append(_entry(parts, full, size=st.st_size,
+                                      reason=f"folder {dir_parts[0]}/ is not read (debug/, outputs/, truth/ never "
+                                             f"hold project documents)"))
             elif name.startswith("."):
                 entries.append(_entry(parts, full, size=st.st_size, reason="hidden file"))
             else:

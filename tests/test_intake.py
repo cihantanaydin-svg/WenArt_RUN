@@ -430,6 +430,26 @@ def test_a_staged_synthetic_project_reads_like_the_committed_one(env):
     assert r.status == "ok"
     staged = project_documents(out_for(env, "selftest-02"))
     committed = project_documents(src)
-    assert [p.name.removeprefix("belgeler__") for p in staged if p.name.startswith("belgeler__")] == \
-        [p.name for p in committed]
+    assert [p.name for p in staged] == [f"belgeler__{p.name}" for p in committed]
     assert (out_for(env, "selftest-02") / "brief.yaml").read_bytes() == (src / "brief.yaml").read_bytes()
+    assert not any("truth" in p for p in staged_files(out_for(env, "selftest-02")))
+
+
+def test_truth_outputs_and_debug_folders_are_never_documents(env):
+    """synthetic-02 keeps the vector source of its scan in truth/plan.pdf: staged, it would turn the
+    scan-only self-test into an ok project. The pipeline's own skip list says these folders never hold
+    documents."""
+    from wenart.ingest.classify import SKIP_DIRS
+    assert set(I.NOT_DOCUMENT_DIRS) == set(SKIP_DIRS)
+    up = upload(env, "selftest-02")
+    src = ROOT / "projects" / "synthetic-02"
+    shutil.copytree(src, up, dirs_exist_ok=True)
+    write(up / "Debug" / "x.pdf")
+    write(up / "outputs" / "building.json")
+    write(up / "plans" / "truth" / "kept.pdf")              # only the top-level folders are excluded
+    r = I.stage_project("selftest-02", out_for(env, "selftest-02"), root=env["pp"], repo_root=env["repo"])
+    assert r.status == "ok"
+    assert staged_files(out_for(env, "selftest-02")) == ["plan_photo.jpg", "plan_scan.png", "plans__truth__kept.pdf"]
+    f = by_path(manifest(env, "selftest-02"))
+    assert f["truth/plan.pdf"]["reason"].startswith("folder truth/ is not read")
+    assert f["Debug/x.pdf"]["reason"].startswith("folder Debug/ is not read")

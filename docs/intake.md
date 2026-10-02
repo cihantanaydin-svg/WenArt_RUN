@@ -42,8 +42,9 @@ GitHub, never through the Claude chat and never into the public repository.
    - the **secret**, which starts with `rps_`.
 
    Save both in your password manager. **Never paste them into the chat, an email or a file in the
-   repository.** This key is separate from the RunPod API key. It gives full read and write access to
-   the volume, so treat it like a password.
+   repository.** This key is separate from the RunPod API key. The RunPod documentation describes no
+   way to limit what it can do, so treat it as full read and write access to your volumes, like a
+   password.
 
 ## 3. Install the AWS command-line tool (once)
 
@@ -80,10 +81,13 @@ my-folder/
 Rules:
 
 - **Export DXF (or a vector PDF) from the CAD program. DWG files are not read.** A DWG next to a DXF
-  of the same name is skipped; a DWG alone stops the project with "needs review".
+  of the same name is skipped; a DWG alone is kept with a note, and the pipeline cannot use it (the
+  project then normally stops with "needs review").
 - Plans in subfolders are fine: `plans/zemin.dxf` is used as `plans__zemin.dxf`. Two files that end
   up with the same name (also when they differ only in upper/lower case) stop the project with
   "document name collision"; rename one of them.
+- Top-level folders named `debug/`, `outputs/` or `truth/` are not read (WenArt uses these names for
+  its own files).
 - `brief.yaml` is read only at the top level and only with exactly this name.
 - `style_photos/` keeps its photos; other files in it are skipped.
 - Files that are used: `.pdf .dxf .dwg .jpg .jpeg .png .tif .tiff .yaml .yml .txt .md`. Everything
