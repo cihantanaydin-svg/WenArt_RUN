@@ -10,11 +10,11 @@
   "baseline": {
    "views": 57,
    "views_computed": 57,
-   "required_elements": 99,
-   "fa_missing": 0.0808,
+   "required_elements": 51,
+   "fa_missing": 0.0,
    "fa_extra": 0.0,
    "count_error": 0.0175,
-   "disputed": 0.0808
+   "disputed": 0.0196
   },
   "models": {
    "qwen": {
@@ -23,7 +23,7 @@
     "answer_rate": 1.0,
     "decoys": 55,
     "decoy_accept": 0.0,
-    "fa_missing_single": 0.1717
+    "fa_missing_single": 0.0196
    },
    "glm": {
     "calls": 57,
@@ -31,10 +31,10 @@
     "answer_rate": 1.0,
     "decoys": 55,
     "decoy_accept": 0.0182,
-    "fa_missing_single": 0.0808
+    "fa_missing_single": 0.0
    }
   },
-  "fa_missing": 0.0808,
+  "fa_missing": 0.0,
   "fa_extra": 0.0,
   "count_error": 0.0175,
   "removal_flagged": 1.0,
@@ -173,13 +173,6 @@
  },
  "missed": [
   {
-   "target": "fa_missing_max",
-   "metric": "fa_missing",
-   "value": 0.0808,
-   "threshold": 0.05,
-   "op": "<="
-  },
-  {
    "target": "insertion_min",
    "metric": "insertion",
    "value": 0.1429,
@@ -189,7 +182,6 @@
  ],
  "advisory": true,
  "advisory_reasons": [
-  "fa_missing 0.0808 misses <= 0.05",
   "insertion 0.1429 misses >= 0.6"
  ],
  "plan_ab": {
@@ -198,18 +190,16 @@
    "cam_r_L-1_kiler_2_3",
    "cam_r_L-1_kiler_3",
    "cam_r_L-1_yatak_odasi_2",
-   "cam_r_L-1_yatak_odasi_3",
    "cam_r_L0_hol_1",
    "cam_r_L0_salon_1",
-   "cam_r_L0_salon_3",
    "cam_r_L0_yatak_odasi_2",
    "cam_r_L1_balkon_2",
    "cam_r_L1_ebeveyn_yatak_odasi_1"
   ],
-  "pairs": 11,
+  "pairs": 7,
   "removal_pairs": 7,
-  "fa_missing_without": 0.1034,
-  "fa_missing_with": 0.1034,
+  "fa_missing_without": 0.0,
+  "fa_missing_with": 0.0,
   "fa_extra_without": 0.0,
   "fa_extra_with": 0.0,
   "removal_confirmed_without": 0.7143,

@@ -58,7 +58,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     }
    ],
    "json_crosscheck": {
@@ -141,7 +141,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     },
     {
      "index": 19,
@@ -185,7 +185,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     }
    ],
    "json_crosscheck": {
@@ -292,7 +292,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     }
    ],
    "json_crosscheck": {
@@ -375,7 +375,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     },
     {
      "index": 2,
@@ -419,7 +419,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     },
     {
      "index": 10,
@@ -1332,7 +1332,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     }
    ],
    "json_crosscheck": {
@@ -1426,7 +1426,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     }
    ],
    "json_crosscheck": {
@@ -1520,7 +1520,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     }
    ],
    "json_crosscheck": {
@@ -1994,7 +1994,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     },
     {
      "index": 5,
@@ -2084,7 +2084,7 @@
      "host_decor": [
       "book_set"
      ],
-     "role": "required"
+     "role": "optional"
     },
     {
      "index": 13,
@@ -2325,7 +2325,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     },
     {
      "index": 57,
@@ -2517,7 +2517,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     },
     {
      "index": 22,
@@ -2569,7 +2569,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     }
    ],
    "json_crosscheck": {
@@ -2686,7 +2686,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     }
    ],
    "json_crosscheck": {
@@ -2777,7 +2777,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     },
     {
      "index": 56,
@@ -3479,7 +3479,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     }
    ],
    "json_crosscheck": {
@@ -3645,7 +3645,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     },
     {
      "index": 47,
@@ -3842,7 +3842,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     },
     {
      "index": 41,
@@ -3886,7 +3886,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     },
     {
      "index": 43,
@@ -4018,7 +4018,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     },
     {
      "index": 42,
@@ -4229,7 +4229,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     },
     {
      "index": 47,
@@ -4803,7 +4803,7 @@
      "host_decor": [
       "cushion"
      ],
-     "role": "required"
+     "role": "optional"
     },
     {
      "index": 30,
@@ -5216,7 +5216,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     },
     {
      "index": 37,
@@ -5491,7 +5491,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     },
     {
      "index": 53,
@@ -5650,7 +5650,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     },
     {
      "index": 54,
@@ -5798,7 +5798,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     }
    ],
    "json_crosscheck": {
@@ -5932,7 +5932,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     },
     {
      "index": 48,
@@ -5978,7 +5978,7 @@
      "host_decor": [
       "cushion"
      ],
-     "role": "required"
+     "role": "optional"
     },
     {
      "index": 50,
@@ -6404,7 +6404,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     },
     {
      "index": 50,
@@ -6613,7 +6613,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     }
    ],
    "json_crosscheck": {
@@ -6778,7 +6778,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     },
     {
      "index": 65,
@@ -6973,7 +6973,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     }
    ],
    "json_crosscheck": {
@@ -7056,7 +7056,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     }
    ],
    "json_crosscheck": {
@@ -7139,7 +7139,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     },
     {
      "index": 86,
@@ -7183,7 +7183,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     },
     {
      "index": 88,
@@ -7633,7 +7633,7 @@
      "host_decor": [
       "book_set"
      ],
-     "role": "required"
+     "role": "optional"
     },
     {
      "index": 82,
@@ -7899,7 +7899,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     },
     {
      "index": 60,
@@ -7943,7 +7943,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     },
     {
      "index": 85,
@@ -8668,7 +8668,7 @@
      "host_decor": [
       "cushion"
      ],
-     "role": "required"
+     "role": "optional"
     },
     {
      "index": 66,
@@ -8711,7 +8711,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     },
     {
      "index": 73,
@@ -8864,7 +8864,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     },
     {
      "index": 76,
@@ -9438,7 +9438,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     },
     {
      "index": 77,
@@ -9484,7 +9484,7 @@
      "host_decor": [
       "cushion"
      ],
-     "role": "required"
+     "role": "optional"
     },
     {
      "index": 65,
@@ -9678,7 +9678,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     },
     {
      "index": 77,
@@ -9724,7 +9724,7 @@
      "host_decor": [
       "cushion"
      ],
-     "role": "required"
+     "role": "optional"
     },
     {
      "index": 90,
@@ -9906,7 +9906,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     },
     {
      "index": 63,
@@ -9950,7 +9950,7 @@
       }
      ],
      "host_decor": [],
-     "role": "required"
+     "role": "optional"
     },
     {
      "index": 77,

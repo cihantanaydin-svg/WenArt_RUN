@@ -12,7 +12,7 @@
     273
    ],
    "scale": 1.24805,
-   "bytes": 52696
+   "bytes": 52569
   },
   "cam_r_L0_banyo_2": {
    "plan": "cam_r_L0_banyo_2_plan.jpg",
@@ -24,7 +24,7 @@
     273
    ],
    "scale": 1.24805,
-   "bytes": 54598
+   "bytes": 54039
   },
   "cam_r_L0_banyo_3": {
    "plan": "cam_r_L0_banyo_3_plan.jpg",
@@ -36,7 +36,7 @@
     273
    ],
    "scale": 1.24805,
-   "bytes": 54090
+   "bytes": 53706
   },
   "cam_r_L0_hol_1": {
    "plan": "cam_r_L0_hol_1_plan.jpg",
@@ -48,7 +48,7 @@
     273
    ],
    "scale": 1.24805,
-   "bytes": 42726
+   "bytes": 42483
   },
   "cam_r_L0_hol_2": {
    "plan": "cam_r_L0_hol_2_plan.jpg",
@@ -60,7 +60,7 @@
     273
    ],
    "scale": 1.24805,
-   "bytes": 47876
+   "bytes": 47413
   },
   "cam_r_L0_hol_3": {
    "plan": "cam_r_L0_hol_3_plan.jpg",
@@ -72,7 +72,7 @@
     273
    ],
    "scale": 1.24805,
-   "bytes": 39093
+   "bytes": 38981
   },
   "cam_r_L0_mutfak_1": {
    "plan": "cam_r_L0_mutfak_1_plan.jpg",
@@ -84,7 +84,7 @@
     273
    ],
    "scale": 1.0,
-   "bytes": 50643
+   "bytes": 50176
   },
   "cam_r_L0_mutfak_2": {
    "plan": "cam_r_L0_mutfak_2_plan.jpg",
@@ -96,7 +96,7 @@
     273
    ],
    "scale": 1.0,
-   "bytes": 53747
+   "bytes": 53166
   },
   "cam_r_L0_mutfak_3": {
    "plan": "cam_r_L0_mutfak_3_plan.jpg",
@@ -108,7 +108,7 @@
     273
    ],
    "scale": 1.0,
-   "bytes": 53929
+   "bytes": 53397
   },
   "cam_r_L0_salon_1": {
    "plan": "cam_r_L0_salon_1_plan.jpg",
@@ -120,7 +120,7 @@
     554
    ],
    "scale": 1.0,
-   "bytes": 78457
+   "bytes": 78161
   },
   "cam_r_L0_salon_2": {
    "plan": "cam_r_L0_salon_2_plan.jpg",
@@ -132,7 +132,7 @@
     554
    ],
    "scale": 1.0,
-   "bytes": 81563
+   "bytes": 81055
   },
   "cam_r_L0_salon_3": {
    "plan": "cam_r_L0_salon_3_plan.jpg",
@@ -156,7 +156,7 @@
     772
    ],
    "scale": 1.02433,
-   "bytes": 64064
+   "bytes": 63419
   },
   "cam_r_L0_yatak_odasi_2": {
    "plan": "cam_r_L0_yatak_odasi_2_plan.jpg",
@@ -168,7 +168,7 @@
     772
    ],
    "scale": 1.02433,
-   "bytes": 58556
+   "bytes": 57829
   },
   "cam_r_L0_yatak_odasi_3": {
    "plan": "cam_r_L0_yatak_odasi_3_plan.jpg",
@@ -180,7 +180,7 @@
     772
    ],
    "scale": 1.02433,
-   "bytes": 57614
+   "bytes": 57374
   },
   "cam_r_L1_banyo_1": {
    "plan": "cam_r_L1_banyo_1_plan.jpg",
@@ -204,7 +204,7 @@
     1310
    ],
    "scale": 1.57171,
-   "bytes": 46822
+   "bytes": 46550
   },
   "cam_r_L1_banyo_3": {
    "plan": "cam_r_L1_banyo_3_plan.jpg",
@@ -216,7 +216,7 @@
     1310
    ],
    "scale": 1.57171,
-   "bytes": 45357
+   "bytes": 45048
   },
   "cam_r_L1_cocuk_odasi_1": {
    "plan": "cam_r_L1_cocuk_odasi_1_plan.jpg",
@@ -228,7 +228,7 @@
     1310
    ],
    "scale": 1.35135,
-   "bytes": 49558
+   "bytes": 49104
   },
   "cam_r_L1_cocuk_odasi_2": {
    "plan": "cam_r_L1_cocuk_odasi_2_plan.jpg",
@@ -240,7 +240,7 @@
     1310
    ],
    "scale": 1.35135,
-   "bytes": 56063
+   "bytes": 55728
   },
   "cam_r_L1_cocuk_odasi_3": {
    "plan": "cam_r_L1_cocuk_odasi_3_plan.jpg",
@@ -264,7 +264,7 @@
     1641
    ],
    "scale": 1.35135,
-   "bytes": 68200
+   "bytes": 67883
   },
   "cam_r_L1_ebeveyn_yatak_odasi_2": {
    "plan": "cam_r_L1_ebeveyn_yatak_odasi_2_plan.jpg",
@@ -276,7 +276,7 @@
     1641
    ],
    "scale": 1.35135,
-   "bytes": 78724
+   "bytes": 77867
   },
   "cam_r_L1_ebeveyn_yatak_odasi_3": {
    "plan": "cam_r_L1_ebeveyn_yatak_odasi_3_plan.jpg",
@@ -288,7 +288,7 @@
     1641
    ],
    "scale": 1.35135,
-   "bytes": 76343
+   "bytes": 75665
   },
   "cam_r_L1_hol_1": {
    "plan": "cam_r_L1_hol_1_plan.jpg",
@@ -300,7 +300,7 @@
     1310
    ],
    "scale": 1.0,
-   "bytes": 36857
+   "bytes": 36799
   },
   "cam_r_L1_hol_2": {
    "plan": "cam_r_L1_hol_2_plan.jpg",
@@ -324,7 +324,7 @@
     1310
    ],
    "scale": 1.0,
-   "bytes": 38057
+   "bytes": 37964
   },
   "cam_r_L1_yatak_odasi_1": {
    "plan": "cam_r_L1_yatak_odasi_1_plan.jpg",
@@ -336,7 +336,7 @@
     1665
    ],
    "scale": 1.43885,
-   "bytes": 57159
+   "bytes": 56046
   },
   "cam_r_L1_yatak_odasi_2": {
    "plan": "cam_r_L1_yatak_odasi_2_plan.jpg",
@@ -348,7 +348,7 @@
     1665
    ],
    "scale": 1.43885,
-   "bytes": 57748
+   "bytes": 56642
   },
   "cam_r_L1_yatak_odasi_3": {
    "plan": "cam_r_L1_yatak_odasi_3_plan.jpg",
@@ -360,7 +360,7 @@
     1665
    ],
    "scale": 1.43885,
-   "bytes": 57871
+   "bytes": 56735
   }
  },
  "warnings": []

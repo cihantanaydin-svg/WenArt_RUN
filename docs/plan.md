@@ -299,6 +299,13 @@ and its PyPI package pins numpy<2) relative depth after a scale/shift fit, SAM 2
 (logged). Window panes get the Cycles pixels back after every polish. Thresholds are calibrated on the
 synthetic projects with benign and small/large negative controls (`results/gate/`).
 
+**Measured on 2 Oct 2026 (Milestone 5, `results/final/`, `results/gate/`):** the gate accepts every harmless
+change (JPEG, noise, blur, ±0.3 EV) and rejects 94 % of deliberate geometry and colour changes; 44 of the 87
+synthetic views end polished (ladder 0.375 geometry → 0.25 canny → 0.125 depth), the others stay Cycles,
+mostly because Depth Anything V2 Small is unstable on large flat surfaces of small rooms. At the strengths
+the gate accepts, the two vision judges see little difference between polished and Cycles images; at 0.5
+the polish starts to change furniture. Realism gains are more likely on the Cycles side.
+
 ### 4.13 Final render check
 
 Built in Milestone 5 (`docs/milestone5.md` §5): the expected elements of every view come from the Cycles

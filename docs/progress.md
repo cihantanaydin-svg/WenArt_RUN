@@ -226,36 +226,88 @@ GPU cost so far: see `docs/gpu-log.md`.
 Next step: Milestone 5: AI polish (image-to-image with depth/edge control, geometry change check), the final
 vision check against the building JSON, and real-room photos as style and material references.
 
-## Milestone 5 – Cycles look fixes, gated AI polish, final vision check (code done, pod runs pending)
+## Milestone 5 – Cycles look fixes, gated AI polish, final vision check (done, 2 Oct 2026)
 
-What is built (`docs/milestone5.md` is the spec; §13 lists the integration decisions):
-- Look (`wenart/blender`): camera-only window glass, flat albedo for plaster and painted surfaces (the
-  plaster wall tints are gone), one light portal per window, per-camera auto exposure and white balance from
-  a 1/8-resolution metering render, uint16 index / depth_mm / normal maps, `render_key` reuse, `--hide`,
-  `--plug`, `--hide-sets`, `--look-from`, build fingerprint with `build --reuse`.
-- AI polish (`wenart/polish`): Z-Image-Turbo + Fun ControlNet Union 2.1 img2img with one control image, the
-  attempt ladder (each attempt gated at once), the room rule, resumable attempts (`attempt_key`, `gate_key`,
-  decisions recomputed), sweep and smoke modes, deadline handling.
-- Change gate (`wenart/gate`): lost edges, added straight lines, DAv2-Small depth, SAM 2.1 masks, Lab colour,
-  neutral walls, DINOv2 features (soft); benign / negative / removal / insertion calibration with threshold
-  proposals.
-- Final vision check (`wenart/vision_check`): expected elements from the index pass, the building-JSON
-  cross-check, source-plan crops, two models with a decoy, removal / insertion / type-swap controls, realism
-  preference, calibration targets and the differential polish decision.
-- Style reference photos (`wenart/style/photos.py`), brief defaults (`wenart/brief.py`), final and sweep
-  reports (`wenart/report`), pod setup and job (`scripts/pod_setup_polish.sh`, `scripts/jobs/polish.sh`),
-  GPU tests (`tests/gpu/test_polish.py`, `test_check.py`, `test_render.py`).
+What works (`docs/milestone5.md` is the spec; §13 lists the integration and review decisions):
+- Look (`wenart/blender`): window glass seen as glass only by camera and mirror rays (the old shader let 2.4×
+  the sun through and gave everything an orange cast), flat albedo for plaster and paint (white walls are
+  white, charcoal is charcoal), a light portal per window, per-camera auto exposure and white balance from a
+  1/8-resolution metering render (0.35 s per view), uint16 index / depth_mm / normal maps, `render_key` reuse,
+  `--hide`/`--plug`/`--hide-sets`/`--look-from` control renders, build fingerprint with `build --reuse`.
+  Before / after: `results/renders/<p>/` (the M4 previews are in git history, commit c2656af).
+- AI polish (`wenart/polish`): Z-Image-Turbo + Fun ControlNet Union 2.1, img2img with one control image, all
+  weights resident (no CPU offload), loaded from local snapshot folders; an attempt ladder where every attempt
+  is gated at once, a room rule (the views of one room stay all polished or all Cycles), window panes always
+  get the Cycles pixels back, resumable attempts.
+- Change gate (`wenart/gate`): lost geometry edges, new straight lines on bare walls/floors, Depth Anything V2
+  Small depth after a scale/shift fit, SAM 2.1 masks on both images, CIELAB colour, white-wall chroma, DINOv2
+  (logged); calibrated with benign and negative controls (`results/gate/<p>/gate_calibration.md`).
+- Final vision check (`wenart/vision_check`): expected elements from the object-index pass, a building-JSON
+  cross-check projected with a depth test, a crop of the source plan page per view (camera and view cone
+  drawn), Qwen3-VL-8B + GLM-4.6V-Flash with a sentinel decoy, removal / insertion / type-swap controls, realism
+  preference; a polished image is dropped when it loses an element or gains a door, window or furniture piece.
+- Style reference photos (`wenart/style/photos.py`): both models agree on the vocabulary terms of a room photo
+  before a term may fill a slot the brief leaves open; final report per project with contact sheets
+  (`results/final/<p>/final_report.md`).
 
-Tests: `pytest -m "not gpu"` green on the integration branch, including `tests/test_m5_e2e.py`: every job
-stage on synthetic-01 (Blender CPU, 2 views at 192x108, a fake diffusion backend, the real gate with fake
-models, an oracle vision client) in about 16 s, plus the read-only GPU test logic on its outputs.
+Measured (pod runs 0–2, `docs/gpu-log.md`, M5 total $2.41):
 
-Open items (need the pod or the user):
-- Pod runs 0, 1a, 1b, 2 (`docs/milestone5.md` §8.3): none has run. The diffusers / transformers model code,
-  VRAM, speed, exposure defaults, gate thresholds, ladder and check targets are unmeasured.
-- Exposure: sky-only interiors meter bluish (whitepoint 7000–9500 K on the CPU tests), so auto white balance
-  warms them; calibrate in run 0/1.
-- Gate: a 2° rotation of mid-size objects is not detected at 640 px; wet-room tiles (texture albedo) pass a
-  b* +10 shift. Run 1a decides.
-- Vision check: prompt wording, decoy and extras untested on the real models; token budget estimated.
-- `docs/plan.md` §4.12–4.13 and §8 still need the §0 changes when the milestone is closed.
+| Item | synthetic-01 | synthetic-03 |
+|---|---|---|
+| Views (all re-rendered with the new look) | 30 | 57 |
+| Exposure range | −1.0 … +7.0 EV | −1.5 … +8.0 EV (4 views at the +8 limit) |
+| Polish attempts / mean seconds | 52 / 7.0 s | 135 / 6.4 s |
+| Final: polished / Cycles | 24 / 6 (room rule 6) | 20 / 37 (gate 10, room rule 26, check 1) |
+| Vision-check mismatches on final images | 2 views (shower enclosure missed by both models, also on Cycles) | 2 in 2 views |
+| Realism preference (polished preferred by ≥ 3 of 4 answers) | 0 of 24 | 2 of 20 |
+
+| Calibration | Value |
+|---|---|
+| Gate: benign controls accepted / negatives rejected | 128/128 / 326/348 (93.7 %; small shifts, scales, rotations 91.5 %) |
+| Gate: presumed-bad polishes (strength 0.75, no control) rejected | 8/8 |
+| Polish: diffusion speed at 1920×1088 | 2.0 s/forward (RTX 4090), 2.9–3.8 s (RTX PRO 4500); peak 22.5 GiB |
+| Vision check: decoys accepted / false extras | 0–2 % / 0 % |
+| Vision check: removal flagged / confirmed | 100 % / 62–71 % |
+| Vision check: insertion confirmed | 0–14 % (target 60 %, missed: the check is advisory for absolute flags) |
+| Vision check: false missing on clean renders | 8–9 % with the start roles, 0 % with the calibrated roles |
+
+Found and fixed on the way (each with a test): the tokenizer did not load offline (transformers asks for a
+`tokenizer/config.json` that does not exist; models now load from local snapshot folders), the pod reported
+112 host CPUs and numpy/torch oversubscribed the pod's 11-CPU quota (10–50× slower gate), the CPU-offload
+fallback would have broken every later attempt (the ControlNet shares the transformer's embedders), window
+glass bent the outside view, the cross-check flagged correctly placed furniture, the insertion decoy covered
+the inserted element, results were re-copied after every stage (≈ 30 min of I/O), results were downloaded one
+file at a time. Review of the milestone: 6 lenses, 2 refuting verifiers per finding, 15 distinct findings
+confirmed and fixed (`docs/milestone5.md` §13.1).
+
+Needs your OK (listed in `wenart/gate/thresholds.yaml: calibration.user_ok: pending`):
+- The gate limits from run 1a are looser than the start values for edges (global 0.95 → 0.935), depth (0.02 →
+  0.05, per region 0.05 → 0.14) and masks (0.90 → 0.62), and tighter for colour, white walls and per-object
+  edges. With the start values the gate rejected 12 % of harmless changes (JPEG, noise, blur) and most
+  polishes; with the new ones it accepts every harmless change and still rejects 94 % of the deliberate
+  geometry and colour changes. Say if you want the stricter start values back.
+- The vision check runs as `advisory` for absolute flags because it rarely notices an added, unlisted element
+  (insertion 0–14 %); removals, type swaps and the polish decision work.
+
+Open items:
+- Polish realism: at the strengths the gate accepts (0.125–0.375) the two judges call polished and Cycles
+  images "the same" in 55 of 56 answers on the sweep and prefer only 2 of the 44 final polished images; at 0.5 the polish starts to
+  change furniture (a desk drawer disappears) and is rejected. More realism should come from the Cycles side
+  (furniture assets, textiles, lamps, contact shadows) or a tile/upscale ControlNet, not from a stronger polish.
+- The depth check is the main reason polishes are rejected (41 of 45 rejected attempts in synthetic-03, 10 of 11
+  in synthetic-01), mostly in
+  halls, storage rooms, the WC and the balcony (large flat surfaces); the room rule then keeps the whole room in
+  Cycles. A per-region noise floor measured on the reference (JPEG + noise perturbations in `prepare`) would let
+  the gate be strict where depth is stable and tolerant where it is not.
+- Windows blow out at interior exposure; 4 dark rooms of synthetic-03 hit the +8 EV limit.
+- Some cameras frame mostly bare walls (bathrooms, one child's room view): camera composition (Milestone 3
+  code) needs a look.
+- The brief "charcoal and white" makes every wall charcoal (the second colour is dropped with a warning);
+  Tiles074 is a marble look for "light tiles"; shower panels keep the M4 thin glass.
+- Gate thresholds were set on two synthetic projects; real projects should be calibrated again
+  (`python -m wenart.gate calibrate`), the cross-check shows they differ per project.
+
+GPU cost so far: $6.13 (`docs/gpu-log.md`).
+
+Next step: Milestone 6: full runs on real projects (your folders in `projects/`), with a gate calibration per
+project, and the realism work on the Cycles side.

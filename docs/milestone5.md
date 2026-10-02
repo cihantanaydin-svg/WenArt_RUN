@@ -594,7 +594,7 @@ furniture with visibility < 0.35 and openings that touch the border optional (`f
 `border_openings_required: false`): on the run 1b answers that leaves 95 required elements with 0 confirmed
 false misses (6 disputed). The models rarely report an unlisted element (insertion), so the check stays
 `advisory` for its absolute flags; the differential polish decision stays active. The realism preference
-answered "same" in 55 of 56 comparisons of gate-accepted sweep polishes with their Cycles renders: at the
+answered "same" in 55 of 56 answers on gate-accepted sweep polishes with their Cycles renders: at the
 strengths the gate accepts, the polish is barely visible to the judges.
 
 ### 5.6 Realism preference (`preference.py`, info only)
@@ -756,6 +756,18 @@ parallel requests (one at a time took 0.81 s per file in runs 0/0b), so the 500�
 in about 2 min. Thresholds, ladder and check roles are set here in the session
 from run 1's numbers (committed with the numbers). Each run gets its own gpu-log row; runs 1a–2b ≈ 8–9 pod
 hours, ≈ $6 at $0.70/h (within $10 per day).
+
+
+As run on 2 Oct 2026 (`docs/gpu-log.md`): one pod for run 2 was enough once the CPU thread budget was in place
+(a polish attempt took 6–7 s instead of 35–75 s).
+
+| Run | GPU | Minutes | Cost | Result |
+|---|---|---|---|---|
+| 0 smoke | RTX PRO 4500 | 35 | $0.41 | exit 1: the polish could not load the tokenizer offline (fixed: local snapshot folders); look and both VLM passes ok |
+| 0b smoke | RTX PRO 4500 | 20 | $0.24 | ok: 3.8 s per forward at 1920×1088, peak 22.5 GiB; gate slowed by CPU oversubscription (fixed: cgroup thread budget) |
+| 1a sweep | RTX 4090 | 42 | $0.52 | ok: both projects re-rendered, 16 control renders, 88 sweep polishes (2.0 s per forward), gate calibration (484 comparisons) |
+| 1b check calibration | RTX PRO 4500 | 38 | $0.45 | ok: 312 VLM calls, none failed; style photo agreed by both models; GPU tests 27 passed |
+| 2 final | RTX PRO 4500 | 66 | $0.79 | ok: 187 polish attempts, 44 of 87 views polished, vision check of every final image, reports; GPU tests 27 + 16 passed |
 
 ## 9. Tests
 

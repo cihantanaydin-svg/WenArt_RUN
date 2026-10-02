@@ -10,11 +10,11 @@
   "baseline": {
    "views": 30,
    "views_computed": 30,
-   "required_elements": 88,
-   "fa_missing": 0.0909,
+   "required_elements": 44,
+   "fa_missing": 0.0,
    "fa_extra": 0.0,
-   "count_error": 0.1667,
-   "disputed": 0.1023
+   "count_error": 0.0667,
+   "disputed": 0.0682
   },
   "models": {
    "qwen": {
@@ -23,7 +23,7 @@
     "answer_rate": 1.0,
     "decoys": 30,
     "decoy_accept": 0.0,
-    "fa_missing_single": 0.1932
+    "fa_missing_single": 0.0682
    },
    "glm": {
     "calls": 30,
@@ -31,12 +31,12 @@
     "answer_rate": 1.0,
     "decoys": 30,
     "decoy_accept": 0.0,
-    "fa_missing_single": 0.0909
+    "fa_missing_single": 0.0
    }
   },
-  "fa_missing": 0.0909,
+  "fa_missing": 0.0,
   "fa_extra": 0.0,
-  "count_error": 0.1667,
+  "count_error": 0.0667,
   "removal_flagged": 1.0,
   "removal_confirmed": 0.625,
   "insertion": 0.0,
@@ -179,13 +179,6 @@
  },
  "missed": [
   {
-   "target": "fa_missing_max",
-   "metric": "fa_missing",
-   "value": 0.0909,
-   "threshold": 0.05,
-   "op": "<="
-  },
-  {
    "target": "insertion_min",
    "metric": "insertion",
    "value": 0.0,
@@ -195,7 +188,6 @@
  ],
  "advisory": true,
  "advisory_reasons": [
-  "fa_missing 0.0909 misses <= 0.05",
   "insertion 0.0 misses >= 0.6"
  ],
  "plan_ab": {
@@ -211,14 +203,14 @@
    "cam_r_L1_hol_1",
    "cam_r_L1_hol_2"
   ],
-  "pairs": 10,
-  "removal_pairs": 8,
-  "fa_missing_without": 0.0513,
-  "fa_missing_with": 0.0769,
+  "pairs": 1,
+  "removal_pairs": 1,
+  "fa_missing_without": 0.0,
+  "fa_missing_with": 0.0,
   "fa_extra_without": 0.0,
   "fa_extra_with": 0.0,
-  "removal_confirmed_without": 0.625,
-  "removal_confirmed_with": 0.75,
+  "removal_confirmed_without": 0.0,
+  "removal_confirmed_with": 0.0,
   "favours_plan": false,
   "used": false,
   "adopted": false,

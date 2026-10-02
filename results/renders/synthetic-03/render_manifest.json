@@ -160,7 +160,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -255,7 +255,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -340,7 +340,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -475,7 +475,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -570,7 +570,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -655,7 +655,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -728,7 +728,7 @@
    },
    "index_values": [],
    "index_stats": {},
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -813,7 +813,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -886,7 +886,7 @@
    },
    "index_values": [],
    "index_stats": {},
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -971,7 +971,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -1056,7 +1056,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -1141,7 +1141,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -1226,7 +1226,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -1311,7 +1311,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -1396,7 +1396,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -1501,7 +1501,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -1596,7 +1596,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -1731,7 +1731,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -1826,7 +1826,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -1931,7 +1931,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -2016,7 +2016,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -2141,7 +2141,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -2246,7 +2246,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -2331,7 +2331,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -2416,7 +2416,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -2501,7 +2501,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -2586,7 +2586,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -2691,7 +2691,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -2826,7 +2826,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -2951,7 +2951,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -3066,7 +3066,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -3201,7 +3201,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -3326,7 +3326,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -3421,7 +3421,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -3516,7 +3516,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -3601,7 +3601,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -3716,7 +3716,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -3821,7 +3821,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -3936,7 +3936,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -4021,7 +4021,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -4106,7 +4106,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -4211,7 +4211,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -4296,7 +4296,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -4381,7 +4381,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -4486,7 +4486,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -4591,7 +4591,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -4716,7 +4716,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -4831,7 +4831,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -4946,7 +4946,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -5071,7 +5071,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -5176,7 +5176,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -5311,7 +5311,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -5416,7 +5416,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -5489,7 +5489,7 @@
    },
    "index_values": [],
    "index_stats": {},
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -5604,7 +5604,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -5709,7 +5709,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -5824,7 +5824,7 @@
      ]
     }
    },
-   "skipped": false,
+   "skipped": true,
    "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
    "render_key": "ad0f4b5eeacd626d",
    "exposure": {
@@ -5868,10 +5868,5 @@
    "plugged": []
   }
  ],
- "warnings": [
-  "cam_r_L-1_kiler_2: exposure at the limit (+8.06 EV wanted, +8.00 used)",
-  "cam_r_L-1_kiler_2_2: exposure at the limit (+8.35 EV wanted, +8.00 used)",
-  "cam_r_L-1_yatak_odasi_2: exposure at the limit (+8.25 EV wanted, +8.00 used)",
-  "cam_r_L-1_yatak_odasi_3: exposure at the limit (+8.47 EV wanted, +8.00 used)"
- ]
+ "warnings": []
 }

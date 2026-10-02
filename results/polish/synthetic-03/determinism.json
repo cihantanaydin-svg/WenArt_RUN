@@ -1,0 +1,20 @@
+{
+ "schema_version": "0.1",
+ "camera": "cam_r_L-1_banyo_1",
+ "max_abs_diff": 0,
+ "seconds": 16.47,
+ "attempt_key": "5eaabcff9bce2e114706eb6cffbbc24778cd4065578bd7bab1734094544aaeac",
+ "settings": {
+  "strength": 0.375,
+  "control": "geometry",
+  "scale": 0.8,
+  "size": "native",
+  "mode": "plain",
+  "seed": 1,
+  "steps": 8
+ },
+ "seconds_each": [
+  8.23,
+  8.24
+ ]
+}
