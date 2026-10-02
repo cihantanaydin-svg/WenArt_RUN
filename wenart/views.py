@@ -705,6 +705,29 @@ def _resolve_repo_path(value, project_out: Path) -> Optional[Path]:
     return first
 
 
+def resolve_repo_path(value) -> Optional[Path]:
+    """A path recorded relative to the repo root, or absolute (docs/milestone6.md §1.1).
+
+    Absolute paths (files outside the repo, e.g. private projects on the
+    volume) stay as they are; relative ones join the repo root. None for an
+    empty value. No existence check (see ``_resolve_repo_path`` for the
+    manifest readers' fallbacks).
+    """
+    if not value:
+        return None
+    p = Path(value)
+    return p if p.is_absolute() else REPO_ROOT / p
+
+
+def repo_path_text(path) -> str:
+    """How a writer records ``path``: POSIX relative to the repo root when inside it, else absolute."""
+    p = Path(path).resolve()
+    try:
+        return p.relative_to(REPO_ROOT.resolve()).as_posix()
+    except ValueError:
+        return p.as_posix()
+
+
 def project_paths(project_out) -> dict:
     """Where a project's inputs come from (§1.1).
 

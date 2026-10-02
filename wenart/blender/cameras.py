@@ -62,8 +62,21 @@ OPENING_EDGE_SLACK = 0.05
 OPENING_EDGE_TOLERANCE = 0.2
 
 
-def plan_cameras(building: dict, level_id: str) -> list[dict]:
-    """Camera plans for every room of ``level_id``."""
+CAMERA_POLICIES = ("search", "m5")
+
+
+def plan_cameras(building: dict, level_id: str, policy: str = "m5") -> list[dict]:
+    """Camera plans for every room of ``level_id``.
+
+    ``policy`` (docs/milestone6.md §1.3, §4): ``"m5"`` = the three fixed rules
+    of Milestone 3-5 below (kept byte for byte: the realism A/B renders the
+    M6 look from these cameras); ``"search"`` = the ray-cast camera search
+    (``camsearch.py``, Milestone 6 area C).
+    """
+    if policy not in CAMERA_POLICIES:
+        raise ValueError(f"unknown camera policy {policy!r} (expected one of {CAMERA_POLICIES})")
+    if policy == "search":
+        raise NotImplementedError("camera policy 'search' is implemented by docs/milestone6.md area C")
     level = next(lv for lv in building["levels"] if lv["id"] == level_id)
     floor_z = float(level["elevation"])
     plans = []

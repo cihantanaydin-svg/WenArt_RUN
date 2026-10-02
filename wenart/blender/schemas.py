@@ -113,6 +113,11 @@ SCENE_CAMERA = {
         "visible_openings": {"type": "array", "items": {"type": "string"}},
         "visible_furniture": {"type": "array", "items": {"type": "string"}},
         "warning": {"type": ["string", "null"]},
+        # Milestone 6 (docs/milestone6.md §1.3); optional so M5 manifests stay valid.
+        "shift_x": {"type": "number"},
+        "shift_y": {"type": "number"},
+        "policy": {"enum": ["search", "m5"]},
+        "score": {"type": ["object", "null"]},
     },
 }
 
