@@ -90,6 +90,8 @@ MATERIAL_WORDS: dict[str, str] = {
     "stone_worktop": "dark stone",
     "lacquer_dark": "dark lacquered",
     "plant_green": "green plant",
+    "wood_veneer_oak": "light oak veneer",
+    "wood_veneer_walnut": "walnut veneer",
 }
 
 # Lighting moods of vocabulary.LIGHTING, written to be followed by "light".

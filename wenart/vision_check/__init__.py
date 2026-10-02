@@ -13,6 +13,8 @@ Modules:
   polish decision; ``calibrate``: false alarms, decoys, controls, plan A/B;
 - ``controls``: removal/insertion/type-swap controls (select-controls);
 - ``debug`` / ``report``: debug images and ``check_report.md``;
+- ``realism``: the realism A/B of docs/milestone6.md §6 (pairs, forced-choice
+  calls in both orders, outcomes, controls, ``realism_summary.json``);
 - ``cli``: ``python -m wenart.vision_check <subcommand>``.
 
 Importing the package imports nothing heavy (no PIL, OpenCV or torch).

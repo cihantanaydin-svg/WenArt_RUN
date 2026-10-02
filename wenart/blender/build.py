@@ -96,6 +96,15 @@ CAMERA_POLICIES = ("m5", "search")
 DEFAULT_CAMERA_POLICY = "m5"
 
 
+def search_seconds(camera_plans: list[dict], policy: str) -> float | None:
+    """The scene manifest's ``search_seconds``: the camera search wall time summed over the
+    levels (§4.1 budget), None for the ``m5`` policy (no search)."""
+    if policy != "search":
+        return None
+    from wenart.blender import camsearch  # numpy only; also runs inside Blender's Python
+    return round(sum(camsearch.level_search_seconds(camera_plans).values()), 3)
+
+
 def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(prog="build.py")
     parser.add_argument("--building", required=True)
@@ -483,6 +492,7 @@ def main(argv: list[str]) -> int:
                    for lv in levels],
         "objects": manifest_objects,
         "camera_policy": args.camera_policy,
+        "search_seconds": search_seconds(camera_plans, args.camera_policy),
         "cameras": camera_plans,
         "materials": library.records,
         "lighting": light_info,

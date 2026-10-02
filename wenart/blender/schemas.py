@@ -171,6 +171,7 @@ SCENE_MANIFEST = {
         "pass_index": {"type": "object", "additionalProperties": {"type": "integer"}},
         "assumed": {"type": "array", "items": ASSUMED_ENTRY},
         "camera_policy": {"enum": ["search", "m5"]},
+        "search_seconds": {"type": ["number", "null"]},
         "warnings": {"type": "array", "items": {"type": "string"}},
         "checks": {"type": "object", "properties": {
             "door_rays": {"type": "array", "items": {"type": "object", "required": ["opening_id", "hit", "hit_kind"]}},

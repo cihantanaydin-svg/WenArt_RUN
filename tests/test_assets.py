@@ -159,7 +159,8 @@ def test_fetch_cli_collects_style_assets(tmp_path, monkeypatch, capsys):
     assert assets_main(["fetch", "--style", str(style_path), "--assets", str(tmp_path / "a"), "--size", "1k"]) == 0
     assert assets_main(["fetch", "--style", str(style_path), "--assets", str(tmp_path / "a"), "--strict"]) == 1
     ids = {c[1] for c in calls if c[0] == "texture"}
-    assert ids == {"WoodFloor051", "white_plaster_02", "Tiles074", "white_planks_clean", "Metal032"}
+    assert ids == {"WoodFloor051", "white_plaster_02", "Tiles074", "white_planks_clean", "Metal032",
+                   "rough_linen", "oak_veneer_01", "walnut_veneer"}  # Milestone 6 furniture textures
     assert ("hdri", "kloppenheim_06", "1k") in calls
     out = capsys.readouterr().out
     assert "1 failed" in out and "Tiles074" in out

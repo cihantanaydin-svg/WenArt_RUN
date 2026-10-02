@@ -175,7 +175,7 @@ def test_vocabulary_tables_are_consistent():
         else:
             assert entry["albedo_mode"] == "texture" and "detail" not in entry, slug
             assert V.albedo_mode(slug) == ("texture", None)
-    assert V.albedo_mode("fabric_linen") == ("texture", None)  # flat-only furniture colours
+    assert V.albedo_mode("fabric_linen") == ("flat", 0.5)  # Milestone 6: the linen weave in flat albedo mode
 
 
 def test_cli_on_synthetic_projects(tmp_path):

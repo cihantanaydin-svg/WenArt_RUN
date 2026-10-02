@@ -7,7 +7,8 @@ project: status, levels, rooms, empty rooms (the rooms the AI layout
 furnishes), views, minutes, server starts, and a suggested pod split.
 
 Rules (§4.1, §8.1, measured on the RTX PRO 4500 in M5):
-- views per room by its area: 3 when >= 6 m², 2 when 3-6 m², 1 below 3 m²;
+- views per room by the area of its polygon (``camsearch.room_view_count``): 3 when >= 6 m²,
+  2 when 3-6 m², 1 below 3 m²;
 - minutes per project = 4 + 0.63 per view + 10 s per AI-furnished room
   (with polish, controls and gate calibration);
 - server starts of a pod: 4 when a project has style photos without stored
@@ -44,13 +45,16 @@ STARTS = {2: (1, 1), 3: (2, 1), 4: (2, 2)}
 
 
 def views_for_area(area: float) -> int:
-    """§4.1: 3 views for a room of at least 6 m², 2 for 3-6 m², 1 below 3 m²."""
-    area = float(area or 0.0)
-    return 3 if area >= 6.0 else 2 if area >= 3.0 else 1
+    """§4.1: 3 views for a room of at least 6 m², 2 for 3-6 m², 1 below 3 m² (``camsearch.views_for_area``)."""
+    from wenart.blender.camsearch import views_for_area as rule   # lazy: numpy
+    return rule(float(area or 0.0))
 
 
 def building_views(building: dict) -> int:
-    return sum(views_for_area(r.get("area_computed") or 0.0) for r in building.get("rooms") or [])
+    """Views of a building by the camera search's own rule (``camsearch.room_view_count``: the area of the
+    room polygon), so the plan and the build count the same rooms the same way."""
+    from wenart.blender.camsearch import room_view_count   # lazy: numpy
+    return sum(room_view_count(r) for r in building.get("rooms") or [])
 
 
 def project_minutes(views: int, ai_rooms: int) -> float:

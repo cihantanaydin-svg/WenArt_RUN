@@ -16,7 +16,11 @@ PRESENT = [p for p in ALL if (REPO_ROOT / "projects" / p).is_dir()]
 
 def test_views_per_room_by_area():
     assert [P.views_for_area(a) for a in (2.99, 3.0, 5.99, 6.0, 40.0, 0)] == [1, 2, 2, 3, 3, 1]
-    assert P.building_views({"rooms": [{"area_computed": 20}, {"area_computed": 4.96}, {"area_computed": 2.8}]}) == 6
+    square = lambda s: {"polygon": [[0, 0], [s, 0], [s, s], [0, s]]}  # noqa: E731
+    # The polygon area decides (camsearch.room_view_count), not the label's area_computed.
+    rooms = [square(20 ** 0.5), square(4.96 ** 0.5), square(2.8 ** 0.5)]
+    assert P.building_views({"rooms": rooms}) == 6
+    assert P.building_views({"rooms": [dict(square(1.0), area_computed=20.0)]}) == 1
 
 
 def test_time_rule_and_server_starts():

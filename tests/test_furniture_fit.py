@@ -34,7 +34,7 @@ def catalog():
 
 @pytest.fixture(scope="module")
 def buildings(tmp_path_factory):
-    """(name, building) for the truth of all three synthetic projects plus the pipeline output of 01 and 03."""
+    """(name, building) for the truth of every synthetic project plus the pipeline output of 01 and 03."""
     out = tmp_path_factory.mktemp("fit_outputs")
     result = [(name + " (truth)", load_truth(name)) for name in SYNTHETIC]
     for name in ("synthetic-01", "synthetic-03"):
@@ -217,7 +217,7 @@ def test_added_by_ai_pieces_get_a_fit_too(small_catalog):
 # --------------------------------------------------------------------------
 
 def test_fit_synthetic_buildings(catalog, buildings):
-    assert len(buildings) == 5
+    assert len(buildings) == len(SYNTHETIC) + 2
     for name, building in buildings:
         before = json.dumps(building, sort_keys=True)
         fitted = F.fit_building(building, catalog)

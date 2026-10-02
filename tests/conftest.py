@@ -15,7 +15,7 @@ from wenart import geometry as G
 
 ROOT = Path(__file__).resolve().parents[1]
 PROJECTS = ROOT / "projects"
-SYNTHETIC = ["synthetic-01", "synthetic-02", "synthetic-03"]
+SYNTHETIC = ["synthetic-01", "synthetic-02", "synthetic-03", "synthetic-04", "synthetic-05"]
 
 
 def load_truth(name: str) -> dict:

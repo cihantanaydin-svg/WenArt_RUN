@@ -465,3 +465,14 @@ def test_needs_review_building_is_refused(tmp_path):
          "--building", str(tmp_path / "building.json"), "--out", str(tmp_path / "scene"), "--no-preview"],
         capture_output=True, text=True, timeout=300, cwd=str(ROOT))
     assert proc.returncode == 2 and "needs review" in proc.stdout
+
+
+def test_scene_manifest_search_seconds():
+    # §4.1: the scene manifest records the search time summed over the levels (null for the m5 policy).
+    from wenart.blender import build as B
+    plans = [{"policy": "search", "level_id": "L0", "search_seconds": 1.25},
+             {"policy": "search", "level_id": "L0", "search_seconds": 1.25},
+             {"policy": "search", "level_id": "L1", "search_seconds": 2.5}]
+    assert B.search_seconds(plans, "search") == 3.75
+    assert B.search_seconds(plans, "m5") is None and B.search_seconds([], "search") == 0
+    assert schemas.SCENE_MANIFEST["properties"]["search_seconds"] == {"type": ["number", "null"]}
