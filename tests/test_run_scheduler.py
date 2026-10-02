@@ -12,6 +12,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -174,9 +175,12 @@ class FakeCLI:
         status = self.flags.get("intake", {}).get(project, "ok")
         out.mkdir(parents=True, exist_ok=True)
         write(out / "plan.dxf", "x")
-        manifest = {"status": status, "reasons": ["document name collision"] if status != "ok" else []}
+        if status == "no_manifest":           # exit 4 (needs_review) with an unreadable manifest
+            return 4
+        reasons = self.flags.get("intake_reasons", {}).get(project, ["document name collision"])
+        manifest = {"status": status, "reasons": reasons if status != "ok" else []}
         write(out.parent.parent / "intake_manifest.json", manifest)
-        return 0 if status == "ok" else 1
+        return 0 if status == "ok" else 4    # wenart.intake: exit 4 = needs_review
 
     def h_pipeline(self, cmd, project, log):
         out = Path(opt(cmd, "--out"))
@@ -587,7 +591,11 @@ def test_failed_gate_steps_never_allow_the_polish(tmp_path):
     r = Run(tmp_path, {"p1": {}, "p2": {}}, projects=["p1", "p2"],
             rc={("gate calibrate", "p1"): 1, ("gate validate", "p2"): 1})
     assert r.run() == 0                       # warnings: the views keep Cycles, reported
-    assert not r.cli.find("gate validate", "p1") and not r.cli.find("polish")
+    # p1: calibrate failed -> its stale calibration is moved aside and validate still runs (the report then
+    # reads this run's not_validated), but nothing it writes lets the project polish.
+    assert r.cli.find("gate validate", "p1") and not r.cli.find("polish")
+    gate = tmp_path / "outputs" / "p1" / "gate"
+    assert (gate / "gate_calibration.failed.json").is_file() and not (gate / "gate_calibration.json").exists()
     assert r.record("p1", "gate")["status"] == "warning" and "not_validated" in r.record("p1", "gate")["note"]
     assert r.record("p2", "gate")["note"] == "gate decision not_validated (validate exit 1)"
     assert r.record("p1", "polish")["note"] == r.record("p2", "polish")["note"] == "gate not validated"
@@ -919,6 +927,26 @@ def test_intake_collision_is_needs_review(tmp_path):
     assert rec["status"] == "needs_review" and rec["note"] == "document name collision"
 
 
+def test_intake_exit_4_is_needs_review_and_only_fixed_reasons_are_recorded(tmp_path):
+    # Exit 4 of wenart.intake is needs_review even without a readable manifest.
+    r = Run(tmp_path, {"p1": {}}, private=["real-04"], flags={"intake": {"real-04": "no_manifest"}})
+    write(tmp_path / "pp" / "real-04" / "a.dxf", "x")
+    assert r.run() == 0
+    rec = r.record("real-04", "intake", root="po")
+    assert rec["status"] == "needs_review" and rec["note"] == "needs review (intake_manifest.json)"
+    assert not r.cli.find("pipeline", "real-04")
+    # Another fixed intake reason is recorded as it is; a reason that is not one of them never is.
+    r = Run(tmp_path / "b", {"p1": {}}, private=["real-05", "real-06"],
+            flags={"intake": {"real-05": "needs_review", "real-06": "needs_review"},
+                   "intake_reasons": {"real-05": ["no document in the upload (only skipped files)"],
+                                      "real-06": ["Yilmaz villa.dxf is broken"]}})
+    write(tmp_path / "b" / "pp" / "real-05" / "a.txt", "x")
+    write(tmp_path / "b" / "pp" / "real-06" / "a.dxf", "x")
+    assert r.run() == 0
+    assert r.record("real-05", "intake", root="po")["note"] == "no document in the upload (only skipped files)"
+    assert r.record("real-06", "intake", root="po")["note"] == "needs review (intake_manifest.json)"
+
+
 def test_orchestrator_traceback_goes_to_the_private_log(tmp_path):
     r = Run(tmp_path, {"p1": {}}, projects=["p1"], private=["real-01"])
     write(tmp_path / "pp" / "real-01" / "a.dxf", "x")
@@ -997,3 +1025,40 @@ def test_server_failure_fails_the_layout(tmp_path):
     rec = r.record("p1", "layout")
     assert rec["status"] == "failed" and "early_exit" in rec["note"]
     assert not r.cli.find("build")
+
+
+def test_results_are_copied_before_the_gpu_tests(tmp_path, monkeypatch):
+    # tests/gpu/test_full_run.py reads the private allow-list under results-private/<alias>/ in phase 11; the
+    # job's copy loop runs only every 300 s, so the orchestrator copies once before the tests (under the lock).
+    monkeypatch.setenv("WENART_COPY_LOCK", str(tmp_path / "logs" / "copy.lock"))
+    seen = {}
+
+    def runner(cmd, env, cwd, timeout, log_path):
+        if "pytest" in cmd:
+            seen["files"] = sorted(p.relative_to(tmp_path / "pr").as_posix()
+                                   for p in (tmp_path / "pr").rglob("*") if p.is_file())
+        return r.cli(cmd, env, cwd, timeout, log_path)
+
+    r = Run(tmp_path, {"p1": {}, "synthetic-02": {}}, projects=["p1"], private_selftest=True,
+            buildings={"selftest-02": {"status": "needs_review"}})
+    rc = SC.Orchestrator(r.opts, runner=runner, clock=r.clock, server_factory=r.servers, out=r.lines.append,
+                         control_views=lambda rm, s, n: [c["name"] for c in s["cameras"]][:n],
+                         gpu_mem=lambda: 32607, check_models=MODELS).run()
+    assert rc in (0, 1)
+    assert "selftest-02/final/final_report.md" in seen["files"]
+    assert any(f.startswith("selftest-02/run/") for f in seen["files"])
+    assert any(re.fullmatch(r"copy: \d+ public file\(s\), \d+ private file\(s\) \(full copy\)", ln) for ln in r.lines)
+    assert (tmp_path / "logs" / "copy.lock").is_file()
+
+
+def test_layout_deadline_estimate_counts_its_calls_one_at_a_time(tmp_path):
+    # The layout CLI sends its 2 passes per room one after the other: 2 x 4.4 s for one empty room, never
+    # divided by the server's sequences (2 here), so 6 s before the deadline it does not start.
+    probe = Run(tmp_path / "probe", {"p1": {}}, projects=["p1"])
+    probe.run()
+    t_layout = next(c["t"] for c in probe.cli.calls if c["name"] == "layout") - probe.cli.calls[0]["t"]
+    r = Run(tmp_path / "tight", {"p1": {}}, projects=["p1"], deadline_in=t_layout + 6.0 + 1.0)
+    assert r.run() == 1
+    rec = r.record("p1", "layout")
+    assert rec["status"] == "incomplete" and rec["note"] == "deadline: layout not started"
+    assert not r.cli.find("layout")

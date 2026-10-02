@@ -58,6 +58,7 @@ RUN_PROJECTS="${RUN_PROJECTS:-}" PRIVATE_PROJECTS="${PRIVATE_PROJECTS:-}" AB_PRO
 AB_PHASE="${AB_PHASE:-all}"
 COPY_EVERY_S="${RUN_COPY_EVERY_S:-300}"
 LOCK=$LOGS/full-$JOB.copy.lock
+export WENART_COPY_LOCK="$LOCK"       # the orchestrator's own copy before the GPU tests takes the same lock
 START_STAMP=$LOGS/full-$JOB.start     # files older than this were written by earlier jobs
 COPY_STAMP=$LOGS/full-$JOB.copied     # renewed by `wenart.run copy --since` after every finished copy
 COPY_OVERLAP_S=2                      # stamps lie 2 s back: the volume's timestamps may have 1 s steps

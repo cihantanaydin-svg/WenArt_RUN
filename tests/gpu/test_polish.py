@@ -258,6 +258,11 @@ def recompute_rates(cal: dict, thresholds: dict) -> dict:
             "n_benign": len(benign), "n_negative": len(negative)}
 
 
+def _deciding(thresholds: dict) -> dict:
+    """The thresholds that decide (without the ``calibration:`` notes block)."""
+    return {k: v for k, v in (thresholds or {}).items() if k not in NOT_THRESHOLDS}
+
+
 def expected_decision(cal, rates: dict, limits: dict, thresholds: dict) -> str:
     """The §7.3 decision, derived here independently of ``wenart.gate.validate``."""
     if not isinstance(cal, dict) or cal.get("incomplete") or not rates["n_benign"] or not rates["n_negative"]:
@@ -287,7 +292,14 @@ def test_gate_validation_recorded(gate_project):
     cal_path = OUTPUTS / name / "gate" / "gate_calibration.json"
     cal = json.loads(cal_path.read_text(encoding="utf-8")) if cal_path.is_file() else None
     thresholds = current_thresholds()
-    rates = recompute_rates(cal or {}, thresholds)
+    # The rates are the calibration's own (decided with the thresholds it recorded, §7.3); they equal a
+    # recomputation with the current thresholds whenever both match. A calibration made with other
+    # thresholds is recomputed with its own and must end not_validated (expected_decision).
+    recorded = (cal or {}).get("thresholds")
+    basis = thresholds
+    if isinstance(recorded, dict) and _deciding(recorded) != _deciding(thresholds):
+        basis = recorded
+    rates = recompute_rates(cal or {}, basis)
     for key in ("benign_accept", "negative_reject"):
         got, want = val.get(key), rates[key]
         assert (got is None) == (want is None) and (want is None or abs(got - want) <= 1e-4), \

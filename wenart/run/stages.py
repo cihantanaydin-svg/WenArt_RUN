@@ -39,6 +39,7 @@ SMOKE_SAMPLES = 16
 SMOKE_CONTROL_VIEWS = 2          # control renders of stage 11 in the smoke profile
 SMOKE_AB_CAMERAS = 2             # A/B cameras in the smoke profile (§2.5: "AB on synthetic-01 (2 cameras)")
 PREVIEW_SAMPLES = 32
+SMOKE_PREVIEW_SAMPLES = 4        # the builds' top-down previews on the CPU (§2.5; 32 samples took 55 of 66 s)
 ALT_LOOK = "AgX - Punchy"
 PREVIEW_QUALITY = 85             # the committed M5 previews (§5 row 11)
 CONTROL_VIEWS = 8                # §6.2
@@ -225,10 +226,14 @@ def refit(tools: Tools, ref: ProjectRef) -> list[str]:
             "--out", _out(ref, "building_final.json"), "--assets", t(tools.assets)]
 
 
+def preview_samples(tools: Tools) -> str:
+    return str(SMOKE_PREVIEW_SAMPLES if tools.smoke else PREVIEW_SAMPLES)
+
+
 def build(tools: Tools, ref: ProjectRef, force: bool = False) -> list[str]:
     cmd = [tools.py, "-m", "wenart.blender.cli", "build", "--building", _out(ref, "building_final.json"),
            "--style", _out(ref, "style.json"), "--assets", t(tools.assets), "--out", _out(ref, "scene"),
-           "--preview-samples", str(PREVIEW_SAMPLES), "--camera-policy", "search"]
+           "--preview-samples", preview_samples(tools), "--camera-policy", "search"]
     return cmd if force else cmd + ["--reuse"]
 
 
@@ -309,7 +314,10 @@ def calibrate(tools: Tools, ref: ProjectRef) -> list[str]:
 
 
 def report(tools: Tools, ref: ProjectRef) -> list[str]:
-    return [tools.py, "-m", "wenart.report", "final", "--project-out", _out(ref)]
+    """``--private`` for a private project: plan crops and debug images are named, never copied (§7.4); the
+    report also detects it from the output folder, the flag makes it explicit."""
+    cmd = [tools.py, "-m", "wenart.report", "final", "--project-out", _out(ref)]
+    return cmd + (["--private"] if ref.private else [])
 
 
 # --- A/B (§6.3) -----------------------------------------------------------
@@ -325,7 +333,7 @@ def ab_build(tools: Tools, ref: ProjectRef, variant: Optional[str] = None) -> li
     scene = "ab/scene" if variant is None else f"ab/{variant}/scene"
     cmd = [tools.py, "-m", "wenart.blender.cli", "build", "--building", _out(ref, "ab/building_m5.json"),
            "--style", _out(ref, "style.json"), "--assets", t(tools.assets), "--out", _out(ref, scene),
-           "--preview-samples", str(PREVIEW_SAMPLES), "--camera-policy", "m5"]
+           "--preview-samples", preview_samples(tools), "--camera-policy", "m5"]
     if variant is not None:
         cmd.append(CONTROL_BUILD_FLAGS[variant])
     return cmd + ["--reuse"]

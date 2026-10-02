@@ -45,8 +45,6 @@ def test_the_table_columns():
 def test_code_patterns_match_files():
     for stage in S.STAGE_LIST:
         for pattern in stage.code:
-            if pattern == "wenart/intake.py":        # area IE adds it; until then the hash holds no file
-                continue
             assert ST._code_files([pattern], REPO_ROOT), (stage.name, pattern)
 
 
@@ -86,6 +84,9 @@ def test_golden_commands_private_intake(tmp_path):
                                       "/workspace/outputs-private/real-01"]
     tools = replace(TOOLS, private_root=tmp_path / "pp")
     assert S.intake(tools, ref)[-2:] == ["--root", str(tmp_path / "pp")]
+    # The report of a private project names plan crops and debug images, never copies them (§7.4).
+    assert S.report(TOOLS, ref) == ["PY", "-m", "wenart.report", "final", "--project-out",
+                                    "/workspace/outputs-private/real-01", "--private"]
 
 
 def test_golden_commands_vlm_stages():
@@ -117,6 +118,9 @@ def test_golden_commands_gpu_stages():
         f"{O}/style.json", "--assets", "/workspace/assets", "--out", f"{O}/scene", "--preview-samples", "32",
         "--camera-policy", "search", "--reuse"]
     assert "--reuse" not in S.build(TOOLS, REF, force=True)
+    # Smoke profile (§2.5): the top-down previews of the builds with 4 samples on the CPU.
+    for cmd in (S.build(SMOKE, REF), S.ab_build(SMOKE, REF), S.ab_build(SMOKE, REF, "ctl_flat")):
+        assert cmd[cmd.index("--preview-samples") + 1] == "4"
     assert S.render(TOOLS, REF) == [
         "PY", "-m", "wenart.blender.cli", "render", "--scene", f"{O}/scene/scene.blend", "--out", f"{O}/renders",
         "--cameras", "all", "--samples", "128", "--res", "1920x1080", "--exposure", "auto", "--white-balance", "auto"]

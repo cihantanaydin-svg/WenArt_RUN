@@ -28,6 +28,10 @@ Private projects use an allow-list only, into
 Nothing else (documents, plan crops, debug overlays, building JSON, check
 answers, logs) ever leaves ``/workspace/outputs-private/<alias>/``.
 
+``copy_lock(path)``: the job's copy lock (``full.sh`` exports it as
+``WENART_COPY_LOCK``; the same ``flock`` the background loop takes), so the
+orchestrator's own copy before the GPU tests never interleaves with the loop.
+
 ``--since STAMP``: only files newer than the stamp file (a full copy when it
 does not exist yet); the stamp is renewed after the copy, 2 s back (the
 volume's timestamps may have 1 s steps). The command prints only file counts
@@ -42,7 +46,9 @@ import fnmatch
 import json
 import os
 import shutil
+import time
 from collections import deque
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, Optional
@@ -207,6 +213,32 @@ def copy_results(refs: Iterable[ProjectRef], since_stamp: Optional[Path] = None)
     if nxt is not None:
         os.replace(nxt, since_stamp)
     return counts
+
+
+@contextmanager
+def copy_lock(path, wait_s: float = 120.0):
+    """Hold the job's copy lock (``flock`` on ``path``, as ``full.sh``'s copy loop); no lock for None.
+    ``TimeoutError`` when it stays busy for ``wait_s`` seconds."""
+    if not path:
+        yield
+        return
+    import fcntl
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "a") as fh:
+        give_up = time.monotonic() + float(wait_s)
+        while True:
+            try:
+                fcntl.flock(fh, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                break
+            except BlockingIOError:
+                if time.monotonic() > give_up:
+                    raise TimeoutError(f"copy lock busy for {wait_s:.0f} s") from None
+                time.sleep(1.0)
+        try:
+            yield
+        finally:
+            fcntl.flock(fh, fcntl.LOCK_UN)
 
 
 def summary_line(counts: dict) -> str:

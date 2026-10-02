@@ -198,3 +198,17 @@ def test_cli_prints_counts_only(tmp_path, capsys, monkeypatch):
 def test_rule_kinds():
     with pytest.raises(ValueError):
         CP.wanted(CP.Rule("", "final", "", "nope"), Path(__file__))
+
+
+def test_copy_lock_is_the_jobs_flock(tmp_path):
+    import fcntl
+    lock = tmp_path / "logs" / "full-j.copy.lock"
+    with CP.copy_lock(None):              # no lock file: no lock
+        pass
+    with CP.copy_lock(lock):
+        assert lock.is_file()
+    with open(lock, "a") as fh:           # the copy loop of full.sh holds it (flock 9>"$LOCK")
+        fcntl.flock(fh, fcntl.LOCK_EX)
+        with pytest.raises(TimeoutError):
+            with CP.copy_lock(lock, wait_s=0.2):
+                pass

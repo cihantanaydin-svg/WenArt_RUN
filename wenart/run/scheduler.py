@@ -24,7 +24,8 @@ and stops a project at its first terminal state (``needs_review``,
  9. VLM GLM session: the same.
 10. CPU (always): combine + calibrate, realism-combine, realism-summary,
     report for every project (also needs_review and incomplete ones).
-11. GPU tests (full profile), then ``run_manifest.json``.
+11. One copy of the small result files (``wenart.run copy``), the GPU tests
+    (full profile), then ``run_manifest.json``.
 
 Rules: a heavy stage (build, render, controls, gate, polish, a server start,
 any VLM stage) starts only when ``now + estimate < WENART_DEADLINE``, else
@@ -64,6 +65,7 @@ from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Callable, Optional
 
+from wenart import intake as INTAKE
 from wenart.run import servers as SV
 from wenart.run import stages as S
 from wenart.run import state as ST
@@ -93,8 +95,10 @@ PHASE_NAMES = {
 # §6.2/§6.3 order of the pair sets: controls first, then m5_vs_m6, then look_alt.
 SET_ORDER = ("ctl_flat", "ctl_proxy", "ctl_direct", "ctl_lowspp", "null_identical", "null_reencode", "nuisance_ev",
              "m5_vs_m6", S.LOOK_ALT)
-# Notes that may be recorded for a private project (its records reach the session, §2.1).
-PRIVATE_NOTES = ("not uploaded", "document name collision")
+# Notes that may be recorded for a private project (its records reach the session, §2.1): the intake's
+# fixed needs_review reasons, which never name a file of the upload (wenart/intake.py).
+PRIVATE_NOTES = (INTAKE.NOT_UPLOADED, INTAKE.COLLISION, INTAKE.ROOT_SYMLINK, INTAKE.NO_DOCUMENT,
+                 INTAKE.OVER_FILE_CAP, INTAKE.OVER_PROJECT_CAP, INTAKE.UNREADABLE, INTAKE.BAD_NAME)
 GPU_TEST_GROUPS = (
     # (group, interpreter attribute, [(test file, list variables that must not all be empty)])
     ("full", "py", [("tests/gpu/test_full_run.py", ("RUN_TEST_PROJECTS", "NEEDS_REVIEW_TEST_PROJECTS",
@@ -615,9 +619,10 @@ class Orchestrator:
             self.finish(pr, "intake", "reused", fingerprint=fp, inputs=ins, outputs=prev.outputs)
             return
         rc = self.run_step(pr, "intake", "stage", cmd)
-        manifest = read_json(pr.out / "intake_manifest.json") or {}
-        if isinstance(manifest, dict) and manifest.get("status") == "needs_review":
-            # Only the known neutral reasons are recorded: an intake reason may name an uploaded file.
+        manifest = read_json(pr.out / "intake_manifest.json")
+        manifest = manifest if isinstance(manifest, dict) else {}
+        if rc == INTAKE.EXIT_NEEDS_REVIEW or manifest.get("status") == "needs_review":
+            # Exit 4 = needs_review (wenart/intake.py). Only the intake's fixed reasons are recorded.
             reasons = [str(r) for r in manifest.get("reasons") or []]
             note = next((r for r in reasons if r in PRIVATE_NOTES), None) or "needs review (intake_manifest.json)"
             self.finish(pr, "intake", "needs_review", note, fingerprint=fp, inputs=ins)
@@ -874,7 +879,8 @@ class Orchestrator:
         if url is None:
             self.finish(pr, "layout", "failed", "server qwen not available", fingerprint=fp, inputs=ins)
             return
-        if not self.can_start(S.est_calls(2 * pr.layout_rooms, self.seqs())):
+        # The layout sends its calls one at a time (2 passes per room): no division by the server's sequences.
+        if not self.can_start(S.est_calls(2 * pr.layout_rooms, 1)):
             self.not_started(pr, "layout")
             return
         rc = self.run_step(pr, "layout", "layout", S.layout(self.tools, pr.ref, url))
@@ -1169,17 +1175,26 @@ class Orchestrator:
             self.not_started(pr, "gate", "gate calibrate")
             return
         rc = self.run_step(pr, "gate", "calibrate", S.gate_calibrate(self.tools, pr.ref), S.CUDA_ALLOC)
-        calibration = read_json(pr.out / "gate" / "gate_calibration.json")
-        if rc == TIMEOUT_RC or (isinstance(calibration, dict) and calibration.get("incomplete")):
+        cal_path = pr.out / "gate" / "gate_calibration.json"
+        calibration = read_json(cal_path)
+        cut = isinstance(calibration, dict) and bool(calibration.get("incomplete"))
+        if rc != 0 and not cut and cal_path.is_file():
+            # gate calibrate has no resume: after a crash the file is an older run's or a partial one that
+            # looks complete. Moved aside, so neither validate nor the report reads it (§0, §7.3).
+            cal_path.replace(cal_path.with_name("gate_calibration.failed.json"))
+        # Always validated, so gate_validation.json describes this run (not_validated when the calibration
+        # is missing or cut) and the report never shows an older decision.
+        rc2 = self.run_step(pr, "gate", "validate", S.gate_validate(self.tools, pr.ref))
+        validation = read_json(pr.out / "gate" / "gate_validation.json")
+        if rc == TIMEOUT_RC or cut:
+            pr.gate_decision = None
             self.finish(pr, "gate", "incomplete", "timeout" if rc == TIMEOUT_RC else "deadline: calibration cut")
             return
         if rc != 0:
-            # No complete calibration of this run: no validation of an older file, no polish (§0, §7.3).
+            # No complete calibration of this run: no polish, whatever a validation file says (§0, §7.3).
             pr.gate_decision = None
             self.finish(pr, "gate", "warning", f"gate decision not_validated (calibrate exit {rc})")
             return
-        rc2 = self.run_step(pr, "gate", "validate", S.gate_validate(self.tools, pr.ref))
-        validation = read_json(pr.out / "gate" / "gate_validation.json")
         pr.gate_decision = validation.get("decision") if isinstance(validation, dict) and rc2 == 0 else None
         decision = pr.gate_decision or "not_validated"
         if rc2 == 0:
@@ -1445,11 +1460,25 @@ class Orchestrator:
         ``tests/gpu/test_full_run.py`` reads; the final manifest follows the tests (``run``)."""
         lists = self.test_lists()
         self.write_manifests(lists, final=False)
+        self.copy_results()
         if self.opts.smoke or not self.opts.tests:
             self.out("phase 11: no GPU tests in the smoke profile" if self.opts.smoke else "phase 11: tests off")
         else:
             self.run_tests(lists)
         return lists
+
+    def copy_results(self) -> None:
+        """One full copy of every project's small files before the GPU tests: ``test_full_run.py`` reads the
+        private allow-list under ``results-private/<alias>/`` and ``full.sh``'s copy loop runs only every 300 s.
+        Under the job's copy lock (``WENART_COPY_LOCK``); prints only file counts (§1.1)."""
+        from wenart.run import copy as CP
+        refs = [pr.ref for pr in self.runs] + [pr.ref for pr in self.ab_runs if not pr.full]
+        try:
+            with CP.copy_lock(os.environ.get("WENART_COPY_LOCK")):
+                counts = CP.copy_results(refs)
+            self.out(CP.summary_line(counts))
+        except (OSError, TimeoutError) as exc:
+            self.out(f"copy before the GPU tests failed: {type(exc).__name__}")
 
     def run_tests(self, lists: dict) -> None:
         env = self.test_env(lists)
