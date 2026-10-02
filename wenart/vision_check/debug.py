@@ -39,6 +39,13 @@ def _dashed_rect(draw, box, fill, width: int, dash: float = 10.0, gap: float = 6
             pos = end + gap
 
 
+def _label(draw, xy, text: str, colour, font) -> None:
+    """Text on a white box so it stays readable over any render."""
+    x0, y0, x1, y1 = draw.textbbox(xy, text, font=font)
+    draw.rectangle([x0 - 2, y0 - 1, x1 + 2, y1 + 1], fill=(255, 255, 255))
+    draw.text(xy, text, fill=colour, font=font)
+
+
 def draw_check(image_path: Path, entry: dict, camera: str, kind: str):
     """The annotated PIL image of one check entry (full size; ``write_check_image`` downsizes)."""
     from PIL import Image, ImageDraw
@@ -60,21 +67,19 @@ def draw_check(image_path: Path, entry: dict, camera: str, kind: str):
         else:
             draw.rectangle(box, outline=colour, width=lw + (1 if e["role"] == "required" else 0))
         label = f"{e['label']} {eid} {e['type']} {e.get('source') or '-'}: {e['result']}"
-        draw.text((box[0] + 3, box[1] + 2), label, fill=colour, font=font)
+        _label(draw, (box[0] + 3, box[1] + 2), label, colour, font)
     decoy = entry.get("decoy")
     if decoy:
         box = norm1000_to_pixels(decoy["box_1000"], W, H)
         _dashed_rect(draw, box, DECOY_COLOUR, lw)
         seen = f" SEEN by {', '.join(decoy['accepted_by'])}" if decoy.get("accepted_by") else ""
-        draw.text((box[0] + 3, box[1] + 2), f"{decoy['label']} decoy {decoy['type']}{seen}", fill=DECOY_COLOUR,
-                  font=font)
+        _label(draw, (box[0] + 3, box[1] + 2), f"{decoy['label']} decoy {decoy['type']}{seen}", DECOY_COLOUR, font)
     for x in entry.get("extras") or []:
         if not x.get("confirmed"):
             continue
         cats = "/".join(sorted(set(x["categories"].values())))
         draw.rectangle(x["box_px"], outline=EXTRA_COLOUR, width=lw)
-        draw.text((x["box_px"][0] + 3, x["box_px"][3] - fs - 4), f"extra {x['class']} {cats}", fill=EXTRA_COLOUR,
-                  font=font)
+        _label(draw, (x["box_px"][0] + 3, x["box_px"][3] - fs - 4), f"extra {x['class']} {cats}", EXTRA_COLOUR, font)
     note = f"{camera} | {kind} | verdict {entry.get('verdict')}"
     if entry.get("unreliable"):
         note += f" | unreliable: {', '.join(entry['unreliable'])}"
