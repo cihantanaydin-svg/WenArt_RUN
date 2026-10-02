@@ -18,13 +18,16 @@ misspelt keyword fails here instead of on the pod. What is checked:
   height/width, ``prompt=None`` + ``prompt_embeds=[emb]``, guidance 0;
 - anchor (inpaint, all-black mask) and presumed_bad (img2img with strength)
   through ``from_pipe(..., dtype=bfloat16)``;
-- VAE tiling above 1.5 MP; one OOM retry with CPU offload when RAM allows.
+- VAE tiling above 1.5 MP; after a CUDA OOM one resident retry (never
+  accelerate offload hooks), outside the ``except`` block, after the release
+  hook and a cache free.
 
 The real numerics run on the pod (``tests/gpu/test_polish.py``).
 """
 import json
 import sys
 import types
+import weakref
 
 import numpy as np
 import pytest
@@ -189,6 +192,9 @@ class FakePipeBase:
         self.calls = []
         self.offloaded = 0
         self.fail_next = 0
+        self.failed_latents = []
+        self.exc_at_call = []
+        self.failed_alive = []
 
     def set_progress_bar_config(self, **kwargs):
         self.progress = kwargs
@@ -199,7 +205,13 @@ class FakePipeBase:
     def _record(self, kwargs):
         if self.fail_next:
             self.fail_next -= 1
+            if kwargs.get("latents") is not None:      # stands in for the CUDA tensors of the failed call
+                self.failed_latents.append(weakref.ref(kwargs["latents"]))
             raise OOM("CUDA out of memory")
+        # What a retry sees: the exception being handled (None outside an except block) and whether the
+        # tensors of the failed calls are still alive.
+        self.exc_at_call.append(sys.exc_info()[0])
+        self.failed_alive.append([r() is not None for r in self.failed_latents])
         self.calls.append(kwargs)
         return _result(kwargs["height"], kwargs["width"])
 
@@ -466,28 +478,80 @@ def test_vae_tiling_above_1_5_megapixels(fakes):
     assert backend.pipe.vae.tiling is True
 
 
-def test_oom_retries_once_with_cpu_offload(fakes, monkeypatch):
+def _with_events(backend, monkeypatch):
+    """Record the backend's release hook and cache frees in order."""
+    events = []
+    backend.release_hook = lambda: events.append("release")
+    real_free = backend.free_cache
+
+    def free():
+        events.append("free")
+        real_free()
+
+    monkeypatch.setattr(backend, "free_cache", free)
+    return events
+
+
+def test_oom_retries_once_resident_after_the_failed_call_is_released(fakes, monkeypatch):
+    """Review finding: the old fallback put accelerate offload hooks on the ControlNet pipeline. The ControlNet
+    shares the transformer's embedders and first parameter (``x_pad_token``), so the transformer's hook saw that
+    parameter on cuda and left the 30 blocks on the CPU: every later ControlNet attempt crashed. The retry is now
+    resident, runs after the ``except`` block (the failed call's tensors are released with its traceback), and
+    the runner's release hook and a cache free run first."""
     backend = ready_backend()
     img = np.zeros((48, 64, 3), np.uint8)
-    monkeypatch.setattr(ZI, "mem_available_gb", lambda path="/proc/meminfo": 64.0)
-    backend.pipe.fail_next = 1
-    out, _ = backend.generate(img, img, strength=0.25, scale=0.8, mode="plain", seed=0, steps=8,
-                              prompt="prompt one")
-    assert backend.memory_mode == "offload" and backend.pipe.offloaded == 1 and out.shape == (48, 64, 3)
-    assert backend.stats()["memory_mode"] == "offload"
-    # Offload mode: a derived pipeline gets its own offload hooks before it runs.
+    # Plenty of host RAM: the old code took its offload branch here.
+    monkeypatch.setattr(ZI, "mem_available_gb", lambda path="/proc/meminfo": 64.0, raising=False)
+    events = _with_events(backend, monkeypatch)
+    pipe = backend.pipe
+    pipe.fail_next = 1
+    out, meta = backend.generate(img, img, strength=0.25, scale=0.8, mode="plain", seed=5, steps=8,
+                                 prompt="prompt one")
+    assert out.shape == (48, 64, 3) and meta["pipeline"] == "controlnet"
+    assert pipe.offloaded == 0 and backend.memory_mode == "resident"        # no offload hooks
+    stats = backend.stats()
+    assert stats["memory_mode"] == "resident" and stats["oom_retries"] == 1
+    assert events == ["release", "free"]                                    # gate models out, cache freed
+    assert pipe.exc_at_call == [None]                                       # retried outside the handler
+    assert pipe.failed_alive == [[False]]                                   # the failed call's tensors are gone
+    # The retry is the same polish: same seed, same latents as a call that never failed.
+    retry = pipe.calls[-1]
+    backend.generate(img, img, strength=0.25, scale=0.8, mode="plain", seed=5, steps=8, prompt="prompt one")
+    assert retry["generator"].seed == 5 and np.array_equal(retry["latents"].a, pipe.calls[-1]["latents"].a)
+    # Derived pipelines (anchor, img2img) never get offload hooks either.
+    backend._derived.clear()
     backend.generate(img, img, strength=0.25, scale=0.8, mode="anchor", seed=0, steps=8, prompt="prompt one")
-    assert backend._derived["anchor"].offloaded == 1
-    # A second OOM, or one without enough RAM, is raised.
+    backend.generate(img, None, strength=0.75, scale=None, mode="plain", seed=0, steps=8, prompt="prompt one")
+    assert backend._derived["anchor"].offloaded == 0 and backend._derived["img2img"].offloaded == 0
+    # An OOM of a derived pipeline is retried the same way.
+    backend._derived["anchor"].fail_next = 1
+    backend.generate(img, img, strength=0.25, scale=0.8, mode="anchor", seed=0, steps=8, prompt="prompt one")
+    assert backend.stats()["oom_retries"] == 2 and backend._derived["anchor"].exc_at_call[-1] is None
+
+
+def test_an_oom_that_the_retry_does_not_fix_is_raised_and_ends_the_retries(fakes, monkeypatch):
+    backend = ready_backend()
+    img = np.zeros((48, 64, 3), np.uint8)
+    monkeypatch.setattr(ZI, "mem_available_gb", lambda path="/proc/meminfo": 64.0, raising=False)
+    events = _with_events(backend, monkeypatch)
+    backend.pipe.fail_next = 2                                   # the retry fails too
+    with pytest.raises(OOM):
+        backend.generate(img, img, strength=0.25, scale=0.8, mode="plain", seed=0, steps=8, prompt="prompt one")
+    assert backend.stats()["oom_retries"] == 1 and events == ["release", "free"]
+    assert backend.pipe.offloaded == 0 and backend.memory_mode == "resident"
+    # Freeing did not help once: a later OOM is raised at once (no second wasted forward per attempt).
     backend.pipe.fail_next = 1
     with pytest.raises(OOM):
         backend.generate(img, img, strength=0.25, scale=0.8, mode="plain", seed=0, steps=8, prompt="prompt one")
+    assert backend.stats()["oom_retries"] == 1 and events == ["release", "free"]
+    out, _ = backend.generate(img, img, strength=0.25, scale=0.8, mode="plain", seed=0, steps=8,
+                              prompt="prompt one")
+    assert out.shape == (48, 64, 3)                             # the backend still works
+    # Without a release hook the retry only frees the cache.
     other = ready_backend()
-    monkeypatch.setattr(ZI, "mem_available_gb", lambda path="/proc/meminfo": 20.0)
     other.pipe.fail_next = 1
-    with pytest.raises(OOM):
-        other.generate(img, img, strength=0.25, scale=0.8, mode="plain", seed=0, steps=8, prompt="prompt one")
-    assert other.memory_mode == "resident"
+    out, _ = other.generate(img, img, strength=0.25, scale=0.8, mode="plain", seed=0, steps=8, prompt="prompt one")
+    assert out.shape == (48, 64, 3) and other.stats()["oom_retries"] == 1 and other.release_hook is None
 
 
 def test_generate_needs_ensure_ready_and_known_prompts(fakes):

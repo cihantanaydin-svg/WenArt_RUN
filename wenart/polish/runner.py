@@ -35,7 +35,8 @@ sha256, the model repos/revisions/files (+ the vendored ControlNet config),
 ``POLISH_CODE_VERSION`` and the torch/diffusers versions. An attempt of the
 previous manifest with the same key and an unchanged PNG is reused; its
 gate metrics are reused when their ``gate_key`` equals the reference's
-current one (else the PNG is gated again), and the decision is always
+current one and no check carries an ``error`` (a model that failed, e.g. a
+CUDA OOM; else the PNG is gated again), and the decision is always
 recomputed from the metrics with the current thresholds (``decide``); the
 ladder outcome follows from those decisions. ``--force`` ignores the
 previous manifest.
@@ -53,11 +54,13 @@ from __future__ import annotations
 
 import copy
 import hashlib
+import io
 import json
 import os
 import re
 import shutil
 import time
+import zlib
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, Optional
@@ -83,7 +86,10 @@ AUTO_VIEWS = {"sweep": 4, "smoke": 2}
 OUT_SUBDIR = {"run": "polish", "sweep": "polish/sweep", "smoke": "polish/smoke"}
 FALLBACK_IGNORE_AREA_FRAC = 0.002
 BACKEND_STATS = ("memory_mode", "peak_vram_gib", "peak_reserved_gib", "load_seconds", "encode_seconds",
-                 "seconds_per_forward", "forwards")
+                 "seconds_per_forward", "forwards", "oom_retries")
+GATE_METRIC_TABLES = ("regions", "seconds")     # entries of the gate metrics that are not checks
+ATTEMPT_PNG_LEVEL = 1                            # zlib level and strategy of the attempt PNGs (write_attempt_png)
+ATTEMPT_PNG_STRATEGY = zlib.Z_RLE
 
 
 class PolishError(Exception):
@@ -186,6 +192,22 @@ def attempt_key(attempt: dict, *, seed: int, steps: int, sigmas: list, prompt: s
     return hashlib.sha256(json.dumps(payload, sort_keys=True).encode("utf-8")).hexdigest()
 
 
+def gate_metrics_complete(metrics) -> bool:
+    """True when stored gate metrics may be reused: present, and no check carries an ``error``.
+
+    A model check that failed (a CUDA OOM, a missing snapshot) is stored as
+    ``{"global": None, ..., "error": ...}`` and rejects the attempt; the
+    ``gate_key`` does not change when the model works again, so such metrics
+    are computed again instead of being re-decided into the same reject.
+    ``regions`` and ``seconds`` are tables keyed by region id / check name,
+    not checks.
+    """
+    if not isinstance(metrics, dict) or not metrics:
+        return False
+    return not any(isinstance(v, dict) and v.get("error") for k, v in metrics.items()
+                   if k not in GATE_METRIC_TABLES)
+
+
 def accepted(rec: Optional[dict]) -> bool:
     """True when an attempt record has no error and its gate decision is accept."""
     return bool(rec) and not rec.get("error") and bool(rec.get("gate")) and rec["gate"].get("decision") == "accept"
@@ -236,6 +258,30 @@ def write_json(path: Path, data: dict) -> Path:
     tmp.write_text(json.dumps(data, indent=1, ensure_ascii=False, default=_json_default), encoding="utf-8")
     os.replace(tmp, path)
     return path
+
+
+def write_attempt_png(path, rgb) -> tuple[Path, str]:
+    """Write an attempt PNG through a temporary file; returns ``(path, sha256 of the file)``.
+
+    Lossless like every PNG, but zlib level 1 with the RLE strategy: on a
+    1920x1080 render-like image that is ~3x faster than Pillow's default
+    level 6 at about the same size (the encoder was most of the CPU side of
+    an attempt). The sha256 comes from the encoded bytes (no read back).
+    """
+    from PIL import Image
+    a = np.asarray(rgb)
+    if a.dtype != np.uint8 or a.ndim != 3 or a.shape[2] != 3:
+        raise ValueError(f"write_attempt_png: uint8 H x W x 3 image expected, got {a.dtype} {a.shape}")
+    buf = io.BytesIO()
+    Image.fromarray(np.ascontiguousarray(a)).save(buf, format="PNG", compress_level=ATTEMPT_PNG_LEVEL,
+                                                  compress_type=ATTEMPT_PNG_STRATEGY)
+    data = buf.getvalue()
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(path.name + ".tmp")
+    tmp.write_bytes(data)
+    os.replace(tmp, path)
+    return path, hashlib.sha256(data).hexdigest()
 
 
 def write_preview(rgb, path, max_bytes: int = PREVIEW_MAX_BYTES, width: Optional[int] = None) -> Path:
@@ -506,6 +552,15 @@ class PolishRun:
         if self.backend is None:
             self.backend = self.deps.backend_factory(self.cfg, self.device)
             self.versions = dict(self.backend.versions())
+            if hasattr(self.backend, "release_hook"):
+                self.backend.release_hook = self._release_gate_gpu
+
+    def _release_gate_gpu(self) -> None:
+        """The backend's release hook (after a CUDA OOM, before its retry): the gate's ``release_gpu()``
+        moves its models off the GPU, when a gate is loaded and has one."""
+        release = getattr(self.gate, "release_gpu", None)
+        if callable(release):
+            release()
 
     def _ensure_ready(self) -> None:
         if self._load_error is not None:
@@ -566,7 +621,7 @@ class PolishRun:
     def _gate(self, job: ViewJob, rec: dict, test_rgb, stored: Optional[dict]) -> Optional[str]:
         """Fill ``rec["gate"]`` (stored metrics re-decided, or a new comparison); returns an error text or None."""
         gate = self._ensure_gate()
-        if stored and stored.get("metrics") is not None and stored.get("gate_key") == job.ref.gate_key:
+        if stored and stored.get("gate_key") == job.ref.gate_key and gate_metrics_complete(stored.get("metrics")):
             decision, reasons, notes = self.deps.decide(stored["metrics"], gate.thresholds)
             rec["gate"] = {"decision": decision, "reasons": reasons, "notes": notes,
                            "metrics": stored["metrics"], "gate_key": stored["gate_key"]}
@@ -634,7 +689,8 @@ class PolishRun:
         name = self._png_name(job, k)
         if old["png"] != name:
             shutil.copyfile(src, self.out_dir / name)
-        for key in ("seconds", "sigma0", "pipeline", "panes_restored", "wall_lab", "debug_jpg", "size_plan"):
+        for key in ("seconds", "diffusion_seconds", "cpu_seconds", "sigma0", "pipeline", "panes_restored", "wall_lab",
+                    "debug_jpg", "size_plan"):
             if key in old:
                 rec[key] = old[key]
         if rec.get("debug_jpg") and not (self.out_dir / rec["debug_jpg"]).is_file():
@@ -667,13 +723,16 @@ class PolishRun:
         rec["size_plan"] = plan.to_dict()
         try:
             self._ensure_ready()
+            t_cpu = time.time()
             image = SZ.to_model(arr["rgb"], plan)
             control = SZ.to_model(self._control(job, attempt["control"])["array"], plan) if attempt["control"] else None
             t0 = time.time()
             out, meta = self.backend.generate(image, control, strength=attempt["strength"], scale=attempt["scale"],
                                               mode=attempt["mode"], seed=rec["seed"], steps=self.steps,
                                               prompt=job.prompt)
-            rec["seconds"] = round(time.time() - t0, 2)
+            generate_seconds = time.time() - t0
+            rec["seconds"] = round(generate_seconds, 2)
+            rec["diffusion_seconds"] = meta.get("seconds")        # the pipeline call alone (backend's own timer)
             rec["sigma0"] = meta.get("sigma0")
             rec["pipeline"] = meta.get("pipeline")
             if meta.get("forwards") is not None:
@@ -685,11 +744,13 @@ class PolishRun:
             self._warn(f"{job.view.camera} a{k}: polish failed ({rec['error']})")
             return rec
         rec["panes_restored"] = n
-        path = V.write_png_rgb(self.out_dir / self._png_name(job, k), out)
+        path, rec["sha256"] = write_attempt_png(self.out_dir / self._png_name(job, k), out)
         rec["png"] = path.name
-        rec["sha256"] = sha256_file(path)
         rec["wall_lab"] = RM.wall_lab(out, self._wall_mask(job))
         err = self._gate(job, rec, out, None)
+        # The runner's own work on this attempt: sizing, panes, PNG + sha256, wall Lab, cache free, debug JPEG.
+        rec["cpu_seconds"] = round(max(0.0, time.time() - t_cpu - generate_seconds
+                                       - (rec.get("gate_seconds") or 0.0)), 2)
         if err == "deadline":
             rec["gate"] = None
             rec["error"] = None
@@ -824,7 +885,8 @@ class PolishRun:
             "memory_mode": stats.get("memory_mode"), "peak_vram_gib": stats.get("peak_vram_gib"),
             "peak_reserved_gib": stats.get("peak_reserved_gib"), "load_seconds": stats.get("load_seconds"),
             "encode_seconds": stats.get("encode_seconds"), "seconds_per_forward": stats.get("seconds_per_forward"),
-            "forwards": stats.get("forwards"), "stats_source": stats_source,
+            "forwards": stats.get("forwards"), "oom_retries": stats.get("oom_retries"),
+            "stats_source": stats_source,
             "seconds": round(time.time() - self.started, 1),
             "deadline": self.deadline, "polish_allowed": getattr(self, "polish_allowed", True),
             "attempt_list": self.attempts,

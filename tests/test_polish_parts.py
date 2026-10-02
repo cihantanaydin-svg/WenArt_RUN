@@ -441,7 +441,7 @@ def test_models_record_lists_repos_revisions_licences_files():
 # Backend helpers without torch
 # --------------------------------------------------------------------------
 
-def test_zimage_module_imports_without_torch_and_sets_the_alloc_conf(monkeypatch, tmp_path):
+def test_zimage_module_imports_without_torch_and_sets_the_alloc_conf(monkeypatch):
     code = ("import sys, wenart.polish.zimage, wenart.polish.runner, wenart.polish.__main__; "
             "print(','.join(m for m in ('torch', 'diffusers', 'transformers') if m in sys.modules))")
     out = subprocess.run([sys.executable, "-c", code], cwd=ROOT, capture_output=True, text=True, check=True)
@@ -453,10 +453,6 @@ def test_zimage_module_imports_without_torch_and_sets_the_alloc_conf(monkeypatch
     monkeypatch.setenv("PYTORCH_CUDA_ALLOC_CONF", "max_split_size_mb:64")
     ZI.ZImageBackend(PC.load_config())
     assert os.environ["PYTORCH_CUDA_ALLOC_CONF"] == "max_split_size_mb:64"   # the job's setting wins
-    meminfo = tmp_path / "meminfo"
-    meminfo.write_text("MemTotal: 131072000 kB\nMemFree: 1000 kB\nMemAvailable: 62500000 kB\n", encoding="utf-8")
-    assert ZI.mem_available_gb(str(meminfo)) == pytest.approx(64.0)
-    assert ZI.mem_available_gb(str(tmp_path / "missing")) is None
     out = ZI.to_uint8(np.array([[[0.0, 0.5, 1.0]], [[0.0019, 0.998, 1.2]]]))
     assert out.tolist() == [[[0, 128, 255]], [[0, 254, 255]]]
 

@@ -16,10 +16,14 @@ Backend interface (``wenart.polish.runner`` uses only this):
   None = the ``presumed_bad`` img2img control without ControlNet; ``meta`` =
   ``{"pipeline", "forwards", "sigma0", "sigma0_numpy", "seconds"}``;
 - ``free_cache()``: release cached GPU memory before a gate call (§1.3);
+- ``release_hook``: attribute, None or a callable the backend calls after a
+  CUDA OOM, before its retry (the runner sets it to move the gate's models
+  off the GPU);
 - ``stats() -> {"memory_mode", "peak_vram_gib", "peak_reserved_gib",
-  "load_seconds", "encode_seconds", "seconds_per_forward", "forwards"}``.
+  "load_seconds", "encode_seconds", "seconds_per_forward", "forwards",
+  "oom_retries"}``.
 
-Memory plan (§3.1, no CPU offload by default; it would move ~19 GB per call):
+Memory plan (§3.1, no CPU offload; it would move ~19 GB per call):
 
 1. Prompts first: tokenizer + text encoder (``Qwen3Model``, bf16, cuda) in a
    ``ZImagePipeline`` shell with no transformer/VAE; ``encode_prompt(prompts,
@@ -39,9 +43,20 @@ Memory plan (§3.1, no CPU offload by default; it would move ~19 GB per call):
    transformer, controlnet)`` (its ``__init__`` shares the transformer's
    embedders with the ControlNet via ``ZImageControlNetModel.from_transformer``).
 3. ``PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True`` (set before torch is
-   imported unless the job set it). On a CUDA OOM: one retry with
-   ``enable_model_cpu_offload()`` when ``MemAvailable`` >= 40 GB, recorded as
-   ``memory_mode: offload``.
+   imported unless the job set it). On a CUDA OOM: one retry, still
+   resident, after the ``except`` block (so the failed call's frames and the
+   CUDA tensors they hold are released first), the ``release_hook`` and
+   ``gc.collect()`` + ``torch.cuda.empty_cache()``; counted in
+   ``oom_retries``. A retry that runs out of memory again is raised, and
+   later OOMs of the run are raised at once. No accelerate
+   ``enable_model_cpu_offload()``: ``from_transformer`` makes the ControlNet
+   share the transformer's embedders, refiners and first parameter
+   (``x_pad_token``), so the transformer's offload hook sees that parameter
+   already on cuda and leaves its blocks on the CPU (every later ControlNet
+   call fails with a device mismatch); with the text encoder gone the hooks
+   would also keep transformer and ControlNet resident together for the
+   whole loop, so offload saves nothing. ``memory_mode`` is always
+   ``resident``.
 
 img2img with one control image (§3.2; diffusers 0.40.0 has no pipeline that
 takes both ``strength`` and ``control_image``):
@@ -80,7 +95,7 @@ import json
 import os
 import time
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional
 
 import numpy as np
 
@@ -88,22 +103,9 @@ from wenart.hfcache import local_snapshot
 from wenart.polish import schedule as S
 from wenart.polish.config import config_dir
 
-OFFLOAD_MIN_MEM_AVAILABLE_GB = 40.0
 VAE_TILING_MIN_PIXELS = 1_500_000
 PROMPT_BATCH = 8
 ALLOC_CONF = "expandable_segments:True"
-
-
-def mem_available_gb(path: str = "/proc/meminfo") -> Optional[float]:
-    """``MemAvailable`` of /proc/meminfo in GB (10^9 bytes), None when unreadable."""
-    try:
-        with open(path, encoding="utf-8") as fh:
-            for line in fh:
-                if line.startswith("MemAvailable:"):
-                    return int(line.split()[1]) * 1024 / 1e9
-    except (OSError, ValueError, IndexError):
-        return None
-    return None
 
 
 def to_uint8(image) -> np.ndarray:
@@ -133,8 +135,10 @@ class ZImageBackend:
         self.tokenizer = None
         self.pipe = None
         self._derived: dict[str, object] = {}
-        self._hooked = None                  # pipeline that holds the offload hooks (offload mode)
-        self.memory_mode = "resident"
+        self.memory_mode = "resident"        # always: no CPU offload (see the module docstring)
+        self.release_hook: Optional[Callable[[], None]] = None
+        self.oom_retries = 0
+        self._retry_after_oom = True         # False once a retry ran out of memory again
         self.load_seconds: Optional[float] = None
         self.encode_seconds: Optional[float] = None
         self._calls: list[tuple[float, int]] = []
@@ -173,22 +177,33 @@ class ZImageBackend:
         spf = round(sum(s for s, _ in self._calls) / forwards, 3) if forwards else None
         return {"memory_mode": self.memory_mode, "peak_vram_gib": peak, "peak_reserved_gib": reserved,
                 "load_seconds": self.load_seconds, "encode_seconds": self.encode_seconds,
-                "seconds_per_forward": spf, "forwards": forwards}
+                "seconds_per_forward": spf, "forwards": forwards, "oom_retries": self.oom_retries}
 
     def generate(self, image, control, *, strength: float, scale, mode: str, seed: int, steps: int,
                  prompt: str) -> tuple[np.ndarray, dict]:
-        """One polish at the model size (see the module docstring); one OOM retry with CPU offload."""
+        """One polish at the model size (see the module docstring); after a CUDA OOM one resident retry."""
         import torch
         if self.pipe is None:
             raise RuntimeError("ensure_ready() was not called")
         if prompt not in self.embeddings:
             raise RuntimeError("prompt was not encoded")
+        args = (image, control, strength, scale, mode, seed, steps, prompt)
         try:
-            return self._generate(image, control, strength, scale, mode, seed, steps, prompt)
+            return self._generate(*args)
         except torch.cuda.OutOfMemoryError:
-            if not self._switch_to_offload():
+            if not self._retry_after_oom:
                 raise
-            return self._generate(image, control, strength, scale, mode, seed, steps, prompt)
+        # The retry runs here, after the handler: the exception, its traceback and with them the failed
+        # call's frames (latents, activations) are released before anything is allocated again.
+        self.oom_retries += 1
+        if self.release_hook is not None:
+            self.release_hook()
+        self.free_cache()
+        try:
+            return self._generate(*args)
+        except torch.cuda.OutOfMemoryError:
+            self._retry_after_oom = False    # freeing did not help: later OOMs are raised at once
+            raise
 
     # -- loading -----------------------------------------------------------
 
@@ -263,20 +278,7 @@ class ZImageBackend:
                 pipe = cls.from_pipe(self.pipe, dtype=torch.bfloat16)
                 pipe.set_progress_bar_config(disable=True)
                 self._derived[name] = pipe
-        if self.memory_mode == "offload" and self._hooked is not pipe:
-            pipe.enable_model_cpu_offload()
-            self._hooked = pipe
         return pipe
-
-    def _switch_to_offload(self) -> bool:
-        """After an OOM: CPU offload when the machine has the RAM for it (once); False = give up."""
-        avail = mem_available_gb()
-        if self.memory_mode == "offload" or avail is None or avail < OFFLOAD_MIN_MEM_AVAILABLE_GB:
-            return False
-        self.free_cache()
-        self.memory_mode = "offload"
-        self._hooked = None
-        return True
 
     # -- generation --------------------------------------------------------
 
