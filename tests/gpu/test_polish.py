@@ -1,10 +1,11 @@
-"""Milestone 5 GPU tests of the AI polish and the change gate (docs/milestone5.md §9).
+"""GPU tests of the AI polish and the change gate (docs/milestone5.md §9, docs/milestone6.md §9).
 
-Run on the pod by scripts/jobs/polish.sh (tests phase) with the polish venv:
+Run on the pod by scripts/jobs/full.sh (M6; scripts/jobs/polish.sh in M5) with the polish venv:
 ``/opt/wenart/venv-polish/bin/python -m pytest -m gpu tests/gpu/test_polish.py``. They only
 read what the job wrote under $WENART_OUTPUTS (default /workspace/repo/outputs) for the
-projects in $POLISH_TEST_PROJECTS (the job exports the projects whose polish run ran or whose
-``polish/polish_manifest.json`` exists; default synthetic-01 synthetic-03):
+projects in $POLISH_TEST_PROJECTS (M6: ok projects with polish on and gate decision ``ok`` or
+``flagged``; default synthetic-01 synthetic-03) and $GATE_TEST_PROJECTS (M6: the projects that ran
+gate calibrate; unset or empty: that test is skipped):
 
 - ``polish/polish_manifest.json`` is a complete run manifest of the §3.6 shape that records the
   pinned models of ``polish.yaml`` and ``models.yaml``;
@@ -13,11 +14,15 @@ projects in $POLISH_TEST_PROJECTS (the job exports the projects whose polish run
 - every accepted attempt passes every hard threshold, recomputed with ``wenart.gate.decide`` from
   its stored metrics and the current ``thresholds.yaml``; every rejected attempt has reasons and
   ``decide`` rejects it again;
-- ``gate/gate_calibration.json`` (from the sweep run): benign controls accepted 100 % and
-  negatives rejected >= 90 %, both recomputed with ``decide`` and the current thresholds, unless
-  ``thresholds.yaml: calibration.accepted_shortfall`` names the metric, the accepted rate and the
-  date of the user's OK. Format: one mapping or a list of mappings ``{metric: benign_accept |
-  negative_reject, rate: <the accepted rate, 0..1>, date: YYYY-MM-DD}`` (extra keys allowed);
+- ``gate/gate_validation.json`` (M6 §7.3, ``test_gate_validation_recorded``, GATE_TEST_PROJECTS): present;
+  its rates equal a recomputation from ``gate/gate_calibration.json`` with ``decide`` and the current
+  thresholds; its decision follows ``wenart/gate/validation.yaml`` (``ok`` both limits pass, ``flagged``
+  only the benign one fails, ``polish_disabled`` the negative one fails, ``not_validated`` no complete
+  calibration). ``flagged``, ``polish_disabled`` and ``not_validated`` are reported outcomes, not
+  failures; a ``polish_disabled`` or ``not_validated`` project's final views are all Cycles. The M5
+  check ``test_gate_calibration_separates_benign_from_negative`` (benign 100 %, negatives >= 90 %, or
+  ``calibration.accepted_shortfall`` with the metric, the accepted rate and the date of the user's
+  OK) is kept as a helper for the CPU tests of the M5 logic but no longer collected;
 - ``polish/determinism.json``: the same view polished twice with the same seed differs by at most
   2 grey levels (``max_abs_diff <= 2``).
 """
@@ -31,12 +36,14 @@ import pytest
 
 from wenart import views as V
 from wenart.gate import decide
-from wenart.gate.api import load_models_config, load_thresholds
+from wenart.gate.api import NOT_THRESHOLDS, load_models_config, load_thresholds
+from wenart.gate.validate import DECISIONS, load_validation_config
 from wenart.polish.config import load_config as load_polish_config
 
 pytestmark = pytest.mark.gpu
 OUTPUTS = Path(os.environ.get("WENART_OUTPUTS", "/workspace/repo/outputs"))
 PROJECTS = [p for p in os.environ.get("POLISH_TEST_PROJECTS", "synthetic-01 synthetic-03").split() if p]
+GATE_PROJECTS = [p for p in os.environ.get("GATE_TEST_PROJECTS", "").split() if p]
 
 BENIGN_ACCEPT_MIN = 1.0
 NEGATIVE_REJECT_MIN = 0.90
@@ -208,6 +215,9 @@ def test_rejected_attempts_have_reasons(project):
 
 
 def test_gate_calibration_separates_benign_from_negative(project):
+    """M5 rule (benign 100 %, negatives >= 90 %); replaced on the pod by ``test_gate_validation_recorded``
+    (§7.3: a flagged or polish_disabled project is a reported outcome). Not collected; the CPU tests of
+    the M5 GPU logic (tests/test_m5_gpu_logic.py) still call it."""
     name, _m = project
     cal = _load(name, "gate/gate_calibration.json")
     thresholds = current_thresholds()
@@ -226,6 +236,77 @@ def test_gate_calibration_separates_benign_from_negative(project):
         f"{name}: benign accepted {rates['benign_accept']:.3f} < {targets['benign_accept']}: {failed_benign[:10]}"
     assert rates["negative_reject"] >= targets["negative_reject"], \
         f"{name}: negatives rejected {rates['negative_reject']:.3f} < {targets['negative_reject']}: {missed[:10]}"
+
+
+test_gate_calibration_separates_benign_from_negative.__test__ = False
+
+
+# --------------------------------------------------------------------------
+# Milestone 6: per-project gate validation (docs/milestone6.md §7.3)
+# --------------------------------------------------------------------------
+
+def recompute_rates(cal: dict, thresholds: dict) -> dict:
+    """``{benign_accept, negative_reject, n_benign, n_negative}`` decided again from the stored metrics
+    (rounded like ``wenart.gate.calibrate.summarise``; a record without metrics is decided on none)."""
+    def decided(records, want):
+        return sum(1 for r in records
+                   if decide(r["metrics"] if isinstance(r.get("metrics"), dict) else {}, thresholds)[0] == want)
+
+    benign, negative = cal.get("benign") or [], cal.get("negative") or []
+    return {"benign_accept": round(decided(benign, "accept") / len(benign), 4) if benign else None,
+            "negative_reject": round(decided(negative, "reject") / len(negative), 4) if negative else None,
+            "n_benign": len(benign), "n_negative": len(negative)}
+
+
+def expected_decision(cal, rates: dict, limits: dict, thresholds: dict) -> str:
+    """The §7.3 decision, derived here independently of ``wenart.gate.validate``."""
+    if not isinstance(cal, dict) or cal.get("incomplete") or not rates["n_benign"] or not rates["n_negative"]:
+        return "not_validated"
+    recorded = {k: v for k, v in (cal.get("thresholds") or {}).items() if k not in NOT_THRESHOLDS}
+    if recorded != {k: v for k, v in thresholds.items() if k not in NOT_THRESHOLDS}:
+        return "not_validated"
+    benign_ok = rates["benign_accept"] >= limits["benign_accept_min"]
+    negative_ok = rates["negative_reject"] >= limits["negative_reject_min"]
+    if not negative_ok:
+        return "polish_disabled"
+    return "ok" if benign_ok else "flagged"
+
+
+@pytest.fixture(scope="module", params=GATE_PROJECTS)
+def gate_project(request):
+    return request.param
+
+
+def test_gate_validation_recorded(gate_project):
+    name = gate_project
+    val = _load(name, "gate/gate_validation.json")
+    limits = load_validation_config()
+    assert val.get("kind") == "gate_validation" and val.get("decision") in DECISIONS, \
+        f"{name}: gate_validation.json kind {val.get('kind')!r}, decision {val.get('decision')!r}"
+    assert val.get("limits") == limits, f"{name}: validation limits {val.get('limits')} are not validation.yaml's"
+    cal_path = OUTPUTS / name / "gate" / "gate_calibration.json"
+    cal = json.loads(cal_path.read_text(encoding="utf-8")) if cal_path.is_file() else None
+    thresholds = current_thresholds()
+    rates = recompute_rates(cal or {}, thresholds)
+    for key in ("benign_accept", "negative_reject"):
+        got, want = val.get(key), rates[key]
+        assert (got is None) == (want is None) and (want is None or abs(got - want) <= 1e-4), \
+            f"{name}: gate_validation.json {key} {got} != {want} recomputed from gate_calibration.json"
+    assert (val.get("n_benign"), val.get("n_negative")) == (rates["n_benign"], rates["n_negative"]), \
+        f"{name}: comparison counts differ from gate_calibration.json"
+    want = expected_decision(cal, rates, limits, thresholds)
+    assert val["decision"] == want, f"{name}: decision {val['decision']} but validation.yaml gives {want}"
+    assert val.get("polish_allowed") is (want in ("ok", "flagged")), f"{name}: polish_allowed does not match"
+    if want != "ok":
+        assert val.get("reasons"), f"{name}: decision {want} without a reason"
+    final = OUTPUTS / name / "final" / "final_manifest.json"
+    if want in ("polish_disabled", "not_validated") and final.is_file():
+        views = json.loads(final.read_text(encoding="utf-8")).get("views") or []
+        polished = [v.get("camera") for v in views if v.get("final") != "cycles"]
+        assert not polished, f"{name}: gate decision {want} but polished finals: {polished[:10]}"
+    # flagged / polish_disabled / not_validated are outcomes to report, not failures.
+    print(f"{name}: gate validation {want} (benign {rates['benign_accept']}, negatives {rates['negative_reject']}; "
+          f"{'; '.join(val.get('reasons') or []) or 'no reason'})")
 
 
 def test_determinism(project):

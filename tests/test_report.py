@@ -6,6 +6,11 @@ reason: polished, rejected by the vision check (flagged and recomputed),
 check incomplete, gate. Missing inputs (no check, no polish, no renders,
 results copies without PNGs) must still give a report that says what did
 not run. Images are tiny except where the 300 KB limit is tested.
+
+Milestone 6 (docs/milestone6.md §7.4, §9): the gate validation and its effect
+on the finals, camera policy/score, window pull, views per room, the stage
+table from ``run/*.json``, private projects (no plan crop or debug image
+copied), the needs-review report and ``resolve_repo_path`` for the building.
 """
 import copy
 import json
@@ -777,3 +782,359 @@ def test_sweep_report_with_nothing_run(tmp_path):
     md = path.read_text(encoding="utf-8")
     assert path == out / "final" / "sweep_report.md"
     assert md.count("Not run (") == 3 and "# Sweep report: toy" in md
+
+
+# --------------------------------------------------------------------------
+# Milestone 6 (docs/milestone6.md §7.4): gate validation, cameras, stages, private projects, needs review
+# --------------------------------------------------------------------------
+
+def write_json(path: Path, data) -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data), encoding="utf-8")
+    return path
+
+
+def gate_validation(out: Path, decision: str, sha256=None, reasons=None) -> Path:
+    return write_json(out / "gate" / "gate_validation.json", {
+        "schema_version": "0.1", "kind": "gate_validation", "project": "toy", "decision": decision,
+        "benign_accept": 0.9 if decision == "flagged" else 1.0,
+        "negative_reject": 0.8 if decision == "polish_disabled" else 0.95, "n_benign": 64, "n_negative": 170,
+        "pass_benign": decision != "flagged", "pass_negative": decision != "polish_disabled",
+        "reasons": [] if reasons is None else reasons,
+        "limits": {"benign_accept_min": 0.95, "negative_reject_min": 0.9},
+        "polish_allowed": decision in ("ok", "flagged"),
+        "calibration": {"path": "gate_calibration.json", "sha256": sha256, "incomplete": False,
+                        "thresholds_match": True}})
+
+
+def stage_record(out: Path, stage: str, status: str, started: str, seconds=1.0, note=None, **extra) -> Path:
+    return write_json(out / "run" / f"{stage}.json", {
+        "schema_version": "0.1", "kind": "stage_record", "project": out.name, "stage": stage, "rc": 0,
+        "status": status, "seconds": seconds, "fingerprint": "f" * 64, "inputs": {"/x/secret.pdf": "a" * 64},
+        "outputs": [], "started_utc": started, "git_commit": "abc", "log": f"logs/{stage}.log", "note": note,
+        **extra})
+
+
+@pytest.mark.parametrize("decision", ["polish_disabled", "not_validated"])
+def test_gate_validation_without_polish_gives_cycles_finals(tmp_path, decision):
+    out = make_project(tmp_path)
+    gate_validation(out, decision, reasons=["negative controls rejected 0.800 < 0.90"])
+    manifest = F.write_final(out)
+    assert F.validate_final_manifest(manifest) == []
+    assert {(v["final"], v["reason"]) for v in manifest["views"]} == {("cycles", "gate_validation")}
+    assert manifest["summary"]["cycles_by_reason"] == {"gate_validation": 5}
+    assert manifest["stages"]["gate_validation"] == decision
+    g = manifest["gate_validation"]
+    assert g["decision"] == decision and g["polish_allowed"] is False and "Cycles render" in g["effect"]
+    assert any(f.startswith(f"gate validation {decision}: no polish") and "0.800" in f
+               for f in manifest["advisory_flags"])
+    md = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    assert "## Gate validation" in md and f"| decision | {decision} |" in md
+    assert "| negative controls rejected |" in md and "(limit 90 %)" in md
+    assert VW.read_rgb(out / "final" / "cam_salon_1_final_preview.jpg")[..., 0].mean() < 150   # the render
+
+
+def test_gate_validation_ok_and_flagged_keep_the_polish(tmp_path):
+    out = make_project(tmp_path)
+    gate_validation(out, "ok")
+    manifest = F.write_final(out)
+    assert by_cam(manifest)["cam_salon_1"]["final"] == "polished"
+    assert not any("gate validation" in f for f in manifest["advisory_flags"])
+    gate_validation(out, "flagged", reasons=["benign controls accepted 0.900 < 0.95"])
+    manifest = F.write_final(out)
+    assert by_cam(manifest)["cam_salon_1"]["final"] == "polished"
+    assert any(f.startswith("gate validation flagged: polish ran") for f in manifest["advisory_flags"])
+    assert "| decision | flagged |" in (out / "final" / "final_report.md").read_text(encoding="utf-8")
+
+
+def test_gate_validation_older_than_the_calibration_is_not_validated(tmp_path):
+    out = make_project(tmp_path)
+    cal = write_json(out / "gate" / "gate_calibration.json", {"benign": [], "negative": [], "rates": {}})
+    from wenart.canonical import canonical_sha256
+    gate_validation(out, "ok", sha256=canonical_sha256(cal))
+    assert by_cam(F.write_final(out))["cam_salon_1"]["final"] == "polished"
+    write_json(cal, {"benign": [], "negative": [], "rates": {}, "incomplete": True})     # re-calibrated
+    manifest = F.write_final(out)
+    g = manifest["gate_validation"]
+    assert g["decision"] == "not_validated" and g["recorded_decision"] == "ok"
+    assert "changed after the validation" in g["reasons"][-1]
+    assert {v["reason"] for v in manifest["views"]} == {"gate_validation"}
+    md = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    assert "| decision | not_validated (recorded ok) |" in md
+
+
+def test_gate_validation_not_recorded_and_brief_wins(tmp_path):
+    out = make_project(tmp_path)
+    manifest = F.write_final(out)
+    assert manifest["gate_validation"] is None and manifest["stages"]["gate_validation"] == "not_run"
+    assert any(f.startswith("gate validation not recorded") for f in manifest["advisory_flags"])
+    assert "Not recorded (`gate/gate_validation.json` missing)" in \
+        (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    out2 = make_project(tmp_path / "b", brief="style: x\npolish: false\n")
+    gate_validation(out2, "polish_disabled")
+    manifest = F.write_final(out2)
+    assert {v["reason"] for v in manifest["views"]} == {"brief"}
+    assert not any(f.startswith("gate validation not recorded") for f in manifest["advisory_flags"])
+
+
+def test_decide_gate_decision_rule():
+    args = {"polish_ran": True, "check_ran": True, "allowed": True, "source_sha256": "s"}
+    for decision in ("polish_disabled", "not_validated"):
+        out = F.decide(POLISHED, CHECK_OK, gate_decision=decision, **args)
+        assert (out["final"], out["reason"]) == ("cycles", "gate_validation") and decision in out["detail"]
+    for decision in (None, "ok", "flagged"):
+        assert F.decide(POLISHED, CHECK_OK, gate_decision=decision, **args)["final"] == "polished"
+    assert F.decide(POLISHED, CHECK_OK, gate_decision="not_validated", **{**args, "allowed": False})["reason"] == \
+        "brief"
+
+
+def test_cameras_window_pull_and_views_per_room(tmp_path):
+    out = make_project(tmp_path)
+    scene_path = out / "scene" / "scene_manifest.json"
+    sc = json.loads(scene_path.read_text(encoding="utf-8"))
+    for i, cam in enumerate(sc["cameras"]):
+        cam.update(policy="search", shift_x=0.0, shift_y=-0.1, placement="search",
+                   score={"total": 3.0 + i / 10, "furniture": 0.5, "openings": 0.1, "floor": 0.2, "depth": 0.9,
+                          "penalties": 0.0, "blocked": i == 4},
+                   warning="blocked unavoidable" if i == 4 else None)
+    scene_path.write_text(json.dumps(sc), encoding="utf-8")
+    rm_path = out / "renders" / "render_manifest.json"
+    rm = json.loads(rm_path.read_text(encoding="utf-8"))
+    rm["renders"][0]["window_pull"] = {"ev": 2, "clip_before": 0.2, "clip_after": 0.01, "pane_px": 900}
+    rm["renders"][1]["window_pull"] = None
+    rm_path.write_text(json.dumps(rm), encoding="utf-8")
+    b_path = out / "building_final.json"
+    b = json.loads(b_path.read_text(encoding="utf-8"))
+    b["rooms"].append({"id": "r_L1_bos", "level_id": "L1", "room_type": "other", "status": "verified"})
+    b_path.write_text(json.dumps(b), encoding="utf-8")
+    manifest = F.write_final(out)
+    v = by_cam(manifest)
+    cp = v["cam_salon_1"]["camera_plan"]
+    assert cp["policy"] == "search" and cp["score_total"] == 3.0 and cp["shift_y"] == -0.1
+    assert v["cam_salon_1"]["window_pull"]["ev"] == 2 and v["cam_salon_2"]["window_pull"] is None
+    s = manifest["summary"]
+    assert s["cameras"]["policies"] == {"search": 5} and s["cameras"]["score_max"] == 3.4
+    assert s["cameras"]["warnings"] == ["cam_yatak_2: blocked unavoidable"]
+    assert s["exposure"]["window_pull"] == {"views": 1, "min": 2.0, "max": 2.0}
+    assert s["views_per_room"] == {"0": 1, "1": 1, "2": 2}
+    assert manifest["rooms"]["r_L1_bos"]["views"] == [] and manifest["rooms"]["r_L0_salon"]["room_type"] == "living"
+    assert "camera cam_yatak_2: blocked unavoidable" in manifest["advisory_flags"]
+    md = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    assert "| EV | pull EV | camera |" in md and "| search 3.00 |" in md and "| search 3.40 blocked |" in md
+    assert "## Views per room" in md and "Rooms without a rendered view: r_L1_bos." in md
+    assert "| camera policy | search 5 |" in md and "| window pull | 1 view(s), 2 .. 2 EV |" in md
+    # M5 manifests carry no policy: their cameras are the m5 rules.
+    out2 = make_project(tmp_path / "m5")
+    assert by_cam(F.write_final(out2))["cam_salon_1"]["camera_plan"]["policy"] == "m5"
+
+
+def test_stage_table_from_run_records(tmp_path):
+    out = make_project(tmp_path)
+    stage_record(out, "render", "ok", "2026-10-02T10:05:00Z", seconds=300.0)
+    stage_record(out, "pipeline", "reused", "2026-10-02T10:00:00Z", seconds=0.1)
+    stage_record(out, "photos", "skipped", "2026-10-02T10:01:00Z", seconds=0, note="no style photos")
+    stage_record(out, "report", "ok", "2026-10-02T09:00:00Z")                    # an earlier report: left out
+    write_json(out / "run" / "other.json", {"kind": "something_else", "status": "ok"})
+    (out / "run" / "broken.json").write_text("{", encoding="utf-8")
+    manifest = F.write_final(out)
+    assert [r["stage"] for r in manifest["run_stages"]] == ["pipeline", "photos", "render"]
+    assert manifest["run_stages"][1]["note"] == "no style photos" and "inputs" not in manifest["run_stages"][0]
+    assert any("broken.json: unreadable" in w for w in manifest["warnings"])
+    md = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    assert "## Stages" in md and "| photos | skipped | 0.0 s | no style photos |" in md
+    assert "| render | ok | 5.0 min | - |" in md and "secret.pdf" not in md
+
+
+def test_private_project_never_copies_plan_crops(tmp_path):
+    out = make_project(tmp_path)
+    write_json(out / "intake_manifest.json", {
+        "kind": "intake_manifest", "alias": "real-01", "status": "ok", "reasons": [],
+        "totals": {"files": 4, "kept": 3, "skipped": 1, "documents": 2, "style_photos": 1, "notes": 0},
+        "skipped_by_reason": {"junk (system metadata file)": 1},
+        "files": [{"path": "Gizli Villa Bodrum.pdf", "kept": True}]})
+    manifest = F.write_final(out)
+    final = out / "final"
+    assert manifest["private"] is True
+    assert not list(final.glob("*_plan.jpg"))
+    v = by_cam(manifest)
+    assert v["cam_salon_1"]["plan"] is None and v["cam_salon_1"]["plan_kept"] == "check/cam_salon_1_plan.jpg"
+    assert manifest["kept_on_volume"] == ["check/cam_hol_1_plan.jpg", "check/cam_salon_1_plan.jpg"]
+    assert manifest["intake"]["totals"]["kept"] == 3 and "files" not in manifest["intake"]
+    md = (final / "final_report.md").read_text(encoding="utf-8")
+    assert "## Kept on the volume (private project)" in md and "- check/cam_salon_1_plan.jpg" in md
+    assert "## Intake (private upload)" in md and "| junk (system metadata file) | 1 |" in md
+    assert "Gizli" not in md and "Gizli" not in json.dumps(manifest)
+    assert all("plan" not in link for link in links(md))
+    # Previews and contact sheets are still made (they are the private allow-list).
+    assert (final / "cam_salon_1_final_preview.jpg").is_file() and (final / "contact_L0.jpg").is_file()
+
+
+def test_private_by_flag_alias_name_or_volume_root(tmp_path, monkeypatch):
+    out = make_project(tmp_path)
+    assert report_main(["final", "--project-out", str(out), "--private"]) == 0
+    assert json.loads((out / "final" / "final_manifest.json").read_text(encoding="utf-8"))["private"] is True
+    assert not list((out / "final").glob("*_plan.jpg"))
+    assert F.is_private(tmp_path / "outputs-private" / "real-07")
+    assert F.is_private(tmp_path / "x" / "selftest-02")
+    assert not F.is_private(out)
+    from wenart.run import projects as P
+    monkeypatch.setattr(P, "PRIVATE_OUTPUTS", tmp_path / "outputs")
+    assert F.is_private(out)
+
+
+def test_building_path_is_resolved_against_the_repo_root(tmp_path, monkeypatch):
+    """A repo-relative ``building`` in the scene manifest (§1.1) is read with views._resolve_repo_path;
+    an absolute one (a private project on the volume) stays as it is."""
+    out = make_project(tmp_path, brief="style: [unclosed\n")          # project_paths fails: the report's own path
+    building_file = out / "building_final.json"
+    elsewhere = write_json(tmp_path / "data" / "b.json", json.loads(building_file.read_text(encoding="utf-8")))
+    building_file.unlink()
+    scene_path = out / "scene" / "scene_manifest.json"
+    sc = json.loads(scene_path.read_text(encoding="utf-8"))
+    sc["building"] = "data/b.json"
+    scene_path.write_text(json.dumps(sc), encoding="utf-8")
+    assert F.write_final(out)["building"]["unverified"] == []          # not found from the real repo root
+    monkeypatch.setattr(VW, "REPO_ROOT", tmp_path)
+    manifest = F.write_final(out)
+    assert manifest["building"]["unverified"] == ["f_9"]
+    assert manifest["inputs"]["building"] == C.rel(elsewhere, out / "final")
+    sc["building"] = str(elsewhere)                                    # absolute stays absolute
+    scene_path.write_text(json.dumps(sc), encoding="utf-8")
+    monkeypatch.setattr(VW, "REPO_ROOT", tmp_path / "nowhere")
+    assert F.write_final(out)["building"]["unverified"] == ["f_9"]
+    assert F._building_path({"building": None}, out) is None
+
+
+def test_status_of_a_report_without_renders(tmp_path):
+    out = make_project(tmp_path)
+    assert F.write_final(out)["status"] == "ok"
+    (out / "renders" / "render_manifest.json").unlink()
+    assert report_main(["final", "--project-out", str(out)]) == 1
+    m = json.loads((out / "final" / "final_manifest.json").read_text(encoding="utf-8"))
+    assert m["status"] == "not_rendered" and F.validate_final_manifest(m) == []
+
+
+# --------------------------------------------------------------------------
+# Needs-review report
+# --------------------------------------------------------------------------
+
+def review_building(source_folder: str, debug=("debug/plan_scan_png_p1.png", "debug/plan_pdf_p2.png"),
+                    reasons=("plan.pdf p2: no scale source",), schema_error=False) -> dict:
+    pages = [{"file": "plan_scan.png", "format": "image", "pages": [
+                 {"page": 1, "class": "other", "kind": "scan", "level_id": None, "scale": None, "confidence": 0.0,
+                  "skip_reason": "no text layer", "debug_image": debug[0]}]},
+             {"file": "plan.pdf", "format": "pdf", "pages": [
+                 {"page": 2, "class": "floor_plan", "kind": "vector", "level_id": "L0",
+                  "scale": {"metres_per_unit": 0.0352778, "method": "text"}, "confidence": 1.0, "skip_reason": None,
+                  "debug_image": debug[1]}]}]
+    warnings = ["plan_scan.png p1: scan page skipped (no text layer)"] + [f"needs review: {r}" for r in reasons]
+    if schema_error:
+        warnings.append("schema: rooms[0]: 'polygon' is a required property")
+    return {"schema_version": "0.1", "status": "needs_review",
+            "project": {"id": "toy", "source_folder": source_folder, "created_utc": "2026-10-02T10:00:00Z"},
+            "documents": pages, "levels": [], "walls": [], "openings": [], "rooms": [], "furniture": [],
+            "conflicts": [], "unverified": [], "warnings": warnings}
+
+
+def make_review_project(tmp_path, name="toy", building=None, big_debug=True) -> Path:
+    out = tmp_path / "outputs" / name
+    b = building if building is not None else review_building(f"projects/{name}")
+    write_json(out / "building.json", b)
+    (out / "report.md").write_text("# Ingest report\n\n## Documents\n\n| File | Page |\n|---|---|\n| plan.pdf | 2 |\n\n"
+                                   "## Levels\n", encoding="utf-8")
+    for i, rel in enumerate(p["debug_image"] for d in b["documents"] for p in d["pages"]):
+        if rel:
+            arr = noise(1400, 2000, i) if big_debug and i == 0 else np.full((60, 80, 3), 200, dtype=np.uint8)
+            VW.write_png_rgb(out / rel, arr)
+    return out
+
+
+def test_needs_review_report(tmp_path, capsys):
+    out = make_review_project(tmp_path)
+    write_json(out / "renders" / "render_manifest.json", {"renders": []})          # an earlier run: ignored
+    stage_record(out, "pipeline", "needs_review", "2026-10-02T10:00:00Z", note="building needs review")
+    assert report_main(["final", "--project-out", str(out)]) == 0
+    assert "needs_review (1 reason(s))" in capsys.readouterr().out
+    final = out / "final"
+    m = json.loads((final / "final_manifest.json").read_text(encoding="utf-8"))
+    assert F.validate_final_manifest(m) == []
+    assert m["status"] == "needs_review" and m["kind"] == "final" and m["private"] is False
+    assert m["reasons"] == ["plan.pdf p2: no scale source"]                      # the record adds nothing new
+    assert m["hints"] == ["add a scale (ÖLÇEK 1/50, 1/100 or DXF $INSUNITS) to the plan"]
+    assert m["views"] == [] and m["summary"]["views"] == 0 and m["building"]["status"] == "needs_review"
+    assert [(d["file"], d["page"], d["debug_preview"]) for d in m["documents"]] == [
+        ("plan_scan.png", 1, "debug/plan_scan_png_p1.jpg"), ("plan.pdf", 2, "debug/plan_pdf_p2.jpg")]
+    for img in m["debug_images"]:
+        path = final / img["preview"]
+        assert path.is_file() and path.stat().st_size <= 300_000 and img["bytes"] == path.stat().st_size
+    assert any("earlier run's renders" in w for w in m["warnings"])
+    md = (final / "final_report.md").read_text(encoding="utf-8")
+    for text in ("# Final report: toy (needs review)", "## Reasons", "- plan.pdf p2: no scale source",
+                 "## What to do", "## Documents and pages", "| plan.pdf | 2 | floor_plan | vector | L0 | "
+                 "0.0352778 m/unit (text) | 1.00 | - | [debug/plan_pdf_p2.jpg](debug/plan_pdf_p2.jpg) |",
+                 "## Building JSON", "## Stages", "| pipeline | needs_review | 1.0 s | building needs review |"):
+        assert text in md, text
+    assert links(md) and all(link.startswith("debug/") and (final / link).is_file() for link in links(md))
+
+
+def test_needs_review_reasons_from_every_source(tmp_path):
+    out = make_review_project(tmp_path, building=review_building("projects/toy", reasons=(), schema_error=True))
+    m = F.write_final(out)
+    assert m["reasons"] == ["building JSON failed schema validation"]
+    b = review_building("projects/toy", reasons=())
+    out2 = make_review_project(tmp_path / "2", building=b)
+    assert F.write_final(out2)["reasons"] == ["building.json says needs_review (no reason recorded)"]
+    # No building at all: a stage record that says needs_review (e.g. a pipeline crash before writing).
+    out3 = tmp_path / "3" / "outputs" / "toy"
+    stage_record(out3, "pipeline", "needs_review", "2026-10-02T10:00:00Z", note="exit 1, status needs_review")
+    m = F.write_final(out3)
+    assert m["reasons"] == ["pipeline: exit 1, status needs_review"] and m["documents"] == []
+    md = (out3 / "final" / "final_report.md").read_text(encoding="utf-8")
+    assert "No document page was classified" in md
+    # An ok project is not a needs-review project.
+    assert F.review_inputs(make_project(tmp_path / "4")) is None
+
+
+def test_needs_review_report_md_table_when_building_has_no_documents(tmp_path):
+    b = review_building("projects/toy")
+    b["documents"] = []
+    out = make_review_project(tmp_path, building=b)
+    assert F.write_final(out)["documents"] == []
+    md = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    assert "From the pipeline's report.md:" in md and "| plan.pdf | 2 |" in md
+
+
+def test_private_needs_review_never_copies_debug_images(tmp_path):
+    out = make_review_project(tmp_path, name="real-01",
+                              building=review_building("/workspace/outputs-private/real-01/input/real-01"))
+    write_json(out / "intake_manifest.json", {"kind": "intake_manifest", "alias": "real-01", "status": "ok",
+                                              "reasons": [], "totals": {"kept": 2, "documents": 2}})
+    m = F.write_final(out)
+    final = out / "final"
+    assert m["private"] is True and not (final / "debug").exists()
+    assert [(i["source"], i["preview"]) for i in m["debug_images"]] == [
+        ("debug/plan_scan_png_p1.png", None), ("debug/plan_pdf_p2.png", None)]
+    md = (final / "final_report.md").read_text(encoding="utf-8")
+    assert "debug/plan_pdf_p2.png (on the volume, not copied)" in md and not links(md)
+    assert "## Intake (private upload)" in md
+    assert sorted(p.name for p in final.iterdir()) == ["final_manifest.json", "final_report.md"]
+
+
+def test_intake_needs_review_ignores_an_older_building(tmp_path):
+    out = make_review_project(tmp_path, name="real-02", building=review_building("x", reasons=("old reason",)))
+    write_json(out / "intake_manifest.json", {"kind": "intake_manifest", "alias": "real-02", "status": "needs_review",
+                                              "reasons": ["not uploaded"], "totals": {}, "files": []})
+    stage_record(out, "intake", "needs_review", "2026-10-02T11:00:00Z", note="not uploaded")
+    stage_record(out, "pipeline", "needs_review", "2026-10-01T11:00:00Z", note="old")
+    m = F.write_final(out)
+    assert m["reasons"] == ["intake: not uploaded"] and m["building"] is None and m["documents"] == []
+    assert m["hints"] == ["upload the project folder (docs/intake.md, step 5) and run again"]
+    assert any("building.json is from an earlier run" in w for w in m["warnings"])
+    assert F.validate_final_manifest(m) == []
+
+
+def test_review_hints_only_from_known_reasons():
+    assert F.review_hints(["a.dwg: DWG conversion failed: no converter", "L0: outer walls do not form a closed loop"]) \
+        == ["export DXF (or a vector PDF) from the CAD program; DWG is not read",
+            "close the outer walls of the level in the drawing"]
+    assert F.review_hints(["something unexpected"]) == []
