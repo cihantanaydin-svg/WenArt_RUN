@@ -92,3 +92,24 @@ targets:
   removal_confirmed_min: 0.60
   insertion_min: 0.60
   decoy_accept_max: 0.10          # per model
+
+# Realism A/B (docs/milestone6.md §6, wenart/vision_check/realism.py): pairwise forced choice per aspect, both
+# orders, both models. `realism-combine` only counts; `realism-summary` decides, and only for a model whose
+# controls pass (§6.2). Outcomes: W = B picked in both orders, L = A in both, T = follows the position.
+realism:
+  control_views: 8                # views of the control project's AB renders with the highest furniture share
+  reencode_quality: 70            # null_reencode: the A image is the normal preview re-encoded by PIL at q70
+  min_decisive: 30                # better/worse needs >= 30 decisive consensus pairs ...
+  min_rooms: 10                   # ... from >= 10 rooms
+  alpha: 0.05                     # exact two-sided sign test
+  bootstrap_resamples: 2000       # room-cluster bootstrap 95 % interval of the net win (W - L) / N
+  bootstrap_seed: 0
+  targets:                        # §6.2; a model has signal when it meets the first three on each ctl_* set
+    correct_min: 0.70             # order-consistent correct (W on the set's target aspect), per model
+    wrong_max: 0.05               # order-consistent wrong (L on the target aspect), per model
+    consensus_correct_min: 0.60   # both models correct (reported)
+    null_identical_tie_min: 0.90  # identical files: T on >= 90 % of pair-aspects, every flip listed
+    null_reencode_win_max: 0.10   # JPEG q70 re-encode: the normal file wins <= 10 % of pair-aspects
+    nuisance_brighter_max: 0.30   # +0.3 EV: brighter image wins > 30 % -> flag every A/B pair with |dEV| > 0.3
+    delta_ev_flag: 0.3
+    halo_max: 0.80                # non-target aspects following the target winner; above: note for M7
