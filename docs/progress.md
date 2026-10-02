@@ -150,3 +150,77 @@ GPU cost so far: $2.07 (`docs/gpu-log.md`).
 Next step: Milestone 4: furniture assets fitted to the drawn footprints (Poly Haven, Objaverse CC0/CC-BY,
 TRELLIS.2 fallback), AI layout for empty rooms with clearance checks, and the bake-off re-run with the
 tiled symbol pass.
+
+## Milestone 4 – furniture: library assets, parametric fallback, AI layout, decor (done, 2 Oct 2026)
+
+What works (`docs/milestone4.md` is the spec):
+- `wenart/furniture/catalog.json`: 31 Poly Haven models (CC0 only, checked against the API) for 13 furniture
+  types with measured bounding boxes and frame data; sanitary ware, kitchen blocks, wardrobes, fridges and
+  washing machines are parametric by design. `wenart/furniture/fit.py` picks the model whose box aspect is
+  closest to the drawn footprint, scales it to the footprint (non-uniform scale ≤ 15 %, mean scale 0.75–1.30,
+  else next candidate, else the parametric mesh), never touches the footprint, type, rotation, room or status
+  (`FROZEN_KEYS` + byte comparison) and writes a fit report per project. `wenart/assets/models.py` downloads the
+  glTF + textures (sha256, licence re-checked) on the pod.
+- `wenart/blender/parametric.py`: recognisable meshes for 25 types (bed with headboard and pillows, sofa with
+  arms and cushions, wardrobe with doors, kitchen counter with worktop and plinth, toilet, washbasin, shower
+  with thin glass panels, ...), box equal to the footprint ± 1 cm, materials from the style.
+  `wenart/blender/furniture.py` imports the fitted glTF once per asset (shared materials and packed images),
+  re-orients it into the piece frame, scales it and puts it on the footprint; unverified pieces keep the red
+  stripes as an overlay on the asset's materials; pass index per piece, decor shares its host's index.
+- `wenart/furniture/layout.py` + `placer.py`: for every room without documented furniture, Qwen3-VL-8B is
+  asked twice (temperature 0, strict JSON schema with the allowed types and size options of the room type);
+  each answer is checked with shapely (inside the room shrunk by 2 cm, no overlap, 0.6 m clearance in front
+  of beds/sofas/desks/wardrobes, door approach strips and swing arcs free, a 0.9 m walkway from every door to
+  every other door and window, nothing taller than the sill in the window band, against-wall pieces touching
+  a wall within 5 cm) and repaired (snap, slide, shrink, relocate, drop; ≤ 40 steps, every step logged). The
+  proposal with the fewest dropped pieces wins; pieces both passes agree on get confidence 0.9, others 0.6.
+  Anchor first: when the room's anchor piece (bed, sofa, counter, toilet, washbasin) was dropped, it is placed
+  alone, locked, and the rest gives way. Types the room type does not allow are rejected before placement.
+- `wenart/furniture/decor.py`: cushions on sofas and beds, books on shelves and desks, one potted plant per
+  living room or bedroom in a free corner (library plant model, CC0), never on a walkway, a door approach or
+  in another piece's clearance; off when the brief says `decor: false`.
+- Pod job `scripts/jobs/furnish.sh`: setup → pipeline → style → assets → fit → layout (vLLM server once for
+  both projects) → decor → refit → build → render → GPU tests, resumable, results copied after every stage.
+
+Measured (RTX PRO 4000, 1 Oct 2026, `results/furniture/`, `results/renders/`):
+
+| Item | synthetic-01 | synthetic-03 |
+|---|---|---|
+| Pieces from the documents | 13 (6 library, 7 parametric) | 21 (9 library, 12 parametric) |
+| Empty rooms furnished by AI | 7 rooms, 23 pieces | 11 rooms, 33 pieces |
+| Model time per room (2 passes) | 10.7 s mean | 8.4 s mean |
+| Decor | 15 pieces | 18 pieces |
+| Views rendered (128 samples, OptiX) | 30 at 6.4 s | 57 at 4.7 s |
+| GPU tests | `test_furnish.py` 8 passed, `test_render.py` 12 passed | |
+
+Whole job ≈ 37 min including setup, ≈ $0.35 per run. Five pod runs for this milestone: $1.39.
+
+Found and fixed on the way (each with a failing-then-passing test):
+- Run 1: library models fell back to parametric (resolver looked for `<id>.gltf`, the catalogue has `<id>_1k.gltf`);
+  a 1.1 m tall sofa (no uniform-scale limit); bedrooms without a bed (the iteration cap dropped the anchor).
+- Run 2: both L1 bedrooms still lost their bed: the small pieces were repaired first and took the floor →
+  anchor-first retry. The index pass missed pieces behind the shower glass (Cycles' data passes stop at a
+  Glass BSDF) → thin glass (transparent + glossy by Fresnel) for furniture glass.
+- Run 3 previews: every library piece rendered with its texture atlas sampled by the box UVs in metres (the
+  asset UV layer was active but not the render layer) → `active_render` set, test added.
+- Review of the milestone code (10 confirmed findings, all fixed): plants were never built in Blender, camera
+  obstacles of library pieces were scaled twice, a door flush with a corner lost its walkway checks, no
+  deterministic allowed-type check, inside-room tolerance disagreed with the GPU test, plants in another
+  piece's clearance, the catalogue's plant models unused, fallback height inconsistent, swapped width/depth
+  turned the piece, log numbering in the retry.
+
+Open items:
+- Catalogue coverage: no CC0 wardrobe, kitchen or sanitary models on Poly Haven; coffee tables, TV units,
+  dining tables, stoves and desks fail the scale rule for the drawn sizes (the models are too big or small),
+  so about half of the pieces are parametric. Objaverse CC0/CC-BY and TRELLIS.2 (plan §4.8) are the next step.
+- The "Gothic" bed and commode are the only CC0 bed/dresser models: style-neutral choices are missing.
+- Tiled symbol pass: no gain at 150 dpi (GLM 4 → 10 %, Qwen 0 %, one timeout); the fine-tuned detector of
+  plan §4.2 stays the path for symbols. LibreDWG 0.14.1 tarball is not downloadable (GNU mirror and GitHub);
+  0.13.3 stays (DXF DIMENSION/MTEXT round trip fails there, recorded in `results/bakeoff/dwg_roundtrip.json`).
+- Mottled white plaster and dark charcoal rooms: material and lighting polish is Milestone 5.
+- Rooms narrower than 0.9 m clear get no walkway requirement (documented relaxation).
+
+GPU cost so far: see `docs/gpu-log.md`.
+
+Next step: Milestone 5: AI polish (image-to-image with depth/edge control, geometry change check), the final
+vision check against the building JSON, and real-room photos as style and material references.

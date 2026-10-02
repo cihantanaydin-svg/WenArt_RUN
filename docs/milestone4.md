@@ -54,8 +54,9 @@ Out of scope: AI polish, the final vision check, real-room photos.
   Milestone 3 proxy box, striped). Materials from the style (wood for frames, fabric colour from the
   style's textiles slot, white ceramic for sanitary ware, steel for appliances).
 - Decor (`wenart/furniture/decor.py`): rule-based, only when `brief.decor` is not false: cushions on
-  sofas and beds (library `throw_pillows_01` or parametric), books on shelves and desks, one potted plant
-  per living room / bedroom in a free corner (library `potted plant` models, CC0), rugs are skipped. Decor
+  sofas and beds (parametric: the CC0 pillow model lies flat and squashed to a standing cushion looks
+  wrong), books on shelves and desks (parametric), one potted plant per living room / bedroom in a free
+  corner (library `potted_plant_*` models, CC0, scaled to 0.4 m), rugs are skipped. Decor
   pieces are `added_by_ai` with `method: "rule"` and never larger than 0.6 m; they are listed in the
   report and in the scene manifest with `kind: decor`.
 
@@ -80,7 +81,9 @@ Out of scope: AI polish, the final vision check, real-room photos.
   `unknown` pieces. Unverified pieces keep the red stripes (as a material overlay on the asset).
 - The scene manifest gains per piece: `asset`, `fit_scale`, `method`, `bbox_m`, `decor: [...]`.
 - Cameras: the free-point search uses the fitted bounding boxes (not only footprints) and ignores decor.
-- Pass indices: one per piece (decor shares its host's index).
+- Pass indices: one per piece (decor shares its host's index; a plant on the floor has its own).
+- Glass inside a room (shower panels) is a thin pane (transparent + glossy by Fresnel): Cycles' depth and
+  index passes see through it; window panes keep the Glass BSDF.
 
 ## 3. AI layout for empty rooms
 
@@ -99,8 +102,11 @@ Out of scope: AI polish, the final vision check, real-room photos.
   door to every other door/window of the room; door swing arcs free; windows: nothing taller than the sill
   within 0.3 m of a window wall segment (beds, sofas, tables allowed under windows); `against_wall`
   pieces (bed headboard, wardrobe, sofa back, kitchen counter) touch a wall within 5 cm; repair steps
-  (snap to the nearest wall, slide along the wall, shrink to the next size option, drop the piece) with
-  at most 20 iterations, every repair logged. The result is the proposal with the fewest dropped pieces
+  (snap to the nearest wall, slide along the wall, shrink to the next size option, relocate to another wall,
+  drop the piece) with at most 40 iterations, every repair logged; when the room's anchor piece (bed, sofa,
+  counter, toilet, washbasin) was dropped, it is placed alone, locked, and the rest is placed around it
+  (`anchor_first`); types the room type does not allow are rejected before placement. The result is the
+  proposal with the fewest dropped pieces
   (ties: pass 1); pieces present in both proposals (same type, centre within 0.5 m) get confidence 0.9,
   others 0.6. Pieces added: `added_by_ai`, evidence `{method: "ai", model, pass, text: <reason>}`, `checks`
   recorded. Empty result (model answered nothing usable) → the room stays empty and the report says so.

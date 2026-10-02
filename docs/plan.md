@@ -242,6 +242,13 @@ Fitting rule: pick the asset of the right type whose bounding box ratio is close
 scale it to the footprint (non-uniform scale capped at 15 %, else next asset or TRELLIS.2), rotate to `front_deg`.
 Every fit is logged (asset id, licence, scale factors).
 
+**Measured on 1 Oct 2026 (Milestone 4, `results/furniture/`):** Poly Haven has 31 usable CC0 furniture models for
+13 of our types (none for wardrobes, kitchen blocks, sanitary ware, appliances); with the 15 % non-uniform and
+0.75–1.30 mean-scale rule about half of the drawn pieces get a library model, the rest the parametric mesh
+(`wenart/blender/parametric.py`, exact footprint). Qwen3-VL-8B (vLLM, fp8, structured output) proposes a layout
+for an empty room in ≈ 4–7 s per pass; the shapely checks and repairs run in milliseconds. Objaverse and TRELLIS.2
+were not run yet; they are the way to close the coverage gap.
+
 ### 4.9 Materials and HDRIs
 
 | Option | Licence | Commercial | Note |
