@@ -101,7 +101,8 @@ Per project and stage: `<out_dir>/run/<stage>.json`
 - `fingerprint = sha256(json([stage, STAGE_VERSION[stage], args, sorted(inputs), code_hash(stage)]))`;
   `code_hash` = sha256 of the source files that implement the stage (listed per stage in `wenart/run/stages.py`).
 - A stage with `reuse: fingerprint` is skipped (status `reused`) when the stored fingerprint equals the new
-  one, the stored status is `ok` or `warning` and every listed output exists. Stages with their own
+  one, the stored status is `ok`, `warning` or `reused` (a reused record carries over the status of the run
+  that made the outputs, so a third run of an unchanged project still skips) and every listed output exists. Stages with their own
   fine-grained reuse (build `--reuse`, render `render_key`, polish `attempt_key`, check answers by call key)
   are always invoked.
 - Status meanings: `warning` = rc ≠ 0 (or a reported problem) on a stage whose failure is not terminal (§2.2
@@ -149,7 +150,7 @@ external server. `seqs` (2 or 4) is the `--workers` of every VLM stage.
 | S synthetic | `wenart/synthetic/*`, `wenart/building.py` (room keywords), `projects/synthetic-04/`, `projects/synthetic-05/` (generated), `docs/synthetic.md`, `tests/test_synthetic.py`, `tests/test_pipeline.py`, `tests/test_building.py` |
 | C cameras | `wenart/blender/cameras.py`, `wenart/blender/camsearch.py` (new), `wenart/blender/geom2d.py` (frustum with shift), `project_points`/`unproject_pixels`/`focal_px` in `wenart/vision_check/expected.py`, `tests/test_blender_cameras.py`, `tests/test_blender_geometry.py`, `tests/test_camsearch.py` (new), `tests/test_vision_check_expected.py`, `tests/gpu/test_render.py` |
 | L look | `wenart/blender/{materials,parametric,furniture,shell,lighting,render,build,cli,schemas}.py`, `wenart/style/{vocabulary,profile}.py`, `wenart/assets/*`, `tests/test_blender_{build,look,render,furniture,materials,glass}.py`, `tests/test_m5_e2e.py`, new Blender CPU tests, `tests/gpu/test_look_m6.py` (new) |
-| V realism | `wenart/vision_check/realism.py` (new), `wenart/vision_check/{cli,schemas}.py` (realism commands and schemas), `check.yaml` `realism:` block, `wenart/recognition/vlm_client.py` (system prompt argument, if missing), `tests/test_realism.py`, `tests/gpu/test_realism.py` |
+| V realism | `wenart/vision_check/realism.py` (new), `wenart/vision_check/{cli,schemas}.py` (realism commands and schemas), `check.yaml` `realism:` block, `wenart/recognition/vlm_client.py` (system prompt argument, if missing), `tests/test_realism_ab.py` (CPU; `tests/` has no `__init__.py`, so a CPU `test_realism.py` would clash with the GPU file of the same base name), `tests/gpu/test_realism.py` |
 | IE intake + report | `wenart/intake.py` (new), `docs/intake.md` (new), `.gitignore`, `scripts/gpu_run.py`, `wenart/gate/validate.py` + `wenart/gate/validation.yaml` (new), `wenart/gate/__main__.py` (`validate` command), `wenart/report/*`, `tests/test_intake.py`, `tests/test_private_guard.py`, `tests/test_gpu_run.py`, `tests/test_report.py`, `tests/test_gate_validate.py`, `tests/gpu/test_polish.py`, `tests/gpu/test_check.py` |
 
 Files outside this table are changed only by the integrator (foundation files: `wenart/canonical.py`,
@@ -168,7 +169,8 @@ python -m wenart.run pod  --projects "synthetic-01 synthetic-03" [--private "rea
 python -m wenart.run copy --projects ... [--private ...] [--ab ...] --results $RESULTS [--since STAMP]
 ```
 - `plan` (CPU, session or pod): runs stage 1 (pipeline) for each project and writes per project: status,
-  levels, rooms, empty rooms, views (§4.1 area rule), minutes (§8.1 rule), server starts, and a suggested pod
+  levels, rooms, empty rooms, views (§4.1 area rule, `camsearch.room_view_count`: the area of the room polygon),
+  minutes (§8.1 rule), server starts, and a suggested pod
   split: first-fit under `100 − fixed(server starts) − 8` min of project work per pod (≤ 73 min with 3 server
   starts, ≤ 71 min with 4). `needs_review` projects get their report and no pod time.
 - `pod` (inside `full.sh`): the whole run. Exit 0 when every project ended `ok` or `needs_review`, no AB stage
@@ -204,7 +206,7 @@ PY = `/workspace/venv/bin/python`, POLISH_PY = `/opt/wenart/venv-polish/bin/pyth
 
 | # | Stage | Command (existing CLIs unless marked new) | Holder | Reuse | On failure |
 |---|---|---|---|---|---|
-| 0 | intake (private only) | `PY -m wenart.intake stage <alias> --out out/input/<alias>` (§7.1) | – | fingerprint | failed (`needs_review` when not uploaded or a name collision) |
+| 0 | intake (private only) | `PY -m wenart.intake stage <alias> --out out/input/<alias>` (§7.1) | – | fingerprint | exit 4 (or manifest `status: needs_review`) → `needs_review` (not uploaded, a name collision, no document, a cap; the note is one of the intake's fixed reasons, never a file name); other → failed |
 | 1 | pipeline | `PY -m wenart.ingest.pipeline <project_dir> --out out` | – | fingerprint (project files + `wenart/ingest/**`, `wenart/building.py`, `wenart/geometry.py`) | exit 1 + building status `needs_review` → **needs_review** (stop); other → failed |
 | 2 | photos (style photos in the brief or folder) | `PY -m wenart.style.photos read <photos> --model-key <k> --server <url> --out out/style_photos/passes.json` for glm and qwen; `PY -m wenart.style.photos combine out/style_photos/passes.json --out out/style_photos/terms.json` | VLM (GLM session, then Qwen session) | skipped when `passes.json` holds a valid answer (data, no error) of both check.yaml model **ids** for every current photo sha256 (the revision is not recorded; `--force photos` after a revision change) | warning (style from the brief only) |
 | 3 | style | `PY -m wenart.style <project_dir> --out out/style.json [--photo-terms out/style_photos/terms.json]` (terms only when complete) | – | always (deterministic, < 1 s) | failed |
@@ -216,12 +218,12 @@ PY = `/workspace/venv/bin/python`, POLISH_PY = `/opt/wenart/venv-polish/bin/pyth
 | 9 | build | `PY -m wenart.blender.cli build --building out/building_final.json --style out/style.json --assets /workspace/assets --out out/scene --preview-samples 32 --camera-policy search --reuse` | Blender | build fingerprint | exit ≠ 0 → failed (stage 1 already stopped needs_review buildings; exit 2 here is a refused request or a usage error; note = last line of build.log) |
 | 10 | render | `PY -m wenart.blender.cli render --scene out/scene/scene.blend --out out/renders --cameras all --samples $RENDER_SAMPLES --res 1920x1080 --exposure auto --white-balance auto` | Blender | render_key | exit 3 → incomplete; else failed |
 | 11 | controls | `PY -m wenart.vision_check select-controls --project-out out`; when `check/controls.json["hide_sets"]` is not empty: `PY -m wenart.blender.cli render --scene out/scene/scene.blend --out out/controls --hide-sets "<hide_sets>" --look-from out/renders/render_manifest.json` (same string as polish.sh's `HIDE_SETS` line) | Blender | render_key | warning (check stays advisory) |
-| 12 | gate calibrate + validate (polish on; skipped `polish off`) | `POLISH_PY -m wenart.gate calibrate --project-out out`; `PY -m wenart.gate validate --project-out out` (§7.3) | gate models | own | calibration incomplete → incomplete; validation decides stage 13 |
+| 12 | gate calibrate + validate (polish on; skipped `polish off`) | `POLISH_PY -m wenart.gate calibrate --project-out out`; `PY -m wenart.gate validate --project-out out` (§7.3), always after calibrate (a failed calibrate's file, stale or partial, is first moved to `gate/gate_calibration.failed.json`, so `gate_validation.json` always describes this run) | gate models | own | calibration incomplete → incomplete; calibrate exit ≠ 0 → warning, no polish; validation decides stage 13 |
 | 13 | polish (decision `ok` or `flagged`; else skipped `gate not validated`) | `POLISH_PY -m wenart.polish run --project-out out` (`PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True`) | diffusion | attempt_key | rc 1 → warning (views keep Cycles) |
 | 14 | expected + plan crops | `PY -m wenart.vision_check expected` / `plan-crops --project-out out` | – | always | failed |
 | 15 | check (per model session) | `vision_check run --model-key K --server URL --kinds cycles,polished --workers <seqs>`; `preference --kinds polished`; `style-photo --photo tests/fixtures/style_photo_synthetic-03_salon.jpg --out out/check/style_photo_test.json` (every public project: 1 call per model, read by `tests/gpu/test_check.py::test_style_photo_test`) | VLM Qwen, then GLM | answers by call key | failed |
 | 16 | combine | `vision_check combine`, `calibrate` | – | always | failed |
-| 17 | report | `PY -m wenart.report final --project-out out` (also for needs_review, §7.4) | – | always | failed |
+| 17 | report | `PY -m wenart.report final --project-out out` (+ `--private` for a private project; also for needs_review, §7.4) | – | always | failed |
 
 Deadline cuts are read from the outputs, whatever the rc: `polish/polish_manifest.json`,
 `gate/gate_calibration.json`, `check/answers_<slug>.json`, `check/realism/answers_<slug>.json` with
@@ -237,8 +239,9 @@ Phases, each over all active projects in the given order, stopping a project at 
    part 1 (§6.3) for AB projects not in `--projects`.
 2. VLM GLM session — only when some project has style photos without a valid GLM answer: photos (glm).
 3. VLM Qwen session — only when some project needs a layout or Qwen photo answers: photos (qwen); photo
-   combine and style again with `--photo-terms` (then fit again if its fingerprint changed) only for projects
-   that got new photo answers in this run; layout.
+   combine and style again with `--photo-terms` only for projects that got new photo answers in this run (fit
+   reads no style, so its fingerprint never changes here); layout (its deadline estimate counts its calls one
+   at a time: the layout CLI sends them sequentially).
 4. CPU: assets, decor, refit; AB prepare part 2 (§6.3).
 5. Blender: build, render, controls for every project; AB builds, renders, `cameras_check.json`, control-view
    choice (`realism.control_views`) and control renders.
@@ -249,7 +252,9 @@ Phases, each over all active projects in the given order, stopping a project at 
 9. VLM GLM session: the same.
 10. CPU: combine, calibrate, realism-combine, realism-summary, report for every project (also needs_review
     and incomplete ones).
-11. GPU tests (§2.4), then `run_manifest.json`.
+11. One copy of the small result files (as `wenart.run copy`, under the job's copy lock `WENART_COPY_LOCK`, so
+    the private allow-list under `results-private/<alias>/` exists for the tests), GPU tests (§2.4), then
+    `run_manifest.json`.
 
 Rules:
 - `WENART_DEADLINE` (epoch s, set by `pod_entry.sh` = entry + MAX_RUNTIME_S − 900): a heavy stage (build,
@@ -296,15 +301,18 @@ may see). Other private projects are never in a test list. Test groups with an e
 
 ### 2.5 Smoke profile (CPU, for the session)
 
-`--profile smoke`: render `--res 480x270 --samples 16 --device cpu`, AB renders likewise, controls 2 views, no
+`--profile smoke`: render `--res 480x270 --samples 16 --device cpu`, AB renders likewise, builds
+`--preview-samples 4` (the top-down previews on the CPU: 32 samples took 55 of a 66 s build), controls 2 views, no
 gate/polish (skipped `smoke profile`), `--vlm-url` required (the fake server), no GPU tests, private roots
 given by `--private-root/--private-outputs/--private-results` (temp dirs). `tests/fakes/fake_vlm.py`: stdlib
 `http.server` on a free port with `/health`, `/v1/models`, `/v1/chat/completions` answering a minimal valid
 instance of the request's JSON schema (enum → first value, integer → minimum, number → minimum or 0, string →
 "", array → `minItems` copies, object → required keys), deterministic. `tests/test_run_e2e.py` (marked `slow`,
 skipped without Blender) runs synthetic-04 + synthetic-02 + a private copy of synthetic-02 (alias
-`selftest-02`) + AB on synthetic-01 (2 cameras) with the smoke profile end to end and checks the run manifest,
-stage records, reports, the private allow-list and that nothing private reaches `$RESULTS`.
+`selftest-02`) + a private copy of synthetic-04 (alias `real-01`, uploaded into the temp private root: the private
+path through intake, build, render, check and report with absolute paths) + AB on synthetic-01 (2 cameras,
+controls on synthetic-01) with the smoke profile end to end and checks the run manifest, stage records, reports,
+the private allow-list and that nothing private reaches `$RESULTS` or the job log.
 
 ### 2.6 Fixes the full run needs
 
@@ -404,7 +412,8 @@ m², 1 when < 3 m². Greedy pick by score among unblocked candidates; a later pi
 one by ≥ 50° yaw or ≥ 1.0 m; a pick below 0.5 × the room's best score is dropped (at least 1 view per room). A
 room with no unblocked candidate gets its best blocked one with `warning: "blocked unavoidable"`. Ties: score,
 then x, y, yaw. Deterministic. Budget ≤ 60 s per project on one CPU core for synthetic-03 (`search_seconds` in
-the scene manifest).
+the scene manifest: the sum over the levels, null for `m5`; every searched plan also carries its level's
+seconds). The model's depth is the planar depth (Cycles Z, what the GPU test reads), not the ray length.
 
 ### 4.2 Integration
 
@@ -436,8 +445,8 @@ image files) only. Every new design-detail object or light gets a scene-manifest
 | 3 | Wall faces split at every room corner along the wall (`bmesh.ops.bisect_plane`) before the per-face material probe | `shell.py` | CPU test on a hand-made building (a wall shared by a bathroom and a bedroom: tiles on the bathroom span only) and on synthetic-03 L1 wall `w_L1_006` |
 | 4 | Wet walls: procedural glazed tiles (Brick Texture on metre UVs, 60 × 30 cm, 3 mm grout, roughness 0.08 tile / 0.7 grout, bump from the grout mask) for `tiles_*` slugs without an image asset | `materials.py`, `vocabulary.py`, `profile.py` | material has the node group; flat albedo mode still works |
 | 5 | Area light of a windowless room at the pole of inaccessibility (pure-Python/numpy polylabel, 1 cm precision), square size ≤ 2 × its distance to the polygon boundary | `lighting.py` | CPU test on a hand-made L-shaped windowless hall: light fully inside the room |
-| 6 | Dim rooms (glass area / floor area < 0.08) get the assumed ceiling area light at half power (6 W/m²), invisible to the camera, recorded `assumed` with the reason | `lighting.py` | manifest entry; GPU: the four dark synthetic-03 rooms below +6 EV |
-| 7 | Window pull: the final render also enables the Diffuse Color pass (the EXR gains a `DiffCol` layer; existing passes unchanged; `RENDER_CODE_VERSION` → `m6.1`). After the render, the Render Result is saved again at EV − k to a temp PNG and read back with OIIO; pane mask = window index ∧ DiffCol luminance < 0.05, feathered over 3 px with numpy; k = the smallest of 1..4 with pane clip ≤ 1 % and pane median > wall median (wall = `views.regions` walls); if none qualifies, the k with the lowest clip that keeps pane median > wall median; with no wall pixels the clip rule alone; with no pane pixels `window_pull: null`. Blended into the PNG and the preview; recorded as `window_pull: {ev, clip_before, clip_after, pane_px}` | `render.py` | pixels outside the mask unchanged (max diff 0); EXR passes other than `DiffCol` unchanged |
+| 6 | Dim rooms (glass area / floor area < 0.08) get the assumed ceiling area light at half power (6 W/m²), invisible to the camera, recorded `assumed` with the reason | `lighting.py` | manifest entry; GPU: the dim rooms below +6 EV (synthetic-03 has three by the 0.08 rule: `r_L-1_kiler` 0.051, `r_L-1_yatak_odasi` 0.036, `r_L-1_kiler_2` 0.049; synthetic-01 two: `r_L1_hol`, `r_L1_banyo`) |
+| 7 | Window pull: the final render also enables the Diffuse Color pass (the EXR gains a `Diffuse Color` layer, Blender 5.2.2's name; readers also accept `DiffCol`; existing passes unchanged; `RENDER_CODE_VERSION` → `m6.1`). After the render, the Render Result is saved again at EV − k to a temp PNG and read back with OIIO; pane mask = window index ∧ Diffuse Color luminance < 0.05, feathered over 3 px with numpy; k = the smallest of 1..4 with pane clip ≤ 1 % and pane median > wall median (wall = `views.regions` walls); if none qualifies, the k with the lowest clip that keeps pane median > wall median; with no wall pixels the clip rule alone; with no pane pixels `window_pull: null`. Blended into the PNG and the preview; recorded as `window_pull: {ev (= −k), k, clip_before, clip_after, pane_px, ...}` | `render.py` | pixels outside the mask unchanged (max diff 0); EXR passes other than `Diffuse Color` unchanged |
 | 8 | Soft bedding (superellipsoid mattress, draped duvet, turn-down band, pillows leaning 14°) inside the bed's own box; veneer slugs (`wood_veneer_oak`, `wood_veneer_walnut`, Poly Haven `oak_veneer_01`, `walnut_veneer`) for furniture wood instead of the floor planks; fabric textures in flat albedo mode (Poly Haven `rough_linen`); `metallic = 1` for steel; one Bevel modifier (weight-limited, 0.05 m, 3 segments, per-part weights, ≤ 1/3 of the smallest side); `parametric.decor_rest_height` follows the bedding top for bed hosts (build time, so the M5 building of the A/B gets it too) | `parametric.py`, `furniture.py`, `materials.py`, `vocabulary.py`, `wenart/assets` | bbox equals the footprint box (1.6 × 2.0 × 1.0 m bed checked); `obstacle_rect`/`piece_bbox` unchanged for every type (the `m5` cameras depend on it) |
 | 9 | Doors: veneer with vertical grain, lever handles on both faces at 1.02 m (steel, the door's pass index); painted skirting 8 cm × 12 mm along dry-room walls, interrupted at doors, pass index 0, status `assumed` | `shell.py`, `materials.py` | handles inside the door's bbox + handle depth; skirting absent in wet rooms |
 | 10 | `--alt-look "AgX - Punchy"`: also save `<cam>_alt_preview.jpg` with that look and the **same** window pull (alt look saved at EV and at EV − k with the main PNG's k and mask, blended with the same mask) | `render.py`, `cli.py` | outside the mask the alt preview equals a plain alt-look save; main PNG unchanged |
@@ -568,11 +577,14 @@ ties by name. Controls are asked first, then `m5_vs_m6`, then `look_alt`.
   default look should become `AgX - Punchy` in M7; asked last, skipped at the deadline, never counted in the
   exit code or the 95 % rule); `ctl_*`, `null_*`, `nuisance_ev` (control project only).
 - `python -m wenart.vision_check realism-pairs --project-out out [--controls]` reads only files under `out`
-  (no git) and writes `out/ab/pairs.json`: `[{pair_id, set, cam, room_id, a, b, expected: "b"|"a"|"tie"|null,
-  target_aspect, a_sha256, b_sha256, a_bytes, b_bytes}]` (paths relative to `out`), plus the `dropped` list
-  copied from `cameras_check.json`; the `null_reencode` A files are written by this command (PIL q70).
-- `realism --project-out out --model-key K --server URL --workers <seqs>` asks the pairs (deadline-aware, sets in
-  the order of §6.2, file `incomplete: true` when cut); `realism-combine --project-out out` →
+  (no git) and writes `out/ab/pairs.json`: `{pairs: [{pair_id, set, cam, room_id, a, b, expected:
+  "b"|"a"|"tie"|null, target_aspect, a_sha256, b_sha256, a_bytes, b_bytes, delta_ev}], dropped, skipped,
+  control_views, sets}` (paths relative to `out`; `dropped` copied from `cameras_check.json`; `delta_ev` = log2
+  of the mean linear Rec. 709 luminance ratio B/A measured from the two JPEGs); the `null_reencode` A files
+  (`ab/null_reencode/<cam>_reencode.jpg`) are written by this command (PIL q70).
+- `realism --project-out out --model-key K --server URL --workers <seqs> [--sets s,... | --skip-sets s,...]`
+  asks the pairs (deadline-aware, sets in the order of §6.2, file `incomplete: true` when cut; the orchestrator
+  passes every set but `look_alt` in one call and `--sets look_alt` in a later one when the time rule allows); `realism-combine --project-out out` →
   `out/check/realism/realism_ab.json`, `realism_report.md`, `contact_realism_<set>_<n>.jpg` (rows A | B |
   outcomes, ≤ 300 KB each); `realism-summary --project-outs ... --controls-project <p> --out
   $RESULTS/realism/` → `realism_summary.json/.md` with the decision table:
@@ -660,6 +672,25 @@ calibration; per pod fixed ≈ 19 min with 3 server starts, ≈ 21.3 with 4 (boo
 0.7, copy 1.1). `--max-minutes 115` → `WENART_DEADLINE` = entry + 100 min. Views by the §4.1 rule (computed on
 the committed buildings): synthetic-01 29, synthetic-03 50, synthetic-04 ≈ 14, synthetic-05 ≈ 25.
 
+`python -m wenart.run plan` for all five projects (2 Oct, after the integration; views by
+`camsearch.room_view_count`):
+
+| Project | Status | Rooms | Empty rooms | Views | Photos | Minutes | Server starts | Pod |
+|---|---|---|---|---|---|---|---|---|
+| synthetic-01 | ok | 10 | 7 | 29 | – | 23.44 | 3 | 1 |
+| synthetic-02 | needs_review | – | – | – | – | – | – | – |
+| synthetic-03 | ok | 19 | 11 | 50 | – | 37.33 | 3 | 1 |
+| synthetic-04 | ok | 5 | 2 | 14 | – | 13.15 | 3 | 2 |
+| synthetic-05 | ok | 9 | 3 | 25 | 1 (to ask) | 20.25 | 4 | 2 |
+
+Split: pod 1 = synthetic-01 + synthetic-03 (3 starts, 60.8 project min of 73.0, job ≈ 79.8 min); pod 2 =
+synthetic-04 + synthetic-05 (4 starts, 33.4 of 70.7, job ≈ 54.7 min). The plan counts project work only: pod A
+below adds the CPU-measured render cost of the window pull (≈ +0.8 s per 1080p view with panes, about +10 % on
+8 s per view) as margin; pod B adds synthetic-02, the self-test and the A/B renders and controls, and the time
+rule over-counts synthetic-05 (polish off: no gate calibration or polish, ≈ 15 min instead of 20.25). The
+searched cameras can be fewer than the rule's views (a pick below half the room's best score is dropped:
+synthetic-03 searches to 49).
+
 | Pod | Content | Estimate | Cost (≤ $0.74/h) |
 |---|---|---|---|
 | A | full run synthetic-01 + synthetic-03 | ≈ 83–88 min job, ≈ 92 pod-min | ≈ $1.15 |
@@ -697,7 +728,7 @@ CPU (`pytest -m "not gpu"`):
   projection and unprojection with shift (vs Blender when present), search time.
 - look (skip without Blender): one test per row of §5, and the `assumed` entries (one per bedding set,
   counter-front set, door-handle pair, skirting run and dim-room light, each with parent, kind, reason).
-- realism: prompt/schema strictness, post-validation, outcomes W/L/T/NC per order pair, graded score, consensus,
+- realism (`tests/test_realism_ab.py`): prompt/schema strictness, post-validation, outcomes W/L/T/NC per order pair, graded score, consensus,
   sign test values, bootstrap determinism, controls evaluation and `single_model`, decision rules (in
   realism-summary only), unique pair ids, pairs file, `control_views`, fake client end to end, resumable answers,
   summary table.
@@ -712,13 +743,14 @@ equals the render manifest; every NEEDS_REVIEW project `needs_review` with ≥ 1
 this run; with SELFTEST_TEST_ALIAS: its files only under `results-private/<alias>/`, none under `$RESULTS`;
 every `polish_disabled` or `not_validated` project has Cycles finals only), `test_render.py` (§4.2),
 `test_look_m6.py` (rooms with unverified pieces: |tint| ≤ 40; kitchen counter index pixels mean display
-luminance ≥ 0.15; `window_pull.clip_after ≤ 0.05` in ≥ 90 % of the views with panes; the four dim synthetic-03
-rooms below +6 EV; the `assumed` entries as in the CPU test), `test_realism.py` (realism_summary.json valid;
+luminance ≥ 0.15; `window_pull.clip_after ≤ 0.05` in ≥ 90 % of the views with panes; every dim-room view
+below +6 EV (three dim synthetic-03 rooms by the 0.08 rule, §5 row 6); the `assumed` entries as in the CPU test), `tests/gpu/test_realism.py` (realism_summary.json valid;
 ≥ 95 % of calls answered per model over the sets that were started, `look_alt` cut by the deadline reported,
 not counted; `null_identical` ≥ 90 % T; controls table present), `test_polish.py`
 (`test_gate_calibration_separates_benign_from_negative` becomes `test_gate_validation_recorded` over
 GATE_TEST_PROJECTS: `gate_validation.json` present, its rates equal a recomputation from
-`gate_calibration.json` with the current thresholds, its decision follows `validation.yaml`; `flagged`,
+`gate_calibration.json` with the current thresholds (with the thresholds the calibration recorded when they
+differ; the decision is then `not_validated`), its decision follows `validation.yaml`; `flagged`,
 `polish_disabled` and `not_validated` are reported outcomes, not failures), `test_check.py`, `test_furnish.py`,
 `test_polish_backend.py` as in M5.
 
