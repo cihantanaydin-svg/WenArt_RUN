@@ -28,13 +28,15 @@ Reference edges for the matching:
   term such views were rejected although nothing moved (review finding G2:
   real parquet / tile textures at 1920 x 1080 gave 0.05-0.72 for the benign
   unsharp control, limit 0.04). The orientation test keeps the check
-  sensitive on textured floors: a rug outline or a stripe painted across
-  the grout finds no parallel reference edge (0.13-0.95 on the same floors,
-  where matching any low-threshold edge regardless of orientation gave
-  0.0-0.32). Like the Hough settings and ``match_px`` these are code
-  constants (``REF_FACTOR``, ``ANGLE_TOL_DEG``) that ``added_lines.ref_factor``
-  / ``ref_angle_deg`` in thresholds.yaml override (then part of the gate
-  key); ``ref_factor`` 0 turns the term off. Calibrated in run 1a.
+  sensitive on textured floors: a rug outline painted on the same floors
+  still gives 0.62-0.95 (matching any low-threshold edge regardless of
+  orientation gave 0.0-0.32); a thin dark stripe keeps 0.12-0.18 on the
+  tile and wood floors but is matched by parallel texture edges on the
+  herringbone and laminate floors (0.06-0.09 there before). Like the Hough
+  settings and ``match_px`` these are code constants (``REF_FACTOR``,
+  ``ANGLE_TOL_DEG``) that ``added_lines.ref_factor`` / ``ref_angle_deg`` in
+  thresholds.yaml override (then part of the gate key); ``ref_factor`` 0
+  turns the term off. Calibrated in run 1a.
 
 OpenCV is imported inside the functions.
 """
