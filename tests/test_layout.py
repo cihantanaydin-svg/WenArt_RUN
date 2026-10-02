@@ -306,3 +306,84 @@ def test_types_the_room_does_not_allow_are_rejected_before_placement():
     assert all(p.rejected_types == ["toilet"] for p in layout.proposals)
     record = layout.to_dict()
     assert record["passes"][0]["rejected_types"] == ["toilet"] and "anchor_first" in record["passes"][0]
+
+
+# --------------------------------------------------------------------------
+# Transport errors (docs/milestone6.md §2.6)
+# --------------------------------------------------------------------------
+
+class TransportFailClient(FakeClient):
+    """Every pass of one room could not reach the server (as LayoutClient reports it)."""
+
+    def __init__(self, room_id):
+        super().__init__()
+        self.room_id = room_id
+
+    def propose(self, prompt, pass_no):
+        proposal = super().propose(prompt, pass_no)
+        if self.calls[-1][0] == self.room_id:
+            return L.Proposal(pass_no, None, error="cannot reach http://127.0.0.1:1/v1/chat/completions",
+                              prompt=prompt, model=self.model, transport_error=True)
+        return proposal
+
+
+def test_cli_exits_3_and_writes_nothing_when_the_server_is_unreachable(tmp_path, capsys):
+    src = tmp_path / "building.json"
+    B.save(load_truth("synthetic-01"), src)
+    out = tmp_path / "out" / "building_furnished.json"
+    rc = L.main([str(src), "--out", str(out), "--server", "http://127.0.0.1:1/v1"],
+                client_factory=lambda: TransportFailClient("r_L1_hol"))
+    assert rc == 3
+    assert not out.exists() and not (out.parent / "layout.json").exists()
+    assert not (out.parent / "layout_report.md").exists()
+    err = capsys.readouterr().err
+    assert "r_L1_hol pass 1: server not reachable" in err and "exit 3" in err
+
+
+def test_layout_client_flags_only_transport_errors(monkeypatch):
+    """VLMError on the last attempt -> transport_error; a bad answer or a schema error is an answer."""
+    from wenart.recognition import vlm_client
+
+    def dead(url, body, timeout_s):
+        raise vlm_client.VLMError(f"cannot reach {url}: Connection refused")
+
+    monkeypatch.setattr(vlm_client, "post_json", dead)
+    client = L.LayoutClient("http://127.0.0.1:1/v1", model="m", retries=1)
+    p = client.propose("prompt", 1)
+    assert p.transport_error and p.data is None and "cannot reach" in p.error
+
+    def garbage(url, body, timeout_s):
+        return {"choices": [{"message": {"content": "not json"}}]}
+
+    monkeypatch.setattr(vlm_client, "post_json", garbage)
+    p = client.propose("prompt", 1)
+    assert not p.transport_error and p.error.startswith("bad answer")
+
+    def wrong_schema(url, body, timeout_s):
+        return {"choices": [{"message": {"content": json.dumps({"pieces": "x"})}}]}
+
+    monkeypatch.setattr(vlm_client, "post_json", wrong_schema)
+    p = client.propose("prompt", 1)
+    assert not p.transport_error and p.error.startswith("schema:")
+
+    # The first attempt fails, the retry answers: no transport error.
+    calls = []
+
+    def flaky(url, body, timeout_s):
+        calls.append(1)
+        if len(calls) == 1:
+            raise vlm_client.VLMError("HTTP 503")
+        return {"choices": [{"message": {"content": json.dumps({"pieces": []})}}]}
+
+    monkeypatch.setattr(vlm_client, "post_json", flaky)
+    monkeypatch.setattr(L.time, "sleep", lambda s: None)
+    p = L.LayoutClient("http://127.0.0.1:1/v1", model="m", retries=2).propose("prompt", 1)
+    assert not p.transport_error and p.error is None and p.data == {"pieces": []}
+
+
+def test_layout_client_model_lookup_failure_is_a_transport_error(monkeypatch):
+    from wenart.recognition import vlm_client
+
+    monkeypatch.setattr(vlm_client, "served_models", lambda base_url: [])
+    p = L.LayoutClient("http://127.0.0.1:1/v1", model=None, retries=1).propose("prompt", 2)
+    assert p.transport_error and p.model == "?" and "no model served" in p.error

@@ -10,6 +10,10 @@ type, centre within 0.5 m) gets confidence 0.9, the rest 0.6. Added pieces
 are ``source: added_by_ai``, ``status: verified`` with evidence
 ``{method: ai, model, pass, text: <reason>}`` and the six placer checks, all
 true. A room whose answers are unusable stays empty and the report says so.
+A pass whose last attempt could not reach the server (``VLMError``, or the
+model lookup failed) is a transport error, not an answer: the CLI then exits
+3 and writes no furnished building, so a dead server never yields a
+"furnished" building with empty rooms (docs/milestone6.md §2.6).
 
 The request goes through ``wenart.recognition.vlm_client`` (``post_json``,
 ``parse_answer``, ``served_models``); the only difference to the recognition
@@ -63,6 +67,7 @@ class Proposal:
     prompt: str = ""
     model: str = ""
     rejected_types: list = field(default_factory=list)   # proposed types the room type does not allow
+    transport_error: bool = False   # the last attempt raised VLMError (or the model lookup failed)
 
     def to_dict(self) -> dict:
         return {"pass": self.pass_no, "model": self.model, "latency_s": round(self.latency_s, 3),
@@ -110,24 +115,28 @@ class LayoutClient:
         try:
             model = self.model
         except vlm_client.VLMError as exc:
-            return Proposal(pass_no, None, error=str(exc), prompt=prompt, model="?")
+            return Proposal(pass_no, None, error=str(exc), prompt=prompt, model="?", transport_error=True)
         body = build_text_request(model, prompt, schemas.grammar_schema(), seed=pass_no, max_tokens=self.max_tokens)
         url = self.base_url + "/chat/completions"
         t0 = time.monotonic()
         raw_text, error, parsed = "", None, None
+        transport = False
         for attempt in range(1, self.retries + 1):
             try:
                 resp = vlm_client.post_json(url, body, self.timeout_s)
                 raw_text = resp["choices"][0]["message"].get("content") or ""
                 parsed = vlm_client.parse_answer(raw_text)
                 error = None
+                transport = False
                 break
             except vlm_client.VLMError as exc:
                 error = str(exc)
+                transport = True
                 if attempt < self.retries:
                     time.sleep(min(30.0, 2.0 * attempt))
             except (KeyError, IndexError, json.JSONDecodeError, ValueError) as exc:
                 error = f"bad answer: {exc}"
+                transport = False
         latency = time.monotonic() - t0
         data = None
         if parsed is not None:
@@ -136,7 +145,8 @@ class LayoutClient:
                 error = "schema: " + "; ".join(problems[:5])
             else:
                 data = parsed
-        return Proposal(pass_no, data, raw_text=raw_text, latency_s=latency, error=error, prompt=prompt, model=model)
+        return Proposal(pass_no, data, raw_text=raw_text, latency_s=latency, error=error, prompt=prompt, model=model,
+                        transport_error=transport)
 
 
 # --------------------------------------------------------------------------
@@ -443,6 +453,15 @@ def main(argv: Optional[list[str]] = None, client_factory=None) -> int:
     print(f"layout: {len(rooms)} empty room(s) in {building['project']['id']}, style '{style_text}'")
     furnished, layouts = furnish_building(building, style_text, client, args.passes,
                                           Path(args.debug) if args.debug else None)
+    failed = [(l.room_id, p.pass_no, p.error) for l in layouts for p in l.proposals if p.transport_error]
+    if failed:
+        # The server was not reachable: no answer is not "nothing to add" (the job must not reuse an
+        # empty layout), so no furnished building is written and the exit code says why.
+        for room_id, pass_no, error in failed:
+            print(f"layout: {room_id} pass {pass_no}: server not reachable ({error})", file=sys.stderr)
+        print(f"layout: {len(failed)} call(s) could not reach {args.server}: no output written (exit 3)",
+              file=sys.stderr)
+        return 3
     out = Path(args.out)
     B.save(furnished, out)
     # The model as the proposals recorded it (asking the client could raise when the server is down).
