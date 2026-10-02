@@ -146,15 +146,81 @@ def _take(found: dict, slot: str, value: str, phrase: str, notes: list[str]) -> 
 
 
 # --------------------------------------------------------------------------
+# Style reference photos (docs/milestone5.md §6)
+# --------------------------------------------------------------------------
+
+PHOTO_SLOTS = ("floor", "walls", "light", "family")
+
+
+def photo_term_list(photo_terms) -> list[dict]:
+    """The terms of a ``python -m wenart.style.photos combine`` result (a dict with ``terms``) or of a term list."""
+    if not photo_terms:
+        return []
+    terms = photo_terms.get("terms") if isinstance(photo_terms, dict) else photo_terms
+    return [t for t in (terms or []) if isinstance(t, dict)]
+
+
+def _photo_value_known(slot: str, value) -> bool:
+    known = {"floor": {s for _, s in V.FLOOR_WORDS}, "walls": {s for _, s in V.WALL_WORDS},
+             "light": set(V.LIGHTING), "family": {name for name, _ in V.STYLE_FAMILIES}}
+    return value in known.get(slot, set())
+
+
+def apply_photo_terms(scan: dict, photo_terms, warnings: list[str], override: bool = False) -> list[str]:
+    """Fill the slots of a ``match_text`` scan that the brief text leaves open with agreed photo terms.
+
+    The brief always wins: a slot the text names keeps its word and the
+    photo term is only noted. ``override`` is for a brief without any style
+    text, whose default text is itself an assumption: there the photo terms
+    replace the default text's words. A photo family fills only the family
+    (the floor / walls / light the family implies still count as assumed).
+    Each use goes to ``scan["matched"]`` as ``photo:<file>:<term>`` and to
+    ``warnings``; terms outside the vocabulary are ignored with a warning.
+    Returns the ``photo:...`` entries added.
+    """
+    used: list[str] = []
+    filled: set = set()
+    for term in photo_term_list(photo_terms):
+        slot, value = term.get("slot"), term.get("value")
+        files = [str(f) for f in (term.get("files") or ([term["file"]] if term.get("file") else []))] or ["?"]
+        where = ", ".join(files)
+        if slot not in PHOTO_SLOTS or not _photo_value_known(slot, value):
+            warnings.append(f"ignored photo term {slot}={value!r} from {where} (not in the vocabulary)")
+            continue
+        if slot in filled:
+            warnings.append(f"ignored photo term {slot}={value} from {where} (a photo term already gave {slot})")
+            continue
+        if scan[slot] is not None and not override:
+            if scan[slot] != value:
+                warnings.append(f"photo: {slot} {value} from {where} not used (the brief names {scan[slot]})")
+            continue
+        if scan[slot] is not None and scan[slot] != value:
+            warnings.append(f"photo: {slot} {value} from style photo {where} replaces {scan[slot]} of the default "
+                            f"style text (no style in the brief)")
+        else:
+            warnings.append(f"photo: {slot} {value} from style photo {where} (the brief names no {slot}; "
+                            f"both models agree)")
+        scan[slot] = value
+        filled.add(slot)
+        for f in files:
+            entry = f"photo:{f}:{value}"
+            scan["matched"].append(entry)
+            used.append(entry)
+    return used
+
+
+# --------------------------------------------------------------------------
 # Profile assembly
 # --------------------------------------------------------------------------
 
-def profile_from_text(text: str, defaults: Optional[dict] = None) -> dict:
-    """The style profile of one brief text (see module docstring)."""
+def profile_from_text(text: str, defaults: Optional[dict] = None, photo_terms=None, *,
+                      photo_over_text: bool = False) -> dict:
+    """The style profile of one brief text (see module docstring); ``photo_terms``: see ``apply_photo_terms``."""
     defaults = defaults or _defaults_or_builtin()
     family_defaults = dict(defaults["style"]["fallback"])
     scan = match_text(text)
     warnings = list(scan["notes"])
+    apply_photo_terms(scan, photo_terms, warnings, override=photo_over_text)
 
     family = scan["family"]
     family_table = dict(V.STYLE_FAMILIES).get(family, {}) if family else {}
@@ -209,20 +275,25 @@ def style_texts(brief: Optional[dict]) -> list[str]:
     return texts
 
 
-def profiles_from_brief(brief: Optional[dict], defaults: Optional[dict] = None) -> list[dict]:
-    """One profile per style text of the brief; the default text when there is none."""
+def profiles_from_brief(brief: Optional[dict], defaults: Optional[dict] = None, photo_terms=None) -> list[dict]:
+    """One profile per style text of the brief; the default text when there is none.
+
+    ``photo_terms`` (agreed terms of the style photos, §6) fill only the
+    slots each text does not name; without any style text they replace the
+    default text's words.
+    """
     defaults = defaults or _defaults_or_builtin()
     texts = style_texts(brief)
     if not texts:
-        profile = profile_from_text(defaults["style"]["text"], defaults)
+        profile = profile_from_text(defaults["style"]["text"], defaults, photo_terms, photo_over_text=True)
         profile["warnings"].insert(0, "assumed: no style in the brief, default style text from wenart/defaults.yaml")
         return [profile]
-    return [profile_from_text(t, defaults) for t in texts]
+    return [profile_from_text(t, defaults, photo_terms) for t in texts]
 
 
-def profile_from_brief(brief: Optional[dict], defaults: Optional[dict] = None) -> dict:
-    """The first (or only) profile of the brief."""
-    return profiles_from_brief(brief, defaults)[0]
+def profile_from_brief(brief: Optional[dict], defaults: Optional[dict] = None, photo_terms=None) -> dict:
+    """The first (or only) profile of the brief (``photo_terms``: see ``profiles_from_brief``)."""
+    return profiles_from_brief(brief, defaults, photo_terms)[0]
 
 
 def default_profile() -> dict:

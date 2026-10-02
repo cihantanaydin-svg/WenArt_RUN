@@ -33,9 +33,13 @@ style:
     unmatched_terms: [linen textiles]
     warnings: []
 
+# Brief keys and their defaults; wenart.brief.load_brief merges brief.yaml
+# over this block and lists every key it took from here as assumed.
 brief:
-  empty_rooms: ai        # rooms with no documented furniture: furnish with AI (Milestone 5)
+  empty_rooms: ai        # rooms with no documented furniture: furnish with AI (Milestone 4)
   decor: true            # small decor in documented rooms (cushions, plants, books)
+  polish: true           # AI polish of the Cycles renders (Milestone 5); false = every view stays Cycles
+  style_photos: []       # photos in projects/<p>/style_photos/ used as style references; [] = every photo there
   ceiling_height: 2.70   # metres, when no section or elevation gives it
   render:
     views_per_room: 3
