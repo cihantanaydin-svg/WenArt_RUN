@@ -3,11 +3,13 @@
     blender -b outputs/<p>/scene/scene.blend --python wenart/blender/render.py -- \
         --cameras all|cam_a,cam_b --samples 256 --res 1920x1080 --out outputs/<p>/renders [--force] \
         [--exposure auto|off|<EV>] [--exposure-target 0.9] [--white-balance auto|off|fixed:r,g,b] \
-        [--look-from <render_manifest.json>] [--hide ID[,ID] [--plug]] [--hide-sets 'cam:id;cam:id+plug']
+        [--look-from <render_manifest.json>] [--hide ID[,ID] [--plug]] [--hide-sets 'cam:id;cam:id+plug'] \
+        [--alt-look 'AgX - Punchy'] [--max-bounces N] [--no-denoise] [--ev-offset X] [--preview-quality Q]
 
 Device: OPTIX, then CUDA, then CPU (printed as ``DEVICE=...``). Passes:
-Combined, Depth (Z), Normal and Object Index (every proxy and opening has a
-unique ``pass_index`` from the scene manifest). Files per camera:
+Combined, Depth (Z), Normal, Object Index (every proxy and opening has a
+unique ``pass_index`` from the scene manifest) and Diffuse Color (Milestone
+6, the pane mask of the window pull). Files per camera:
 ``<cam>.png`` (display-referred RGB8: AgX, look None, the camera's exposure
 and white balance), ``<cam>_passes.exr`` (multilayer, half float, ZIP,
 scene-linear: exposure and white balance never reach it),
@@ -69,6 +71,38 @@ Why no compositor: Blender 5.x replaced ``scene.node_tree`` by
 EXR output needs none of that, and the passes are read back with the OpenImageIO
 module bundled with Blender (3.1 in 5.2.2). Render Result pixels cannot be
 read in background mode (5.2.2), so metering also goes through an EXR.
+
+Milestone 6 (docs/milestone6.md §5 rows 7, 10-12; ``RENDER_CODE_VERSION``
+``m6.1``):
+
+- Window pull: the final render also writes the Diffuse Color pass (the EXR
+  gains the layer Blender 5.2.2 names ``Diffuse Color``, older builds
+  ``DiffCol``; the other passes are unchanged). After the render the Render
+  Result is saved again at EV - k (Blender applies the view transform at
+  save time: no second render) to a temporary PNG and read back with OIIO.
+  Pane mask = window index and Diffuse Color luminance < 0.05 (the glass, not
+  the frame), feathered over 3 px inwards (numpy, ``views.erode``). k = the
+  smallest of 1..4 with pane clip <= 1 % and pane median > wall median (walls
+  = ``views.regions`` ``struct:walls`` of the view); if none qualifies, the k
+  with the lowest clip that keeps the panes brighter than the walls; with no
+  wall pixels the clip rule alone; when no k keeps the panes brighter, no
+  pull. The pulled panes are blended into ``<cam>.png`` and the preview
+  (pixels outside the mask stay exactly as saved) and recorded as
+  ``window_pull: {ev (-k), k, pane_ev, clip_before, clip_after, pane_px,
+  pane_median, wall_median, rule}``, ``null`` when no pane is in view.
+- ``--alt-look "AgX - Punchy"``: also ``<cam>_alt_preview.jpg``, the Render
+  Result saved with that look at the EV and, when the panes were pulled, at
+  EV - k with the main image's k, blended with the same mask.
+- Control and A/B flags (§6): ``--max-bounces N``, ``--no-denoise``,
+  ``--ev-offset X`` (added to the auto, fixed or ``--look-from`` EV) and
+  ``--preview-quality Q`` (one fixed JPEG quality, no size step-down); every
+  one is part of the render key.
+- Deadline: once ``WENART_DEADLINE`` (epoch seconds, environment) is past,
+  no new camera is rendered (cameras whose files can be reused still are);
+  the manifest says ``incomplete: true`` and lists ``not_rendered``; exit 3.
+  Previews with a pull are written by Blender's JPEG writer from the
+  blended PNG (``encode_preview``), the same encoder and quality as a direct
+  save (decoded pixels equal).
 """
 from __future__ import annotations
 
@@ -98,10 +132,21 @@ DEPTH_BACKGROUND = 1e9  # Blender writes a huge value where no surface was hit
 # Part of every render_key: bump when the pixels a camera gets change for the same settings.
 # m5.2: plugs take the wall faces' materials (wet-room tiles). The window glass of the same
 # day (both faces refract) is a build change: the build fingerprint and scene_sha256 cover it.
-RENDER_CODE_VERSION = "m5.2"
-PASSES = ("combined", "z", "normal", "object_index")
+# m6.1: the Diffuse Color pass in the final render and the window pull (docs/milestone6.md §5).
+RENDER_CODE_VERSION = "m6.1"
+PASSES = ("combined", "z", "normal", "object_index", "diffuse_color")
 VIEW_TRANSFORM = "AgX"
 LOOK = "None"
+PREVIEW_QUALITIES = (85, 70, 55, 40, 30, 20)
+
+# Window pull (docs/milestone6.md §5 row 7).
+PULL_STEPS = (1, 2, 3, 4)          # stops tried, smallest first
+PULL_MAX_CLIP = 0.01               # pane clip share a pull should reach
+PANE_ALBEDO_MAX = 0.05             # pane = window index and Diffuse Color luminance below this (glass, not frame)
+PULL_FEATHER_PX = 3                # the mask edge blends over this many pixels, inside the mask
+DISPLAY_PNG_LEVEL = 1              # zlib level of the pulled display PNGs (OIIO)
+DEADLINE_ENV = "WENART_DEADLINE"
+EXIT_INCOMPLETE = 3
 
 # Metering and exposure (docs/milestone5.md §2.4; calibrated in pod runs 0/1).
 METER_RES_DIV = 8
@@ -144,7 +189,43 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--hide", help="wenart ids to hide (comma separated)")
     parser.add_argument("--plug", action="store_true", help="close the wall holes of hidden doors/windows")
     parser.add_argument("--hide-sets", help="'cam:id[,id][+plug];...': one control render per set")
+    parser.add_argument("--alt-look", help="also save <cam>_alt_preview.jpg with this AgX look ('AgX - Punchy')")
+    parser.add_argument("--max-bounces", type=int, help="Cycles max bounces (0 = direct light only)")
+    parser.add_argument("--ev-offset", type=float, default=0.0, help="stops added to the auto/fixed/look-from EV")
+    parser.add_argument("--preview-quality", type=int, help="fixed JPEG quality of the previews (no step-down)")
     return parser.parse_args(argv)
+
+
+def check_control_flags(args: argparse.Namespace) -> None:
+    """Range checks of the Milestone 6 control flags (``UsageError``)."""
+    if args.max_bounces is not None and args.max_bounces < 0:
+        raise UsageError(f"--max-bounces must be 0 or more, not {args.max_bounces}")
+    if not math.isfinite(float(args.ev_offset)):
+        raise UsageError(f"--ev-offset {args.ev_offset!r} is not finite")
+    if args.preview_quality is not None and not 1 <= args.preview_quality <= 100:
+        raise UsageError(f"--preview-quality must be 1..100, not {args.preview_quality}")
+    if args.alt_look is not None and not str(args.alt_look).strip():
+        raise UsageError("--alt-look needs a look name such as 'AgX - Punchy'")
+
+
+def deadline_from_env(env=None) -> tuple[float | None, str | None]:
+    """``(deadline, note)``: ``WENART_DEADLINE`` as epoch seconds, or None
+    (unset, or not a finite number: then ``note`` says it was ignored)."""
+    text = (os.environ if env is None else env).get(DEADLINE_ENV)
+    if text is None or not str(text).strip():
+        return None, None
+    try:
+        value = float(text)
+    except ValueError:
+        value = float("nan")
+    if not math.isfinite(value):
+        return None, f"{DEADLINE_ENV}={text!r} is not a number of epoch seconds: ignored"
+    return value, None
+
+
+def deadline_passed(deadline: float | None, now: float | None = None) -> bool:
+    """True once ``deadline`` (epoch seconds) is reached; never without a deadline."""
+    return deadline is not None and (time.time() if now is None else float(now)) >= deadline
 
 
 def parse_exposure(text: str) -> tuple[str, float | None]:
@@ -343,10 +424,14 @@ def render_key(settings: dict) -> str:
 
 
 def key_settings(samples: int, resolution, denoiser, exposure_mode: str, exposure_value, target: float,
-                 wb_mode: str, wb_fixed, hidden, plugged, look_from_values: dict | None = None) -> dict:
-    """What the render key covers (docs/milestone5.md §2.5). With
-    ``look_from_values`` (``{"ev", "whitepoint"}`` of the source entry) the
-    exposure and white balance are mode ``from`` with those values."""
+                 wb_mode: str, wb_fixed, hidden, plugged, look_from_values: dict | None = None,
+                 alt_look: str | None = None, max_bounces: int | None = None, ev_offset: float = 0.0,
+                 preview_quality: int | None = None) -> dict:
+    """What the render key covers (docs/milestone5.md §2.5, docs/milestone6.md
+    §5 rows 10-11). With ``look_from_values`` (``{"ev", "whitepoint"}`` of the
+    source entry) the exposure and white balance are mode ``from`` with those
+    values; ``alt_look``, ``max_bounces``, ``ev_offset`` and ``preview_quality``
+    are the Milestone 6 control flags."""
     if look_from_values is not None:
         exposure = {"mode": "from", "ev": look_from_values.get("ev"), "whitepoint": look_from_values.get("whitepoint")}
         wb = "from"
@@ -360,7 +445,114 @@ def key_settings(samples: int, resolution, denoiser, exposure_mode: str, exposur
         wb = "fixed:" + ",".join(f"{v:.6f}" for v in wb_fixed) if wb_mode == "fixed" else wb_mode
     return {"samples": int(samples), "resolution": [int(v) for v in resolution], "denoiser": denoiser,
             "exposure": exposure, "white_balance": wb, "passes": list(PASSES),
-            "hidden": sorted(hidden), "plugged": sorted(plugged), "code": RENDER_CODE_VERSION}
+            "hidden": sorted(hidden), "plugged": sorted(plugged), "code": RENDER_CODE_VERSION,
+            "alt_look": alt_look or None, "max_bounces": None if max_bounces is None else int(max_bounces),
+            "ev_offset": round(float(ev_offset or 0.0), 6),
+            "preview_quality": None if preview_quality is None else int(preview_quality)}
+
+
+# --------------------------------------------------------------------------
+# Window pull (numpy; docs/milestone6.md §5 row 7)
+# --------------------------------------------------------------------------
+
+def pane_mask(index, albedo, window_indices, albedo_max: float = PANE_ALBEDO_MAX):
+    """bool H x W: window pixels (pass index of a window) whose Diffuse Color
+    luminance is below ``albedo_max``: the glass, not the painted frame."""
+    import numpy as np
+
+    idx = np.rint(np.nan_to_num(np.asarray(index, dtype=np.float64))).astype(np.int64)
+    win = np.isin(idx, sorted(int(v) for v in window_indices))
+    alb = luminance(np.nan_to_num(np.asarray(albedo, dtype=np.float64)))
+    return win & (alb < albedo_max)
+
+
+def feather_weights(mask, px: int = PULL_FEATHER_PX):
+    """float H x W in 0..1: 0 outside ``mask``; inside, k / px for a pixel at
+    chessboard distance k (< px) from the nearest pixel outside it, else 1
+    (``views.erode``; the image border does not count as outside). The pull
+    is blended with these weights, so nothing outside the mask changes."""
+    import numpy as np
+
+    from wenart import views
+
+    m = np.asarray(mask, dtype=bool)
+    weights = np.zeros(m.shape, dtype=np.float64)
+    level = m.copy()
+    for _ in range(max(1, int(px))):
+        weights += level
+        level = views.erode(level, 1)
+    return weights / float(max(1, int(px)))
+
+
+def display_luminance(rgb):
+    """Rec.709 luminance of display RGB (uint8 scaled by 255, or 0..1 floats)."""
+    import numpy as np
+
+    a = np.asarray(rgb)
+    a = a.astype(np.float64) / 255.0 if a.dtype == np.uint8 else a.astype(np.float64)
+    return luminance(a[..., :3])
+
+
+def clip_share(rgb, mask, level: float = WINDOW_CLIP_LEVEL) -> float | None:
+    """Share of ``mask`` pixels whose display channels are all >= ``level``; None for an empty mask."""
+    import numpy as np
+
+    m = np.asarray(mask, dtype=bool)
+    if not m.any():
+        return None
+    a = np.asarray(rgb)[m][:, :3]                       # the masked pixels only (fast on a 1080p view)
+    a = a.astype(np.float64) / 255.0 if a.dtype == np.uint8 else a.astype(np.float64)
+    clipped = (a >= level).all(axis=-1)
+    return round(float(clipped.sum()) / float(m.sum()), 4)
+
+
+def masked_median(rgb, mask) -> float:
+    """Median display luminance of the ``mask`` pixels of ``rgb``."""
+    import numpy as np
+
+    return float(np.median(display_luminance(np.asarray(rgb)[np.asarray(mask, dtype=bool)])))
+
+
+def pull_qualifies(candidate: dict, wall_median: float | None, max_clip: float = PULL_MAX_CLIP) -> bool:
+    """A pull of ``candidate["k"]`` stops is enough: pane clip <= ``max_clip`` and
+    the pane median above the wall median (no wall: the clip rule alone)."""
+    return candidate["clip"] <= max_clip and (wall_median is None or candidate["median"] > wall_median)
+
+
+def choose_pull(candidates: list[dict], wall_median: float | None,
+                max_clip: float = PULL_MAX_CLIP) -> tuple[int, str]:
+    """``(k, rule)`` from ``[{"k", "clip", "median"}]`` (the EV - k saves,
+    ``clip`` and ``median`` over the pane mask): the smallest k that
+    ``pull_qualifies``; else the k with the lowest clip that keeps the pane
+    median above the wall median (ties: the smaller k); with no wall
+    (``wall_median`` None) the lowest clip; ``(0, ...)`` = no pull when no k
+    keeps the panes brighter than the walls (or nothing was tried)."""
+    cands = sorted(candidates, key=lambda c: c["k"])
+    for c in cands:
+        if pull_qualifies(c, wall_median, max_clip):
+            return int(c["k"]), ("smallest k with pane clip <= 1 % and panes brighter than the walls"
+                                 if wall_median is not None else "smallest k with pane clip <= 1 % (no wall in view)")
+    bright = [c for c in cands if wall_median is None or c["median"] > wall_median]
+    if bright:
+        best = min(bright, key=lambda c: (c["clip"], c["k"]))
+        return int(best["k"]), ("lowest pane clip that keeps the panes brighter than the walls"
+                                if wall_median is not None else "lowest pane clip (no wall in view)")
+    return 0, "no k keeps the panes brighter than the walls: no pull"
+
+
+def blend_pull(main, pulled, weights):
+    """uint8 H x W x 3: ``main * (1 - w) + pulled * w`` rounded; exactly ``main`` where w = 0."""
+    import numpy as np
+
+    w = np.asarray(weights, dtype=np.float64)
+    out = np.array(np.asarray(main)[..., :3], dtype=np.uint8, copy=True)
+    sel = w > 0                                          # only the masked pixels are computed
+    if sel.any():
+        ws = w[sel][:, None]
+        a = out[sel].astype(np.float64)
+        b = np.asarray(pulled)[..., :3][sel].astype(np.float64)
+        out[sel] = np.clip(np.rint(a * (1.0 - ws) + b * ws), 0, 255).astype(np.uint8)
+    return out
 
 
 # --------------------------------------------------------------------------
@@ -636,9 +828,15 @@ def configure_device(scene, requested: str = "auto") -> str:
     return device
 
 
-def configure_render(scene, samples: int, res: tuple[int, int], device: str, denoise: bool) -> str | None:
-    """Samples, resolution, denoiser and the pass toggles. Returns the denoiser name."""
+def configure_render(scene, samples: int, res: tuple[int, int], device: str, denoise: bool,
+                     max_bounces: int | None = None) -> str | None:
+    """Samples, resolution, denoiser, the pass toggles (``PASSES``: combined,
+    depth, normal, object index and, since Milestone 6, Diffuse Color for the
+    window pull) and, for a control render, ``max_bounces``. Returns the
+    denoiser name."""
     scene.cycles.samples = samples
+    if max_bounces is not None:
+        scene.cycles.max_bounces = int(max_bounces)
     scene.cycles.use_adaptive_sampling = True
     scene.cycles.use_denoising = denoise
     denoiser = None
@@ -659,7 +857,8 @@ def configure_render(scene, samples: int, res: tuple[int, int], device: str, den
     vl.use_pass_z = True
     vl.use_pass_normal = True
     vl.use_pass_object_index = True
-    _diffuse_passes(scene, False)
+    vl.use_pass_diffuse_color = True          # the pane mask of the window pull (Milestone 6)
+    _light_passes(scene, False)
     # Data passes (depth, normal, index) are written at the first surface whose
     # alpha reaches this threshold: thin glass (alpha = Fresnel) is seen through.
     vl.pass_alpha_threshold = 0.5
@@ -670,11 +869,12 @@ def bpy_view_layer(scene):
     return scene.view_layers[0]
 
 
-def _diffuse_passes(scene, on: bool) -> None:
+def _light_passes(scene, on: bool) -> None:
+    """Diffuse Direct / Indirect: on only for the metering pre-render (Diffuse Color stays on)."""
     vl = bpy_view_layer(scene)
     vl.use_pass_diffuse_direct = on
     vl.use_pass_diffuse_indirect = on
-    vl.use_pass_diffuse_color = on
+    vl.use_pass_diffuse_color = True
 
 
 def set_output(scene, fmt: str, quality: int = 90) -> None:
@@ -702,16 +902,67 @@ def set_output(scene, fmt: str, quality: int = 90) -> None:
         s.quality = quality
 
 
-def save_preview(scene, result, path: Path) -> int:
-    """JPEG preview under PREVIEW_MAX_BYTES (quality steps down until it fits)."""
+def save_preview(scene, result, path: Path, quality: int | None = None) -> int:
+    """JPEG preview of the Render Result: under PREVIEW_MAX_BYTES (quality
+    steps down until it fits), or at the one fixed ``quality``
+    (``--preview-quality``, no step-down). Returns the file size."""
     size = 0
-    for quality in (85, 70, 55, 40, 30, 20):
-        set_output(scene, "JPEG", quality)
+    for q in ([int(quality)] if quality else PREVIEW_QUALITIES):
+        set_output(scene, "JPEG", q)
         result.save_render(str(path), scene=scene)
         size = path.stat().st_size
-        if size <= PREVIEW_MAX_BYTES:
+        if quality or size <= PREVIEW_MAX_BYTES:
             break
     return size
+
+
+def encode_preview(scene, png: Path, path: Path, quality: int | None = None) -> int:
+    """JPEG preview of a display PNG (a pulled image) with Blender's own JPEG
+    writer and the qualities of ``save_preview``: the PNG is loaded as an
+    image and saved with ``Image.save_render`` under the Standard view
+    transform (no look, exposure 0, gamma 1, no white balance, no dither),
+    which leaves its sRGB bytes as they are. Checked on Blender 5.2.2: the
+    decoded JPEG equals a direct ``save_render`` of the same pixels at the
+    same quality (max difference 0); ``Image.save`` ignores ``quality``.
+    The scene's settings are restored. Returns the file size."""
+    import bpy
+
+    vs, r = scene.view_settings, scene.render
+    saved = (vs.view_transform, vs.look, vs.exposure, vs.gamma, vs.use_white_balance, r.dither_intensity)
+    image = bpy.data.images.load(str(png), check_existing=False)
+    size = 0
+    try:
+        vs.view_transform = "Standard"
+        vs.look, vs.exposure, vs.gamma, vs.use_white_balance = "None", 0.0, 1.0, False
+        r.dither_intensity = 0.0
+        for q in ([int(quality)] if quality else PREVIEW_QUALITIES):
+            set_output(scene, "JPEG", q)
+            image.save_render(str(path), scene=scene, quality=q)
+            size = path.stat().st_size
+            if quality or size <= PREVIEW_MAX_BYTES:
+                break
+    finally:
+        bpy.data.images.remove(image)
+        (vs.view_transform, vs.look, vs.exposure, vs.gamma, vs.use_white_balance, r.dither_intensity) = saved
+    return size
+
+
+def save_display(scene, result, path: Path, ev: float, look: str = LOOK):
+    """The Render Result saved as a display PNG at ``ev`` with ``look`` (the
+    view transform is applied at save time) and read back (uint8 H x W x 3);
+    the file is removed again. The scene's exposure and look are restored."""
+    vs = scene.view_settings
+    saved = (vs.exposure, vs.look)
+    try:
+        vs.exposure = float(ev)
+        vs.look = look
+        set_output(scene, "PNG")
+        scene.render.image_settings.compression = 0          # a temporary file: no zlib (same pixels, faster)
+        result.save_render(str(path), scene=scene)
+        return read_display_png(path)
+    finally:
+        vs.exposure, vs.look = saved
+        Path(path).unlink(missing_ok=True)
 
 
 def read_exr(exr_path: Path) -> dict:
@@ -750,11 +1001,14 @@ def read_display_png(path: Path):
     return np.asarray(px)[:, :, :3]
 
 
-def write_png(path: Path, array) -> None:
+def write_png(path: Path, array, compression: int | None = None) -> None:
     """Write a uint16 H x W (grey) or uint8 H x W x 3 (RGB) array as PNG with OpenImageIO.
 
-    Raises RuntimeError when the file cannot be written: these maps are part
-    of a finished render, a missing one must not pass unnoticed."""
+    ``compression`` = zlib level 0-9 (``png:compressionLevel``; OIIO's
+    default otherwise): the pulled display images use 1 (3x faster at 1080p,
+    the same pixels). Raises RuntimeError when the file cannot be written:
+    these maps are part of a finished render, a missing one must not pass
+    unnoticed."""
     import numpy as np
     import OpenImageIO as oiio
 
@@ -768,8 +1022,11 @@ def write_png(path: Path, array) -> None:
     out = oiio.ImageOutput.create(str(path))
     if out is None:
         raise RuntimeError(f"cannot create {path}: {oiio.geterror()}")
+    spec = oiio.ImageSpec(w, h, c, fmt)
+    if compression is not None:
+        spec.attribute("png:compressionLevel", int(compression))
     # OIIO wants (height, width, channels); a 2-D array is read with the wrong stride.
-    if not out.open(str(path), oiio.ImageSpec(w, h, c, fmt)) or not out.write_image(a):
+    if not out.open(str(path), spec) or not out.write_image(a):
         err = out.geterror()
         out.close()
         raise RuntimeError(f"cannot write {path}: {err}")
@@ -817,14 +1074,26 @@ class Look:
         self.windows = windows
         self.look_from = look_from            # {camera: {"ev", "whitepoint"}} or None
         self.look_from_path = look_from_path
+        self.ev_offset = float(getattr(args, "ev_offset", 0.0) or 0.0)
 
-    def key_settings(self, cam_name: str, samples: int, res, denoiser, hidden, plugged) -> dict:
+    def key_settings(self, cam_name: str, samples: int, res, denoiser, hidden, plugged, alt_look=None,
+                     max_bounces=None, preview_quality=None) -> dict:
         values = self.look_from[cam_name] if self.look_from is not None else None
         return key_settings(samples, res, denoiser, self.exposure_mode, self.exposure_value, self.target,
-                            self.wb_mode, self.wb_fixed, hidden, plugged, values)
+                            self.wb_mode, self.wb_fixed, hidden, plugged, values, alt_look=alt_look,
+                            max_bounces=max_bounces, ev_offset=self.ev_offset, preview_quality=preview_quality)
 
     def decide(self, cam, out_dir: Path, res: tuple[int, int]) -> dict:
-        """The exposure record of a camera before its final render (``window_clip_frac`` comes later)."""
+        """The exposure record of a camera before its final render
+        (``window_clip_frac`` comes later); ``--ev-offset`` is added to the EV
+        of every mode and recorded as ``ev_offset``."""
+        rec = self._decide(cam, out_dir, res)
+        rec["ev_offset"] = self.ev_offset
+        if self.ev_offset:
+            rec["ev"] = round(float(rec["ev"]) + self.ev_offset, 6)
+        return rec
+
+    def _decide(self, cam, out_dir: Path, res: tuple[int, int]) -> dict:
         rec = {"mode": self.exposure_mode, "ev": 0.0, "ev_raw": None, "at_limit": False, "target": None,
                "limits": None, "incident_p50": None, "whitepoint": None, "wb_mode": self.wb_mode,
                "wb_temperature": None, "wb_tint": None, "residual": None, "window_clip_frac": None,
@@ -896,13 +1165,13 @@ def meter_camera(scene, cam, out_dir: Path, res: tuple[int, int], windows: set[i
         r.resolution_x, r.resolution_y = w, h
         c.samples, c.use_denoising, c.use_adaptive_sampling = METER_SAMPLES, False, False
         r.use_persistent_data = True
-        _diffuse_passes(scene, True)
+        _light_passes(scene, True)
         set_output(scene, "OPEN_EXR_MULTILAYER")
         r.filepath = str(tmp)
         bpy.ops.render.render(write_still=True)
         channels = read_exr(tmp)
     finally:
-        _diffuse_passes(scene, False)
+        _light_passes(scene, False)
         r.resolution_x, r.resolution_y, c.samples, c.use_denoising, c.use_adaptive_sampling, r.filepath = saved
         if tmp.exists():
             tmp.unlink()
@@ -1042,9 +1311,15 @@ class RenderRun:
                                      f"re-render it")
             self.entries[name] = entry
         self.rendered = self.skipped = 0
+        self.not_rendered: list[str] = []      # cameras the deadline stopped (docs/milestone6.md §5 row 12)
+
+    @property
+    def incomplete(self) -> bool:
+        return bool(self.not_rendered)
 
     def write_manifest(self) -> None:
         ctx = self.ctx
+        args = ctx.args
         manifest = {
             "schema_version": "0.1",
             "scene": relative_posix(ctx.blend_path, self.out) if ctx.blend_path else None,
@@ -1065,8 +1340,15 @@ class RenderRun:
             "look_from": relative_posix(ctx.look.look_from_path, self.out) if ctx.look.look_from_path else None,
             "hidden": self.hidden,
             "plugged": self.plugged,
+            "alt_look": args.alt_look or None,
+            "max_bounces": args.max_bounces,
+            "ev_offset": float(args.ev_offset or 0.0),
+            "preview_quality": args.preview_quality,
             "pass_index": ctx.pass_index,
             "renders": [self.entries[name] for name in sorted(self.entries)],
+            "incomplete": self.incomplete,
+            "not_rendered": list(self.not_rendered),
+            "deadline": ctx.deadline,
             "warnings": self.warnings,
         }
         self.manifest_path.write_text(json.dumps(manifest, indent=1, ensure_ascii=False), encoding="utf-8")
@@ -1076,12 +1358,14 @@ class RenderRun:
         return {"png": o / f"{cam_name}.png", "exr": o / f"{cam_name}_passes.exr",
                 "preview": o / f"{cam_name}_preview.jpg", "depth": o / f"{cam_name}_depth.png",
                 "index": o / f"{cam_name}_index.png", "depth_mm": o / f"{cam_name}_depth_mm.png",
-                "normal": o / f"{cam_name}_normal.png"}
+                "normal": o / f"{cam_name}_normal.png", "alt_preview": o / f"{cam_name}_alt_preview.jpg"}
 
     def key(self, cam) -> str:
         ctx = self.ctx
         return render_key(ctx.look.key_settings(cam.name, ctx.args.samples, ctx.res, ctx.denoiser,
-                                                self.hidden, self.plugged))
+                                                self.hidden, self.plugged, alt_look=ctx.args.alt_look,
+                                                max_bounces=ctx.args.max_bounces,
+                                                preview_quality=ctx.args.preview_quality))
 
     def check(self, cam) -> tuple[str | None, str]:
         """``(reason to render or None, render_key)``."""
@@ -1090,6 +1374,8 @@ class RenderRun:
         if self.ctx.args.force:
             return "--force", key
         needed = [f["png"], f["exr"], f["preview"], f["index"], f["depth_mm"], f["normal"]]
+        if self.ctx.args.alt_look:
+            needed.append(f["alt_preview"])
         return reuse_reason(cam.name, self.previous.get(cam.name), self.ctx.fingerprint, needed, key), key
 
     def reuse(self, cam, key: str) -> None:
@@ -1105,6 +1391,8 @@ class RenderRun:
         entry = dict(prev)
         entry.update(skipped=True, scene_sha256=self.ctx.fingerprint, render_key=key,
                      preview_bytes=f["preview"].stat().st_size, hidden=self.hidden, plugged=self.plugged)
+        if self.ctx.args.alt_look:
+            entry["alt_preview_bytes"] = f["alt_preview"].stat().st_size
         if products is not None and products["depth"] is not None:
             entry.update(depth=products["depth"], index_values=products["index_values"],
                          index_stats=products["index_stats"])
@@ -1133,16 +1421,25 @@ class RenderRun:
         result = bpy.data.images.get("Render Result")
         set_output(scene, "PNG")
         result.save_render(str(f["png"]), scene=scene)
-        preview_bytes = save_preview(scene, result, f["preview"])
-        products = pass_products(read_exr(f["exr"]))
+        channels = read_exr(f["exr"])
+        products = pass_products(channels)
         if products["index"] is None or products["depth_mm"] is None or products["normal"] is None:
             raise RuntimeError(f"{cam.name}: the EXR lacks the index, depth or normal pass")
+        quality = ctx.args.preview_quality
+        pull, weights, final = self.window_pull(cam, look, result, read_display_png(f["png"]), channels, products)
+        if final is not None:
+            write_png(f["png"], final, DISPLAY_PNG_LEVEL)    # the pulled panes, everything else as saved
+            preview_bytes = encode_preview(scene, f["png"], f["preview"], quality)
+        else:
+            preview_bytes = save_preview(scene, result, f["preview"], quality)
+        alt_bytes = self.alt_preview(cam, look, result, pull, weights, f["alt_preview"]) if ctx.args.alt_look else None
         write_png(f["index"], products["index"])
         write_png(f["depth_mm"], products["depth_mm"])
         write_png(f["normal"], products["normal"])
         if products["depth_legacy"] is not None:
             write_png(f["depth"], products["depth_legacy"])
-        look["window_clip_frac"] = window_clip_frac(read_display_png(f["png"]), products["index"], ctx.windows)
+        look["window_clip_frac"] = window_clip_frac(final if final is not None else read_display_png(f["png"]),
+                                                    products["index"], ctx.windows)
         if look["at_limit"]:
             self.warnings.append(f"{cam.name}: exposure at the limit ({look['ev_raw']:+.2f} EV wanted, "
                                  f"{look['ev']:+.2f} used)")
@@ -1158,17 +1455,92 @@ class RenderRun:
             "resolution": list(ctx.res), "depth": products["depth"], "index_values": products["index_values"],
             "index_stats": products["index_stats"], "skipped": False, "scene_sha256": ctx.fingerprint,
             "render_key": key, "exposure": look, "hidden": self.hidden, "plugged": self.plugged,
+            "window_pull": pull,
+            "alt_preview": f["alt_preview"].name if alt_bytes is not None else None,
+            "alt_preview_bytes": alt_bytes,
         }
         self.rendered += 1
         self.write_manifest()   # after every camera: a killed run keeps what it rendered
+        pull_text = "none" if pull is None else f"{pull['ev']:+g}EV clip {pull['clip_before']}->{pull['clip_after']}"
         print(f"RENDERED {cam.name} in {seconds:.1f}s ev={look['ev']:+.3f} wb={look['wb_temperature']} "
-              f"meter={look['meter_seconds']}s depth={products['depth']} indices={products['index_values']}")
+              f"meter={look['meter_seconds']}s pull={pull_text} depth={products['depth']} "
+              f"indices={products['index_values']}")
+
+    def window_pull(self, cam, look: dict, result, main, channels: dict, products: dict):
+        """``(record, weights, final)`` of the window pull of one camera
+        (module docstring): ``record`` None when no pane is in view (or the EXR
+        has no Diffuse Color pass), ``final`` None when no k was chosen (the
+        PNG stays as saved)."""
+        import numpy as np
+
+        from wenart import views
+
+        albedo = find_rgb(channels, "Diffuse Color", "DiffCol")
+        if albedo is None:
+            self.warnings.append(f"{cam.name}: the EXR has no Diffuse Color pass: no window pull")
+            return None, None, None
+        mask = pane_mask(products["index"], albedo, self.ctx.windows)
+        if not mask.any():
+            return None, None, None
+        t0 = time.time()
+        walls = views.regions(products["index"], products["depth_mm"], products["normal"], {}).masks.get(
+            views.STRUCT_WALLS)
+        wall_median = masked_median(main, walls) if walls is not None else None
+        tmp = self.out / f".pull_{cam.name}.png"
+        candidates, images = [], {}
+        for k in PULL_STEPS:
+            img = save_display(self.ctx.scene, result, tmp, float(look["ev"]) - k)
+            cand = {"k": k, "clip": clip_share(img, mask), "median": masked_median(img, mask)}
+            candidates.append(cand)
+            images[k] = img
+            if pull_qualifies(cand, wall_median):
+                break                    # the smallest qualifying k: later ones are not needed
+        k, rule = choose_pull(candidates, wall_median)
+        clip_before = clip_share(main, mask)
+        record = {"ev": -float(k) if k else 0.0, "k": k, "pane_ev": round(float(look["ev"]) - k, 6),
+                  "clip_before": clip_before, "clip_after": clip_before, "pane_px": int(np.count_nonzero(mask)),
+                  "pane_median": round(masked_median(main, mask), 4),
+                  "wall_median": None if wall_median is None else round(wall_median, 4), "rule": rule,
+                  "tried": [{"k": c["k"], "clip": c["clip"], "median": round(c["median"], 4)} for c in candidates]}
+        if k == 0:
+            record["seconds"] = round(time.time() - t0, 3)
+            return record, None, None
+        weights = feather_weights(mask)
+        final = blend_pull(main, images[k], weights)
+        record["clip_after"] = clip_share(final, mask)
+        record["pane_median_after"] = round(masked_median(final, mask), 4)
+        record["seconds"] = round(time.time() - t0, 3)
+        return record, weights, final
+
+    def alt_preview(self, cam, look: dict, result, pull: dict | None, weights, path: Path) -> int:
+        """``<cam>_alt_preview.jpg``: the Render Result with ``--alt-look`` at the
+        camera's EV; with a window pull the alt look is also saved at EV - k
+        (the main image's k) and blended with the main image's weights."""
+        scene, quality = self.ctx.scene, self.ctx.args.preview_quality
+        alt = self.ctx.args.alt_look
+        if weights is None:
+            vs = scene.view_settings
+            saved = (vs.look, vs.exposure)
+            try:
+                vs.look, vs.exposure = alt, float(look["ev"])
+                return save_preview(scene, result, path, quality)
+            finally:
+                vs.look, vs.exposure = saved
+        tmp = self.out / f".alt_{cam.name}.png"
+        plain = save_display(scene, result, tmp, float(look["ev"]), look=alt)
+        pulled = save_display(scene, result, tmp, float(look["ev"]) - int(pull["k"]), look=alt)
+        try:
+            write_png(tmp, blend_pull(plain, pulled, weights), DISPLAY_PNG_LEVEL)
+            return encode_preview(scene, tmp, path, quality)
+        finally:
+            tmp.unlink(missing_ok=True)
 
 
 class Context:
     """What every output folder of one Blender process shares."""
 
-    def __init__(self, scene, args, device, denoiser, res, look: Look, camera_names: set[str]):
+    def __init__(self, scene, args, device, denoiser, res, look: Look, camera_names: set[str],
+                 deadline: float | None = None):
         import bpy
 
         self.scene = scene
@@ -1178,6 +1550,7 @@ class Context:
         self.res = res
         self.look = look
         self.camera_names = camera_names
+        self.deadline = deadline
         self.blend_path = bpy.data.filepath or None
         self.fingerprint = scene_fingerprint(bpy.data.filepath)
         self.blender_version = bpy.app.version_string
@@ -1213,10 +1586,24 @@ def main(argv: list[str]) -> int:
             raise UsageError("--hide-sets cannot be combined with --hide / --plug")
         if args.plug and not hide_ids and sets is None:
             raise UsageError("--plug needs --hide")
+        check_control_flags(args)
     except (UsageError, ValueError) as exc:
         print(f"usage error: {exc}")
         return 2
     scene = bpy.context.scene
+    if args.alt_look:
+        # The look list depends on the view transform (AgX here); an unknown name raises TypeError.
+        scene.view_settings.view_transform = VIEW_TRANSFORM
+        try:
+            scene.view_settings.look = args.alt_look
+        except TypeError:
+            print(f"usage error: --alt-look {args.alt_look!r} is not a look of {VIEW_TRANSFORM}")
+            return 2
+        finally:
+            scene.view_settings.look = LOOK
+    deadline, deadline_note = deadline_from_env()
+    if deadline_note:
+        print(f"WARNING: {deadline_note}")
 
     all_cameras = sorted((o for o in scene.objects if o.type == "CAMERA" and o.get("wenart_kind") == "camera"),
                          key=lambda o: o.name)
@@ -1267,13 +1654,13 @@ def main(argv: list[str]) -> int:
             return 2
 
     device = configure_device(scene, args.device)
-    denoiser = configure_render(scene, args.samples, (width, height), device, not args.no_denoise)
+    denoiser = configure_render(scene, args.samples, (width, height), device, not args.no_denoise, args.max_bounces)
     scene.view_settings.view_transform = VIEW_TRANSFORM
     scene.view_settings.look = LOOK
     mood = scene.get("wenart_mood") or None
     windows = window_indices(scene)
     look = Look(scene, args, mood, windows, look_from, look_from_path)
-    ctx = Context(scene, args, device, denoiser, (width, height), look, set(by_name))
+    ctx = Context(scene, args, device, denoiser, (width, height), look, set(by_name), deadline)
     if mood is None:
         print("WARNING: scene has no wenart_mood (built before Milestone 5): white-balance residual 0")
 
@@ -1288,13 +1675,17 @@ def main(argv: list[str]) -> int:
             plugged = [i for i in s["ids"] if s["plug"] and hider.kind_of(i) in ("door", "window")]
             runs.append((RenderRun(ctx, out / s["dir"], [by_name[c] for c in s["cameras"]], s["ids"], plugged), s))
 
-    total = {"rendered": 0, "skipped": 0}
+    total = {"rendered": 0, "skipped": 0, "not_rendered": 0}
     for run, hide_set in runs:
         run.write_manifest()
         for cam in run.cameras:
             reason, key = run.check(cam)
             if reason is None:
                 run.reuse(cam, key)
+                continue
+            if deadline_passed(deadline):
+                # Past the deadline: no new camera (docs/milestone6.md §5 row 12); reusable ones still count.
+                run.not_rendered.append(cam.name)
                 continue
             if hide_set is not None:
                 hider.apply(hide_set["ids"], hide_set["plug"])
@@ -1303,12 +1694,21 @@ def main(argv: list[str]) -> int:
             finally:
                 if hide_set is not None:
                     hider.undo()
+        if run.incomplete:
+            run.warnings.append(f"{DEADLINE_ENV} passed: {len(run.not_rendered)} camera(s) not rendered")
+            run.write_manifest()
         total["rendered"] += run.rendered
         total["skipped"] += run.skipped
+        total["not_rendered"] += len(run.not_rendered)
         print(f"RENDER_DONE {run.out} cameras={len(run.cameras)} rendered={run.rendered} skipped={run.skipped} "
-              f"listed={len(run.entries)} device={device} hidden={run.hidden} plugged={run.plugged}")
+              f"not_rendered={len(run.not_rendered)} listed={len(run.entries)} device={device} hidden={run.hidden} "
+              f"plugged={run.plugged}")
     if sets is not None:
-        print(f"HIDE_SETS_DONE sets={len(sets)} rendered={total['rendered']} skipped={total['skipped']}")
+        print(f"HIDE_SETS_DONE sets={len(sets)} rendered={total['rendered']} skipped={total['skipped']} "
+              f"not_rendered={total['not_rendered']}")
+    if total["not_rendered"]:
+        print(f"RENDER_INCOMPLETE {total['not_rendered']} camera(s) not rendered: {DEADLINE_ENV} passed")
+        return EXIT_INCOMPLETE
     return 0
 
 

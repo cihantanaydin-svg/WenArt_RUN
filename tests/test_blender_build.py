@@ -89,10 +89,24 @@ def test_object_counts_per_kind_match_the_json(built):
     rooms = [r for r in b["rooms"] if r["level_id"] == "L0"]
     furniture = [f for f in b["furniture"] if f["level_id"] == "L0"]
     ids = {}
+    details = [o for o in m["objects"] if o.get("parent")]          # Milestone 6 design details (assumed)
     for o in m["objects"]:
+        if o.get("parent") and o["kind"] in ("wall", "door"):
+            continue
         ids.setdefault(o["kind"], set()).add(o["wenart_id"])
     assert ids["wall"] == {w["id"] for w in walls}
     assert ids["door"] == {o["id"] for o in doors}
+    # Skirting (kind wall, one per dry room) and door handles (kind door, the door's id): status assumed,
+    # no evidence, a parent (room or door) and an ``assumed`` entry each; nothing else is added.
+    skirting = [o for o in details if o["kind"] == "wall"]
+    handles = [o for o in details if o["kind"] == "door"]
+    dry = {r["id"] for r in rooms if r["room_type"] not in ("bathroom", "wc", "kitchen", "balcony")}
+    assert {o["parent"] for o in skirting} == dry and all(o["wenart_id"] == f"skirting_{o['parent']}" for o in skirting)
+    assert {o["parent"] for o in handles} == {o["id"] for o in doors}
+    assert all(o["status"] == "assumed" and o["evidence"] == [] for o in skirting + handles)
+    assert all(o["kind"] in ("wall", "door", "light") for o in details)
+    kinds = {(a["parent"], a["kind"]) for a in m["assumed"] if "parent" in a}
+    assert {(o["parent"], "skirting") for o in skirting} | {(o["parent"], "door_handles") for o in handles} <= kinds
     assert ids["window"] == {o["id"] for o in windows}
     # Floors: one per room plus one threshold per door (kind floor, bound to the door).
     assert ids["floor"] == {r["id"] for r in rooms} | {o["id"] for o in doors}
@@ -103,7 +117,8 @@ def test_object_counts_per_kind_match_the_json(built):
     assert len(ids["camera"]) == 3 * len(rooms)
     # Nothing beyond the JSON: every element-bound object carries the element's evidence.
     for o in m["objects"]:
-        if o["kind"] in ("wall", "door", "window", "floor", "ceiling", "furniture_proxy", "furniture"):
+        if o["kind"] in ("wall", "door", "window", "floor", "ceiling", "furniture_proxy", "furniture") \
+                and not o.get("parent"):
             assert o["evidence"], o["name"]
             assert o["evidence"][0]["method"] in ("vector", "ocr", "ai", "derived")
 
@@ -192,8 +207,17 @@ def test_materials_textured_or_flat_are_recorded(built):
     # clamped to 2.5 in Milestone 5 (texture albedo mode, docs/milestone5.md §2.2)
     assert floor["albedo_gain"] == 2.5 and floor["gain_clamped"] is True and 0.1 < floor["albedo_mean_luminance"] < 0.3
     assert floor["albedo_mode"] == "texture" and floor["detail"] is None
-    assert mats["wood_oak_light"]["albedo_gain"] is None  # flat materials carry no gain
-    assert mats["wood_oak_light"]["textured"] is False  # the door leaf: no asset in the style
+    # Milestone 6: wood door leaves take the veneer (oak_veneer_01 is not in the fake manifest: flat).
+    leaf = mats["wood_veneer_oak"]
+    assert leaf["albedo_gain"] is None and leaf["textured"] is False and "oak_veneer_01" in leaf["reason"]
+    leaves = [o for o in built["manifest"]["objects"] if o["name"].endswith("_leaf")]
+    assert leaves and all(o["material"] == "wood_veneer_oak" for o in leaves)
+    handles = [o for o in built["manifest"]["objects"] if o["name"].endswith("_handle")]
+    assert handles and all(o["material"] == "steel_brushed" and mats["steel_brushed"]["metallic"] == 1.0
+                           for o in handles)
+    # Wet walls without an image asset: procedural glazed tiles (textures on in this build).
+    tiles = mats["tiles_light"]
+    assert tiles["procedural"] == "glazed_tiles" and tiles["textured"] is False and "0.60 x 0.30 m" in tiles["reason"]
     walls = mats["plaster_white"]
     assert walls["textured"] is False and "white_plaster_02" in walls["reason"]  # not in the fake manifest
     assert walls["tint"] is None and walls["albedo_mode"] == "flat" and walls["detail"] == 0.35  # no walls.tint

@@ -252,7 +252,14 @@ def test_render_key_covers_every_setting():
     assert R.render_key(R.key_settings(**dict(base, exposure_mode="off"))) == \
         R.render_key(R.key_settings(**dict(base, exposure_mode="off", target=0.5)))
     settings = R.key_settings(**base)
-    assert settings["code"] == R.RENDER_CODE_VERSION == "m5.2" and settings["passes"] == list(R.PASSES)
+    assert settings["code"] == R.RENDER_CODE_VERSION == "m6.1" and settings["passes"] == list(R.PASSES)
+    assert "diffuse_color" in R.PASSES                       # the window pull's pane mask (Milestone 6)
+    # Milestone 6 control and A/B flags (docs/milestone6.md §5 rows 10-11): each one changes the key.
+    flags = [dict(alt_look="AgX - Punchy"), dict(max_bounces=0), dict(max_bounces=4), dict(ev_offset=0.3),
+             dict(ev_offset=-0.3), dict(preview_quality=85), dict(preview_quality=70)]
+    flag_keys = {R.render_key(R.key_settings(**base, **f)) for f in flags}
+    assert len(flag_keys) == len(flags) and k0 not in flag_keys and not flag_keys & keys
+    assert R.render_key(R.key_settings(**base, ev_offset=0.0)) == k0     # the defaults are the plain render
 
 
 def test_reuse_needs_files_fingerprint_and_render_key(tmp_path):
@@ -856,8 +863,9 @@ PLUG_SCRIPT = textwrap.dedent("""
 
     def faces(ob):
         m3 = ob.matrix_world.to_3x3()
-        return [[[round(c) for c in (m3 @ p.normal)], ob.data.materials[p.material_index].name]
-                for p in ob.data.polygons]
+        mw = ob.matrix_world
+        return [[[round(c) for c in (m3 @ p.normal)], ob.data.materials[p.material_index].name,
+                 list(mw @ p.center)] for p in ob.data.polygons]
 
     json.dump({"plug": faces(hider.plugs[0]), "wall": faces(bpy.data.objects["w_s"]),
                "info": hider.info["win_1"]}, open(out, "w"))
@@ -879,13 +887,15 @@ def test_a_plugged_window_in_a_bathroom_shows_the_wall_tiles(room, tmp_path):
     got = json.loads((tmp_path / "plug.json").read_text(encoding="utf-8"))
 
     def side(rows, normal):
-        return {m for n, m in rows if n == normal}
+        # Faces along the room (x 0..4). Milestone 6 splits the wall at the room corners: the short
+        # faces beyond them lie inside the corner walls (hidden) and probe as no room.
+        return {m for n, m, c in rows if n == normal and 0.0 < c[0] < 4.0}
 
     room_side, outside = side(got["wall"], [0, 1, 0]), side(got["wall"], [0, -1, 0])   # room at +Y of w_s
     assert len(room_side) == 1 and next(iter(room_side)).startswith("tiles_light"), got["wall"]
     assert len(outside) == 1 and next(iter(outside)).startswith("plaster_exterior"), got["wall"]
     assert side(got["plug"], [0, 1, 0]) == room_side and side(got["plug"], [0, -1, 0]) == outside
-    ends = {m for n, m in got["plug"] if n[1] == 0}
+    ends = {m for n, m, _ in got["plug"] if n[1] == 0}
     assert len(ends) == 1 and next(iter(ends)).startswith("plaster_white"), got["plug"]
     # Recorded per side of the wall axis (w_s runs towards +X: its left side is +Y, the room).
     assert got["info"]["materials"] == {"left": next(iter(room_side)), "right": next(iter(outside)),

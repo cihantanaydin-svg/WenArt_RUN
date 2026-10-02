@@ -2,7 +2,7 @@
 
     blender -b --python wenart/blender/build.py -- --building outputs/<p>/building.json \
         --style outputs/<p>/style.json --assets assets --out outputs/<p>/scene \
-        [--level L0] [--no-textures] [--preview-samples 16] [--proxies]
+        [--level L0] [--no-textures] [--preview-samples 16] [--proxies] [--camera-policy m5|search]
 
 Writes into ``--out``: ``scene.blend``, ``scene.glb``, ``scene_manifest.json``
 (every object with its wenart id, kind, status, the element evidence copied
@@ -40,6 +40,22 @@ Milestone 5 additions (docs/milestone5.md §2.7):
   proxy and decor entry;
 - one light portal per window (lighting.py) and camera-only window glass
   (materials.py).
+
+Milestone 6 (docs/milestone6.md §4.2, §5):
+
+- ``--camera-policy m5|search`` (default ``m5``, the Milestone 3-5 rules;
+  ``search`` is the ray-cast camera search of ``cameras.plan_cameras``),
+  part of the fingerprint and recorded as ``camera_policy``;
+- the building and the style file enter the fingerprint as
+  ``wenart.canonical.canonical_sha256`` (no volatile keys such as
+  ``created_utc``), so a re-run pipeline that only changed a time stamp
+  never rebuilds the scene; the furniture texture ids
+  (``vocabulary.furniture_textures``) are referenced assets;
+- the look package of §5: wall faces split at room corners, procedural wet
+  tiles, soft bedding, veneer, bevel, door handles, skirting (shell.py),
+  dim-room lights at the pole of inaccessibility (lighting.py); every new
+  design-detail object or light has an ``assumed`` entry with ``parent``,
+  ``kind`` and ``reason``.
 """
 from __future__ import annotations
 
@@ -74,6 +90,10 @@ FINGERPRINT_CODE = ("wenart/blender/*.py", "wenart/style/vocabulary.py", "wenart
 FINGERPRINT_VOLATILE_KEYS = ("fetched_utc",)
 STYLE_ASSET_SLOTS = ("floor", "walls", "ceiling", "wet_floor", "wet_walls", "trim", "door", "window_frame",
                      "textiles")
+# docs/milestone6.md §4.2 (the same names as cameras.CAMERA_POLICIES; repeated here so
+# the fingerprint helpers need no camera code).
+CAMERA_POLICIES = ("m5", "search")
+DEFAULT_CAMERA_POLICY = "m5"
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
@@ -89,6 +109,8 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--no-glb", action="store_true")
     parser.add_argument("--proxies", action="store_true",
                         help="Milestone 3 proxy boxes for every furniture piece instead of assets")
+    parser.add_argument("--camera-policy", default=DEFAULT_CAMERA_POLICY, choices=CAMERA_POLICIES,
+                        help="m5 = the fixed camera rules of Milestones 3-5 (default); search = ray-cast search")
     return parser.parse_args(argv)
 
 
@@ -98,13 +120,14 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 
 def fingerprint_args(building: str, style: str | None = None, assets: str | None = None, level: str | None = None,
                      no_textures: bool = False, preview_samples: int | None = None, no_preview: bool = False,
-                     no_glb: bool = False, proxies: bool = False) -> dict:
+                     no_glb: bool = False, proxies: bool = False, camera_policy: str = DEFAULT_CAMERA_POLICY) -> dict:
     """The build arguments that enter the fingerprint, in one canonical form
     (``--out`` is left out: where the scene is written does not change it)."""
     return {"building": str(building), "style": str(style) if style else None,
             "assets": str(assets) if assets else None, "level": level, "no_textures": bool(no_textures),
             "preview_samples": DEFAULT_PREVIEW_SAMPLES if preview_samples is None else int(preview_samples),
-            "no_preview": bool(no_preview), "no_glb": bool(no_glb), "proxies": bool(proxies)}
+            "no_preview": bool(no_preview), "no_glb": bool(no_glb), "proxies": bool(proxies),
+            "camera_policy": str(camera_policy or DEFAULT_CAMERA_POLICY)}
 
 
 def _sha256_file(path: Path) -> str | None:
@@ -146,6 +169,12 @@ def referenced_asset_ids(building: dict, style: dict) -> list[str]:
         asset = item.get("asset") if isinstance(item, dict) else None
         if isinstance(asset, dict) and asset.get("asset_id"):
             ids.add(str(asset["asset_id"]))
+    # The furniture texture maps (veneers, linen; Milestone 6): every build may use them.
+    try:
+        from wenart.style.vocabulary import furniture_textures
+        ids.update(asset_id for _, asset_id, _ in furniture_textures())
+    except ImportError:
+        pass
     return sorted(ids)
 
 
@@ -179,15 +208,18 @@ def code_hashes(repo_root: Path | None = None) -> dict[str, str | None]:
 
 def build_fingerprint(args: dict, repo_root: Path | None = None) -> str:
     """sha256 (hex) of everything that decides what the build writes:
-    the building and style files, their asset entries, the scene code and
-    the canonical build arguments (``fingerprint_args``)."""
+    the building and style files (``canonical_sha256``: without volatile keys
+    such as ``created_utc``), their asset entries, the scene code and the
+    canonical build arguments (``fingerprint_args``)."""
+    from wenart.canonical import canonical_sha256
+
     building_path = Path(args["building"])
     building = json.loads(building_path.read_text(encoding="utf-8")) if building_path.is_file() else {}
     style = _style_for_fingerprint(args.get("style"))
     ids = referenced_asset_ids(building, style)
     payload = {
-        "building_sha256": _sha256_file(building_path),
-        "style_sha256": _sha256_file(Path(args["style"])) if args.get("style") else None,
+        "building_sha256": canonical_sha256(building_path),
+        "style_sha256": canonical_sha256(Path(args["style"])) if args.get("style") else None,
         "assets": asset_entries_for(None if args.get("no_textures") else args.get("assets"), ids),
         "code": code_hashes(repo_root),
         "args": args,
@@ -326,7 +358,7 @@ def main(argv: list[str]) -> int:
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     fp_args = fingerprint_args(args.building, args.style, args.assets, args.level, args.no_textures,
-                               args.preview_samples, args.no_preview, args.no_glb, args.proxies)
+                               args.preview_samples, args.no_preview, args.no_glb, args.proxies, args.camera_policy)
     fingerprint = build_fingerprint(fp_args)
     building = json.loads(Path(args.building).read_text(encoding="utf-8"))
     if building.get("status") != "ok":
@@ -371,6 +403,7 @@ def main(argv: list[str]) -> int:
         level_collections[level["id"]] = col
         shell.build_walls(building, level, col, library, style, manifest_objects, assumed, warnings)
         shell.build_openings(building, level, col, library, style, pass_indices, manifest_objects, assumed, warnings)
+        shell.build_skirting(building, level, col, library, style, manifest_objects, assumed)
         shell.build_floors_ceilings(building, level, col, library, style, manifest_objects, warnings)
         summary = furniture.create_furniture(building, level, col, library, style, args.assets, pass_indices,
                                              manifest_objects, assumed, warnings, use_proxies=args.proxies)
@@ -379,7 +412,9 @@ def main(argv: list[str]) -> int:
         for method, count in summary["by_method"].items():
             furniture_summary["by_method"][method] = furniture_summary["by_method"].get(method, 0) + count
         furniture_summary["fallbacks"].extend(summary["fallbacks"])
-        plans = cams.plan_cameras(building, level["id"])
+        plans = cams.plan_cameras(building, level["id"], policy=args.camera_policy)
+        for plan in plans:
+            plan.setdefault("policy", args.camera_policy)
         cams.create_cameras(plans, col, manifest_objects)
         camera_plans.extend(plans)
         for plan in plans:
@@ -447,6 +482,7 @@ def main(argv: list[str]) -> int:
                     "ceiling_height": lv["ceiling_height"], "ceiling_height_source": lv.get("ceiling_height_source")}
                    for lv in levels],
         "objects": manifest_objects,
+        "camera_policy": args.camera_policy,
         "cameras": camera_plans,
         "materials": library.records,
         "lighting": light_info,

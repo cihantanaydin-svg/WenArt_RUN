@@ -36,6 +36,24 @@ door height 2.10 m, window sill 0.90 m, window height 1.20 m (1.40 m when the
 opening is wider than 1.5 m), plain opening full height, wall height = level
 ceiling height, slab thickness 0.30 m (walls of a level with a level above
 it run up to the next floor so the slab zone is closed).
+
+Milestone 6 (docs/milestone6.md §5 rows 3 and 9):
+
+- before the per-face material probe, every wall mesh is cut with vertical
+  planes across the wall (``bmesh.ops.bisect_plane``) at every room corner
+  that lies along the wall (``wall_split_positions``), so a wall shared by a
+  bathroom and a bedroom gets tiles on the bathroom span only (one face
+  used to take the material of its centre);
+- wood door leaves take the veneer of their wood (``vocabulary.veneer_for``,
+  grain along the box UV v = world Z: vertical) and get a pair of steel
+  lever handles at 1.02 m on both faces (``door_handle_parts``; the door's
+  wenart id and pass index, so ``--hide`` hides them with the door);
+- dry rooms get a painted skirting board 8 cm x 12 mm along their walls,
+  interrupted at doors, plain openings and floor-level windows
+  (``skirting_spans``), pass index 0;
+- handles and skirting are design details: status ``assumed``, a scene
+  manifest ``assumed`` entry with ``parent`` (door or room id), ``kind`` and
+  ``reason``; nothing is added to the building JSON.
 """
 from __future__ import annotations
 
@@ -60,6 +78,20 @@ DEFAULTS = {
     "shift_assumed": 0.001,      # centre shift recorded as assumed above this
 }
 WET_ROOM_TYPES = {"bathroom", "wc", "kitchen"}
+# Rooms without skirting: wet rooms keep their tiles to the floor, a balcony is outside.
+NO_SKIRTING_TYPES = WET_ROOM_TYPES | {"balcony"}
+SKIRTING_H = 0.08
+SKIRTING_T = 0.012
+SKIRTING_MIN_SPAN = 0.02
+# A room corner splits a wall when it lies within half the wall thickness + this of the centre line
+# and this far from the wall's ends.
+SPLIT_REACH_EXTRA = 0.1
+SPLIT_END_MARGIN = 0.01
+# Lever handles (docs/milestone6.md §5 row 9): lever axis this high above the floor, this far
+# from the latch-side edge of the leaf; the furthest point stands HANDLE_DEPTH proud of the leaf face.
+HANDLE_HEIGHT = 1.02
+HANDLE_EDGE_INSET = 0.075
+HANDLE_DEPTH = 0.055
 
 
 # --------------------------------------------------------------------------
@@ -181,6 +213,109 @@ def adjacent_room(centre, wall: dict, rooms: list[dict]) -> dict | None:
             if len(room["polygon"]) >= 3 and G.point_in_polygon(probe, room["polygon"]):
                 return room
     return None
+
+
+# --------------------------------------------------------------------------
+# Milestone 6 design details and wall splits (pure Python)
+# --------------------------------------------------------------------------
+
+def wall_split_positions(wall: dict, rooms: list[dict], reach_extra: float = SPLIT_REACH_EXTRA,
+                         end_margin: float = SPLIT_END_MARGIN) -> list[float]:
+    """Distances along the wall (from ``wall["start"]``, metres, sorted, 0.1 mm
+    rounded) of the room corners that lie along it: within ``thickness / 2 +
+    reach_extra`` of the centre line and more than ``end_margin`` inside its
+    ends. The wall mesh is cut across at each (docs/milestone6.md §5 row 3)."""
+    a, b = wall["start"], wall["end"]
+    length = G.distance(a, b)
+    if length < 1e-6:
+        return []
+    ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
+    reach = float(wall["thickness"]) / 2.0 + reach_extra
+    cuts = set()
+    for room in rooms:
+        for p in room["polygon"]:
+            along = (p[0] - a[0]) * ux + (p[1] - a[1]) * uy
+            across = abs((p[0] - a[0]) * -uy + (p[1] - a[1]) * ux)
+            if end_margin < along < length - end_margin and across <= reach:
+                cuts.add(round(along, 4))
+    return sorted(cuts)
+
+
+def door_handle_parts(width: float, height: float, sill: float = 0.0,
+                      leaf_thickness: float = DEFAULTS["leaf_thickness"],
+                      frame_width: float = DEFAULTS["frame_width"]) -> list[tuple[list, list]]:
+    """Boxes of a pair of lever handles in the opening's local frame (X along
+    the wall, Y across, Z up from the opening bottom; ``geom2d.box`` tuples):
+    on both leaf faces a rose plate, a neck and a 13 cm lever whose axis is
+    ``HANDLE_HEIGHT`` above the floor (``sill`` = opening bottom above the
+    floor), ``HANDLE_EDGE_INSET`` from the latch-side (+X) edge of the leaf.
+    The lever's far side stands ``HANDLE_DEPTH`` proud of the leaf face. A
+    door lower than 1.3 m gets its handles at half height."""
+    lt = float(leaf_thickness)
+    hx = width / 2.0 - frame_width - HANDLE_EDGE_INSET
+    lever_z = HANDLE_HEIGHT - float(sill) if height >= 1.3 else height / 2.0
+    parts = []
+    for sgn in (1.0, -1.0):
+        parts.append(geom2d.box((hx, sgn * (lt / 2.0 + 0.004), lever_z - 0.04), (0.05, 0.008, 0.16)))   # rose
+        parts.append(geom2d.box((hx, sgn * (lt / 2.0 + 0.026), lever_z), (0.018, 0.044, 0.018)))        # neck
+        parts.append(geom2d.box((hx - 0.055, sgn * (lt / 2.0 + HANDLE_DEPTH - 0.009), lever_z),
+                                (0.13, 0.018, 0.018)))                                                 # lever
+    return parts
+
+
+def skirting_spans(polygon, gaps, min_span: float = SKIRTING_MIN_SPAN) -> list[tuple[int, float, float]]:
+    """Where a skirting board runs along a room polygon: ``[(edge index, s0, s1)]``
+    with ``s0 < s1`` in metres from the edge's first corner. ``gaps`` are
+    ``(centre, width)`` of the doors and openings of the room; each is cut
+    from the edge nearest to its centre (centre projected onto the edge,
+    +- width / 2). Spans shorter than ``min_span`` are dropped."""
+    poly = [tuple(p[:2]) for p in polygon]
+    if len(poly) > 1 and G.distance(poly[0], poly[-1]) < 1e-9:
+        poly = poly[:-1]
+    n = len(poly)
+    cuts: dict[int, list[tuple[float, float]]] = {i: [] for i in range(n)}
+    for centre, width in gaps:
+        dists = [G.point_segment_distance(centre[:2], poly[i], poly[(i + 1) % n]) for i in range(n)]
+        i = min(range(n), key=lambda k: (dists[k], k))
+        a, b = poly[i], poly[(i + 1) % n]
+        length = G.distance(a, b)
+        if length < 1e-9:
+            continue
+        along = ((centre[0] - a[0]) * (b[0] - a[0]) + (centre[1] - a[1]) * (b[1] - a[1])) / length
+        cuts[i].append((along - float(width) / 2.0, along + float(width) / 2.0))
+    spans = []
+    for i in range(n):
+        length = G.distance(poly[i], poly[(i + 1) % n])
+        start = 0.0
+        for c0, c1 in sorted(cuts[i]):
+            if c0 - start >= min_span:
+                spans.append((i, round(start, 6), round(min(c0, length), 6)))
+            start = max(start, c1)
+        if length - start >= min_span:
+            spans.append((i, round(start, 6), round(length, 6)))
+    return spans
+
+
+def skirting_boxes(polygon, spans, floor_z: float, height: float = SKIRTING_H,
+                   thickness: float = SKIRTING_T) -> tuple[list, list]:
+    """``(verts, faces)`` of the skirting boards of ``spans`` (``skirting_spans``):
+    one box per span, ``thickness`` deep into the room from the polygon edge,
+    ``height`` tall from ``floor_z``."""
+    poly = [tuple(p[:2]) for p in polygon]
+    if len(poly) > 1 and G.distance(poly[0], poly[-1]) < 1e-9:
+        poly = poly[:-1]
+    n = len(poly)
+    parts = []
+    for i, s0, s1 in spans:
+        a, b = poly[i], poly[(i + 1) % n]
+        length = G.distance(a, b)
+        ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
+        nx, ny = geom2d.inward_normal(a, b, poly)
+        mid = (s0 + s1) / 2.0
+        centre = (a[0] + ux * mid + nx * thickness / 2.0, a[1] + uy * mid + ny * thickness / 2.0,
+                  floor_z + height / 2.0)
+        parts.append(geom2d.box(centre, (s1 - s0, thickness, height), math.degrees(math.atan2(uy, ux))))
+    return geom2d.merge(parts)
 
 
 # --------------------------------------------------------------------------
@@ -362,9 +497,10 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
                             "reason": "wall height from the level ceiling height" if field == "height"
                             else "slab between levels"})
 
-    # Apply the booleans through the depsgraph and classify faces.
+    # Apply the booleans through the depsgraph, split at the room corners and classify faces.
     bpy.context.view_layer.update()
     for ob, wall in pairs:
+        changed = False
         if ob.modifiers:
             mesh = common.evaluated_mesh(ob)
             common.replace_mesh(ob, mesh)
@@ -372,6 +508,14 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
             while len(mesh.materials) > len(slots) or any(m is None for m in mesh.materials):
                 idx = next((i for i, m in enumerate(mesh.materials) if m is None), len(mesh.materials) - 1)
                 mesh.materials.pop(index=idx)
+            changed = True
+        cuts = split_wall_at_room_corners(ob, wall, rooms)
+        if cuts:
+            changed = True
+            for entry in manifest_objects:
+                if entry.get("kind") == "wall" and entry.get("wenart_id") == wall["id"]:
+                    entry["split_at_m"] = cuts
+        if changed:
             common.assign_box_uvs(ob.data)
         outward, ambiguous = wall_outward_normal(wall, rooms, footprint_centre)
         if ambiguous and wall.get("exterior"):
@@ -382,6 +526,32 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
         common.delete_object(cutter)
     bpy.context.view_layer.update()
     return objects
+
+
+def split_wall_at_room_corners(ob, wall: dict, rooms: list[dict]) -> list[float]:
+    """Cut the wall mesh with a vertical plane across the wall at every
+    ``wall_split_positions`` distance (``bmesh.ops.bisect_plane``, nothing
+    removed), so each face lies along one room and takes that room's material.
+    Returns the distances cut (empty when none)."""
+    import bmesh
+    from mathutils import Vector
+
+    cuts = wall_split_positions(wall, rooms)
+    if not cuts:
+        return []
+    a, b = wall["start"], wall["end"]
+    length = G.distance(a, b)
+    ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
+    bm = bmesh.new()
+    bm.from_mesh(ob.data)
+    for along in cuts:
+        geom = list(bm.verts) + list(bm.edges) + list(bm.faces)
+        bmesh.ops.bisect_plane(bm, geom=geom, plane_co=Vector((a[0] + ux * along, a[1] + uy * along, 0.0)),
+                               plane_no=Vector((ux, uy, 0.0)))
+    bm.to_mesh(ob.data)
+    bm.free()
+    ob.data.update()
+    return cuts
 
 
 def _level_centre(walls: list[dict]) -> tuple[float, float]:
@@ -431,9 +601,11 @@ def build_openings(building: dict, level: dict, collection, library, style: dict
     door_style = style.get("door") or {"material": "wood_oak_light"}
     win_style = style.get("window_frame") or {"material": "painted_metal_white"}
     frame_mat = library.get(trim["material"], trim.get("asset"), trim.get("tint"))
-    leaf_mat = library.get(door_style["material"], door_style.get("asset"), door_style.get("tint"))
+    leaf_slug, leaf_asset = door_leaf_material(door_style)
+    leaf_mat = library.get(leaf_slug, leaf_asset, door_style.get("tint"))
     win_mat = library.get(win_style["material"], win_style.get("asset"), win_style.get("tint"))
     glass_mat = library.glass()
+    steel_mat = library.get("steel_brushed")
 
     created = []
     for opening in building["openings"]:
@@ -505,6 +677,21 @@ def build_openings(building: dict, level: dict, collection, library, style: dict
             created.append(ob)
             manifest_objects.append(_opening_entry(opening, ob.name, level_id, leaf_mat.name,
                                                    _textured(library, leaf_mat), index, op_assumed, shift))
+            # Lever handles on both faces: a design detail of the door (its id and pass index).
+            handles = _local_to_world(door_handle_parts(width, height, bottom - floor_z), (cx, cy, bottom), angle)
+            ob = common.new_mesh_object(f"{opening['id']}_handle", *handles, collection=collection,
+                                        wenart_id=opening["id"], kind="door", status="assumed",
+                                        materials=[steel_mat])
+            ob.pass_index = index
+            created.append(ob)
+            reason = "design detail of the documented door (lever handles on both faces); not in the documents"
+            entry = _opening_entry(opening, ob.name, level_id, steel_mat.name, False, index, {}, shift)
+            entry.update(status="assumed", evidence=[], parent=opening["id"],
+                         assumed={"detail": "door_handles", "lever_height_m": HANDLE_HEIGHT, "reason": reason})
+            manifest_objects.append(entry)
+            assumed.append({"object": ob.name, "field": "door_handles",
+                            "value": f"steel lever pair at {HANDLE_HEIGHT} m", "reason": reason,
+                            "parent": opening["id"], "kind": "door_handles"})
         else:
             depth = min(thickness, 0.08)
             parts = [
@@ -533,6 +720,22 @@ def build_openings(building: dict, level: dict, collection, library, style: dict
 
 def _textured(library, mat) -> bool:
     return library.textured(mat)
+
+
+def door_leaf_material(door_style: dict) -> tuple[str, str | None]:
+    """``(slug, asset id)`` of the door leaves: the veneer of a wood door slug
+    (``vocabulary.veneer_for``: the floor planks were on the doors before
+    Milestone 6; the veneer's grain runs along the box UV v, world Z on the
+    leaf: vertical), else the style's door slug and asset (painted doors)."""
+    slug = door_style.get("material") or "wood_oak_light"
+    try:
+        from wenart.style import vocabulary as V
+        veneer = V.veneer_for(slug)
+        if veneer is not None:
+            return veneer, V.FURNITURE_MATERIALS[veneer].get("asset")
+    except Exception:  # noqa: BLE001 - without the vocabulary the style slug stays
+        pass
+    return slug, door_style.get("asset")
 
 
 def _opening_entry(opening, name, level_id, material, textured, index, op_assumed, shift) -> dict:
@@ -657,6 +860,59 @@ def build_floors_ceilings(building: dict, level: dict, collection, library, styl
             "material": ceil_mat.name, "textured": _textured(library, ceil_mat),
             "pass_index": None, "assumed": {}, "room_type": room.get("room_type"), "wet": wet,
         })
+    return created
+
+
+def build_skirting(building: dict, level: dict, collection, library, style: dict, manifest_objects: list,
+                   assumed: list) -> list:
+    """A painted skirting board (``SKIRTING_H`` x ``SKIRTING_T``, the trim
+    material) along the walls of every dry room of the level (not bathroom,
+    WC, kitchen or balcony), interrupted at its doors, plain openings and
+    windows that reach below the board (``skirting_spans``). One object per
+    room (``skirting_<room id>``, kind wall, pass index 0, status assumed)
+    and one ``assumed`` entry with the room as ``parent``."""
+    from wenart.blender import common
+    from wenart.blender.cameras import room_openings
+
+    floor_z = float(level["elevation"])
+    has_above = any(float(lv["elevation"]) > floor_z for lv in building["levels"])
+    trim = style.get("trim") or {"material": "painted_wood_white"}
+    mat = library.get(trim["material"], trim.get("asset"), trim.get("tint"))
+    reason = "design detail of the room's documented walls (painted skirting board); not in the documents"
+    created = []
+    for room in building["rooms"]:
+        if room["level_id"] != level["id"] or room.get("room_type") in NO_SKIRTING_TYPES:
+            continue
+        polygon = [tuple(p[:2]) for p in room["polygon"]]
+        if len(polygon) > 1 and G.distance(polygon[0], polygon[-1]) < 1e-9:
+            polygon = polygon[:-1]
+        if len(polygon) < 3:
+            continue
+        gaps = []
+        for o in room_openings(room, polygon, building):
+            bottom, _top, _ = opening_vertical(o, level, has_above)
+            if o["type"] in ("door", "opening") or bottom - floor_z < SKIRTING_H:
+                gaps.append((o["center"], float(o["width"])))
+        spans = skirting_spans(polygon, gaps)
+        if not spans:
+            continue
+        verts, faces = skirting_boxes(polygon, spans, floor_z)
+        name = f"skirting_{room['id']}"
+        ob = common.new_mesh_object(name, verts, faces, collection=collection, wenart_id=name, kind="wall",
+                                    status="assumed", materials=[mat])
+        ob.pass_index = 0
+        created.append(ob)
+        length = round(sum(s1 - s0 for _, s0, s1 in spans), 3)
+        manifest_objects.append({
+            "name": ob.name, "wenart_id": name, "kind": "wall", "status": "assumed", "level_id": level["id"],
+            "element_id": room["id"], "parent": room["id"], "evidence": [], "material": mat.name,
+            "textured": library.textured(mat), "pass_index": 0,
+            "assumed": {"detail": "skirting", "size_m": [SKIRTING_H, SKIRTING_T], "length_m": length,
+                        "runs": len(spans), "reason": reason},
+        })
+        assumed.append({"object": ob.name, "field": "skirting",
+                        "value": f"{SKIRTING_H * 100:g} cm x {SKIRTING_T * 1000:g} mm, {length} m in {len(spans)} runs",
+                        "reason": reason, "parent": room["id"], "kind": "skirting"})
     return created
 
 

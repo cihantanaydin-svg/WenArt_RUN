@@ -19,6 +19,24 @@ proud of the front), the lowest vertex is at z = 0 (the floor) and the
 The total height may exceed the type height of ``proxies.PROXY_HEIGHTS``
 (a bed headboard rises above the mattress, a toilet tank above the seat):
 ``piece_bbox`` reports the real box, which the camera planner uses.
+
+Milestone 6 (docs/milestone6.md §5 rows 2 and 8), every box unchanged (the
+``m5`` cameras depend on ``piece_bbox`` / ``obstacle_rect``; tests pin them
+for every type):
+
+- kitchen counter and island fronts stand 1 mm proud of the carcass (their
+  front faces were coplanar with it and rendered black), the handles sit on
+  the fronts;
+- beds have soft bedding inside their own box: a superellipsoid mattress, a
+  duvet draped over the sides with smooth deterministic wrinkles, a
+  turn-down band and pillows leaning 14 degrees on the headboard (material
+  keys ``bedding`` and ``duvet``); parts made of superellipsoids carry
+  ``"smooth": True``;
+- ``part_bevel_radius``: the bevel radius of each part for the one Bevel
+  modifier furniture.py adds (per role, at most a third of the part's
+  smallest side, 0 for smooth parts);
+- ``decor_rest_height`` puts decor on a parametric bed on the bedding top
+  (``bedding_top``), not inside the pillows.
 """
 from __future__ import annotations
 
@@ -40,7 +58,28 @@ PARAMETRIC_TYPES: tuple[str, ...] = (
 )
 DECOR_TYPES: tuple[str, ...] = ("cushion", "book_set", "plant")
 MATERIAL_KEYS: tuple[str, ...] = ("wood", "fabric", "bedding", "ceramic", "steel", "painted", "worktop", "dark",
-                                  "glass", "green", "terracotta")
+                                  "glass", "green", "terracotta", "duvet")
+BED_TYPES: tuple[str, ...] = ("bed", "bed_single", "bed_double")
+COUNTER_TYPES: tuple[str, ...] = ("kitchen_counter", "kitchen_island")
+# Kitchen fronts: this gap between the carcass front face and the back of a front.
+FRONT_GAP = 0.001
+FRONT_THICKNESS = 0.018
+# Pillows lean back on the headboard by this angle.
+PILLOW_TILT_DEG = 14.0
+# Bevel (docs/milestone6.md §5 row 8): one Bevel modifier per piece, limit
+# method WEIGHT, width BEVEL_WIDTH_M, BEVEL_SEGMENTS segments; every edge gets
+# weight = radius / BEVEL_WIDTH_M from its part (furniture.py). Radii in
+# metres per part role; fabric and bedding parts are soft whatever their role.
+BEVEL_WIDTH_M = 0.05
+BEVEL_SEGMENTS = 3
+BEVEL_DEFAULT_M = 0.004
+BEVEL_BY_ROLE: dict[str, float] = {
+    "pillow": 0.045, "cushion": 0.035, "top": 0.004, "body": 0.006, "back": 0.008, "arm": 0.03, "front": 0.003,
+    "handle": 0.002, "leg": 0.003, "shelf": 0.002, "side": 0.003, "bottom": 0.002, "drawers": 0.003,
+    "plinth": 0.002, "tray": 0.01, "basin": 0.008, "pedestal": 0.02,
+}
+BEVEL_SOFT_KEYS: dict[str, float] = {"fabric": 0.03, "bedding": 0.03, "duvet": 0.03}
+BEVEL_BY_KEY: dict[str, float] = {"ceramic": 0.012}
 
 # How far a handle or a door may stand proud of the footprint (metres);
 # the tests allow 1 cm.
@@ -99,23 +138,105 @@ def parts_bbox(parts: Sequence[Part]) -> tuple[float, float, float, float, float
 # Type builders. All take (w, d, h) = footprint width, depth, type height.
 # --------------------------------------------------------------------------
 
+def _sgnpow(v: float, e: float) -> float:
+    return math.copysign(abs(v) ** e, v)
+
+
+def _superellipsoid(cx: float, cy: float, z0: float, w: float, d: float, h: float, e_vert: float, e_horiz: float,
+                    key: str, role: str, n_eta: int = 12, n_om: int = 32, wrinkle: float = 0.0, seed: float = 0.0,
+                    tilt_deg: float = 0.0) -> Part:
+    """Closed superellipsoid in the box ``w x d x h`` standing on ``z0`` and
+    centred on ``(cx, cy)``; the box is exact (the rings pass through the
+    poles, the equator and the four axis directions: ``n_eta`` even,
+    ``n_om`` a multiple of 4). ``e_vert`` < 1 flattens the top and bottom
+    (duvet 0.18, pillow 0.55), ``e_horiz`` < 1 squares the corners.
+    ``wrinkle`` (metres) adds a smooth deterministic bump field to the upper
+    half, clamped inside the box. ``tilt_deg`` turns the part about its
+    centre's X axis so its +Y end rises (a pillow propped up on the
+    headboard) and lifts it back onto ``z0`` (its box then turns with it).
+    Outward normals; ``"smooth": True``."""
+    a, b, c = w / 2.0, d / 2.0, h / 2.0
+    t = math.radians(tilt_deg)
+    ct, st = math.cos(t), math.sin(t)
+
+    def place(x: float, y: float, z: float) -> tuple[float, float, float]:
+        if tilt_deg:
+            y, z = y * ct - z * st, y * st + z * ct
+        return (cx + x, cy + y, z0 + c + z)
+
+    verts = [place(0.0, 0.0, -c)]                  # bottom pole
+    rings = []
+    for i in range(1, n_eta):
+        eta = -math.pi / 2.0 + math.pi * i / n_eta
+        ring = []
+        for j in range(n_om):
+            om = -math.pi + 2.0 * math.pi * j / n_om
+            x = a * _sgnpow(math.cos(eta), e_vert) * _sgnpow(math.cos(om), e_horiz)
+            y = b * _sgnpow(math.cos(eta), e_vert) * _sgnpow(math.sin(om), e_horiz)
+            z = c * _sgnpow(math.sin(eta), e_vert)
+            if wrinkle and z > 0:
+                bump = (math.sin(7.0 * x / max(a, 1e-6) + seed) * math.sin(5.0 * y / max(b, 1e-6) + 1.3 * seed)
+                        + 0.5 * math.sin(13.0 * (x + y) / max(a + b, 1e-6) + 2.1 * seed))
+                z = max(-c, min(c, z + wrinkle * bump * (z / c)))
+            ring.append(len(verts))
+            verts.append(place(x, y, z))
+        rings.append(ring)
+    top = len(verts)
+    verts.append(place(0.0, 0.0, c))               # top pole
+    faces = []
+    first = rings[0]
+    for j in range(n_om):                          # bottom fan (outward = down)
+        faces.append([0, first[(j + 1) % n_om], first[j]])
+    for r0, r1 in zip(rings, rings[1:]):
+        for j in range(n_om):
+            faces.append([r0[j], r0[(j + 1) % n_om], r1[(j + 1) % n_om], r1[j]])
+    last = rings[-1]
+    for j in range(n_om):
+        faces.append([last[j], last[(j + 1) % n_om], top])
+    if tilt_deg:                                   # keep the lowest point on z0 after the lean
+        zmin = min(v[2] for v in verts)
+        verts = [(x, y, z - (zmin - z0)) for x, y, z in verts]
+    return {"verts": verts, "faces": faces, "key": key, "role": role, "smooth": True}
+
+
 def _bed(w: float, d: float, h: float) -> list[Part]:
+    """Bed: frame and headboard boxes (as in Milestone 4), a superellipsoid
+    mattress in the Milestone 4 mattress box, a duvet draped over the sides
+    with soft wrinkles over the foot 72 % of the mattress, a turn-down band
+    at its head end and puffy pillows leaning on the headboard. Everything
+    stays inside the frame / headboard box (``piece_bbox`` unchanged)."""
     t = min(0.06, d * 0.05)                       # headboard thickness
     frame_h = min(0.3, h * 0.55)
     top = max(1.0, h + 0.4)                        # headboard top
+    inner_d = d - t
     parts = [
         _box(0.0, 0.0, 0.0, w, d, frame_h, "wood", "body"),
         _box(0.0, d / 2.0 - t / 2.0, 0.0, w, t, top, "wood", "back"),
-        _box(0.0, -t / 2.0, frame_h, w - 0.06, d - t - 0.06, h - frame_h, "bedding", "top"),
+        _superellipsoid(0.0, -t / 2.0, frame_h, w - 0.06, inner_d - 0.06, h - frame_h, 0.12, 0.08, "bedding",
+                        "mattress"),
     ]
+    duvet_d = inner_d * 0.72
+    duvet_y = -d / 2.0 + 0.005 + duvet_d / 2.0
+    drape = min(0.18, (h - frame_h) * 0.9)
+    parts.append(_superellipsoid(0.0, duvet_y, h - drape, w - 0.01, duvet_d, drape + 0.05, 0.18, 0.06, "duvet",
+                                 "duvet", n_eta=14, n_om=48, wrinkle=0.012, seed=1.7))
+    parts.append(_superellipsoid(0.0, duvet_y + duvet_d / 2.0 - 0.13, h + 0.02, w - 0.03, 0.26, 0.05, 0.35, 0.1,
+                                 "bedding", "turndown", n_om=40))
     n = 2 if w >= 1.3 else 1
     pw = (w - 0.1) / n - 0.05
     pd = min(0.45, d * 0.22)
-    py = d / 2.0 - t - 0.08 - pd / 2.0
+    py = d / 2.0 - t - 0.05 - pd / 2.0
     for i in range(n):
         px = 0.0 if n == 1 else (-1 if i == 0 else 1) * (pw / 2.0 + 0.025)
-        parts.append(_box(px, py, h, pw, pd, 0.1, "bedding", "pillow"))
+        parts.append(_superellipsoid(px, py, h - 0.01, pw, pd, 0.16, 0.55, 0.25, "bedding", "pillow",
+                                     tilt_deg=PILLOW_TILT_DEG))
     return parts
+
+
+def bedding_top(w: float, d: float, h: float) -> float:
+    """Height of the highest bedding point of a parametric bed (pillows, duvet, band)."""
+    return max(v[2] for p in _bed(float(w), float(d), float(h)) if p["key"] in ("bedding", "duvet")
+               for v in p["verts"])
 
 
 def _sofa(w: float, d: float, h: float, cushions: int | None = None) -> list[Part]:
@@ -247,11 +368,14 @@ def _counter(w: float, d: float, h: float, island: bool = False) -> list[Part]:
     parts = [plinth, carcass, _box(0.0, 0.0, h - top_t, w, d, top_t, "worktop", "top")]
     cols = max(1, round(w / 0.6))
     cw = w / cols
+    # Fronts stand FRONT_GAP proud of the carcass face at front_y (Milestone 5 put them
+    # inside the carcass with coplanar front faces: rendered black); handles on the fronts.
+    front_face = front_y - FRONT_GAP - FRONT_THICKNESS
     for c in range(cols):
         cx = -w / 2.0 + cw * (c + 0.5)
-        parts.append(_box(cx, front_y + 0.01, plinth_h + 0.01, cw - 0.02, 0.02, h - top_t - plinth_h - 0.03,
-                          "painted", "front"))
-        parts.append(_box(cx, front_y - PROUD / 2.0, h - top_t - 0.06, min(0.12, cw * 0.5), PROUD, 0.015,
+        parts.append(_box(cx, front_y - FRONT_GAP - FRONT_THICKNESS / 2.0, plinth_h + 0.01, cw - 0.02,
+                          FRONT_THICKNESS, h - top_t - plinth_h - 0.03, "painted", "front"))
+        parts.append(_box(cx, front_face - PROUD / 2.0, h - top_t - 0.06, min(0.12, cw * 0.5), PROUD, 0.015,
                           "steel", "handle"))
     return parts
 
@@ -415,10 +539,14 @@ def decor_parts(dtype: str, w: float, d: float, h: float) -> list[Part]:
     raise KeyError(f"no decor builder for {dtype!r}")
 
 
-def decor_rest_height(host_type: str | None, host_height: float, dtype: str) -> float:
+def decor_rest_height(host_type: str | None, host_height: float, dtype: str,
+                      host_size: Sequence[float] | None = None) -> float:
     """Height above the floor where a decor item rests on its host: cushions
-    on the sofa seat or the mattress, books on a shelf or a top, plants on
-    the floor."""
+    on the sofa seat, books on a shelf or a top, plants on the floor. On a
+    bed built parametrically (``host_size`` = its footprint ``(w, d)``) the
+    item rests on the bedding top (``bedding_top``: the soft pillows rise
+    above the type height, docs/milestone6.md §5 row 8); without
+    ``host_size`` (a library bed, a proxy) on the type height as before."""
     if dtype == "plant" or not host_type:
         return 0.0
     if host_type in ("sofa", "armchair"):
@@ -426,7 +554,32 @@ def decor_rest_height(host_type: str | None, host_height: float, dtype: str) -> 
     if host_type == "bookshelf":
         shelves = shelf_heights(host_height)
         return shelves[1] if len(shelves) > 1 else (shelves[0] if shelves else host_height)
+    if host_type in BED_TYPES and host_size is not None:
+        return round(bedding_top(float(host_size[0]), float(host_size[1]), float(host_height)), 4)
     return host_height
+
+
+# --------------------------------------------------------------------------
+# Bevel radius per part (the Bevel modifier itself is added by furniture.py)
+# --------------------------------------------------------------------------
+
+def part_bevel_radius(part: Part) -> float:
+    """Bevel radius (metres) of one part: 0 for smooth (superellipsoid) parts
+    and glass, ``BEVEL_SOFT_KEYS`` for fabric and bedding, else
+    ``BEVEL_BY_ROLE`` / ``BEVEL_BY_KEY`` / ``BEVEL_DEFAULT_M``; never more
+    than a third of the part's smallest side (nor ``BEVEL_WIDTH_M``)."""
+    if part.get("smooth") or part["key"] == "glass":
+        return 0.0
+    key, role = part["key"], part["role"]
+    if key in BEVEL_SOFT_KEYS:
+        r = BEVEL_SOFT_KEYS[key]
+    elif role in BEVEL_BY_ROLE:
+        r = BEVEL_BY_ROLE[role]
+    else:
+        r = BEVEL_BY_KEY.get(key, BEVEL_DEFAULT_M)
+    xs, ys, zs = zip(*part["verts"])
+    smallest = min(max(xs) - min(xs), max(ys) - min(ys), max(zs) - min(zs))
+    return max(0.0, min(r, smallest / 3.0, BEVEL_WIDTH_M))
 
 
 # --------------------------------------------------------------------------
