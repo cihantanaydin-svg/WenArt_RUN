@@ -584,7 +584,10 @@ and Cycles views, and the model/licence table from the manifests. The final imag
   `ZImageControlNetPipeline`, `ZImageControlNetModel`, `Sam2Model`, `Sam2Processor`,
   `AutoModelForDepthEstimation`, `AutoModel` and every `wenart.polish`/`wenart.gate` module.
 - Downloads with `HF_HOME=/opt/wenart/hf` from `polish.yaml` and `models.yaml` (pinned revisions, allow
-  patterns); `setup_polish.json`: sizes, seconds, free disk, `MemTotal`, `MemAvailable`, `nproc`, versions.
+  patterns); `setup_polish.json`: sizes, seconds, free disk, `MemTotal`, `MemAvailable`, `nproc` (the
+  host's: in a container `/proc/meminfo` and `os.cpu_count()` show the host, 251 GiB and 112 CPUs in run 0),
+  `pod_limits` (cgroup v2 `cpu.max`, `memory.max`, `memory.current`, or the v1 files; CPU affinity; the
+  thread budget and thread variables `polish.sh` exported), versions.
 - Parts by phase: diffusion + gate models only when `polish`, `gate` or `smoke` is in `POLISH_PHASES`;
   `scripts/pod_setup_recognition.sh` with `RECOG_SETUP_PARTS="vllm models"` (new switch: skips PaddleOCR and
   LibreDWG) and `BAKEOFF_MODELS="Qwen/Qwen3-VL-8B-Instruct zai-org/GLM-4.6V-Flash"` only when `check` is.
@@ -611,24 +614,56 @@ nothing new, and polish.sh skips the remaining heavy phases but still runs `repo
 | tests | `$PY -m pytest -m gpu tests/gpu/test_render.py tests/gpu/test_check.py`; `$POLISH_PY -m pytest -m gpu tests/gpu/test_polish.py` (junit into the results) | both |
 
 The job exports `HF_HOME=/opt/wenart/hf`, `HF_XET_HIGH_PERFORMANCE=1`, and `HF_HUB_OFFLINE=1` after setup.
-`copy_results` mirrors the committed layout: `$RESULTS/renders/<p>/`, `polish/<p>/` (+ `sweep/`),
-`gate/<p>/`, `check/<p>/`, `final/<p>/`: JSON, MD, `*_preview.jpg`, `*_gate.jpg`, `*_check.jpg`,
-`*_plan.jpg`, contact sheets (all ≤ 300 KB), log tails, junit.
+CPU threads: before the setup the job exports `OMP_NUM_THREADS`, `OPENBLAS_NUM_THREADS`, `MKL_NUM_THREADS`,
+`NUMEXPR_NUM_THREADS`, `VECLIB_MAXIMUM_THREADS` and `OPENCV_FOR_THREADS_NUM` (OpenCV's own variable;
+opencv-python-headless 4.14.0.94 ignores `OMP_NUM_THREADS`, checked 2 Oct 2026) = the pod's cgroup CPU
+quota (`/sys/fs/cgroup/cpu.max` `<quota> <period>`, or v1 `cpu.cfs_quota_us` / `cpu.cfs_period_us`) rounded
+up, at most `nproc`; `nproc` without a quota; `POLISH_THREADS` overrides (use it with the pod's vCPU count
+if the log line `CPU budget:` shows no quota and the host's 112 CPUs). Every stage inherits them and the job
+logs the value. Reason: in run 0b numpy/OpenBLAS, OpenCV and torch each started 112 threads (the host's
+CPUs) under a much smaller quota and the gate's CPU work ran 10–50× slower.
+`copy_results` mirrors the committed layout: `$RESULTS/renders/<p>/` (+ `controls/render.log`,
+`controls/hide_<id>/`), `polish/<p>/` (+ `sweep/`, `smoke/`), `gate/<p>/`, `check/<p>/`, `final/<p>/`: JSON,
+MD, `*_preview.jpg`, `*_gate.jpg`, `*_check.jpg`, `*_plan.jpg`, contact sheets (all ≤ 300 KB), log tails,
+junit. Each copy takes only the files changed since the last copy (a stamp on the volume, set 2 s back for
+1 s timestamps), many files per `cp`; the job's first copy and the copy from the EXIT trap take everything
+(run 0b: ≈ 45 ms per file on the volume; copying every file after each of the 43 stages would have cost
+≈ 25–40 min in run 2). From `/workspace/logs`, which every pod shares, only what this job wrote: its
+`vllm-<key>.log`, `setup-polish-*.log`, `hf-download-*.log` and `setup_polish.json` (run 0/0b's results held
+the M4 vLLM logs); `style_<n>.json` only when written together with this `style.json`.
 
 ### 8.3 Pod plan
 
-Run with `scripts/gpu_run.py run --job scripts/jobs/polish.sh --gpu 'RTX PRO 4500' --disk 130 --grace 420
+Run with `scripts/gpu_run.py run --job scripts/jobs/polish.sh --gpu 'RTX PRO 4500' --disk 130 --grace <s>
 --env POLISH_MODE=... --env POLISH_PHASES=...` (`RTX PRO 4000` when the 4500 has no stock; never L4).
+
+Measured in runs 0 and 0b (RTX PRO 4500, 2 Oct 2026; the polish numbers still with the CPU oversubscription
+that the thread budget of §8.2 is meant to remove; run 1a measures again):
+
+| Step | Measured |
+|---|---|
+| setup | 4.4 min with the check part (venv 48 s, models 33 s, vLLM + VLMs 185 s); 1.3 min without it |
+| look | ≈ 1 min with reused renders; a fresh render of 30 views ≈ 4 min (128 samples) |
+| polish | 3.8 s per forward, 1–3 forwards per attempt (strength 0.125–0.375); ≈ 35 s per attempt (diffusion 6–24 s, gate 2–53 s) plus ≈ 90 s per view (gate reference, controls, PNG and debug writes): 489 s for 2 views × 4 attempts |
+| check | vLLM start 140–290 s; 6.8–7.0 s per call, one call at a time |
+| results | copy ≈ 45 ms per file on the volume (now only the changed files); the runner collects 0.81 s per file, one at a time |
 
 | Run | Mode / phases | Purpose | Estimate |
 |---|---|---|---|
-| 0 | smoke: look (synthetic-01), polish smoke (2 views × 4 settings, gate inline), check (10 calls per model) | measure s/forward, VRAM, meter seconds, s/call; fix exposure defaults | ≈ 35 min |
-| 1a | sweep: look (both), controls, sweep, gate calibrate, report sweep | thresholds and ladder | ≈ 55–70 min |
+| 0 | smoke: look (synthetic-01), polish smoke (2 views × 4 settings, gate inline), check (10 calls per model) | measure s/forward, VRAM, meter seconds, s/call; fix exposure defaults | done 2 Oct (runs 0 and 0b: 35 + 20 min) |
+| 1a | sweep: look (both), controls, sweep, gate calibrate, report sweep | thresholds and ladder; polish and gate seconds with the CPU thread budget | ≈ 55–70 min |
 | 1b | sweep: check report tests | check calibration, plan A/B, preference, style photo | ≈ 30–40 min |
-| 2 | final: look (reused), polish run, check, report, tests | the milestone result | ≈ 60–90 min |
+| 2a | final: `look polish`, one project per pod (`POLISH_PROJECTS=synthetic-01`, then `synthetic-03`); the same command again until `polish/polish_manifest.json` has `incomplete: false` (attempts and gate results are reused) | the polished views | ≈ 2.5–3.5 min per view at run 0b's speed (90 s + 1.5–3 attempts × 35 s): synthetic-01 (30 views) ≈ 75–100 min, synthetic-03 (57 views) two pods; re-estimated from run 1a |
+| 2b | final: `check report tests` (both projects) | vision check of the Cycles and polished views, final report, GPU tests | ≈ 75–85 min: setup ≈ 5 min; per model 3–5 min server start + (87 cycles + P polished + 2P preference calls) × 7 s ≈ 31 min at P ≈ 60; report and tests ≈ 5 min; again if the deadline cut it (the answers resume) |
 
-Thresholds, ladder and check roles are set here in the session from run 1's numbers (committed with the
-numbers). Each run gets its own gpu-log row; ≈ $2–3 in total.
+Every pod must end before `WENART_DEADLINE` (start + 105 min of the 2 h cap); a pod the deadline cuts exits 1
+and the same command continues from the volume. Run 2 is green when the last 2a pod of each project and the
+2b pod exit 0. One pod for all of run 2 does not fit: at the measured speeds the polish of 87 views takes
+3.5–5 h and the check of both models ≈ 70 min. `--grace`: 420 s for runs 0–1a; 840 s from run 1b on, whose
+results hold 500–1000 files at 0.81 s each (840 s stays below the 900 s deadline margin), until
+`gpu_run.py` fetches the results in parallel. Thresholds, ladder and check roles are set here in the session
+from run 1's numbers (committed with the numbers). Each run gets its own gpu-log row; runs 1a–2b ≈ 8–9 pod
+hours, ≈ $6 at $0.70/h (within $10 per day).
 
 ## 9. Tests
 
