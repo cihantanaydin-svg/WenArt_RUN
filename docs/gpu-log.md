@@ -25,5 +25,6 @@ runner could not write it). Costs are estimates from the on-demand price at star
 | 2026-10-02 10:14 | 6js4pqqxk0j7of | NVIDIA RTX PRO 4500 Blackwell | 35 | 0.41 | M5 run 0 smoke: look synthetic-01, polish smoke 2 views x 4 settings, check 2 models | exit 1: polish could not load the tokenizer offline (fixed: local snapshot paths); setup 4.4 min, look 30 views ok, check 60 calls ok; self-stop ok |
 | 2026-10-02 10:35 | dcpj3jtzhd8b4b | NVIDIA RTX PRO 4500 Blackwell | 20 | 0.24 | M5 run 0b smoke: polish path only (local snapshot loading fix), 2 views x 4 settings | ok: models load offline; 3.8 s/forward at 1920x1088, peak 22.5 GiB resident, 3 of 8 attempts gated in; gate slowed by CPU oversubscription (112 host threads); self-stop ok |
 | 2026-10-02 14:33 | vpp4jnej004hxl | NVIDIA GeForce RTX 4090 | 42 | 0.52 | M5 run 1a sweep: look both projects, controls, polish sweep (8 views x 10 + presumed-bad), gate calibration, sweep report | ok: 87 views re-rendered (new look), 16 control renders, 88 sweep polishes at 2.0 s/forward (peak 21.5 GiB), gate calibration 484 comparisons; CPU budget 11 threads; self-stop ok |
+| 2026-10-02 14:58 | pending:20261002-145843-polish | RTX PRO 4500 | 100 | 1.20 | M5 run 1b: vision check calibration (Cycles views, removal/insertion/swap controls, plan A/B), preference, style photo, GPU tests | creating (provisional, worst case) |
 
-**Total spent so far: $4.89** (budget: $100; limits: $1.00/GPU-hour, $10/day, 2 h/run)
+**Total spent so far: $6.09** (budget: $100; limits: $1.00/GPU-hour, $10/day, 2 h/run)
