@@ -280,20 +280,36 @@ normalised to the intended colour (Poly Haven's white plaster averages 0.24 line
 
 | Option | Licence | Commercial | VRAM | Speed | Quality | Last update | Link |
 |---|---|---|---|---|---|---|---|
-| **Z-Image-Turbo + Z-Image-Turbo-Fun-Controlnet-Union (depth + canny)** (pick) | Apache-2.0 | yes | ~16 GB | ~2–5 s/image | strong, 8 steps | Nov 2025 / 2026 | https://github.com/Tongyi-MAI/Z-Image https://github.com/aigc-apps/VideoX-Fun |
+| **Z-Image-Turbo + Z-Image-Turbo-Fun-Controlnet-Union-2.1 (one control per call: depth, canny or geometry edges)** (pick) | Apache-2.0 | yes | 27.2 GB bf16 weights; ≈ 18 GiB resident without the text encoder, peak 22.5 GiB with the gate (measured) | 3.8 s per forward at 1920×1088 on an RTX PRO 4500 (measured); 1–4 forwards per polish | strong, 8 steps | Nov 2025 / 2026 | https://github.com/Tongyi-MAI/Z-Image https://github.com/aigc-apps/VideoX-Fun |
 | SDXL + xinsir controlnet-union-sdxl-1.0 (fallback) | OpenRAIL++-M / Apache-2.0 | yes | ~10 GB | fast | older look, 1024 px tiles | 2024 | https://github.com/xinsir6/ControlNetPlus |
 | Qwen-Image-Edit-2511 + Fun-Controlnet-Union | Apache-2.0 | yes | 40 GB bf16 (needs offload or 4-bit) | slow | best Apache editor | Dec 2025 | https://github.com/QwenLM/Qwen-Image |
 | FLUX.1-Depth-dev / Canny-dev, FLUX.2-dev, Qwen-Image-2.1 | non-commercial | **no** | | | | | flagged, not used |
 | FLUX.2 [klein] 4B | Apache-2.0 | yes | ~8–13 GB | fast | no official depth/canny control | Jan 2026 | https://github.com/black-forest-labs/flux2 |
 
-Change check (rule 7): Depth Anything 3 `DA3MONO-LARGE` (Apache-2.0) depth maps + OpenCV Canny edges + DINOv2 features
-before/after; reject when edge IoU < 0.9, depth mean abs diff > 2 % or object-mask overlap (from the Cycles object-index
-pass vs SAM 2.1 masks on the polished image) < 0.95. Thresholds are tuned on the synthetic projects in Milestone 5.
+Change check (rule 7), as built in Milestone 5 (`docs/milestone5.md` §0, §4): one control image per call
+(diffusers 0.40.0 has a single `control_image`; default depth from the Cycles Z pass, canny and geometry edges
+measured in the sweep); img2img with control through the ControlNet pipeline's `sigmas`/`latents` arguments
+(no diffusers pipeline takes both `strength` and a control image); bf16 weights 27.2 GB, so the text encoder
+runs first and is freed, transformer + ControlNet + VAE stay resident (≈ 18 GiB; no CPU offload: the ControlNet
+shares the transformer's embedders). The gate compares the Cycles render with the polished one: recall of the
+reference geometry edges within 3 px and new straight lines on bare walls/floors, Depth Anything V2 **Small**
+(`depth-anything/Depth-Anything-V2-Small-hf`, Apache-2.0; Base/Large are CC-BY-NC, DA3 is not in transformers
+and its PyPI package pins numpy<2) relative depth after a scale/shift fit, SAM 2.1 masks on both images
+(IoU of the two, so SAM's own errors cancel), CIELAB colour and the chroma of white walls, DINOv2 features
+(logged). Window panes get the Cycles pixels back after every polish. Thresholds are calibrated on the
+synthetic projects with benign and small/large negative controls (`results/gate/`).
 
 ### 4.13 Final render check
 
-Qwen3-VL-8B compares each render with the building JSON (expected doors/windows/furniture in view, computed from
-camera frustum) and the plan crop; GLM-4.6V-Flash as second opinion; disagreements are listed, never auto-fixed.
+Built in Milestone 5 (`docs/milestone5.md` §5): the expected elements of every view come from the Cycles
+object-index pass, cross-checked against the building JSON projected into the camera with a depth test (the
+camera's frustum lists of `cameras.py` missed about a third of the visible elements). Qwen3-VL-8B (pass 1) and
+GLM-4.6V-Flash (pass 2) answer a strict per-view schema (present / different / absent / unsure per element,
+extras, door and window counts) with a sentinel decoy element; only answers both models agree on are
+confirmed, a failed call is `not_computed`, never "absent". A polished image is rejected when it loses an
+element or gains a door, window or furniture piece that its Cycles render does not have. Every view gets a
+crop of the source plan page with the camera and its view cone drawn, shown next to the render in the report;
+removal, insertion and type-swap controls calibrate the check. Findings are listed, never auto-fixed.
 
 ### 4.14 Serving and runtime
 
@@ -361,6 +377,14 @@ ODA File Converter (non-commercial for non-members); 3D-FRONT/FUTURE, HSSD, Shap
 Gemma 3 (not needed), Stability Community Licence (not needed).
 
 GPL tools we call as separate programs (allowed, our code is not derived from them): Blender, LibreDWG, poppler.
+
+
+Milestone 5 models (all checked on Hugging Face, 2 Oct 2026): Z-Image-Turbo (Apache-2.0; its text encoder is
+Qwen3-4B, Apache-2.0; its VAE is byte-identical to the FLUX.1-schnell VAE, Apache-2.0, not the FLUX.1-dev
+licence), Z-Image-Turbo-Fun-Controlnet-Union-2.1 (Apache-2.0; the 591-byte diffusers config comes from a
+personal repo without a licence and is vendored as architecture metadata), Depth-Anything-V2-Small-hf,
+SAM 2.1 hiera-large, DINOv2-base (Apache-2.0), Qwen3-VL-8B-Instruct (Apache-2.0), GLM-4.6V-Flash (MIT).
+Not used: Depth Anything V2 Base/Large and DA3-LARGE/GIANT (CC-BY-NC), DINOv3 (custom gated licence).
 
 ## 9. Sources
 
