@@ -43,8 +43,10 @@ hidden-object render has the look of the normal one).
 Hidden-object controls (§2.6): ``--hide`` hides the objects with a pass
 index whose wenart id (``proxy:`` dropped) is listed (a door's frame and
 leaf, a window's frame and glass, a piece with its decor); ``--plug`` closes
-the wall hole of a hidden door or window with a box of the wall's first
-material (pass index 0) and switches its portal off. ``--hide-sets`` renders
+the wall hole of a hidden door or window with a box (pass index 0) that
+carries the wall's material slots, each face with the slot of the wall face
+around the hole on its side (wet-room tiles, exterior plaster;
+``plug_face_slots``), and switches its portal off. ``--hide-sets`` renders
 several controls in one Blender process, each set into ``<out>/hide_<id>/``.
 An unknown id, an unknown camera or a ``--look-from`` manifest without the
 camera exits with 2 before anything is rendered.
@@ -93,7 +95,10 @@ DEFAULT_SAMPLES = 256
 DEFAULT_RES = (1920, 1080)
 PREVIEW_MAX_BYTES = 300_000
 DEPTH_BACKGROUND = 1e9  # Blender writes a huge value where no surface was hit
-RENDER_CODE_VERSION = "m5.1"
+# Part of every render_key: bump when the pixels a camera gets change for the same settings.
+# m5.2: plugs take the wall faces' materials (wet-room tiles). The window glass of the same
+# day (both faces refract) is a build change: the build fingerprint and scene_sha256 cover it.
+RENDER_CODE_VERSION = "m5.2"
 PASSES = ("combined", "z", "normal", "object_index")
 VIEW_TRANSFORM = "AgX"
 LOOK = "None"
@@ -456,6 +461,86 @@ def plug_box(wall: dict, points, extra: float = PLUG_EXTRA_M) -> tuple[list, lis
     info = {"along_m": [round(a0, 4), round(a1, 4)], "z_m": [round(z0, 4), round(z1, 4)],
             "thickness_m": round(thickness, 4), "center": [round(cx, 4), round(cy, 4), round((z0 + z1) / 2.0, 4)]}
     return verts, faces, info
+
+
+PLUG_PROBE_M = 0.05               # probe points this far beyond the plug's edges, on the wall face
+
+
+def _face_side(normal, left) -> str:
+    """``left`` / ``right`` of the wall axis for a face across the wall, else ``ends`` (top,
+    bottom, jamb and end faces; the limits of shell._assign_wall_face_materials)."""
+    n = [float(c) for c in normal]
+    size = math.sqrt(sum(c * c for c in n)) or 1.0
+    across = (n[0] * left[0] + n[1] * left[1]) / size
+    if abs(n[2] / size) > 0.5 or abs(across) < 0.5:
+        return "ends"
+    return "left" if across > 0 else "right"
+
+
+def plug_face_sides(wall: dict, verts, faces) -> list[str]:
+    """``left`` / ``right`` / ``ends`` per plug face (left of the wall's start -> end axis)."""
+    from wenart import geometry as G
+    from wenart.blender import geom2d
+
+    left = G.unit_normal_left(wall["start"][:2], wall["end"][:2])
+    return [_face_side(geom2d.face_normal(verts, f), left) for f in faces]
+
+
+def plug_face_slots(wall: dict, verts, faces, wall_faces) -> list[int]:
+    """Material slot per plug face, copied from the wall faces around the hole.
+
+    The plug carries the wall's slot list (``[wall, exterior, wet]``,
+    shell.py); it must read as the wall around it. ``wall_faces`` are the
+    wall mesh's faces in world space as ``(normal, vertices, material_index)``:
+    their slots are the build's classification (``shell._assign_wall_face_materials``:
+    room-side faces of a bathroom / wc / kitchen use the wet slot, outer faces of
+    an exterior wall the exterior slot). Top, bottom and end faces of the plug
+    take slot 0, as the wall's top, bottom and jamb faces do. A face across the
+    wall takes the slot of the wall face on the same side that holds a point
+    ``PLUG_PROBE_M`` beyond the plug's edge (above, below, before, after along
+    the wall; the most frequent slot, ties to the first); without such a face
+    the slot of the nearest face of that side, else 0."""
+    from collections import Counter
+
+    from wenart import geometry as G
+
+    (x0, y0), (x1, y1) = wall["start"][:2], wall["end"][:2]
+    length = math.hypot(x1 - x0, y1 - y0)
+    if length < 1e-9:
+        raise ValueError(f"wall {wall.get('wenart_id')} has no length")
+    ux, uy = (x1 - x0) / length, (y1 - y0) / length
+    left = G.unit_normal_left((x0, y0), (x1, y1))
+
+    def plane(p):                                      # (along the wall, height)
+        return ((p[0] - x0) * ux + (p[1] - y0) * uy, p[2])
+
+    def centre(poly):
+        return (sum(a for a, _ in poly) / len(poly), sum(z for _, z in poly) / len(poly))
+
+    by_side: dict[str, list] = {"left": [], "right": [], "ends": []}
+    for normal, face_verts, slot in wall_faces:
+        by_side[_face_side(normal, left)].append(([plane(v) for v in face_verts], int(slot)))
+
+    slots = []
+    for face, side in zip(faces, plug_face_sides(wall, verts, faces)):
+        if side == "ends":
+            slots.append(0)
+            continue
+        polys = by_side[side]
+        pts = [plane(verts[i]) for i in face]
+        a0, a1 = min(a for a, _ in pts), max(a for a, _ in pts)
+        z0, z1 = min(z for _, z in pts), max(z for _, z in pts)
+        am, zm, d = (a0 + a1) / 2.0, (z0 + z1) / 2.0, PLUG_PROBE_M
+        probes = [(am, z1 + d), (am, z0 - d), (a0 - d, zm), (a1 + d, zm)]
+        hits = [next((slot for poly, slot in polys if G.point_in_polygon(p, poly)), None) for p in probes]
+        hits = [h for h in hits if h is not None]
+        if hits:
+            slots.append(Counter(hits).most_common(1)[0][0])
+        elif polys:
+            slots.append(min(polys, key=lambda ps: math.dist(centre(ps[0]), (am, zm)))[1])
+        else:
+            slots.append(0)
+    return slots
 
 
 # --------------------------------------------------------------------------
@@ -888,9 +973,17 @@ class Hider:
                         and o.get("wenart_kind") == "wall"), None)
         if wall_ob is None or not wall_ob.data.materials:
             raise RuntimeError(f"{wenart_id}: wall object {wall['wenart_id']} has no material")
+        # The wall's slots, each face as the wall around the hole (wet-room tiles, exterior plaster).
+        mw = wall_ob.matrix_world
+        m3 = mw.to_3x3()
+        wall_faces = [(tuple(m3 @ p.normal), [tuple(mw @ wall_ob.data.vertices[i].co) for i in p.vertices],
+                       p.material_index) for p in wall_ob.data.polygons]
+        slots = plug_face_slots(wall, verts, faces, wall_faces)
+        materials = list(wall_ob.data.materials)
+        slots = [s if s < len(materials) else 0 for s in slots]
         ob = common.new_mesh_object(f"plug_{wenart_id}", verts, faces, collection=self.scene.collection,
                                     wenart_id=f"plug:{wenart_id}", kind="wall", status="assumed",
-                                    materials=[wall_ob.data.materials[0]])
+                                    materials=materials, face_material_indices=slots)
         ob.pass_index = 0
         self.plugs.append(ob)
         # A plugged window lets no sky in: its portal would only waste samples.
@@ -898,7 +991,10 @@ class Hider:
             if o.type == "LIGHT" and o.get("wenart_opening") == wenart_id and not o.hide_render:
                 o.hide_render = True
                 self.hidden_objects.append(o)
-        info.update(wall_id=wall["wenart_id"], material=wall_ob.data.materials[0].name)
+        names: dict[str, str] = {}
+        for side, slot in zip(plug_face_sides(wall, verts, faces), slots):
+            names.setdefault(side, materials[slot].name)
+        info.update(wall_id=wall["wenart_id"], materials=names)
         return info
 
     def undo(self) -> None:

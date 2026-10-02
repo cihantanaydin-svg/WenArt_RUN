@@ -21,19 +21,20 @@ clamped to 0.5..2.5, capped at 0.9). Normal and roughness maps are the same
 in both modes. Every record says ``albedo_mode``, ``detail`` and
 ``gain_clamped``.
 
-Window panes (§2.1): Glass BSDF for camera rays only, Transparent BSDF for
-every other ray. The Milestone 3 pane (Glass BSDF, Transparent for shadow
-rays) let the sun in 2.4x too strongly and the sky too weakly (the main
-cause of the orange cast) and biased light portals; camera-only glass lights
-the room like an open hole while the camera, the depth and the index passes
-still see the pane.
+Window panes (§2.1): Glass BSDF for camera rays and singular rays (the
+camera's ray inside the pane, so both faces refract and the outside view
+stays in place), Transparent BSDF for every other ray. The Milestone 3 pane
+(Glass BSDF, Transparent for shadow rays) let the sun in 2.4x too strongly
+and the sky too weakly (the main cause of the orange cast) and biased light
+portals; camera-only glass lights the room like an open hole while the
+camera, the depth and the index passes still see the pane.
 
 Node names were checked against Blender 5.2.2: Principled BSDF inputs 'Base
 Color', 'Roughness', 'Normal', 'Emission Color', 'Emission Strength', 'Metallic';
 Glass BSDF inputs 'Color', 'Roughness', 'IOR'; Glossy BSDF (ShaderNodeBsdfAnisotropic) 'Color', 'Roughness';
-Fresnel 'IOR'; Light Path output 'Is Camera Ray'; RGB to BW 'Color' -> 'Val';
+Fresnel 'IOR'; Light Path outputs 'Is Camera Ray', 'Is Singular Ray'; RGB to BW 'Color' -> 'Val';
 Math inputs 'Value', 'Value_001', 'Value_002' (operations DIVIDE,
-MULTIPLY_ADD); Vector Math inputs 'Vector', 'Vector_001', 'Scale'
+MULTIPLY_ADD, MAXIMUM); Vector Math inputs 'Vector', 'Vector_001', 'Scale'
 (operations SCALE, MULTIPLY, MINIMUM); ShaderNodeTexSky sky_type
 'MULTIPLE_SCATTERING' with sun_elevation / sun_rotation (radians).
 """
@@ -192,7 +193,8 @@ class MaterialLibrary:
             self.records["glass"] = {"slug": "glass", "textured": False, "asset": None, "source": None,
                                      "licence": None, "size_m": None, "flat_colour": [1.0, 1.0, 1.0], "tint": None,
                                      "unverified": False, "albedo_mode": None, "detail": None, "gain_clamped": None,
-                                     "reason": "camera-only glass: Glass BSDF (IOR 1.45) for camera rays, "
+                                     "reason": "camera-only glass: Glass BSDF (IOR 1.45) for camera rays and "
+                                               "singular rays (both faces refract the view), "
                                                "Transparent BSDF for every other ray"}
         return self._cache["glass"]
 
@@ -469,16 +471,32 @@ WINDOW_GLASS_IOR = 1.45
 
 
 def window_glass_material(name: str, ior: float = WINDOW_GLASS_IOR):
-    """Window pane seen as glass only by the camera (docs/milestone5.md §2.1).
+    """Window pane seen as glass only on the camera's paths (docs/milestone5.md §2.1).
 
-    Mix Shader with factor = Light Path 'Is Camera Ray': Glass BSDF (IOR 1.45,
-    roughness 0) for camera rays, Transparent BSDF for every other ray. Light
-    sampling (shadow rays) and BSDF sampling (diffuse/glossy rays) then agree
-    and see an open hole, so the sun is not over-counted, the sky is not lost
-    in refractive caustics and light portals stay unbiased (measured on
-    Blender 5.2.2: interior light equal to an open hole within 0.1 %). Camera
-    rays stop at the pane: the depth and index passes still record the
-    window and the camera still sees reflections."""
+    Mix Shader with factor = Math MAXIMUM of the Light Path outputs 'Is
+    Camera Ray' and 'Is Singular Ray': Glass BSDF (IOR 1.45, roughness 0) for
+    camera rays and for rays that left a sharp (singular) refraction or
+    reflection, Transparent BSDF for every other ray.
+
+    - The camera ray refracts at the pane's room face and becomes a singular
+      transmission ray, so the far face refracts it back: the view through
+      the pane only moves by a fraction of the 6 mm thickness, as through
+      real glass. With 'Is Camera Ray' alone the far face was transparent
+      and bent the whole outside view (23 px of 200 at 17 degrees); with
+      'Is Transmission Ray' instead of 'Is Singular Ray' the reflection at
+      the far face left unrefracted (a second, misplaced reflection of a
+      lamp) and rough transmission rays saw glass (+20 % light behind a
+      frosted panel).
+    - Shadow rays and diffuse / rough glossy / rough transmission rays see
+      the Transparent BSDF: light sampling and BSDF sampling agree and see
+      an open hole, so the sun is not over-counted, the sky is not lost in
+      refractive caustics and light portals stay unbiased (measured on
+      Blender 5.2.2: interior light equal to an open hole within 0.2 %, also
+      behind a frosted panel). Singular paths take no light samples, so the
+      glass they see adds no bias.
+    - Camera rays stop at the pane: the depth and index passes still record
+      the window and the camera still sees reflections.
+    tests/test_blender_glass.py renders all four properties."""
     import bpy
 
     mat = bpy.data.materials.new(name)
@@ -496,7 +514,13 @@ def window_glass_material(name: str, ior: float = WINDOW_GLASS_IOR):
     transparent = nodes.new("ShaderNodeBsdfTransparent")
     path = nodes.new("ShaderNodeLightPath")
     mix = nodes.new("ShaderNodeMixShader")
-    links.new(path.outputs["Is Camera Ray"], mix.inputs["Fac"])   # 1 for camera rays -> second shader
+    # 1 -> Glass (second shader): the camera ray, and the camera's ray after a sharp
+    # refraction or reflection (by this pane's room face, so the far face refracts it back).
+    glass_rays = nodes.new("ShaderNodeMath")
+    glass_rays.operation = "MAXIMUM"
+    links.new(path.outputs["Is Camera Ray"], glass_rays.inputs[0])
+    links.new(path.outputs["Is Singular Ray"], glass_rays.inputs[1])
+    links.new(glass_rays.outputs["Value"], mix.inputs["Fac"])
     links.new(transparent.outputs["BSDF"], mix.inputs[1])
     links.new(glass.outputs["BSDF"], mix.inputs[2])
     links.new(mix.outputs["Shader"], out.inputs["Surface"])
