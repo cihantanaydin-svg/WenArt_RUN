@@ -13,18 +13,32 @@ stage ran; default synthetic-01 synthetic-03):
 - every render comes from the scene.blend of this build (fingerprint) and the
   two pass index tables agree;
 - previews are small enough to copy into the results.
+
+Milestone 5 (docs/milestone5.md §2, §9), on the new renders only:
+
+- every entry is an M5 entry (schema: render key, index statistics, helper
+  maps, exposure record) and its helper maps exist;
+- the exposure was metered and recorded, within the clamp, on 1/6 stops,
+  with a whitepoint of luminance 1;
+- the uint16 index statistics agree with ``index_values`` and with the
+  index map on disk;
+- synthetic-01's white plaster walls look white: wall pixels of the rooms
+  with plaster walls have a display R/B of at most 1.10.
 """
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 
+import numpy as np
 import pytest
 
 pytestmark = pytest.mark.gpu
 OUTPUTS = Path(os.environ.get("WENART_OUTPUTS", "/workspace/repo/outputs"))
 PROJECTS = [p for p in os.environ.get("RENDER_TEST_PROJECTS", "synthetic-01 synthetic-03").split() if p]
 MAX_SECONDS_PER_VIEW = 240.0
+WHITE_WALL_MAX_RB = 1.10
 
 
 def _load(project: str, name: str) -> dict:
@@ -106,3 +120,90 @@ def test_index_pass_contains_every_visible_proxy(project):
         if not expected <= seen:
             missing.append((r["camera"], sorted(expected - seen)))
     assert not missing, f"{name}: proxies planned in the frustum but absent from the index pass: {missing}"
+
+
+# --------------------------------------------------------------------------
+# Milestone 5
+# --------------------------------------------------------------------------
+
+def test_entries_are_m5_renders_with_helper_maps(project):
+    from wenart.blender import schemas
+
+    name, _scene, render = project
+    schemas.validate_render_manifest(render)
+    out = OUTPUTS / name / "renders"
+    missing = []
+    for r in render["renders"]:
+        for key in ("index", "depth_mm", "normal"):
+            if not (out / r["files"][key]).is_file():
+                missing.append((r["camera"], r["files"][key]))
+    assert not missing, f"{name}: helper maps missing: {missing}"
+    assert render["view_transform"] == "AgX" and render["look"] == "None"
+    assert not render["hidden"] and not render["plugged"], f"{name}: the normal renders hide nothing"
+
+
+def test_exposure_recorded_and_within_the_clamp(project):
+    name, _scene, render = project
+    bad = []
+    for r in render["renders"]:
+        x = r["exposure"]
+        lo, hi = x.get("limits") or (-2.0, 8.0)
+        ok = (x["mode"] == "auto" and isinstance(x["ev"], (int, float)) and math.isfinite(x["ev"])
+              and lo <= x["ev"] <= hi and abs(x["ev"] * 6 - round(x["ev"] * 6)) < 1e-4
+              and x["incident_p50"] is not None and x["incident_p50"] > 0
+              and x["at_limit"] == (x["ev_raw"] < lo or x["ev_raw"] > hi))
+        wp = x["whitepoint"]
+        ok = ok and wp is not None and len(wp) == 3 and min(wp) > 0 and \
+            abs(0.2126 * wp[0] + 0.7152 * wp[1] + 0.0722 * wp[2] - 1.0) < 1e-3
+        if not ok:
+            bad.append((r["camera"], x))
+    assert not bad, f"{name}: exposure records out of contract: {bad}"
+    at_limit = sorted(r["camera"] for r in render["renders"] if r["exposure"]["at_limit"])
+    print(f"{name}: EV range {min(r['exposure']['ev'] for r in render['renders']):+.2f} .. "
+          f"{max(r['exposure']['ev'] for r in render['renders']):+.2f}, at the clamp: {at_limit}")
+
+
+def test_uint16_index_stats_match_the_index_maps(project):
+    from wenart import views
+
+    name, _scene, render = project
+    out = OUTPUTS / name / "renders"
+    bad = []
+    for r in render["renders"]:
+        stats = {int(k): v for k, v in r["index_stats"].items()}
+        index = views.read_index(out / r["files"]["index"])
+        if sorted(stats) != r["index_values"] or views.compute_index_stats(index) != stats:
+            bad.append(r["camera"])
+        elif index.shape != (r["resolution"][1], r["resolution"][0]):
+            bad.append(r["camera"])
+    assert not bad, f"{name}: index_stats disagree with index_values or the uint16 map: {bad}"
+
+
+def test_white_plaster_walls_are_neutral(project):
+    """synthetic-01 (white plaster walls): display R/B of the wall pixels <= 1.10."""
+    from wenart import views
+
+    name, scene, render = project
+    if name != "synthetic-01":
+        pytest.skip("the white-wall check is for synthetic-01")
+    assert scene["style_profile"]["walls"]["material"] == "plaster_white"
+    wet = {o["wenart_id"] for o in scene["objects"] if o["kind"] == "floor" and o.get("wet")}
+    table = views.index_table(scene)
+    loaded = views.load_views(OUTPUTS / name / "renders")
+    total = np.zeros(3)
+    per_view = {}
+    for cam, v in loaded.items():
+        if v.room_id in wet:
+            continue  # tiled walls
+        regions = views.regions(v.read_index(), v.read_depth_mm(), v.read_normal(), table)
+        mask = regions.masks.get(views.STRUCT_WALLS)
+        if mask is None or mask.sum() < 0.01 * mask.size:
+            continue
+        rgb = v.read_rgb()[mask].astype(np.float64)
+        total += rgb.sum(axis=0)
+        mean = rgb.mean(axis=0)
+        per_view[cam] = round(float(mean[0] / max(mean[2], 1e-6)), 3)
+    assert per_view, f"{name}: no view with plaster wall pixels"
+    ratio = float(total[0] / max(total[2], 1e-6))
+    print(f"{name}: white wall display R/B {ratio:.3f} over {len(per_view)} views; per view {per_view}")
+    assert ratio <= WHITE_WALL_MAX_RB, f"{name}: white walls render warm (R/B {ratio:.3f}); per view {per_view}"

@@ -211,6 +211,27 @@ def room_openings(room: dict, polygon, building: dict) -> list[dict]:
     return out
 
 
+def opening_rooms(building: dict, level_id: str | None = None) -> dict[str, list[str]]:
+    """``{opening_id: [room_id, ...]}``: the rooms whose polygon edge carries
+    each opening (``room_openings``), in building order; an opening between
+    two rooms lists both, an opening no room carries gets ``[]``. Used for
+    the ``room_ids`` of door and window entries (docs/milestone5.md §2.7)."""
+    out: dict[str, list[str]] = {o["id"]: [] for o in building["openings"]
+                                 if level_id is None or o["level_id"] == level_id}
+    for room in building["rooms"]:
+        if level_id is not None and room["level_id"] != level_id:
+            continue
+        polygon = [tuple(p[:2]) for p in room["polygon"]]
+        if len(polygon) > 1 and G.distance(polygon[0], polygon[-1]) < 1e-9:
+            polygon = polygon[:-1]
+        if len(polygon) < 3:
+            continue
+        for o in room_openings(room, polygon, building):
+            if o["id"] in out and room["id"] not in out[o["id"]]:
+                out[o["id"]].append(room["id"])
+    return out
+
+
 def opening_edge_tolerance(opening: dict, walls: dict) -> float:
     """How far an opening centre may lie from a room edge: half its wall's
     thickness plus its offset from the wall centre line plus slack."""
@@ -300,6 +321,7 @@ def create_cameras(plans: list[dict], collection, manifest_objects: list) -> lis
         collection.objects.link(ob)
         common.set_props(ob, wenart_id=plan["name"], kind="camera", status="assumed")
         ob["wenart_room"] = plan["room_id"]
+        ob["wenart_level"] = plan["level_id"]
         manifest_objects.append({
             "name": plan["name"], "wenart_id": plan["name"], "kind": "camera", "status": "assumed",
             "level_id": plan["level_id"], "element_id": plan["room_id"], "evidence": [],

@@ -54,7 +54,8 @@ def test_profile_shape_and_order():
     assert tuple(profile.keys()) == P.PROFILE_KEYS
     assert set(profile["lighting"]) == {"hdri", "sun_elevation_deg", "sun_azimuth_deg", "sun_strength",
                                         "colour_temperature_k", "mood"}
-    assert set(profile["walls"]) == {"material", "asset", "tint"} and len(profile["walls"]["tint"]) == 3
+    # Milestone 5 §2.2: no walls.tint (flat albedo mode takes the colour from the vocabulary).
+    assert set(profile["walls"]) == {"material", "asset"}
     assert set(profile["floor"]) == {"material", "asset"}
     assert set(profile["wet_floor"]) == {"material", "asset"}
     for slot in ("ceiling", "wet_walls", "trim", "door", "window_frame"):
@@ -162,6 +163,19 @@ def test_vocabulary_tables_are_consistent():
         assert len(entry["flat"]) == 3 and all(0.0 <= c <= 1.0 for c in entry["flat"])
     for slug in V.WALL_TINTS:
         assert slug in V.MATERIALS
+        assert V.MATERIALS[slug]["kind"] != "plaster", "plaster tints went in Milestone 5 (§2.2)"
+    # Albedo modes (§2.2): every material says where its colour comes from.
+    flat = {"plaster_white": 0.35, "plaster_cream": 0.35, "plaster_charcoal": 0.35, "plaster_exterior": 0.5,
+            "painted_wood_white": 0.5, "painted_metal_white": 0.15}
+    for slug, entry in V.MATERIALS.items():
+        assert entry["albedo_mode"] in V.ALBEDO_MODES, slug
+        if slug in flat:
+            assert entry["albedo_mode"] == "flat" and entry["detail"] == flat[slug], slug
+            assert V.albedo_mode(slug) == ("flat", flat[slug])
+        else:
+            assert entry["albedo_mode"] == "texture" and "detail" not in entry, slug
+            assert V.albedo_mode(slug) == ("texture", None)
+    assert V.albedo_mode("fabric_linen") == ("texture", None)  # flat-only furniture colours
 
 
 def test_cli_on_synthetic_projects(tmp_path):

@@ -309,21 +309,51 @@ def test_scene_manifest_schema_accepts_minimal_and_rejects_bad():
                      "visible_openings": [], "visible_furniture": [], "warning": None}],
         "materials": {"plaster_white": {"textured": False, "asset": None, "reason": "flat"}},
         "pass_index": {"proxy:f_L0_001": 1}, "assumed": [], "warnings": [], "checks": {"door_rays": []}, "previews": {},
+        "preview_maps": {}, "build_fingerprint": "0" * 64,
     }
     schemas.validate_scene_manifest(manifest)
     bad = dict(manifest)
     bad["objects"] = [dict(manifest["objects"][0], kind="sofa")]
     with pytest.raises(Exception):
         schemas.validate_scene_manifest(bad)
-    render = {"schema_version": "0.1", "scene": "s.blend", "device": "CPU", "device_requested": "auto",
+    # Milestone 5: preview_maps and build_fingerprint are required; doors/windows carry room_ids,
+    # furniture/proxies/decor carry box3d.
+    for key in ("preview_maps", "build_fingerprint"):
+        with pytest.raises(Exception):
+            schemas.validate_scene_manifest({k: v for k, v in manifest.items() if k != key})
+    obj = manifest["objects"][0]
+    door = dict(obj, name="d_frame", wenart_id="d", kind="door", pass_index=2)
+    with pytest.raises(Exception):
+        schemas.validate_scene_manifest(dict(manifest, objects=[door]))
+    schemas.validate_scene_manifest(dict(manifest, objects=[dict(door, room_ids=["r"])]))
+    piece = dict(obj, name="furn_f", wenart_id="f", kind="furniture", pass_index=3)
+    with pytest.raises(Exception):
+        schemas.validate_scene_manifest(dict(manifest, objects=[piece]))
+    box = {"center": [1.0, 2.0, 0.4], "size": [2.0, 0.9, 0.8], "rotation_deg": 0.0}
+    schemas.validate_scene_manifest(dict(manifest, objects=[dict(piece, box3d=box)]))
+    schemas.validate_scene_manifest(dict(manifest, preview_maps={"L0": {
+        "png": "level_L0_top.png", "bbox_m": [-0.5, -0.5, 10.1, 7.7], "m_per_px": 0.01, "resolution": [1060, 820]}}))
+    exposure = {"mode": "auto", "ev": 3.5, "ev_raw": 3.52, "at_limit": False, "target": 0.9, "incident_p50": 0.08,
+                "whitepoint": [1.05, 0.99, 0.95], "wb_temperature": 5600.0, "wb_tint": 10.0, "residual": 0.35,
+                "window_clip_frac": 0.4, "meter_seconds": 0.9, "source": None}
+    entry = {"camera": "cam", "png": "cam.png", "exr": "cam_passes.exr", "preview": "cam_preview.jpg",
+             "seconds": 1.0, "samples": 16, "resolution": [320, 180],
+             "depth": {"min": 1.0, "max": 5.0, "mean": 2.0}, "index_values": [1],
+             "index_stats": {"1": {"pixels": 10, "box": [0, 0, 5, 2]}},
+             "files": {"index": "cam_index.png", "depth_mm": "cam_depth_mm.png", "normal": "cam_normal.png"},
+             "render_key": "0123456789abcdef", "exposure": exposure, "hidden": [], "plugged": []}
+    render = {"schema_version": "0.1", "scene": "../scene/scene.blend", "device": "CPU", "device_requested": "auto",
               "blender_version": "5.2.2", "samples": 16, "resolution": [320, 180], "denoiser": "OPENIMAGEDENOISE",
-              "pass_index": {"proxy_f": 1},
-              "renders": [{"camera": "cam", "png": "cam.png", "exr": "cam_passes.exr", "preview": "cam_preview.jpg",
-                           "seconds": 1.0, "samples": 16, "resolution": [320, 180],
-                           "depth": {"min": 1.0, "max": 5.0, "mean": 2.0}, "index_values": [1]}]}
+              "pass_index": {"proxy_f": 1}, "renders": [entry]}
     schemas.validate_render_manifest(render)
     with pytest.raises(Exception):
         schemas.validate_render_manifest(dict(render, device="TPU"))
+    # A Milestone 4 entry (no render_key, index_stats, files) is not an M5 render entry.
+    for key in ("render_key", "index_stats", "files", "exposure", "hidden", "plugged"):
+        with pytest.raises(Exception):
+            schemas.validate_render_manifest(dict(render, renders=[{k: v for k, v in entry.items() if k != key}]))
+    with pytest.raises(Exception):
+        schemas.validate_render_manifest(dict(render, renders=[dict(entry, exposure=dict(exposure, mode="magic"))]))
 
 
 def test_style_fixture_slugs_have_flat_colours():

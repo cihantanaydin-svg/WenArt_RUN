@@ -21,10 +21,30 @@ Nothing is added, moved or removed relative to the JSON: walls, openings,
 rooms, furniture and decor come from the building file one to one; cameras
 and lights are the only objects that are not elements and they carry
 ``wenart_status = assumed``.
+
+Milestone 5 additions (docs/milestone5.md §2.7):
+
+- ``build_fingerprint``: sha256 over the building file, the style file, the
+  asset-manifest entries this build uses (without fetch times), the code
+  that shapes the scene (``wenart/blender/*.py``, ``wenart/style/vocabulary.py``,
+  ``wenart/geometry.py``, ``wenart/furniture/catalog.json``) and the build
+  arguments. It is pure Python (no bpy) so ``cli build --reuse`` can check it
+  without starting Blender, and it is written to the manifest.
+- the scene property ``wenart_mood`` (the style's light mood; render.py
+  picks the white-balance residual from it);
+- ``preview_maps``: per level the top-down PNG with the area it covers
+  (pixel ``u = (x - x0) / m``, ``v = (y1 - y) / m``);
+- ``room_ids`` on every door, window and plain-opening entry (the rooms
+  whose polygon edge carries the opening) and ``box3d`` (``{center, size,
+  rotation_deg}``, the world box of the mesh as built) on every furniture,
+  proxy and decor entry;
+- one light portal per window (lighting.py) and camera-only window glass
+  (materials.py).
 """
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import math
 import os
@@ -44,6 +64,16 @@ sys.path.insert(0, str(_repo_root()))
 
 PREVIEW_PX_PER_M = 100
 PREVIEW_MARGIN_M = 0.5
+DEFAULT_PREVIEW_SAMPLES = 16
+
+REPO_ROOT = _repo_root()
+# Files whose content shapes scene.blend besides the inputs (docs/milestone5.md §2.7).
+FINGERPRINT_CODE = ("wenart/blender/*.py", "wenart/style/vocabulary.py", "wenart/geometry.py",
+                    "wenart/furniture/catalog.json")
+# Asset-manifest keys that change on every fetch without changing the asset.
+FINGERPRINT_VOLATILE_KEYS = ("fetched_utc",)
+STYLE_ASSET_SLOTS = ("floor", "walls", "ceiling", "wet_floor", "wet_walls", "trim", "door", "window_frame",
+                     "textiles")
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
@@ -54,12 +84,139 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--out", required=True)
     parser.add_argument("--level", help="build only this level id")
     parser.add_argument("--no-textures", action="store_true", help="flat colours only")
-    parser.add_argument("--preview-samples", type=int, default=16)
+    parser.add_argument("--preview-samples", type=int, default=DEFAULT_PREVIEW_SAMPLES)
     parser.add_argument("--no-preview", action="store_true")
     parser.add_argument("--no-glb", action="store_true")
     parser.add_argument("--proxies", action="store_true",
                         help="Milestone 3 proxy boxes for every furniture piece instead of assets")
     return parser.parse_args(argv)
+
+
+# --------------------------------------------------------------------------
+# Build fingerprint (pure Python: cli.py checks it without Blender)
+# --------------------------------------------------------------------------
+
+def fingerprint_args(building: str, style: str | None = None, assets: str | None = None, level: str | None = None,
+                     no_textures: bool = False, preview_samples: int | None = None, no_preview: bool = False,
+                     no_glb: bool = False, proxies: bool = False) -> dict:
+    """The build arguments that enter the fingerprint, in one canonical form
+    (``--out`` is left out: where the scene is written does not change it)."""
+    return {"building": str(building), "style": str(style) if style else None,
+            "assets": str(assets) if assets else None, "level": level, "no_textures": bool(no_textures),
+            "preview_samples": DEFAULT_PREVIEW_SAMPLES if preview_samples is None else int(preview_samples),
+            "no_preview": bool(no_preview), "no_glb": bool(no_glb), "proxies": bool(proxies)}
+
+
+def _sha256_file(path: Path) -> str | None:
+    if not path.is_file():
+        return None
+    digest = hashlib.sha256()
+    with open(path, "rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _style_for_fingerprint(style_path: str | None) -> dict:
+    """The style a build would use (the file, else the default profile), quietly."""
+    if style_path and Path(style_path).is_file():
+        style = json.loads(Path(style_path).read_text(encoding="utf-8"))
+        if isinstance(style, list):
+            style = style[0] if style else {}
+        return style
+    return default_style()
+
+
+def referenced_asset_ids(building: dict, style: dict) -> list[str]:
+    """Asset ids a build of ``building`` with ``style`` reads from the asset
+    manifest: the textures named by the style slots, its HDRI, and the
+    furniture and decor models of the building."""
+    ids: set[str] = set()
+    for slot in STYLE_ASSET_SLOTS:
+        entry = style.get(slot)
+        if isinstance(entry, dict) and entry.get("asset"):
+            ids.add(str(entry["asset"]))
+    hdri = (style.get("lighting") or {}).get("hdri")
+    if hdri:
+        ids.add(str(hdri))
+    items = list(building.get("furniture") or []) + list(building.get("decor") or [])
+    for piece in building.get("furniture") or []:
+        items.extend(piece.get("decor") or [])
+    for item in items:
+        asset = item.get("asset") if isinstance(item, dict) else None
+        if isinstance(asset, dict) and asset.get("asset_id"):
+            ids.add(str(asset["asset_id"]))
+    return sorted(ids)
+
+
+def asset_entries_for(assets_dir: str | None, ids: list[str]) -> dict:
+    """``{section: {id: entry}}`` of the asset manifest for ``ids``, without fetch times."""
+    if not assets_dir:
+        return {}
+    path = Path(assets_dir) / "manifest.json"
+    if not path.is_file():
+        return {"manifest": None}
+    data = json.loads(path.read_text(encoding="utf-8"))
+    out: dict = {}
+    for section in ("textures", "hdris", "models"):
+        for asset_id, entry in (data.get(section) or {}).items():
+            if asset_id in ids and isinstance(entry, dict):
+                clean = {k: v for k, v in entry.items() if k not in FINGERPRINT_VOLATILE_KEYS}
+                out.setdefault(section, {})[asset_id] = clean
+    return out
+
+
+def code_hashes(repo_root: Path | None = None) -> dict[str, str | None]:
+    """sha256 per file of ``FINGERPRINT_CODE``, keyed by the repo-relative POSIX path."""
+    root = Path(repo_root or REPO_ROOT)
+    out: dict[str, str | None] = {}
+    for pattern in FINGERPRINT_CODE:
+        matches = sorted(root.glob(pattern)) if any(c in pattern for c in "*?[") else [root / pattern]
+        for p in matches:
+            out[p.relative_to(root).as_posix()] = _sha256_file(p)
+    return out
+
+
+def build_fingerprint(args: dict, repo_root: Path | None = None) -> str:
+    """sha256 (hex) of everything that decides what the build writes:
+    the building and style files, their asset entries, the scene code and
+    the canonical build arguments (``fingerprint_args``)."""
+    building_path = Path(args["building"])
+    building = json.loads(building_path.read_text(encoding="utf-8")) if building_path.is_file() else {}
+    style = _style_for_fingerprint(args.get("style"))
+    ids = referenced_asset_ids(building, style)
+    payload = {
+        "building_sha256": _sha256_file(building_path),
+        "style_sha256": _sha256_file(Path(args["style"])) if args.get("style") else None,
+        "assets": asset_entries_for(None if args.get("no_textures") else args.get("assets"), ids),
+        "code": code_hashes(repo_root),
+        "args": args,
+    }
+    blob = json.dumps(payload, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+    return hashlib.sha256(blob.encode("utf-8")).hexdigest()
+
+
+def reusable_build(out: Path, fingerprint: str) -> tuple[bool, str]:
+    """``(True, "")`` when ``out`` holds a finished build with this fingerprint,
+    else ``(False, why)``. Finished = scene.blend, scene_manifest.json and the
+    files and previews the manifest lists all exist."""
+    out = Path(out)
+    manifest_path = out / "scene_manifest.json"
+    if not (out / "scene.blend").is_file():
+        return False, "no scene.blend"
+    if not manifest_path.is_file():
+        return False, "no scene_manifest.json"
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except ValueError as exc:
+        return False, f"scene_manifest.json unreadable: {exc}"
+    if manifest.get("build_fingerprint") != fingerprint:
+        return False, f"fingerprint changed ({manifest.get('build_fingerprint')} -> {fingerprint})"
+    names = list((manifest.get("files") or {}).values()) + list((manifest.get("previews") or {}).values())
+    missing = [n for n in names if not (out / n).is_file()]
+    if missing:
+        return False, f"files missing: {', '.join(sorted(missing))}"
+    return True, ""
 
 
 def default_style() -> dict:
@@ -105,6 +262,12 @@ def load_style(path: str | None, warnings: list[str], assumed: list[dict] | None
         _loud(f"style file {p} has no {key!r}: default {json.dumps(value)} assumed", warnings)
         assumed.append({"object": "style", "field": key, "value": value,
                         "reason": f"missing in {p}; default profile of wenart.style used"})
+    walls = style.get("walls")
+    if isinstance(walls, dict) and walls.get("tint") is not None:
+        # Milestone 3/4 style files carry walls.tint; the wall colour now comes from
+        # the flat albedo mode (docs/milestone5.md §2.2) and a tint would darken twice.
+        _loud(f"style file {p}: walls.tint {walls['tint']} ignored (Milestone 5 albedo modes; "
+              f"regenerate the style with python -m wenart.style)", warnings)
     return style, str(p)
 
 
@@ -162,10 +325,16 @@ def main(argv: list[str]) -> int:
     t0 = time.time()
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
+    fp_args = fingerprint_args(args.building, args.style, args.assets, args.level, args.no_textures,
+                               args.preview_samples, args.no_preview, args.no_glb, args.proxies)
+    fingerprint = build_fingerprint(fp_args)
     building = json.loads(Path(args.building).read_text(encoding="utf-8"))
     if building.get("status") != "ok":
         print(f"building status is {building.get('status')!r}: nothing to build (needs review first)")
         return 2
+    # A build killed half-way must never look finished to `cli build --reuse`:
+    # the manifest of the previous build goes first and is written last.
+    (out / "scene_manifest.json").unlink(missing_ok=True)
     warnings: list[str] = list(building.get("warnings", []))
     assumed: list[dict] = []
     if materials.VOCABULARY_IMPORT_ERROR:
@@ -226,17 +395,26 @@ def main(argv: list[str]) -> int:
         if level.get("ceiling_height_source") == "assumed_default":
             assumed.append({"object": f"level_{level['id']}", "field": "ceiling_height",
                             "value": level["ceiling_height"], "reason": "building JSON: assumed_default"})
+        add_room_ids(manifest_objects, cams.opening_rooms(building, level["id"]), level["id"])
 
     light_col = common.get_or_make_collection("lighting")
     light_info = lighting.build_lighting(building, levels, style, hdri, light_col, manifest_objects, assumed)
+    bpy.context.view_layer.update()
+    add_box3d(manifest_objects, warnings)
+    mood = (style.get("lighting") or {}).get("mood")
+    # render.py reads the mood here to pick the white-balance residual (§2.4).
+    scene["wenart_mood"] = str(mood or "")
 
     previews = {}
+    preview_maps = {}
     if not args.no_preview:
         configure_device(scene, "cpu" if os.environ.get("WENART_PREVIEW_CPU") else "auto")
         for level in levels:
             png = out / f"level_{level['id']}_top.png"
-            render_top_down(scene, building, level, level_collections, png, args.preview_samples)
-            previews[level["id"]] = png.name
+            mapping = render_top_down(scene, building, level, level_collections, png, args.preview_samples)
+            if mapping is not None:
+                previews[level["id"]] = png.name
+                preview_maps[level["id"]] = mapping
 
     if camera_plans:
         scene.camera = bpy.data.objects.get(camera_plans[0]["name"])
@@ -277,6 +455,10 @@ def main(argv: list[str]) -> int:
         "warnings": warnings,
         "checks": checks,
         "previews": previews,
+        "preview_maps": preview_maps,
+        "wenart_mood": scene["wenart_mood"],
+        "build_fingerprint": fingerprint,
+        "build_args": fp_args,
         "files": files,
         "furniture": furniture_summary,
         "seconds": round(time.time() - t0, 1),
@@ -290,9 +472,57 @@ def main(argv: list[str]) -> int:
     return 0
 
 
-def render_top_down(scene, building: dict, level: dict, level_collections: dict, png: Path, samples: int) -> None:
+def add_room_ids(manifest_objects: list[dict], rooms_by_opening: dict[str, list[str]], level_id: str) -> None:
+    """``room_ids`` on every door, window and plain-opening entry of the level
+    (the rooms whose polygon edge carries it, ``cameras.opening_rooms``)."""
+    for entry in manifest_objects:
+        if entry.get("kind") in ("door", "window", "opening") and entry.get("level_id") == level_id:
+            entry["room_ids"] = list(rooms_by_opening.get(entry["wenart_id"], []))
+
+
+def add_box3d(manifest_objects: list[dict], warnings: list[str]) -> None:
+    """``box3d`` on every furniture, proxy and decor entry: the world box of
+    the object's mesh as built, in the piece frame (``rotation_deg`` of the
+    entry), see ``geom2d.oriented_box``."""
+    import bpy
+
+    from wenart.blender import geom2d
+
+    for entry in manifest_objects:
+        if entry.get("kind") not in ("furniture", "furniture_proxy", "decor"):
+            continue
+        ob = bpy.data.objects.get(entry["name"])
+        if ob is None or ob.type != "MESH" or not len(ob.data.vertices):
+            warnings.append(f"{entry['name']}: no mesh object to measure; box3d left out")
+            continue
+        mw = ob.matrix_world
+        points = [tuple(mw @ v.co) for v in ob.data.vertices]
+        entry["box3d"] = geom2d.oriented_box(points, float(entry.get("rotation_deg") or 0.0))
+
+
+def preview_mapping(x0: float, y0: float, x1: float, y1: float, px_per_m: float = PREVIEW_PX_PER_M) -> dict:
+    """Resolution, orthographic scale and covered area of a top-down preview
+    of the box ``x0, y0, x1, y1`` (metres) at ``px_per_m`` (pure).
+
+    The resolution rounds the box up to whole pixels and the ortho scale is
+    set so a pixel is exactly ``1 / px_per_m`` metres; the covered area is
+    centred on the box. Pixel ``u = (x - bx0) / m``, ``v = (by1 - y) / m``
+    with ``bbox_m = [bx0, by0, bx1, by1]`` and ``m = m_per_px``."""
+    m = 1.0 / float(px_per_m)
+    res_x = max(16, int(math.ceil(round((x1 - x0) * px_per_m, 6))))
+    res_y = max(16, int(math.ceil(round((y1 - y0) * px_per_m, 6))))
+    cx, cy = (x0 + x1) / 2.0, (y0 + y1) / 2.0
+    half_w, half_h = res_x * m / 2.0, res_y * m / 2.0
+    return {"resolution": [res_x, res_y], "m_per_px": m, "ortho_scale": max(res_x, res_y) * m,
+            "bbox_m": [round(cx - half_w, 6), round(cy - half_h, 6), round(cx + half_w, 6), round(cy + half_h, 6)]}
+
+
+def render_top_down(scene, building: dict, level: dict, level_collections: dict, png: Path,
+                    samples: int) -> dict | None:
     """Orthographic top view of one level at 100 px/m: ceilings and other
-    levels hidden for the shot, then restored."""
+    levels hidden for the shot, then restored. Returns the ``preview_maps``
+    entry ``{png, bbox_m, m_per_px, resolution}`` (None when the level has
+    no geometry)."""
     import bpy
 
     from wenart import geometry as G
@@ -304,16 +534,17 @@ def render_top_down(scene, building: dict, level: dict, level_collections: dict,
         if r["level_id"] == level["id"]:
             pts.extend(r["polygon"])
     if not pts:
-        return
+        return None
     x0, y0, x1, y1 = G.bbox(pts)
     x0 -= PREVIEW_MARGIN_M
     y0 -= PREVIEW_MARGIN_M
     x1 += PREVIEW_MARGIN_M
     y1 += PREVIEW_MARGIN_M
-    w_m, h_m = x1 - x0, y1 - y0
+    mapping = preview_mapping(x0, y0, x1, y1)
     cam = bpy.data.cameras.new("top_preview")
     cam.type = "ORTHO"
-    cam.ortho_scale = max(w_m, h_m)
+    cam.sensor_fit = "AUTO"     # ortho_scale spans the larger image side
+    cam.ortho_scale = mapping["ortho_scale"]
     cam.clip_start = 0.1
     cam.clip_end = 100.0
     ob = bpy.data.objects.new("top_preview", cam)
@@ -332,8 +563,7 @@ def render_top_down(scene, building: dict, level: dict, level_collections: dict,
     old = (scene.camera, scene.render.resolution_x, scene.render.resolution_y, scene.render.filepath,
            scene.cycles.samples, scene.render.image_settings.file_format, scene.render.image_settings.color_mode)
     scene.camera = ob
-    scene.render.resolution_x = max(16, int(math.ceil(w_m * PREVIEW_PX_PER_M)))
-    scene.render.resolution_y = max(16, int(math.ceil(h_m * PREVIEW_PX_PER_M)))
+    scene.render.resolution_x, scene.render.resolution_y = mapping["resolution"]
     scene.render.resolution_percentage = 100
     scene.render.engine = "CYCLES"
     scene.cycles.samples = max(1, samples)
@@ -347,6 +577,8 @@ def render_top_down(scene, building: dict, level: dict, level_collections: dict,
     for o in hidden:
         o.hide_render = False
     common.delete_object(ob)
+    return {"png": png.name, "bbox_m": mapping["bbox_m"], "m_per_px": mapping["m_per_px"],
+            "resolution": mapping["resolution"]}
 
 
 if __name__ == "__main__":

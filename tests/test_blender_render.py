@@ -163,6 +163,11 @@ def test_full_run_then_idempotent_rerun_pass_the_gpu_test_logic(scene, tmp_path,
     gpu.test_passes_exist_and_depth_is_plausible(project)
     gpu.test_index_pass_contains_every_visible_proxy(project)
     gpu.test_render_matches_the_scene_build(project)
+    # Milestone 5 checks of the same module.
+    gpu.test_entries_are_m5_renders_with_helper_maps(project)
+    gpu.test_exposure_recorded_and_within_the_clamp(project)
+    gpu.test_uint16_index_stats_match_the_index_maps(project)
+    gpu.test_white_plaster_walls_are_neutral(project)
     with pytest.raises(AssertionError, match="OPTIX|CUDA|CPU"):
         gpu.test_gpu_device_and_full_resolution(project)
 

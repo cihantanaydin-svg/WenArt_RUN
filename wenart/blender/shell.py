@@ -295,10 +295,12 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
     rooms = [r for r in building["rooms"] if r["level_id"] == level_id]
     wall_by_id = {w["id"]: w for w in walls}
 
-    wall_mat = library.get(style["walls"]["material"], style["walls"].get("asset"), style["walls"].get("tint"))
+    # No walls.tint since Milestone 5 (§2.2): the flat albedo mode gives the wall colour;
+    # build.load_style warns when an old style file still carries one.
+    wall_mat = library.get(style["walls"]["material"], style["walls"].get("asset"))
     ext_mat = library.get("plaster_exterior")
     wet = style.get("wet_walls") or style["walls"]
-    wet_mat = library.get(wet["material"], wet.get("asset"), wet.get("tint"))
+    wet_mat = library.get(wet["material"], wet.get("asset"))
     slots = [wall_mat, ext_mat, wet_mat]
 
     footprint_centre = _level_centre(walls)

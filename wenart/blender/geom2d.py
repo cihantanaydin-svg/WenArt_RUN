@@ -66,6 +66,30 @@ def merge(parts: Iterable[tuple[list[Vec3], list[list[int]]]]) -> tuple[list[Vec
     return verts, faces
 
 
+def oriented_box(points: Iterable[Sequence[float]], rotation_deg: float = 0.0) -> dict:
+    """The box of world points in a frame turned by ``rotation_deg`` about +Z.
+
+    Returns ``{"center": [x, y, z], "size": [w, d, h], "rotation_deg": r}``:
+    the points are turned by ``-r`` into the piece frame, boxed there
+    (w along the piece X, d along the piece Y) and the box centre is turned
+    back into the world. This is the ``box3d`` convention of the scene
+    manifest (docs/milestone5.md §2.7): a box with these fields, drawn with
+    ``box(center, size, rotation_deg)``, encloses the points."""
+    pts = [(float(p[0]), float(p[1]), float(p[2])) for p in points]
+    if not pts:
+        raise ValueError("oriented_box needs at least one point")
+    rot = float(rotation_deg)
+    local = [(*G.rotate_point((x, y), -rot), z) for x, y, z in pts]
+    xs = [p[0] for p in local]
+    ys = [p[1] for p in local]
+    zs = [p[2] for p in local]
+    lx, ly = (min(xs) + max(xs)) / 2.0, (min(ys) + max(ys)) / 2.0
+    cx, cy = G.rotate_point((lx, ly), rot)
+    return {"center": [round(cx, 4), round(cy, 4), round((min(zs) + max(zs)) / 2.0, 4)],
+            "size": [round(max(xs) - min(xs), 4), round(max(ys) - min(ys), 4), round(max(zs) - min(zs), 4)],
+            "rotation_deg": rot}
+
+
 def polygon_face(polygon: Sequence[Sequence[float]], z: float, facing_up: bool = True
                  ) -> tuple[list[Vec3], list[list[int]]]:
     """One n-gon face from a 2D polygon at height ``z``. Counter-clockwise
