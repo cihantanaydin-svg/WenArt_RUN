@@ -4,7 +4,9 @@ What: CPU edits of a Cycles render with known meaning.
 
 - Benign (the gate must accept them): exposure +-0.3 EV and white balance
   x(1.03, 1, 0.97) in linear light, Gaussian blur sigma 1, JPEG quality 75,
-  unsharp mask (sigma 2, amount 0.5), Gaussian noise sigma 3/255.
+  unsharp mask (sigma 2, amount 0.5), local contrast x1.5 (sigma 6: crisper
+  texture, as a polish renders grout and plank seams; added after review
+  finding G2), Gaussian noise sigma 3/255.
 - Negatives (the gate must reject them): on one object (cut by its index
   mask) shift 6 / 12 / 25 px, scale x1.04 / x1.08 / x1.15 (about the bottom
   centre of its box), rotation 2 deg (about the box centre), erase; the hole
@@ -40,6 +42,8 @@ BLUR_SIGMA = 1.0
 JPEG_QUALITY = 75
 UNSHARP_SIGMA = 2.0
 UNSHARP_AMOUNT = 0.5
+LOCAL_CONTRAST_GAIN = 1.5       # crisper texture (review finding G2: grout / plank seams)
+LOCAL_CONTRAST_SIGMA = 6.0
 NOISE_SIGMA = 3.0               # in 0..255 units (3/255)
 SHIFTS_PX = (6, 12, 25)
 SCALES = (1.04, 1.08, 1.15)
@@ -106,6 +110,18 @@ def unsharp(rgb, sigma: float = UNSHARP_SIGMA, amount: float = UNSHARP_AMOUNT) -
     return np.clip(np.rint(a + float(amount) * (a - b)), 0, 255).astype(np.uint8)
 
 
+def local_contrast(rgb, gain: float = LOCAL_CONTRAST_GAIN, sigma: float = LOCAL_CONTRAST_SIGMA) -> np.ndarray:
+    """Local contrast x ``gain``: blur + gain * (img - blur(img)) with a wide blur (``sigma`` 6 px).
+
+    Stands for a polish that renders the texture of floors and walls crisper
+    (plank seams, tile grout) without moving anything.
+    """
+    import cv2
+    a = np.asarray(rgb, dtype=np.float32)
+    b = cv2.GaussianBlur(a, (0, 0), float(sigma))
+    return np.clip(np.rint(b + float(gain) * (a - b)), 0, 255).astype(np.uint8)
+
+
 def noise(rgb, sigma: float = NOISE_SIGMA, seed: int = 0) -> np.ndarray:
     """Additive Gaussian noise (sigma in 0..255 units) from a seeded generator."""
     rng = np.random.default_rng(int(seed))
@@ -122,6 +138,7 @@ def benign_controls(rgb, seed: int = 0) -> list[dict]:
         {"control": "blur", "magnitude": BLUR_SIGMA, "image": blur(rgb)},
         {"control": "jpeg", "magnitude": JPEG_QUALITY, "image": jpeg(rgb)},
         {"control": "unsharp", "magnitude": UNSHARP_AMOUNT, "image": unsharp(rgb)},
+        {"control": "local_contrast", "magnitude": LOCAL_CONTRAST_GAIN, "image": local_contrast(rgb)},
         {"control": "noise", "magnitude": NOISE_SIGMA, "image": noise(rgb, NOISE_SIGMA, seed)},
     ]
 

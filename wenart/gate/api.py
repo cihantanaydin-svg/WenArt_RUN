@@ -55,7 +55,7 @@ import numpy as np
 GATE_DIR = Path(__file__).resolve().parent
 THRESHOLDS_PATH = GATE_DIR / "thresholds.yaml"
 MODELS_PATH = GATE_DIR / "models.yaml"
-GATE_CODE_VERSION = "m5.1"
+GATE_CODE_VERSION = "m5.2"          # m5.2: oriented low-threshold reference edges in added_lines
 REFERENCE_CACHE = 2          # references kept in memory (each holds a few full-size arrays)
 
 CHECKS = ("edges", "added_lines", "depth", "masks", "colour", "neutral", "features")
@@ -137,6 +137,8 @@ class Reference:
     (``{"boxes", "skipped", "masks", "reliability"}``), ``dino`` (tokens).
     ``valid`` = not background and not a window pane; ``match_dist`` =
     distance to the nearest reference Canny or geometry edge (added lines);
+    ``ref_angle`` the oriented low-threshold reference edges
+    (``edges.edge_angles``, added lines; None when ``ref_factor`` is 0);
     ``lab`` the Lab image; ``albedo`` the wall/ceiling albedo modes;
     ``valid_pixels`` per region.
     """
@@ -151,6 +153,7 @@ class Reference:
     valid: Any = None
     geometry: Any = None
     match_dist: Any = None
+    ref_angle: Any = None
     lab: Any = None
     albedo: dict = field(default_factory=dict)
     valid_pixels: dict = field(default_factory=dict)
@@ -229,6 +232,22 @@ class Gate:
     def _th(self, check: str) -> dict:
         return self.thresholds.get(check) or {}
 
+    def _ref_factor(self) -> float:
+        """``added_lines.ref_factor``: Canny thresholds x this for the oriented reference edges (0/None = off)."""
+        from wenart.gate import lines
+        value = self._th("added_lines").get("ref_factor", lines.REF_FACTOR)
+        return float(value or 0.0)
+
+    def _added_lines(self, ref: "Reference", test_canny) -> tuple[dict, list]:
+        """The added-lines metrics and segments of one test Canny map against ``ref``."""
+        from wenart.gate import lines
+        lth = self._th("added_lines")
+        return lines.added_lines(
+            test_canny, ref.match_dist, ref.regions.masks, ref.regions.structure_ids(), ref.size[0],
+            float(lth.get("min_len_frac", 0.04)), float(lth.get("unmatched_frac", 0.7)), exclude=~ref.valid,
+            match_px=float(lth.get("match_px", lines.MATCH_PX)), ref_angle=ref.ref_angle,
+            angle_tol_deg=float(lth.get("ref_angle_deg", lines.ANGLE_TOL_DEG)))
+
     def _scene_for(self, view) -> tuple[Optional[dict], Optional[str]]:
         if self.scene_manifest is not None:
             return self.scene_manifest, "given"
@@ -275,10 +294,13 @@ class Gate:
         canny_cfg = eth.get("canny") or {}
         sigma, low, high = (canny_cfg.get("sigma", 1.5), canny_cfg.get("low", 25), canny_cfg.get("high", 75))
         geometry = V.geometry_edges(index, depth_mm, normal)
-        ref_canny = edges.canny(rgb, sigma, low, high)
+        gray = edges.blurred_gray(rgb, sigma)
+        ref_canny = edges.canny_blurred(gray, low, high)
         ref_dist = edges.distance_to(ref_canny)
         ref_edges = edges.reference_edges(geometry, ref_dist, float(eth.get("radius_px", 3)), valid)
         match_dist = edges.distance_to(ref_canny | geometry)
+        ref_factor = self._ref_factor()
+        ref_angle = edges.edge_angles(gray, low * ref_factor, high * ref_factor) if ref_factor > 0 else None
 
         lab = colour.srgb_to_lab(rgb)
         ids = list(regs.masks)
@@ -291,7 +313,7 @@ class Gate:
         ref = Reference(view=view, rgb=rgb, sha256=sha,
                         gate_key=make_gate_key(sha, self.model_info(), self.thresholds),
                         regions=regs, edges=ref_edges, lab_means=lab_means, model_outputs={}, valid=valid,
-                        geometry=geometry, match_dist=match_dist, lab=lab, albedo=albedo,
+                        geometry=geometry, match_dist=match_dist, ref_angle=ref_angle, lab=lab, albedo=albedo,
                         valid_pixels=valid_pixels, labels=labels, scene_manifest_path=scene_path,
                         warnings=warnings)
         self._refs[key] = ref
@@ -328,7 +350,7 @@ class Gate:
 
     def compare(self, ref: Reference, test_rgb) -> dict:
         """``{"decision", "reasons", "notes", "metrics", "gate_key"}`` for ``test_rgb`` against ``ref``."""
-        from wenart.gate import colour, depth, edges, features, lines
+        from wenart.gate import colour, depth, edges, features
         from wenart.gate import masks as M
 
         test = np.asarray(test_rgb)
@@ -359,13 +381,9 @@ class Gate:
             int(eth.get("region_min_ref_px", 0)))
         seconds["edges"] = round(time.time() - t0, 3)
 
-        # Added straight lines on bare structure.
+        # Added straight lines on structure.
         t0 = time.time()
-        lth = self._th("added_lines")
-        metrics["added_lines"], artifacts["lines"] = lines.added_lines(
-            test_canny, ref.match_dist, regs.masks, regs.structure_ids(), width,
-            float(lth.get("min_len_frac", 0.04)), float(lth.get("unmatched_frac", 0.7)), exclude=~valid,
-            match_px=float(lth.get("match_px", lines.MATCH_PX)))
+        metrics["added_lines"], artifacts["lines"] = self._added_lines(ref, test_canny)
         seconds["added_lines"] = round(time.time() - t0, 3)
 
         # Colour and neutral walls.
@@ -441,7 +459,7 @@ class Gate:
         image, else recomputes the edge and line maps (the depth panel then
         stays empty).
         """
-        from wenart.gate import debug, edges, lines
+        from wenart.gate import debug, edges
 
         test = np.ascontiguousarray(np.asarray(test_rgb)[:, :, :3])
         art = self.last_artifacts
@@ -452,11 +470,7 @@ class Gate:
             factor = float(eth.get("test_factor", edges.TEST_FACTOR))
             test_canny = edges.canny(test, sigma, low, high)
             dist = edges.distance_to(edges.canny(test, sigma, low * factor, high * factor))
-            lth = self._th("added_lines")
-            _m, found = lines.added_lines(test_canny, ref.match_dist, ref.regions.masks,
-                                          ref.regions.structure_ids(), ref.size[0],
-                                          float(lth.get("min_len_frac", 0.04)),
-                                          float(lth.get("unmatched_frac", 0.7)), exclude=~ref.valid)
+            _m, found = self._added_lines(ref, test_canny)
             art = {"missed": ref.edges & (dist > float(eth.get("radius_px", 3))), "lines": found, "depth_err": None}
         return debug.write_debug_image(path, ref.rgb, test, art.get("missed"), art.get("lines") or [],
                                        art.get("depth_err"), ref.regions, result,

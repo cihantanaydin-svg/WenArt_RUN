@@ -46,13 +46,45 @@ def to_gray(rgb) -> np.ndarray:
     return cv2.cvtColor(np.ascontiguousarray(a[:, :, :3], dtype=np.uint8), cv2.COLOR_RGB2GRAY)
 
 
-def canny(rgb, sigma: float = 1.5, low: float = 25, high: float = 75) -> np.ndarray:
-    """bool H x W Canny edges: grey -> Gaussian blur (sigma) -> Canny(low, high, aperture 3, L2 gradient)."""
+def blurred_gray(rgb, sigma: float = 1.5) -> np.ndarray:
+    """uint8 H x W: grey, Gaussian-blurred with ``sigma`` (the input of every Canny of the gate)."""
     import cv2
     g = to_gray(rgb)
     if sigma and sigma > 0:
         g = cv2.GaussianBlur(g, (0, 0), float(sigma))
-    return cv2.Canny(g, float(low), float(high), apertureSize=3, L2gradient=True) > 0
+    return g
+
+
+def canny_blurred(gray, low: float = 25, high: float = 75) -> np.ndarray:
+    """bool H x W Canny edges (aperture 3, L2 gradient) of an already blurred grey image."""
+    import cv2
+    return cv2.Canny(gray, float(low), float(high), apertureSize=3, L2gradient=True) > 0
+
+
+def canny(rgb, sigma: float = 1.5, low: float = 25, high: float = 75) -> np.ndarray:
+    """bool H x W Canny edges: grey -> Gaussian blur (sigma) -> Canny(low, high, aperture 3, L2 gradient)."""
+    return canny_blurred(blurred_gray(rgb, sigma), low, high)
+
+
+NO_ANGLE = 255                 # edge_angles value of a pixel without an edge
+
+
+def edge_angles(gray, low: float, high: float) -> np.ndarray:
+    """uint8 H x W: gradient orientation (degrees mod 180, rounded) of each Canny edge pixel, else NO_ANGLE.
+
+    ``gray`` is the blurred grey image (``blurred_gray``); the orientation is
+    ``atan2(gy, gx)`` of the 3 x 3 Sobel gradient (the one Canny uses), so a
+    vertical edge (a step along x) is 0 and a horizontal edge is 90.
+    """
+    import cv2
+    out = np.full(gray.shape, NO_ANGLE, dtype=np.uint8)
+    idx = np.flatnonzero(canny_blurred(gray, low, high))
+    if idx.size:
+        gx = cv2.Sobel(gray, cv2.CV_32F, 1, 0, ksize=3).reshape(-1)[idx]
+        gy = cv2.Sobel(gray, cv2.CV_32F, 0, 1, ksize=3).reshape(-1)[idx]
+        deg = np.mod(np.rint(np.degrees(np.arctan2(gy, gx))), 180.0)
+        out.reshape(-1)[idx] = deg.astype(np.uint8)
+    return out
 
 
 def distance_to(mask) -> np.ndarray:

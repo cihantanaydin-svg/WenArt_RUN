@@ -330,6 +330,115 @@ def test_added_lines_ignore_lines_along_real_geometry():
     assert out["skipped"] == {"struct:walls": "too_small"}
 
 
+def tiled_floor(rgb, index, grout=20.0, tile_m=0.30, seed=0, ss=2):
+    """``(image, floor mask)``: a perspective tile floor on the index-0 floor pixels of ``build_room``.
+
+    Camera 1.4 m above the floor, focal 1280 px at 1920 px wide, floor edge at
+    5 m, tiles turned 20 deg, 4 mm grout ``grout`` grey levels darker, a
+    per-tile tone (sigma 5), 2 x 2 supersampling, a 0.6 px blur and noise
+    sigma 1: long straight grout lines that sit just below Canny high in the
+    "Cycles" image, as on a real tile or plank floor.
+    """
+    H, W = index.shape
+    f = 1280.0 * W / 1920.0
+    floor_y = int(0.62 * H)
+    cy = floor_y - f * 1.4 / 5.0
+    tone = np.random.default_rng(seed).normal(0, 5.0, (64, 64))
+    yaw = math.radians(20.0)
+    acc = np.zeros((H - floor_y, W), np.float64)
+    for i in range(ss):
+        for j in range(ss):
+            v = np.arange(floor_y, H)[:, None] + (i + 0.5) / ss
+            u = np.arange(W)[None, :] + (j + 0.5) / ss
+            t = 1.4 / ((v - cy) / f)
+            x, z = (u - W / 2) / f * t, t + 0 * u
+            a = (math.cos(yaw) * x - math.sin(yaw) * z) / tile_m
+            b = (math.sin(yaw) * x + math.cos(yaw) * z) / tile_m
+            fa, fb = a - np.floor(a), b - np.floor(b)
+            line = (np.minimum(fa, 1 - fa) < 0.004 / tile_m) | (np.minimum(fb, 1 - fb) < 0.004 / tile_m)
+            acc += tone[np.floor(b).astype(int) % 64, np.floor(a).astype(int) % 64] - grout * line
+    add = np.zeros((H, W), np.float32)
+    add[floor_y:] = acc / (ss * ss)
+    add = cv2.GaussianBlur(add, (0, 0), 0.6)
+    floor_mask = np.zeros((H, W), bool)
+    floor_mask[floor_y:] = index[floor_y:] == 0
+    out = rgb.astype(np.float32)
+    out[floor_mask] += add[floor_mask][:, None]
+    out += np.random.default_rng(seed + 1).normal(0, 1.0, out.shape)
+    return np.clip(np.rint(out), 0, 255).astype(np.uint8), floor_mask
+
+
+@pytest.fixture(scope="module")
+def tiled(tmp_path_factory):
+    """A 1920 x 1080 room whose floor is tiled (grout 20 grey levels), its gate and prepared reference."""
+    out = tmp_path_factory.mktemp("tiled") / "toy"
+    data = write_project(out, W=1920, H=1080)
+    rgb, floor_mask = tiled_floor(data["rgb"], data["index"])
+    gate = api.Gate(models=FakeModels(), device="cpu")
+    ref = gate.prepare(V.load_views(out / "renders")["cam_a"], rgb)
+    return {"data": data, "rgb": rgb, "floor": floor_mask, "gate": gate, "ref": ref}
+
+
+def test_crisper_floor_texture_is_not_an_added_line(tiled):
+    """Review finding (G2): grout or plank seams that the Cycles image shows just below the Canny
+    thresholds were counted as new lines once the polish (or a benign control) made them crisper,
+    and the view was rejected although nothing moved. Before the fix: unsharp 0.27, +0.3 EV 0.15,
+    local contrast x1.5 0.29, grout x2.5 6.4 on struct:floor (limit 0.04)."""
+    gate, ref, rgb = tiled["gate"], tiled["ref"], tiled["rgb"]
+    edits = {"unsharp (benign control)": K.unsharp(rgb), "exposure +0.3 EV (benign control)": K.exposure(rgb, 0.3),
+             "local contrast x1.5": K.local_contrast(rgb, 1.5),
+             "grout x2.5 at the same place": tiled_floor(tiled["data"]["rgb"], tiled["data"]["index"], grout=50.0)[0]}
+    for name, img in edits.items():
+        res = gate.compare(ref, img)
+        assert res["metrics"]["added_lines"]["regions"]["struct:floor"] == 0.0, name
+        assert res["decision"] == "accept", (name, res["reasons"])
+
+
+def test_lines_painted_on_a_textured_floor_are_still_added_lines(tiled):
+    """The relaxed matching only accepts a reference edge of the same orientation: a rug outline
+    painted across the grout, or a dark stripe, is still a new line."""
+    gate, ref, rgb = tiled["gate"], tiled["ref"], tiled["rgb"]
+    rug = rgb.copy()
+    cv2.polylines(rug, [np.array([[700, 780], [1250, 780], [1400, 1000], [550, 1000]], np.int32)], True,
+                  (230, 225, 215), 4)
+    stripe = rgb.copy()
+    cv2.line(stripe, (500, 900), (1300, 820), (60, 50, 40), 3)
+    for name, img in (("rug outline", rug), ("stripe", stripe)):
+        res = gate.compare(ref, img)
+        assert res["metrics"]["added_lines"]["regions"]["struct:floor"] > 0.04, name
+        assert ("added_lines", "struct:floor") in {(r["check"], r["region"]) for r in res["reasons"]}, name
+
+
+def test_oriented_reference_edges_match_only_parallel_segments():
+    """lines.added_lines: a faint reference edge (only in ``ref_angle``) matches a test segment of the
+    same orientation (within ``angle_tol_deg``), not a crossing one."""
+    H, W = 120, 200
+    test = np.full((H, W, 3), 180, np.uint8)
+    cv2.line(test, (10, 60), (190, 60), (60, 60, 60), 2)
+    test_edges = edges.canny(test)
+    no_ref = edges.distance_to(np.zeros((H, W), bool))
+    masks_ = {"struct:walls": np.ones((H, W), bool)}
+    angle = np.full((H, W), lines.NO_ANGLE, np.uint8)
+    angle[58:64, :] = 90                       # a horizontal faint edge: its gradient points along y (90 deg)
+    out, found = lines.added_lines(test_edges, no_ref, masks_, ["struct:walls"], W, 0.04, 0.7,
+                                   ref_angle=angle, angle_tol_deg=10)
+    assert out["regions"]["struct:walls"] == 0.0 and found == []
+    angle[58:64, :] = 0                        # the same pixels, a vertical edge: no match
+    out, found = lines.added_lines(test_edges, no_ref, masks_, ["struct:walls"], W, 0.04, 0.7,
+                                   ref_angle=angle, angle_tol_deg=10)
+    assert out["regions"]["struct:walls"] > 0.5 and found
+    angle[58:64, :] = 81                       # 9 deg off: inside the tolerance
+    assert lines.added_lines(test_edges, no_ref, masks_, ["struct:walls"], W, 0.04, 0.7, ref_angle=angle,
+                             angle_tol_deg=10)[0]["regions"]["struct:walls"] == 0.0
+    # The angle map of a reference image: only its low-threshold Canny pixels carry an angle.
+    ref = np.full((H, W, 3), 180, np.uint8)
+    ref[:, 100:] = 190                         # a 10-level vertical step, below the full Canny thresholds
+    assert not edges.canny(ref).any()
+    amap = edges.edge_angles(edges.blurred_gray(ref, 1.5), 25 * 0.2, 75 * 0.2)
+    ys, xs = np.nonzero(amap != lines.NO_ANGLE)
+    assert len(xs) >= H - 4 and np.abs(xs - 99.5).max() <= 2 and set(amap[ys, xs].tolist()) <= {0, 1, 179}
+
+
 def test_segment_helpers():
     xs, ys = lines.segment_pixels([0, 0, 10, 5])
     assert len(xs) == 11 and (xs[0], ys[0], xs[-1], ys[-1]) == (0, 0, 10, 5)
@@ -646,7 +755,7 @@ def test_benign_generators_are_deterministic_and_small(room):
     first = K.benign_controls(rgb, seed=7)
     again = K.benign_controls(rgb, seed=7)
     assert [c["control"] for c in first] == ["exposure", "exposure", "white_balance", "blur", "jpeg", "unsharp",
-                                             "noise"]
+                                             "local_contrast", "noise"]
     for a, b in zip(first, again):
         assert np.array_equal(a["image"], b["image"]), a["control"]
         assert a["image"].shape == rgb.shape and a["image"].dtype == np.uint8
@@ -1088,7 +1197,7 @@ def test_calibration_end_to_end(project):
     md = (project / "gate" / "gate_calibration.md").read_text(encoding="utf-8")
     assert js["schema_version"] == "0.1" and js["project"] == "toy" and js["incomplete"] is False
     assert js["views"] == ["cam_a", "cam_b"] and [o["wenart_id"] for o in js["objects"]["cam_a"]] == ["f_1", "win_1"]
-    assert len(js["benign"]) == 14 and all(r["decision"] == "accept" for r in js["benign"])
+    assert len(js["benign"]) == 16 and all(r["decision"] == "accept" for r in js["benign"])
     assert js["rates"]["benign_accept"] == 1.0
     controls = {(r["control"], r["camera"]) for r in js["negative"]}
     assert {("removal", "cam_a"), ("insertion", "cam_a"), ("paste", "cam_a"), ("paste", "cam_b")} <= controls
