@@ -1,4 +1,11 @@
-"""End-to-end vector path (wenart/ingest/pipeline.py) on the synthetic projects."""
+"""End-to-end vector path (wenart/ingest/pipeline.py) on the synthetic projects.
+
+The four vector projects (synthetic-01, -03, -04, -05) must reproduce their
+truth element by element; synthetic-02 (scan and photo only) stops at
+``needs_review``. synthetic-04 draws one level twice (DXF + vector PDF, both
+with furniture); synthetic-05 takes its furniture from a furniture-plan DXF
+(docs/milestone6.md §3).
+"""
 import shutil
 
 import ezdxf
@@ -19,7 +26,8 @@ from wenart.synthetic.projects import level_01_birinci, level_01_zemin
 from conftest import (PROJECTS, assert_one_to_one, furniture_matches, load_truth, opening_matches, room_matches,
                       wall_matches)
 
-NAMES = ["synthetic-01", "synthetic-02", "synthetic-03"]
+NAMES = ["synthetic-01", "synthetic-02", "synthetic-03", "synthetic-04", "synthetic-05"]
+VECTOR_NAMES = ["synthetic-01", "synthetic-03", "synthetic-04", "synthetic-05"]
 FURNITURE_PLAN_TITLE = "ZEMİN KAT MOBİLYA PLANI"
 
 
@@ -58,7 +66,7 @@ def conflict_keys(conflicts):
     return sorted((c["kind"], tuple(sorted(c["element_ids"]))) for c in conflicts)
 
 
-@pytest.mark.parametrize("name", ["synthetic-01", "synthetic-03"])
+@pytest.mark.parametrize("name", VECTOR_NAMES)
 def test_matches_truth(built, name):
     building, out_dir = built[name]
     truth = load_truth(name)
@@ -84,6 +92,9 @@ def test_matches_truth(built, name):
                       "furniture")
     assert conflict_keys(building["conflicts"]) == conflict_keys(truth["conflicts"])
     assert building["unverified"] == truth["unverified"]
+    assert building["project"].get("brief") == truth["project"].get("brief")
+    # Every warning the truth expects is reported (synthetic-01 also reports its skipped scan page).
+    assert [w for w in truth["warnings"] if w not in building["warnings"]] == []
     # Element ids, wall links and swing sides follow the same conventions as the truth.
     assert {w["id"] for w in building["walls"]} == {w["id"] for w in truth["walls"]}
     assert {o["id"] for o in building["openings"]} == {o["id"] for o in truth["openings"]}
@@ -98,6 +109,7 @@ def test_matches_truth(built, name):
         assert r["has_documented_furniture"] == t["has_documented_furniture"]
         assert r["area_label"] == t["area_label"] and r["label_raw"] == t["label_raw"] and r["room_type"] == t["room_type"]
         assert r["status"] == t["status"]
+        assert r["polygon"] == t["polygon"], r["id"]   # also the L-shaped rooms of synthetic-04 (6 vertices)
         assert any(e["method"] == "derived" for e in r["evidence"])
     truth_furniture = {f["id"]: f for f in truth["furniture"]}
     for f in building["furniture"]:
@@ -106,7 +118,7 @@ def test_matches_truth(built, name):
         assert f["source"] == "from_documents" and f["front_deg"] == t["front_deg"]
 
 
-@pytest.mark.parametrize("name", ["synthetic-01", "synthetic-03"])
+@pytest.mark.parametrize("name", VECTOR_NAMES)
 def test_evidence_matches_truth(built, name):
     """Every vector evidence entry of the truth is reproduced (file, page, entity)."""
     building, _ = built[name]
@@ -135,6 +147,56 @@ def test_dxf_wins_over_pdf_for_zemin_kat(built):
     assert [c["id"] for c in building["conflicts"]] == ["c_001", "c_002", "c_003"]
     salon = next(r for r in building["rooms"] if r["id"] == "r_L0_salon")
     assert [e["file"] for e in salon["evidence"]] == ["mobilya_plani.dxf", "kat_planlari.pdf", "mobilya_plani.dxf"]
+
+
+def test_dxf_and_pdf_of_the_same_level_agree_synthetic_04(built):
+    """synthetic-04 draws L3 as DXF and vector PDF, both with furniture: the DXF is the master, every
+    element is confirmed by the PDF (two evidence entries), the untyped PDF footprints take the DXF
+    block types, and the 45-degree armchair is matched across both documents."""
+    building, _ = built["synthetic-04"]
+    assert building["status"] == "ok" and building["conflicts"] == [] and building["unverified"] == []
+    assert [lv["id"] for lv in building["levels"]] == ["L3"] and building["levels"][0]["elevation"] == 9.0
+    for key in ("walls", "openings", "furniture"):
+        for element in building[key]:
+            assert [e["file"] for e in element["evidence"]] == ["3_kat_plani.dxf", "3_kat_plani_pdf.pdf"], element["id"]
+            assert element["status"] == "verified"
+    for piece in building["furniture"]:
+        assert piece["type"] != "unknown" and piece["source"] == "from_documents"
+        dxf, pdf = piece["evidence"]
+        assert dxf["entity"].startswith("INSERT:") and dxf["block"] == piece["type_raw"]
+        assert pdf["entity"].startswith("path:") and pdf["page"] == 1
+    armchair = next(f for f in building["furniture"] if f["type_raw"] == "KOLTUK")
+    assert armchair["footprint"]["rotation_deg"] == pytest.approx(315.0) and armchair["front_deg"] == pytest.approx(225.0)
+    assert armchair["room_id"] == "r_L3_salon_mutfak"
+    rooms = {r["id"]: r for r in building["rooms"]}
+    assert len(rooms["r_L3_salon_mutfak"]["polygon"]) == 6 and len(rooms["r_L3_hol"]["polygon"]) == 6
+    assert rooms["r_L3_salon_mutfak"]["room_type"] == "living" and rooms["r_L3_salon_mutfak"]["area_label"] == 39.05
+    assert not rooms["r_L3_hol"]["has_documented_furniture"] and not rooms["r_L3_cocuk_odasi"]["has_documented_furniture"]
+    assert sorted(d["file"] for d in building["documents"]) == ["3_kat_plani.dxf", "3_kat_plani_pdf.pdf"]
+
+
+def test_furniture_plan_is_the_furniture_source_synthetic_05(built):
+    """synthetic-05: the floor-plan DXF draws no furniture, the furniture-plan DXF draws all 26 pieces; the
+    pipeline takes them from the furniture plan and says so in a warning. The style photo is not a document."""
+    building, out_dir = built["synthetic-05"]
+    truth = load_truth("synthetic-05")
+    assert building["status"] == "ok" and building["conflicts"] == [] and building["unverified"] == []
+    expected = "Zemin Kat: furniture taken from zemin_kat_mobilya.dxf (26 pieces); zemin_kat.dxf draws none"
+    assert expected in building["warnings"] and expected in truth["warnings"]
+    assert expected in (out_dir / "report.md").read_text(encoding="utf-8")
+    assert sorted(d["file"] for d in building["documents"]) == ["zemin_kat.dxf", "zemin_kat_mobilya.dxf"]
+    assert len(building["furniture"]) == 26
+    for piece in building["furniture"]:
+        assert [e["file"] for e in piece["evidence"]] == ["zemin_kat_mobilya.dxf"] and piece["status"] == "verified"
+    for wall in building["walls"]:
+        assert [e["file"] for e in wall["evidence"]] == ["zemin_kat.dxf", "zemin_kat_mobilya.dxf"]
+    assert sum(w["exterior"] for w in building["walls"]) == 6
+    assert furnished_room_labels(building) == ["Banyo", "Ebeveyn Banyo", "Ebeveyn Yatak Odası", "Mutfak", "Salon",
+                                               "Yatak Odası"]
+    types = {r["label"]: r["room_type"] for r in building["rooms"]}
+    assert types["Ebeveyn Banyo"] == "bathroom" and types["Çalışma Odası"] == "other"
+    assert building["project"]["brief"]["style_photos"] == ["salon_referans.jpg"]
+    assert building["project"]["brief"]["polish"] is False
 
 
 def test_documents_and_outputs(built):

@@ -372,27 +372,102 @@ def finalise(level: Level) -> Level:
 # Layout helper used by projects.py
 # --------------------------------------------------------------------------
 
+def outer_wall_lines(outline, thickness: float) -> list[tuple[tuple[float, float], tuple[float, float]]]:
+    """Centre lines (start, end) of the outer walls of an axis-aligned outline, one per edge, in edge order.
+
+    ``outline``: the outer face of the building as vertices (metres, either
+    orientation, no closing point). Each wall lies inside the outline along
+    its edge, ``thickness`` wide. Lengthwise it runs corner to corner, as a
+    drafter draws it: to the outer corner at a convex vertex (the two walls
+    overlap in the corner square) and on to the inner corner at a reflex
+    vertex (``thickness`` past the vertex), so the wall rectangles always meet
+    and the union of all walls is one closed ring.
+
+    Why: the default 4-wall rectangle is the special case
+    ``[(0, 0), (W, 0), (W, H), (0, H)]`` (bottom, right, top, left), and a
+    notched building (synthetic-05) needs six walls built by the same rule.
+    Raises ValueError for fewer than 4 vertices, an edge that is not
+    horizontal or vertical, a zero-length edge, two collinear edges in a row
+    or a self-intersecting outline.
+    """
+    pts = [(float(x), float(y)) for x, y in outline]
+    if len(pts) > 1 and pts[0] == pts[-1]:
+        pts = pts[:-1]
+    n = len(pts)
+    if n < 4:
+        raise ValueError(f"outline needs at least 4 vertices, got {n}")
+    if not Polygon(pts).is_valid:
+        raise ValueError(f"outline is not a simple polygon: {pts}")
+    # Unit direction of every edge i (pts[i] -> pts[i+1]); axis-aligned only.
+    dirs = []
+    for i in range(n):
+        (x0, y0), (x1, y1) = pts[i], pts[(i + 1) % n]
+        dx, dy = x1 - x0, y1 - y0
+        if (dx == 0.0) == (dy == 0.0):
+            raise ValueError(f"outline edge {pts[i]} -> {pts[(i + 1) % n]} is not horizontal or vertical "
+                             "(or has zero length)")
+        dirs.append((float((dx > 0) - (dx < 0)), float((dy > 0) - (dy < 0))))
+    ccw = G.polygon_signed_area(pts) > 0
+
+    def reflex(vertex: int) -> bool:
+        """True when the outline turns inward at ``pts[vertex]`` (incoming edge vertex-1, outgoing edge vertex)."""
+        (ax, ay), (bx, by) = dirs[vertex - 1], dirs[vertex]
+        cross = ax * by - ay * bx
+        if cross == 0.0:
+            raise ValueError(f"outline edges at {pts[vertex]} are collinear")
+        return cross < 0 if ccw else cross > 0
+
+    h = thickness / 2.0
+    lines = []
+    for i in range(n):
+        dx, dy = dirs[i]
+        # Inward normal: left of the edge for a counter-clockwise outline, right for a clockwise one.
+        nx, ny = (-dy, dx) if ccw else (dy, -dx)
+        start_ext = thickness if reflex(i) else 0.0
+        end_ext = thickness if reflex((i + 1) % n) else 0.0
+        (x0, y0), (x1, y1) = pts[i], pts[(i + 1) % n]
+        start = (x0 - dx * start_ext + nx * h, y0 - dy * start_ext + ny * h)
+        end = (x1 + dx * end_ext + nx * h, y1 + dy * end_ext + ny * h)
+        lines.append((start, end))
+    return lines
+
+
 class LevelBuilder:
     """Small fluent helper so a level reads like a plan description.
 
     Walls are added as centre lines; outer walls are extended to the outer
-    corners so the four rectangles overlap there (as a drafter draws them).
+    corners so their rectangles overlap there (as a drafter draws them).
+
+    Outline: by default the ``width`` x ``height`` rectangle with four outer
+    walls (indices 0..3: bottom, right, top, left). ``outline=[(x, y), ...]``
+    (the outer face, axis-aligned, bounding box starting at the origin)
+    gives a non-rectangular building: one outer wall per edge, in edge order,
+    indices 0..n-1 (see ``outer_wall_lines``); ``width`` and ``height`` then
+    default to the bounding box and must match it when given.
     """
 
-    def __init__(self, title_raw: str, width: float, height: float,
-                 outer_thickness: float = 0.25, inner_thickness: float = 0.10) -> None:
+    def __init__(self, title_raw: str, width: Optional[float] = None, height: Optional[float] = None,
+                 outer_thickness: float = 0.25, inner_thickness: float = 0.10,
+                 outline: Optional[list] = None) -> None:
+        if outline is None:
+            if width is None or height is None:
+                raise ValueError("LevelBuilder needs width and height, or an outline")
+            outline = [(0.0, 0.0), (width, 0.0), (width, height), (0.0, height)]
+        else:
+            x0, y0, x1, y1 = G.bbox([(float(x), float(y)) for x, y in outline])
+            if (x0, y0) != (0.0, 0.0):
+                raise ValueError(f"outline bounding box must start at the origin, got ({x0}, {y0})")
+            if (width is not None and width != x1) or (height is not None and height != y1):
+                raise ValueError(f"width/height {width} x {height} do not match the outline box {x1} x {y1}")
+            width, height = x1, y1
         self.level = Level(title_raw=title_raw)
         self.width = width
         self.height = height
         self.t_out = outer_thickness
         self.t_in = inner_thickness
         self.level.title_at = (0.0, height + 1.2)
-        h = outer_thickness / 2.0
-        # Order: bottom, right, top, left (indices 0..3).
-        self.wall((0.0, h), (width, h), outer_thickness, exterior=True)
-        self.wall((width - h, 0.0), (width - h, height), outer_thickness, exterior=True)
-        self.wall((0.0, height - h), (width, height - h), outer_thickness, exterior=True)
-        self.wall((h, 0.0), (h, height), outer_thickness, exterior=True)
+        for start, end in outer_wall_lines(outline, outer_thickness):
+            self.wall(start, end, outer_thickness, exterior=True)
 
     @property
     def inner_min(self) -> float:

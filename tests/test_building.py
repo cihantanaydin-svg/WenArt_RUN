@@ -67,9 +67,126 @@ def test_evidence_constructor():
     ("DEPO", "Depo", "storage", None),
     ("ÇALIŞMA ODASI", "Çalışma Odası", "other", None),
     ("  salon   24,5 m² ", "Salon", "living", 24.5),
+    # docs/milestone6.md §3.3: several keywords -> the highest priority wins; keywords match at word start.
+    ("SALON + MUTFAK 39,05 m²", "Salon + Mutfak", "living", 39.05),
+    ("EBEVEYN BANYO", "Ebeveyn Banyo", "bathroom", None),
+    ("EBEVEYN BANYOSU", "Ebeveyn Banyosu", "bathroom", None),
+    ("LAVABO", "Lavabo", "wc", None),
+    ("TUVALET", "Tuvalet", "wc", None),
+    ("DUŞ", "Duş", "bathroom", None),
+    ("GİRİŞ", "Giriş", "hall", None),
+    ("TERAS", "Teras", "balcony", None),
+    ("YEMEK ODASI", "Yemek Odası", "other", None),
 ])
 def test_normalise_room_label(raw, label, room_type, area):
     assert B.normalise_room_label(raw) == (label, room_type, area)
+
+
+@pytest.mark.parametrize("label, room_type", [
+    # Priority: wc > bathroom > storage > balcony > bedroom > living > kitchen > hall > other.
+    ("BANYO VE WC", "wc"),
+    ("WC + DUŞ", "wc"),
+    ("BANYO KİLER", "bathroom"),
+    ("KİLER BALKON", "storage"),
+    ("YATAK ODASI BALKONU", "balcony"),
+    ("ÇOCUK SALONU", "bedroom"),
+    ("MUTFAK SALON", "living"),
+    ("MUTFAK HOLÜ", "kitchen"),
+    ("GİRİŞ HOLÜ", "hall"),
+    ("ÇALIŞMA YATAK ODASI", "bedroom"),
+    ("ÇALIŞMA HOLÜ", "hall"),
+    # Word start only: a keyword inside a word does not count.
+    ("ALKOHOL DOLABI", "other"),
+    ("MİNİ BANYO", "bathroom"),
+    ("SALONLAR", "living"),
+    ("Banyo/WC", "wc"),
+    ("2.YATAK ODASI", "bedroom"),
+    ("", "other"),
+])
+def test_room_type_priority_and_word_start(label, room_type):
+    assert B.room_type_for(label) == room_type
+
+
+def test_room_type_priority_covers_every_keyword_type():
+    keyword_types = {room_type for _, room_type in B._ROOM_TYPE_KEYWORDS}
+    assert keyword_types <= set(B.ROOM_TYPE_PRIORITY) <= set(B.ROOM_TYPES)
+    assert len(B.ROOM_TYPE_PRIORITY) == len(set(B.ROOM_TYPE_PRIORITY))
+    assert B.ROOM_TYPE_PRIORITY == ("wc", "bathroom", "storage", "balcony", "bedroom", "living", "kitchen", "hall",
+                                    "other")
+
+
+# Every room of the five synthetic projects: id -> (label as drawn, room_type). The Milestone 2 projects
+# must keep their room types (their truth must not change, docs/milestone6.md §3.3).
+PINNED_ROOM_TYPES = {
+    "synthetic-01": {
+        "r_L0_salon": ("SALON 24,50 m²", "living"),
+        "r_L0_yatak_odasi": ("YATAK ODASI", "bedroom"),
+        "r_L0_hol": ("HOL", "hall"),
+        "r_L0_banyo": ("BANYO", "bathroom"),
+        "r_L0_mutfak": ("MUTFAK", "kitchen"),
+        "r_L1_ebeveyn_yatak_odasi": ("EBEVEYN YATAK ODASI", "bedroom"),
+        "r_L1_hol": ("HOL", "hall"),
+        "r_L1_yatak_odasi": ("YATAK ODASI", "bedroom"),
+        "r_L1_banyo": ("BANYO", "bathroom"),
+        "r_L1_cocuk_odasi": ("ÇOCUK ODASI", "bedroom"),
+    },
+    "synthetic-02": {
+        "r_L0_salon": ("SALON", "living"),
+        "r_L0_yatak_odasi": ("YATAK ODASI", "bedroom"),
+        "r_L0_mutfak": ("MUTFAK", "kitchen"),
+        "r_L0_antre": ("ANTRE", "hall"),
+        "r_L0_banyo": ("BANYO", "bathroom"),
+    },
+    "synthetic-03": {
+        "r_L-1_kiler": ("KİLER", "storage"),
+        "r_L-1_hol": ("HOL", "hall"),
+        "r_L-1_yatak_odasi": ("YATAK ODASI", "bedroom"),
+        "r_L-1_kiler_2": ("KİLER", "storage"),
+        "r_L-1_wc": ("WC", "wc"),
+        "r_L-1_banyo": ("BANYO", "bathroom"),
+        "r_L0_salon": ("SALON 24,00 m²", "living"),
+        "r_L0_hol": ("HOL", "hall"),
+        "r_L0_yatak_odasi": ("YATAK ODASI", "bedroom"),
+        "r_L0_mutfak": ("MUTFAK", "kitchen"),
+        "r_L0_antre": ("ANTRE", "hall"),
+        "r_L0_wc": ("WC", "wc"),
+        "r_L0_kiler": ("KİLER", "storage"),
+        "r_L1_ebeveyn_yatak_odasi": ("EBEVEYN YATAK ODASI", "bedroom"),
+        "r_L1_hol": ("HOL", "hall"),
+        "r_L1_yatak_odasi": ("YATAK ODASI", "bedroom"),
+        "r_L1_cocuk_odasi": ("ÇOCUK ODASI", "bedroom"),
+        "r_L1_banyo": ("BANYO", "bathroom"),
+        "r_L1_balkon": ("BALKON", "balcony"),
+    },
+    "synthetic-04": {
+        "r_L3_salon_mutfak": ("SALON + MUTFAK 39,05 m²", "living"),
+        "r_L3_yatak_odasi": ("YATAK ODASI", "bedroom"),
+        "r_L3_hol": ("HOL", "hall"),
+        "r_L3_cocuk_odasi": ("ÇOCUK ODASI", "bedroom"),
+        "r_L3_banyo": ("BANYO", "bathroom"),
+    },
+    "synthetic-05": {
+        "r_L0_salon": ("SALON 19,76 m²", "living"),
+        "r_L0_ebeveyn_yatak_odasi": ("EBEVEYN YATAK ODASI", "bedroom"),
+        "r_L0_ebeveyn_banyo": ("EBEVEYN BANYO", "bathroom"),
+        "r_L0_mutfak": ("MUTFAK", "kitchen"),
+        "r_L0_hol": ("HOL", "hall"),
+        "r_L0_calisma_odasi": ("ÇALIŞMA ODASI", "other"),
+        "r_L0_antre": ("ANTRE", "hall"),
+        "r_L0_banyo": ("BANYO", "bathroom"),
+        "r_L0_yatak_odasi": ("YATAK ODASI", "bedroom"),
+    },
+}
+
+
+@pytest.mark.parametrize("name", sorted(PINNED_ROOM_TYPES))
+def test_room_types_pinned_for_synthetic_projects(name):
+    """The committed truth and a fresh label lookup both give the pinned room types."""
+    truth = B.load(ROOT / "projects" / name / "truth" / "building.json")
+    got = {r["id"]: (r["label_raw"], r["room_type"]) for r in truth["rooms"]}
+    assert got == PINNED_ROOM_TYPES[name]
+    for label_raw, room_type in PINNED_ROOM_TYPES[name].values():
+        assert B.normalise_room_label(label_raw)[1] == room_type, label_raw
 
 
 @pytest.mark.parametrize("raw, expected", [
