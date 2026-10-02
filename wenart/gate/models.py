@@ -18,6 +18,14 @@ gives numpy results:
   processor is told ``size={"height": 518, "width": 924}`` for a 16:9 image
   and ``do_center_crop=False``; the CLS token is dropped).
 
+Every image goes to the device once as a uint8 3 x H x W tensor and the
+processors get ``device=`` (an ``ImagesKwargs`` key of the torchvision
+backend), so the resize and normalisation run on the GPU; the depth
+upsampling and the SAM mask upsampling + threshold run there too, and only
+the final float32 disparity / bool masks / tokens are copied back. On the
+CPU these steps used every host thread (pod run 0b, 112 visible CPUs) and
+competed with the gate's own numpy work.
+
 The APIs were checked against the transformers 5.18.0 wheel source
 (``models/sam2/processing_sam2.py`` ``__call__`` and ``post_process_masks``,
 ``modeling_sam2.py`` ``get_image_embeddings``/``forward``,
@@ -151,10 +159,17 @@ class Models:
 
     # ----------------------------------------------------------------- calls
 
-    @staticmethod
-    def _image(rgb):
-        from PIL import Image
-        return Image.fromarray(np.ascontiguousarray(np.asarray(rgb, dtype=np.uint8)[:, :, :3]))
+    def _image(self, rgb):
+        """uint8 3 x H x W tensor of an RGB image, already on the device.
+
+        The image processors (torchvision backend) then resize and normalise
+        it on the device (``device=`` below) instead of on the CPU, where
+        their resize ran with every host thread (pod run 0b: the gate checks
+        took 5-24 s per comparison on a contended pod).
+        """
+        import torch
+        a = np.ascontiguousarray(np.asarray(rgb, dtype=np.uint8)[:, :, :3])
+        return torch.from_numpy(a).to(self.device).permute(2, 0, 1).contiguous()
 
     def depth(self, rgb) -> np.ndarray:
         """float32 H x W relative disparity of an RGB uint8 image (Depth Anything V2 Small)."""
@@ -162,11 +177,13 @@ class Models:
         proc, model = self._ready("depth")
         try:
             h, w = np.asarray(rgb).shape[:2]
-            inputs = proc(images=self._image(rgb), return_tensors="pt")
+            inputs = proc(images=self._image(rgb), return_tensors="pt", device=self.device)
             with torch.inference_mode():
                 outputs = model(pixel_values=inputs["pixel_values"].to(self.device))
+                # Bicubic upsampling to (H, W) runs where the prediction is (the device), in float32.
                 post = proc.post_process_depth_estimation(outputs, target_sizes=[(h, w)])
-            return post[0]["predicted_depth"].float().cpu().numpy().astype(np.float32)
+                disp = post[0]["predicted_depth"].float().cpu()
+            return np.asarray(disp.numpy(), dtype=np.float32)
         finally:
             self._release("depth")
 
@@ -179,7 +196,7 @@ class Models:
             return np.zeros((0, h, w), dtype=bool)
         proc, model = self._ready("sam")
         try:
-            inputs = proc(images=self._image(rgb), input_boxes=[boxes], return_tensors="pt")
+            inputs = proc(images=self._image(rgb), input_boxes=[boxes], return_tensors="pt", device=self.device)
             out = []
             with torch.inference_mode():
                 embeddings = model.get_image_embeddings(inputs["pixel_values"].to(self.device))
@@ -187,8 +204,10 @@ class Models:
                 for start in range(0, len(boxes), SAM_CHUNK):
                     chunk = all_boxes[:, start:start + SAM_CHUNK].to(self.device)
                     result = model(image_embeddings=embeddings, input_boxes=chunk, multimask_output=False)
-                    masks = proc.post_process_masks(result.pred_masks.cpu(), inputs["original_sizes"])[0]
-                    out.append(masks[:, 0].numpy().astype(bool))
+                    # Upsample the low-res logits to (H, W) and threshold on the device; only the bool masks
+                    # come back (they used to be upsampled on the CPU in float32, N x H x W).
+                    masks = proc.post_process_masks(result.pred_masks, inputs["original_sizes"])[0]
+                    out.append(np.asarray(masks[:, 0].cpu().numpy(), dtype=bool))
             return np.concatenate(out, axis=0)
         finally:
             self._release("sam")
@@ -202,12 +221,12 @@ class Models:
             patch = int(getattr(model.config, "patch_size", 14))
             size_h, size_w = dino_size(w, h, patch)
             inputs = proc(images=self._image(rgb), size={"height": size_h, "width": size_w},
-                          do_center_crop=False, return_tensors="pt")
+                          do_center_crop=False, return_tensors="pt", device=self.device)
             with torch.inference_mode():
                 outputs = model(pixel_values=inputs["pixel_values"].to(self.device))
             skip = 1 + int(getattr(model.config, "num_register_tokens", 0) or 0)
             tokens = outputs.last_hidden_state[0, skip:].float().cpu().numpy()
             gh, gw = size_h // patch, size_w // patch
-            return tokens.reshape(gh, gw, -1).astype(np.float32)
+            return np.asarray(tokens, dtype=np.float32).reshape(gh, gw, -1)
         finally:
             self._release("dino")

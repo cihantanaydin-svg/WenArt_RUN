@@ -22,10 +22,10 @@ def iou(a, b) -> Optional[float]:
     """Intersection over union of two bool masks (None when both are empty)."""
     a = np.asarray(a, dtype=bool)
     b = np.asarray(b, dtype=bool)
-    union = int((a | b).sum())
+    union = int(np.count_nonzero(a | b))
     if union == 0:
         return None
-    return int((a & b).sum()) / union
+    return int(np.count_nonzero(a & b)) / union
 
 
 def mask_box(mask) -> Optional[list[int]]:
@@ -43,7 +43,7 @@ def sam_objects(region_masks: dict, object_ids: Iterable[str], total_px: int, mi
     boxes, skipped = {}, {}
     for rid in object_ids:
         m = np.asarray(region_masks[rid], dtype=bool)
-        n = int(m.sum())
+        n = int(np.count_nonzero(m))
         if n == 0 or n / float(total_px) < float(min_frac):
             skipped[rid] = "too_small"
             continue
