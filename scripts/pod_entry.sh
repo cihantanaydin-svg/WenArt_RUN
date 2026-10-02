@@ -8,6 +8,7 @@
 #                           MAX_RUNTIME_S GRACE_S WENART_IMAGE WENART_EXPECT_VOLUME
 #                           (HF_TOKEN from the RunPod secret)
 # Env (set by RunPod):      RUNPOD_POD_ID RUNPOD_API_KEY (pod-scoped) RUNPOD_VOLUME_ID RUNPOD_DC_ID
+# Env (set here, for jobs): WENART_DEADLINE (epoch s) = start + MAX_RUNTIME_S - 900
 set -Eeuo pipefail
 
 JOB_ID="${JOB_ID:-job}"
@@ -21,6 +22,16 @@ LOG=/tmp/pod_entry-$JOB_ID.log     # moved under /workspace/logs once that is wr
 
 ts() { date -u +%Y-%m-%dT%H:%M:%SZ; }
 log() { echo "[$(ts)] entry: $*"; }
+
+# deadline_epoch <start_s> <max_runtime_s>: the moment after which the heavy job steps start
+# nothing new (docs/milestone5.md §8.2): 15 min before the watchdog, so the reports are
+# written and copied before the pod stops. Runs shorter than 30 min keep half their time.
+DEADLINE_MARGIN_S=900
+deadline_epoch() {
+  local start=$1 max=$2 margin=$DEADLINE_MARGIN_S
+  if [ "$max" -lt $(( 2 * margin )) ]; then margin=$(( max / 2 )); fi
+  echo $(( start + max - margin ))
+}
 
 # stop_pod never gives up and never returns before the API confirms EXITED/TERMINATED.
 stop_pod() {
@@ -63,6 +74,7 @@ PY
 }
 
 # 1. Safety net first: the watchdog and the error trap exist before anything can fail.
+START_S=$(date +%s)
 ( sleep "$MAX_RUNTIME_S"
   echo "[$(ts)] WATCHDOG: max runtime ${MAX_RUNTIME_S}s reached" | tee -a "$LOG"
   write_status "timeout" 124
@@ -84,6 +96,8 @@ finish() {  # exit_code reason
 }
 on_error() { set +e; trap - ERR; log "ERROR at line $1"; finish 1 "trap"; }
 trap 'on_error $LINENO' ERR
+WENART_DEADLINE=$(deadline_epoch "$START_S" "$MAX_RUNTIME_S") || WENART_DEADLINE=""
+export WENART_DEADLINE
 
 mkdir -p "$LOGS" "$JOB_DIR/results" "$PUBLIC"
 if [ -w "$LOGS" ]; then
@@ -92,7 +106,7 @@ if [ -w "$LOGS" ]; then
 fi
 exec > >(tee -a "$LOG") 2>&1
 log "pod ${RUNPOD_POD_ID:-?} dc ${RUNPOD_DC_ID:-?} volume ${RUNPOD_VOLUME_ID:-none} job $JOB_ID image ${WENART_IMAGE:-?}"
-log "watchdog armed: ${MAX_RUNTIME_S}s (pid $WATCHDOG_PID)"
+log "watchdog armed: ${MAX_RUNTIME_S}s (pid $WATCHDOG_PID); WENART_DEADLINE=${WENART_DEADLINE:-none} (start $START_S)"
 nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader || log "nvidia-smi failed"
 if [ "${WENART_EXPECT_VOLUME:-0}" = "1" ] && [ -z "${RUNPOD_VOLUME_ID:-}" ]; then
   log "expected a network volume but RUNPOD_VOLUME_ID is empty"; finish 3 "no volume"
