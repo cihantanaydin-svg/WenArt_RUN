@@ -323,6 +323,55 @@ def test_run_ladder_first_accepted_attempt_wins(tmp_path):
     assert "# Polish report: toy (run)" in report and "cam_c" in report and "delta:global" in report
 
 
+def _png_zlib_header(path):
+    """The first two bytes of the zlib stream in the first IDAT chunk of a PNG file."""
+    data = Path(path).read_bytes()
+    pos = 8
+    while pos < len(data):
+        length = int.from_bytes(data[pos:pos + 4], "big")
+        if data[pos + 4:pos + 8] == b"IDAT":
+            return data[pos + 8:pos + 10]
+        pos += 12 + length
+    raise AssertionError("no IDAT chunk")
+
+
+def test_attempt_pngs_are_written_fast_lossless_and_hashed_once(tmp_path):
+    """Pod run 0b: the CPU side of an attempt was mostly the PNG encoder at its default zlib level 6."""
+    import hashlib
+    out = make_project(tmp_path, cameras=("cam_a",))
+    deps, backend, gate = make_deps(backend=FakeBackend(noise=1))
+    m = run_polish(out, "run", deps=deps)
+    rec = view_of(m, "cam_a")["attempts"][0]
+    path = out / "polish" / rec["png"]
+    assert _png_zlib_header(path)[1] & 0xC0 == 0                     # zlib FLEVEL 0: the fastest level
+    assert rec["sha256"] == hashlib.sha256(path.read_bytes()).hexdigest()
+    from wenart.polish.runner import write_attempt_png
+    rgb = np.random.default_rng(1).integers(0, 256, (H, W, 3), dtype=np.uint8)
+    p, sha = write_attempt_png(tmp_path / "x" / "a.png", rgb)
+    assert np.array_equal(V.read_rgb(p), rgb) and sha == hashlib.sha256(p.read_bytes()).hexdigest()
+    assert not list((tmp_path / "x").glob("*.tmp"))
+    with pytest.raises(ValueError):
+        write_attempt_png(tmp_path / "x" / "b.png", rgb.astype(np.float32))
+
+
+def test_attempt_records_split_their_time(tmp_path):
+    """Where an attempt's time goes: the pipeline call (``diffusion_seconds``), the rest of ``generate``
+    (``seconds`` - ``diffusion_seconds``), the runner's own CPU work (``cpu_seconds``) and the gate."""
+    out = make_project(tmp_path, cameras=("cam_a",))
+
+    class TimedBackend(FakeBackend):
+        def generate(self, image, control, **kwargs):
+            img, meta = super().generate(image, control, **kwargs)
+            return img, dict(meta, seconds=1.25)
+
+    deps, backend, gate = make_deps(backend=TimedBackend())
+    m = run_polish(out, "run", deps=deps)
+    rec = view_of(m, "cam_a")["attempts"][0]
+    assert rec["diffusion_seconds"] == 1.25
+    assert isinstance(rec["cpu_seconds"], float) and 0 <= rec["cpu_seconds"] < 10
+    assert isinstance(rec["gate_seconds"], float) and isinstance(rec["seconds"], float)
+
+
 def test_pane_restore_keeps_the_cycles_outside_view(tmp_path):
     out = make_project(tmp_path, cameras=("cam_a",))
     deps, backend, gate = make_deps(backend=FakeBackend(paint_sky=True))
@@ -366,6 +415,57 @@ def test_failed_attempt_moves_on_and_is_reported(tmp_path):
     deps, backend, gate = make_deps(backend=FakeBackend(fail_strengths={0.375, 0.25, 0.125}))
     m = run_polish(out, "run", deps=deps, force=True)
     assert (view_of(m, "cam_a")["final"], view_of(m, "cam_a")["reason"]) == ("cycles", "error")
+
+
+class OOMBackend(FakeBackend):
+    """A backend whose first polish hits a CUDA OOM: it calls its release hook before its retry (zimage)."""
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.release_hook = None
+        self.released = 0
+
+    def generate(self, image, control, **kwargs):
+        if not self.released:
+            self.released += 1
+            self.release_hook()
+        return super().generate(image, control, **kwargs)
+
+
+class ReleasingGate(FakeGate):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.releases = 0
+
+    def release_gpu(self):
+        self.releases += 1
+
+
+def test_the_backend_release_hook_moves_the_gate_models_off_the_gpu(tmp_path):
+    out = make_project(tmp_path, cameras=("cam_a",))
+    deps, backend, gate = make_deps(backend=OOMBackend(), gate=ReleasingGate())
+    m = run_polish(out, "run", deps=deps)
+    assert backend.released == 1 and gate.releases == 1
+    assert view_of(m, "cam_a")["final"] == "polished" and validate_manifest(m) == []
+    # A gate without release_gpu (or none loaded yet) is fine: the hook does nothing.
+    deps, backend, gate = make_deps(backend=OOMBackend())
+    m = run_polish(out, "run", deps=deps, force=True)
+    assert backend.released == 1 and view_of(m, "cam_a")["final"] == "polished"
+    run = PolishRun(out, "run", deps=make_deps(backend=OOMBackend())[0])
+    run._ensure_backend()
+    run.backend.release_hook()                                   # no gate yet: nothing to release
+
+
+def test_oom_retries_of_the_backend_reach_the_manifest(tmp_path):
+    out = make_project(tmp_path, cameras=("cam_a",))
+
+    class RetryingBackend(FakeBackend):
+        def stats(self):
+            return dict(super().stats(), oom_retries=2)
+
+    deps, backend, gate = make_deps(backend=RetryingBackend())
+    m = run_polish(out, "run", deps=deps)
+    assert m["oom_retries"] == 2 and m["memory_mode"] == "resident"
 
 
 class FailingLoadBackend(FakeBackend):
@@ -500,6 +600,62 @@ def test_new_gate_key_regates_stored_pngs(tmp_path):
     r = view_of(m, "cam_a")["attempts"][0]
     assert backend.calls == [] and gate.compared == ["cam_a"]
     assert r["reused"] and not r["gate_reused"] and r["gate"]["gate_key"] == "gate-key-2"
+
+
+def decide_with_errors(metrics, thresholds):
+    """``fake_decide`` plus the rule of the real ``decide``: a check with an ``error`` fails."""
+    errors = [{"check": c, "region": "global", "value": None, "threshold": None, "op": "<=", "error": m["error"]}
+              for c, m in metrics.items() if isinstance(m, dict) and m.get("error")]
+    decision, reasons, notes = fake_decide(metrics, thresholds)
+    return ("reject" if errors else decision), errors + reasons, notes
+
+
+class ModelErrorGate(FakeGate):
+    """A gate whose SAM check failed (CUDA OOM): stored as an error metric, the attempt is rejected."""
+
+    def compare(self, ref, test_rgb):
+        result = super().compare(ref, test_rgb)
+        result["metrics"]["masks"] = {"global": None, "regions": {}, "skipped": {},
+                                      "error": "OutOfMemoryError: CUDA out of memory"}
+        result["decision"], result["reasons"], result["notes"] = decide_with_errors(result["metrics"],
+                                                                                    self.thresholds)
+        return result
+
+
+def test_stored_gate_metrics_with_a_model_error_are_computed_again(tmp_path):
+    """Review finding: a check that could not be computed (SAM out of memory, a missing snapshot) was reused
+    with the same gate_key on the next run, so a transient model failure became a permanent reject."""
+    out = make_project(tmp_path, cameras=("cam_a",))
+    deps, backend, gate = make_deps(gate=ModelErrorGate())
+    deps.decide = decide_with_errors
+    first = run_polish(out, "run", deps=deps)
+    a = view_of(first, "cam_a")
+    assert (a["final"], a["reason"]) == ("cycles", "gate") and len(a["attempts"]) == 3
+    assert all(r["gate"]["metrics"]["masks"]["error"] for r in a["attempts"])
+    # The model works again; the gate key is the same (it covers code, model revisions and the reference only).
+    deps, backend, gate = make_deps(gate=FakeGate(key="gate-key-1"))
+    deps.decide = decide_with_errors
+    m = run_polish(out, "run", deps=deps)
+    a = view_of(m, "cam_a")
+    r1 = a["attempts"][0]
+    assert backend.calls == [] and gate.compared == ["cam_a"]          # the PNG is reused, the gate runs again
+    assert r1["reused"] and not r1["gate_reused"] and r1["gate"]["decision"] == "accept"
+    assert "masks" not in r1["gate"]["metrics"]
+    assert (a["final"], a["final_attempt"]) == ("polished", 1) and validate_manifest(m) == []
+    # Complete metrics are reused as before.
+    deps, backend, gate = make_deps(gate=FakeGate(key="gate-key-1"))
+    deps.decide = decide_with_errors
+    m = run_polish(out, "run", deps=deps)
+    assert gate.compared == [] and view_of(m, "cam_a")["attempts"][0]["gate_reused"]
+
+
+def test_gate_metrics_complete():
+    from wenart.polish.runner import gate_metrics_complete
+    ok = {"camera": "c", "edges": {"global": 0.9, "regions": {"f_1": 0.8}, "skipped": {}},
+          "regions": {"f_1": {"kind": "furniture", "pixels": 10}}, "seconds": {"edges": 0.1}, "size": [64, 40]}
+    assert gate_metrics_complete(ok)
+    assert not gate_metrics_complete(dict(ok, depth={"global": None, "regions": {}, "skipped": {}, "error": "x"}))
+    assert not gate_metrics_complete(None) and not gate_metrics_complete({}) and not gate_metrics_complete([1])
 
 
 def test_decision_is_recomputed_with_the_current_thresholds(tmp_path):
