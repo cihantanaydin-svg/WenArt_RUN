@@ -34,7 +34,9 @@ very image without rejecting it. The check rejects (``vision_check``) when
 its manifest says so or when an element ok/unverified on the Cycles render is
 confirmed missing/changed on the polished one (recomputed here as a second
 look); it is ``check_incomplete`` when the check did not run, did not see
-this polished image or the Cycles image, or a pass was not computed or
+this polished image or the Cycles image (the check manifest's
+``image_sha256`` must hold the current file's sha256: a re-polish writes
+new pixels under the same file name), or a pass was not computed or
 unreliable. Everything else stays Cycles with the polish's own reason.
 Nothing is auto-fixed: mismatches are listed with their evidence.
 """
@@ -456,8 +458,11 @@ def crosscheck_items(cc: Optional[dict]) -> list[dict]:
                 detail.append(f"visible {float(it['visible_share']):.2f}")
             if it.get("area_frac") is not None:
                 detail.append(f"area {float(it['area_frac']):.3f}")
-            if it.get("offset_frac_w") is not None:
+            if it.get("offset_frac_w") is not None:            # check manifests before the containment test
                 detail.append(f"offset {float(it['offset_frac_w']):.3f} W")
+            if it.get("outside_share") is not None:
+                detail.append(f"{float(it['outside_share']) * 100:.0f} % of its pixels > "
+                              f"{float(it.get('margin_m') or 0.1):.2f} m outside the drawing")
             if it.get("pixels") is not None:
                 detail.append(f"{it['pixels']} px")
             items.append({"image": "cycles", "what": "crosscheck", "id": it.get("id"), "type": it.get("type"),
@@ -469,6 +474,27 @@ def crosscheck_items(cc: Optional[dict]) -> list[dict]:
 # --------------------------------------------------------------------------
 # The decision
 # --------------------------------------------------------------------------
+
+def other_pixels(entry: dict, sha256: Optional[str], what: str) -> Optional[str]:
+    """Why a check entry is not about the image with ``sha256`` (None when it is).
+
+    The check manifest records the sha256 of every image it checked
+    (``image_sha256``); a file name is not enough, because a re-run of the
+    polish writes new pixels under the same ``<cam>_a<k>.png``. ``sha256``
+    None = the current file is unknown (no PNG in a results copy): not
+    compared. A manifest without hashes cannot vouch for any image.
+    """
+    if sha256 is None:
+        return None
+    shas = entry.get("image_sha256")
+    if not shas:
+        return (f"the check manifest records no sha256 of the {what} it checked "
+                "(re-run vision_check combine on the current images)")
+    if sha256 not in shas:
+        return (f"the vision check saw other pixels than the current {what} (image sha256 differs; "
+                "re-run the vision check)")
+    return None
+
 
 def _cycles(reason: Optional[str], detail: Optional[str], candidate: Optional[dict] = None) -> dict:
     return {"final": "cycles", "reason": reason, "detail": detail, "candidate": candidate}
@@ -503,8 +529,11 @@ def decide(pview: Optional[dict], cview: Optional[dict], *, polish_ran: bool, ch
     candidate = next((a for a in pview.get("attempts") or [] if a.get("k") == k), None)
     if candidate is None or not candidate.get("png"):
         return _cycles("error", f"polish final attempt {k} has no image in the manifest")
-    if polish_dir is not None and not (Path(polish_dir) / candidate["png"]).is_file():
-        return _cycles("error", f"polished image {candidate['png']} not found", candidate)
+    polished_sha256 = candidate.get("sha256")
+    if polish_dir is not None:
+        if not (Path(polish_dir) / candidate["png"]).is_file():
+            return _cycles("error", f"polished image {candidate['png']} not found", candidate)
+        polished_sha256 = C.sha256_file(Path(polish_dir) / candidate["png"])      # the file that would ship
     if source_sha256 and pview.get("source_sha256") and pview["source_sha256"] != source_sha256:
         return _cycles("error", "polished from another render (source sha256 differs from the current render)",
                        candidate)
@@ -520,6 +549,11 @@ def decide(pview: Optional[dict], cview: Optional[dict], *, polish_ran: bool, ch
     seen = [Path(str(p)).name for p in polished.get("images") or []]
     if seen and Path(candidate["png"]).name not in seen:
         return _cycles("check_incomplete", f"the check saw {', '.join(seen)}, not {candidate['png']}", candidate)
+    for entry, sha, what in ((polished, polished_sha256, f"polished image {candidate['png']}"),
+                             (cycles, source_sha256, "Cycles render")):
+        why = other_pixels(entry, sha, what)
+        if why:
+            return _cycles("check_incomplete", why, candidate)
     if cview.get("polished_rejected"):
         reasons = cview.get("polished_reasons") or []
         reason = cview.get("polished_reason")

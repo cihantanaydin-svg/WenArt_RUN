@@ -457,14 +457,19 @@ def test_calibration_without_controls_or_single_pass_is_advisory():
     assert cal["advisory_reasons"][0].startswith("single pass")
 
 
-def test_plan_ab_adopted_only_when_removal_detection_rises_without_more_false_alarms():
+def test_plan_ab_favours_the_crop_only_when_removal_detection_rises_without_more_false_alarms():
     # Without the plan the removals are confirmed for cam_0..cam_4 (removal=(5, 5, 5)).
     cal = CAL.calibrate(manifest_with(removal=(3, 3, 0), plan=[True, True, True]), CFG)
     ab = cal["plan_ab"]
     assert ab["removal_confirmed_without"] == 0.0 and ab["removal_confirmed_with"] == 1.0
-    assert ab["fa_missing_with"] == ab["fa_missing_without"] and ab["adopted"] and ab["text"] == CAL.ADOPTED_TEXT
+    assert ab["fa_missing_with"] == ab["fa_missing_without"] and ab["favours_plan"]
+    # The A/B is a proposal: the crop is used only once check.yaml says plan_image: true.
+    assert not ab["used"] and not ab["adopted"] and ab["text"] == CAL.FAVOURS_TEXT
+    assert ab["text"] == "A/B favours the plan crop: set plan_image: true to adopt"
+    used = CAL.calibrate(manifest_with(removal=(3, 3, 0), plan=[True, True, True]), {**CFG, "plan_image": True})
+    assert used["plan_ab"]["used"] and used["plan_ab"]["adopted"] and used["plan_ab"]["text"] == CAL.USED_TEXT
     cal = CAL.calibrate(manifest_with(removal=(3, 3, 3), plan=[True, True, True]), CFG)
-    assert not cal["plan_ab"]["adopted"] and cal["plan_ab"]["text"] == CAL.NOT_ADOPTED_TEXT
+    assert not cal["plan_ab"]["favours_plan"] and cal["plan_ab"]["text"] == CAL.NOT_ADOPTED_TEXT
     cal = CAL.calibrate(manifest_with(), CFG)
     assert not cal["plan_ab"]["adopted"] and cal["plan_ab"]["text"].startswith("source plan compared through")
 

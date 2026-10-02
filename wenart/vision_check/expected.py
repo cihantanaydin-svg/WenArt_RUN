@@ -30,8 +30,10 @@ How:
   (type unverified)"; only present/absent counts for them).
 - JSON cross-check: every door, window and furniture piece of the camera's
   level in the building JSON becomes an oriented 3D shape: a piece is its
-  footprint box with the height the scene builds
-  (``wenart.blender.parametric.piece_bbox``); a door or window is the
+  drawn footprint box with the height the scene built (the scene manifest's
+  ``box3d`` height of that id, else ``wenart.blender.parametric.piece_bbox``:
+  a library asset whose file is missing is built as a lower parametric
+  piece); a door or window is the
   rectangle on the wall centre line (wall + centre + sill/height defaults of
   ``wenart.blender.shell.opening_vertical``: door 2.10 m, window sill 0.90 m,
   height 1.20 m or 1.40 m above 1.5 m width). Samples on its camera-facing
@@ -42,8 +44,14 @@ How:
   occluded one does not. ``in_json_not_rendered``: visible share >= 0.35 and
   projected in-frame area >= 0.01 of the frame while its index is absent;
   ``rendered_not_in_json``: an index id with no building element;
-  ``misplaced``: index box centre vs the centre of the visible samples'
-  box > 5 % of W. These are mismatches of the Cycles render, never fixed.
+  ``misplaced``: the element's own index pixels, put back into the world
+  with their depth, lie more than ``misplaced_margin_m`` (0.10 m) outside
+  its drawn shape (a piece's footprint, any height; an opening's rectangle as
+  deep as its wall) for more than ``misplaced_max_outside`` (10 %) of them.
+  (Comparing the index-box centre with the centre of the projected box
+  flagged correctly placed beds and armchairs: the box holds air above a
+  mattress or a seat, and a library height the scene did not build.)
+  These are mismatches of the Cycles render, never fixed.
 
 Imports only stdlib, numpy, yaml (lazily), ``wenart.views`` and
 ``wenart.geometry`` at import time; the pure Blender helpers named above are
@@ -69,7 +77,6 @@ DEFAULT_LENS_MM = 24.0
 DEFAULT_SENSOR_MM = 36.0
 SAMPLE_SPACING_M = 0.04       # grid of the cross-check samples on each face
 MAX_SAMPLES_PER_AXIS = 60
-MIN_MISPLACED_SAMPLES = 4     # the visible-sample box needs a few samples to be compared
 
 # The 8 corners of a box are ordered by (sx, sy, sz) in {-0.5, 0.5}^3: index 4*ix + 2*iy + iz.
 _BOX_EDGES = tuple((a, b) for a in range(8) for b in range(a + 1, 8) if bin(a ^ b).count("1") == 1)
@@ -506,15 +513,25 @@ def opening_shape(opening: dict, building: dict, level: dict) -> Optional[dict]:
                         for sa in (-1.0, 1.0) for sz in (-1.0, 1.0)])
     return {"corners": corners, "samples": rect_samples(centre, along, [0.0, 0.0, 1.0], width, height),
             "normal": across, "two_sided": True,
-            "edges": ((0, 1), (0, 2), (1, 3), (2, 3))}
+            "edges": ((0, 1), (0, 2), (1, 3), (2, 3)),
+            # The drawn volume of the frame/leaf/glass: the opening rectangle as deep as the wall.
+            "extent": {"center": centre, "axes": [(along, width / 2.0),
+                                                  (across, float(wall.get("thickness") or 0.0) / 2.0),
+                                                  (np.array([0.0, 0.0, 1.0]), height / 2.0)]}}
 
 
-def furniture_box3d(piece: dict, level: dict) -> dict:
-    """The oriented box of a building piece: drawn footprint x the height the scene builds."""
+def furniture_box3d(piece: dict, level: dict, height: Optional[float] = None) -> dict:
+    """The oriented box of a building piece: drawn footprint x the height the scene builds.
+
+    ``height``: the height of the box the scene manifest records for that id
+    (what was built: a library asset whose file is missing falls back to a
+    lower parametric piece); None = ``piece_bbox`` from the building JSON.
+    Footprint and position always come from the building JSON.
+    """
     from wenart.blender.parametric import piece_bbox
 
     fp = piece["footprint"]
-    _, _, h, _ = piece_bbox(piece)
+    h = float(height) if height else piece_bbox(piece)[2]
     floor_z = float(level["elevation"])
     return {"center": [float(fp["center"][0]), float(fp["center"][1]), floor_z + h / 2.0],
             "size": [float(fp["size"][0]), float(fp["size"][1]), float(h)],
@@ -567,6 +584,66 @@ def _front_samples(faces, camera: dict) -> np.ndarray:
     return np.concatenate(keep) if keep else np.zeros((0, 3))
 
 
+def unproject_pixels(rows, cols, depth_m: np.ndarray, camera: dict, size) -> np.ndarray:
+    """World points (N x 3) of pixel centres (``rows``, ``cols``) at their planar depth (metres).
+
+    The inverse of ``project_points``: ``P = position + z * (f + a * r + b * u)``
+    with ``a = (col + 0.5 - W/2) / f_px`` and ``b = -(row + 0.5 - H/2) / f_px``.
+    """
+    W, H = int(size[0]), int(size[1])
+    f, r, u = camera_basis(camera["position"], camera["target"])
+    fpx = focal_px(camera, W)
+    rows = np.asarray(rows)
+    cols = np.asarray(cols)
+    z = np.asarray(depth_m, dtype=np.float64)[rows, cols]
+    a = (cols + 0.5 - W / 2.0) / fpx
+    b = -(rows + 0.5 - H / 2.0) / fpx
+    rays = f[None, :] + a[:, None] * r[None, :] + b[:, None] * u[None, :]
+    return np.asarray(camera["position"], dtype=np.float64)[None, :] + z[:, None] * rays
+
+
+def footprint_extent(box3d: dict) -> dict:
+    """The drawn footprint of a piece as an extent (its two horizontal axes; the height is not tested)."""
+    a = math.radians(float(box3d.get("rotation_deg") or 0.0))
+    w, d = float(box3d["size"][0]), float(box3d["size"][1])
+    return {"center": np.asarray(box3d["center"], dtype=np.float64),
+            "axes": [(np.array([math.cos(a), math.sin(a), 0.0]), w / 2.0),
+                     (np.array([-math.sin(a), math.cos(a), 0.0]), d / 2.0)]}
+
+
+def outside_distance(points, extent: dict) -> np.ndarray:
+    """Distance in metres of each world point outside an oriented extent (0 inside).
+
+    ``extent``: ``{"center", "axes": [(unit axis, half length), ...]}``; a
+    direction without an axis is unbounded (a piece's height).
+    """
+    d = np.asarray(points, dtype=np.float64).reshape(-1, 3) - np.asarray(extent["center"], dtype=np.float64)
+    out = np.zeros(len(d))
+    for axis, half in extent["axes"]:
+        out += np.maximum(0.0, np.abs(d @ np.asarray(axis, dtype=np.float64)) - float(half)) ** 2
+    return np.sqrt(out)
+
+
+def placement(mask: np.ndarray, depth_m: np.ndarray, camera: dict, size, extent: dict, margin: float) -> dict:
+    """How far an element's rendered pixels lie outside its drawn shape (§5.1 ``misplaced``).
+
+    The element's index pixels with a depth are put back into the world
+    (``unproject_pixels``) and measured against the drawn extent: a piece's
+    footprint, an opening's rectangle as deep as its wall. Returns
+    ``{"pixels", "outside_share" (share more than ``margin`` outside),
+    "outside_p90_m"}``. Non-circular: only the drawing, the index pass and
+    the depth pass are used, never the scene's own box of the element, so
+    neither its shape nor its built height matters.
+    """
+    rows, cols = np.nonzero(mask & (depth_m > 0))
+    out = {"pixels": int(len(rows)), "outside_share": None, "outside_p90_m": None}
+    if len(rows):
+        dist = outside_distance(unproject_pixels(rows, cols, depth_m, camera, size), extent)
+        out["outside_share"] = round(float(np.mean(dist > margin)), 4)
+        out["outside_p90_m"] = round(float(np.percentile(dist, 90)), 3)
+    return out
+
+
 def json_crosscheck(view, camera: Optional[dict], building: dict, table: dict, cfg: dict,
                     level_id: Optional[str] = None) -> dict:
     """The §5.1 building-JSON cross-check of one view (see the module docstring)."""
@@ -601,7 +678,19 @@ def json_crosscheck(view, camera: Optional[dict], building: dict, table: dict, c
     if depth_m.shape != (H, W):
         result["error"] = f"depth_mm is {depth_m.shape[1]}x{depth_m.shape[0]}, the view is {W}x{H}"
         return result
+    try:
+        index_map = view.read_index()
+    except (OSError, ValueError) as exc:
+        result["error"] = f"index unreadable: {exc}"
+        return result
+    if index_map.shape != (H, W):
+        result["error"] = f"index is {index_map.shape[1]}x{index_map.shape[0]}, the view is {W}x{H}"
+        return result
 
+    # The height of each piece as the scene built it (the manifest's box3d); position and footprint
+    # still come from the building JSON.
+    built_height = {e["wenart_id"]: e["box3d"]["size"][2] for e in table.values()
+                    if e.get("kind") == "furniture" and (e.get("box3d") or {}).get("size")}
     elements = []
     for o in building.get("openings") or []:
         if o.get("level_id") != level_id or o.get("type") not in ("door", "window"):
@@ -610,22 +699,23 @@ def json_crosscheck(view, camera: Optional[dict], building: dict, table: dict, c
         if shape is None:
             continue
         hull = projected_hull(shape["corners"], camera, (W, H), edges=shape["edges"])
-        elements.append((o["id"], o["type"], o["type"], "from_documents", o.get("status"), shape["samples"], hull))
+        elements.append((o["id"], o["type"], o["type"], "from_documents", o.get("status"), shape["samples"], hull,
+                         shape["extent"]))
     for piece in building.get("furniture") or []:
         if piece.get("level_id") != level_id or not piece.get("footprint"):
             continue
         try:
-            box3d = furniture_box3d(piece, level)
+            box3d = furniture_box3d(piece, level, built_height.get(piece["id"]))
         except (KeyError, TypeError, ValueError):
             continue
         samples = _front_samples(box_faces(box3d), camera)
         hull = projected_hull(box_corners(box3d), camera, (W, H))
         elements.append((piece["id"], "furniture", piece.get("type"), piece.get("source"), piece.get("status"),
-                         samples, hull))
+                         samples, hull, footprint_extent(box3d)))
 
-    stats = {table[i]["wenart_id"]: s for i, s in view.index_stats.items() if i in table}
+    margin = float(cc["misplaced_margin_m"])
     hidden = set(getattr(view, "hidden", ()) or ())
-    for eid, kind, etype, source, status, samples, hull in elements:
+    for eid, kind, etype, source, status, samples, hull, extent in elements:
         result["tested"] += 1
         proj = project_element(samples, hull, camera, (W, H), depth_m, tol)
         rendered = eid in ids_in_view
@@ -643,16 +733,16 @@ def json_crosscheck(view, camera: Optional[dict], building: dict, table: dict, c
                     "visible_share": proj["visible_share"], "area_frac": proj["area_frac"],
                     "box_px": proj["box_px"]})
             continue
-        if proj["visible_samples"] >= MIN_MISPLACED_SAMPLES and eid in stats:
-            b = stats[eid]["box"]
-            ic = ((b[0] + b[2]) / 2.0, (b[1] + b[3]) / 2.0)
-            pc = proj["centre_px"]
-            offset = math.hypot(ic[0] - pc[0], ic[1] - pc[1]) / float(W)
-            if offset > float(cc["misplaced_frac_w"]):
-                result["misplaced"].append({"id": eid, "kind": kind, "type": etype, "source": source,
-                                            "offset_frac_w": round(offset, 4),
-                                            "index_centre_px": [round(ic[0], 1), round(ic[1], 1)],
-                                            "projected_centre_px": pc})
+        # misplaced: the element's own rendered pixels, put back into the world, outside its drawn shape.
+        place = placement(index_map == ids_in_view[eid], depth_m, camera, (W, H), extent, margin)
+        result["projected"][eid].update(outside_share=place["outside_share"], rendered_pixels=place["pixels"])
+        if place["outside_share"] is None or place["pixels"] < int(cc["misplaced_min_pixels"]):
+            continue
+        if place["outside_share"] > float(cc["misplaced_max_outside"]):
+            result["misplaced"].append({"id": eid, "kind": kind, "type": etype, "source": source,
+                                        "status": status, "outside_share": place["outside_share"],
+                                        "outside_p90_m": place["outside_p90_m"], "pixels": place["pixels"],
+                                        "margin_m": margin})
     return result
 
 

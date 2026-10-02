@@ -129,8 +129,14 @@ def check_report(manifest: dict, calibration: Optional[dict] = None, expected: O
                          f"visible share {item['visible_share']}, area {item['area_frac']}")
         for item in cc.get("misplaced") or []:
             found = True
-            lines.append(f"- {cam}: misplaced: {item['id']} ({item.get('type')}), centre off by "
-                         f"{item['offset_frac_w'] * 100:.1f} % of the width")
+            if item.get("outside_share") is None:              # a manifest made before the containment test
+                lines.append(f"- {cam}: misplaced: {item['id']} ({item.get('type')}), centre off by "
+                             f"{float(item.get('offset_frac_w') or 0.0) * 100:.1f} % of the width")
+                continue
+            lines.append(f"- {cam}: misplaced: {item['id']} ({item.get('type')}), "
+                         f"{item['outside_share'] * 100:.0f} % of its {item['pixels']} rendered pixels lie more than "
+                         f"{item['margin_m']:.2f} m outside the drawn shape (90th percentile "
+                         f"{item['outside_p90_m']:.2f} m)")
         for item in cc.get("rendered_not_in_json") or []:
             found = True
             lines.append(f"- {cam}: rendered, not in JSON: {item['id']} (index {item['index']})")

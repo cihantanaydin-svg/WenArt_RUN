@@ -271,8 +271,15 @@ def report_markdown(project: str, sweep: Optional[dict], gate_cal: Optional[dict
                                C.pct(m.get("fa_missing_single"))] for k, m in models.items() if isinstance(m, dict)])
         pab = check_cal.get("plan_ab")
         if isinstance(pab, dict):
-            lines += ["", f"Plan A/B: {'adopted' if pab.get('adopted') else 'not adopted'}"
-                      + (f": {pab['text']}" if pab.get("text") else "") + "."]
+            # Calibrations written before plan_image existed said "adopted" for an A/B that only favoured the crop.
+            favours = pab.get("favours_plan", pab.get("adopted"))
+            if pab.get("used"):
+                state = "used (check.yaml plan_image: true)"
+            elif favours:
+                state = "favours the plan crop, not adopted (check.yaml plan_image: false)"
+            else:
+                state = "not adopted"
+            lines += ["", f"Plan A/B: {state}" + (f": {pab['text']}" if pab.get("text") else "") + "."]
             keys = [k for k in ("fa_missing_without", "fa_missing_with", "fa_extra_without", "fa_extra_with",
                                 "removal_confirmed_without", "removal_confirmed_with") if k in pab]
             if keys:

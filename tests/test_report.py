@@ -290,7 +290,16 @@ def make_project(tmp_path, *, polish=True, check=True, brief="style: Scandinavia
                     VW.write_png_rgb(out / "polish" / a["png"], rgb)
                 Image.fromarray(rgb).save(out / "polish" / f"{v['camera']}_a{a['k']}_preview.jpg", quality=80)
     if check:
-        (out / "check" / "check_manifest.json").write_text(json.dumps(check_manifest()), encoding="utf-8")
+        cm = check_manifest()
+        pviews = {v["camera"]: v for v in polish_manifest(sha)["views"]}
+        for cam, entry in cm["views"].items():
+            # The check manifest records the hash of every image it checked (vision_check combine).
+            entry["cycles"]["image_sha256"] = [sha[cam]]
+            k = pviews[cam]["final_attempt"]
+            if "polished" in entry and k is not None:
+                png = out / "polish" / f"{cam}_a{k}.png"
+                entry["polished"]["image_sha256"] = [C.sha256_file(png) if png.is_file() else "a" * 64]
+        (out / "check" / "check_manifest.json").write_text(json.dumps(cm), encoding="utf-8")
         (out / "check" / "expected_views.json").write_text(json.dumps(expected_views()), encoding="utf-8")
         (out / "check" / "check_calibration.json").write_text(json.dumps({
             "metrics": {"fa_missing": 0.02, "fa_extra": 0.05, "models": {"qwen": {"decoy_accept": 0.0},
@@ -315,9 +324,11 @@ def by_cam(manifest):
 # --------------------------------------------------------------------------
 
 POLISHED = {"final": "polished", "final_attempt": 2, "reason": None, "source_sha256": "s",
-            "attempts": [{"k": 2, "png": "cam_a2.png", "gate": gate("accept")}]}
+            "attempts": [{"k": 2, "png": "cam_a2.png", "sha256": "p", "gate": gate("accept")}]}
 OK_ENTRY = check_entry({"f_1": element("E1", "required", "furniture", "sofa", "from_documents", "ok")})
-CHECK_OK = {"cycles": OK_ENTRY, "polished": {**OK_ENTRY, "images": ["../polish/cam_a2.png"]}}
+# The check saw the render with sha256 "s" and the polished image with sha256 "p".
+CHECK_OK = {"cycles": {**OK_ENTRY, "image_sha256": ["s"]},
+            "polished": {**OK_ENTRY, "images": ["../polish/cam_a2.png"], "image_sha256": ["p"]}}
 
 
 @pytest.mark.parametrize("pview, cview, kw, final, reason", [
@@ -341,8 +352,16 @@ CHECK_OK = {"cycles": OK_ENTRY, "polished": {**OK_ENTRY, "images": ["../polish/c
     (POLISHED, {**CHECK_OK, "polished": {**OK_ENTRY, "unreliable": ["qwen"]}}, {}, "cycles", "check_incomplete"),
     (POLISHED, {**CHECK_OK, "cycles": {**OK_ENTRY, "unreliable": ["glm"]}}, {}, "cycles", "check_incomplete"),
     (POLISHED, {**CHECK_OK, "polished": {**OK_ENTRY, "preference_only": True}}, {}, "cycles", "check_incomplete"),
-    (POLISHED, {**CHECK_OK, "polished": {**OK_ENTRY, "images": ["../polish/cam_a1.png"]}}, {}, "cycles",
+    (POLISHED, {**CHECK_OK, "polished": {**CHECK_OK["polished"], "images": ["../polish/cam_a1.png"]}}, {},
+     "cycles", "check_incomplete"),
+    # The same file name with other pixels, on either image, or no hash recorded at all.
+    (POLISHED, {**CHECK_OK, "polished": {**CHECK_OK["polished"], "image_sha256": ["old"]}}, {}, "cycles",
      "check_incomplete"),
+    (POLISHED, {**CHECK_OK, "cycles": {**OK_ENTRY, "image_sha256": ["old"]}}, {}, "cycles", "check_incomplete"),
+    (POLISHED, {**CHECK_OK, "polished": {**OK_ENTRY, "images": ["../polish/cam_a2.png"]}}, {}, "cycles",
+     "check_incomplete"),
+    (POLISHED, {**CHECK_OK, "cycles": OK_ENTRY}, {}, "cycles", "check_incomplete"),
+    (POLISHED, {**CHECK_OK, "cycles": OK_ENTRY}, {"source_sha256": None}, "polished", None),
     (POLISHED, {**CHECK_OK, "polished_rejected": True, "polished_reason": "vision_check"}, {}, "cycles",
      "vision_check"),
     (POLISHED, {**CHECK_OK, "polished_rejected": True, "polished_reasons": [{"reason": "check_incomplete"}]}, {},
@@ -359,7 +378,7 @@ def test_decide_rule_table(pview, cview, kw, final, reason):
 
 
 def test_decide_recomputes_the_differential_rule():
-    lost = copy.deepcopy(OK_ENTRY)
+    lost = copy.deepcopy(CHECK_OK["polished"])                   # the check saw the polished image "p"
     lost["elements"]["f_1"]["result"] = "missing_or_changed"
     out = F.decide(POLISHED, {"cycles": OK_ENTRY, "polished": lost}, polish_ran=True, check_ran=True)
     assert out["reason"] == "vision_check" and "did not flag" in out["detail"] and "f_1" in out["detail"]
@@ -377,7 +396,11 @@ def test_decide_checks_the_polished_file(tmp_path):
     out = F.decide(POLISHED, CHECK_OK, polish_ran=True, check_ran=True, polish_dir=tmp_path)
     assert out["reason"] == "error" and "not found" in out["detail"]
     (tmp_path / "cam_a2.png").write_bytes(b"x")
-    assert F.decide(POLISHED, CHECK_OK, polish_ran=True, check_ran=True, polish_dir=tmp_path)["final"] == "polished"
+    # The file on disk is hashed (not the manifest's sha256 "p"): it is not what the check saw.
+    out = F.decide(POLISHED, CHECK_OK, polish_ran=True, check_ran=True, polish_dir=tmp_path)
+    assert out["reason"] == "check_incomplete" and "sha256 differs" in out["detail"]
+    seen = {**CHECK_OK, "polished": {**CHECK_OK["polished"], "image_sha256": [C.sha256_file(tmp_path / "cam_a2.png")]}}
+    assert F.decide(POLISHED, seen, polish_ran=True, check_ran=True, polish_dir=tmp_path)["final"] == "polished"
 
 
 # --------------------------------------------------------------------------
@@ -466,6 +489,33 @@ def test_final_report_end_to_end(tmp_path):
     assert "added_by_ai: render/polish issue, not a document conflict" not in md or "f_2" in md
     assert "c_001" in md and "Qwen/Qwen3-VL-8B-Instruct" in md and "Apache-2.0" in md
     assert "r_L0_salon" in md.split("## Rooms mixing polished and Cycles views")[1]
+
+
+def test_a_polished_image_the_check_did_not_see_is_not_final(tmp_path):
+    """Re-polished under the same attempt name (new pixels) while the old check manifest stays: the check
+    never saw this image, so it cannot be final (§5.5, §7: the check checked that very image)."""
+    out = make_project(tmp_path)
+    assert (by_cam(F.write_final(out))["cam_salon_1"]["final"]) == "polished"
+    png = out / "polish" / "cam_salon_1_a1.png"
+    rgb = VW.read_rgb(png)
+    rgb[: H // 2] = 0
+    VW.write_png_rgb(png, rgb)
+    pm = json.loads((out / "polish" / "polish_manifest.json").read_text(encoding="utf-8"))
+    pm["views"][0]["attempts"][0]["sha256"] = C.sha256_file(png)
+    (out / "polish" / "polish_manifest.json").write_text(json.dumps(pm), encoding="utf-8")
+    v = by_cam(F.write_final(out))["cam_salon_1"]
+    assert (v["final"], v["reason"]) == ("cycles", "check_incomplete") and "sha256" in v["detail"]
+    assert v["image"] == "../renders/cam_salon_1.png"
+    # A check manifest without image hashes (written before they were recorded) cannot vouch for an image.
+    cm = json.loads((out / "check" / "check_manifest.json").read_text(encoding="utf-8"))
+    cm["views"]["cam_salon_1"]["polished"]["image_sha256"] = [C.sha256_file(png)]
+    del cm["views"]["cam_salon_1"]["cycles"]["image_sha256"]
+    (out / "check" / "check_manifest.json").write_text(json.dumps(cm), encoding="utf-8")
+    v = by_cam(F.write_final(out))["cam_salon_1"]
+    assert (v["final"], v["reason"]) == ("cycles", "check_incomplete") and "re-run" in v["detail"]
+    cm["views"]["cam_salon_1"]["cycles"]["image_sha256"] = [C.sha256_file(out / "renders" / "cam_salon_1.png")]
+    (out / "check" / "check_manifest.json").write_text(json.dumps(cm), encoding="utf-8")
+    assert by_cam(F.write_final(out))["cam_salon_1"]["final"] == "polished"
 
 
 def test_rerun_is_stable_and_lists_stale_files(tmp_path):
@@ -685,6 +735,21 @@ def test_sweep_report(tmp_path):
                  "shift_px 12", "blur softens edges", "| edges | 0.960 | 0.900 | 0.600 | yes | 0.945 |",
                  "global_min 0.950", "decoy_accept", "MISSED", "Plan A/B: not adopted", "sweep: w1"):
         assert text in md, text
+
+
+def test_sweep_report_says_whether_the_plan_crop_is_used_not_only_favoured():
+    from wenart.vision_check import calibrate as CAL
+    cases = [({"favours_plan": True, "used": False, "adopted": False, "text": CAL.FAVOURS_TEXT},
+              "Plan A/B: favours the plan crop, not adopted (check.yaml plan_image: false): A/B favours the plan "
+              "crop: set plan_image: true to adopt."),
+             ({"favours_plan": True, "used": True, "adopted": True, "text": CAL.USED_TEXT},
+              "Plan A/B: used (check.yaml plan_image: true)"),
+             # Written before plan_image existed: "adopted" meant only that the A/B favoured the crop.
+             ({"adopted": True, "text": "source-plan crop adopted as Image 2 of the element check"},
+              "Plan A/B: favours the plan crop, not adopted")]
+    for pab, line in cases:
+        md = S.report_markdown("toy", None, None, {"metrics": {}, "targets": {}, "missed": [], "plan_ab": pab})
+        assert line in md, md
 
 
 def test_sweep_report_reads_the_ladder_from_polish_yaml_when_the_manifest_has_none(tmp_path):

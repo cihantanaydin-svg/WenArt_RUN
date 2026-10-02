@@ -20,8 +20,9 @@ Per element (passes A = qwen, B = glm, independent):
 - One model only (``CHECK_MODELS`` with one key): every result is
   ``unverified``, every verdict ``info``, ``single_pass: true``.
 - Extras: those >= 50 % covered by one indexed element's mask of the list's
-  render are dropped (they are listed elements); A/B extras with IoU >= 0.3
-  and the same class are ``confirmed``; decor extras are info.
+  render are dropped (they are listed elements; for an insertion call the
+  normal render without the target, the image actually shown); A/B extras
+  with IoU >= 0.3 and the same class are ``confirmed``; decor extras are info.
 - Counts: expected range ``[required, required + optional + ignored]`` of
   that kind; a mismatch needs every pass outside it on the same side.
 - Verdict per image: ``not_computed`` (a pass missing), ``info`` (single
@@ -417,6 +418,26 @@ def _answered_kinds(stores: dict) -> set:
     return found
 
 
+def coverage_map(project: Project, spec: "C.CallSpec") -> Optional[np.ndarray]:
+    """Index map of the listed elements as the image shown has them (for dropping listed extras).
+
+    Insertion calls show the normal render but list the control render's
+    elements: the map is the normal render's index without the target, so
+    an extra where the target stands is never "covered" by what the control
+    render shows behind it (another piece, a door). Other kinds: the index of
+    the render the list came from.
+    """
+    if spec.base_view is None:
+        return None
+    kind = spec.image_kind[len("plan_ab:"):] if spec.image_kind.startswith("plan_ab:") else spec.image_kind
+    if kind.startswith("insertion:") and spec.camera in project.views():
+        index = project.maps(project.views()[spec.camera])[0].copy()
+        target = [i for i, e in project.table.items() if e["wenart_id"] == spec.target]
+        index[np.isin(index, target)] = 0
+        return index
+    return project.maps(spec.base_view)[0]
+
+
 def combine_project(project: Project, keys: list) -> dict:
     """The ``check_manifest.json`` content of a project from every answers file (§5.7)."""
     cfg = project.cfg
@@ -449,9 +470,11 @@ def combine_project(project: Project, keys: list) -> dict:
             recs[k] = rec
         if spec is None:
             continue
-        index_map = project.maps(spec.base_view)[0] if spec.base_view is not None else None
-        views_out[cam][kind] = combine_check(spec, recs, keys, cfg, index_map)
+        views_out[cam][kind] = combine_check(spec, recs, keys, cfg, coverage_map(project, spec))
         views_out[cam][kind]["images"] = [rel(p, project.check_dir) for p in spec.images]
+        # The bytes the answers are about (the same hashes their input_sha256 holds): the final report
+        # accepts a polished image only when it is these very pixels, never by file name alone.
+        views_out[cam][kind]["image_sha256"] = [project.file_sha(p) for p in spec.images]
     pref_groups: dict = {}
     for cam, kind, order in prefs:
         for k in keys:

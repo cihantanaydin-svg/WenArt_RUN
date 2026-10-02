@@ -222,7 +222,76 @@ def test_crosscheck_skips_what_a_control_render_hides_on_purpose(tmp_path):
 def test_crosscheck_finds_a_moved_piece(tmp_path):
     cc = toy_expected(tmp_path, shift={"f_sofa": (-0.9, 0.0)})["json_crosscheck"]
     assert [x["id"] for x in cc["misplaced"]] == ["f_sofa"] and cc["in_json_not_rendered"] == []
-    assert cc["misplaced"][0]["offset_frac_w"] > CFG["crosscheck"]["misplaced_frac_w"]
+    item = cc["misplaced"][0]
+    assert item["outside_share"] > CFG["crosscheck"]["misplaced_max_outside"] and item["outside_p90_m"] > 0.3
+
+
+def bed_expected(tmp_path, *, head="near", shift=(0.0, 0.0), json_height=1.0, size=T.SIZE) -> dict:
+    """The toy room plus a bed drawn at (1.6, 2.6), 1.6 x 2.0 m: a 0.5 m mattress and a 1.0 m headboard.
+
+    The scene builds it 1.0 m high (manifest ``box3d``) and the render shows the mattress and the headboard
+    (``head`` = the side towards the camera or away from it), moved by ``shift`` against the drawing;
+    ``json_height`` is the library height the building JSON records (``asset.bbox_m``).
+    """
+    centre = (1.6, 2.6)
+    box3d = {"center": [centre[0], centre[1], 0.5], "size": [1.6, 2.0, 1.0], "rotation_deg": 0.0}
+    bed = {"name": "furn_f_bed", "wenart_id": "f_bed", "kind": "furniture", "type": "bed_double",
+           "room_id": "r_salon", "level_id": "L0", "pass_index": 9, "source": "from_documents", "status": "verified",
+           "evidence": T.EV, "center": box3d["center"], "size": box3d["size"], "rotation_deg": 0.0, "box3d": box3d}
+    out = T.write_toy_project(tmp_path, size=size, extra_objects=[bed])
+    boxes = T.default_boxes()
+    cx, cy = centre[0] + shift[0], centre[1] + shift[1]
+    boxes[9] = ((cx, cy), (1.6, 2.0), 0.5)                                      # mattress
+    boxes[19] = ((cx, cy + (0.95 if head == "near" else -0.95)), (1.6, 0.1), 1.0)   # headboard (same index)
+    index, depth, normal = T.raycast(boxes, T.default_openings(), size)
+    index[index == 19] = 9
+    T.write_manifest(out / "renders", [T.write_render(out / "renders", CAM, index, depth, normal)])
+    building = json.loads((out / "building_final.json").read_text(encoding="utf-8"))
+    building["furniture"].append({
+        "id": "f_bed", "level_id": "L0", "room_id": "r_salon", "type": "bed_double", "source": "from_documents",
+        "footprint": {"center": list(centre), "size": [1.6, 2.0], "rotation_deg": 0.0}, "front_deg": 90.0,
+        "height": json_height, "asset": {"method": "library", "bbox_m": [1.6, 2.0, json_height]},
+        "status": "verified", "evidence": T.EV})
+    view = V.load_views(out / "renders")[CAM]
+    scene = json.loads((out / "scene" / "scene_manifest.json").read_text(encoding="utf-8"))
+    return X.expected_view(view, scene, building)["json_crosscheck"]
+
+
+def test_crosscheck_misplaced_ignores_the_shape_and_height_of_a_piece_where_it_is_drawn(tmp_path):
+    # A bed rendered exactly on its drawn footprint, headboard towards the camera: its bounding box has
+    # air above the mattress, so the box centre and the index-box centre differ (0.066 W before the fix).
+    for head in ("near", "far"):
+        cc = bed_expected(tmp_path / head, head=head)
+        assert cc["misplaced"] == [] and cc["in_json_not_rendered"] == [], head
+        assert cc["projected"]["f_bed"]["outside_share"] == 0.0
+    # The building JSON records a 1.5 m library asset but the scene built a 1.0 m piece (asset file
+    # missing: parametric fallback). The cross-check uses the height the scene built, so the projected
+    # shape is the same as with a matching JSON height and nothing is misplaced (0.14 W before the fix).
+    tall = bed_expected(tmp_path / "tall", json_height=1.5)
+    assert tall["misplaced"] == []
+    assert tall["projected"]["f_bed"]["area_frac"] == bed_expected(tmp_path / "same")["projected"]["f_bed"]["area_frac"]
+
+
+def test_crosscheck_misplaced_finds_a_piece_or_an_opening_off_its_drawing(tmp_path):
+    for shift in ((0.4, 0.0), (0.0, -0.4)):           # sideways in the frame, away from the camera
+        cc = bed_expected(tmp_path / f"bed{shift}", shift=shift)
+        assert [x["id"] for x in cc["misplaced"]] == ["f_bed"], shift
+        item = cc["misplaced"][0]
+        assert item["kind"] == "furniture" and item["type"] == "bed_double" and item["source"] == "from_documents"
+        assert item["outside_share"] > CFG["crosscheck"]["misplaced_max_outside"] and item["pixels"] > 100
+    # The window is rendered where the toy builds it; the building JSON draws it 0.6 m further east.
+    out = T.write_toy_project(tmp_path / "win")
+    view = V.load_views(out / "renders")[CAM]
+    scene = json.loads((out / "scene" / "scene_manifest.json").read_text(encoding="utf-8"))
+    building = T.toy_building()
+    win = next(o for o in building["openings"] if o["id"] == "win_1")
+    win["center"] = [win["center"][0] + 0.6, win["center"][1]]
+    cc = X.expected_view(view, scene, building)["json_crosscheck"]
+    assert [x["id"] for x in cc["misplaced"]] == ["win_1"] and cc["misplaced"][0]["kind"] == "window"
+    # Unmoved, every rendered element lies inside its drawn shape.
+    clean = X.expected_view(view, scene, T.toy_building())["json_crosscheck"]
+    assert clean["misplaced"] == []
+    assert all(p["outside_share"] == 0.0 for p in clean["projected"].values() if p["in_view"])
 
 
 def test_crosscheck_finds_an_index_without_a_building_element(tmp_path):

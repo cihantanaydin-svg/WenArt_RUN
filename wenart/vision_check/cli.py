@@ -26,8 +26,11 @@ Subcommands (in job order):
   the manifest and rewrites the report.
 
 ``--deadline`` (default env ``WENART_DEADLINE``, epoch seconds): ``run``,
-``preference`` and ``style-photo`` start no new call after it, mark their
-file ``incomplete`` and exit 0. ``main(argv=None, client_factory=None)``:
+``preference`` and ``style-photo`` start no new call after it and wait for
+no call past it (a call still running is left for the next run), mark their
+file ``incomplete`` and exit 0. ``run`` and ``preference`` send
+``--workers`` calls at once (default ``check.yaml: calls.workers``, 2).
+``main(argv=None, client_factory=None)``:
 ``client_factory(model_key, base_url)`` returns an object with ``.model``
 and ``.run_schema`` (default: ``wenart.vision_check.config.client_factory``).
 """
@@ -80,6 +83,8 @@ def parse_args(argv) -> argparse.Namespace:
     parser.add_argument("--models", help="combine: model keys (default CHECK_MODELS, else 'qwen glm')")
     parser.add_argument("--deadline", type=float, default=None, help="epoch seconds (default env WENART_DEADLINE)")
     parser.add_argument("--max-side", type=int, default=None, help="longest image side sent (default: the client's)")
+    parser.add_argument("--workers", type=int, default=None,
+                        help="run/preference: calls at once (default check.yaml calls.workers)")
     parser.add_argument("--photo", action="append", default=[], help="style-photo: photo file (repeatable)")
     parser.add_argument("--out", help="style-photo: output JSON (default <project-out>/check/style_photos.json)")
     parser.add_argument("--no-debug", action="store_true", help="combine: no debug images")
@@ -150,7 +155,8 @@ def _run(project: Project, args, client_factory, check: list, prefs: list, what:
     model = str(client.model)
     store = _store(project, args.model_key, model)
     specs = C.build_specs(project, check, prefs, model)
-    stats = C.run_specs(specs, store, client, deadline=deadline, max_side=args.max_side)
+    workers = args.workers or int((project.cfg.get("calls") or {}).get("workers", 1))
+    stats = C.run_specs(specs, store, client, deadline=deadline, max_side=args.max_side, workers=workers)
     print(f"vision_check {what} [{args.model_key}]: {len(specs)} call(s): {stats['asked']} asked "
           f"({stats['failed']} failed), {stats['reused']} reused, {stats['left']} left"
           f"{' (deadline: incomplete)' if stats['incomplete'] else ''} -> {store.path}")
@@ -214,8 +220,8 @@ def cmd_calibrate(project: Project, args) -> int:
     manifest["advisory"] = cal["advisory"]
     manifest["advisory_reason"] = "; ".join(cal["advisory_reasons"]) or None
     write_outputs(project, manifest, cal, debug=False)
-    print(f"vision_check calibrate: advisory={cal['advisory']} ({len(cal['missed'])} target(s) missed), plan A/B "
-          f"{'adopted' if cal['plan_ab']['adopted'] else 'not adopted'} -> {project.check_dir / CALIBRATION}")
+    print(f"vision_check calibrate: advisory={cal['advisory']} ({len(cal['missed'])} target(s) missed), plan A/B: "
+          f"{cal['plan_ab']['text']} -> {project.check_dir / CALIBRATION}")
     return 0
 
 
@@ -243,6 +249,23 @@ def jsonable(value):
             return obj.as_posix()
         return str(obj)
     return json.loads(json.dumps(value, default=default, ensure_ascii=False))
+
+
+def style_call_error(result) -> Optional[str]:
+    """The error of a ``read_style_photo`` result: None only when every pass has an answer.
+
+    ``read_style_photo`` never raises for a transport problem or a bad answer:
+    it returns the pass with ``data: null`` and its error, so the call is
+    judged by its passes (a failed call is asked again on the next run).
+    """
+    passes = result.get("passes") if isinstance(result, dict) else None
+    if isinstance(passes, dict):
+        passes = list(passes.values())
+    passes = [p for p in passes or [] if isinstance(p, dict)]
+    if not passes:
+        return "no pass in the result"
+    failed = [p for p in passes if p.get("error") or not isinstance(p.get("data"), dict)]
+    return "; ".join(f"{p.get('model_key') or '?'}: {p.get('error') or 'no answer'}" for p in failed) or None
 
 
 def cmd_style_photo(project: Project, args, client_factory) -> int:
@@ -273,7 +296,8 @@ def cmd_style_photo(project: Project, args, client_factory) -> int:
         sha = sha256_file(photo) if photo.is_file() else None
         name = rel(photo, out.parent)
         done = next((c for c in data["calls"] if c.get("file") == name and c.get("model_key") == args.model_key
-                     and c.get("sha256") == sha and c.get("model") == model and not c.get("error")), None)
+                     and c.get("sha256") == sha and c.get("model") == model and not c.get("error")
+                     and style_call_error(c.get("result")) is None), None)
         if done is not None:
             continue
         rec = {"file": name, "sha256": sha, "model_key": args.model_key, "model": model, "slug": slug,
@@ -285,7 +309,16 @@ def cmd_style_photo(project: Project, args, client_factory) -> int:
             rec["error"] = missing
         else:
             try:
-                rec["result"] = jsonable(read_style_photo(photo, {args.model_key: client}))
+                # Waited for until the deadline only: a wedged server cannot hold the job past it.
+                answered, result = C.call_before_deadline(
+                    lambda photo=photo: read_style_photo(photo, {args.model_key: client}), deadline)
+                if not answered:
+                    data["incomplete"] = True
+                    print(f"vision_check style-photo [{args.model_key}]: {photo.name}: deadline reached before "
+                          "the answer; left for the next run")
+                    break
+                rec["result"] = jsonable(result)
+                rec["error"] = style_call_error(rec["result"])
             except Exception as exc:  # noqa: BLE001 - recorded, never silently dropped
                 rec["error"] = f"{type(exc).__name__}: {exc}"
         rec["seconds"] = round(time.time() - t0, 2)
