@@ -128,7 +128,8 @@ FURNITURE_WORDS: dict[str, str] = {
     "washing_machine": "washing machine",
 }
 
-PROMPT_TAIL = "light through the windows, soft natural shadows, realistic materials and textures, sharp focus, 24 mm lens."
+PROMPT_TAIL = ("light through the windows, soft natural shadows, realistic materials and textures, "
+               "sharp focus, 24 mm lens.")
 
 
 def _words(table: dict, key, what: str, warnings: list) -> Optional[str]:

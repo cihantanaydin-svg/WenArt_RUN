@@ -1,4 +1,4 @@
-"""CPU test of the Z-Image backend's plumbing with fake torch / diffusers / transformers (docs/milestone5.md §3.1, §3.2).
+"""CPU test of the Z-Image backend's plumbing with fake torch/diffusers/transformers (docs/milestone5.md §3.1, §3.2).
 
 torch is not installed here, so ``wenart.polish.zimage`` is run against
 stand-in modules. The fake pipelines' ``__call__`` signatures copy diffusers

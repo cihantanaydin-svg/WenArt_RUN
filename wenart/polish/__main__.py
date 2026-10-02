@@ -90,7 +90,8 @@ def main(argv=None, deps: Optional[Deps] = None) -> int:
                        help="preview JPEGs: final attempts (run default), all attempts at 960 px "
                             "(sweep/smoke default) or none")
         if name != "run":
-            p.add_argument("--grid", default=name, help=f"grid name of polish.yaml or a YAML/JSON file (default {name})")
+            p.add_argument("--grid", default=name,
+                           help=f"grid name of polish.yaml or a YAML/JSON file (default {name})")
     rp = sub.add_parser("report", help="rewrite polish_report.md from a manifest")
     rp.add_argument("manifest", help="polish_manifest.json")
     rp.add_argument("--out", default=None, help="report path (default: polish_report.md next to the manifest)")

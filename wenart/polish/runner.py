@@ -265,7 +265,9 @@ def fallback_furniture(view: V.View, table: dict, ignore_frac: float = FALLBACK_
         e = table.get(int(value))
         if not e or e["kind"] != "furniture" or e.get("room_id") != view.room_id:
             continue
-        if stat["pixels"] / total < ignore_frac or e.get("type") in (None, "unknown") or e.get("status") == "unverified":
+        if stat["pixels"] / total < ignore_frac or e.get("type") in (None, "unknown"):
+            continue
+        if e.get("status") == "unverified":
             continue
         rows.append((stat["pixels"], e["type"]))
     types: list[str] = []
@@ -603,7 +605,10 @@ class PolishRun:
                 "reused": False, "error": None}
 
     def _reuse_record(self, job: ViewJob, k: int, rec: dict) -> Optional[dict]:
-        """The stored attempt of this camera with this key when its PNG is unchanged (copied to this k's name if needed)."""
+        """The stored attempt of this camera with this key when its PNG is unchanged.
+
+        The PNG is copied to this attempt's name when the stored record used another k.
+        """
         old = self._reuse.get((job.view.camera, rec["attempt_key"]))
         if not old:
             return None
