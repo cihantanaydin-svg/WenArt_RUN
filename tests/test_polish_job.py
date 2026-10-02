@@ -32,6 +32,7 @@ RECOG = ROOT / "scripts" / "pod_setup_recognition.sh"
 ENTRY = ROOT / "scripts" / "pod_entry.sh"
 PHASE_TABLE = {   # §8.2: phase -> commands that must appear in polish.sh
     "look": [r'"\$PY" -m wenart\.style "projects/\$p" --out "outputs/\$p/style\.json"',
+             r'terms_arg=\(--photo-terms "\$terms"\)',
              r'"\$PY" -m wenart\.assets fetch --style "outputs/\$p/style\.json" --assets "\$ASSETS" --size 2k',
              r'"\$PY" -m wenart\.blender\.cli build --building "\$out/building_final\.json"',
              r'--preview-samples 32 --reuse',
@@ -626,8 +627,11 @@ def test_final_mode_commands_and_environment(final_run):
         assert all(_arg(c, "--photo") == "tests/fixtures/style_photo_synthetic-03_salon.jpg"
                    and _arg(c, "--out") == f"outputs/{p}/check/style_photo_test.json" for c in tests)
         assert _find(calls, "wenart.vision_check", "combine", p) and _find(calls, "wenart.vision_check", "calibrate", p)
-        (terms,) = _find(calls, "wenart.style.photos", "combine", p)
-        assert terms["argv"][3] == f"outputs/{p}/check/style_photo_test.json"
+        # The test photo's passes are agreed for the GPU test; the project photos' passes become the
+        # terms the next look phase passes to wenart.style --photo-terms.
+        combined = {c["argv"][3]: _arg(c, "--out") for c in _find(calls, "wenart.style.photos", "combine", p)}
+        assert combined == {f"outputs/{p}/check/style_photo_test.json": f"outputs/{p}/check/style_photo_test_terms.json",
+                            f"outputs/{p}/check/style_photos.json": f"outputs/{p}/check/style_photo_terms.json"}
         (report,) = _find(calls, "wenart.report", "final", p)
         assert report["role"] == "PY"
     # Every call after the setup is offline; the setup itself is not.

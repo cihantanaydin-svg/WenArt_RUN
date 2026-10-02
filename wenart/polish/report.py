@@ -76,6 +76,8 @@ def report_markdown(m: dict) -> str:
             f"memory {m.get('memory_mode') or '-'}, peak VRAM {_num(m.get('peak_vram_gib'))} GiB, "
             f"model load {_num(m.get('load_seconds'))} s, prompt encoding {_num(m.get('encode_seconds'))} s, "
             f"{_num(m.get('seconds_per_forward'))} s per forward, run {_num(m.get('seconds'))} s.")
+    if m.get("stats_source") == "previous_run":
+        head += " No model was loaded (every attempt reused): memory and speed are those of the run that made them."
     lines.append(head)
     if m.get("incomplete"):
         lines.append("")

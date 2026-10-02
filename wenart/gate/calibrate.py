@@ -252,15 +252,20 @@ def _record(camera: str, control: str, magnitude, obj, result: dict, **extra) ->
     return rec
 
 
-def _resolve_dir(value: str, json_dir: Path, project_out: Path) -> Path:
-    """A folder named in an M5 JSON: relative to that JSON's folder (§1.1), else to the project output."""
+def _resolve_dir(value: str, base: Path) -> Path:
+    """A folder named in an M5 JSON, relative to ``base`` (absolute paths are kept)."""
     p = Path(value)
-    if p.is_absolute():
-        return p
-    for cand in (json_dir / p, project_out / p):
-        if cand.is_dir():
-            return cand
-    return json_dir / p
+    return p if p.is_absolute() else base / p
+
+
+def controls_base(data: dict, json_dir: Path, project_out: Path) -> Path:
+    """The folder the ``dir`` entries of ``check/controls.json`` are relative to.
+
+    The vision check writes ``dir_relative_to: project_out`` (§5.5 writes
+    ``controls/hide_<id>``); without that key the §1.1 rule holds (the JSON's
+    own folder).
+    """
+    return project_out if data.get("dir_relative_to") == "project_out" else json_dir
 
 
 def run_calibration(project_out, *, gate=None, expected_api=None, out_dir=None, n_views: int = CALIBRATION_VIEWS,
@@ -353,12 +358,14 @@ def run_calibration(project_out, *, gate=None, expected_api=None, out_dir=None, 
     # GPU controls: removal and insertion from the --hide renders.
     controls_path = project_out / "check" / "controls.json"
     if controls_path.is_file():
-        controls = json.loads(controls_path.read_text(encoding="utf-8")).get("controls") or []
+        controls_data = json.loads(controls_path.read_text(encoding="utf-8"))
+        controls = controls_data.get("controls") or []
+        base = controls_base(controls_data, controls_path.parent, project_out)
         for c in controls:
             if expired():
                 break
             cam, cid = c.get("camera"), c.get("id")
-            hide_dir = _resolve_dir(c.get("dir") or f"controls/hide_{cid}", controls_path.parent, project_out)
+            hide_dir = _resolve_dir(c.get("dir") or f"controls/hide_{cid}", base)
             reason = None
             hidden = None
             if cam not in views:

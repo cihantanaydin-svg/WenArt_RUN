@@ -53,7 +53,6 @@ from __future__ import annotations
 
 import copy
 import hashlib
-import importlib
 import json
 import os
 import re
@@ -83,6 +82,8 @@ SWEEP_PREVIEW_WIDTH = 960
 AUTO_VIEWS = {"sweep": 4, "smoke": 2}
 OUT_SUBDIR = {"run": "polish", "sweep": "polish/sweep", "smoke": "polish/smoke"}
 FALLBACK_IGNORE_AREA_FRAC = 0.002
+BACKEND_STATS = ("memory_mode", "peak_vram_gib", "peak_reserved_gib", "load_seconds", "encode_seconds",
+                 "seconds_per_forward", "forwards")
 
 
 class PolishError(Exception):
@@ -93,22 +94,21 @@ class PolishError(Exception):
 # Dependencies (fakeable)
 # --------------------------------------------------------------------------
 
-def find_gate_debug_writer() -> Optional[Callable]:
-    """The gate's debug-image writer (§4.4) when area C provides one, else None.
+def find_gate_debug_writer(gate) -> Optional[Callable]:
+    """The §4.4 debug-image writer of a gate, or None when the gate has none.
 
-    Called as ``writer(ref=Reference, test_rgb=uint8 H x W x 3, result=compare() dict,
-    path=Path)``; looked up as ``wenart.gate.write_debug_image`` or
-    ``wenart.gate.debug.write_debug_image``.
+    Area C's ``Gate.write_debug(ref, test_rgb, result, path)`` (it reuses the
+    missed-edge, added-line and depth-error maps of its last comparison). The
+    runner calls the result as ``writer(ref=Reference, test_rgb=uint8 H x W x 3,
+    result=compare() dict, path=Path)``.
     """
-    for module, attr in (("wenart.gate", "write_debug_image"), ("wenart.gate.debug", "write_debug_image")):
-        try:
-            mod = importlib.import_module(module)
-        except ImportError:
-            continue
-        fn = getattr(mod, attr, None)
-        if callable(fn):
-            return fn
-    return None
+    method = getattr(gate, "write_debug", None)
+    if not callable(method):
+        return None
+
+    def writer(*, ref, test_rgb, result, path):
+        return method(ref, test_rgb, result, path)
+    return writer
 
 
 def _default_backend(cfg: dict, device: str):
@@ -128,8 +128,9 @@ class Deps:
     ``backend_factory(cfg, device)`` -> polish backend (interface in
     ``wenart.polish.zimage``); ``gate_factory(device)`` -> object with
     ``thresholds``, ``prepare(view, ref_rgb)`` and ``compare(ref, test_rgb)``
-    (§1.3); ``decide(metrics, thresholds)`` (§1.3); ``debug_writer`` (see
-    ``find_gate_debug_writer``; None = no gate debug images); ``expected``:
+    (§1.3); ``decide(metrics, thresholds)`` (§1.3); ``debug_writer`` (None =
+    the gate's own ``write_debug`` when ``find_debug_writer`` is true, see
+    ``find_gate_debug_writer``; else no gate debug images); ``expected``:
     an object with ``expected_view``, ``expected_views`` and ``sweep_views``
     (§1.4); ``gate_models()`` -> the gate's ``models.yaml`` dict; ``clock``
     (epoch seconds, for the deadline); ``log``.
@@ -153,8 +154,6 @@ class Deps:
         if d.decide is None:
             from wenart.gate.api import decide
             d.decide = decide
-        if d.debug_writer is None and d.find_debug_writer:
-            d.debug_writer = find_gate_debug_writer()
         if d.expected is None:
             from wenart.vision_check import expected
             d.expected = expected
@@ -362,6 +361,7 @@ class PolishRun:
         self.gate = None
         self._ready = False
         self._reuse: dict = {}
+        self._previous_stats: dict = {}
         self._wall_masks: dict = {}
         self._debug_warned = False
         self.models = PC.models_record(self.cfg, self._gate_models())
@@ -495,6 +495,9 @@ class PolishRun:
             for rec in v.get("attempts") or []:
                 if rec.get("attempt_key") and rec.get("png") and rec.get("sha256") and not rec.get("error"):
                     self._reuse[(v.get("camera"), rec["attempt_key"])] = rec
+        if old.get("memory_mode"):
+            # How the reused attempts were made; reported when this run loads no model.
+            self._previous_stats = {k: old.get(k) for k in BACKEND_STATS}
 
     # -- backend and gate --------------------------------------------------
 
@@ -514,6 +517,11 @@ class PolishRun:
     def _ensure_gate(self):
         if self.gate is None:
             self.gate = self.deps.gate_factory(self.device)
+            if hasattr(self.gate, "scene_manifest"):
+                # The real Gate would read the same scene manifest again from the render folder.
+                self.gate.scene_manifest = self.scene
+            if self.deps.debug_writer is None and self.deps.find_debug_writer:
+                self.deps.debug_writer = find_gate_debug_writer(self.gate)
         return self.gate
 
     def _ensure_ref(self, job: ViewJob) -> bool:
@@ -579,7 +587,7 @@ class PolishRun:
         writer = self.deps.debug_writer
         if writer is None:
             if not self._debug_warned:
-                self._warn("gate debug-image writer not available (wenart.gate.write_debug_image); "
+                self._warn("gate debug-image writer not available (the gate has no write_debug); "
                            "no <cam>_a<k>_gate.jpg written")
                 self._debug_warned = True
             return
@@ -789,11 +797,17 @@ class PolishRun:
 
     def manifest(self) -> dict:
         stats = {}
+        stats_source = None
         if self.backend is not None and self._ready:
             try:
                 stats = dict(self.backend.stats())
+                stats_source = "this_run"
             except Exception as exc:  # noqa: BLE001
                 self._warn(f"backend stats unavailable: {exc}")
+        elif self._previous_stats and any(r.get("reused") for j in self.jobs for r in j.by_k.values()):
+            # Every attempt was reused: no model was loaded, the numbers are those of the run that made them.
+            stats = dict(self._previous_stats)
+            stats_source = "previous_run"
         return {
             "schema_version": SCHEMA_VERSION, "kind": self.kind, "project": self.project,
             "incomplete": bool(self.incomplete), "models": self.models, "config": self.cfg,
@@ -802,7 +816,8 @@ class PolishRun:
             "memory_mode": stats.get("memory_mode"), "peak_vram_gib": stats.get("peak_vram_gib"),
             "peak_reserved_gib": stats.get("peak_reserved_gib"), "load_seconds": stats.get("load_seconds"),
             "encode_seconds": stats.get("encode_seconds"), "seconds_per_forward": stats.get("seconds_per_forward"),
-            "forwards": stats.get("forwards"), "seconds": round(time.time() - self.started, 1),
+            "forwards": stats.get("forwards"), "stats_source": stats_source,
+            "seconds": round(time.time() - self.started, 1),
             "deadline": self.deadline, "polish_allowed": getattr(self, "polish_allowed", True),
             "attempt_list": self.attempts,
             "views": [self._view_entry(j) for j in self.jobs],

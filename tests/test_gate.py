@@ -1051,8 +1051,8 @@ def project(tmp_path):
                  "area_frac": 0.07, "source": "from_documents", "dir": "controls/hide_f_1"},
                 {"id": "win_1", "index": WINDOW, "kind": "window", "camera": "cam_a", "room_id": "r_1", "plug": True,
                  "area_frac": 0.06, "source": "from_documents", "dir": "controls/hide_win_1"}]
-    (out / "check" / "controls.json").write_text(json.dumps({"schema_version": "0.1", "controls": controls}),
-                                                  encoding="utf-8")
+    controls_json = {"schema_version": "0.1", "dir_relative_to": "project_out", "controls": controls}  # area D's
+    (out / "check" / "controls.json").write_text(json.dumps(controls_json), encoding="utf-8")
     sweep = out / "polish" / "sweep"
     sweep.mkdir(parents=True)
     bad = texture(K.shift_object(data["rgb"], data["index"], data["depth_mm"], SOFA, 40), 20)

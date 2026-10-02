@@ -34,7 +34,9 @@
 #   check     PY  wenart.vision_check expected, plan-crops; per model key of CHECK_MODELS: vLLM up
 #                 (port 8001), run (+ preference, style-photo of the project photos and of
 #                 tests/fixtures/style_photo_synthetic-03_salon.jpg -> check/style_photo_test.json),
-#                 vLLM down; then combine, calibrate and wenart.style.photos combine of the test photo
+#                 vLLM down; then combine, calibrate and wenart.style.photos combine of the project
+#                 photos (-> check/style_photo_terms.json, read by the next look phase through
+#                 wenart.style --photo-terms) and of the test photo
 #   report    PY  wenart.report final (final) | sweep (sweep, smoke)
 #   tests     PY  pytest -m gpu tests/gpu/test_render.py tests/gpu/test_check.py;
 #             POLISH_PY  pytest -m gpu tests/gpu/test_polish.py (junit files into the results)
@@ -360,9 +362,14 @@ ensure_buildings() {
 }
 
 phase_look() {
-  local p out
+  local p out terms
   for p in "${ACTIVE[@]}"; do
-    heavy "style-$p" "$PY" -m wenart.style "projects/$p" --out "outputs/$p/style.json"
+    # Agreed terms of the project's style photos (check phase of an earlier run, §6) fill only the
+    # slots the brief leaves open.
+    terms=outputs/$p/check/style_photo_terms.json
+    local -a terms_arg=()
+    if [ -f "$terms" ]; then terms_arg=(--photo-terms "$terms"); fi
+    heavy "style-$p" "$PY" -m wenart.style "projects/$p" --out "outputs/$p/style.json" "${terms_arg[@]}"
   done
   for p in "${ACTIVE[@]}"; do      # textures and HDRIs of every project before any build
     stage_ok "style-$p" || continue
@@ -474,6 +481,10 @@ phase_check() {
     if ! compgen -G "$out/check/answers_*.json" >/dev/null; then log "$p: no vision-check answers to combine"; continue; fi
     run_stage "check-combine-$p" "$PY" -m wenart.vision_check combine --project-out "$out"
     run_stage "check-calibrate-$p" "$PY" -m wenart.vision_check calibrate --project-out "$out"
+    if [ -f "$out/check/style_photos.json" ]; then
+      run_stage "style-photos-terms-$p" "$PY" -m wenart.style.photos combine "$out/check/style_photos.json" \
+        --out "$out/check/style_photo_terms.json"
+    fi
     if [ -f "$out/check/style_photo_test.json" ]; then
       run_stage "style-photo-terms-$p" "$PY" -m wenart.style.photos combine "$out/check/style_photo_test.json" \
         --out "$out/check/style_photo_test_terms.json"

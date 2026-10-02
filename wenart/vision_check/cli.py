@@ -52,7 +52,6 @@ DEFAULT_SERVER = "http://127.0.0.1:8001/v1"
 MANIFEST = "check_manifest.json"
 CALIBRATION = "check_calibration.json"
 REPORT = "check_report.md"
-IMAGE_SUFFIXES = (".jpg", ".jpeg", ".png", ".webp")
 
 
 def deadline_of(value: Optional[float]) -> Optional[float]:
@@ -221,17 +220,18 @@ def cmd_calibrate(project: Project, args) -> int:
 
 
 def style_photos(project: Project, args) -> list[Path]:
-    """``--photo`` files, else the brief's ``style_photos`` in ``<project>/style_photos/``, else every image there."""
+    """``--photo`` files, else the brief's ``style_photos`` in ``<project>/style_photos/``, else every image
+    there (the rule and file types of ``wenart.style.photos.style_photo_paths``). A listed photo that is
+    missing stays in the list, so its call is recorded as ``photo not found`` instead of vanishing."""
     if args.photo:
         return [Path(p) for p in args.photo]
-    folder = project.project_dir / "style_photos"
-    brief = project.paths.get("brief") or {}
-    names = list(((brief.get("values") or {}) if isinstance(brief, dict) else {}).get("style_photos") or [])
+    from wenart.style.photos import PHOTO_DIR, style_photo_paths
+    brief = project.paths.get("brief")
+    brief = brief if isinstance(brief, dict) else None
+    names = list(((brief or {}).get("values") or {}).get("style_photos") or [])
     if names:
-        return [folder / n for n in names]
-    if folder.is_dir():
-        return sorted(p for p in folder.iterdir() if p.suffix.lower() in IMAGE_SUFFIXES)
-    return []
+        return [project.project_dir / PHOTO_DIR / str(n) for n in names]
+    return style_photo_paths(project.project_dir, brief)[0]
 
 
 def jsonable(value):

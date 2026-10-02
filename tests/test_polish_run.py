@@ -601,19 +601,31 @@ def test_missing_debug_writer_and_expected_fallback_are_warned(tmp_path):
     m = run_polish(out, "run", deps=deps)
     a = view_of(m, "cam_a")
     assert a["attempts"][0]["debug_jpg"] is None and not (out / "polish" / "cam_a_a1_gate.jpg").exists()
-    assert any("write_debug_image" in w for w in m["warnings"])
+    assert any("write_debug" in w for w in m["warnings"])
     assert any("expected_view unavailable" in w for w in m["warnings"])
     assert a["expected_source"] == "index_pass" and "sofa" in a["prompt"] and "armchair" not in a["prompt"]
     assert validate_manifest(m) == []
 
 
-def test_find_gate_debug_writer_uses_the_gate_package(monkeypatch):
-    import wenart.gate as gate_pkg
-    monkeypatch.delattr(gate_pkg, "write_debug_image", raising=False)
-    monkeypatch.setitem(sys.modules, "wenart.gate.debug", None)
-    assert find_gate_debug_writer() is None
-    monkeypatch.setattr(gate_pkg, "write_debug_image", debug_writer, raising=False)
-    assert find_gate_debug_writer() is debug_writer
+def test_find_gate_debug_writer_uses_the_gates_write_debug(tmp_path):
+    assert find_gate_debug_writer(FakeGate()) is None                    # no write_debug: no images
+
+    class GateWithDebug(FakeGate):
+        def write_debug(self, ref, test_rgb, result, path):
+            return debug_writer(ref, test_rgb, result, path)
+
+    out = make_project(tmp_path, cameras=("cam_a",))
+    gate = GateWithDebug()
+    deps, backend, _ = make_deps(gate=gate, writer=None)
+    deps.find_debug_writer = True
+    m = run_polish(out, "run", deps=deps)
+    a = view_of(m, "cam_a")
+    assert a["attempts"][0]["debug_jpg"] == "cam_a_a1_gate.jpg"
+    assert (out / "polish" / "cam_a_a1_gate.jpg").is_file()
+    assert not any("write_debug" in w for w in m["warnings"])
+
+    from wenart.gate import Gate
+    assert callable(find_gate_debug_writer(Gate(thresholds={})))      # the real gate provides one
 
 
 # --------------------------------------------------------------------------

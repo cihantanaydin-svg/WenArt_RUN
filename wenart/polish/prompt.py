@@ -181,7 +181,7 @@ def furniture_types(expected: Optional[dict], limit: int = MAX_FURNITURE) -> lis
         if e.get("kind") != "furniture" or not e.get("own_room") or e.get("role") not in ("required", "optional"):
             continue
         ftype = e.get("type")
-        if not ftype or ftype == "unknown" or e.get("status") == "unverified":
+        if not ftype or ftype == "unknown" or e.get("status") == "unverified" or e.get("type_unverified"):
             continue
         if ftype not in types:
             types.append(ftype)

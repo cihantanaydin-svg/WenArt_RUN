@@ -16,6 +16,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+import numpy as np
 import pytest
 import yaml
 
@@ -200,12 +201,12 @@ def test_gate_api_signatures():
     assert gate_api.Gate(thresholds=gate_api.THRESHOLDS_PATH).thresholds == gate_api.load_thresholds()
     ref = gate_api.Reference(view=None, rgb=None)
     assert ref.gate_key == "" and ref.model_outputs == {}
-    with pytest.raises(NotImplementedError):
+    # Implemented by area C: bad images are refused, no thresholds means nothing can fail.
+    with pytest.raises(ValueError):
         g.prepare(None, None)
-    with pytest.raises(NotImplementedError):
-        g.compare(ref, None)
-    with pytest.raises(NotImplementedError):
-        gate_api.decide({}, {})
+    with pytest.raises(ValueError):
+        g.compare(gate_api.Reference(view=None, rgb=np.zeros((4, 6, 3), np.uint8)), None)
+    assert gate_api.decide({}, {}) == ("accept", [], [])
 
 
 def test_expected_api_signatures():
@@ -214,7 +215,8 @@ def test_expected_api_signatures():
     assert params(expected.expected_views) == [("project_out", E), ("render_dir", None)]
     assert params(expected.sweep_views) == [("expected_views", E), ("n", E)]
     assert params(expected.largest_required) == [("expected", E)]
-    for fn, args in ((expected.expected_view, (None, {}, {})), (expected.expected_views, ("x",)),
-                     (expected.sweep_views, ({}, 4)), (expected.largest_required, ({},))):
-        with pytest.raises(NotImplementedError):
-            fn(*args)
+    # Implemented by area D: the pure helpers on empty inputs.
+    assert expected.sweep_views({}, 4) == []
+    assert expected.largest_required({"elements": []}) is None
+    with pytest.raises(FileNotFoundError):
+        expected.expected_views("/nonexistent/outputs/p")
