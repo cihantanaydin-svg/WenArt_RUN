@@ -102,6 +102,9 @@ the encoders inside Blender.
   ladder on reuse and `tests/gpu/test_polish.py`.
 - Models stay on the GPU when `torch.cuda.mem_get_info()` shows ≥ 4 GiB free after the first attempt, else
   they are moved in per call; the polish frees its cache (`torch.cuda.empty_cache()`) before every gate call.
+- `Gate.release_gpu() -> bool`: every loaded gate model to the CPU and per-call moves from then on
+  (`resident: false`), then `empty_cache()`; a no-op without loaded models or off CUDA. The polish calls it
+  after a CUDA OOM, before its single retry (§3.1).
 
 ### 1.4 Expected elements API (`wenart/vision_check/expected.py`; imports only stdlib, numpy, yaml, `wenart.views`, `wenart.geometry`)
 
@@ -122,6 +125,10 @@ the encoders inside Blender.
   jsonschema validation, no box conversion; on failure `data` is None and `error` is set.
 - `client_factory(model_key, base_url)` returns an object with `.model` and `.run_schema`; fakes implement
   only those.
+- `VLMClient.deadline` (epoch s, default None; the vision check sets `WENART_DEADLINE`): no request starts
+  after it, each request's timeout is capped to the time left, and a retry pause that would end past it
+  ends the retries. Images are sent as lossless PNG without the `optimize` pass (0.13 instead of 0.6 s per
+  1600×900 image).
 
 ### 1.6 Model ids and revisions (single source)
 
@@ -163,10 +170,15 @@ licence.
 
 ### 2.1 Window glass seen as glass only by the camera (`materials.py`)
 
-`window_glass_material`: Mix Shader with factor = Light Path `Is Camera Ray`: Glass BSDF (IOR 1.45,
-roughness 0) for camera rays, Transparent BSDF for all other rays. The old shader over-counted the sun 2.4×
+`window_glass_material`: Mix Shader with factor = Math `MAXIMUM`(Light Path `Is Camera Ray`, `Is Singular
+Ray`): Glass BSDF (IOR 1.45, roughness 0) for camera rays and singular rays (the camera ray refracted or
+reflected by the pane, so both faces refract and the outside view stays in place), Transparent BSDF for all
+other rays (diffuse, rough glossy, rough transmission, shadow). The old shader over-counted the sun 2.4×
 and under-counted the sky (main cause of the orange cast). Depth and index passes still stop at the pane
-(verified). Shower panels keep the M4 thin glass.
+(verified). Shower panels keep the M4 thin glass. Camera-only glass (the first M5 version) refracted only at
+the room face and moved the outside view 23 px in 200 at 17°; `Is Transmission Ray` instead of `Is
+Singular Ray` fixed that but left a second, misplaced reflection of a lamp and +20–53 % light behind a
+frosted panel (Blender 5.2.2 probes, `tests/test_blender_glass.py`).
 
 ### 2.2 Albedo modes (`vocabulary.py`, `materials.py`)
 
@@ -217,9 +229,9 @@ Per camera (via `wenart.views` encoders): `<cam>_index.png` now uint16; `<cam>_d
 `<cam>_normal.png` RGB8 world normal; `<cam>_depth.png` unchanged (legacy, per-view normalised). Entry gains
 `index_stats`, `files: {"depth_mm", "normal"}`, `render_key` = first 16 hex of sha256 over the JSON of
 `{samples, resolution, denoiser, exposure mode/target/limits/look-from values, white balance mode, passes,
-hidden, plugged, RENDER_CODE_VERSION}` (`RENDER_CODE_VERSION = "m5.1"`). `reuse_reason` also needs an equal
-`render_key`; entries without one are stale. `RENDER_ENTRY` in `schemas.py` gains these fields (required for
-M5 entries).
+hidden, plugged, RENDER_CODE_VERSION}` (`RENDER_CODE_VERSION = "m5.2"`; m5.2: plugs take the wall faces'
+materials, §2.6). `reuse_reason` also needs an equal `render_key`; entries without one are stale.
+`RENDER_ENTRY` in `schemas.py` gains these fields (required for M5 entries).
 
 ### 2.6 `--hide`, `--plug`, `--hide-sets` (`render.py`, `cli.py`)
 
@@ -227,7 +239,10 @@ M5 entries).
   `hide_render = True` (frame + leaf, frame + glass, a piece with its decor). Unknown id → `unknown id`,
   exit 2. `--plug`: hidden doors/windows get a wall box closing the baked-in hole (wall from the opening's
   `wall_id`, extent from the hidden objects' world vertices on the wall axis, thickness + 4 mm, the wall's
-  first material, pass index 0). Windows are plugged, doors are not (an empty doorway is not a door).
+  material slots, pass index 0; each face across the wall takes the slot of the wall face around the hole
+  on its side, so a wet room's tiles continue on the room side and the exterior plaster outside; top,
+  bottom and end faces slot 0; the info records `materials: {left, right, ends}`). Windows are plugged,
+  doors are not (an empty doorway is not a door).
 - `--hide-sets 'cam:idA;cam:idB+plug;...'`: all controls of a project in one Blender process (hide → plug →
   render the one camera into `<out>/hide_<id>/` → undo); the reuse check runs before rendering.
 - Manifests record `hidden` and `plugged` (top level and per entry); `cli.render(..., hide=, plug=,
@@ -257,9 +272,15 @@ M5 entries).
    (FP32 shards cast per tensor), `ZImageControlNetModel.from_single_file(file, config=<vendored dir>,
    dtype=bf16).to("cuda")`, VAE on cuda (`enable_tiling()` above 1.5 MP), scheduler from the repo;
    `ZImageControlNetPipeline(scheduler, vae, None, tokenizer, transformer, controlnet)`. Resident ≈ 17.9 GiB.
-3. `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True`. On OOM: one retry with `enable_model_cpu_offload()`
-   when `MemAvailable` ≥ 40 GB, recorded as `memory_mode: offload`.
-The manifest records `memory_mode`, `peak_vram_gib`, `seconds_per_forward`, `load_seconds`.
+3. `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True`. On a CUDA OOM: one retry, still resident, after the
+   `except` block (the failed call's frames and tensors are freed first), after the runner's release hook
+   (`Gate.release_gpu()`) and `gc.collect()` + `torch.cuda.empty_cache()`; a retry that runs out of memory
+   again is raised, and later OOMs of the run are raised at once. No `enable_model_cpu_offload()`:
+   `ZImageControlNetModel.from_transformer` shares the transformer's embedders and first parameter
+   (`x_pad_token`) with the ControlNet, so the per-model offload hooks left the transformer blocks on the CPU
+   and every later ControlNet attempt failed; with the text encoder gone offload saves nothing either.
+The manifest records `memory_mode` (always `resident`), `peak_vram_gib`, `seconds_per_forward`,
+`load_seconds`, `oom_retries`.
 
 ### 3.2 img2img with one control image
 
@@ -310,15 +331,18 @@ required and optional furniture of the view (`expected_view`), deduplicated type
 - `attempt_key` = sha256 of {strength, control, scale, size, mode, seed, steps, sigmas, prompt, control PNG
   sha256, source PNG sha256, model repos/revisions/files, POLISH_CODE_VERSION, torch/diffusers versions}.
   A reused attempt keeps its PNG; its gate metrics are reused when `gate_key` (GATE_CODE_VERSION, gate model
-  revisions, reference sha256) matches, else recomputed; the decision is always recomputed from the stored
-  metrics with the current `thresholds.yaml` (`decide`), then the ladder outcome is recomputed.
+  revisions, reference sha256) matches and no check of them carries an `error` (a model that failed, e.g. an
+  OOM or a missing snapshot, is computed again instead of staying a reject), else recomputed; the decision
+  is always recomputed from the stored metrics with the current `thresholds.yaml` (`decide`), then the
+  ladder outcome is recomputed.
 - `--deadline` (default env `WENART_DEADLINE`, epoch seconds): no new attempt starts after it; the manifest
   gets `"incomplete": true`; exit 0.
 
 CLI:
 - `python -m wenart.polish run --project-out outputs/<p> [--views all|cam,...] [--out DIR] [--force]
   [--deadline S]` → `<out>` (default `outputs/<p>/polish/`): `<cam>_a<k>.png`, `<cam>_control_<type>.png`,
-  `<cam>_a<k>_preview.jpg` (≤ 300 KB, final attempts only by default), `<cam>_a<k>_gate.jpg` debug image
+  `<cam>_a<k>_preview.jpg` (≤ 300 KB, final attempts only by default; the attempt PNGs are written with
+  zlib level 1 + RLE, lossless, and hashed from the encoded bytes), `<cam>_a<k>_gate.jpg` debug image
   (§4.4), `polish_manifest.json` (rewritten after every attempt), `polish_report.md`, and
   `determinism.json` (the `polish.yaml: determinism_view` polished twice with the same seed:
   `{camera, max_abs_diff, seconds}`).
@@ -334,11 +358,12 @@ CLI:
 {"schema_version": "0.1", "kind": "run|sweep|smoke", "project": "synthetic-01", "incomplete": false,
  "models": {"base": {"repo", "revision", "licence", "files"}, "controlnet": {...}, "gate": {...}},
  "config": {}, "thresholds": {}, "device": "...", "torch": "...", "diffusers": "...",
- "memory_mode": "resident|offload", "peak_vram_gib": 0, "load_seconds": 0, "seconds_per_forward": 0,
+ "memory_mode": "resident", "peak_vram_gib": 0, "load_seconds": 0, "seconds_per_forward": 0, "oom_retries": 0,
  "views": [{"camera", "room_id", "source_png": "../renders/<cam>.png", "source_sha256", "prompt",
             "controls": {"depth": "<cam>_control_depth.png"},
             "attempts": [{"k", "role", "strength", "control", "scale", "size", "mode", "seed", "steps",
-                          "sigmas", "seconds", "png", "sha256", "attempt_key", "panes_restored",
+                          "sigmas", "seconds", "diffusion_seconds", "cpu_seconds", "png", "sha256",
+                          "attempt_key", "panes_restored",
                           "gate": {"decision", "reasons", "notes", "metrics", "gate_key"}, "debug_jpg"}],
             "final": "polished|cycles", "final_attempt": 1, "reason": "null|gate|brief|room|error"}],
  "rooms": {"<room_id>": {"rule": "ok|downgraded", "rung": 2}}, "warnings": []}
@@ -373,7 +398,12 @@ calibration: {source: null, date: null, separability: {}, accepted_shortfall: nu
 - added_lines: on structure regions (panes excluded), `cv2.HoughLinesP` segments of the test Canny edges
   with length ≥ `min_len_frac`·W whose pixels have no reference Canny edge within 3 px over ≥
   `unmatched_frac` of their length; value = total unmatched length / W per region (a painted frame, shelf
-  or window on a bare wall).
+  or window on a bare wall). A segment pixel also counts as matched by a reference Canny edge at 0.2× the
+  thresholds within 3 px whose gradient orientation is within 10° of the segment normal (`lines.REF_FACTOR`,
+  `ANGLE_TOL_DEG`; optional keys `added_lines.ref_factor` / `ref_angle_deg`): plank seams and tile grout
+  that the render shows just below the thresholds are not new lines once the polish makes them crisper,
+  while a rug outline or stripe painted across them still is (any low-threshold edge would blind the check
+  on textured floors).
 - depth: DAv2-Small relative disparity on both images; test fitted to reference by least squares (scale +
   shift, 3 trimmed refits keeping 90 %) on valid non-pane pixels; error = mean |aligned − ref| / (p98 − p2 of
   ref); global and per object/structure region.
@@ -399,7 +429,8 @@ controls) are numpy/OpenCV, CPU-tested with synthetic arrays; the model parts ar
 
 - Views: the sweep views (4 per project) + 4 more per project (`sweep_views(n=8)`).
 - Benign (must be accepted; CPU from the Cycles PNG): exposure ±0.3 EV (linear light), white balance
-  ×(1.03, 1, 0.97), Gaussian blur σ 1, JPEG q 75, unsharp mask, Gaussian noise σ 3/255.
+  ×(1.03, 1, 0.97), Gaussian blur σ 1, JPEG q 75, unsharp mask, local contrast ×1.5 (σ 6: crisper texture),
+  Gaussian noise σ 3/255 (8 per view).
 - Negatives (must be rejected): CPU, on `largest_required` and one more required object: shift 6, 12 and
   25 px (cut by the index mask, pasted, hole filled with `cv2.inpaint` TELEA), scale ×1.04, ×1.08, ×1.15,
   rotation 2°, erase; a window/door crop from another view pasted onto a wall region; colour: white balance
@@ -441,8 +472,11 @@ Building-JSON cross-check (non-circular): every door, window and furniture piece
 projected (oriented box from footprint, height and rotation; openings from wall + offset + height) and
 depth-tested against depth_mm (a sample is visible when within 5 cm of the rendered depth). `json_crosscheck`
 lists `in_json_not_rendered` (projected visible share ≥ 0.35 and projected area ≥ 0.01, index absent),
-`rendered_not_in_json` (index id with no building element), `misplaced` (index box centre vs projected
-centre > 5 % of W). These are mismatches of the Cycles render, never auto-fixed.
+`rendered_not_in_json` (index id with no building element), `misplaced` (the element's own index pixels,
+put back into the world with depth_mm, lie more than `misplaced_margin_m` 0.10 m outside its drawn footprint
+(furniture) or wall rectangle (doors, windows) for more than `misplaced_max_outside` 10 % of them; elements
+with fewer than `misplaced_min_pixels` 20 are not judged; pieces use the height the scene built, the
+manifest `box3d`). These are mismatches of the Cycles render, never auto-fixed.
 
 ### 5.2 Source-plan crop (`plan_crop.py`)
 
@@ -452,16 +486,21 @@ rasters from `wenart.ingest.debug_image.raster_from_pdf/dxf/image`), cropped to 
 through the inverse of `transform_to_building`, with the camera, its view cone (24 mm, 36 mm sensor) and
 every expected element's box (id, type, source) drawn. Always shown next to the render in the report. As a
 second VLM image ("Image 2 (source floor plan of this room, for orientation)") only in the plan A/B of the
-calibration; adopted only if removal detection rises and false alarms do not; otherwise the report says
-"source plan compared through the evidence chain, the projected cross-check and the side-by-side crop".
+calibration, which favours the crop only if removal detection rises and false alarms do not
+(`plan_ab.favours_plan`). `check.yaml: plan_image` (default false; set by hand after the A/B) sends the crop
+as Image 2 with every element check of a camera that has one (`used` / `adopted` in `plan_ab` = this switch;
+the report says "A/B favours the plan crop: set plan_image: true to adopt" until then); otherwise the report
+says "source plan compared through the evidence chain, the projected cross-check and the side-by-side crop".
 
 ### 5.3 Prompt, schema, request
 
 One call per (image, model). Labels E1..En by descending area for required + optional elements, plus one
 sentinel decoy label shuffled in deterministically (sha1 of camera): type = first allowed type of the room
-type absent from the room (fallback armchair, desk, bookshelf, bathtub), box = a 0.18W × 0.25H window over
-bare structure (index 0, ≥ 98 %), 5 % steps, lowest-centre tie-break. Line: `- E3: tv_unit (low long
-cabinet / sideboard); expected inside box [83, 674, 362, 933][, cut by the image edge]`. The prompt defines
+type absent from the room and from every list of the call (fallback armchair, desk, bookshelf, bathtub),
+box = a 0.18W × 0.25H window over bare structure (index 0, ≥ 98 %) of the camera's normal render, 5 % steps,
+lowest-centre tie-break; one box per camera on every image kind (it is bare on the removal, insertion and
+swap images too). Line: `- E3: tv_unit (low long cabinet / sideboard); expected inside box [83, 674, 362,
+933][, cut by the image edge]`. The prompt defines
 the statuses, says an empty doorway without a door leaf is NOT a door, and excludes only walls, floor,
 ceiling and the outside view from extras.
 
@@ -482,8 +521,9 @@ Pass 1 Qwen3-VL-8B-Instruct, pass 2 GLM-4.6V-Flash, independent, one server at a
 different+different → changed; absent+different → missing_or_changed; present vs absent/different →
 disputed; with unsure → the other pass, `unverified`; a failed call → `not_computed` (never absent); a pass
 that answers the decoy present → `unreliable` for the view. Extras: drop those ≥ 50 % covered by any indexed
-mask; A/B matched by IoU ≥ 0.3 and the same class → confirmed; decor extras are info. Counts: expected range
-[required, required + optional + ignored]; a mismatch needs both models outside it on the same side.
+mask of the image shown (insertion: the normal render without the target's pixels); A/B matched by IoU ≥ 0.3
+and the same class → confirmed; decor extras are info. Counts: expected range [required, required +
+optional + ignored]; a mismatch needs both models outside it on the same side.
 Single model (`CHECK_MODELS` with one key): every result `unverified`, view verdict `info`, `single_pass:
 true`, advisory. added_by_ai mismatches are labelled "added_by_ai: render/polish issue, not a document
 conflict".
@@ -525,16 +565,19 @@ Both models, both orders: "Which image looks more like a real photograph of a ro
 --project-out outputs/<p> [--model-key qwen|glm --server URL] [--kinds cycles,polished,controls,plan_ab]
 [--deadline S]` with `main(argv=None, client_factory=None)`. Image kinds: `cycles`, `polished`,
 `removal:<id>`, `insertion:<id>`, `swap:<id>`, `plan_ab:<cam>`, `sweep:a<k>`. Files in `check/`:
-`expected_views.json`, `<cam>_plan.jpg`, `answers_<slug>.json` (`{model, slug, calls: {<call_key>:
-{camera, image_kind, prompt_kind: check|preference|plan_ab, prompt, raw_text, data, latency_s, error}}}`,
-rewritten after every call, resumable by `call_key`), `check_manifest.json` (`{schema_version, project,
-advisory, single_pass, models: {<key>: {id, slug, revision}}, views: {<camera>: {<image kind>: {verdict:
-ok|mismatch|info|not_computed, elements: {<wenart_id>: {label, role, source, passes: {<key>: {status,
-seen_as, confidence}|null}, result}}, extras: [...], counts: {...}, unreliable: [<key>]},
-"json_crosscheck": {...}, "polished_rejected": bool, "polished_reasons": [...], "needs_review": bool}}}`),
-`check_calibration.json` (`{metrics, targets, missed: [...], advisory, plan_ab: {...}}`), `check_report.md`,
-`<cam>_<kind>_check.jpg` debug images (expected boxes coloured by verdict: ok green, missing/changed red,
-disputed orange, unverified grey dashed; decoy box; confirmed extras; `id type source` labels; ≤ 300 KB).
+`expected_views.json`, `<cam>_plan.jpg`, `answers_<slug>.json` (`{model, slug, calls: {<call_key>: {camera,
+image_kind, prompt_kind: check|preference|plan_ab, prompt, raw_text, data, latency_s, error}}}`, rewritten
+after every call in call-key order, resumable by `call_key`; `run` and `preference` send `check.yaml:
+calls.workers` (2; `--workers`, the job passes the server's `--max-num-seqs`) calls at once and wait for none
+past `--deadline`: a call still running then is left unanswered for the next run, the file gets `incomplete:
+true`), `check_manifest.json` (`{schema_version, project, advisory, single_pass, models: {<key>: {id, slug,
+revision}}, views: {<camera>: {<image kind>: {verdict: ok|mismatch|info|not_computed, elements: {<wenart_id>:
+{label, role, source, passes: {<key>: {status, seen_as, confidence}|null}, result}}, extras: [...], counts:
+{...}, unreliable: [<key>], image_sha256: [<sha256 of each image sent>]}, "json_crosscheck": {...},
+"polished_rejected": bool, "polished_reasons": [...], "needs_review": bool}}}`), `check_calibration.json`
+(`{metrics, targets, missed: [...], advisory, plan_ab: {...}}`), `check_report.md`, `<cam>_<kind>_check.jpg`
+debug images (expected boxes coloured by verdict: ok green, missing/changed red, disputed orange, unverified
+grey dashed; decoy box; confirmed extras; `id type source` labels; ≤ 300 KB).
 
 ## 6. Style reference photos (area E)
 
@@ -545,7 +588,9 @@ disputed orange, unverified grey dashed; decoy box; confirmed extras; `id type s
   0, strict schema with vocabulary enums: floor (8 slugs), walls (5), light mood (5), family (9), each plus
   `unclear`. Values both models agree on (and not unclear) become terms with evidence `{method: ai, model,
   pass, file}`. `python -m wenart.vision_check style-photo` runs one pass with the current server and appends
-  to `<out>.json`; `python -m wenart.style.photos combine <json> --out <terms.json>` agrees the passes.
+  to `<out>.json` (a pass without data is an error, never `ok`, and is asked again on the next run; a call
+  still running at the deadline is left for the next run); `python -m wenart.style.photos combine <json>
+  --out <terms.json>` agrees the passes.
 - `profile_from_brief(brief, photo_terms=None)`: photo terms fill only slots the brief text does not name
   (the slots that would otherwise be assumed from the family word or the defaults); the brief always wins;
   each use is listed in `matched_terms` as `photo:<file>:<term>` and in the warnings.
@@ -566,7 +611,10 @@ the unverified pieces in view), `<cam>_final_preview.jpg` (≤ 300 KB), `<cam>_p
 flags, exposure range, seconds per stage from the manifests), per-view table, every mismatch with source and
 evidence (never auto-fixed), the unverified items and conflicts of `building.json`, rooms mixing polished
 and Cycles views, and the model/licence table from the manifests. The final image is polished iff polish
-`final == polished` and the vision check did not reject it (§5.5). Links only to files in `final/`.
+`final == polished`, the vision check did not reject it (§5.5) and the check saw those pixels: the sha256 of
+the polished PNG on disk (and of the current Cycles render) must be in the check manifest's `image_sha256`
+(a re-polish writes new pixels under the same name); a manifest without hashes gives `check_incomplete`.
+Links only to files in `final/`.
 
 ## 8. Pod jobs (area F)
 
@@ -588,7 +636,8 @@ and Cycles views, and the model/licence table from the manifests. The final imag
   host's: in a container `/proc/meminfo` and `os.cpu_count()` show the host, 251 GiB and 112 CPUs in run 0),
   `pod_limits` (cgroup v2 `cpu.max`, `memory.max`, `memory.current`, or the v1 files; CPU affinity; the
   thread budget and thread variables `polish.sh` exported), versions.
-- Parts by phase: diffusion + gate models only when `polish`, `gate` or `smoke` is in `POLISH_PHASES`;
+- Parts by phase: diffusion + gate models only when `polish`, `gate`, `tests`
+  (`tests/gpu/test_polish_backend.py` loads the polish models) or `smoke` is in `POLISH_PHASES`;
   `scripts/pod_setup_recognition.sh` with `RECOG_SETUP_PARTS="vllm models"` (new switch: skips PaddleOCR and
   LibreDWG) and `BAKEOFF_MODELS="Qwen/Qwen3-VL-8B-Instruct zai-org/GLM-4.6V-Flash"` only when `check` is.
 
@@ -609,9 +658,9 @@ nothing new, and polish.sh skips the remaining heavy phases but still runs `repo
 | controls | `$PY -m wenart.vision_check select-controls --project-out outputs/<p>`; `$PY -m wenart.blender.cli render --scene ... --out outputs/<p>/controls --hide-sets '<from the CONTROL lines>' --look-from outputs/<p>/renders/render_manifest.json --samples $RENDER_SAMPLES --res 1920x1080` | PY |
 | polish | `$POLISH_PY -m wenart.polish run --project-out outputs/<p>` (final) / `sweep --views auto --grid sweep` (sweep) / `smoke --views $SMOKE_VIEWS` (smoke) | `POLISH_PY=/opt/wenart/venv-polish/bin/python` |
 | gate | `$POLISH_PY -m wenart.gate calibrate --project-out outputs/<p>` | POLISH_PY |
-| check | `$PY -m wenart.vision_check expected` and `plan-crops`; per model key: server up; `run` (+ `preference`, `style-photo`); server down; then `combine`, `calibrate` | PY |
+| check | `$PY -m wenart.vision_check expected` and `plan-crops`; per model key: server up; `run` (+ `preference`; both `--workers` = the server's `--max-num-seqs`), `style-photo`; server down; then `combine`, `calibrate` | PY |
 | report | `$PY -m wenart.report final|sweep --project-out outputs/<p>` | PY |
-| tests | `$PY -m pytest -m gpu tests/gpu/test_render.py tests/gpu/test_check.py`; `$POLISH_PY -m pytest -m gpu tests/gpu/test_polish.py` (junit into the results) | both |
+| tests | `$PY -m pytest -m gpu tests/gpu/test_render.py tests/gpu/test_check.py`; `$POLISH_PY -m pytest -m gpu tests/gpu/test_polish.py tests/gpu/test_polish_backend.py` (junit into the results; the backend test forces the CUDA OOM retry with the real models after the vLLM server stopped) | both |
 
 The job exports `HF_HOME=/opt/wenart/hf`, `HF_XET_HIGH_PERFORMANCE=1`, and `HF_HUB_OFFLINE=1` after setup.
 CPU threads: before the setup the job exports `OMP_NUM_THREADS`, `OPENBLAS_NUM_THREADS`, `MKL_NUM_THREADS`,
@@ -651,7 +700,7 @@ that the thread budget of §8.2 is meant to remove; run 1a measures again):
 | Run | Mode / phases | Purpose | Estimate |
 |---|---|---|---|
 | 0 | smoke: look (synthetic-01), polish smoke (2 views × 4 settings, gate inline), check (10 calls per model) | measure s/forward, VRAM, meter seconds, s/call; fix exposure defaults | done 2 Oct (runs 0 and 0b: 35 + 20 min) |
-| 1a | sweep: look (both), controls, sweep, gate calibrate, report sweep | thresholds and ladder; polish and gate seconds with the CPU thread budget | ≈ 55–70 min |
+| 1a | sweep: look (both), controls, sweep, gate calibrate, report sweep | thresholds and ladder; polish and gate seconds with the CPU thread budget (`metrics.seconds` per check well under 1 s; per attempt `diffusion_seconds` vs `cpu_seconds`); the gate processors' CUDA uint8 input with `device=` (transformers 5.18) runs | ≈ 55–70 min |
 | 1b | sweep: check report tests | check calibration, plan A/B, preference, style photo | ≈ 30–40 min |
 | 2a | final: `look polish`, one project per pod (`POLISH_PROJECTS=synthetic-01`, then `synthetic-03`); the same command again until `polish/polish_manifest.json` has `incomplete: false` (attempts and gate results are reused) | the polished views | ≈ 2.5–3.5 min per view at run 0b's speed (90 s + 1.5–3 attempts × 35 s): synthetic-01 (30 views) ≈ 75–100 min, synthetic-03 (57 views) two pods; re-estimated from run 1a |
 | 2b | final: `check report tests` (both projects) | vision check of the Cycles and polished views, final report, GPU tests | ≈ 75–85 min: setup ≈ 5 min; per model 3–5 min server start + (87 cycles + P polished + 2P preference calls) × 7 s ≈ 31 min at P ≈ 60; report and tests ≈ 5 min; again if the deadline cut it (the answers resume) |
@@ -670,11 +719,13 @@ hours, ≈ $6 at $0.70/h (within $10 per day).
 CPU (`pytest -m "not gpu"`):
 - views: encoders/readers round trip (uint16 > 255, normals), regions, geometry edges, boxes, load_views
   with stale entries.
-- Blender (skip without Blender): camera-only glass (index/depth at the pane); flat albedo (white plaster
-  within 0.03 of the flat colour, CV < 0.06 on a tiny render); portals (count, size, −Z into the room);
-  metering on a tiny room (finite EV within the clamp, whitepoint); `--look-from`; render_key reuse;
-  uint16 index; depth_mm/normal agree with the EXR; `--hide`/`--plug`/`--hide-sets` (index gone, depth at
-  the wall, unknown id → exit 2); build fingerprint reuse; `room_ids`, `box3d`, `preview_maps` mapping.
+- Blender (skip without Blender): window glass (`tests/test_blender_glass.py`: the view through the pane stays
+  in place, index/depth stop at the pane, one lamp reflection, interior light as through an open hole); flat
+  albedo (white plaster within 0.03 of the flat colour, CV < 0.06 on a tiny render); portals (count, size, −Z
+  into the room); metering on a tiny room (finite EV within the clamp, whitepoint); `--look-from`; render_key
+  reuse; uint16 index; depth_mm/normal agree with the EXR; `--hide`/`--plug`/`--hide-sets` (index gone, depth
+  at the wall, unknown id → exit 2; a plugged bathroom window shows the wall tiles on the room side); build
+  fingerprint reuse; `room_ids`, `box3d`, `preview_maps` mapping.
 - polish (fake pipeline, fake gate): sigma tails and σ0, pad/crop and resize round trips, controls, prompt,
   ladder, room rule, pane restore, resumability (attempt_key, gate_key, decision recomputed), deadline,
   `polish: false`, manifest schema.
@@ -695,7 +746,9 @@ the clamp, uint16 index stats consistent with `index_values`, synthetic-01 white
 hard threshold recomputed with `decide`; rejected attempts have reasons; manifests valid; benign accepted 100
 % and negatives rejected ≥ 90 % unless `calibration.accepted_shortfall` names metric, rate and the date of
 the user's OK; `determinism.json` max_abs_diff ≤ 2); `test_check.py` (≥ 95 % of calls answered per model;
-calibration present; `advisory` set exactly when a target is missed; `style_photo_test.json` as §6).
+calibration present; `advisory` set exactly when a target is missed; `style_photo_test.json` as §6);
+`test_polish_backend.py` (the Z-Image backend's CUDA OOM retry with the real models: VRAM filled by the failed
+call only, same image after the retry, no offload hooks, every pipeline works afterwards).
 
 ## 10. Done criteria
 
@@ -750,3 +803,42 @@ ambiguous or contradicted itself, and the cross-area fixes. `tests/test_m5_e2e.p
 | §6 style photos in the job | The check phase agrees the project photos' passes into `check/style_photo_terms.json`; the next look phase passes it to `wenart.style --photo-terms` (empty terms change nothing). The vision check and the style module share one photo rule (`wenart.style.photos.style_photo_paths`). |
 | §2.6 `cli.render` | Returns the out folder (not a manifest path) when `hide_sets` is given; the same ids asked with and without `+plug` in one call is a usage error (exit 2). |
 | §2.7 build fingerprint | Also hashes `wenart/geometry.py` (the build's geometry depends on it). |
+
+### 13.1 Review fixes (2 Oct 2026)
+
+The M5 code review's confirmed findings were fixed in five groups (G1 polish, G2 gate, G3 Blender, G4
+vision check and report, G5 pod jobs), each with a test that failed on the old code, and merged here. One
+line per fixed finding (duplicate findings of the review share a line):
+
+| Finding | What changed |
+|---|---|
+| G1 §3.1: the CPU-offload fallback for a CUDA OOM broke every later ControlNet attempt | `enable_model_cpu_offload` removed (the ControlNet shares the transformer's `x_pad_token`, so the hooks left the transformer blocks on the CPU). One resident retry after the `except` block, after `Gate.release_gpu()` and gc + `empty_cache`; a second OOM is raised and ends retries; `memory_mode` always `resident`, manifest `oom_retries`; `mem_available_gb` removed; schema enum without `offload`. Pod test `tests/gpu/test_polish_backend.py`. |
+| G1 §3.6: stored gate metrics with a model `error` were reused, so a transient failure stayed a reject | `runner.gate_metrics_complete`: metrics are reused only when no check carries `error`; otherwise the stored PNG is gated again. |
+| G1 §3.6: CPU side of one attempt (pod run 0b) | Attempt PNGs at zlib level 1 + RLE (lossless, ≈ 3× faster, same size), sha256 from the encoded bytes; attempts record `diffusion_seconds` and `cpu_seconds`. 1920×1080: 0.74–0.93 → 0.41–0.65 s per attempt. The 20–70× slower gate checks of run 0b are CPU oversubscription (G5 thread budget). |
+| G2 §4.2: `added_lines` rejected polishes that only sharpen plank seams or tile grout | Oriented low-threshold reference matching (0.2× Canny, 10°, §4.2); benign control local contrast ×1.5 (§4.3); `GATE_CODE_VERSION` m5.2 (stored gate metrics are recomputed). Real Poly Haven floors: every benign control accepted (only local contrast ×2.0 on wood stays at 0.040), a painted rug outline still 0.62–0.95. |
+| G2 §4.2: gate CPU cost per comparison (run 0b: colour 6–24 s, depth 8–11 s, features up to 17 s) | `layout.Layout` (valid pixels grouped by region, built once), `edges.EdgeIndex`, cached reference depth samples and DINOv2 norms; `models.py` sends a uint8 tensor to the device and resizes, normalises and upsamples there (`device=`). 1920×1080, 15 objects: compare 0.76–0.89 → 0.30 s CPU; metrics within 1e-4 of the mask-based functions. `Reference.lab` is float32 3×N over the valid pixels. |
+| G3 §2.1: window glass moved the outside view (one-sided refraction) | Glass for `Is Camera Ray` or `Is Singular Ray` (Math MAXIMUM): the view stays in place, one lamp reflection, interior light 0.998 of the open hole; `tests/test_blender_glass.py`. |
+| G3 §2.6: a plugged window in a wet room showed plaster | `Hider._plug` gives the plug the wall's slots; each face takes the slot of the wall face next to the hole on its side (`plug_face_slots`); `RENDER_CODE_VERSION` m5.2, so wet-room controls re-render on their own. |
+| G4 §5.1: `misplaced` flagged correctly rendered beds, armchairs and windows | Containment test of the element's own pixels in world space (0.10 m margin, > 10 % outside, ≥ 20 px) with the built height (`box3d`); check.yaml keys replace `misplaced_frac_w`. synthetic-01 at 640×360: false flags 5 → 0, pieces moved 0.3–0.5 m caught in 11–28 → 24–40 of 41 piece-views. |
+| G4 §5.3: the insertion control's decoy was placed on the hidden render and covered the element (2 review findings) | The decoy is placed on the camera's normal render for every image kind, type absent from both lists; insertion extras are dropped against the normal render without the target. |
+| G4 §6: style-photo stored a failed pass as finished and logged `ok` (2 review findings) | A pass without data is an error and is asked again on the next run, also for records written before the fix. |
+| G4 §7: the final report accepted a polished image the vision check never saw (2 review findings) | Check-manifest entries carry `image_sha256`; `decide` makes a view polished only when the polished PNG's (and the render's) sha256 is in it; no hashes → `check_incomplete`. |
+| G4 §5.7: one stuck VLM call could run ≈ 30 min past `WENART_DEADLINE` | `run`/`preference`/`style-photo` wait for no call past the deadline (daemon threads, the call is left for the next run); `run` and `preference` send `calls.workers` (2) calls at once with one writer in call-key order. |
+| G4 §5.2: plan A/B `adopted` was reported though the crop was never sent | `check.yaml: plan_image` (default false) sends the crop as Image 2 with every element check; `plan_ab` reports `favours_plan`, `used`, `adopted` (= used). |
+| G5 §8.2: every stage re-copied all result files (≈ 45 ms per file, 25–40 min in run 2) | Incremental copy since a stamp on the volume (2 s overlap), many files per `cp`; the job's first copy and the EXIT-trap copy stay full. |
+| G5 §8.3: run 2 in one pod could not end before `WENART_DEADLINE` | Run 2 split into 2a (`look polish`, one project per pod, repeated until complete) and 2b (`check report tests`); `--grace 840` from run 1b on; CPU thread budget = the cgroup CPU quota exported to every stage (`OMP_NUM_THREADS`, `OPENBLAS_NUM_THREADS`, `MKL_NUM_THREADS`, `OPENCV_FOR_THREADS_NUM`, …; `POLISH_THREADS` overrides). |
+| G5 §8.2: results held earlier pods' logs and a stale `style_2.json`, and missed the control-render log | Logs and `setup_polish.json` only when written after the job's start stamp; `style_<n>.json` only together with this `style.json`; `controls/render.log` copied; `style.write_profiles` now removes `<stem>_<n>.json` extras of an earlier brief. |
+| G5 §8.1: `setup_polish.json` recorded the host's RAM and CPUs, not the pod's limits | `pod_limits` (cgroup v2/v1 CPU quota, `memory.max`/`memory.current`, affinity, thread budget). The offload guard that read the host's `MemAvailable` is gone with the offload (G1). |
+
+Contract requests between the groups, resolved at the merge:
+
+| Request | Resolution |
+|---|---|
+| G1 → G2: a gate call that frees the GPU before the polish's OOM retry | `Gate.release_gpu()` / `Models.release_gpu()` (§1.3); the runner calls it through the backend's release hook. |
+| G1 → jobs: run the backend's OOM-retry test on the pod | `tests/gpu/test_polish_backend.py` runs with `test_polish.py` in the polish venv after the check phase stopped vLLM; the setup downloads the polish models whenever `tests` is a phase (§8.1, §8.2). |
+| G4 → `vlm_client.py`: a per-call wall-clock limit and a cheaper image encoding | `VLMClient.deadline` (§1.5), set by the vision check from `WENART_DEADLINE`; PNG without `optimize`. |
+| G4 → jobs: workers to match the server on ≥ 40 GB cards | `polish.sh` passes `--workers` = the server's `--max-num-seqs` (2 below 40 GB, 4 above). |
+| G5 → `wenart/style/profile.py`: stale extra profiles | `write_profiles` replaces its whole set (extras beyond the new count removed). |
+| G2 → next pod run: confirm the device-side processors and gate seconds | Run 1a's purpose (§8.3). |
+| G2 → `wenart/views.py`: `regions`/`geometry_edges` cost ≈ 0.35 s per view in `Gate.prepare` | Not changed: once per view (≈ 90 s per view on the pod, mostly oversubscription), and a float32 rewrite could move boundary pixels; revisit if run 1a shows it matters. |
+| G5: the runner fetches results one file at a time (0.81 s per file) | Not changed: `--grace 840` covers 500–1000 files within the 900 s margin; a parallel fetch in `scripts/gpu_run.py` is an open item. |
