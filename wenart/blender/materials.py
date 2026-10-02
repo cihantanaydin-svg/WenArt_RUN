@@ -29,6 +29,19 @@ and the sky too weakly (the main cause of the orange cast) and biased light
 portals; camera-only glass lights the room like an open hole while the
 camera, the depth and the index passes still see the pane.
 
+Milestone 6 (docs/milestone6.md §5):
+
+- the unverified stripes emit for camera rays only (factor = stripe x Light
+  Path 'Is Camera Ray'): their red light lit small rooms red and the auto
+  white balance then turned the whole view teal (row 1);
+- ``tiles_*`` slugs without an image texture set become procedural glazed
+  tiles, the node group ``wenart_glazed_tiles`` (Brick Texture on the box UVs
+  in metres, 60 x 30 cm, 3 mm grout, roughness 0.08 tile / 0.7 grout, bump
+  from the grout mask; ``vocabulary.PROCEDURAL_TILES``) when textures are on;
+  with ``--no-textures`` they stay the flat colour (row 4);
+- the furniture slugs have albedo modes too (the dyed linen photo in flat
+  mode), and ``vocabulary.METALLIC`` sets the Principled Metallic (steel 1).
+
 Node names were checked against Blender 5.2.2: Principled BSDF inputs 'Base
 Color', 'Roughness', 'Normal', 'Emission Color', 'Emission Strength', 'Metallic';
 Glass BSDF inputs 'Color', 'Roughness', 'IOR'; Glossy BSDF (ShaderNodeBsdfAnisotropic) 'Color', 'Roughness';
@@ -36,7 +49,12 @@ Fresnel 'IOR'; Light Path outputs 'Is Camera Ray', 'Is Singular Ray'; RGB to BW 
 Math inputs 'Value', 'Value_001', 'Value_002' (operations DIVIDE,
 MULTIPLY_ADD, MAXIMUM); Vector Math inputs 'Vector', 'Vector_001', 'Scale'
 (operations SCALE, MULTIPLY, MINIMUM); ShaderNodeTexSky sky_type
-'MULTIPLE_SCATTERING' with sun_elevation / sun_rotation (radians).
+'MULTIPLE_SCATTERING' with sun_elevation / sun_rotation (radians); Brick
+Texture inputs 'Vector', 'Color1', 'Color2', 'Mortar', 'Scale', 'Mortar Size',
+'Mortar Smooth', 'Bias', 'Brick Width', 'Row Height', outputs 'Color' and
+'Factor' (identifier 'Fac'), properties offset / offset_frequency / squash /
+squash_frequency; node groups through ``NodeTree.interface.new_socket(name,
+in_out=..., socket_type=...)``.
 """
 from __future__ import annotations
 
@@ -63,19 +81,21 @@ CC0_SOURCES = ("polyhaven", "ambientcg")
 CC0 = "CC0"
 
 
-def _vocabulary_tables() -> tuple[dict, dict, dict, str | None]:
-    """``(flat_colours, roughness, albedo_modes, error)`` from the style vocabulary."""
+def _vocabulary_tables() -> tuple[dict, dict, dict, dict, dict, str | None]:
+    """``(flat_colours, roughness, albedo_modes, metallic, procedural_tiles, error)`` from the style vocabulary."""
     try:
         from wenart.style import vocabulary as V
         flat = {slug: (float(c[0]), float(c[1]), float(c[2])) for slug, c in V.FLAT_COLOURS.items()}
         rough = {slug: float(r) for slug, r in V.ROUGHNESS.items()}
-        modes = {slug: V.albedo_mode(slug) for slug in V.MATERIALS}
+        modes = {slug: V.albedo_mode(slug) for slug in list(V.MATERIALS) + list(V.FURNITURE_MATERIALS)}
+        metal = {slug: float(m) for slug, m in V.METALLIC.items()}
+        tiles = dict(V.PROCEDURAL_TILES)
     except Exception as exc:  # noqa: BLE001 - the build must not die over a colour table
-        return {}, {}, {}, f"{type(exc).__name__}: {exc}"
-    return flat, rough, modes, None
+        return {}, {}, {}, {}, {}, f"{type(exc).__name__}: {exc}"
+    return flat, rough, modes, metal, tiles, None
 
 
-_FLAT, _ROUGH, _MODES, VOCABULARY_IMPORT_ERROR = _vocabulary_tables()
+_FLAT, _ROUGH, _MODES, _METALLIC, _TILES, VOCABULARY_IMPORT_ERROR = _vocabulary_tables()
 FLAT_COLOURS: dict[str, tuple[float, float, float]] = {**_LOCAL_FLAT_COLOURS, **_FLAT}
 ROUGHNESS: dict[str, float] = {**_LOCAL_ROUGHNESS, **_ROUGH}
 # The local plaster_exterior is a plaster too: flat mode with half the detail
@@ -84,6 +104,15 @@ ALBEDO_MODES: dict[str, tuple[str, float | None]] = {"plaster_exterior": ("flat"
 # Highest albedo any textured material may reach (a white wall reflects ~85 %;
 # above 0.9 inter-reflections blow up and look like a light source).
 MAX_ALBEDO = 0.9
+METALLIC: dict[str, float] = {"steel_brushed": 1.0, **_METALLIC}
+# Procedural glazed tiles (docs/milestone6.md §5 row 4); the local copy is the
+# fallback when the vocabulary cannot be imported.
+PROCEDURAL_TILES: dict = {"tile_w_m": 0.60, "tile_h_m": 0.30, "grout_m": 0.003, "grout_colour": [0.55, 0.55, 0.53],
+                          "tile_roughness": 0.08, "grout_roughness": 0.7, "variation": 0.03, "bump_strength": 0.4,
+                          "bump_distance_m": 0.002, **_TILES}
+PROCEDURAL_TILE_PREFIX = "tiles_"
+TILES_GROUP = "wenart_glazed_tiles"
+STRIPES_CAMERA_NODE = "wenart_stripes_camera_only"
 
 
 def flat_colour(slug: str) -> tuple[float, float, float]:
@@ -94,6 +123,26 @@ def flat_colour(slug: str) -> tuple[float, float, float]:
 def albedo_mode(slug: str) -> tuple[str, float | None]:
     """``("flat", detail)`` or ``("texture", None)`` for a slug (docs/milestone5.md §2.2)."""
     return ALBEDO_MODES.get(slug, ("texture", None))
+
+
+def metallic(slug: str) -> float:
+    """Principled BSDF Metallic of a slug (``vocabulary.METALLIC``, 0 when not listed)."""
+    return float(METALLIC.get(slug, 0.0))
+
+
+def procedural_for(slug: str, has_texture: bool, use_textures: bool) -> str | None:
+    """``"glazed_tiles"`` for a ``tiles_*`` slug without an image texture set
+    while textures are on (docs/milestone6.md §5 row 4), else None."""
+    if has_texture or not use_textures or not str(slug).startswith(PROCEDURAL_TILE_PREFIX):
+        return None
+    return "glazed_tiles"
+
+
+def procedural_note() -> str:
+    """The text recorded for the procedural tiles (material record and custom property)."""
+    t = PROCEDURAL_TILES
+    return (f"procedural glazed tiles {float(t['tile_w_m']):.2f} x {float(t['tile_h_m']):.2f} m, "
+            f"{float(t['grout_m']) * 1000:.0f} mm grout (node group {TILES_GROUP})")
 
 
 def licence_problem(entry: dict, asset_id: str) -> str | None:
@@ -161,9 +210,11 @@ class MaterialLibrary:
         tset, reason = self.texture_set(asset_id)
         # One Blender material per (slug, asset, tint, unverified); the record
         # is keyed by the material's name so a slug used both textured (floor
-        # with an asset) and flat (door leaf without one) is reported twice.
+        # with an asset) and flat (door leaf without one) is reported twice, and
+        # an asset that could not be used keeps its own record with the reason.
+        procedural = procedural_for(slug, tset is not None, self.use_textures)
         name = slug + (f"__{tset['id']}" if tset else "") + ("__unverified" if unverified else "")
-        mat = pbr_material(name, slug, tset, tint, unverified=unverified)
+        mat = pbr_material(name, slug, tset, tint, unverified=unverified, procedural=procedural)
         self._cache[key] = mat
         mode, detail = albedo_mode(slug)
         clamped = mat.get("wenart_gain_clamped")
@@ -171,10 +222,12 @@ class MaterialLibrary:
             "slug": slug, "textured": tset is not None, "asset": asset_id if tset else None,
             "source": tset["source"] if tset else None, "licence": tset["licence"] if tset else None,
             "size_m": tset["size_m"] if tset else None, "flat_colour": list(flat_colour(slug)),
-            "tint": list(tint) if tint else None, "unverified": unverified, "reason": reason,
+            "tint": list(tint) if tint else None, "unverified": unverified,
+            "reason": reason if procedural is None else f"{reason}; {procedural_note()}",
             "albedo_mode": mode, "detail": detail,
             "albedo_gain": mat.get("wenart_albedo_gain"), "albedo_mean_luminance": mat.get("wenart_albedo_mean"),
             "gain_clamped": None if clamped is None else bool(clamped),
+            "metallic": metallic(slug), "procedural": procedural,
         }
         if mat.get("wenart_albedo_note"):
             self.records[mat.name]["albedo_note"] = mat["wenart_albedo_note"]
@@ -232,13 +285,16 @@ class MaterialLibrary:
 # --------------------------------------------------------------------------
 
 def pbr_material(name: str, slug: str, texture_set: dict | None, tint=None, scale_m=None,
-                 unverified: bool = False):
+                 unverified: bool = False, procedural: str | None = None):
     """Principled BSDF material: albedo / normal / roughness maps from
-    ``texture_set`` (box UVs in metres, Mapping scale 1/size_m), or the flat
-    colour of ``slug``. The base colour follows the slug's albedo mode
-    (module docstring). ``tint`` multiplies the colour (no style slot sets
-    one since Milestone 5; kept for a ``textiles`` tint). ``unverified``
-    adds red emission stripes on top so reviewers spot it in renders.
+    ``texture_set`` (box UVs in metres, Mapping scale 1/size_m), the
+    procedural glazed tiles (``procedural="glazed_tiles"`` and no texture
+    set), or the flat colour of ``slug``. The base colour follows the slug's
+    albedo mode (module docstring); Metallic comes from
+    ``vocabulary.METALLIC``. ``tint`` multiplies the colour (no style slot
+    sets one since Milestone 5; kept for a ``textiles`` tint). ``unverified``
+    adds red emission stripes on top (camera rays only) so reviewers spot it
+    in renders.
 
     Custom properties on the material: ``wenart_albedo_mode``,
     ``wenart_albedo_detail`` (flat), ``wenart_albedo_mean`` (texture mean
@@ -253,7 +309,7 @@ def pbr_material(name: str, slug: str, texture_set: dict | None, tint=None, scal
     bsdf = nodes.get("Principled BSDF")
     out = nodes.get("Material Output")
     bsdf.inputs["Roughness"].default_value = ROUGHNESS.get(slug, 0.6)
-    bsdf.inputs["Metallic"].default_value = 0.0
+    bsdf.inputs["Metallic"].default_value = metallic(slug)
     mode, detail = albedo_mode(slug)
     mat["wenart_albedo_mode"] = mode
     if detail is not None:
@@ -306,12 +362,83 @@ def pbr_material(name: str, slug: str, texture_set: dict | None, tint=None, scal
         nmap.uv_map = "box_m"
         links.new(normal.outputs["Color"], nmap.inputs["Color"])
         links.new(nmap.outputs["Normal"], bsdf.inputs["Normal"])
+    elif procedural == "glazed_tiles":
+        group = nodes.new("ShaderNodeGroup")
+        group.node_tree = glazed_tiles_group()
+        group.inputs["Tile Color"].default_value = (*colour, 1.0)
+        links.new(group.outputs["Color"], bsdf.inputs["Base Color"])
+        links.new(group.outputs["Roughness"], bsdf.inputs["Roughness"])
+        links.new(group.outputs["Normal"], bsdf.inputs["Normal"])
+        mat["wenart_procedural"] = procedural_note()
     else:
         bsdf.inputs["Base Color"].default_value = (*colour, 1.0)
 
     if unverified:
-        _add_unverified_stripes(tree, bsdf, out)
+        _add_unverified_stripes(mat, bsdf, out)
     return mat
+
+
+def glazed_tiles_group():
+    """The shader node group ``wenart_glazed_tiles`` (created once per file).
+
+    Input ``Tile Color``; outputs ``Color``, ``Roughness``, ``Normal``. A
+    Brick Texture on the ``box_m`` UVs (metres, scale 1): bricks of
+    ``tile_w_m`` x ``tile_h_m``, mortar ``grout_m``, half offset every second
+    row; the two brick colours are the tile colour x (1 +- variation), the
+    mortar the grout colour. Roughness = Map Range of the mortar mask
+    (tile 0.08 -> grout 0.7); Normal = Bump of (1 - mortar mask), so the grout
+    lines are recessed."""
+    import bpy
+
+    group = bpy.data.node_groups.get(TILES_GROUP)
+    if group is not None:
+        return group
+    t = PROCEDURAL_TILES
+    group = bpy.data.node_groups.new(TILES_GROUP, "ShaderNodeTree")
+    group.interface.new_socket(name="Tile Color", in_out="INPUT", socket_type="NodeSocketColor")
+    group.interface.new_socket(name="Color", in_out="OUTPUT", socket_type="NodeSocketColor")
+    group.interface.new_socket(name="Roughness", in_out="OUTPUT", socket_type="NodeSocketFloat")
+    group.interface.new_socket(name="Normal", in_out="OUTPUT", socket_type="NodeSocketVector")
+    nodes, links = group.nodes, group.links
+    gin = nodes.new("NodeGroupInput")
+    gout = nodes.new("NodeGroupOutput")
+    uv = nodes.new("ShaderNodeUVMap")
+    uv.uv_map = "box_m"
+    brick = nodes.new("ShaderNodeTexBrick")
+    brick.offset = 0.5
+    brick.offset_frequency = 2
+    brick.squash = 1.0
+    brick.squash_frequency = 1
+    links.new(uv.outputs["UV"], brick.inputs["Vector"])
+    brick.inputs["Scale"].default_value = 1.0
+    brick.inputs["Brick Width"].default_value = float(t["tile_w_m"])
+    brick.inputs["Row Height"].default_value = float(t["tile_h_m"])
+    brick.inputs["Mortar Size"].default_value = float(t["grout_m"])
+    brick.inputs["Mortar Smooth"].default_value = 0.3
+    brick.inputs["Bias"].default_value = 0.0
+    brick.inputs["Mortar"].default_value = (*[float(c) for c in t["grout_colour"]], 1.0)
+    for socket, factor in (("Color1", 1.0 + float(t["variation"])), ("Color2", 1.0 - float(t["variation"]))):
+        scale = nodes.new("ShaderNodeVectorMath")
+        scale.operation = "SCALE"
+        links.new(gin.outputs["Tile Color"], scale.inputs["Vector"])
+        scale.inputs["Scale"].default_value = factor
+        links.new(scale.outputs["Vector"], brick.inputs[socket])
+    links.new(brick.outputs["Color"], gout.inputs["Color"])
+    rough = nodes.new("ShaderNodeMapRange")
+    links.new(brick.outputs["Factor"], rough.inputs["Value"])
+    rough.inputs["To Min"].default_value = float(t["tile_roughness"])
+    rough.inputs["To Max"].default_value = float(t["grout_roughness"])
+    links.new(rough.outputs["Result"], gout.inputs["Roughness"])
+    invert = nodes.new("ShaderNodeMath")
+    invert.operation = "SUBTRACT"
+    invert.inputs[0].default_value = 1.0
+    links.new(brick.outputs["Factor"], invert.inputs[1])
+    bump = nodes.new("ShaderNodeBump")
+    bump.inputs["Strength"].default_value = float(t["bump_strength"])
+    bump.inputs["Distance"].default_value = float(t["bump_distance_m"])
+    links.new(invert.outputs["Value"], bump.inputs["Height"])
+    links.new(bump.outputs["Normal"], gout.inputs["Normal"])
+    return group
 
 
 # Texture mode: the gain that brings the map's mean luminance to the flat
@@ -433,18 +560,28 @@ def add_unverified_overlay(mat) -> bool:
     out = out or next((n for n in tree.nodes if n.bl_idname == "ShaderNodeOutputMaterial"), None)
     if out is None or not out.inputs["Surface"].links:
         return False
-    _stripes_over_socket(tree, out.inputs["Surface"].links[0].from_socket, out)
+    _stripes_over_socket(mat, out.inputs["Surface"].links[0].from_socket, out)
     return True
 
 
-def _add_unverified_stripes(tree, base_shader, out):
+def _add_unverified_stripes(mat, base_shader, out):
     """Mix red emission stripes over the base shader node's first output."""
-    _stripes_over_socket(tree, base_shader.outputs[0], out)
+    _stripes_over_socket(mat, base_shader.outputs[0], out)
 
 
-def _stripes_over_socket(tree, shader_socket, out):
-    """Mix red emission stripes (world-space bands, 10 cm period) over ``shader_socket``."""
+def _stripes_over_socket(mat, shader_socket, out):
+    """Mix red emission stripes (world-space bands, 10 cm period) over ``shader_socket``.
+
+    The mix factor is stripe x Light Path 'Is Camera Ray' (docs/milestone6.md
+    §5 row 1): the camera sees the stripes, every other ray sees the piece's
+    own shader, so the red emission no longer lights the room (in a small
+    room it did, and the auto white balance then turned the view teal). The
+    material's emission sampling is off (``cycles.emission_sampling = NONE``):
+    an emission no light path can see would only take light samples from the
+    real lights."""
+    tree = mat.node_tree
     nodes, links = tree.nodes, tree.links
+    mat.cycles.emission_sampling = "NONE"
     coord = nodes.new("ShaderNodeTexCoord")
     wave = nodes.new("ShaderNodeTexWave")
     wave.wave_type = "BANDS"
@@ -460,8 +597,14 @@ def _stripes_over_socket(tree, shader_socket, out):
     emit = nodes.new("ShaderNodeEmission")
     emit.inputs["Color"].default_value = (*UNVERIFIED_RED, 1.0)
     emit.inputs["Strength"].default_value = 3.0
+    path = nodes.new("ShaderNodeLightPath")
+    camera_only = nodes.new("ShaderNodeMath")
+    camera_only.operation = "MULTIPLY"
+    camera_only.name = STRIPES_CAMERA_NODE
+    links.new(step.outputs["Value"], camera_only.inputs[0])
+    links.new(path.outputs["Is Camera Ray"], camera_only.inputs[1])
     mix = nodes.new("ShaderNodeMixShader")
-    links.new(step.outputs["Value"], mix.inputs["Fac"])
+    links.new(camera_only.outputs["Value"], mix.inputs["Fac"])
     links.new(shader_socket, mix.inputs[1])
     links.new(emit.outputs["Emission"], mix.inputs[2])
     links.new(mix.outputs["Shader"], out.inputs["Surface"])

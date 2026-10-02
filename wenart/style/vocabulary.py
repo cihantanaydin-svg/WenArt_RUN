@@ -19,6 +19,13 @@ Asset ids were checked against the live APIs on 2026-10-01:
   and ``4K-JPG`` zip downloads with Color, NormalGL, Roughness, Displacement.
 Both sites publish all assets under CC0 1.0 (polyhaven.com/license,
 ambientcg.com: "All assets ... CC0").
+
+Milestone 6 (docs/milestone6.md §5): furniture texture maps (Poly Haven
+``oak_veneer_01``, ``walnut_veneer``, ``rough_linen``, checked on 2026-10-02
+with ``/info/<id>`` and ``/files/<id>``: Diffuse, nor_gl and Rough at 1k-16k),
+the veneer slugs, ``METALLIC`` and the procedural wet-wall tiles. No
+ambientCG id was added (the session cannot fetch it and most sizes are
+unknown).
 """
 from __future__ import annotations
 
@@ -70,34 +77,83 @@ ALBEDO_MODES = ("flat", "texture")
 
 
 def albedo_mode(slug: str) -> tuple[str, float | None]:
-    """``(mode, detail)`` of a material slug: ``("flat", detail)`` or
-    ``("texture", None)``. Slugs outside ``MATERIALS`` (the flat-only
-    furniture colours, local slugs of the scene builder) have no texture
-    and report ``("texture", None)``: their colour is the flat colour anyway."""
-    entry = MATERIALS.get(slug) or {}
+    """``(mode, detail)`` of a material slug of ``MATERIALS`` or
+    ``FURNITURE_MATERIALS``: ``("flat", detail)`` or ``("texture", None)``.
+    Slugs of neither table (local slugs of the scene builder) and furniture
+    slugs without a texture report ``("texture", None)``: their colour is
+    the flat colour anyway."""
+    entry = MATERIALS.get(slug) or FURNITURE_MATERIALS.get(slug) or {}
     mode = entry.get("albedo_mode", "texture")
     if mode == "flat":
         return "flat", float(entry["detail"])
     return "texture", None
 
-# Flat-colour-only slugs for the parametric furniture and decor of Milestone 4
-# (wenart.blender.parametric): fabric, bedding, sanitary ceramic, appliance
-# steel, worktop stone, dark lacquer and plant green. They have no texture
-# asset on purpose (no download, nothing to verify against the APIs), so
-# they live beside MATERIALS instead of inside it; FLAT_COLOURS / ROUGHNESS
-# below cover both tables and wenart.blender.materials reads those.
+# Slugs for the parametric furniture, decor and door leaves (wenart.blender.parametric,
+# shell.py): fabric, bedding, sanitary ceramic, appliance steel, worktop stone, dark
+# lacquer, plant green and wood veneer. They live beside MATERIALS (no brief word
+# picks them); FLAT_COLOURS / ROUGHNESS / METALLIC below cover both tables and
+# wenart.blender.materials reads those.
+#
+# Milestone 6 (docs/milestone6.md §5 row 8): Poly Haven CC0 maps for the fabrics
+# and the veneers ("source" / "asset"; the real size the fetcher reads from the
+# API is repeated in "size_m", checked against https://api.polyhaven.com/info/<id>
+# on 2026-10-02). The fabric photos are dyed (rough_linen is blue), so the
+# fabrics use the flat albedo mode: the colour stays the vocabulary colour and
+# only the weave's luminance, normal and roughness reach the piece. The veneers
+# replace the floor planks on furniture wood and door leaves (texture mode, their
+# grain runs along the image height, i.e. along the box UV ``v``, which is world Z
+# on vertical faces: door leaves and headboards get vertical grain). Steel is a
+# metal (``metallic`` 1); glazed ceramic is smoother than in Milestone 4. A
+# failed download leaves the flat colour (materials.py records why).
 FURNITURE_MATERIALS: dict[str, dict] = {
-    "fabric_linen":  {"kind": "fabric",  "flat": [0.72, 0.66, 0.55], "roughness": 0.9},
-    "fabric_white":  {"kind": "fabric",  "flat": [0.86, 0.85, 0.82], "roughness": 0.9},
-    "ceramic_white": {"kind": "ceramic", "flat": [0.92, 0.92, 0.90], "roughness": 0.12},
-    "steel_brushed": {"kind": "metal",   "flat": [0.58, 0.58, 0.58], "roughness": 0.35},
+    "fabric_linen":  {"kind": "fabric",  "flat": [0.72, 0.66, 0.55], "roughness": 0.9, "source": "polyhaven",
+                      "asset": "rough_linen", "size_m": [0.2707, 0.2713], "albedo_mode": "flat", "detail": 0.5},
+    "fabric_white":  {"kind": "fabric",  "flat": [0.86, 0.85, 0.82], "roughness": 0.9, "source": "polyhaven",
+                      "asset": "rough_linen", "size_m": [0.2707, 0.2713], "albedo_mode": "flat", "detail": 0.35},
+    "ceramic_white": {"kind": "ceramic", "flat": [0.92, 0.92, 0.90], "roughness": 0.05},
+    "steel_brushed": {"kind": "metal",   "flat": [0.62, 0.62, 0.62], "roughness": 0.3, "metallic": 1.0},
     "stone_worktop": {"kind": "hard",    "flat": [0.24, 0.24, 0.25], "roughness": 0.3},
     "lacquer_dark":  {"kind": "painted", "flat": [0.04, 0.04, 0.045], "roughness": 0.4},
     "plant_green":   {"kind": "organic", "flat": [0.10, 0.28, 0.09], "roughness": 0.8},
+    "wood_veneer_oak":    {"kind": "wood", "flat": [0.62, 0.47, 0.30], "roughness": 0.45, "source": "polyhaven",
+                           "asset": "oak_veneer_01", "size_m": [1.83, 1.83], "albedo_mode": "texture"},
+    "wood_veneer_walnut": {"kind": "wood", "flat": [0.25, 0.14, 0.08], "roughness": 0.4, "source": "polyhaven",
+                           "asset": "walnut_veneer", "size_m": [1.8, 1.8], "albedo_mode": "texture"},
 }
 # The style slot the parametric fabric comes from; the Milestone 3 profile
 # has no such slot, so this is the slug used (recorded as assumed).
 DEFAULT_TEXTILE_MATERIAL = "fabric_linen"
+# Furniture wood and wood door leaves take the veneer of the floor's wood tone
+# (the Milestone 4/5 builds put the floor planks on headboards and doors).
+VENEER_FOR_WOOD: dict[str, str] = {
+    "wood_oak_light": "wood_veneer_oak", "wood_parquet": "wood_veneer_oak",
+    "wood_walnut": "wood_veneer_walnut", "wood_panel": "wood_veneer_walnut",
+    "wood_veneer_oak": "wood_veneer_oak", "wood_veneer_walnut": "wood_veneer_walnut",
+}
+DEFAULT_VENEER = "wood_veneer_oak"
+
+
+def veneer_for(slug: str | None) -> str | None:
+    """The veneer slug for a wood slug (``VENEER_FOR_WOOD``), None for a slug that is not wood."""
+    if slug in VENEER_FOR_WOOD:
+        return VENEER_FOR_WOOD[slug]
+    entry = MATERIALS.get(slug or "") or FURNITURE_MATERIALS.get(slug or "") or {}
+    return DEFAULT_VENEER if entry.get("kind") == "wood" else None
+
+
+def furniture_textures() -> list[tuple[str, str, str]]:
+    """``[(source, asset_id, slug)]`` of the furniture texture maps (one row per asset id).
+
+    Every build with parametric furniture or wood doors uses them, whatever
+    the style says, so ``wenart.assets fetch`` downloads them with the style's
+    assets and ``build.referenced_asset_ids`` puts them into the fingerprint."""
+    rows, seen = [], set()
+    for slug, entry in FURNITURE_MATERIALS.items():
+        asset = entry.get("asset")
+        if asset and asset not in seen:
+            seen.add(asset)
+            rows.append((entry["source"], asset, slug))
+    return rows
 
 FLAT_COLOURS: dict[str, list[float]] = {
     **{slug: entry["flat"] for slug, entry in MATERIALS.items()},
@@ -107,6 +163,22 @@ ROUGHNESS: dict[str, float] = {
     **{slug: entry["roughness"] for slug, entry in MATERIALS.items()},
     **{slug: entry["roughness"] for slug, entry in FURNITURE_MATERIALS.items()},
 }
+# Principled BSDF Metallic per slug (0 when not listed).
+METALLIC: dict[str, float] = {
+    slug: float(entry.get("metallic", 0.0))
+    for slug, entry in list(MATERIALS.items()) + list(FURNITURE_MATERIALS.items()) if entry.get("metallic")
+}
+
+# Wet-room tiles without an image asset (docs/milestone6.md §5 row 4): every
+# ``tiles_*`` slug whose texture set is not available is drawn as procedural
+# glazed tiles (materials.py node group ``wenart_glazed_tiles``): Brick
+# Texture on the box UVs in metres, the tile colour from "flat" with +-3 % per
+# tile, grey grout, roughness 0.08 tile / 0.7 grout, a bump from the grout mask.
+PROCEDURAL_TILES: dict[str, float | list[float]] = {
+    "tile_w_m": 0.60, "tile_h_m": 0.30, "grout_m": 0.003, "grout_colour": [0.55, 0.55, 0.53],
+    "tile_roughness": 0.08, "grout_roughness": 0.7, "variation": 0.03, "bump_strength": 0.4, "bump_distance_m": 0.002,
+}
+PROCEDURAL_TILE_PREFIX = "tiles_"
 
 # Milestone 3 multiplied these into the wall albedo. The plaster entries went
 # in Milestone 5 (§2.2): flat albedo mode takes the plaster colour from

@@ -197,7 +197,7 @@ def test_default_style_build_textures_the_walls(built_default):
     assert any("no --style" in w for w in m["warnings"])
     assert "WARNING" in built_default["log"]
     assert any(a["object"] == "style" and a["field"] == "profile" for a in m["assumed"])
-    walls = [o for o in m["objects"] if o["kind"] == "wall"]
+    walls = [o for o in m["objects"] if o["kind"] == "wall" and not o.get("parent")]   # not the skirting (M6)
     assert walls and all(o["textured"] and o["material"] == "plaster_white__white_plaster_02" for o in walls)
     record = m["materials"]["plaster_white__white_plaster_02"]
     assert record["textured"] and record["asset"] == "white_plaster_02" and record["licence"] == "CC0"

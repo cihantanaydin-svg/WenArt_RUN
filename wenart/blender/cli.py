@@ -10,20 +10,32 @@ written once.
 CLI::
 
     python -m wenart.blender.cli build --building outputs/p/building_final.json --style outputs/p/style.json \
-        --assets assets --out outputs/p/scene [--level L0] [--no-textures] [--preview-samples N] [--reuse]
+        --assets assets --out outputs/p/scene [--level L0] [--no-textures] [--preview-samples N] [--reuse] \
+        [--proxies] [--camera-policy m5|search]
     python -m wenart.blender.cli render --scene outputs/p/scene/scene.blend --out outputs/p/renders \
         [--cameras all|cam_a,cam_b] [--samples N] [--res WxH] [--force] [--device auto|cpu] \
         [--exposure auto|off|<EV>] [--exposure-target T] [--white-balance auto|off|fixed:r,g,b] \
-        [--look-from <render_manifest.json>] [--hide ID[,ID] [--plug]] [--hide-sets 'cam:id;cam:id+plug']
+        [--look-from <render_manifest.json>] [--hide ID[,ID] [--plug]] [--hide-sets 'cam:id;cam:id+plug'] \
+        [--alt-look "AgX - Punchy"] [--max-bounces N] [--no-denoise] [--ev-offset X] [--preview-quality Q]
 
 ``build --reuse`` (docs/milestone5.md §2.7) skips Blender when
 ``scene.blend`` and ``scene_manifest.json`` exist and the manifest's
 ``build_fingerprint`` equals the fingerprint of the current inputs, code
 and arguments (``build.build_fingerprint``, pure Python); it prints
-``BUILD_REUSED <fingerprint>``. Exit codes: 0 done, 2 when the Blender
-script refused the request (unknown camera or id, a ``--look-from``
-manifest without the camera, a building that needs review), 1 for any
-other failure.
+``BUILD_REUSED <fingerprint>``. ``--camera-policy`` (docs/milestone6.md §4.2)
+defaults to ``m5``; the full-run orchestrator passes ``search``.
+
+Render flags of docs/milestone6.md §5 rows 10-12 (render.py): ``--alt-look``
+also saves ``<cam>_alt_preview.jpg`` with that look and the same window pull;
+``--max-bounces``, ``--no-denoise``, ``--ev-offset`` and ``--preview-quality``
+are the control and A/B flags of §6 (all part of the render key). The render
+stops before a new camera once ``WENART_DEADLINE`` (epoch seconds, from the
+environment) is past and exits 3.
+
+Exit codes: 0 done, 2 when the Blender script refused the request (unknown
+camera or id, a ``--look-from`` manifest without the camera, a building that
+needs review, a bad flag), 3 when the render was cut by ``WENART_DEADLINE``
+(its manifest says ``incomplete: true``), 1 for any other failure.
 """
 from __future__ import annotations
 
@@ -46,7 +58,8 @@ class BlenderNotFound(RuntimeError):
 
 
 class BlenderFailed(RuntimeError):
-    """Blender exited with a non-zero code (``returncode``; 2 = request refused by the script)."""
+    """Blender exited with a non-zero code (``returncode``; 2 = request refused by the script,
+    3 = render cut by ``WENART_DEADLINE``, manifest ``incomplete: true``)."""
 
     def __init__(self, message: str, returncode: int):
         super().__init__(message)
@@ -91,27 +104,29 @@ def run_blender(script: Path, args: list[str], blend: str | None = None, log_pat
 
 
 def build_fingerprint(building: str, style: str | None = None, assets: str | None = None, level: str | None = None,
-                      no_textures: bool = False, preview_samples: int | None = None, proxies: bool = False) -> str:
+                      no_textures: bool = False, preview_samples: int | None = None, proxies: bool = False,
+                      camera_policy: str = "m5") -> str:
     """The fingerprint build.py writes for these arguments (computed without Blender)."""
     from wenart.blender import build as build_script
 
     args = build_script.fingerprint_args(building, style, assets, level, no_textures, preview_samples, False, False,
-                                         proxies)
+                                         proxies, camera_policy)
     return build_script.build_fingerprint(args)
 
 
 def build(building: str, out: str, style: str | None = None, assets: str | None = None, level: str | None = None,
           no_textures: bool = False, preview_samples: int | None = None, timeout: int = 3600,
-          proxies: bool = False, reuse: bool = False) -> Path:
+          proxies: bool = False, reuse: bool = False, camera_policy: str = "m5") -> Path:
     """Build the scene; returns the path of ``scene_manifest.json``.
     ``proxies`` keeps the Milestone 3 proxy boxes for every furniture piece.
-    ``reuse`` skips Blender when the finished build in ``out`` has the
-    fingerprint of these inputs (prints ``BUILD_REUSED <fp>``)."""
+    ``camera_policy``: ``m5`` (default, the fixed rules) or ``search``
+    (docs/milestone6.md §4). ``reuse`` skips Blender when the finished build
+    in ``out`` has the fingerprint of these inputs (prints ``BUILD_REUSED <fp>``)."""
     if reuse:
         from wenart.blender import build as build_script
 
         fp = build_fingerprint(str(building), str(style) if style else None, str(assets) if assets else None, level,
-                               no_textures, preview_samples, proxies)
+                               no_textures, preview_samples, proxies, camera_policy)
         ok, why = build_script.reusable_build(Path(out), fp)
         if ok:
             print(f"BUILD_REUSED {fp}")
@@ -130,6 +145,7 @@ def build(building: str, out: str, style: str | None = None, assets: str | None 
         args += ["--preview-samples", str(preview_samples)]
     if proxies:
         args.append("--proxies")
+    args += ["--camera-policy", str(camera_policy)]
     run_blender(BUILD_SCRIPT, args, log_path=Path(out) / "build.log", timeout=timeout)
     return Path(out) / "scene_manifest.json"
 
@@ -138,13 +154,18 @@ def render(scene: str, out: str, cameras: str = "all", samples: int | None = Non
            force: bool = False, device: str = "auto", timeout: int = 7200, hide: str | list | None = None,
            plug: bool = False, hide_sets: str | None = None, look_from: str | None = None,
            exposure: str | float | None = None, white_balance: str | None = None,
-           exposure_target: float | None = None) -> Path:
+           exposure_target: float | None = None, alt_look: str | None = None, max_bounces: int | None = None,
+           no_denoise: bool = False, ev_offset: float | None = None, preview_quality: int | None = None) -> Path:
     """Render cameras of a built scene; returns the path of ``render_manifest.json``
     (with ``hide_sets`` the folder that holds the ``hide_<id>/`` folders).
     ``exposure`` / ``white_balance`` default to render.py's ``auto``;
     ``look_from`` copies the per-camera look of another render manifest;
     ``hide`` (ids, a list or a comma string) + ``plug`` hide objects for
-    every camera; ``hide_sets`` (``'cam:id;cam:id+plug'``) renders controls."""
+    every camera; ``hide_sets`` (``'cam:id;cam:id+plug'``) renders controls.
+    ``alt_look`` (e.g. ``"AgX - Punchy"``) also saves ``<cam>_alt_preview.jpg``;
+    ``max_bounces``, ``no_denoise``, ``ev_offset`` and ``preview_quality``
+    are the control flags of docs/milestone6.md §6. A render cut by
+    ``WENART_DEADLINE`` raises ``BlenderFailed`` with ``returncode`` 3."""
     args = ["--out", str(out), "--cameras", cameras, "--device", device]
     if samples is not None:
         args += ["--samples", str(samples)]
@@ -166,6 +187,16 @@ def render(scene: str, out: str, cameras: str = "all", samples: int | None = Non
         args.append("--plug")
     if hide_sets:
         args += ["--hide-sets", hide_sets]
+    if alt_look:
+        args += ["--alt-look", str(alt_look)]
+    if max_bounces is not None:
+        args += ["--max-bounces", str(int(max_bounces))]
+    if no_denoise:
+        args.append("--no-denoise")
+    if ev_offset is not None:
+        args += ["--ev-offset", str(ev_offset)]
+    if preview_quality is not None:
+        args += ["--preview-quality", str(int(preview_quality))]
     run_blender(RENDER_SCRIPT, args, blend=str(scene), log_path=Path(out) / "render.log", timeout=timeout)
     return Path(out) if hide_sets else Path(out) / "render_manifest.json"
 
@@ -184,6 +215,8 @@ def main(argv: list[str] | None = None) -> int:
     b.add_argument("--preview-samples", type=int)
     b.add_argument("--proxies", action="store_true", help="Milestone 3 proxy boxes instead of furniture assets")
     b.add_argument("--reuse", action="store_true", help="skip Blender when the build fingerprint matches")
+    b.add_argument("--camera-policy", default="m5", choices=["m5", "search"],
+                   help="m5 = the fixed Milestone 3-5 camera rules (default); search = ray-cast camera search")
     r = sub.add_parser("render", help="render cameras of a built scene with Cycles")
     r.add_argument("--scene", required=True)
     r.add_argument("--out", required=True)
@@ -199,6 +232,11 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--hide", help="wenart ids to hide, comma separated")
     r.add_argument("--plug", action="store_true", help="close the wall holes of hidden doors/windows")
     r.add_argument("--hide-sets", help="'cam:id;cam:id+plug;...': control renders into <out>/hide_<id>/")
+    r.add_argument("--alt-look", help="also save <cam>_alt_preview.jpg with this AgX look (e.g. 'AgX - Punchy')")
+    r.add_argument("--max-bounces", type=int, help="Cycles max bounces (0 = direct light only; a control)")
+    r.add_argument("--no-denoise", action="store_true", help="no denoiser (a control)")
+    r.add_argument("--ev-offset", type=float, help="stops added to the auto, fixed or --look-from EV")
+    r.add_argument("--preview-quality", type=int, help="fixed JPEG quality of the previews, no size step-down")
     sub.add_parser("which", help="print the Blender binary that would be used")
     ns = parser.parse_args(argv)
     try:
@@ -208,14 +246,17 @@ def main(argv: list[str] | None = None) -> int:
             return 0 if path else 1
         if ns.command == "build":
             path = build(ns.building, ns.out, ns.style, ns.assets, ns.level, ns.no_textures, ns.preview_samples,
-                         proxies=ns.proxies, reuse=ns.reuse)
+                         proxies=ns.proxies, reuse=ns.reuse, camera_policy=ns.camera_policy)
         else:
             path = render(ns.scene, ns.out, ns.cameras, ns.samples, ns.res, ns.force, ns.device, hide=ns.hide,
                           plug=ns.plug, hide_sets=ns.hide_sets, look_from=ns.look_from, exposure=ns.exposure,
-                          white_balance=ns.white_balance, exposure_target=ns.exposure_target)
+                          white_balance=ns.white_balance, exposure_target=ns.exposure_target, alt_look=ns.alt_look,
+                          max_bounces=ns.max_bounces, no_denoise=ns.no_denoise, ev_offset=ns.ev_offset,
+                          preview_quality=ns.preview_quality)
     except BlenderFailed as exc:
         print(f"error: {exc}", file=sys.stderr)
-        return 2 if exc.returncode == 2 else 1
+        # 2 = refused request, 3 = cut by WENART_DEADLINE (the orchestrator reads both).
+        return exc.returncode if exc.returncode in (2, 3) else 1
     except (BlenderNotFound, RuntimeError, subprocess.TimeoutExpired) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1

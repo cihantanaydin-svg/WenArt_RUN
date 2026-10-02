@@ -1,10 +1,14 @@
 """CLI for the asset fetcher.
 
 ``python -m wenart.assets fetch --style style.json --assets assets [--size 2k] [--strict]``
-    downloads every texture set and the HDRI of a style profile (idempotent);
-    failures are printed and, with ``--strict``, make the exit code 1.
+    downloads every texture set and the HDRI of a style profile and the
+    furniture texture maps (veneers, linen; docs/milestone6.md §5 row 8)
+    (idempotent); failures are printed and, with ``--strict``, make the exit
+    code 1. A failed texture leaves the flat colour in the scene.
 ``python -m wenart.assets verify``
-    lists the vocabulary ids against the APIs (no download).
+    lists the vocabulary ids (style and furniture textures, HDRIs) against
+    the APIs (no download); furniture textures must also have the size the
+    vocabulary records.
 ``python -m wenart.assets models fetch --assets assets [--ids id ...] [--size 1k]``
     downloads the furniture catalogue's CC0 Poly Haven models (glTF + textures)
     into ``assets/models/`` and records them in the manifest with measured boxes.
@@ -47,9 +51,12 @@ def main(argv=None) -> int:
         missing = 0
         for row in rows:
             flag = "ok" if row["exists"] else "MISSING"
-            missing += not row["exists"]
-            print(f"{row['kind']:<8} {row['slug']:<20} {row['source']:<10} {row['id']:<30} {str(row['size_m']):<16} {flag}")
-        print(f"{len(rows)} ids, {missing} missing")
+            if row["exists"] and row.get("size_ok") is False:
+                flag = "SIZE DIFFERS FROM THE VOCABULARY"
+            missing += flag != "ok"
+            print(f"{row['kind']:<17} {row['slug']:<20} {row['source']:<10} {row['id']:<30} {str(row['size_m']):<16} "
+                  f"{flag}")
+        print(f"{len(rows)} ids, {missing} missing or with another size")
         return 1 if missing else 0
 
     style = json.loads(Path(args.style).read_text(encoding="utf-8"))

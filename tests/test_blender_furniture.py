@@ -75,7 +75,9 @@ def test_every_type_has_a_recognisable_parametric_mesh(ftype):
     parts = _parts_ok(ftype, w, d)
     roles = {p["role"] for p in parts}
     expected = {
-        "bed": {"back", "pillow", "top"}, "bed_single": {"back", "pillow"}, "bed_double": {"back", "pillow"},
+        # Milestone 6: soft bedding (superellipsoid mattress, duvet, turn-down band, pillows).
+        "bed": {"back", "pillow", "mattress", "duvet", "turndown"}, "bed_single": {"back", "pillow", "duvet"},
+        "bed_double": {"back", "pillow", "mattress", "duvet", "turndown"},
         "sofa": {"back", "arm", "cushion"}, "armchair": {"back", "arm", "cushion"},
         "table_dining": {"top", "leg"}, "table_coffee": {"top", "leg"}, "desk": {"top", "leg", "drawers", "handle"},
         "chair": {"top", "back", "leg"}, "wardrobe": {"front", "handle"}, "dresser": {"front", "handle"},
@@ -256,13 +258,18 @@ def test_resolve_asset_reasons(tmp_path):
 def test_style_material_keys_follow_the_style():
     style = json.loads(STYLE.read_text(encoding="utf-8"))
     keys, assumed = F.style_material_keys(style)
-    assert keys["wood"][0] == style["floor"]["material"] == "wood_oak_light" and keys["wood"][1] == "WoodFloor051"
-    assert keys["fabric"][0] == "fabric_linen" and [a["field"] for a in assumed] == ["fabric"]
+    # Milestone 6: furniture wood = the veneer of the floor's wood tone (not the floor planks), the
+    # fabrics carry the Poly Haven linen weave (flat albedo mode), the duvet the textile.
+    assert style["floor"]["material"] == "wood_oak_light" and keys["wood"] == ("wood_veneer_oak", "oak_veneer_01", None)
+    assert keys["fabric"] == ("fabric_linen", "rough_linen", None) and [a["field"] for a in assumed] == ["fabric"]
+    assert keys["duvet"] == keys["fabric"] and keys["bedding"] == ("fabric_white", "rough_linen", None)
     assert keys["painted"][0] == "painted_wood_white" and keys["ceramic"][0] == "ceramic_white"
+    walnut, _ = F.style_material_keys({"floor": {"material": "wood_walnut"}})
+    assert walnut["wood"] == ("wood_veneer_walnut", "walnut_veneer", None)
     keys, assumed = F.style_material_keys({"floor": {"material": "concrete_polished"},
                                            "textiles": {"material": "carpet"}})
-    assert keys["wood"] == ("wood_oak_light", None, None) and keys["fabric"][0] == "carpet"
-    assert [a["field"] for a in assumed] == ["wood"]
+    assert keys["wood"] == ("wood_veneer_oak", "oak_veneer_01", None) and keys["fabric"][0] == "carpet"
+    assert keys["duvet"][0] == "carpet" and [a["field"] for a in assumed] == ["wood"]
     from wenart.style import vocabulary as V
     for key in P.MATERIAL_KEYS:
         slug = keys[key][0]
@@ -273,7 +280,11 @@ def test_decor_rules():
     assert P.decor_size("cushion", [0.45, 0.45]) == (0.45, 0.45, 0.12)
     assert P.decor_size("plant", [0.9, 0.9, 1.5]) == (0.6, 0.6, 0.6)          # capped at 0.6 m
     assert P.decor_rest_height("sofa", 0.85, "cushion") == pytest.approx(0.45)
-    assert P.decor_rest_height("bed_double", 0.55, "cushion") == pytest.approx(0.55)
+    assert P.decor_rest_height("bed_double", 0.55, "cushion") == pytest.approx(0.55)      # library bed: type height
+    # A parametric bed (its footprint given): on the soft bedding top (Milestone 6), above the type height.
+    top = P.bedding_top(1.6, 2.0, 0.55)
+    assert P.decor_rest_height("bed_double", 0.55, "cushion", (1.6, 2.0)) == pytest.approx(top, abs=1e-4)
+    assert 0.65 < top < 1.0
     assert P.decor_rest_height("bookshelf", 1.8, "book_set") == pytest.approx(0.7)
     assert P.decor_rest_height("desk", 0.75, "book_set") == pytest.approx(0.75)
     assert P.decor_rest_height("sofa", 0.85, "plant") == 0.0
@@ -513,8 +524,12 @@ def test_parametric_pieces_sit_on_their_footprints(scene):
     shower = entries[next(f["id"] for f in scene["building"]["furniture"] if f["type"] == "shower")]
     assert "thin_glass" in shower["materials"] and shower["material_keys"]["glass"] == "glass"  # thin pane: the index pass sees through
     bed = entries[next(f["id"] for f in scene["building"]["furniture"] if f["type"] == "bed_double")]
-    assert bed["material_keys"] == {"wood": "wood_oak_light", "bedding": "fabric_white"}
+    assert bed["material_keys"] == {"wood": "wood_veneer_oak", "bedding": "fabric_white", "duvet": "fabric_linen"}
     assert bed["bbox_m"][2] == pytest.approx(1.0) and bed["size"][2] == 0.55
+    # Milestone 6: one Bevel modifier per parametric piece, recorded; the bedding is a design detail.
+    assert bed["bevel"]["width_m"] == P.BEVEL_WIDTH_M and bed["bevel"]["segments"] == P.BEVEL_SEGMENTS
+    assert bed["bevel"]["edges"] > 0 and 0 < bed["bevel"]["max_radius_m"] <= P.BEVEL_WIDTH_M
+    assert "bedding" in bed["assumed"]
 
 
 @needs_blender
@@ -621,7 +636,10 @@ def test_decor_sits_on_its_hosts_and_shares_their_pass_index(scene):
     (lib_cushion,) = by_host[bed["id"]]
     assert lib_cushion["method"] == "library" and lib_cushion["asset"]["asset_id"] == "test_cube"
     (x0, x1), (y0, y1), (z0, z1) = objects[lib_cushion["name"]]["bounds"]
-    assert (x1 - x0, y1 - y0) == pytest.approx((0.4, 0.25), abs=1e-3) and z0 == pytest.approx(0.55, abs=1e-4)
+    # On the parametric bed's soft bedding (Milestone 6), not at the type height inside the pillows.
+    top = P.bedding_top(*bed["footprint"]["size"], 0.55)
+    assert (x1 - x0, y1 - y0) == pytest.approx((0.4, 0.25), abs=1e-3) and z0 == pytest.approx(top, abs=1e-4)
+    assert lib_cushion["assumed"]["rest_height"] == pytest.approx(top, abs=1e-4)
     assert lib_cushion["fit"]["fit_scale"] == pytest.approx([0.5, 0.5, 0.5])
     assert [w for w in m["warnings"] if "decor host 'f_nope'" in w]
     assert hosts and m["furniture"]["decor"] == 5

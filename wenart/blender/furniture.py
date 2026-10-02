@@ -32,6 +32,16 @@ Nothing is moved: footprint centre, size and rotation are taken from the
 JSON as they are; a fitted asset whose box does not match the footprint
 within 1 cm after the fit is reported as a warning, never adjusted.
 
+Milestone 6 (docs/milestone6.md §5 rows 2 and 8): parametric wood is the
+veneer of the floor's wood tone (Poly Haven ``oak_veneer_01`` /
+``walnut_veneer``), fabrics, bedding and the duvet carry the
+``rough_linen`` weave in flat albedo mode, steel is metallic; every
+parametric piece and decor item gets one Bevel modifier (``add_bevel``:
+weight-limited, per-part radii from ``parametric.part_bevel_radius``); the
+soft bedding of a bed and the fronts of a kitchen counter are recorded as
+``assumed`` design details (``design_details``: parent = the piece, kind,
+reason); decor on a parametric bed rests on the bedding top.
+
 The glTF importer of Blender 5.2.2 (checked with ``get_rna_type``):
 ``filepath``, ``import_shading`` (NORMALS/FLAT/SMOOTH), ``merge_vertices``,
 ``import_pack_images``, ``import_scene_as_collection`` (default True: a new
@@ -180,41 +190,74 @@ def _bounds(points) -> tuple[float, float, float, float, float, float]:
 
 def style_material_keys(style: dict) -> tuple[dict, list[dict]]:
     """Map the parametric material keys to ``(slug, asset_id, tint)`` from
-    the style: wood from the floor when it is wood (textured when the floor
-    is), fabric from the ``textiles`` slot (the Milestone 3 profile has none:
-    ``DEFAULT_TEXTILE_MATERIAL``, recorded as assumed), painted fronts from
-    the trim, and fixed slugs for bedding, ceramic, steel, worktop, dark
-    lacquer, plant green and terracotta. Returns ``(keys, assumed)``."""
+    the style: wood = the veneer of the floor's wood tone (oak or walnut,
+    ``vocabulary.veneer_for``; Poly Haven veneer maps, not the floor planks;
+    oak veneer, recorded as assumed, when the floor is not wood), fabric and
+    duvet from the ``textiles`` slot (the Milestone 3 profile has none:
+    ``DEFAULT_TEXTILE_MATERIAL`` with its linen weave in flat albedo mode,
+    recorded as assumed), bedding = white linen weave, painted fronts from the
+    trim, and fixed slugs for ceramic, steel, worktop, dark lacquer, plant
+    green and terracotta. An asset that is not in the assets manifest leaves
+    the flat colour (``_Materials.get``). Returns ``(keys, assumed)``."""
     try:
         from wenart.style import vocabulary as V
-        materials, default_textile = V.MATERIALS, V.DEFAULT_TEXTILE_MATERIAL
+        default_textile, furniture_materials = V.DEFAULT_TEXTILE_MATERIAL, V.FURNITURE_MATERIALS
+        veneer_for, default_veneer = V.veneer_for, V.DEFAULT_VENEER
     except Exception:  # noqa: BLE001 - the local fallback of materials.py applies
-        materials, default_textile = {}, "fabric_linen"
+        default_textile, furniture_materials, default_veneer = "fabric_linen", {}, "wood_veneer_oak"
+
+        def veneer_for(_slug):
+            return None
+
+    def asset_of(slug: str):
+        return (furniture_materials.get(slug) or {}).get("asset")
+
     assumed: list[dict] = []
     floor = style.get("floor") or {}
     floor_slug = floor.get("material")
-    if floor_slug and materials.get(floor_slug, {}).get("kind") == "wood":
-        wood = (floor_slug, floor.get("asset"), None)
-    else:
-        wood = ("wood_oak_light", None, None)
-        assumed.append({"object": "furniture", "field": "wood", "value": "wood_oak_light",
-                        "reason": f"style floor {floor_slug!r} is not wood; default wood for furniture frames"})
+    veneer = veneer_for(floor_slug)
+    if veneer is None:
+        veneer = default_veneer
+        assumed.append({"object": "furniture", "field": "wood", "value": veneer,
+                        "reason": f"style floor {floor_slug!r} is not wood; default veneer for furniture frames"})
+    wood = (veneer, asset_of(veneer), None)
     textiles = style.get("textiles") or {}
     if textiles.get("material"):
         fabric = (textiles["material"], textiles.get("asset"), textiles.get("tint"))
     else:
-        fabric = (default_textile, None, None)
+        fabric = (default_textile, asset_of(default_textile), None)
         assumed.append({"object": "furniture", "field": "fabric", "value": default_textile,
                         "reason": "style profile has no textiles slot; default fabric for sofas and chairs"})
     trim = (style.get("trim") or {}).get("material") or "painted_wood_white"
     keys = {
-        "wood": wood, "fabric": fabric, "painted": (trim, None, None),
-        "bedding": ("fabric_white", None, None), "ceramic": ("ceramic_white", None, None),
+        "wood": wood, "fabric": fabric, "duvet": fabric, "painted": (trim, None, None),
+        "bedding": ("fabric_white", asset_of("fabric_white"), None), "ceramic": ("ceramic_white", None, None),
         "steel": ("steel_brushed", None, None), "worktop": ("stone_worktop", None, None),
         "dark": ("lacquer_dark", None, None), "green": ("plant_green", None, None),
         "terracotta": ("terracotta", None, None), "glass": ("glass", None, None),
     }
     return keys, assumed
+
+
+def design_details(piece_type: str, parts: list[dict]) -> list[dict]:
+    """The ``assumed`` design-detail records of a parametric piece (docs/milestone6.md §5):
+    ``[{"field", "kind", "value", "reason"}]``: the soft bedding set of a bed and the
+    counter-front set of a kitchen counter or island; [] for other types. They are details
+    of the documented piece inside its own box, never new elements."""
+    if piece_type in P.BED_TYPES:
+        pillows = sum(1 for p in parts if p["role"] == "pillow")
+        return [{"field": "bedding", "kind": "bedding",
+                 "value": f"mattress, draped duvet, turn-down band, {pillows} pillow(s) leaning "
+                          f"{P.PILLOW_TILT_DEG:g} degrees",
+                 "reason": "design detail of the bed (soft bedding inside the bed's own box); "
+                           "the documents show only the footprint"}]
+    if piece_type in P.COUNTER_TYPES:
+        fronts = sum(1 for p in parts if p["role"] == "front")
+        return [{"field": "counter_fronts", "kind": "counter_fronts",
+                 "value": f"{fronts} front(s) {P.FRONT_GAP * 1000:g} mm proud of the carcass with handles",
+                 "reason": "design detail of the counter (fronts and handles inside its own box); "
+                           "the documents show only the footprint"}]
+    return []
 
 
 def collect_decor(building: dict, level_id: str) -> list[tuple[dict, dict]]:
@@ -246,16 +289,18 @@ def unknown_decor_hosts(building: dict) -> list[str]:
             if item.get("host_id") is not None and item.get("host_id") not in pieces]
 
 
-def decor_height_above_floor(item: dict, host: dict) -> tuple[float, str]:
+def decor_height_above_floor(item: dict, host: dict, host_parametric: bool = False) -> tuple[float, str]:
     """Rest height of a decor item: its own ``center[2]`` when given, else
-    the host's seat / mattress / shelf / top (``parametric.decor_rest_height``)."""
+    the host's seat / mattress / shelf / top (``parametric.decor_rest_height``);
+    on a bed built parametrically (``host_parametric``) the bedding top."""
     center = item.get("center") or []
     if len(center) > 2 and center[2] is not None:
         return float(center[2]), "center[2]"
     if host is None:
         return 0.0, "floor"
     host_h, _ = proxy_height(host["type"], host.get("height"))
-    return P.decor_rest_height(host["type"], host_h, item["type"]), f"on {host['type']} {host['id']}"
+    size = host["footprint"]["size"] if host_parametric else None
+    return P.decor_rest_height(host["type"], host_h, item["type"], size), f"on {host['type']} {host['id']}"
 
 
 # --------------------------------------------------------------------------
@@ -532,6 +577,10 @@ def _create_piece(piece, level, floor_z, height, height_assumed, lift, collectio
         ob = _parametric_object(piece, name, status, floor_z, height + lift, collection, mats, entry)
         entry["method"] = f"parametric (fallback: {reason})"
         entry["fallback_reason"] = reason
+        for detail in entry.pop("_details", []):
+            entry["assumed"][detail["field"]] = detail["value"]
+            assumed.append({"object": name, "field": detail["field"], "value": detail["value"],
+                            "reason": detail["reason"], "parent": piece["id"], "kind": detail["kind"]})
         if lift:
             entry["assumed"]["height_lift"] = lift
             assumed.append({"object": name, "field": "height_lift", "value": lift,
@@ -591,8 +640,73 @@ def _parametric_object(piece, name, status, floor_z, height, collection, mats, e
     entry.update({"bbox_m": [round(x1 - x0, 4), round(y1 - y0, 4), round(z1 - z0, 4)],
                   "materials": [m.name for m in slots], "material": slots[0].name,
                   "textured": any(mats.library.textured(m) for m in slots),
-                  "material_keys": {k: mats.slug(k) for k in used_keys}})
+                  "material_keys": {k: mats.slug(k) for k in used_keys},
+                  "bevel": add_bevel(ob, parts), "_details": design_details(piece["type"], parts)})
     return ob
+
+
+# Edges whose two faces turn by less than this keep weight 0 (cylinder sides, superellipsoid grids).
+BEVEL_MIN_ANGLE_DEG = 30.0
+
+
+def edge_bevel_weights(face_radii: Sequence[float], face_normals: Sequence[Sequence[float]],
+                       edge_faces: Sequence[Sequence[int]], width: float = P.BEVEL_WIDTH_M,
+                       min_angle_deg: float = BEVEL_MIN_ANGLE_DEG) -> list[float]:
+    """Bevel weight per edge (pure): ``radius / width`` of the edge's part (the
+    largest radius of its faces, capped at 1), 0 where the faces turn by less
+    than ``min_angle_deg`` (a smooth surface: no bevel there) or the radius is 0."""
+    cos_min = math.cos(math.radians(min_angle_deg))
+    weights = []
+    for faces in edge_faces:
+        if not faces:
+            weights.append(0.0)
+            continue
+        r = max(float(face_radii[f]) for f in faces)
+        if r <= 0.0:
+            weights.append(0.0)
+            continue
+        if len(faces) >= 2 and _dot(face_normals[faces[0]], face_normals[faces[1]]) > cos_min:
+            weights.append(0.0)
+            continue
+        weights.append(min(1.0, r / width))
+    return weights
+
+
+def add_bevel(ob, parts: list[dict]) -> dict | None:
+    """One Bevel modifier on a parametric object (docs/milestone6.md §5 row 8):
+    limit method WEIGHT, width ``BEVEL_WIDTH_M``, ``BEVEL_SEGMENTS`` segments,
+    clamp overlap, harden normals; the edge weights come from
+    ``parametric.part_bevel_radius`` per part (``edge_bevel_weights``). Faces of
+    bevelled and smooth parts are shaded smooth (harden normals keeps the flat
+    faces flat), the others flat. The bevel only cuts inwards: the boxes of
+    ``parametric`` stay as they are. Returns the manifest record, or None when
+    the mesh does not have the parts' faces (left without a bevel)."""
+    mesh = ob.data
+    radii, smooth = [], []
+    for part in parts:
+        r = P.part_bevel_radius(part)
+        radii.extend([r] * len(part["faces"]))
+        smooth.extend([bool(part.get("smooth")) or r > 0.0] * len(part["faces"]))
+    if len(radii) != len(mesh.polygons):
+        return None
+    normals = [tuple(p.normal) for p in mesh.polygons]
+    edge_faces: list[list[int]] = [[] for _ in mesh.edges]
+    for poly in mesh.polygons:
+        for li in poly.loop_indices:
+            edge_faces[mesh.loops[li].edge_index].append(poly.index)
+    weights = edge_bevel_weights(radii, normals, edge_faces)
+    attr = mesh.attributes.get("bevel_weight_edge") or mesh.attributes.new("bevel_weight_edge", "FLOAT", "EDGE")
+    attr.data.foreach_set("value", weights)
+    for poly, s in zip(mesh.polygons, smooth):
+        poly.use_smooth = s
+    mod = ob.modifiers.new("bevel", "BEVEL")
+    mod.width = P.BEVEL_WIDTH_M
+    mod.limit_method = "WEIGHT"
+    mod.segments = P.BEVEL_SEGMENTS
+    mod.use_clamp_overlap = True
+    mod.harden_normals = True
+    return {"width_m": P.BEVEL_WIDTH_M, "segments": P.BEVEL_SEGMENTS, "edges": sum(1 for w in weights if w > 0),
+            "max_radius_m": round(max(radii, default=0.0), 4)}
 
 
 def _create_decor(item, host, n, level, floor_z, collection, library, mats, assets_dir, pass_indices, host_entry,
@@ -608,7 +722,9 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
     size_in = item.get("size") or []
     if any(float(v) > P.DECOR_MAX_M for v in size_in if v):
         warnings.append(f"decor {dtype} {where}: size {size_in} capped at {P.DECOR_MAX_M} m")
-    z_above, z_how = decor_height_above_floor(item, host)
+    host_parametric = (host_entry is not None and host_entry.get("kind") == "furniture"
+                       and host_entry.get("method") != "library")
+    z_above, z_how = decor_height_above_floor(item, host, host_parametric)
     if host is not None:
         owner_id, room_id = host["id"], host.get("room_id")
         name = f"decor_{host['id']}_{n}"
@@ -668,7 +784,7 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
         entry.update({"method": f"parametric (fallback: {reason})", "fallback_reason": reason,
                       "bbox_m": [round(x1 - x0, 4), round(y1 - y0, 4), round(z1 - z0, 4)],
                       "materials": [m.name for m in slots], "material": slots[0].name,
-                      "textured": any(mats.library.textured(m) for m in slots)})
+                      "textured": any(mats.library.textured(m) for m in slots), "bevel": add_bevel(ob, parts)})
     ob["wenart_type"] = dtype
     ob["wenart_room"] = room_id or ""
     ob["wenart_source"] = "added_by_ai"

@@ -11,6 +11,14 @@ render entries carry ``index_stats``, ``files.depth_mm`` / ``files.normal``,
 them is a Milestone 4 render, stale for ``wenart.views``); scene manifests
 carry ``preview_maps`` and ``build_fingerprint``, door and window entries
 ``room_ids`` and furniture, proxy and decor entries ``box3d``.
+
+Milestone 6 (docs/milestone6.md §1.3, §5), all optional so older manifests
+stay valid: camera ``shift_x`` / ``shift_y`` / ``policy`` / ``score``, the
+scene manifest's ``camera_policy``, ``assumed`` entries with ``parent`` and
+``kind`` (design details and lights: every entry that has one has both and a
+reason), render entries' ``window_pull`` and ``alt_preview``, the exposure's
+``ev_offset`` and the render manifest's ``incomplete`` / ``not_rendered`` /
+``deadline`` and control flags.
 """
 from __future__ import annotations
 
@@ -48,7 +56,26 @@ EXPOSURE = {
         "window_clip_frac": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
         "meter_seconds": {"type": "number", "minimum": 0},
         "source": {"type": ["string", "null"]},
+        "ev_offset": {"type": "number"},
     },
+}
+_SHARE = {"type": ["number", "null"], "minimum": 0, "maximum": 1}
+WINDOW_PULL = {
+    "oneOf": [
+        {"type": "null"},
+        {"type": "object", "required": ["ev", "clip_before", "clip_after", "pane_px"],
+         "properties": {"ev": {"type": "number", "maximum": 0}, "k": {"enum": [0, 1, 2, 3, 4]},
+                        "pane_ev": {"type": "number"}, "clip_before": _SHARE, "clip_after": _SHARE,
+                        "pane_px": {"type": "integer", "minimum": 1}, "pane_median": {"type": "number"},
+                        "wall_median": {"type": ["number", "null"]}, "rule": {"type": "string"}}},
+    ],
+}
+ASSUMED_ENTRY = {
+    "type": "object",
+    "required": ["object", "field", "value", "reason"],
+    "properties": {"parent": {"type": "string"}, "kind": {"type": "string"}, "reason": {"type": "string"}},
+    # A design detail or light (Milestone 6) names both its parent element / room and its kind.
+    "dependentRequired": {"parent": ["kind"], "kind": ["parent"]},
 }
 
 SCENE_OBJECT = {
@@ -142,7 +169,8 @@ SCENE_MANIFEST = {
             "type": "object", "required": ["textured", "asset", "reason"],
         }},
         "pass_index": {"type": "object", "additionalProperties": {"type": "integer"}},
-        "assumed": {"type": "array", "items": {"type": "object", "required": ["object", "field", "value", "reason"]}},
+        "assumed": {"type": "array", "items": ASSUMED_ENTRY},
+        "camera_policy": {"enum": ["search", "m5"]},
         "warnings": {"type": "array", "items": {"type": "string"}},
         "checks": {"type": "object", "properties": {
             "door_rays": {"type": "array", "items": {"type": "object", "required": ["opening_id", "hit", "hit_kind"]}},
@@ -190,6 +218,10 @@ RENDER_ENTRY = {
         "exposure": EXPOSURE,
         "hidden": {"type": "array", "items": {"type": "string"}},
         "plugged": {"type": "array", "items": {"type": "string"}},
+        # Milestone 6 (§5 rows 7 and 10).
+        "window_pull": WINDOW_PULL,
+        "alt_preview": {"type": ["string", "null"]},
+        "alt_preview_bytes": {"type": ["integer", "null"]},
     },
 }
 
@@ -215,6 +247,14 @@ RENDER_MANIFEST = {
         "plugged": {"type": "array", "items": {"type": "string"}},
         "look_from": {"type": ["string", "null"]},
         "render_code_version": {"type": "string"},
+        # Milestone 6 (§5 rows 10-12).
+        "alt_look": {"type": ["string", "null"]},
+        "max_bounces": {"type": ["integer", "null"], "minimum": 0},
+        "ev_offset": {"type": "number"},
+        "preview_quality": {"type": ["integer", "null"], "minimum": 1, "maximum": 100},
+        "incomplete": {"type": "boolean"},
+        "not_rendered": {"type": "array", "items": {"type": "string"}},
+        "deadline": {"type": ["number", "null"]},
     },
 }
 

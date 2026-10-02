@@ -3,8 +3,9 @@
 What: ``fetch_texture(asset_id, out_dir, size)`` and ``fetch_hdri(...)`` get
 one asset from Poly Haven or ambientCG and record it in
 ``<out_dir>/manifest.json``; ``fetch_for_style(style, out_dir)`` fetches
-everything a ``style.json`` needs; ``verify_vocabulary()`` only lists (no
-download) and reports whether every id in the vocabulary exists.
+everything a ``style.json`` needs plus the furniture texture maps of
+``vocabulary.FURNITURE_MATERIALS`` (Milestone 6); ``verify_vocabulary()`` only
+lists (no download) and reports whether every id in the vocabulary exists.
 
 Shared interface (both the asset code and the Blender code follow it): a
 texture set is ``{"id", "source", "licence": "CC0", "size_m": [w, h],
@@ -119,9 +120,9 @@ def _now() -> str:
 # --------------------------------------------------------------------------
 
 def source_of_texture(asset_id: str) -> str:
-    """The source of a texture id: the vocabulary first, then the id shape."""
-    for entry in V.MATERIALS.values():
-        if entry["asset"] == asset_id:
+    """The source of a texture id: the vocabulary (style and furniture tables) first, then the id shape."""
+    for entry in list(V.MATERIALS.values()) + list(V.FURNITURE_MATERIALS.values()):
+        if entry.get("asset") == asset_id:
             return entry["source"]
     return ambientcg.SOURCE if ambientcg.looks_like_id(asset_id) else polyhaven.SOURCE
 
@@ -273,7 +274,10 @@ def fetch_hdri(asset_id: str, out_dir: Path, size: str = "2k", source: str = pol
 
 def fetch_for_style(style: dict, out_dir: Path, size: str = "2k", hdri_size: Optional[str] = None,
                     log=print) -> dict:
-    """Fetch every texture set and the HDRI a style profile uses.
+    """Fetch every texture set and the HDRI a style profile uses, plus the
+    furniture texture maps (``vocabulary.furniture_textures``: the veneers and
+    the linen weave every parametric piece and wood door uses, docs/milestone6.md
+    §5 row 8).
 
     Failures (blocked host, unknown id, licence) do not stop the run: they are
     returned under ``"failed"`` so the scene builder can fall back to flat
@@ -282,8 +286,14 @@ def fetch_for_style(style: dict, out_dir: Path, size: str = "2k", hdri_size: Opt
     from wenart.style.profile import assets_in_profile
 
     wanted = assets_in_profile(style)
+    textures = list(wanted["textures"])
+    seen = {asset_id for _, asset_id, _ in textures}
+    for row in V.furniture_textures():
+        if row[1] not in seen:
+            seen.add(row[1])
+            textures.append(row)
     result = {"textures": {}, "hdris": {}, "failed": {}}
-    for source, asset_id, slug in wanted["textures"]:
+    for source, asset_id, slug in textures:
         try:
             entry = fetch_texture(asset_id, out_dir, size=size, source=source)
             result["textures"][asset_id] = entry
@@ -307,14 +317,18 @@ def verify_vocabulary() -> list[dict]:
 
     Three API calls in total (Poly Haven textures, Poly Haven HDRIs, one
     ambientCG query with all ids). Rows: ``{"slug", "source", "id", "kind",
-    "exists", "size_m"}``.
+    "exists", "size_m"}``; kind ``texture`` (style materials), ``furniture_texture``
+    (``vocabulary.FURNITURE_MATERIALS`` with an asset; ``size_m`` must equal the
+    vocabulary's ``size_m``, ``size_ok``) or ``hdri``.
     """
     ph_textures = polyhaven.list_assets("textures")
     ph_hdris = polyhaven.list_assets("hdris")
-    acg_ids = sorted({e["asset"] for e in V.MATERIALS.values() if e["source"] == ambientcg.SOURCE})
+    entries = [(slug, e, "texture") for slug, e in V.MATERIALS.items()]
+    entries += [(slug, e, "furniture_texture") for slug, e in V.FURNITURE_MATERIALS.items() if e.get("asset")]
+    acg_ids = sorted({e["asset"] for _, e, _ in entries if e["source"] == ambientcg.SOURCE})
     acg = ambientcg.infos(acg_ids)
     rows = []
-    for slug, entry in V.MATERIALS.items():
+    for slug, entry, kind in entries:
         asset_id, source = entry["asset"], entry["source"]
         if source == polyhaven.SOURCE:
             record = ph_textures.get(asset_id)
@@ -322,8 +336,11 @@ def verify_vocabulary() -> list[dict]:
         else:
             record = acg.get(asset_id)
             size = ambientcg.size_m(record)[0] if record else None
-        rows.append({"slug": slug, "source": source, "id": asset_id, "kind": "texture",
-                     "exists": record is not None, "size_m": size})
+        row = {"slug": slug, "source": source, "id": asset_id, "kind": kind, "exists": record is not None,
+               "size_m": size}
+        if kind == "furniture_texture":
+            row["size_ok"] = size is not None and [round(v, 4) for v in size] == list(entry.get("size_m") or [])
+        rows.append(row)
     for hdri_id, entry in V.HDRIS.items():
         record = ph_hdris.get(hdri_id)
         rows.append({"slug": entry["mood"], "source": entry["source"], "id": hdri_id, "kind": "hdri",
