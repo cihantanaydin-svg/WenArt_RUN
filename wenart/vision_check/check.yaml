@@ -53,6 +53,12 @@ controls:
   doors: 2
   min_area_frac: 0.03             # required, own room, not touching the border
   swap_pairs: [[sofa, bed_double], [armchair, desk]]
+  swaps: 3                        # type-swap controls per project (one per room, largest first)
+
+# Plan A/B (§5.2, §5.5): the control cameras plus this many sweep views get the
+# source-plan crop as Image 2; adopted only if removal detection rises and false alarms do not.
+plan_ab:
+  views: 4
 
 # Realism preference (§5.6): preferred when >= 3 of 4 answers pick the polished image.
 preference:
