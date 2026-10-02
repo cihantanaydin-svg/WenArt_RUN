@@ -1,8 +1,14 @@
-"""CLI: ``python -m wenart.style <project_dir or building.json> --out style.json``.
+"""CLI: ``python -m wenart.style <project_dir or building.json> --out style.json [--photo-terms terms.json]``.
 
 Reads ``brief.yaml`` from a project folder, or ``project.brief`` from a
 building JSON, and writes one ``style.json`` per style text (the second and
 following go to ``style_2.json`` ...). Prints what was matched and assumed.
+
+``--photo-terms``: the agreed terms of the style photos (``python -m
+wenart.style.photos combine``, docs/milestone5.md §6); they fill only the
+slots the brief text does not name, listed as ``photo:<file>:<term>`` in
+``matched_terms`` and in the warnings. A missing terms file is an error
+(exit 2), never silently skipped.
 """
 from __future__ import annotations
 
@@ -35,10 +41,19 @@ def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description="Brief -> style profile (style.json)")
     parser.add_argument("source", help="project folder with brief.yaml, or a building.json")
     parser.add_argument("--out", default="style.json", help="output file (others: <stem>_2.json ...)")
+    parser.add_argument("--photo-terms", default=None,
+                        help="terms JSON of the style photos (python -m wenart.style.photos combine)")
     args = parser.parse_args(argv)
 
+    photo_terms = None
+    if args.photo_terms:
+        terms_path = Path(args.photo_terms)
+        if not terms_path.is_file():
+            print(f"--photo-terms {terms_path}: file not found", file=sys.stderr)
+            return 2
+        photo_terms = json.loads(terms_path.read_text(encoding="utf-8"))
     brief = load_brief(Path(args.source))
-    profiles = profiles_from_brief(brief)
+    profiles = profiles_from_brief(brief, photo_terms=photo_terms)
     paths = write_profiles(profiles, Path(args.out))
     for profile, path in zip(profiles, paths):
         print(f"{path}: floor {profile['floor']['material']}, walls {profile['walls']['material']}, "

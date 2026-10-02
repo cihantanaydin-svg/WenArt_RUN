@@ -1,0 +1,1185 @@
+"""Final report of Milestone 5 (docs/milestone5.md §7): which image is final for every view, and why.
+
+What: ``python -m wenart.report final --project-out outputs/<p>`` reads the
+manifests of every stage and writes ``outputs/<p>/final/``:
+
+- ``final_manifest.json``: per view the camera, room, level, the final image
+  (path relative to ``final/``), ``polished|cycles`` and the reason
+  (``gate|brief|room|vision_check|check_incomplete|error``, plus
+  ``deadline`` from the polish and ``not_run`` when the polish did not run
+  for the view), the chosen polish attempt's settings and gate summary, the
+  vision-check verdicts of both images, the JSON cross-check, the realism
+  preference, the exposure, the element ids per source and the unverified
+  pieces in view, and every mismatch with its source and evidence;
+- ``<cam>_final_preview.jpg`` (<= 300 KB) of the final image;
+- ``<cam>_plan.jpg``: copies of the source-plan crops of ``check/``;
+- ``contact_<level>.jpg`` (<= 300 KB): 480 px tiles labelled with the camera,
+  ``P`` (polished) or ``C`` (Cycles) and ``U<n>`` (unverified pieces in view);
+- ``final_report.md``: summary, per-view table, every mismatch (never
+  auto-fixed), the unverified items and conflicts of the building JSON, rooms
+  mixing polished and Cycles views, models and licences. It links only to
+  files in ``final/``.
+
+Inputs (each may be missing; the report then says "not run"):
+``renders/render_manifest.json``, ``scene/scene_manifest.json``, the building
+and the brief (``wenart.views.project_paths``), ``polish/polish_manifest.json``,
+``check/check_manifest.json``, ``check/check_calibration.json``,
+``check/expected_views.json``, ``check/answers_*.json`` (seconds),
+``gate/gate_calibration.json``.
+
+Final decision (§5.5, §7), ``decide``: the final image is the polished one
+iff the brief allows the polish, the polish says ``final: polished`` with an
+existing PNG made from the current render, and the vision check checked that
+very image without rejecting it. The check rejects (``vision_check``) when
+its manifest says so or when an element ok/unverified on the Cycles render is
+confirmed missing/changed on the polished one (recomputed here as a second
+look); it is ``check_incomplete`` when the check did not run, did not see
+this polished image or the Cycles image, or a pass was not computed or
+unreliable. Everything else stays Cycles with the polish's own reason.
+Nothing is auto-fixed: mismatches are listed with their evidence.
+"""
+from __future__ import annotations
+
+import shutil
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any, Optional
+
+from wenart.report import common as C
+
+FINAL_DIR = "final"
+MANIFEST_NAME = "final_manifest.json"
+REPORT_NAME = "final_report.md"
+TILE_WIDTH = 480
+CONTACT_COLUMNS = 4
+LABEL_HEIGHT = 24
+
+REASONS = ("gate", "brief", "room", "vision_check", "check_incomplete", "error", "deadline", "not_run")
+MISMATCH_RESULTS = ("missing", "changed", "missing_or_changed")
+NON_DECOR_CLASSES = ("door", "window", "furniture", "fixture")
+CROSSCHECK_KEYS = ("in_json_not_rendered", "rendered_not_in_json", "misplaced")
+# Keys of a check-manifest camera entry that are not image kinds (§5.7).
+CHECK_VIEW_KEYS = {"room_id", "json_crosscheck", "polished_rejected", "polished_reason", "polished_reasons",
+                   "needs_review", "needs_review_reasons", "preference"}
+ADDED_BY_AI_NOTE = "added_by_ai: render/polish issue, not a document conflict"
+
+NUM = {"type": ["number", "null"]}
+STR = {"type": ["string", "null"]}
+FINAL_VIEW = {
+    "type": "object",
+    "required": ["camera", "room_id", "level_id", "final", "reason", "image", "preview", "plan", "attempt",
+                 "gate", "vision_check", "json_crosscheck", "preference", "exposure", "ids_by_source",
+                 "unverified", "mismatches", "needs_review"],
+    "properties": {
+        "camera": {"type": "string"},
+        "final": {"enum": ["polished", "cycles"]},
+        "reason": {"enum": [None, *REASONS]},
+        "image": STR, "preview": STR, "plan": STR,
+        "attempt": {"type": ["object", "null"]},
+        "gate": {"type": ["object", "null"]},
+        "vision_check": {"type": ["object", "null"]},
+        "ids_by_source": {"type": "object", "additionalProperties": {"type": "array", "items": {"type": "string"}}},
+        "unverified": {"type": "array", "items": {"type": "string"}},
+        "mismatches": {"type": "array", "items": {"type": "object", "required": ["image", "what", "result"]}},
+        "needs_review": {"type": "boolean"},
+    },
+}
+FINAL_MANIFEST = {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "required": ["schema_version", "kind", "project", "inputs", "stages", "polish_allowed", "advisory",
+                 "advisory_flags", "summary", "views", "rooms", "rooms_mixed", "models", "contact_sheets",
+                 "building", "warnings"],
+    "properties": {
+        "schema_version": {"const": "0.1"},
+        "kind": {"const": "final"},
+        "project": {"type": "string"},
+        "stages": {"type": "object", "required": ["render", "polish", "check"]},
+        "polish_allowed": {"type": "boolean"},
+        "advisory": {"type": "boolean"},
+        "advisory_flags": {"type": "array", "items": {"type": "string"}},
+        "summary": {"type": "object", "required": ["views", "polished", "cycles", "cycles_by_reason"]},
+        "views": {"type": "array", "items": FINAL_VIEW},
+        "rooms_mixed": {"type": "array", "items": {"type": "string"}},
+        "models": {"type": "array"},
+        "contact_sheets": {"type": "object", "additionalProperties": {"type": "string"}},
+        "warnings": {"type": "array", "items": {"type": "string"}},
+    },
+}
+
+
+def validate_final_manifest(manifest: dict) -> list[str]:
+    """Schema errors of a ``final_manifest.json`` dict (empty list = valid)."""
+    import jsonschema
+    validator = jsonschema.Draft202012Validator(FINAL_MANIFEST)
+    return [f"{'/'.join(str(p) for p in e.absolute_path) or '<root>'}: {e.message}"
+            for e in sorted(validator.iter_errors(manifest), key=lambda e: list(e.absolute_path))]
+
+
+# --------------------------------------------------------------------------
+# Inputs
+# --------------------------------------------------------------------------
+
+@dataclass
+class Inputs:
+    """Everything the final report reads; a missing file is None / empty and noted in ``warnings``."""
+    project_out: Path
+    out_dir: Path
+    project: str
+    warnings: list = field(default_factory=list)
+    render_manifest: Optional[dict] = None
+    entries: dict = field(default_factory=dict)          # camera -> render entry (manifest order)
+    scene: Optional[dict] = None
+    table: dict = field(default_factory=dict)            # pass index -> element (wenart.views.index_table)
+    building: Optional[dict] = None
+    building_path: Optional[Path] = None
+    brief: Optional[dict] = None
+    polish: Optional[dict] = None
+    polish_views: dict = field(default_factory=dict)
+    check: Optional[dict] = None
+    check_calibration: Optional[dict] = None
+    expected: dict = field(default_factory=dict)         # camera -> expected_view (check/expected_views.json)
+    answers: list = field(default_factory=list)
+    gate_calibration: Optional[dict] = None
+
+    @property
+    def render_dir(self) -> Path:
+        return self.project_out / "renders"
+
+    @property
+    def polish_dir(self) -> Path:
+        return self.project_out / "polish"
+
+    @property
+    def check_dir(self) -> Path:
+        return self.project_out / "check"
+
+
+def _building_path(scene: dict, project_out: Path, repo_root: Path) -> Optional[Path]:
+    """The building file of a scene manifest when ``project_paths`` could not run (§1.1 order)."""
+    name = scene.get("building")
+    candidates = []
+    if name:
+        p = Path(str(name))
+        candidates += [p] if p.is_absolute() else [repo_root / p, Path.cwd() / p]
+        candidates.append(project_out / p.name)
+    candidates.append(project_out / "building_final.json")
+    return next((c for c in candidates if c.is_file()), None)
+
+
+def load_inputs(project_out, out_dir=None) -> Inputs:
+    """Read every manifest of a project output folder (see module docstring); never raises for a missing file."""
+    from wenart import views as VW
+
+    out = Path(project_out).resolve()
+    inp = Inputs(project_out=out, out_dir=Path(out_dir).resolve() if out_dir else out / FINAL_DIR,
+                 project=out.name)
+    w = inp.warnings
+    try:
+        paths = VW.project_paths(out)
+    except Exception as exc:  # noqa: BLE001 - missing/broken scene manifest or brief.yaml: report what is there
+        w.append(f"project inputs not fully readable ({type(exc).__name__}: {exc}); brief not loaded, polish "
+                 f"permission taken as the default (true)")
+        paths = None
+    if paths is not None:
+        inp.scene = paths["scene_manifest"]
+        inp.project = str(paths["project"] or out.name)
+        inp.building_path = paths["building_path"]
+        inp.brief = paths["brief"]
+        w.extend(paths["warnings"])
+    else:
+        inp.scene = C.read_json(out / "scene" / "scene_manifest.json", w)
+        if inp.scene is None:
+            w.append("scene/scene_manifest.json not readable: no element table or building")
+        else:
+            inp.project = str(inp.scene.get("project") or out.name)
+            inp.building_path = _building_path(inp.scene, out, VW.REPO_ROOT)
+    if inp.scene is not None:
+        inp.table = VW.index_table(inp.scene)
+    inp.building = C.read_json(inp.building_path, w) if inp.building_path else None
+    inp.render_manifest = C.read_json(inp.render_dir / "render_manifest.json", w)
+    if inp.render_manifest is None:
+        w.append("renders/render_manifest.json not found: no rendered views")
+    for e in (inp.render_manifest or {}).get("renders") or []:
+        if isinstance(e, dict) and e.get("camera"):
+            inp.entries[e["camera"]] = e
+    inp.polish = C.read_json(inp.polish_dir / "polish_manifest.json", w)
+    if inp.polish is not None and inp.polish.get("kind") not in (None, "run"):
+        w.append(f"polish/polish_manifest.json is a {inp.polish.get('kind')!r} manifest, not a final run: "
+                 f"treated as polish not run")
+        inp.polish = None
+    for v in (inp.polish or {}).get("views") or []:
+        if isinstance(v, dict) and v.get("camera"):
+            inp.polish_views[v["camera"]] = v
+    inp.check = C.read_json(inp.check_dir / "check_manifest.json", w)
+    inp.check_calibration = C.read_json(inp.check_dir / "check_calibration.json", w)
+    expected = C.read_json(inp.check_dir / "expected_views.json", w)
+    if isinstance(expected, dict):
+        inp.expected = expected["views"] if isinstance(expected.get("views"), dict) else expected
+    for path in sorted(inp.check_dir.glob("answers_*.json")) if inp.check_dir.is_dir() else []:
+        data = C.read_json(path, w)
+        if isinstance(data, dict):
+            inp.answers.append(data)
+    inp.gate_calibration = C.read_json(inp.project_out / "gate" / "gate_calibration.json", w)
+    return inp
+
+
+# --------------------------------------------------------------------------
+# Small lookups
+# --------------------------------------------------------------------------
+
+def polish_allowed(brief: Optional[dict]) -> bool:
+    """The brief's ``polish`` value (default true when there is no brief)."""
+    values = (brief or {}).get("values") or {}
+    return values.get("polish", True) is not False
+
+
+def level_of(inp: Inputs, camera: str) -> str:
+    entry = inp.entries.get(camera) or {}
+    if entry.get("level_id"):
+        return str(entry["level_id"])
+    for cam in (inp.scene or {}).get("cameras") or []:
+        if cam.get("name") == camera and cam.get("level_id"):
+            return str(cam["level_id"])
+    exp = inp.expected.get(camera) or {}
+    lvl = (exp.get("json_crosscheck") or {}).get("level_id")
+    return str(lvl) if lvl else "unknown"
+
+
+def room_of(inp: Inputs, camera: str) -> Optional[str]:
+    for src in (inp.entries.get(camera), inp.polish_views.get(camera), inp.expected.get(camera)):
+        if src and src.get("room_id"):
+            return src["room_id"]
+    for cam in (inp.scene or {}).get("cameras") or []:
+        if cam.get("name") == camera:
+            return cam.get("room_id")
+    return None
+
+
+def room_types(building: Optional[dict]) -> dict:
+    return {r.get("id"): r.get("room_type") for r in (building or {}).get("rooms") or []}
+
+
+def building_elements(building: Optional[dict]) -> dict:
+    """``{id: element}`` of every wall, opening, room, furniture piece and decor item of the building."""
+    out: dict = {}
+    for key in ("walls", "openings", "rooms", "furniture", "decor"):
+        for el in (building or {}).get(key) or []:
+            if isinstance(el, dict) and el.get("id"):
+                out[el["id"]] = {**el, "_collection": key}
+    return out
+
+
+def evidence_text(evidence: Any, limit: int = 2) -> str:
+    """``file p<page> layer entity method confidence`` of the first ``limit`` evidence records."""
+    parts = []
+    for ev in (evidence or [])[:limit]:
+        if not isinstance(ev, dict):
+            continue
+        bits = [str(ev.get("file") or "?")]
+        if ev.get("page") is not None:
+            bits.append(f"p{ev['page']}")
+        for key in ("layer", "entity", "block"):
+            if ev.get(key):
+                bits.append(str(ev[key]))
+        if ev.get("box"):
+            bits.append(f"box {ev['box']}")
+        if ev.get("method"):
+            bits.append(str(ev["method"]))
+        if isinstance(ev.get("confidence"), (int, float)):
+            bits.append(f"{float(ev['confidence']):.2f}")
+        parts.append(" ".join(bits))
+    more = len(evidence or []) - limit
+    if more > 0:
+        parts.append(f"+{more} more")
+    return "; ".join(parts) or "-"
+
+
+def element_info(inp: Inputs, elements: dict, wid: Optional[str]) -> dict:
+    """``{type, kind, source, status, evidence}`` of an element id from the building, else the index table."""
+    if not wid:
+        return {}
+    el = elements.get(wid)
+    if el is not None:
+        coll = el.get("_collection")
+        source = el.get("source") or ("from_documents" if coll in ("walls", "openings", "rooms") else None)
+        ev = el.get("evidence") or []
+        if ev:
+            text = evidence_text(ev)
+        else:                               # decor and AI pieces carry method + reason instead of evidence
+            text = ": ".join(str(x) for x in (el.get("method"), el.get("reason")) if x) or "-"
+        return {"type": el.get("type") or el.get("room_type"), "kind": coll, "source": source,
+                "status": el.get("status"), "evidence": text}
+    for t in inp.table.values():
+        if t.get("wenart_id") == wid:
+            return {"type": t.get("type"), "kind": t.get("kind"), "source": t.get("source"),
+                    "status": t.get("status"), "evidence": evidence_text(t.get("evidence"))}
+    return {}
+
+
+def view_elements(inp: Inputs, camera: str) -> list[dict]:
+    """The elements in a view: ``check/expected_views.json`` when present, else the render's index statistics."""
+    exp = inp.expected.get(camera)
+    if isinstance(exp, dict) and isinstance(exp.get("elements"), list):
+        return [{"id": e.get("wenart_id"), "kind": e.get("kind"), "type": e.get("type"), "source": e.get("source"),
+                 "status": e.get("status"), "role": e.get("role"), "pixels": e.get("pixels")}
+                for e in exp["elements"] if isinstance(e, dict) and e.get("wenart_id")]
+    entry = inp.entries.get(camera) or {}
+    stats = entry.get("index_stats")
+    if stats is None:
+        stats = {str(v): {} for v in entry.get("index_values") or []}
+    out = []
+    for idx in sorted(stats, key=lambda s: int(s)):
+        t = inp.table.get(int(idx))
+        if t is None:
+            out.append({"id": f"index:{idx}", "kind": "unknown", "type": None, "source": None, "status": None,
+                        "role": None, "pixels": (stats[idx] or {}).get("pixels")})
+            continue
+        out.append({"id": t["wenart_id"], "kind": t.get("kind"), "type": t.get("type"), "source": t.get("source"),
+                    "status": t.get("status"), "role": None, "pixels": (stats[idx] or {}).get("pixels")})
+    return out
+
+
+def ids_by_source(elements: list[dict]) -> dict:
+    out: dict[str, list] = {}
+    for e in elements:
+        if e.get("role") == "ignore":
+            continue
+        src = e.get("source") or "unknown"
+        if e["id"] not in out.setdefault(src, []):
+            out[src].append(e["id"])
+    return {k: sorted(v) for k, v in sorted(out.items())}
+
+
+def unverified_in_view(elements: list[dict]) -> list[str]:
+    """Pieces in view whose status is unverified or whose type is unknown (ignored slivers left out)."""
+    return sorted({e["id"] for e in elements if e.get("role") != "ignore"
+                   and (e.get("status") == "unverified" or e.get("type") == "unknown")})
+
+
+# --------------------------------------------------------------------------
+# Vision check entries
+# --------------------------------------------------------------------------
+
+def image_entries(cview: Optional[dict]) -> dict:
+    """``{image kind: entry}`` of one camera of ``check_manifest.json`` (non-image keys left out)."""
+    return {k: v for k, v in (cview or {}).items() if k not in CHECK_VIEW_KEYS and isinstance(v, dict)}
+
+
+def checked(entry: Optional[dict]) -> bool:
+    """An element check that ran (not only a preference entry)."""
+    return isinstance(entry, dict) and not entry.get("preference_only") and "verdict" in entry
+
+
+def incomplete_detail(entry: Optional[dict], name: str) -> Optional[str]:
+    """Why a check entry cannot support a decision (None when it can)."""
+    if not checked(entry):
+        return f"{name} image not checked"
+    if entry.get("verdict") == "not_computed" or entry.get("not_computed"):
+        keys = ", ".join(entry.get("not_computed") or []) or "a pass"
+        return f"{name} image: not computed ({keys})"
+    if entry.get("unreliable"):
+        return f"{name} image: unreliable pass ({', '.join(entry['unreliable'])} saw the decoy)"
+    return None
+
+
+def differential_losses(cycles: Optional[dict], polished: Optional[dict]) -> list[dict]:
+    """Elements ok/unverified on the Cycles render and confirmed missing/changed on the polished one (§5.5)."""
+    if not checked(cycles) or not checked(polished):
+        return []
+    out = []
+    for eid, e in (polished.get("elements") or {}).items():
+        before = ((cycles.get("elements") or {}).get(eid) or {}).get("result")
+        if e.get("result") in MISMATCH_RESULTS and before in ("ok", "unverified"):
+            out.append({"reason": "vision_check", "what": "element", "id": eid, "type": e.get("type"),
+                        "source": e.get("source"), "cycles": before, "polished": e.get("result")})
+    return out
+
+
+def check_summary(entry: Optional[dict]) -> Optional[dict]:
+    """Verdict and counts of one image's check entry."""
+    if not isinstance(entry, dict):
+        return None
+    elements = entry.get("elements") or {}
+    results: dict[str, int] = {}
+    for e in elements.values():
+        results[str(e.get("result"))] = results.get(str(e.get("result")), 0) + 1
+    extras = entry.get("extras") or []
+    return {"verdict": entry.get("verdict"), "results": dict(sorted(results.items())),
+            "mismatches": len(confirmed_items(check_items(entry, ""))),
+            "extras_confirmed": sum(1 for x in extras if x.get("confirmed")),
+            "counts": {k: (c or {}).get("result") for k, c in (entry.get("counts") or {}).items()},
+            "not_computed": list(entry.get("not_computed") or []), "unreliable": list(entry.get("unreliable") or []),
+            "preference_only": bool(entry.get("preference_only"))}
+
+
+def check_items(entry: Optional[dict], image: str) -> list[dict]:
+    """Mismatch items of one image's check entry: elements confirmed missing/changed or disputed,
+    confirmed non-decor extras, door/window counts out of range."""
+    items: list[dict] = []
+    if not checked(entry):
+        return items
+    for eid, e in (entry.get("elements") or {}).items():
+        res = e.get("result")
+        if res in MISMATCH_RESULTS or res == "disputed":
+            items.append({"image": image, "what": "element", "id": eid, "type": e.get("type"),
+                          "kind": e.get("kind"), "role": e.get("role"), "source": e.get("source"), "result": res,
+                          "confirmed": res in MISMATCH_RESULTS, "notes": list(e.get("notes") or [])})
+    for x in entry.get("extras") or []:
+        if x.get("confirmed") and x.get("class") in NON_DECOR_CLASSES:
+            cats = x.get("categories") or {}
+            items.append({"image": image, "what": "extra", "id": None, "type": ", ".join(sorted(set(cats.values())))
+                          or x.get("category"), "kind": x.get("class"), "role": None, "source": None,
+                          "result": "extra", "confirmed": True, "box_px": x.get("box_px"), "notes": []})
+    for kind, c in (entry.get("counts") or {}).items():
+        if (c or {}).get("result") in ("fewer", "more"):
+            items.append({"image": image, "what": "count", "id": None, "type": kind, "kind": kind, "role": None,
+                          "source": None, "result": f"{kind} count {c['result']}", "confirmed": True,
+                          "expected": c.get("expected"), "passes": c.get("passes"), "notes": []})
+    return items
+
+
+def confirmed_items(items: list[dict]) -> list[dict]:
+    """Items that count as mismatches: confirmed, and for elements only required ones (optional ones are info)."""
+    return [i for i in items if i.get("confirmed") and (i["what"] != "element" or i.get("role") == "required")]
+
+
+def crosscheck_items(cc: Optional[dict]) -> list[dict]:
+    """The JSON cross-check findings of the Cycles render (§5.1) as mismatch items."""
+    items = []
+    for key in CROSSCHECK_KEYS:
+        for it in (cc or {}).get(key) or []:
+            if not isinstance(it, dict):
+                continue
+            detail = []
+            if it.get("visible_share") is not None:
+                detail.append(f"visible {float(it['visible_share']):.2f}")
+            if it.get("area_frac") is not None:
+                detail.append(f"area {float(it['area_frac']):.3f}")
+            if it.get("offset_frac_w") is not None:
+                detail.append(f"offset {float(it['offset_frac_w']):.3f} W")
+            if it.get("pixels") is not None:
+                detail.append(f"{it['pixels']} px")
+            items.append({"image": "cycles", "what": "crosscheck", "id": it.get("id"), "type": it.get("type"),
+                          "kind": it.get("kind"), "role": None, "source": it.get("source"), "result": key,
+                          "confirmed": True, "detail": ", ".join(detail), "notes": []})
+    return items
+
+
+# --------------------------------------------------------------------------
+# The decision
+# --------------------------------------------------------------------------
+
+def _cycles(reason: Optional[str], detail: Optional[str], candidate: Optional[dict] = None) -> dict:
+    return {"final": "cycles", "reason": reason, "detail": detail, "candidate": candidate}
+
+
+def decide(pview: Optional[dict], cview: Optional[dict], *, polish_ran: bool, check_ran: bool,
+           allowed: bool = True, polish_dir: Optional[Path] = None, source_sha256: Optional[str] = None) -> dict:
+    """``{"final", "reason", "detail", "candidate"}`` of one view (see the module docstring; pure but for file checks).
+
+    ``pview``: the view's polish-manifest entry; ``cview``: its
+    check-manifest camera entry; ``polish_dir``: where the attempt PNGs are
+    (None skips the file check); ``source_sha256``: the current render PNG's
+    hash (None skips the staleness check).
+    """
+    if not allowed:
+        return _cycles("brief", "brief.yaml polish: false")
+    if not polish_ran:
+        return _cycles("not_run", "polish not run")
+    if pview is None:
+        return _cycles("not_run", "view not in the polish manifest")
+    if pview.get("final") != "polished":
+        reason = pview.get("reason")
+        if reason not in REASONS:
+            detail = f"polish final {pview.get('final')!r}, reason {reason!r}"
+            reason = "not_run" if pview.get("final") is None and reason is None else "error"
+            return _cycles(reason, detail)
+        if reason == "gate":
+            tried = [f"a{a.get('k')} " + _short_gate(gate_summary(a)) for a in pview.get("attempts") or []]
+            return _cycles(reason, "no ladder attempt passed the gate" + (f": {'; '.join(tried)}" if tried else ""))
+        return _cycles(reason, f"polish: {reason}")
+    k = pview.get("final_attempt")
+    candidate = next((a for a in pview.get("attempts") or [] if a.get("k") == k), None)
+    if candidate is None or not candidate.get("png"):
+        return _cycles("error", f"polish final attempt {k} has no image in the manifest")
+    if polish_dir is not None and not (Path(polish_dir) / candidate["png"]).is_file():
+        return _cycles("error", f"polished image {candidate['png']} not found", candidate)
+    if source_sha256 and pview.get("source_sha256") and pview["source_sha256"] != source_sha256:
+        return _cycles("error", "polished from another render (source sha256 differs from the current render)",
+                       candidate)
+    if not check_ran:
+        return _cycles("check_incomplete", "vision check not run", candidate)
+    if cview is None:
+        return _cycles("check_incomplete", "view not in the check manifest", candidate)
+    polished, cycles = cview.get("polished"), cview.get("cycles")
+    for entry, name in ((polished, "polished"), (cycles, "Cycles")):
+        why = incomplete_detail(entry, name)
+        if why:
+            return _cycles("check_incomplete", why, candidate)
+    seen = [Path(str(p)).name for p in polished.get("images") or []]
+    if seen and Path(candidate["png"]).name not in seen:
+        return _cycles("check_incomplete", f"the check saw {', '.join(seen)}, not {candidate['png']}", candidate)
+    if cview.get("polished_rejected"):
+        reasons = cview.get("polished_reasons") or []
+        reason = cview.get("polished_reason")
+        if reason not in ("vision_check", "check_incomplete"):
+            incomplete = any(isinstance(r, dict) and r.get("reason") == "check_incomplete" for r in reasons)
+            reason = "check_incomplete" if incomplete else "vision_check"
+        return _cycles(reason, "; ".join(_reason_text(r) for r in reasons) or "rejected by the vision check",
+                       candidate)
+    losses = differential_losses(cycles, polished)
+    if losses:
+        return _cycles("vision_check", "; ".join(_reason_text(r) for r in losses)
+                       + " (recomputed here; the check manifest did not flag it)", candidate)
+    return {"final": "polished", "reason": None, "detail": None, "candidate": candidate}
+
+
+def _reason_text(r: Any) -> str:
+    if not isinstance(r, dict):
+        return str(r)
+    if r.get("what") == "element":
+        return f"{r.get('id')} ({r.get('type')}, {r.get('source')}): {r.get('cycles')} -> {r.get('polished')}"
+    if r.get("what") == "added_by_polish":
+        return f"added_by_polish {r.get('class')} at {r.get('box_px')}"
+    return ", ".join(f"{k} {v}" for k, v in r.items() if k != "reason") or str(r.get("reason"))
+
+
+# --------------------------------------------------------------------------
+# Per view
+# --------------------------------------------------------------------------
+
+def attempt_settings(a: Optional[dict]) -> Optional[dict]:
+    if not a:
+        return None
+    keys = ("k", "role", "strength", "control", "scale", "size", "mode", "seed", "steps", "seconds", "png",
+            "sha256", "attempt_key", "panes_restored")
+    return {k: a.get(k) for k in keys}
+
+
+def gate_summary(a: Optional[dict]) -> Optional[dict]:
+    gate = (a or {}).get("gate")
+    if not isinstance(gate, dict):
+        return None
+    metrics = gate.get("metrics") or {}
+    globals_ = {k: v.get("global") for k, v in metrics.items()
+                if isinstance(v, dict) and "global" in v and k not in ("regions", "seconds")}
+    return {"decision": gate.get("decision"), "reasons": list(gate.get("reasons") or []),
+            "notes": len(gate.get("notes") or []), "global": globals_, "gate_key": gate.get("gate_key")}
+
+
+def _short_gate(g: Optional[dict]) -> str:
+    if not g:
+        return "-"
+    if g["decision"] == "accept":
+        return "accept"
+    checks = sorted({str(r.get("check")) for r in g["reasons"] if isinstance(r, dict)})
+    return "reject" + (f" ({', '.join(checks)})" if checks else "")
+
+
+def build_views(inp: Inputs) -> list[dict]:
+    """One final-manifest entry per rendered view (and per polished view without a render entry)."""
+    elements_by_id = building_elements(inp.building)
+    rtypes = room_types(inp.building)
+    allowed = polish_allowed(inp.brief)
+    cams = list(inp.entries)
+    for cam in inp.polish_views:
+        if cam not in cams:
+            cams.append(cam)
+            inp.warnings.append(f"{cam}: in the polish manifest but not in the render manifest")
+    check_views = (inp.check or {}).get("views") or {}
+    out = []
+    for cam in cams:
+        entry = inp.entries.get(cam) or {}
+        pview = inp.polish_views.get(cam)
+        cview = check_views.get(cam)
+        src_png = inp.render_dir / entry["png"] if entry.get("png") else None
+        src_sha = C.sha256_file(src_png) if src_png is not None and src_png.is_file() else None
+        dec = decide(pview, cview, polish_ran=inp.polish is not None, check_ran=inp.check is not None,
+                     allowed=allowed, polish_dir=inp.polish_dir, source_sha256=src_sha)
+        cand = dec["candidate"]
+        if dec["final"] == "polished":
+            image = inp.polish_dir / cand["png"]
+        else:
+            image = src_png
+        elements = view_elements(inp, cam)
+        kinds = image_entries(cview)
+        cc = (cview or {}).get("json_crosscheck")
+        if cc is None:
+            cc = (inp.expected.get(cam) or {}).get("json_crosscheck")
+        if isinstance(cc, dict) and cc.get("error"):
+            inp.warnings.append(f"{cam}: JSON cross-check not computed ({cc['error']})")
+        items = check_items(kinds.get("cycles"), "cycles") + check_items(kinds.get("polished"), "polished")
+        items += crosscheck_items(cc)
+        for it in items:
+            info = element_info(inp, elements_by_id, it.get("id"))
+            it["evidence"] = info.get("evidence", "-")
+            it["source"] = it.get("source") or info.get("source")
+            it["type"] = it.get("type") or info.get("type")
+            if it.get("source") == "added_by_ai" and it["what"] in ("element", "crosscheck") \
+                    and ADDED_BY_AI_NOTE not in it["notes"]:
+                it["notes"].append(ADDED_BY_AI_NOTE)
+        final_image = "polished" if dec["final"] == "polished" else "cycles"
+        final_items = [i for i in items if i["image"] == final_image and i["what"] != "crosscheck"]
+        pol_entry = kinds.get("polished") or {}
+        vc = None
+        if cview is not None:
+            vc = {"cycles": check_summary(kinds.get("cycles")), "polished": check_summary(kinds.get("polished")),
+                  "other": sorted(k for k in kinds if k not in ("cycles", "polished")),
+                  "polished_rejected": bool(cview.get("polished_rejected")),
+                  "polished_reason": cview.get("polished_reason"),
+                  "polished_reasons": list(cview.get("polished_reasons") or []),
+                  "needs_review": bool(cview.get("needs_review")),
+                  "needs_review_reasons": list(cview.get("needs_review_reasons") or [])}
+        needs_review = bool((cview or {}).get("needs_review")) or bool(confirmed_items(
+            [i for i in items if i["image"] == "cycles"]))
+        out.append({
+            "camera": cam,
+            "room_id": room_of(inp, cam),
+            "room_type": rtypes.get(room_of(inp, cam)),
+            "level_id": level_of(inp, cam),
+            "final": dec["final"],
+            "reason": dec["reason"],
+            "detail": dec["detail"],
+            "image": C.rel(image, inp.out_dir) if image is not None else None,
+            "image_sha256": C.sha256_file(image) if image is not None and image.is_file() else None,
+            "preview": None,
+            "plan": None,
+            "polish": None if pview is None else {"final": pview.get("final"), "reason": pview.get("reason"),
+                                                  "final_attempt": pview.get("final_attempt"),
+                                                  "attempts": len(pview.get("attempts") or []),
+                                                  "prompt": pview.get("prompt")},
+            "attempt": attempt_settings(cand),
+            "gate": gate_summary(cand),
+            "vision_check": vc,
+            "json_crosscheck": cc,
+            "preference": pol_entry.get("preference") if isinstance(pol_entry, dict) else None,
+            "exposure": entry.get("exposure"),
+            "ids_by_source": ids_by_source(elements),
+            "unverified": unverified_in_view(elements),
+            "mismatches": items,
+            "final_mismatches": len(confirmed_items(final_items)),
+            "needs_review": needs_review,
+        })
+    return out
+
+
+# --------------------------------------------------------------------------
+# Images: previews, plan copies, contact sheets
+# --------------------------------------------------------------------------
+
+def _load_rgb(path: Optional[Path]):
+    if path is None or not Path(path).is_file():
+        return None
+    from wenart import views as VW
+    try:
+        return VW.read_rgb(path)
+    except (OSError, ValueError):
+        return None
+
+
+def _final_source(inp: Inputs, view: dict) -> Optional[Path]:
+    """The final image file, else a preview JPEG of the same image (results copies have no PNGs)."""
+    candidates = []
+    if view["final"] == "polished" and view["attempt"]:
+        a = view["attempt"]
+        candidates.append(inp.polish_dir / a["png"])
+        pv = inp.polish_views.get(view["camera"]) or {}
+        rec = next((x for x in pv.get("attempts") or [] if x.get("k") == a["k"]), {})
+        if rec.get("preview"):
+            candidates.append(inp.polish_dir / rec["preview"])
+        candidates.append(inp.polish_dir / f"{view['camera']}_a{a['k']}_preview.jpg")
+    else:
+        entry = inp.entries.get(view["camera"]) or {}
+        if entry.get("png"):
+            candidates.append(inp.render_dir / entry["png"])
+        if entry.get("preview"):
+            candidates.append(inp.render_dir / entry["preview"])
+    return next((c for c in candidates if c.is_file()), None)
+
+
+def _font(size: int = 16):
+    from PIL import ImageFont
+    try:
+        return ImageFont.load_default(size=size)
+    except TypeError:                       # Pillow < 10.1: fixed bitmap font
+        return ImageFont.load_default()
+
+
+def tile_label(view: dict) -> str:
+    return f"{view['camera']}  {'P' if view['final'] == 'polished' else 'C'}  U{len(view['unverified'])}"
+
+
+def contact_sheet(tiles: list, columns: int = CONTACT_COLUMNS, tile_width: int = TILE_WIDTH):
+    """One image of ``(label, PIL image)`` tiles, ``tile_width`` px wide, a label strip under each."""
+    from PIL import Image, ImageDraw
+
+    resized = []
+    for label, img in tiles:
+        h = max(1, round(img.height * tile_width / img.width))
+        resized.append((label, img.resize((tile_width, h), Image.Resampling.LANCZOS)))
+    cell_h = max(t.height for _, t in resized) + LABEL_HEIGHT
+    cols = max(1, min(columns, len(resized)))
+    rows = (len(resized) + cols - 1) // cols
+    gap = 4
+    sheet = Image.new("RGB", (cols * tile_width + (cols + 1) * gap, rows * cell_h + (rows + 1) * gap), (32, 32, 32))
+    draw = ImageDraw.Draw(sheet)
+    font = _font(16)
+    for i, (label, t) in enumerate(resized):
+        x = gap + (i % cols) * (tile_width + gap)
+        y = gap + (i // cols) * (cell_h + gap)
+        sheet.paste(t, (x, y))
+        draw.rectangle([x, y + t.height, x + tile_width - 1, y + t.height + LABEL_HEIGHT - 1], fill=(0, 0, 0))
+        draw.text((x + 6, y + t.height + 3), label, fill=(255, 255, 255), font=font)
+    return sheet
+
+
+def write_images(inp: Inputs, views: list[dict]) -> dict:
+    """Final previews, plan copies and contact sheets into ``inp.out_dir``; returns ``{level: sheet name}``."""
+    from PIL import Image
+
+    out = inp.out_dir
+    out.mkdir(parents=True, exist_ok=True)
+    tiles: dict[str, list] = {}
+    for view in views:
+        cam = view["camera"]
+        src = _final_source(inp, view)
+        rgb = _load_rgb(src)
+        if rgb is None:
+            inp.warnings.append(f"{cam}: final image not found; no preview or contact tile")
+        else:
+            if src is not None and src.suffix.lower() in (".jpg", ".jpeg") and view["image"] \
+                    and not (inp.out_dir / view["image"]).is_file():
+                inp.warnings.append(f"{cam}: final PNG not here; preview made from {src.name}")
+            name = f"{cam}_final_preview.jpg"
+            C.save_jpeg_under(rgb, out / name)
+            view["preview"] = name
+            img = Image.fromarray(rgb)
+            img.thumbnail((TILE_WIDTH * 2, TILE_WIDTH * 2))
+            tiles.setdefault(view["level_id"], []).append((tile_label(view), img))
+        plan = inp.check_dir / f"{cam}_plan.jpg"
+        if plan.is_file():
+            name = f"{cam}_plan.jpg"
+            if plan.stat().st_size <= C.MAX_IMAGE_BYTES:
+                shutil.copyfile(plan, out / name)
+            else:
+                C.save_jpeg_under(_load_rgb(plan), out / name)
+                inp.warnings.append(f"{cam}: plan crop above 300 KB; re-encoded")
+            view["plan"] = name
+    sheets = {}
+    for level in sorted(tiles):
+        name = f"contact_{level}.jpg"
+        C.save_jpeg_under(contact_sheet(tiles[level]), out / name)
+        sheets[level] = name
+    # Files of an earlier run that this run did not write are listed, not deleted.
+    written = {v["preview"] for v in views} | {v["plan"] for v in views} | set(sheets.values())
+    for pattern in ("*_final_preview.jpg", "*_plan.jpg", "contact_*.jpg"):
+        for f in sorted(out.glob(pattern)):
+            if f.name not in written:
+                inp.warnings.append(f"final/{f.name} is from an earlier run (not part of this report)")
+    return sheets
+
+
+# --------------------------------------------------------------------------
+# Project-level summaries
+# --------------------------------------------------------------------------
+
+def stage_seconds(inp: Inputs) -> dict:
+    """Seconds per stage from the manifests (None when the stage left no numbers)."""
+    def total(values) -> Optional[float]:
+        vals = [float(v) for v in values if isinstance(v, (int, float)) and not isinstance(v, bool)]
+        return round(sum(vals), 1) if vals else None
+
+    entries = list(inp.entries.values())
+    attempts = [a for v in inp.polish_views.values() for a in v.get("attempts") or []]
+    gate = []
+    for a in attempts:
+        if isinstance(a.get("gate_seconds"), (int, float)):
+            gate.append(a["gate_seconds"])
+        else:
+            secs = ((a.get("gate") or {}).get("metrics") or {}).get("seconds") or {}
+            gate.extend(v for v in secs.values() if isinstance(v, (int, float)))
+    polish = total([a.get("seconds") for a in attempts])
+    load = (inp.polish or {}).get("load_seconds")
+    if polish is not None and isinstance(load, (int, float)):
+        polish = round(polish + float(load), 1)
+    calls = [c for ans in inp.answers for c in ((ans.get("calls") or {}).values()
+                                                 if isinstance(ans.get("calls"), dict) else ans.get("calls") or [])]
+    return {"build": total([(inp.scene or {}).get("seconds")]),
+            "render": total([e.get("seconds") for e in entries]),
+            "meter": total([(e.get("exposure") or {}).get("meter_seconds") for e in entries]),
+            "polish": polish,
+            "gate": total(gate),
+            "check": total([c.get("latency_s") for c in calls if isinstance(c, dict)])}
+
+
+def exposure_summary(inp: Inputs) -> dict:
+    evs, modes, at_limit = [], set(), 0
+    for e in inp.entries.values():
+        exp = e.get("exposure") or {}
+        if isinstance(exp.get("ev"), (int, float)):
+            evs.append(float(exp["ev"]))
+        if exp.get("mode"):
+            modes.add(str(exp["mode"]))
+        at_limit += bool(exp.get("at_limit"))
+    return {"min": min(evs) if evs else None, "max": max(evs) if evs else None, "views": len(evs),
+            "at_limit": at_limit, "modes": sorted(modes)}
+
+
+def rooms_summary(inp: Inputs, views: list[dict]) -> dict:
+    rooms: dict[str, dict] = {}
+    for v in views:
+        r = rooms.setdefault(v["room_id"] or "-", {"views": [], "polished": [], "cycles": []})
+        r["views"].append(v["camera"])
+        r["polished" if v["final"] == "polished" else "cycles"].append(v["camera"])
+    rules = (inp.polish or {}).get("rooms") or {}
+    for rid, r in rooms.items():
+        r["mixed"] = bool(r["polished"]) and bool(r["cycles"])
+        rule = rules.get(rid) or {}
+        r["polish_rule"] = rule.get("rule")
+        r["polish_rung"] = rule.get("rung")
+    return dict(sorted(rooms.items()))
+
+
+def model_rows(inp: Inputs) -> list[dict]:
+    """``[{role, repo, revision, licence, source}]`` of every AI model named in the manifests."""
+    rows = []
+    models = (inp.polish or {}).get("models") or {}
+    for role in ("base", "controlnet"):
+        m = models.get(role)
+        if isinstance(m, dict):
+            rows.append({"role": f"polish {role}", "repo": m.get("repo"), "revision": m.get("revision"),
+                         "licence": m.get("licence"), "source": "polish_manifest.json"})
+    for key, m in (models.get("gate") or {}).items():
+        if isinstance(m, dict):
+            rows.append({"role": f"gate {key}", "repo": m.get("repo"), "revision": m.get("revision"),
+                         "licence": m.get("licence"), "source": "polish_manifest.json"})
+    check_models = (inp.check or {}).get("models") or {}
+    cfg_models: dict = {}
+    if check_models and any(not (m or {}).get("licence") for m in check_models.values()):
+        try:
+            from wenart.vision_check.config import load_config
+            cfg_models = load_config().get("models") or {}
+        except Exception:  # noqa: BLE001 - the licence then shows as unknown
+            cfg_models = {}
+    for key, m in check_models.items():
+        m = m or {}
+        rows.append({"role": f"check {key}", "repo": m.get("id") or m.get("repo"), "revision": m.get("revision"),
+                     "licence": m.get("licence") or (cfg_models.get(key) or {}).get("licence"),
+                     "source": "check_manifest.json"})
+    return rows
+
+
+def asset_licences(inp: Inputs) -> dict:
+    """Licence counts of the texture assets (scene manifest) and the furniture/decor models (building)."""
+    textures: dict[str, int] = {}
+    for m in ((inp.scene or {}).get("materials") or {}).values():
+        if isinstance(m, dict) and m.get("textured") and m.get("asset"):
+            lic = str(m.get("licence") or "unknown")
+            textures[lic] = textures.get(lic, 0) + 1
+    models: dict[str, int] = {}
+    for piece in list((inp.building or {}).get("furniture") or []) + list((inp.building or {}).get("decor") or []):
+        asset = piece.get("asset") if isinstance(piece, dict) else None
+        if isinstance(asset, dict) and asset.get("method") == "library":
+            lic = str(asset.get("licence") or "unknown")
+            models[lic] = models.get(lic, 0) + 1
+    return {"textures": dict(sorted(textures.items())), "models": dict(sorted(models.items()))}
+
+
+def advisory_flags(inp: Inputs, views: list[dict]) -> list[str]:
+    """Open items the user must see: advisory check, missed targets, single pass, stages not run, uncalibrated gate."""
+    flags = []
+    if inp.polish is None:
+        flags.append("polish not run (every view is the Cycles render)")
+    elif inp.polish.get("incomplete"):
+        flags.append("polish incomplete (deadline): some views did not finish their ladder")
+    if inp.check is None:
+        if any(v.get("polish") and v["polish"].get("final") == "polished" for v in views):
+            flags.append("vision check not run: polished candidates kept as Cycles (check_incomplete)")
+        else:
+            flags.append("vision check not run")
+    else:
+        if inp.check.get("single_pass"):
+            flags.append("vision check single pass: every result unverified (advisory)")
+        if inp.check.get("advisory"):
+            flags.append("vision check advisory" + (f": {inp.check['advisory_reason']}"
+                                                    if inp.check.get("advisory_reason") else ""))
+    if inp.check is not None and inp.check_calibration is None:
+        flags.append("vision check calibration not run (check_calibration.json missing)")
+    for m in (inp.check_calibration or {}).get("missed") or []:
+        if isinstance(m, dict):
+            flags.append(f"check target missed: {m.get('metric')} {C.cell(m.get('value'), 3)} "
+                         f"(needs {m.get('op')} {m.get('threshold')})"
+                         + (f", {m['reason']}" if m.get("reason") else ""))
+    th = (inp.polish or {}).get("thresholds") or {}
+    cal = th.get("calibration") if isinstance(th, dict) else None
+    if inp.polish is not None and isinstance(cal, dict):
+        if not cal.get("source"):
+            flags.append("gate thresholds not calibrated yet (thresholds.yaml calibration.source is null)")
+        if cal.get("accepted_shortfall"):
+            flags.append(f"gate calibration accepted shortfall: {cal['accepted_shortfall']}")
+    if not polish_allowed(inp.brief):
+        flags.append("brief polish: false (no AI polish by request)")
+    return flags
+
+
+# --------------------------------------------------------------------------
+# Manifest and report
+# --------------------------------------------------------------------------
+
+def build_manifest(inp: Inputs, views: list[dict], sheets: dict) -> dict:
+    by_reason: dict[str, int] = {}
+    for v in views:
+        if v["final"] == "cycles":
+            by_reason[str(v["reason"])] = by_reason.get(str(v["reason"]), 0) + 1
+    rooms = rooms_summary(inp, views)
+    b = inp.building or {}
+    flags = advisory_flags(inp, views)
+    stages = {
+        "render": "run" if inp.render_manifest is not None else "not_run",
+        "polish": ("not_run" if inp.polish is None else "incomplete" if inp.polish.get("incomplete") else "run"),
+        "check": "not_run" if inp.check is None else ("single_pass" if inp.check.get("single_pass") else "run"),
+        "check_calibration": "not_run" if inp.check_calibration is None else "run",
+        "gate_calibration": "not_run" if inp.gate_calibration is None else "run",
+        "expected": "run" if inp.expected else "not_run",
+    }
+    files = {"render_manifest": inp.render_dir / "render_manifest.json",
+             "scene_manifest": inp.project_out / "scene" / "scene_manifest.json",
+             "polish_manifest": inp.polish_dir / "polish_manifest.json",
+             "check_manifest": inp.check_dir / "check_manifest.json",
+             "check_calibration": inp.check_dir / "check_calibration.json",
+             "expected_views": inp.check_dir / "expected_views.json",
+             "gate_calibration": inp.project_out / "gate" / "gate_calibration.json"}
+    inputs = {k: (C.rel(p, inp.out_dir) if p.is_file() else None) for k, p in files.items()}
+    inputs["building"] = C.rel(inp.building_path, inp.out_dir) if inp.building_path and inp.building_path.is_file() \
+        else None
+    return {
+        "schema_version": "0.1",
+        "kind": "final",
+        "project": inp.project,
+        "inputs": inputs,
+        "stages": stages,
+        "polish_allowed": polish_allowed(inp.brief),
+        "brief_assumed": list((inp.brief or {}).get("assumed") or []),
+        "advisory": bool((inp.check or {}).get("advisory")) or inp.check is None
+        or bool((inp.check_calibration or {}).get("missed")),
+        "advisory_flags": flags,
+        "summary": {
+            "views": len(views),
+            "polished": sum(v["final"] == "polished" for v in views),
+            "cycles": sum(v["final"] == "cycles" for v in views),
+            "cycles_by_reason": dict(sorted(by_reason.items())),
+            "final_mismatches": sum(v["final_mismatches"] for v in views),
+            "views_with_final_mismatch": sum(v["final_mismatches"] > 0 for v in views),
+            "crosscheck_findings": sum(1 for v in views for i in v["mismatches"] if i["what"] == "crosscheck"),
+            "needs_review": sum(v["needs_review"] for v in views),
+            "unverified_in_view": sum(len(v["unverified"]) for v in views),
+            "exposure": exposure_summary(inp),
+            "seconds": stage_seconds(inp),
+            "rooms_mixed": sum(r["mixed"] for r in rooms.values()),
+        },
+        "views": views,
+        "rooms": rooms,
+        "rooms_mixed": [rid for rid, r in rooms.items() if r["mixed"]],
+        "models": model_rows(inp),
+        "assets": asset_licences(inp),
+        "contact_sheets": sheets,
+        "building": {"status": b.get("status"), "unverified": list(b.get("unverified") or []),
+                     "conflicts": list(b.get("conflicts") or [])},
+        "warnings": list(inp.warnings),
+    }
+
+
+def _attempt_text(a: Optional[dict]) -> str:
+    if not a:
+        return "-"
+    bits = [f"a{a.get('k')}", f"s {a.get('strength')}", str(a.get("control") or "no control")]
+    if a.get("scale") is not None:
+        bits.append(f"x{a['scale']}")
+    if a.get("size") and a.get("size") != "native":
+        bits.append(str(a["size"]))
+    if a.get("mode") and a.get("mode") != "plain":
+        bits.append(str(a["mode"]))
+    return " ".join(bits)
+
+
+def _pref_text(p: Optional[dict]) -> str:
+    if not isinstance(p, dict):
+        return "-"
+    word = "preferred" if p.get("preferred") else "not preferred"
+    return f"{word} {p.get('votes')}/{p.get('answers', p.get('asked'))}"
+
+
+def _verdict(vc: Optional[dict], image: str) -> str:
+    if vc is None:
+        return "not run"
+    s = vc.get(image)
+    if not s:
+        return "-"
+    if s.get("preference_only"):
+        return "pref only"
+    v = str(s.get("verdict"))
+    return v + (f" ({s['mismatches']})" if s.get("mismatches") else "")
+
+
+def _sources_text(ids: dict) -> str:
+    short = {"from_documents": "D", "added_by_ai": "A", "rule": "R"}
+    order = [k for k in short if k in ids] + sorted(k for k in ids if k not in short)
+    return " ".join(f"{short.get(k, k)}{len(ids[k])}" for k in order) or "-"
+
+
+def _ev_text(exp: Optional[dict]) -> str:
+    if not isinstance(exp, dict) or exp.get("ev") is None:
+        return "-"
+    return f"{float(exp['ev']):+.2f}" + (" (limit)" if exp.get("at_limit") else "")
+
+
+def report_markdown(manifest: dict) -> str:
+    """``final_report.md`` from the final manifest (links only to files in ``final/``)."""
+    s = manifest["summary"]
+    views = manifest["views"]
+    st = manifest["stages"]
+    lines = [f"# Final report: {manifest['project']}", ""]
+    reasons = ", ".join(f"{k} {n}" for k, n in s["cycles_by_reason"].items()) or "none"
+    lines.append(f"{s['views']} views: {s['polished']} polished, {s['cycles']} Cycles ({reasons}). "
+                 f"Stages: render {st['render']}, polish {st['polish']}, vision check {st['check']} "
+                 f"(calibration {st['check_calibration']}). A polished image is final only when the gate accepted "
+                 f"it and the vision check checked it without finding a lost or added element (§5.5). Mismatches "
+                 f"are listed with their evidence and never auto-fixed.")
+    lines += ["", "## Summary", ""]
+    exp = s["exposure"]
+    sec = s["seconds"]
+    ev_range = ("-" if exp["min"] is None
+                else f"{exp['min']:+.2f} .. {exp['max']:+.2f} EV ({exp['at_limit']} at a limit)")
+    rows = [
+        ["views", s["views"]],
+        ["polished", s["polished"]],
+        ["Cycles", f"{s['cycles']} ({reasons})"],
+        ["confirmed mismatches on the final image", f"{s['final_mismatches']} in {s['views_with_final_mismatch']} "
+                                                    f"view(s)"],
+        ["JSON cross-check findings (Cycles render)", s["crosscheck_findings"]],
+        ["needs_review views", s["needs_review"]],
+        ["unverified pieces in view (sum over views)", s["unverified_in_view"]],
+        ["rooms mixing polished and Cycles", s["rooms_mixed"]],
+        ["advisory", "yes" if manifest["advisory"] else "no"],
+        ["advisory flags", len(manifest["advisory_flags"])],
+        ["exposure", ev_range + (f", modes {', '.join(exp['modes'])}" if exp["modes"] else "")],
+        ["seconds: build / render / metering",
+         " / ".join(C.seconds_text(sec[k]) for k in ("build", "render", "meter"))],
+        ["seconds: polish / gate / check", " / ".join(C.seconds_text(sec[k]) for k in ("polish", "gate", "check"))],
+        ["brief polish", ("yes" if manifest["polish_allowed"] else "no")
+         + (" (default, not in brief.yaml)" if "polish" in manifest.get("brief_assumed", []) else "")],
+    ]
+    lines += C.table(["item", "value"], rows)
+    lines += ["", "## Advisory flags and open items", ""]
+    lines += C.bullets(manifest["advisory_flags"])
+    if manifest["contact_sheets"]:
+        lines += ["", "## Contact sheets", ""]
+        lines.append("Tiles: camera, `P` polished / `C` Cycles, `U<n>` unverified pieces in view.")
+        for level, name in manifest["contact_sheets"].items():
+            lines += ["", f"Level {level}: [{name}]({name})"]
+    lines += ["", "## Views", ""]
+    rows = []
+    for v in views:
+        files = []
+        if v["preview"]:
+            files.append(f"[preview]({v['preview']})")
+        if v["plan"]:
+            files.append(f"[plan]({v['plan']})")
+        rows.append([v["camera"], v["room_id"], v["level_id"], v["final"], v["reason"], _attempt_text(v["attempt"]),
+                     _short_gate(v["gate"]), _verdict(v["vision_check"], "cycles"),
+                     _verdict(v["vision_check"], "polished"), _pref_text(v["preference"]), _ev_text(v["exposure"]),
+                     _sources_text(v["ids_by_source"]), len(v["unverified"]), v["needs_review"],
+                     " ".join(files) or "-"])
+    lines += C.table(["view", "room", "level", "final", "reason", "polish attempt", "gate", "check Cycles",
+                      "check polished", "preference", "EV", "ids D/A/R", "U", "review", "files"], rows)
+    lines.append("")
+    lines.append("polish attempt: the polish candidate (used only when final is polished). ids: D from_documents, "
+                 "A added_by_ai, R rule (elements in view). check: verdict (confirmed mismatches). U: unverified "
+                 "pieces in view.")
+    details = [v for v in views if v["detail"] and v["final"] == "cycles" and v["reason"] not in ("brief",)]
+    if details:
+        lines += ["", "### Why Cycles", ""]
+        lines += [f"- {v['camera']}: {v['reason']}: {v['detail']}" for v in details]
+    lines += ["", "## Mismatches (never auto-fixed)", ""]
+    rows = []
+    for v in views:
+        for it in v["mismatches"]:
+            what = it["result"] if it["what"] != "crosscheck" else f"cross-check {it['result']}"
+            extra = it.get("detail") or (f"box {[round(x) for x in it['box_px']]}" if it.get("box_px") else "")
+            if it.get("expected") is not None:
+                extra = f"expected {it['expected']}, passes {it.get('passes')}"
+            counted = "yes" if it in confirmed_items([it]) else "info"
+            rows.append([v["camera"], it["image"], what, it.get("id") or it.get("kind"), it.get("type"),
+                         it.get("role"), it.get("source"), it.get("evidence"), counted,
+                         "; ".join(x for x in [extra] + it.get("notes", []) if x)])
+    if rows:
+        lines += C.table(["view", "image", "result", "id", "type", "role", "source", "evidence", "counted",
+                          "notes"], rows)
+    else:
+        lines.append("None." if manifest["stages"]["check"] != "not_run" or manifest["stages"]["expected"] == "run"
+                     else "Not computed: the vision check and the expected lists did not run.")
+    review = [v for v in views if v["needs_review"]]
+    lines += ["", "## Needs review", ""]
+    lines += C.bullets(f"{v['camera']}: " + ("; ".join((v["vision_check"] or {}).get("needs_review_reasons") or [])
+                                             or "confirmed mismatch or cross-check finding on the Cycles render")
+                       for v in review)
+    b = manifest["building"]
+    lines += ["", "## Building JSON: unverified items and conflicts", ""]
+    lines.append(f"Status: {b['status'] or '-'}.")
+    lines += ["", "Unverified items:", ""]
+    lines += C.bullets(b["unverified"])
+    unv_views = [(v["camera"], v["unverified"]) for v in views if v["unverified"]]
+    if unv_views:
+        lines += ["", "Unverified pieces in view:", ""]
+        lines += [f"- {cam}: {', '.join(ids)}" for cam, ids in unv_views]
+    lines += ["", "Conflicts:", ""]
+    if b["conflicts"]:
+        lines += C.table(["id", "kind", "elements", "description", "resolution"],
+                         [[c.get("id"), c.get("kind"), c.get("element_ids"), c.get("description"), c.get("resolution")]
+                          for c in b["conflicts"]])
+    else:
+        lines.append("None.")
+    lines += ["", "## Rooms mixing polished and Cycles views", ""]
+    mixed = [(rid, r) for rid, r in manifest["rooms"].items() if r["mixed"]]
+    if mixed:
+        reason_of = {v["camera"]: v["reason"] for v in views}
+        lines += C.table(["room", "polished", "Cycles (reason)", "polish room rule"],
+                         [[rid, r["polished"], [f"{c} ({reason_of.get(c)})" for c in r["cycles"]],
+                           (r["polish_rule"] + (f" (rung {r['polish_rung']})" if r["polish_rung"] is not None else ""))
+                           if r["polish_rule"] else "-"]
+                          for rid, r in mixed])
+    else:
+        lines.append("None.")
+    down = [(rid, r) for rid, r in manifest["rooms"].items() if r.get("polish_rule") == "downgraded"]
+    if down:
+        lines += ["", "Polish room rule (wall colour within ΔE 5 per room) downgraded: "
+                  + ", ".join(f"{rid} (rung {r['polish_rung']})" for rid, r in down) + "."]
+    lines += ["", "## Models and licences", ""]
+    if manifest["models"]:
+        lines += C.table(["role", "model", "revision", "licence", "from"],
+                         [[m["role"], m["repo"], m["revision"], m["licence"], m["source"]] for m in manifest["models"]])
+    else:
+        lines.append("No AI model ran for this report (polish and vision check not run).")
+    assets = manifest.get("assets") or {}
+    if assets.get("textures") or assets.get("models"):
+        lines += ["", "Assets: textures " + (", ".join(f"{k} x {n}" for k, n in assets["textures"].items()) or "-")
+                  + "; furniture/decor models " + (", ".join(f"{k} x {n}" for k, n in assets["models"].items()) or "-")
+                  + " (parametric meshes need no licence)."]
+    lines += ["", "## Warnings", ""]
+    lines += C.bullets(manifest["warnings"])
+    return "\n".join(lines) + "\n"
+
+
+def write_final(project_out, out_dir=None) -> dict:
+    """Build and write everything of ``final/`` (see module docstring); returns the manifest."""
+    inp = load_inputs(project_out, out_dir)
+    views = build_views(inp)
+    sheets = write_images(inp, views)
+    manifest = build_manifest(inp, views, sheets)
+    errors = validate_final_manifest(manifest)
+    if errors:
+        manifest["warnings"].extend(f"final manifest schema: {e}" for e in errors[:20])
+    C.write_json(inp.out_dir / MANIFEST_NAME, manifest)
+    (inp.out_dir / REPORT_NAME).write_text(report_markdown(manifest), encoding="utf-8")
+    return manifest
