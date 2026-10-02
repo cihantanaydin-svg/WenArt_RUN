@@ -1,0 +1,356 @@
+"""Build the Blender scene from a building JSON (run inside Blender).
+
+    blender -b --python wenart/blender/build.py -- --building outputs/<p>/building.json \
+        --style outputs/<p>/style.json --assets assets --out outputs/<p>/scene \
+        [--level L0] [--no-textures] [--preview-samples 16] [--proxies]
+
+Writes into ``--out``: ``scene.blend``, ``scene.glb``, ``scene_manifest.json``
+(every object with its wenart id, kind, status, the element evidence copied
+from the JSON, material, textured/flat, assumed defaults; furniture pieces
+with ``asset``, ``fit_scale``, ``method``, ``bbox_m`` and ``decor``; cameras
+with the ids in their frustum; the pass-index table; door ray checks) and one
+top-down orthographic PNG per level at 100 px/m (``level_<id>_top.png``).
+
+Furniture (docs/milestone4.md §2): fitted library glTF assets from
+``--assets`` on the drawn footprints, the parametric mesh when a piece has
+no usable asset (``method: parametric (fallback: <reason>)``), the Milestone
+3 proxy box for ``unknown`` pieces and for every piece with ``--proxies``;
+decor items (``building.decor``) on their host pieces.
+
+Nothing is added, moved or removed relative to the JSON: walls, openings,
+rooms, furniture and decor come from the building file one to one; cameras
+and lights are the only objects that are not elements and they carry
+``wenart_status = assumed``.
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import math
+import os
+import sys
+import time
+from pathlib import Path
+
+
+def _repo_root() -> Path:
+    env = os.environ.get("WENART_REPO_ROOT")
+    if env:
+        return Path(env)
+    return Path(__file__).resolve().parents[2]
+
+
+sys.path.insert(0, str(_repo_root()))
+
+PREVIEW_PX_PER_M = 100
+PREVIEW_MARGIN_M = 0.5
+
+
+def parse_args(argv: list[str]) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(prog="build.py")
+    parser.add_argument("--building", required=True)
+    parser.add_argument("--style")
+    parser.add_argument("--assets")
+    parser.add_argument("--out", required=True)
+    parser.add_argument("--level", help="build only this level id")
+    parser.add_argument("--no-textures", action="store_true", help="flat colours only")
+    parser.add_argument("--preview-samples", type=int, default=16)
+    parser.add_argument("--no-preview", action="store_true")
+    parser.add_argument("--no-glb", action="store_true")
+    parser.add_argument("--proxies", action="store_true",
+                        help="Milestone 3 proxy boxes for every furniture piece instead of assets")
+    return parser.parse_args(argv)
+
+
+def default_style() -> dict:
+    """The default profile of wenart.style (docs/milestone3.md §1): the default
+    style text run through the vocabulary, so the asset ids are the ones the
+    fetcher downloads. No private copy here, so the two cannot drift."""
+    from wenart.style.profile import default_profile
+
+    return default_profile()
+
+
+def _loud(message: str, warnings: list[str]) -> None:
+    """A warning the manifest keeps and the build log shows at a glance."""
+    warnings.append(message)
+    print(f"WARNING: {message}", file=sys.stderr, flush=True)
+
+
+def load_style(path: str | None, warnings: list[str], assumed: list[dict] | None = None) -> tuple[dict, str | None]:
+    """``(style, path)``: the style file, or the default profile when none is
+    given or the file is missing (a loud warning plus an ``assumed`` entry).
+    Slots a partial style file leaves out are filled from the default profile
+    and each fill is recorded in ``assumed`` and ``warnings``."""
+    assumed = assumed if assumed is not None else []
+    default = default_style()
+    if not path or not Path(path).exists():
+        why = "no --style given" if not path else f"style file {path} missing"
+        _loud(f"{why}: default style profile assumed ({default['source_text']!r})", warnings)
+        assumed.append({"object": "style", "field": "profile", "value": default["source_text"],
+                        "reason": f"{why}; default profile of wenart.style used"})
+        return default, None
+    p = Path(path)
+    style = json.loads(p.read_text(encoding="utf-8"))
+    if isinstance(style, list):  # profiles_from_brief output: render the first, note the others
+        if len(style) > 1:
+            warnings.append(f"style file lists {len(style)} profiles; the first is used")
+        style = style[0]
+    for key, value in default.items():
+        if key in style:
+            continue
+        style[key] = value
+        if key in ("matched_terms", "unmatched_terms", "warnings"):
+            continue  # bookkeeping lists, not a styling choice
+        _loud(f"style file {p} has no {key!r}: default {json.dumps(value)} assumed", warnings)
+        assumed.append({"object": "style", "field": key, "value": value,
+                        "reason": f"missing in {p}; default profile of wenart.style used"})
+    return style, str(p)
+
+
+def load_assets(assets_dir: str | None, no_textures: bool, warnings: list[str]) -> tuple[dict, dict, dict]:
+    """``(textures, hdris, refused)`` from ``<assets>/manifest.json`` (empty when absent).
+
+    Every entry must be CC0 from a known source (docs/milestone3.md §2);
+    anything else is left out of ``textures`` / ``hdris`` with a warning, so
+    it is neither rendered nor recorded as used; ``refused`` maps its id to
+    the reason so the material record can say why it is flat."""
+    from wenart.blender.materials import licence_problem
+
+    if no_textures or not assets_dir:
+        if not no_textures:
+            warnings.append("no --assets given: flat colours and sky lighting")
+        return {}, {}, {}
+    manifest = Path(assets_dir) / "manifest.json"
+    if not manifest.exists():
+        warnings.append(f"assets manifest {manifest} missing: flat colours and sky lighting")
+        return {}, {}, {}
+    data = json.loads(manifest.read_text(encoding="utf-8"))
+    accepted = {"textures": {}, "hdris": {}}
+    refused = {}
+    for kind in accepted:
+        for asset_id, entry in (data.get(kind) or {}).items():
+            problem = licence_problem(entry or {}, asset_id)
+            if problem:
+                _loud(f"{manifest} {kind}: {problem}", warnings)
+                refused[asset_id] = problem
+                continue
+            accepted[kind][asset_id] = entry
+    return accepted["textures"], accepted["hdris"], refused
+
+
+def hdri_file(hdris: dict, assets_dir: str | None, style: dict) -> str | None:
+    wanted = (style.get("lighting") or {}).get("hdri")
+    entry = hdris.get(wanted) if wanted else None
+    if not entry:
+        return None
+    path = Path(entry.get("file", ""))
+    if not path.is_absolute() and assets_dir:
+        path = Path(assets_dir) / path
+    return str(path) if path.exists() else None
+
+
+def main(argv: list[str]) -> int:
+    import bpy
+
+    from wenart.blender import cameras as cams
+    from wenart.blender import common, furniture, lighting, materials, shell
+    from wenart.blender.materials import MaterialLibrary
+    from wenart.blender.render import configure_device
+
+    args = parse_args(argv)
+    t0 = time.time()
+    out = Path(args.out)
+    out.mkdir(parents=True, exist_ok=True)
+    building = json.loads(Path(args.building).read_text(encoding="utf-8"))
+    if building.get("status") != "ok":
+        print(f"building status is {building.get('status')!r}: nothing to build (needs review first)")
+        return 2
+    warnings: list[str] = list(building.get("warnings", []))
+    assumed: list[dict] = []
+    if materials.VOCABULARY_IMPORT_ERROR:
+        _loud(f"style vocabulary not importable ({materials.VOCABULARY_IMPORT_ERROR}): "
+              "flat colours from the local table of materials.py", warnings)
+    style, style_path = load_style(args.style, warnings, assumed)
+    textures, hdris, refused = load_assets(args.assets, args.no_textures, warnings)
+    hdri = hdri_file(hdris, args.assets, style)
+    if (style.get("lighting") or {}).get("hdri") and hdri is None and not args.no_textures:
+        warnings.append(f"HDRI {style['lighting'].get('hdri')} not available: physical sky used")
+
+    levels = [lv for lv in building["levels"] if args.level is None or lv["id"] == args.level]
+    if not levels:
+        print(f"no level {args.level!r} in {args.building}")
+        return 2
+
+    bpy.ops.wm.read_factory_settings(use_empty=True)
+    scene = bpy.context.scene
+    scene.name = building["project"]["id"]
+    scene.unit_settings.system = "METRIC"
+    scene.unit_settings.scale_length = 1.0
+    library = MaterialLibrary(textures, args.assets, use_textures=not args.no_textures, refused=refused)
+
+    manifest_objects: list[dict] = []
+    pass_indices: dict[str, int] = {}
+    camera_plans: list[dict] = []
+    checks: dict = {"door_rays": []}
+    level_collections = {}
+    furniture_summary = {"pieces": 0, "by_method": {}, "fallbacks": [], "proxies": 0, "decor": 0,
+                         "proxies_forced": bool(args.proxies)}
+
+    for level in levels:
+        col = common.get_or_make_collection(f"level_{level['id']}")
+        level_collections[level["id"]] = col
+        shell.build_walls(building, level, col, library, style, manifest_objects, assumed, warnings)
+        shell.build_openings(building, level, col, library, style, pass_indices, manifest_objects, assumed, warnings)
+        shell.build_floors_ceilings(building, level, col, library, style, manifest_objects, warnings)
+        summary = furniture.create_furniture(building, level, col, library, style, args.assets, pass_indices,
+                                             manifest_objects, assumed, warnings, use_proxies=args.proxies)
+        for key in ("pieces", "proxies", "decor"):
+            furniture_summary[key] += summary[key]
+        for method, count in summary["by_method"].items():
+            furniture_summary["by_method"][method] = furniture_summary["by_method"].get(method, 0) + count
+        furniture_summary["fallbacks"].extend(summary["fallbacks"])
+        plans = cams.plan_cameras(building, level["id"])
+        cams.create_cameras(plans, col, manifest_objects)
+        camera_plans.extend(plans)
+        for plan in plans:
+            if plan.get("warning"):
+                warnings.append(f"{plan['name']}: {plan['warning']}")
+        bpy.context.view_layer.update()
+        rays = shell.door_ray_checks(building, level, scene)
+        checks["door_rays"].extend(rays)
+        for ray in rays:  # a ray through a door centre must cross the wall unhindered
+            if ray["hit"]:
+                warnings.append(f"{ray['opening_id']}: door ray hits {ray['hit_object']} ({ray['hit_kind']}); "
+                                f"the opening is not cut through its wall")
+        if level.get("ceiling_height_source") == "assumed_default":
+            assumed.append({"object": f"level_{level['id']}", "field": "ceiling_height",
+                            "value": level["ceiling_height"], "reason": "building JSON: assumed_default"})
+
+    light_col = common.get_or_make_collection("lighting")
+    light_info = lighting.build_lighting(building, levels, style, hdri, light_col, manifest_objects, assumed)
+
+    previews = {}
+    if not args.no_preview:
+        configure_device(scene, "cpu" if os.environ.get("WENART_PREVIEW_CPU") else "auto")
+        for level in levels:
+            png = out / f"level_{level['id']}_top.png"
+            render_top_down(scene, building, level, level_collections, png, args.preview_samples)
+            previews[level["id"]] = png.name
+
+    if camera_plans:
+        scene.camera = bpy.data.objects.get(camera_plans[0]["name"])
+    scene.render.resolution_x, scene.render.resolution_y = cams.RESOLUTION
+    scene.render.resolution_percentage = 100
+
+    blend = out / "scene.blend"
+    bpy.ops.wm.save_as_mainfile(filepath=str(blend), compress=True)
+    files = {"blend": blend.name}
+    if not args.no_glb:
+        glb = out / "scene.glb"
+        try:
+            bpy.ops.export_scene.gltf(filepath=str(glb), export_format="GLB", export_apply=True,
+                                      export_extras=True, export_cameras=True, export_lights=True,
+                                      export_image_format="JPEG", export_yup=True)
+            files["glb"] = glb.name
+        except Exception as exc:  # noqa: BLE001 - the export must not break the build
+            warnings.append(f"glTF export failed: {exc}")
+
+    manifest = {
+        "schema_version": "0.1",
+        "project": building["project"]["id"],
+        "building": str(Path(args.building)),
+        "style": style_path,
+        "style_profile": style,
+        "blender_version": bpy.app.version_string,
+        "textures_enabled": not args.no_textures,
+        "assets_dir": args.assets,
+        "levels": [{"id": lv["id"], "label": lv.get("label"), "elevation": lv["elevation"],
+                    "ceiling_height": lv["ceiling_height"], "ceiling_height_source": lv.get("ceiling_height_source")}
+                   for lv in levels],
+        "objects": manifest_objects,
+        "cameras": camera_plans,
+        "materials": library.records,
+        "lighting": light_info,
+        "pass_index": pass_indices,
+        "assumed": assumed,
+        "warnings": warnings,
+        "checks": checks,
+        "previews": previews,
+        "files": files,
+        "furniture": furniture_summary,
+        "seconds": round(time.time() - t0, 1),
+    }
+    (out / "scene_manifest.json").write_text(json.dumps(manifest, indent=1, ensure_ascii=False), encoding="utf-8")
+    kinds = {}
+    for o in manifest_objects:
+        kinds[o["kind"]] = kinds.get(o["kind"], 0) + 1
+    print(f"BUILD_DONE {out} objects={kinds} cameras={len(camera_plans)} furniture={furniture_summary['by_method']} "
+          f"decor={furniture_summary['decor']} warnings={len(warnings)} seconds={manifest['seconds']}")
+    return 0
+
+
+def render_top_down(scene, building: dict, level: dict, level_collections: dict, png: Path, samples: int) -> None:
+    """Orthographic top view of one level at 100 px/m: ceilings and other
+    levels hidden for the shot, then restored."""
+    import bpy
+
+    from wenart import geometry as G
+    from wenart.blender import common
+
+    walls = [w for w in building["walls"] if w["level_id"] == level["id"]]
+    pts = [w["start"] for w in walls] + [w["end"] for w in walls]
+    for r in building["rooms"]:
+        if r["level_id"] == level["id"]:
+            pts.extend(r["polygon"])
+    if not pts:
+        return
+    x0, y0, x1, y1 = G.bbox(pts)
+    x0 -= PREVIEW_MARGIN_M
+    y0 -= PREVIEW_MARGIN_M
+    x1 += PREVIEW_MARGIN_M
+    y1 += PREVIEW_MARGIN_M
+    w_m, h_m = x1 - x0, y1 - y0
+    cam = bpy.data.cameras.new("top_preview")
+    cam.type = "ORTHO"
+    cam.ortho_scale = max(w_m, h_m)
+    cam.clip_start = 0.1
+    cam.clip_end = 100.0
+    ob = bpy.data.objects.new("top_preview", cam)
+    top_z = float(level["elevation"]) + float(level["ceiling_height"])
+    ob.location = ((x0 + x1) / 2.0, (y0 + y1) / 2.0, top_z + 10.0)
+    ob.rotation_euler = (0.0, 0.0, 0.0)  # looking down -Z, image up = +Y (north)
+    scene.collection.objects.link(ob)
+
+    hidden = []
+    for lid, col in level_collections.items():
+        for o in col.objects:
+            if lid != level["id"] or o.get("wenart_kind") == "ceiling":
+                if not o.hide_render:
+                    o.hide_render = True
+                    hidden.append(o)
+    old = (scene.camera, scene.render.resolution_x, scene.render.resolution_y, scene.render.filepath,
+           scene.cycles.samples, scene.render.image_settings.file_format, scene.render.image_settings.color_mode)
+    scene.camera = ob
+    scene.render.resolution_x = max(16, int(math.ceil(w_m * PREVIEW_PX_PER_M)))
+    scene.render.resolution_y = max(16, int(math.ceil(h_m * PREVIEW_PX_PER_M)))
+    scene.render.resolution_percentage = 100
+    scene.render.engine = "CYCLES"
+    scene.cycles.samples = max(1, samples)
+    scene.cycles.use_denoising = samples >= 8
+    scene.render.image_settings.file_format = "PNG"
+    scene.render.image_settings.color_mode = "RGB"
+    scene.render.filepath = str(png)
+    bpy.ops.render.render(write_still=True)
+    (scene.camera, scene.render.resolution_x, scene.render.resolution_y, scene.render.filepath,
+     scene.cycles.samples, scene.render.image_settings.file_format, scene.render.image_settings.color_mode) = old
+    for o in hidden:
+        o.hide_render = False
+    common.delete_object(ob)
+
+
+if __name__ == "__main__":
+    argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
+    code = main(argv)
+    if code:
+        sys.exit(code)

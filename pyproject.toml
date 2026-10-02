@@ -1,0 +1,11 @@
+[project]
+name = "wenart"
+version = "0.1.0"
+description = "WenArt_RUN PoC: architectural documents to photoreal renders"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+  "gpu: needs a GPU; runs on RunPod via scripts/gpu_run.py (pytest -m gpu)",
+]

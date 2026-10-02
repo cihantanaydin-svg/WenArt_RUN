@@ -1,0 +1,43 @@
+# Project defaults (docs/plan.md §1). Every value here is an assumption:
+# a module that uses one records it as "assumed" in its output (style.json
+# warnings, scene_manifest.json), never silently.
+
+style:
+  # Used when a project has no brief.yaml or no style text in it.
+  text: "Scandinavian, light oak floor, white walls, linen textiles, warm daylight"
+  # Slot fallbacks when neither the brief nor a style family word names them.
+  fallback:
+    floor: wood_oak_light
+    walls: plaster_white
+    light: warm daylight
+  # The profile wenart.style produces from `text` above. tests/test_style.py
+  # checks that this block and the code agree, so keep both in sync.
+  profile:
+    source_text: "Scandinavian, light oak floor, white walls, linen textiles, warm daylight"
+    floor: {material: wood_oak_light, asset: WoodFloor051}
+    walls: {material: plaster_white, asset: white_plaster_02, tint: [0.95, 0.94, 0.90]}
+    ceiling: {material: plaster_white}
+    wet_floor: {material: tiles_light, asset: Tiles074}
+    wet_walls: {material: tiles_light}
+    trim: {material: painted_wood_white}
+    door: {material: wood_oak_light}
+    window_frame: {material: painted_metal_white}
+    lighting:
+      hdri: kloppenheim_06
+      sun_elevation_deg: 35
+      sun_azimuth_deg: 210
+      sun_strength: 3.0
+      colour_temperature_k: 5200
+      mood: warm daylight
+    matched_terms: [Scandinavian, light oak floor, white walls, warm daylight]
+    unmatched_terms: [linen textiles]
+    warnings: []
+
+brief:
+  empty_rooms: ai        # rooms with no documented furniture: furnish with AI (Milestone 5)
+  decor: true            # small decor in documented rooms (cushions, plants, books)
+  ceiling_height: 2.70   # metres, when no section or elevation gives it
+  render:
+    views_per_room: 3
+    resolution: [1920, 1080]
+    samples: 256

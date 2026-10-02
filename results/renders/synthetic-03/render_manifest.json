@@ -1,0 +1,1737 @@
+{
+ "schema_version": "0.1",
+ "scene": "/workspace/repo/outputs/synthetic-03/scene/scene.blend",
+ "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37",
+ "device": "OPTIX",
+ "device_requested": "auto",
+ "blender_version": "5.2.2 LTS",
+ "samples": 128,
+ "resolution": [
+  1920,
+  1080
+ ],
+ "denoiser": "OPENIMAGEDENOISE",
+ "pass_index": {
+  "d_L-1_001": 1,
+  "d_L-1_002": 2,
+  "d_L-1_003": 3,
+  "d_L-1_004": 4,
+  "d_L-1_005": 5,
+  "win_L-1_001": 6,
+  "win_L-1_002": 7,
+  "win_L-1_003": 8,
+  "f_L-1_001": 9,
+  "f_L-1_002": 10,
+  "f_L-1_003": 11,
+  "f_L-1_004": 12,
+  "f_L-1_005": 13,
+  "f_L-1_006": 14,
+  "f_L-1_007": 15,
+  "f_L-1_008": 16,
+  "f_L-1_009": 17,
+  "f_L-1_010": 18,
+  "f_L-1_011": 19,
+  "dec_L-1_004": 20,
+  "d_L0_001": 21,
+  "d_L0_002": 22,
+  "d_L0_003": 23,
+  "d_L0_004": 24,
+  "d_L0_005": 25,
+  "d_L0_006": 26,
+  "d_L0_007": 27,
+  "win_L0_001": 28,
+  "win_L0_002": 29,
+  "win_L0_003": 30,
+  "win_L0_004": 31,
+  "win_L0_005": 32,
+  "win_L0_006": 33,
+  "proxy:f_L0_021": 34,
+  "f_L0_001": 35,
+  "f_L0_002": 36,
+  "f_L0_003": 37,
+  "f_L0_004": 38,
+  "f_L0_005": 39,
+  "f_L0_006": 40,
+  "f_L0_007": 41,
+  "f_L0_008": 42,
+  "f_L0_009": 43,
+  "f_L0_010": 44,
+  "f_L0_011": 45,
+  "f_L0_012": 46,
+  "f_L0_013": 47,
+  "f_L0_014": 48,
+  "f_L0_015": 49,
+  "f_L0_016": 50,
+  "f_L0_017": 51,
+  "f_L0_018": 52,
+  "f_L0_019": 53,
+  "f_L0_020": 54,
+  "f_L0_022": 55,
+  "f_L0_023": 56,
+  "f_L0_024": 57,
+  "dec_L0_004": 58,
+  "d_L1_001": 59,
+  "d_L1_002": 60,
+  "d_L1_003": 61,
+  "d_L1_004": 62,
+  "d_L1_005": 63,
+  "win_L1_001": 64,
+  "win_L1_002": 65,
+  "win_L1_003": 66,
+  "win_L1_004": 67,
+  "win_L1_005": 68,
+  "win_L1_006": 69,
+  "win_L1_007": 70,
+  "f_L1_001": 71,
+  "f_L1_002": 72,
+  "f_L1_003": 73,
+  "f_L1_004": 74,
+  "f_L1_005": 75,
+  "f_L1_006": 76,
+  "f_L1_007": 77,
+  "f_L1_008": 78,
+  "f_L1_009": 79,
+  "f_L1_010": 80,
+  "f_L1_011": 81,
+  "f_L1_012": 82,
+  "f_L1_013": 83,
+  "f_L1_014": 84,
+  "f_L1_015": 85,
+  "f_L1_016": 86,
+  "f_L1_017": 87,
+  "f_L1_018": 88,
+  "dec_L1_003": 89,
+  "dec_L1_006": 90,
+  "dec_L1_009": 91
+ },
+ "renders": [
+  {
+   "camera": "cam_r_L-1_banyo_1",
+   "png": "cam_r_L-1_banyo_1.png",
+   "exr": "cam_r_L-1_banyo_1_passes.exr",
+   "preview": "cam_r_L-1_banyo_1_preview.jpg",
+   "depth_png": "cam_r_L-1_banyo_1_depth.png",
+   "index_png": "cam_r_L-1_banyo_1_index.png",
+   "preview_bytes": 125932,
+   "seconds": 8.49,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.5544548034667969,
+    "max": 1.7641620635986328,
+    "mean": 1.0501545667648315,
+    "coverage": 1.0
+   },
+   "index_values": [
+    17
+   ],
+   "skipped": false,
+   "room_id": "r_L-1_banyo",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L-1_banyo_2",
+   "png": "cam_r_L-1_banyo_2.png",
+   "exr": "cam_r_L-1_banyo_2_passes.exr",
+   "preview": "cam_r_L-1_banyo_2_preview.jpg",
+   "depth_png": "cam_r_L-1_banyo_2_depth.png",
+   "index_png": "cam_r_L-1_banyo_2_index.png",
+   "preview_bytes": 116855,
+   "seconds": 6.78,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.42626333236694336,
+    "max": 1.7446255683898926,
+    "mean": 1.4657856225967407,
+    "coverage": 1.0
+   },
+   "index_values": [
+    17,
+    19
+   ],
+   "skipped": false,
+   "room_id": "r_L-1_banyo",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L-1_banyo_3",
+   "png": "cam_r_L-1_banyo_3.png",
+   "exr": "cam_r_L-1_banyo_3_passes.exr",
+   "preview": "cam_r_L-1_banyo_3_preview.jpg",
+   "depth_png": "cam_r_L-1_banyo_3_depth.png",
+   "index_png": "cam_r_L-1_banyo_3_index.png",
+   "preview_bytes": 103360,
+   "seconds": 6.89,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.27046680450439453,
+    "max": 1.2479925155639648,
+    "mean": 0.9622278809547424,
+    "coverage": 1.0
+   },
+   "index_values": [
+    17
+   ],
+   "skipped": false,
+   "room_id": "r_L-1_banyo",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L-1_hol_1",
+   "png": "cam_r_L-1_hol_1.png",
+   "exr": "cam_r_L-1_hol_1_passes.exr",
+   "preview": "cam_r_L-1_hol_1_preview.jpg",
+   "depth_png": "cam_r_L-1_hol_1_depth.png",
+   "index_png": "cam_r_L-1_hol_1_index.png",
+   "preview_bytes": 163919,
+   "seconds": 4.63,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.085080862045288,
+    "max": 6.820146083831787,
+    "mean": 2.8508167266845703,
+    "coverage": 1.0
+   },
+   "index_values": [
+    1,
+    2,
+    3,
+    4,
+    9,
+    10
+   ],
+   "skipped": false,
+   "room_id": "r_L-1_hol",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L-1_hol_2",
+   "png": "cam_r_L-1_hol_2.png",
+   "exr": "cam_r_L-1_hol_2_passes.exr",
+   "preview": "cam_r_L-1_hol_2_preview.jpg",
+   "depth_png": "cam_r_L-1_hol_2_depth.png",
+   "index_png": "cam_r_L-1_hol_2_index.png",
+   "preview_bytes": 157373,
+   "seconds": 4.51,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.1135567426681519,
+    "max": 4.924008369445801,
+    "mean": 2.63993239402771,
+    "coverage": 1.0
+   },
+   "index_values": [
+    2,
+    4
+   ],
+   "skipped": false,
+   "room_id": "r_L-1_hol",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L-1_hol_3",
+   "png": "cam_r_L-1_hol_3.png",
+   "exr": "cam_r_L-1_hol_3_passes.exr",
+   "preview": "cam_r_L-1_hol_3_preview.jpg",
+   "depth_png": "cam_r_L-1_hol_3_depth.png",
+   "index_png": "cam_r_L-1_hol_3_index.png",
+   "preview_bytes": 202339,
+   "seconds": 3.9,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.7658748626708984,
+    "max": 0.8510642051696777,
+    "mean": 0.8069738745689392,
+    "coverage": 1.0
+   },
+   "index_values": [
+    3
+   ],
+   "skipped": false,
+   "room_id": "r_L-1_hol",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L-1_kiler_1",
+   "png": "cam_r_L-1_kiler_1.png",
+   "exr": "cam_r_L-1_kiler_1_passes.exr",
+   "preview": "cam_r_L-1_kiler_1_preview.jpg",
+   "depth_png": "cam_r_L-1_kiler_1_depth.png",
+   "index_png": "cam_r_L-1_kiler_1_index.png",
+   "preview_bytes": 38645,
+   "seconds": 3.95,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 2.18270206451416,
+    "max": 4.28736686706543,
+    "mean": 3.2524361610412598,
+    "coverage": 1.0
+   },
+   "index_values": [],
+   "skipped": false,
+   "room_id": "r_L-1_kiler",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L-1_kiler_2",
+   "png": "cam_r_L-1_kiler_2.png",
+   "exr": "cam_r_L-1_kiler_2_passes.exr",
+   "preview": "cam_r_L-1_kiler_2_preview.jpg",
+   "depth_png": "cam_r_L-1_kiler_2_depth.png",
+   "index_png": "cam_r_L-1_kiler_2_index.png",
+   "preview_bytes": 45681,
+   "seconds": 3.79,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 2.3345470428466797,
+    "max": 3.74269437789917,
+    "mean": 3.3183038234710693,
+    "coverage": 1.0
+   },
+   "index_values": [
+    7
+   ],
+   "skipped": false,
+   "room_id": "r_L-1_kiler",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L-1_kiler_2_1",
+   "png": "cam_r_L-1_kiler_2_1.png",
+   "exr": "cam_r_L-1_kiler_2_1_passes.exr",
+   "preview": "cam_r_L-1_kiler_2_1_preview.jpg",
+   "depth_png": "cam_r_L-1_kiler_2_1_depth.png",
+   "index_png": "cam_r_L-1_kiler_2_1_index.png",
+   "preview_bytes": 39851,
+   "seconds": 3.92,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.9265093803405762,
+    "max": 4.420120716094971,
+    "mean": 3.377033233642578,
+    "coverage": 1.0
+   },
+   "index_values": [],
+   "skipped": false,
+   "room_id": "r_L-1_kiler_2",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L-1_kiler_2_2",
+   "png": "cam_r_L-1_kiler_2_2.png",
+   "exr": "cam_r_L-1_kiler_2_2_passes.exr",
+   "preview": "cam_r_L-1_kiler_2_2_preview.jpg",
+   "depth_png": "cam_r_L-1_kiler_2_2_depth.png",
+   "index_png": "cam_r_L-1_kiler_2_2_index.png",
+   "preview_bytes": 45923,
+   "seconds": 3.7,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 2.4679503440856934,
+    "max": 3.74269437789917,
+    "mean": 3.3705716133117676,
+    "coverage": 1.0
+   },
+   "index_values": [
+    8
+   ],
+   "skipped": false,
+   "room_id": "r_L-1_kiler_2",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L-1_kiler_2_3",
+   "png": "cam_r_L-1_kiler_2_3.png",
+   "exr": "cam_r_L-1_kiler_2_3_passes.exr",
+   "preview": "cam_r_L-1_kiler_2_3_preview.jpg",
+   "depth_png": "cam_r_L-1_kiler_2_3_depth.png",
+   "index_png": "cam_r_L-1_kiler_2_3_index.png",
+   "preview_bytes": 40614,
+   "seconds": 3.99,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 2.2434990406036377,
+    "max": 4.9279656410217285,
+    "mean": 3.216158151626587,
+    "coverage": 1.0
+   },
+   "index_values": [
+    2
+   ],
+   "skipped": false,
+   "room_id": "r_L-1_kiler_2",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L-1_kiler_3",
+   "png": "cam_r_L-1_kiler_3.png",
+   "exr": "cam_r_L-1_kiler_3_passes.exr",
+   "preview": "cam_r_L-1_kiler_3_preview.jpg",
+   "depth_png": "cam_r_L-1_kiler_3_depth.png",
+   "index_png": "cam_r_L-1_kiler_3_index.png",
+   "preview_bytes": 40839,
+   "seconds": 3.92,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 2.1480300426483154,
+    "max": 4.9279656410217285,
+    "mean": 3.176137924194336,
+    "coverage": 1.0
+   },
+   "index_values": [
+    1
+   ],
+   "skipped": false,
+   "room_id": "r_L-1_kiler",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L-1_wc_1",
+   "png": "cam_r_L-1_wc_1.png",
+   "exr": "cam_r_L-1_wc_1_passes.exr",
+   "preview": "cam_r_L-1_wc_1_preview.jpg",
+   "depth_png": "cam_r_L-1_wc_1_depth.png",
+   "index_png": "cam_r_L-1_wc_1_index.png",
+   "preview_bytes": 41489,
+   "seconds": 6.28,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.1490671634674072,
+    "max": 1.880004644393921,
+    "mean": 1.458404302597046,
+    "coverage": 1.0
+   },
+   "index_values": [
+    15
+   ],
+   "skipped": false,
+   "room_id": "r_L-1_wc",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L-1_wc_2",
+   "png": "cam_r_L-1_wc_2.png",
+   "exr": "cam_r_L-1_wc_2_passes.exr",
+   "preview": "cam_r_L-1_wc_2_preview.jpg",
+   "depth_png": "cam_r_L-1_wc_2_depth.png",
+   "index_png": "cam_r_L-1_wc_2_index.png",
+   "preview_bytes": 52301,
+   "seconds": 6.14,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.010831356048584,
+    "max": 1.6511235237121582,
+    "mean": 1.4758000373840332,
+    "coverage": 1.0
+   },
+   "index_values": [
+    15
+   ],
+   "skipped": false,
+   "room_id": "r_L-1_wc",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L-1_wc_3",
+   "png": "cam_r_L-1_wc_3.png",
+   "exr": "cam_r_L-1_wc_3_passes.exr",
+   "preview": "cam_r_L-1_wc_3_preview.jpg",
+   "depth_png": "cam_r_L-1_wc_3_depth.png",
+   "index_png": "cam_r_L-1_wc_3_index.png",
+   "preview_bytes": 38551,
+   "seconds": 6.27,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.7658281326293945,
+    "max": 0.9995970726013184,
+    "mean": 0.9280673861503601,
+    "coverage": 1.0
+   },
+   "index_values": [
+    15
+   ],
+   "skipped": false,
+   "room_id": "r_L-1_wc",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L-1_yatak_odasi_1",
+   "png": "cam_r_L-1_yatak_odasi_1.png",
+   "exr": "cam_r_L-1_yatak_odasi_1_passes.exr",
+   "preview": "cam_r_L-1_yatak_odasi_1_preview.jpg",
+   "depth_png": "cam_r_L-1_yatak_odasi_1_depth.png",
+   "index_png": "cam_r_L-1_yatak_odasi_1_index.png",
+   "preview_bytes": 40455,
+   "seconds": 4.12,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 2.2928476333618164,
+    "max": 5.236202716827393,
+    "mean": 3.578019142150879,
+    "coverage": 1.0
+   },
+   "index_values": [
+    5,
+    11,
+    14
+   ],
+   "skipped": false,
+   "room_id": "r_L-1_yatak_odasi",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L-1_yatak_odasi_2",
+   "png": "cam_r_L-1_yatak_odasi_2.png",
+   "exr": "cam_r_L-1_yatak_odasi_2_passes.exr",
+   "preview": "cam_r_L-1_yatak_odasi_2_preview.jpg",
+   "depth_png": "cam_r_L-1_yatak_odasi_2_depth.png",
+   "index_png": "cam_r_L-1_yatak_odasi_2_index.png",
+   "preview_bytes": 37049,
+   "seconds": 3.82,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.3379716873168945,
+    "max": 3.5828518867492676,
+    "mean": 3.42087459564209,
+    "coverage": 1.0
+   },
+   "index_values": [
+    11,
+    14
+   ],
+   "skipped": false,
+   "room_id": "r_L-1_yatak_odasi",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L-1_yatak_odasi_3",
+   "png": "cam_r_L-1_yatak_odasi_3.png",
+   "exr": "cam_r_L-1_yatak_odasi_3_passes.exr",
+   "preview": "cam_r_L-1_yatak_odasi_3_preview.jpg",
+   "depth_png": "cam_r_L-1_yatak_odasi_3_depth.png",
+   "index_png": "cam_r_L-1_yatak_odasi_3_index.png",
+   "preview_bytes": 42152,
+   "seconds": 4.27,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.7074193954467773,
+    "max": 6.462656497955322,
+    "mean": 3.7904653549194336,
+    "coverage": 1.0
+   },
+   "index_values": [
+    3,
+    5,
+    11,
+    13,
+    14,
+    18
+   ],
+   "skipped": false,
+   "room_id": "r_L-1_yatak_odasi",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L0_antre_1",
+   "png": "cam_r_L0_antre_1.png",
+   "exr": "cam_r_L0_antre_1_passes.exr",
+   "preview": "cam_r_L0_antre_1_preview.jpg",
+   "depth_png": "cam_r_L0_antre_1_depth.png",
+   "index_png": "cam_r_L0_antre_1_index.png",
+   "preview_bytes": 128462,
+   "seconds": 5.38,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.8645948767662048,
+    "max": 2.107447385787964,
+    "mean": 1.404222846031189,
+    "coverage": 1.0
+   },
+   "index_values": [
+    22,
+    57
+   ],
+   "skipped": false,
+   "room_id": "r_L0_antre",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L0_antre_2",
+   "png": "cam_r_L0_antre_2.png",
+   "exr": "cam_r_L0_antre_2_passes.exr",
+   "preview": "cam_r_L0_antre_2_preview.jpg",
+   "depth_png": "cam_r_L0_antre_2_depth.png",
+   "index_png": "cam_r_L0_antre_2_index.png",
+   "preview_bytes": 105627,
+   "seconds": 5.68,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.1072425842285156,
+    "max": 2.2248029708862305,
+    "mean": 1.7429877519607544,
+    "coverage": 1.0
+   },
+   "index_values": [
+    22,
+    23,
+    57
+   ],
+   "skipped": false,
+   "room_id": "r_L0_antre",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L0_antre_3",
+   "png": "cam_r_L0_antre_3.png",
+   "exr": "cam_r_L0_antre_3_passes.exr",
+   "preview": "cam_r_L0_antre_3_preview.jpg",
+   "depth_png": "cam_r_L0_antre_3_depth.png",
+   "index_png": "cam_r_L0_antre_3_index.png",
+   "preview_bytes": 114535,
+   "seconds": 5.75,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.7658753395080566,
+    "max": 0.895106315612793,
+    "mean": 0.824202835559845,
+    "coverage": 1.0
+   },
+   "index_values": [
+    22
+   ],
+   "skipped": false,
+   "room_id": "r_L0_antre",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L0_hol_1",
+   "png": "cam_r_L0_hol_1.png",
+   "exr": "cam_r_L0_hol_1_passes.exr",
+   "preview": "cam_r_L0_hol_1_preview.jpg",
+   "depth_png": "cam_r_L0_hol_1_depth.png",
+   "index_png": "cam_r_L0_hol_1_index.png",
+   "preview_bytes": 165826,
+   "seconds": 4.87,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.0850813388824463,
+    "max": 6.820147514343262,
+    "mean": 2.844646453857422,
+    "coverage": 1.0
+   },
+   "index_values": [
+    24,
+    25,
+    26,
+    55,
+    56
+   ],
+   "skipped": false,
+   "room_id": "r_L0_hol",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L0_hol_2",
+   "png": "cam_r_L0_hol_2.png",
+   "exr": "cam_r_L0_hol_2_passes.exr",
+   "preview": "cam_r_L0_hol_2_preview.jpg",
+   "depth_png": "cam_r_L0_hol_2_depth.png",
+   "index_png": "cam_r_L0_hol_2_index.png",
+   "preview_bytes": 158830,
+   "seconds": 4.72,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.9253807067871094,
+    "max": 5.270026206970215,
+    "mean": 2.652459144592285,
+    "coverage": 1.0
+   },
+   "index_values": [
+    22,
+    26,
+    56
+   ],
+   "skipped": false,
+   "room_id": "r_L0_hol",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L0_hol_3",
+   "png": "cam_r_L0_hol_3.png",
+   "exr": "cam_r_L0_hol_3_passes.exr",
+   "preview": "cam_r_L0_hol_3_preview.jpg",
+   "depth_png": "cam_r_L0_hol_3_depth.png",
+   "index_png": "cam_r_L0_hol_3_index.png",
+   "preview_bytes": 198283,
+   "seconds": 4.39,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.7658743858337402,
+    "max": 0.8510637283325195,
+    "mean": 0.8069736957550049,
+    "coverage": 1.0
+   },
+   "index_values": [
+    25
+   ],
+   "skipped": false,
+   "room_id": "r_L0_hol",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L0_kiler_1",
+   "png": "cam_r_L0_kiler_1.png",
+   "exr": "cam_r_L0_kiler_1_passes.exr",
+   "preview": "cam_r_L0_kiler_1_preview.jpg",
+   "depth_png": "cam_r_L0_kiler_1_depth.png",
+   "index_png": "cam_r_L0_kiler_1_index.png",
+   "preview_bytes": 95771,
+   "seconds": 4.62,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.7088146209716797,
+    "max": 1.5868778228759766,
+    "mean": 1.0745729207992554,
+    "coverage": 1.0
+   },
+   "index_values": [
+    34
+   ],
+   "skipped": false,
+   "room_id": "r_L0_kiler",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L0_kiler_2",
+   "png": "cam_r_L0_kiler_2.png",
+   "exr": "cam_r_L0_kiler_2_passes.exr",
+   "preview": "cam_r_L0_kiler_2_preview.jpg",
+   "depth_png": "cam_r_L0_kiler_2_depth.png",
+   "index_png": "cam_r_L0_kiler_2_index.png",
+   "preview_bytes": 180191,
+   "seconds": 4.4,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.8378915786743164,
+    "max": 1.2263946533203125,
+    "mean": 1.018924593925476,
+    "coverage": 1.0
+   },
+   "index_values": [
+    34
+   ],
+   "skipped": false,
+   "room_id": "r_L0_kiler",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L0_kiler_3",
+   "png": "cam_r_L0_kiler_3.png",
+   "exr": "cam_r_L0_kiler_3_passes.exr",
+   "preview": "cam_r_L0_kiler_3_preview.jpg",
+   "depth_png": "cam_r_L0_kiler_3_depth.png",
+   "index_png": "cam_r_L0_kiler_3_index.png",
+   "preview_bytes": 73464,
+   "seconds": 4.56,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.8319242000579834,
+    "max": 1.7994794845581055,
+    "mean": 1.3452187776565552,
+    "coverage": 1.0
+   },
+   "index_values": [
+    34
+   ],
+   "skipped": false,
+   "room_id": "r_L0_kiler",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L0_mutfak_1",
+   "png": "cam_r_L0_mutfak_1.png",
+   "exr": "cam_r_L0_mutfak_1_passes.exr",
+   "preview": "cam_r_L0_mutfak_1_preview.jpg",
+   "depth_png": "cam_r_L0_mutfak_1_depth.png",
+   "index_png": "cam_r_L0_mutfak_1_index.png",
+   "preview_bytes": 45922,
+   "seconds": 6.16,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.1064496040344238,
+    "max": 2.9097208976745605,
+    "mean": 1.8443676233291626,
+    "coverage": 1.0
+   },
+   "index_values": [
+    45,
+    46,
+    47
+   ],
+   "skipped": false,
+   "room_id": "r_L0_mutfak",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L0_mutfak_2",
+   "png": "cam_r_L0_mutfak_2.png",
+   "exr": "cam_r_L0_mutfak_2_passes.exr",
+   "preview": "cam_r_L0_mutfak_2_preview.jpg",
+   "depth_png": "cam_r_L0_mutfak_2_depth.png",
+   "index_png": "cam_r_L0_mutfak_2_index.png",
+   "preview_bytes": 53485,
+   "seconds": 5.18,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.9902238845825195,
+    "max": 3.0022408962249756,
+    "mean": 2.375338315963745,
+    "coverage": 1.0
+   },
+   "index_values": [
+    31,
+    41,
+    42,
+    43,
+    45,
+    46
+   ],
+   "skipped": false,
+   "room_id": "r_L0_mutfak",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L0_mutfak_3",
+   "png": "cam_r_L0_mutfak_3.png",
+   "exr": "cam_r_L0_mutfak_3_passes.exr",
+   "preview": "cam_r_L0_mutfak_3_preview.jpg",
+   "depth_png": "cam_r_L0_mutfak_3_depth.png",
+   "index_png": "cam_r_L0_mutfak_3_index.png",
+   "preview_bytes": 47532,
+   "seconds": 6.62,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.2673840522766113,
+    "max": 5.497014999389648,
+    "mean": 2.0072824954986572,
+    "coverage": 1.0
+   },
+   "index_values": [
+    22,
+    23,
+    26,
+    45,
+    47
+   ],
+   "skipped": false,
+   "room_id": "r_L0_mutfak",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L0_salon_1",
+   "png": "cam_r_L0_salon_1.png",
+   "exr": "cam_r_L0_salon_1_passes.exr",
+   "preview": "cam_r_L0_salon_1_preview.jpg",
+   "depth_png": "cam_r_L0_salon_1_depth.png",
+   "index_png": "cam_r_L0_salon_1_index.png",
+   "preview_bytes": 78497,
+   "seconds": 5.05,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.7903263568878174,
+    "max": 5.24017333984375,
+    "mean": 3.67319917678833,
+    "coverage": 1.0
+   },
+   "index_values": [
+    28,
+    39,
+    40,
+    58
+   ],
+   "skipped": false,
+   "room_id": "r_L0_salon",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L0_salon_2",
+   "png": "cam_r_L0_salon_2.png",
+   "exr": "cam_r_L0_salon_2_passes.exr",
+   "preview": "cam_r_L0_salon_2_preview.jpg",
+   "depth_png": "cam_r_L0_salon_2_depth.png",
+   "index_png": "cam_r_L0_salon_2_index.png",
+   "preview_bytes": 71546,
+   "seconds": 4.78,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 2.0174779891967773,
+    "max": 4.738015174865723,
+    "mean": 4.020843982696533,
+    "coverage": 1.0
+   },
+   "index_values": [
+    30,
+    35,
+    37,
+    38,
+    39,
+    58
+   ],
+   "skipped": false,
+   "room_id": "r_L0_salon",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L0_salon_3",
+   "png": "cam_r_L0_salon_3.png",
+   "exr": "cam_r_L0_salon_3_passes.exr",
+   "preview": "cam_r_L0_salon_3_preview.jpg",
+   "depth_png": "cam_r_L0_salon_3_depth.png",
+   "index_png": "cam_r_L0_salon_3_index.png",
+   "preview_bytes": 62477,
+   "seconds": 4.63,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 2.265188694000244,
+    "max": 5.314258575439453,
+    "mean": 3.823812246322632,
+    "coverage": 1.0
+   },
+   "index_values": [
+    30,
+    35,
+    36,
+    37,
+    38
+   ],
+   "skipped": false,
+   "room_id": "r_L0_salon",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L0_wc_1",
+   "png": "cam_r_L0_wc_1.png",
+   "exr": "cam_r_L0_wc_1_passes.exr",
+   "preview": "cam_r_L0_wc_1_preview.jpg",
+   "depth_png": "cam_r_L0_wc_1_depth.png",
+   "index_png": "cam_r_L0_wc_1_index.png",
+   "preview_bytes": 60103,
+   "seconds": 6.04,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.7088150978088379,
+    "max": 1.5749073028564453,
+    "mean": 1.0853520631790161,
+    "coverage": 1.0
+   },
+   "index_values": [
+    27,
+    53
+   ],
+   "skipped": false,
+   "room_id": "r_L0_wc",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L0_wc_2",
+   "png": "cam_r_L0_wc_2.png",
+   "exr": "cam_r_L0_wc_2_passes.exr",
+   "preview": "cam_r_L0_wc_2_preview.jpg",
+   "depth_png": "cam_r_L0_wc_2_depth.png",
+   "index_png": "cam_r_L0_wc_2_index.png",
+   "preview_bytes": 44461,
+   "seconds": 6.05,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.9334168434143066,
+    "max": 1.0940194129943848,
+    "mean": 1.0191905498504639,
+    "coverage": 1.0
+   },
+   "index_values": [
+    27,
+    54
+   ],
+   "skipped": false,
+   "room_id": "r_L0_wc",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L0_wc_3",
+   "png": "cam_r_L0_wc_3.png",
+   "exr": "cam_r_L0_wc_3_passes.exr",
+   "preview": "cam_r_L0_wc_3_preview.jpg",
+   "depth_png": "cam_r_L0_wc_3_depth.png",
+   "index_png": "cam_r_L0_wc_3_index.png",
+   "preview_bytes": 42802,
+   "seconds": 6.12,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.6669487953186035,
+    "max": 0.7950325012207031,
+    "mean": 0.7275964617729187,
+    "coverage": 1.0
+   },
+   "index_values": [
+    27
+   ],
+   "skipped": false,
+   "room_id": "r_L0_wc",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L0_yatak_odasi_1",
+   "png": "cam_r_L0_yatak_odasi_1.png",
+   "exr": "cam_r_L0_yatak_odasi_1_passes.exr",
+   "preview": "cam_r_L0_yatak_odasi_1_preview.jpg",
+   "depth_png": "cam_r_L0_yatak_odasi_1_depth.png",
+   "index_png": "cam_r_L0_yatak_odasi_1_index.png",
+   "preview_bytes": 52828,
+   "seconds": 4.64,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.496058464050293,
+    "max": 4.361164569854736,
+    "mean": 2.853158950805664,
+    "coverage": 1.0
+   },
+   "index_values": [
+    33,
+    48,
+    50,
+    52
+   ],
+   "skipped": false,
+   "room_id": "r_L0_yatak_odasi",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L0_yatak_odasi_2",
+   "png": "cam_r_L0_yatak_odasi_2.png",
+   "exr": "cam_r_L0_yatak_odasi_2_passes.exr",
+   "preview": "cam_r_L0_yatak_odasi_2_preview.jpg",
+   "depth_png": "cam_r_L0_yatak_odasi_2_depth.png",
+   "index_png": "cam_r_L0_yatak_odasi_2_index.png",
+   "preview_bytes": 52711,
+   "seconds": 4.27,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.1124911308288574,
+    "max": 2.6527132987976074,
+    "mean": 2.4652204513549805,
+    "coverage": 1.0
+   },
+   "index_values": [
+    33,
+    48,
+    52
+   ],
+   "skipped": false,
+   "room_id": "r_L0_yatak_odasi",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L0_yatak_odasi_3",
+   "png": "cam_r_L0_yatak_odasi_3.png",
+   "exr": "cam_r_L0_yatak_odasi_3_passes.exr",
+   "preview": "cam_r_L0_yatak_odasi_3_preview.jpg",
+   "depth_png": "cam_r_L0_yatak_odasi_3_depth.png",
+   "index_png": "cam_r_L0_yatak_odasi_3_index.png",
+   "preview_bytes": 42884,
+   "seconds": 4.77,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.9139978885650635,
+    "max": 4.5727057456970215,
+    "mean": 3.2454333305358887,
+    "coverage": 1.0
+   },
+   "index_values": [
+    25,
+    48,
+    49,
+    50
+   ],
+   "skipped": false,
+   "room_id": "r_L0_yatak_odasi",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L1_balkon_1",
+   "png": "cam_r_L1_balkon_1.png",
+   "exr": "cam_r_L1_balkon_1_passes.exr",
+   "preview": "cam_r_L1_balkon_1_preview.jpg",
+   "depth_png": "cam_r_L1_balkon_1_depth.png",
+   "index_png": "cam_r_L1_balkon_1_index.png",
+   "preview_bytes": 60917,
+   "seconds": 4.48,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.1064491271972656,
+    "max": 2.931077003479004,
+    "mean": 1.911328911781311,
+    "coverage": 1.0
+   },
+   "index_values": [
+    70
+   ],
+   "skipped": false,
+   "room_id": "r_L1_balkon",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L1_balkon_2",
+   "png": "cam_r_L1_balkon_2.png",
+   "exr": "cam_r_L1_balkon_2_passes.exr",
+   "preview": "cam_r_L1_balkon_2_preview.jpg",
+   "depth_png": "cam_r_L1_balkon_2_depth.png",
+   "index_png": "cam_r_L1_balkon_2_index.png",
+   "preview_bytes": 75635,
+   "seconds": 4.14,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.2673254013061523,
+    "max": 3.0481338500976562,
+    "mean": 2.3454489707946777,
+    "coverage": 1.0
+   },
+   "index_values": [
+    70
+   ],
+   "skipped": false,
+   "room_id": "r_L1_balkon",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L1_balkon_3",
+   "png": "cam_r_L1_balkon_3.png",
+   "exr": "cam_r_L1_balkon_3_passes.exr",
+   "preview": "cam_r_L1_balkon_3_preview.jpg",
+   "depth_png": "cam_r_L1_balkon_3_depth.png",
+   "index_png": "cam_r_L1_balkon_3_index.png",
+   "preview_bytes": 47795,
+   "seconds": 4.81,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.3003309965133667,
+    "max": 6.300293922424316,
+    "mean": 2.285219430923462,
+    "coverage": 1.0
+   },
+   "index_values": [
+    63,
+    65,
+    77
+   ],
+   "skipped": false,
+   "room_id": "r_L1_balkon",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L1_banyo_1",
+   "png": "cam_r_L1_banyo_1.png",
+   "exr": "cam_r_L1_banyo_1_passes.exr",
+   "preview": "cam_r_L1_banyo_1_preview.jpg",
+   "depth_png": "cam_r_L1_banyo_1_depth.png",
+   "index_png": "cam_r_L1_banyo_1_index.png",
+   "preview_bytes": 46011,
+   "seconds": 7.7,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.3789834976196289,
+    "max": 2.564067840576172,
+    "mean": 1.5427871942520142,
+    "coverage": 1.0
+   },
+   "index_values": [
+    86
+   ],
+   "skipped": false,
+   "room_id": "r_L1_banyo",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L1_banyo_2",
+   "png": "cam_r_L1_banyo_2.png",
+   "exr": "cam_r_L1_banyo_2_passes.exr",
+   "preview": "cam_r_L1_banyo_2_preview.jpg",
+   "depth_png": "cam_r_L1_banyo_2_depth.png",
+   "index_png": "cam_r_L1_banyo_2_index.png",
+   "preview_bytes": 42376,
+   "seconds": 6.73,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.7337145805358887,
+    "max": 1.6511225700378418,
+    "mean": 1.4035395383834839,
+    "coverage": 1.0
+   },
+   "index_values": [
+    86
+   ],
+   "skipped": false,
+   "room_id": "r_L1_banyo",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L1_banyo_3",
+   "png": "cam_r_L1_banyo_3.png",
+   "exr": "cam_r_L1_banyo_3_passes.exr",
+   "preview": "cam_r_L1_banyo_3_preview.jpg",
+   "depth_png": "cam_r_L1_banyo_3_depth.png",
+   "index_png": "cam_r_L1_banyo_3_index.png",
+   "preview_bytes": 48447,
+   "seconds": 6.37,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.287980079650879,
+    "max": 3.125797748565674,
+    "mean": 2.2039308547973633,
+    "coverage": 1.0
+   },
+   "index_values": [
+    62,
+    86,
+    88
+   ],
+   "skipped": false,
+   "room_id": "r_L1_banyo",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L1_cocuk_odasi_1",
+   "png": "cam_r_L1_cocuk_odasi_1.png",
+   "exr": "cam_r_L1_cocuk_odasi_1_passes.exr",
+   "preview": "cam_r_L1_cocuk_odasi_1_preview.jpg",
+   "depth_png": "cam_r_L1_cocuk_odasi_1_depth.png",
+   "index_png": "cam_r_L1_cocuk_odasi_1_index.png",
+   "preview_bytes": 54286,
+   "seconds": 4.63,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 2.051814556121826,
+    "max": 3.0701565742492676,
+    "mean": 2.7638018131256104,
+    "coverage": 1.0
+   },
+   "index_values": [
+    82,
+    84,
+    91
+   ],
+   "skipped": false,
+   "room_id": "r_L1_cocuk_odasi",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L1_cocuk_odasi_2",
+   "png": "cam_r_L1_cocuk_odasi_2.png",
+   "exr": "cam_r_L1_cocuk_odasi_2_passes.exr",
+   "preview": "cam_r_L1_cocuk_odasi_2_preview.jpg",
+   "depth_png": "cam_r_L1_cocuk_odasi_2_depth.png",
+   "index_png": "cam_r_L1_cocuk_odasi_2_index.png",
+   "preview_bytes": 73904,
+   "seconds": 4.79,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.3456404209136963,
+    "max": 3.742694139480591,
+    "mean": 3.0814523696899414,
+    "coverage": 1.0
+   },
+   "index_values": [
+    67,
+    81,
+    82,
+    84,
+    85
+   ],
+   "skipped": false,
+   "room_id": "r_L1_cocuk_odasi",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L1_cocuk_odasi_3",
+   "png": "cam_r_L1_cocuk_odasi_3.png",
+   "exr": "cam_r_L1_cocuk_odasi_3_passes.exr",
+   "preview": "cam_r_L1_cocuk_odasi_3_preview.jpg",
+   "depth_png": "cam_r_L1_cocuk_odasi_3_depth.png",
+   "index_png": "cam_r_L1_cocuk_odasi_3_index.png",
+   "preview_bytes": 74995,
+   "seconds": 4.68,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.3651180267333984,
+    "max": 4.038434028625488,
+    "mean": 2.9068362712860107,
+    "coverage": 1.0
+   },
+   "index_values": [
+    60,
+    68,
+    83,
+    85
+   ],
+   "skipped": false,
+   "room_id": "r_L1_cocuk_odasi",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L1_ebeveyn_yatak_odasi_1",
+   "png": "cam_r_L1_ebeveyn_yatak_odasi_1.png",
+   "exr": "cam_r_L1_ebeveyn_yatak_odasi_1_passes.exr",
+   "preview": "cam_r_L1_ebeveyn_yatak_odasi_1_preview.jpg",
+   "depth_png": "cam_r_L1_ebeveyn_yatak_odasi_1_depth.png",
+   "index_png": "cam_r_L1_ebeveyn_yatak_odasi_1_index.png",
+   "preview_bytes": 77277,
+   "seconds": 4.4,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 2.4295079708099365,
+    "max": 3.9082415103912354,
+    "mean": 3.3508989810943604,
+    "coverage": 1.0
+   },
+   "index_values": [
+    64,
+    72,
+    74,
+    89
+   ],
+   "skipped": false,
+   "room_id": "r_L1_ebeveyn_yatak_odasi",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L1_ebeveyn_yatak_odasi_2",
+   "png": "cam_r_L1_ebeveyn_yatak_odasi_2.png",
+   "exr": "cam_r_L1_ebeveyn_yatak_odasi_2_passes.exr",
+   "preview": "cam_r_L1_ebeveyn_yatak_odasi_2_preview.jpg",
+   "depth_png": "cam_r_L1_ebeveyn_yatak_odasi_2_depth.png",
+   "index_png": "cam_r_L1_ebeveyn_yatak_odasi_2_index.png",
+   "preview_bytes": 76526,
+   "seconds": 4.62,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.867072582244873,
+    "max": 3.874300479888916,
+    "mean": 3.2471373081207275,
+    "coverage": 1.0
+   },
+   "index_values": [
+    66,
+    71,
+    72,
+    74,
+    89
+   ],
+   "skipped": false,
+   "room_id": "r_L1_ebeveyn_yatak_odasi",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L1_ebeveyn_yatak_odasi_3",
+   "png": "cam_r_L1_ebeveyn_yatak_odasi_3.png",
+   "exr": "cam_r_L1_ebeveyn_yatak_odasi_3_passes.exr",
+   "preview": "cam_r_L1_ebeveyn_yatak_odasi_3_preview.jpg",
+   "depth_png": "cam_r_L1_ebeveyn_yatak_odasi_3_depth.png",
+   "index_png": "cam_r_L1_ebeveyn_yatak_odasi_3_index.png",
+   "preview_bytes": 56633,
+   "seconds": 4.74,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.9530659914016724,
+    "max": 3.975287675857544,
+    "mean": 3.0845658779144287,
+    "coverage": 1.0
+   },
+   "index_values": [
+    66,
+    71,
+    73
+   ],
+   "skipped": false,
+   "room_id": "r_L1_ebeveyn_yatak_odasi",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L1_hol_1",
+   "png": "cam_r_L1_hol_1.png",
+   "exr": "cam_r_L1_hol_1_passes.exr",
+   "preview": "cam_r_L1_hol_1_preview.jpg",
+   "depth_png": "cam_r_L1_hol_1_depth.png",
+   "index_png": "cam_r_L1_hol_1_index.png",
+   "preview_bytes": 129551,
+   "seconds": 4.9,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.0562729835510254,
+    "max": 6.820146560668945,
+    "mean": 2.8600337505340576,
+    "coverage": 1.0
+   },
+   "index_values": [
+    59,
+    60,
+    61,
+    62,
+    75,
+    76
+   ],
+   "skipped": false,
+   "room_id": "r_L1_hol",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L1_hol_2",
+   "png": "cam_r_L1_hol_2.png",
+   "exr": "cam_r_L1_hol_2_passes.exr",
+   "preview": "cam_r_L1_hol_2_preview.jpg",
+   "depth_png": "cam_r_L1_hol_2_depth.png",
+   "index_png": "cam_r_L1_hol_2_index.png",
+   "preview_bytes": 175806,
+   "seconds": 4.56,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.7515158653259277,
+    "max": 5.742276191711426,
+    "mean": 2.6830079555511475,
+    "coverage": 1.0
+   },
+   "index_values": [
+    60,
+    62,
+    76
+   ],
+   "skipped": false,
+   "room_id": "r_L1_hol",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L1_hol_3",
+   "png": "cam_r_L1_hol_3.png",
+   "exr": "cam_r_L1_hol_3_passes.exr",
+   "preview": "cam_r_L1_hol_3_preview.jpg",
+   "depth_png": "cam_r_L1_hol_3_depth.png",
+   "index_png": "cam_r_L1_hol_3_index.png",
+   "preview_bytes": 205673,
+   "seconds": 3.88,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.7658748626708984,
+    "max": 0.8510637283325195,
+    "mean": 0.8069738745689392,
+    "coverage": 1.0
+   },
+   "index_values": [],
+   "skipped": false,
+   "room_id": "r_L1_hol",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L1_yatak_odasi_1",
+   "png": "cam_r_L1_yatak_odasi_1.png",
+   "exr": "cam_r_L1_yatak_odasi_1_passes.exr",
+   "preview": "cam_r_L1_yatak_odasi_1_preview.jpg",
+   "depth_png": "cam_r_L1_yatak_odasi_1_depth.png",
+   "index_png": "cam_r_L1_yatak_odasi_1_index.png",
+   "preview_bytes": 51346,
+   "seconds": 4.84,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.8308267593383789,
+    "max": 4.086039066314697,
+    "mean": 3.1690001487731934,
+    "coverage": 1.0
+   },
+   "index_values": [
+    65,
+    77,
+    80,
+    90
+   ],
+   "skipped": false,
+   "room_id": "r_L1_yatak_odasi",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L1_yatak_odasi_2",
+   "png": "cam_r_L1_yatak_odasi_2.png",
+   "exr": "cam_r_L1_yatak_odasi_2_passes.exr",
+   "preview": "cam_r_L1_yatak_odasi_2_preview.jpg",
+   "depth_png": "cam_r_L1_yatak_odasi_2_depth.png",
+   "index_png": "cam_r_L1_yatak_odasi_2_index.png",
+   "preview_bytes": 47118,
+   "seconds": 4.91,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.855679988861084,
+    "max": 3.905406951904297,
+    "mean": 3.282865524291992,
+    "coverage": 1.0
+   },
+   "index_values": [
+    63,
+    77,
+    90
+   ],
+   "skipped": false,
+   "room_id": "r_L1_yatak_odasi",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  },
+  {
+   "camera": "cam_r_L1_yatak_odasi_3",
+   "png": "cam_r_L1_yatak_odasi_3.png",
+   "exr": "cam_r_L1_yatak_odasi_3_passes.exr",
+   "preview": "cam_r_L1_yatak_odasi_3_preview.jpg",
+   "depth_png": "cam_r_L1_yatak_odasi_3_depth.png",
+   "index_png": "cam_r_L1_yatak_odasi_3_index.png",
+   "preview_bytes": 56831,
+   "seconds": 5.31,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.9770071506500244,
+    "max": 4.375076770782471,
+    "mean": 3.1325299739837646,
+    "coverage": 1.0
+   },
+   "index_values": [
+    61,
+    63,
+    77,
+    80
+   ],
+   "skipped": false,
+   "room_id": "r_L1_yatak_odasi",
+   "scene_sha256": "9d2002f207e137597fd5008f41b75fb12cb6d3106cb0044a67672a92577cbc37"
+  }
+ ],
+ "warnings": []
+}

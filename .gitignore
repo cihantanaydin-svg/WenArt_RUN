@@ -34,3 +34,10 @@ results/**/*.png
 .vscode/
 *.log
 logs/
+runs/
+
+# Claude Code worktrees used by review/fix agents
+.claude/worktrees/
+
+# Downloaded CC0 textures and HDRIs (manifest.json records them; pod: /workspace/assets)
+/assets/

@@ -146,6 +146,10 @@ source. Hugging Face pages were **blocked** in this cloud session, so model-card
 Pick: cheap CPU heuristics first (page has text layer? contains "KAT PLANI", "KESİT", "GÖRÜNÜŞ"?),
 then Qwen3-VL-8B with a fixed JSON schema; GLM-4.6V-Flash is the independent second opinion.
 
+**Bake-off result (1 Oct 2026, `results/bakeoff/summary.md`, 3 synthetic scan/photo pages, RTX PRO 4000 24 GB, fp8 weights,
+8192 context):** both models classify every page, read the level title, the scale note and all room labels correctly
+(100 % on all four tasks, scan and phone photo alike); Qwen3-VL-8B ≈ 5.1 s per call, GLM-4.6V-Flash ≈ 5.6 s. Pick confirmed.
+
 ### 4.2 Recognition and OCR (walls, openings, labels, dimensions, furniture and fixture symbols)
 
 | Option | Licence | Commercial | VRAM | Speed | Quality | Last update | Link |
@@ -163,6 +167,15 @@ then Qwen3-VL-8B with a fixed JSON schema; GLM-4.6V-Flash is the independent sec
 
 Realistic accuracy on scans (literature on CubiCasa5k, S): walls ~0.9+ IoU, doors ~0.85, windows ~0.2–0.9
 depending on method. That is why windows and furniture on scans will often be "unverified".
+
+**Bake-off result (1 Oct 2026, `results/bakeoff/summary.md`):** PaddleOCR PP-OCRv5 (`lang="tr"`) reads 73 % of the room
+labels and 65 % of all texts on the synthetic scans and photo; Tesseract 5 `tur` reads 20 % / 48 % (furniture lines inside
+rooms break its line segmentation). PaddleOCR stays the primary OCR, Tesseract the cross-check. Symbol detection by the two
+VLMs on the full page is unusable as run: 0–1 % recall (Qwen returns no boxes on two pages, GLM a hallucinated grid; two
+near-hits with IoU 0.46–0.58). Cause: the 1:100 plan covers ~20 % of the A3 sheet, so after the 1600 px downscale a door is
+~15 px wide. Next step (Milestone 3): crop to the drawing extents and tile per room at full resolution before the symbol pass,
+and keep the fine-tuned detector (D-FINE / RF-DETR on synthetic renders, §4.2) as the planned fallback. The two-pass
+agreement logic works (0 verified symbols, all 71 proposals `unverified`, nothing guessed).
 
 ### 4.3 DWG conversion
 
@@ -229,6 +242,13 @@ Fitting rule: pick the asset of the right type whose bounding box ratio is close
 scale it to the footprint (non-uniform scale capped at 15 %, else next asset or TRELLIS.2), rotate to `front_deg`.
 Every fit is logged (asset id, licence, scale factors).
 
+**Measured on 1 Oct 2026 (Milestone 4, `results/furniture/`):** Poly Haven has 31 usable CC0 furniture models for
+13 of our types (none for wardrobes, kitchen blocks, sanitary ware, appliances); with the 15 % non-uniform and
+0.75–1.30 mean-scale rule about half of the drawn pieces get a library model, the rest the parametric mesh
+(`wenart/blender/parametric.py`, exact footprint). Qwen3-VL-8B (vLLM, fp8, structured output) proposes a layout
+for an empty room in ≈ 4–7 s per pass; the shapely checks and repairs run in milliseconds. Objaverse and TRELLIS.2
+were not run yet; they are the way to close the coverage gap.
+
 ### 4.9 Materials and HDRIs
 
 | Option | Licence | Commercial | Note |
@@ -249,6 +269,12 @@ at a window and from the door. Three views per room.
 
 Blender 5.2 LTS Cycles, OptiX, 1920×1080, 256–512 samples + OpenImageDenoise, passes: RGB, depth, normal, object
 index (for the change check). ~1–3 min per view on RTX A5000 / 4090.
+
+**Measured on 1 Oct 2026 (Milestone 3, `results/renders/`):** Cycles with OptiX renders a 1920×1080 view at 128 samples
+with OIDN in 4.4–6.2 s on an RTX PRO 4000 and ≈ 8 s on an L4 (scenes of 130–240 objects, box-projected 2K textures);
+the scene build takes ≈ 30 s per project. A full project (10 rooms, 30 views) is therefore ≈ 4 min of GPU, far below
+the 1–3 min per view estimated above, so 256–512 samples are affordable. Albedo maps from photo-based CC0 sets must be
+normalised to the intended colour (Poly Haven's white plaster averages 0.24 linear): the material builder records the gain.
 
 ### 4.12 AI polish (gated)
 
@@ -272,15 +298,16 @@ camera frustum) and the plan crop; GLM-4.6V-Flash as second opinion; disagreemen
 ### 4.14 Serving and runtime
 
 vLLM 0.30.0 (Apache-2.0) with structured outputs (`xgrammar`), temperature 0, seed 0, same GPU type and version
-for both passes; transformers 5.18 / diffusers 0.40 / torch version pinned by vLLM at Milestone 1 (torch 2.14.1
-is current; the RunPod base image provides CUDA 12.8.1).
+for both passes. Checked 1 Oct 2026 (Milestone 1): vLLM 0.30.0 pins `torch==2.13.0`, `transformers>=5.10.4`,
+`xgrammar>=0.2.1`; the base image ships torch 2.9.1, so vLLM gets its own venv on the volume (`/workspace/venv-vllm`)
+in Milestone 2 (the RunPod base image provides CUDA 12.8.1).
 
 ## 5. RunPod setup
 
 | Item | Choice | Why |
 |---|---|---|
 | API | **REST v2 `https://api.runpod.io/v2`** (v1 `rest.runpod.io/v1` is retired on 15 Nov 2026; GraphQL early 2027) | current, documented OpenAPI at `api.runpod.io/v2/openapi.json` |
-| Datacenter | **EU-RO-1** (Secure Cloud, network volumes, S3-compatible API available) | large DC, Europe, S3 access for results if needed; checked for A5000/4090 availability in Milestone 1 before the volume is created |
+| Datacenter | **EU-RO-1** (Secure Cloud, STANDARD network volumes, S3-compatible API available) | large DC, Europe. Checked 1 Oct 2026: RTX A5000 / 4090 / A6000 had no stock in any volume-capable EU DC; EU-RO-1 had RTX PRO 4000 (24 GB, $0.57), RTX PRO 4500 (32 GB, $0.72) and L4 (24 GB, $0.49). Stock changes hourly; the runner picks live from `GPU_PRIORITY` in `scripts/gpu_run.py` |
 | Network Volume | 120 GB STANDARD in EU-RO-1 ≈ $8.40/month ($0.07/GB/month) | models ≈ 60 GB, venv + Blender ≈ 15 GB, assets ≈ 10 GB, projects/outputs ≈ 10 GB |
 | GPU (default, quick tests + recognition + renders) | **RTX A5000 24 GB, Secure ≈ $0.27/h (S)**; has RT cores (Ampere) | cheapest 24 GB card with RT cores; fits Qwen3-VL-8B, Z-Image, Cycles |
 | GPU (faster renders / TRELLIS.2) | RTX 4090 24 GB ≈ $0.74/h (S); RTX A6000 48 GB ≈ $0.53/h (S) when 24 GB is too tight | RT cores, more VRAM |
@@ -292,6 +319,14 @@ is current; the RunPod base image provides CUDA 12.8.1).
 | Reaching pods from your Mac (later) | `ssh root@<ip> -p <port>` + rsync (`22/tcp` exposed, `startSsh: true`) | |
 | Self-shutdown | the pod's start command runs `( sleep 7200; runpodctl pod stop $RUNPOD_POD_ID ) &` as a watchdog, and the job script calls `runpodctl pod stop $RUNPOD_POD_ID` at the end; both tested in Milestone 1 | rule: never rely on the session |
 | Prices | read live from `GET /v2/catalog/gpus` before every run; the runner refuses anything above $1.00/h | the table above is from search snippets |
+
+**Measured on 1 Oct 2026 (Milestone 2):** the STANDARD Network Volume in EU-RO-1 writes small files at a few MB/s: a
+`pip install vllm` onto it ran for 55 minutes without finishing, while the same install takes 3 minutes on the pod's container
+disk. Rule from now on: venvs, build trees and the Hugging Face cache live on the container disk (`/opt/wenart`, rebuilt per pod,
+the runner gives such pods `--disk 80`); the volume keeps the repo, outputs, results, Blender and the pip wheel cache. Model
+downloads on the pod run at ≈ 1.1 GB/s (17.5 GB in 14 s), so re-downloading per pod costs seconds, not minutes. Blackwell
+pods (RTX PRO 4000/4500, sm_120) need the CUDA 12.9 PaddlePaddle wheel and `VLLM_USE_FLASHINFER_SAMPLER=0`; on 24 GB cards
+both VLMs run with `--quantization fp8 --max-model-len 8192`.
 
 ## 6. Cost estimate for the whole PoC
 
