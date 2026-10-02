@@ -2,9 +2,13 @@
 
 All placement maths is pure Python (``plan_cameras``) so the CPU tests check
 it without Blender; ``create_cameras`` only turns the plans into camera
-objects.
+objects (with the plan's lens shift).
 
-Per room, at 1.4 m above the floor, 24 mm lens on a 36 mm sensor, 1920x1080:
+Two policies (docs/milestone6.md §4): ``m5`` (the default, below, unchanged
+since Milestone 5) and ``search`` (``camsearch.py``: ray-cast scored views,
+1-3 per room by area, pitch 0 with lens shift).
+
+Policy ``m5``, per room, at 1.4 m above the floor, 24 mm lens on a 36 mm sensor, 1920x1080:
 1. ``cam_<room>_1``: a point of the free area (room polygon shrunk by 0.5 m,
    minus the furniture boxes grown by 0.3 m) looking at the centre of the
    longest wall of the room; the free point farthest from that wall wins so
@@ -70,13 +74,18 @@ def plan_cameras(building: dict, level_id: str, policy: str = "m5") -> list[dict
 
     ``policy`` (docs/milestone6.md §1.3, §4): ``"m5"`` = the three fixed rules
     of Milestone 3-5 below (kept byte for byte: the realism A/B renders the
-    M6 look from these cameras); ``"search"`` = the ray-cast camera search
-    (``camsearch.py``, Milestone 6 area C).
+    M6 look from these cameras; the plans carry no ``shift``/``policy``
+    fields, readers treat them as shift 0 and policy ``m5``); ``"search"`` =
+    the ray-cast camera search of ``camsearch.plan_level`` (1-3 views per
+    room at 1.25 m, pitch 0, ``shift_y = -0.10``, with ``score`` and
+    ``search_seconds``).
     """
     if policy not in CAMERA_POLICIES:
         raise ValueError(f"unknown camera policy {policy!r} (expected one of {CAMERA_POLICIES})")
     if policy == "search":
-        raise NotImplementedError("camera policy 'search' is implemented by docs/milestone6.md area C")
+        from wenart.blender import camsearch  # camsearch imports this module
+
+        return camsearch.plan_level(building, level_id)
     level = next(lv for lv in building["levels"] if lv["id"] == level_id)
     floor_z = float(level["elevation"])
     plans = []
@@ -313,7 +322,11 @@ def _plan(room: dict, index: int, pos2, target2, floor_z: float, warning, how: s
 
 
 def create_cameras(plans: list[dict], collection, manifest_objects: list) -> list:
-    """Create a Blender camera object per plan (needs bpy)."""
+    """Create a Blender camera object per plan (needs bpy).
+
+    The lens shift of a plan (``shift_x``/``shift_y``, in units of the image
+    width; absent = 0 for the M5 plans) goes to ``Camera.shift_x/shift_y``;
+    the projection readers use the same convention (docs/milestone6.md §1.3)."""
     import bpy
     from mathutils import Vector
 
@@ -325,6 +338,8 @@ def create_cameras(plans: list[dict], collection, manifest_objects: list) -> lis
         cam.lens = plan["lens_mm"]
         cam.sensor_width = plan["sensor_mm"]
         cam.sensor_fit = "HORIZONTAL"
+        cam.shift_x = float(plan.get("shift_x") or 0.0)
+        cam.shift_y = float(plan.get("shift_y") or 0.0)
         cam.clip_start = 0.05
         cam.clip_end = 200.0
         ob = bpy.data.objects.new(plan["name"], cam)

@@ -237,7 +237,9 @@ def nearest_edge(p: Sequence[float], polygon: Sequence[Sequence[float]]
 
 def frustum_tangents(lens_mm: float, sensor_mm: float, resolution: Sequence[int]) -> tuple[float, float]:
     """``(tan(h_fov/2), tan(v_fov/2))`` for a landscape camera with the sensor
-    width mapped to the image width (Blender sensor_fit AUTO)."""
+    width mapped to the image width (Blender sensor_fit AUTO / HORIZONTAL).
+    The lens shift does not change them; it moves the frustum (see
+    ``point_in_frustum``)."""
     th = (sensor_mm / 2.0) / lens_mm
     tv = th * resolution[1] / resolution[0]
     return th, tv
@@ -255,14 +257,24 @@ def camera_basis(position: Sequence[float], target: Sequence[float]) -> tuple[Ve
 
 
 def point_in_frustum(point: Sequence[float], position: Sequence[float], target: Sequence[float],
-                     tangents: tuple[float, float], near: float = 0.05) -> bool:
-    """True when the 3D point is in front of the camera and inside its field of view."""
+                     tangents: tuple[float, float], near: float = 0.05, shift_x: float = 0.0,
+                     shift_y: float = 0.0) -> bool:
+    """True when the 3D point is in front of the camera and inside its field of view.
+
+    ``shift_x``/``shift_y``: Blender's lens shift in units of the image
+    width (docs/milestone6.md §1.3). With slopes ``a = (v.r)/(v.f)`` and
+    ``b = (v.u)/(v.f)`` the frame is ``|a - 2 th shift_x| <= th`` and
+    ``|b - 2 th shift_y| <= tv`` (``th, tv = tangents``; ``2 th`` = W / f):
+    a negative ``shift_y`` moves the frame down, a positive ``shift_x`` to the
+    right. Shift 0 is the plain frustum."""
     f, r, u = camera_basis(position, target)
     v = (point[0] - position[0], point[1] - position[1], point[2] - position[2])
     z = _dot(v, f)
     if z <= near:
         return False
-    return abs(_dot(v, r)) <= tangents[0] * z and abs(_dot(v, u)) <= tangents[1] * z
+    ca = 2.0 * tangents[0] * float(shift_x)
+    cb = 2.0 * tangents[0] * float(shift_y)
+    return abs(_dot(v, r) - ca * z) <= tangents[0] * z and abs(_dot(v, u) - cb * z) <= tangents[1] * z
 
 
 def _cross(a: Vec3, b: Vec3) -> Vec3:

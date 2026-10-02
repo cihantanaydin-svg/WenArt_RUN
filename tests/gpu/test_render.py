@@ -24,6 +24,21 @@ Milestone 5 (docs/milestone5.md §2, §9), on the new renders only:
   index map on disk;
 - synthetic-01's white plaster walls look white: wall pixels of the rooms
   with plaster walls have a display R/B of at most 1.10.
+
+Milestone 6 (docs/milestone6.md §4.2), cameras by policy (a scene-manifest
+camera without ``policy`` is an M5 camera):
+
+- policy ``m5``: three views per room; policy ``search``: 1-3 views per room
+  by the area rule (``camsearch.room_view_count``) and every room of the
+  building at least one;
+- no searched view is blocked (index pass: one element over 0.55 of the
+  frame, or depth pass: over 0.35 of the pixels nearer than 0.9 m) unless its
+  plan carries the warning ``blocked unavoidable`` (listed); the share of
+  views with under 10 % object pixels is printed, with the correlation of the
+  ray-cast model's object share against the index pass;
+- a piece planned inside a searched camera's frustum may be missing from the
+  index pass only when the ray-cast model also sees none of it (hidden
+  behind another piece; listed).
 """
 import hashlib
 import json
@@ -39,6 +54,11 @@ OUTPUTS = Path(os.environ.get("WENART_OUTPUTS", "/workspace/repo/outputs"))
 PROJECTS = [p for p in os.environ.get("RENDER_TEST_PROJECTS", "synthetic-01 synthetic-03").split() if p]
 MAX_SECONDS_PER_VIEW = 240.0
 WHITE_WALL_MAX_RB = 1.10
+BLOCKED_SINGLE = 0.55        # one element over this share of the frame (index pass)
+BLOCKED_NEAR = 0.35          # over this share of the pixels nearer than NEAR_MM (depth pass)
+NEAR_MM = 900
+LOW_OBJECT_SHARE = 0.10
+MODEL_HIDDEN_SHARE = 0.005   # a piece the ray-cast model sees on less than this share (192 x 108 rays) is hidden
 
 
 def _load(project: str, name: str) -> dict:
@@ -63,14 +83,99 @@ def test_gpu_device_and_full_resolution(project):
     assert render["denoiser"] == "OPENIMAGEDENOISE"
 
 
+def _policy(camera: dict) -> str:
+    return camera.get("policy") or "m5"
+
+
+def _building(name: str, scene: dict) -> dict:
+    from wenart import views
+
+    path = views._resolve_repo_path(scene.get("building"), OUTPUTS / name)
+    if path is None or not path.is_file():
+        path = OUTPUTS / name / "building_final.json"
+    assert path.is_file(), f"{name}: building JSON of the scene not found ({scene.get('building')})"
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
 def test_every_room_has_three_views(project):
+    """By camera policy (docs/milestone6.md §4.2; the M5 name is kept, tests/test_blender_render.py calls it):
+    ``m5`` three views per room, ``search`` 1-3 views per room by the area rule, every room at least one."""
+    from wenart.blender import camsearch
+
     name, scene, render = project
     rendered = {r["camera"] for r in render["renders"]}
     planned = {c["name"] for c in scene["cameras"]}
     assert planned <= rendered, f"{name}: missing renders {sorted(planned - rendered)}"
-    rooms = {c["room_id"] for c in scene["cameras"]}
-    for room in rooms:
-        assert {f"cam_{room}_{i}" for i in (1, 2, 3)} <= rendered
+    by_room: dict = {}
+    for c in scene["cameras"]:
+        by_room.setdefault(c["room_id"], []).append(c)
+    policies = {_policy(c) for c in scene["cameras"]}
+    assert len(policies) == 1, f"{name}: cameras of two policies in one scene: {sorted(policies)}"
+    if policies == {"m5"}:
+        for room in by_room:
+            assert {f"cam_{room}_{i}" for i in (1, 2, 3)} <= rendered
+        return
+    building = _building(name, scene)
+    levels = {lv["id"] for lv in scene["levels"]}
+    rooms = {r["id"]: r for r in building["rooms"] if r["level_id"] in levels}
+    assert set(by_room) == set(rooms), f"{name}: rooms without a view {sorted(set(rooms) - set(by_room))}"
+    for room_id, cams in by_room.items():
+        n = camsearch.room_view_count(rooms[room_id])
+        names = sorted(c["name"] for c in cams)
+        assert 1 <= len(cams) <= n, f"{name}: {room_id} has {len(cams)} views, the area rule allows 1..{n}"
+        assert names == sorted(f"cam_{room_id}_{i}" for i in range(1, len(cams) + 1)), names
+
+
+def _blocked(render_entry: dict, out: Path) -> dict:
+    """Index/depth measures of one view: largest element share, near share, object share."""
+    from wenart import views
+
+    W, H = render_entry["resolution"]
+    total = float(W * H)
+    shares = {int(k): v["pixels"] / total for k, v in render_entry["index_stats"].items() if int(k) != 0}
+    depth = views.read_depth_mm(out / render_entry["files"]["depth_mm"])
+    near = float(((depth > 0) & (depth < NEAR_MM)).mean())
+    single = max(shares.values(), default=0.0)
+    return {"single": single, "near": near, "objects": sum(shares.values()),
+            "blocked": single > BLOCKED_SINGLE or near > BLOCKED_NEAR}
+
+
+def test_no_blocked_searched_view(project):
+    from wenart.blender import camsearch
+
+    name, scene, render = project
+    plans = {c["name"]: c for c in scene["cameras"]}
+    out = OUTPUTS / name / "renders"
+    blocked, allowed, low, measured = [], [], [], []
+    for r in render["renders"]:
+        plan = plans.get(r["camera"])
+        if plan is None:
+            continue
+        m = _blocked(r, out)
+        measured.append((r["camera"], m, plan))
+        if m["objects"] < LOW_OBJECT_SHARE:
+            low.append(r["camera"])
+        if not m["blocked"]:
+            continue
+        item = (r["camera"], round(m["single"], 3), round(m["near"], 3))
+        if _policy(plan) == "m5":
+            allowed.append(item + ("m5 policy",))
+        elif camsearch.BLOCKED_WARNING in (plan.get("warning") or ""):
+            allowed.append(item + (camsearch.BLOCKED_WARNING,))
+        else:
+            blocked.append(item)
+    searched = [(cam, m, p) for cam, m, p in measured if _policy(p) == "search"]
+    if searched:
+        building = _building(name, scene)
+        model = np.array([sum(camsearch.model_shares(building, p).values()) for _, _, p in searched])
+        real = np.array([m["objects"] for _, m, _ in searched])
+        r_text = f"{np.corrcoef(model, real)[0, 1]:.3f}" if len(searched) > 2 and real.std() > 0 and model.std() > 0 \
+            else "n/a"
+        print(f"{name}: ray-cast model vs index pass, object share r = {r_text} over {len(searched)} views")
+    print(f"{name}: {len(low)}/{len(measured)} views with < {LOW_OBJECT_SHARE:.0%} object pixels {low}; "
+          f"blocked but allowed: {allowed}")
+    assert not blocked, f"{name}: searched views blocked without the '{camsearch.BLOCKED_WARNING}' warning " \
+                        f"(camera, largest element share, near share): {blocked}"
 
 
 def test_view_time_under_four_minutes(project):
@@ -111,14 +216,30 @@ def test_index_pass_contains_every_visible_proxy(project):
     name, scene, render = project
     table = scene["pass_index"]
     plans = {c["name"]: c for c in scene["cameras"]}
-    missing = []
+    missing, hidden = [], []
+    building = None
     for r in render["renders"]:
-        # Milestone 4 keys furniture by its id (proxies by proxy:<id>): accept both.
-        expected = {table[k] for f in plans[r["camera"]]["visible_furniture"]
-                    for k in (f, f"proxy:{f}") if k in table}
+        plan = plans[r["camera"]]
         seen = set(r["index_values"])
-        if not expected <= seen:
-            missing.append((r["camera"], sorted(expected - seen)))
+        absent = []
+        for f in plan["visible_furniture"]:
+            # Milestone 4 keys furniture by its id (proxies by proxy:<id>): accept both.
+            idx = {table[k] for k in (f, f"proxy:{f}") if k in table}
+            if idx and not idx <= seen:
+                absent.append(f)
+        if absent and _policy(plan) == "search":
+            # A searched view looks across the room: a piece whose centre is in the frustum can be
+            # hidden behind another one. Allowed only when the ray-cast model sees none of it either.
+            from wenart.blender import camsearch
+
+            building = building or _building(name, scene)
+            shares = camsearch.model_shares(building, plan)
+            hidden.extend((r["camera"], f) for f in absent if shares.get(f, 0.0) < MODEL_HIDDEN_SHARE)
+            absent = [f for f in absent if shares.get(f, 0.0) >= MODEL_HIDDEN_SHARE]
+        if absent:
+            missing.append((r["camera"], sorted(absent)))
+    if hidden:
+        print(f"{name}: pieces in a searched frustum but hidden by the model too (allowed): {hidden}")
     assert not missing, f"{name}: proxies planned in the frustum but absent from the index pass: {missing}"
 
 

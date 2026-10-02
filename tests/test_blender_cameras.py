@@ -1,20 +1,25 @@
 """CPU tests of the camera placement (wenart.blender.cameras): openings are
 assigned to rooms by the thickness of their wall, every camera (free area,
 door, window) stands outside the furniture proxies and records a warning
-whenever it had to move, on hand-made rooms and on all synthetic projects.
-No Blender needed."""
+whenever it had to move, on hand-made rooms and on all synthetic projects;
+the same for the ``search`` policy (docs/milestone6.md §4; the search itself
+is tested in tests/test_camsearch.py). No Blender needed, except for the
+check that ``create_cameras`` sets the lens shift (skipped without it)."""
 import json
+import math
+import subprocess
 from pathlib import Path
 
 import pytest
 
 from wenart import geometry as G
-from wenart.blender import cameras, geom2d
+from wenart.blender import cameras, cli, geom2d
 from wenart.blender.proxies import proxy_height
 
 ROOT = Path(__file__).resolve().parents[1]
 PROJECTS = ROOT / "projects"
 SYNTHETIC = ("synthetic-01", "synthetic-02", "synthetic-03")
+BLENDER = cli.find_blender()
 
 
 # --------------------------------------------------------------------------
@@ -185,3 +190,90 @@ def test_synthetic_cameras_are_inside_the_room_and_outside_every_proxy(name):
                 door = openings[plan["anchor"]]
                 if G.distance(plan["position"][:2], door["center"]) > cameras.DOOR_INSET + 0.3:
                     assert plan["warning"] and "moved" in plan["warning"], plan["name"]
+
+
+# --------------------------------------------------------------------------
+# Policy "search" (docs/milestone6.md §4): the same rooms, the same clearances
+# --------------------------------------------------------------------------
+
+def _search(building: dict, level: str = "L0") -> list[dict]:
+    return cameras.plan_cameras(building, level, policy="search")
+
+
+def test_search_policy_on_the_hand_made_room():
+    building = _room(0.25, furniture=[_piece("bed", "bed_double", center=[2.0, 3.0], size=[1.6, 2.0])])
+    plans = _search(building)
+    assert [p["name"] for p in plans] == ["cam_r_1", "cam_r_2", "cam_r_3"]          # 16 m2: three views
+    for p in plans:
+        assert p["policy"] == "search" and p["shift_y"] == -0.10 and p["shift_x"] == 0.0
+        assert p["position"][2] == pytest.approx(1.25) and p["target"][2] == pytest.approx(1.25)
+        assert G.point_in_polygon(p["position"][:2], building["rooms"][0]["polygon"])
+        assert p["warning"] is None and p["anchor"] is None
+        _assert_outside(p, building["furniture"])
+        assert set(p["visible_openings"]) <= {"win", "door"} and set(p["visible_furniture"]) <= {"bed"}
+    # The default policy still gives the M5 plans of the same room.
+    m5 = cameras.plan_cameras(building, "L0")
+    assert [p["anchor"] for p in m5] == [None, "door", "win"]
+    assert m5[0]["position"][2] == pytest.approx(cameras.CAMERA_HEIGHT)
+
+
+def test_search_policy_avoids_a_wardrobe_in_front_of_the_door():
+    wardrobe = _piece("wardrobe", "wardrobe", center=[3.5, 1.0], size=[0.6, 1.2])
+    building = _room(0.25, furniture=[wardrobe])
+    for p in _search(building):
+        _assert_outside(p, [wardrobe])
+        assert p["warning"] is None
+
+
+@pytest.mark.parametrize("name", SYNTHETIC)
+def test_synthetic_search_cameras_are_inside_the_room_and_outside_every_proxy(name):
+    building = json.loads((PROJECTS / name / "truth" / "building.json").read_text(encoding="utf-8"))
+    rooms = {r["id"]: r for r in building["rooms"]}
+    for level in building["levels"]:
+        plans = _search(building, level["id"])
+        assert {p["room_id"] for p in plans} == {r["id"] for r in rooms.values() if r["level_id"] == level["id"]}
+        for plan in plans:
+            room = rooms[plan["room_id"]]
+            assert G.point_in_polygon(plan["position"][:2], room["polygon"]), plan["name"]
+            if plan["warning"]:
+                continue
+            for piece in [f for f in building["furniture"] if f.get("room_id") == room["id"]]:
+                assert _distance_to_piece(plan, piece) >= cameras.CAMERA_OBSTACLE_CLEARANCE - 1e-6, plan["name"]
+
+
+@pytest.mark.skipif(BLENDER is None, reason="no Blender binary")
+def test_create_cameras_sets_the_lens_shift_and_keeps_verticals_straight(tmp_path):
+    """Blender: a searched plan gets shift_y -0.10 and a level camera (pitch 0: its view axis is
+    horizontal and its up axis is world +Z); an M5 plan keeps shift 0 and its 1.4 -> 1.3 m tilt."""
+    building = _room(0.25, furniture=[_piece("bed", "bed_double", center=[2.0, 3.0], size=[1.6, 2.0])])
+    plans = _search(building)[:2] + [dict(cameras.plan_cameras(building, "L0")[0], name="cam_m5_1")]
+    src, out = tmp_path / "plans.json", tmp_path / "cams.json"
+    src.write_text(json.dumps(plans), encoding="utf-8")
+    expr = (f"import sys, json; sys.path.insert(0, {str(ROOT)!r})\n"
+            "import bpy\n"
+            "from wenart.blender import cameras\n"
+            "bpy.ops.wm.read_factory_settings(use_empty=True)\n"
+            "col = bpy.data.collections.new('c'); bpy.context.scene.collection.children.link(col)\n"
+            f"plans = json.load(open({str(src)!r}))\n"
+            "objs = cameras.create_cameras(plans, col, [])\n"
+            "bpy.context.view_layer.update()\n"
+            "res = {}\n"
+            "for ob in objs:\n"
+            "    m = ob.matrix_world.to_3x3()\n"
+            "    res[ob.name] = {'shift': [ob.data.shift_x, ob.data.shift_y], 'fit': ob.data.sensor_fit,\n"
+            "                    'lens': ob.data.lens, 'forward': list(-m.col[2]), 'up': list(m.col[1]),\n"
+            "                    'location': list(ob.location)}\n"
+            f"json.dump(res, open({str(out)!r}, 'w'))\n")
+    proc = subprocess.run([BLENDER, "-b", "--factory-startup", "--python-exit-code", "1", "--python-expr", expr],
+                          capture_output=True, text=True, timeout=300, cwd=str(ROOT))
+    assert proc.returncode == 0, proc.stdout[-2000:] + proc.stderr[-2000:]
+    res = json.loads(out.read_text(encoding="utf-8"))
+    for plan in plans[:2]:
+        cam = res[plan["name"]]
+        assert cam["shift"] == pytest.approx([0.0, -0.10], abs=1e-6) and cam["fit"] == "HORIZONTAL"
+        assert cam["lens"] == pytest.approx(24.0) and cam["location"] == pytest.approx(plan["position"], abs=1e-6)
+        assert cam["forward"][2] == pytest.approx(0.0, abs=1e-6) and cam["up"] == pytest.approx([0, 0, 1], abs=1e-6)
+        yaw = math.radians(plan["score"]["yaw_deg"])
+        assert cam["forward"][:2] == pytest.approx([math.cos(yaw), math.sin(yaw)], abs=1e-5)
+    m5 = res["cam_m5_1"]
+    assert m5["shift"] == [0.0, 0.0] and m5["forward"][2] < 0
