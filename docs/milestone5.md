@@ -692,3 +692,26 @@ under `results/renders/<p>/`, `results/polish/<p>/`, `results/gate/<p>/`, `resul
 - Blender 5.2.2 (local probes): view transforms and looks, white balance properties, `light.cycles.is_portal`,
   Render Result unreadable in background mode, EXR unaffected by view settings, shader node names, glass and
   portal light balance in a test room.
+
+## 13. Integration notes (2 Oct 2026)
+
+The six areas were merged into one branch; these are the decisions taken where the spec was silent,
+ambiguous or contradicted itself, and the cross-area fixes. `tests/test_m5_e2e.py` runs every stage of
+§8.2 on synthetic-01 (CPU, fake diffusion backend, real gate with fake models, an oracle vision client).
+
+| Topic | Decision |
+|---|---|
+| §3.6 / §7 reasons | A Cycles view's reason can also be `deadline` (the deadline cut its ladder or the room rule; view `complete: false`) and, in the final report only, `not_run` (no polish run manifest, or the view is missing from it). Final-manifest reasons: `gate|brief|room|vision_check|check_incomplete|error|deadline|not_run`. |
+| §3.4 control images | `<cam>_control_<type>.png` is written once at render size; every attempt pads or resizes it with the same size plan as the render. |
+| §3.6 room rule | The common rung must be accepted by every candidate of the room **and** their wall Lab means must agree within ΔE 5 at it; rungs the early-stop ladder never ran are run on demand. Room entries also carry `views`, `candidates`, `delta_e_max`, `delta_e_after`, `incomplete`. |
+| §3.6 resumability | A run that reuses every attempt loads no model; its manifest keeps `memory_mode`, `peak_vram_gib`, `load_seconds`, `seconds_per_forward` of the run that made the attempts (`stats_source: previous_run`). |
+| §4.4 debug image | The polish writes `<cam>_a<k>_gate.jpg` with the gate's own `Gate.write_debug(ref, test_rgb, result, path)` (it reuses the maps of the last comparison). |
+| §4.2 edges, added lines | Recall uses test-side Canny thresholds × 0.5 (`edges.test_factor`, default 0.5): with equal thresholds a white frame on a white wall vanished under the benign blur and −0.3 EV controls. Added lines are matched against reference Canny edges **plus** the view's geometry edges. Hough settings are code constants (votes = max(20, 0.5 × min length), gap 3 px, match 3 px). All three are calibrated in run 1a. |
+| §4.3 / §5.5 `controls.json` | `dir` is relative to the project output (`controls/hide_<id>`, as §5.5 writes it), not to `check/` (§1.1); the file says so with `dir_relative_to: "project_out"`, and the gate calibration honours that key. |
+| §5.2 plan A/B | Image kind `plan_ab:removal:<id>` is added, so the A/B can measure whether removal detection rises. |
+| §5.5 `check_incomplete` | Also when the Cycles image's own check is not computed or unreliable (the differential decision needs both images). In single-pass mode nothing is confirmed, so the check never rejects. |
+| §5.1 cross-check depth test | A sample is visible when nothing was rendered more than 5 cm in front of it (`z <= rendered + 0.05`; background counts as far); read literally, "within 5 cm" would hide dropped elements. |
+| §6 brief | `load_brief` also returns `path` and `warnings`; `values` keeps nested blocks merged (`values["render"]["samples"]`), `assumed` lists dotted keys (`render.samples`). |
+| §6 style photos in the job | The check phase agrees the project photos' passes into `check/style_photo_terms.json`; the next look phase passes it to `wenart.style --photo-terms` (empty terms change nothing). The vision check and the style module share one photo rule (`wenart.style.photos.style_photo_paths`). |
+| §2.6 `cli.render` | Returns the out folder (not a manifest path) when `hide_sets` is given; the same ids asked with and without `+plug` in one call is a usage error (exit 2). |
+| §2.7 build fingerprint | Also hashes `wenart/geometry.py` (the build's geometry depends on it). |

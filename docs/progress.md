@@ -225,3 +225,37 @@ GPU cost so far: see `docs/gpu-log.md`.
 
 Next step: Milestone 5: AI polish (image-to-image with depth/edge control, geometry change check), the final
 vision check against the building JSON, and real-room photos as style and material references.
+
+## Milestone 5 – Cycles look fixes, gated AI polish, final vision check (code done, pod runs pending)
+
+What is built (`docs/milestone5.md` is the spec; §13 lists the integration decisions):
+- Look (`wenart/blender`): camera-only window glass, flat albedo for plaster and painted surfaces (the
+  plaster wall tints are gone), one light portal per window, per-camera auto exposure and white balance from
+  a 1/8-resolution metering render, uint16 index / depth_mm / normal maps, `render_key` reuse, `--hide`,
+  `--plug`, `--hide-sets`, `--look-from`, build fingerprint with `build --reuse`.
+- AI polish (`wenart/polish`): Z-Image-Turbo + Fun ControlNet Union 2.1 img2img with one control image, the
+  attempt ladder (each attempt gated at once), the room rule, resumable attempts (`attempt_key`, `gate_key`,
+  decisions recomputed), sweep and smoke modes, deadline handling.
+- Change gate (`wenart/gate`): lost edges, added straight lines, DAv2-Small depth, SAM 2.1 masks, Lab colour,
+  neutral walls, DINOv2 features (soft); benign / negative / removal / insertion calibration with threshold
+  proposals.
+- Final vision check (`wenart/vision_check`): expected elements from the index pass, the building-JSON
+  cross-check, source-plan crops, two models with a decoy, removal / insertion / type-swap controls, realism
+  preference, calibration targets and the differential polish decision.
+- Style reference photos (`wenart/style/photos.py`), brief defaults (`wenart/brief.py`), final and sweep
+  reports (`wenart/report`), pod setup and job (`scripts/pod_setup_polish.sh`, `scripts/jobs/polish.sh`),
+  GPU tests (`tests/gpu/test_polish.py`, `test_check.py`, `test_render.py`).
+
+Tests: `pytest -m "not gpu"` green on the integration branch, including `tests/test_m5_e2e.py`: every job
+stage on synthetic-01 (Blender CPU, 2 views at 192x108, a fake diffusion backend, the real gate with fake
+models, an oracle vision client) in about 16 s, plus the read-only GPU test logic on its outputs.
+
+Open items (need the pod or the user):
+- Pod runs 0, 1a, 1b, 2 (`docs/milestone5.md` §8.3): none has run. The diffusers / transformers model code,
+  VRAM, speed, exposure defaults, gate thresholds, ladder and check targets are unmeasured.
+- Exposure: sky-only interiors meter bluish (whitepoint 7000–9500 K on the CPU tests), so auto white balance
+  warms them; calibrate in run 0/1.
+- Gate: a 2° rotation of mid-size objects is not detected at 640 px; wet-room tiles (texture albedo) pass a
+  b* +10 shift. Run 1a decides.
+- Vision check: prompt wording, decoy and extras untested on the real models; token budget estimated.
+- `docs/plan.md` §4.12–4.13 and §8 still need the §0 changes when the milestone is closed.
