@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """RunPod runner for WenArt_RUN. Every GPU job goes through here.
 
-Hard rules (CLAUDE.md): max $1.00/GPU-hour, max $10/day, max 2 h per run, one pod
+Hard rules (CLAUDE.md): max $5.00/GPU-hour, max $10/day, max 2 h per run, one pod
 at a time. Pods stop themselves (watchdog + end of job, see scripts/pod_entry.sh).
 The runner collects the results (results/ and, for private projects, results-private/
 into runs/<job>/), stops the pod right after a successful collection instead of
@@ -51,7 +51,8 @@ ROOT = Path(__file__).resolve().parent.parent
 GPU_LOG = ROOT / "docs" / "gpu-log.md"
 RUNS_DIR = ROOT / "runs"
 
-MAX_PRICE_PER_H = 1.00
+MAX_PRICE_PER_H = 5.00          # user decision of 3 Oct 2026 (was $1.00)
+MAX_ACTION_USD = 5.00           # CLAUDE.md: ask the user before any single action costing more than $5
 MAX_PER_DAY = 10.00
 MAX_MINUTES = 120
 IMAGE = "runpod/pytorch:1.4.0-cu1281-torch291-ubuntu2404"
@@ -60,9 +61,15 @@ VOLUME_NAME = "wenart"
 VOLUME_SIZE_GB = 120
 CONTAINER_DISK_GB = 30
 POD_PREFIX = "wenart-"
-# Allowed GPUs in order of preference: 24 GB+, RT cores, under $1/h (docs/milestone6.md §0:
-# every M5/M6 timing is measured on the RTX PRO 4500 / RTX 4090; A5000/A40/A6000 had no stock).
-GPU_PRIORITY = ["RTX PRO 4500", "RTX 4090", "RTX PRO 4000", "RTX A5000", "RTX A6000", "A40"]
+# Allowed GPUs, fastest first (user decisions of 3 Oct 2026: "for faster job finish choose a better GPU",
+# limit $5/h). NVIDIA only (the stack is CUDA), 24 GB+, whole GPUs (no MIG slices). Cards with RT cores come
+# first because Cycles renders use them; the data-centre cards without RT cores (H200/H100/A100) follow the
+# fast RTX cards. Measured: the RTX 4090 renders and polishes 25-30 % faster than the RTX PRO 4500 (M5 runs
+# 1a/2). Not measured yet: everything else; the RTX PRO 6000 (96 GB) has the same Blackwell architecture as the
+# PRO 4500 (the lowest-risk upgrade; in stock in EU-RO-1 on 3 Oct 2026, $2.09/h).
+GPU_PRIORITY = ["RTX PRO 6000", "RTX PRO 6000 WK", "RTX 5090", "RTX PRO 5000", "L40S", "H200 SXM", "H200 NVL",
+                "H100 SXM", "H100 NVL", "H100 PCIe", "RTX 4090", "RTX 6000 Ada", "L40", "A100 SXM", "A100 PCIe",
+                "RTX PRO 4500", "RTX 5000 Ada", "RTX PRO 4000", "RTX A6000", "A40", "RTX A5000"]
 EXCLUDED_GPUS = ("L4",)       # never, not even with --gpu (docs/milestone6.md §0)
 POLL_S = 20
 BOOT_TIMEOUT_S = 15 * 60  # pod RUNNING but no status server -> stop it
@@ -120,6 +127,14 @@ def utc_now() -> dt.datetime:
 
 
 # ---------------------------------------------------------------------- pure logic
+def action_price_limit(minutes: int, over_5_ok: bool = False) -> float:
+    """$/h limit for one pod of ``minutes``: the per-hour limit, and (unless the user OK'd a bigger action with
+    ``--over-5-ok``) the price at which the pod's worst case stays within MAX_ACTION_USD."""
+    if over_5_ok or minutes <= 0:
+        return MAX_PRICE_PER_H
+    return min(MAX_PRICE_PER_H, MAX_ACTION_USD * 60.0 / minutes)
+
+
 def pick_gpu(catalog: list[dict], dc_avail: dict[str, str] | None, want: str | None,
             max_price: float = MAX_PRICE_PER_H) -> dict:
     """Choose a GPU from the live catalog. Raises with a clear message if none fits."""
@@ -610,7 +625,8 @@ def cmd_run(a: argparse.Namespace) -> int:
     if not a.no_volume and volume is None:
         raise RuntimeError(f"no network volume '{VOLUME_NAME}'; run 'volume-create' or use --no-volume")
     dc = volume["dataCenter"] if volume else None
-    gpu = pick_gpu(catalog(), dc_availability(dc) if dc else None, a.gpu)
+    gpu = pick_gpu(catalog(), dc_availability(dc) if dc else None, a.gpu,
+                   max_price=action_price_limit(minutes, getattr(a, "over_5_ok", False)))
     today = spent_today(pods)
     check_limits(gpu["price"], minutes, today)
     worst = gpu["price"] * minutes / 60
@@ -825,6 +841,8 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--keep", action="store_true", help="do not terminate the stopped pod")
     r.add_argument("--allow-dirty", action="store_true")
     r.add_argument("--dry-run", action="store_true")
+    r.add_argument("--over-5-ok", action="store_true",
+                   help="the user OK'd a pod whose worst case is over $5 (CLAUDE.md: ask before any action over $5)")
     r.add_argument("--repo-url", default="https://github.com/cihantanaydin-svg/WenArt_RUN.git")
     r.set_defaults(fn=cmd_run)
     for name, fn in (("logs", cmd_logs), ("stop", cmd_stop), ("terminate", cmd_terminate)):

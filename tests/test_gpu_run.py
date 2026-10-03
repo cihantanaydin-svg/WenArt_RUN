@@ -29,23 +29,44 @@ LOG_FIXTURE = """# GPU run log
 | Date (UTC) | Pod ID | GPU | Minutes | Cost (USD) | Purpose | Result |
 |---|---|---|---|---|---|---|
 
-**Total spent so far: $0.00** (budget: $100; limits: $1.00/GPU-hour, $10/day, 2 h/run)
+**Total spent so far: $0.00** (budget: $100; limits: $5.00/GPU-hour, $10/day, 2 h/run)
 """
 ROW = {"date": "2026-10-01 12:00", "pod_id": "abc", "gpu": "L4", "minutes": 12, "cost": 0.1,
        "purpose": "smoke", "result": "ok"}
 
 
 def test_pick_gpu_prefers_priority_order_and_stock():
-    g = gpu_run.pick_gpu(CATALOG, None, None)
+    # A 115-min pod may cost at most $5 without the user's OK: $2.61/h, so the H100 ($2.69) is skipped.
+    g = gpu_run.pick_gpu(CATALOG, None, None, max_price=gpu_run.action_price_limit(115))
     assert g["name"] == "RTX 4090"  # PRO 4500 / PRO 4000 not in the catalog, never L4 (docs/milestone6.md §0)
+    # With the user's OK for a bigger action the faster H100 is taken (per-hour limit $5).
+    g = gpu_run.pick_gpu(CATALOG, None, None, max_price=gpu_run.action_price_limit(115, over_5_ok=True))
+    assert g["name"] == "H100 SXM"
 
 
-def test_gpu_priority_of_milestone_6():
-    assert gpu_run.GPU_PRIORITY == ["RTX PRO 4500", "RTX 4090", "RTX PRO 4000", "RTX A5000", "RTX A6000", "A40"]
-    assert "L4" not in gpu_run.GPU_PRIORITY
+def test_price_limits_of_3_oct_2026():
+    """User decision of 3 Oct 2026: $5 per GPU-hour; CLAUDE.md still asks before any action over $5."""
+    assert gpu_run.MAX_PRICE_PER_H == 5.00 and gpu_run.MAX_ACTION_USD == 5.00 and gpu_run.MAX_PER_DAY == 10.00
+    assert gpu_run.action_price_limit(115) == pytest.approx(5.0 * 60 / 115)          # $2.61/h
+    assert gpu_run.action_price_limit(60) == 5.0 and gpu_run.action_price_limit(30) == 5.0
+    assert gpu_run.action_price_limit(115, over_5_ok=True) == 5.0
+
+
+def test_gpu_priority_fastest_first():
+    """User decisions of 3 Oct 2026: the fastest GPU in stock under $5/h (never L4, no AMD, no MIG slices)."""
+    assert gpu_run.GPU_PRIORITY[:2] == ["RTX PRO 6000", "RTX PRO 6000 WK"]
+    assert gpu_run.GPU_PRIORITY.index("RTX 4090") < gpu_run.GPU_PRIORITY.index("RTX PRO 4500")
+    assert not {"L4", "MI300X", "PRO 6000 MIG 48GB", "PRO 6000 MIG 24GB"} & set(gpu_run.GPU_PRIORITY)
     cat = CATALOG + [{"name": "RTX PRO 4500", "id": "NVIDIA RTX PRO 4500 Blackwell", "memory": 32,
                       "price": {"secure": 0.69}, "availability": "LOW"}]
-    assert gpu_run.pick_gpu(cat, None, None)["name"] == "RTX PRO 4500"
+    limit = gpu_run.action_price_limit(115)
+    assert gpu_run.pick_gpu(cat, None, None, max_price=limit)["name"] == "RTX 4090"
+    fast = cat + [{"name": "RTX PRO 6000", "id": "NVIDIA RTX PRO 6000 Blackwell Server Edition", "memory": 96,
+                   "price": {"secure": 2.09}, "availability": "LOW"}]
+    assert gpu_run.pick_gpu(fast, None, None, max_price=limit)["name"] == "RTX PRO 6000"
+    too_dear = cat + [{"name": "RTX PRO 6000", "id": "NVIDIA RTX PRO 6000 Blackwell Server Edition", "memory": 96,
+                       "price": {"secure": 5.09}, "availability": "HIGH"}]
+    assert gpu_run.pick_gpu(too_dear, None, None, max_price=5.0)["name"] == "H100 SXM"   # over the $5/h limit
     assert gpu_run.pick_gpu(cat, {"RTX 4090": "LOW"}, None)["name"] == "RTX 4090"   # the 4500 has no stock here
     with pytest.raises(RuntimeError, match="L4 is not allowed"):
         gpu_run.pick_gpu(CATALOG, None, "L4")
@@ -62,14 +83,21 @@ def test_pick_gpu_uses_dc_availability():
 
 
 def test_pick_gpu_refuses_expensive():
-    with pytest.raises(RuntimeError, match="over the"):
-        gpu_run.pick_gpu(CATALOG, None, "H100 SXM")
+    dear = CATALOG + [{"name": "H200 SXM", "id": "NVIDIA H200", "memory": 141, "price": {"secure": 5.49},
+                       "availability": "HIGH"}]
+    with pytest.raises(RuntimeError, match="over the"):                     # over the $5/h limit
+        gpu_run.pick_gpu(dear, None, "H200 SXM")
+    with pytest.raises(RuntimeError, match="over the"):                     # a 115-min pod over $5 without OK
+        gpu_run.pick_gpu(CATALOG, None, "H100 SXM", max_price=gpu_run.action_price_limit(115))
+    assert gpu_run.pick_gpu(CATALOG, None, "H100 SXM",
+                            max_price=gpu_run.action_price_limit(115, over_5_ok=True))["name"] == "H100 SXM"
 
 
 def test_check_limits():
     gpu_run.check_limits(0.27, 120, 0.0)
+    gpu_run.check_limits(1.01, 10, 0.0)                     # allowed since 3 Oct 2026 ($5/h limit)
     with pytest.raises(RuntimeError):
-        gpu_run.check_limits(1.01, 10, 0.0)
+        gpu_run.check_limits(5.01, 10, 0.0)
     with pytest.raises(RuntimeError):
         gpu_run.check_limits(0.5, 121, 0.0)
     with pytest.raises(RuntimeError, match="day"):
