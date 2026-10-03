@@ -1,10 +1,33 @@
-# Bringing a real project to WenArt (private projects)
+# Bringing a real project to WenArt
 
-This page is for you, the project owner. It says how to send a real, possibly confidential project
-to the GPU machine (the RunPod network volume) so that WenArt can render it, and what Claude can and
-cannot see. The spec behind it is `docs/milestone6.md` §7.1.
+## The easy way (use this now)
 
-## The short version
+1. Drop the project files into the WenArt chat in Claude (plans as DXF or PDF, a `.zip` of the
+   whole folder is fine too), or upload them on GitHub into a new folder `projects/real01/`
+   (repository page, **Add file > Upload files**).
+2. Tell Claude: "run real01" and, if you like, the style in one sentence
+   ("modern, walnut floor, white walls").
+
+Claude does the rest: puts the files into `projects/real01/` with
+`python scripts/add_project.py real01 <files> [--style "..."]`, commits, runs the project on RunPod
+(`RUN_PROJECTS=real01`) and shows you the renders and the final report.
+
+Good to know:
+
+- **The repository is public.** Files and results of this way can be seen by anyone. If a project
+  must stay private, use "The private way" below.
+- Name the next projects `real02`, `real03`, ... (no dash: `real-01` is kept for private uploads).
+- Export **DXF** (best) or a vector PDF from the CAD program. DWG files are not read.
+- GitHub's web upload takes files up to 25 MB each; the chat takes larger ones.
+- `scripts/add_project.py` applies the same file rules as the private way (section 4 below): junk
+  and unused file types are skipped, plans in subfolders are moved to the top level, files dropped
+  in the chat without a file type get one from their content, a `.zip` is unpacked. It lists what
+  it kept and skipped. Without a style, the default style is used (`wenart/defaults.yaml`).
+
+## The private way (more steps)
+
+Use this only when the project must stay confidential. The files then go from your computer straight
+to RunPod (data centre EU-RO-1), never through GitHub or the Claude chat.
 
 1. Pick a neutral name for the project: `real-01`, then `real-02`, and so on.
 2. Create a RunPod **S3 API key** once (step 2 below). Never paste it into the chat.
@@ -12,17 +35,16 @@ cannot see. The spec behind it is `docs/milestone6.md` §7.1.
 4. Tell Claude only: "real-01 is uploaded". Nothing else.
 5. Later, download the full results from the volume with the same tool.
 
-Your files go from your computer straight to RunPod (data centre EU-RO-1). They never go through
-GitHub, never through the Claude chat and never into the public repository.
+The spec behind it is `docs/milestone6.md` §7.1.
 
-## Why this way
+### Why this way
 
 - The repository `cihantanaydin-svg/WenArt_RUN` is **public**. Everything committed there can be read
   by anyone. A real project can never be committed, not even its results.
 - The GPU machine deletes every unknown file in its copy of the repository at each start, so private
   files must live on the volume, outside the repository: `/workspace/projects-private/<alias>/`.
 
-## 1. Choose an alias
+### 1. Choose an alias
 
 - Use `real-01` for the first project, `real-02` for the second, and so on (`real-` and 2 or 3
   digits; nothing else is accepted).
@@ -31,7 +53,7 @@ GitHub, never through the Claude chat and never into the public repository.
 - Use each alias for one project only. Keep your own list of which alias is which project; do not
   share that list in the chat.
 
-## 2. Create an S3 API key (once)
+### 2. Create an S3 API key (once)
 
 1. Open the RunPod console, **Credentials** page: https://console.runpod.io/user/credentials
    (the tab is called **S3 API Keys**).
@@ -46,7 +68,7 @@ GitHub, never through the Claude chat and never into the public repository.
    way to limit what it can do, so treat it as full read and write access to your volumes, like a
    password.
 
-## 3. Install the AWS command-line tool (once)
+### 3. Install the AWS command-line tool (once)
 
 On a Mac: download and run the AWS CLI v2 installer from
 https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html (or `brew install awscli`
@@ -65,7 +87,7 @@ Answer the four questions:
 | Default region name | leave empty (press Enter) |
 | Default output format | leave empty (press Enter) |
 
-## 4. Prepare the project folder
+### 4. Prepare the project folder
 
 Put everything of one project in one folder on your computer. Recommended layout:
 
@@ -101,7 +123,7 @@ Rules:
 - **Use neutral file names** (`zemin_kat.dxf`, `plan_1.pdf`) if the names themselves are confidential:
   file names and room names appear in the final report that Claude reads (see "What reaches Claude").
 
-## 5. Upload
+### 5. Upload
 
 In Terminal, in the folder that contains your project folder (replace `my-folder` and the alias):
 
@@ -124,7 +146,7 @@ aws s3 ls --recursive $E s3://h9er811d55/projects-private/$ALIAS/
 To replace a file, upload it again under the same name. To add a missing file, upload it the same
 way. Every run stages the upload again from scratch, so a file you removed is never read again.
 
-## 6. What happens on the pod
+### 6. What happens on the pod
 
 - The job copies your upload into a clean working folder (`/workspace/outputs-private/<alias>/input/<alias>`):
   junk skipped, names converted, subfolder plans moved to the top level. It writes
@@ -140,7 +162,7 @@ way. Every run stages the upload again from scratch, so a file you removed is ne
   run" and the project is **incomplete**; it continues from where it stopped when the job runs again.
 - In the job log the project appears only as `<alias> <stage> <status> <seconds>s`.
 
-## 7. What reaches Claude, and what stays on the volume
+### 7. What reaches Claude, and what stays on the volume
 
 | Reaches Claude (and you, in the session) | Stays on the volume only |
 |---|---|
@@ -157,7 +179,7 @@ not need to. The vision model server is started without request logging, so its 
 no prompt (an error message there can still quote part of one, with room names or labels); the setup
 and download logs name only models.
 
-## 8. Download the results
+### 8. Download the results
 
 All outputs (renders, building JSON, reports, debug images):
 
@@ -173,7 +195,7 @@ Only the small result set (final report, previews, contact sheets, stage records
 aws s3 cp --recursive $E s3://h9er811d55/results-private/$ALIAS/ ./$ALIAS-results/
 ```
 
-## 9. Removing a project
+### 9. Removing a project
 
 Only you decide when your data is deleted; Claude never deletes it. To remove the upload and the
 outputs of one project:
@@ -187,7 +209,7 @@ aws s3 rm --recursive $E s3://h9er811d55/results-private/$ALIAS/
 The volume is not a backup: keep your originals. If the RunPod account balance reaches $0, the volume
 can be deleted by RunPod after a while.
 
-## Notes
+### Notes
 
 - The S3 path was checked against the RunPod documentation (https://docs.runpod.io/storage/s3-api)
   and a live probe of the endpoint (it answers 401 without a key). It is first really used when you

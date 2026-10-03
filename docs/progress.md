@@ -386,9 +386,10 @@ an L-shaped room's fallback camera outside the room; the report counting views f
 Review: 6 finders, 6 adversarial verifiers, 19 of 22 findings confirmed and fixed (`docs/milestone6.md` §13).
 
 Needs your OK or action:
-- **Real projects**: follow `docs/intake.md` (create a RunPod S3 API key yourself, never paste it into the chat;
-  export DXF or vector PDF from your CAD program; upload as `real-01`, `real-02`, …; tell me only the alias).
-  Then one pod runs them with `PRIVATE_PROJECTS=real-01`.
+- **Real projects** (easy way, `docs/intake.md`): drop the files (DXF or vector PDF, or a `.zip`) into the chat
+  and say "run real01"; Claude adds them with `scripts/add_project.py` as `projects/real01/` (public repo) and
+  runs them with `RUN_PROJECTS=real01`. Confidential projects use the private way there (RunPod S3 upload as
+  `real-01`, then `PRIVATE_PROJECTS=real-01`).
 - The M5 gate limits (`calibration.user_ok: pending`) are still waiting for your OK; with the M6 look all three
   polished projects pass the new per-project validation.
 - The vision check is still advisory for absolute flags (it rarely notices an inserted element).
