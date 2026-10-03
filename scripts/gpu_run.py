@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """RunPod runner for WenArt_RUN. Every GPU job goes through here.
 
-Hard rules (CLAUDE.md): max $1.00/GPU-hour, max $10/day, max 2 h per run, one pod
+Hard rules (CLAUDE.md): max $5.00/GPU-hour, max $10/day, max 2 h per run, one pod
 at a time. Pods stop themselves (watchdog + end of job, see scripts/pod_entry.sh).
 The runner collects the results (results/ and, for private projects, results-private/
 into runs/<job>/), stops the pod right after a successful collection instead of
@@ -51,7 +51,7 @@ ROOT = Path(__file__).resolve().parent.parent
 GPU_LOG = ROOT / "docs" / "gpu-log.md"
 RUNS_DIR = ROOT / "runs"
 
-MAX_PRICE_PER_H = 1.00
+MAX_PRICE_PER_H = 5.00
 MAX_PER_DAY = 10.00
 MAX_MINUTES = 120
 IMAGE = "runpod/pytorch:1.4.0-cu1281-torch291-ubuntu2404"
@@ -60,7 +60,7 @@ VOLUME_NAME = "wenart"
 VOLUME_SIZE_GB = 120
 CONTAINER_DISK_GB = 30
 POD_PREFIX = "wenart-"
-# Allowed GPUs in order of preference: 24 GB+, RT cores, under $1/h (docs/milestone6.md §0:
+# Allowed GPUs in order of preference: 24 GB+, RT cores, under $5/h (docs/milestone6.md §0:
 # every M5/M6 timing is measured on the RTX PRO 4500 / RTX 4090; A5000/A40/A6000 had no stock).
 GPU_PRIORITY = ["RTX PRO 4500", "RTX 4090", "RTX PRO 4000", "RTX A5000", "RTX A6000", "A40"]
 EXCLUDED_GPUS = ("L4",)       # never, not even with --gpu (docs/milestone6.md §0)

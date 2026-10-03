@@ -22,14 +22,14 @@ CATALOG = [
     {"name": "RTX A5000", "id": "NVIDIA RTX A5000", "memory": 24, "price": {"secure": 0.27}, "availability": "NONE"},
     {"name": "L4", "id": "NVIDIA L4", "memory": 24, "price": {"secure": 0.49}, "availability": "LOW"},
     {"name": "RTX 4090", "id": "NVIDIA GeForce RTX 4090", "memory": 24, "price": {"secure": 0.74}, "availability": "LOW"},
-    {"name": "H100 SXM", "id": "NVIDIA H100", "memory": 80, "price": {"secure": 2.69}, "availability": "HIGH"},
+    {"name": "H100 SXM", "id": "NVIDIA H100", "memory": 80, "price": {"secure": 5.49}, "availability": "HIGH"},
 ]
 LOG_FIXTURE = """# GPU run log
 
 | Date (UTC) | Pod ID | GPU | Minutes | Cost (USD) | Purpose | Result |
 |---|---|---|---|---|---|---|
 
-**Total spent so far: $0.00** (budget: $100; limits: $1.00/GPU-hour, $10/day, 2 h/run)
+**Total spent so far: $0.00** (budget: $100; limits: $5.00/GPU-hour, $10/day, 2 h/run)
 """
 ROW = {"date": "2026-10-01 12:00", "pod_id": "abc", "gpu": "L4", "minutes": 12, "cost": 0.1,
        "purpose": "smoke", "result": "ok"}
@@ -69,7 +69,7 @@ def test_pick_gpu_refuses_expensive():
 def test_check_limits():
     gpu_run.check_limits(0.27, 120, 0.0)
     with pytest.raises(RuntimeError):
-        gpu_run.check_limits(1.01, 10, 0.0)
+        gpu_run.check_limits(5.01, 10, 0.0)
     with pytest.raises(RuntimeError):
         gpu_run.check_limits(0.5, 121, 0.0)
     with pytest.raises(RuntimeError, match="day"):
