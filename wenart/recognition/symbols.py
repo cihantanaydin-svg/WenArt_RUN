@@ -17,9 +17,12 @@ building may say:
   (``furniture.schemas.ALLOWED_TYPES`` + ``side_table``, ``floor_lamp``, ``potted_plant`` everywhere, ``stair`` in
   halls) is kept, ``unverified``, with a warning. An accepted ``stair`` is always ``unverified``: the stair rule of
   §2.8 found no treads there, so flights and landing are unknown.
-- **Front** (§2.8): with a unique deterministic front in the candidate (``front_deg``, or ``front_candidates`` with
-  one distinct value) the result keeps it only when at least one pass names that side and none names another; with
-  none, both passes must name the same side; else ``front`` is None. A side of the iso crop (``top``, ``right``,
+- **Front** (§2.8): a unique deterministic front in the candidate (``front_deg``, or ``front_candidates`` with one
+  distinct value) is kept when at least one pass names a side, also when a pass names another side: the drawing
+  outranks the AI (CLAUDE.md trust order: vector geometry > AI suggestions), so a disagreeing pass only adds a warning
+  and a ``front_conflict`` (listed in the building's conflicts, never resolved silently; pod B: both models named one
+  fixed side for every bed, and dropping the drawn front built real01's south bed reversed). With no deterministic
+  front, both passes must name the same side; else ``front`` is None. A side of the iso crop (``top``, ``right``,
   ``bottom``, ``left``; the crops are not rotated, page y up) becomes the footprint axis direction nearest to it
   (0 = +x, 90 = +y, as ``front_deg`` everywhere).
 
@@ -68,6 +71,7 @@ FRONT_SIDE_DEG: dict[str, float] = {"right": 0.0, "top": 90.0, "left": 180.0, "b
 FRONTLESS_TYPES: tuple[str, ...] = ("table_dining", "table_coffee", "side_table", "floor_lamp", "potted_plant")
 NOT_BUILT_NOTE = "drawn symbol, not built"
 CONFLICT_RESOLUTION = "unresolved: the drawn footprint is kept as unknown, unverified"
+FRONT_CONFLICT_RESOLUTION = "the drawn front is kept (trust order: vector geometry > AI suggestions)"
 QUESTION_KINDS: tuple[str, ...] = ("vector", "raster")
 SIMILAR_TOLERANCE = 0.15           # neighbours: sides (sorted) within 15 % (at least 3 cm) count as the same size
 SIMILAR_MIN_M = 0.03
@@ -368,19 +372,27 @@ def _deterministic_front(candidate: dict) -> Optional[float]:
     return values[0][0] if len(values) == 1 else None
 
 
-def _front(candidate: dict, passes: list[dict], warnings: list[str]) -> Optional[float]:
+def _front(candidate: dict, passes: list[dict], warnings: list[str]) -> tuple[Optional[float], Optional[str]]:
+    """``(front, disagreement)``: see the module docstring (**Front**). ``disagreement`` describes AI fronts that
+    contradict the kept drawn front (the caller lists it as a conflict)."""
     ai = [p["front_deg"] for p in passes if p["front_deg"] is not None]
     det = _deterministic_front(candidate)
     if det is not None:
-        if ai and all(_same_angle(a, det) for a in ai):
-            return det
-        if any(not _same_angle(a, det) for a in ai):
-            warnings.append(f"{candidate.get('key')}: AI front {sorted(set(ai))} disagrees with the drawn front "
-                            f"{det:g}: front unknown")
-        return None
+        if not ai:
+            return None, None            # no pass named a side: the caller may keep the drawn front as assumed
+        other = sorted({round(a, 6) for a in ai if not _same_angle(a, det)})
+        if not other:
+            return det, None
+        rule = _front_rules(candidate)[0][1]
+        said = ", ".join(f"pass {p['info']['pass']} ({p['info']['id']}) {p['answer']['front']}" for p in passes
+                         if p["front_deg"] is not None)
+        description = (f"AI front {sorted(set(round(a, 6) for a in ai))} ({said}) disagrees with the drawn front "
+                       f"{det:g} deg" + (f" ({rule})" if rule else ""))
+        warnings.append(f"{candidate.get('key')}: {description}: the drawn front is kept (vector geometry > AI)")
+        return det, description
     if len(passes) == 2 and len(ai) == 2 and _same_angle(ai[0], ai[1]):
-        return ai[0]
-    return None
+        return ai[0], None
+    return None, None
 
 
 def _evidence(candidate: dict, info: dict, ans: dict) -> dict:
@@ -424,7 +436,7 @@ def decide(candidate: dict, answers: Optional[dict], size_table: dict, room_type
                            "confidence": float(ans["confidence"]), "front": ans["front"], "reason": ans["reason"]})
     result = {"type": "unknown", "status": "unverified", "type_method": "none", "type_candidates": candidates,
               "front": None, "front_assumed": False, "front_rule": None, "confidence": None, "ai_evidence": evidence,
-              "conflict": None, "build": True, "note": None, "warnings": warnings}
+              "conflict": None, "front_conflict": None, "build": True, "note": None, "warnings": warnings}
     element_ids = [str(candidate["element_id"])] if candidate.get("element_id") else []
 
     def conflict(description: str) -> dict:
@@ -436,7 +448,11 @@ def decide(candidate: dict, answers: Optional[dict], size_table: dict, room_type
         result.update(build=False, note=NOT_BUILT_NOTE)
         warnings.append(f"{key}: both passes say not_furniture: kept as an obstacle, not built")
         return result
-    result["front"] = _front(candidate, passes, warnings)
+    result["front"], disagreement = _front(candidate, passes, warnings)
+    if disagreement is not None:
+        result["front_rule"] = _front_rules(candidate)[0][1]
+        result["front_conflict"] = {"kind": "symbol_front_disagreement", "element_ids": element_ids,
+                                    "description": f"{key}: {disagreement}", "resolution": FRONT_CONFLICT_RESOLUTION}
     if len(passes) < 2:
         return result
     if types[0] != types[1]:

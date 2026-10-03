@@ -266,7 +266,7 @@
       "required": ["id", "kind", "element_ids", "description", "resolution"],
       "properties": {
         "id": {"type": "string"},
-        "kind": {"enum": ["dimension_vs_measured", "area_label_vs_computed", "count_mismatch", "outline_mismatch", "type_disagreement", "scale_disagreement", "label_size_mismatch", "symbol_type_disagreement", "raster_count_mismatch", "other"]},
+        "kind": {"enum": ["dimension_vs_measured", "area_label_vs_computed", "count_mismatch", "outline_mismatch", "type_disagreement", "scale_disagreement", "label_size_mismatch", "symbol_type_disagreement", "symbol_front_disagreement", "raster_count_mismatch", "other"]},
         "element_ids": {"type": "array", "items": {"type": "string"}},
         "description": {"type": "string"},
         "resolution": {"type": "string", "description": "Which source won (DWG > vector PDF > scan > photo) or 'unresolved'"}

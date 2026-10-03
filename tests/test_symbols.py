@@ -348,13 +348,19 @@ def test_front_rule(table):
     assert S.decide(candidate(size=sofa), both("top", "top"), table, "living")["front"] == 90.0
     assert S.decide(candidate(size=sofa), both("top", "left"), table, "living")["front"] is None
     assert S.decide(candidate(size=sofa), both("top", "none"), table, "living")["front"] is None
-    # A unique deterministic front is kept when one pass names it and none names another side.
+    # A unique deterministic front is kept when a pass names a side; a pass naming another side does not remove it
+    # (trust order: vector > AI; pod B: both models named one fixed side for every bed): the disagreement is a listed
+    # conflict (this assertion was 'front is None' before, changed on purpose).
     det = candidate(size=sofa, front_deg=270.0)
     assert S.decide(det, both("bottom", "none"), table, "living")["front"] == 270.0
-    assert S.decide(det, both("bottom", "bottom"), table, "living")["front"] == 270.0
-    res = S.decide(det, both("bottom", "top"), table, "living")
-    assert res["front"] is None and any("disagrees with the drawn front" in w for w in res["warnings"])
-    assert res["front_assumed"] is False
+    res = S.decide(det, both("bottom", "bottom"), table, "living")
+    assert res["front"] == 270.0 and res["front_conflict"] is None
+    for answers in (both("bottom", "top"), both("top", "top"), both("top", "none")):
+        res = S.decide(det, answers, table, "living")
+        assert res["front"] == 270.0 and res["front_assumed"] is False
+        assert any("disagrees with the drawn front 270" in w and "drawn front is kept" in w for w in res["warnings"])
+        fc = res["front_conflict"]
+        assert fc["kind"] == "symbol_front_disagreement" and fc["resolution"] == S.FRONT_CONFLICT_RESOLUTION
     # Both passes 'none' (no pass contradicts it) and the type accepted: the drawn front stays, marked assumed
     # (review ingest-6; this assertion was 'front is None' before, changed on purpose).
     res = S.decide(det, both("none", "none"), table, "living")

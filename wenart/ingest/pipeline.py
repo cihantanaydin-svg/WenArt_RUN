@@ -300,10 +300,10 @@ def _furniture_dict(level_id: str, piece: FurnitureItem, piece_id: str, rooms: l
             wall_id = walls[index]["id"] if walls is not None and index is not None and 0 <= index < len(walls) \
                 else run.get("wall_id")
             out["counter_run"] = {"wall_id": wall_id, "strokes": list(run.get("strokes") or [])}
-        conflict = piece.details.get("ai_conflict")
-        if conflict:
-            build.conflict(conflict["kind"], [piece_id], f"{piece_id}: {conflict['description']}",
-                           conflict["resolution"])
+        for conflict in (piece.details.get("ai_conflict"), piece.details.get("front_conflict")):
+            if conflict:
+                build.conflict(conflict["kind"], [piece_id], f"{piece_id}: {conflict['description']}",
+                               conflict["resolution"])
     return out
 
 

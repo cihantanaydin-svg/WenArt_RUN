@@ -293,6 +293,10 @@ def _apply_decision(item: FurnitureItem, result: dict, table: Optional[dict] = N
         item.details["note"] = result["note"]
     if result.get("conflict"):
         item.details["ai_conflict"] = dict(result["conflict"])
+    if result.get("front_conflict"):
+        item.details["front_conflict"] = dict(result["front_conflict"])
+        if result.get("front_rule"):
+            item.details["front_rule"] = result["front_rule"]
     return messages
 
 
