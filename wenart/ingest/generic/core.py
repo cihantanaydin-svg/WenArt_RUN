@@ -250,7 +250,13 @@ def _apply_front(item: FurnitureItem, front_deg: float) -> None:
     item.front_deg = round(front_deg % 360.0, 3)
 
 
-def _apply_decision(item: FurnitureItem, result: dict) -> None:
+def _apply_decision(item: FurnitureItem, result: dict, table: Optional[dict] = None) -> None:
+    """Apply ``recognition.symbols.decide``'s result to the candidate's piece. A front (agreed, or the drawn one kept
+    as assumed when both passes answered none: ``details["front_assumed"]``) sets rotation and width; a typed piece
+    without a front is oriented by its type's width/depth convention (``symbols.oriented_size``), the front stays
+    unknown (review ingest-6: the no-front rule's 'width = longer side' built real01's beds 90 deg off)."""
+    from wenart.recognition import symbols as RS
+
     item.type = result["type"]
     item.status = result["status"]
     item.type_method = result["type_method"]
@@ -258,6 +264,14 @@ def _apply_decision(item: FurnitureItem, result: dict) -> None:
     item.extra_evidence = list(result["ai_evidence"])
     if result.get("front") is not None:
         _apply_front(item, float(result["front"]))
+        if result.get("front_assumed"):
+            item.details["front_assumed"] = True
+    elif result["type"] != "unknown":
+        size, rotation, swapped = RS.oriented_size(item.size, item.rotation_deg, result["type"], table)
+        if swapped:
+            item.size, item.rotation_deg = (round(size[0], 4), round(size[1], 4)), rotation
+        item.details["front_note"] = (f"front unknown: width and depth follow the {result['type']} size convention"
+                                      + (" (footprint turned 90 deg)" if swapped else ""))
     if result.get("confidence") is not None:
         item.details["type_confidence"] = result["confidence"]
     if result.get("build") is False:
@@ -273,7 +287,12 @@ def _ask_and_apply(ex: LevelExtraction, page: GenericPage, cands: list[dict], wa
                    evidence_only: bool = False) -> None:
     """Crops and questions for every candidate; the two-pass rule where answers exist (§3.3). Raster candidates are
     pixel crops of the rectified page (``raster.image``, context ``{image, to_px}``, §3.1); an evidence-only raster
-    page asks nothing (§0)."""
+    page asks nothing (§0).
+
+    The question carries the item's facts (``recognition.symbols.question_facts``, prep pod finding P5): on vector
+    pages also the room's printed label and type (``room_label``/``room_type``) and the neighbours among this page's
+    candidates of the same face (``room_index``; ``symbols.neighbour_facts``). Raster questions carry neither: their
+    names and clusters may change with the label answers of the same round, and the hash must not."""
     if not cands:
         ex.report["questions"], ex.report["pending"] = [], []
         return
@@ -293,24 +312,28 @@ def _ask_and_apply(ex: LevelExtraction, page: GenericPage, cands: list[dict], wa
     if is_raster:
         s = float(ex.report["units_to_m"])
         raster_context = {"image": raster.image, "to_px": [1.0 / s, 0.0, 0.0, 0.0, -1.0 / s, float(page.size[1])]}
+        neighbours = {}
+    else:
+        neighbours = RS.neighbour_facts([{"key": c["key"], "footprint": c["footprint"],
+                                          "room_index": c.get("room_index")} for c in cands])
     items = []
     for cand in cands:
         crop_cand = {"key": cand["key"], "footprint": cand["footprint"], "strokes": cand["strokes"],
                      "bbox": cand["bbox"], "_ids": cand["_ids"]}
+        if raster_context is None:
+            crop_cand.update(room_label=cand.get("room_label"), room_type=cand.get("room_type"),
+                             room_index=cand.get("room_index"), neighbours=neighbours.get(cand["key"]))
         context = raster_context if raster_context is not None else _crop_context(crop_cand, wall_polys, others)
         crop_cand.pop("_ids")
         if rec_dir is not None:
             crops = CR.render_pair(crop_cand, context, Path(rec_dir) / A.CROPS_DIR, cand["key"])
-        elif raster_context is not None:
-            desc = CR.raster_crops(crop_cand, context)[0]
-            names = CR.crop_names(cand["key"])
-            crops = {"ctx_png": names[0], "iso_png": names[1], "input_sha256": CR.canonical_sha256(desc),
-                     "crop": {k: desc[k] for k in ("object_box", "ctx_box", "iso_box")}}
         else:
-            desc = CR.vector_description(crop_cand, context)
+            desc = (CR.raster_crops(crop_cand, context)[0] if raster_context is not None
+                    else CR.vector_description(crop_cand, context))
             names = CR.crop_names(cand["key"])
             crops = {"ctx_png": names[0], "iso_png": names[1], "input_sha256": CR.canonical_sha256(desc),
-                     "crop": {k: desc[k] for k in ("object_box", "ctx_box", "iso_box")}}
+                     "crop": dict({k: desc[k] for k in ("object_box", "ctx_box", "iso_box")}, kind=desc["kind"]),
+                     "question": desc["question"]["facts"]}
         question = dict(crop_cand, file=page.file, page=_evidence_page(page), level=level_id,
                         room_type=cand.get("room_type"))
         item = RS.question(question, crops)
@@ -333,7 +356,7 @@ def _ask_and_apply(ex: LevelExtraction, page: GenericPage, cands: list[dict], wa
         dc = {"key": cand["key"], "footprint": cand["footprint"], "strokes": cand["strokes"], "bbox": cand["bbox"],
               "file": page.file, "page": _evidence_page(page), "front_candidates": _front_values(cand)}
         result = RS.decide(dc, got, table, cand.get("room_type"))
-        _apply_decision(cand["item"], result)
+        _apply_decision(cand["item"], result, table)
         ex.warnings.extend(result.get("warnings") or [])
         decided += 1
     ex.report["questions"] = items
@@ -358,19 +381,79 @@ def _box_m_from_px(box_px, s: float, height: float) -> tuple[float, float, float
     return (x0 * s, (height - y1) * s, x1 * s, (height - y0) * s)
 
 
-def _ai_block(label: str, decision: dict, key: str, poly, s: float, height: float, page: GenericPage) -> "LB.LabelBlock":
-    """A label block for a room name the two passes agree on but Tesseract did not read (§3.4)."""
-    box_px = decision.get("box")
+AI_BOX_TEXT_H = 4.0                # an accepted VLM label box blanks ink only when <= 4 text heights across ...
+AI_BOX_CHAR_W = 1.2                # ... <= (characters + 2) x 1.2 text heights long ...
+AI_GLYPH_TEXT_H = 1.6              # ... and every stroke it would blank is letter-sized (sides <= 1.6 text heights)
+
+
+def _ocr_text_height_px(raster) -> float:
+    """Median height (rectified pixels) of the page's OCR texts read with confidence >= 0.6; 0 without any."""
+    heights = []
+    for it in getattr(raster, "texts", None) or []:
+        if float(it.get("confidence") or 0) < 0.6:
+            continue
+        x0, y0, x1, y1 = it["box"]
+        heights.append((x1 - x0) if it.get("rotation") == 90 else (y1 - y0))
+    heights.sort()
+    if not heights:
+        return 0.0
+    m = len(heights) // 2
+    return float(heights[m]) if len(heights) % 2 else (heights[m - 1] + heights[m]) / 2.0
+
+
+def _words(text) -> list[str]:
+    """The words of a normalised label (``room_labels.norm_value``), letters and digits only (marks dropped)."""
+    from wenart.recognition import room_labels as RL
+    words = ("".join(ch for ch in w if ch.isalnum()) for w in (RL.norm_value(text) or "").split())
+    return [w for w in words if w]
+
+
+def _ocr_agrees(ai: str, ocr: str) -> bool:
+    """Whether a name the passes agree on and a name Tesseract read in the same face say the same thing: the same
+    letters ('Bath*' read for 'Bath+', 'Bed Room' for 'Bedroom'), or the words of one run on inside the other (OCR
+    read a stray mark beside the name, 'Drawing Room MI', or only part of it). Different words are a conflict."""
+    a, o = _words(ai), _words(ocr)
+    if not a or not o:
+        return False
+    if "".join(a) == "".join(o):
+        return True
+    short, long_ = (a, o) if len(a) <= len(o) else (o, a)
+    return any(long_[i:i + len(short)] == short for i in range(len(long_) - len(short) + 1))
+
+
+def _agreed_box_px(decision: dict) -> Optional[list[float]]:
+    """Where the accepted label is printed (rectified pixels): the Tesseract box on the Tesseract path; on the
+    two-pass path the intersection of both passes' boxes (keep what agrees: both must give a box and they must
+    overlap). None otherwise. Read before the evidence boxes are mapped to the original image."""
+    field = decision["fields"]["label"]
+    if field["path"] == "tesseract":
+        match = field.get("tesseract_match") or {}
+        return [float(v) for v in match["box"]] if match.get("box") else None
+    if field["path"] != "two_pass":
+        return None
+    boxes = [e.get("pixel_box") for e in decision["evidence"] if e.get("method") == "ai"]
+    if len(boxes) < 2 or any(not b for b in boxes):
+        return None
+    x0, y0 = max(b[0] for b in boxes), max(b[1] for b in boxes)
+    x1, y1 = min(b[2] for b in boxes), min(b[3] for b in boxes)
+    return [float(x0), float(y0), float(x1), float(y1)] if x1 > x0 and y1 > y0 else None
+
+
+def _ai_block(label: str, decision: dict, key: str, poly, s: float, height: float, page: GenericPage,
+              box_px: Optional[list[float]] = None) -> "LB.LabelBlock":
+    """A label block for a room name the passes accepted but no Tesseract block of the face carries (§3.4). The
+    anchor is the centre of the agreed box (``_agreed_box_px``) when it lies in the face, else a point inside the
+    face; no extent is invented: without an agreed box the block's box is its anchor point."""
+    box = None
     if box_px:
         box = _box_m_from_px(box_px, s, height)
         anchor = ((box[0] + box[2]) / 2.0, (box[1] + box[3]) / 2.0)
         if not poly.contains(Point(anchor)):
-            pt = poly.representative_point()
-            anchor = (pt.x, pt.y)
-    else:
+            box = None
+    if box is None:
         pt = poly.representative_point()
         anchor = (pt.x, pt.y)
-        box = (anchor[0] - 0.3, anchor[1] - 0.1, anchor[0] + 0.3, anchor[1] + 0.1)
+        box = (anchor[0], anchor[1], anchor[0], anchor[1])
     ev = [e for e in decision.get("evidence") or [] if e.get("method") == "ai"]
     run = TextRun(id=f"ai:{key}", text=label, box=box, height=max(box[3] - box[1], 1e-6), source="ai",
                   evidence=[dict(e) for e in ev])
@@ -385,17 +468,83 @@ def _ai_block(label: str, decision: dict, key: str, poly, s: float, height: floa
                          area_m2=parsed_area[0] if parsed_area else None, box=box, runs=[run])
 
 
+def _blank_run(label: str, key: str, box_px: Optional[list[float]], poly, s: float, height: float, strokes: list,
+               text_h_px: float, evidence: list) -> tuple[Optional[TextRun], Optional[str]]:
+    """The text run whose box blanks an accepted VLM label's glyph strokes before the final clustering (§3.4,
+    §4.2), or ``(None, why)``. An AI box is checked against the page before it removes anything (AI proposes, the
+    source decides): clipped to its face, at most ``AI_BOX_TEXT_H`` text heights across and (characters + 2) x
+    ``AI_BOX_CHAR_W`` text heights long, and every stroke it would blank (a segment inside the box grown like
+    ``symbols``' text boxes) letter-sized. A box that fails blanks nothing; the reason is reported."""
+    from shapely.geometry import LineString, box as sbox
+
+    if not box_px:
+        return None, None
+    if text_h_px <= 0:
+        return None, "no OCR text height on the page to check the box against"
+    clipped = sbox(*_box_m_from_px(box_px, s, height)).intersection(poly)
+    if clipped.is_empty or clipped.area <= 0:
+        return None, "the box lies outside its room face"
+    x0, y0, x1, y1 = clipped.bounds
+    th = text_h_px * s
+    short, long_ = sorted((x1 - x0, y1 - y0))
+    if short > AI_BOX_TEXT_H * th or long_ > (len(label.strip()) + 2) * AI_BOX_CHAR_W * th:
+        return None, (f"the box ({x1 - x0:.2f} x {y1 - y0:.2f} m) is larger than the label's text (text height "
+                      f"{th:.2f} m)")
+    gx, gy = (x1 - x0) * SY.TEXT_GROW / 2.0, (y1 - y0) * SY.TEXT_GROW / 2.0
+    grown = sbox(x0 - gx, y0 - gy, x1 + gx, y1 + gy)
+    big, inside = [], 0
+    for st in strokes:
+        pts = [tuple(p) for p in st.pts or []]
+        if not pts:
+            continue
+        parts = [LineString([a, b]) for a, b in zip(pts, pts[1:]) if a != b] or [Point(pts[0])]
+        if not any(grown.contains(g) for g in parts):
+            continue
+        inside += 1
+        xs, ys = [p[0] for p in pts], [p[1] for p in pts]
+        if max(max(xs) - min(xs), max(ys) - min(ys)) > AI_GLYPH_TEXT_H * th:
+            big.append(st.id)
+    if big:
+        return None, (f"it would remove {len(big)} drawn strokes larger than a letter "
+                      f"({', '.join(big[:6])}{', ...' if len(big) > 6 else ''})")
+    if not inside:
+        return None, None
+    return TextRun(id=f"ai:{key}", text=label, box=(x0, y0, x1, y1), height=y1 - y0, source="ai",
+                   evidence=[dict(e) for e in evidence]), None
+
+
+def _to_original_evidence(evidence: list, page: GenericPage, height: float) -> None:
+    """Room-label evidence boxes come from ``room_labels.decide`` in rectified pixels (pixel corners, y down); the
+    building JSON points at the original image (§4.1). Mapped in place (``ai``/``ocr`` evidence: the geometry-only
+    ``_raster_evidence_boxes`` never maps them again)."""
+    if not page.to_original:
+        return
+    for e in evidence:
+        box = e.get("pixel_box")
+        if not box or e.get("_original"):
+            continue
+        x0, y0, x1, y1 = box
+        e["pixel_box"] = _raster_box(page, (x0, height - y1, x1, height - y0))
+
+
 def _raster_labels(ex: LevelExtraction, page: GenericPage, raster, rows: list[dict], blocks: list, s: float,
-                   level_id: str, answers, no_ai: bool, rec_dir: Optional[Path], evidence_only: bool):
+                   level_id: str, answers, no_ai: bool, rec_dir: Optional[Path], evidence_only: bool,
+                   strokes: Optional[list] = None):
     """§3.4 on a raster page: one ``room_label`` question per room face (crop of the rectified page grown by 0.5 m),
     decided by ``room_labels.decide`` (two passes agree, or one pass equals a Tesseract text read inside the face).
 
-    Returns ``(blocks, scale_blocks, items, pending, report)``: the label blocks after the decisions (an accepted
-    label replaces the other names Tesseract read in its face; a label both passes agree on that Tesseract did not
-    read becomes an ``ai`` block), the blocks whose printed size may corroborate the scale (only sizes accepted by the
-    same rule, §3.4), the request items, the keys still waiting for answers and one report row per face. Without
-    answers (or with ``--no-ai``) every Tesseract name stays, unconfirmed: the pipeline marks such rooms
-    ``unverified``. Evidence-only pages ask nothing (§0)."""
+    Returns ``(blocks, scale_blocks, items, pending, report, blank_runs)``: the label blocks after the decisions (an
+    accepted label replaces the other names Tesseract read in its face, listed as ``dropped``; a label accepted
+    without a Tesseract block becomes an ``ai`` block), the blocks whose printed size may corroborate the scale (only
+    sizes accepted by the same rule, §3.4), the request items, the keys still waiting for answers, one report row per
+    face and the checked VLM label boxes whose glyph strokes are blanked before the final clustering
+    (``_blank_run``; ``strokes`` = the non-wall strokes, page metres).
+
+    OCR outranks AI (CLAUDE.md): a name both passes agree on that differs from every name Tesseract read in the
+    face is not accepted: Tesseract's names stay (unconfirmed, the room ``unverified``) and the row carries a
+    ``conflict`` for the pipeline. Names with the same letters or words (``_ocr_agrees``) agree. Evidence boxes
+    point at the original image. Without answers (or with ``--no-ai``) every Tesseract name stays, unconfirmed: the
+    pipeline marks such rooms ``unverified``. Evidence-only pages ask nothing (§0)."""
     import tempfile
 
     from wenart.recognition import answers as A
@@ -403,9 +552,10 @@ def _raster_labels(ex: LevelExtraction, page: GenericPage, raster, rows: list[di
 
     height = float(page.size[1])
     ocr_items = [it for it in (getattr(raster, "texts", None) or []) if float(it.get("confidence") or 0) >= 0.6]
+    text_h_px = _ocr_text_height_px(raster)
     image = raster.image
     loaded: dict = {}
-    items, pending, report = [], [], []
+    items, pending, report, blank_runs = [], [], [], []
     faces = []
     for k, row in enumerate(rows):
         if row["exterior"]:
@@ -443,20 +593,52 @@ def _raster_labels(ex: LevelExtraction, page: GenericPage, raster, rows: list[di
         decision = RL.decide(face, got, tesseract=tess) if not evidence_only else None
         label = decision["label"] if decision else None
         path = decision["fields"]["label"]["path"] if decision else None
+        box_px = _agreed_box_px(decision) if label else None
+        if decision:
+            _to_original_evidence(decision["evidence"], page, height)
+        names = row["names"]
         entry = {"key": key, "face": k, "tesseract": [t["text"] for t in tess], "label": label, "path": path,
                  "status": "verified" if label else "unverified",
-                 "names": [b.name for b in row["names"]],
+                 "names": [b.name for b in names],
                  "candidates": decision["fields"]["label"]["candidates"] if decision else [],
                  "evidence": decision["evidence"] if decision else [],
                  "size_text": decision.get("size_text") if decision else None}
+        keep = source = None
         if label:
-            keep = next((b for b in row["names"] if RL.norm_value(b.name) == RL.norm_value(label)), None)
+            source = next((b for b in names if RL.norm_value(b.name) == RL.norm_value(label)), None)
+            keep = source
+            if source is None and names and path == "two_pass":
+                source = next((b for b in names if _ocr_agrees(label, b.name)), None)
+                if source is not None:
+                    # Tesseract read the same words with other marks, a stray mark beside them or part of them:
+                    # the passes' spelling, Tesseract's block (its glyph boxes) and evidence.
+                    keep = dataclasses.replace(source, name=label)
+                    entry["ocr_spelling"] = source.name
+                else:
+                    # OCR outranks AI: the agreed name is not accepted against what Tesseract read in the face.
+                    for e in decision["evidence"]:
+                        if e.get("method") == "ai":
+                            e["confidence"] = RL.UNACCEPTED_CONFIDENCE
+                    entry["conflict"] = {"ai": label, "ocr": [b.name for b in names],
+                                         "ocr_evidence": [dict(b.evidence[0]) for b in names if b.evidence]}
+                    entry.update(label=None, status="unverified")
+                    label = None
+        if label:
             if keep is None:
-                keep = _ai_block(label, decision, key, row["polygon"], s, height, page)
+                keep = _ai_block(label, decision, key, row["polygon"], s, height, page, box_px)
+                ai_ev = [e for e in decision["evidence"] if e.get("method") == "ai"]
+                run, why = _blank_run(label, key, box_px, row["polygon"], s, height, strokes or [], text_h_px, ai_ev)
+                if run is not None:
+                    blank_runs.append(run)
+                    entry["blank_box_m"] = [round(v, 4) for v in run.box]
+                elif why:
+                    entry["blank_refused"] = why
+                    ex.warnings.append(f"{page.file} p{page.page}: {key} '{label}': the agreed VLM label box is not "
+                                       f"blanked ({why}); the drawn strokes stay")
             else:
                 keep.evidence = list(keep.evidence) + [dict(e) for e in decision["evidence"]
                                                         if e.get("method") == "ai"]
-            entry["dropped"] = [b.name for b in row["names"] if b is not keep]
+            entry["dropped"] = [b.name for b in names if b is not source]
             accepted_size = decision["fields"]["size_text"]["path"] is not None
             parsed = U.parse_size_pair(decision["size_text"]) if accepted_size and decision.get("size_text") else None
             if parsed is not None and keep.size_text != decision["size_text"]:
@@ -467,14 +649,67 @@ def _raster_labels(ex: LevelExtraction, page: GenericPage, raster, rows: list[di
             pt = Point(keep.anchor)
             entry["anchor"] = [round(pt.x / s, 2), round(pt.y / s, 2)]
         else:
-            for b in row["names"]:
+            for b in names:
                 new_blocks.append(b)
                 # Tesseract alone never confirms a printed size for the scale (§3.4).
                 scale_blocks.append(dataclasses.replace(b, size=None))
-            entry["anchor"] = [round(b.anchor[0] / s, 2) for b in row["names"][:1]] + \
-                [round(b.anchor[1] / s, 2) for b in row["names"][:1]]
+            entry["anchor"] = [round(b.anchor[0] / s, 2) for b in names[:1]] + \
+                [round(b.anchor[1] / s, 2) for b in names[:1]]
         report.append(entry)
-    return new_blocks, scale_blocks, items, pending, report
+    return new_blocks, scale_blocks, items, pending, report, blank_runs
+
+
+RASTER_JOINT_PX = 1.5              # raster wall joints: an end this close (pixels) to another wall's face is joined
+
+
+def _close_raster_joints(walls: list, tol: float) -> list[str]:
+    """Raster pages: a wall end that stops short of another (not parallel) wall's face by at most ``tol`` (page
+    metres; ``RASTER_JOINT_PX`` pixels, the measuring precision of the mask) is moved onto that face, so the room
+    faces close as on a vector page (real01's scan: the bath wall 5 mm short of the bath's west wall, the bath and
+    the hall one face; synthetic-01's scan: joints 14-16 mm open). Ends touching a wall already and wider gaps
+    (doors, passages, a wall beside a parallel one) stay. Returns one line per moved end (``WallItem``s in place)."""
+    from shapely.geometry import LineString, Polygon as SPolygon
+
+    polys = [TP.wall_polygon(w) for w in walls]
+    moved = []
+    for i, w in enumerate(walls):
+        (x0, y0), (x1, y1) = w.start, w.end
+        length = math.hypot(x1 - x0, y1 - y0)
+        if length <= 0 or w.thickness <= 0:
+            continue
+        ux, uy = (x1 - x0) / length, (y1 - y0) / length
+        half = w.thickness / 2.0
+        for which in ("start", "end"):
+            px, py = (w.start if which == "start" else w.end)
+            dx, dy = (-ux, -uy) if which == "start" else (ux, uy)
+            a, b = (px - uy * half, py + ux * half), (px + uy * half, py - ux * half)
+            cap = LineString([a, b])
+            others = [(j, q) for j, q in enumerate(polys) if j != i]
+            if any(cap.distance(q) <= 1e-9 for _, q in others):
+                continue                                     # joined already
+            strip = SPolygon([a, b, (b[0] + dx * tol, b[1] + dy * tol), (a[0] + dx * tol, a[1] + dy * tol)])
+            hits = []
+            for j, q in others:
+                v = walls[j]
+                vx, vy = v.end[0] - v.start[0], v.end[1] - v.start[1]
+                vlen = math.hypot(vx, vy)
+                if vlen <= 0 or abs(ux * vx + uy * vy) / vlen > math.cos(math.radians(30.0)):
+                    continue                                 # parallel: a run gap, not a joint
+                if strip.intersects(q):
+                    hits.append((cap.distance(q), j))
+            if not hits:
+                continue
+            gap, j = min(hits)
+            if not 0.0 < gap <= tol:
+                continue
+            new = (px + dx * gap, py + dy * gap)
+            if which == "start":
+                w.start = new
+            else:
+                w.end = new
+            polys[i] = TP.wall_polygon(w)
+            moved.append(f"wall {i} {which} +{gap * 1000:.0f} mm")
+    return moved
 
 
 def _raster_box(page: GenericPage, box) -> list[float]:
@@ -583,8 +818,11 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
         ex.texts = _text_items(page, dim_text_ids, set())
         ex.warnings.append(f"{where}: no scale source ({reasons[-1] if reasons else 'no scale note, no dimensions'})")
         if is_raster:
-            # §4.3: a raster scale needs dimension texts OCR can read; VLM texts never make one.
-            ex.review.append(f"{where}: no dimension readable on the raster page")
+            # §4.3: a raster scale needs dimension texts OCR can read; VLM texts never make one. Dimensions that
+            # were read but give no scale say why (the review must name the disagreement, not "none readable").
+            ex.review.append(f"{where}: no dimension readable on the raster page" if not dims else
+                             f"{where}: the {len(dims)} dimension texts read on the raster page give no scale "
+                             f"({reasons[-1] if reasons else 'they do not agree'})")
         return ex
     s = float(sc["metres_per_unit"])
     strokes_m, texts_m = to_metres(page, s)
@@ -599,6 +837,11 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
     wall_strokes = prim_ids - set(wall_info.get("dropped_strokes", []))
     non_wall = [st for st in strokes_m if st.id not in wall_strokes]
     walls2, openings, gap_log, owned = O.gaps_and_openings(walls, non_wall, file_rel, page_no, units_to_m=s)
+    if is_raster:
+        joined = _close_raster_joints(walls2, RASTER_JOINT_PX * s)
+        if joined:
+            ex.notes.append(f"{where}: {len(joined)} raster wall ends moved onto the wall face they stop short of "
+                            f"by <= {RASTER_JOINT_PX:g} px: " + ", ".join(joined))
     ex.report["wall_info"] = {k: v for k, v in wall_info.items() if k != "dropped_strokes"}
     ex.report["mask"] = mask
     ex.report["units_to_m"] = s
@@ -633,8 +876,12 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
                                          for r in rows], ex.notes)
     for cand in cands:
         pt = Point(cand["footprint"]["center"])
-        row = next((r for r in rows if r["polygon"].contains(pt)), None)
+        index = next((k for k, r in enumerate(rows) if r["polygon"].contains(pt)), None)
+        row = rows[index] if index is not None else None
         cand["room_type"] = row["room_type"] if row else None
+        # The symbol question names the face's printed label and groups neighbours by face (vector pages, P5).
+        cand["room_label"] = row["label"] if row else None
+        cand["room_index"] = index
         cand["_ids"] = _expand_ids(cand["item"].evidence.get("entity"))
     ex.report["gaps"] = gap_log
     ex.report["separators"] = sep_log
@@ -647,14 +894,16 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
     label_items, label_pending = [], []
     if is_raster:
         face_polys = [r["polygon"] for r in rows]
-        blocks, scale_blocks, label_items, label_pending, label_report = _raster_labels(
+        dim_ids = SY._dimension_ids(dims)
+        glyph_strokes = [st for st in non_wall if st.id not in owned and st.id not in dim_ids]
+        blocks, scale_blocks, label_items, label_pending, label_report, ai_runs = _raster_labels(
             ex, page, raster, rows, blocks, s, level_id, answers, no_ai,
-            Path(rec_dir) if rec_dir is not None else None, evidence_only)
+            Path(rec_dir) if rec_dir is not None else None, evidence_only, strokes=glyph_strokes)
         ex.report["raster"]["labels"] = label_report
         rows = face_table(face_polys, blocks, bwalls, b_openings, stairs)
-        ai_runs = [r for b in blocks for r in b.runs if r.source == "ai"]
         if ai_runs:
-            # Accepted VLM label boxes are blanked before the final clustering (§3.4): glyph strokes in them are
+            # Accepted VLM label boxes, checked against the page (``_blank_run``: inside the face, text-sized, only
+            # letter-sized strokes inside), are blanked before the final clustering (§3.4): those glyph strokes are
             # no furniture.
             pieces, cands, decor = SY.furniture(non_wall, owned, bwalls, b_openings, texts_m + ai_runs, dims, outline,
                                                 [], wall_strokes=wall_strokes, site_walls=site["boundary_walls"],

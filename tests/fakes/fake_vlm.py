@@ -10,6 +10,15 @@ string -> "" (``minLength`` x's when the schema asks for more), boolean ->
 false, array -> ``minItems`` copies, object -> its required keys. The answer
 is deterministic (the same request gives the same answer).
 
+Like vLLM's structured-output backend (xgrammar), it refuses a schema that
+uses a JSON-schema keyword xgrammar does not implement (``GRAMMAR_UNSUPPORTED``:
+uniqueItems, patternProperties, if/then/else, not, contains, minContains,
+maxContains, dependentRequired, propertyNames), anywhere in the schema, with
+HTTP 400 and vLLM's error body (``{"error": {"message": "Grammar error:
+Unimplemented keys: [\"uniqueItems\"]", "type": "BadRequestError", ...}}``,
+as the M7 prep pod's vLLM answered every Objaverse judge call on 3 Oct 2026).
+So a schema the real server would refuse fails in the CPU tests too.
+
 Why: the orchestrator's smoke run (``python -m wenart.run pod --profile
 smoke --vlm-url URL``) drives every VLM stage (recognition questions, style
 photos, layout, vision check, realism v2) through the real clients without a
@@ -34,6 +43,14 @@ from typing import Any, Optional
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CHECK_YAML = REPO_ROOT / "wenart" / "vision_check" / "check.yaml"
+# JSON-schema keywords vLLM's xgrammar backend does not implement: a request whose schema uses one is refused with
+# HTTP 400 "Grammar error: Unimplemented keys: [...]" (prep pod log, 3 Oct 2026: uniqueItems).
+GRAMMAR_UNSUPPORTED = ("uniqueItems", "patternProperties", "if", "then", "else", "not", "contains", "minContains",
+                       "maxContains", "dependentRequired", "propertyNames")
+_NAME_MAPS = ("properties", "patternProperties", "$defs", "definitions", "dependentSchemas")   # name -> subschema
+_SUBSCHEMA_LISTS = ("anyOf", "oneOf", "allOf", "prefixItems")
+_SUBSCHEMAS = ("items", "additionalProperties", "not", "if", "then", "else", "contains", "propertyNames",
+               "unevaluatedProperties", "unevaluatedItems")
 
 
 def default_models() -> list[str]:
@@ -104,6 +121,43 @@ def minimal_instance(schema: Any, root: Optional[dict] = None, depth: int = 0) -
     return None
 
 
+def unsupported_keys(schema: Any) -> list[str]:
+    """The ``GRAMMAR_UNSUPPORTED`` keywords used anywhere in ``schema`` (walked into properties, $defs, items,
+    anyOf/oneOf/allOf, ...; a property *named* like a keyword is not one), in order of appearance."""
+    found: list[str] = []
+
+    def walk(node: Any, depth: int = 0) -> None:
+        if not isinstance(node, dict) or depth > 100:
+            return
+        for key in node:
+            if key in GRAMMAR_UNSUPPORTED and key not in found:
+                found.append(key)
+        for key, value in node.items():
+            if key in _NAME_MAPS and isinstance(value, dict):
+                for sub in value.values():
+                    walk(sub, depth + 1)
+            elif key in _SUBSCHEMA_LISTS and isinstance(value, list):
+                for sub in value:
+                    walk(sub, depth + 1)
+            elif key == "items" and isinstance(value, list):
+                for sub in value:
+                    walk(sub, depth + 1)
+            elif key in _SUBSCHEMAS and isinstance(value, dict):
+                walk(value, depth + 1)
+
+    walk(schema)
+    return found
+
+
+def grammar_error(schema: Any) -> Optional[dict]:
+    """vLLM's HTTP 400 body for a schema xgrammar cannot compile (None when it can)."""
+    keys = unsupported_keys(schema)
+    if not keys:
+        return None
+    return {"error": {"message": f"Grammar error: Unimplemented keys: {json.dumps(keys)}",
+                      "type": "BadRequestError", "param": None, "code": 400}}
+
+
 def request_schema(body: dict) -> Optional[dict]:
     """The JSON schema of a chat-completions request (vLLM ``structured_outputs`` or OpenAI ``response_format``)."""
     so = body.get("structured_outputs")
@@ -135,6 +189,7 @@ class FakeVLM:
     def __init__(self, models: Optional[list[str]] = None, port: int = 0, host: str = "127.0.0.1"):
         self.models = list(models) if models else default_models()
         self.requests: dict[str, int] = {}
+        self.refused: list[list[str]] = []      # the unsupported keywords of every refused request
         self._lock = threading.Lock()
         fake = self
 
@@ -169,10 +224,17 @@ class FakeVLM:
                 except ValueError:
                     self._send(400, {"error": "bad json"})
                     return
+                schema = request_schema(body)
+                refusal = grammar_error(schema) if schema is not None else None
                 with fake._lock:
                     model = str(body.get("model") or "")
                     fake.requests[model] = fake.requests.get(model, 0) + 1
                     n = sum(fake.requests.values())
+                    if refusal is not None:
+                        fake.refused.append(unsupported_keys(schema))
+                if refusal is not None:
+                    self._send(400, refusal)
+                    return
                 self._send(200, completion(body, fake.models, n))
 
         self.server = ThreadingHTTPServer((host, port), Handler)

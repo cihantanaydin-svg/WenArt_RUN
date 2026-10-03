@@ -29,6 +29,16 @@ tasks of the Milestone 2 bake-off):
   plus ``not_furniture``; ``front`` is a side of the second crop or ``none``.
 - ``room_label``: ``{label, size_text, area_text, box}`` for one room face of a
   raster page; every field may be null; ``box`` is 0..1000 of the crop.
+
+The grammar of one ``symbol_type`` request offers only that item's choices
+(``symbol_type_schema(choices)``: the types whose size range fits the drawn
+footprint, plus ``unknown`` and ``not_furniture``; prep pod finding P5); stored
+answers are still validated against the full ``SYMBOL_TYPE``.
+
+``grammar_problems(schema)`` lists the JSON-schema keywords of a schema that
+vLLM's xgrammar backend does not implement (a schema with one fails every call
+with HTTP 400 "Grammar error: Unimplemented keys", prep pod finding P1);
+``tests/test_vllm_schemas.py`` walks every schema the project sends to vLLM.
 """
 from __future__ import annotations
 
@@ -241,3 +251,89 @@ def grammar_schema(task: str) -> dict[str, Any]:
     schema = dict(schema_of(task))
     schema.pop("$schema", None)
     return schema
+
+
+def symbol_type_schema(choices=None) -> dict[str, Any]:
+    """``SYMBOL_TYPE`` with the ``type`` enum narrowed to ``choices`` (in ``SYMBOL_TYPE_CHOICES`` order); None gives
+    ``SYMBOL_TYPE`` itself. ValueError for an empty list or a name that is not a choice."""
+    if choices is None:
+        return SYMBOL_TYPE
+    wanted = list(choices)
+    unknown = [c for c in wanted if c not in SYMBOL_TYPE_CHOICES]
+    if not wanted or unknown:
+        raise ValueError(f"symbol_type choices must be a non-empty subset of the schema's types (got {wanted!r})")
+    props = dict(SYMBOL_TYPE["properties"])
+    props["type"] = {"enum": [c for c in SYMBOL_TYPE_CHOICES if c in wanted]}
+    return dict(SYMBOL_TYPE, properties=props)
+
+
+# --------------------------------------------------------------------------
+# Keywords the grammar backend implements (prep pod finding P1)
+# --------------------------------------------------------------------------
+#
+# Sources (checked 3 Oct 2026): vLLM ``vllm/v1/structured_output/backend_xgrammar.py``
+# ``has_xgrammar_unsupported_json_features`` (multipleOf; uniqueItems, contains, minContains, maxContains; a format
+# outside its list; pattern or format together with minLength/maxLength; propertyNames, patternProperties) and xgrammar
+# ``cpp/json_schema_converter.cc`` ``WarnUnsupportedKeywords`` (not, if, then, else, dependentRequired,
+# dependentSchemas; the array keywords above), which vLLM 0.30 turns into "Grammar error: Unimplemented keys" (seen
+# on the prep pod for ``uniqueItems``). Keywords in neither list (e.g. minProperties, unevaluatedItems) are refused
+# too until they are checked against xgrammar and added to GRAMMAR_KEYWORDS_OK.
+GRAMMAR_KEYWORDS_REFUSED: dict[str, str] = {
+    "uniqueItems": "array keyword xgrammar does not implement (dedupe in code)",
+    "contains": "array keyword xgrammar does not implement",
+    "minContains": "array keyword xgrammar does not implement",
+    "maxContains": "array keyword xgrammar does not implement",
+    "multipleOf": "number keyword xgrammar does not implement",
+    "patternProperties": "object keyword xgrammar does not implement in vLLM's check",
+    "propertyNames": "object keyword xgrammar does not implement in vLLM's check",
+    "not": "xgrammar does not implement it",
+    "if": "xgrammar does not implement it",
+    "then": "xgrammar does not implement it",
+    "else": "xgrammar does not implement it",
+    "dependentRequired": "xgrammar does not implement it",
+    "dependentSchemas": "xgrammar does not implement it",
+}
+GRAMMAR_KEYWORDS_OK: frozenset = frozenset({
+    "$schema", "$id", "$ref", "$defs", "definitions", "title", "description", "default", "examples", "$comment",
+    "type", "enum", "const", "properties", "required", "additionalProperties", "items", "prefixItems",
+    "minItems", "maxItems", "anyOf", "oneOf", "allOf", "minimum", "maximum", "exclusiveMinimum", "exclusiveMaximum",
+    "minLength", "maxLength", "pattern", "format",
+})
+GRAMMAR_FORMATS_OK: frozenset = frozenset({
+    "email", "date", "time", "date-time", "duration", "ipv4", "ipv6", "hostname", "uuid", "uri", "uri-reference",
+    "uri-template", "json-pointer", "relative-json-pointer",
+})
+_NAME_MAPS = ("properties", "$defs", "definitions", "patternProperties", "dependentSchemas")
+_SUBSCHEMA_LISTS = ("anyOf", "oneOf", "allOf", "prefixItems")
+_SUBSCHEMAS = ("items", "additionalProperties", "not", "if", "then", "else", "contains", "propertyNames")
+_DATA = ("enum", "const", "required", "examples", "default", "dependentRequired")
+
+
+def grammar_problems(schema: Any, path: str = "") -> list[str]:
+    """Every keyword of ``schema`` (walked into properties, $defs, items, anyOf/oneOf/allOf, ...) that vLLM's xgrammar
+    backend does not implement, as ``"<path>: <keyword>: <why>"`` (empty = the schema can be sent)."""
+    if not isinstance(schema, dict):
+        return []
+    out: list[str] = []
+    where = path or "<root>"
+    for key, value in schema.items():
+        if key in GRAMMAR_KEYWORDS_REFUSED:
+            out.append(f"{where}: {key}: {GRAMMAR_KEYWORDS_REFUSED[key]}")
+        elif key not in GRAMMAR_KEYWORDS_OK:
+            out.append(f"{where}: {key}: keyword not checked against xgrammar (refused until it is)")
+    if "format" in schema and schema["format"] not in GRAMMAR_FORMATS_OK:
+        out.append(f"{where}: format: {schema['format']!r} is not a format xgrammar implements")
+    if ("pattern" in schema or "format" in schema) and ("minLength" in schema or "maxLength" in schema):
+        out.append(f"{where}: pattern/format with minLength/maxLength: xgrammar cannot combine them")
+    for key, value in schema.items():
+        if key in _DATA:
+            continue
+        if key in _NAME_MAPS and isinstance(value, dict):
+            for name, sub in value.items():
+                out.extend(grammar_problems(sub, f"{path}/{key}/{name}"))
+        elif key in _SUBSCHEMA_LISTS and isinstance(value, list):
+            for k, sub in enumerate(value):
+                out.extend(grammar_problems(sub, f"{path}/{key}/{k}"))
+        elif key in _SUBSCHEMAS and isinstance(value, dict):
+            out.extend(grammar_problems(value, f"{path}/{key}"))
+    return out

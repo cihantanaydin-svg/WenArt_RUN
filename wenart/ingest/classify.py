@@ -133,6 +133,7 @@ class PageRecord:
     conversion: Optional[dict] = None          # DWG: dwg.Conversion.to_json()
     generic_page: Optional[GenericPage] = None  # the page as read for the generic test (reused by the pipeline)
     raster_page: Optional[object] = None       # raster pages: raster.RasterPage read while classifying (pipeline)
+    level_note: Optional[str] = None           # how an untitled raster page got its level (a pipeline warning)
 
     def is_extractable(self) -> bool:
         readable = self.kind == "vector" or (self.kind in ("scan", "photo") and self.extractor == "raster")
@@ -582,11 +583,14 @@ def _classify_image(file_rel: str, path: Path, ocr: Optional[Callable]) -> PageR
 # Entry point
 # --------------------------------------------------------------------------
 
-def assign_untitled_levels(records: list[PageRecord]) -> None:
-    """Level of untitled plan pages (§2.1): a project whose only plan page has no level title gets ``L0`` "Ground
-    floor" as an assumed value (``label_source "assumed"``); several untitled plan pages, or an untitled page next
-    to titled ones, cannot be ordered (``level_problem``)."""
-    plans = [r for r in records if r.is_extractable()]
+RASTER_LEVEL_NOTE = "untitled {kind} page: level {level} {label}, the project's only plan level (evidence only)"
+RASTER_LEVEL_SKIP = ("untitled {kind} page next to {n} plan levels drawn by vector or DXF pages: its level cannot be "
+                     "told, not used")
+
+
+def _untitled_rule(plans: list[PageRecord]) -> None:
+    """§2.1 on one group of plan pages: the group's only page without a level title gets ``L0`` "Ground floor" as an
+    assumed value; several untitled pages, or an untitled page next to titled ones, cannot be ordered."""
     untitled = [r for r in plans if r.level_id is None]
     if not untitled:
         return
@@ -601,6 +605,39 @@ def assign_untitled_levels(records: list[PageRecord]) -> None:
         record.level_problem = (f"cannot order untitled plan pages ({where})" if len(untitled) > 1 else
                                 f"{record.page_class} without a level title next to titled plan pages "
                                 f"(found: {record.level_label_raw!r})")
+
+
+def assign_untitled_levels(records: list[PageRecord]) -> None:
+    """Level of untitled plan pages (§2.1): a project whose only plan page has no level title gets ``L0`` "Ground
+    floor" as an assumed value (``label_source "assumed"``); several untitled plan pages, or an untitled page next
+    to titled ones, cannot be ordered (``level_problem``, needs_review).
+
+    The rule counts the vector and DXF/DWG pages only. Scans and photos are counted only in a project without such
+    pages (they draw it then). Next to vector or DXF pages an untitled raster page (OCR may simply have missed its
+    title) is evidence only (§0) and never stops the project: it takes the project's level when the vector pages
+    draw exactly one (``label_source "assumed"``, ``level_note``), else it is skipped (``skip_reason``, a warning)."""
+    plans = [r for r in records if r.is_extractable()]
+    vector = [r for r in plans if r.kind == "vector"]
+    rasters = [r for r in plans if r.kind != "vector"]
+    if not vector:
+        _untitled_rule(rasters)
+        return
+    _untitled_rule(vector)
+    untitled = [r for r in rasters if r.level_id is None]
+    if not untitled:
+        return
+    levels = {}
+    for r in vector:
+        if r.level_id is not None and not r.level_problem:
+            levels.setdefault(r.level_id, r)
+    for record in untitled:
+        if len(levels) == 1:
+            ref = next(iter(levels.values()))
+            record.level_id, record.level_label, record.level_order = ref.level_id, ref.level_label, ref.level_order
+            record.label_source = "assumed"
+            record.level_note = RASTER_LEVEL_NOTE.format(kind=record.kind, level=ref.level_id, label=ref.level_label)
+        else:
+            record.skip_reason = RASTER_LEVEL_SKIP.format(kind=record.kind, n=len(levels))
 
 
 def classify_pages(project_dir: str | Path, work_dir: Optional[str | Path] = None,

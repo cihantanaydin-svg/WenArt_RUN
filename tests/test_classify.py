@@ -343,6 +343,46 @@ def test_untitled_plan_page_next_to_a_titled_one_is_not_assumed():
     assert titled.level_problem is None
 
 
+def _raster_record(file, kind="scan", level_id=None):
+    return C.PageRecord(file=file, page=1, format="image", kind=kind, page_class="floor_plan", extractor="raster",
+                        level_id=level_id)
+
+
+def test_an_untitled_raster_page_beside_vector_pages_never_stops_the_project():
+    """ingest-2: the untitled-level rule counts vector/DXF pages only. An untitled scan or photo next to them takes
+    the project's single plan level (evidence only, assumed) or is skipped with a reason; it never gets a
+    level_problem (needs_review)."""
+    # (a) A titled vector page and a scan whose title OCR missed.
+    titled = C.PageRecord(file="1_kat.pdf", page=1, format="pdf", kind="vector", page_class="floor_plan",
+                          level_id="L1", level_label="1. Kat", level_order=1, label_source="title")
+    scan = _raster_record("1_kat_scan.png")
+    C.assign_untitled_levels([titled, scan])
+    assert scan.level_problem is None and scan.skip_reason is None and scan.is_extractable()
+    assert (scan.level_id, scan.level_label, scan.level_order, scan.label_source) == ("L1", "1. Kat", 1, "assumed")
+    assert "the project's only plan level (evidence only)" in scan.level_note
+    assert titled.level_problem is None and titled.label_source == "title"
+    # (b) An untitled CAD PDF and an untitled scan of the same plan: the PDF is the project's only plan page.
+    pdf = C.PageRecord(file="real01.pdf", page=1, format="pdf", kind="vector", page_class="floor_plan")
+    scan = _raster_record("real01_scan.png")
+    C.assign_untitled_levels([pdf, scan])
+    assert (pdf.level_id, pdf.label_source, pdf.level_problem) == ("L0", "assumed", None)
+    assert (scan.level_id, scan.level_problem) == ("L0", None)
+    # (c) Two vector levels: the photo's level cannot be told; skipped (a warning), not a review reason.
+    l0 = C.PageRecord(file="a.pdf", page=1, format="pdf", kind="vector", page_class="floor_plan", level_id="L0")
+    l1 = C.PageRecord(file="b.pdf", page=1, format="pdf", kind="vector", page_class="floor_plan", level_id="L1")
+    photo = _raster_record("plan.jpg", kind="photo")
+    C.assign_untitled_levels([l0, l1, photo])
+    assert photo.level_id is None and photo.level_problem is None and not photo.is_extractable()
+    assert "its level cannot be told" in photo.skip_reason
+    # (d) Raster pages alone draw the project: the old rule applies to them.
+    one = _raster_record("a.png")
+    C.assign_untitled_levels([one])
+    assert (one.level_id, one.label_source) == ("L0", "assumed")
+    a, b = _raster_record("a.png"), _raster_record("b.png", kind="photo")
+    C.assign_untitled_levels([a, b])
+    assert all("cannot order untitled plan pages" in r.level_problem for r in (a, b))
+
+
 def test_text_drawn_as_geometry_page(tmp_path):
     project = tmp_path / "p"
     project.mkdir()

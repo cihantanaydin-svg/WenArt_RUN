@@ -20,7 +20,8 @@
 # Env (one of RUN_PROJECTS, PRIVATE_PROJECTS, AB_PROJECTS required; PRIVATE_SELFTEST=1 alone also runs):
 #   RUN_PROJECTS        public projects, e.g. "synthetic-01 synthetic-03"
 #   PRIVATE_PROJECTS    private aliases uploaded to /workspace/projects-private/<alias> (docs/intake.md)
-#   PRIVATE_SELFTEST=1  adds selftest-02 (projects/synthetic-02 copied once to /workspace/projects-private)
+#   PRIVATE_SELFTEST=1  adds selftest-02 (tests/fixtures/projects/review-01 copied to /workspace/projects-private;
+#                       a stale copy, e.g. the M6 synthetic-02 one, is moved to /workspace/outputs-archive first)
 #   AB_PROJECTS         realism A/B projects (§6.3), AB_CONTROL_PROJECT the one with the control sets,
 #   AB_PHASE            all (default) | render | judge
 #   RUN_FORCE           stages whose fingerprint is ignored, comma separated (e.g. photos,layout)

@@ -14,8 +14,9 @@ must compute the same hash as the session. PNG bytes depend on the zlib build, s
 description** instead: the object's strokes in page millimetres (integers), the two crop squares, the walls and the
 other strokes inside the context square (clipped, rounded to 1 mm, rings without repeated or collinear vertices,
 starting at their smallest vertex, counter-clockwise), ``CROP_VERSION`` and the question (system prompt, prompt,
-schema, the allowed types, the image labels). The images are drawn **from that description only** (cv2 ``LINE_8``,
-no anti-aliasing, fixed sizes) and saved with PIL without metadata, so the hash names exactly what the model saw.
+schema, the allowed types, the image labels, the item's facts: ``symbols.question_facts``, prep pod finding P5). The
+images are drawn **from that description only** (cv2 ``LINE_8``, no anti-aliasing, fixed sizes) and saved with PIL
+without metadata, so the hash names exactly what the model saw and was asked.
 
 Vector candidates (``context = {"walls": [shapely polygons or outline point lists], "others": [point lists]}``,
 page metres, y up) are drawn; raster candidates (``context = {"image": grey uint8 array of the rectified page,
@@ -75,18 +76,32 @@ def canonical_sha256(description: Any) -> str:
     return hashlib.sha256(canonical_json(description).encode("utf-8")).hexdigest()
 
 
-def question_digest(task: str) -> dict:
-    """What the model is asked for ``task``: system prompt, prompt, schema, image labels (and the type list)."""
+def question_digest(task: str, facts: Optional[dict] = None) -> dict:
+    """What the model is asked for ``task``: system prompt, prompt, schema, image labels (and, for ``symbol_type``,
+    the item's facts and the type list the grammar offers). ``answers.call_args`` sends exactly this prompt and
+    schema. ``room_label`` takes no facts (its digest is the fixed question)."""
+    if task != SYMBOL_TASK:
+        return {"task": task, "system": prompts.M7_SYSTEM_PROMPT, "prompt": prompts.m7_prompt(task),
+                "schema": schemas.M7_SCHEMAS[task]}
+    choices = (facts or {}).get("choices")
+    schema = schemas.symbol_type_schema(choices)
     out = {
         "task": task,
         "system": prompts.M7_SYSTEM_PROMPT,
-        "prompt": prompts.m7_prompt(task),
-        "schema": schemas.M7_SCHEMAS[task],
+        "prompt": prompts.symbol_type_prompt(facts),
+        "schema": schema,
+        "types": list(schema["properties"]["type"]["enum"]),
+        "image_labels": list(prompts.SYMBOL_IMAGE_LABELS),
     }
-    if task == SYMBOL_TASK:
-        out["types"] = list(schemas.SYMBOL_TYPE_CHOICES)
-        out["image_labels"] = list(prompts.SYMBOL_IMAGE_LABELS)
+    if facts is not None:
+        out["facts"] = facts
     return out
+
+
+def symbol_facts(candidate: dict, kind: str) -> dict:
+    """The question facts of a candidate (``recognition.symbols.question_facts``)."""
+    from wenart.recognition import symbols
+    return symbols.question_facts(candidate, kind)
 
 
 def array_sha256(arr: np.ndarray) -> dict:
@@ -330,7 +345,7 @@ def vector_description(candidate: dict, context: dict) -> dict:
         **squares,
         "context": {"walls": _wall_rings(context.get("walls"), ctx_m), "others": _others_in(context.get("others"),
                                                                                              ctx_m)},
-        "question": question_digest(SYMBOL_TASK),
+        "question": question_digest(SYMBOL_TASK, symbol_facts(candidate, "vector")),
     }
 
 
@@ -406,7 +421,7 @@ def raster_crops(candidate: dict, context: dict) -> tuple[dict, np.ndarray, np.n
         "object_rect_px": obj_rect,
         "ctx_pixels": array_sha256(ctx_src),
         "iso_pixels": array_sha256(iso_src),
-        "question": question_digest(SYMBOL_TASK),
+        "question": question_digest(SYMBOL_TASK, symbol_facts(candidate, "raster")),
     }
     ctx = resize_to(ctx_src, CROP_PX, CROP_PX)
     _draw_dashed_box(ctx, squares["object_box"], _frame(squares["ctx_box"]))
@@ -436,7 +451,8 @@ def crop_names(key: str) -> tuple[str, str]:
 
 
 def render_pair(candidate: dict, context: dict, out_dir: Path, key: str) -> dict:
-    """Write ``<out_dir>/<key>_ctx.png`` and ``<key>_iso.png``; return their paths, the input hash and the crop.
+    """Write ``<out_dir>/<key>_ctx.png`` and ``<key>_iso.png``; return their paths, the input hash, the crop and the
+    question facts that were hashed (``question``).
 
     ``out_dir`` is ``<out>/recognition/crops`` (the request lists the images relative to ``<out>/recognition``).
     """
@@ -451,4 +467,5 @@ def render_pair(candidate: dict, context: dict, out_dir: Path, key: str) -> dict
     iso_png = save_png(iso, out_dir / iso_name)
     crop = {k: desc[k] for k in ("object_box", "ctx_box", "iso_box")}
     crop.update({"units": "mm", "px": CROP_PX, "kind": desc["kind"], "crop_version": CROP_VERSION})
-    return {"ctx_png": str(ctx_png), "iso_png": str(iso_png), "input_sha256": canonical_sha256(desc), "crop": crop}
+    return {"ctx_png": str(ctx_png), "iso_png": str(iso_png), "input_sha256": canonical_sha256(desc), "crop": crop,
+            "question": desc["question"]["facts"]}

@@ -441,7 +441,9 @@ def _assemble_level(build: ProjectBuild, level_id: str, works: list[PageWork]) -
 def _raster_room_labels(build: ProjectBuild, level_id: str, ex: LevelExtraction, rooms: list[dict], where: str) -> None:
     """Rooms of a raster master page (§3.4): a name accepted by the two passes (or one pass equal to Tesseract)
     keeps the room's status and adds the passes' evidence; a name Tesseract read but no pass confirmed leaves the
-    room ``unverified`` (and says so)."""
+    room ``unverified`` (and says so). Other Tesseract names of the face that an accepted name replaced are listed
+    as warnings; a name both passes agree on against what Tesseract read is a conflict (OCR outranks AI: Tesseract's
+    name kept, room ``unverified``)."""
     to_building = ex.transform_to_building
     for entry in (ex.report.get("raster") or {}).get("labels") or []:
         anchor = entry.get("anchor")
@@ -454,6 +456,21 @@ def _raster_room_labels(build: ProjectBuild, level_id: str, ex: LevelExtraction,
             if e not in room["evidence"]:
                 room["evidence"].insert(len([x for x in room["evidence"] if x["method"] != "derived"]), dict(e))
         if entry.get("label"):
+            dropped = [n for n in entry.get("dropped") or [] if n != entry.get("ocr_spelling")]
+            if dropped:
+                build.warn(f"{room['id']}: Tesseract also read {', '.join(repr(n) for n in dropped)} in this room on "
+                           f"{where}; replaced by the accepted label '{entry['label']}' (§3.4)")
+            if entry.get("ocr_spelling"):
+                build.warn(f"{room['id']}: room label '{entry['label']}' (two VLM passes) where Tesseract read "
+                           f"'{entry['ocr_spelling']}' on {where}: no word disagrees, the passes' spelling kept")
+            continue
+        conflict = entry.get("conflict")
+        if conflict:
+            room["status"] = "unverified"
+            build.conflict("other", [room["id"]],
+                           f"{room['id']}: both VLM passes read the room name '{conflict['ai']}' but Tesseract read "
+                           f"{', '.join(repr(n) for n in conflict['ocr'])} in the same room on {where}",
+                           "OCR outranks AI: Tesseract's name kept, room unverified")
             continue
         if room["label_raw"] is not None:
             room["status"] = "unverified"
@@ -1445,7 +1462,9 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
             build.review(f"{record.file} p{record.page}: {record.page_class} without a level title "
                          f"(found: {record.level_label_raw!r})")
             continue
-        if record.label_source == "assumed":
+        if getattr(record, "level_note", None):
+            build.warn(f"{record.file} p{record.page}: {record.level_note}")
+        elif record.label_source == "assumed":
             build.warn(f"level title missing: assumed {record.level_id} {record.level_label}")
         secondary = (record.file, record.page) in evidence_only
         if record.extractor == "raster":

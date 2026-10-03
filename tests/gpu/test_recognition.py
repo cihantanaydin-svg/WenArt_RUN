@@ -180,7 +180,11 @@ def _truth_rooms(project: str) -> list[dict]:
 
 
 @needs_prep
-@pytest.mark.parametrize("project", sorted(RASTER_LABEL_TARGETS))
+@pytest.mark.parametrize("project", [
+    # Only the prep projects run (WENART_PREP_PROJECTS: the prep job leaves out a project it could not find);
+    # the other raster projects are skipped, not failed.
+    p if p in PREP_PROJECTS else pytest.param(p, marks=pytest.mark.skip(reason=f"{p} not in WENART_PREP_PROJECTS"))
+    for p in sorted(RASTER_LABEL_TARGETS)])
 def test_m7_raster_room_labels(project):
     from wenart.recognition.room_labels import norm_value
     if not (_prep(project) / "building.json").is_file():

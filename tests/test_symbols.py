@@ -433,7 +433,7 @@ def test_real01_questions_carry_room_fitting_types_and_neighbours(real01_first):
     items = {q["key"]: q for q in ex.report["questions"]}
     assert len(items) == 17
     chair = next(q for q in items.values() if q["question"]["room"] == {"label": "Dining", "type": "dining"}
-                 and q["question"]["neighbours"]["around"])
+                 and (q["question"]["neighbours"] or {}).get("around"))
     facts = chair["question"]
     assert facts["kind"] == "vector" and facts["neighbours"]["around"] == 6 and facts["neighbours"]["similar"] == 6
     assert "chair" in facts["choices"] and "armchair" not in facts["choices"]

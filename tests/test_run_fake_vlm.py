@@ -130,3 +130,112 @@ def test_fake_answers_the_milestone_7_questions(tmp_path):
     for order in ("ab", "ba"):
         schema = VS.realism2_schema(order)
         jsonschema.Draft202012Validator(schema).validate(minimal_instance(schema))
+
+
+# --------------------------------------------------------------------------
+# Schemas vLLM's xgrammar backend refuses (the M7 prep pod: every Objaverse judge call got HTTP 400)
+# --------------------------------------------------------------------------
+
+def _post(url: str, schema: dict) -> tuple[int, dict]:
+    import urllib.error
+    body = {"model": "m/one", "messages": [], "structured_outputs": {"json": schema}}
+    req = urllib.request.Request(url + "/chat/completions", data=json.dumps(body).encode(), method="POST",
+                                 headers={"Content-Type": "application/json"})
+    try:
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            return resp.status, json.loads(resp.read())
+    except urllib.error.HTTPError as exc:
+        return exc.code, json.loads(exc.read())
+
+
+UNSUPPORTED = {
+    "uniqueItems": {"type": "array", "items": {"enum": ["a", "b"]}, "uniqueItems": True},
+    "patternProperties": {"type": "object", "patternProperties": {"^x": {"type": "string"}}},
+    "if": {"type": "object", "if": {"required": ["a"]}, "then": {"required": ["b"]}},
+    "else": {"type": "object", "else": {"required": ["b"]}},
+    "not": {"type": "object", "not": {"required": ["decision"]}},
+    "contains": {"type": "array", "contains": {"const": 1}},
+    "minContains": {"type": "array", "contains": {"const": 1}, "minContains": 1},
+    "maxContains": {"type": "array", "maxContains": 2},
+    "dependentRequired": {"type": "object", "dependentRequired": {"a": ["b"]}},
+    "propertyNames": {"type": "object", "propertyNames": {"pattern": "^[a-z]+$"}},
+}
+
+
+@pytest.mark.parametrize("keyword", sorted(UNSUPPORTED))
+def test_fake_refuses_keywords_xgrammar_does_not_implement(keyword):
+    """Every keyword of GRAMMAR_UNSUPPORTED, also deep inside the schema (a property, an anyOf branch, $defs, array
+    items), gives vLLM's HTTP 400 "Grammar error: Unimplemented keys: [...]" and no answer."""
+    from fakes.fake_vlm import GRAMMAR_UNSUPPORTED
+    assert set(UNSUPPORTED) <= set(GRAMMAR_UNSUPPORTED) | {"then"}
+    inner = UNSUPPORTED[keyword]
+    wrapped = [inner,
+               {"type": "object", "required": ["x"], "properties": {"x": inner}},
+               {"anyOf": [{"type": "integer"}, inner]},
+               {"$defs": {"d": inner}, "type": "object", "properties": {"x": {"$ref": "#/$defs/d"}}},
+               {"type": "array", "items": inner},
+               {"type": "array", "prefixItems": [{"type": "string"}, inner]}]
+    with FakeVLM(models=["m/one"]) as url:
+        for schema in wrapped:
+            code, data = _post(url, schema)
+            assert code == 400, schema
+            assert data["error"]["type"] == "BadRequestError" and data["error"]["code"] == 400
+            assert data["error"]["message"].startswith("Grammar error: Unimplemented keys: [")
+            assert f'"{keyword}"' in data["error"]["message"]
+
+
+def test_fake_accepts_keyword_names_used_as_property_names_and_lists_every_refused_key():
+    """A property *named* "not" or "contains" is no keyword; several refused keywords are all listed, like vLLM."""
+    from fakes.fake_vlm import unsupported_keys
+    schema = {"type": "object", "required": ["not", "contains"],
+              "properties": {"not": {"type": "boolean"}, "contains": {"enum": ["x"]}, "if": {"type": "integer"}}}
+    with FakeVLM(models=["m/one"]) as fake_url:
+        code, data = _post(fake_url, schema)
+    assert code == 200 and json.loads(data["choices"][0]["message"]["content"]) == {"not": False, "contains": "x"}
+    both = {"type": "object", "properties": {"a": {"type": "array", "uniqueItems": True, "contains": {"const": 1}}},
+            "not": {"required": ["b"]}}
+    assert unsupported_keys(both) == ["not", "uniqueItems", "contains"]
+    with FakeVLM(models=["m/one"]) as fake_url:
+        code, data = _post(fake_url, both)
+    assert code == 400 and data["error"]["message"] == 'Grammar error: Unimplemented keys: ["not", "uniqueItems", ' \
+                                                      '"contains"]'
+
+
+def test_the_real_client_gets_the_refusal_as_an_error(tmp_path):
+    """wenart.recognition.vlm_client: the 400 is an error with no data (as on the pod), never an answer."""
+    from PIL import Image
+
+    from wenart.recognition import vlm_client
+    img = tmp_path / "a.png"
+    Image.new("L", (32, 32), 255).save(img)
+    schema = {"type": "object", "required": ["styles"], "additionalProperties": False,
+              "properties": {"styles": {"type": "array", "items": {"enum": ["a", "b"]}, "uniqueItems": True}}}
+    with FakeVLM(models=["m/one"]) as url:
+        res = vlm_client.VLMClient(url, model="m/one", retries=1).run_schema([img], "styles?", schema, task="t")
+        ok = vlm_client.VLMClient(url, model="m/one", retries=1).run_schema(
+            [img], "styles?", dict(schema, properties={"styles": {"type": "array", "items": {"enum": ["a", "b"]}}}),
+            task="t")
+    assert res.data is None and "HTTP 400" in res.error and 'Unimplemented keys: [\\"uniqueItems\\"]' in res.error
+    assert ok.error is None and ok.data == {"styles": []}
+
+
+def test_the_objaverse_judge_cli_gets_answers_from_the_fake(tmp_path):
+    """The real ``objaverse judge`` CLI against the fake: its schema must be one vLLM compiles (the prep pod's judge
+    failed every call with uniqueItems), so this fails as long as the judge schema uses a refused keyword."""
+    from PIL import Image
+
+    from wenart.assets import objaverse as OV
+    lib = tmp_path / "library"
+    (lib / "judge" / "sheets").mkdir(parents=True)
+    Image.new("RGB", (64, 64), (200, 200, 200)).save(lib / "judge" / "sheets" / "u1.jpg")
+    item = {"key": "lib_u1", "task": OV.TASK, "images": ["sheets/u1.jpg"], "prompt": "Judge this sofa.",
+            "context": {"uid": "u1", "type": "sofa"}, "input_sha256": "a" * 64}
+    OV.write_json(lib / "judge" / "requests.json", {"schema_version": "0.1", "kind": "objaverse_judge_requests",
+                                                    "task": OV.TASK, "items": [item]})
+    with FakeVLM() as url:
+        rc = OV.main(["judge", "--out", str(lib), "--model-key", "qwen", "--server", url, "--workers", "1",
+                      "--retries", "1"])
+    store = OV.judge_store(lib, "qwen")
+    rec = store.get("lib_u1") or {}
+    assert rc == 0, rec.get("error")
+    assert store.valid(item) is not None and OV.valid_judgement(rec["data"])

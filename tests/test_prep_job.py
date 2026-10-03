@@ -34,6 +34,7 @@ ROOT = Path(__file__).resolve().parents[1]
 JOB = ROOT / "scripts" / "jobs" / "prep.sh"
 SETUP = ROOT / "scripts" / "pod_setup_polish.sh"
 GPU_6000 = {"name": "NVIDIA RTX PRO 6000 Blackwell Server Edition", "memory_mib": 97887}
+TIMING_REFERENCE = Path("wenart") / "run" / "timing_reference.json"     # the frozen M6 times (orch-5)
 
 
 def _text() -> str:
@@ -358,6 +359,8 @@ class World:
         self.status_rc = status_rc or {}
         self.rc = rc or {}
         self.server_fail = server_fail or {}
+        self.judge_answers: dict = {}            # key -> fn(library) writing complete judge answers
+        self.second_round: set = set()           # projects whose pipeline_final exits 4 without --no-ai
         self.step_s = step_s
         self.gpu = dict(gpu)
         for name in projects:
@@ -379,15 +382,16 @@ class World:
         (src / "scene" / "scene_manifest.json").write_text(json.dumps({"cameras": [{"name": c} for c in cams]}))
         (src / "building_final.json").write_text("{}")
         (src / "style.json").write_text("{}")
-        ref = self.repo / "results" / "renders" / "synthetic-04"
-        ref.mkdir(parents=True, exist_ok=True)
-        # cam_r_00 has no reference time: the first 10 cameras with one are cam_r_01 .. cam_r_10.
-        (ref / "render_manifest.json").write_text(json.dumps({"renders": [
-            {"camera": c, "seconds": 6.0, "skipped": False} for c in cams[1:]]}))
-        pol = self.repo / "results" / "polish" / "synthetic-04"
-        pol.mkdir(parents=True, exist_ok=True)
-        (pol / "polish_manifest.json").write_text(json.dumps({"device": "NVIDIA RTX PRO 4500 Blackwell",
-                                                              "seconds_per_forward": 1.0}))
+        # The frozen M6 reference (wenart/run/timing_reference.json of the fake repo). cam_r_00 has no reference
+        # time: the first 10 cameras with one are cam_r_01 .. cam_r_10.
+        self.timing_reference({"render": {"device": "OPTIX", "seconds": {c: 6.0 for c in cams[1:]}},
+                               "polish": {"device": "NVIDIA RTX PRO 4500 Blackwell", "seconds_per_forward": 1.0}})
+
+    def timing_reference(self, parts: dict, gpu: str = "NVIDIA RTX PRO 4500 Blackwell") -> Path:
+        doc = {"schema_version": "0.1", "kind": "timing_reference", "project": "synthetic-04", "gpu": gpu,
+               "gpu_key": "RTX PRO 4500", "pod_id": "pxy56z9yyehx1t", "pod_note": "M6 pod B",
+               "source_commit": "0cfcea04f0681224e826021bd526b0bc42794a59", **parts}
+        return P.write_json(self.repo / TIMING_REFERENCE, doc)
 
     def opts(self, **kw) -> P.PrepOptions:
         base = dict(results=self.results, outputs=self.outputs, projects=list(self.pipeline_rc)[:4],
@@ -419,10 +423,10 @@ class World:
         return self.rc.get(label, rc)
 
     def write(self, cmd: list, label: str) -> int:
-        lib = self.results / "library"
-
         def arg(flag):
             return cmd[cmd.index(flag) + 1]
+
+        lib = Path(arg("--out")) if label.startswith("objaverse ") else None
 
         if label == "objaverse survey":
             P.write_json(lib / "survey.json", {"candidates": [{"uid": "u1"}, {"uid": "u2"}]})
@@ -431,7 +435,11 @@ class World:
         elif label == "objaverse judge-requests":
             P.write_json(lib / "judge" / "requests.json", {"items": [{"key": "u1"}, {"key": "u2"}]})
         elif label.startswith("objaverse judge "):
-            P.write_json(lib / "judge" / f"answers_{label.split()[-1]}.json", {"answers": {}})
+            key = label.split()[-1]
+            if key in self.judge_answers:                 # schema-valid answers of every item (the real store)
+                self.judge_answers[key](lib)
+            else:
+                P.write_json(lib / "judge" / f"answers_{key}.json", {"answers": {}})
         elif label == "objaverse accept":
             P.write_json(lib / "accepted.json", {"accepted": ["u1"]})
         elif label == "objaverse write-catalog":
@@ -474,6 +482,13 @@ class World:
         elif label.startswith("status "):
             return self.status_rc.get(label.split()[1], 0)
         elif label.startswith("pipeline_final "):
+            name = label.split()[1]
+            out = Path(arg("--out"))
+            if name in self.second_round and "--no-ai" not in cmd:
+                # The answers opened new questions (a raster page's second round): exit 4 although complete.
+                P.write_json(out / "building.json", {"id": name, "stage": "final", "no_ai": False})
+                return 4
+            P.write_json(out / "building.json", {"id": name, "stage": "final", "no_ai": "--no-ai" in cmd})
             return 0
         return 0
 
@@ -498,6 +513,13 @@ class World:
 
     def steps(self) -> dict:
         return {s["name"]: s for s in self.manifest()["steps"]}
+
+    @staticmethod
+    def manifest_of(results: Path) -> dict:
+        return json.loads((Path(results) / P.MANIFEST).read_text())
+
+    def steps_of(self, results: Path) -> dict:
+        return {s["name"]: s for s in self.manifest_of(results)["steps"]}
 
     def call(self, label: str) -> dict:
         return next(c for c in self.calls if c["label"] == label)
@@ -525,7 +547,7 @@ def test_full_prep_runs_every_step_in_the_fixed_order(tmp_path):
 def test_commands_of_every_step(tmp_path):
     w = World(tmp_path)
     w.prep().run_all()
-    lib = str(w.results / "library")
+    lib = str(w.prep_root / "library")              # the persistent library work folder (orch-3)
     assert w.call("objaverse survey")["cmd"] == ["/venv/python", "-m", "wenart.assets.objaverse", "survey",
                                                  "--cache", str(tmp_path / "hf"), "--out", lib]
     thumbs = w.call("objaverse thumbnails")["cmd"][3:]
@@ -548,8 +570,9 @@ def test_commands_of_every_step(tmp_path):
     judge = w.call("objaverse judge qwen")["cmd"]
     assert judge[3:] == ["judge", "--out", lib, "--model-key", "qwen", "--server", "http://127.0.0.1:8001/v1",
                          "--workers", "8"]
-    # The answers of the first session are saved for a resumed job; the seeding only takes matching answers.
-    assert w.call("objaverse judge glm")["cmd"][-2:] == ["--seed-answers", str(w.prep_root / "library-answers")]
+    # The judge answers live in the persistent library folder (a resumed job asks only what is missing there).
+    assert w.call("objaverse judge glm")["cmd"][3:] == ["judge", "--out", lib, "--model-key", "glm", "--server",
+                                                        "http://127.0.0.1:8001/v1", "--workers", "8"]
     final = w.call("pipeline_final real01")["cmd"]
     assert final == pipe + ["--answers", str(w.outputs / "real01" / "recognition")]
     assert w.call("objaverse write-catalog")["cmd"][3:] == ["write-catalog", "--out", lib, "--assets", str(w.assets)]
@@ -673,13 +696,12 @@ def test_copy_writes_the_answers_and_the_library_credits_into_results(tmp_path):
     assert (w.results / "recognition" / "real01-scan" / "answers_qwen.json").is_file()
     attribution = (w.results / "library" / "ATTRIBUTION.md").read_text()
     assert '"Sofa" by A' in attribution and "ODC-By" in attribution
-    # The library judge answers are kept outside $RESULTS for a resumed job, which seeds from them.
-    saved = sorted(p.name for p in (w.prep_root / "library-answers").iterdir())
-    assert saved == ["answers_glm.json", "answers_qwen.json"]
-    w2 = World(tmp_path / "again")
-    w2.prep_root = w.prep_root
-    w2.prep().run_all()
-    assert w2.call("objaverse judge qwen")["cmd"][-2:] == ["--seed-answers", str(w.prep_root / "library-answers")]
+    # The library work stays in <prep-root>/library (outside the per-job $RESULTS); $RESULTS/library is its copy.
+    work = w.prep_root / "library"
+    files = sorted(f.relative_to(work).as_posix() for f in work.rglob("*") if f.is_file())
+    assert "judge/answers_glm.json" in files and "judge/requests.json" in files and "survey.json" in files
+    assert sorted(f.relative_to(w.results / "library").as_posix() for f in (w.results / "library").rglob("*")
+                  if f.is_file()) == files
 
 
 def test_copy_only(tmp_path):
@@ -764,7 +786,8 @@ def test_gpu_test_environments(tmp_path):
     w = World(tmp_path)
     w.prep().run_all()
     lib = w.call("pytest tests/gpu/test_library.py")
-    assert lib["env"]["WENART_LIBRARY"] == str(w.results / "library") and lib["env"]["WENART_ASSETS"] == str(w.assets)
+    assert lib["env"]["WENART_LIBRARY"] == str(w.prep_root / "library")
+    assert lib["env"]["WENART_ASSETS"] == str(w.assets)
     det = w.call("pytest tests/gpu/test_detect.py")
     assert det["env"]["DETECT_CALIBRATION"] == str(w.results / "detect" / "detector_calibration.json")
     assert det["env"]["DETECT_TEST_PROJECTS"] == ""
@@ -790,6 +813,259 @@ def test_skip_only_and_no_tests(tmp_path):
     w2.prep(skip=("timings", "detect_calibrate"), tests=False).run_all()
     status = {s["name"]: (s["status"], s["note"]) for s in w2.manifest()["steps"]}
     assert status["timings"] == ("skipped", "in --skip") and status["tests"] == ("skipped", "--no-tests")
+
+
+# --------------------------------------------------------------------------
+# Review fixes after the first prep pod (orch-1, orch-3, orch-5, orch-6)
+# --------------------------------------------------------------------------
+
+def test_pipeline_final_exit_4_runs_again_with_no_ai_and_is_a_warning(tmp_path):
+    """orch-1: real01-scan/-photo's pipeline_final exited 4 on the first prep pod (second-round symbol questions)
+    and the step failed. Exit 4 with complete answers is never failed: once more with --no-ai, warning."""
+    w = World(tmp_path)
+    w.second_round = {"real01-scan"}
+    assert w.prep().run_all() == 0, w.lines
+    finals = [c for c in w.calls if c["label"] == "pipeline_final real01-scan"]
+    assert len(finals) == 2 and "--no-ai" not in finals[0]["cmd"] and finals[1]["cmd"] == finals[0]["cmd"] + ["--no-ai"]
+    assert len([c for c in w.calls if c["label"] == "pipeline_final real01"]) == 1
+    step = w.steps()["pipeline_final"]
+    assert step["status"] == "warning"
+    assert step["note"] == "second-round questions left unanswered (no-ai): real01-scan"
+    assert step["projects"]["real01-scan"] == {"rc": 0, "answers_complete": True, "second_round": True}
+    scan = next(p for p in w.manifest()["projects"] if p["name"] == "real01-scan")
+    assert scan["pipeline_final_rc"] == 0
+    rec = json.loads((w.outputs / "real01-scan" / "run" / "pipeline_final.json").read_text())
+    assert rec["status"] == "warning" and rec["note"] == "second-round questions left unanswered (no-ai)"
+    assert [s["name"] for s in rec["steps"]] == ["pipeline_final", "pipeline_final --no-ai"]
+    assert json.loads((w.outputs / "real01-scan" / "building.json").read_text())["no_ai"] is True
+
+
+def test_a_resumed_prep_never_reruns_the_first_pipeline_over_the_final_building(tmp_path):
+    """orch-1: the first pipeline's stage record (orchestrator format) is reused while its fingerprint holds, as
+    the scheduler's pending logic does; a changed project runs it again."""
+    w = World(tmp_path)
+    assert w.prep().run_all() == 0
+    rec = json.loads((w.outputs / "real01" / "run" / "pipeline.json").read_text())
+    assert rec["status"] == "pending" and rec["rc"] == 4 and rec["fingerprint"]
+    final = (w.outputs / "real01" / "building.json").read_text()
+    assert json.loads(final)["stage"] == "final"
+    # A targeted re-run of the pipelines step: the final buildings stay.
+    w.calls.clear()
+    w.events.clear()
+    assert w.prep(results=tmp_path / "results-2", only=("pipelines",)).run_all() == 0
+    assert w.labels() == []
+    assert (w.outputs / "real01" / "building.json").read_text() == final
+    step = w.steps_of(tmp_path / "results-2")["pipelines"]
+    assert step["projects"] == {"real01": "pending", "synthetic-02": "pending", "synthetic-06": "ok",
+                                "real01-scan": "pending"}
+    assert step["reused"] == ["real01", "synthetic-02", "synthetic-06", "real01-scan"]
+    # A whole resumed job: no first pipeline, the questions stay pending, pipeline_final runs on them.
+    assert w.prep(results=tmp_path / "results-3").run_all() == 0
+    labels = w.labels()
+    assert not [x for x in labels if x.startswith("pipeline ")]
+    assert [x for x in labels if x.startswith("pipeline_final ")] == [
+        "pipeline_final real01", "pipeline_final synthetic-02", "pipeline_final real01-scan"]
+    # A changed project: its first pipeline runs again (the others stay reused).
+    (w.repo / "projects" / "real01" / "plan.pdf").write_bytes(b"changed")
+    w.calls.clear()
+    w.events.clear()
+    w.prep(results=tmp_path / "results-4", only=("pipelines",)).run_all()
+    assert w.labels() == ["pipeline real01"]
+
+
+def _models() -> dict:
+    from wenart.recognition import answers as A
+    return A.load_models()
+
+
+def _store(path: Path, key: str, items: list, data) -> None:
+    """A complete answer store of ``key`` (the recognition / judge AnswerStore format)."""
+    m = _models()[key]
+    P.write_json(path, {"schema_version": "0.1", "kind": "recognition_answers", "model_key": key, "model": m["id"],
+                        "slug": m["slug"], "incomplete": False,
+                        "calls": {i["key"]: {"input_sha256": i["input_sha256"], "model": m["id"], "data": data}
+                                  for i in items}})
+
+
+def _answered_world(tmp_path, judge_complete=("qwen", "glm")):
+    """An earlier job's outputs: real01 with two symbol questions (Qwen answers stored, GLM answers in the
+    committed seeds) and a library whose judge answers are complete for ``judge_complete``."""
+    from fakes.fake_vlm import minimal_instance
+    from wenart.assets import objaverse as OV
+    from wenart.recognition import schemas as RS
+    w = World(tmp_path)
+    items = [{"key": f"sym_L0_{i}", "task": "symbol_type", "images": [f"crops/sym_L0_{i}_ctx.png"],
+              "input_sha256": f"{i:064x}"} for i in (1, 2)]
+    rec = w.outputs / "real01" / "recognition"
+    P.write_json(rec / "requests.json", {"kind": "recognition_requests", "items": items})
+    answer = minimal_instance(RS.M7_SCHEMAS["symbol_type"])
+    assert not RS.validation_errors("symbol_type", answer)
+    _store(rec / f"answers_{_models()['qwen']['slug']}.json", "qwen", items, answer)
+    _store(w.repo / "results" / "recognition" / "real01" / f"answers_{_models()['glm']['slug']}.json", "glm",
+           items, answer)
+    lib = w.prep_root / "library"
+    jitems = [{"key": f"lib_u{i}", "task": "library_judge", "images": [f"sheets/u{i}.jpg"],
+               "input_sha256": f"{i + 10:064x}"} for i in (1, 2)]
+    P.write_json(lib / "judge" / "requests.json", {"kind": "objaverse_judge_requests", "items": jitems})
+    judgement = minimal_instance(OV.judge_schema())
+    assert OV.valid_judgement(judgement)
+    for key in ("qwen", "glm"):
+        done = jitems if key in judge_complete else jitems[:1]
+        _store(lib / "judge" / f"answers_{_models()[key]['slug']}.json", key, done, judgement)
+    return w
+
+
+def test_no_server_starts_when_nothing_is_left_to_ask(tmp_path):
+    """orch-3: every recognition answer is stored (or in the committed seeds) and every judge item answered: no
+    vLLM start, probe 'not run'; the seeds are copied by ``ask`` without a server."""
+    w = _answered_world(tmp_path)
+    assert w.prep(only=("session_qwen", "session_glm")).run_all() == 0, w.lines
+    assert not [e for e in w.events if e[0] == "start"]
+    assert w.labels() == ["ask glm real01"]
+    ask = w.call("ask glm real01")["cmd"]
+    assert "--server" not in ask and ask[-2:] == ["--seed-answers", str(w.repo / "results" / "recognition" / "real01")]
+    sessions = w.manifest()["sessions"]
+    assert sessions["qwen"]["probe"] == "not run" and sessions["glm"]["probe"] == "not run"
+    assert sessions["qwen"]["missing"] == {"recognition": {"real01": 0}, "judge": 0}
+    steps = w.steps()
+    assert steps["session_qwen"]["status"] == "ok" and "no server started" in steps["session_qwen"]["note"]
+    assert w.manifest()["proposals"]["check_yaml_max_seqs"] == {}
+    # One unanswered judge item of GLM: only the GLM server starts, and it judges.
+    w2 = _answered_world(tmp_path / "b", judge_complete=("qwen",))
+    assert w2.prep(only=("session_qwen", "session_glm")).run_all() == 0, w2.lines
+    assert [e for e in w2.events if e[0] == "start"] == [("start", "glm", 8)]
+    assert "objaverse judge glm" in w2.labels() and "objaverse judge qwen" not in w2.labels()
+    assert w2.manifest()["sessions"]["glm"]["missing"]["judge"] == 1
+
+
+def test_a_targeted_rerun_judges_the_library_of_an_earlier_job(tmp_path):
+    """orch-3: the library work lives in <prep-root>/library, so PREP_ONLY=session_qwen,session_glm,library on a new
+    pod (a new $RESULTS) finds the judge requests of the earlier job and judges them; the EXIT-trap copy puts the
+    library into this job's $RESULTS/library."""
+    w = World(tmp_path)
+    assert w.prep(skip=("session_qwen", "session_glm", "library", "tests")).run_all() == 0
+    assert not (w.results / "library" / "judge" / "answers_qwen.json").exists()
+    w.calls.clear()
+    w.events.clear()
+    results2 = tmp_path / "results-2"
+    job = w.prep(results=results2, only=("session_qwen", "session_glm", "library"))
+    assert job.run_all() == 0, w.lines
+    labels = w.labels()
+    assert "objaverse judge qwen" in labels and "objaverse judge glm" in labels and "objaverse accept" in labels
+    lib = str(w.prep_root / "library")
+    assert w.call("objaverse judge qwen")["cmd"][5] == lib and w.call("objaverse accept")["cmd"][-1] == lib
+    assert w.manifest_of(results2)["sessions"]["qwen"]["judge"]["items"] == 2
+    assert job.copy_only() == 0
+    for name in ("judge/requests.json", "judge/answers_qwen.json", "judge/answers_glm.json", "survey.json",
+                 "thumbnails.json", "catalog_objaverse.json", "ATTRIBUTION.md"):
+        assert (results2 / "library" / name).is_file(), name
+
+
+def test_selected_library_and_session_steps_fail_when_their_inputs_are_missing(tmp_path):
+    """orch-3: a selected step whose inputs are missing fails (it used to be skipped or ok, judging nothing)."""
+    w = World(tmp_path)
+    assert w.prep(only=("thumbnails", "judge_requests", "session_qwen", "library")).run_all() == 1
+    steps = w.steps()
+    assert {n: steps[n]["status"] for n in ("thumbnails", "judge_requests", "session_qwen", "library")} == {
+        n: "failed" for n in ("thumbnails", "judge_requests", "session_qwen", "library")}
+    assert "no survey.json" in steps["thumbnails"]["note"] and "no thumbnails.json" in steps["library"]["note"]
+    assert "no judge/requests.json" in steps["session_qwen"]["note"]
+    assert not w.calls and not [e for e in w.events if e[0] == "start"]
+    # With recognition work but no library: the session asks, then fails for the missing judge requests.
+    w2 = World(tmp_path / "b")
+    assert w2.prep(only=("pipelines", "session_qwen")).run_all() == 1
+    assert "ask qwen real01" in w2.labels()
+    assert w2.steps()["session_qwen"]["status"] == "failed"
+    assert "library not judged" in w2.steps()["session_qwen"]["note"]
+
+
+def test_nothing_accepted_removes_an_earlier_catalogue_from_the_work_folder(tmp_path):
+    """The library work folder outlives the job: a catalogue of an earlier accept is not proposed again."""
+    w = World(tmp_path)
+    assert w.prep().run_all() == 0
+    assert (w.prep_root / "library" / "catalog_objaverse.json").is_file()
+    w.rc["objaverse accept"] = 1
+    results2 = tmp_path / "results-2"
+    assert w.prep(results=results2, only=("library", "copy")).run_all() == 0
+    assert not (w.prep_root / "library" / "catalog_objaverse.json").exists()
+    assert not (results2 / "library" / "catalog_objaverse.json").exists()
+    assert w.manifest_of(results2)["proposals"]["catalog_objaverse"] is None
+    assert w.steps_of(results2)["library"]["stale_removed"] == ["catalog_objaverse.json", "ATTRIBUTION.md"]
+
+
+def test_timings_use_the_frozen_reference_not_the_live_results(tmp_path):
+    """orch-5: the reference times come from wenart/run/timing_reference.json; the live results files (rewritten by
+    any later full run of synthetic-04, here with RTX PRO 6000 times) are never read."""
+    w = World(tmp_path)
+    live = w.repo / "results" / "renders" / "synthetic-04" / "render_manifest.json"
+    P.write_json(live, {"renders": [{"camera": f"cam_r_{i:02d}", "seconds": 1.5} for i in range(12)]})
+    P.write_json(w.repo / "results" / "polish" / "synthetic-04" / "polish_manifest.json",
+                 {"device": "NVIDIA RTX PRO 6000 Blackwell Server Edition", "seconds_per_forward": 0.5})
+    w.prep(only=("timings",)).run_all()
+    doc = json.loads((w.results / "timing" / "gpu_speed.json").read_text())
+    assert doc["render"]["reference"]["seconds_per_view"] == 6.0 and doc["render"]["speed"] == 2.0
+    assert doc["polish"]["reference"]["seconds_per_forward"] == 1.0 and doc["polish"]["speed"] == 1.25
+    assert doc["reference_file"] == "wenart/run/timing_reference.json"
+    assert doc["render"]["reference"]["source"] == "wenart/run/timing_reference.json"
+    assert "pxy56z9yyehx1t" in doc["reference_note"]
+
+
+@pytest.mark.parametrize("gpu, polish_device", [
+    ("NVIDIA RTX PRO 6000 Blackwell Server Edition", "NVIDIA RTX PRO 6000 Blackwell Server Edition"),
+    ("NVIDIA RTX PRO 4500 Blackwell", "NVIDIA GeForce RTX 4090"),
+    (None, "NVIDIA RTX PRO 4500 Blackwell"),
+])
+def test_a_reference_from_another_gpu_is_refused(tmp_path, gpu, polish_device):
+    """orch-5: a reference whose recorded GPU is not the reference GPU (RTX PRO 4500) gives no speed: failed, and
+    nothing is rendered or polished."""
+    w = World(tmp_path)
+    w.timing_reference({"render": {"seconds": {f"cam_r_{i:02d}": 6.0 for i in range(12)}},
+                        "polish": {"device": polish_device, "seconds_per_forward": 1.0}}, gpu=gpu)
+    assert w.prep(only=("timings",)).run_all() == 1
+    step = w.steps()["timings"]
+    assert step["status"] == "failed" and "not the reference GPU RTX PRO 4500: refused" in step["note"]
+    assert not w.calls and not (w.results / "timing" / "gpu_speed.json").exists()
+    assert w.manifest()["proposals"]["plan_gpu_speed"] is None
+
+
+def test_the_committed_timing_reference_is_the_m6_pod_b_record():
+    """orch-5: wenart/run/timing_reference.json holds the synthetic-04 times of M6 pod B (RTX PRO 4500 Blackwell,
+    pxy56z9yyehx1t) as committed at 0cfcea0, and the prep accepts it."""
+    assert P.TIMING_REFERENCE == TIMING_REFERENCE
+    ref = json.loads((ROOT / TIMING_REFERENCE).read_text())
+    assert ref["kind"] == "timing_reference" and ref["project"] == "synthetic-04"
+    assert ref["gpu"] == "NVIDIA RTX PRO 4500 Blackwell" and ref["pod_id"] == "pxy56z9yyehx1t"
+    assert ref["source_commit"].startswith("0cfcea0")
+    secs = ref["render"]["seconds"]
+    assert len(secs) == 14 and secs["cam_r_L3_banyo_1"] == 5.26 and secs["cam_r_L3_salon_mutfak_2"] == 4.28
+    assert ref["render"]["samples"] == 128 and ref["render"]["resolution"] == [1920, 1080]
+    assert ref["polish"]["device"] == "NVIDIA RTX PRO 4500 Blackwell" and ref["polish"]["seconds_per_forward"] == 2.843
+    job = P.Prep.__new__(P.Prep)
+    job.opts = P.PrepOptions(results=Path("/nonexistent"))
+    assert job.timing_reference() == (ref, None)
+    # The prep pod's measured render speed (1.634, results of job 20261003-173020-prep) follows from these times:
+    # the mean of the first 10 cameras is 4.617 s.
+    first10 = [secs[c] for c in sorted(secs)][:10]
+    assert round(sum(first10) / 10, 3) == 4.617
+
+
+def test_raster_room_label_tests_run_only_for_the_prep_projects(tmp_path):
+    """orch-6: tests/gpu/test_recognition.py::test_m7_raster_room_labels is parametrised over the raster projects but
+    skips those not in WENART_PREP_PROJECTS (the prep job leaves a missing project out of that list)."""
+    junit = tmp_path / "junit.xml"
+    env = dict(os.environ, WENART_PREP_OUTPUTS=str(tmp_path / "outputs-prep"), WENART_RESULTS=str(tmp_path / "r"),
+               WENART_PREP_PROJECTS="real01 synthetic-02 synthetic-06")
+    proc = subprocess.run([sys.executable, "-m", "pytest", "-m", "gpu", "tests/gpu/test_recognition.py", "-k",
+                           "raster_room_labels", "-p", "no:cacheprovider", "-q", f"--junitxml={junit}"],
+                          cwd=ROOT, env=env, capture_output=True, text=True, timeout=300)
+    text = junit.read_text()
+    cases = dict(re.findall(r'<testcase [^>]*name="test_m7_raster_room_labels\[([^\]]+)\]"[^>]*>(.*?)</testcase>',
+                            text, re.S))
+    assert sorted(cases) == ["real01-photo", "real01-scan", "synthetic-02"], proc.stdout
+    assert "<skipped" in cases["real01-scan"] and "<skipped" in cases["real01-photo"]
+    assert "not in WENART_PREP_PROJECTS" in cases["real01-scan"]
+    # synthetic-02 is a prep project: it runs (and fails here: no building.json in the empty outputs folder).
+    assert "<skipped" not in cases["synthetic-02"] and "<failure" in cases["synthetic-02"]
 
 
 def test_gpu_key_names_the_runpod_gpu():

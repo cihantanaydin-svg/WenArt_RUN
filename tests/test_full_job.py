@@ -128,6 +128,18 @@ def test_documented_run_command_and_runner():
     assert gpu_run.GPU_PRIORITY[0] == "RTX PRO 6000"            # the documented GPU is the runner's first choice
 
 
+def test_header_names_the_current_selftest_source():
+    """orch-4: the self-test source is tests/fixtures/projects/review-01 (wenart.run.scheduler.SELFTEST_SOURCE), and a
+    stale copy on the volume is replaced; the header must not still say synthetic-02."""
+    from wenart.run.scheduler import SELFTEST_ALIAS, SELFTEST_SOURCE
+    match = re.search(r"^#   PRIVATE_SELFTEST=1 (.*?)\n(?=#   [A-Z])", _text(), re.S | re.M)
+    assert match, "no PRIVATE_SELFTEST line in the header"
+    entry = " ".join(match.group(1).replace("#", " ").split())
+    assert f"adds {SELFTEST_ALIAS} (tests/fixtures/projects/{SELFTEST_SOURCE} copied" in entry
+    assert "stale copy" in entry and "moved to /workspace/outputs-archive" in entry
+    assert "projects/synthetic-02 copied" not in entry
+
+
 def test_env_knobs_reach_the_orchestrator_arguments():
     text = _flat()
     for knob in ("RUN_PROJECTS", "PRIVATE_PROJECTS", "PRIVATE_SELFTEST", "AB_PROJECTS", "AB_CONTROL_PROJECT",

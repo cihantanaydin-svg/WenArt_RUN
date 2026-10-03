@@ -264,6 +264,24 @@ def env_deadline() -> Optional[float]:
         return None
 
 
+def tree_digest(folder) -> Optional[dict]:
+    """``{relative path: sha256}`` of every file below ``folder`` (a symlink counts as ``"symlink"``, an empty folder
+    as ``"dir"``); None when ``folder`` is not a folder. Two trees with the same digest hold the same files."""
+    root = Path(folder)
+    if root.is_symlink() or not root.is_dir():
+        return None
+    out: dict = {}
+    for path in sorted(root.rglob("*")):
+        rel = path.relative_to(root).as_posix()
+        if path.is_symlink():
+            out[rel] = "symlink"
+        elif path.is_file():
+            out[rel] = hashlib.sha256(path.read_bytes()).hexdigest()
+        elif path.is_dir() and not any(path.iterdir()):
+            out[rel] = "dir"
+    return out
+
+
 # --------------------------------------------------------------------------
 # Options and per-project state
 # --------------------------------------------------------------------------
@@ -700,11 +718,25 @@ class Orchestrator:
 
     def prepare_selftest(self) -> None:
         """``--private-selftest``: ``tests/fixtures/projects/review-01`` (two untitled plan pages: needs_review)
-        copied once to ``<private_root>/selftest-02``."""
+        copied to ``<private_root>/selftest-02``. An existing copy is kept only when it is the current source
+        (the same files with the same sha256); any other (the M6 copy of synthetic-02, a changed fixture) is moved
+        to ``<archive root>/selftest-02-upload-<UTC stamp>`` (never deleted) and the source is copied again."""
+        source = project_folder(SELFTEST_SOURCE, self.repo_root)
         target = upload_dir(SELFTEST_ALIAS, Path(self.opts.private_root))
-        if not target.exists():
-            target.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copytree(project_folder(SELFTEST_SOURCE, self.repo_root), target)
+        if target.exists() or target.is_symlink():
+            if not target.is_symlink() and tree_digest(target) == tree_digest(source):
+                return
+            root = self.archive_root()
+            stamp = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())
+            aside, n = root / f"{SELFTEST_ALIAS}-upload-{stamp}", 2
+            while aside.exists() or aside.is_symlink():
+                aside, n = root / f"{SELFTEST_ALIAS}-upload-{stamp}-{n}", n + 1
+            root.mkdir(parents=True, exist_ok=True)
+            shutil.move(str(target), str(aside))
+            self.out(f"private self-test: the upload was not a copy of {SELFTEST_SOURCE} (stale): moved to "
+                     f"{S.t(aside)}, copied again")
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(source, target)
 
     @staticmethod
     def control_renders_missing(pr: ProjectRun) -> list:
@@ -885,11 +917,18 @@ class Orchestrator:
     def stage_pipeline_final(self, pr: ProjectRun) -> None:
         """The pipeline again with ``--answers`` (``--no-ai`` when an answer is missing, so it never exits 4; the
         smoke profile: ``--no-ai`` and no answers). Reused only while the stored ``building.json`` is the one it
-        wrote (its canonical sha256 in ``written``): a re-run first pipeline overwrites it."""
+        wrote (its canonical sha256 in ``written``): a re-run first pipeline overwrites it.
+
+        Exit 4 although every answer was in (the answers opened new questions, e.g. a raster page's second-round
+        symbol questions): never ``failed``; the pipeline runs once more with ``--no-ai`` (the new items stay
+        unknown/unverified and are listed in its report) and the stage is a ``warning``
+        (``SECOND_ROUND_NOTE``). The record keeps the first command's fingerprint; a resumed run whose
+        requests.json now lists the new questions asks them in its sessions and runs pipeline_final again."""
         pr.finalized = True
         complete = self.recognition_complete(pr)
         smoke = self.opts.smoke
-        cmd = S.pipeline_final(self.tools, pr.ref, answers=not smoke, no_ai=smoke or not complete)
+        no_ai = smoke or not complete
+        cmd = S.pipeline_final(self.tools, pr.ref, answers=not smoke, no_ai=no_ai)
         ins = self.pipeline_final_inputs(pr)
         fp = ST.fingerprint("pipeline_final", S.STAGE_VERSION["pipeline_final"], cmd[1:], ins,
                             self.code("pipeline_final"))
@@ -901,13 +940,19 @@ class Orchestrator:
                         written=prev.written)
             return
         rc = self.run_step(pr, "pipeline_final", "pipeline_final", cmd)
+        second_round = rc == S.EXIT_QUESTIONS and not no_ai
+        if second_round:
+            rc = self.run_step(pr, "pipeline_final", "pipeline_final --no-ai",
+                               S.pipeline_final(self.tools, pr.ref, answers=not smoke, no_ai=True))
         data = read_json(building)
         status = data.get("status") if isinstance(data, dict) else None
         written = {"building.json": ST.canonical_sha256(building)}
         rec = {"fingerprint": fp, "inputs": ins, "written": written}
         how = ("smoke profile: --no-ai" if smoke else "answers applied" if complete
                else "--no-ai: the unanswered pieces stay unknown, unverified")
-        if rc == 0 and status == "ok":
+        if second_round and rc == 0 and status == "ok":
+            self.finish(pr, "pipeline_final", "warning", S.SECOND_ROUND_NOTE, **rec)
+        elif rc == 0 and status == "ok":
             self.finish(pr, "pipeline_final", "ok", how, **rec)
         elif rc == 1 and status == "needs_review":
             self.finish(pr, "pipeline_final", "needs_review", "building needs review (report.md)", **rec)

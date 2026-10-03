@@ -8,32 +8,46 @@ What, in this fixed order (``STEPS``; every command runs with cwd = the repo roo
 ``<logs>/prep-<job>/<step>.log``):
 
 1. ``survey``: ``wenart.assets.objaverse survey --cache $HF_HOME`` (the Objaverse metadata and candidate GLBs
-   into the container-disk cache) -> ``library/survey.json``. It runs with ``HF_HUB_OFFLINE=0``; every later
-   step runs with ``HF_HUB_OFFLINE=1`` (the setup downloaded the VLMs, the polish/gate models and OWLv2 before).
+   into the container-disk cache) -> ``<prep-root>/library/survey.json``. It runs with ``HF_HUB_OFFLINE=0``; every
+   later step runs with ``HF_HUB_OFFLINE=1`` (the setup downloaded the VLMs, the polish/gate models and OWLv2
+   before).
 2. ``thumbnails``: ``objaverse thumbnails --work <prep-root>/library-work`` (Blender, Cycles on the GPU; no vLLM
    server runs yet).
-3. ``judge_requests``: ``objaverse judge-requests`` -> ``library/judge/requests.json``.
+3. ``judge_requests``: ``objaverse judge-requests`` -> ``<prep-root>/library/judge/requests.json``.
 4. ``detect_calibrate``: ``wenart.gate detect-calibrate --project-outs`` the M6 outputs of synthetic-01/03/04/05
    on the volume, ``--cache <prep-root>/detect-cache`` (venv-polish) -> ``detect/``.
 5. ``timings``: 10 views of synthetic-04 rendered with the M7 render code from its M6 ``scene/scene.blend``
    (built with the M7 build code from its ``building_final.json`` when the blend is missing) and the 4 smoke
-   polish attempts of one view, against the committed M6 times of the same cameras (RTX PRO 4500, M6 pod B)
+   polish attempts of one view, against the frozen M6 times of the same cameras (``timing_reference.json`` next
+   to this file: RTX PRO 4500, M6 pod B; a reference recorded on another GPU is refused, status ``failed``)
    -> ``timing/gpu_speed.json`` (seconds per view and per forward, speeds).
 6. ``pipelines``: ``wenart.ingest.pipeline <project> --out <outputs>/<p>`` for real01, synthetic-02,
-   synthetic-06 and the real01 raster fixtures (exit 4: recognition questions written).
+   synthetic-06 and the real01 raster fixtures (exit 4: recognition questions written). A stored record
+   (``<out>/run/pipeline.json``, the orchestrator's stage record) with the same fingerprint (project files,
+   LibreDWG version, pipeline code) is reused instead (a ``pending`` one stays pending), so a resumed job never
+   runs the first pipeline over the building ``pipeline_final`` wrote.
 7. ``session_qwen``: vLLM Qwen with the 8-sequence probe (8 sequences and 32k context first; a server that does
    not come up is recorded as ``max_seqs`` 4 and started again with 4), then ``wenart.recognition.answers ask``
-   for every project with questions and ``objaverse judge``.
+   for every project with questions and ``objaverse judge``. No server starts when no project misses an answer
+   of this model (stored or committed seeds; the seeds are copied without a server) and no judge item lacks one
+   (probe ``not run``). A missing ``judge/requests.json`` fails the step (after the asks).
 8. ``session_glm``: the same with GLM.
 9. ``pipeline_final``: ``pipeline --answers <out>/recognition`` (``--no-ai`` when ``answers status`` finds an
-   answer missing, so it never exits 4).
+   answer missing, so it never exits 4). An exit 4 with complete answers (new second-round questions) runs it
+   once more with ``--no-ai`` (the new items stay unknown/unverified): ``warning``, never ``failed``.
 10. ``library``: ``objaverse accept``, ``write-catalog --assets``, ``report`` and ``ATTRIBUTION.md``
-    (``wenart.run.copy.library_attribution``) -> ``library/``.
-11. ``copy``: the prep projects' small files (``wenart.run.copy.copy_project``) -> ``recognition/<p>/``
-    (requests, both answer files, crops) and ``furniture/<p>/`` (building.json, report.md, debug images).
-12. ``tests``: ``pytest -m gpu`` ``tests/gpu/test_recognition.py -k m7`` (``WENART_PREP_OUTPUTS``),
-    ``tests/gpu/test_library.py`` (``WENART_LIBRARY``, ``WENART_ASSETS``) and ``tests/gpu/test_detect.py``
-    (``DETECT_CALIBRATION``, venv-polish) -> ``tests/junit-<group>.xml``.
+    (``wenart.run.copy.library_attribution``) in ``<prep-root>/library``.
+11. ``copy``: the library folder -> ``$RESULTS/library/`` and the prep projects' small files
+    (``wenart.run.copy.copy_project``) -> ``recognition/<p>/`` (requests, both answer files, crops),
+    ``furniture/<p>/`` (building.json, report.md, debug images) and ``run/<p>/`` (the stage records).
+12. ``tests``: ``pytest -m gpu`` ``tests/gpu/test_recognition.py -k m7`` (``WENART_PREP_OUTPUTS``,
+    ``WENART_PREP_PROJECTS``), ``tests/gpu/test_library.py`` (``WENART_LIBRARY`` = ``<prep-root>/library``,
+    ``WENART_ASSETS``) and ``tests/gpu/test_detect.py`` (``DETECT_CALIBRATION``, venv-polish) ->
+    ``tests/junit-<group>.xml``.
+
+A selected step whose inputs are missing (thumbnails without ``survey.json``, judge_requests and library without
+``thumbnails.json``, a session without ``judge/requests.json``) is ``failed``, never silently skipped: a targeted
+re-run (``--only session_qwen,session_glm,library``) needs the library of an earlier job in ``<prep-root>``.
 
 Deadline (``WENART_DEADLINE``, epoch seconds; ``scripts/pod_entry.sh`` sets start + max - 15 min): a download or
 GPU step (``HEAVY``) starts only when now + its estimate (``EST_S``) < deadline, else it ends ``deadline``; the CPU
@@ -41,19 +55,19 @@ steps, the copy and the GPU tests always run (they take seconds or are the pod's
 deadline + 10 min, like the orchestrator's late stages). The steps that watch the deadline themselves
 (thumbnails, ask, judge, render, polish) exit 3 when it cuts them: the step is then ``deadline`` too.
 
-Resume: a cut pod runs the same command again. The pipeline outputs and their answer stores stay in
-``--outputs`` (answers are reused by key and input hash), the thumbnail measurements in
-``<prep-root>/library-work``, the detector boxes in ``<prep-root>/detect-cache``, the timing renders and polish
-attempts in ``<prep-root>/timing/<gpu>/``; the library judge answers are saved to ``<prep-root>/library-answers``
-after each session and seeded from there (``objaverse judge --seed-answers``: only answers whose key and hash
-match are taken), because ``$RESULTS`` is a new folder per job.
+Resume: a cut pod runs the same command again. The pipeline outputs, their stage records and their answer stores
+stay in ``--outputs`` (answers are reused by key and input hash), the whole library work (survey, thumbnails,
+judging sheets, judge requests and answers, accepted list, catalogue) in ``<prep-root>/library`` (``$RESULTS`` is
+a new folder per job: it only gets a copy), the thumbnail measurements in ``<prep-root>/library-work``, the
+detector boxes in ``<prep-root>/detect-cache``, the timing renders and polish attempts in
+``<prep-root>/timing/<gpu>/``.
 
 Results (``$RESULTS``, collected by ``scripts/gpu_run.py``): ``prep_manifest.json`` (written after every step:
 status, exit codes, seconds and log of each step, the sessions' probe, the per-project states, and the
 ``proposals`` the integrator commits between the prep pod and the full runs: ``check.yaml
 models.<k>.max_seqs``, ``plan.GPU_SPEED``, the detector block), ``library/``, ``detect/``,
 ``timing/gpu_speed.json``, ``recognition/<p>/`` (requests, both answer files, crops), ``furniture/<p>/``
-(building.json, report.md, debug images) and ``tests/``.
+(building.json, report.md, debug images), ``run/<p>/`` and ``tests/``.
 
 Exit: 0 when every step ended ``ok``, ``warning`` or ``skipped`` and every GPU test group passed; 1 otherwise
 (the same command resumes); 2 for bad options.
@@ -80,6 +94,7 @@ from typing import Callable, Optional
 from wenart.run import copy as CP
 from wenart.run import servers as SV
 from wenart.run import stages as S
+from wenart.run import state as ST
 from wenart.run.projects import REPO_ROOT, ProjectError, ProjectRef, check_name
 
 STEPS = ("survey", "thumbnails", "judge_requests", "detect_calibrate", "timings", "pipelines", "session_qwen",
@@ -101,12 +116,14 @@ DETECT_PROJECTS = ("synthetic-01", "synthetic-03", "synthetic-04", "synthetic-05
 TIMING_PROJECT = "synthetic-04"
 TIMING_VIEWS = 10
 TIMING_RES = "1920x1080"
-# The committed M6 results of synthetic-04 (M6 pod B, docs/gpu-log.md 3 Oct 2026 04:16 UTC, RTX PRO 4500
-# Blackwell): the same cameras rendered and polished on the GPU that plan.GPU_SPEED counts as 1.0.
-TIMING_REFERENCE = {"render": Path("results") / "renders" / TIMING_PROJECT / "render_manifest.json",
-                    "polish": Path("results") / "polish" / TIMING_PROJECT / "polish_manifest.json"}
+# The frozen M6 times of synthetic-04 (M6 pod B pxy56z9yyehx1t, docs/gpu-log.md 3 Oct 2026 04:16 UTC, NVIDIA RTX
+# PRO 4500 Blackwell; copied from results/renders/synthetic-04/render_manifest.json and
+# results/polish/synthetic-04/polish_manifest.json as committed at 0cfcea0): the same cameras rendered and
+# polished on the GPU that plan.GPU_SPEED counts as 1.0. Never the live results files: a later full run of
+# synthetic-04 rewrites them with another GPU's times.
+TIMING_REFERENCE = Path("wenart") / "run" / "timing_reference.json"     # relative to the repo root
 REFERENCE_GPU = "RTX PRO 4500"
-REFERENCE_NOTE = "M6 pod B (docs/gpu-log.md, 2026-10-03 04:16 UTC, NVIDIA RTX PRO 4500 Blackwell)"
+LIBRARY_DIR = "library"                     # <prep-root>/library (the work) and $RESULTS/library (its copy)
 PROBE_SEQS = (8, 4)                        # §9.2: 8 sequences first; a server that does not come up -> 4
 PROBE_RETRY_REASONS = ("early_exit", "timeout")
 TEST_GROUPS = (   # (group, interpreter attribute, pytest arguments)
@@ -255,7 +272,14 @@ class PrepOptions:
 
     @property
     def library(self) -> Path:
-        return Path(self.results) / "library"
+        """The library work folder every ``objaverse`` step reads and writes (persistent: a resumed or targeted
+        job finds the survey, thumbnails, judge requests and answers of earlier jobs)."""
+        return Path(self.prep_root) / LIBRARY_DIR
+
+    @property
+    def results_library(self) -> Path:
+        """``$RESULTS/library``: the copy of ``library`` the runner collects (``Prep.sync_library``)."""
+        return Path(self.results) / LIBRARY_DIR
 
     @property
     def step_logs(self) -> Path:
@@ -267,9 +291,11 @@ class Project:
     name: str
     project_dir: Optional[Path]           # None: not found in PROJECT_ROOTS
     out_dir: Path
-    pipeline_rc: Optional[int] = None     # first pipeline of this run
+    pipeline_rc: Optional[int] = None     # first pipeline of this run (its stored rc when reused)
+    pipeline_reused: bool = False         # the stored pipeline record was reused (same fingerprint)
     final_rc: Optional[int] = None
     complete: Optional[bool] = None       # answers of both models for every item (answers status)
+    second_round: bool = False            # pipeline_final exited 4 with complete answers: re-run with --no-ai
 
     @property
     def requests(self) -> Path:
@@ -311,6 +337,9 @@ class Prep:
         self.projects = [self.find_project(n) for n in opts.projects]
         self._current: Optional[dict] = None
         self._commit: Optional[str] = None
+        self._models: Optional[dict] = None
+        self._code: dict = {}
+        self._libredwg: Optional[tuple] = None
 
     # ----- helpers --------------------------------------------------------
 
@@ -388,28 +417,124 @@ class Prep:
         return None
 
     def pending(self) -> list[Project]:
-        """Projects with recognition questions: the first pipeline of this run exited 4, or (pipelines not run in
-        this job: ``--skip``/``--only``) a requests.json with items from an earlier job in ``--outputs``."""
+        """Projects with recognition questions: the first pipeline of this run exited 4 (or its stored ``pending``
+        record was reused), or (pipelines not run in this job: ``--skip``/``--only``) a requests.json with items
+        from an earlier job in ``--outputs``."""
         return [p for p in self.projects
-                if (p.pipeline_rc == 4 or (p.pipeline_rc is None and items_in(p.requests) > 0))]
+                if (p.pipeline_rc == S.EXIT_QUESTIONS or (p.pipeline_rc is None and items_in(p.requests) > 0))]
 
     def seeds(self, p: Project) -> Optional[Path]:
         seeds = S.recognition_seeds(p.ref(self.opts.results), Path(self.opts.repo_root))
         return seeds if seeds is not None and seeds.is_dir() else None
 
-    @property
-    def library_seeds(self) -> Path:
-        return Path(self.opts.prep_root) / "library-answers"
-
-    def save_library_answers(self) -> int:
-        """Copy the library judge answers to ``<prep-root>/library-answers`` (seeds of a resumed job)."""
-        judge = self.opts.library / "judge"
+    def sync_library(self) -> int:
+        """Copy the library work folder (``<prep-root>/library``) into ``$RESULTS/library``; the number of files
+        written (a file whose size and bytes are already there is not copied again)."""
+        src, dst = Path(self.opts.library), Path(self.opts.results_library)
+        if not src.is_dir():
+            return 0
         n = 0
-        for f in sorted(judge.glob("answers_*.json")) if judge.is_dir() else []:
-            self.library_seeds.mkdir(parents=True, exist_ok=True)
-            shutil.copyfile(f, self.library_seeds / f.name)
+        for f in sorted(src.rglob("*")):
+            if not f.is_file() or f.is_symlink() or f.name.endswith(".tmp"):
+                continue
+            target = dst / f.relative_to(src)
+            if target.is_file() and target.stat().st_size == f.stat().st_size \
+                    and target.read_bytes() == f.read_bytes():
+                continue
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(f, target)
             n += 1
         return n
+
+    # ----- what a session still has to ask ------------------------------------
+
+    def models(self) -> dict:
+        """check.yaml ``models`` (the recognition answer stores' model ids and slugs)."""
+        if self._models is None:
+            from wenart.recognition import answers as A    # lazy: PyYAML, jsonschema
+            self._models = A.load_models()
+        return self._models
+
+    def recognition_missing(self, p: Project, key: str) -> tuple[int, int]:
+        """``(without seeds, with seeds)``: the questions of ``p`` that have no current, schema-valid answer of
+        ``key`` in ``<out>/recognition`` (first number) and neither there nor in the committed seeds
+        (``results/recognition/<p>/``, second number). An unreadable store or item counts as missing."""
+        data = read_json(p.requests)
+        items = [i for i in (data.get("items") or []) if isinstance(i, dict)] if isinstance(data, dict) else []
+        if not items:
+            return 0, 0
+        try:
+            from wenart.recognition import answers as A    # lazy: jsonschema
+            store = A.AnswerStore.for_model(p.requests.parent, key, self.models())
+            seeds = self.seeds(p)
+            seed_path = seeds / store.path.name if seeds is not None else None
+            seed = (A.AnswerStore(seed_path, key, store.data["slug"], store.data["model"])
+                    if seed_path is not None and seed_path.is_file() else None)
+        except Exception:  # noqa: BLE001 - an unreadable store: every question is asked
+            return len(items), len(items)
+
+        def answered(s, item) -> bool:
+            try:
+                return s is not None and s.valid(item) is not None
+            except Exception:  # noqa: BLE001 - a broken item or record is not an answer
+                return False
+
+        own = [i for i in items if not answered(store, i)]
+        return len(own), sum(1 for i in own if not answered(seed, i))
+
+    def judge_missing(self, key: str) -> Optional[int]:
+        """The library judge items without a current, schema-valid answer of ``key`` (None: no
+        ``judge/requests.json`` in the library work folder)."""
+        data = read_json(self.opts.library / "judge" / "requests.json")
+        if not isinstance(data, dict):
+            return None
+        items = [i for i in data.get("items") or [] if isinstance(i, dict)]
+        if not items:
+            return 0
+        try:
+            from wenart.assets import objaverse as OV        # lazy: the recognition answer store
+            store = OV.judge_store(self.opts.library, key, self.models())
+        except Exception:  # noqa: BLE001 - an unreadable store: every item is asked
+            return len(items)
+        n = 0
+        for item in items:
+            try:
+                n += store.valid(item) is None
+            except Exception:  # noqa: BLE001 - a broken item or record is not an answer
+                n += 1
+        return n
+
+    # ----- pipeline records (the orchestrator's stage records, M7 §9.1) -------
+
+    def code(self, stage: str) -> str:
+        if stage not in self._code:
+            self._code[stage] = ST.code_hash(S.STAGES[stage].code, Path(self.opts.repo_root))
+        return self._code[stage]
+
+    def converter_inputs(self) -> dict:
+        """The LibreDWG ``VERSION`` string in the pipeline fingerprint (as the orchestrator's)."""
+        if self._libredwg is None:
+            try:
+                from wenart.ingest.dwg import libredwg_version
+                self._libredwg = (libredwg_version(),)
+            except Exception:  # noqa: BLE001 - recorded as unknown; the pipeline reports a broken converter itself
+                self._libredwg = ("unknown",)
+        return {"<LibreDWG VERSION>": self._libredwg[0]}
+
+    def record(self, p: Project, stage: str, status: str, rc: Optional[int], note: Optional[str] = None, *,
+               fingerprint: Optional[str] = None, inputs: Optional[dict] = None, steps: Optional[list] = None,
+               written: Optional[dict] = None, log: Optional[str] = None) -> None:
+        """``<out>/run/<stage>.json`` in the orchestrator's format (``wenart.run.state.StageRecord``)."""
+        steps = list(steps or [])
+        rec = ST.StageRecord(project=p.name, stage=stage, status=status, rc=rc,
+                             seconds=sum(float(s.get("seconds") or 0.0) for s in steps), fingerprint=fingerprint,
+                             inputs=dict(inputs or {}), outputs=S.outputs_of(stage, p.name), started_utc=utc_now(),
+                             git_commit=self.commit(), log=log, note=note, run_id=f"prep-{self.opts.job_id}",
+                             steps=steps, written=dict(written or {}))
+        try:
+            ST.write_record(p.out_dir, rec)
+        except OSError as exc:
+            self.out(f"prep: {p.name} {stage} record not written: {exc}")
 
     # ----- the step frame -------------------------------------------------
 
@@ -459,9 +584,14 @@ class Prep:
             return "failed", f"exit {rc}" + ("" if rc != 1 else ": no candidate")
         return "ok", f"{n} candidate(s)"
 
+    def missing_input(self, name: str) -> str:
+        """The note of a selected step whose input is not in the library work folder (status ``failed``)."""
+        return (f"input missing: no {name} in {self.opts.library} (run the earlier library steps, or the whole "
+                f"prep, first)")
+
     def do_thumbnails(self, entry: dict) -> tuple:
         if not (self.opts.library / "survey.json").is_file():
-            return "skipped", "no survey.json"
+            return "failed", self.missing_input("survey.json")
         rc = self.run(self.objaverse("thumbnails", "--out", self.opts.library, "--work",
                                      Path(self.opts.prep_root) / "library-work"))
         thumbs = read_json(self.opts.library / "thumbnails.json")
@@ -473,7 +603,7 @@ class Prep:
 
     def do_judge_requests(self, entry: dict) -> tuple:
         if not (self.opts.library / "thumbnails.json").is_file():
-            return "skipped", "no thumbnails.json"
+            return "failed", self.missing_input("thumbnails.json")
         rc = self.run(self.objaverse("judge-requests", "--out", self.opts.library), late=True)
         entry["items"] = items_in(self.opts.library / "judge" / "requests.json")
         return ("ok", f"{entry['items']} sheet(s) to judge") if rc == 0 else ("failed", f"exit {rc}")
@@ -481,12 +611,20 @@ class Prep:
     def do_library(self, entry: dict) -> tuple:
         lib = self.opts.library
         if not (lib / "thumbnails.json").is_file():
-            return "skipped", "no thumbnails.json"
+            return "failed", self.missing_input("thumbnails.json")
         rc_accept = self.run(self.objaverse("accept", "--out", lib), late=True, what="accept")
         rc_catalog = None
         if rc_accept == 0:
             rc_catalog = self.run(self.objaverse("write-catalog", "--out", lib, "--assets", self.opts.assets),
                                   late=True, what="write-catalog")
+        else:
+            # The work folder outlives the job: a catalogue (and its credits) of an earlier accept is not this
+            # accept's result (write-catalog removes a stale file the same way when nothing is accepted).
+            stale = [f.name for f in (lib / "catalog_objaverse.json", lib / CP.ATTRIBUTION) if f.is_file()]
+            for name in stale:
+                (lib / name).unlink()
+            if stale:
+                entry["stale_removed"] = stale
         rc_report = self.run(self.objaverse("report", "--out", lib), late=True, what="report")
         attribution = CP.library_attribution(lib)
         catalog = read_json(lib / "catalog_objaverse.json")
@@ -518,8 +656,35 @@ class Prep:
             return "failed", f"exit {rc}"
         return ("warning", f"missing M6 outputs: {', '.join(missing)}") if missing else ("ok", None)
 
+    def timing_reference(self) -> tuple[Optional[dict], Optional[str]]:
+        """The frozen M6 reference (``TIMING_REFERENCE``) and None, or None and why it is refused: missing or
+        unreadable, another project, no render time, or recorded on a GPU that is not ``REFERENCE_GPU`` (the GPU
+        plan.GPU_SPEED counts as 1.0; a speed against any other GPU would be on the wrong scale)."""
+        path = Path(self.opts.repo_root) / TIMING_REFERENCE
+        ref = read_json(path)
+        if not isinstance(ref, dict) or ref.get("kind") != "timing_reference":
+            return None, f"timing reference {TIMING_REFERENCE.as_posix()} missing or unreadable"
+        if ref.get("project") != self.opts.timing_project:
+            return None, (f"timing reference {TIMING_REFERENCE.as_posix()} is for {ref.get('project')}, not "
+                          f"{self.opts.timing_project}")
+        gpus = [ref.get("gpu")]                     # the render device is a Cycles backend (OPTIX), not a GPU name
+        if (ref.get("polish") or {}).get("device"):
+            gpus.append(ref["polish"]["device"])
+        wrong = [g for g in gpus if gpu_key(g) != REFERENCE_GPU]
+        if wrong:
+            return None, (f"timing reference {TIMING_REFERENCE.as_posix()} was recorded on {wrong[0]!r}, not the "
+                          f"reference GPU {REFERENCE_GPU}: refused")
+        secs = (ref.get("render") or {}).get("seconds")
+        if not isinstance(secs, dict) or not any(isinstance(v, (int, float)) for v in secs.values()):
+            return None, f"timing reference {TIMING_REFERENCE.as_posix()} has no render time"
+        return ref, None
+
     def do_timings(self, entry: dict) -> tuple:
-        doc = self.measure_timings()
+        reference, problem = self.timing_reference()
+        entry["reference"] = TIMING_REFERENCE.as_posix()
+        if reference is None:
+            return "failed", problem
+        doc = self.measure_timings(reference)
         self.timing = doc
         entry["speed"] = doc.get("speed")
         if doc["render"].get("seconds_per_view") is None:
@@ -528,15 +693,18 @@ class Prep:
             return "warning", "render timed; polish: " + str(doc["polish"].get("note") or "not timed")
         return "ok", f"speed {doc.get('speed')} vs the {REFERENCE_GPU}"
 
-    def measure_timings(self) -> dict:
-        """§9.2 timings -> ``$RESULTS/timing/gpu_speed.json`` (module docstring)."""
+    def measure_timings(self, reference: dict) -> dict:
+        """§9.2 timings against the frozen ``reference`` (``timing_reference``) -> ``$RESULTS/timing/gpu_speed.json``
+        (module docstring)."""
         o = self.opts
         gpu = self.gpu_info()
         src = Path(o.m6_outputs) / o.timing_project
         work = Path(o.prep_root) / "timing" / slug(gpu.get("name"))
         doc = {"schema_version": "0.1", "kind": "gpu_speed", "generated_utc": utc_now(),
                "gpu": {k: gpu.get(k) for k in ("name", "memory_mib", "key")}, "project": o.timing_project,
-               "reference_gpu": REFERENCE_GPU, "reference_note": REFERENCE_NOTE,
+               "reference_gpu": REFERENCE_GPU, "reference_file": TIMING_REFERENCE.as_posix(),
+               "reference_note": " ".join(str(x) for x in (reference.get("pod_note"), "pod", reference.get("pod_id"),
+                                                           "commit", reference.get("source_commit")) if x),
                "render": {"note": None}, "polish": {"note": None}, "speed": None,
                "speed_rule": "the lower of the render and the polish speed (plan.GPU_SPEED: time on the "
                              "RTX PRO 4500 / time here; never overestimates this GPU)"}
@@ -554,9 +722,8 @@ class Prep:
             render["scene_source"] = f"built with the M7 build code from the M6 building_final.json (rc {rc})"
         if not blend.is_file():
             render["note"] = f"no scene of {o.timing_project} under {o.m6_outputs}"
-        reference = read_json(Path(o.repo_root) / TIMING_REFERENCE["render"])
-        ref_secs = {str(e.get("camera")): e.get("seconds") for e in (reference or {}).get("renders") or []
-                    if isinstance(e, dict) and not e.get("skipped") and isinstance(e.get("seconds"), (int, float))}
+        ref_secs = {str(c): v for c, v in ((reference.get("render") or {}).get("seconds") or {}).items()
+                    if isinstance(v, (int, float))}
         scene = read_json(scene_manifest) or {}
         cams = sorted(str(c.get("name")) for c in scene.get("cameras") or [] if isinstance(c, dict) and c.get("name"))
         chosen = [c for c in cams if c in ref_secs][:TIMING_VIEWS] or cams[:TIMING_VIEWS]
@@ -571,7 +738,7 @@ class Prep:
             same = [c for c in chosen if c in secs and c in ref_secs]
             render.update(rc=rc, samples=o.render_samples, resolution=TIMING_RES, seconds=secs,
                           seconds_per_view=mean(secs.values()), device=measured.get("device"),
-                          reference={"source": TIMING_REFERENCE["render"].as_posix(),
+                          reference={"source": TIMING_REFERENCE.as_posix(), "gpu": reference.get("gpu"),
                                      "seconds": {c: ref_secs[c] for c in chosen if c in ref_secs},
                                      "seconds_per_view": mean(ref_secs[c] for c in chosen if c in ref_secs)},
                           speed=ratio(mean(ref_secs[c] for c in same), mean(secs[c] for c in same)),
@@ -581,8 +748,8 @@ class Prep:
         elif blend.is_file():
             render["note"] = "the scene manifest lists no camera"
         # Polish: the 4 smoke settings on one view of the M6 renders (its own out folder; nothing in the project).
-        ref_polish = read_json(Path(o.repo_root) / TIMING_REFERENCE["polish"]) or {}
-        polish["reference"] = {"source": TIMING_REFERENCE["polish"].as_posix(), "device": ref_polish.get("device"),
+        ref_polish = reference.get("polish") or {}
+        polish["reference"] = {"source": TIMING_REFERENCE.as_posix(), "device": ref_polish.get("device"),
                                "seconds_per_forward": ref_polish.get("seconds_per_forward")}
         if not chosen or not (src / "renders").is_dir() or not (src / "scene" / "scene_manifest.json").is_file():
             polish["note"] = f"no M6 renders of {o.timing_project}: polish not timed"
@@ -606,25 +773,48 @@ class Prep:
 
     # ----- pipelines and sessions -------------------------------------------
 
+    def last_seconds(self) -> float:
+        return float(self._current["commands"][-1]["seconds"]) if self._current and self._current["commands"] \
+            else 0.0
+
     def do_pipelines(self, entry: dict) -> tuple:
-        missing, failed, states = [], [], {}
+        """The first pipeline of every prep project; a stored ``run/pipeline.json`` with the same fingerprint is
+        reused as the orchestrator does (``pending`` stays pending): a resumed job never runs the first pipeline
+        over the building that ``pipeline_final`` wrote."""
+        missing, failed, states, reused = [], [], {}, []
         for p in self.projects:
             if p.project_dir is None:
                 missing.append(p.name)
                 states[p.name] = "missing"
                 continue
             p.out_dir.mkdir(parents=True, exist_ok=True)
-            p.pipeline_rc = self.run(S.pipeline(self.tools, p.ref(self.opts.results)), late=True,
-                                     log_name=f"pipeline-{p.name}", what=p.name)
-            states[p.name] = {0: "ok", 1: "needs_review", 4: "pending"}.get(p.pipeline_rc, "failed")
+            cmd = S.pipeline(self.tools, p.ref(self.opts.results))
+            ins = ST.file_hashes([p.project_dir])
+            ins.update(self.converter_inputs())
+            fp = ST.fingerprint("pipeline", S.STAGE_VERSION["pipeline"], cmd[1:], ins, self.code("pipeline"))
+            prev = ST.read_record(p.out_dir, "pipeline")
+            if ST.reusable(prev, fp, p.out_dir) and prev.status in ("ok", "pending"):
+                p.pipeline_rc = S.EXIT_QUESTIONS if prev.status == "pending" else 0
+                p.pipeline_reused = True
+                reused.append(p.name)
+                states[p.name] = prev.status
+                continue
+            log_name = f"pipeline-{p.name}"
+            p.pipeline_rc = self.run(cmd, late=True, log_name=log_name, what=p.name)
+            states[p.name] = {0: "ok", 1: "needs_review", S.EXIT_QUESTIONS: "pending"}.get(p.pipeline_rc, "failed")
+            self.record(p, "pipeline", states[p.name], p.pipeline_rc, fingerprint=fp, inputs=ins,
+                        steps=[{"name": "pipeline", "rc": p.pipeline_rc, "seconds": self.last_seconds()}],
+                        log=str(Path(self.opts.step_logs) / f"{log_name}.log"))
             if states[p.name] == "failed":
                 failed.append(p.name)
         entry["projects"] = states
+        entry["reused"] = reused
         if missing or failed:
             return "failed", "; ".join(x for x in (
                 f"not found: {', '.join(missing)}" if missing else "",
                 f"pipeline failed: {', '.join(failed)}" if failed else "") if x)
-        return "ok", f"{len(self.pending())} project(s) with questions"
+        return "ok", (f"{len(self.pending())} project(s) with questions"
+                      + (f"; reused (same fingerprint): {', '.join(reused)}" if reused else ""))
 
     def open_server(self, key: str, seqs: int, stats: list):
         mem = self.gpu_info().get("memory_mib") or None
@@ -650,6 +840,29 @@ class Prep:
             info["note"] = f"GPU below {SV.VRAM_LARGE_MIB} MiB: no 8-sequence probe ({tier} sequences)"
         self.sessions[key] = info
         entry["session"] = info
+        # What this model still has to answer: the projects' questions (stored or committed seeds count) and the
+        # library judge items. No server when there is nothing: the seeds are copied without one.
+        work = {p.name: self.recognition_missing(p, key) for p in self.pending()}
+        judge_left = self.judge_missing(key)
+        info["missing"] = {"recognition": {n: w[1] for n, w in work.items()}, "judge": judge_left}
+        no_library = None if judge_left is not None else self.missing_input("judge/requests.json")
+        if not any(w[1] for w in work.values()) and not judge_left:
+            info.update(probe="not run", note="nothing to ask: no server started (every answer is stored)")
+            for p in self.pending():
+                if work[p.name][0]:                     # the committed seeds complete the set: copy them
+                    seeds = self.seeds(p)
+                    rc = self.run(S.recognize(self.tools, p.ref(self.opts.results), key, None, None, seeds),
+                                  log_name=f"ask-{key}", what=f"{p.name} stored answers")
+                    info["asks"].append({"project": p.name, "rc": rc, "items": items_in(p.requests),
+                                         "seconds": self.last_seconds(), "server": False,
+                                         "seeded_from": str(seeds) if seeds else None})
+            self.write_manifest()
+            bad = [a for a in info["asks"] if a["rc"] != 0]
+            if no_library:
+                return "failed", no_library
+            if bad:
+                return "failed", "exit codes " + ", ".join(str(a["rc"]) for a in bad)
+            return "ok", "nothing to ask: no server started, probe not run"
         for i, seqs in enumerate(candidates):
             if i and not self.can_start(S.est_server(key) + EST_CALLS_MIN_S):
                 info["tried"].append({"seqs": seqs, "ok": False, "reason": "deadline", "note": "not started"})
@@ -661,7 +874,7 @@ class Prep:
                                           (stats[-1] if stats else {}).get("seconds_to_ready")})
                     if info["probe"]:
                         info["max_seqs"] = seqs
-                    self.ask_all(key, url, seqs, info)
+                    self.ask_all(key, url, seqs, info, work, judge_left)
                 break
             except SV.ServerError as exc:
                 info["tried"].append({"seqs": seqs, "ok": False, "reason": exc.reason, "error": str(exc)})
@@ -681,7 +894,10 @@ class Prep:
             return "failed", f"server did not come up ({', '.join(str(t.get('reason')) for t in info['tried'])})"
         rcs = [a["rc"] for a in info["asks"]] + ([info["judge"]["rc"]] if info["judge"] else [])
         if any(rc not in (0, 3) for rc in rcs):
-            return "failed", "exit codes " + ", ".join(str(rc) for rc in rcs)
+            return "failed", "exit codes " + ", ".join(str(rc) for rc in rcs) + (f"; {no_library}" if no_library
+                                                                                 else "")
+        if no_library:
+            return "failed", f"{len(info['asks'])} project(s) asked; library not judged: {no_library}"
         if 3 in rcs:
             return "deadline", "cut by the deadline (answers are kept and reused by the next job)"
         return "ok", (f"{up[-1]['seqs']} sequences; {len(info['asks'])} project(s) asked"
@@ -696,25 +912,25 @@ class Prep:
             except OSError:
                 pass
 
-    def ask_all(self, key: str, url: str, seqs: int, info: dict) -> None:
-        """Inside a session: the recognition requests of every project with questions, then the library judge."""
+    def ask_all(self, key: str, url: str, seqs: int, info: dict, work: dict, judge_left: Optional[int]) -> None:
+        """Inside a session: the recognition requests of every project with an answer of ``key`` missing (in its
+        store; ``ask`` copies the committed seeds first), then the library judge when an item lacks an answer
+        (``objaverse judge`` keeps the answers in ``<prep-root>/library/judge`` and asks only the rest)."""
         for p in self.pending():
+            if not work.get(p.name, (1, 1))[0]:
+                continue
             seeds = self.seeds(p)
             rc = self.run(S.recognize(self.tools, p.ref(self.opts.results), key, url, seqs, seeds),
                           log_name=f"ask-{key}", what=p.name)
             info["asks"].append({"project": p.name, "rc": rc, "items": items_in(p.requests),
-                                 "seconds": self._current["commands"][-1]["seconds"] if self._current else None,
-                                 "seeded_from": str(seeds) if seeds else None})
+                                 "seconds": self.last_seconds(), "seeded_from": str(seeds) if seeds else None})
         judge_requests = self.opts.library / "judge" / "requests.json"
-        if items_in(judge_requests):
+        if judge_left:
             cmd = self.objaverse("judge", "--out", self.opts.library, "--model-key", key, "--server", url,
                                  "--workers", str(seqs))
-            if self.library_seeds.is_dir() and any(self.library_seeds.glob("answers_*.json")):
-                cmd += ["--seed-answers", str(self.library_seeds)]
             rc = self.run(cmd, log_name=f"judge-{key}", what="library judge")
-            info["judge"] = {"rc": rc, "items": items_in(judge_requests),
-                             "seconds": self._current["commands"][-1]["seconds"] if self._current else None}
-            self.save_library_answers()
+            info["judge"] = {"rc": rc, "items": items_in(judge_requests), "missing_before": judge_left,
+                             "seconds": self.last_seconds()}
 
     def do_pipeline_final(self, entry: dict) -> tuple:
         pending = self.pending()
@@ -722,23 +938,43 @@ class Prep:
             return "skipped", "no questions"
         states, failed = {}, []
         for p in pending:
+            log_name = f"pipeline_final-{p.name}"
             rc_status = self.run([self.opts.py, "-m", "wenart.recognition.answers", "status",
-                                  p.out_dir / S.RECOGNITION_DIR], late=True, log_name=f"pipeline_final-{p.name}",
+                                  p.out_dir / S.RECOGNITION_DIR], late=True, log_name=log_name,
                                  what=f"{p.name} answers status")
             p.complete = rc_status == 0
-            p.final_rc = self.run(S.pipeline_final(self.tools, p.ref(self.opts.results), answers=True,
-                                                   no_ai=not p.complete),
-                                  late=True, log_name=f"pipeline_final-{p.name}", what=p.name)
-            states[p.name] = {"rc": p.final_rc, "answers_complete": p.complete}
+            ref = p.ref(self.opts.results)
+            p.final_rc = self.run(S.pipeline_final(self.tools, ref, answers=True, no_ai=not p.complete),
+                                  late=True, log_name=log_name, what=p.name)
+            steps = [{"name": "pipeline_final", "rc": p.final_rc, "seconds": self.last_seconds()}]
+            # Exit 4 with every answer in: the answers opened new questions (a raster page's second round). Never
+            # failed: once more with --no-ai, the new items stay unknown/unverified (listed in its report).
+            p.second_round = p.final_rc == S.EXIT_QUESTIONS and p.complete
+            if p.second_round:
+                p.final_rc = self.run(S.pipeline_final(self.tools, ref, answers=True, no_ai=True), late=True,
+                                      log_name=log_name, what=f"{p.name} --no-ai")
+                steps.append({"name": "pipeline_final --no-ai", "rc": p.final_rc, "seconds": self.last_seconds()})
+            states[p.name] = {"rc": p.final_rc, "answers_complete": p.complete, "second_round": p.second_round}
+            status = {0: "ok", 1: "needs_review"}.get(p.final_rc, "failed")
+            note = S.SECOND_ROUND_NOTE if p.second_round else None if p.complete else "answers missing: --no-ai"
+            if status == "ok" and note:
+                status = "warning"
+            self.record(p, "pipeline_final", status, steps[0]["rc"] if p.second_round else p.final_rc, note,
+                        steps=steps, written={"building.json": ST.canonical_sha256(p.out_dir / "building.json")},
+                        log=str(Path(self.opts.step_logs) / f"{log_name}.log"))
             if p.final_rc not in (0, 1):
                 failed.append(p.name)
         entry["projects"] = states
         if failed:
             return "failed", f"pipeline_final failed: {', '.join(failed)}"
+        notes = []
+        second = [p.name for p in pending if p.second_round]
+        if second:
+            notes.append(f"{S.SECOND_ROUND_NOTE}: {', '.join(second)}")
         incomplete = [p.name for p in pending if not p.complete]
         if incomplete:
-            return "warning", f"answers missing (run with --no-ai): {', '.join(incomplete)}"
-        return "ok", None
+            notes.append(f"answers missing (run with --no-ai): {', '.join(incomplete)}")
+        return ("warning", "; ".join(notes)) if notes else ("ok", None)
 
     # ----- copy and tests -----------------------------------------------------
 
@@ -751,10 +987,10 @@ class Prep:
 
     def do_copy(self, entry: dict) -> tuple:
         entry["files"] = self.copy_projects()
-        entry["library_answers_saved"] = self.save_library_answers()
         if CP.library_attribution(self.opts.library) is not None:
             entry["library_attribution"] = True
-        return "ok", f"{sum(entry['files'].values())} file(s)"
+        entry["library_files"] = self.sync_library()
+        return "ok", f"{sum(entry['files'].values())} project file(s), {entry['library_files']} library file(s)"
 
     def test_env(self, group: str) -> dict:
         o = self.opts
@@ -804,12 +1040,12 @@ class Prep:
         return self.exit_code
 
     def copy_only(self) -> int:
-        """The EXIT trap of prep.sh: the prep projects' small files and the library seeds, nothing else."""
+        """The EXIT trap of prep.sh: the prep projects' small files and the library folder, nothing else."""
         counts = self.copy_projects()
-        saved = self.save_library_answers()
         CP.library_attribution(self.opts.library)
+        synced = self.sync_library()
         self.out(f"prep copy: {sum(counts.values())} file(s) of {len(counts)} project(s); "
-                 f"{saved} library answer file(s) saved")
+                 f"{synced} library file(s) copied to {self.opts.results_library}")
         return 0
 
     # ----- manifest ---------------------------------------------------------------

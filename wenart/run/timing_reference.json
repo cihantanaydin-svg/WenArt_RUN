@@ -1,0 +1,57 @@
+{
+ "schema_version": "0.1",
+ "kind": "timing_reference",
+ "note": "Frozen M6 timing reference of the prep job's GPU speed measurement (docs/milestone7.md §9.2): the synthetic-04 render seconds per camera and polish seconds per forward on the GPU that wenart/run/plan.py GPU_SPEED counts as 1.0. Copied from the committed M6 results as they were at the source commit; never regenerated from the live results files (a later run would overwrite them with another GPU's times).",
+ "project": "synthetic-04",
+ "gpu": "NVIDIA RTX PRO 4500 Blackwell",
+ "gpu_key": "RTX PRO 4500",
+ "pod_id": "pxy56z9yyehx1t",
+ "pod_note": "M6 pod B (docs/gpu-log.md, 2026-10-03 04:16 UTC, NVIDIA RTX PRO 4500 Blackwell): full run synthetic-04/05/02",
+ "source_commit": "0cfcea04f0681224e826021bd526b0bc42794a59",
+ "results_commit": "e34db53aa5ba8377d2b4429241567e3e069f62fc",
+ "sources": {
+  "render": "results/renders/synthetic-04/render_manifest.json",
+  "polish": "results/polish/synthetic-04/polish_manifest.json"
+ },
+ "render": {
+  "device": "OPTIX",
+  "blender_version": "5.2.2 LTS",
+  "samples": 128,
+  "resolution": [
+   1920,
+   1080
+  ],
+  "denoiser": "OPENIMAGEDENOISE",
+  "render_code_version": "m6.1",
+  "seconds": {
+   "cam_r_L3_banyo_1": 5.26,
+   "cam_r_L3_banyo_2": 5.08,
+   "cam_r_L3_cocuk_odasi_1": 4.45,
+   "cam_r_L3_cocuk_odasi_2": 4.5,
+   "cam_r_L3_cocuk_odasi_3": 4.67,
+   "cam_r_L3_hol_1": 4.43,
+   "cam_r_L3_hol_2": 4.63,
+   "cam_r_L3_hol_3": 4.62,
+   "cam_r_L3_salon_mutfak_1": 4.25,
+   "cam_r_L3_salon_mutfak_2": 4.28,
+   "cam_r_L3_salon_mutfak_3": 4.29,
+   "cam_r_L3_yatak_odasi_1": 4.72,
+   "cam_r_L3_yatak_odasi_2": 4.45,
+   "cam_r_L3_yatak_odasi_3": 4.18
+  }
+ },
+ "polish": {
+  "device": "NVIDIA RTX PRO 4500 Blackwell",
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "memory_mode": "resident",
+  "seconds_per_forward": 2.843,
+  "forwards": 57,
+  "load_seconds": 15.7,
+  "encode_seconds": 8.1,
+  "seconds": 247.1,
+  "views": 14,
+  "attempts": 20,
+  "steps": 8
+ }
+}

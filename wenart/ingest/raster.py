@@ -8,13 +8,19 @@ only then, §0).
 
 Steps (``read_page``):
 
-1. **Load and rectify** (``rectify``): scans deskewed (<= 5°), photos rectified (page quad, sheet-ratio snapping) and
-   deskewed; raster-only PDF pages rendered at ``PDF_DPI`` (200) dpi with pdftoppm. Photos whose dimension groups
-   disagree with the snapped ratio by > ``ASPECT_CORRECTION`` are warped again with the solved aspect.
+1. **Load and rectify** (``rectify``): a transparent background is composited onto white (``read_grey``); the page
+   is read at the *working resolution* the pixel constants below are tuned for (``working_resolution``: a page whose
+   texts are more than ``RESAMPLE_ABOVE`` x ``TEXT_PX`` tall, a 300 or 600 dpi scan or a large photo, is resampled
+   down so they are ``TEXT_PX`` tall; ``to_original`` keeps pointing at the file as given); scans deskewed (<= 5°),
+   photos rectified (page quad, sheet-ratio snapping) and deskewed; raster-only PDF pages rendered at ``PDF_DPI``
+   (200) dpi with pdftoppm. Photos whose dimension groups disagree with the snapped ratio by >
+   ``ASPECT_CORRECTION`` are warped again with the solved aspect.
 2. **Texts** (``ocr_page``): Tesseract 5 (``eng+tur``, ``OMP_THREAD_LIMIT=1``) on the page rendered 2 x from the
    original with flattened lighting, line art and door swings painted out: a page pass (psm 11, 0° and 90°) plus a
    *glyph-row* pass for the small texts the page pass misses (rows of character-sized components read alone at a
-   normalised height, psm 7); numbers are verified by re-reading at 26/36/48 px (strict majority). Every text keeps
+   normalised height, psm 7); numbers are verified by re-reading at 26/36/48 px (strict majority); the pieces of one
+   size text read apart ("11" then "x 10") are joined (``join_size_pairs``: a piece never becomes a dimension text).
+   Every text keeps
    its OCR confidence and pixel box (original image pixels) as ``ocr`` evidence; a length text needs conf >=
    ``DIM_TEXT_CONF`` (0.85) to be a dimension text (§4.3), other texts conf >= ``TEXT_CONF`` (0.6).
 3. **Text removal** (``blank_texts``, §4.2): a box is blanked only when conf >= 0.6, the text is a room-vocabulary
@@ -1235,6 +1241,7 @@ def ocr_page(original: np.ndarray, rect: RF.Rectified, scale: float = OCR_SCALE,
     items = _merge_items(items, row_items)
     items = _merge_items(items, first)
     _verify_numbers(items, clean, scale)
+    items = join_size_pairs(items)
     items.sort(key=lambda i: (i.get("rotation", 0), i["box"][1], i["box"][0]))
     return items
 
@@ -1308,6 +1315,64 @@ def _verify_numbers(items: list[dict], clean: np.ndarray, scale: float) -> None:
 
 
 _NUMBER_RE = re.compile(r"^[\d.,'\"’″′\s/xX×*+-]+$")
+SIZE_PAIR_GAP = 1.5                # x the text height: two OCR pieces of one line this close may be one size text
+
+
+def _next_on_line(a: dict, b: dict) -> bool:
+    """``b`` follows ``a`` on the same text line (same rotation, rows overlapping by >= half the lower one, gap
+    along the reading direction between -0.3 and ``SIZE_PAIR_GAP`` text heights). Rotation 90 reads bottom to top."""
+    if int(a.get("rotation") or 0) != int(b.get("rotation") or 0):
+        return False
+    ax0, ay0, ax1, ay1 = a["box"]
+    bx0, by0, bx1, by1 = b["box"]
+    h = max(_text_height_px(a), _text_height_px(b), 1e-6)
+    if int(a.get("rotation") or 0) == 90:
+        across = min(ax1, bx1) - max(ax0, bx0)
+        lower = min(ax1 - ax0, bx1 - bx0)
+        gap = ay0 - by1
+    else:
+        across = min(ay1, by1) - max(ay0, by0)
+        lower = min(ay1 - ay0, by1 - by0)
+        gap = bx0 - ax1
+    return across >= 0.5 * max(lower, 1e-6) and -0.3 * h <= gap <= SIZE_PAIR_GAP * h
+
+
+def join_size_pairs(items: list[dict]) -> list[dict]:
+    """Pieces of one printed size text read as separate OCR items on one line ("11" then "x 10": a 300 dpi scan
+    reads the label "11' x 10'" in pieces) become one item: text joined with a space, box the union, the lower
+    confidence, ``source "joined"``, ``parts`` the pieces. A size-pair member alone reads as a length and must
+    never become a dimension text. Only neighbours whose joined text parses as a size pair while neither piece
+    alone does are joined."""
+    from wenart import units as U
+
+    out = [dict(i) for i in items]
+    joined = True
+    while joined:
+        joined = False
+        for a in out:
+            ta = str(a.get("text") or "").strip()
+            if not ta or U.parse_size_pair(ta) is not None:
+                continue
+            for b in out:
+                tb = str(b.get("text") or "").strip()
+                if b is a or not tb or U.parse_size_pair(tb) is not None or not _next_on_line(a, b):
+                    continue
+                text = f"{ta} {tb}"
+                if U.parse_size_pair(text) is None:
+                    continue
+                box = [min(a["box"][0], b["box"][0]), min(a["box"][1], b["box"][1]),
+                       max(a["box"][2], b["box"][2]), max(a["box"][3], b["box"][3])]
+                item = dict(a, text=text, box=box, source="joined",
+                            confidence=min(float(a.get("confidence") or 0.0), float(b.get("confidence") or 0.0)),
+                            parts=[{k: p.get(k) for k in ("text", "box", "confidence", "source")} for p in (a, b)])
+                item.pop("reads", None)
+                item.pop("verify", None)
+                out = [i for i in out if i is not a and i is not b] + [item]
+                joined = True
+                break
+            if joined:
+                break
+    return out
 
 
 def blankable(item: dict, median_h: float) -> bool:
@@ -1866,8 +1931,8 @@ DIM_PROTECT_PX = 1.5               # ... except where another stroke passes with
 ASPECT_GROUP_AGREEMENT = 0.01      # photos: each dimension group (horizontal, vertical) agrees within 1 % ...
 ASPECT_GROUP_MIN = 2               # ... with >= 2 dimensions
 ASPECT_CORRECTION = 0.015          # the groups override the sheet-ratio snap when they differ by > 1.5 %
-TEXT_PX = 20.0                     # working resolution: printed texts this tall (the 150 dpi fixtures: 15-21 px) ...
-RESAMPLE_ABOVE = 1.5               # ... a page whose texts are > 1.5 x that tall is resampled down to it
+TEXT_PX = 21.0                     # working resolution: printed texts this tall (the 150 dpi fixtures: 15-21 px) ...
+RESAMPLE_ABOVE = 1.25              # ... a page whose texts are > 1.25 x that tall is resampled down to it
 PROBE_LONG_PX = 2600               # the text-height probe reads a copy whose long side is at most this
 PROBE_CONF = 0.8                   # ... and measures the words read with this confidence
 
@@ -1971,7 +2036,7 @@ def text_runs(items: list[dict], rect: RF.Rectified, file_rel: str, page_no: int
 
     h = rect.image.shape[0]
     runs, notes = [], []
-    for item in items:
+    for item in join_size_pairs(items):
         text = str(item.get("text") or "").strip()
         conf = float(item.get("confidence") or 0.0)
         if not text or not _useful(item):

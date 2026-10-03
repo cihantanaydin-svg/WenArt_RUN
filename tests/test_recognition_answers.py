@@ -217,10 +217,14 @@ def test_hash_covers_the_question_facts_of_the_item(tmp_path):
     cands = toy_candidates()
     chair, ctx = cands[1], toy_context(cands, "sym_T0_2")
     base = C.canonical_sha256(C.vector_description(chair, ctx))
-    for change in ({"room_type": "living"}, {"room_label": "Salon"},
-                   {"neighbours": {"similar": 2, "next_to": None, "around": None}},
+    for change in ({"room_label": "Salon"}, {"neighbours": {"similar": 2, "next_to": None, "around": None}},
                    {"footprint": dict(chair["footprint"], size=[0.7, 0.7])}):
         assert C.canonical_sha256(C.vector_description(dict(chair, **change), ctx)) != base, change
+    labelled = dict(chair, room_label="Salon", room_type="living")
+    assert C.canonical_sha256(C.vector_description(labelled, ctx)) != \
+        C.canonical_sha256(C.vector_description(dict(labelled, room_type="bedroom"), ctx))
+    # A room type without a printed label is never stated (it would be a guess), so it does not change the hash.
+    assert C.canonical_sha256(C.vector_description(dict(chair, room_type="living"), ctx)) == base
     page = np.full((600, 800), 255, np.uint8)
     page[200:260, 300:420] = 0
     raster = {"key": "sym_R0_1", "footprint": {"center": [3.6, 3.7], "size": [1.2, 0.6], "rotation_deg": 0.0},

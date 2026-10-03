@@ -14,19 +14,23 @@
 # (§10: RTX PRO 6000, 96 GB, $2.09/h -> worst case $3.14; never L4. --disk 150: the VLMs, the polish/gate/OWLv2
 # models, the Objaverse candidates, venv-vllm, venv-polish and the LibreDWG build live on the container disk.)
 # --max-minutes 90 gives WENART_DEADLINE = entry + 75 min; a cut pod exits 1 and the same command resumes
-# (answers, thumbnail measurements, detector boxes and timing renders are reused from the volume).
+# (pipeline records, answers, the library work, thumbnail measurements, detector boxes and timing renders are
+# reused from the volume).
 #
 # Env (all optional):
 #   PREP_PROJECTS   prep projects (default "real01 synthetic-02 synthetic-06 real01-scan real01-photo")
-#   PREP_SKIP       steps to leave out, comma separated; PREP_ONLY: only these (python -m wenart.run.prep --help)
+#   PREP_SKIP       steps to leave out, comma separated; PREP_ONLY: only these (python -m wenart.run.prep --help);
+#                   a selected step whose inputs are missing fails (e.g. PREP_ONLY=session_qwen,session_glm,library
+#                   needs the library work of an earlier job in /workspace/prep/library)
 #   CHECK_MODELS    check.yaml model keys of the setup (default "qwen glm")
 #   RENDER_SAMPLES  Cycles samples of the timing renders (default 128)
 #   RUN_THREADS     CPU threads per process (default: the pod's cgroup CPU quota, see cpu_budget)
 #
 # Results ($RESULTS, collected by the runner): prep_manifest.json, setup_polish.json, library/, detect/,
-# timing/gpu_speed.json, recognition/<p>/, furniture/<p>/, tests/, and this job's logs (tails) in logs/. The
-# pipeline outputs stay in /workspace/outputs-prep, the persistent work in /workspace/prep (both outside the repo:
-# pod_entry.sh's git clean never touches them).
+# timing/gpu_speed.json, recognition/<p>/, furniture/<p>/, run/<p>/, tests/, and this job's logs (tails) in logs/.
+# The pipeline outputs stay in /workspace/outputs-prep, the persistent work in /workspace/prep (library/ = the
+# Objaverse survey, thumbnails, judge requests and answers, catalogue; $RESULTS/library is its copy) (both outside
+# the repo: pod_entry.sh's git clean never touches them).
 set -Eeuo pipefail
 
 WS="${WENART_WS:-/workspace}"           # WENART_WS / WENART_FAST: CPU tests only

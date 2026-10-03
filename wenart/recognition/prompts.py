@@ -9,12 +9,20 @@ The models receive one image per call. Boxes are asked for in the 0..1000
 normalised frame (see ``schemas.py``). The prompt also states the pixel size
 of the image so a model that prefers absolute coordinates has the numbers.
 
-Milestone 7 (docs/milestone7.md §3.3, §3.4): ``symbol_type_prompt`` (two crops
-of one drawn object: the plan around it with a dashed box, then the object
-alone with a 1 m bar; the full type list, no room hint) and
-``room_label_prompt`` (one crop of one raster room face). Both are fixed texts
-(no per-item parts), so their sha256 is part of every request's
-``input_sha256`` and a changed prompt makes the stored answers stale.
+Milestone 7 (docs/milestone7.md §3.3, §3.4): ``symbol_type_prompt(facts)`` (two
+crops of one drawn object: the plan around it with a dashed box, then the
+object alone with a 1 m bar) and ``room_label_prompt`` (one crop of one raster
+room face, a fixed text). The symbol question carries the item's **facts**
+(``recognition.symbols.question_facts``, prep pod finding P5): the room's
+printed label and type, the drawn footprint size, only the types whose size
+range fits that footprint (plus ``unknown`` and ``not_furniture``) and the
+similar pieces around it; it says that small symbols drawn on a piece belong to
+it and defines the front in image terms. Raster crops (pixel copies of a scan)
+get their own image description (every line is ink, text may appear; review
+raster-7). The text is a deterministic function of the facts, so it is part of
+the request's ``input_sha256``: a changed question makes the stored answers
+stale. ``symbol_type_prompt()`` without facts is the generic question (full
+list, vector crops) for items that carry none.
 """
 from __future__ import annotations
 
@@ -202,27 +210,112 @@ NOT_FURNITURE_HINT = (
 SYMBOL_IMAGE_LABELS: tuple[str, str] = ("Image 1 (plan crop):", "Image 2 (the marked object alone):")
 
 
-def symbol_type_prompt() -> str:
-    """The symbol-type question (§3.3): the same text for every object and both models."""
-    choices = schemas.SYMBOL_TYPE_CHOICES
-    hints = [f"- {name}: {SYMBOL_HINTS[name]}" for name in choices if name in SYMBOL_HINTS]
-    hints.append(f"- {schemas.NOT_FURNITURE}: {NOT_FURNITURE_HINT}")
+# Milestone 7 refinements of the hints for the symbol question (the Milestone 2 whole-page prompt keeps
+# SYMBOL_HINTS as they were): the pieces the prep pod's models confused on real01 (P5).
+SYMBOL_TYPE_HINT_UPDATES: dict[str, str] = {
+    "nightstand": "a small square or rectangle about 0.4-0.6 m beside the head end of a bed; a lamp (a circle, often "
+                  "with a cross) or a telephone may be drawn on it",
+    "chair": "a small seat about 0.4-0.5 m with a backrest line along one side; dining chairs stand around a table",
+    "armchair": "one upholstered seat about 0.7-1.0 m with a thick backrest and two armrests",
+    "table_coffee": "a low table about 0.6-1.2 m, rectangular, square or round, in front of or between sofas",
+}
+SYMBOL_TYPE_HINTS: dict[str, str] = {**SYMBOL_HINTS, **SYMBOL_TYPE_HINT_UPDATES}
+
+SYMBOL_KINDS: tuple[str, ...] = ("vector", "raster")
+# What the two images show: vector crops are drawn in a grey coding; raster crops are pixel copies of the scan.
+SYMBOL_IMAGES: dict[str, str] = {
+    "vector": "In the first image walls are mid-grey, other drawn objects light grey and the marked object black. "
+              "The second image shows the marked object alone, without rotating it; the black bar under it is 1 m "
+              "long, so use it to judge the size. There is no text in the images.",
+    "raster": "Both images are cut from a scanned or photographed plan, so every line is dark ink: walls are the "
+              "thick dark bands, and door swings, window lines, other furniture and printed text or numbers may "
+              "appear around the object. Only the object inside the dashed box counts; ignore all text. The second "
+              "image shows only the pixels inside the dashed box, without rotating them; the black bar under it is "
+              "1 m long, so use it to judge the size.",
+}
+SYMBOLS_ON_TOP = ("Small symbols drawn on top of the object (a lamp, a telephone, a vase, a plant, pillows, books) "
+                  "belong to it: name the type of the whole object they stand on, not of the small symbol.")
+FRONT_FIELD = (
+    "- front: the edge of the second image that the object's front points to: top (towards the top edge of the "
+    "image), right, bottom or left. The front is the side a person faces when using the object: for a bed the foot "
+    "end, opposite the headboard and the pillows; for a sofa, armchair or chair the open edge of the seat, opposite "
+    "the backrest; for a wardrobe, dresser, nightstand, fridge, stove or washing machine the side with the doors or "
+    "drawers; for a counter, desk, washbasin, toilet or bathtub the side where the user stands or sits. Answer none "
+    "for an object without a front (a round or square table, a plant, a lamp) or when you cannot tell."
+)
+# Room type -> plain words for the question (types without plain words are not named).
+ROOM_WORDS: dict[str, str] = {
+    "living": "a living room", "dining": "a dining room", "bedroom": "a bedroom", "kitchen": "a kitchen",
+    "bathroom": "a bathroom", "wc": "a toilet (WC)", "hall": "a hall or corridor", "balcony": "a balcony",
+    "storage": "a storage room", "prayer": "a prayer room",
+}
+
+
+def _metres(size) -> str:
+    return f"{float(size[0]):.2f} x {float(size[1]):.2f} m"
+
+
+def _fact_lines(facts: dict) -> list[str]:
+    """The item's facts as sentences (deterministic: fixed order, sizes in cm)."""
+    lines = []
+    if facts.get("size_m"):
+        lines.append(f"- Its drawn footprint is about {_metres(facts['size_m'])}.")
+    room = facts.get("room")
+    if room:
+        if room.get("label"):
+            words = ROOM_WORDS.get(room.get("type") or "")
+            what = f'a room labelled "{room["label"]}" ({words})' if words else f'a space labelled "{room["label"]}"'
+        else:
+            what = "an unlabelled room"
+        lines.append(f"- It is drawn inside {what}.")
+    near = facts.get("neighbours") or {}
+    similar, next_to, around = near.get("similar"), near.get("next_to"), near.get("around")
+    if around and next_to:
+        line = (f"- It is one of {around} objects of about the same size and shape drawn around a larger object of "
+                f"about {_metres(next_to)}.")
+        if similar and similar > around:
+            line += f" The room holds {similar} such objects in all."
+        lines.append(line)
+    else:
+        if next_to:
+            lines.append(f"- It stands within 0.3 m of a larger drawn object of about {_metres(next_to)}.")
+        if similar:
+            lines.append(f"- It is one of {similar} objects of about the same size and shape in this room.")
+    return lines
+
+
+def symbol_type_prompt(facts: dict | None = None) -> str:
+    """The symbol-type question (§3.3) for one item: ``facts`` = ``{"kind": vector|raster, "choices": [types],
+    "size_m": [w, d] | None, "room": {"label", "type"} | None, "neighbours": {"similar", "next_to", "around"} |
+    None}`` (``recognition.symbols.question_facts``); None = the generic question (full list, vector crops)."""
+    facts = dict(facts or {})
+    kind = facts.get("kind") or "vector"
+    if kind not in SYMBOL_KINDS:
+        raise ValueError(f"symbol question: unknown crop kind {kind!r}")
+    choices = list(facts.get("choices") or schemas.SYMBOL_TYPE_CHOICES)
+    hints = [f"- {name}: {SYMBOL_TYPE_HINTS[name]}" for name in choices if name in SYMBOL_TYPE_HINTS]
+    if schemas.NOT_FURNITURE in choices:
+        hints.append(f"- {schemas.NOT_FURNITURE}: {NOT_FURNITURE_HINT}")
     fronts = ", ".join(f for f in schemas.FRONT_CHOICES if f != "none")
-    return "\n\n".join([
-        SYMBOL_QUESTION,
-        "In the first image walls are mid-grey, other drawn objects light grey and the marked object black. "
-        "The second image shows the marked object alone, without rotating it; the black bar under it is 1 m "
-        "long, so use it to judge the size. There is no text in the images.",
-        f"Allowed values for type: {', '.join(choices)}.\nWhat the types look like from above:\n" + "\n".join(hints),
+    parts = [SYMBOL_QUESTION, SYMBOL_IMAGES[kind]]
+    lines = _fact_lines(facts)
+    if lines:
+        parts.append("What the drawing shows about this object:\n" + "\n".join(lines))
+    allowed = f"Allowed values for type: {', '.join(choices)}."
+    if facts.get("choices"):
+        allowed += ("\nOnly the types whose usual size fits the drawn footprint (15 % tolerance) are offered, plus "
+                    "unknown (furniture whose type you cannot tell) and not_furniture.")
+    parts += [
+        f"{allowed}\nWhat the types look like from above:\n" + "\n".join(hints),
+        SYMBOLS_ON_TOP,
         "Fields of the answer:\n"
         "- type: one of the allowed values.\n"
-        f"- front: the side of the object that faces the room as seen in the second image ({fronts}): the open "
-        "side of a sofa or chair seat, the foot of a bed, the doors of a cabinet or appliance, the user side of "
-        "a counter or basin; none when the object has no front or you cannot tell.\n"
+        f"{FRONT_FIELD} The allowed values are {fronts} and none.\n"
         "- confidence: 0..1, how sure you are about the type.\n"
         f"- reason: one short sentence, at most {schemas.REASON_MAX_CHARS} characters, on what you see.",
         "Answer only with JSON.",
-    ])
+    ]
+    return "\n\n".join(parts)
 
 
 def room_label_prompt() -> str:
@@ -252,6 +345,8 @@ M7_PROMPTS = {
 }
 
 
-def m7_prompt(task: str) -> str:
-    """The user prompt of a Milestone 7 per-item task (``symbol_type`` or ``room_label``)."""
+def m7_prompt(task: str, facts: dict | None = None) -> str:
+    """The user prompt of a Milestone 7 per-item task (``symbol_type`` with the item's facts, or ``room_label``)."""
+    if task == "symbol_type":
+        return symbol_type_prompt(facts)
     return M7_PROMPTS[task]()

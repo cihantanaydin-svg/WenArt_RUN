@@ -7,8 +7,11 @@ runs again and reads the answers with ``load``.
 - ``requests.json`` = ``{"schema_version": "0.1", "kind": "recognition_requests", "project", "crop_version",
   "models": {key: {id, slug, pass}}, "items": [{"key", "task": "symbol_type|room_label", "page", "images":
   ["crops/<key>_ctx.png", "crops/<key>_iso.png"] (or ["crops/<key>.png"]), "context": {...},
-  "input_sha256"}]}``; image paths are relative to ``<out>/recognition/``. ``write_requests`` writes it,
-  ``read_requests`` reads it.
+  "question": {facts} (symbol_type only), "input_sha256"}]}``; image paths are relative to ``<out>/recognition/``.
+  ``write_requests`` writes it, ``read_requests`` reads it. A ``symbol_type`` item's ``question`` holds the facts
+  its question was built and hashed from (``symbols.question_facts``: room, fitting types, neighbours, crop kind);
+  ``call_args`` asks exactly that question (prompt and narrowed type enum, from ``crops.question_digest``). Items
+  without facts get the generic question and the full type list.
 - ``answers_<slug>.json`` (``slug`` from ``check.yaml models.<key>.slug``) = the M5 answer-store pattern:
   ``{"schema_version", "kind": "recognition_answers", "model_key", "model", "slug", "incomplete", "calls": {<key>:
   {task, input_sha256, data, raw_text, error, attempts, latency_s, model, seed, images[, seeded_from]}}}``,
@@ -127,6 +130,17 @@ def check_item(item: dict) -> None:
         raise ValueError(f"request {item['key']!r}: images must be a non-empty list of paths")
     if not _SHA256.match(str(item["input_sha256"])):
         raise ValueError(f"request {item['key']!r}: input_sha256 is not a sha256 hex digest")
+    if "question" in item:
+        facts = item["question"]
+        ok = isinstance(facts, dict) and item["task"] == "symbol_type"
+        if ok:
+            choices = facts.get("choices")
+            ok = facts.get("kind", "vector") in ("vector", "raster") and (
+                choices is None or (isinstance(choices, list) and bool(choices)
+                                    and all(c in schemas.SYMBOL_TYPE_CHOICES for c in choices)))
+        if not ok:
+            raise ValueError(f"request {item['key']!r}: question facts must be a dict with kind vector|raster and "
+                             f"choices from the symbol types (got {facts!r})")
 
 
 def write_requests(out_dir: Path, project: str, items: list[dict]) -> Path:
@@ -312,14 +326,17 @@ def seed_answers(store: AnswerStore, items: list[dict], seed_dir: Path, log: Cal
 # --------------------------------------------------------------------------
 
 def call_args(item: dict, rec_dir: Path) -> dict:
-    """The ``VLMClient.run_schema`` arguments of one request item."""
+    """The ``VLMClient.run_schema`` arguments of one request item: the question that was hashed into its
+    ``input_sha256`` (``crops.question_digest`` of the item's facts: prompt and, for ``symbol_type``, the type enum
+    narrowed to the item's choices)."""
+    from wenart.recognition.crops import question_digest
     task = item["task"]
     images = [Path(rec_dir) / p for p in item["images"]]
-    labels = list(prompts.SYMBOL_IMAGE_LABELS) if task == "symbol_type" else None
+    digest = question_digest(task, item.get("question") if task == "symbol_type" else None)
+    labels = list(digest["image_labels"]) if "image_labels" in digest else None
     if labels is not None and len(labels) != len(images):
         labels = None
-    return {"images": images, "prompt": prompts.m7_prompt(task), "schema": schemas.M7_SCHEMAS[task],
-            "labels": labels, "task": task}
+    return {"images": images, "prompt": digest["prompt"], "schema": digest["schema"], "labels": labels, "task": task}
 
 
 def record_of(item: dict, result, model: str, seed: int) -> dict:

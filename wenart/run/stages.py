@@ -26,11 +26,13 @@ Milestone 7 (§9.1): ``recognize`` (the two VLM passes over the pipeline's
 recognition questions, GLM in phase 2 and Qwen in phase 3, seeded from the
 committed ``results/recognition/<p>/``), ``pipeline_final`` (the pipeline
 again with ``--answers``; ``--no-ai`` when an answer is missing, so it never
-exits 4) and ``detect`` (OWLv2 on the Cycles and the polished images, phase
-6). The A/B uses the realism v2 commands (``realism2-*``, M7 §8.2): the
-control sets from the control project's M6 ``ab/`` renders (rendered again
-only when they are missing), ``look_alt`` from the main renders of the A/B
-projects, rendered with ``--alt-look None`` (``ALT_LOOK``).
+exits 4; an exit 4 with complete answers, i.e. new second-round questions,
+runs it once more with ``--no-ai`` and is a ``warning``) and ``detect``
+(OWLv2 on the Cycles and the polished images, phase 6). The A/B uses the
+realism v2 commands (``realism2-*``, M7 §8.2): the control sets from the
+control project's M6 ``ab/`` renders (rendered again only when they are
+missing), ``look_alt`` from the main renders of the A/B projects, rendered
+with ``--alt-look None`` (``ALT_LOOK``).
 """
 from __future__ import annotations
 
@@ -47,6 +49,10 @@ CATALOG = "wenart/furniture/catalog.json"
 CATALOG_OBJAVERSE = "wenart/furniture/catalog_objaverse.json"
 CHECK_YAML = "wenart/vision_check/check.yaml"
 RECOGNITION_DIR = "recognition"            # <out>/recognition: requests.json, answers_<slug>.json, crops/
+EXIT_QUESTIONS = 4                         # wenart.ingest.pipeline: questions written, answers missing (§1.4)
+# pipeline_final exited 4 although its answers were complete (the answers opened new questions, e.g. a raster
+# page's second-round symbol questions): it runs once more with --no-ai and the stage is a warning, never failed.
+SECOND_ROUND_NOTE = "second-round questions left unanswered (no-ai)"
 RECOGNITION_SEEDS = "results/recognition"  # committed answers of earlier runs (--seed-answers <seeds>/<p>/)
 STYLE_TEST_PHOTO = "tests/fixtures/style_photo_synthetic-03_salon.jpg"
 RENDER_RES = "1920x1080"

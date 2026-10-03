@@ -769,3 +769,49 @@ def test_old_extractors_write_no_m7_only_fields(built):
     docs = {d["file"]: d for d in building["documents"]}
     assert docs["zemin_kat.dxf"]["unit_system"] == "metric" and docs["zemin_kat.dxf"]["source_kind"] == "dxf"
     assert docs["1_kat.pdf"]["pages"][0]["classifier"] == "title"
+
+
+def test_questions_new_in_the_answer_run_are_not_pending(tmp_path):
+    """§1.4 has one round of questions: in the run with the answers, a question that was not in the requests the
+    answers belong to (a raster page whose accepted labels changed what it asks) cannot have answers. It is
+    written but not pending (no exit 4 for it), its piece stays unknown / unverified and a warning lists it. A
+    question of the round whose answer is missing stays pending."""
+    import json
+
+    from wenart.ingest import pipeline as P
+    from wenart.recognition import answers as A
+
+    project = tmp_path / "real01"
+    project.mkdir()
+    shutil.copyfile(PROJECTS / "real01" / "real01.pdf", project / "real01.pdf")
+    out = tmp_path / "out"
+    rec = out / "recognition"
+    P.run_project(project, out)
+    doc = A.read_requests(rec)
+    items = doc["items"]
+    late, missing = items[-1]["key"], items[0]["key"]
+    A.write_requests(rec, doc["project"], items[:-1])            # the answer round did not ask the last question
+    models = A.load_models()
+    data = {"type": "unknown", "front": "none", "confidence": 0.2, "reason": "fake answer"}
+    for key in A.MODEL_KEYS:
+        store = A.AnswerStore.for_model(rec, key, models)
+        for it in items[1:-1]:
+            store.put(it["key"], {"task": it["task"], "input_sha256": it["input_sha256"], "data": dict(data),
+                                  "raw_text": json.dumps(data), "error": None, "attempts": 1, "latency_s": 0.0,
+                                  "model": store.data["model"], "seed": 0, "images": it["images"]}, save=False)
+        store.save()
+    building, build = P.run_project(project, out, answers=rec)
+    assert build.pending == [missing] and P.exit_code(building, build) == P.EXIT_QUESTIONS
+    assert late in [q["key"] for q in build.questions]                   # written again, for a later round
+    assert any(late in w and "not in the round the answers belong to" in w for w in building["warnings"])
+    assert missing not in " ".join(w for w in building["warnings"] if "not in the round" in w)
+    # Without the in-round gap the run with the answers is finished: exit 0.
+    for key in A.MODEL_KEYS:
+        store = A.AnswerStore.for_model(rec, key, models)
+        it = items[0]
+        store.put(it["key"], {"task": it["task"], "input_sha256": it["input_sha256"], "data": dict(data),
+                              "raw_text": json.dumps(data), "error": None, "attempts": 1, "latency_s": 0.0,
+                              "model": store.data["model"], "seed": 0, "images": it["images"]})
+    A.write_requests(rec, doc["project"], items[:-1])
+    building, build = P.run_project(project, out, answers=rec)
+    assert build.pending == [] and P.exit_code(building, build) == P.EXIT_OK and building["status"] == "ok"

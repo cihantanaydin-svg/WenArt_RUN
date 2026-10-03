@@ -228,11 +228,23 @@ class FakeCLI:
         return 1 if status != "ok" else 4 if questions else 0
 
     def h_pipeline_final(self, cmd, project, log):
-        """The pipeline again with --answers (or --no-ai): never exit 4; the building records how it was made."""
+        """The pipeline again with --answers (or --no-ai); the building records how it was made. Exit 4 only for a
+        ``second_round`` project without --no-ai: its answers opened new questions (a raster page's second round),
+        written to recognition/requests.json."""
         out = Path(opt(cmd, "--out"))
         spec = self.buildings.get(project, {})
         status = spec.get("final_status", "ok")
         building = json.loads((out / "building.json").read_text()) if (out / "building.json").is_file() else {}
+        if project in self.flags.get("second_round", ()) and "--no-ai" not in cmd:
+            req = out / "recognition" / "requests.json"
+            doc = json.loads(req.read_text())
+            doc["items"].append({"key": "sym_L0_900", "task": "symbol_type", "page": 1,
+                                 "images": ["crops/sym_L0_900_ctx.png"],
+                                 "input_sha256": hashlib.sha256(b"second round").hexdigest()})
+            write(req, doc)
+            building.update(status="ok", stage="final_pending", answers=opt(cmd, "--answers"), no_ai=False)
+            write(out / "building.json", building)
+            return 4
         building.update(status=status, stage="final", answers=opt(cmd, "--answers"), no_ai="--no-ai" in cmd)
         if status != "ok":
             building["rooms"] = []
@@ -1064,6 +1076,36 @@ def test_private_project_paths_link_and_quiet_output(tmp_path):
     assert "real-01" not in " ".join(lists.values()) and lists["SELFTEST_TEST_ALIAS"] == "selftest-02"
 
 
+def test_a_stale_selftest_upload_is_moved_aside_and_copied_again(tmp_path):
+    """orch-4: an earlier pod copied synthetic-02 to selftest-02 (M6); the self-test source is review-01 now. A copy
+    whose files differ from the source is moved to the archive (never deleted) and copied again; a current copy is
+    left as it is."""
+    fixture_project(make_repo(tmp_path, {"p1": {}}))
+    stale = tmp_path / "pp" / "selftest-02"
+    write(stale / "plan_scan.png", b"synthetic-02 scan")
+    write(stale / "plan_a.pdf", "old a")
+    r = Run(tmp_path, projects=["p1"], private_selftest=True, buildings={"selftest-02": {"status": "needs_review"}})
+    assert r.run() == 0
+    source = tmp_path / "repo" / "tests" / "fixtures" / "projects" / "review-01"
+    assert sorted(p.name for p in stale.iterdir()) == ["plan_a.pdf", "plan_b.pdf"]
+    assert all((stale / n).read_bytes() == (source / n).read_bytes() for n in ("plan_a.pdf", "plan_b.pdf"))
+    aside = [p for p in (tmp_path / "outputs-archive").iterdir() if p.name.startswith("selftest-02-upload-")]
+    assert len(aside) == 1 and sorted(p.name for p in aside[0].iterdir()) == ["plan_a.pdf", "plan_scan.png"]
+    assert any("private self-test" in line and "stale" in line for line in r.lines)
+    # A current copy stays (same files, same bytes): nothing moved, nothing copied over it.
+    stamp = (stale / "plan_a.pdf").stat().st_mtime_ns
+    r2 = Run(tmp_path, projects=["p1"], private_selftest=True, buildings={"selftest-02": {"status": "needs_review"}})
+    assert r2.run() == 0
+    assert (stale / "plan_a.pdf").stat().st_mtime_ns == stamp
+    assert len([p for p in (tmp_path / "outputs-archive").iterdir() if p.name.startswith("selftest-02-")]) == 1
+    # A changed source (same names, other bytes) replaces the copy again.
+    write(source / "plan_b.pdf", "b changed")
+    r3 = Run(tmp_path, projects=["p1"], private_selftest=True, buildings={"selftest-02": {"status": "needs_review"}})
+    assert r3.run() == 0
+    assert (stale / "plan_b.pdf").read_text() == "b changed"
+    assert len([p for p in (tmp_path / "outputs-archive").iterdir() if p.name.startswith("selftest-02-")]) == 2
+
+
 def test_run_manifests_keep_private_details_private(tmp_path):
     r = Run(tmp_path, {"p1": {}}, projects=["p1"], private=["real-01"], rc={("build", "real-01"): 1})
     write(tmp_path / "pp" / "real-01" / "a.dxf", "x")
@@ -1635,6 +1677,28 @@ def test_pipeline_final_needs_review_makes_the_project_needs_review(tmp_path):
     assert r.manifest()["test_lists"]["NEEDS_REVIEW_TEST_PROJECTS"] == "p1"
 
 
+def test_pipeline_final_exit_4_runs_again_with_no_ai_and_is_a_warning(tmp_path):
+    """Second-round questions (the answers opened new ones): pipeline_final exits 4 although every answer was in.
+    Never failed: it runs once more with --no-ai (the new items stay unknown/unverified) and is a warning; the
+    project goes on (fit, layout, render, ...)."""
+    r = Run(tmp_path, {"p1": {}}, buildings={"p1": {"questions": 2}}, projects=["p1"],
+            flags={"second_round": {"p1"}})
+    assert r.run() == 0
+    finals = r.cli.find("pipeline_final", "p1")
+    assert len(finals) == 2
+    assert "--no-ai" not in finals[0]["cmd"] and opt(finals[0]["cmd"], "--answers")
+    assert finals[1]["cmd"] == finals[0]["cmd"] + ["--no-ai"]
+    rec = r.record("p1", "pipeline_final")
+    assert rec["status"] == "warning" and rec["note"] == "second-round questions left unanswered (no-ai)"
+    assert [s["name"] for s in rec["steps"]] == ["pipeline_final", "pipeline_final --no-ai"]
+    out = tmp_path / "outputs" / "p1"
+    assert json.loads((out / "building.json").read_text())["no_ai"] is True
+    assert rec["written"]["building.json"] == ST.canonical_sha256(out / "building.json")
+    names = r.cli.names("p1")
+    assert names.index("fit") > names.index("pipeline_final") and "render" in names and "report" in names
+    assert r.manifest()["projects"][0]["state"] == "ok"
+
+
 def test_smoke_profile_final_pipeline_has_no_ai(tmp_path):
     r = Run(tmp_path, {"p1": {}}, buildings={"p1": {"questions": 2}}, projects=["p1"], profile="smoke",
             vlm_url="http://127.0.0.1:9/v1")
@@ -1737,6 +1801,9 @@ def test_gpu_speed_scales_the_deadline_estimates(tmp_path, monkeypatch):
                         control_views=lambda rm, s, n: [], check_models=MODELS).run()
         return r
 
+    # A GPU without a measured speed counts as 1.0. The prep pod measured the RTX PRO 6000 (plan.GPU_SPEED 1.634,
+    # commit b7436b9), so the unmeasured case takes its entry out for this run.
+    monkeypatch.delitem(P.GPU_SPEED, "RTX PRO 6000", raising=False)
     slow = run(tmp_path / "slow", ("NVIDIA RTX PRO 6000 Blackwell Server Edition", 97887))   # not measured: 1.0
     assert not slow.cli.find("render", "p1") and slow.record("p1", "render")["status"] == "incomplete"
     assert slow.manifest()["gpu"]["speed"] == 1.0 and slow.manifest()["gpu"]["speed_of"] is None
