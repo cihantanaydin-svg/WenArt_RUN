@@ -241,8 +241,15 @@ def test_index_table_hosted_decor_without_host_falls_back_to_decor():
     ("synthetic-01", 64, {"door": 9, "window": 12, "furniture": 39, "decor": 4}),
     ("synthetic-03", 91, {"door": 17, "window": 16, "furniture": 53, "decor": 5}),
 ])
-def test_index_table_matches_the_committed_scene_manifests(project, n, counts):
-    scene = json.loads((RESULTS / project / "scene_manifest.json").read_text(encoding="utf-8"))
+def test_index_table_matches_the_m5_scene_manifests(project, n, counts):
+    """The M5 scene manifests (commit a2adcef; results/ now holds the M6 runs)."""
+    try:
+        raw = subprocess.run(["git", "-C", str(RESULTS.parents[1]), "show",
+                              f"a2adcef:results/renders/{project}/scene_manifest.json"],
+                             capture_output=True, check=True).stdout
+    except (OSError, subprocess.CalledProcessError):
+        pytest.skip("git history with the M5 scene manifests not available")
+    scene = json.loads(raw.decode("utf-8"))
     table = V.index_table(scene)
     assert len(table) == n == len(scene["pass_index"])
     assert {v: k.replace("proxy:", "") for k, v in scene["pass_index"].items()} == {

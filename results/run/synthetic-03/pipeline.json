@@ -1,0 +1,29 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "synthetic-03",
+ "stage": "pipeline",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 10.61,
+ "fingerprint": "5a453f369aff30f0834df724a42f779747a3eed88b2d5061b8638baf355f8406",
+ "inputs": {
+  "projects/synthetic-03": "b2c4c2fbb11283626846065cffabc169c521b062363796e7e690806f4bf0214a"
+ },
+ "outputs": [
+  "building.json",
+  "report.md"
+ ],
+ "started_utc": "2026-10-03T01:52:32Z",
+ "git_commit": "76bd17dd1e154762b62fd2306df2255aa3e87604",
+ "log": "logs/pipeline.log",
+ "note": "earlier outputs without run records moved to /workspace/outputs-archive/synthetic-03-20261003T015157Z",
+ "run_id": "20261003-014522-full-20261003T015157Z",
+ "steps": [
+  {
+   "name": "pipeline",
+   "rc": 0,
+   "seconds": 10.61
+  }
+ ]
+}

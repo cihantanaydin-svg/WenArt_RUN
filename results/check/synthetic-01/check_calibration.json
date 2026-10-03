@@ -8,164 +8,59 @@
  "single_pass": false,
  "metrics": {
   "baseline": {
-   "views": 30,
-   "views_computed": 30,
-   "required_elements": 44,
-   "fa_missing": 0.0,
+   "views": 29,
+   "views_computed": 29,
+   "required_elements": 45,
+   "fa_missing": 0.0222,
    "fa_extra": 0.0,
-   "count_error": 0.0667,
-   "disputed": 0.0682
+   "count_error": 0.0345,
+   "disputed": 0.0222
   },
   "models": {
    "qwen": {
-    "calls": 30,
-    "answered": 30,
+    "calls": 29,
+    "answered": 29,
     "answer_rate": 1.0,
-    "decoys": 30,
+    "decoys": 29,
     "decoy_accept": 0.0,
-    "fa_missing_single": 0.0682
+    "fa_missing_single": 0.0667
    },
    "glm": {
-    "calls": 30,
-    "answered": 30,
+    "calls": 29,
+    "answered": 29,
     "answer_rate": 1.0,
-    "decoys": 30,
+    "decoys": 29,
     "decoy_accept": 0.0,
-    "fa_missing_single": 0.0
+    "fa_missing_single": 0.0222
    }
   },
-  "fa_missing": 0.0,
+  "fa_missing": 0.0222,
   "fa_extra": 0.0,
-  "count_error": 0.0667,
-  "removal_flagged": 1.0,
-  "removal_confirmed": 0.625,
-  "insertion": 0.0,
-  "insertion_flagged": 0.625,
-  "swap_flagged": 1.0,
-  "swap_confirmed": 1.0,
+  "count_error": 0.0345,
+  "removal_flagged": null,
+  "removal_confirmed": null,
+  "insertion": null,
+  "insertion_flagged": null,
+  "swap_flagged": null,
+  "swap_confirmed": null,
   "controls": {
    "removal": {
-    "n": 8,
-    "flagged": 1.0,
-    "confirmed": 0.625,
-    "rows": [
-     {
-      "camera": "cam_r_L0_hol_2",
-      "kind": "removal:d_L0_004",
-      "flagged": true,
-      "confirmed": false
-     },
-     {
-      "camera": "cam_r_L0_mutfak_2",
-      "kind": "removal:f_L0_018",
-      "flagged": true,
-      "confirmed": false
-     },
-     {
-      "camera": "cam_r_L0_salon_1",
-      "kind": "removal:win_L0_002",
-      "flagged": true,
-      "confirmed": true
-     },
-     {
-      "camera": "cam_r_L0_salon_2",
-      "kind": "removal:f_L0_003",
-      "flagged": true,
-      "confirmed": true
-     },
-     {
-      "camera": "cam_r_L0_yatak_odasi_1",
-      "kind": "removal:win_L0_003",
-      "flagged": true,
-      "confirmed": true
-     },
-     {
-      "camera": "cam_r_L0_yatak_odasi_2",
-      "kind": "removal:f_L0_009",
-      "flagged": true,
-      "confirmed": true
-     },
-     {
-      "camera": "cam_r_L1_ebeveyn_yatak_odasi_1",
-      "kind": "removal:win_L1_001",
-      "flagged": true,
-      "confirmed": true
-     },
-     {
-      "camera": "cam_r_L1_hol_2",
-      "kind": "removal:d_L1_004",
-      "flagged": true,
-      "confirmed": false
-     }
-    ]
+    "n": 0,
+    "flagged": null,
+    "confirmed": null,
+    "rows": []
    },
    "insertion": {
-    "n": 8,
-    "flagged": 0.625,
-    "confirmed": 0.0,
-    "rows": [
-     {
-      "camera": "cam_r_L0_hol_2",
-      "kind": "insertion:d_L0_004",
-      "flagged": false,
-      "confirmed": false
-     },
-     {
-      "camera": "cam_r_L0_mutfak_2",
-      "kind": "insertion:f_L0_018",
-      "flagged": true,
-      "confirmed": false
-     },
-     {
-      "camera": "cam_r_L0_salon_1",
-      "kind": "insertion:win_L0_002",
-      "flagged": false,
-      "confirmed": false
-     },
-     {
-      "camera": "cam_r_L0_salon_2",
-      "kind": "insertion:f_L0_003",
-      "flagged": true,
-      "confirmed": false
-     },
-     {
-      "camera": "cam_r_L0_yatak_odasi_1",
-      "kind": "insertion:win_L0_003",
-      "flagged": true,
-      "confirmed": false
-     },
-     {
-      "camera": "cam_r_L0_yatak_odasi_2",
-      "kind": "insertion:f_L0_009",
-      "flagged": true,
-      "confirmed": false
-     },
-     {
-      "camera": "cam_r_L1_ebeveyn_yatak_odasi_1",
-      "kind": "insertion:win_L1_001",
-      "flagged": true,
-      "confirmed": false
-     },
-     {
-      "camera": "cam_r_L1_hol_2",
-      "kind": "insertion:d_L1_004",
-      "flagged": false,
-      "confirmed": false
-     }
-    ]
+    "n": 0,
+    "flagged": null,
+    "confirmed": null,
+    "rows": []
    },
    "swap": {
-    "n": 1,
-    "flagged": 1.0,
-    "confirmed": 1.0,
-    "rows": [
-     {
-      "camera": "cam_r_L0_salon_3",
-      "kind": "swap:f_L0_004",
-      "flagged": true,
-      "confirmed": true
-     }
-    ]
+    "n": 0,
+    "flagged": null,
+    "confirmed": null,
+    "rows": []
    }
   }
  },
@@ -179,41 +74,50 @@
  },
  "missed": [
   {
+   "target": "removal_flagged_min",
+   "metric": "removal_flagged",
+   "value": null,
+   "threshold": 0.8,
+   "op": ">=",
+   "reason": "no data"
+  },
+  {
+   "target": "removal_confirmed_min",
+   "metric": "removal_confirmed",
+   "value": null,
+   "threshold": 0.6,
+   "op": ">=",
+   "reason": "no data"
+  },
+  {
    "target": "insertion_min",
    "metric": "insertion",
-   "value": 0.0,
+   "value": null,
    "threshold": 0.6,
-   "op": ">="
+   "op": ">=",
+   "reason": "no data"
   }
  ],
  "advisory": true,
  "advisory_reasons": [
-  "insertion 0.0 misses >= 0.6"
+  "removal_flagged None misses >= 0.8 (no data)",
+  "removal_confirmed None misses >= 0.6 (no data)",
+  "insertion None misses >= 0.6 (no data)"
  ],
  "plan_ab": {
-  "cameras": [
-   "cam_r_L0_hol_2",
-   "cam_r_L0_mutfak_2",
-   "cam_r_L0_salon_1",
-   "cam_r_L0_salon_2",
-   "cam_r_L0_yatak_odasi_1",
-   "cam_r_L0_yatak_odasi_2",
-   "cam_r_L1_ebeveyn_yatak_odasi_1",
-   "cam_r_L1_ebeveyn_yatak_odasi_2",
-   "cam_r_L1_hol_1",
-   "cam_r_L1_hol_2"
-  ],
-  "pairs": 1,
-  "removal_pairs": 1,
-  "fa_missing_without": 0.0,
-  "fa_missing_with": 0.0,
-  "fa_extra_without": 0.0,
-  "fa_extra_with": 0.0,
-  "removal_confirmed_without": 0.0,
-  "removal_confirmed_with": 0.0,
+  "cameras": [],
+  "pairs": 0,
+  "removal_pairs": 0,
+  "fa_missing_without": null,
+  "fa_missing_with": null,
+  "fa_extra_without": null,
+  "fa_extra_with": null,
+  "removal_confirmed_without": null,
+  "removal_confirmed_with": null,
   "favours_plan": false,
   "used": false,
   "adopted": false,
-  "text": "source plan compared through the evidence chain, the projected cross-check and the side-by-side crop"
+  "text": "source plan compared through the evidence chain, the projected cross-check and the side-by-side crop",
+  "note": "not enough plan A/B answers to compare"
  }
 }

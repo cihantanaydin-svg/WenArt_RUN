@@ -1,6 +1,6 @@
 # Furniture fit report: building_final
 
-Project: synthetic-03; 53 pieces, 26 library fits, 27 parametric fallbacks. Non-uniform scale cap 15 %. Footprints, types, rotations, rooms and statuses are as in the building JSON (fitting never changes them).
+Project: synthetic-03; 57 pieces, 29 library fits, 28 parametric fallbacks. Non-uniform scale cap 15 %. Footprints, types, rotations, rooms and statuses are as in the building JSON (fitting never changes them).
 
 | piece | room | type | source | status | footprint w x d (m) | method | asset | licence | scale x / y / z | aspect err | height (m) |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -27,36 +27,40 @@ Project: synthetic-03; 53 pieces, 26 library fits, 27 parametric fallbacks. Non-
 | f_L0_021 | r_L0_kiler | unknown | from_documents | unverified | 1.20 x 0.50 | parametric | parametric:unknown | n/a | 1.000 / 1.000 / 1.000 | - | 0.80 |
 | f_L-1_001 | r_L-1_hol | dresser | added_by_ai | verified | 1.00 x 0.45 | library | GothicCommode_01 | CC0 | 0.832 / 0.775 / 0.804 | 0.071 | 0.97 |
 | f_L-1_002 | r_L-1_hol | chair | added_by_ai | verified | 0.45 x 0.45 | library | gallinera_chair | CC0 | 0.775 / 0.745 / 0.760 | 0.039 | 0.79 |
-| f_L-1_003 | r_L-1_yatak_odasi | bed_double | added_by_ai | verified | 1.40 x 2.00 | library | GothicBed_01 | CC0 | 0.937 / 0.980 / 0.959 | 0.045 | 1.47 |
+| f_L-1_003 | r_L-1_yatak_odasi | bed_double | added_by_ai | verified | 1.60 x 2.00 | library | GothicBed_01 | CC0 | 1.071 / 0.980 / 1.026 | 0.088 | 1.57 |
 | f_L-1_004 | r_L-1_yatak_odasi | nightstand | added_by_ai | verified | 0.50 x 0.40 | library | side_table_01 | CC0 | 0.909 / 0.889 / 0.899 | 0.022 | 0.50 |
 | f_L-1_005 | r_L-1_yatak_odasi | nightstand | added_by_ai | verified | 0.50 x 0.40 | library | side_table_01 | CC0 | 0.909 / 0.889 / 0.899 | 0.022 | 0.50 |
 | f_L-1_006 | r_L-1_yatak_odasi | desk | added_by_ai | verified | 1.40 x 0.70 | parametric | parametric:desk | n/a | 1.000 / 1.000 / 1.000 | - | 0.75 |
 | f_L-1_007 | r_L-1_wc | toilet | added_by_ai | verified | 0.45 x 0.75 | parametric | parametric:toilet | n/a | 1.000 / 1.000 / 1.000 | - | 1.20 |
 | f_L-1_008 | r_L-1_wc | washbasin | added_by_ai | verified | 0.60 x 0.45 | parametric | parametric:washbasin | n/a | 1.000 / 1.000 / 1.000 | - | 1.00 |
-| f_L-1_009 | r_L-1_banyo | shower | added_by_ai | verified | 0.90 x 0.90 | parametric | parametric:shower | n/a | 1.000 / 1.000 / 1.000 | - | 2.00 |
+| f_L-1_009 | r_L-1_banyo | shower | added_by_ai | verified | 0.80 x 0.80 | parametric | parametric:shower | n/a | 1.000 / 1.000 / 1.000 | - | 2.00 |
 | f_L-1_010 | r_L-1_banyo | toilet | added_by_ai | verified | 0.40 x 0.70 | parametric | parametric:toilet | n/a | 1.000 / 1.000 / 1.000 | - | 1.20 |
 | f_L-1_011 | r_L-1_banyo | washbasin | added_by_ai | verified | 0.60 x 0.45 | parametric | parametric:washbasin | n/a | 1.000 / 1.000 / 1.000 | - | 1.00 |
 | f_L0_022 | r_L0_hol | dresser | added_by_ai | verified | 1.00 x 0.45 | library | GothicCommode_01 | CC0 | 0.832 / 0.775 / 0.804 | 0.071 | 0.97 |
 | f_L0_023 | r_L0_hol | chair | added_by_ai | verified | 0.45 x 0.45 | library | gallinera_chair | CC0 | 0.775 / 0.745 / 0.760 | 0.039 | 0.79 |
 | f_L0_024 | r_L0_antre | dresser | added_by_ai | verified | 1.00 x 0.45 | library | GothicCommode_01 | CC0 | 0.832 / 0.775 / 0.804 | 0.071 | 0.97 |
-| f_L1_001 | r_L1_ebeveyn_yatak_odasi | bed_double | added_by_ai | verified | 1.80 x 2.00 | parametric | parametric:bed_double | n/a | 1.000 / 1.000 / 1.000 | - | 1.00 |
+| f_L1_001 | r_L1_ebeveyn_yatak_odasi | bed_double | added_by_ai | verified | 1.60 x 2.00 | library | GothicBed_01 | CC0 | 1.071 / 0.980 / 1.026 | 0.088 | 1.57 |
 | f_L1_002 | r_L1_ebeveyn_yatak_odasi | nightstand | added_by_ai | verified | 0.50 x 0.40 | library | side_table_01 | CC0 | 0.909 / 0.889 / 0.899 | 0.022 | 0.50 |
 | f_L1_003 | r_L1_ebeveyn_yatak_odasi | nightstand | added_by_ai | verified | 0.50 x 0.40 | library | side_table_01 | CC0 | 0.909 / 0.889 / 0.899 | 0.022 | 0.50 |
-| f_L1_004 | r_L1_ebeveyn_yatak_odasi | chair | added_by_ai | verified | 0.50 x 0.50 | library | painted_wooden_chair_02 | CC0 | 0.782 / 0.755 / 0.769 | 0.035 | 0.97 |
-| f_L1_005 | r_L1_hol | dresser | added_by_ai | verified | 1.00 x 0.45 | library | GothicCommode_01 | CC0 | 0.832 / 0.775 / 0.804 | 0.071 | 0.97 |
-| f_L1_006 | r_L1_hol | chair | added_by_ai | verified | 0.45 x 0.45 | library | gallinera_chair | CC0 | 0.775 / 0.745 / 0.760 | 0.039 | 0.79 |
-| f_L1_007 | r_L1_yatak_odasi | bed_double | added_by_ai | verified | 1.80 x 2.00 | parametric | parametric:bed_double | n/a | 1.000 / 1.000 / 1.000 | - | 1.00 |
-| f_L1_008 | r_L1_yatak_odasi | nightstand | added_by_ai | verified | 0.40 x 0.40 | library | painted_wooden_nightstand | CC0 | 0.793 / 0.786 / 0.789 | 0.008 | 0.49 |
-| f_L1_009 | r_L1_yatak_odasi | nightstand | added_by_ai | verified | 0.50 x 0.40 | library | side_table_01 | CC0 | 0.909 / 0.889 / 0.899 | 0.022 | 0.50 |
-| f_L1_010 | r_L1_yatak_odasi | wardrobe | added_by_ai | verified | 1.80 x 0.60 | parametric | parametric:wardrobe | n/a | 1.000 / 1.000 / 1.000 | - | 2.10 |
-| f_L1_011 | r_L1_cocuk_odasi | bed_single | added_by_ai | verified | 1.20 x 2.00 | parametric | parametric:bed_single | n/a | 1.000 / 1.000 / 1.000 | - | 1.00 |
-| f_L1_012 | r_L1_cocuk_odasi | nightstand | added_by_ai | verified | 0.50 x 0.40 | library | side_table_01 | CC0 | 0.909 / 0.889 / 0.899 | 0.022 | 0.50 |
-| f_L1_013 | r_L1_cocuk_odasi | wardrobe | added_by_ai | verified | 1.20 x 0.60 | parametric | parametric:wardrobe | n/a | 1.000 / 1.000 / 1.000 | - | 2.10 |
-| f_L1_014 | r_L1_cocuk_odasi | desk | added_by_ai | verified | 1.40 x 0.70 | parametric | parametric:desk | n/a | 1.000 / 1.000 / 1.000 | - | 0.75 |
-| f_L1_015 | r_L1_cocuk_odasi | chair | added_by_ai | verified | 0.45 x 0.45 | library | gallinera_chair | CC0 | 0.775 / 0.745 / 0.760 | 0.039 | 0.79 |
-| f_L1_016 | r_L1_banyo | shower | added_by_ai | verified | 0.90 x 0.90 | parametric | parametric:shower | n/a | 1.000 / 1.000 / 1.000 | - | 2.00 |
-| f_L1_017 | r_L1_banyo | toilet | added_by_ai | verified | 0.40 x 0.70 | parametric | parametric:toilet | n/a | 1.000 / 1.000 / 1.000 | - | 1.20 |
-| f_L1_018 | r_L1_banyo | washbasin | added_by_ai | verified | 0.60 x 0.45 | parametric | parametric:washbasin | n/a | 1.000 / 1.000 / 1.000 | - | 1.00 |
+| f_L1_004 | r_L1_ebeveyn_yatak_odasi | wardrobe | added_by_ai | verified | 1.80 x 0.60 | parametric | parametric:wardrobe | n/a | 1.000 / 1.000 / 1.000 | - | 2.10 |
+| f_L1_005 | r_L1_ebeveyn_yatak_odasi | desk | added_by_ai | verified | 1.40 x 0.70 | parametric | parametric:desk | n/a | 1.000 / 1.000 / 1.000 | - | 0.75 |
+| f_L1_006 | r_L1_ebeveyn_yatak_odasi | chair | added_by_ai | verified | 0.45 x 0.45 | library | gallinera_chair | CC0 | 0.775 / 0.745 / 0.760 | 0.039 | 0.79 |
+| f_L1_007 | r_L1_hol | dresser | added_by_ai | verified | 1.00 x 0.45 | library | GothicCommode_01 | CC0 | 0.832 / 0.775 / 0.804 | 0.071 | 0.97 |
+| f_L1_008 | r_L1_hol | chair | added_by_ai | verified | 0.50 x 0.50 | library | painted_wooden_chair_02 | CC0 | 0.782 / 0.755 / 0.769 | 0.035 | 0.97 |
+| f_L1_009 | r_L1_yatak_odasi | bed_double | added_by_ai | verified | 1.60 x 2.00 | library | GothicBed_01 | CC0 | 1.071 / 0.980 / 1.026 | 0.088 | 1.57 |
+| f_L1_010 | r_L1_yatak_odasi | nightstand | added_by_ai | verified | 0.50 x 0.40 | library | side_table_01 | CC0 | 0.909 / 0.889 / 0.899 | 0.022 | 0.50 |
+| f_L1_011 | r_L1_yatak_odasi | nightstand | added_by_ai | verified | 0.50 x 0.40 | library | side_table_01 | CC0 | 0.909 / 0.889 / 0.899 | 0.022 | 0.50 |
+| f_L1_012 | r_L1_yatak_odasi | wardrobe | added_by_ai | verified | 1.20 x 0.60 | parametric | parametric:wardrobe | n/a | 1.000 / 1.000 / 1.000 | - | 2.10 |
+| f_L1_013 | r_L1_yatak_odasi | desk | added_by_ai | verified | 1.40 x 0.70 | parametric | parametric:desk | n/a | 1.000 / 1.000 / 1.000 | - | 0.75 |
+| f_L1_014 | r_L1_cocuk_odasi | bed_single | added_by_ai | verified | 1.20 x 2.00 | parametric | parametric:bed_single | n/a | 1.000 / 1.000 / 1.000 | - | 1.00 |
+| f_L1_015 | r_L1_cocuk_odasi | nightstand | added_by_ai | verified | 0.50 x 0.40 | library | side_table_01 | CC0 | 0.909 / 0.889 / 0.899 | 0.022 | 0.50 |
+| f_L1_016 | r_L1_cocuk_odasi | nightstand | added_by_ai | verified | 0.50 x 0.40 | library | side_table_01 | CC0 | 0.909 / 0.889 / 0.899 | 0.022 | 0.50 |
+| f_L1_017 | r_L1_cocuk_odasi | wardrobe | added_by_ai | verified | 1.20 x 0.60 | parametric | parametric:wardrobe | n/a | 1.000 / 1.000 / 1.000 | - | 2.10 |
+| f_L1_018 | r_L1_cocuk_odasi | desk | added_by_ai | verified | 1.40 x 0.70 | parametric | parametric:desk | n/a | 1.000 / 1.000 / 1.000 | - | 0.75 |
+| f_L1_019 | r_L1_cocuk_odasi | chair | added_by_ai | verified | 0.50 x 0.50 | library | painted_wooden_chair_02 | CC0 | 0.782 / 0.755 / 0.769 | 0.035 | 0.97 |
+| f_L1_020 | r_L1_banyo | shower | added_by_ai | verified | 0.90 x 0.90 | parametric | parametric:shower | n/a | 1.000 / 1.000 / 1.000 | - | 2.00 |
+| f_L1_021 | r_L1_banyo | washbasin | added_by_ai | verified | 0.60 x 0.45 | parametric | parametric:washbasin | n/a | 1.000 / 1.000 / 1.000 | - | 1.00 |
+| f_L1_022 | r_L1_banyo | toilet | added_by_ai | verified | 0.40 x 0.70 | parametric | parametric:toilet | n/a | 1.000 / 1.000 / 1.000 | - | 1.20 |
 
 ## Parametric fallbacks
 
@@ -78,31 +82,31 @@ Project: synthetic-03; 53 pieces, 26 library fits, 27 parametric fallbacks. Non-
 - f_L-1_009 (shower): type shower is parametric in the catalogue
 - f_L-1_010 (toilet): type toilet is parametric in the catalogue
 - f_L-1_011 (washbasin): type washbasin is parametric in the catalogue
-- f_L1_001 (bed_double): no bed_double candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: GothicBed_01 at 22.9 % non-uniform, mean scale 1.0927)
-- f_L1_007 (bed_double): no bed_double candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: GothicBed_01 at 22.9 % non-uniform, mean scale 1.0927)
-- f_L1_010 (wardrobe): type wardrobe is parametric in the catalogue
-- f_L1_011 (bed_single): no bed_single candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: old_bed_frame at 32.7 % non-uniform, mean scale 1.1628)
-- f_L1_013 (wardrobe): type wardrobe is parametric in the catalogue
-- f_L1_014 (desk): no desk candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: metal_office_desk at 5.6 % non-uniform, mean scale 0.7195)
-- f_L1_016 (shower): type shower is parametric in the catalogue
-- f_L1_017 (toilet): type toilet is parametric in the catalogue
-- f_L1_018 (washbasin): type washbasin is parametric in the catalogue
+- f_L1_004 (wardrobe): type wardrobe is parametric in the catalogue
+- f_L1_005 (desk): no desk candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: metal_office_desk at 5.6 % non-uniform, mean scale 0.7195)
+- f_L1_012 (wardrobe): type wardrobe is parametric in the catalogue
+- f_L1_013 (desk): no desk candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: metal_office_desk at 5.6 % non-uniform, mean scale 0.7195)
+- f_L1_014 (bed_single): no bed_single candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: old_bed_frame at 32.7 % non-uniform, mean scale 1.1628)
+- f_L1_017 (wardrobe): type wardrobe is parametric in the catalogue
+- f_L1_018 (desk): no desk candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: metal_office_desk at 5.6 % non-uniform, mean scale 0.7195)
+- f_L1_020 (shower): type shower is parametric in the catalogue
+- f_L1_021 (washbasin): type washbasin is parametric in the catalogue
+- f_L1_022 (toilet): type toilet is parametric in the catalogue
 
 ## Library assets and licences
 
 - ArmChair_01 (polyhaven, CC0) x 2
-- GothicBed_01 (polyhaven, CC0) x 2
+- GothicBed_01 (polyhaven, CC0) x 4
 - GothicCommode_01 (polyhaven, CC0) x 4
-- gallinera_chair (polyhaven, CC0) x 6
-- painted_wooden_chair_02 (polyhaven, CC0) x 1
-- painted_wooden_nightstand (polyhaven, CC0) x 1
-- side_table_01 (polyhaven, CC0) x 8
+- gallinera_chair (polyhaven, CC0) x 5
+- painted_wooden_chair_02 (polyhaven, CC0) x 2
+- side_table_01 (polyhaven, CC0) x 10
 - sofa_02 (polyhaven, CC0) x 1
 - wooden_display_shelves_01 (polyhaven, CC0) x 1
 
 ## Decor
 
-- book_set: parametric x 3
+- book_set: parametric x 5
 - cushion: parametric x 11
 - plant: potted_plant_02 x 5
 - cushions and books are parametric by design (the catalogue pillow model lies flat)

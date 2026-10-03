@@ -3,8 +3,8 @@
  "project": {
   "id": "synthetic-03",
   "source_folder": "projects/synthetic-03",
-  "created_utc": "2026-10-02T00:07:28Z",
-  "pipeline_commit": "383859e",
+  "created_utc": "2026-10-03T01:52:27Z",
+  "pipeline_commit": "76bd17dd",
   "brief": {
    "styles": [
     "Modern minimal, polished concrete floor, charcoal and white, brass details, cool daylight",
@@ -4569,8 +4569,8 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     5.684,
-     3.599
+     4.616,
+     4.501
     ],
     "size": [
      0.45,
@@ -4662,8 +4662,8 @@
     "against_wall": false,
     "proposed": {
      "center": [
-      5.95,
-      3.0
+      4.35,
+      4.8
      ],
      "rotation_deg": 0.0,
      "size": [
@@ -4672,8 +4672,7 @@
      ]
     },
     "repairs": [
-     "snap",
-     "slide"
+     "snap"
     ],
     "agreed_by_other_pass": false
    }
@@ -4687,16 +4686,16 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     7.471,
-     4.429
+     7.071,
+     1.1
     ],
     "size": [
-     1.4,
+     1.6,
      2.0
     ],
-    "rotation_deg": 0.0
+    "rotation_deg": 90.0
    },
-   "front_deg": 270.0,
+   "front_deg": 0.0,
    "height": 0.5,
    "asset": {
     "library": "polyhaven",
@@ -4705,16 +4704,16 @@
     "license": "CC0",
     "method": "library",
     "fit_scale": [
-     0.9372,
+     1.0711,
      0.9804,
-     0.9588
+     1.0257
     ],
     "bbox_m": [
-     1.4,
+     1.6,
      2.0,
-     1.4706
+     1.5732
     ],
-    "aspect_error": 0.045,
+    "aspect_error": 0.0885,
     "gltf": "models/GothicBed_01/GothicBed_01_1k.gltf",
     "front_axis": "-Y",
     "up_axis": "+Z",
@@ -4728,14 +4727,14 @@
     "candidates": [
      {
       "id": "GothicBed_01",
-      "aspect_error": 0.045,
+      "aspect_error": 0.0885,
       "scale": [
-       0.9372,
+       1.0711,
        0.9804,
-       0.9588
+       1.0257
       ],
-      "non_uniform": 1.0461,
-      "mean_scale": 0.9588,
+      "non_uniform": 1.0925,
+      "mean_scale": 1.0257,
       "accepted": true
      }
     ],
@@ -4753,7 +4752,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Main bed placed against wall with headboard clear of door."
+     "text": "Main sleeping area against the long wall."
     }
    ],
    "checks": {
@@ -4781,10 +4780,7 @@
      "snap",
      "slide",
      "shrink",
-     "slide",
-     "shrink",
-     "slide",
-     "relocate"
+     "slide"
     ],
     "agreed_by_other_pass": true
    }
@@ -4799,7 +4795,7 @@
    "footprint": {
     "center": [
      6.271,
-     1.1
+     4.8
     ],
     "size": [
      0.5,
@@ -4861,10 +4857,10 @@
     {
      "file": "building.json",
      "method": "ai",
-     "confidence": 0.6,
+     "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Nightstand beside bed for easy access."
+     "text": "Nightstand beside the bed for easy access."
     }
    ],
    "checks": {
@@ -4880,7 +4876,7 @@
     "proposed": {
      "center": [
       6.5,
-      2.8
+      3.0
      ],
      "rotation_deg": 0.0,
      "size": [
@@ -4892,7 +4888,7 @@
      "snap",
      "slide"
     ],
-    "agreed_by_other_pass": false
+    "agreed_by_other_pass": true
    }
   },
   {
@@ -4986,7 +4982,7 @@
     "proposed": {
      "center": [
       7.5,
-      3.2
+      3.0
      ],
      "rotation_deg": 0.0,
      "size": [
@@ -5094,7 +5090,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Desk placed against wall near window for natural light."
+     "text": "Desk against the far wall for work or study."
     }
    ],
    "checks": {
@@ -5109,7 +5105,7 @@
     "against_wall": true,
     "proposed": {
      "center": [
-      8.5,
+      9.0,
       3.5
      ],
      "rotation_deg": 0.0,
@@ -5266,7 +5262,7 @@
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Washbasin placed against the side wall near the door for functional access."
+     "text": "Washbasin placed against the side wall near the door for accessibility."
     }
    ],
    "checks": {
@@ -5309,16 +5305,16 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     9.479,
-     6.85
+     8.471,
+     6.8
     ],
     "size": [
-     0.9,
-     0.9
+     0.8,
+     0.8
     ],
-    "rotation_deg": 270.0
+    "rotation_deg": 90.0
    },
-   "front_deg": 180.0,
+   "front_deg": 0.0,
    "height": 2.0,
    "asset": {
     "library": "parametric",
@@ -5332,8 +5328,8 @@
      1.0
     ],
     "bbox_m": [
-     0.9,
-     0.9,
+     0.8,
+     0.8,
      2.0
     ],
     "aspect_error": null,
@@ -5353,10 +5349,10 @@
     {
      "file": "building.json",
      "method": "ai",
-     "confidence": 0.9,
+     "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Shower placed against the right wall, away from door for privacy."
+     "text": "Shower placed against the left wall for modern minimal flow."
     }
    ],
    "checks": {
@@ -5371,20 +5367,20 @@
     "against_wall": true,
     "proposed": {
      "center": [
-      9.0,
-      6.55
+      8.5,
+      6.5
      ],
      "rotation_deg": 270.0,
      "size": [
-      0.9,
-      0.9
+      0.8,
+      0.8
      ]
     },
     "repairs": [
      "snap",
      "slide"
     ],
-    "agreed_by_other_pass": true
+    "agreed_by_other_pass": false
    }
   },
   {
@@ -5396,16 +5392,16 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     8.421,
-     6.55
+     9.579,
+     7.2
     ],
     "size": [
      0.4,
      0.7
     ],
-    "rotation_deg": 90.0
+    "rotation_deg": 270.0
    },
-   "front_deg": 0.0,
+   "front_deg": 180.0,
    "height": 0.8,
    "asset": {
     "library": "parametric",
@@ -5443,7 +5439,7 @@
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Toilet placed against the left wall, not directly opposite the door."
+     "text": "Toilet positioned against the right wall, avoiding direct door line."
     }
    ],
    "checks": {
@@ -5458,8 +5454,8 @@
     "against_wall": true,
     "proposed": {
      "center": [
-      8.05,
-      6.55
+      9.3,
+      6.0
      ],
      "rotation_deg": 0.0,
      "size": [
@@ -5468,7 +5464,8 @@
      ]
     },
     "repairs": [
-     "snap"
+     "snap",
+     "slide"
     ],
     "agreed_by_other_pass": false
    }
@@ -5482,16 +5479,16 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     8.296,
-     7.229
+     9.704,
+     6.671
     ],
     "size": [
      0.6,
      0.45
     ],
-    "rotation_deg": 90.0
+    "rotation_deg": 270.0
    },
-   "front_deg": 0.0,
+   "front_deg": 180.0,
    "height": 0.85,
    "asset": {
     "library": "parametric",
@@ -5529,7 +5526,7 @@
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Washbasin placed against the left wall, near the door for convenience."
+     "text": "Washbasin placed against the left wall for functional access."
     }
    ],
    "checks": {
@@ -5544,8 +5541,8 @@
     "against_wall": true,
     "proposed": {
      "center": [
-      8.05,
-      5.55
+      8.0,
+      5.8
      ],
      "rotation_deg": 0.0,
      "size": [
@@ -5555,7 +5552,10 @@
     },
     "repairs": [
      "snap",
-     "slide"
+     "slide",
+     "shrink",
+     "slide",
+     "relocate"
     ],
     "agreed_by_other_pass": false
    }
@@ -5635,7 +5635,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Slim dresser against wall for modern minimal storage."
+     "text": "Slim dresser against wall for minimal storage, matching modern style."
     }
    ],
    "checks": {
@@ -5674,8 +5674,8 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     6.682,
-     3.634
+     6.702,
+     3.969
     ],
     "size": [
      0.45,
@@ -5752,7 +5752,7 @@
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Chair placed centrally for seating without blocking walkway."
+     "text": "Chair placed centrally for seating, avoiding doorways and maintaining walkway."
     }
    ],
    "checks": {
@@ -5768,7 +5768,7 @@
     "proposed": {
      "center": [
       6.95,
-      3.5
+      4.0
      ],
      "rotation_deg": 0.0,
      "size": [
@@ -5857,7 +5857,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Slim dresser against wall for minimal storage, charcoal finish matches style."
+     "text": "Slim dresser against wall for minimal storage without blocking walkway."
     }
    ],
    "checks": {
@@ -5898,11 +5898,11 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     1.171,
+     1.071,
      3.129
     ],
     "size": [
-     1.8,
+     1.6,
      2.0
     ],
     "rotation_deg": 0.0
@@ -5910,54 +5910,60 @@
    "front_deg": 270.0,
    "height": 0.5,
    "asset": {
-    "library": "parametric",
-    "asset_id": "parametric:bed_double",
-    "licence": "n/a",
-    "license": "n/a",
-    "method": "parametric",
+    "library": "polyhaven",
+    "asset_id": "GothicBed_01",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
     "fit_scale": [
-     1.0,
-     1.0,
-     1.0
+     1.0711,
+     0.9804,
+     1.0257
     ],
     "bbox_m": [
-     1.8,
+     1.6,
      2.0,
-     1.0
+     1.5732
     ],
-    "aspect_error": null,
+    "aspect_error": 0.0885,
+    "gltf": "models/GothicBed_01/GothicBed_01_1k.gltf",
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     0.0,
-     0.0,
-     0.0
+     0.0355,
+     0.0331,
+     -0.0
     ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
     "candidates": [
      {
       "id": "GothicBed_01",
-      "aspect_error": 0.2063,
+      "aspect_error": 0.0885,
       "scale": [
-       1.205,
+       1.0711,
        0.9804,
-       1.0927
+       1.0257
       ],
-      "non_uniform": 1.2291,
-      "mean_scale": 1.0927,
-      "accepted": false
+      "non_uniform": 1.0925,
+      "mean_scale": 1.0257,
+      "accepted": true
      }
     ],
-    "fallback_reason": "no bed_double candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: GothicBed_01 at 22.9 % non-uniform, mean scale 1.0927)",
-    "cap": 1.15
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ]
    },
    "status": "verified",
    "evidence": [
     {
      "file": "building.json",
      "method": "ai",
-     "confidence": 0.6,
+     "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 1,
+     "pass": 2,
      "text": "Main bed placed against wall with headboard clear of door."
     }
    ],
@@ -5983,9 +5989,12 @@
      ]
     },
     "repairs": [
-     "snap"
+     "snap",
+     "slide",
+     "shrink",
+     "slide"
     ],
-    "agreed_by_other_pass": false
+    "agreed_by_other_pass": true
    }
   },
   {
@@ -6060,10 +6069,10 @@
     {
      "file": "building.json",
      "method": "ai",
-     "confidence": 0.6,
+     "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 1,
-     "text": "Nightstand beside bed for easy access."
+     "pass": 2,
+     "text": "Nightstand on left side of bed for easy access."
     }
    ],
    "checks": {
@@ -6078,8 +6087,8 @@
     "against_wall": true,
     "proposed": {
      "center": [
-      0.75,
-      2.8
+      0.6,
+      3.0
      ],
      "rotation_deg": 0.0,
      "size": [
@@ -6091,7 +6100,7 @@
      "snap",
      "slide"
     ],
-    "agreed_by_other_pass": false
+    "agreed_by_other_pass": true
    }
   },
   {
@@ -6103,16 +6112,16 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     3.55,
-     3.929
+     2.4,
+     0.471
     ],
     "size": [
      0.5,
      0.4
     ],
-    "rotation_deg": 0.0
+    "rotation_deg": 180.0
    },
-   "front_deg": 270.0,
+   "front_deg": 90.0,
    "height": 0.5,
    "asset": {
     "library": "polyhaven",
@@ -6166,10 +6175,10 @@
     {
      "file": "building.json",
      "method": "ai",
-     "confidence": 0.6,
+     "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 1,
-     "text": "Second nightstand for symmetry and balance."
+     "pass": 2,
+     "text": "Nightstand on right side of bed for symmetry."
     }
    ],
    "checks": {
@@ -6184,13 +6193,230 @@
     "against_wall": true,
     "proposed": {
      "center": [
-      1.25,
-      3.2
+      1.4,
+      3.0
      ],
      "rotation_deg": 0.0,
      "size": [
       0.5,
       0.4
+     ]
+    },
+    "repairs": [
+     "snap",
+     "slide",
+     "shrink",
+     "slide",
+     "relocate"
+    ],
+    "agreed_by_other_pass": true
+   }
+  },
+  {
+   "id": "f_L1_004",
+   "level_id": "L1",
+   "room_id": "r_L1_ebeveyn_yatak_odasi",
+   "type": "wardrobe",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     3.0,
+     3.829
+    ],
+    "size": [
+     1.8,
+     0.6
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": 2.1,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:wardrobe",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     1.8,
+     0.6,
+     2.1
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type wardrobe is parametric in the catalogue",
+    "cap": 1.15
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Wardrobe against wall for storage, away from door swing."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      3.0,
+      1.0
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      1.8,
+      0.6
+     ]
+    },
+    "repairs": [
+     "snap",
+     "slide",
+     "shrink",
+     "slide",
+     "relocate"
+    ],
+    "agreed_by_other_pass": true
+   }
+  },
+  {
+   "id": "f_L1_005",
+   "level_id": "L1",
+   "room_id": "r_L1_ebeveyn_yatak_odasi",
+   "type": "desk",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     1.4,
+     0.621
+    ],
+    "size": [
+     1.4,
+     0.7
+    ],
+    "rotation_deg": 180.0
+   },
+   "front_deg": 90.0,
+   "height": 0.75,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:desk",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     1.4,
+     0.7,
+     0.75
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [
+     {
+      "id": "metal_office_desk",
+      "aspect_error": 0.0542,
+      "scale": [
+       0.7,
+       0.739,
+       0.7195
+      ],
+      "non_uniform": 1.0557,
+      "mean_scale": 0.7195,
+      "accepted": false
+     },
+     {
+      "id": "WoodenTable_01",
+      "aspect_error": 0.3142,
+      "scale": [
+       0.778,
+       1.0651,
+       0.9215
+      ],
+      "non_uniform": 1.3691,
+      "mean_scale": 0.9215,
+      "accepted": false
+     },
+     {
+      "id": "SchoolDesk_01",
+      "aspect_error": 0.428,
+      "scale": [
+       1.9668,
+       1.2821,
+       1.6244
+      ],
+      "non_uniform": 1.5341,
+      "mean_scale": 1.6244,
+      "accepted": false
+     }
+    ],
+    "fallback_reason": "no desk candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: metal_office_desk at 5.6 % non-uniform, mean scale 0.7195)",
+    "cap": 1.15
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Desk placed against wall near window for natural light."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      2.0,
+      0.5
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      1.4,
+      0.7
      ]
     },
     "repairs": [
@@ -6201,7 +6427,7 @@
    }
   },
   {
-   "id": "f_L1_004",
+   "id": "f_L1_006",
    "level_id": "L1",
    "room_id": "r_L1_ebeveyn_yatak_odasi",
    "type": "chair",
@@ -6209,218 +6435,8 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     1.55,
-     0.75
-    ],
-    "size": [
-     0.5,
-     0.5
-    ],
-    "rotation_deg": 0.0
-   },
-   "front_deg": 270.0,
-   "height": 0.9,
-   "asset": {
-    "library": "polyhaven",
-    "asset_id": "painted_wooden_chair_02",
-    "licence": "CC0",
-    "license": "CC0",
-    "method": "library",
-    "fit_scale": [
-     0.782,
-     0.7552,
-     0.7686
-    ],
-    "bbox_m": [
-     0.5,
-     0.5,
-     0.9714
-    ],
-    "aspect_error": 0.0349,
-    "gltf": "models/painted_wooden_chair_02/painted_wooden_chair_02_1k.gltf",
-    "front_axis": "-Y",
-    "up_axis": "+Z",
-    "origin_offset": [
-     -0.0152,
-     0.0323,
-     -0.0
-    ],
-    "rotation_fix_deg": 0.0,
-    "front_axis_confidence": "high",
-    "candidates": [
-     {
-      "id": "painted_wooden_chair_02",
-      "aspect_error": 0.0349,
-      "scale": [
-       0.782,
-       0.7552,
-       0.7686
-      ],
-      "non_uniform": 1.0355,
-      "mean_scale": 0.7686,
-      "accepted": true
-     }
-    ],
-    "cap": 1.15,
-    "uniform_range": [
-     0.75,
-     1.3
-    ]
-   },
-   "status": "verified",
-   "evidence": [
-    {
-     "file": "building.json",
-     "method": "ai",
-     "confidence": 0.6,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 1,
-     "text": "Chair placed beside desk for work or reading."
-    }
-   ],
-   "checks": {
-    "inside_room": true,
-    "no_overlap": true,
-    "clearance_ok": true,
-    "doors_free": true,
-    "windows_free": true,
-    "wall_contact": true
-   },
-   "layout": {
-    "against_wall": false,
-    "proposed": {
-     "center": [
-      2.55,
-      0.75
-     ],
-     "rotation_deg": 0.0,
-     "size": [
-      0.5,
-      0.5
-     ]
-    },
-    "repairs": [
-     "slide"
-    ],
-    "agreed_by_other_pass": false
-   }
-  },
-  {
-   "id": "f_L1_005",
-   "level_id": "L1",
-   "room_id": "r_L1_hol",
-   "type": "dresser",
-   "type_raw": null,
-   "source": "added_by_ai",
-   "footprint": {
-    "center": [
-     4.596,
-     1.0
-    ],
-    "size": [
-     1.0,
-     0.45
-    ],
-    "rotation_deg": 90.0
-   },
-   "front_deg": 0.0,
-   "height": 0.8,
-   "asset": {
-    "library": "polyhaven",
-    "asset_id": "GothicCommode_01",
-    "licence": "CC0",
-    "license": "CC0",
-    "method": "library",
-    "fit_scale": [
-     0.8324,
-     0.7749,
-     0.8036
-    ],
-    "bbox_m": [
-     1.0,
-     0.45,
-     0.974
-    ],
-    "aspect_error": 0.0715,
-    "gltf": "models/GothicCommode_01/GothicCommode_01_1k.gltf",
-    "front_axis": "-Y",
-    "up_axis": "+Z",
-    "origin_offset": [
-     -0.0011,
-     -0.0013,
-     -0.0
-    ],
-    "rotation_fix_deg": 0.0,
-    "front_axis_confidence": "high",
-    "candidates": [
-     {
-      "id": "GothicCommode_01",
-      "aspect_error": 0.0715,
-      "scale": [
-       0.8324,
-       0.7749,
-       0.8036
-      ],
-      "non_uniform": 1.0741,
-      "mean_scale": 0.8036,
-      "accepted": true
-     }
-    ],
-    "cap": 1.15,
-    "uniform_range": [
-     0.75,
-     1.3
-    ]
-   },
-   "status": "verified",
-   "evidence": [
-    {
-     "file": "building.json",
-     "method": "ai",
-     "confidence": 0.9,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 1,
-     "text": "Slim dresser against wall for minimal storage with charcoal and brass accents."
-    }
-   ],
-   "checks": {
-    "inside_room": true,
-    "no_overlap": true,
-    "clearance_ok": true,
-    "doors_free": true,
-    "windows_free": true,
-    "wall_contact": true
-   },
-   "layout": {
-    "against_wall": true,
-    "proposed": {
-     "center": [
-      4.35,
-      1.0
-     ],
-     "rotation_deg": 0.0,
-     "size": [
-      1.0,
-      0.45
-     ]
-    },
-    "repairs": [
-     "snap"
-    ],
-    "agreed_by_other_pass": true
-   }
-  },
-  {
-   "id": "f_L1_006",
-   "level_id": "L1",
-   "room_id": "r_L1_hol",
-   "type": "chair",
-   "type_raw": null,
-   "source": "added_by_ai",
-   "footprint": {
-    "center": [
-     5.684,
-     3.299
+     2.133,
+     1.848
     ],
     "size": [
      0.45,
@@ -6496,8 +6512,221 @@
      "method": "ai",
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Chair placed in front of desk for work area."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": false,
+    "proposed": {
+     "center": [
+      2.0,
+      0.3
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      0.5,
+      0.5
+     ]
+    },
+    "repairs": [
+     "snap",
+     "slide",
+     "shrink",
+     "slide"
+    ],
+    "agreed_by_other_pass": false
+   }
+  },
+  {
+   "id": "f_L1_007",
+   "level_id": "L1",
+   "room_id": "r_L1_hol",
+   "type": "dresser",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     4.596,
+     1.0
+    ],
+    "size": [
+     1.0,
+     0.45
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": 0.8,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "GothicCommode_01",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.8324,
+     0.7749,
+     0.8036
+    ],
+    "bbox_m": [
+     1.0,
+     0.45,
+     0.974
+    ],
+    "aspect_error": 0.0715,
+    "gltf": "models/GothicCommode_01/GothicCommode_01_1k.gltf",
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0011,
+     -0.0013,
+     -0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "GothicCommode_01",
+      "aspect_error": 0.0715,
+      "scale": [
+       0.8324,
+       0.7749,
+       0.8036
+      ],
+      "non_uniform": 1.0741,
+      "mean_scale": 0.8036,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ]
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Chair placed centrally for seating without blocking walkways."
+     "text": "Slim dresser against wall for minimal storage, aligned with corridor flow."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      4.35,
+      1.0
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      1.0,
+      0.45
+     ]
+    },
+    "repairs": [
+     "snap"
+    ],
+    "agreed_by_other_pass": true
+   }
+  },
+  {
+   "id": "f_L1_008",
+   "level_id": "L1",
+   "room_id": "r_L1_hol",
+   "type": "chair",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     5.651,
+     3.336
+    ],
+    "size": [
+     0.5,
+     0.5
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": 0.9,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "painted_wooden_chair_02",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.782,
+     0.7552,
+     0.7686
+    ],
+    "bbox_m": [
+     0.5,
+     0.5,
+     0.9714
+    ],
+    "aspect_error": 0.0349,
+    "gltf": "models/painted_wooden_chair_02/painted_wooden_chair_02_1k.gltf",
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0152,
+     0.0323,
+     -0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "painted_wooden_chair_02",
+      "aspect_error": 0.0349,
+      "scale": [
+       0.782,
+       0.7552,
+       0.7686
+      ],
+      "non_uniform": 1.0355,
+      "mean_scale": 0.7686,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ]
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Chair placed centrally for seating, avoiding door swing zones and maintaining walkway."
     }
    ],
    "checks": {
@@ -6517,8 +6746,8 @@
      ],
      "rotation_deg": 0.0,
      "size": [
-      0.45,
-      0.45
+      0.5,
+      0.5
      ]
     },
     "repairs": [
@@ -6528,7 +6757,7 @@
    }
   },
   {
-   "id": "f_L1_007",
+   "id": "f_L1_009",
    "level_id": "L1",
    "room_id": "r_L1_yatak_odasi",
    "type": "bed_double",
@@ -6536,11 +6765,11 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     7.871,
+     7.8,
      1.271
     ],
     "size": [
-     1.8,
+     1.6,
      2.0
     ],
     "rotation_deg": 180.0
@@ -6548,45 +6777,51 @@
    "front_deg": 90.0,
    "height": 0.5,
    "asset": {
-    "library": "parametric",
-    "asset_id": "parametric:bed_double",
-    "licence": "n/a",
-    "license": "n/a",
-    "method": "parametric",
+    "library": "polyhaven",
+    "asset_id": "GothicBed_01",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
     "fit_scale": [
-     1.0,
-     1.0,
-     1.0
+     1.0711,
+     0.9804,
+     1.0257
     ],
     "bbox_m": [
-     1.8,
+     1.6,
      2.0,
-     1.0
+     1.5732
     ],
-    "aspect_error": null,
+    "aspect_error": 0.0885,
+    "gltf": "models/GothicBed_01/GothicBed_01_1k.gltf",
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     0.0,
-     0.0,
-     0.0
+     0.0355,
+     0.0331,
+     -0.0
     ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
     "candidates": [
      {
       "id": "GothicBed_01",
-      "aspect_error": 0.2063,
+      "aspect_error": 0.0885,
       "scale": [
-       1.205,
+       1.0711,
        0.9804,
-       1.0927
+       1.0257
       ],
-      "non_uniform": 1.2291,
-      "mean_scale": 1.0927,
-      "accepted": false
+      "non_uniform": 1.0925,
+      "mean_scale": 1.0257,
+      "accepted": true
      }
     ],
-    "fallback_reason": "no bed_double candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: GothicBed_01 at 22.9 % non-uniform, mean scale 1.0927)",
-    "cap": 1.15
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ]
    },
    "status": "verified",
    "evidence": [
@@ -6612,7 +6847,7 @@
     "proposed": {
      "center": [
       7.0,
-      2.0
+      3.0
      ],
      "rotation_deg": 0.0,
      "size": [
@@ -6627,123 +6862,13 @@
      "slide",
      "shrink",
      "slide",
-     "relocate",
-     "anchor_first"
-    ],
-    "agreed_by_other_pass": false
-   }
-  },
-  {
-   "id": "f_L1_008",
-   "level_id": "L1",
-   "room_id": "r_L1_yatak_odasi",
-   "type": "nightstand",
-   "type_raw": null,
-   "source": "added_by_ai",
-   "footprint": {
-    "center": [
-     6.671,
-     0.471
-    ],
-    "size": [
-     0.4,
-     0.4
-    ],
-    "rotation_deg": 180.0
-   },
-   "front_deg": 90.0,
-   "height": 0.5,
-   "asset": {
-    "library": "polyhaven",
-    "asset_id": "painted_wooden_nightstand",
-    "licence": "CC0",
-    "license": "CC0",
-    "method": "library",
-    "fit_scale": [
-     0.7927,
-     0.7863,
-     0.7895
-    ],
-    "bbox_m": [
-     0.4,
-     0.4,
-     0.4859
-    ],
-    "aspect_error": 0.0081,
-    "gltf": "models/painted_wooden_nightstand/painted_wooden_nightstand_1k.gltf",
-    "front_axis": "-Y",
-    "up_axis": "+Z",
-    "origin_offset": [
-     -0.0011,
-     -0.0052,
-     -0.0
-    ],
-    "rotation_fix_deg": 0.0,
-    "front_axis_confidence": "high",
-    "candidates": [
-     {
-      "id": "painted_wooden_nightstand",
-      "aspect_error": 0.0081,
-      "scale": [
-       0.7927,
-       0.7863,
-       0.7895
-      ],
-      "non_uniform": 1.0081,
-      "mean_scale": 0.7895,
-      "accepted": true
-     }
-    ],
-    "cap": 1.15,
-    "uniform_range": [
-     0.75,
-     1.3
-    ]
-   },
-   "status": "verified",
-   "evidence": [
-    {
-     "file": "building.json",
-     "method": "ai",
-     "confidence": 0.6,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 1,
-     "text": "Nightstand on left side of bed for easy access."
-    }
-   ],
-   "checks": {
-    "inside_room": true,
-    "no_overlap": true,
-    "clearance_ok": true,
-    "doors_free": true,
-    "windows_free": true,
-    "wall_contact": true
-   },
-   "layout": {
-    "against_wall": true,
-    "proposed": {
-     "center": [
-      6.5,
-      2.0
-     ],
-     "rotation_deg": 0.0,
-     "size": [
-      0.5,
-      0.4
-     ]
-    },
-    "repairs": [
-     "snap",
-     "slide",
-     "shrink",
-     "slide",
      "relocate"
     ],
     "agreed_by_other_pass": false
    }
   },
   {
-   "id": "f_L1_009",
+   "id": "f_L1_010",
    "level_id": "L1",
    "room_id": "r_L1_yatak_odasi",
    "type": "nightstand",
@@ -6817,6 +6942,112 @@
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
+     "text": "Nightstand on left side of bed for easy access."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      6.5,
+      3.0
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      0.5,
+      0.4
+     ]
+    },
+    "repairs": [
+     "snap",
+     "slide"
+    ],
+    "agreed_by_other_pass": false
+   }
+  },
+  {
+   "id": "f_L1_011",
+   "level_id": "L1",
+   "room_id": "r_L1_yatak_odasi",
+   "type": "nightstand",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     9.679,
+     3.929
+    ],
+    "size": [
+     0.5,
+     0.4
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": 0.5,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "side_table_01",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.9091,
+     0.8889,
+     0.899
+    ],
+    "bbox_m": [
+     0.5,
+     0.4,
+     0.4951
+    ],
+    "aspect_error": 0.0225,
+    "gltf": "models/side_table_01/side_table_01_1k.gltf",
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     -0.0024
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "low",
+    "candidates": [
+     {
+      "id": "side_table_01",
+      "aspect_error": 0.0225,
+      "scale": [
+       0.9091,
+       0.8889,
+       0.899
+      ],
+      "non_uniform": 1.0227,
+      "mean_scale": 0.899,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ]
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
      "text": "Nightstand on right side of bed for symmetry."
     }
    ],
@@ -6833,7 +7064,7 @@
     "proposed": {
      "center": [
       7.5,
-      2.0
+      3.0
      ],
      "rotation_deg": 0.0,
      "size": [
@@ -6849,7 +7080,7 @@
    }
   },
   {
-   "id": "f_L1_010",
+   "id": "f_L1_012",
    "level_id": "L1",
    "room_id": "r_L1_yatak_odasi",
    "type": "wardrobe",
@@ -6857,16 +7088,16 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     6.971,
-     3.829
+     9.629,
+     1.171
     ],
     "size": [
-     1.8,
+     1.2,
      0.6
     ],
-    "rotation_deg": 0.0
+    "rotation_deg": 270.0
    },
-   "front_deg": 270.0,
+   "front_deg": 180.0,
    "height": 2.1,
    "asset": {
     "library": "parametric",
@@ -6880,7 +7111,7 @@
      1.0
     ],
     "bbox_m": [
-     1.8,
+     1.2,
      0.6,
      2.1
     ],
@@ -6904,7 +7135,7 @@
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Wardrobe against wall to maximize storage without blocking walkway."
+     "text": "Wardrobe against wall for storage, with 0.6m clearance in front."
     }
    ],
    "checks": {
@@ -6920,7 +7151,7 @@
     "proposed": {
      "center": [
       6.0,
-      3.5
+      1.0
      ],
      "rotation_deg": 0.0,
      "size": [
@@ -6939,7 +7170,134 @@
    }
   },
   {
-   "id": "f_L1_011",
+   "id": "f_L1_013",
+   "level_id": "L1",
+   "room_id": "r_L1_yatak_odasi",
+   "type": "desk",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     9.579,
+     2.529
+    ],
+    "size": [
+     1.4,
+     0.7
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": 0.75,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:desk",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     1.4,
+     0.7,
+     0.75
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [
+     {
+      "id": "metal_office_desk",
+      "aspect_error": 0.0542,
+      "scale": [
+       0.7,
+       0.739,
+       0.7195
+      ],
+      "non_uniform": 1.0557,
+      "mean_scale": 0.7195,
+      "accepted": false
+     },
+     {
+      "id": "WoodenTable_01",
+      "aspect_error": 0.3142,
+      "scale": [
+       0.778,
+       1.0651,
+       0.9215
+      ],
+      "non_uniform": 1.3691,
+      "mean_scale": 0.9215,
+      "accepted": false
+     },
+     {
+      "id": "SchoolDesk_01",
+      "aspect_error": 0.428,
+      "scale": [
+       1.9668,
+       1.2821,
+       1.6244
+      ],
+      "non_uniform": 1.5341,
+      "mean_scale": 1.6244,
+      "accepted": false
+     }
+    ],
+    "fallback_reason": "no desk candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: metal_office_desk at 5.6 % non-uniform, mean scale 0.7195)",
+    "cap": 1.15
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Desk against wall near window for natural light."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      8.5,
+      2.5
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      1.4,
+      0.7
+     ]
+    },
+    "repairs": [
+     "snap",
+     "slide",
+     "shrink",
+     "slide",
+     "relocate"
+    ],
+    "agreed_by_other_pass": false
+   }
+  },
+  {
+   "id": "f_L1_014",
    "level_id": "L1",
    "room_id": "r_L1_cocuk_odasi",
    "type": "bed_single",
@@ -6947,7 +7305,7 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     1.0,
+     1.1,
      6.5
     ],
     "size": [
@@ -7007,7 +7365,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Single bed placed against the wall for minimalistic modern style."
+     "text": "Single bed placed against wall for minimal modern style."
     }
    ],
    "checks": {
@@ -7022,7 +7380,7 @@
     "against_wall": true,
     "proposed": {
      "center": [
-      1.0,
+      1.1,
       6.5
      ],
      "rotation_deg": 0.0,
@@ -7036,7 +7394,7 @@
    }
   },
   {
-   "id": "f_L1_012",
+   "id": "f_L1_015",
    "level_id": "L1",
    "room_id": "r_L1_cocuk_odasi",
    "type": "nightstand",
@@ -7110,7 +7468,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Nightstand placed beside the bed for convenience."
+     "text": "Nightstand placed beside bed for convenience."
     }
    ],
    "checks": {
@@ -7125,7 +7483,7 @@
     "against_wall": true,
     "proposed": {
      "center": [
-      0.7,
+      0.6,
       6.5
      ],
      "rotation_deg": 0.0,
@@ -7142,7 +7500,113 @@
    }
   },
   {
-   "id": "f_L1_013",
+   "id": "f_L1_016",
+   "level_id": "L1",
+   "room_id": "r_L1_cocuk_odasi",
+   "type": "nightstand",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     2.0,
+     7.329
+    ],
+    "size": [
+     0.5,
+     0.4
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": 0.5,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "side_table_01",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.9091,
+     0.8889,
+     0.899
+    ],
+    "bbox_m": [
+     0.5,
+     0.4,
+     0.4951
+    ],
+    "aspect_error": 0.0225,
+    "gltf": "models/side_table_01/side_table_01_1k.gltf",
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     -0.0024
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "low",
+    "candidates": [
+     {
+      "id": "side_table_01",
+      "aspect_error": 0.0225,
+      "scale": [
+       0.9091,
+       0.8889,
+       0.899
+      ],
+      "non_uniform": 1.0227,
+      "mean_scale": 0.899,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ]
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Second nightstand for symmetry and function."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      1.6,
+      6.5
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      0.5,
+      0.4
+     ]
+    },
+    "repairs": [
+     "snap",
+     "slide"
+    ],
+    "agreed_by_other_pass": true
+   }
+  },
+  {
+   "id": "f_L1_017",
    "level_id": "L1",
    "room_id": "r_L1_cocuk_odasi",
    "type": "wardrobe",
@@ -7150,7 +7614,7 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     3.5,
+     3.629,
      7.229
     ],
     "size": [
@@ -7194,10 +7658,10 @@
     {
      "file": "building.json",
      "method": "ai",
-     "confidence": 0.9,
+     "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Wardrobe against the wall to maximize storage without clutter."
+     "text": "Wardrobe against wall for storage, away from door."
     }
    ],
    "checks": {
@@ -7212,8 +7676,8 @@
     "against_wall": true,
     "proposed": {
      "center": [
-      3.0,
-      7.0
+      3.5,
+      6.5
      ],
      "rotation_deg": 0.0,
      "size": [
@@ -7225,13 +7689,14 @@
      "snap",
      "slide",
      "shrink",
-     "slide"
+     "slide",
+     "relocate"
     ],
-    "agreed_by_other_pass": true
+    "agreed_by_other_pass": false
    }
   },
   {
-   "id": "f_L1_014",
+   "id": "f_L1_018",
    "level_id": "L1",
    "room_id": "r_L1_cocuk_odasi",
    "type": "desk",
@@ -7239,7 +7704,7 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     2.3,
+     2.5,
      4.621
     ],
     "size": [
@@ -7320,10 +7785,10 @@
     {
      "file": "building.json",
      "method": "ai",
-     "confidence": 0.9,
+     "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Desk placed against the wall for study or work area."
+     "text": "Desk placed against wall near window for natural light."
     }
    ],
    "checks": {
@@ -7338,8 +7803,8 @@
     "against_wall": true,
     "proposed": {
      "center": [
-      2.0,
-      4.5
+      2.5,
+      4.8
      ],
      "rotation_deg": 0.0,
      "size": [
@@ -7348,14 +7813,13 @@
      ]
     },
     "repairs": [
-     "snap",
-     "slide"
+     "snap"
     ],
-    "agreed_by_other_pass": true
+    "agreed_by_other_pass": false
    }
   },
   {
-   "id": "f_L1_015",
+   "id": "f_L1_019",
    "level_id": "L1",
    "room_id": "r_L1_cocuk_odasi",
    "type": "chair",
@@ -7363,12 +7827,12 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     2.072,
-     5.845
+     1.549,
+     4.546
     ],
     "size": [
-     0.45,
-     0.45
+     0.5,
+     0.5
     ],
     "rotation_deg": 0.0
    },
@@ -7376,28 +7840,28 @@
    "height": 0.9,
    "asset": {
     "library": "polyhaven",
-    "asset_id": "gallinera_chair",
+    "asset_id": "painted_wooden_chair_02",
     "licence": "CC0",
     "license": "CC0",
     "method": "library",
     "fit_scale": [
-     0.7748,
-     0.7452,
-     0.76
+     0.782,
+     0.7552,
+     0.7686
     ],
     "bbox_m": [
-     0.45,
-     0.45,
-     0.7856
+     0.5,
+     0.5,
+     0.9714
     ],
-    "aspect_error": 0.039,
-    "gltf": "models/gallinera_chair/gallinera_chair_1k.gltf",
+    "aspect_error": 0.0349,
+    "gltf": "models/painted_wooden_chair_02/painted_wooden_chair_02_1k.gltf",
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     -0.0003,
-     -0.0363,
-     -0.0002
+     -0.0152,
+     0.0323,
+     -0.0
     ],
     "rotation_fix_deg": 0.0,
     "front_axis_confidence": "high",
@@ -7406,24 +7870,12 @@
       "id": "painted_wooden_chair_02",
       "aspect_error": 0.0349,
       "scale": [
-       0.7038,
-       0.6797,
-       0.6917
+       0.782,
+       0.7552,
+       0.7686
       ],
       "non_uniform": 1.0355,
-      "mean_scale": 0.6917,
-      "accepted": false
-     },
-     {
-      "id": "gallinera_chair",
-      "aspect_error": 0.039,
-      "scale": [
-       0.7748,
-       0.7452,
-       0.76
-      ],
-      "non_uniform": 1.0398,
-      "mean_scale": 0.76,
+      "mean_scale": 0.7686,
       "accepted": true
      }
     ],
@@ -7438,10 +7890,10 @@
     {
      "file": "building.json",
      "method": "ai",
-     "confidence": 0.9,
+     "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Chair placed in front of the desk for functional use."
+     "text": "Chair placed at desk for work or study."
     }
    ],
    "checks": {
@@ -7456,8 +7908,8 @@
     "against_wall": false,
     "proposed": {
      "center": [
-      2.0,
-      4.0
+      2.5,
+      4.2
      ],
      "rotation_deg": 0.0,
      "size": [
@@ -7467,15 +7919,13 @@
     },
     "repairs": [
      "snap",
-     "slide",
-     "shrink",
      "slide"
     ],
-    "agreed_by_other_pass": true
+    "agreed_by_other_pass": false
    }
   },
   {
-   "id": "f_L1_016",
+   "id": "f_L1_020",
    "level_id": "L1",
    "room_id": "r_L1_banyo",
    "type": "shower",
@@ -7484,7 +7934,7 @@
    "footprint": {
     "center": [
      7.479,
-     4.9
+     6.0
     ],
     "size": [
      0.9,
@@ -7527,7 +7977,7 @@
     {
      "file": "building.json",
      "method": "ai",
-     "confidence": 0.9,
+     "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
      "text": "Shower placed against the back wall for modern minimal style."
@@ -7555,14 +8005,100 @@
      ]
     },
     "repairs": [
-     "snap",
-     "slide"
+     "snap"
     ],
-    "agreed_by_other_pass": true
+    "agreed_by_other_pass": false
    }
   },
   {
-   "id": "f_L1_017",
+   "id": "f_L1_021",
+   "level_id": "L1",
+   "room_id": "r_L1_banyo",
+   "type": "washbasin",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     6.296,
+     4.8
+    ],
+    "size": [
+     0.6,
+     0.45
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": 0.85,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:washbasin",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     0.6,
+     0.45,
+     1.0
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type washbasin is parametric in the catalogue",
+    "cap": 1.15
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Washbasin placed against the left wall for functional access."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      6.0,
+      5.0
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      0.6,
+      0.45
+     ]
+    },
+    "repairs": [
+     "snap",
+     "slide"
+    ],
+    "agreed_by_other_pass": false
+   }
+  },
+  {
+   "id": "f_L1_022",
    "level_id": "L1",
    "room_id": "r_L1_banyo",
    "type": "toilet",
@@ -7570,16 +8106,16 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     6.421,
-     6.9
+     7.0,
+     4.621
     ],
     "size": [
      0.4,
      0.7
     ],
-    "rotation_deg": 90.0
+    "rotation_deg": 180.0
    },
-   "front_deg": 0.0,
+   "front_deg": 90.0,
    "height": 0.8,
    "asset": {
     "library": "parametric",
@@ -7617,7 +8153,7 @@
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Toilet placed against the left wall, not directly opposite the door."
+     "text": "Toilet placed against the right wall, not directly opposite the door."
     }
    ],
    "checks": {
@@ -7632,106 +8168,19 @@
     "against_wall": true,
     "proposed": {
      "center": [
-      6.0,
-      6.5
+      7.0,
+      4.5
      ],
-     "rotation_deg": 0.0,
+     "rotation_deg": 180.0,
      "size": [
       0.4,
       0.7
      ]
     },
     "repairs": [
-     "snap",
-     "slide"
-    ],
-    "agreed_by_other_pass": false
-   }
-  },
-  {
-   "id": "f_L1_018",
-   "level_id": "L1",
-   "room_id": "r_L1_banyo",
-   "type": "washbasin",
-   "type_raw": null,
-   "source": "added_by_ai",
-   "footprint": {
-    "center": [
-     6.5,
-     4.496
-    ],
-    "size": [
-     0.6,
-     0.45
-    ],
-    "rotation_deg": 180.0
-   },
-   "front_deg": 90.0,
-   "height": 0.85,
-   "asset": {
-    "library": "parametric",
-    "asset_id": "parametric:washbasin",
-    "licence": "n/a",
-    "license": "n/a",
-    "method": "parametric",
-    "fit_scale": [
-     1.0,
-     1.0,
-     1.0
-    ],
-    "bbox_m": [
-     0.6,
-     0.45,
-     1.0
-    ],
-    "aspect_error": null,
-    "front_axis": "-Y",
-    "up_axis": "+Z",
-    "origin_offset": [
-     0.0,
-     0.0,
-     0.0
-    ],
-    "candidates": [],
-    "fallback_reason": "type washbasin is parametric in the catalogue",
-    "cap": 1.15
-   },
-   "status": "verified",
-   "evidence": [
-    {
-     "file": "building.json",
-     "method": "ai",
-     "confidence": 0.9,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 1,
-     "text": "Washbasin placed against the left wall for functional access."
-    }
-   ],
-   "checks": {
-    "inside_room": true,
-    "no_overlap": true,
-    "clearance_ok": true,
-    "doors_free": true,
-    "windows_free": true,
-    "wall_contact": true
-   },
-   "layout": {
-    "against_wall": true,
-    "proposed": {
-     "center": [
-      6.5,
-      4.5
-     ],
-     "rotation_deg": 270.0,
-     "size": [
-      0.6,
-      0.45
-     ]
-    },
-    "repairs": [
      "snap"
     ],
-    "agreed_by_other_pass": true
+    "agreed_by_other_pass": false
    }
   }
  ],
@@ -7780,10 +8229,10 @@
    "level_id": "L-1",
    "room_id": "r_L-1_yatak_odasi",
    "center": [
-    7.121,
-    5.179
+    6.321,
+    0.7
    ],
-   "rotation_deg": 0.0,
+   "rotation_deg": 90.0,
    "size": [
     0.5,
     0.3
@@ -7801,10 +8250,10 @@
    "level_id": "L-1",
    "room_id": "r_L-1_yatak_odasi",
    "center": [
-    7.821,
-    5.179
+    6.321,
+    1.5
    ],
-   "rotation_deg": 0.0,
+   "rotation_deg": 90.0,
    "size": [
     0.5,
     0.3
@@ -7843,7 +8292,7 @@
    "level_id": "L-1",
    "room_id": "r_L-1_yatak_odasi",
    "center": [
-    6.3,
+    9.7,
     0.5
    ],
    "rotation_deg": 0.0,
@@ -8044,7 +8493,7 @@
    "level_id": "L1",
    "room_id": "r_L1_ebeveyn_yatak_odasi",
    "center": [
-    0.721,
+    0.671,
     3.879
    ],
    "rotation_deg": 0.0,
@@ -8065,7 +8514,7 @@
    "level_id": "L1",
    "room_id": "r_L1_ebeveyn_yatak_odasi",
    "center": [
-    1.621,
+    1.471,
     3.879
    ],
    "rotation_deg": 0.0,
@@ -8081,6 +8530,27 @@
   },
   {
    "id": "dec_L1_003",
+   "kind": "decor",
+   "type": "book_set",
+   "level_id": "L1",
+   "room_id": "r_L1_ebeveyn_yatak_odasi",
+   "center": [
+    0.9,
+    0.431
+   ],
+   "rotation_deg": 180.0,
+   "size": [
+    0.3,
+    0.22
+   ],
+   "asset": null,
+   "host_id": "f_L1_005",
+   "source": "added_by_ai",
+   "method": "rule",
+   "reason": "books on the back corner of the desk"
+  },
+  {
+   "id": "dec_L1_004",
    "kind": "decor",
    "type": "plant",
    "level_id": "L1",
@@ -8128,34 +8598,13 @@
    "reason": "potted plant in a free corner"
   },
   {
-   "id": "dec_L1_004",
-   "kind": "decor",
-   "type": "cushion",
-   "level_id": "L1",
-   "room_id": "r_L1_yatak_odasi",
-   "center": [
-    8.321,
-    0.521
-   ],
-   "rotation_deg": 180.0,
-   "size": [
-    0.5,
-    0.3
-   ],
-   "asset": null,
-   "host_id": "f_L1_007",
-   "source": "added_by_ai",
-   "method": "rule",
-   "reason": "cushion at the head of the bed"
-  },
-  {
    "id": "dec_L1_005",
    "kind": "decor",
    "type": "cushion",
    "level_id": "L1",
    "room_id": "r_L1_yatak_odasi",
    "center": [
-    7.421,
+    8.2,
     0.521
    ],
    "rotation_deg": 180.0,
@@ -8164,7 +8613,7 @@
     0.3
    ],
    "asset": null,
-   "host_id": "f_L1_007",
+   "host_id": "f_L1_009",
    "source": "added_by_ai",
    "method": "rule",
    "reason": "cushion at the head of the bed"
@@ -8172,12 +8621,54 @@
   {
    "id": "dec_L1_006",
    "kind": "decor",
+   "type": "cushion",
+   "level_id": "L1",
+   "room_id": "r_L1_yatak_odasi",
+   "center": [
+    7.4,
+    0.521
+   ],
+   "rotation_deg": 180.0,
+   "size": [
+    0.5,
+    0.3
+   ],
+   "asset": null,
+   "host_id": "f_L1_009",
+   "source": "added_by_ai",
+   "method": "rule",
+   "reason": "cushion at the head of the bed"
+  },
+  {
+   "id": "dec_L1_007",
+   "kind": "decor",
+   "type": "book_set",
+   "level_id": "L1",
+   "room_id": "r_L1_yatak_odasi",
+   "center": [
+    9.769,
+    2.029
+   ],
+   "rotation_deg": 270.0,
+   "size": [
+    0.3,
+    0.22
+   ],
+   "asset": null,
+   "host_id": "f_L1_013",
+   "source": "added_by_ai",
+   "method": "rule",
+   "reason": "books on the back corner of the desk"
+  },
+  {
+   "id": "dec_L1_008",
+   "kind": "decor",
    "type": "plant",
    "level_id": "L1",
    "room_id": "r_L1_yatak_odasi",
    "center": [
-    9.7,
-    0.5
+    6.3,
+    3.9
    ],
    "rotation_deg": 0.0,
    "size": [
@@ -8218,13 +8709,13 @@
    "reason": "potted plant in a free corner"
   },
   {
-   "id": "dec_L1_007",
+   "id": "dec_L1_009",
    "kind": "decor",
    "type": "cushion",
    "level_id": "L1",
    "room_id": "r_L1_cocuk_odasi",
    "center": [
-    1.0,
+    1.1,
     7.25
    ],
    "rotation_deg": 0.0,
@@ -8233,19 +8724,19 @@
     0.3
    ],
    "asset": null,
-   "host_id": "f_L1_011",
+   "host_id": "f_L1_014",
    "source": "added_by_ai",
    "method": "rule",
    "reason": "cushion at the head of the bed"
   },
   {
-   "id": "dec_L1_008",
+   "id": "dec_L1_010",
    "kind": "decor",
    "type": "book_set",
    "level_id": "L1",
    "room_id": "r_L1_cocuk_odasi",
    "center": [
-    1.8,
+    2.0,
     4.431
    ],
    "rotation_deg": 180.0,
@@ -8254,13 +8745,13 @@
     0.22
    ],
    "asset": null,
-   "host_id": "f_L1_014",
+   "host_id": "f_L1_018",
    "source": "added_by_ai",
    "method": "rule",
    "reason": "books on the back corner of the desk"
   },
   {
-   "id": "dec_L1_009",
+   "id": "dec_L1_011",
    "kind": "decor",
    "type": "plant",
    "level_id": "L1",

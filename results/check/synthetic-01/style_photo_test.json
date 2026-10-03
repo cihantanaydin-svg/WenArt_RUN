@@ -26,7 +26,7 @@
       },
       "error": null,
       "raw_text": "{\n  \"floor\": \"concrete_polished\",\n  \"walls\": \"plaster_charcoal\",\n  \"light\": \"overcast\",\n  \"family\": \"modern minimal\"\n}",
-      "latency_s": 0.723
+      "latency_s": 0.771
      }
     ],
     "agreed": {},
@@ -51,7 +51,7 @@
     "single_pass": true
    },
    "error": null,
-   "seconds": 1.43
+   "seconds": 1.03
   },
   {
    "file": "../../../tests/fixtures/style_photo_synthetic-03_salon.jpg",
@@ -77,7 +77,7 @@
       },
       "error": null,
       "raw_text": "{\n    \"floor\": \"concrete_polished\",\n    \"walls\": \"plaster_charcoal\",\n    \"light\": \"cool daylight\",\n    \"family\": \"modern minimal\"\n}",
-      "latency_s": 0.931
+      "latency_s": 0.955
      }
     ],
     "agreed": {},
@@ -102,7 +102,7 @@
     "single_pass": true
    },
    "error": null,
-   "seconds": 1.61
+   "seconds": 1.25
   }
  ],
  "incomplete": false

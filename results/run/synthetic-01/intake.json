@@ -1,0 +1,18 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "synthetic-01",
+ "stage": "intake",
+ "rc": null,
+ "status": "skipped",
+ "seconds": 0.0,
+ "fingerprint": null,
+ "inputs": {},
+ "outputs": [],
+ "started_utc": "2026-10-03T01:51:57Z",
+ "git_commit": "76bd17dd1e154762b62fd2306df2255aa3e87604",
+ "log": "logs/intake.log",
+ "note": "private only",
+ "run_id": "20261003-014522-full-20261003T015157Z",
+ "steps": []
+}

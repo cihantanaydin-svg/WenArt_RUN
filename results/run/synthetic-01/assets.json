@@ -1,0 +1,24 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "synthetic-01",
+ "stage": "assets",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 4.58,
+ "fingerprint": null,
+ "inputs": {},
+ "outputs": [],
+ "started_utc": "2026-10-03T01:59:53Z",
+ "git_commit": "76bd17dd1e154762b62fd2306df2255aa3e87604",
+ "log": "logs/assets.log",
+ "note": null,
+ "run_id": "20261003-014522-full-20261003T015157Z",
+ "steps": [
+  {
+   "name": "assets",
+   "rc": 0,
+   "seconds": 4.58
+  }
+ ]
+}

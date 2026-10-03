@@ -1,0 +1,48 @@
+{
+  "source_text": "Warm Mediterranean, terracotta floor, cream plaster walls, rattan and linen, golden evening light",
+  "floor": {
+    "material": "terracotta",
+    "asset": "patio_tiles"
+  },
+  "walls": {
+    "material": "plaster_cream",
+    "asset": "beige_wall_001"
+  },
+  "ceiling": {
+    "material": "plaster_white"
+  },
+  "wet_floor": {
+    "material": "terracotta",
+    "asset": "patio_tiles"
+  },
+  "wet_walls": {
+    "material": "tiles_light"
+  },
+  "trim": {
+    "material": "painted_wood_white"
+  },
+  "door": {
+    "material": "painted_wood_white"
+  },
+  "window_frame": {
+    "material": "painted_metal_white"
+  },
+  "lighting": {
+    "hdri": "venice_sunset",
+    "sun_elevation_deg": 12,
+    "sun_azimuth_deg": 255,
+    "sun_strength": 2.0,
+    "colour_temperature_k": 3200,
+    "mood": "golden evening"
+  },
+  "matched_terms": [
+    "Warm Mediterranean",
+    "terracotta floor",
+    "cream plaster walls",
+    "golden evening light"
+  ],
+  "unmatched_terms": [
+    "rattan and linen"
+  ],
+  "warnings": []
+}

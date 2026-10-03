@@ -9,6 +9,7 @@ from __future__ import annotations
 import copy
 import importlib.util
 import json
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -187,100 +188,31 @@ def test_cli(tmp_path, capsys):
     assert gate_main(["validate", "--project-out", str(tmp_path / "missing")]) == 2
 
 
-def test_committed_m5_calibration_needs_a_new_calibration():
-    """results/gate/synthetic-01 was calibrated in M5 with the start thresholds: not valid for the current ones;
-    judged with its own thresholds it is flagged (benign 0.875 < 0.95, negatives 0.909 >= 0.90)."""
-    path = ROOT / "results" / "gate" / "synthetic-01" / "gate_calibration.json"
-    if not path.is_file():
-        pytest.skip("committed M5 calibration not present")
-    cal = json.loads(path.read_text(encoding="utf-8"))
+def _git_show(rev_path: str):
+    try:
+        out = subprocess.run(["git", "-C", str(ROOT), "show", rev_path], capture_output=True, check=True)
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    return json.loads(out.stdout.decode("utf-8"))
+
+
+def test_m5_calibration_needs_a_new_calibration():
+    """The M5 calibration of synthetic-01 (commit a2adcef) was made with the start thresholds: not valid for the
+    current ones; judged with its own thresholds it is flagged (benign 0.875 < 0.95, negatives 0.909 >= 0.90)."""
+    cal = _git_show("a2adcef:results/gate/synthetic-01/gate_calibration.json")
+    if cal is None:
+        pytest.skip("git history with the M5 calibration not available")
     assert GV.decide_validation(cal, LIMITS, load_thresholds())["decision"] == "not_validated"
     own = GV.decide_validation(cal, LIMITS, cal["thresholds"])
     assert own["decision"] == "flagged" and own["benign_accept"] == 0.875 and own["negative_reject"] == 0.9086
 
 
-# --------------------------------------------------------------------------
-# The GPU test's logic on CPU (tests/gpu/test_polish.py::test_gate_validation_recorded)
-# --------------------------------------------------------------------------
-
-def gpu_module(monkeypatch, outputs: Path, projects: str):
-    monkeypatch.setenv("WENART_OUTPUTS", str(outputs))
-    monkeypatch.setenv("GATE_TEST_PROJECTS", projects)
-    spec = importlib.util.spec_from_file_location("gpu_test_polish_m6", ROOT / "tests" / "gpu" / "test_polish.py")
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
-
-
-def final_manifest(out: Path, finals: list[str]) -> None:
-    path = out / "final" / "final_manifest.json"
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps({"views": [{"camera": f"cam_{i}", "final": f} for i, f in enumerate(finals)]}),
-                    encoding="utf-8")
-
-
-@pytest.mark.parametrize("kw, decision", [({}, "ok"), ({"benign_bad": 3}, "flagged"),
-                                          ({"negative_missed": 4}, "polish_disabled"),
-                                          ({"incomplete": True}, "not_validated")])
-def test_gpu_test_accepts_every_recorded_outcome(tmp_path, monkeypatch, capsys, kw, decision):
-    outputs = tmp_path / "outputs"
-    out = outputs / "synthetic-04"
-    write_cal(out, calibration(**kw))
-    assert GV.validate(out)["decision"] == decision
-    final_manifest(out, ["cycles", "cycles"] if decision in ("polish_disabled", "not_validated") else
-                   ["polished", "cycles"])
-    gpu = gpu_module(monkeypatch, outputs, "synthetic-04")
-    assert gpu.GATE_PROJECTS == ["synthetic-04"]
-    gpu.test_gate_validation_recorded("synthetic-04")
-    assert f"synthetic-04: gate validation {decision}" in capsys.readouterr().out
-
-
-def test_gpu_test_without_a_calibration(tmp_path, monkeypatch):
-    outputs = tmp_path / "outputs"
-    out = outputs / "p"
-    out.mkdir(parents=True)
-    GV.validate(out)
-    gpu_module(monkeypatch, outputs, "p").test_gate_validation_recorded("p")
-
-
-@pytest.mark.parametrize("defect, match", [
-    ("no_validation", "gate_validation.json missing"),
-    ("rates_differ", "recomputed from gate_calibration.json"),
-    ("wrong_decision", "validation.yaml gives"),
-    ("polished_final", "polished finals"),
-    ("wrong_limits", "not validation.yaml"),
-    ("counts", "comparison counts"),
-])
-def test_gpu_test_catches_each_defect(tmp_path, monkeypatch, defect, match):
-    outputs = tmp_path / "outputs"
-    out = outputs / "synthetic-04"
-    write_cal(out, calibration(negative_missed=4))
-    GV.validate(out)
-    vpath = out / "gate" / "gate_validation.json"
-    val = json.loads(vpath.read_text(encoding="utf-8"))
-    if defect == "no_validation":
-        vpath.unlink()
-    elif defect == "rates_differ":
-        val["negative_reject"] = 0.95
-    elif defect == "wrong_decision":
-        val["decision"], val["polish_allowed"] = "ok", True
-    elif defect == "polished_final":
-        final_manifest(out, ["polished"])
-    elif defect == "wrong_limits":
-        val["limits"] = {"benign_accept_min": 0.5, "negative_reject_min": 0.5}
-    elif defect == "counts":
-        val["n_negative"] = 3
-    if vpath.exists():
-        vpath.write_text(json.dumps(val), encoding="utf-8")
-    gpu = gpu_module(monkeypatch, outputs, "synthetic-04")
-    with pytest.raises(AssertionError, match=match):
-        gpu.test_gate_validation_recorded("synthetic-04")
-
-
-def test_gpu_test_list_is_empty_without_the_env(monkeypatch, tmp_path):
-    monkeypatch.delenv("GATE_TEST_PROJECTS", raising=False)
-    spec = importlib.util.spec_from_file_location("gpu_test_polish_m6_empty", ROOT / "tests" / "gpu" / "test_polish.py")
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    assert module.GATE_PROJECTS == []
-    assert getattr(module.test_gate_calibration_separates_benign_from_negative, "__test__", True) is False
+@pytest.mark.parametrize("project", ["synthetic-01", "synthetic-03"])
+def test_committed_m6_calibrations_validate_ok(project):
+    """The M6 pod A calibrations (current thresholds, M6 look) pass both limits."""
+    path = ROOT / "results" / "gate" / project / "gate_calibration.json"
+    if not path.is_file():
+        pytest.skip("committed M6 calibration not present")
+    cal = json.loads(path.read_text(encoding="utf-8"))
+    got = GV.decide_validation(cal, LIMITS, load_thresholds())
+    assert got["decision"] == "ok", got

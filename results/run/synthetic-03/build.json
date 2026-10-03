@@ -1,0 +1,27 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "synthetic-03",
+ "stage": "build",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 52.13,
+ "fingerprint": null,
+ "inputs": {},
+ "outputs": [
+  "scene/scene.blend",
+  "scene/scene_manifest.json"
+ ],
+ "started_utc": "2026-10-03T02:07:18Z",
+ "git_commit": "76bd17dd1e154762b62fd2306df2255aa3e87604",
+ "log": "logs/build.log",
+ "note": null,
+ "run_id": "20261003-014522-full-20261003T015157Z",
+ "steps": [
+  {
+   "name": "build",
+   "rc": 0,
+   "seconds": 52.13
+  }
+ ]
+}

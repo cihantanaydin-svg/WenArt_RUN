@@ -3,114 +3,112 @@
  "dir_relative_to": "project_out",
  "controls": [
   {
-   "id": "f_L0_009",
-   "index": 20,
+   "id": "f_L0_001",
+   "index": 12,
    "kind": "furniture",
-   "type": "wardrobe",
-   "camera": "cam_r_L0_yatak_odasi_2",
-   "room_id": "r_L0_yatak_odasi",
-   "area_frac": 0.23391,
+   "type": "sofa",
+   "camera": "cam_r_L0_salon_1",
+   "room_id": "r_L0_salon",
+   "area_frac": 0.07943,
    "source": "from_documents",
    "plug": false,
-   "dir": "controls/hide_f_L0_009"
+   "dir": "controls/hide_f_L0_001"
   },
   {
-   "id": "f_L0_003",
-   "index": 14,
+   "id": "f_L1_013",
+   "index": 56,
    "kind": "furniture",
-   "type": "tv_unit",
-   "camera": "cam_r_L0_salon_2",
-   "room_id": "r_L0_salon",
-   "area_frac": 0.04806,
-   "source": "from_documents",
+   "type": "toilet",
+   "camera": "cam_r_L1_banyo_1",
+   "room_id": "r_L1_banyo",
+   "area_frac": 0.07493,
+   "source": "added_by_ai",
    "plug": false,
-   "dir": "controls/hide_f_L0_003"
+   "dir": "controls/hide_f_L1_013"
   },
   {
    "id": "f_L0_018",
    "index": 29,
    "kind": "furniture",
    "type": "fridge",
-   "camera": "cam_r_L0_mutfak_2",
+   "camera": "cam_r_L0_mutfak_1",
    "room_id": "r_L0_mutfak",
-   "area_frac": 0.04265,
+   "area_frac": 0.0584,
    "source": "added_by_ai",
    "plug": false,
    "dir": "controls/hide_f_L0_018"
   },
   {
-   "id": "win_L1_001",
-   "index": 36,
+   "id": "win_L1_003",
+   "index": 40,
    "kind": "window",
    "type": "window",
    "camera": "cam_r_L1_ebeveyn_yatak_odasi_1",
    "room_id": "r_L1_ebeveyn_yatak_odasi",
-   "area_frac": 0.16329,
+   "area_frac": 0.08855,
    "source": "from_documents",
    "plug": true,
-   "dir": "controls/hide_win_L1_001"
-  },
-  {
-   "id": "win_L0_003",
-   "index": 8,
-   "kind": "window",
-   "type": "window",
-   "camera": "cam_r_L0_yatak_odasi_1",
-   "room_id": "r_L0_yatak_odasi",
-   "area_frac": 0.15545,
-   "source": "from_documents",
-   "plug": true,
-   "dir": "controls/hide_win_L0_003"
+   "dir": "controls/hide_win_L1_003"
   },
   {
    "id": "win_L0_002",
    "index": 7,
    "kind": "window",
    "type": "window",
-   "camera": "cam_r_L0_salon_1",
+   "camera": "cam_r_L0_salon_2",
    "room_id": "r_L0_salon",
-   "area_frac": 0.05698,
+   "area_frac": 0.05631,
    "source": "from_documents",
    "plug": true,
    "dir": "controls/hide_win_L0_002"
   },
   {
-   "id": "d_L0_004",
-   "index": 4,
+   "id": "d_L0_002",
+   "index": 2,
    "kind": "door",
    "type": "door",
-   "camera": "cam_r_L0_hol_2",
-   "room_id": "r_L0_hol",
-   "area_frac": 0.17683,
+   "camera": "cam_r_L0_salon_2",
+   "room_id": "r_L0_salon",
+   "area_frac": 0.10122,
    "source": "from_documents",
    "plug": false,
-   "dir": "controls/hide_d_L0_004"
+   "dir": "controls/hide_d_L0_002"
   },
   {
-   "id": "d_L1_004",
+   "id": "d_L1_002",
    "index": 35,
    "kind": "door",
    "type": "door",
-   "camera": "cam_r_L1_hol_2",
-   "room_id": "r_L1_hol",
-   "area_frac": 0.03168,
+   "camera": "cam_r_L1_cocuk_odasi_2",
+   "room_id": "r_L1_cocuk_odasi",
+   "area_frac": 0.10004,
    "source": "from_documents",
    "plug": false,
-   "dir": "controls/hide_d_L1_004"
+   "dir": "controls/hide_d_L1_002"
   }
  ],
  "swaps": [
   {
-   "id": "f_L0_004",
-   "index": 15,
-   "type": "armchair",
-   "camera": "cam_r_L0_salon_3",
+   "id": "f_L0_001",
+   "index": 12,
+   "type": "sofa",
+   "camera": "cam_r_L0_salon_1",
    "room_id": "r_L0_salon",
-   "area_frac": 0.04182,
+   "area_frac": 0.07943,
    "source": "from_documents",
-   "swap_to": "desk"
+   "swap_to": "bed_double"
+  },
+  {
+   "id": "f_L1_005",
+   "index": 48,
+   "type": "desk",
+   "camera": "cam_r_L1_ebeveyn_yatak_odasi_2",
+   "room_id": "r_L1_ebeveyn_yatak_odasi",
+   "area_frac": 0.04218,
+   "source": "added_by_ai",
+   "swap_to": "armchair"
   }
  ],
  "project": "synthetic-01",
- "hide_sets": "cam_r_L0_yatak_odasi_2:f_L0_009;cam_r_L0_salon_2:f_L0_003;cam_r_L0_mutfak_2:f_L0_018;cam_r_L1_ebeveyn_yatak_odasi_1:win_L1_001+plug;cam_r_L0_yatak_odasi_1:win_L0_003+plug;cam_r_L0_salon_1:win_L0_002+plug;cam_r_L0_hol_2:d_L0_004;cam_r_L1_hol_2:d_L1_004"
+ "hide_sets": "cam_r_L0_salon_1:f_L0_001;cam_r_L1_banyo_1:f_L1_013;cam_r_L0_mutfak_1:f_L0_018;cam_r_L1_ebeveyn_yatak_odasi_1:win_L1_003+plug;cam_r_L0_salon_2:win_L0_002+plug;cam_r_L0_salon_2:d_L0_002;cam_r_L1_cocuk_odasi_2:d_L1_002"
 }

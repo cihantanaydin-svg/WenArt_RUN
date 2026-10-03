@@ -1,7 +1,7 @@
 {
  "schema_version": "0.1",
  "scene": "../../scene/scene.blend",
- "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
+ "scene_sha256": "86c0254a7e153c8127339c94955c733ad9ce8301a3610c951d3aa88bb13268c1",
  "device": "OPTIX",
  "device_requested": "auto",
  "blender_version": "5.2.2 LTS",
@@ -11,7 +11,7 @@
   1080
  ],
  "denoiser": "OPENIMAGEDENOISE",
- "render_code_version": "m5.2",
+ "render_code_version": "m6.1",
  "view_transform": "AgX",
  "look": "None",
  "exposure_mode": "from",
@@ -26,6 +26,11 @@
   "d_L-1_002"
  ],
  "plugged": [],
+ "alt_look": null,
+ "max_bounces": null,
+ "bounces": null,
+ "ev_offset": 0.0,
+ "preview_quality": null,
  "pass_index": {
   "d_L-1_001": 1,
   "d_L-1_002": 2,
@@ -115,85 +120,85 @@
   "f_L1_016": 86,
   "f_L1_017": 87,
   "f_L1_018": 88,
-  "dec_L1_003": 89,
-  "dec_L1_006": 90,
-  "dec_L1_009": 91
+  "f_L1_019": 89,
+  "f_L1_020": 90,
+  "f_L1_021": 91,
+  "f_L1_022": 92,
+  "dec_L1_004": 93,
+  "dec_L1_008": 94,
+  "dec_L1_011": 95
  },
  "renders": [
   {
-   "camera": "cam_r_L-1_kiler_2_3",
+   "camera": "cam_r_L-1_kiler_2_2",
    "room_id": "r_L-1_kiler_2",
    "level_id": "L-1",
-   "png": "cam_r_L-1_kiler_2_3.png",
-   "exr": "cam_r_L-1_kiler_2_3_passes.exr",
-   "preview": "cam_r_L-1_kiler_2_3_preview.jpg",
-   "depth_png": "cam_r_L-1_kiler_2_3_depth.png",
-   "index_png": "cam_r_L-1_kiler_2_3_index.png",
+   "png": "cam_r_L-1_kiler_2_2.png",
+   "exr": "cam_r_L-1_kiler_2_2_passes.exr",
+   "preview": "cam_r_L-1_kiler_2_2_preview.jpg",
+   "depth_png": "cam_r_L-1_kiler_2_2_depth.png",
+   "index_png": "cam_r_L-1_kiler_2_2_index.png",
    "files": {
-    "index": "cam_r_L-1_kiler_2_3_index.png",
-    "depth_mm": "cam_r_L-1_kiler_2_3_depth_mm.png",
-    "normal": "cam_r_L-1_kiler_2_3_normal.png",
-    "depth": "cam_r_L-1_kiler_2_3_depth.png"
+    "index": "cam_r_L-1_kiler_2_2_index.png",
+    "depth_mm": "cam_r_L-1_kiler_2_2_depth_mm.png",
+    "normal": "cam_r_L-1_kiler_2_2_normal.png",
+    "depth": "cam_r_L-1_kiler_2_2_depth.png"
    },
-   "preview_bytes": 108807,
-   "seconds": 2.41,
+   "preview_bytes": 109003,
+   "seconds": 3.95,
    "samples": 128,
    "resolution": [
     1920,
     1080
    ],
    "depth": {
-    "min": 2.2434990406036377,
-    "max": 5.342031478881836,
-    "mean": 3.379856824874878,
+    "min": 2.1650190353393555,
+    "max": 5.2605695724487305,
+    "mean": 3.266261100769043,
     "coverage": 1.0
    },
-   "index_values": [
-    4
-   ],
-   "index_stats": {
-    "4": {
-     "pixels": 45066,
-     "box": [
-      1076,
-      315,
-      1166,
-      837
-     ]
-    }
-   },
+   "index_values": [],
+   "index_stats": {},
    "skipped": false,
-   "scene_sha256": "ea0dd775011c81207e2b02ebcb8c9c7e35c5c0ae66ae4a1a3449bd57c0dd7bab",
-   "render_key": "ae5de198dc9cf038",
+   "scene_sha256": "86c0254a7e153c8127339c94955c733ad9ce8301a3610c951d3aa88bb13268c1",
+   "render_key": "fa4a24f1b5fbc1ea",
    "exposure": {
     "mode": "from",
-    "ev": 6.666667,
+    "ev": 0.333333,
     "ev_raw": null,
     "at_limit": false,
     "target": null,
     "limits": null,
     "incident_p50": null,
     "whitepoint": [
-     0.929643,
-     1.014836,
-     1.060212
+     1.041943,
+     0.987281,
+     1.002486
     ],
     "wb_mode": "from",
-    "wb_temperature": 7047.7,
-    "wb_tint": 16.03,
+    "wb_temperature": 6362.9,
+    "wb_tint": 3.16,
     "residual": null,
     "window_clip_frac": null,
     "meter_seconds": 0.0,
     "meter": null,
     "mood": "cool daylight",
     "source": "../../renders/render_manifest.json",
-    "notes": []
+    "notes": [],
+    "ev_offset": 0.0
    },
    "hidden": [
     "d_L-1_002"
    ],
-   "plugged": []
+   "plugged": [],
+   "window_pull": null,
+   "alt_preview": null,
+   "alt_preview_bytes": null
   }
  ],
+ "dropped_stale": [],
+ "incomplete": false,
+ "not_rendered": [],
+ "deadline": 1790998008.0,
  "warnings": []
 }

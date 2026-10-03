@@ -26,6 +26,7 @@ synthetic-01 / -03 buildings equal their committed scene manifests.
 """
 import json
 import math
+import subprocess
 import textwrap
 import time
 from pathlib import Path
@@ -96,9 +97,16 @@ def test_library_pieces_keep_their_catalogue_box():
 
 
 @pytest.mark.parametrize("project", ["synthetic-01", "synthetic-03"])
-def test_m5_cameras_of_the_committed_buildings_are_unchanged(project):
-    building = json.loads((ROOT / "results" / "furniture" / project / "building_final.json").read_text("utf-8"))
-    scene = json.loads((ROOT / "results" / "renders" / project / "scene_manifest.json").read_text("utf-8"))
+def test_m5_cameras_of_the_m5_buildings_are_unchanged(project):
+    """The M5 building and scene manifest (commit a2adcef; results/ now holds the M6 runs)."""
+    def show(path):
+        try:
+            out = subprocess.run(["git", "-C", str(ROOT), "show", f"a2adcef:{path}"], capture_output=True, check=True)
+        except (OSError, subprocess.CalledProcessError):
+            pytest.skip("git history with the M5 results not available")
+        return json.loads(out.stdout.decode("utf-8"))
+    building = show(f"results/furniture/{project}/building_final.json")
+    scene = show(f"results/renders/{project}/scene_manifest.json")
     want = {c["name"]: c for c in scene["cameras"]}
     got = {p["name"]: p for lv in building["levels"] for p in C.plan_cameras(building, lv["id"], policy="m5")}
     assert set(got) == set(want)

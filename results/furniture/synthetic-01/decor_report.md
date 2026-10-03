@@ -9,7 +9,7 @@
 | Hol (r_L0_hol) | 0 | 0 | - |  |
 | Banyo (r_L0_banyo) | 0 | 0 | - |  |
 | Mutfak (r_L0_mutfak) | 0 | 0 | - |  |
-| Ebeveyn Yatak Odası (r_L1_ebeveyn_yatak_odasi) | 2 | 1 | 0.5, 0.5 |  |
+| Ebeveyn Yatak Odası (r_L1_ebeveyn_yatak_odasi) | 2 | 1 | 4.0, 0.5 |  |
 | Hol (r_L1_hol) | 0 | 0 | - |  |
 | Yatak Odası (r_L1_yatak_odasi) | 2 | 0 | 6.3, 0.5 |  |
 | Banyo (r_L1_banyo) | 0 | 0 | - |  |

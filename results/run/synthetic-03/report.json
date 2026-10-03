@@ -1,0 +1,27 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "synthetic-03",
+ "stage": "report",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 13.97,
+ "fingerprint": null,
+ "inputs": {},
+ "outputs": [
+  "final/final_report.md",
+  "final/final_manifest.json"
+ ],
+ "started_utc": "2026-10-03T03:03:00Z",
+ "git_commit": "76bd17dd1e154762b62fd2306df2255aa3e87604",
+ "log": "logs/report.log",
+ "note": null,
+ "run_id": "20261003-014522-full-20261003T015157Z",
+ "steps": [
+  {
+   "name": "report",
+   "rc": 0,
+   "seconds": 13.97
+  }
+ ]
+}

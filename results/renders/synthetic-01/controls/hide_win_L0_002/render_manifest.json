@@ -1,7 +1,7 @@
 {
  "schema_version": "0.1",
  "scene": "../../scene/scene.blend",
- "scene_sha256": "6215f6ad127b8a82c5b526cdcf8916942b83648f360d4fab8ed699b7b0e8354f",
+ "scene_sha256": "0853f59a2a1f0f0fb6b43dd4d202caa781b182037f21be2f83d4bc78a18e96ee",
  "device": "OPTIX",
  "device_requested": "auto",
  "blender_version": "5.2.2 LTS",
@@ -11,7 +11,7 @@
   1080
  ],
  "denoiser": "OPENIMAGEDENOISE",
- "render_code_version": "m5.2",
+ "render_code_version": "m6.1",
  "view_transform": "AgX",
  "look": "None",
  "exposure_mode": "from",
@@ -28,6 +28,11 @@
  "plugged": [
   "win_L0_002"
  ],
+ "alt_look": null,
+ "max_bounces": null,
+ "bounces": null,
+ "ev_offset": 0.0,
+ "preview_quality": null,
  "pass_index": {
   "d_L0_001": 1,
   "d_L0_002": 2,
@@ -59,158 +64,167 @@
   "f_L0_017": 28,
   "f_L0_018": 29,
   "f_L0_019": 30,
-  "dec_L0_006": 31,
-  "d_L1_001": 32,
-  "d_L1_002": 33,
-  "d_L1_003": 34,
-  "d_L1_004": 35,
-  "win_L1_001": 36,
-  "win_L1_002": 37,
-  "win_L1_003": 38,
-  "win_L1_004": 39,
-  "win_L1_005": 40,
-  "win_L1_006": 41,
-  "f_L1_001": 42,
-  "f_L1_002": 43,
-  "f_L1_003": 44,
-  "f_L1_004": 45,
-  "f_L1_005": 46,
-  "f_L1_006": 47,
-  "f_L1_007": 48,
-  "f_L1_008": 49,
-  "f_L1_009": 50,
-  "f_L1_010": 51,
-  "f_L1_011": 52,
-  "f_L1_012": 53,
-  "f_L1_013": 54,
-  "f_L1_014": 55,
-  "f_L1_015": 56,
-  "f_L1_016": 57,
-  "f_L1_017": 58,
-  "f_L1_018": 59,
-  "f_L1_019": 60,
-  "f_L1_020": 61,
-  "dec_L1_004": 62,
-  "dec_L1_007": 63,
-  "dec_L1_010": 64
+  "f_L0_020": 31,
+  "f_L0_021": 32,
+  "dec_L0_006": 33,
+  "d_L1_001": 34,
+  "d_L1_002": 35,
+  "d_L1_003": 36,
+  "d_L1_004": 37,
+  "win_L1_001": 38,
+  "win_L1_002": 39,
+  "win_L1_003": 40,
+  "win_L1_004": 41,
+  "win_L1_005": 42,
+  "win_L1_006": 43,
+  "f_L1_001": 44,
+  "f_L1_002": 45,
+  "f_L1_003": 46,
+  "f_L1_004": 47,
+  "f_L1_005": 48,
+  "f_L1_006": 49,
+  "f_L1_007": 50,
+  "f_L1_008": 51,
+  "f_L1_009": 52,
+  "f_L1_010": 53,
+  "f_L1_011": 54,
+  "f_L1_012": 55,
+  "f_L1_013": 56,
+  "f_L1_014": 57,
+  "f_L1_015": 58,
+  "f_L1_016": 59,
+  "f_L1_017": 60,
+  "f_L1_018": 61,
+  "f_L1_019": 62,
+  "dec_L1_004": 63,
+  "dec_L1_007": 64,
+  "dec_L1_010": 65
  },
  "renders": [
   {
-   "camera": "cam_r_L0_salon_1",
+   "camera": "cam_r_L0_salon_2",
    "room_id": "r_L0_salon",
    "level_id": "L0",
-   "png": "cam_r_L0_salon_1.png",
-   "exr": "cam_r_L0_salon_1_passes.exr",
-   "preview": "cam_r_L0_salon_1_preview.jpg",
-   "depth_png": "cam_r_L0_salon_1_depth.png",
-   "index_png": "cam_r_L0_salon_1_index.png",
+   "png": "cam_r_L0_salon_2.png",
+   "exr": "cam_r_L0_salon_2_passes.exr",
+   "preview": "cam_r_L0_salon_2_preview.jpg",
+   "depth_png": "cam_r_L0_salon_2_depth.png",
+   "index_png": "cam_r_L0_salon_2_index.png",
    "files": {
-    "index": "cam_r_L0_salon_1_index.png",
-    "depth_mm": "cam_r_L0_salon_1_depth_mm.png",
-    "normal": "cam_r_L0_salon_1_normal.png",
-    "depth": "cam_r_L0_salon_1_depth.png"
+    "index": "cam_r_L0_salon_2_index.png",
+    "depth_mm": "cam_r_L0_salon_2_depth_mm.png",
+    "normal": "cam_r_L0_salon_2_normal.png",
+    "depth": "cam_r_L0_salon_2_depth.png"
    },
-   "preview_bytes": 111494,
-   "seconds": 3.95,
+   "preview_bytes": 163914,
+   "seconds": 5.4,
    "samples": 128,
    "resolution": [
     1920,
     1080
    ],
    "depth": {
-    "min": 0.7735514640808105,
-    "max": 5.8937907218933105,
-    "mean": 4.105780124664307,
+    "min": 0.8911476135253906,
+    "max": 5.712615966796875,
+    "mean": 3.6016347408294678,
     "coverage": 1.0
    },
    "index_values": [
-    6,
-    9,
+    2,
+    12,
     13,
     14,
     15
    ],
    "index_stats": {
-    "6": {
-     "pixels": 113652,
+    "2": {
+     "pixels": 209892,
      "box": [
-      1042,
-      286,
-      1386,
-      639
+      133,
+      25,
+      492,
+      645
      ]
     },
-    "9": {
-     "pixels": 4775,
+    "12": {
+     "pixels": 271550,
      "box": [
-      1904,
-      299,
-      1920,
-      666
+      0,
+      626,
+      761,
+      1080
      ]
     },
     "13": {
-     "pixels": 7958,
+     "pixels": 149135,
      "box": [
-      1664,
-      1026,
-      1920,
+      858,
+      757,
+      1616,
       1080
      ]
     },
     "14": {
-     "pixels": 76239,
+     "pixels": 40934,
      "box": [
-      758,
-      738,
-      1211,
-      951
+      1706,
+      576,
+      1920,
+      805
      ]
     },
     "15": {
-     "pixels": 121300,
+     "pixels": 129103,
      "box": [
-      91,
-      762,
-      888,
-      1080
+      615,
+      368,
+      1013,
+      898
      ]
     }
    },
    "skipped": false,
-   "scene_sha256": "6215f6ad127b8a82c5b526cdcf8916942b83648f360d4fab8ed699b7b0e8354f",
-   "render_key": "89eef5debfa41ffe",
+   "scene_sha256": "0853f59a2a1f0f0fb6b43dd4d202caa781b182037f21be2f83d4bc78a18e96ee",
+   "render_key": "4ce4801aaa921aea",
    "exposure": {
     "mode": "from",
-    "ev": 3.333333,
+    "ev": 3.5,
     "ev_raw": null,
     "at_limit": false,
     "target": null,
     "limits": null,
     "incident_p50": null,
     "whitepoint": [
-     1.176957,
-     0.963343,
-     0.842048
+     1.163179,
+     0.967559,
+     0.840854
     ],
     "wb_mode": "from",
-    "wb_temperature": 5333.7,
-    "wb_tint": -2.51,
+    "wb_temperature": 5372.8,
+    "wb_tint": -0.38,
     "residual": null,
-    "window_clip_frac": 0.0183,
+    "window_clip_frac": null,
     "meter_seconds": 0.0,
     "meter": null,
     "mood": "warm daylight",
     "source": "../../renders/render_manifest.json",
-    "notes": []
+    "notes": [],
+    "ev_offset": 0.0
    },
    "hidden": [
     "win_L0_002"
    ],
    "plugged": [
     "win_L0_002"
-   ]
+   ],
+   "window_pull": null,
+   "alt_preview": null,
+   "alt_preview_bytes": null
   }
  ],
+ "dropped_stale": [],
+ "incomplete": false,
+ "not_rendered": [],
+ "deadline": 1790998008.0,
  "warnings": []
 }
