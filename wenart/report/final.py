@@ -46,30 +46,46 @@ evidence.
 Milestone 6 (docs/milestone6.md §7.4):
 
 - ``status`` in ``final_manifest.json``: ``ok`` (a report of rendered views),
-  ``not_rendered`` (no render manifest; exit 1) or ``needs_review``;
+  ``not_rendered`` (no render manifest; ``status_note: "no renders in this
+  run"``, the report names this run's ``incomplete``/``failed`` stages; exit 1)
+  or ``needs_review``;
 - a ``needs_review`` project (``intake_manifest.json``, ``building.json`` or a
-  stage record ``run/<stage>.json`` says so; stale renders are ignored) gets
-  the needs-review report: status, every reason, the page table of
+  stage record ``run/<stage>.json`` of this run says so; stale renders are
+  ignored) gets the needs-review report: status, every reason, the page table of
   ``building.json`` (or the documents table of ``report.md``), the debug
   images of the pipeline as JPEG <= 300 KB under ``final/debug/``, and the
   stage table; exit 0;
 - the gate validation (``gate/gate_validation.json``) with its decision, rates,
   limits and effect (a validation older than the calibration it names counts as
-  ``not_validated``);
+  ``not_validated``); with ``polish_disabled`` or ``not_validated`` a
+  ``polish/polish_manifest.json`` on the volume is from an earlier run and is
+  not used (``stages.polish: not_run``);
+- the views are the render manifest's: a camera that only the polish manifest
+  has (an earlier run's camera) is a warning, never a view;
 - per view the camera policy and score, the window pull and the EV; views per
   room as rendered (1-3, rooms without a view listed); a stage table from
   ``run/*.json`` (status, seconds, note; the report's own record is written
-  after the report);
+  after the report). This run is the ``run_id`` of the newest record; records
+  of other runs (stages this run did not reach) are listed apart as
+  ``earlier run <run_id>`` (``earlier_run_stages``) and never decide the status;
 - a private project (``--private``, an ``intake_manifest.json`` in the project
   output, a folder under ``/workspace/outputs-private`` or an alias name) never
   gets plan crops or debug images copied into ``final/``: they are named (paths
   relative to the project output) and stay on the volume; the intake is
-  summarised by counts only;
+  summarised by counts and by its fixed note texts only (``notes_by_kind``: a
+  misnamed or nested brief, a DWG; never a file name), and a brief that was not
+  read is an advisory flag;
+- the brief's own warnings (``wenart.brief.load_brief``: no ``brief.yaml``, a
+  value of the wrong type) are report warnings (a private project's brief values
+  are left out of them);
+- ``final_manifest.json`` is written last, so a manifest newer than the report
+  call means the report finished (exit 1 is then ``not_rendered``, not a crash);
 - every repo-relative path (the scene manifest's ``building``) is resolved with
   ``wenart.views._resolve_repo_path``.
 """
 from __future__ import annotations
 
+import re
 import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -95,6 +111,16 @@ GATE_EFFECT = {
     "not_validated": "no polish for this project: every final image is the Cycles render",
 }
 DEBUG_DIR = "debug"
+# status_note of a report without a render manifest (the orchestrator records the report stage of a project
+# that a deadline or a failure stopped before its first render as a warning with the same words).
+NO_RENDERS = "no renders in this run"
+# Stage statuses that stop a project before its renders (wenart.run.state.TERMINAL without needs_review).
+STOPPED_STATUSES = ("incomplete", "failed")
+# An intake note whose text is not one of the fixed texts of wenart/intake.py is only counted (it could name a file).
+OTHER_INTAKE_NOTE = "other note (its text is in intake_manifest.json on the volume)"
+# Brief warnings of a private project: the user's value after "got <type>" is left out (wenart/brief.py texts).
+_BRIEF_LIST_VALUE = re.compile(r"(: expected a list of file names), got .*(; default )", re.S)
+_BRIEF_GOT_VALUE = re.compile(r"(: expected [^,;]+, got \w+) .*(; default )", re.S)
 NEEDS_REVIEW_HINTS = (
     ("not uploaded", "upload the project folder (docs/intake.md, step 5) and run again"),
     ("collision", "rename one of the files that map to the same name (see intake_manifest.json)"),
@@ -147,9 +173,13 @@ FINAL_MANIFEST = {
         "kind": {"const": "final"},
         "project": {"type": "string"},
         "status": {"enum": ["ok", "not_rendered"]},
+        "status_note": STR,
         "private": {"type": "boolean"},
         "gate_validation": {"type": ["object", "null"]},
+        "run_id": STR,
         "run_stages": {"type": "array", "items": {"type": "object", "required": ["stage", "status"]}},
+        "earlier_run_stages": {"type": "array", "items": {"type": "object", "required": ["stage", "status"]}},
+        "stopped_stages": {"type": "array", "items": {"type": "object", "required": ["stage", "status"]}},
         "stages": {"type": "object", "required": ["render", "polish", "check"]},
         "polish_allowed": {"type": "boolean"},
         "advisory": {"type": "boolean"},
@@ -180,7 +210,9 @@ NEEDS_REVIEW_MANIFEST = {
         "debug_images": {"type": "array", "items": {"type": "object", "required": ["source", "preview"]}},
         "building": {"type": ["object", "null"]},
         "intake": {"type": ["object", "null"]},
+        "run_id": STR,
         "run_stages": {"type": "array"},
+        "earlier_run_stages": {"type": "array"},
         "summary": {"type": "object", "required": ["views", "polished", "cycles", "cycles_by_reason"]},
         "views": {"type": "array", "maxItems": 0},
         "advisory_flags": {"type": "array", "items": {"type": "string"}},
@@ -225,7 +257,9 @@ class Inputs:
     gate_calibration: Optional[dict] = None
     gate_validation: Optional[dict] = None
     private: bool = False
-    stage_records: list = field(default_factory=list)    # run/*.json (wenart.run stage records), in run order
+    stage_records: list = field(default_factory=list)    # run/*.json of this run (split_runs), in run order
+    earlier_records: list = field(default_factory=list)  # run/*.json of earlier runs (stages this run did not reach)
+    run_id: Optional[str] = None                         # this run (the newest record's run_id)
     intake: Optional[dict] = None                        # intake_manifest.json (private projects)
     cameras: dict = field(default_factory=dict)          # camera name -> scene-manifest camera plan
     gate: Optional[dict] = None                          # gate_validation_summary (effective decision)
@@ -274,8 +308,9 @@ def is_private(project_out: Path, explicit: bool = False) -> bool:
 
 
 def load_stage_records(project_out: Path, warnings: Optional[list] = None) -> list[dict]:
-    """``run/*.json`` stage records (§1.2) as ``{stage, status, seconds, note, started_utc}``, in run order
-    (``started_utc``, then name). The report's own record is left out: it describes an earlier report."""
+    """``run/*.json`` stage records (§1.2) as ``{stage, status, seconds, note, rc, started_utc, run_id}``, in run
+    order (``started_utc``, then name), of every run (``split_runs`` keeps this run's). The report's own record
+    is left out: it describes an earlier report."""
     folder = Path(project_out) / "run"
     out = []
     for path in sorted(folder.glob("*.json")) if folder.is_dir() else []:
@@ -288,8 +323,45 @@ def load_stage_records(project_out: Path, warnings: Optional[list] = None) -> li
         if stage == "report":
             continue
         out.append({"stage": stage, "status": data.get("status"), "seconds": data.get("seconds"),
-                    "note": data.get("note"), "rc": data.get("rc"), "started_utc": data.get("started_utc")})
+                    "note": data.get("note"), "rc": data.get("rc"), "started_utc": data.get("started_utc"),
+                    "run_id": data.get("run_id")})
     out.sort(key=lambda r: (str(r.get("started_utc") or "~"), r["stage"]))
+    return out
+
+
+def split_runs(records: list[dict]) -> tuple[list[dict], list[dict], Optional[str]]:
+    """``(this run's records, earlier runs' records, this run_id)``.
+
+    A record of an older run stays on the volume when this run did not reach its stage (wenart/run/state.py);
+    the run manifest lists only this run's records, and so does the report. This run is the ``run_id`` of the
+    newest record (largest ``started_utc``: the orchestrator writes the intake and pipeline records first and
+    runs the report last). Without a ``run_id`` on the newest record (records of a hand-run project) every
+    record counts as this run's.
+    """
+    dated = [r for r in records if r.get("started_utc")]
+    run_id = max(dated, key=lambda r: str(r["started_utc"])).get("run_id") if dated else None
+    if not run_id:
+        return list(records), [], None
+    return ([r for r in records if r.get("run_id") == run_id], [r for r in records if r.get("run_id") != run_id],
+            str(run_id))
+
+
+def stopped_stages(records: list[dict]) -> list[dict]:
+    """``[{stage, status, note}]`` of this run's stages that ended ``incomplete`` or ``failed``."""
+    return [{"stage": r["stage"], "status": r["status"], "note": r.get("note")} for r in records
+            if r.get("status") in STOPPED_STATUSES]
+
+
+def brief_warnings(brief: Optional[dict], private: bool = False) -> list[str]:
+    """The warnings of ``wenart.brief.load_brief`` (no ``brief.yaml``, a value of the wrong type, ...). For a
+    private project the user's value is left out (``got str 'no'`` -> ``got str``); the keys and the defaults
+    come from ``wenart/defaults.yaml``."""
+    out = []
+    for text in (brief or {}).get("warnings") or []:
+        text = str(text)
+        if private:
+            text = _BRIEF_GOT_VALUE.sub(r"\1\2", _BRIEF_LIST_VALUE.sub(r"\1\2", text))
+        out.append(text)
     return out
 
 
@@ -313,6 +385,7 @@ def load_inputs(project_out, out_dir=None, private: bool = False) -> Inputs:
         inp.building_path = paths["building_path"]
         inp.brief = paths["brief"]
         w.extend(paths["warnings"])
+        w.extend(brief_warnings(inp.brief, inp.private))
     else:
         inp.scene = C.read_json(out / "scene" / "scene_manifest.json", w)
         if inp.scene is None:
@@ -330,10 +403,19 @@ def load_inputs(project_out, out_dir=None, private: bool = False) -> Inputs:
     for e in (inp.render_manifest or {}).get("renders") or []:
         if isinstance(e, dict) and e.get("camera"):
             inp.entries[e["camera"]] = e
+    inp.gate_calibration = C.read_json(inp.project_out / "gate" / "gate_calibration.json", w)
+    inp.gate_validation = C.read_json(inp.project_out / "gate" / "gate_validation.json", w)
+    inp.gate = gate_validation_summary(inp)
     inp.polish = C.read_json(inp.polish_dir / "polish_manifest.json", w)
     if inp.polish is not None and inp.polish.get("kind") not in (None, "run"):
         w.append(f"polish/polish_manifest.json is a {inp.polish.get('kind')!r} manifest, not a final run: "
                  f"treated as polish not run")
+        inp.polish = None
+    if inp.polish is not None and inp.gate is not None and inp.gate["decision"] in NO_POLISH_DECISIONS:
+        # §7.3: no polish for this project, so the orchestrator skipped the polish; the manifest is an earlier
+        # run's (its views, models and seconds are not this report's).
+        w.append(f"polish/polish_manifest.json not used: the gate validation says {inp.gate['decision']} (no "
+                 f"polish for this project; the manifest is from an earlier polish run)")
         inp.polish = None
     for v in (inp.polish or {}).get("views") or []:
         if isinstance(v, dict) and v.get("camera"):
@@ -347,11 +429,8 @@ def load_inputs(project_out, out_dir=None, private: bool = False) -> Inputs:
         data = C.read_json(path, w)
         if isinstance(data, dict):
             inp.answers.append(data)
-    inp.gate_calibration = C.read_json(inp.project_out / "gate" / "gate_calibration.json", w)
-    inp.gate_validation = C.read_json(inp.project_out / "gate" / "gate_validation.json", w)
-    inp.stage_records = load_stage_records(out, w)
+    inp.stage_records, inp.earlier_records, inp.run_id = split_runs(load_stage_records(out, w))
     inp.intake = C.read_json(out / "intake_manifest.json", w)
-    inp.gate = gate_validation_summary(inp)
     return inp
 
 
@@ -785,15 +864,19 @@ def camera_plan(cam: Optional[dict]) -> Optional[dict]:
 
 
 def build_views(inp: Inputs) -> list[dict]:
-    """One final-manifest entry per rendered view (and per polished view without a render entry)."""
+    """One final-manifest entry per rendered view (the render manifest's cameras, in its order).
+
+    A camera that only the polish manifest has is an earlier run's camera (the polish rebuilds its views from
+    the current renders): a warning, never a view of this report.
+    """
     elements_by_id = building_elements(inp.building)
     rtypes = room_types(inp.building)
     allowed = polish_allowed(inp.brief)
     cams = list(inp.entries)
     for cam in inp.polish_views:
-        if cam not in cams:
-            cams.append(cam)
-            inp.warnings.append(f"{cam}: in the polish manifest but not in the render manifest")
+        if cam not in inp.entries:
+            inp.warnings.append(f"{cam}: in the polish manifest but not in the render manifest (an earlier run's "
+                                f"camera; not a view of this report)")
     check_views = (inp.check or {}).get("views") or {}
     out = []
     for cam in cams:
@@ -1176,6 +1259,7 @@ def advisory_flags(inp: Inputs, views: list[dict]) -> list[str]:
                      "(gate/gate_validation.json missing; Milestone 5 run)")
     for w in camera_summary(views)["warnings"]:
         flags.append(f"camera {w}")
+    flags.extend(intake_flags(intake_summary(inp.intake)))
     return flags
 
 
@@ -1211,15 +1295,20 @@ def build_manifest(inp: Inputs, views: list[dict], sheets: dict) -> dict:
     inputs = {k: (C.rel(p, inp.out_dir) if p.is_file() else None) for k, p in files.items()}
     inputs["building"] = C.rel(inp.building_path, inp.out_dir) if inp.building_path and inp.building_path.is_file() \
         else None
+    rendered = inp.render_manifest is not None
     return {
         "schema_version": "0.1",
         "kind": "final",
         "project": inp.project,
-        "status": "ok" if inp.render_manifest is not None else "not_rendered",
+        "status": "ok" if rendered else "not_rendered",
+        "status_note": None if rendered else NO_RENDERS,
         "private": inp.private,
         "inputs": inputs,
         "stages": stages,
+        "run_id": inp.run_id,
         "run_stages": list(inp.stage_records),
+        "earlier_run_stages": list(inp.earlier_records),
+        "stopped_stages": stopped_stages(inp.stage_records),
         "gate_validation": inp.gate,
         "polish_allowed": polish_allowed(inp.brief),
         "brief_assumed": list((inp.brief or {}).get("assumed") or []),
@@ -1267,13 +1356,70 @@ def views_per_room(rooms: dict) -> dict:
     return dict(sorted(out.items(), key=lambda kv: int(kv[0])))
 
 
+def intake_note_texts() -> dict:
+    """The fixed note texts of ``wenart/intake.py`` -> their kind (``brief``, ``dwg``, ``collision``)."""
+    from wenart import intake as I
+
+    return {f"not read: the brief must be {I.BRIEF_NAME} at the top level of the folder": "brief",
+            I.DWG_NOTE: "dwg", "name collision": "collision"}
+
+
+def intake_notes_by_kind(intake: dict) -> dict:
+    """``{fixed note text: files}`` over the files of ``intake_manifest.json``. A note joins its texts with
+    ``"; "`` (a DWG note plus ``name collision``); a text that is not one of ``intake_note_texts`` counts as
+    ``OTHER_INTAKE_NOTE``, so no file name is ever copied."""
+    known = sorted(intake_note_texts(), key=len, reverse=True)
+    out: dict[str, int] = {}
+    for f in intake.get("files") or []:
+        note = f.get("note") if isinstance(f, dict) else None
+        if not note:
+            continue
+        rest = str(note)
+        for text in known:
+            if text in rest:
+                out[text] = out.get(text, 0) + 1
+                rest = rest.replace(text, "", 1)
+        if rest.replace(";", "").strip():
+            out[OTHER_INTAKE_NOTE] = out.get(OTHER_INTAKE_NOTE, 0) + 1
+    return dict(sorted(out.items()))
+
+
 def intake_summary(intake: Optional[dict]) -> Optional[dict]:
-    """Counts and reasons of ``intake_manifest.json`` (private projects); never a file name."""
+    """Counts, reasons and fixed note texts of ``intake_manifest.json`` (private projects); never a file name.
+
+    ``brief_staged``: a ``brief.yaml`` at the top level of the upload was kept (the pipeline reads it).
+    """
     if not isinstance(intake, dict):
         return None
+    from wenart.intake import BRIEF_NAME
+
+    staged = [(f.get("staged") or f.get("would_stage_as")) for f in intake.get("files") or []
+              if isinstance(f, dict) and f.get("kept")]
     return {"status": intake.get("status"), "reasons": list(intake.get("reasons") or []),
             "totals": dict(intake.get("totals") or {}),
-            "skipped_by_reason": dict(intake.get("skipped_by_reason") or {})}
+            "skipped_by_reason": dict(intake.get("skipped_by_reason") or {}),
+            "notes_by_kind": intake_notes_by_kind(intake),
+            "brief_staged": BRIEF_NAME in staged}
+
+
+def intake_flags(summary: Optional[dict]) -> list[str]:
+    """Advisory flags from the intake notes: a brief that was not read, DWG files, other notes (counts only)."""
+    if not summary:
+        return []
+    kinds = intake_note_texts()
+    flags = []
+    for text, n in (summary.get("notes_by_kind") or {}).items():
+        if kinds.get(text) == "brief":
+            if summary.get("brief_staged"):
+                flags.append(f"{n} other brief file(s) not read (another name or in a subfolder): only brief.yaml "
+                             f"at the top level of the folder is read")
+            else:
+                flags.append(f"brief.yaml not read: {n} brief file(s) with another name or in a subfolder (e.g. "
+                             f"Brief.yaml, brief.yml); it must be named exactly brief.yaml at the top level of the "
+                             f"folder, so every brief value is a default")
+        else:
+            flags.append(f"intake note on {n} file(s): {text}")
+    return flags
 
 
 def kept_on_volume(views: list[dict]) -> list[str]:
@@ -1372,15 +1518,25 @@ def gate_validation_lines(g: Optional[dict], polish_ok: bool, polish_ran: bool) 
     return lines
 
 
-def stage_table_lines(records: list[dict]) -> list[str]:
-    """The "Stages" section from ``run/*.json`` (status, seconds, note)."""
+def stage_table_lines(records: list[dict], earlier: Optional[list] = None, run_id: Optional[str] = None) -> list[str]:
+    """The "Stages" section from ``run/*.json`` (status, seconds, note): this run's records, then the records
+    of earlier runs (stages this run did not reach), each labelled ``earlier run <run_id>``."""
     lines = ["", "## Stages", ""]
-    if not records:
+    earlier = list(earlier or [])
+    if not records and not earlier:
         lines.append("No stage records (`run/*.json`): the project was not run by `wenart.run`.")
         return lines
+    if run_id:
+        lines += [f"This run (`{run_id}`):", ""]
     lines += C.table(["stage", "status", "seconds", "note"],
                      [[r["stage"], r["status"], C.seconds_text(r.get("seconds")), r.get("note")] for r in records])
     lines += ["", "The report stage itself is recorded after this report."]
+    if earlier:
+        lines += ["", "Earlier runs: records of stages this run did not reach. They stay on the volume and are not "
+                      "part of this run's state or of this report's status:", ""]
+        lines += C.table(["stage", "status", "seconds", "note", "run"],
+                         [[r["stage"], r["status"], C.seconds_text(r.get("seconds")), r.get("note"),
+                           f"earlier run {r.get('run_id') or '(no run id)'}"] for r in earlier])
     return lines
 
 
@@ -1398,6 +1554,10 @@ def intake_lines(intake: Optional[dict]) -> list[str]:
     if intake.get("skipped_by_reason"):
         lines += ["", "Skipped files by reason:", ""]
         lines += C.table(["reason", "files"], [[k, n] for k, n in intake["skipped_by_reason"].items()])
+    if intake.get("notes_by_kind"):
+        lines += ["", "Kept files with a note (the files are named in `intake_manifest.json` on the volume):", ""]
+        lines += C.table(["note", "files"], [[k, n] for k, n in intake["notes_by_kind"].items()])
+        lines += ["", "Open items from the intake:", ""] + C.bullets(intake_flags(intake))
     return lines
 
 
@@ -1407,6 +1567,21 @@ def report_markdown(manifest: dict) -> str:
     views = manifest["views"]
     st = manifest["stages"]
     lines = [f"# Final report: {manifest['project']}", ""]
+    if manifest["status"] == "not_rendered":
+        lines.append(f"Status: **not_rendered**: {NO_RENDERS}. `renders/render_manifest.json` was not found, so "
+                     f"this report has no view to show.")
+        stopped = manifest.get("stopped_stages") or []
+        if stopped:
+            lines.append("")
+            text = ("This run stopped the project before its renders: "
+                    + "; ".join(f"{r['stage']} {r['status']}" + (f" ({r['note']})" if r.get("note") else "")
+                                for r in stopped) + ".")
+            if any(r["status"] == "incomplete" for r in stopped):
+                text += " A project cut by the deadline (`incomplete`) is resumed with the same command."
+            if any(r["status"] == "failed" for r in stopped):
+                text += " A `failed` stage has its log in `run/logs/<stage>.log` on the volume."
+            lines.append(text)
+        lines.append("")
     reasons = ", ".join(f"{k} {n}" for k, n in s["cycles_by_reason"].items()) or "none"
     lines.append(f"{s['views']} views: {s['polished']} polished, {s['cycles']} Cycles ({reasons}). "
                  f"Stages: render {st['render']}, gate validation {st.get('gate_validation', 'not_run')}, "
@@ -1558,7 +1733,7 @@ def report_markdown(manifest: dict) -> str:
         lines += ["", "Assets: textures " + (", ".join(f"{k} x {n}" for k, n in assets["textures"].items()) or "-")
                   + "; furniture/decor models " + (", ".join(f"{k} x {n}" for k, n in assets["models"].items()) or "-")
                   + " (parametric meshes need no licence)."]
-    lines += stage_table_lines(manifest["run_stages"])
+    lines += stage_table_lines(manifest["run_stages"], manifest.get("earlier_run_stages"), manifest.get("run_id"))
     if manifest["private"]:
         lines += intake_lines(manifest.get("intake"))
         lines += ["", "## Kept on the volume (private project)", ""]
@@ -1590,6 +1765,8 @@ class ReviewInputs:
     intake: Optional[dict]
     records: list
     warnings: list
+    earlier: list = field(default_factory=list)
+    run_id: Optional[str] = None
 
 
 def review_inputs(project_out, out_dir=None, private: bool = False) -> Optional[ReviewInputs]:
@@ -1597,12 +1774,13 @@ def review_inputs(project_out, out_dir=None, private: bool = False) -> Optional[
 
     Sources, in order: ``intake_manifest.json`` (status ``needs_review``: its reasons; the pipeline did not
     run, so an older ``building.json`` is ignored), ``building.json`` (status ``needs_review``: its
-    ``needs review: ...`` warnings, plus a failed schema validation), then the stage records with status
-    ``needs_review`` of stages no manifest covers (their note).
+    ``needs review: ...`` warnings, plus a failed schema validation), then this run's stage records with status
+    ``needs_review`` of stages no manifest covers (their note). Records of earlier runs (``split_runs``) are
+    only listed.
     """
     out = Path(project_out).resolve()
     w: list = []
-    records = load_stage_records(out, w)
+    records, earlier, run_id = split_runs(load_stage_records(out, w))
     intake = C.read_json(out / "intake_manifest.json", w)
     building = C.read_json(out / "building.json", w)
     reasons: list[str] = []
@@ -1637,7 +1815,7 @@ def review_inputs(project_out, out_dir=None, private: bool = False) -> Optional[
     return ReviewInputs(project_out=out, out_dir=Path(out_dir).resolve() if out_dir else out / FINAL_DIR,
                         project=str(name or out.name), private=is_private(out, private), reasons=reasons,
                         building=building, report_md=report_md, intake=intake if isinstance(intake, dict) else None,
-                        records=records, warnings=w)
+                        records=records, warnings=w, earlier=earlier, run_id=run_id)
 
 
 def review_hints(reasons: list[str]) -> list[str]:
@@ -1734,6 +1912,7 @@ def build_review_manifest(ri: ReviewInputs, docs: list[dict], images: list[dict]
     stale = ri.project_out / "renders" / "render_manifest.json"
     if stale.is_file():
         ri.warnings.append("renders/ holds an earlier run's renders: ignored (the project needs review)")
+    intake = intake_summary(ri.intake)
     return {
         "schema_version": "0.1",
         "kind": "final",
@@ -1745,11 +1924,13 @@ def build_review_manifest(ri: ReviewInputs, docs: list[dict], images: list[dict]
         "documents": docs,
         "debug_images": images,
         "building": building_summary(ri.building),
-        "intake": intake_summary(ri.intake),
+        "intake": intake,
+        "run_id": ri.run_id,
         "run_stages": list(ri.records),
+        "earlier_run_stages": list(ri.earlier),
         "summary": {"views": 0, "polished": 0, "cycles": 0, "cycles_by_reason": {}, "needs_review": 0},
         "views": [],
-        "advisory_flags": [f"needs review: {r}" for r in ri.reasons],
+        "advisory_flags": [f"needs review: {r}" for r in ri.reasons] + intake_flags(intake),
         "warnings": list(ri.warnings),
     }
 
@@ -1758,8 +1939,8 @@ def review_markdown(manifest: dict, report_md_table: list[str]) -> str:
     """``final_report.md`` of a needs-review project (links only to files in ``final/``)."""
     lines = [f"# Final report: {manifest['project']} (needs review)", ""]
     lines.append("Status: **needs_review**. The project stopped before the 3D stages: nothing was built, rendered "
-                 "or polished, and nothing was guessed or filled in. Every reason is listed below; after fixing "
-                 "them, run the project again.")
+                 "or polished in this run, and nothing was guessed or filled in. Every reason is listed below; after "
+                 "fixing them, run the project again.")
     lines += ["", "## Reasons", ""] + C.bullets(manifest["reasons"])
     if manifest["hints"]:
         lines += ["", "## What to do", ""] + C.bullets(manifest["hints"])
@@ -1801,13 +1982,13 @@ def review_markdown(manifest: dict, report_md_table: list[str]) -> str:
         lines += ["", "Pipeline warnings:", ""] + C.bullets(b["warnings"])
     if manifest["private"]:
         lines += intake_lines(manifest.get("intake"))
-    lines += stage_table_lines(manifest["run_stages"])
+    lines += stage_table_lines(manifest["run_stages"], manifest.get("earlier_run_stages"), manifest.get("run_id"))
     lines += ["", "## Warnings", ""] + C.bullets(manifest["warnings"])
     return "\n".join(lines) + "\n"
 
 
 def write_needs_review(ri: ReviewInputs) -> dict:
-    """Write the needs-review ``final_report.md`` and ``final_manifest.json``; returns the manifest."""
+    """Write the needs-review ``final_report.md``, then ``final_manifest.json`` (last); returns the manifest."""
     ri.out_dir.mkdir(parents=True, exist_ok=True)
     docs = document_rows(ri.building)
     images = write_review_images(ri, docs)
@@ -1815,9 +1996,9 @@ def write_needs_review(ri: ReviewInputs) -> dict:
     errors = validate_final_manifest(manifest)
     if errors:
         manifest["warnings"].extend(f"final manifest schema: {e}" for e in errors[:20])
-    C.write_json(ri.out_dir / MANIFEST_NAME, manifest)
     table = [] if docs else report_md_documents(ri.report_md)
     (ri.out_dir / REPORT_NAME).write_text(review_markdown(manifest, table), encoding="utf-8")
+    C.write_json(ri.out_dir / MANIFEST_NAME, manifest)
     return manifest
 
 
@@ -1825,6 +2006,8 @@ def write_final(project_out, out_dir=None, private: bool = False) -> dict:
     """Build and write everything of ``final/`` (see module docstring); returns the manifest.
 
     ``private``: treat the project as private even when nothing else says so (``is_private``).
+    ``final_manifest.json`` is written last: a manifest newer than the call means the report finished (the
+    orchestrator tells a ``not_rendered`` exit 1 from a crash this way).
     """
     ri = review_inputs(project_out, out_dir, private)
     if ri is not None:
@@ -1836,6 +2019,7 @@ def write_final(project_out, out_dir=None, private: bool = False) -> dict:
     errors = validate_final_manifest(manifest)
     if errors:
         manifest["warnings"].extend(f"final manifest schema: {e}" for e in errors[:20])
-    C.write_json(inp.out_dir / MANIFEST_NAME, manifest)
+    inp.out_dir.mkdir(parents=True, exist_ok=True)
     (inp.out_dir / REPORT_NAME).write_text(report_markdown(manifest), encoding="utf-8")
+    C.write_json(inp.out_dir / MANIFEST_NAME, manifest)
     return manifest

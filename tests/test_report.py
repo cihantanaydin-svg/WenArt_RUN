@@ -1138,3 +1138,194 @@ def test_review_hints_only_from_known_reasons():
         == ["export DXF (or a vector PDF) from the CAD program; DWG is not read",
             "close the outer walls of the level in the drawing"]
     assert F.review_hints(["something unexpected"]) == []
+
+
+# --------------------------------------------------------------------------
+# Review fixes: stale polish manifest, earlier runs' records, no renders, intake notes and brief warnings
+# --------------------------------------------------------------------------
+
+def drop_render(out: Path, cam: str) -> int:
+    """Remove ``cam`` from the render manifest (an M6 run with fewer cameras than the M5 polish had)."""
+    path = out / "renders" / "render_manifest.json"
+    rm = json.loads(path.read_text(encoding="utf-8"))
+    rm["renders"] = [e for e in rm["renders"] if e["camera"] != cam]
+    path.write_text(json.dumps(rm), encoding="utf-8")
+    return len(rm["renders"])
+
+
+def test_a_camera_only_in_the_polish_manifest_is_a_warning_not_a_view(tmp_path):
+    out = make_project(tmp_path)
+    n = drop_render(out, "cam_yatak_2")
+    manifest = F.write_final(out)
+    assert manifest["summary"]["views"] == n == 4
+    assert "cam_yatak_2" not in by_cam(manifest)
+    assert any(w.startswith("cam_yatak_2: in the polish manifest but not in the render manifest")
+               for w in manifest["warnings"])
+
+
+@pytest.mark.parametrize("decision", ["polish_disabled", "not_validated"])
+def test_stale_polish_manifest_is_not_used_when_the_gate_switches_the_polish_off(tmp_path, decision):
+    """An earlier run's polish manifest (kind run, one camera more) stays on the volume when this run's gate
+    validation switches the polish off: the views are the render manifest's and the polish counts as not run."""
+    out = make_project(tmp_path)
+    n = drop_render(out, "cam_yatak_2")
+    gate_validation(out, decision)
+    manifest = F.write_final(out)
+    assert F.validate_final_manifest(manifest) == []
+    assert manifest["summary"]["views"] == n == 4
+    assert manifest["stages"]["polish"] == "not_run"
+    assert manifest["summary"]["cycles_by_reason"] == {"gate_validation": 4}
+    assert manifest["summary"]["seconds"]["polish"] is None
+    assert not [m for m in manifest["models"] if m["role"].startswith(("polish", "gate"))]
+    assert all(v["polish"] is None for v in manifest["views"])
+    assert any(w.startswith(f"polish/polish_manifest.json not used: the gate validation says {decision}")
+               for w in manifest["warnings"])
+    md = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    assert "polish not_run" in md
+
+
+def test_stage_table_lists_earlier_runs_apart(tmp_path):
+    """Records of an earlier run (stages this run did not reach) are labelled and never decide the status."""
+    out = make_project(tmp_path)
+    for stage, t in (("pipeline", "10:00"), ("build", "10:05"), ("render", "10:10"), ("layout", "10:02")):
+        stage_record(out, stage, "needs_review" if stage == "layout" else "ok", f"2026-10-01T{t}:00Z",
+                     run_id="podA-20261001T095900Z", note="old" if stage == "layout" else None)
+    stage_record(out, "intake", "skipped", "2026-10-02T11:00:00Z", note="private only", run_id="podB-1")
+    stage_record(out, "pipeline", "reused", "2026-10-02T11:00:01Z", run_id="podB-1")
+    stage_record(out, "build", "incomplete", "2026-10-02T11:01:00Z", note="timeout", run_id="podB-1")
+    manifest = F.write_final(out)
+    assert manifest["status"] == "ok"                      # the earlier layout needs_review is not this run's
+    assert manifest["run_id"] == "podB-1"
+    assert [(r["stage"], r["status"]) for r in manifest["run_stages"]] == [
+        ("intake", "skipped"), ("pipeline", "reused"), ("build", "incomplete")]
+    assert [(r["stage"], r["run_id"]) for r in manifest["earlier_run_stages"]] == [
+        ("layout", "podA-20261001T095900Z"), ("render", "podA-20261001T095900Z")]
+    assert manifest["stopped_stages"] == [{"stage": "build", "status": "incomplete", "note": "timeout"}]
+    md = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    this_run, earlier = md.split("## Stages", 1)[1].split("Earlier runs:", 1)
+    assert "This run (`podB-1`):" in this_run and "| render |" not in this_run
+    assert "| render | ok | 1.0 s | - | earlier run podA-20261001T095900Z |" in earlier
+    # Records without a run id (a project run by hand) all count as this run's.
+    assert F.split_runs([{"stage": "a", "started_utc": "x"}, {"stage": "b", "started_utc": None}])[1:] == ([], None)
+
+
+def test_needs_review_report_does_not_mix_in_an_earlier_run(tmp_path):
+    out = make_review_project(tmp_path, name="real-02", building=review_building("x", reasons=("old reason",)))
+    write_json(out / "intake_manifest.json", {"kind": "intake_manifest", "alias": "real-02", "status": "needs_review",
+                                              "reasons": ["document name collision"], "totals": {}, "files": []})
+    for stage in ("pipeline", "build", "render", "polish", "check"):
+        stage_record(out, stage, "ok", "2026-10-01T10:00:00Z", run_id="podA-1")
+    stage_record(out, "intake", "needs_review", "2026-10-02T11:00:00Z", note="document name collision",
+                 run_id="podX-2")
+    m = F.write_final(out)
+    assert F.validate_final_manifest(m) == []
+    assert m["run_id"] == "podX-2" and [r["stage"] for r in m["run_stages"]] == ["intake"]
+    assert sorted(r["stage"] for r in m["earlier_run_stages"]) == ["build", "check", "pipeline", "polish", "render"]
+    md = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    this_run, earlier = md.split("## Stages", 1)[1].split("Earlier runs:", 1)
+    assert "| intake | needs_review |" in this_run and "| build |" not in this_run
+    assert "| build | ok | 1.0 s | - | earlier run podA-1 |" in earlier
+    assert "nothing was built, rendered or polished in this run" in md
+
+
+def test_report_without_renders_says_no_renders_in_this_run(tmp_path, capsys):
+    """A project cut by the deadline before its build: exit 1 (nothing to report; the orchestrator records the
+    report as a warning, so the project stays incomplete), and the report says why in plain words."""
+    out = tmp_path / "outputs" / "synthetic-04"
+    write_json(out / "building.json", {"schema_version": "0.1", "status": "ok", "project": {"id": "synthetic-04"},
+                                       "warnings": []})
+    stage_record(out, "pipeline", "reused", "2026-10-02T11:00:00Z", run_id="podB-1")
+    stage_record(out, "build", "incomplete", "2026-10-02T11:00:01Z", note="deadline: build not started",
+                 run_id="podB-1")
+    assert report_main(["final", "--project-out", str(out)]) == 1
+    printed = capsys.readouterr().out
+    assert "synthetic-04: not_rendered: no renders in this run" in printed
+    assert "  stopped: build incomplete (deadline: build not started)" in printed
+    m = json.loads((out / "final" / "final_manifest.json").read_text(encoding="utf-8"))
+    assert F.validate_final_manifest(m) == []
+    assert m["status"] == "not_rendered" and m["status_note"] == "no renders in this run"
+    assert m["stages"]["render"] == "not_run"
+    assert m["stopped_stages"] == [{"stage": "build", "status": "incomplete", "note": "deadline: build not started"}]
+    md = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    assert "Status: **not_rendered**: no renders in this run." in md
+    assert "This run stopped the project before its renders: build incomplete (deadline: build not started)." in md
+
+
+@pytest.mark.parametrize("which", ["final", "needs_review"])
+def test_final_manifest_is_written_last(tmp_path, monkeypatch, which):
+    """A report that fails while writing final_report.md leaves no final_manifest.json, so the orchestrator
+    never reads a crash as 'not rendered'."""
+    out = make_project(tmp_path) if which == "final" else make_review_project(tmp_path)
+
+    def boom(*a, **k):
+        raise RuntimeError("disk full")
+
+    monkeypatch.setattr(F, "report_markdown" if which == "final" else "review_markdown", boom)
+    with pytest.raises(RuntimeError):
+        F.write_final(out)
+    assert not (out / "final" / "final_manifest.json").exists()
+
+
+def stage_upload(tmp_path, files: dict, alias="real-01") -> Path:
+    """Run the real intake on an upload; returns the project output folder (its intake_manifest.json)."""
+    from wenart import intake as I
+    up = tmp_path / "pp" / alias
+    for rel, data in files.items():
+        (up / rel).parent.mkdir(parents=True, exist_ok=True)
+        (up / rel).write_bytes(data)
+    out_dir = tmp_path / "po" / alias
+    intake = I.stage_project(alias, out_dir / "input" / alias, root=tmp_path / "pp", repo_root=tmp_path / "repo")
+    assert intake.status == "ok", intake.reasons
+    return out_dir
+
+
+def test_intake_notes_reach_the_private_report_without_file_names(tmp_path):
+    """A misnamed brief and a lone DWG are kept by the intake with fixed notes: the report counts them by note
+    text and flags the brief that was not read (every brief value is a default), never naming a file."""
+    po = stage_upload(tmp_path, {"Gizli_Villa_zemin.dxf": b"0\nEOF\n", "Gizli_Villa_mobilya.dwg": b"AC1032",
+                                 "Brief.yaml": b"style: Gizli stil\n"})
+    out = make_project(tmp_path / "p", brief=None)
+    (out / "intake_manifest.json").write_bytes((po / "intake_manifest.json").read_bytes())
+    manifest = F.write_final(out)
+    from wenart import intake as I
+    brief_note = "not read: the brief must be brief.yaml at the top level of the folder"
+    assert manifest["intake"]["notes_by_kind"] == {I.DWG_NOTE: 1, brief_note: 1}
+    assert manifest["intake"]["brief_staged"] is False
+    flags = manifest["advisory_flags"]
+    assert any(f.startswith("brief.yaml not read: 1 brief file(s)") and "every brief value is a default" in f
+               for f in flags)
+    assert f"intake note on 1 file(s): {I.DWG_NOTE}" in flags
+    md = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    assert f"| {I.DWG_NOTE} | 1 |" in md and "Open items from the intake:" in md
+    assert "Gizli" not in md and "Gizli" not in json.dumps(manifest)
+    # A nested brief next to the real one: only the extra file is flagged.
+    po2 = stage_upload(tmp_path / "2", {"zemin.dxf": b"0\nEOF\n", "brief.yaml": b"style: x\n",
+                                        "eski/brief.yaml": b"style: y\n"}, alias="real-02")
+    summary = F.intake_summary(json.loads((po2 / "intake_manifest.json").read_text(encoding="utf-8")))
+    assert summary["brief_staged"] is True and summary["notes_by_kind"] == {brief_note: 1}
+    assert F.intake_flags(summary) == ["1 other brief file(s) not read (another name or in a subfolder): only "
+                                       "brief.yaml at the top level of the folder is read"]
+
+
+def test_intake_notes_by_kind_never_copies_an_unknown_note():
+    from wenart import intake as I
+    files = [{"note": f"{I.DWG_NOTE}; name collision"}, {"note": "name collision"}, {"note": "Gizli Villa.pdf odd"},
+             {"note": None}, "junk"]
+    assert F.intake_notes_by_kind({"files": files}) == {I.DWG_NOTE: 1, "name collision": 2, F.OTHER_INTAKE_NOTE: 1}
+
+
+def test_brief_warnings_reach_the_report(tmp_path):
+    out = make_project(tmp_path, brief=None)
+    manifest = F.write_final(out)
+    assert any(w.startswith("no brief.yaml in ") and w.endswith("every brief value is a default")
+               for w in manifest["warnings"])
+    # A private project's brief values stay out of the report; the key and the default are named.
+    out2 = make_project(tmp_path / "b", brief="style: x\npolish: 'Gizli secret'\nstyle_photos: [1, 'Gizli.jpg']\n")
+    manifest = F.write_final(out2, private=True)
+    assert "brief.yaml polish: expected bool, got str; default True used" in manifest["warnings"]
+    assert any(w.startswith("brief.yaml style_photos: expected a list of file names; default")
+               for w in manifest["warnings"])
+    md = (out2 / "final" / "final_report.md").read_text(encoding="utf-8")
+    assert "Gizli" not in md and "Gizli" not in json.dumps(manifest)
+    # A public project keeps the whole warning.
+    assert any("'Gizli secret'" in w for w in F.write_final(out2)["warnings"])
