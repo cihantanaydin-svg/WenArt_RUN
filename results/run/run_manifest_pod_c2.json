@@ -1,0 +1,236 @@
+{
+ "schema_version": "0.1",
+ "kind": "run_manifest",
+ "run_id": "20261003-050627-full-20261003T051311Z",
+ "job": "20261003-050627-full",
+ "git_commit": "98507eac73830cb9ad61098c9dd253bbb1012a45",
+ "profile": "full",
+ "deadline": 1791010060.0,
+ "started_utc": "2026-10-03T05:13:11Z",
+ "finished_utc": "2026-10-03T05:22:53Z",
+ "final": true,
+ "exit_code": 0,
+ "projects": [],
+ "totals": {
+  "ok": 0,
+  "needs_review": 0,
+  "failed": 0,
+  "incomplete": 0
+ },
+ "ab_phase": "judge",
+ "ab_controls": "synthetic-01",
+ "ab": [
+  {
+   "name": "synthetic-01",
+   "controls": true,
+   "dropped": null,
+   "stages": [
+    {
+     "stage": "ab_prepare",
+     "status": "skipped",
+     "seconds": 0.0,
+     "note": "not in this phase"
+    },
+    {
+     "stage": "ab_pairs",
+     "status": "reused",
+     "seconds": 0.0,
+     "note": "ab/pairs.json of the render pod (116 pairs, controls)"
+    },
+    {
+     "stage": "ab_realism",
+     "status": "ok",
+     "seconds": 13.0,
+     "note": null
+    },
+    {
+     "stage": "ab_look_alt",
+     "status": "ok",
+     "seconds": 6.7,
+     "note": null
+    },
+    {
+     "stage": "ab_combine",
+     "status": "ok",
+     "seconds": 18.2,
+     "note": null
+    }
+   ]
+  },
+  {
+   "name": "synthetic-03",
+   "controls": false,
+   "dropped": null,
+   "stages": [
+    {
+     "stage": "ab_prepare",
+     "status": "skipped",
+     "seconds": 0.0,
+     "note": "not in this phase"
+    },
+    {
+     "stage": "ab_pairs",
+     "status": "reused",
+     "seconds": 0.0,
+     "note": "ab/pairs.json of the render pod (114 pairs)"
+    },
+    {
+     "stage": "ab_realism",
+     "status": "ok",
+     "seconds": 9.5,
+     "note": null
+    },
+    {
+     "stage": "ab_look_alt",
+     "status": "ok",
+     "seconds": 8.9,
+     "note": null
+    },
+    {
+     "stage": "ab_combine",
+     "status": "ok",
+     "seconds": 18.6,
+     "note": null
+    }
+   ]
+  }
+ ],
+ "realism_summary": {
+  "stage": "realism_summary",
+  "status": "ok",
+  "rc": 0,
+  "seconds": 2.7,
+  "note": null
+ },
+ "phases": [
+  {
+   "phase": 1,
+   "name": "cpu: intake, pipeline, fit, style",
+   "start_utc": "2026-10-03T05:13:11Z",
+   "end_utc": "2026-10-03T05:13:11Z",
+   "seconds": 0.1
+  },
+  {
+   "phase": 2,
+   "name": "vlm glm: style photos",
+   "start_utc": "2026-10-03T05:13:11Z",
+   "end_utc": "2026-10-03T05:13:11Z",
+   "seconds": 0.0
+  },
+  {
+   "phase": 3,
+   "name": "vlm qwen: style photos, layout",
+   "start_utc": "2026-10-03T05:13:11Z",
+   "end_utc": "2026-10-03T05:13:11Z",
+   "seconds": 0.0
+  },
+  {
+   "phase": 4,
+   "name": "cpu: assets, decor, refit, A/B prepare",
+   "start_utc": "2026-10-03T05:13:11Z",
+   "end_utc": "2026-10-03T05:13:11Z",
+   "seconds": 0.0
+  },
+  {
+   "phase": 5,
+   "name": "blender: build, render, controls, A/B renders",
+   "start_utc": "2026-10-03T05:13:11Z",
+   "end_utc": "2026-10-03T05:13:11Z",
+   "seconds": 0.0
+  },
+  {
+   "phase": 6,
+   "name": "diffusion: gate, polish",
+   "start_utc": "2026-10-03T05:13:11Z",
+   "end_utc": "2026-10-03T05:13:11Z",
+   "seconds": 0.0
+  },
+  {
+   "phase": 7,
+   "name": "cpu: expected, plan crops, A/B pairs",
+   "start_utc": "2026-10-03T05:13:11Z",
+   "end_utc": "2026-10-03T05:13:12Z",
+   "seconds": 1.2
+  },
+  {
+   "phase": 8,
+   "name": "vlm qwen: check, realism",
+   "start_utc": "2026-10-03T05:13:12Z",
+   "end_utc": "2026-10-03T05:18:34Z",
+   "seconds": 322.3
+  },
+  {
+   "phase": 9,
+   "name": "vlm glm: check, realism",
+   "start_utc": "2026-10-03T05:18:34Z",
+   "end_utc": "2026-10-03T05:21:24Z",
+   "seconds": 169.5
+  },
+  {
+   "phase": 10,
+   "name": "cpu: combine, realism summary, report",
+   "start_utc": "2026-10-03T05:21:24Z",
+   "end_utc": "2026-10-03T05:22:03Z",
+   "seconds": 39.5
+  },
+  {
+   "phase": 11,
+   "name": "gpu tests, run manifest",
+   "start_utc": "2026-10-03T05:22:03Z",
+   "end_utc": "2026-10-03T05:22:53Z",
+   "seconds": 49.6
+  }
+ ],
+ "servers": [
+  {
+   "key": "qwen",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seqs": 2,
+   "seconds_to_ready": 300.1,
+   "ok": true,
+   "phase": 8,
+   "started_utc": "2026-10-03T05:18:34Z"
+  },
+  {
+   "key": "glm",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seqs": 2,
+   "seconds_to_ready": 150.0,
+   "ok": true,
+   "phase": 9,
+   "started_utc": "2026-10-03T05:21:24Z"
+  }
+ ],
+ "tests": [
+  {
+   "group": "full",
+   "files": [
+    "tests/gpu/test_realism.py"
+   ],
+   "rc": 0,
+   "status": "passed",
+   "junit": "junit-full.xml",
+   "seconds": 5.2
+  },
+  {
+   "group": "polish",
+   "files": [],
+   "rc": null,
+   "status": "skipped",
+   "junit": null,
+   "seconds": 0.0
+  }
+ ],
+ "test_lists": {
+  "RUN_TEST_PROJECTS": "",
+  "NEEDS_REVIEW_TEST_PROJECTS": "",
+  "RENDER_TEST_PROJECTS": "",
+  "FURNISH_TEST_PROJECTS": "",
+  "CHECK_TEST_PROJECTS": "",
+  "POLISH_TEST_PROJECTS": "",
+  "GATE_TEST_PROJECTS": "",
+  "AB_TEST_PROJECTS": "synthetic-01 synthetic-03",
+  "SELFTEST_TEST_ALIAS": ""
+ },
+ "force": []
+}

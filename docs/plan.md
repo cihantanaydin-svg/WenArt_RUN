@@ -371,7 +371,7 @@ both VLMs run with `--quantization fp8 --max-model-len 8192`.
 | Milestone 2: recognition bake-off (3 VLM/OCR candidates on sample pages) + tests | 4–6 h ≈ $2 |
 | Milestones 3–4: shell, materials, furniture fitting, TRELLIS.2 tests | 4–6 h ≈ $2–4 |
 | Milestone 5: Cycles renders + polish tuning (A5000 / 4090) | 8–10 h ≈ $3–7 |
-| Milestone 6: 3+ full project runs | 3–5 h ≈ $2–4 |
+| Milestone 6: 3+ full project runs | 3–5 h ≈ $2–4 (as run: 4 pods, 3.6 h, $2.61) |
 | Buffer for failed runs | ≈ $5 |
 | **Total without fine-tuning** | **≈ $35–45 of your $100** |
 | Milestone 7 (optional LoRA on Qwen3-VL-8B, A6000, ~4 h) | ≈ $3–5 |

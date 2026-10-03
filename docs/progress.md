@@ -311,3 +311,101 @@ GPU cost so far: $6.13 (`docs/gpu-log.md`).
 
 Next step: Milestone 6: full runs on real projects (your folders in `projects/`), with a gate calibration per
 project, and the realism work on the Cycles side.
+
+## Milestone 6 – one-command full runs, Cycles realism, real-project intake (done, 3 Oct 2026)
+
+What works (`docs/milestone6.md` is the spec; §13 lists what changed while running it):
+- **One command per pod** (`scripts/jobs/full.sh` → `python -m wenart.run pod`): every stage of every project
+  from the project folder to the final report (intake, pipeline, style photos, style, assets, fit, AI layout, decor,
+  build, render, controls, gate calibration + validation, polish, vision check, report, GPU tests), batched by GPU
+  holder so each vision model starts at most twice per pod; stage records with input fingerprints (a resumed pod
+  redoes nothing that is done), deadline-aware stages, `needs_review` as a normal end state, public and private run
+  manifests. `python -m wenart.run plan` estimates views, minutes and the pod split on the CPU.
+- **Two new test projects**: `synthetic-04` (DXF + vector PDF of the same floor, L-shaped rooms, an armchair at 45°)
+  and `synthetic-05` (notched outline, furniture only on a separate furniture plan, en-suite, study, a style photo,
+  polish off). Room labels like `EBEVEYN BANYO` and `SALON + MUTFAK` now get the right room type.
+- **Cameras**: searched positions (ray-cast score), straight verticals with lens shift, 1–3 views per room by size.
+- **Cycles look**: tiled wet walls (wall faces split per room), veneer doors with handles, skirting, soft bedding,
+  kitchen fronts that are no longer black, steel that looks like metal, a ceiling light for dim rooms, pulled
+  (non-blown) windows, no red cast from the "unverified" stripes. Every added detail is labelled `assumed` in the
+  scene manifest; no furniture moved or added.
+- **Realism A/B** (`wenart/vision_check/realism.py`): forced choice per aspect, both orders, both models, with
+  known-direction and null controls that decide whether the judges can be trusted.
+- **Private projects** (`docs/intake.md`): you upload a folder to the network volume with the RunPod S3 API under a
+  neutral alias (`real-01`); only an allow-listed summary comes back to this session; nothing goes to GitHub.
+  Tested on the pod with a private copy of synthetic-02 (`selftest-02`).
+- **Gate per project**: every project with polish on is calibrated and validated before its polish (benign ≥ 95 %
+  accepted, negatives ≥ 90 % rejected); a project that fails gets Cycles images only.
+
+Pod runs (RTX PRO 4500, `docs/gpu-log.md`, M6 total **$2.61**):
+
+| Pod | Content | Minutes | Cost | Result |
+|---|---|---|---|---|
+| A | full run synthetic-01 + synthetic-03 | 82 | $0.99 | ok, GPU tests 74 passed |
+| B | full run synthetic-04, -05, -02 + private self-test + A/B renders and controls | 68 | $0.82 | ok, GPU tests 67 passed |
+| C | A/B judging (2 models, 1,840 answers) | 47 | $0.56 | exit 1: GLM missed the null-control target (see below) |
+| C2 | same, answers reused, stricter signal rule | 20 | $0.24 | ok, GPU tests 7 passed |
+
+| Project | End state | Views | Final: polished / Cycles | Gate validation (benign / negatives) | Views with a final mismatch |
+|---|---|---|---|---|---|
+| synthetic-01 | ok | 29 | 18 / 11 | ok (0.97 / 0.96) | 2 |
+| synthetic-03 | ok | 50 | 36 / 14 | ok (0.98 / 0.99) | 0 |
+| synthetic-04 | ok | 14 | 10 / 4 | ok (0.98 / 0.98) | 0 |
+| synthetic-05 | ok | 25 | 0 / 25 (polish off by the brief) | – | 3 |
+| synthetic-02 | needs review (scan and photo only) | – | – | – | – |
+| selftest-02 (private path) | needs review, as expected | – | – | – | – |
+
+Cameras and look, M5 → M6 (same projects):
+
+| | synthetic-01 | synthetic-03 |
+|---|---|---|
+| Views | 30 → 29 | 57 → 50 |
+| Median share of the frame showing furniture | 0.16 → 0.30 | 0.06 → 0.16 |
+| Views with < 10 % furniture | 8 → 3 | 32 → 18 |
+| Views metered at the +8 EV limit (dark rooms) | 0 → 0 | 4 → 0 |
+| Views with > 5 % clipped window pixels | 7 → 0 | 12 → 0 |
+| Polished final images | 24 of 30 → 18 of 29 | 20 of 57 → 36 of 50 |
+
+Realism A/B, M5 look vs M6 look on the same 87 M5 cameras (`results/realism/realism_summary.md`):
+- Both judges lean clearly to the M6 look: consensus on "photo" 22 wins, 0 losses, 65 ties (per room 16 / 0 / 13);
+  Qwen 35 / 1, GLM 48 / 4; deciding cues: light falloff, window light, fewer artefacts, material texture.
+- **By the rule fixed before the run this is "not measurable"**: Qwen does not see a lighting-only degradation
+  (2 of 8) and picks the first image 87 % of the time; GLM misses the low-sample control (5 of 8) and is not
+  reproducible on byte-identical requests (4 of 32 aspects flipped, target ≤ 10 %). Both give one verdict for all
+  four aspects (halo ≈ 1.0). So the numbers above are evidence, not a measured result.
+- `AgX - Punchy` vs the default look: not measurable either (Qwen always ties; GLM prefers the default look 35 : 8).
+- Pod C exited 1 on the GLM determinism test. That measures the judge, not our code; the rule now also needs the
+  null controls before a judge counts (stricter; no decision changed) and the GPU test checks that rule.
+
+Found and fixed on the way (each with a test): the judge pod rebuilt the pairs file and dropped the control sets;
+stage fingerprints missed imported modules (a fix would not re-run a stage); A/B records decided a project's state;
+gate calibration redone on every resume; a failed model download reused forever; a deadline cut hidden by the next
+step; result collection reported ok after failed downloads; `--max-bounces 0` made window panes black; old M5
+renders and polish files leaking into the new results (pre-M6 output folders are now archived, never deleted);
+an L-shaped room's fallback camera outside the room; the report counting views from an old polish manifest.
+Review: 6 finders, 6 adversarial verifiers, 19 of 22 findings confirmed and fixed (`docs/milestone6.md` §13).
+
+Needs your OK or action:
+- **Real projects**: follow `docs/intake.md` (create a RunPod S3 API key yourself, never paste it into the chat;
+  export DXF or vector PDF from your CAD program; upload as `real-01`, `real-02`, …; tell me only the alias).
+  Then one pod runs them with `PRIVATE_PROJECTS=real-01`.
+- The M5 gate limits (`calibration.user_ok: pending`) are still waiting for your OK; with the M6 look all three
+  polished projects pass the new per-project validation.
+- The vision check is still advisory for absolute flags (it rarely notices an inserted element).
+- `CLAUDE.md` now names the RTX PRO 4500 as the default GPU (then RTX 4090, RTX PRO 4000; never L4); the A5000 has
+  had no stock.
+
+Open items:
+- Realism judging: ask one aspect per call, balance positions inside the prompt, or use a better judge (or a human
+  rating) before the next look change; the current judges cannot certify a look change.
+- Library assets ignore the style: Gothic beds and a chesterfield sofa in a Japandi flat; the library single bed is a
+  bare metal frame without a mattress.
+- Small bathrooms and WCs still give close-up views; empty storage rooms get up to 3 bare views (area rule).
+- Vision-check mismatches are mostly shower glass and doors seen edge-on in halls.
+- DWG files are not read (users export DXF); scans and phone photos still stop at `needs review`.
+- The window pull adds ≈ 1 s per 1080p view; the time rule in `wenart/run/plan.py` does not count it yet.
+
+GPU cost so far: $8.74 (`docs/gpu-log.md`).
+
+Next step: Milestone 7: your real projects through the intake path (needs your upload), style-aware library assets,
+and a realism judge that passes its controls.

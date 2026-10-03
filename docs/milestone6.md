@@ -862,3 +862,55 @@ Items needing the user's OK or action are listed in progress.md: the M5 gate lim
   Light Path node outputs, `Camera.shift_x/shift_y` vs `bpy_extras.object_utils.world_to_camera_view`
   (0.011 px), no cv2/scipy/PIL/shapely in Blender's Python.
 - GitHub API: repository `cihantanaydin-svg/WenArt_RUN` is public.
+
+## 13. As run (3 Oct 2026)
+
+### 13.1 Implementation and review
+
+Six areas were built in parallel worktrees on top of the foundation (`wenart/canonical.py`, `wenart/run/projects.py`)
+and integrated with a real CPU smoke run (Blender CPU, `tests/fakes/fake_vlm.py`, a private `real-01` copy of
+synthetic-04 in temp roots). A review (six finders, one adversarial verifier per area) confirmed 19 of 22 findings;
+all were fixed with a test each:
+
+| Id | Finding | Fix |
+|---|---|---|
+| R1/V1 | the judge pod rebuilt `ab/pairs.json` without `--ab-controls` and lost the control sets | judge defaults the control project from `ab/control_views.json`, reuses a complete pairs file, never drops stored controls |
+| R2 | stage code lists missed imported modules | lists = import closure, checked by an ast test |
+| R3 | A/B records decided a project's state and the exit code | project state from project stages only |
+| R4 | gate calibration redone on every resume | reused by fingerprint when complete |
+| R5 | a failed model download reused forever | warning, never reused |
+| R6 | a deadline cut of the check hidden by the next step | incomplete flags OR-ed over the steps |
+| IE-1…7 | old polish manifest added views; stale intake reused; stage table mixed runs; deadline before render = failed; intake doc; raw upload hashed; brief notes | see the commits of `fbe1d49` |
+| L1 | `--max-bounces 0` blacked out window panes | transmission bounces ≥ 2 |
+| L2 | M5 renders outlived the camera-policy switch | pre-M6 output folders archived to `/workspace/outputs-archive/` (renamed, never deleted); stale entries dropped |
+| C1 | the fallback camera of an L-shaped room could stand outside it | anchored at the pole of inaccessibility |
+| F2 | collection ok after failed downloads | failures counted, collection retried |
+
+Rejected by the verifiers: 3 (private logs already documented; hostless decor; a GPU-test concern that later proved
+real, see §13.3).
+
+### 13.2 Pods
+
+| Pod | Env | Minutes | Cost | Result |
+|---|---|---|---|---|
+| A `osej5qsm4v6cvv` | `RUN_PROJECTS="synthetic-01 synthetic-03"` | 82 (job 72.6) | $0.99 | ok; GPU tests 74 passed, 7 skipped by design |
+| B `pxy56z9yyehx1t` | `RUN_PROJECTS="synthetic-04 synthetic-05 synthetic-02" PRIVATE_SELFTEST=1 AB_PROJECTS="synthetic-01 synthetic-03" AB_PHASE=render AB_CONTROL_PROJECT=synthetic-01` | 68 (job 57.3) | $0.82 | ok; GPU tests 67 passed, 8 skipped by design |
+| C `tvmdvo88m67atz` | `AB_PROJECTS=… AB_PHASE=judge AB_CONTROL_PROJECT=synthetic-01` | 47 | $0.56 | exit 1: `null_identical` GLM 0.875 < 0.90 |
+| C2 `yaf146kugb9dzp` | same (all 1,840 answers reused) | 20 | $0.24 | ok; GPU tests 7 passed |
+
+Measured: Qwen's first start 250–280 s, a second Qwen start in the same pod 60 s (compile cache), GLM 70–140 s;
+camera search 1.1 s (synthetic-01) and 1.8 s (synthetic-03); polish 9 min (29 views) and 14 min (50 views);
+the plan's time rule was within 10 % of the measured project minutes. The style photo of synthetic-05 was read by both
+models before the style stage: floor `concrete_polished` from the photo, walls white from the brief.
+
+### 13.3 Realism decision
+
+M5 vs M6 on the 87 M5 cameras: consensus `photo` 22 W / 0 L / 65 T (sign p 4.8e-7, rooms 16 / 0 / 13, net win
+[+0.16, +0.36]). Decision by the rule of §6.1: **not_measurable**, because neither judge has signal: Qwen misses
+`ctl_direct` (2 of 8) and picks image 1 in 87 % of all calls; GLM misses `ctl_lowspp` (5 of 8), `null_identical`
+(28 of 32 ties) and `null_reencode` (19 % wins). Halo 0.97 (Qwen) and 1.00 (GLM): one verdict for all aspects.
+`look_alt`: not measurable (Qwen ties everything; GLM prefers the default look 35 : 8).
+
+Change after pod C: a model also needs both null targets to have signal (§6.2). It is stricter and changes no
+decision; `tests/gpu/test_realism.py` now checks that the null results are recorded and applied, instead of
+asserting a property of the judge. M7: one aspect per call, positions balanced inside the prompt, or another judge.
