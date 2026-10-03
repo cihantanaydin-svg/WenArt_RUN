@@ -78,6 +78,13 @@ class OpeningItem:
     block: Optional[str] = None
     status: str = "verified"
     element_id: Optional[str] = None
+    # Milestone 7 (docs/milestone7.md §1.3, §2.6, §2.7.1); defaults keep the old extractors unchanged.
+    virtual: bool = False                               # a separator line with no wall (kind "opening")
+    line: Optional[tuple[tuple[float, float], tuple[float, float]]] = None  # virtual separator, building metres
+    height: Optional[float] = None                      # metres; None = the build's default
+    sill: Optional[float] = None                        # windows: sill height, metres
+    assumed: list[str] = field(default_factory=list)    # names of values that are assumed ("height", "sill")
+    type_raw: Optional[str] = None                      # e.g. "unclassified gap content"
 
 
 @dataclass
@@ -93,6 +100,11 @@ class FurnitureItem:
     evidence: dict
     status: str = "verified"
     element_id: Optional[str] = None
+    # Milestone 7 (docs/milestone7.md §1.3, §2.8, §3.3).
+    type_method: Optional[str] = None                   # block_name | rule | ai_two_pass | none
+    type_candidates: list[dict] = field(default_factory=list)  # [{type, model, pass, confidence}]
+    extra_evidence: list[dict] = field(default_factory=list)   # further evidence (e.g. the two AI passes)
+    details: dict = field(default_factory=dict)         # "stair": {...}, "counter_run": {...}, "candidate_key": ...
 
 
 @dataclass
@@ -134,6 +146,15 @@ class LevelExtraction:
     # description names the source entity; the pipeline copies them into the building.
     conflicts: list[dict] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
+    # Milestone 7 (docs/milestone7.md §1.2); defaults keep the old extractors unchanged.
+    source_kind: Optional[str] = None               # cad_pdf | dxf | raster_scan | raster_photo (generic core only)
+    units_system: Optional[str] = None              # imperial | metric (None = metric, old extractors)
+    level_assumed: bool = False                     # level id/label assumed (no level title on the page)
+    site: Optional[dict] = None                     # schema "site" block (plot walls, areas, decor)
+    separators: list[OpeningItem] = field(default_factory=list)  # virtual separators (kind opening, virtual)
+    candidates: list[dict] = field(default_factory=list)         # furniture candidates waiting for AI typing
+    wall_mask_png: Optional[str] = None             # debug PNG of the wall mask
+    notes: list[str] = field(default_factory=list)  # report lines (rules that fired, dropped separators, ...)
 
     @property
     def metres_per_unit(self) -> Optional[float]:

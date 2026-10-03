@@ -29,8 +29,9 @@ import jsonschema
 SCHEMA_PATH = Path(__file__).resolve().parent / "schema" / "building.schema.json"
 SCHEMA_VERSION = "0.1"
 
-METHODS = ("vector", "ocr", "ai", "derived")
-ROOM_TYPES = ("living", "bedroom", "kitchen", "bathroom", "wc", "hall", "balcony", "storage", "other", "unknown")
+METHODS = ("vector", "raster", "ocr", "ai", "derived")
+ROOM_TYPES = ("living", "dining", "bedroom", "kitchen", "bathroom", "wc", "hall", "balcony", "storage", "prayer", "other",
+              "unknown")
 
 # Element kind -> ID prefix. Rooms and levels have their own functions.
 ID_PREFIX = {
