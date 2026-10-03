@@ -628,8 +628,10 @@ per call (2 in flight) ≈ 10.5 min per model without `look_alt`, ≈ 17 min wit
   vector PDF) from CAD instead of DWG; download the full outputs from
   `s3://h9er811d55/outputs-private/<alias>/`; removal only by the user. **What reaches Claude** for a private
   run: the final report (it contains room names and counts), the final previews and contact sheets, the stage
-  records. **What stays on the volume**: the documents, plan crops, debug overlays, building JSON, check
-  answers, logs.
+  records, `_run_manifest.json` and `_logs/` (vLLM, setup and download log tails, tail 200, and the
+  orchestrator traceback after a crash, which can name a file or a room; §1.1, §2.4). **What stays on the
+  volume**: the documents, plan crops, debug overlays, building JSON, check answers, the per-stage logs
+  (`<out>/run/logs/`).
 
 ### 7.2 Runner and repository guards
 
@@ -660,7 +662,26 @@ progress.md.
   project the debug images are named, not copied), `final_manifest.json` `status: needs_review`, exit 0.
 - Gate validation section and its effect; camera policy and score per view; views per room as rendered (1–3);
   a stage table from `out/run/*.json` (status, seconds, note); the window-pull EV per view.
-- For a private project the plan crops are named, not copied into `final/`.
+- The views are the render manifest's cameras: a camera only in the polish manifest (an earlier run's) is a
+  warning, never a view. With the gate decision `polish_disabled` or `not_validated` a
+  `polish/polish_manifest.json` on the volume is an earlier run's and is not used (`stages.polish: not_run`,
+  no polish models or seconds), so the view count always equals the render manifest's.
+- The stage table is this run's: the run is the `run_id` of the newest record (`run_id` in the manifest).
+  Records of earlier runs (stages this run did not reach) are listed apart as `earlier run <run_id>`
+  (`earlier_run_stages`) and never decide the status, so a needs-review report never lists an older run's
+  build or render as part of this run.
+- No render manifest and not `needs_review`: `status: not_rendered`, `status_note: "no renders in this run"`,
+  the report names this run's `incomplete`/`failed` stages (`stopped_stages`, e.g. `build incomplete
+  (deadline: build not started)`); exit 1, the only exit 1 besides a crash. `final_manifest.json` is written
+  after `final_report.md`, so a manifest newer than the report call means the report finished; the
+  orchestrator records the report of a project that was already `incomplete` or `failed` as `warning` (note
+  `no renders in this run`), so a deadline cut stays `incomplete`.
+- For a private project the plan crops are named, not copied into `final/`. The intake section shows counts,
+  reasons and the fixed note texts by kind (`intake.notes_by_kind`: a misnamed or nested brief, a DWG, a name
+  collision; any other note only as a count), never a file name; a brief that was not read (no `brief.yaml` at
+  the top level next to a `Brief.yaml`, `brief.yml` or a nested one) and DWG notes are advisory flags.
+- The brief's own warnings (`wenart.brief.load_brief`: no `brief.yaml`, a value of the wrong type) are report
+  warnings; for a private project the user's value is left out (`got str`, not the value).
 - Uses `wenart.views.resolve_repo_path` for every repo-relative path.
 
 ## 8. Pod plan and budget
