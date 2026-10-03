@@ -400,6 +400,7 @@ COLLECT_WORKERS = 8           # parallel result downloads (one at a time: 0.81 s
 COLLECT_MAX_FILE = 20_000_000
 COLLECT_MAX_TOTAL = 400_000_000   # one total over results/ and results-private/
 COLLECT_TRIES = 3             # collection attempts while the pod runs (a failed one is retried at the next poll)
+COLLECT_LISTING_TRIES = 5     # tries of the job folder listing and of each tree's root listing (10 s apart)
 # Private results first: a small allow-listed set (docs/milestone6.md §2.1) that exists nowhere else
 # in the session; both trees share the caps.
 COLLECT_TREES = ("results-private", "results")
@@ -428,11 +429,17 @@ def collect_all(status_url: str, run_dir: Path, workers: int = COLLECT_WORKERS) 
     result files of an M5 run would outlast the grace period.
 
     ``results-private/`` is walked when the job folder's listing shows it (or, when that listing
-    fails, tried once quietly); the private aliases inside it are symlinks the status server follows.
+    still fails after ``COLLECT_LISTING_TRIES`` tries, tried once quietly); the private aliases inside
+    it are symlinks the status server follows.
 
-    Returns ``{"files", "bytes", "capped", "ok", "job_log", "trees": {tree: {"listed", "files"}}}``;
-    ``ok`` (a successful collection, after which the runner may stop the pod) = job.log fetched and
-    every tree that exists listed completely.
+    Returns ``{"files", "bytes", "capped", "failed", "ok", "job_log", "job_listed", "trees": {tree:
+    {"listed", "files"}}}``; ``ok`` (a successful collection, after which the runner may stop the pod)
+    = job.log fetched, the job folder listed (without it the runner cannot know whether
+    results-private/ exists), every tree that exists listed completely and no listed file failed to
+    download (``failed``: fetch gave None; a file left out for its size is not a failure). The size
+    cap (``capped``) stays a warning: it is deliberate, and a retry would only hit it again. A failed
+    collection is retried at the next poll (``COLLECT_TRIES``), so a proxy glitch never lets the runner
+    stop the pod with files missing (review F2).
     """
     got = {}
     for name in ("status.json", "job.log"):
@@ -440,7 +447,15 @@ def collect_all(status_url: str, run_dir: Path, workers: int = COLLECT_WORKERS) 
         if raw:
             (run_dir / name).write_bytes(raw)
         got[name] = raw is not None
-    job_listing = fetch(status_url, timeout=30)
+    job_listing = None
+    for i in range(COLLECT_LISTING_TRIES):
+        job_listing = fetch(status_url, timeout=30)
+        if job_listing:
+            break
+        if i + 1 < COLLECT_LISTING_TRIES:
+            time.sleep(10)
+    if not job_listing:
+        print("warning: could not list the job folder on the pod (results-private/ may be missed)")
     present = set(parse_listing(job_listing.decode(errors="replace"))[1]) if job_listing else None
     todo: list[tuple[str, str]] = []
     trees: dict[str, dict] = {}
@@ -471,13 +486,13 @@ def collect_all(status_url: str, run_dir: Path, workers: int = COLLECT_WORKERS) 
             continue
         quiet = tree == "results-private" and present is None
         n_before = len(todo)
-        listed = walk(tree, "", 0, 1 if quiet else 5, quiet=quiet)
+        listed = walk(tree, "", 0, 1 if quiet else COLLECT_LISTING_TRIES, quiet=quiet)
         if quiet and not listed:
             continue                                   # no private results (the usual public job)
         trees[tree] = {"listed": listed, "files": len(todo) - n_before}
 
     lock = threading.Lock()
-    state = {"n": 0, "total": 0, "capped": False}
+    state = {"n": 0, "total": 0, "capped": False, "failed": []}
 
     def get(item: tuple[str, str]) -> None:
         tree, rel_name = item
@@ -486,8 +501,12 @@ def collect_all(status_url: str, run_dir: Path, workers: int = COLLECT_WORKERS) 
                 state["capped"] = True
                 return
         raw = fetch(status_url + urllib.parse.quote(f"{tree}/{rel_name}"), timeout=120)
-        if raw is None or len(raw) >= COLLECT_MAX_FILE:
+        if raw is None:
+            with lock:
+                state["failed"].append(f"{tree}/{rel_name}")
             return
+        if len(raw) >= COLLECT_MAX_FILE:
+            return                                     # left out for its size: deliberate, not a failure
         with lock:
             if state["total"] > COLLECT_MAX_TOTAL:
                 state["capped"] = True
@@ -500,12 +519,16 @@ def collect_all(status_url: str, run_dir: Path, workers: int = COLLECT_WORKERS) 
         list(pool.map(get, todo))
     if state["capped"]:
         print("warning: result size cap reached, not every file was downloaded")
+    failed = sorted(state["failed"])
+    if failed:
+        print(f"warning: {len(failed)} result file(s) failed to download, e.g. {', '.join(failed[:3])}")
     private = trees.get("results-private", {}).get("files", 0)
     print(f"collected {state['n']} result files ({state['total'] / 1e6:.1f} MB)"
           + (f", {private} of them listed under results-private/" if "results-private" in trees else ""))
-    ok = got["job.log"] and "results" in trees and all(t["listed"] for t in trees.values())
-    return {"files": state["n"], "bytes": state["total"], "capped": state["capped"], "ok": bool(ok),
-            "job_log": got["job.log"], "trees": trees}
+    ok = (got["job.log"] and job_listing is not None and "results" in trees
+          and all(t["listed"] for t in trees.values()) and not failed)
+    return {"files": state["n"], "bytes": state["total"], "capped": state["capped"], "failed": len(failed),
+            "ok": bool(ok), "job_log": got["job.log"], "job_listed": job_listing is not None, "trees": trees}
 
 
 def collect(status_url: str, run_dir: Path, workers: int = COLLECT_WORKERS) -> int:
@@ -707,8 +730,8 @@ def cmd_run(a: argparse.Namespace) -> int:
                     if stopped_by is not None:
                         break
                 else:
-                    print(f"collection {collect_tries}/{COLLECT_TRIES} incomplete (job.log or a listing missing); "
-                          "the pod is not stopped from here")
+                    print(f"collection {collect_tries}/{COLLECT_TRIES} incomplete (job.log, a listing or "
+                          f"{col['failed']} file download(s) missing); the pod is not stopped from here")
             if pod_status in ("EXITED", "TERMINATED"):
                 self_stopped = final_status is not None
                 break

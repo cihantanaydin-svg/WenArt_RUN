@@ -310,6 +310,50 @@ def test_collect_is_not_ok_without_job_log_or_results(status_server, tmp_path):
     assert col["ok"] is False and col["trees"]["results"]["listed"] is False
 
 
+def failing_fetch(monkeypatch, fails, inner=None):
+    """Wrap the routed ``fetch`` (or ``inner``): ``fails(url, n)`` -> True makes the n-th request of that
+    URL (from 1) return None, as a proxy 502/524 or a timeout does."""
+    inner = inner or gpu_run.fetch
+    seen: dict[str, int] = {}
+
+    def fetch(url, timeout=20):
+        seen[url] = seen.get(url, 0) + 1
+        return None if fails(url, seen[url]) else inner(url, timeout=timeout)
+
+    monkeypatch.setattr(gpu_run, "fetch", fetch)
+    return seen
+
+
+def test_collect_is_not_ok_when_a_file_download_failed(status_server, tmp_path, monkeypatch):
+    # Review F2 (a): a failed download (fetch -> None) was dropped silently and ok stayed True, so the
+    # runner stopped the pod without the final reports.
+    status_server["link"](make_job_dir(status_server["root"]))
+    failing_fetch(monkeypatch, lambda url, n: url.endswith("final_report.md"))
+    run_dir = new_dir(tmp_path / "r")
+    col = gpu_run.collect_all(PROXY_URL, run_dir, workers=2)
+    assert col["ok"] is False and col["failed"] == 2 and col["files"] == 8
+    assert all(t["listed"] for t in col["trees"].values()) and col["job_log"] and col["job_listed"]
+    assert not (run_dir / "results" / "final" / "synthetic-04" / "final_report.md").exists()
+
+
+def test_collect_retries_the_job_listing_and_is_not_ok_without_it(status_server, tmp_path, monkeypatch):
+    # Review F2 (b): the job-folder listing was tried once; when it and the one quiet results-private/
+    # try failed, the private tree was dropped without a word and ok stayed True.
+    status_server["link"](make_job_dir(status_server["root"]))
+    routed = gpu_run.fetch
+    seen = failing_fetch(monkeypatch, lambda url, n: url in (PROXY_URL, PROXY_URL + "results-private/"))
+    col = gpu_run.collect_all(PROXY_URL, new_dir(tmp_path / "down"))
+    assert col["ok"] is False and col["job_listed"] is False and set(col["trees"]) == {"results"}
+    assert seen[PROXY_URL] == gpu_run.COLLECT_LISTING_TRIES == 5
+    # A glitch on the first tries only: the listing is retried and the private tree is collected.
+    seen = failing_fetch(monkeypatch, lambda url, n: url == PROXY_URL and n <= 2, inner=routed)
+    run_dir = new_dir(tmp_path / "glitch")
+    col = gpu_run.collect_all(PROXY_URL, run_dir)
+    assert col["ok"] is True and col["job_listed"] and col["failed"] == 0 and seen[PROXY_URL] == 3
+    assert col["trees"]["results-private"] == {"listed": True, "files": 5}
+    assert (run_dir / "results-private" / "real-01" / "final" / "final_report.md").is_file()
+
+
 class FakeRunPod:
     """The REST v2 calls cmd_run makes, in memory. ``exit_after_polls``: the pod stops itself after that
     many GET /v2/pods/<id> calls (None: only a stop request stops it)."""
@@ -413,6 +457,21 @@ def test_runner_does_not_stop_early_when_the_collection_failed(runner, status_se
     assert rc == 0 and result == "ok, self-stop ok"
     assert fake.stop_sent_at is None
     assert sum(1 for u in status_server["requests"] if u.endswith("/job.log")) == gpu_run.COLLECT_TRIES
+
+
+def test_runner_retries_a_collection_with_a_failed_download_before_stopping(runner, status_server, tmp_path,
+                                                                             monkeypatch):
+    # Review F2: the first collection loses the private final report (proxy glitch); the runner must not
+    # stop the pod after it, but collect again at the next poll and stop only after the complete one.
+    report = "results-private/real-01/final/final_report.md"
+    failing_fetch(monkeypatch, lambda url, n: url.endswith(report) and n == 1)
+    fake = FakeRunPod()
+    rc, result = runner(fake, make_job_dir(status_server["root"]))
+    assert rc == 0 and result == "ok, stopped by runner after collect (watchdog and job-end stop armed)"
+    assert sum(1 for u in status_server["requests"] if u.endswith("/job.log")) == 2      # two collections
+    assert fake.calls.count(("POST", f"/v2/pods/{POD_ID}/action")) == 1
+    run_dir = next((tmp_path / "runs").iterdir())
+    assert (run_dir / report).read_text() == "# private"
 
 
 def test_run_result_wording():

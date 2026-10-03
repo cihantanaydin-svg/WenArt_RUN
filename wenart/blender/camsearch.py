@@ -40,8 +40,10 @@ How:
   points per convex polygon corner (0.45 m and 0.6 m in along the bisector),
   12 yaws (every 30 degrees, 0 = +X, counter-clockwise), height 1.25 m,
   pitch 0, ``shift_y = -0.10``. A room without a free point gets the M5
-  fallback point (the centroid or the nearest point clear of the tall
-  boxes) with a warning.
+  fallback point with a warning, anchored at the room's inner point
+  (``lighting.polylabel``, always inside the polygon; the centroid of an
+  L-shaped room can lie in the notch): that point, or the nearest point
+  clear of the tall boxes, or that point inside a box.
 - Pick (``select_views``): views per room by the room area (3 from 6 m2,
   2 from 3 m2, else 1); a candidate is blocked when its near share is over
   0.30 or one element covers over 0.50 of the rays; greedy by score among
@@ -473,10 +475,33 @@ def candidate_positions(room: dict, building: dict) -> tuple[list[tuple[float, f
     if points:
         return points, None
     tall = [obstacle_rect(f) for f in pieces if piece_bbox(f)[2] >= CAMERA_HEIGHT]
-    centroid = G.polygon_centroid(polygon)
-    search = cameras._Search(polygon, obstacles, tall, [], centroid)
-    p, warning = search.fallback(centroid, "no free camera point in the room")
+    p, warning = fallback_position(polygon, obstacles, tall)
     return [(round(float(p[0]), 9), round(float(p[1]), 9))], warning
+
+
+def fallback_position(polygon, obstacles, tall) -> tuple[tuple[float, float], str]:
+    """The M5 fallback (``cameras._Search.fallback``, unchanged) anchored at the room's inner point.
+
+    The anchor is ``lighting.polylabel`` (the point farthest from the walls), not the centroid: the
+    centroid of an L-shaped room can lie outside it, in the notch, and a camera there renders the wall
+    mass or the neighbouring room under this room's name (review C1). The inner point is always inside
+    the polygon, so a cramped view stays in the room and the model flags it ``blocked unavoidable``.
+    The warning says what happened: the anchor is the room's inner point, and the last resort is said
+    to be inside a proxy only when it is."""
+    from wenart.blender import lighting
+
+    x, y, distance = lighting.polylabel(polygon)
+    anchor = (x, y)
+    search = cameras._Search(polygon, obstacles, tall, [], anchor)
+    p, warning = search.fallback(anchor, "no free camera point in the room")
+    if warning.endswith("INSIDE a proxy"):
+        inside = any(geom2d.distance_to_rect(p, ob["center"], ob["size"], ob["rotation_deg"]) <= 1e-9 for ob in tall)
+        where = "INSIDE a proxy" if inside else f"{distance:.2f} m from the nearest wall"
+        warning = (f"no free camera point in the room; no point clear of the walls and the tall proxies, "
+                   f"camera at the room's inner point {where}")
+    else:
+        warning = warning.replace("centroid", "room's inner point")
+    return p, warning
 
 
 def yaw_difference(a: float, b: float) -> float:

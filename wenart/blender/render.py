@@ -64,7 +64,12 @@ plugged ids and ``RENDER_CODE_VERSION``); an entry without a render key
 the EXR and its measured seconds and exposure are kept. Anything else is
 rendered again and the reason is printed. A ``--cameras`` subset merges into
 the previous manifest; entries of cameras that no longer exist in the scene
-are dropped with a warning. ``--force`` re-renders everything asked.
+are dropped with a warning and listed under ``dropped_stale`` (camera,
+reason, the entry's ``scene_sha256`` and ``render_key``, the names of its
+files still on disk). The files are never deleted; ``dropped_stale`` is
+carried over by later runs while files of the camera remain and it has no
+entry again; readers take views from ``renders`` only. ``--force``
+re-renders everything asked.
 
 Why no compositor: Blender 5.x replaced ``scene.node_tree`` by
 ``compositing_node_group`` and reworked the File Output node; the multilayer
@@ -96,10 +101,19 @@ Milestone 6 (docs/milestone6.md §5 rows 7, 10-12; ``RENDER_CODE_VERSION``
 - Control and A/B flags (§6): ``--max-bounces N``, ``--no-denoise``,
   ``--ev-offset X`` (added to the auto, fixed or ``--look-from`` EV) and
   ``--preview-quality Q`` (one fixed JPEG quality, no size step-down); every
-  one is part of the render key.
+  one is part of the render key. ``--max-bounces N`` (the ``ctl_direct``
+  control) sets N diffuse, glossy and volume bounces (``bounce_settings``);
+  transmission and the total stay at >= 2 so a camera ray still passes both
+  faces of the window glass (a Glass BSDF for camera rays: with
+  ``max_bounces = 0`` every pane rendered black, review L1). The applied
+  values are in the render key and the manifest (``bounces``).
 - Deadline: once ``WENART_DEADLINE`` (epoch seconds, environment) is past,
   no new camera is rendered (cameras whose files can be reused still are);
   the manifest says ``incomplete: true`` and lists ``not_rendered``; exit 3.
+  A not-rendered camera whose carried-over entry was rendered from another
+  scene build loses that entry (listed under ``dropped_stale``, files kept),
+  so no reader takes an older build's image for a view of this scene
+  (review L2).
   Previews with a pull are written by Blender's JPEG writer from the
   blended PNG (``encode_preview``), the same encoder and quality as a direct
   save (decoded pixels equal).
@@ -147,6 +161,9 @@ PULL_FEATHER_PX = 3                # the mask edge blends over this many pixels,
 DISPLAY_PNG_LEVEL = 1              # zlib level of the pulled display PNGs (OIIO)
 DEADLINE_ENV = "WENART_DEADLINE"
 EXIT_INCOMPLETE = 3
+# --max-bounces N (docs/milestone6.md §6.2 ctl_direct): transmission and the total never go below this, so
+# a camera ray passes both faces of the window glass (review L1).
+MIN_GLASS_BOUNCES = 2
 
 # Metering and exposure (docs/milestone5.md §2.4; calibrated in pod runs 0/1).
 METER_RES_DIV = 8
@@ -190,7 +207,9 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--plug", action="store_true", help="close the wall holes of hidden doors/windows")
     parser.add_argument("--hide-sets", help="'cam:id[,id][+plug];...': one control render per set")
     parser.add_argument("--alt-look", help="also save <cam>_alt_preview.jpg with this AgX look ('AgX - Punchy')")
-    parser.add_argument("--max-bounces", type=int, help="Cycles max bounces (0 = direct light only)")
+    parser.add_argument("--max-bounces", type=int,
+                        help="N indirect diffuse/glossy/volume bounces (0 = direct light only); window glass "
+                             "still transmits (transmission and total bounces >= 2)")
     parser.add_argument("--ev-offset", type=float, default=0.0, help="stops added to the auto/fixed/look-from EV")
     parser.add_argument("--preview-quality", type=int, help="fixed JPEG quality of the previews (no step-down)")
     return parser.parse_args(argv)
@@ -417,6 +436,18 @@ def window_clip_frac(display_rgb, index, window_indices, level: float = WINDOW_C
     return round(float(clipped.sum()) / float(win.sum()), 4)
 
 
+def bounce_settings(max_bounces: int) -> dict:
+    """The Cycles bounce limits of ``--max-bounces N`` (the ``ctl_direct`` control, docs/milestone6.md
+    §6.2): N diffuse, glossy and volume bounces, so the room gets no more than N bounces of indirect
+    light (0 = direct light only); transmission and the total stay at ``MIN_GLASS_BOUNCES`` or more so
+    a camera ray still passes both faces of the window glass and the panes show the sky. A plain
+    ``max_bounces = N`` turned every pane black with N = 0 (review L1)."""
+    n = int(max_bounces)
+    keep = max(n, MIN_GLASS_BOUNCES)
+    return {"max_bounces": keep, "diffuse_bounces": n, "glossy_bounces": n, "volume_bounces": n,
+            "transmission_bounces": keep}
+
+
 def render_key(settings: dict) -> str:
     """First 16 hex of sha256 over the canonical JSON of the render settings."""
     blob = json.dumps(settings, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
@@ -443,12 +474,17 @@ def key_settings(samples: int, resolution, denoiser, exposure_mode: str, exposur
         else:
             exposure = {"mode": "off"}
         wb = "fixed:" + ",".join(f"{v:.6f}" for v in wb_fixed) if wb_mode == "fixed" else wb_mode
-    return {"samples": int(samples), "resolution": [int(v) for v in resolution], "denoiser": denoiser,
-            "exposure": exposure, "white_balance": wb, "passes": list(PASSES),
-            "hidden": sorted(hidden), "plugged": sorted(plugged), "code": RENDER_CODE_VERSION,
-            "alt_look": alt_look or None, "max_bounces": None if max_bounces is None else int(max_bounces),
-            "ev_offset": round(float(ev_offset or 0.0), 6),
-            "preview_quality": None if preview_quality is None else int(preview_quality)}
+    settings = {"samples": int(samples), "resolution": [int(v) for v in resolution], "denoiser": denoiser,
+                "exposure": exposure, "white_balance": wb, "passes": list(PASSES),
+                "hidden": sorted(hidden), "plugged": sorted(plugged), "code": RENDER_CODE_VERSION,
+                "alt_look": alt_look or None, "max_bounces": None if max_bounces is None else int(max_bounces),
+                "ev_offset": round(float(ev_offset or 0.0), 6),
+                "preview_quality": None if preview_quality is None else int(preview_quality)}
+    if max_bounces is not None:
+        # The applied limits (review L1): a --max-bounces render of the old rule (max_bounces only, black
+        # panes) gets another key. Absent for a normal render, so its key is unchanged.
+        settings["bounces"] = bounce_settings(max_bounces)
+    return settings
 
 
 # --------------------------------------------------------------------------
@@ -760,6 +796,23 @@ def load_previous(manifest_path: Path) -> dict[str, dict]:
         return {}
 
 
+def load_dropped(manifest_path: Path) -> dict[str, dict]:
+    """``dropped_stale`` items of the last render manifest keyed by camera; empty when absent or unreadable."""
+    if not manifest_path.exists():
+        return {}
+    try:
+        items = json.loads(manifest_path.read_text(encoding="utf-8")).get("dropped_stale") or []
+        return {d["camera"]: d for d in items if isinstance(d, dict) and d.get("camera")}
+    except (ValueError, KeyError, TypeError, AttributeError):
+        return {}
+
+
+def stale_item(camera: str, entry: dict, reason: str) -> dict:
+    """A ``dropped_stale`` item (``files`` is filled in when the manifest is written)."""
+    return {"camera": camera, "reason": reason, "scene_sha256": entry.get("scene_sha256"),
+            "render_key": entry.get("render_key"), "files": []}
+
+
 def reuse_reason(cam_name: str, previous: dict | None, fingerprint: str | None, files: list[Path],
                  key: str | None = None) -> str | None:
     """Why a camera must be rendered again, or None when its files can be reused."""
@@ -832,11 +885,12 @@ def configure_render(scene, samples: int, res: tuple[int, int], device: str, den
                      max_bounces: int | None = None) -> str | None:
     """Samples, resolution, denoiser, the pass toggles (``PASSES``: combined,
     depth, normal, object index and, since Milestone 6, Diffuse Color for the
-    window pull) and, for a control render, ``max_bounces``. Returns the
-    denoiser name."""
+    window pull) and, for a control render, the bounce limits of
+    ``max_bounces`` (``bounce_settings``). Returns the denoiser name."""
     scene.cycles.samples = samples
     if max_bounces is not None:
-        scene.cycles.max_bounces = int(max_bounces)
+        for name, value in bounce_settings(max_bounces).items():
+            setattr(scene.cycles, name, value)
     scene.cycles.use_adaptive_sampling = True
     scene.cycles.use_denoising = denoise
     denoiser = None
@@ -1298,11 +1352,19 @@ class RenderRun:
         # The manifest is cumulative: entries of cameras not asked for in this run are
         # carried over (a --cameras subset must not forget the others), entries of cameras
         # that no longer exist in the scene are dropped, and each one says what it is.
+        # Dropped entries are listed under dropped_stale (their files stay on disk, review L2);
+        # earlier items are carried over while the camera has no entry and files of it remain.
         run_names = {o.name for o in cameras}
         self.entries: dict[str, dict] = {}
+        self.dropped: dict[str, dict] = dict(load_dropped(self.manifest_path))
+        self.carried = set(self.dropped)     # items of earlier runs (kept only while files remain)
         for name, entry in self.previous.items():
             if name not in ctx.camera_names:
-                self.warnings.append(f"{name}: no such camera in the scene, manifest entry dropped")
+                self.warnings.append(f"{name}: no such camera in the scene, manifest entry dropped "
+                                     f"(listed under dropped_stale, files kept)")
+                self.dropped[name] = stale_item(name, entry, "no such camera in the scene (a camera of an "
+                                                             "earlier build or camera policy)")
+                self.carried.discard(name)
                 continue
             if name not in run_names and entry.get("scene_sha256") != ctx.fingerprint:
                 self.warnings.append(f"{name}: rendered from another scene build and not asked for in this run")
@@ -1316,6 +1378,35 @@ class RenderRun:
     @property
     def incomplete(self) -> bool:
         return bool(self.not_rendered)
+
+    def cut(self, cam) -> None:
+        """Past the deadline: ``cam`` goes on ``not_rendered``. A carried-over entry of it that was
+        rendered from another scene build is dropped (``dropped_stale``, files kept): it is not a view
+        of this scene, and readers would take it for one (review L2)."""
+        self.not_rendered.append(cam.name)
+        entry = self.entries.get(cam.name)
+        fingerprint = self.ctx.fingerprint
+        if entry is None or fingerprint is None or entry.get("scene_sha256") == fingerprint:
+            return
+        del self.entries[cam.name]
+        old = str(entry.get("scene_sha256") or "none")[:12]
+        self.dropped[cam.name] = stale_item(cam.name, entry, f"not re-rendered before {DEADLINE_ENV}; the entry "
+                                                             f"was rendered from another scene build ({old})")
+        self.carried.discard(cam.name)
+        self.warnings.append(f"{cam.name}: not re-rendered before {DEADLINE_ENV}; its entry from another scene "
+                             f"build was dropped (listed under dropped_stale, files kept)")
+
+    def dropped_stale(self) -> list[dict]:
+        """The ``dropped_stale`` list: cameras without an entry, with the files of them still on disk."""
+        out = []
+        for name in sorted(self.dropped):
+            if name in self.entries:
+                continue                     # rendered (or reused) again in this run
+            item = dict(self.dropped[name])
+            item["files"] = sorted(p.name for p in self.files(name).values() if p.exists())
+            if item["files"] or name not in self.carried:
+                out.append(item)             # a carried item without files left is not stale any more
+        return out
 
     def write_manifest(self) -> None:
         ctx = self.ctx
@@ -1342,10 +1433,12 @@ class RenderRun:
             "plugged": self.plugged,
             "alt_look": args.alt_look or None,
             "max_bounces": args.max_bounces,
+            "bounces": None if args.max_bounces is None else bounce_settings(args.max_bounces),
             "ev_offset": float(args.ev_offset or 0.0),
             "preview_quality": args.preview_quality,
             "pass_index": ctx.pass_index,
             "renders": [self.entries[name] for name in sorted(self.entries)],
+            "dropped_stale": self.dropped_stale(),
             "incomplete": self.incomplete,
             "not_rendered": list(self.not_rendered),
             "deadline": ctx.deadline,
@@ -1685,7 +1778,7 @@ def main(argv: list[str]) -> int:
                 continue
             if deadline_passed(deadline):
                 # Past the deadline: no new camera (docs/milestone6.md §5 row 12); reusable ones still count.
-                run.not_rendered.append(cam.name)
+                run.cut(cam)
                 continue
             if hide_set is not None:
                 hider.apply(hide_set["ids"], hide_set["plug"])

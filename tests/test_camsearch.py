@@ -396,7 +396,7 @@ def test_a_room_without_a_free_point_gets_the_fallback_with_a_warning():
     # clear of every box at least as tall as the camera) and every view says so.
     building = _building(3.0, 3.0, furniture=[("b", "bed", (1.5, 1.5), (2.6, 2.6), 0.0, (2.6, 2.6, 0.6))])
     points, warning = C.candidate_positions(building["rooms"][0], building)
-    assert points == [(1.5, 1.5)] and "no free camera point" in warning and "centroid" in warning
+    assert points == [(1.5, 1.5)] and "no free camera point" in warning and "room's inner point" in warning
     plans = cameras.plan_cameras(building, "L0", policy="search")
     assert 1 <= len(plans) <= 3
     for p in plans:
@@ -405,6 +405,34 @@ def test_a_room_without_a_free_point_gets_the_fallback_with_a_warning():
     full = _building(3.0, 3.0, furniture=[("w", "wardrobe", (1.5, 1.5), (2.8, 2.8), 0.0, (2.8, 2.8, 2.1))])
     plans = cameras.plan_cameras(full, "L0", policy="search")
     assert plans and all("INSIDE a proxy" in p["warning"] for p in plans)
+
+
+L_SHAFT = [[0, 0], [3, 0], [3, 0.5], [0.5, 0.5], [0.5, 3], [0, 3]]           # legs 0.5 m wide
+L_CLOSET = [[0, 0], [3, 0], [3, 1.0], [1.0, 1.0], [1.0, 3], [0, 3]]          # legs 1.0 m wide
+CLOSET_WARDROBES = [("w1", "wardrobe", (1.5, 0.3), (3.0, 0.6), 0.0, (3.0, 0.6, 2.1)),
+                    ("w2", "wardrobe", (0.3, 1.5), (3.0, 0.6), 90.0, (3.0, 0.6, 2.1))]
+
+
+@pytest.mark.parametrize("polygon, furniture, inside_proxy", [(L_SHAFT, [], False),
+                                                              (L_CLOSET, CLOSET_WARDROBES, True)])
+def test_fallback_camera_of_an_l_shaped_room_stays_inside_the_room(polygon, furniture, inside_proxy):
+    # Review C1: the centroid of an L lies in the notch, outside the room. The fallback is anchored at the
+    # room's inner point (lighting.polylabel), so the camera stays in the room, the cramped view is flagged
+    # "blocked unavoidable" and the warning says where the camera is (inside a proxy only when it is).
+    building = _building(3.0, 3.0, polygon=polygon, furniture=furniture)
+    assert not G.point_in_polygon(G.polygon_centroid(polygon), polygon)
+    plans = cameras.plan_cameras(building, "L0", policy="search")
+    assert len(plans) == 1
+    (plan,) = plans
+    assert G.point_in_polygon(plan["position"][:2], polygon)
+    assert plan["score"]["blocked"] and C.BLOCKED_WARNING in plan["warning"]
+    assert "room's inner point" in plan["warning"] and "centroid" not in plan["warning"]
+    assert ("INSIDE a proxy" in plan["warning"]) is inside_proxy
+    if not inside_proxy:
+        assert "m from the nearest wall" in plan["warning"]
+    # The M5 policy keeps its own fallback, byte for byte (cameras._Search is unchanged).
+    m5 = cameras.plan_cameras(building, "L0")
+    assert all("centroid" in p["warning"] for p in m5)
 
 
 # --------------------------------------------------------------------------

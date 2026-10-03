@@ -475,6 +475,64 @@ def test_load_views_controls_layout_finds_the_scene_manifest(tmp_path):
     assert view.level_id == "L0" and view.hidden == ("f_1",) and view.png.parent == hide.resolve()
 
 
+def _rewrite_manifest(render_dir: Path, **fields) -> dict:
+    path = render_dir / "render_manifest.json"
+    manifest = json.loads(path.read_text(encoding="utf-8"))
+    manifest.update(fields)
+    path.write_text(json.dumps(manifest, indent=1), encoding="utf-8")
+    return manifest
+
+
+def test_load_views_skips_older_build_entries_of_a_deadline_cut_render(tmp_path):
+    # Review L2 (b): a render cut by WENART_DEADLINE kept the entries of the cameras it did not render, also
+    # when they were rendered from another scene build (M5, or a camera since moved), and load_views returned
+    # them as views of the current scene. A manifest written before the render.py fix still holds them.
+    old = m5_entry("cam_old", "r_L0_salon", scene_sha256="m5" * 32)
+    same = m5_entry("cam_same", "r_L0_hol", scene_sha256="now" * 16)
+    kept = m5_entry("cam_kept", "r_L0_hol", scene_sha256="m5" * 32)          # not cut: a --cameras subset run
+    renders = write_render_dir(tmp_path / "toy", [old, same, kept])
+    manifest = _rewrite_manifest(renders, scene_sha256="now" * 16, incomplete=True,
+                                 not_rendered=["cam_old", "cam_same"])
+    warnings = []
+    views = V.load_views(renders, skip_stale=True, warnings=warnings)
+    assert list(views) == ["cam_same", "cam_kept"]
+    assert len(warnings) == 1 and "cam_old" in warnings[0] and "deadline" in warnings[0]
+    with pytest.raises(V.StaleRender) as err:
+        V.load_views(renders, "cam_old")
+    assert err.value.missing == ["scene_sha256"] and "another scene build" in str(err.value)
+    assert V.deadline_stale(old, manifest) and V.deadline_stale(same, manifest) is None
+    assert V.deadline_stale(kept, manifest) is None and V.deadline_stale(old, None) is None
+    assert V.view_from_entry(old, renders).camera == "cam_old"               # without the manifest: no check
+
+
+def test_dropped_stale_items_are_never_views(tmp_path):
+    # Cameras that left the scene (the M6 camera search dropped some M5 cameras): render.py moves their
+    # entries to dropped_stale and keeps their files. Every reader takes views from `renders` only.
+    renders = write_render_dir(tmp_path / "toy", [m5_entry("cam_a", "r_L0_salon"), m5_entry("cam_gone", "r_L0_hol")])
+    manifest = json.loads((renders / "render_manifest.json").read_text(encoding="utf-8"))
+    gone = manifest["renders"].pop()
+    _rewrite_manifest(renders, renders=manifest["renders"], dropped_stale=[
+        {"camera": "cam_gone", "reason": "no such camera in the scene", "scene_sha256": "x",
+         "render_key": gone["render_key"], "files": sorted(p.name for p in renders.glob("cam_gone*"))}])
+    assert (renders / "cam_gone.png").is_file()                              # its files stay
+    assert list(V.load_views(renders)) == ["cam_a"]
+    with pytest.raises(KeyError):
+        V.load_views(renders, ["cam_gone"])
+    # The other readers of render_manifest.json: the realism control views and the final report's inputs.
+    from wenart.vision_check import realism
+    rm = json.loads((renders / "render_manifest.json").read_text(encoding="utf-8"))
+    assert realism.control_views(rm, hand_made_manifest()) == ["cam_a"]
+    from test_report import make_project
+    from wenart.report import final
+    out = make_project(tmp_path / "report")
+    path = out / "renders" / "render_manifest.json"
+    rm = json.loads(path.read_text(encoding="utf-8"))
+    rm["dropped_stale"] = [{"camera": "cam_gone_1", "reason": "no such camera in the scene", "files": []}]
+    path.write_text(json.dumps(rm), encoding="utf-8")
+    inp = final.load_inputs(out)
+    assert inp.entries and "cam_gone_1" not in inp.entries
+
+
 def test_view_from_entry_rejects_pre_m5_entries():
     # An M4 render entry: an M5 entry without the fields Milestone 5 added (the committed results now hold
     # M5 manifests, so the pre-M5 shape is built here).

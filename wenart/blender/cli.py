@@ -28,7 +28,9 @@ defaults to ``m5``; the full-run orchestrator passes ``search``.
 Render flags of docs/milestone6.md §5 rows 10-12 (render.py): ``--alt-look``
 also saves ``<cam>_alt_preview.jpg`` with that look and the same window pull;
 ``--max-bounces``, ``--no-denoise``, ``--ev-offset`` and ``--preview-quality``
-are the control and A/B flags of §6 (all part of the render key). The render
+are the control and A/B flags of §6 (all part of the render key;
+``--max-bounces N`` limits the diffuse, glossy and volume bounces to N and
+keeps >= 2 transmission bounces, so the window panes still show the sky). The render
 stops before a new camera once ``WENART_DEADLINE`` (epoch seconds, from the
 environment) is past and exits 3.
 
@@ -233,7 +235,9 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--plug", action="store_true", help="close the wall holes of hidden doors/windows")
     r.add_argument("--hide-sets", help="'cam:id;cam:id+plug;...': control renders into <out>/hide_<id>/")
     r.add_argument("--alt-look", help="also save <cam>_alt_preview.jpg with this AgX look (e.g. 'AgX - Punchy')")
-    r.add_argument("--max-bounces", type=int, help="Cycles max bounces (0 = direct light only; a control)")
+    r.add_argument("--max-bounces", type=int,
+                   help="N indirect diffuse/glossy/volume bounces (0 = direct light only; a control); window "
+                        "glass still transmits (transmission and total bounces >= 2)")
     r.add_argument("--no-denoise", action="store_true", help="no denoiser (a control)")
     r.add_argument("--ev-offset", type=float, help="stops added to the auto, fixed or --look-from EV")
     r.add_argument("--preview-quality", type=int, help="fixed JPEG quality of the previews, no size step-down")
