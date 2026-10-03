@@ -124,10 +124,14 @@ def test_golden_plan_of_the_committed_projects(golden):
             assert (s6["levels"], s6["rooms"], s6["empty_rooms"], s6["views"]) == (1, 6, 2, 17)
             assert s6["server_starts"] == 3 and s6["questions"] is None
     r1 = by["real01"]
-    # real01 writes 17 recognition questions (exit 4): pod time from the pre-answer building, both passes to ask.
+    # real01 writes 17 recognition questions (exit 4): pod time from the pre-answer building. The prep pod's answers
+    # are committed (results/recognition/real01, M7 §9.2): every question is answered by the seeds, so no call and no
+    # recognition server start (without the seeds: 34 calls, 4 starts).
     assert (r1["status"], r1["stage_status"], r1["levels"], r1["rooms"]) == ("pending", "pending", 1, 9)
-    assert (r1["questions"], r1["recognition_calls"], r1["server_starts"], r1["verified"]) == (17, 34, 4, False)
-    calls = P.recognition_minutes({"qwen": 17, "glm": 17}, plan["gpu"]["seqs"])
+    seeded = (REPO_ROOT / "results" / "recognition" / "real01" / "answers_qwen3-vl-8b.json").is_file()
+    want = (17, 0, 3, False) if seeded else (17, 34, 4, False)
+    assert (r1["questions"], r1["recognition_calls"], r1["server_starts"], r1["verified"]) == want
+    calls = P.recognition_minutes({} if seeded else {"qwen": 17, "glm": 17}, plan["gpu"]["seqs"])
     assert r1["minutes"] == P.project_minutes(r1["views"], r1["empty_rooms"], calls, speed=SPEED)
     assert r1["views"] == 20 and r1["pod"] is not None
     rv = by["review-01"]
@@ -135,7 +139,7 @@ def test_golden_plan_of_the_committed_projects(golden):
     assert rv["report"].endswith("review-01/report.md") and (out / "review-01" / "report.md").is_file()
     assert "cannot order untitled plan pages" in (out / "review-01" / "report.md").read_text()
     pod_of_real01 = next(pod for pod in plan["pods"] if "real01" in pod["projects"])
-    assert pod_of_real01["verified"] is False and pod_of_real01["server_starts"] == 4
+    assert pod_of_real01["verified"] is False and pod_of_real01["server_starts"] == (3 if seeded else 4)
     assert all(pod["fits"] for pod in plan["pods"])
     if PRESENT == GOLDEN and by["synthetic-06"]["status"] == "ok":
         # At the measured RTX PRO 6000 speed (1.634) five synthetic projects fit one pod (first fit).
@@ -161,7 +165,7 @@ def test_gpu_speed_and_sequences_change_the_minutes(golden, monkeypatch):
     assert slow["gpu"]["seqs"] == {"qwen": 2, "glm": 2}
     r_fast = next(e for e in plan["projects"] if e["project"] == "real01")
     r_slow = slow["projects"][1]
-    assert r_slow["minutes"] > r_fast["minutes"]                     # 34 calls at 2 instead of 8 at once
+    assert r_slow["minutes"] > r_fast["minutes"]                     # speed 1.0 (and, unseeded, 34 calls at 2)
     monkeypatch.setitem(P.GPU_SPEED, "RTX PRO 6000", 2.0)
     fast = P.make_plan(["synthetic-01"], outputs=out, gpu=GPU)
     assert fast["projects"][0]["minutes"] == round(P.project_minutes(29, 7, speed=2.0), 2) == 11.96

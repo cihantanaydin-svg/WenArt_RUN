@@ -333,8 +333,14 @@ def run(tmp_path_factory):
         stage(f"style_photo_test_{key}", lambda: vc_main(
             ["style-photo", "--project-out", str(out), "--model-key", key, "--photo", str(STYLE_TEST_PHOTO),
              "--out", str(out / "check" / "style_photo_test.json")], client_factory=factory))
-    stage("combine", lambda: vc_main(["combine", "--project-out", str(out), "--models", "qwen,glm"]))
-    stage("check_calibrate", lambda: vc_main(["calibrate", "--project-out", str(out)]))
+    # The M5 chain has no detect stage (M7 §8.1): combine runs with the detector advisory, as in Milestone 5; with
+    # the calibrated check.yaml block a polished view without a current detection stays Cycles (tested in
+    # tests/test_gate_detect.py and the M7 smoke e2e, tests/test_run_e2e.py).
+    from wenart.gate import detect as D
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setattr(D, "detector_cfg", lambda cfg: None)
+        stage("combine", lambda: vc_main(["combine", "--project-out", str(out), "--models", "qwen,glm"]))
+        stage("check_calibrate", lambda: vc_main(["calibrate", "--project-out", str(out)]))
     stage("photo_terms", lambda: photos_main(["combine", str(out / "check" / "style_photo_test.json"), "--out",
                                               str(out / "check" / "style_photo_test_terms.json")]))
 

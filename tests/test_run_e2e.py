@@ -272,16 +272,20 @@ def test_copy_layout_and_count_only_output(smoke):
 
 
 def test_real01_questions_answered_and_built(smoke):
-    """M7 §9.1: real01's pipeline writes 17 recognition questions (exit 4); the fake server answers both passes;
-    pipeline_final runs with --no-ai (smoke), fit after it; the generic building is built and rendered."""
+    """M7 §9.1: real01's pipeline writes 17 recognition questions (exit 4); both passes are answered (by the prep
+    pod's committed seeds, results/recognition/real01, without a server: ``reused``; without the seeds by the fake
+    server: ``ok``); pipeline_final runs with --no-ai (smoke), fit after it; the generic building is built and
+    rendered."""
     m = _manifest(smoke)
     out = smoke["outputs"] / "real01"
     records = _records(out, m["run_id"])
     _check_ok_project(out, records, questions=True)
     assert records["pipeline"]["status"] == "pending" and records["pipeline"]["rc"] == 4
     assert records["pipeline"]["note"].startswith("17 recognition question(s)")
-    assert records["recognize"]["status"] == "ok"
-    assert [s["name"] for s in records["recognize"]["steps"]] == ["ask glm", "ask qwen"]
+    seeded = (ROOT / "results" / "recognition" / "real01" / "answers_qwen3-vl-8b.json").is_file()
+    assert records["recognize"]["status"] == ("reused" if seeded else "ok")
+    verb = "stored answers" if seeded else "ask"
+    assert [s["name"] for s in records["recognize"]["steps"]] == [f"{verb} glm", f"{verb} qwen"]
     final = records["pipeline_final"]
     assert final["status"] == "ok" and final["note"] == "smoke profile: --no-ai"
     assert final["written"]["building.json"] == ST.canonical_sha256(out / "building.json")
