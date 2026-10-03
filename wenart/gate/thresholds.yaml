@@ -3,7 +3,8 @@
 # (W*H). Proposals from `python -m wenart.gate calibrate` are applied here by
 # hand after review; a proposal looser than the start values needs the user's OK.
 # Calibrated on 2 Oct 2026 from run 1a (results/gate/<p>/gate_calibration.md,
-# docs/milestone5.md §4.2): the looser limits wait for the user's OK (user_ok).
+# docs/milestone5.md §4.2): the user approved the looser limits on 3 Oct 2026 (user_ok);
+# every project with polish on is also validated before its polish (docs/milestone6.md §7.3).
 edges:       {hard: true,  global_min: 0.935, region_min: 0.87, region_min_ref_px: 200, radius_px: 3,
               canny: {sigma: 1.5, low: 25, high: 75}}
 added_lines: {hard: true,  region_max_len_frac: 0.04, min_len_frac: 0.04, unmatched_frac: 0.70}
@@ -19,4 +20,4 @@ calibration: {source: "run 1a, job 20261002-135133-polish", date: "2026-10-02",
                                   "masks.region_min 0.90"],
               tighter_than_start: ["edges.region_min 0.85", "colour.global_max 10", "colour.region_max 15",
                                    "neutral.region_max_dchroma 5"],
-              user_ok: pending, accepted_shortfall: null}
+              user_ok: "2026-10-03", accepted_shortfall: null}

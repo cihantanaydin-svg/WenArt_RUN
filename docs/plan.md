@@ -1,6 +1,7 @@
 # WenArt_RUN – PoC plan (Milestone 0)
 
-Date: 1 October 2026. Status: **draft for your OK**. Nothing has been spent on GPUs.
+Date: 1 October 2026. Status: **approved by the user on 3 Oct 2026**, together with the changes recorded in
+`docs/milestone5.md` §0 and `docs/milestone6.md` §0 (decisions: `docs/progress.md`, "Decisions of 3 Oct 2026").
 
 This plan is written for a beginner. Each section says what we will do, what we
 chose, and why. Links point to official sources; anything we could not verify is
@@ -386,12 +387,15 @@ both VLMs run with `--quantization fp8 --max-model-len 8192`.
 - Milestone 6 added `synthetic-04` (3rd-floor flat drawn as DXF + vector PDF of the same level, two L-shaped rooms, an
   armchair at 45°, Japandi brief) and `synthetic-05` (notched outline, floor-plan DXF without furniture + a furniture-plan
   DXF, en-suite, study, a style photo, `polish: false`) (`docs/synthetic.md`).
-- Real projects: this repository is **public**, so a real project is never committed and never placed under
-  `projects/` (the pod also runs `git clean -fdx` there). You upload a project folder straight to the network volume with
+- Confidential projects: this repository is **public**, so a confidential project is never committed and never
+  placed under `projects/` (the pod also runs `git clean -fdx` there). You upload a project folder straight to the network volume with
   the RunPod S3 API under a neutral alias (`real-01`, …) and run it with `PRIVATE_PROJECTS=real-01`; outputs stay on the
   volume, only an allow-listed summary (final report, previews, contact sheets) reaches the session (`docs/intake.md`).
   DWG files are not read: export DXF (or a vector PDF) from the CAD program.
 - One command per pod runs every stage of every project (`scripts/jobs/full.sh` → `python -m wenart.run pod`).
+- Decision of 3 Oct 2026: for now your projects are **not confidential**: they go into `projects/<name>/` and are
+  committed to this public repository like the synthetic ones (no S3 key needed). The private upload path stays
+  ready for confidential projects later.
 - Milestones 1–7 as in your brief; after each one: commit, push, `docs/progress.md`.
 
 ## 8. Licence flags (summary)

@@ -395,7 +395,7 @@ calibration: {source: "run 1a, job 20261002-135133-polish", date: "2026-10-02",
                                   "masks.region_min 0.90"],
               tighter_than_start: ["edges.region_min 0.85", "colour.global_max 10", "colour.region_max 15",
                                    "neutral.region_max_dchroma 5"],
-              user_ok: pending, accepted_shortfall: null}
+              user_ok: "2026-10-03", accepted_shortfall: null}
 ```
 `*_min`: value ≥ threshold passes; `*_max`: value ≤ threshold passes; `region_min_frac` = region pixels /
 (W·H).

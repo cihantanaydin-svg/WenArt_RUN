@@ -60,9 +60,12 @@ VOLUME_NAME = "wenart"
 VOLUME_SIZE_GB = 120
 CONTAINER_DISK_GB = 30
 POD_PREFIX = "wenart-"
-# Allowed GPUs in order of preference: 24 GB+, RT cores, under $1/h (docs/milestone6.md §0:
-# every M5/M6 timing is measured on the RTX PRO 4500 / RTX 4090; A5000/A40/A6000 had no stock).
-GPU_PRIORITY = ["RTX PRO 4500", "RTX 4090", "RTX PRO 4000", "RTX A5000", "RTX A6000", "A40"]
+# Allowed GPUs, fastest first (user decision of 3 Oct 2026: "for faster job finish choose a better GPU"):
+# 24 GB+, RT cores, under the $1/h limit. Measured: the RTX 4090 renders and polishes 25-30 % faster than
+# the RTX PRO 4500 (M5 runs 1a/2); the RTX 5090, RTX PRO 5000, RTX 6000 Ada and L40 are not measured yet
+# (expected faster or equal; they had no stock in EU-RO-1 on 3 Oct 2026). Ampere cards last.
+GPU_PRIORITY = ["RTX 5090", "RTX PRO 5000", "RTX 4090", "RTX 6000 Ada", "L40", "RTX PRO 4500", "RTX 5000 Ada",
+                "RTX PRO 4000", "RTX A6000", "A40", "RTX A5000"]
 EXCLUDED_GPUS = ("L4",)       # never, not even with --gpu (docs/milestone6.md §0)
 POLL_S = 20
 BOOT_TIMEOUT_S = 15 * 60  # pod RUNNING but no status server -> stop it

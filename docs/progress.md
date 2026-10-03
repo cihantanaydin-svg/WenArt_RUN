@@ -1,6 +1,6 @@
 # Progress
 
-## Milestone 0 – plan (done, waiting for your OK)
+## Milestone 0 – plan (done, approved 3 Oct 2026)
 
 What works:
 - Repo skeleton, `CLAUDE.md` rules, building JSON schema + validated example.
@@ -407,5 +407,25 @@ Open items:
 
 GPU cost so far: $8.74 (`docs/gpu-log.md`).
 
-Next step: Milestone 7: your real projects through the intake path (needs your upload), style-aware library assets,
-and a realism judge that passes its controls.
+Next step: see "Decisions of 3 Oct 2026" below.
+
+## Decisions of 3 Oct 2026
+
+| # | Item | Your decision | What it means |
+|---|---|---|---|
+| 1 | Plan | approved | `docs/plan.md` is the baseline, with the changes recorded in the milestone specs. |
+| 2 | Change-gate limits | keep the calibrated limits | `wenart/gate/thresholds.yaml: calibration.user_ok: "2026-10-03"`; every polished project is still validated first. |
+| 3 | Vision check | advisory now, improve later | stays advisory; better detection of added objects is Milestone 7 work. |
+| 4 | AI polish | keep it on | review polished vs plain side by side on the first real project, then decide again. |
+| 5 | Realism judging | improve the AI protocol | Milestone 7: one aspect per question, balanced image order, then the A/B again (≈ $0.5). |
+| 6 | Colour look | switch to `AgX - Punchy` | Milestone 7: new default look (all renders re-render once). |
+| 7 | Library furniture | style filter, and a larger library | Milestone 7: library models only when they fit the style (else parametric); drop beds without a mattress; add more CC0/CC-BY models (plan §4.8: Objaverse, TRELLIS.2). |
+| 8 | Small/empty rooms | one view for rooms with no furniture | Milestone 7 (small change in `camsearch.py`). |
+| 9 | Input formats | DWG **and** scans/photos are needed | Milestone 7: DWG reading (a working converter) and the recognition path for scanned and photographed plans in the pipeline. |
+| 10 | Confidentiality | not confidential for now | your projects go into `projects/<name>/` (public repo); the private upload path stays ready. |
+| 11 | Repository | stays public | no change. |
+| 12 | GPU | faster GPU for faster jobs | done: the runner now picks the fastest GPU in stock under $1/h (RTX 5090, RTX PRO 5000, RTX 4090, …; `CLAUDE.md`). The $1/h, $10/day and 2 h rules stay. |
+| 13 | Budget | no milestone cap | no cap per milestone; the `CLAUDE.md` limits ($10/day, $1/h, 2 h per pod, ask before any action over $5) stay. The volume is kept. |
+
+Next step (when you are ready): Milestone 7 with your real projects in `projects/<name>/`, plus items 3, 5, 6, 7, 8
+and 9 above.

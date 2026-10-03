@@ -20,7 +20,8 @@ Plan: `docs/plan.md`. Status: `docs/progress.md`. GPU spending: `docs/gpu-log.md
   (the list is in `docs/setup.md`, step 4.1).
 - RunPod API: use REST v2 `https://api.runpod.io/v2` (v1 retires 15 Nov 2026).
   Pods: image `runpod/pytorch:1.4.0-cu1281-torch291-ubuntu2404`, Network Volume in EU-RO-1,
-  default GPU RTX PRO 4500 (then RTX 4090, RTX PRO 4000; never L4), prices read live from `/v2/catalog/gpus`.
+  GPU: the fastest one in stock under $1.00/h with ≥ 24 GB (order in `scripts/gpu_run.py` GPU_PRIORITY: RTX 5090,
+  RTX PRO 5000, RTX 4090, RTX 6000 Ada, L40, RTX PRO 4500, …; never L4), prices read live from `/v2/catalog/gpus`.
 
 ## Secrets
 - `RUNPOD_API_KEY` comes from the environment (cloud) or the user's local store (Mac).

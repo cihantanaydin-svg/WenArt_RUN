@@ -40,12 +40,20 @@ def test_pick_gpu_prefers_priority_order_and_stock():
     assert g["name"] == "RTX 4090"  # PRO 4500 / PRO 4000 not in the catalog, never L4 (docs/milestone6.md §0)
 
 
-def test_gpu_priority_of_milestone_6():
-    assert gpu_run.GPU_PRIORITY == ["RTX PRO 4500", "RTX 4090", "RTX PRO 4000", "RTX A5000", "RTX A6000", "A40"]
+def test_gpu_priority_fastest_first():
+    """User decision of 3 Oct 2026: the fastest GPU in stock under $1/h (never L4)."""
+    assert gpu_run.GPU_PRIORITY == ["RTX 5090", "RTX PRO 5000", "RTX 4090", "RTX 6000 Ada", "L40", "RTX PRO 4500",
+                                    "RTX 5000 Ada", "RTX PRO 4000", "RTX A6000", "A40", "RTX A5000"]
     assert "L4" not in gpu_run.GPU_PRIORITY
     cat = CATALOG + [{"name": "RTX PRO 4500", "id": "NVIDIA RTX PRO 4500 Blackwell", "memory": 32,
                       "price": {"secure": 0.69}, "availability": "LOW"}]
-    assert gpu_run.pick_gpu(cat, None, None)["name"] == "RTX PRO 4500"
+    assert gpu_run.pick_gpu(cat, None, None)["name"] == "RTX 4090"
+    fast = cat + [{"name": "RTX 5090", "id": "NVIDIA GeForce RTX 5090", "memory": 32,
+                   "price": {"secure": 0.99}, "availability": "LOW"}]
+    assert gpu_run.pick_gpu(fast, None, None)["name"] == "RTX 5090"
+    too_dear = cat + [{"name": "RTX 5090", "id": "NVIDIA GeForce RTX 5090", "memory": 32,
+                       "price": {"secure": 1.09}, "availability": "HIGH"}]
+    assert gpu_run.pick_gpu(too_dear, None, None)["name"] == "RTX 4090"     # over the $1/h limit
     assert gpu_run.pick_gpu(cat, {"RTX 4090": "LOW"}, None)["name"] == "RTX 4090"   # the 4500 has no stock here
     with pytest.raises(RuntimeError, match="L4 is not allowed"):
         gpu_run.pick_gpu(CATALOG, None, "L4")
