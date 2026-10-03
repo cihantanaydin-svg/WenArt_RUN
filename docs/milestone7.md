@@ -699,7 +699,11 @@ prayer entry for completeness); `polish/prompt.py` `ROOM_WORDS`/`FURNITURE_WORDS
 
 ### 7.2 Thumbnails and judging (GPU)
 - One Blender process (Cycles GPU, 16 spp, 256 px), 4 views per object (front, 45°, side, top) of the GLB normalised to its
-  bbox; unit guess (× 1, 0.01, 0.0254, 0.001; the one in the type's size range; none → refused).
+  bbox; unit guess (× 1, 0.01, 0.0254, 0.001; the one in the type's size range). *Changed after the first prep pod
+  (86 of 127 candidates fitted no standard factor):* when none fits, the model's units are unknown and the scale is
+  normalised by type (`unit_scale` = the type's typical footprint / the raw footprint, `unit_note` "normalised by
+  type (model units unknown)"); the proportions decide refusal (footprint w/d and height/width must fit the type).
+  The fit scales every model to the drawn footprint anyway.
 - Two VLM passes on a 2 × 2 sheet, inside the prep pod's Qwen and GLM sessions: `{"is_single_object", "matches_type",
   "photoreal_quality": 1..5, "has_mattress": bool|null, "styles": [family enum ∪ neutral], "front_view": 0..3|null}`.
 - Accept: both `is_single_object` and `matches_type`; both quality ≥ 4; beds both `has_mattress`; bbox aspect in range;

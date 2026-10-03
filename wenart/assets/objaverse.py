@@ -887,7 +887,6 @@ def guess_unit(extents_raw, types, cfg: dict, table: dict, tol: float) -> dict:
         ok = [t for t in types if fits_type(dims, t, table, tol, heights)]
         if ok:
             fits.append({"scale": float(factor), "types": ok, "dims_m": [round(v, 4) for v in dims]})
-    factors = ", ".join(f"x{f:g}" for f in cfg["units"])
     if not fits:
         return normalise_unit(extents_raw, types, cfg, table, tol)
     if len(fits) > 1:

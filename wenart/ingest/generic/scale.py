@@ -766,6 +766,25 @@ def _label_checks(label_blocks, faces_m) -> list[tuple[LB.LabelBlock, list[float
     return checks
 
 
+def _reread_size_labels(blocks, unit: Optional[str]) -> int:
+    """With the dimension unit assumed (``unit_reading``), a size label of two bare integers on the page (``3350 x
+    3050``) is written in that unit too: its ``size`` is re-read in place (the room checks use the same blocks).
+    Returns how many blocks changed."""
+    if not unit:
+        return 0
+    seen: set[int] = set()
+    changed = 0
+    for block in blocks:
+        if id(block) in seen or block.size is None:
+            continue
+        seen.add(id(block))
+        a, b = block.size
+        if all(x.system == "metric" and units.is_bare_integer(x.text) for x in (a, b)):
+            block.size = (units.read_as(a, unit), units.read_as(b, unit))      # from the text: idempotent
+            changed += 1
+    return changed
+
+
 def confirm_scale(scale: Optional[dict], dims: list[DimCandidate], label_blocks,
                   faces_m) -> tuple[Optional[dict], list[dict], list[str]]:
     """Check the scale against the room-size labels and the dimensions: (scale, conflicts, warnings).
@@ -781,6 +800,14 @@ def confirm_scale(scale: Optional[dict], dims: list[DimCandidate], label_blocks,
     kind = scale.pop("provisional", None)
     mpu = scale["metres_per_unit"]
     warnings: list[str] = []
+    unit = next((d.unit_assumed for d in dims if d.unit_assumed), None)
+    reread = _reread_size_labels(list(label_blocks or []) + [b for _, b in faces_m if b is not None], unit)
+    if unit:
+        warnings.append(f"dimension texts written as bare integers read in {unit} (assumed unit: "
+                        f"{_unit_note(dims)})")
+    if reread:
+        warnings.append(f"{reread} room-size labels written as bare integers read in {unit} like the dimension "
+                        f"texts (assumed)")
     checks = _label_checks(label_blocks, faces_m)
     agree = [c for c in checks if max(abs(e) for e in c[2]) <= LABEL_AGREEMENT]
     disagree = [c for c in checks if max(abs(e) for e in c[2]) > LABEL_AGREEMENT]
