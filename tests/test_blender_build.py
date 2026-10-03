@@ -668,6 +668,10 @@ def test_m7_rays_see_treads_landing_ceiling_and_cap(built_m7):
         "through_gap": {"origin": [16.0 * ft, 10.5 * ft, 1.0], "direction": [1, 0, 0], "distance": 0.8},
         "lintel": {"origin": [16.0 * ft, 10.5 * ft, 2.3], "direction": [1, 0, 0], "distance": 0.8},
         "across_separator": {"origin": [20.0 * ft, 13.0 * ft, 1.0], "direction": [0, 1, 0], "distance": 1.5},
+        # Floors and ceilings meet at the separator line (§6.4, review2 dwgblender-1): 0.5 mm either side of it.
+        **{f"sep_{name}_{side}": {"origin": [20.0 * ft, 15.0 * ft + side * 0.0005, 1.0], "direction": [0, 0, dz],
+                                  "distance": 3.0}
+           for name, dz in (("down", -1), ("up", 1)) for side in (-1, 1)},
     }, [])
     r = probe["rays"]
     assert r["tread_a2"]["object"] == "furn_f_L0_019" and r["tread_a2"]["location"][2] == pytest.approx(2 * rh, abs=1e-3)
@@ -677,6 +681,9 @@ def test_m7_rays_see_treads_landing_ceiling_and_cap(built_m7):
     assert r["through_gap"]["hit"] is False, r["through_gap"]                    # the doorless gap is open
     assert r["lintel"]["object"] == "w_L0_e"                                       # cut to 2.10 m only
     assert r["across_separator"]["hit"] is False, r["across_separator"]          # no geometry on the line
+    for side, room in ((-1, "r_L0_din"), (1, "r_L0_pry")):
+        assert r[f"sep_down_{side}"]["object"] == f"{room}_floor", r[f"sep_down_{side}"]
+        assert r[f"sep_up_{side}"]["object"] == f"{room}_ceiling", r[f"sep_up_{side}"]
 
 
 def test_m7_search_model_sees_the_stair_as_the_built_scene(built_m7):

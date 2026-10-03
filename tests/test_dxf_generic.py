@@ -11,7 +11,7 @@ from shapely.geometry import Polygon
 from shapely.ops import unary_union
 
 from wenart.ingest import dxf_generic as DG
-from wenart.ingest.dxf_extract import has_synthetic_layers, read_dxf
+from wenart.ingest.dxf_extract import has_synthetic_layers, read_dxf, synthetic_convention
 from wenart.synthetic import blocks
 from wenart.synthetic.projects import plan_06
 
@@ -92,8 +92,53 @@ def test_dispatch_by_synthetic_layers():
     doc.layers.add("MOBILYA")                       # a layer nobody draws on does not count
     doc.modelspace().add_line((0, 0), (1, 0), dxfattribs={"layer": "A-WALL"})
     assert not has_synthetic_layers(doc)
+    # review2 dwgblender-4: a layer name alone decides nothing (DUVAR is the standard Turkish wall layer).
     doc.modelspace().add_line((0, 0), (1, 0), dxfattribs={"layer": "duvar"})
-    assert has_synthetic_layers(doc)
+    assert not has_synthetic_layers(doc)
+    synthetic, reason = synthetic_convention(doc)
+    assert not synthetic and "DUVAR" in reason and "generic adapter" in reason
+
+
+def test_synthetic_convention_needs_wall_rectangles_or_synthetic_blocks():
+    """review2 dwgblender-4: the synthetic path only when its conventions are drawn: wall rectangles on DUVAR, and
+    nothing else there unless the synthetic KAPI_/PENCERE_/MOBILYA blocks are inserted."""
+    doc = new_doc(4)
+    msp = doc.modelspace()
+    msp.add_lwpolyline([(0, 0), (5000, 0), (5000, 250), (0, 250)], close=True, dxfattribs={"layer": "DUVAR"})
+    assert synthetic_convention(doc) == (True, "synthetic DXF convention: 1 wall rectangles on DUVAR")
+    msp.add_line((0, 1000), (5000, 1000), dxfattribs={"layer": "DUVAR"})          # a loose line: not the convention
+    assert not has_synthetic_layers(doc)
+    doc.blocks.new("KAPI_90")
+    msp.add_blockref("KAPI_90", (2500, 125), dxfattribs={"layer": "KAPI"})         # ... unless synthetic blocks
+    assert synthetic_convention(doc)[0] and "1 synthetic block inserts" in synthetic_convention(doc)[1]
+    # Room and building outlines (closed rectangles, metres wide) are no wall rectangles.
+    outlines = new_doc(4)
+    outlines.modelspace().add_lwpolyline([(0, 0), (8000, 0), (8000, 6000), (0, 6000)], close=True,
+                                         dxfattribs={"layer": "DUVAR"})
+    outlines.modelspace().add_lwpolyline([(0, 0), (4570, 0), (4570, 1520), (0, 1520)], close=True,
+                                         dxfattribs={"layer": "DUVAR"})              # 1.52 m: no wall thickness
+    assert not has_synthetic_layers(outlines)
+
+
+def test_duvar_hatched_walls_go_to_the_generic_adapter(tmp_path):
+    """review2 dwgblender-4: synthetic-06's source with its wall hatch and outlines on DUVAR instead of A-WALL is a
+    generic drawing: status ok with its 9 walls (the synthetic extractor gave needs_review and 0 walls)."""
+    from wenart.ingest.pipeline import build_project
+
+    doc = read_dxf(SOURCE_06)[0]
+    moved = 0
+    for entity in doc.modelspace():
+        if entity.dxf.layer == "A-WALL":
+            entity.dxf.layer = "DUVAR"
+            moved += 1
+    assert moved == 7                                                    # the HATCH and 6 LWPOLYLINEs
+    project = tmp_path / "duvar"
+    project.mkdir()
+    doc.saveas(project / "plan.dxf")
+    assert not has_synthetic_layers(read_dxf(project / "plan.dxf")[0])
+    building = build_project(project, tmp_path / "out", no_ai=True)
+    assert building["status"] == "ok"
+    assert len(building["walls"]) == 9 and len(building["rooms"]) == 6
 
 
 # --------------------------------------------------------------------------

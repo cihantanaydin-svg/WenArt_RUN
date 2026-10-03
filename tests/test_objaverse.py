@@ -10,6 +10,7 @@ the catalogue (validates and merges with catalog.json, GLB cache with sha256) an
 import ast
 import gzip
 import json
+import math
 import re
 import shutil
 import struct
@@ -143,6 +144,16 @@ def test_licence_strings_accept_only_cc0_and_cc_by():
     assert lic["urls"][C.CC_BY] == "https://creativecommons.org/licenses/by/4.0/"
 
 
+def test_licence_values_seen_on_the_prep_pod_are_verified():
+    """Prep pod P4 (survey.json, 3 Oct 2026): the metadata holds by 1369, by-sa 77, by-nc 35, by-nc-sa 16, cc0 1.
+    The accepted spellings `by` and `cc0` occur, so the table is verified; the other values stay refused."""
+    assert CFG["licences"]["verified"] is True
+    seen = {"by": C.CC_BY, "cc0": C.LICENCE, "by-sa": None, "by-nc": None, "by-nc-sa": None}
+    for value, licence in seen.items():
+        name, code, _ = OV.classify_licence(value, CFG)
+        assert name == licence and code == ("" if licence else "licence_refused"), value
+
+
 @pytest.mark.parametrize("raw, expect", [
     ("by", (C.CC_BY, "")), (" BY ", (C.CC_BY, "")), ("cc0", (C.LICENCE, "")), ("CC0", (C.LICENCE, "")),
     ("CC-BY 4.0", (C.CC_BY, "")), ({"slug": "by", "label": "CC Attribution"}, (C.CC_BY, "")),
@@ -226,6 +237,7 @@ def test_survey_filters_on_canned_metadata(tmp_path):
         m.add("sofa", glb=False): "download_failed",
     }
     both = m.add(["wardrobe", "armoire"])                 # two categories of one type: fine
+    m.lvis["night_table"] = ["f" * 32]                    # an unmapped category that shares a word with a missing one
     hub = m.write()
     doc = OV.survey(hub, tmp_path / "lib", CFG, log=quiet)
     cands = {c["uid"]: c for c in doc["candidates"]}
@@ -240,6 +252,13 @@ def test_survey_filters_on_canned_metadata(tmp_path):
     assert got == refused
     assert doc["licence_values"]["by"] >= 1 and doc["licence_values"]["by-nc"] == 1
     assert "bathtub" in doc["lvis"]["missing"] and doc["lvis"]["found"]["sofa"] >= 15
+    # Prep pod P3: a missing category is recorded with the file's names that share a word (evidence for an
+    # alternate, never a mapping by itself) and reported as a warning.
+    assert doc["lvis"]["near_missing"]["nightstand"] == ["night_table"]
+    assert doc["lvis"]["near_missing"]["bathtub"] == [] and doc["lvis"]["categories_in_file"] == len(m.lvis)
+    text = OV.report(tmp_path / "lib", CFG)
+    assert "Missing (a warning: their types stay parametric)" in text
+    assert "- `nightstand`: names in the file sharing a word: `night_table`" in text
     assert (tmp_path / "lib" / OV.SURVEY_NAME).is_file()
     assert doc["counts"]["sofa"]["candidates"] == 3
 
@@ -331,8 +350,9 @@ def test_unit_guess_takes_the_factor_in_the_type_range(size_table, raw, scale):
 
 def test_unit_guess_refuses_none_and_ambiguous(size_table):
     table, tol = size_table
-    none = OV.guess_unit([5.0, 5.0, 5.0], ["sofa"], CFG, table, tol)
-    assert not none["ok"] and none["code"] == "unit_none"
+    # No factor fits and a 5 x 5 x 20 tower has no sofa proportions at any scale (P2: the proportions refuse).
+    none = OV.guess_unit([5.0, 5.0, 20.0], ["sofa"], CFG, table, tol)
+    assert not none["ok"] and none["code"] == "unit_none" and "proportions" in none["detail"]
     # 100 x 50 x 75 raw: 1.00 x 0.50 x 0.75 m (cm) and 2.54 x 1.27 x 1.91 m (in) -> a desk only in cm;
     # a potted plant 40 x 40 x 60 raw is 0.40 x 0.40 x 0.60 m (cm) and 1.02 x 1.02 x 1.52 m (in): both fit
     amb = OV.guess_unit([40, 40, 60], ["potted_plant"], CFG, table, tol)
@@ -352,9 +372,51 @@ def test_bed_split_by_width(size_table):
 
 def test_lamp_height_decides_floor_lamp(size_table):
     table, tol = size_table
-    assert OV.guess_unit([0.40, 0.40, 1.65], ["floor_lamp"], CFG, table, tol)["ok"]
-    table_lamp = OV.guess_unit([0.30, 0.30, 0.55], ["floor_lamp"], CFG, table, tol)
-    assert not table_lamp["ok"] and table_lamp["code"] == "unit_none"
+    got = OV.guess_unit([0.40, 0.40, 1.65], ["floor_lamp"], CFG, table, tol)
+    assert got["ok"] and got["scale"] == 1.0 and not got.get("normalised")
+    # Lower than a floor lamp but slender: no factor fits, so the units are unknown (P2) and only the proportions
+    # count: normalised (the judges' matches_type decides); a squat lamp is refused by its proportions.
+    slender = OV.guess_unit([0.30, 0.30, 0.55], ["floor_lamp"], CFG, table, tol)
+    assert slender["ok"] and slender["normalised"] and slender["dims_m"][2] >= 1.2
+    squat = OV.guess_unit([0.50, 0.50, 0.40], ["floor_lamp"], CFG, table, tol)
+    assert not squat["ok"] and squat["code"] == "unit_none"
+
+
+@pytest.mark.parametrize("raw, types, ftype", [
+    ([353.07, 440.95, 514.44], ["armchair"], "armchair"),            # prep pod "Old Sofa" (armchair category)
+    ([1379.6, 1334.5, 1515.1], ["armchair"], "armchair"),
+    ([200.0, 200.0, 717.24], ["floor_lamp"], "floor_lamp"),          # prep pod "Pirate Lantern"
+    ([19.656, 39.029, 15.786], ["bed_double", "bed_single"], "bed_single"),   # width / length 0.50
+    ([2436.5, 2172.96, 1861.3], ["bed_double", "bed_single"], "bed_double"),  # width / length 0.89
+])
+def test_unknown_units_are_normalised_by_type(size_table, raw, types, ftype):
+    """Prep pod P2: no factor of x1, 0.01, 0.0254, 0.001 fits -> unit_scale = the type's typical footprint (size
+    table centre) / the raw footprint, moved into the type's range when needed; the note says so."""
+    table, tol = size_table
+    heights = {t: spec["height"] for t, spec in CFG["types"].items()}
+    got = OV.guess_unit(raw, types, CFG, table, tol)
+    assert got["ok"] and got["normalised"] and got["type"] == ftype and got["fits"] == []
+    assert got["note"].startswith(OV.NORMALISED_NOTE + ":")
+    assert OV.fits_type([v * got["scale"] for v in raw], ftype, table, tol, heights)
+    assert got["dims_m"] == [round(v * got["scale"], 4) for v in raw]
+    (w0, w1), (d0, d1) = table[ftype]
+    centre = math.sqrt((w0 + w1) / 2 * (d0 + d1) / 2 / (raw[0] * raw[1]))
+    if "moved from" not in got["note"]:
+        assert got["scale"] == pytest.approx(centre)
+    if ftype.startswith("bed"):
+        assert "from the proportions" in got["note"]
+
+
+def test_normalised_scale_is_moved_into_the_range_and_bad_boxes_are_refused(size_table):
+    table, tol = size_table
+    # 112 x 113 x 186 raw armchair: the centre factor makes it 1.40 m tall (> 1.30): moved to the highest factor
+    # that keeps the height in range.
+    got = OV.guess_unit([112.373, 113.062, 186.23], ["armchair"], CFG, table, tol)
+    assert got["ok"] and "moved from" in got["note"] and got["dims_m"][2] == pytest.approx(1.30, abs=1e-3)
+    for bad in ([0.0, 1.0, 1.0], [float("nan"), 1.0, 1.0], [-2.0, 1.0, 1.0]):
+        assert OV.normalise_unit(bad, ["sofa"], CFG, table, tol)["code"] == "unit_none"
+    # A standard factor still wins when one fits (real units known): never normalised.
+    assert not OV.guess_unit([200, 90, 80], ["sofa"], CFG, table, tol).get("normalised")
 
 
 # --------------------------------------------------------------------------
@@ -475,7 +537,8 @@ def scaled(points, k):
 
 @pytest.fixture()
 def library(tmp_path):
-    """A surveyed and thumbnailed library: sofas in cm and m, a bed, a dining table, a broken GLB, a giant."""
+    """A surveyed and thumbnailed library: sofas in cm and m, a bed, a dining table, a broken GLB, a giant (no unit
+    factor fits: normalised by type, prep pod P2) and a tower (no factor fits and not a sofa's proportions)."""
     m = Mirror(tmp_path / "mirror")
     uids = {
         "sofa_cm": m.add("sofa", likes=9, name="Oak Sofa"),
@@ -485,6 +548,7 @@ def library(tmp_path):
         "table": m.add("dining_table", likes=4, name="Table"),
         "broken": m.add("sofa", likes=3, name="Broken"),
         "giant": m.add("sofa", likes=2, name="Giant"),
+        "tower": m.add("sofa", likes=1, name="Tower"),
     }
     hub = m.write()
     out = tmp_path / "lib"
@@ -497,6 +561,7 @@ def library(tmp_path):
         uids["bed"]: (bed, []),
         uids["table"]: (box(-0.8, -0.45, 0, 0.8, 0.45, 0.75), []),
         uids["giant"]: (scaled(sofa_points(), 7.0), []),
+        uids["tower"]: ([(x, y, z * 7.0) for x, y, z in sofa_points()], []),
     }
     calls = []
     doc, rc = OV.thumbnails(out, tmp_path / "work", CFG, runner=fake_runner(shapes, calls), log=quiet)
@@ -514,7 +579,14 @@ def test_thumbnails_resolve_units_types_fronts_and_write_sheets(library):
     assert objs[u["bed"]]["type"] == "bed_double" and objs[u["bed"]]["geometric_front"] == "-Y"
     assert objs[u["table"]]["type"] == "table_dining" and objs[u["table"]]["geometric_front"] is None
     assert objs[u["broken"]]["code"] == "blender_error"
-    assert objs[u["giant"]]["code"] == "unit_none"
+    # Prep pod P2: the giant (14 x 6.3 x 5.95 raw: no factor fits) is normalised by type to the typical sofa
+    # footprint (size table centre 2.1 x 0.9 m); the tower (2 x 0.9 x 5.95 raw) has no sofa proportions at any scale.
+    giant = objs[u["giant"]]
+    assert giant["status"] == "ready" and giant["type"] == "sofa" and giant["unit"]["normalised"] is True
+    assert giant["unit"]["scale"] == pytest.approx(math.sqrt(2.1 * 0.9 / (14.0 * 6.3)))
+    assert giant["unit"]["note"].startswith("normalised by type (model units unknown)")
+    assert giant["unit"]["dims_m"] == pytest.approx([2.049, 0.922, 0.871], abs=0.001)
+    assert objs[u["tower"]]["code"] == "unit_none" and "proportions" in objs[u["tower"]]["detail"]
     rec = objs[u["sofa_cm"]]
     sheet = Image.open(library.out / rec["sheet"])
     thumb = Image.open(library.out / rec["thumb"])
@@ -550,10 +622,25 @@ def test_judge_schema_is_strict():
             "styles": ["scandinavian", "neutral"], "front_view": 0}
     assert OV.valid_judgement(good)
     for bad in (dict(good, photoreal_quality=6), dict(good, styles=["baroque"]), dict(good, front_view=4),
-                dict(good, extra=1), {k: v for k, v in good.items() if k != "styles"},
-                dict(good, styles=["modern", "modern"]), None):
+                dict(good, extra=1), {k: v for k, v in good.items() if k != "styles"}, None):
         assert not OV.valid_judgement(bad), bad
     assert OV.judge_schema()["additionalProperties"] is False
+
+
+def test_judge_schema_has_no_unique_items_and_repeated_styles_are_removed_in_code():
+    """Prep pod P1: vLLM's xgrammar refused the schema ("Unimplemented keys: uniqueItems") on every judge call.
+    The schema no longer says uniqueItems; a repeated style is valid and removed in code (first mention kept)."""
+    assert "uniqueItems" not in json.dumps(OV.judge_schema())
+    from wenart.recognition import schemas as RS
+    assert RS.grammar_problems(OV.judge_schema()) == []
+    twice = {"is_single_object": True, "matches_type": True, "photoreal_quality": 5, "has_mattress": None,
+             "styles": ["modern", "scandinavian", "modern"], "front_view": 0}
+    assert OV.valid_judgement(twice)
+    assert OV.clean_judgement(twice)["styles"] == ["modern", "scandinavian"] and twice["styles"][2] == "modern"
+    assert OV.clean_judgement(None) is None
+    dec = OV.decide(obj(), {"qwen": twice, "glm": dict(twice, styles=["scandinavian", "scandinavian"])}, CFG)
+    assert dec["accepted"] and dec["styles"] == ["scandinavian"]
+    assert "glm ['scandinavian']" in dec["style_note"]
 
 
 def test_judge_requests_hash_the_sheet_pixels_and_the_question(library):
@@ -568,6 +655,9 @@ def test_judge_requests_hash_the_sheet_pixels_and_the_question(library):
     assert [i["input_sha256"] for i in again["items"]] == [i["input_sha256"] for i in doc["items"]]
     table = next(i for i in doc["items"] if i["context"]["uid"] == library.uids["table"])
     assert "null (this type has no front)" in table["prompt"]
+    giant = next(i for i in doc["items"] if i["context"]["uid"] == library.uids["giant"])
+    assert "no usable unit: scaled to a typical sofa it would measure about" in giant["prompt"]
+    assert "no usable unit" not in item["prompt"]
     # other pixels -> other hash
     from PIL import Image
     sheet = library.out / "judge" / item["images"][0]
@@ -631,7 +721,7 @@ def run_judges(library, clients=None):
 
 def test_judge_answers_are_stored_and_reused(library):
     rcs = run_judges(library)
-    assert rcs["qwen"] == 0 and rcs["glm"] == 0 and rcs["qwen_calls"] == 5
+    assert rcs["qwen"] == 0 and rcs["glm"] == 0 and rcs["qwen_calls"] == 6        # the giant too (P2)
     store = json.loads((library.out / "judge" / "answers_qwen3-vl-8b.json").read_text())
     assert store["model_key"] == "qwen" and store["model"] == "Qwen/Qwen3-VL-8B-Instruct"
     assert sorted(store["calls"]) == sorted(f"lib_{u}" for u, o in library.doc["objects"].items()
@@ -639,7 +729,7 @@ def test_judge_answers_are_stored_and_reused(library):
     again = run_judges(library)
     assert again["qwen"] == 0 and again["qwen_calls"] == 0          # all reused, no client made
     status = OV.judge_status(library.out)
-    assert status["complete"] and status["models"]["glm"]["answered"] == 5
+    assert status["complete"] and status["models"]["glm"]["answered"] == 6
 
 
 def test_judge_exit_codes(library):
@@ -753,7 +843,7 @@ def test_odc_by_notice():
 def test_write_catalog_validates_merges_and_fills_the_cache(library):
     run_judges(library)
     acc = OV.accept(library.out, CFG)
-    expected = {library.uids[k] for k in ("sofa_cm", "sofa_m", "sofa_tv", "bed", "table")}
+    expected = {library.uids[k] for k in ("sofa_cm", "sofa_m", "sofa_tv", "bed", "table", "giant")}
     assert {d["uid"] for d in acc["accepted"]} == expected
     assets = library.tmp / "assets"
     doc = OV.write_catalog(library.out, assets, CFG, log=quiet)
@@ -771,6 +861,11 @@ def test_write_catalog_validates_merges_and_fills_the_cache(library):
     turned = entries[library.uids["sofa_tv"]]
     assert turned["front_axis"] == "+X" and turned["bbox_m"] == C.oriented_bbox(turned["bbox_model_m"], "+X")
     assert entries[library.uids["sofa_m"]]["licence"] == C.LICENCE
+    # P2: the normalised giant keeps its factor and says so; its box is the normalised one (validate passed above).
+    giant = entries[library.uids["giant"]]
+    assert giant["unit_scale"] not in C.UNIT_SCALES and giant["unit_scale"] == pytest.approx(0.146385, rel=1e-4)
+    assert giant["unit_note"].startswith("normalised by type (model units unknown)")
+    assert giant["bbox_model_m"] == pytest.approx([2.049, 0.922, 0.871], abs=0.001)
     bed = entries[library.uids["bed"]]
     assert bed["type"] == "bed_double" and bed["has_mattress"] is True
     table = entries[library.uids["table"]]
@@ -787,7 +882,7 @@ def test_write_catalog_validates_merges_and_fills_the_cache(library):
     shutil.copy(library.out / OV.CATALOG_NAME, base_dir / "catalog_objaverse.json")
     merged = C.load(base_dir / "catalog.json")
     assert sofa["id"] in [e["id"] for e in merged.candidates("sofa")]
-    assert merged.merged["models_added"] == 5
+    assert merged.merged["models_added"] == 6
 
 
 def test_write_catalog_refuses_a_changed_glb_and_writes_nothing_without_models(library):
@@ -826,7 +921,8 @@ def test_report_lists_counts_refusals_credits_and_the_notice(library):
                                C.CC_BY, CFG) in text
     assert "| `by` |" in text and "CC-BY-4.0" in text
     assert "type/family pairs" in text
-    assert re.search(r"\| sofa \| 2\+\d+ \|", text)          # 2 scandinavian Objaverse sofas + the Poly Haven ones
+    assert re.search(r"\| sofa \| 3\+\d+ \|", text)          # 3 scandinavian Objaverse sofas (with the normalised
+    assert "| of which normalised by type (model units unknown) | 1 |" in text      # giant) + the Poly Haven ones
 
 
 def test_report_before_the_survey(tmp_path):

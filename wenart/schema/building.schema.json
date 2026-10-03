@@ -201,6 +201,7 @@
         "type_method": {"enum": ["block_name", "rule", "ai_two_pass", "none"], "description": "How the type was decided (generic core, docs/milestone7.md §2.8, §3.3)"},
         "type_candidates": {"type": "array", "items": {"type": "object"}, "description": "The AI passes' answers: {type, model, pass, confidence, front, reason}"},
         "build": {"type": "boolean", "description": "false = a drawn symbol both AI passes call not_furniture: kept as an obstacle, not built (default true)"},
+        "assumed": {"type": "array", "items": {"enum": ["front_deg"]}, "description": "Values that are assumed, not decided: front_deg = the drawn front kept although both AI passes answered 'none' (review ingest-6)"},
         "stair": {"type": "object", "description": "Stair rule result: flights [{start, end, width, lines, spacing}], landing, direction, *_assumed, riser_m, riser_source", "properties": {
           "flights": {"type": "array", "items": {"type": "object", "properties": {"start": {"$ref": "#/$defs/point"}, "end": {"$ref": "#/$defs/point"}, "width": {"type": "number"}, "lines": {"type": "integer"}, "spacing": {"type": "number", "description": "Distance between the drawn tread lines, metres"}}}},
           "landing": {"type": ["object", "null"], "properties": {"polygon": {"type": "array", "items": {"$ref": "#/$defs/point"}}, "depth": {"type": "number"}}},

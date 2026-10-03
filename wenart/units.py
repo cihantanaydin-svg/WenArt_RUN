@@ -15,6 +15,9 @@ Rules (the "as today" metric rules come from ``ingest.model.parse_number`` and
 - Bare numbers: a comma decimal is metres (Turkish plans write ``4,50``). A bare integer or dot decimal is
   metres unless the caller says the page is imperial (``default_system="imperial"``), then feet. Bare
   numbers never decide a page's unit system on their own (``system_of`` returns None for them).
+  Metric CAD output often prints bare integers in millimetres (``15240``) or centimetres (``345``): the
+  parser cannot tell, so the scale finder (``ingest.generic.scale``) re-reads them with ``read_as`` when
+  the metre reading is implausible for the page, and records the unit as assumed.
 - Size pairs: two lengths joined by ``x`` ``X`` ``×`` ``*``; a bare member takes the unit of the other
   one (``3,20 x 4,10 m``, ``11 x 10'``); members of different systems are rejected.
 - Areas: ``m²`` ``m2`` ``sqm`` ``sq m`` and ``sq ft`` ``sft`` ``ft²`` ``square feet``; in square feet a
@@ -160,6 +163,26 @@ def parse_length(text: str, default_system: Optional[str] = None) -> Optional[Le
         return None
     norm = _normalise_marks(stripped)
     return _parse_imperial(norm, stripped) or _parse_metric(norm, stripped, default_system)
+
+
+_BARE_INTEGER_RE = re.compile(r"^\d+$")
+
+
+def is_bare_integer(text: Optional[str]) -> bool:
+    """``15240`` / ``345``: digits only, no decimal separator and no unit (the reading the page must decide)."""
+    return bool(text) and bool(_BARE_INTEGER_RE.match(text.strip()))
+
+
+def read_as(length: Length, unit: str) -> Length:
+    """A bare metric integer re-read in ``unit`` (``m`` / ``cm`` / ``mm``): ``15240`` read as metres -> 15.24 m as
+    millimetres. Only for lengths parsed from a bare integer; anything else is refused (ValueError)."""
+    if unit not in _METRIC_FACTOR:
+        raise ValueError(f"unknown metric unit {unit!r}")
+    if length.system != "metric" or not is_bare_integer(length.text):
+        raise ValueError(f"{length.text!r} is not a bare metric integer")
+    factor = _METRIC_FACTOR[unit]
+    value = float(length.text.strip())
+    return Length(value * factor, "metric", length.text, factor / 2.0)
 
 
 # --------------------------------------------------------------------------

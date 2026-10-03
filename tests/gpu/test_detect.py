@@ -96,6 +96,11 @@ def test_calibration_recorded():
     assert len(cal["grid"]) == len(D.GRID) and cal["settings"]["detect_version"] == D.DETECT_VERSION
     hits = [r["hit"] for r in cal["per_pair"] if r["kind"] == "positive"]
     falses = [r["false"] for r in cal["per_pair"] if r["kind"] == "negative"]
+    # Review vision-1: a positive's hit is a non-decor box (what combine can reject on), as the negatives' worst;
+    # a calibration with decor hit groups was computed by the old rule and must be recomputed.
+    decor_hits = [(r["id"], r["hit_group"]) for r in cal["per_pair"] if r["kind"] == "positive" and r["hit_group"]
+                  and D.GROUP_BY_NAME[r["hit_group"]].cls == "decor"]
+    assert not decor_hits, f"decor boxes counted as insertion hits (recompute detect-calibrate): {decor_hits}"
     again = D.calibrate_scores(hits, falses, targets=cal["targets"])
     for key in ("t_det", "t_strong", "rates", "usable", "targets_met"):
         assert cal[key] == again[key], key

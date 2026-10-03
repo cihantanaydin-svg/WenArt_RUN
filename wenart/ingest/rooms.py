@@ -22,8 +22,8 @@ morphological pass so that sub-millimetre gaps between touching rectangles
 Generic core pages (docs/milestone7.md §2.7) pass more: ``union`` is the
 ready wall union with every opening and virtual separator bridged (the
 loose-end test is not needed then: gaps are bridged by their openings),
-``separators`` adds separator lines to the plain wall union otherwise, and
-labels that carry a ``block`` (``generic.labels.LabelBlock``) are named,
+``separators`` adds separator lines to the plain wall union otherwise (pass
+them with a ready ``union`` too), and labels that carry a ``block`` (``generic.labels.LabelBlock``) are named,
 typed and size-checked from it: Turkish or plain casing by the page
 language, the room type from the name and the face (``hall`` alone becomes
 ``living`` in a large, compact face), the printed size against the face's
@@ -35,6 +35,12 @@ is always ``unverified``. A face holding several room names keeps the
 first, is ``unverified`` and is listed in ``multi_labels`` (the pipeline
 makes it a conflict). A generic label outside the building outline is a
 warning (``topology.split_plot`` reports it), not a sign of open walls.
+
+Virtual separators split a face as a strip 4 mm wide (``topology.
+separator_polygon``); the face vertices on the strip's edges are moved back
+onto the separator line, so the two rooms share the line exactly and their
+floors and ceilings meet there (docs/milestone7.md §6.4; review2
+dwgblender-1: the strip left a 4 mm slit through floor and ceiling).
 """
 from __future__ import annotations
 
@@ -146,6 +152,45 @@ def ring_to_polygon(ring) -> list[tuple[float, float]]:
     return cleaned[start:] + cleaned[:start]
 
 
+def _separator_lines(separators) -> list:
+    lines = []
+    for sep in separators or ():
+        line = sep.line if hasattr(sep, "line") else sep
+        if line:
+            lines.append((tuple(line[0]), tuple(line[1])))
+    return lines
+
+
+def snap_to_separators(face: list[tuple[float, float]], lines: list) -> list[tuple[float, float]]:
+    """``face`` (a ``ring_to_polygon`` vertex list) with every vertex that lies on the edge of a separator strip -
+    within the strip half-width (2 mm) plus 0.5 mm of a separator line, along it or up to 2.5 mm past its ends -
+    projected onto that line; the result is cleaned like ``ring_to_polygon``. Faces that do not touch a separator
+    come back unchanged."""
+    reach = CLOSE_M + 0.0005
+    out = []
+    moved = False
+    for p in face:
+        q = p
+        for a, b in lines:
+            length = G.distance(a, b)
+            if length <= 0:
+                continue
+            ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
+            t = (p[0] - a[0]) * ux + (p[1] - a[1]) * uy
+            d = abs(-(p[0] - a[0]) * uy + (p[1] - a[1]) * ux)
+            if d <= reach and -reach <= t <= length + reach:
+                q = G.snap_point((a[0] + ux * t, a[1] + uy * t), 4)
+                break
+        moved = moved or q != p
+        out.append(q)
+    if not moved:
+        return face
+    snapped = Polygon(out)
+    if not snapped.is_valid or snapped.area <= 0:
+        return face
+    return ring_to_polygon(snapped.exterior)
+
+
 def _separator_strips(separators) -> list[Polygon]:
     from wenart.ingest.generic.topology import separator_polygon
     strips = []
@@ -215,6 +260,9 @@ def derive_rooms(level_id: str, walls: list[WallItem], labels: list[TextItem], l
             result.exterior_walls.append(i)
 
     faces = [ring_to_polygon(ring) for ring in union.interiors]
+    lines = _separator_lines(separators)
+    if lines:
+        faces = [snap_to_separators(face, lines) for face in faces]
     faces.sort(key=lambda poly: (poly[0][1], poly[0][0]))
     fallbacks = label_fallback_points or [None] * len(labels)
     outline = Polygon(exterior)

@@ -208,11 +208,42 @@ def test_virtual_separator_splits_an_open_plan_face():
     split = R.derive_rooms("L0", two_rooms(open_plan=True), labels, points, None, "p.pdf", separators=[sep])
     assert sorted((r["label"], r["room_type"], r["status"]) for r in split.rooms) == \
         [("Dining", "dining", "verified"), ("Kitchen", "kitchen", "verified")]
-    # A ready union (walls, openings and separators bridged) gives the same faces.
+    # A ready union (walls, openings and separators bridged) gives the same faces; the separators are passed with
+    # it so the faces are snapped back onto the separator line (review2 dwgblender-1).
     from wenart.ingest.generic import topology as TP
     union = TP.bridged_union(two_rooms(open_plan=True), [], [sep])
-    ready = R.derive_rooms("L0", two_rooms(open_plan=True), labels, points, None, "p.pdf", union=union)
+    ready = R.derive_rooms("L0", two_rooms(open_plan=True), labels, points, None, "p.pdf", union=union,
+                           separators=[sep])
     assert sorted(r["polygon"] == s["polygon"] for r, s in zip(ready.rooms, split.rooms)) == [True, True]
+
+
+def test_rooms_split_by_a_separator_share_the_line_exactly():
+    """review2 dwgblender-1: the separator strip is 4 mm wide; the two faces are snapped back onto the line, so
+    their floors and ceilings meet there (no slit to the sky), with a union passed or built here."""
+    from shapely.geometry import LineString, Point, Polygon
+
+    from wenart.ingest.generic import topology as TP
+    from wenart.ingest.model import OpeningItem
+    labels, points = blocks_at(("KITCHEN", None, (2, 2)), ("DINING", None, (6, 2)))
+    for line in (((4.0, 0.2), (4.0, 2.6)), ((4.0, 2.6), (4.0, 0.2))):
+        sep = OpeningItem(kind="opening", width=2.4, center=(4.0, 1.4), rotation_deg=90.0, box=[0, 0, 0, 0],
+                          entity="sep", evidence=B.evidence("p.pdf", "derived", 0.8, entity="sep"), virtual=True,
+                          line=line)
+        union = TP.bridged_union(two_rooms(open_plan=True), [], [sep])
+        for kwargs in ({"separators": [sep]}, {"separators": [sep], "union": union}):
+            result = R.derive_rooms("L0", two_rooms(open_plan=True), labels, points, None, "p.pdf", **kwargs)
+            rooms = {r["label"]: r for r in result.rooms}
+            kitchen, dining = Polygon(rooms["Kitchen"]["polygon"]), Polygon(rooms["Dining"]["polygon"])
+            shared = kitchen.intersection(dining)
+            assert shared.geom_type == "LineString" and shared.length == pytest.approx(2.4, abs=1e-6)
+            assert shared.equals(LineString([(4.0, 0.2), (4.0, 2.6)]))
+            assert kitchen.union(dining).area == pytest.approx(kitchen.area + dining.area)    # no overlap
+            # Every point of the line is covered by both floors: no 4 mm slit.
+            assert all(kitchen.buffer(1e-9).contains(Point(4.0, y)) and dining.buffer(1e-9).contains(Point(4.0, y))
+                       for y in (0.25, 1.0, 2.0, 2.55))
+            assert rooms["Kitchen"]["area_computed"] == pytest.approx(3.8 * 2.4 + 3.7 * 1.2)   # to x = 4.0 exactly
+    # The stub's end face is untouched: the kitchen still ends at the stub (x 3.9) above y = 2.6.
+    assert any(abs(p[0] - 3.9) < 1e-9 and abs(p[1] - 3.8) < 1e-9 for p in rooms["Kitchen"]["polygon"])
 
 
 def test_exterior_face_is_no_room_and_unlabelled_faces_get_the_placeholder():

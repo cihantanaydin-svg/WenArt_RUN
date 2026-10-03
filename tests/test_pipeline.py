@@ -721,6 +721,41 @@ def test_round_pieces_carry_their_shape_into_the_building():
     assert "shape" not in out2 and "circle_fit" not in out2
 
 
+def test_an_assumed_front_is_listed_as_assumed():
+    """Review ingest-6: a piece whose drawn front was kept although both AI passes answered 'none'
+    (``details["front_assumed"]``) says so in building.json (``assumed: ["front_deg"]``, schema-valid); a piece
+    with a decided front has no ``assumed`` key."""
+    import jsonschema
+
+    from wenart.ingest.model import FurnitureItem
+    from wenart.ingest.pipeline import ProjectBuild, _furniture_dict
+
+    build = ProjectBuild(B.empty_building("p", "projects/p", "test"))
+    room = {"id": "r_L0_bed", "polygon": [[0, 0], [5, 0], [5, 4], [0, 4]], "has_documented_furniture": False}
+    ev = B.evidence("plan.pdf", "vector", 0.9, page=1, entity="poly:3")
+
+    def piece(details):
+        return FurnitureItem(type="bed_double", type_raw=None, center=(2.0, 2.0), size=(1.6, 2.0), rotation_deg=0.0,
+                             front_deg=270.0, box=[1, 1, 3, 3], entity="poly:3", evidence=ev,
+                             type_method="ai_two_pass", details=details)
+
+    out = _furniture_dict("L0", piece({"front_assumed": True}), "f_L0_001", [room], build)
+    assert out["assumed"] == ["front_deg"] and out["front_deg"] == 270.0
+    assert "assumed" not in _furniture_dict("L0", piece({}), "f_L0_002", [room], build)
+    schema = B.load_schema()
+    validator = jsonschema.Draft202012Validator(dict(schema["$defs"]["furniture"], **{"$defs": schema["$defs"]}))
+    assert not list(validator.iter_errors(out))
+    bad = dict(out, assumed=["rotation_deg"])
+    assert list(validator.iter_errors(bad))
+    # report.md lists it under 'Assumed values'.
+    from wenart.ingest.pipeline import _generic_sections
+    build.building["furniture"] = [out]
+    lines = _generic_sections(build.building, build)
+    assumed = lines[lines.index("## Assumed values"):]
+    assert "- f_L0_001 (bed_double): front 270 deg assumed (the drawn front kept; both AI passes answered 'none')" \
+        in assumed
+
+
 def test_several_untitled_plan_pages_need_review(tmp_path):
     project = tmp_path / "two"
     project.mkdir()

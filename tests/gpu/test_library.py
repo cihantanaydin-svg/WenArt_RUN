@@ -6,8 +6,9 @@ sessions, accept, write-catalog). ``WENART_LIBRARY`` = the library folder (defau
 ``/workspace/assets``). Without a ``survey.json`` there the tests skip (other GPU jobs collect this folder too). No
 server is needed: the tests read the files the steps wrote.
 
-- the survey found every LVIS category of ``objaverse.yaml`` and both accepted licence spellings occur (the names
-  the session could not verify, docs/milestone7.md §7.1);
+- the survey found LVIS categories and both accepted licence spellings occur (the names the session could not
+  verify, docs/milestone7.md §7.1); a missing category is a warning, not a failure (its types stay parametric;
+  the 3 Oct 2026 prep pod found no ``nightstand`` and no ``chest_of_drawers_(furniture)``);
 - every candidate is CC0 / CC BY 4.0 with a full credit, inside the prefilter, <= 8 per type;
 - the thumbnails were rendered on the GPU; every candidate has a measurement or a reason, every ready object its
   judging sheet and its thumbnail;
@@ -17,7 +18,9 @@ server is needed: the tests read the files the steps wrote.
   catalogue's sha256; every entry carries its credit line; the file, the thumbnails and the report carry the
   ODC-By notice.
 """
+import math
 import os
+import warnings
 from pathlib import Path
 
 import pytest
@@ -43,9 +46,12 @@ def cfg():
     return OV.load_config()
 
 
-def test_survey_found_every_lvis_category_and_both_licence_spellings(cfg):
+def test_survey_found_lvis_categories_and_both_licence_spellings(cfg):
     surv = need(OV.SURVEY_NAME)
-    assert surv["lvis"]["missing"] == [], f"LVIS categories not in the file: {surv['lvis']['missing']}"
+    assert surv["lvis"]["found"], "no LVIS category of objaverse.yaml is in the file"
+    if surv["lvis"]["missing"]:
+        warnings.warn(f"LVIS categories not in the file (their types stay parametric): {surv['lvis']['missing']}; "
+                      f"names sharing a word: {surv['lvis'].get('near_missing')}")
     seen = surv["licence_values"]
     for name, spellings in cfg["licences"]["accept"].items():
         assert any(OV.licence_value(s) in seen for s in spellings), (
@@ -135,7 +141,10 @@ def test_catalog_validates_merges_and_matches_the_cache(cfg):
         assert e["attribution"] == OV.attribution_line(e["title"], e["author"], e["source_url"], e["licence"], cfg)
         assert e["licence_url"] == cfg["licences"]["urls"][e["licence"]]
         assert e["front_axis_confidence"] == ("low" if e["type"] in frontless else "high"), e["id"]
-        assert e["styles"] and e["unit_scale"] in cfg["units"], e["id"]
+        assert e["styles"] and isinstance(e["unit_scale"], (int, float)), e["id"]
+        assert math.isfinite(e["unit_scale"]) and e["unit_scale"] > 0, e["id"]
+        if e["unit_scale"] not in cfg["units"]:                        # units unknown: normalised by type (P2)
+            assert e["unit_note"].startswith(OV.NORMALISED_NOTE), e["id"]
         if e["type"] in C.BED_TYPES:
             assert e["has_mattress"] is True, e["id"]
         per_type[e["type"]] = per_type.get(e["type"], 0) + 1

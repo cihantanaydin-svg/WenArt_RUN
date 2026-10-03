@@ -477,10 +477,17 @@ def test_validation_of_sources_licences_styles_and_mattresses(catalog):
         broken(lambda d, f=field: d["entries"][0].update({f: ""}), complete=False, data=extra)
     broken(lambda d: d["entries"][0].update(styles=[]), complete=False, data=extra)
     broken(lambda d: d["entries"][0].update(sha256_glb="abc"), complete=False, data=extra)
-    for bad in (0.5, 0, "0.01", True, None):                               # not a unit factor of §7.2
-        broken(lambda d, u=bad: d["entries"][0].update(unit_scale=u), complete=False, data=extra)
+    for bad in (0, -0.01, float("inf"), float("nan"), "0.01", True, None):  # not a positive finite factor
+        broken(lambda d, u=bad: d["entries"][0].update(unit_scale=u, unit_note="normalised by type"),
+               complete=False, data=extra)
     for unit in C.UNIT_SCALES:
         C.validate({"entries": [dict(extra["entries"][0], unit_scale=unit)]}, complete=False)
+    # Prep pod P2: a model of unknown units normalised by type carries any positive factor, with its unit_note.
+    broken(lambda d: d["entries"][0].update(unit_scale=0.00215423), complete=False, data=extra)   # no unit_note
+    broken(lambda d: d["entries"][0].update(unit_scale=0.00215423, unit_note=" "), complete=False, data=extra)
+    C.validate({"entries": [dict(extra["entries"][0], unit_scale=0.00215423,
+                                 unit_note="normalised by type (model units unknown): x0.00215423 ...")]},
+               complete=False)
     broken(lambda d: d["entries"][0].pop("has_mattress"), complete=False, data=extra)
     broken(lambda d: d["entries"].append({"type": "sofa", "parametric": True, "reason": "x"}), complete=False,
            data=extra)

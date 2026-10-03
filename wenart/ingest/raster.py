@@ -1551,48 +1551,6 @@ def filled_candidates(ink: np.ndarray) -> tuple[np.ndarray, dict]:
     return mask, info
 
 
-STRIP_SHARE = 0.5                  # a strip attached to a filled wall: <= 0.5 x the thinnest wall thick ...
-STRIP_ELONGATION = 4.0             # ... >= 4 x as long as it is thick (a door leaf lying against the wall)
-
-
-def peel_attached_strips(filled: np.ndarray, ink: np.ndarray, gray: np.ndarray, info: dict) -> tuple[np.ndarray, int]:
-    """Filled walls without the thin strips a photo's blur fused onto their faces: a door leaf drawn open against a
-    wall, or a line drawn 2 px beside it. Such a strip is a separate drawn object: a lighter valley (``split_valleys``:
-    the paper gap the blur filled in) runs between it and the wall. A piece of ``filled`` that the opening of
-    ``filled_candidates`` no longer keeps once the ink is split at those valleys is peeled off when it is thin
-    (<= ``STRIP_SHARE`` x the thinnest wall, ``info["t_min_px"]``), elongated (>= ``STRIP_ELONGATION``) and on the
-    wall's face (it touches the paper). Thick pieces stay (a hatched wall the split would take apart whole).
-    Returns (mask, strips peeled)."""
-    t_min, k = info.get("t_min_px"), info.get("kernel_px")
-    filled = np.asarray(filled, bool)
-    if not t_min or not k or not filled.any():
-        return filled, 0
-    split = split_valleys(ink, gray) & np.asarray(ink, bool)
-    if np.array_equal(split, np.asarray(ink, bool)):
-        return filled, 0
-    kept = cv2.morphologyEx(split.astype(np.uint8), cv2.MORPH_OPEN, np.ones((int(k), int(k)), np.uint8)) > 0
-    loose = filled & ~kept
-    if not loose.any():
-        return filled, 0
-    paper = cv2.dilate((~filled).astype(np.uint8), np.ones((3, 3), np.uint8)) > 0
-    out = filled.copy()
-    n, lab, stats, _ = cv2.connectedComponentsWithStats(loose.astype(np.uint8), connectivity=4)
-    peeled = 0
-    for i in range(1, n):
-        x, y, w, h = (int(v) for v in stats[i, :4])
-        piece = lab[y:y + h, x:x + w] == i
-        dt = cv2.distanceTransform(np.pad(piece, 1).astype(np.uint8), cv2.DIST_L2, 3)
-        thick = 2.0 * float(dt.max())
-        length = float(max(w, h))
-        if thick > STRIP_SHARE * t_min or length < STRIP_ELONGATION * max(thick, 1.0):
-            continue
-        if not (paper[y:y + h, x:x + w] & piece).any():
-            continue                                  # inside the wall: not on its face
-        out[y:y + h, x:x + w][piece] = False
-        peeled += 1
-    return out, peeled
-
-
 def drop_small_rings(mask: np.ndarray, px_per_m: float, ink: Optional[np.ndarray] = None) -> tuple[np.ndarray, int]:
     """Filled components that are closed rings enclosing < 2 m² (a thick-framed table, a column casing) are no
     walls; with ``ink``, also the filled pieces whose ink is such a ring (a table frame drawn thick on two sides and
@@ -2258,7 +2216,6 @@ def _read_rectified(gray: np.ndarray, rect: RF.Rectified, file_rel: str, page_no
     info["ocr_items"] = len(items)
     info["text_boxes_blanked"] = blanked
     filled0, finfo = filled_candidates(ink_t)
-    filled0, finfo["strips_peeled"] = peel_attached_strips(filled0, ink_t, img, finfo)
     info["filled"] = finfo
     stroke_ink = ink_t & ~(cv2.dilate(filled0.astype(np.uint8), np.ones((3, 3), np.uint8)) > 0)
     number_boxes = [it["box"] for it in items if _numeric(it["text"])]

@@ -285,6 +285,8 @@ def _furniture_dict(level_id: str, piece: FurnitureItem, piece_id: str, rooms: l
         out["type_method"] = piece.type_method
         out["type_candidates"] = list(piece.type_candidates)
         out["build"] = piece.details.get("build", True) is not False
+        if piece.details.get("front_assumed"):
+            out["assumed"] = ["front_deg"]          # drawn front kept although both passes answered 'none' (review ingest-6)
         if piece.details.get("stair"):
             out["stair"] = piece.details["stair"]
         if piece.details.get("shape"):
@@ -1251,6 +1253,10 @@ def _generic_sections(b: dict, build: ProjectBuild) -> list[str]:
             assumed.append(f"{o['id']} ({o['type']}): {key.replace('_', ' ')} "
                            f"{_length(value, system) if value is not None else '-'}")
     for f in b["furniture"]:
+        if "front_deg" in (f.get("assumed") or []):
+            front = f"{f['front_deg']:.0f} deg" if f.get("front_deg") is not None else "-"
+            assumed.append(f"{f['id']} ({f['type']}): front {front} assumed (the drawn front kept; both AI passes "
+                           f"answered 'none')")
         stair = f.get("stair")
         if stair:
             what = [k[:-len("_assumed")] for k in ("direction_assumed", "turn_assumed", "void_assumed") if stair.get(k)]

@@ -399,7 +399,18 @@ def run_flow(out: Path, keys=("qwen", "glm"), truth=None, extras=None, fail=None
     return clients
 
 
-def test_end_to_end_with_fake_models(tmp_path, capsys):
+@pytest.fixture()
+def advisory_detector(monkeypatch):
+    """The VLM flow without a detector run: the pre-calibration (advisory) ``check.yaml detector:`` block. The
+    committed block is calibrated since the M7 prep pod, and a calibrated detector without a current detection
+    makes every polished view check_incomplete (tested in tests/test_gate_detect.py)."""
+    from wenart.vision_check import expected as X
+    advisory = {"advisory": True, "t_det": None, "t_strong": None, "match_iou": 0.3, "cover_frac": 0.5,
+                "confirm_iou": 0.3, "calibration": None}
+    monkeypatch.setattr(X, "_DEFAULT_CFG", dict(X.load_cfg(), detector=advisory))
+
+
+def test_end_to_end_with_fake_models(tmp_path, capsys, advisory_detector):
     out = T.write_toy_project(tmp_path, polished=True)
     assert main(["expected", "--project-out", str(out)]) == 0
     assert main(["select-controls", "--project-out", str(out)]) == 0
@@ -504,7 +515,7 @@ def test_a_misplaced_piece_needs_review_and_is_reported_with_its_outside_share(t
     assert "rendered pixels lie more than 0.10 m outside the drawn shape" in line
 
 
-def test_end_to_end_check_incomplete_and_single_pass(tmp_path):
+def test_end_to_end_check_incomplete_and_single_pass(advisory_detector, tmp_path):
     out = T.write_toy_project(tmp_path, polished=True)
     truth = {CYC: set(T.TOY_TYPES), POL: set(T.TOY_TYPES)}
     run_flow(out, truth=truth, fail={"glm": {POL}}, kinds="cycles,polished")

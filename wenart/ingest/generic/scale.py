@@ -80,6 +80,13 @@ TWO_DIM_LABELS, TWO_DIM_CONFIDENCE = 2, 0.85
 ONE_DIM_LABELS, ONE_DIM_CONFIDENCE = 3, 0.7
 INCH_M = 0.0254
 
+# Bare integer dimension texts on metric pages (``15240``, ``345``): the metre reading must make a plausible page,
+# else the millimetre or centimetre reading that alone does is taken (assumed). Printed text is 2-5 mm tall at
+# 1:20-1:200, i.e. 0.04-1.0 m in the building; a plan shows 2 m to 2 km.
+UNIT_READINGS = (("cm", 0.01), ("mm", 0.001))
+TEXT_HEIGHT_M = (0.04, 1.0)
+DRAWING_EXTENT_M = (2.0, 2000.0)
+
 # Imperial scale notes: <paper inches> = <real feet-inches> ("1/4\" = 1'-0\"", "1\" = 10'").
 _INCH_MARK = r"(?:\"|”|″|''|in\.?|inch(?:es)?)"
 _IMPERIAL_NOTE_HINT_RE = re.compile(rf"\d\s*{_INCH_MARK}\s*=", re.IGNORECASE)
@@ -104,6 +111,8 @@ class DimCandidate:
     how: str = "gap"                          # gap | parallel | dimension_entity
     extension_ids: list[str] = field(default_factory=list)   # extension lines at the ends (may be wall faces)
     text_evidence: list[dict] = field(default_factory=list)  # the text run's own evidence (OCR model, box, dpi)
+    unit_assumed: Optional[str] = None        # "mm" / "cm": a bare integer re-read (``unit_reading``)
+    unit_note: Optional[str] = None           # why (or why the unit of the bare integers stays unclear)
 
     @property
     def ratio(self) -> float:
@@ -479,7 +488,71 @@ def find_dimensions(page: GenericPage) -> list[DimCandidate]:
         found.append(DimCandidate(text=prim.text.strip(), length=length, p1=tuple(prim.p1), p2=tuple(prim.p2),
                                   measured_units=prim.measured_units, end_marks=("dimension", "dimension"),
                                   stroke_ids=[prim.id], text_id=prim.id, how="dimension_entity"))
+    unit_reading(page, found, system)
     return found
+
+
+def _median_text_height(page: GenericPage) -> Optional[float]:
+    heights = [_text_height(run) for run in page.texts if run.source != "ai" and run.text and run.text.strip()]
+    return statistics.median(heights) if heights else None
+
+
+def _drawing_extent(page: GenericPage) -> Optional[float]:
+    xs = [p[0] for st in page.strokes for p in st.pts]
+    ys = [p[1] for st in page.strokes for p in st.pts]
+    if not xs:
+        return max(page.size) if page.size else None
+    return max(max(xs) - min(xs), max(ys) - min(ys))
+
+
+def unit_reading(page: GenericPage, dims: list[DimCandidate], system: str) -> Optional[str]:
+    """Bare integer dimension texts on a metric page (review2 ingest-7): ``15240`` is metres to the parser, but
+    metric CAD prints millimetres (or centimetres) that way. When every dimension text is a bare integer and the
+    metre reading gives an implausible page (text taller than 1 m or the drawing wider than 2 km in the building),
+    the one reading of cm and mm that gives plausible text heights (0.04-1.0 m) and drawing size (2-2000 m) is
+    taken: the dimensions' lengths are re-read in place, ``unit_assumed`` and ``unit_note`` record it. With no or
+    two such readings nothing changes and ``unit_note`` names the unit problem (the review reasons repeat it).
+    Returns the note (None when the metre reading stands)."""
+    if system != "metric" or not dims:
+        return None
+    if not all(d.length.system == "metric" and units.is_bare_integer(d.text) for d in dims):
+        return None
+    ratios = [d.length.metres / d.measured_units for d in dims if d.measured_units > 0 and d.length.metres > 0]
+    height, extent = _median_text_height(page), _drawing_extent(page)
+    if not ratios or not height or not extent:
+        return None
+    mpu = statistics.median(ratios)
+
+    def plausible(factor: float) -> bool:
+        return (TEXT_HEIGHT_M[0] <= height * mpu * factor <= TEXT_HEIGHT_M[1]
+                and DRAWING_EXTENT_M[0] <= extent * mpu * factor <= DRAWING_EXTENT_M[1])
+
+    if plausible(1.0):
+        return None
+    fits = [(name, factor) for name, factor in UNIT_READINGS if plausible(factor)]
+    shown = ", ".join(repr(d.text) for d in dims[:4]) + (", ..." if len(dims) > 4 else "")
+    as_metres = (f"read as metres they make the drawing {extent * mpu:,.0f} m wide with {height * mpu:,.1f} m tall "
+                 f"text")
+    if len(fits) == 1:
+        name, factor = fits[0]
+        note = (f"dimension texts are bare integers on a metric page ({shown}); {as_metres}: read as {name} "
+                f"(assumed: only that unit gives {height * mpu * factor:.2f} m text and a "
+                f"{extent * mpu * factor:.1f} m drawing)")
+        for d in dims:
+            d.length = units.read_as(d.length, name)
+            d.unit_assumed = name
+            d.unit_note = note
+        return note
+    which = " or ".join(name for name, _ in fits) if fits else "no metric unit"
+    note = (f"likely a unit problem: the dimension texts are bare integers ({shown}) and {as_metres}; "
+            f"{which} would fit, so the unit cannot be told (metres kept)")
+    for d in dims:
+        d.unit_note = note
+    return note
+
+
+def _unit_note(dims: list[DimCandidate]) -> Optional[str]:
+    return next((d.unit_note for d in dims if d.unit_note), None)
 
 
 def _span_key(line_ids: list[str], t0: float, t1: float):
@@ -564,6 +637,24 @@ def provisional_scale(page: GenericPage, dims: list[DimCandidate]) -> tuple[Opti
     A provisional scale (from one or two dimensions) carries ``"provisional": "one_dimension" |
     "two_dimensions"`` until ``confirm_scale`` checks it against the room-size labels; every other scale
     is final. None = no scale source (the reasons say why)."""
+    sc, reasons = _provisional_scale(page, dims)
+    note = _unit_note(dims)
+    if note is None or (page.source_kind == "dxf" and page.units_to_m):
+        return sc, reasons
+    where = f"{page.file} p{page.page}"
+    assumed = next((d.unit_assumed for d in dims if d.unit_assumed), None)
+    if sc is not None and assumed and sc["method"] == "dimension_text":
+        sc = dict(sc, unit_assumed=assumed)
+        sc["evidence"] = dict(sc["evidence"], note=f"dimension unit {assumed} assumed")
+        return sc, [f"{where}: {note}"] + reasons
+    if sc is None and reasons:
+        reasons = reasons[:-1] + [f"{reasons[-1]}; {note}"]
+    else:
+        reasons = [f"{where}: {note}"] + reasons
+    return sc, reasons
+
+
+def _provisional_scale(page: GenericPage, dims: list[DimCandidate]) -> tuple[Optional[dict], list[str]]:
     where = f"{page.file} p{page.page}"
     reasons: list[str] = []
     if page.source_kind == "dxf" and page.units_to_m:
@@ -703,9 +794,11 @@ def confirm_scale(scale: Optional[dict], dims: list[DimCandidate], label_blocks,
         used = [d for d in dims if d.measured_units > 0 and abs(_off_pct(d.ratio, mpu)) <= SCALE_AGREEMENT * 100.0]
         if len(agree) < need:
             dims_text = ", ".join(f"'{d.text}' {d.measured_units:.2f} units -> {d.ratio:.6f} m/unit" for d in dims)
+            note = _unit_note(dims)
             warnings.append(f"scale not corroborated: {len(agree)} of {len(checks)} room-size labels agree within "
                             f"{100 * LABEL_AGREEMENT:.0f}% (need {need}); candidates: {dims_text or 'none'}"
-                            + (f"; labels: {describe_labels(checks)}" if checks else ""))
+                            + (f"; labels: {describe_labels(checks)}" if checks else "")
+                            + (f"; {note}" if note else ""))
             return None, [], warnings
         scale["confidence"] = TWO_DIM_CONFIDENCE if kind == "two_dimensions" else ONE_DIM_CONFIDENCE
         scale["evidence"] = dict(scale["evidence"], confidence=scale["confidence"])
