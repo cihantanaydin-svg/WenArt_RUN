@@ -1,0 +1,187 @@
+{
+ "project": "synthetic-05",
+ "server": "http://127.0.0.1:8001/v1",
+ "model": "Qwen/Qwen3-VL-8B-Instruct",
+ "rooms": [
+  {
+   "room_id": "r_L0_hol",
+   "label": "Hol",
+   "room_type": "hall",
+   "passes": [
+    {
+     "pass": 1,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "latency_s": 1.991,
+     "error": null,
+     "pieces_proposed": 2,
+     "pieces_placed": 0,
+     "pieces_dropped": 2,
+     "iterations": 8,
+     "repair_steps": 8,
+     "anchor_first": false,
+     "rejected_types": []
+    },
+    {
+     "pass": 2,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "latency_s": 0.156,
+     "error": null,
+     "pieces_proposed": 0,
+     "pieces_placed": 0,
+     "pieces_dropped": 0,
+     "iterations": 0,
+     "repair_steps": 0,
+     "anchor_first": false,
+     "rejected_types": []
+    }
+   ],
+   "chosen_pass": null,
+   "latency_s": 2.147,
+   "skipped": "model answered nothing usable (pass 1: no usable piece; pass 2: no usable piece)",
+   "pieces": []
+  },
+  {
+   "room_id": "r_L0_calisma_odasi",
+   "label": "Çalışma Odası",
+   "room_type": "other",
+   "passes": [
+    {
+     "pass": 1,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "latency_s": 3.688,
+     "error": null,
+     "pieces_proposed": 4,
+     "pieces_placed": 4,
+     "pieces_dropped": 0,
+     "iterations": 9,
+     "repair_steps": 9,
+     "anchor_first": false,
+     "rejected_types": []
+    },
+    {
+     "pass": 2,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "latency_s": 3.637,
+     "error": null,
+     "pieces_proposed": 4,
+     "pieces_placed": 4,
+     "pieces_dropped": 0,
+     "iterations": 7,
+     "repair_steps": 7,
+     "anchor_first": false,
+     "rejected_types": []
+    }
+   ],
+   "chosen_pass": 1,
+   "latency_s": 7.325,
+   "skipped": null,
+   "pieces": [
+    {
+     "id": "f_L0_027",
+     "type": "desk",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "id": "f_L0_028",
+     "type": "chair",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "id": "f_L0_029",
+     "type": "bookshelf",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "id": "f_L0_030",
+     "type": "armchair",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    }
+   ]
+  },
+  {
+   "room_id": "r_L0_antre",
+   "label": "Antre",
+   "room_type": "hall",
+   "passes": [
+    {
+     "pass": 1,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "latency_s": 1.918,
+     "error": null,
+     "pieces_proposed": 2,
+     "pieces_placed": 1,
+     "pieces_dropped": 1,
+     "iterations": 5,
+     "repair_steps": 5,
+     "anchor_first": false,
+     "rejected_types": []
+    },
+    {
+     "pass": 2,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "latency_s": 1.051,
+     "error": null,
+     "pieces_proposed": 1,
+     "pieces_placed": 1,
+     "pieces_dropped": 0,
+     "iterations": 2,
+     "repair_steps": 2,
+     "anchor_first": false,
+     "rejected_types": []
+    }
+   ],
+   "chosen_pass": 2,
+   "latency_s": 2.969,
+   "skipped": null,
+   "pieces": [
+    {
+     "id": "f_L0_031",
+     "type": "dresser",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    }
+   ]
+  }
+ ],
+ "pieces_added": 5,
+ "latency_s": 12.441
+}

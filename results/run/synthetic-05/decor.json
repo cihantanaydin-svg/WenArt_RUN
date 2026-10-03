@@ -1,0 +1,28 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "synthetic-05",
+ "stage": "decor",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 2.24,
+ "fingerprint": "102e263bd732eb3f35e1176cceae06624994b289a6b1dc3b86bea5c5d82fff79",
+ "inputs": {
+  "outputs/synthetic-05/building_furnished.json": "c1481247a6f5c898ae774c9d0e4bfba8e78bf349dfa634eac716f2869d6d64f9"
+ },
+ "outputs": [
+  "building_decor.json"
+ ],
+ "started_utc": "2026-10-03T03:24:42Z",
+ "git_commit": "95a675fea4156aaa2403ebb85a9e31db368e58b6",
+ "log": "logs/decor.log",
+ "note": null,
+ "run_id": "20261003-030812-full-20261003T031435Z",
+ "steps": [
+  {
+   "name": "decor",
+   "rc": 0,
+   "seconds": 2.24
+  }
+ ]
+}

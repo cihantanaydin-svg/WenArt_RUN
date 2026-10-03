@@ -1,0 +1,6889 @@
+{
+ "schema_version": "0.1",
+ "project": "synthetic-04",
+ "advisory": true,
+ "advisory_reason": "removal_flagged None misses >= 0.8 (no data); removal_confirmed None misses >= 0.6 (no data); insertion None misses >= 0.6 (no data)",
+ "single_pass": false,
+ "model_keys": [
+  "qwen",
+  "glm"
+ ],
+ "models": {
+  "qwen": {
+   "id": "Qwen/Qwen3-VL-8B-Instruct",
+   "slug": "qwen3-vl-8b",
+   "revision": "0c351dd01ed87e9c1b53cbc748cba10e6187ff3b",
+   "licence": "Apache-2.0",
+   "served": "Qwen/Qwen3-VL-8B-Instruct",
+   "incomplete": false
+  },
+  "glm": {
+   "id": "zai-org/GLM-4.6V-Flash",
+   "slug": "glm-4.6v-flash",
+   "revision": "411bb4d77144a3f03accbf4b780f5acb8b7cde4e",
+   "licence": "MIT",
+   "served": "zai-org/GLM-4.6V-Flash",
+   "incomplete": false
+  }
+ },
+ "views": {
+  "cam_r_L3_banyo_1": {
+   "cycles": {
+    "verdict": "ok",
+    "prompt_kind": "check",
+    "elements": {
+     "win_L3_006": {
+      "label": "E1",
+      "role": "optional",
+      "kind": "window",
+      "type": "window",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       47,
+       0,
+       223,
+       875
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_019": {
+      "label": "E2",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "bathtub",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       270,
+       612,
+       676,
+       1000
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "bathtub",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "bathtub",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_020": {
+      "label": "E4",
+      "role": "required",
+      "kind": "furniture",
+      "type": "toilet",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       728,
+       557,
+       952,
+       1000
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "toilet",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "toilet",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "qwen": 0,
+     "glm": 0
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "qwen": 0,
+       "glm": 0
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       0,
+       1
+      ],
+      "passes": {
+       "qwen": 1,
+       "glm": 1
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E3",
+     "type": "shower",
+     "box_1000": [
+      550,
+      450,
+      731,
+      700
+     ],
+     "passes": {
+      "qwen": "absent",
+      "glm": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../renders/cam_r_L3_banyo_1.png"
+    ],
+    "image_sha256": [
+     "7ece3fcaa3c3b94a6c69701b0ef68d2ac33f6fcac6db452820e2a71af8b425ac"
+    ]
+   },
+   "polished": {
+    "verdict": "ok",
+    "prompt_kind": "check",
+    "elements": {
+     "win_L3_006": {
+      "label": "E1",
+      "role": "optional",
+      "kind": "window",
+      "type": "window",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       47,
+       0,
+       223,
+       875
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_019": {
+      "label": "E2",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "bathtub",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       270,
+       612,
+       676,
+       1000
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "bathtub",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "bathtub",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_020": {
+      "label": "E4",
+      "role": "required",
+      "kind": "furniture",
+      "type": "toilet",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       728,
+       557,
+       952,
+       1000
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "toilet",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "toilet",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "qwen": 0,
+     "glm": 0
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "qwen": 0,
+       "glm": 0
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       0,
+       1
+      ],
+      "passes": {
+       "qwen": 1,
+       "glm": 1
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E3",
+     "type": "shower",
+     "box_1000": [
+      550,
+      450,
+      731,
+      700
+     ],
+     "passes": {
+      "qwen": "absent",
+      "glm": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../polish/cam_r_L3_banyo_1_a1.png"
+    ],
+    "image_sha256": [
+     "298c9b3f84cb603465c6704316995ed0a50ed645aa4904798f53ab565db6265e"
+    ],
+    "preference": {
+     "votes": 0,
+     "answers": 4,
+     "asked": 4,
+     "min_votes": 3,
+     "preferred": false,
+     "calls": {
+      "qwen": {
+       "pc": "same",
+       "cp": "same"
+      },
+      "glm": {
+       "pc": "same",
+       "cp": "same"
+      }
+     }
+    }
+   },
+   "room_id": "r_L3_banyo",
+   "json_crosscheck": {
+    "level_id": "L3",
+    "tested": 42,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L3_006": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.3267,
+      "area_frac": 0.1559,
+      "centre_px": [
+       252.8,
+       395.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 278573
+     },
+     "f_L3_019": {
+      "kind": "furniture",
+      "type": "bathtub",
+      "visible_share": 0.541,
+      "area_frac": 0.14472,
+      "centre_px": [
+       896.4,
+       859.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 202755
+     },
+     "f_L3_020": {
+      "kind": "furniture",
+      "type": "toilet",
+      "visible_share": 0.7865,
+      "area_frac": 0.11172,
+      "centre_px": [
+       1649.5,
+       840.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 145609
+     }
+    },
+    "error": null
+   },
+   "polished_rejected": false,
+   "polished_reason": null,
+   "polished_reasons": [],
+   "needs_review": false,
+   "needs_review_reasons": []
+  },
+  "cam_r_L3_banyo_2": {
+   "cycles": {
+    "verdict": "ok",
+    "prompt_kind": "check",
+    "elements": {
+     "win_L3_006": {
+      "label": "E1",
+      "role": "optional",
+      "kind": "window",
+      "type": "window",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       0,
+       0,
+       206,
+       694
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_019": {
+      "label": "E2",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "bathtub",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       246,
+       791,
+       866,
+       1000
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "bathtub",
+        "confidence": 0.97,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "bathtub",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "qwen": 0,
+     "glm": 0
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "qwen": 0,
+       "glm": 0
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       0,
+       1
+      ],
+      "passes": {
+       "qwen": 1,
+       "glm": 1
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E3",
+     "type": "shower",
+     "box_1000": [
+      100,
+      750,
+      281,
+      1000
+     ],
+     "passes": {
+      "qwen": "absent",
+      "glm": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../renders/cam_r_L3_banyo_2.png"
+    ],
+    "image_sha256": [
+     "998e528a7aff0463c87d3f5f3c7887a0e5f02615b66f9214a6e9e640f488829d"
+    ]
+   },
+   "polished": {
+    "verdict": "ok",
+    "prompt_kind": "check",
+    "elements": {
+     "win_L3_006": {
+      "label": "E1",
+      "role": "optional",
+      "kind": "window",
+      "type": "window",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       0,
+       0,
+       206,
+       694
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_019": {
+      "label": "E2",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "bathtub",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       246,
+       791,
+       866,
+       1000
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "bathtub",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "bathtub",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "qwen": 0,
+     "glm": 0
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "qwen": 0,
+       "glm": 0
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       0,
+       1
+      ],
+      "passes": {
+       "qwen": 1,
+       "glm": 1
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E3",
+     "type": "shower",
+     "box_1000": [
+      100,
+      750,
+      281,
+      1000
+     ],
+     "passes": {
+      "qwen": "absent",
+      "glm": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../polish/cam_r_L3_banyo_2_a1.png"
+    ],
+    "image_sha256": [
+     "fceeaa1e8a49fb0c777fbc2154b009d765ab7e5f928518508cdd4a82c4905042"
+    ],
+    "preference": {
+     "votes": 0,
+     "answers": 4,
+     "asked": 4,
+     "min_votes": 3,
+     "preferred": false,
+     "calls": {
+      "qwen": {
+       "pc": "same",
+       "cp": "same"
+      },
+      "glm": {
+       "pc": "same",
+       "cp": "same"
+      }
+     }
+    }
+   },
+   "room_id": "r_L3_banyo",
+   "json_crosscheck": {
+    "level_id": "L3",
+    "tested": 42,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L3_006": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.3044,
+      "area_frac": 0.13444,
+      "centre_px": [
+       199.3,
+       357.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 286168
+     },
+     "f_L3_019": {
+      "kind": "furniture",
+      "type": "bathtub",
+      "visible_share": 0.2646,
+      "area_frac": 0.17574,
+      "centre_px": [
+       944.9,
+       920.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 128209
+     }
+    },
+    "error": null
+   },
+   "polished_rejected": false,
+   "polished_reason": null,
+   "polished_reasons": [],
+   "needs_review": false,
+   "needs_review_reasons": []
+  },
+  "cam_r_L3_cocuk_odasi_1": {
+   "cycles": {
+    "verdict": "info",
+    "prompt_kind": "check",
+    "elements": {
+     "f_L3_023": {
+      "label": "E2",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "bed_single",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       0,
+       430,
+       550,
+       1000
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "bed_single",
+        "confidence": 0.99,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "bed_single",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": true
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "win_L3_007": {
+      "label": "E3",
+      "role": "optional",
+      "kind": "window",
+      "type": "window",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       0,
+       0,
+       212,
+       466
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 0.99,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": true
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "win_L3_008": {
+      "label": "E4",
+      "role": "required",
+      "kind": "window",
+      "type": "window",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       525,
+       19,
+       735,
+       447
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 0.99,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": true
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "f_L3_026": {
+      "label": "E5",
+      "role": "required",
+      "kind": "furniture",
+      "type": "desk",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       442,
+       425,
+       772,
+       896
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "desk",
+        "confidence": 0.99,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "desk",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": true
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "dec_L3_009": {
+      "label": "E6",
+      "role": "optional",
+      "kind": "decor",
+      "type": "plant",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       847,
+       652,
+       965,
+       892
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "plant",
+        "confidence": 0.99,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "plant",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": true
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "f_L3_027": {
+      "label": "E7",
+      "role": "required",
+      "kind": "furniture",
+      "type": "chair",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       389,
+       426,
+       490,
+       756
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "chair",
+        "confidence": 0.99,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "chair",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": true
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "f_L3_025": {
+      "label": "E8",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "nightstand",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       156,
+       603,
+       276,
+       698
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "nightstand",
+        "confidence": 0.99,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "nightstand",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": true
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "qwen": 2,
+     "glm": 0
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "qwen": 0,
+       "glm": 0
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "unverified"
+     },
+     "window": {
+      "expected": [
+       1,
+       2
+      ],
+      "passes": {
+       "qwen": 2,
+       "glm": 2
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "unverified"
+     }
+    },
+    "unreliable": [
+     "glm"
+    ],
+    "not_computed": [],
+    "decoy": {
+     "label": "E1",
+     "type": "bed_double",
+     "box_1000": [
+      800,
+      400,
+      981,
+      650
+     ],
+     "passes": {
+      "qwen": "absent",
+      "glm": "present"
+     },
+     "accepted_by": [
+      "glm"
+     ]
+    },
+    "images": [
+     "../renders/cam_r_L3_cocuk_odasi_1.png"
+    ],
+    "image_sha256": [
+     "69040e1317d1074ebc6f48069b26ce0427723a7fc970f29f8078e3b31cb487b8"
+    ]
+   },
+   "polished": {
+    "verdict": "info",
+    "prompt_kind": "check",
+    "elements": {
+     "f_L3_023": {
+      "label": "E2",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "bed_single",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       0,
+       430,
+       550,
+       1000
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "bed_single",
+        "confidence": 0.95,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "bed_single",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": true
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "win_L3_007": {
+      "label": "E3",
+      "role": "optional",
+      "kind": "window",
+      "type": "window",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       0,
+       0,
+       212,
+       466
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": true
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "win_L3_008": {
+      "label": "E4",
+      "role": "required",
+      "kind": "window",
+      "type": "window",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       525,
+       19,
+       735,
+       447
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 0.99,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": true
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "f_L3_026": {
+      "label": "E5",
+      "role": "required",
+      "kind": "furniture",
+      "type": "desk",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       442,
+       425,
+       772,
+       896
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "desk",
+        "confidence": 0.99,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "desk",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": true
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "dec_L3_009": {
+      "label": "E6",
+      "role": "optional",
+      "kind": "decor",
+      "type": "plant",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       847,
+       652,
+       965,
+       892
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "plant",
+        "confidence": 0.97,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "plant",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": true
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "f_L3_027": {
+      "label": "E7",
+      "role": "required",
+      "kind": "furniture",
+      "type": "chair",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       389,
+       426,
+       490,
+       756
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "chair",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "chair",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": true
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "f_L3_025": {
+      "label": "E8",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "nightstand",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       156,
+       603,
+       276,
+       698
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "nightstand",
+        "confidence": 0.96,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "nightstand",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": true
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "qwen": 1,
+     "glm": 0
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "qwen": 0,
+       "glm": 0
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "unverified"
+     },
+     "window": {
+      "expected": [
+       1,
+       2
+      ],
+      "passes": {
+       "qwen": 2,
+       "glm": 2
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "unverified"
+     }
+    },
+    "unreliable": [
+     "glm"
+    ],
+    "not_computed": [],
+    "decoy": {
+     "label": "E1",
+     "type": "bed_double",
+     "box_1000": [
+      800,
+      400,
+      981,
+      650
+     ],
+     "passes": {
+      "qwen": "absent",
+      "glm": "present"
+     },
+     "accepted_by": [
+      "glm"
+     ]
+    },
+    "images": [
+     "../polish/cam_r_L3_cocuk_odasi_1_a1.png"
+    ],
+    "image_sha256": [
+     "de87c218a02123dd8fc6598f3b8629be85e4056bb423079f7e1ec278b991debf"
+    ],
+    "preference": {
+     "votes": 0,
+     "answers": 4,
+     "asked": 4,
+     "min_votes": 3,
+     "preferred": false,
+     "calls": {
+      "qwen": {
+       "pc": "same",
+       "cp": "same"
+      },
+      "glm": {
+       "pc": "same",
+       "cp": "same"
+      }
+     }
+    }
+   },
+   "room_id": "r_L3_cocuk_odasi",
+   "json_crosscheck": {
+    "level_id": "L3",
+    "tested": 42,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L3_007": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.6711,
+      "area_frac": 0.09625,
+      "centre_px": [
+       203.7,
+       246.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 195636
+     },
+     "win_L3_008": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.9644,
+      "area_frac": 0.08297,
+      "centre_px": [
+       1208.3,
+       253.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 171118
+     },
+     "f_L3_023": {
+      "kind": "furniture",
+      "type": "bed_single",
+      "visible_share": 0.3983,
+      "area_frac": 0.29933,
+      "centre_px": [
+       525.3,
+       772.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 385857
+     },
+     "f_L3_025": {
+      "kind": "furniture",
+      "type": "nightstand",
+      "visible_share": 0.2984,
+      "area_frac": 0.04053,
+      "centre_px": [
+       415.5,
+       700.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 12754
+     },
+     "f_L3_026": {
+      "kind": "furniture",
+      "type": "desk",
+      "visible_share": 0.9633,
+      "area_frac": 0.11576,
+      "centre_px": [
+       1168.1,
+       741.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 111731
+     },
+     "f_L3_027": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.8554,
+      "area_frac": 0.03133,
+      "centre_px": [
+       844.6,
+       634.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 29012
+     }
+    },
+    "error": null
+   },
+   "polished_rejected": true,
+   "polished_reason": "check_incomplete",
+   "polished_reasons": [
+    {
+     "reason": "check_incomplete",
+     "image": "polished",
+     "detail": "unreliable (decoy seen): glm"
+    },
+    {
+     "reason": "check_incomplete",
+     "image": "cycles",
+     "detail": "unreliable (decoy seen): glm"
+    }
+   ],
+   "needs_review": false,
+   "needs_review_reasons": []
+  },
+  "cam_r_L3_cocuk_odasi_2": {
+   "cycles": {
+    "verdict": "info",
+    "prompt_kind": "check",
+    "elements": {
+     "f_L3_023": {
+      "label": "E1",
+      "role": "required",
+      "kind": "furniture",
+      "type": "bed_single",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       332,
+       402,
+       912,
+       1000
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "bed_single",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "unsure",
+        "seen_as": "bed_double",
+        "confidence": 1,
+        "normalised": true,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "d_L3_004": {
+      "label": "E2",
+      "role": "optional",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       83,
+       0,
+       276,
+       838
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "win_L3_007": {
+      "label": "E3",
+      "role": "optional",
+      "kind": "window",
+      "type": "window",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       788,
+       0,
+       1000,
+       489
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_025": {
+      "label": "E5",
+      "role": "required",
+      "kind": "furniture",
+      "type": "nightstand",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       853,
+       658,
+       1000,
+       1000
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "nightstand",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "nightstand",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_024": {
+      "label": "E6",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "nightstand",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       356,
+       563,
+       479,
+       638
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "nightstand",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "nightstand",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "qwen": 1,
+     "glm": 0
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       0,
+       1
+      ],
+      "passes": {
+       "qwen": 1,
+       "glm": 1
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       0,
+       1
+      ],
+      "passes": {
+       "qwen": 1,
+       "glm": 1
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E4",
+     "type": "bed_double",
+     "box_1000": [
+      400,
+      300,
+      581,
+      550
+     ],
+     "passes": {
+      "qwen": "absent",
+      "glm": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../renders/cam_r_L3_cocuk_odasi_2.png"
+    ],
+    "image_sha256": [
+     "cc127d17c29e6ad7b7a0e242dbb8ce0f927d9653e99a902d0803b72fb199702b"
+    ]
+   },
+   "polished": {
+    "verdict": "info",
+    "prompt_kind": "check",
+    "elements": {
+     "f_L3_023": {
+      "label": "E1",
+      "role": "required",
+      "kind": "furniture",
+      "type": "bed_single",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       332,
+       402,
+       912,
+       1000
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "bed_single",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "unsure",
+        "seen_as": "bed_double",
+        "confidence": 1,
+        "normalised": true,
+        "unreliable": false
+       }
+      },
+      "result": "unverified",
+      "single": "present"
+     },
+     "d_L3_004": {
+      "label": "E2",
+      "role": "optional",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       83,
+       0,
+       276,
+       838
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 0.99,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "win_L3_007": {
+      "label": "E3",
+      "role": "optional",
+      "kind": "window",
+      "type": "window",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       788,
+       0,
+       1000,
+       489
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 0.99,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_025": {
+      "label": "E5",
+      "role": "required",
+      "kind": "furniture",
+      "type": "nightstand",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       853,
+       658,
+       1000,
+       1000
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "nightstand",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "nightstand",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_024": {
+      "label": "E6",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "nightstand",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       356,
+       563,
+       479,
+       638
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "nightstand",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "nightstand",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "qwen": 1,
+     "glm": 0
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       0,
+       1
+      ],
+      "passes": {
+       "qwen": 1,
+       "glm": 1
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       0,
+       1
+      ],
+      "passes": {
+       "qwen": 1,
+       "glm": 1
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E4",
+     "type": "bed_double",
+     "box_1000": [
+      400,
+      300,
+      581,
+      550
+     ],
+     "passes": {
+      "qwen": "absent",
+      "glm": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../polish/cam_r_L3_cocuk_odasi_2_a1.png"
+    ],
+    "image_sha256": [
+     "d69194b85b3cd8da14aaede49fbc3bade3c7f94db60c10e908b10d27f3b8bd13"
+    ],
+    "preference": {
+     "votes": 0,
+     "answers": 4,
+     "asked": 4,
+     "min_votes": 3,
+     "preferred": false,
+     "calls": {
+      "qwen": {
+       "pc": "same",
+       "cp": "same"
+      },
+      "glm": {
+       "pc": "same",
+       "cp": "same"
+      }
+     }
+    }
+   },
+   "room_id": "r_L3_cocuk_odasi",
+   "json_crosscheck": {
+    "level_id": "L3",
+    "tested": 42,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L3_004": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.9906,
+      "area_frac": 0.151,
+      "centre_px": [
+       344.2,
+       443.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 316738
+     },
+     "win_L3_007": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.6644,
+      "area_frac": 0.09625,
+      "centre_px": [
+       1716.3,
+       256.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 196387
+     },
+     "f_L3_023": {
+      "kind": "furniture",
+      "type": "bed_single",
+      "visible_share": 0.9351,
+      "area_frac": 0.32545,
+      "centre_px": [
+       1193.6,
+       757.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 524223
+     },
+     "f_L3_024": {
+      "kind": "furniture",
+      "type": "nightstand",
+      "visible_share": 0.3986,
+      "area_frac": 0.02511,
+      "centre_px": [
+       799.0,
+       648.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 10866
+     },
+     "f_L3_025": {
+      "kind": "furniture",
+      "type": "nightstand",
+      "visible_share": 0.5897,
+      "area_frac": 0.04433,
+      "centre_px": [
+       1783.1,
+       892.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 79539
+     }
+    },
+    "error": null
+   },
+   "polished_rejected": false,
+   "polished_reason": null,
+   "polished_reasons": [],
+   "needs_review": false,
+   "needs_review_reasons": []
+  },
+  "cam_r_L3_cocuk_odasi_3": {
+   "cycles": {
+    "verdict": "ok",
+    "prompt_kind": "check",
+    "elements": {
+     "f_L3_023": {
+      "label": "E1",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "bed_single",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       0,
+       437,
+       345,
+       1000
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "bed_single",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "bed_single",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "win_L3_007": {
+      "label": "E3",
+      "role": "optional",
+      "kind": "window",
+      "type": "window",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       189,
+       0,
+       487,
+       477
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 0.99,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_026": {
+      "label": "E4",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "desk",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       690,
+       675,
+       1000,
+       1000
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "desk",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "desk",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_025": {
+      "label": "E5",
+      "role": "required",
+      "kind": "furniture",
+      "type": "nightstand",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       316,
+       669,
+       474,
+       1000
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "nightstand",
+        "confidence": 0.99,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "nightstand",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_027": {
+      "label": "E6",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "chair",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       701,
+       515,
+       832,
+       1000
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "chair",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "chair",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "qwen": 0,
+     "glm": 0
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "qwen": 0,
+       "glm": 0
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       0,
+       1
+      ],
+      "passes": {
+       "qwen": 1,
+       "glm": 1
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E2",
+     "type": "bed_double",
+     "box_1000": [
+      500,
+      750,
+      681,
+      1000
+     ],
+     "passes": {
+      "qwen": "absent",
+      "glm": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../renders/cam_r_L3_cocuk_odasi_3.png"
+    ],
+    "image_sha256": [
+     "94b054c645c56ded52e47682ae52e9094c41b254ea0e90a68fc37542ddd6c500"
+    ]
+   },
+   "polished": {
+    "verdict": "ok",
+    "prompt_kind": "check",
+    "elements": {
+     "f_L3_023": {
+      "label": "E1",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "bed_single",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       0,
+       437,
+       345,
+       1000
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "bed_single",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "bed_single",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "win_L3_007": {
+      "label": "E3",
+      "role": "optional",
+      "kind": "window",
+      "type": "window",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       189,
+       0,
+       487,
+       477
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 0.99,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_026": {
+      "label": "E4",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "desk",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       690,
+       675,
+       1000,
+       1000
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "desk",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "desk",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_025": {
+      "label": "E5",
+      "role": "required",
+      "kind": "furniture",
+      "type": "nightstand",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       316,
+       669,
+       474,
+       1000
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "nightstand",
+        "confidence": 0.99,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "nightstand",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_027": {
+      "label": "E6",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "chair",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       701,
+       515,
+       832,
+       1000
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "chair",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "chair",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "qwen": 0,
+     "glm": 0
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "qwen": 0,
+       "glm": 0
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       0,
+       1
+      ],
+      "passes": {
+       "qwen": 1,
+       "glm": 1
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E2",
+     "type": "bed_double",
+     "box_1000": [
+      500,
+      750,
+      681,
+      1000
+     ],
+     "passes": {
+      "qwen": "absent",
+      "glm": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../polish/cam_r_L3_cocuk_odasi_3_a1.png"
+    ],
+    "image_sha256": [
+     "bec42185c0b4b1a9b525dc9063a0b0e2cc0f6f32a48b23f5e04c326204a11754"
+    ],
+    "preference": {
+     "votes": 0,
+     "answers": 4,
+     "asked": 4,
+     "min_votes": 3,
+     "preferred": false,
+     "calls": {
+      "qwen": {
+       "pc": "same",
+       "cp": "same"
+      },
+      "glm": {
+       "pc": "same",
+       "cp": "same"
+      }
+     }
+    }
+   },
+   "room_id": "r_L3_cocuk_odasi",
+   "json_crosscheck": {
+    "level_id": "L3",
+    "tested": 42,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L3_007": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.8667,
+      "area_frac": 0.13929,
+      "centre_px": [
+       654.7,
+       258.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 281299
+     },
+     "f_L3_023": {
+      "kind": "furniture",
+      "type": "bed_single",
+      "visible_share": 0.4014,
+      "area_frac": 0.19255,
+      "centre_px": [
+       332.5,
+       775.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 376896
+     },
+     "f_L3_025": {
+      "kind": "furniture",
+      "type": "nightstand",
+      "visible_share": 1.0,
+      "area_frac": 0.05103,
+      "centre_px": [
+       764.4,
+       898.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 97403
+     },
+     "f_L3_026": {
+      "kind": "furniture",
+      "type": "desk",
+      "visible_share": 0.2211,
+      "area_frac": 0.10025,
+      "centre_px": [
+       1624.7,
+       906.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 175532
+     },
+     "f_L3_027": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.4661,
+      "area_frac": 0.09458,
+      "centre_px": [
+       1532.0,
+       819.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 56769
+     }
+    },
+    "error": null
+   },
+   "polished_rejected": false,
+   "polished_reason": null,
+   "polished_reasons": [],
+   "needs_review": false,
+   "needs_review_reasons": []
+  },
+  "cam_r_L3_hol_1": {
+   "cycles": {
+    "verdict": "ok",
+    "prompt_kind": "check",
+    "elements": {
+     "d_L3_002": {
+      "label": "E2",
+      "role": "optional",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       72,
+       0,
+       336,
+       979
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_022": {
+      "label": "E3",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "dresser",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       440,
+       496,
+       979,
+       1000
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "dresser",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "dresser",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "qwen": 0,
+     "glm": 0
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       0,
+       1
+      ],
+      "passes": {
+       "qwen": 1,
+       "glm": 1
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       0,
+       1
+      ],
+      "passes": {
+       "qwen": 0,
+       "glm": 0
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E1",
+     "type": "chair",
+     "box_1000": [
+      800,
+      350,
+      981,
+      600
+     ],
+     "passes": {
+      "qwen": "absent",
+      "glm": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../renders/cam_r_L3_hol_1.png"
+    ],
+    "image_sha256": [
+     "65bd4bc815a1a4d9ec3fbac0a994f38ab6b4f7907e52761f84157ca3e6c4d615"
+    ]
+   },
+   "polished": {
+    "verdict": "ok",
+    "prompt_kind": "check",
+    "elements": {
+     "d_L3_002": {
+      "label": "E2",
+      "role": "optional",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       72,
+       0,
+       336,
+       979
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_022": {
+      "label": "E3",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "dresser",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       440,
+       496,
+       979,
+       1000
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "dresser",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "dresser",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "qwen": 0,
+     "glm": 0
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       0,
+       1
+      ],
+      "passes": {
+       "qwen": 1,
+       "glm": 1
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       0,
+       1
+      ],
+      "passes": {
+       "qwen": 0,
+       "glm": 0
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E1",
+     "type": "chair",
+     "box_1000": [
+      800,
+      350,
+      981,
+      600
+     ],
+     "passes": {
+      "qwen": "absent",
+      "glm": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../polish/cam_r_L3_hol_1_a1.png"
+    ],
+    "image_sha256": [
+     "bb43ea09c9434673f5a7ba0413db842412efe82f80b89bec0c12179dd3ae3aca"
+    ],
+    "preference": {
+     "votes": 0,
+     "answers": 4,
+     "asked": 4,
+     "min_votes": 3,
+     "preferred": false,
+     "calls": {
+      "qwen": {
+       "pc": "same",
+       "cp": "same"
+      },
+      "glm": {
+       "pc": "same",
+       "cp": "same"
+      }
+     }
+    }
+   },
+   "room_id": "r_L3_hol",
+   "json_crosscheck": {
+    "level_id": "L3",
+    "tested": 42,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L3_002": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.9196,
+      "area_frac": 0.23663,
+      "centre_px": [
+       391.5,
+       515.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 497752
+     },
+     "win_L3_002": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.0,
+      "area_frac": 0.05087,
+      "centre_px": null,
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 586
+     },
+     "f_L3_011": {
+      "kind": "furniture",
+      "type": "table_coffee",
+      "visible_share": 0.0252,
+      "area_frac": 0.0208,
+      "centre_px": [
+       176.6,
+       690.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 400
+     },
+     "f_L3_022": {
+      "kind": "furniture",
+      "type": "dresser",
+      "visible_share": 0.5363,
+      "area_frac": 0.2419,
+      "centre_px": [
+       1359.3,
+       808.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 472673
+     }
+    },
+    "error": null
+   },
+   "polished_rejected": false,
+   "polished_reason": null,
+   "polished_reasons": [],
+   "needs_review": false,
+   "needs_review_reasons": []
+  },
+  "cam_r_L3_hol_2": {
+   "cycles": {
+    "verdict": "ok",
+    "prompt_kind": "check",
+    "elements": {
+     "f_L3_022": {
+      "label": "E1",
+      "role": "required",
+      "kind": "furniture",
+      "type": "dresser",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       13,
+       474,
+       479,
+       1000
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "dresser",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "dresser",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "d_L3_001": {
+      "label": "E2",
+      "role": "optional",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       571,
+       0,
+       805,
+       946
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 0.99,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "d_L3_003": {
+      "label": "E3",
+      "role": "optional",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       919,
+       0,
+       957,
+       1000
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 0.99,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "qwen": 0,
+     "glm": 0
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       0,
+       2
+      ],
+      "passes": {
+       "qwen": 2,
+       "glm": 2
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "qwen": 0,
+       "glm": 0
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E4",
+     "type": "chair",
+     "box_1000": [
+      150,
+      250,
+      331,
+      500
+     ],
+     "passes": {
+      "qwen": "absent",
+      "glm": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../renders/cam_r_L3_hol_2.png"
+    ],
+    "image_sha256": [
+     "b9d1dd3754d2b3e5751fd67500d1cbaacc1b17281a7fe0210210b2140fd11170"
+    ]
+   },
+   "polished": {
+    "verdict": "ok",
+    "prompt_kind": "check",
+    "elements": {
+     "f_L3_022": {
+      "label": "E1",
+      "role": "required",
+      "kind": "furniture",
+      "type": "dresser",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       13,
+       474,
+       479,
+       1000
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "dresser",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "dresser",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "d_L3_001": {
+      "label": "E2",
+      "role": "optional",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       571,
+       0,
+       805,
+       946
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 0.99,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "d_L3_003": {
+      "label": "E3",
+      "role": "optional",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       919,
+       0,
+       957,
+       1000
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 0.99,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "qwen": 0,
+     "glm": 0
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       0,
+       2
+      ],
+      "passes": {
+       "qwen": 2,
+       "glm": 2
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "qwen": 0,
+       "glm": 0
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E4",
+     "type": "chair",
+     "box_1000": [
+      150,
+      250,
+      331,
+      500
+     ],
+     "passes": {
+      "qwen": "absent",
+      "glm": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../polish/cam_r_L3_hol_2_a1.png"
+    ],
+    "image_sha256": [
+     "cbaaf7c5f4aff8302ef4ecfb788d8c5e44989aed2fceb4c6bd96cdf363fd2ac7"
+    ],
+    "preference": {
+     "votes": 0,
+     "answers": 4,
+     "asked": 4,
+     "min_votes": 3,
+     "preferred": false,
+     "calls": {
+      "qwen": {
+       "pc": "same",
+       "cp": "same"
+      },
+      "glm": {
+       "pc": "same",
+       "cp": "same"
+      }
+     }
+    }
+   },
+   "room_id": "r_L3_hol",
+   "json_crosscheck": {
+    "level_id": "L3",
+    "tested": 42,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L3_001": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.8195,
+      "area_frac": 0.19565,
+      "centre_px": [
+       1320.0,
+       485.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 421369
+     },
+     "d_L3_003": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.0,
+      "area_frac": 0.04366,
+      "centre_px": null,
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 57689
+     },
+     "f_L3_022": {
+      "kind": "furniture",
+      "type": "dresser",
+      "visible_share": 0.658,
+      "area_frac": 0.22674,
+      "centre_px": [
+       472.6,
+       795.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 441416
+     }
+    },
+    "error": null
+   },
+   "polished_rejected": false,
+   "polished_reason": null,
+   "polished_reasons": [],
+   "needs_review": false,
+   "needs_review_reasons": []
+  },
+  "cam_r_L3_hol_3": {
+   "cycles": {
+    "verdict": "ok",
+    "prompt_kind": "check",
+    "elements": {
+     "f_L3_022": {
+      "label": "E1",
+      "role": "required",
+      "kind": "furniture",
+      "type": "dresser",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       676,
+       454,
+       1000,
+       1000
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "dresser",
+        "confidence": 0.99,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "dresser",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "d_L3_002": {
+      "label": "E3",
+      "role": "optional",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       222,
+       0,
+       342,
+       1000
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 0.99,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "qwen": 0,
+     "glm": 0
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       0,
+       1
+      ],
+      "passes": {
+       "qwen": 1,
+       "glm": 1
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "qwen": 0,
+       "glm": 0
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E2",
+     "type": "chair",
+     "box_1000": [
+      400,
+      750,
+      581,
+      1000
+     ],
+     "passes": {
+      "qwen": "absent",
+      "glm": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../renders/cam_r_L3_hol_3.png"
+    ],
+    "image_sha256": [
+     "3058905cb882b250ba785b23fd56a704b8500debab53bff327c2142b16e90215"
+    ]
+   },
+   "polished": {
+    "verdict": "ok",
+    "prompt_kind": "check",
+    "elements": {
+     "f_L3_022": {
+      "label": "E1",
+      "role": "required",
+      "kind": "furniture",
+      "type": "dresser",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       676,
+       454,
+       1000,
+       1000
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "dresser",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "dresser",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "d_L3_002": {
+      "label": "E3",
+      "role": "optional",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       222,
+       0,
+       342,
+       1000
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "qwen": 0,
+     "glm": 0
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       0,
+       1
+      ],
+      "passes": {
+       "qwen": 1,
+       "glm": 1
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "qwen": 0,
+       "glm": 0
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E2",
+     "type": "chair",
+     "box_1000": [
+      400,
+      750,
+      581,
+      1000
+     ],
+     "passes": {
+      "qwen": "absent",
+      "glm": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../polish/cam_r_L3_hol_3_a1.png"
+    ],
+    "image_sha256": [
+     "d3eb5bdeba9373d37521b159975a42486cca744c7a76fadaeb5cbad873c16521"
+    ],
+    "preference": {
+     "votes": 0,
+     "answers": 4,
+     "asked": 4,
+     "min_votes": 3,
+     "preferred": false,
+     "calls": {
+      "qwen": {
+       "pc": "same",
+       "cp": "same"
+      },
+      "glm": {
+       "pc": "same",
+       "cp": "same"
+      }
+     }
+    }
+   },
+   "room_id": "r_L3_hol",
+   "json_crosscheck": {
+    "level_id": "L3",
+    "tested": 42,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L3_002": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.0,
+      "area_frac": 0.13095,
+      "centre_px": null,
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 246240
+     },
+     "f_L3_022": {
+      "kind": "furniture",
+      "type": "dresser",
+      "visible_share": 0.8931,
+      "area_frac": 0.17552,
+      "centre_px": [
+       1607.7,
+       785.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 336019
+     }
+    },
+    "error": null
+   },
+   "polished_rejected": false,
+   "polished_reason": null,
+   "polished_reasons": [],
+   "needs_review": false,
+   "needs_review_reasons": []
+  },
+  "cam_r_L3_salon_mutfak_1": {
+   "cycles": {
+    "verdict": "info",
+    "prompt_kind": "check",
+    "elements": {
+     "win_L3_001": {
+      "label": "E1",
+      "role": "required",
+      "kind": "window",
+      "type": "window",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       582,
+       50,
+       825,
+       413
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_010": {
+      "label": "E3",
+      "role": "required",
+      "kind": "furniture",
+      "type": "sofa",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       122,
+       444,
+       480,
+       832
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "sofa",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "sofa",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_014": {
+      "label": "E4",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "bookshelf",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       949,
+       111,
+       1000,
+       1000
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "bookshelf",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "bookshelf",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "win_L3_002": {
+      "label": "E5",
+      "role": "required",
+      "kind": "window",
+      "type": "window",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       316,
+       118,
+       456,
+       390
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_012": {
+      "label": "E6",
+      "role": "required",
+      "kind": "furniture",
+      "type": "tv_unit",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       0,
+       464,
+       151,
+       617
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "tv_unit",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "tv_unit",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_007": {
+      "label": "E7",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "chair",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       0,
+       754,
+       78,
+       1000
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "chair",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "chair",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_006": {
+      "label": "E8",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "chair",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       188,
+       887,
+       384,
+       1000
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "chair",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "chair",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     }
+    },
+    "extras": [
+     {
+      "class": "furniture",
+      "categories": {
+       "qwen": "other_furniture"
+      },
+      "boxes_1000": {
+       "qwen": [
+        100.0,
+        544.0,
+        122.0,
+        650.0
+       ]
+      },
+      "box_px": [
+       192.0,
+       587.5,
+       234.2,
+       702.0
+      ],
+      "iou": null,
+      "confirmed": false,
+      "passes": [
+       "qwen"
+      ],
+      "info": true,
+      "unreliable": false
+     }
+    ],
+    "extras_dropped": {
+     "qwen": 0,
+     "glm": 0
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "qwen": 0,
+       "glm": 0
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       2,
+       2
+      ],
+      "passes": {
+       "qwen": 2,
+       "glm": 2
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E2",
+     "type": "desk",
+     "box_1000": [
+      400,
+      750,
+      581,
+      1000
+     ],
+     "passes": {
+      "qwen": "absent",
+      "glm": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../renders/cam_r_L3_salon_mutfak_1.png"
+    ],
+    "image_sha256": [
+     "1579a853982fef6dfe823633f403fc1794cda2ef1b152f6a2b55c3b5e6022f9b"
+    ]
+   },
+   "polished": {
+    "verdict": "info",
+    "prompt_kind": "check",
+    "elements": {
+     "win_L3_001": {
+      "label": "E1",
+      "role": "required",
+      "kind": "window",
+      "type": "window",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       582,
+       50,
+       825,
+       413
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_010": {
+      "label": "E3",
+      "role": "required",
+      "kind": "furniture",
+      "type": "sofa",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       122,
+       444,
+       480,
+       832
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "sofa",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "sofa",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_014": {
+      "label": "E4",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "bookshelf",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       949,
+       111,
+       1000,
+       1000
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "bookshelf",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "bookshelf",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "win_L3_002": {
+      "label": "E5",
+      "role": "required",
+      "kind": "window",
+      "type": "window",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       316,
+       118,
+       456,
+       390
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_012": {
+      "label": "E6",
+      "role": "required",
+      "kind": "furniture",
+      "type": "tv_unit",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       0,
+       464,
+       151,
+       617
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "tv_unit",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "tv_unit",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_007": {
+      "label": "E7",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "chair",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       0,
+       754,
+       78,
+       1000
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "chair",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "chair",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_006": {
+      "label": "E8",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "chair",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       188,
+       887,
+       384,
+       1000
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "chair",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "chair",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     }
+    },
+    "extras": [
+     {
+      "class": "furniture",
+      "categories": {
+       "qwen": "other_furniture"
+      },
+      "boxes_1000": {
+       "qwen": [
+        108.0,
+        544.0,
+        140.0,
+        650.0
+       ]
+      },
+      "box_px": [
+       207.4,
+       587.5,
+       268.8,
+       702.0
+      ],
+      "iou": null,
+      "confirmed": false,
+      "passes": [
+       "qwen"
+      ],
+      "info": true,
+      "unreliable": false
+     }
+    ],
+    "extras_dropped": {
+     "qwen": 0,
+     "glm": 0
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "qwen": 0,
+       "glm": 0
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       2,
+       2
+      ],
+      "passes": {
+       "qwen": 2,
+       "glm": 2
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E2",
+     "type": "desk",
+     "box_1000": [
+      400,
+      750,
+      581,
+      1000
+     ],
+     "passes": {
+      "qwen": "absent",
+      "glm": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../polish/cam_r_L3_salon_mutfak_1_a1.png"
+    ],
+    "image_sha256": [
+     "6331420191c41ef23ae40f662f023bea41f0846afdbe3e3a271a453222ece790"
+    ],
+    "preference": {
+     "votes": 2,
+     "answers": 4,
+     "asked": 4,
+     "min_votes": 3,
+     "preferred": false,
+     "calls": {
+      "qwen": {
+       "pc": "first",
+       "cp": "same"
+      },
+      "glm": {
+       "pc": "first",
+       "cp": "same"
+      }
+     }
+    }
+   },
+   "room_id": "r_L3_salon_mutfak",
+   "json_crosscheck": {
+    "level_id": "L3",
+    "tested": 42,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L3_001": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 1.0,
+      "area_frac": 0.07986,
+      "centre_px": [
+       1353.8,
+       251.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 166975
+     },
+     "win_L3_002": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.9173,
+      "area_frac": 0.03643,
+      "centre_px": [
+       744.0,
+       275.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 73163
+     },
+     "f_L3_006": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.0721,
+      "area_frac": 0.03383,
+      "centre_px": [
+       441.2,
+       1003.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 23127
+     },
+     "f_L3_007": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.0481,
+      "area_frac": 0.02063,
+      "centre_px": [
+       69.3,
+       933.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 29642
+     },
+     "f_L3_010": {
+      "kind": "furniture",
+      "type": "sofa",
+      "visible_share": 1.0,
+      "area_frac": 0.13954,
+      "centre_px": [
+       593.0,
+       703.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 156555
+     },
+     "f_L3_011": {
+      "kind": "furniture",
+      "type": "table_coffee",
+      "visible_share": 0.1251,
+      "area_frac": 0.02954,
+      "centre_px": [
+       240.0,
+       671.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 3325
+     },
+     "f_L3_012": {
+      "kind": "furniture",
+      "type": "tv_unit",
+      "visible_share": 0.5822,
+      "area_frac": 0.01805,
+      "centre_px": [
+       144.3,
+       582.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 33802
+     },
+     "f_L3_014": {
+      "kind": "furniture",
+      "type": "bookshelf",
+      "visible_share": 0.4618,
+      "area_frac": 0.04376,
+      "centre_px": [
+       1871.7,
+       589.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 88492
+     }
+    },
+    "error": null
+   },
+   "polished_rejected": false,
+   "polished_reason": null,
+   "polished_reasons": [],
+   "needs_review": false,
+   "needs_review_reasons": []
+  },
+  "cam_r_L3_salon_mutfak_2": {
+   "cycles": {
+    "verdict": "info",
+    "prompt_kind": "check",
+    "elements": {
+     "d_L3_002": {
+      "label": "E2",
+      "role": "required",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       825,
+       37,
+       983,
+       741
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_010": {
+      "label": "E3",
+      "role": "required",
+      "kind": "furniture",
+      "type": "sofa",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       293,
+       444,
+       684,
+       843
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "sofa",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "sofa",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_011": {
+      "label": "E4",
+      "role": "required",
+      "kind": "furniture",
+      "type": "table_coffee",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       497,
+       620,
+       789,
+       993
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "table_coffee",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "table_coffee",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "win_L3_003": {
+      "label": "E5",
+      "role": "required",
+      "kind": "window",
+      "type": "window",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       258,
+       159,
+       381,
+       390
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_014": {
+      "label": "E6",
+      "role": "required",
+      "kind": "furniture",
+      "type": "bookshelf",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       402,
+       285,
+       504,
+       459
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "bookshelf",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "bookshelf",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "win_L3_004": {
+      "label": "E7",
+      "role": "required",
+      "kind": "window",
+      "type": "window",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       596,
+       199,
+       666,
+       374
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_005": {
+      "label": "E8",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "table_dining",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       610,
+       400,
+       761,
+       578
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "table_dining",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "table_dining",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "win_L3_001": {
+      "label": "E9",
+      "role": "optional",
+      "kind": "window",
+      "type": "window",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       35,
+       3,
+       48,
+       429
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_001": {
+      "label": "E10",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "kitchen_counter",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       689,
+       367,
+       761,
+       508
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "kitchen_counter",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "kitchen_counter",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_008": {
+      "label": "E11",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "chair",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       692,
+       394,
+       752,
+       525
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "chair",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "chair",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_007": {
+      "label": "E12",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "chair",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       630,
+       415,
+       704,
+       579
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "chair",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "chair",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "qwen": 1,
+     "glm": 0
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       1,
+       1
+      ],
+      "passes": {
+       "qwen": 1,
+       "glm": 1
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       2,
+       3
+      ],
+      "passes": {
+       "qwen": 3,
+       "glm": 4
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "more"
+      },
+      "result": "unverified"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E1",
+     "type": "desk",
+     "box_1000": [
+      150,
+      750,
+      331,
+      1000
+     ],
+     "passes": {
+      "qwen": "absent",
+      "glm": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../renders/cam_r_L3_salon_mutfak_2.png"
+    ],
+    "image_sha256": [
+     "5f8fa94ec800013102c3a6680b9c9694bade242097857c3ae1e3d4fc8e0ca31f"
+    ]
+   },
+   "polished": {
+    "verdict": "info",
+    "prompt_kind": "check",
+    "elements": {
+     "d_L3_002": {
+      "label": "E2",
+      "role": "required",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       825,
+       37,
+       983,
+       741
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_010": {
+      "label": "E3",
+      "role": "required",
+      "kind": "furniture",
+      "type": "sofa",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       293,
+       444,
+       684,
+       843
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "sofa",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "sofa",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_011": {
+      "label": "E4",
+      "role": "required",
+      "kind": "furniture",
+      "type": "table_coffee",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       497,
+       620,
+       789,
+       993
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "table_coffee",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "table_coffee",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "win_L3_003": {
+      "label": "E5",
+      "role": "required",
+      "kind": "window",
+      "type": "window",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       258,
+       159,
+       381,
+       390
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_014": {
+      "label": "E6",
+      "role": "required",
+      "kind": "furniture",
+      "type": "bookshelf",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       402,
+       285,
+       504,
+       459
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "bookshelf",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "bookshelf",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "win_L3_004": {
+      "label": "E7",
+      "role": "required",
+      "kind": "window",
+      "type": "window",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       596,
+       199,
+       666,
+       374
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_005": {
+      "label": "E8",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "table_dining",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       610,
+       400,
+       761,
+       578
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "table_dining",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "table_dining",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "win_L3_001": {
+      "label": "E9",
+      "role": "optional",
+      "kind": "window",
+      "type": "window",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       35,
+       3,
+       48,
+       429
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_001": {
+      "label": "E10",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "kitchen_counter",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       689,
+       367,
+       761,
+       508
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "kitchen_counter",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "kitchen_counter",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_008": {
+      "label": "E11",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "chair",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       692,
+       394,
+       752,
+       525
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "chair",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "chair",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_007": {
+      "label": "E12",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "chair",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       630,
+       415,
+       704,
+       579
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "chair",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "chair",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "qwen": 1,
+     "glm": 0
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       1,
+       1
+      ],
+      "passes": {
+       "qwen": 1,
+       "glm": 1
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       2,
+       3
+      ],
+      "passes": {
+       "qwen": 3,
+       "glm": 4
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "more"
+      },
+      "result": "unverified"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E1",
+     "type": "desk",
+     "box_1000": [
+      150,
+      750,
+      331,
+      1000
+     ],
+     "passes": {
+      "qwen": "absent",
+      "glm": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../polish/cam_r_L3_salon_mutfak_2_a1.png"
+    ],
+    "image_sha256": [
+     "14a688b73332e770c7ba205f6582ba80aee35a9e7419f45e94aaa79d11166cb3"
+    ],
+    "preference": {
+     "votes": 3,
+     "answers": 4,
+     "asked": 4,
+     "min_votes": 3,
+     "preferred": true,
+     "calls": {
+      "qwen": {
+       "pc": "first",
+       "cp": "second"
+      },
+      "glm": {
+       "pc": "first",
+       "cp": "same"
+      }
+     }
+    }
+   },
+   "room_id": "r_L3_salon_mutfak",
+   "json_crosscheck": {
+    "level_id": "L3",
+    "tested": 42,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L3_002": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.9459,
+      "area_frac": 0.09972,
+      "centre_px": [
+       1749.1,
+       417.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 206921
+     },
+     "win_L3_001": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.1679,
+      "area_frac": 0.01654,
+      "centre_px": [
+       73.0,
+       244.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 9787
+     },
+     "win_L3_003": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.9667,
+      "area_frac": 0.02706,
+      "centre_px": [
+       613.9,
+       296.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 55666
+     },
+     "win_L3_004": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.8444,
+      "area_frac": 0.0123,
+      "centre_px": [
+       1211.1,
+       309.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 24067
+     },
+     "f_L3_001": {
+      "kind": "furniture",
+      "type": "kitchen_counter",
+      "visible_share": 0.1749,
+      "area_frac": 0.03077,
+      "centre_px": [
+       1393.2,
+       471.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 7939
+     },
+     "f_L3_002": {
+      "kind": "furniture",
+      "type": "sink_kitchen",
+      "visible_share": 0.2786,
+      "area_frac": 0.01304,
+      "centre_px": [
+       1409.9,
+       452.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 472
+     },
+     "f_L3_005": {
+      "kind": "furniture",
+      "type": "table_dining",
+      "visible_share": 0.6608,
+      "area_frac": 0.02872,
+      "centre_px": [
+       1317.2,
+       527.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 10449
+     },
+     "f_L3_006": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.4407,
+      "area_frac": 0.00962,
+      "centre_px": [
+       1168.6,
+       462.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 1896
+     },
+     "f_L3_007": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.6538,
+      "area_frac": 0.01234,
+      "centre_px": [
+       1280.1,
+       534.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 6226
+     },
+     "f_L3_008": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.7388,
+      "area_frac": 0.00793,
+      "centre_px": [
+       1386.0,
+       497.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 6578
+     },
+     "f_L3_009": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.0929,
+      "area_frac": 0.00991,
+      "centre_px": [
+       1452.1,
+       508.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 1022
+     },
+     "f_L3_010": {
+      "kind": "furniture",
+      "type": "sofa",
+      "visible_share": 0.919,
+      "area_frac": 0.14222,
+      "centre_px": [
+       930.6,
+       689.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 181097
+     },
+     "f_L3_011": {
+      "kind": "furniture",
+      "type": "table_coffee",
+      "visible_share": 1.0,
+      "area_frac": 0.08551,
+      "centre_px": [
+       1233.2,
+       872.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 75823
+     },
+     "f_L3_014": {
+      "kind": "furniture",
+      "type": "bookshelf",
+      "visible_share": 0.6518,
+      "area_frac": 0.0262,
+      "centre_px": [
+       869.0,
+       402.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 24353
+     }
+    },
+    "error": null
+   },
+   "polished_rejected": false,
+   "polished_reason": null,
+   "polished_reasons": [],
+   "needs_review": false,
+   "needs_review_reasons": []
+  },
+  "cam_r_L3_salon_mutfak_3": {
+   "cycles": {
+    "verdict": "ok",
+    "prompt_kind": "check",
+    "elements": {
+     "f_L3_010": {
+      "label": "E1",
+      "role": "required",
+      "kind": "furniture",
+      "type": "sofa",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       314,
+       475,
+       741,
+       892
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "sofa",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "sofa",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "win_L3_002": {
+      "label": "E2",
+      "role": "required",
+      "kind": "window",
+      "type": "window",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       598,
+       74,
+       744,
+       405
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 0.99,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "win_L3_001": {
+      "label": "E4",
+      "role": "optional",
+      "kind": "window",
+      "type": "window",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       920,
+       0,
+       1000,
+       439
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 0.99,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_013": {
+      "label": "E5",
+      "role": "required",
+      "kind": "furniture",
+      "type": "armchair",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       95,
+       336,
+       264,
+       656
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "armchair",
+        "confidence": 0.99,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "armchair",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "d_L3_002": {
+      "label": "E6",
+      "role": "optional",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       27,
+       0,
+       52,
+       851
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_012": {
+      "label": "E7",
+      "role": "required",
+      "kind": "furniture",
+      "type": "tv_unit",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       252,
+       455,
+       438,
+       590
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "tv_unit",
+        "confidence": 0.99,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "tv_unit",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "qwen": 1,
+     "glm": 0
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       0,
+       1
+      ],
+      "passes": {
+       "qwen": 1,
+       "glm": 1
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       1,
+       2
+      ],
+      "passes": {
+       "qwen": 2,
+       "glm": 2
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E3",
+     "type": "desk",
+     "box_1000": [
+      550,
+      750,
+      731,
+      1000
+     ],
+     "passes": {
+      "qwen": "absent",
+      "glm": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../renders/cam_r_L3_salon_mutfak_3.png"
+    ],
+    "image_sha256": [
+     "3bffd3ebe7b54d24700af9049c4af1facb2421230aa5d4f2c17d6e987387d57e"
+    ]
+   },
+   "polished": {
+    "verdict": "ok",
+    "prompt_kind": "check",
+    "elements": {
+     "f_L3_010": {
+      "label": "E1",
+      "role": "required",
+      "kind": "furniture",
+      "type": "sofa",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       314,
+       475,
+       741,
+       892
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "sofa",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "sofa",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "win_L3_002": {
+      "label": "E2",
+      "role": "required",
+      "kind": "window",
+      "type": "window",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       598,
+       74,
+       744,
+       405
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 0.99,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "win_L3_001": {
+      "label": "E4",
+      "role": "optional",
+      "kind": "window",
+      "type": "window",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       920,
+       0,
+       1000,
+       439
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 0.99,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_013": {
+      "label": "E5",
+      "role": "required",
+      "kind": "furniture",
+      "type": "armchair",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       95,
+       336,
+       264,
+       656
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "armchair",
+        "confidence": 0.99,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "armchair",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "d_L3_002": {
+      "label": "E6",
+      "role": "optional",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       27,
+       0,
+       52,
+       851
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_012": {
+      "label": "E7",
+      "role": "required",
+      "kind": "furniture",
+      "type": "tv_unit",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       252,
+       455,
+       438,
+       590
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "tv_unit",
+        "confidence": 0.99,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "tv_unit",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "qwen": 1,
+     "glm": 0
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       0,
+       1
+      ],
+      "passes": {
+       "qwen": 1,
+       "glm": 1
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       1,
+       2
+      ],
+      "passes": {
+       "qwen": 2,
+       "glm": 2
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E3",
+     "type": "desk",
+     "box_1000": [
+      550,
+      750,
+      731,
+      1000
+     ],
+     "passes": {
+      "qwen": "absent",
+      "glm": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../polish/cam_r_L3_salon_mutfak_3_a1.png"
+    ],
+    "image_sha256": [
+     "fc7dde7ff75f26c05ae3eecbce82cb11cdbf51866bbcc81fdfe5af782aafd595"
+    ],
+    "preference": {
+     "votes": 3,
+     "answers": 4,
+     "asked": 4,
+     "min_votes": 3,
+     "preferred": true,
+     "calls": {
+      "qwen": {
+       "pc": "first",
+       "cp": "second"
+      },
+      "glm": {
+       "pc": "first",
+       "cp": "same"
+      }
+     }
+    }
+   },
+   "room_id": "r_L3_salon_mutfak",
+   "json_crosscheck": {
+    "level_id": "L3",
+    "tested": 42,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L3_002": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.0,
+      "area_frac": 0.01974,
+      "centre_px": null,
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 33004
+     },
+     "win_L3_001": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.2173,
+      "area_frac": 0.03276,
+      "centre_px": [
+       1849.1,
+       233.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 71631
+     },
+     "win_L3_002": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.8877,
+      "area_frac": 0.045,
+      "centre_px": [
+       1289.1,
+       259.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 87763
+     },
+     "f_L3_010": {
+      "kind": "furniture",
+      "type": "sofa",
+      "visible_share": 1.0,
+      "area_frac": 0.19581,
+      "centre_px": [
+       1045.6,
+       758.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 214288
+     },
+     "f_L3_012": {
+      "kind": "furniture",
+      "type": "tv_unit",
+      "visible_share": 0.8054,
+      "area_frac": 0.02073,
+      "centre_px": [
+       661.8,
+       562.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 32071
+     },
+     "f_L3_013": {
+      "kind": "furniture",
+      "type": "armchair",
+      "visible_share": 1.0,
+      "area_frac": 0.05816,
+      "centre_px": [
+       329.1,
+       533.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 65764
+     }
+    },
+    "error": null
+   },
+   "polished_rejected": false,
+   "polished_reason": null,
+   "polished_reasons": [],
+   "needs_review": false,
+   "needs_review_reasons": []
+  },
+  "cam_r_L3_yatak_odasi_1": {
+   "cycles": {
+    "verdict": "ok",
+    "prompt_kind": "check",
+    "elements": {
+     "f_L3_018": {
+      "label": "E2",
+      "role": "required",
+      "kind": "furniture",
+      "type": "wardrobe",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       276,
+       27,
+       627,
+       755
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "wardrobe",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "wardrobe",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_015": {
+      "label": "E3",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "bed_double",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       742,
+       305,
+       1000,
+       1000
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "bed_double",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "bed_double",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "win_L3_009": {
+      "label": "E4",
+      "role": "optional",
+      "kind": "window",
+      "type": "window",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       0,
+       0,
+       86,
+       519
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "d_L3_005": {
+      "label": "E5",
+      "role": "optional",
+      "kind": "door",
+      "type": "door",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       972,
+       52,
+       1000,
+       713
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "door",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "qwen": 0,
+     "glm": 0
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       0,
+       1
+      ],
+      "passes": {
+       "qwen": 1,
+       "glm": 1
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       0,
+       1
+      ],
+      "passes": {
+       "qwen": 1,
+       "glm": 1
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E1",
+     "type": "bed_single",
+     "box_1000": [
+      400,
+      750,
+      581,
+      1000
+     ],
+     "passes": {
+      "qwen": "absent",
+      "glm": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../renders/cam_r_L3_yatak_odasi_1.png"
+    ],
+    "image_sha256": [
+     "794554c59bb1a37576848d134dca85b11e8b08a45e945eb39d1e61ca4e2c8b97"
+    ]
+   },
+   "room_id": "r_L3_yatak_odasi",
+   "json_crosscheck": {
+    "level_id": "L3",
+    "tested": 42,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L3_005": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.1962,
+      "area_frac": 0.0122,
+      "centre_px": [
+       1902.9,
+       421.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 36893
+     },
+     "win_L3_009": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.1506,
+      "area_frac": 0.03753,
+      "centre_px": [
+       69.7,
+       260.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 88868
+     },
+     "f_L3_015": {
+      "kind": "furniture",
+      "type": "bed_double",
+      "visible_share": 0.2678,
+      "area_frac": 0.24683,
+      "centre_px": [
+       1668.1,
+       545.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 173553
+     },
+     "f_L3_018": {
+      "kind": "furniture",
+      "type": "wardrobe",
+      "visible_share": 1.0,
+      "area_frac": 0.25836,
+      "centre_px": [
+       865.9,
+       423.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 528298
+     }
+    },
+    "error": null
+   },
+   "polished_rejected": false,
+   "polished_reason": null,
+   "polished_reasons": [],
+   "needs_review": false,
+   "needs_review_reasons": []
+  },
+  "cam_r_L3_yatak_odasi_2": {
+   "cycles": {
+    "verdict": "ok",
+    "prompt_kind": "check",
+    "elements": {
+     "f_L3_018": {
+      "label": "E1",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "wardrobe",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       822,
+       0,
+       1000,
+       1000
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "wardrobe",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "wardrobe",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_015": {
+      "label": "E2",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "bed_double",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       0,
+       300,
+       283,
+       1000
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "bed_double",
+        "confidence": 0.98,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "bed_double",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "win_L3_009": {
+      "label": "E3",
+      "role": "optional",
+      "kind": "window",
+      "type": "window",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       412,
+       0,
+       677,
+       438
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 0.99,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "win_L3_010": {
+      "label": "E4",
+      "role": "optional",
+      "kind": "window",
+      "type": "window",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       0,
+       51,
+       24,
+       434
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 0.99,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "dec_L3_006": {
+      "label": "E5",
+      "role": "optional",
+      "kind": "decor",
+      "type": "plant",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       229,
+       512,
+       282,
+       633
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "plant",
+        "confidence": 0.97,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "plant",
+        "confidence": 1,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "qwen": 0,
+     "glm": 0
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "qwen": 0,
+       "glm": 0
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       0,
+       2
+      ],
+      "passes": {
+       "qwen": 2,
+       "glm": 2
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E6",
+     "type": "bed_single",
+     "box_1000": [
+      400,
+      750,
+      581,
+      1000
+     ],
+     "passes": {
+      "qwen": "absent",
+      "glm": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../renders/cam_r_L3_yatak_odasi_2.png"
+    ],
+    "image_sha256": [
+     "d7954cf9caed5d43f1fb946e5ecc10ff45bcf0925c1b9af8b071075235594c62"
+    ]
+   },
+   "room_id": "r_L3_yatak_odasi",
+   "json_crosscheck": {
+    "level_id": "L3",
+    "tested": 42,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L3_009": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.9698,
+      "area_frac": 0.10924,
+      "centre_px": [
+       1046.3,
+       232.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 225575
+     },
+     "win_L3_010": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.09,
+      "area_frac": 0.00762,
+      "centre_px": [
+       16.3,
+       262.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 18241
+     },
+     "f_L3_015": {
+      "kind": "furniture",
+      "type": "bed_double",
+      "visible_share": 0.2395,
+      "area_frac": 0.29608,
+      "centre_px": [
+       292.7,
+       539.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 248308
+     },
+     "f_L3_018": {
+      "kind": "furniture",
+      "type": "wardrobe",
+      "visible_share": 0.2151,
+      "area_frac": 0.17824,
+      "centre_px": [
+       1758.7,
+       539.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 368280
+     }
+    },
+    "error": null
+   },
+   "polished_rejected": false,
+   "polished_reason": null,
+   "polished_reasons": [],
+   "needs_review": false,
+   "needs_review_reasons": []
+  },
+  "cam_r_L3_yatak_odasi_3": {
+   "cycles": {
+    "verdict": "ok",
+    "prompt_kind": "check",
+    "elements": {
+     "win_L3_009": {
+      "label": "E1",
+      "role": "optional",
+      "kind": "window",
+      "type": "window",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       656,
+       0,
+       1000,
+       507
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "win_L3_010": {
+      "label": "E2",
+      "role": "required",
+      "kind": "window",
+      "type": "window",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       61,
+       41,
+       290,
+       438
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "window",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "f_L3_015": {
+      "label": "E3",
+      "role": "optional",
+      "kind": "furniture",
+      "type": "bed_double",
+      "type_unverified": false,
+      "source": "from_documents",
+      "box_1000": [
+       0,
+       293,
+       232,
+       1000
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "bed_double",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "bed_double",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     },
+     "dec_L3_006": {
+      "label": "E5",
+      "role": "optional",
+      "kind": "decor",
+      "type": "plant",
+      "type_unverified": false,
+      "source": "added_by_ai",
+      "box_1000": [
+       472,
+       521,
+       527,
+       650
+      ],
+      "passes": {
+       "qwen": {
+        "status": "present",
+        "seen_as": "plant",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       },
+       "glm": {
+        "status": "present",
+        "seen_as": "plant",
+        "confidence": 1.0,
+        "normalised": false,
+        "unreliable": false
+       }
+      },
+      "result": "ok",
+      "single": null
+     }
+    },
+    "extras": [],
+    "extras_dropped": {
+     "qwen": 0,
+     "glm": 0
+    },
+    "counts": {
+     "door": {
+      "expected": [
+       0,
+       0
+      ],
+      "passes": {
+       "qwen": 0,
+       "glm": 0
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     },
+     "window": {
+      "expected": [
+       1,
+       2
+      ],
+      "passes": {
+       "qwen": 2,
+       "glm": 2
+      },
+      "sides": {
+       "qwen": "ok",
+       "glm": "ok"
+      },
+      "result": "ok"
+     }
+    },
+    "unreliable": [],
+    "not_computed": [],
+    "decoy": {
+     "label": "E4",
+     "type": "bed_single",
+     "box_1000": [
+      400,
+      750,
+      581,
+      1000
+     ],
+     "passes": {
+      "qwen": "absent",
+      "glm": "absent"
+     },
+     "accepted_by": []
+    },
+    "images": [
+     "../renders/cam_r_L3_yatak_odasi_3.png"
+    ],
+    "image_sha256": [
+     "dc2d65a4e3d0407bf4711e740d6fea0123b4d18a9a87b13d586a405c2f8d6eed"
+    ]
+   },
+   "room_id": "r_L3_yatak_odasi",
+   "json_crosscheck": {
+    "level_id": "L3",
+    "tested": 42,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L3_009": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.7494,
+      "area_frac": 0.15853,
+      "centre_px": [
+       1595.3,
+       266.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 335157
+     },
+     "win_L3_010": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.97,
+      "area_frac": 0.08262,
+      "centre_px": [
+       337.4,
+       259.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 168505
+     },
+     "f_L3_015": {
+      "kind": "furniture",
+      "type": "bed_double",
+      "visible_share": 0.1055,
+      "area_frac": 0.24529,
+      "centre_px": [
+       232.3,
+       541.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 159164
+     }
+    },
+    "error": null
+   },
+   "polished_rejected": false,
+   "polished_reason": null,
+   "polished_reasons": [],
+   "needs_review": false,
+   "needs_review_reasons": []
+  }
+ },
+ "warnings": []
+}

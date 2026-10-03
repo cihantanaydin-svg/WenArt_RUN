@@ -1,0 +1,80 @@
+{
+ "schema_version": "0.1",
+ "project": {
+  "id": "synthetic-02",
+  "source_folder": "projects/synthetic-02",
+  "created_utc": "2026-10-03T03:15:14Z",
+  "pipeline_commit": "95a675fe"
+ },
+ "status": "needs_review",
+ "documents": [
+  {
+   "id": "doc_plan_photo_jpg",
+   "file": "plan_photo.jpg",
+   "format": "image",
+   "converter": null,
+   "pages": [
+    {
+     "page": 1,
+     "class": "other",
+     "skip_reason": "no text layer: raster pages need OCR/VLM recognition (Milestone 2 bake-off), not run here",
+     "kind": "photo",
+     "level_id": null,
+     "level_label_raw": null,
+     "scale": null,
+     "transform_to_building": null,
+     "confidence": 0.0,
+     "evidence": [
+      {
+       "file": "plan_photo.jpg",
+       "method": "ai",
+       "confidence": 0.8,
+       "text": "kind: paper outline is a skewed quadrilateral (corners moved up to 7.3%)"
+      }
+     ],
+     "debug_image": "debug/plan_photo_jpg_p1.png"
+    }
+   ]
+  },
+  {
+   "id": "doc_plan_scan_png",
+   "file": "plan_scan.png",
+   "format": "image",
+   "converter": null,
+   "pages": [
+    {
+     "page": 1,
+     "class": "other",
+     "skip_reason": "no text layer: raster pages need OCR/VLM recognition (Milestone 2 bake-off), not run here",
+     "kind": "scan",
+     "level_id": null,
+     "level_label_raw": null,
+     "scale": null,
+     "transform_to_building": null,
+     "confidence": 0.0,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.9,
+       "text": "kind: paper outline fills the image"
+      }
+     ],
+     "debug_image": "debug/plan_scan_png_p1.png"
+    }
+   ]
+  }
+ ],
+ "levels": [],
+ "walls": [],
+ "openings": [],
+ "rooms": [],
+ "furniture": [],
+ "conflicts": [],
+ "unverified": [],
+ "warnings": [
+  "plan_photo.jpg p1: photo page skipped (no text layer: raster pages need OCR/VLM recognition (Milestone 2 bake-off), not run here)",
+  "plan_scan.png p1: scan page skipped (no text layer: raster pages need OCR/VLM recognition (Milestone 2 bake-off), not run here)",
+  "needs review: no vector floor plan page could be used (raster pages need the recognition path)"
+ ]
+}

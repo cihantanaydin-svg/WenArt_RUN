@@ -1,0 +1,113 @@
+{
+ "schema_version": "0.1",
+ "kind": "style_photo_terms",
+ "sources": [
+  "outputs/synthetic-05/style_photos/passes.json"
+ ],
+ "photos": {
+  "salon_referans.jpg": {
+   "sha256": "ed0b6d708bb55c9b40733f1972ff8caeacd3a86688be55023b21bcb0ecde0089",
+   "passes": [
+    {
+     "model_key": "glm",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "ok": true,
+     "error": null
+    },
+    {
+     "model_key": "qwen",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "ok": true,
+     "error": null
+    }
+   ],
+   "agreed": {
+    "floor": "concrete_polished",
+    "walls": "plaster_charcoal",
+    "family": "modern minimal"
+   },
+   "unclear": {},
+   "disagreements": {
+    "light": {
+     "glm": "cool daylight",
+     "qwen": "overcast"
+    }
+   },
+   "single": {},
+   "not_computed": [],
+   "single_pass": false
+  }
+ },
+ "terms": [
+  {
+   "slot": "floor",
+   "value": "concrete_polished",
+   "file": "salon_referans.jpg",
+   "files": [
+    "salon_referans.jpg"
+   ],
+   "evidence": [
+    {
+     "method": "ai",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "file": "salon_referans.jpg"
+    },
+    {
+     "method": "ai",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "file": "salon_referans.jpg"
+    }
+   ]
+  },
+  {
+   "slot": "walls",
+   "value": "plaster_charcoal",
+   "file": "salon_referans.jpg",
+   "files": [
+    "salon_referans.jpg"
+   ],
+   "evidence": [
+    {
+     "method": "ai",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "file": "salon_referans.jpg"
+    },
+    {
+     "method": "ai",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "file": "salon_referans.jpg"
+    }
+   ]
+  },
+  {
+   "slot": "family",
+   "value": "modern minimal",
+   "file": "salon_referans.jpg",
+   "files": [
+    "salon_referans.jpg"
+   ],
+   "evidence": [
+    {
+     "method": "ai",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "file": "salon_referans.jpg"
+    },
+    {
+     "method": "ai",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "file": "salon_referans.jpg"
+    }
+   ]
+  }
+ ],
+ "conflicts": [],
+ "warnings": []
+}

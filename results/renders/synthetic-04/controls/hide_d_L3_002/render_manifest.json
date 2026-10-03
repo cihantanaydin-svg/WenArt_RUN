@@ -1,0 +1,324 @@
+{
+ "schema_version": "0.1",
+ "scene": "../../scene/scene.blend",
+ "scene_sha256": "bec07c56d86795acbec74762f10c324b09514a035170c0e629790db327abfbc9",
+ "device": "OPTIX",
+ "device_requested": "auto",
+ "blender_version": "5.2.2 LTS",
+ "samples": 128,
+ "resolution": [
+  1920,
+  1080
+ ],
+ "denoiser": "OPENIMAGEDENOISE",
+ "render_code_version": "m6.1",
+ "view_transform": "AgX",
+ "look": "None",
+ "exposure_mode": "from",
+ "exposure_target": 0.9,
+ "exposure_limits": [
+  -2.0,
+  8.0
+ ],
+ "white_balance_mode": "from",
+ "look_from": "../../renders/render_manifest.json",
+ "hidden": [
+  "d_L3_002"
+ ],
+ "plugged": [],
+ "alt_look": null,
+ "max_bounces": null,
+ "bounces": null,
+ "ev_offset": 0.0,
+ "preview_quality": null,
+ "pass_index": {
+  "d_L3_001": 1,
+  "d_L3_002": 2,
+  "d_L3_003": 3,
+  "d_L3_004": 4,
+  "d_L3_005": 5,
+  "win_L3_001": 6,
+  "win_L3_002": 7,
+  "win_L3_003": 8,
+  "win_L3_004": 9,
+  "win_L3_005": 10,
+  "win_L3_006": 11,
+  "win_L3_007": 12,
+  "win_L3_008": 13,
+  "win_L3_009": 14,
+  "win_L3_010": 15,
+  "f_L3_001": 16,
+  "f_L3_002": 17,
+  "f_L3_003": 18,
+  "f_L3_004": 19,
+  "f_L3_005": 20,
+  "f_L3_006": 21,
+  "f_L3_007": 22,
+  "f_L3_008": 23,
+  "f_L3_009": 24,
+  "f_L3_010": 25,
+  "f_L3_011": 26,
+  "f_L3_012": 27,
+  "f_L3_013": 28,
+  "f_L3_014": 29,
+  "f_L3_015": 30,
+  "f_L3_016": 31,
+  "f_L3_017": 32,
+  "f_L3_018": 33,
+  "f_L3_019": 34,
+  "f_L3_020": 35,
+  "f_L3_021": 36,
+  "f_L3_022": 37,
+  "f_L3_023": 38,
+  "f_L3_024": 39,
+  "f_L3_025": 40,
+  "f_L3_026": 41,
+  "f_L3_027": 42,
+  "dec_L3_006": 43,
+  "dec_L3_009": 44
+ },
+ "renders": [
+  {
+   "camera": "cam_r_L3_salon_mutfak_2",
+   "room_id": "r_L3_salon_mutfak",
+   "level_id": "L3",
+   "png": "cam_r_L3_salon_mutfak_2.png",
+   "exr": "cam_r_L3_salon_mutfak_2_passes.exr",
+   "preview": "cam_r_L3_salon_mutfak_2_preview.jpg",
+   "depth_png": "cam_r_L3_salon_mutfak_2_depth.png",
+   "index_png": "cam_r_L3_salon_mutfak_2_index.png",
+   "files": {
+    "index": "cam_r_L3_salon_mutfak_2_index.png",
+    "depth_mm": "cam_r_L3_salon_mutfak_2_depth_mm.png",
+    "normal": "cam_r_L3_salon_mutfak_2_normal.png",
+    "depth": "cam_r_L3_salon_mutfak_2_depth.png"
+   },
+   "preview_bytes": 177471,
+   "seconds": 4.4,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 2.0525362491607666,
+    "max": 9.115280151367188,
+    "mean": 4.674471855163574,
+    "coverage": 1.0
+   },
+   "index_values": [
+    6,
+    8,
+    9,
+    16,
+    17,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    29,
+    37
+   ],
+   "index_stats": {
+    "6": {
+     "pixels": 9787,
+     "box": [
+      68,
+      4,
+      91,
+      463
+     ]
+    },
+    "8": {
+     "pixels": 55666,
+     "box": [
+      496,
+      172,
+      730,
+      421
+     ]
+    },
+    "9": {
+     "pixels": 24067,
+     "box": [
+      1146,
+      215,
+      1278,
+      403
+     ]
+    },
+    "16": {
+     "pixels": 7939,
+     "box": [
+      1324,
+      397,
+      1461,
+      548
+     ]
+    },
+    "17": {
+     "pixels": 472,
+     "box": [
+      1357,
+      362,
+      1461,
+      404
+     ]
+    },
+    "20": {
+     "pixels": 10449,
+     "box": [
+      1172,
+      433,
+      1461,
+      624
+     ]
+    },
+    "21": {
+     "pixels": 1896,
+     "box": [
+      1108,
+      438,
+      1167,
+      487
+     ]
+    },
+    "22": {
+     "pixels": 6226,
+     "box": [
+      1211,
+      449,
+      1350,
+      625
+     ]
+    },
+    "23": {
+     "pixels": 6578,
+     "box": [
+      1329,
+      426,
+      1442,
+      567
+     ]
+    },
+    "24": {
+     "pixels": 1022,
+     "box": [
+      1442,
+      489,
+      1461,
+      584
+     ]
+    },
+    "25": {
+     "pixels": 181097,
+     "box": [
+      563,
+      480,
+      1313,
+      910
+     ]
+    },
+    "26": {
+     "pixels": 75823,
+     "box": [
+      955,
+      670,
+      1513,
+      1072
+     ]
+    },
+    "29": {
+     "pixels": 24353,
+     "box": [
+      772,
+      308,
+      967,
+      495
+     ]
+    },
+    "37": {
+     "pixels": 42776,
+     "box": [
+      1690,
+      409,
+      1886,
+      676
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "bec07c56d86795acbec74762f10c324b09514a035170c0e629790db327abfbc9",
+   "render_key": "1b9ae664858518b8",
+   "exposure": {
+    "mode": "from",
+    "ev": 4.0,
+    "ev_raw": null,
+    "at_limit": false,
+    "target": null,
+    "limits": null,
+    "incident_p50": null,
+    "whitepoint": [
+     1.088898,
+     0.98135,
+     0.922973
+    ],
+    "wb_mode": "from",
+    "wb_temperature": 5887.5,
+    "wb_tint": 2.88,
+    "residual": null,
+    "window_clip_frac": 0.0145,
+    "meter_seconds": 0.0,
+    "meter": null,
+    "mood": "warm daylight",
+    "source": "../../renders/render_manifest.json",
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "hidden": [
+    "d_L3_002"
+   ],
+   "plugged": [],
+   "window_pull": {
+    "ev": -3.0,
+    "k": 3,
+    "pane_ev": 1.0,
+    "clip_before": 0.6144,
+    "clip_after": 0.0005,
+    "pane_px": 69399,
+    "pane_median": 0.9893,
+    "wall_median": 0.7481,
+    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0602,
+      "median": 0.9518
+     },
+     {
+      "k": 2,
+      "clip": 0.0116,
+      "median": 0.9011
+     },
+     {
+      "k": 3,
+      "clip": 0.0,
+      "median": 0.8352
+     }
+    ],
+    "pane_median_after": 0.8366,
+    "seconds": 1.111
+   },
+   "alt_preview": null,
+   "alt_preview_bytes": null
+  }
+ ],
+ "dropped_stale": [],
+ "incomplete": false,
+ "not_rendered": [],
+ "deadline": 1791002970.0,
+ "warnings": []
+}

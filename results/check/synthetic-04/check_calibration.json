@@ -1,0 +1,123 @@
+{
+ "schema_version": "0.1",
+ "project": "synthetic-04",
+ "model_keys": [
+  "qwen",
+  "glm"
+ ],
+ "single_pass": false,
+ "metrics": {
+  "baseline": {
+   "views": 14,
+   "views_computed": 14,
+   "required_elements": 25,
+   "fa_missing": 0.0,
+   "fa_extra": 0.0,
+   "count_error": 0.0,
+   "disputed": 0.0
+  },
+  "models": {
+   "qwen": {
+    "calls": 14,
+    "answered": 14,
+    "answer_rate": 1.0,
+    "decoys": 14,
+    "decoy_accept": 0.0,
+    "fa_missing_single": 0.0
+   },
+   "glm": {
+    "calls": 14,
+    "answered": 14,
+    "answer_rate": 1.0,
+    "decoys": 14,
+    "decoy_accept": 0.0714,
+    "fa_missing_single": 0.0
+   }
+  },
+  "fa_missing": 0.0,
+  "fa_extra": 0.0,
+  "count_error": 0.0,
+  "removal_flagged": null,
+  "removal_confirmed": null,
+  "insertion": null,
+  "insertion_flagged": null,
+  "swap_flagged": null,
+  "swap_confirmed": null,
+  "controls": {
+   "removal": {
+    "n": 0,
+    "flagged": null,
+    "confirmed": null,
+    "rows": []
+   },
+   "insertion": {
+    "n": 0,
+    "flagged": null,
+    "confirmed": null,
+    "rows": []
+   },
+   "swap": {
+    "n": 0,
+    "flagged": null,
+    "confirmed": null,
+    "rows": []
+   }
+  }
+ },
+ "targets": {
+  "fa_missing_max": 0.05,
+  "fa_extra_max": 0.1,
+  "removal_flagged_min": 0.8,
+  "removal_confirmed_min": 0.6,
+  "insertion_min": 0.6,
+  "decoy_accept_max": 0.1
+ },
+ "missed": [
+  {
+   "target": "removal_flagged_min",
+   "metric": "removal_flagged",
+   "value": null,
+   "threshold": 0.8,
+   "op": ">=",
+   "reason": "no data"
+  },
+  {
+   "target": "removal_confirmed_min",
+   "metric": "removal_confirmed",
+   "value": null,
+   "threshold": 0.6,
+   "op": ">=",
+   "reason": "no data"
+  },
+  {
+   "target": "insertion_min",
+   "metric": "insertion",
+   "value": null,
+   "threshold": 0.6,
+   "op": ">=",
+   "reason": "no data"
+  }
+ ],
+ "advisory": true,
+ "advisory_reasons": [
+  "removal_flagged None misses >= 0.8 (no data)",
+  "removal_confirmed None misses >= 0.6 (no data)",
+  "insertion None misses >= 0.6 (no data)"
+ ],
+ "plan_ab": {
+  "cameras": [],
+  "pairs": 0,
+  "removal_pairs": 0,
+  "fa_missing_without": null,
+  "fa_missing_with": null,
+  "fa_extra_without": null,
+  "fa_extra_with": null,
+  "removal_confirmed_without": null,
+  "removal_confirmed_with": null,
+  "favours_plan": false,
+  "used": false,
+  "adopted": false,
+  "text": "source plan compared through the evidence chain, the projected cross-check and the side-by-side crop",
+  "note": "not enough plan A/B answers to compare"
+ }
+}

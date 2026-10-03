@@ -1,0 +1,31 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "synthetic-04",
+ "stage": "expected",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 20.63,
+ "fingerprint": null,
+ "inputs": {},
+ "outputs": [
+  "check/expected_views.json"
+ ],
+ "started_utc": "2026-10-03T04:00:04Z",
+ "git_commit": "95a675fea4156aaa2403ebb85a9e31db368e58b6",
+ "log": "logs/expected.log",
+ "note": null,
+ "run_id": "20261003-030812-full-20261003T031435Z",
+ "steps": [
+  {
+   "name": "expected",
+   "rc": 0,
+   "seconds": 6.11
+  },
+  {
+   "name": "plan-crops",
+   "rc": 0,
+   "seconds": 14.52
+  }
+ ]
+}

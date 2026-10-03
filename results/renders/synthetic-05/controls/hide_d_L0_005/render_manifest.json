@@ -1,0 +1,213 @@
+{
+ "schema_version": "0.1",
+ "scene": "../../scene/scene.blend",
+ "scene_sha256": "1f6558e171c3b7df1d58c47988ee0db9e743eb54a5a1bccd89d9dcf2845b69bb",
+ "device": "OPTIX",
+ "device_requested": "auto",
+ "blender_version": "5.2.2 LTS",
+ "samples": 128,
+ "resolution": [
+  1920,
+  1080
+ ],
+ "denoiser": "OPENIMAGEDENOISE",
+ "render_code_version": "m6.1",
+ "view_transform": "AgX",
+ "look": "None",
+ "exposure_mode": "from",
+ "exposure_target": 0.9,
+ "exposure_limits": [
+  -2.0,
+  8.0
+ ],
+ "white_balance_mode": "from",
+ "look_from": "../../renders/render_manifest.json",
+ "hidden": [
+  "d_L0_005"
+ ],
+ "plugged": [],
+ "alt_look": null,
+ "max_bounces": null,
+ "bounces": null,
+ "ev_offset": 0.0,
+ "preview_quality": null,
+ "pass_index": {
+  "d_L0_001": 1,
+  "d_L0_002": 2,
+  "d_L0_003": 3,
+  "d_L0_004": 4,
+  "d_L0_005": 5,
+  "d_L0_006": 6,
+  "d_L0_007": 7,
+  "d_L0_008": 8,
+  "d_L0_009": 9,
+  "win_L0_001": 10,
+  "win_L0_002": 11,
+  "win_L0_003": 12,
+  "win_L0_004": 13,
+  "win_L0_005": 14,
+  "win_L0_006": 15,
+  "win_L0_007": 16,
+  "win_L0_008": 17,
+  "win_L0_009": 18,
+  "win_L0_010": 19,
+  "f_L0_001": 20,
+  "f_L0_002": 21,
+  "f_L0_003": 22,
+  "f_L0_004": 23,
+  "f_L0_005": 24,
+  "f_L0_006": 25,
+  "f_L0_007": 26,
+  "f_L0_008": 27,
+  "f_L0_009": 28,
+  "f_L0_010": 29,
+  "f_L0_011": 30,
+  "f_L0_012": 31,
+  "f_L0_013": 32,
+  "f_L0_014": 33,
+  "f_L0_015": 34,
+  "f_L0_016": 35,
+  "f_L0_017": 36,
+  "f_L0_018": 37,
+  "f_L0_019": 38,
+  "f_L0_020": 39,
+  "f_L0_021": 40,
+  "f_L0_022": 41,
+  "f_L0_023": 42,
+  "f_L0_024": 43,
+  "f_L0_025": 44,
+  "f_L0_026": 45,
+  "f_L0_027": 46,
+  "f_L0_028": 47,
+  "f_L0_029": 48,
+  "f_L0_030": 49,
+  "f_L0_031": 50,
+  "dec_L0_003": 51,
+  "dec_L0_010": 52
+ },
+ "renders": [
+  {
+   "camera": "cam_r_L0_ebeveyn_yatak_odasi_3",
+   "room_id": "r_L0_ebeveyn_yatak_odasi",
+   "level_id": "L0",
+   "png": "cam_r_L0_ebeveyn_yatak_odasi_3.png",
+   "exr": "cam_r_L0_ebeveyn_yatak_odasi_3_passes.exr",
+   "preview": "cam_r_L0_ebeveyn_yatak_odasi_3_preview.jpg",
+   "depth_png": "cam_r_L0_ebeveyn_yatak_odasi_3_depth.png",
+   "index_png": "cam_r_L0_ebeveyn_yatak_odasi_3_index.png",
+   "files": {
+    "index": "cam_r_L0_ebeveyn_yatak_odasi_3_index.png",
+    "depth_mm": "cam_r_L0_ebeveyn_yatak_odasi_3_depth_mm.png",
+    "normal": "cam_r_L0_ebeveyn_yatak_odasi_3_normal.png",
+    "depth": "cam_r_L0_ebeveyn_yatak_odasi_3_depth.png"
+   },
+   "preview_bytes": 116246,
+   "seconds": 4.97,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.2006261348724365,
+    "max": 4.644421577453613,
+    "mean": 2.8712589740753174,
+    "coverage": 1.0
+   },
+   "index_values": [
+    7,
+    26,
+    27,
+    28,
+    29
+   ],
+   "index_stats": {
+    "7": {
+     "pixels": 120331,
+     "box": [
+      598,
+      111,
+      805,
+      696
+     ]
+    },
+    "26": {
+     "pixels": 432222,
+     "box": [
+      1194,
+      221,
+      1920,
+      1080
+     ]
+    },
+    "27": {
+     "pixels": 49179,
+     "box": [
+      872,
+      641,
+      1092,
+      899
+     ]
+    },
+    "28": {
+     "pixels": 2461,
+     "box": [
+      1891,
+      641,
+      1920,
+      732
+     ]
+    },
+    "29": {
+     "pixels": 320760,
+     "box": [
+      0,
+      0,
+      297,
+      1080
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "1f6558e171c3b7df1d58c47988ee0db9e743eb54a5a1bccd89d9dcf2845b69bb",
+   "render_key": "3329a8774c175fd0",
+   "exposure": {
+    "mode": "from",
+    "ev": 4.333333,
+    "ev_raw": null,
+    "at_limit": false,
+    "target": null,
+    "limits": null,
+    "incident_p50": null,
+    "whitepoint": [
+     0.975673,
+     1.004622,
+     1.025848
+    ],
+    "wb_mode": "from",
+    "wb_temperature": 6709.1,
+    "wb_tint": 11.32,
+    "residual": null,
+    "window_clip_frac": null,
+    "meter_seconds": 0.0,
+    "meter": null,
+    "mood": "warm daylight",
+    "source": "../../renders/render_manifest.json",
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "hidden": [
+    "d_L0_005"
+   ],
+   "plugged": [],
+   "window_pull": null,
+   "alt_preview": null,
+   "alt_preview_bytes": null
+  }
+ ],
+ "dropped_stale": [],
+ "incomplete": false,
+ "not_rendered": [],
+ "deadline": 1791002970.0,
+ "warnings": []
+}

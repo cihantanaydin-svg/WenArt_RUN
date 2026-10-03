@@ -1,0 +1,53 @@
+{
+  "source_text": "Modern, white walls, warm daylight, linen textiles, brass details",
+  "floor": {
+    "material": "concrete_polished",
+    "asset": "Concrete046"
+  },
+  "walls": {
+    "material": "plaster_white",
+    "asset": "white_plaster_02"
+  },
+  "ceiling": {
+    "material": "plaster_white"
+  },
+  "wet_floor": {
+    "material": "concrete_polished",
+    "asset": "Concrete046"
+  },
+  "wet_walls": {
+    "material": "tiles_light"
+  },
+  "trim": {
+    "material": "painted_wood_white"
+  },
+  "door": {
+    "material": "painted_wood_white"
+  },
+  "window_frame": {
+    "material": "painted_metal_white"
+  },
+  "lighting": {
+    "hdri": "kloppenheim_06",
+    "sun_elevation_deg": 35,
+    "sun_azimuth_deg": 210,
+    "sun_strength": 3.0,
+    "colour_temperature_k": 5200,
+    "mood": "warm daylight"
+  },
+  "matched_terms": [
+    "Modern",
+    "white walls",
+    "warm daylight",
+    "photo:salon_referans.jpg:concrete_polished"
+  ],
+  "unmatched_terms": [
+    "linen textiles",
+    "brass details"
+  ],
+  "warnings": [
+    "photo: floor concrete_polished from style photo salon_referans.jpg (the brief names no floor; both models agree)",
+    "photo: walls plaster_charcoal from salon_referans.jpg not used (the brief names plaster_white)",
+    "photo: family modern minimal from salon_referans.jpg not used (the brief names modern)"
+  ]
+}

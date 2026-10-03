@@ -1,0 +1,109 @@
+{
+ "schema_version": "0.1",
+ "kind": "style_photo_passes",
+ "calls": [
+  {
+   "file": "../../../tests/fixtures/style_photo_synthetic-03_salon.jpg",
+   "sha256": "ed0b6d708bb55c9b40733f1972ff8caeacd3a86688be55023b21bcb0ecde0089",
+   "model_key": "qwen",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "slug": "qwen3-vl-8b",
+   "result": {
+    "schema_version": "0.1",
+    "kind": "style_photo",
+    "file": "style_photo_synthetic-03_salon.jpg",
+    "sha256": "ed0b6d708bb55c9b40733f1972ff8caeacd3a86688be55023b21bcb0ecde0089",
+    "passes": [
+     {
+      "model_key": "qwen",
+      "model": "Qwen/Qwen3-VL-8B-Instruct",
+      "pass": 1,
+      "data": {
+       "floor": "concrete_polished",
+       "walls": "plaster_charcoal",
+       "light": "overcast",
+       "family": "modern minimal"
+      },
+      "error": null,
+      "raw_text": "{\n  \"floor\": \"concrete_polished\",\n  \"walls\": \"plaster_charcoal\",\n  \"light\": \"overcast\",\n  \"family\": \"modern minimal\"\n}",
+      "latency_s": 0.542
+     }
+    ],
+    "agreed": {},
+    "terms": [],
+    "unclear": {},
+    "disagreements": {},
+    "single": {
+     "floor": {
+      "qwen": "concrete_polished"
+     },
+     "walls": {
+      "qwen": "plaster_charcoal"
+     },
+     "light": {
+      "qwen": "overcast"
+     },
+     "family": {
+      "qwen": "modern minimal"
+     }
+    },
+    "not_computed": [],
+    "single_pass": true
+   },
+   "error": null,
+   "seconds": 0.81
+  },
+  {
+   "file": "../../../tests/fixtures/style_photo_synthetic-03_salon.jpg",
+   "sha256": "ed0b6d708bb55c9b40733f1972ff8caeacd3a86688be55023b21bcb0ecde0089",
+   "model_key": "glm",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "slug": "glm-4.6v-flash",
+   "result": {
+    "schema_version": "0.1",
+    "kind": "style_photo",
+    "file": "style_photo_synthetic-03_salon.jpg",
+    "sha256": "ed0b6d708bb55c9b40733f1972ff8caeacd3a86688be55023b21bcb0ecde0089",
+    "passes": [
+     {
+      "model_key": "glm",
+      "model": "zai-org/GLM-4.6V-Flash",
+      "pass": 2,
+      "data": {
+       "floor": "concrete_polished",
+       "walls": "plaster_charcoal",
+       "light": "cool daylight",
+       "family": "modern minimal"
+      },
+      "error": null,
+      "raw_text": "{\n    \"floor\": \"concrete_polished\",\n    \"walls\": \"plaster_charcoal\",\n    \"light\": \"cool daylight\",\n    \"family\": \"modern minimal\"\n}",
+      "latency_s": 0.64
+     }
+    ],
+    "agreed": {},
+    "terms": [],
+    "unclear": {},
+    "disagreements": {},
+    "single": {
+     "floor": {
+      "glm": "concrete_polished"
+     },
+     "walls": {
+      "glm": "plaster_charcoal"
+     },
+     "light": {
+      "glm": "cool daylight"
+     },
+     "family": {
+      "glm": "modern minimal"
+     }
+    },
+    "not_computed": [],
+    "single_pass": true
+   },
+   "error": null,
+   "seconds": 0.93
+  }
+ ],
+ "incomplete": false
+}

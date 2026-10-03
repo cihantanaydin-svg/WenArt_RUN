@@ -1,0 +1,7361 @@
+{
+ "schema_version": "0.1",
+ "project": "synthetic-05",
+ "render_dir": "../renders",
+ "views": {
+  "cam_r_L0_antre_1": {
+   "camera": "cam_r_L0_antre_1",
+   "room_id": "r_L0_antre",
+   "room_type": "hall",
+   "room_label": "Antre",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "c3dd21123f6678ec",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 50,
+     "wenart_id": "f_L0_031",
+     "kind": "furniture",
+     "type": "dresser",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_antre",
+     "room_ids": [
+      "r_L0_antre"
+     ],
+     "own_room": true,
+     "pixels": 438812,
+     "area_frac": 0.211618,
+     "box_px": [
+      815,
+      526,
+      1743,
+      1080
+     ],
+     "box_1000": [
+      424,
+      487,
+      908,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.3913,
+     "in_frame": 0.4161,
+     "unoccluded": 0.9404,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 2,
+       "text": "Slim dresser against wall for modern storage without blocking walkway."
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 2,
+     "wenart_id": "d_L0_002",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_hol",
+      "r_L0_antre"
+     ],
+     "own_room": true,
+     "pixels": 357096,
+     "area_frac": 0.172211,
+     "box_px": [
+      239,
+      0,
+      631,
+      964
+     ],
+     "box_1000": [
+      124,
+      0,
+      329,
+      893
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:C0",
+       "block": "KAPI_80"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:11F",
+       "block": "KAPI_80"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 3,
+     "wenart_id": "d_L0_003",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_salon",
+      "r_L0_hol"
+     ],
+     "own_room": false,
+     "pixels": 1418,
+     "area_frac": 0.000684,
+     "box_px": [
+      267,
+      59,
+      269,
+      768
+     ],
+     "box_1000": [
+      139,
+      54,
+      141,
+      712
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:C2",
+       "block": "KAPI_90"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:121",
+       "block": "KAPI_90"
+      }
+     ],
+     "host_decor": [],
+     "role": "ignore"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 50,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_002": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.9113,
+      "area_frac": 0.1703,
+      "centre_px": [
+       424.8,
+       471.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 357096
+     },
+     "d_L0_003": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.0,
+      "area_frac": 0.1126,
+      "centre_px": null,
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 1418
+     },
+     "f_L0_031": {
+      "kind": "furniture",
+      "type": "dresser",
+      "visible_share": 0.578,
+      "area_frac": 0.22503,
+      "centre_px": [
+       1275.7,
+       803.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 438812
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_antre_2": {
+   "camera": "cam_r_L0_antre_2",
+   "room_id": "r_L0_antre",
+   "room_type": "hall",
+   "room_label": "Antre",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "c3dd21123f6678ec",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 1,
+     "wenart_id": "d_L0_001",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_antre"
+     ],
+     "own_room": true,
+     "pixels": 634247,
+     "area_frac": 0.305868,
+     "box_px": [
+      1257,
+      0,
+      1855,
+      1080
+     ],
+     "box_1000": [
+      654,
+      0,
+      967,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:BE",
+       "block": "KAPI_90"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:11D",
+       "block": "KAPI_90"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 50,
+     "wenart_id": "f_L0_031",
+     "kind": "furniture",
+     "type": "dresser",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_antre",
+     "room_ids": [
+      "r_L0_antre"
+     ],
+     "own_room": true,
+     "pixels": 496300,
+     "area_frac": 0.239342,
+     "box_px": [
+      0,
+      563,
+      1154,
+      1080
+     ],
+     "box_1000": [
+      0,
+      521,
+      602,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.2128,
+     "in_frame": 0.2186,
+     "unoccluded": 0.9734,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 2,
+       "text": "Slim dresser against wall for modern storage without blocking walkway."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 50,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_001": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.7957,
+      "area_frac": 0.29107,
+      "centre_px": [
+       1554.7,
+       539.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 634247
+     },
+     "f_L0_031": {
+      "kind": "furniture",
+      "type": "dresser",
+      "visible_share": 0.4147,
+      "area_frac": 0.24588,
+      "centre_px": [
+       577.5,
+       822.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 496300
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_banyo_1": {
+   "camera": "cam_r_L0_banyo_1",
+   "room_id": "r_L0_banyo",
+   "room_type": "bathroom",
+   "room_label": "Banyo",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "c3dd21123f6678ec",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 40,
+     "wenart_id": "f_L0_021",
+     "kind": "furniture",
+     "type": "bathtub",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_banyo",
+     "room_ids": [
+      "r_L0_banyo"
+     ],
+     "own_room": true,
+     "pixels": 419429,
+     "area_frac": 0.202271,
+     "box_px": [
+      337,
+      637,
+      1396,
+      1080
+     ],
+     "box_1000": [
+      175,
+      589,
+      728,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.7647,
+     "in_frame": 0.9062,
+     "unoccluded": 0.8439,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:16B",
+       "block": "KUVET"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 16,
+     "wenart_id": "win_L0_007",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_banyo"
+     ],
+     "own_room": true,
+     "pixels": 133798,
+     "area_frac": 0.064524,
+     "box_px": [
+      827,
+      0,
+      1093,
+      503
+     ],
+     "box_1000": [
+      430,
+      0,
+      570,
+      466
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:DC",
+       "block": "PENCERE_60"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:13B",
+       "block": "PENCERE_60"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 42,
+     "wenart_id": "f_L0_023",
+     "kind": "furniture",
+     "type": "washbasin",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_banyo",
+     "room_ids": [
+      "r_L0_banyo"
+     ],
+     "own_room": true,
+     "pixels": 130081,
+     "area_frac": 0.062732,
+     "box_px": [
+      1484,
+      729,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      772,
+      675,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0658,
+     "in_frame": 0.1097,
+     "unoccluded": 0.5994,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:16F",
+       "block": "LAVABO"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 41,
+     "wenart_id": "f_L0_022",
+     "kind": "furniture",
+     "type": "toilet",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_banyo",
+     "room_ids": [
+      "r_L0_banyo"
+     ],
+     "own_room": true,
+     "pixels": 76166,
+     "area_frac": 0.036731,
+     "box_px": [
+      0,
+      747,
+      233,
+      1080
+     ],
+     "box_1000": [
+      0,
+      691,
+      122,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0741,
+     "in_frame": 0.225,
+     "unoccluded": 0.3292,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:16D",
+       "block": "KLOZET"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 50,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_007": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.9677,
+      "area_frac": 0.06346,
+      "centre_px": [
+       960.0,
+       247.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 133798
+     },
+     "f_L0_021": {
+      "kind": "furniture",
+      "type": "bathtub",
+      "visible_share": 0.9459,
+      "area_frac": 0.2397,
+      "centre_px": [
+       866.3,
+       834.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 419429
+     },
+     "f_L0_022": {
+      "kind": "furniture",
+      "type": "toilet",
+      "visible_share": 0.377,
+      "area_frac": 0.11158,
+      "centre_px": [
+       346.6,
+       913.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 76166
+     },
+     "f_L0_023": {
+      "kind": "furniture",
+      "type": "washbasin",
+      "visible_share": 0.2655,
+      "area_frac": 0.10466,
+      "centre_px": [
+       1704.0,
+       831.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 130081
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_banyo_2": {
+   "camera": "cam_r_L0_banyo_2",
+   "room_id": "r_L0_banyo",
+   "room_type": "bathroom",
+   "room_label": "Banyo",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "c3dd21123f6678ec",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 40,
+     "wenart_id": "f_L0_021",
+     "kind": "furniture",
+     "type": "bathtub",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_banyo",
+     "room_ids": [
+      "r_L0_banyo"
+     ],
+     "own_room": true,
+     "pixels": 346778,
+     "area_frac": 0.167235,
+     "box_px": [
+      0,
+      839,
+      1687,
+      1080
+     ],
+     "box_1000": [
+      0,
+      776,
+      879,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.1557,
+     "in_frame": 0.2476,
+     "unoccluded": 0.6289,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:16B",
+       "block": "KUVET"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 16,
+     "wenart_id": "win_L0_007",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_banyo"
+     ],
+     "own_room": true,
+     "pixels": 239088,
+     "area_frac": 0.115301,
+     "box_px": [
+      756,
+      0,
+      1164,
+      586
+     ],
+     "box_1000": [
+      393,
+      0,
+      607,
+      543
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:DC",
+       "block": "PENCERE_60"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:13B",
+       "block": "PENCERE_60"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 50,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_007": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.7419,
+      "area_frac": 0.11173,
+      "centre_px": [
+       960.0,
+       284.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 239088
+     },
+     "f_L0_021": {
+      "kind": "furniture",
+      "type": "bathtub",
+      "visible_share": 0.5248,
+      "area_frac": 0.26594,
+      "centre_px": [
+       897.6,
+       892.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 346778
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_banyo_3": {
+   "camera": "cam_r_L0_banyo_3",
+   "room_id": "r_L0_banyo",
+   "room_type": "bathroom",
+   "room_label": "Banyo",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "c3dd21123f6678ec",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 7,
+     "wenart_id": "d_L0_007",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_hol",
+      "r_L0_banyo"
+     ],
+     "own_room": true,
+     "pixels": 569160,
+     "area_frac": 0.274479,
+     "box_px": [
+      1393,
+      0,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      725,
+      0,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:CA",
+       "block": "KAPI_80"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:129",
+       "block": "KAPI_80"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 42,
+     "wenart_id": "f_L0_023",
+     "kind": "furniture",
+     "type": "washbasin",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_banyo",
+     "room_ids": [
+      "r_L0_banyo"
+     ],
+     "own_room": true,
+     "pixels": 188042,
+     "area_frac": 0.090684,
+     "box_px": [
+      0,
+      713,
+      815,
+      1080
+     ],
+     "box_1000": [
+      0,
+      660,
+      425,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.05,
+     "in_frame": 0.0903,
+     "unoccluded": 0.5537,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:16F",
+       "block": "LAVABO"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 50,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_007": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.5811,
+      "area_frac": 0.27098,
+      "centre_px": [
+       1653.7,
+       540.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 569160
+     },
+     "f_L0_023": {
+      "kind": "furniture",
+      "type": "washbasin",
+      "visible_share": 0.2035,
+      "area_frac": 0.16377,
+      "centre_px": [
+       407.6,
+       850.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 188042
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_calisma_odasi_1": {
+   "camera": "cam_r_L0_calisma_odasi_1",
+   "room_id": "r_L0_calisma_odasi",
+   "room_type": "other",
+   "room_label": "Çalışma Odası",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "c3dd21123f6678ec",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 49,
+     "wenart_id": "f_L0_030",
+     "kind": "furniture",
+     "type": "armchair",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_calisma_odasi",
+     "room_ids": [
+      "r_L0_calisma_odasi"
+     ],
+     "own_room": true,
+     "pixels": 261983,
+     "area_frac": 0.126342,
+     "box_px": [
+      772,
+      375,
+      1374,
+      1080
+     ],
+     "box_1000": [
+      402,
+      347,
+      716,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.5259,
+     "in_frame": 0.9229,
+     "unoccluded": 0.5699,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Relaxed seating near the window for reading or contemplation."
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 18,
+     "wenart_id": "win_L0_009",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_calisma_odasi"
+     ],
+     "own_room": true,
+     "pixels": 201850,
+     "area_frac": 0.097343,
+     "box_px": [
+      1338,
+      0,
+      1757,
+      516
+     ],
+     "box_1000": [
+      696,
+      0,
+      916,
+      478
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:E0",
+       "block": "PENCERE_120"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:13F",
+       "block": "PENCERE_120"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 48,
+     "wenart_id": "f_L0_029",
+     "kind": "furniture",
+     "type": "bookshelf",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_calisma_odasi",
+     "room_ids": [
+      "r_L0_calisma_odasi"
+     ],
+     "own_room": true,
+     "pixels": 131201,
+     "area_frac": 0.063272,
+     "box_px": [
+      56,
+      249,
+      249,
+      950
+     ],
+     "box_1000": [
+      29,
+      230,
+      130,
+      880
+     ],
+     "touches_border": false,
+     "visibility": 0.9964,
+     "in_frame": 1.0,
+     "unoccluded": 0.9964,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Storage for books and decor, placed against the back wall."
+      }
+     ],
+     "host_decor": [
+      "book_set"
+     ],
+     "role": "required"
+    },
+    {
+     "index": 19,
+     "wenart_id": "win_L0_010",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_calisma_odasi"
+     ],
+     "own_room": true,
+     "pixels": 121798,
+     "area_frac": 0.058737,
+     "box_px": [
+      436,
+      81,
+      785,
+      458
+     ],
+     "box_1000": [
+      227,
+      75,
+      409,
+      425
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:E2",
+       "block": "PENCERE_120"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:141",
+       "block": "PENCERE_120"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 47,
+     "wenart_id": "f_L0_028",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_calisma_odasi",
+     "room_ids": [
+      "r_L0_calisma_odasi"
+     ],
+     "own_room": true,
+     "pixels": 102508,
+     "area_frac": 0.049435,
+     "box_px": [
+      394,
+      538,
+      910,
+      1080
+     ],
+     "box_1000": [
+      205,
+      498,
+      474,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.1929,
+     "in_frame": 0.5227,
+     "unoccluded": 0.369,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Comfortable seating positioned in front of the desk."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 46,
+     "wenart_id": "f_L0_027",
+     "kind": "furniture",
+     "type": "desk",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_calisma_odasi",
+     "room_ids": [
+      "r_L0_calisma_odasi"
+     ],
+     "own_room": true,
+     "pixels": 59380,
+     "area_frac": 0.028636,
+     "box_px": [
+      262,
+      430,
+      784,
+      850
+     ],
+     "box_1000": [
+      136,
+      398,
+      409,
+      788
+     ],
+     "touches_border": false,
+     "visibility": 0.3597,
+     "in_frame": 1.0,
+     "unoccluded": 0.3597,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Main work surface against the wall, with space for a chair."
+      }
+     ],
+     "host_decor": [
+      "book_set"
+     ],
+     "role": "required"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 50,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_009": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.9054,
+      "area_frac": 0.10288,
+      "centre_px": [
+       1546.7,
+       252.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 201850
+     },
+     "win_L0_010": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.9914,
+      "area_frac": 0.05911,
+      "centre_px": [
+       606.2,
+       270.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 121798
+     },
+     "f_L0_027": {
+      "kind": "furniture",
+      "type": "desk",
+      "visible_share": 0.9181,
+      "area_frac": 0.07962,
+      "centre_px": [
+       527.9,
+       673.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 59380
+     },
+     "f_L0_028": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.6203,
+      "area_frac": 0.13395,
+      "centre_px": [
+       643.8,
+       808.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 102508
+     },
+     "f_L0_029": {
+      "kind": "furniture",
+      "type": "bookshelf",
+      "visible_share": 1.0,
+      "area_frac": 0.0635,
+      "centre_px": [
+       152.6,
+       599.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 131201
+     },
+     "f_L0_030": {
+      "kind": "furniture",
+      "type": "armchair",
+      "visible_share": 0.8266,
+      "area_frac": 0.22171,
+      "centre_px": [
+       1052.8,
+       726.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 261983
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_calisma_odasi_2": {
+   "camera": "cam_r_L0_calisma_odasi_2",
+   "room_id": "r_L0_calisma_odasi",
+   "room_type": "other",
+   "room_label": "Çalışma Odası",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "c3dd21123f6678ec",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 49,
+     "wenart_id": "f_L0_030",
+     "kind": "furniture",
+     "type": "armchair",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_calisma_odasi",
+     "room_ids": [
+      "r_L0_calisma_odasi"
+     ],
+     "own_room": true,
+     "pixels": 408727,
+     "area_frac": 0.19711,
+     "box_px": [
+      287,
+      382,
+      1031,
+      1080
+     ],
+     "box_1000": [
+      149,
+      353,
+      537,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.4492,
+     "in_frame": 0.6285,
+     "unoccluded": 0.7148,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Relaxed seating near the window for reading or contemplation."
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 18,
+     "wenart_id": "win_L0_009",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_calisma_odasi"
+     ],
+     "own_room": true,
+     "pixels": 233557,
+     "area_frac": 0.112634,
+     "box_px": [
+      1527,
+      0,
+      1920,
+      658
+     ],
+     "box_1000": [
+      795,
+      0,
+      1000,
+      610
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:E0",
+       "block": "PENCERE_120"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:13F",
+       "block": "PENCERE_120"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 48,
+     "wenart_id": "f_L0_029",
+     "kind": "furniture",
+     "type": "bookshelf",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_calisma_odasi",
+     "room_ids": [
+      "r_L0_calisma_odasi"
+     ],
+     "own_room": true,
+     "pixels": 160486,
+     "area_frac": 0.077395,
+     "box_px": [
+      130,
+      262,
+      445,
+      872
+     ],
+     "box_1000": [
+      67,
+      242,
+      232,
+      808
+     ],
+     "touches_border": false,
+     "visibility": 0.8915,
+     "in_frame": 1.0,
+     "unoccluded": 0.8915,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Storage for books and decor, placed against the back wall."
+      }
+     ],
+     "host_decor": [
+      "book_set"
+     ],
+     "role": "required"
+    },
+    {
+     "index": 19,
+     "wenart_id": "win_L0_010",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_calisma_odasi"
+     ],
+     "own_room": true,
+     "pixels": 119010,
+     "area_frac": 0.057393,
+     "box_px": [
+      624,
+      88,
+      991,
+      455
+     ],
+     "box_1000": [
+      325,
+      81,
+      517,
+      422
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:E2",
+       "block": "PENCERE_120"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:141",
+       "block": "PENCERE_120"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 47,
+     "wenart_id": "f_L0_028",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_calisma_odasi",
+     "room_ids": [
+      "r_L0_calisma_odasi"
+     ],
+     "own_room": true,
+     "pixels": 39042,
+     "area_frac": 0.018828,
+     "box_px": [
+      0,
+      571,
+      154,
+      1080
+     ],
+     "box_1000": [
+      0,
+      528,
+      81,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.037,
+     "in_frame": 0.0773,
+     "unoccluded": 0.4793,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Comfortable seating positioned in front of the desk."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 46,
+     "wenart_id": "f_L0_027",
+     "kind": "furniture",
+     "type": "desk",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_calisma_odasi",
+     "room_ids": [
+      "r_L0_calisma_odasi"
+     ],
+     "own_room": true,
+     "pixels": 10598,
+     "area_frac": 0.005111,
+     "box_px": [
+      362,
+      505,
+      514,
+      731
+     ],
+     "box_1000": [
+      188,
+      467,
+      268,
+      677
+     ],
+     "touches_border": false,
+     "visibility": 0.0625,
+     "in_frame": 1.0,
+     "unoccluded": 0.0625,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Main work surface against the wall, with space for a chair."
+      }
+     ],
+     "host_decor": [
+      "book_set"
+     ],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 50,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_009": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.5645,
+      "area_frac": 0.10569,
+      "centre_px": [
+       1733.1,
+       298.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 233557
+     },
+     "win_L0_010": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.886,
+      "area_frac": 0.06374,
+      "centre_px": [
+       808.5,
+       272.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 119010
+     },
+     "f_L0_027": {
+      "kind": "furniture",
+      "type": "desk",
+      "visible_share": 0.1179,
+      "area_frac": 0.08172,
+      "centre_px": [
+       439.9,
+       615.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 10598
+     },
+     "f_L0_028": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.1453,
+      "area_frac": 0.03928,
+      "centre_px": [
+       76.4,
+       826.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 39042
+     },
+     "f_L0_029": {
+      "kind": "furniture",
+      "type": "bookshelf",
+      "visible_share": 0.8347,
+      "area_frac": 0.08683,
+      "centre_px": [
+       290.1,
+       567.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 160486
+     },
+     "f_L0_030": {
+      "kind": "furniture",
+      "type": "armchair",
+      "visible_share": 0.7925,
+      "area_frac": 0.27576,
+      "centre_px": [
+       640.0,
+       727.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 408727
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_calisma_odasi_3": {
+   "camera": "cam_r_L0_calisma_odasi_3",
+   "room_id": "r_L0_calisma_odasi",
+   "room_type": "other",
+   "room_label": "Çalışma Odası",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "c3dd21123f6678ec",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 48,
+     "wenart_id": "f_L0_029",
+     "kind": "furniture",
+     "type": "bookshelf",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_calisma_odasi",
+     "room_ids": [
+      "r_L0_calisma_odasi"
+     ],
+     "own_room": true,
+     "pixels": 498587,
+     "area_frac": 0.240445,
+     "box_px": [
+      0,
+      99,
+      566,
+      1080
+     ],
+     "box_1000": [
+      0,
+      91,
+      295,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.3962,
+     "in_frame": 0.4245,
+     "unoccluded": 0.9334,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Storage for books and decor, placed against the back wall."
+      }
+     ],
+     "host_decor": [
+      "book_set"
+     ],
+     "role": "required"
+    },
+    {
+     "index": 19,
+     "wenart_id": "win_L0_010",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_calisma_odasi"
+     ],
+     "own_room": true,
+     "pixels": 384839,
+     "area_frac": 0.18559,
+     "box_px": [
+      901,
+      0,
+      1604,
+      553
+     ],
+     "box_1000": [
+      469,
+      0,
+      836,
+      513
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:E2",
+       "block": "PENCERE_120"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:141",
+       "block": "PENCERE_120"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 46,
+     "wenart_id": "f_L0_027",
+     "kind": "furniture",
+     "type": "desk",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_calisma_odasi",
+     "room_ids": [
+      "r_L0_calisma_odasi"
+     ],
+     "own_room": true,
+     "pixels": 384664,
+     "area_frac": 0.185505,
+     "box_px": [
+      424,
+      525,
+      1720,
+      1080
+     ],
+     "box_1000": [
+      220,
+      486,
+      896,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.3583,
+     "in_frame": 0.4816,
+     "unoccluded": 0.744,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Main work surface against the wall, with space for a chair."
+      }
+     ],
+     "host_decor": [
+      "book_set"
+     ],
+     "role": "required"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 50,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_010": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.8,
+      "area_frac": 0.18289,
+      "centre_px": [
+       1247.6,
+       271.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 384839
+     },
+     "f_L0_027": {
+      "kind": "furniture",
+      "type": "desk",
+      "visible_share": 0.6394,
+      "area_frac": 0.24933,
+      "centre_px": [
+       1072.3,
+       854.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 384664
+     },
+     "f_L0_029": {
+      "kind": "furniture",
+      "type": "bookshelf",
+      "visible_share": 0.535,
+      "area_frac": 0.25762,
+      "centre_px": [
+       295.3,
+       600.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 498587
+     },
+     "f_L0_030": {
+      "kind": "furniture",
+      "type": "armchair",
+      "visible_share": 0.0025,
+      "area_frac": 0.02466,
+      "centre_px": [
+       1872.9,
+       890.0
+      ],
+      "in_view": false
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_ebeveyn_banyo_1": {
+   "camera": "cam_r_L0_ebeveyn_banyo_1",
+   "room_id": "r_L0_ebeveyn_banyo",
+   "room_type": "bathroom",
+   "room_label": "Ebeveyn Banyo",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "c3dd21123f6678ec",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 31,
+     "wenart_id": "f_L0_012",
+     "kind": "furniture",
+     "type": "shower",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_ebeveyn_banyo",
+     "room_ids": [
+      "r_L0_ebeveyn_banyo"
+     ],
+     "own_room": true,
+     "pixels": 235880,
+     "area_frac": 0.113754,
+     "box_px": [
+      0,
+      0,
+      713,
+      1080
+     ],
+     "box_1000": [
+      0,
+      0,
+      372,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.1606,
+     "in_frame": 0.5242,
+     "unoccluded": 0.3063,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:159",
+       "block": "DUS"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 13,
+     "wenart_id": "win_L0_004",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_ebeveyn_banyo"
+     ],
+     "own_room": true,
+     "pixels": 213634,
+     "area_frac": 0.103026,
+     "box_px": [
+      1471,
+      0,
+      1835,
+      617
+     ],
+     "box_1000": [
+      766,
+      0,
+      956,
+      572
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:D6",
+       "block": "PENCERE_60"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:135",
+       "block": "PENCERE_60"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 32,
+     "wenart_id": "f_L0_013",
+     "kind": "furniture",
+     "type": "toilet",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_ebeveyn_banyo",
+     "room_ids": [
+      "r_L0_ebeveyn_banyo"
+     ],
+     "own_room": true,
+     "pixels": 163718,
+     "area_frac": 0.078954,
+     "box_px": [
+      1331,
+      662,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      693,
+      612,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.2701,
+     "in_frame": 0.4308,
+     "unoccluded": 0.6271,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:15B",
+       "block": "KLOZET"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 33,
+     "wenart_id": "f_L0_014",
+     "kind": "furniture",
+     "type": "washbasin",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_ebeveyn_banyo",
+     "room_ids": [
+      "r_L0_ebeveyn_banyo"
+     ],
+     "own_room": true,
+     "pixels": 124745,
+     "area_frac": 0.060159,
+     "box_px": [
+      0,
+      771,
+      495,
+      1080
+     ],
+     "box_1000": [
+      0,
+      713,
+      258,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0402,
+     "in_frame": 0.0696,
+     "unoccluded": 0.5772,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:15D",
+       "block": "LAVABO"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 50,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_004": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.6774,
+      "area_frac": 0.11294,
+      "centre_px": [
+       1665.7,
+       300.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 213634
+     },
+     "f_L0_012": {
+      "kind": "furniture",
+      "type": "shower",
+      "visible_share": 0.4887,
+      "area_frac": 0.37141,
+      "centre_px": [
+       362.1,
+       539.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 235880
+     },
+     "f_L0_013": {
+      "kind": "furniture",
+      "type": "toilet",
+      "visible_share": 0.5311,
+      "area_frac": 0.1259,
+      "centre_px": [
+       1586.0,
+       871.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 163718
+     },
+     "f_L0_014": {
+      "kind": "furniture",
+      "type": "washbasin",
+      "visible_share": 0.25,
+      "area_frac": 0.10423,
+      "centre_px": [
+       234.3,
+       846.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 124745
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_ebeveyn_banyo_2": {
+   "camera": "cam_r_L0_ebeveyn_banyo_2",
+   "room_id": "r_L0_ebeveyn_banyo",
+   "room_type": "bathroom",
+   "room_label": "Ebeveyn Banyo",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "c3dd21123f6678ec",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 31,
+     "wenart_id": "f_L0_012",
+     "kind": "furniture",
+     "type": "shower",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_ebeveyn_banyo",
+     "room_ids": [
+      "r_L0_ebeveyn_banyo"
+     ],
+     "own_room": true,
+     "pixels": 390960,
+     "area_frac": 0.188542,
+     "box_px": [
+      1558,
+      0,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      811,
+      0,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.005,
+     "in_frame": 0.005,
+     "unoccluded": 0.9991,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:159",
+       "block": "DUS"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 6,
+     "wenart_id": "d_L0_006",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_ebeveyn_yatak_odasi",
+      "r_L0_ebeveyn_banyo"
+     ],
+     "own_room": true,
+     "pixels": 332981,
+     "area_frac": 0.160581,
+     "box_px": [
+      561,
+      0,
+      919,
+      981
+     ],
+     "box_1000": [
+      292,
+      0,
+      479,
+      909
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:C8",
+       "block": "KAPI_80"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:127",
+       "block": "KAPI_80"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 33,
+     "wenart_id": "f_L0_014",
+     "kind": "furniture",
+     "type": "washbasin",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_ebeveyn_banyo",
+     "room_ids": [
+      "r_L0_ebeveyn_banyo"
+     ],
+     "own_room": true,
+     "pixels": 110297,
+     "area_frac": 0.053191,
+     "box_px": [
+      1186,
+      515,
+      1558,
+      1080
+     ],
+     "box_1000": [
+      617,
+      476,
+      812,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.2361,
+     "in_frame": 0.6903,
+     "unoccluded": 0.342,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:15D",
+       "block": "LAVABO"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 32,
+     "wenart_id": "f_L0_013",
+     "kind": "furniture",
+     "type": "toilet",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_ebeveyn_banyo",
+     "room_ids": [
+      "r_L0_ebeveyn_banyo"
+     ],
+     "own_room": true,
+     "pixels": 15482,
+     "area_frac": 0.007466,
+     "box_px": [
+      0,
+      810,
+      58,
+      1080
+     ],
+     "box_1000": [
+      0,
+      750,
+      31,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0123,
+     "in_frame": 0.1711,
+     "unoccluded": 0.0718,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:15B",
+       "block": "KLOZET"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 50,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_006": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.8547,
+      "area_frac": 0.1581,
+      "centre_px": [
+       725.6,
+       479.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 332981
+     },
+     "f_L0_012": {
+      "kind": "furniture",
+      "type": "shower",
+      "visible_share": 0.0896,
+      "area_frac": 0.18871,
+      "centre_px": [
+       1740.1,
+       541.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 390960
+     },
+     "f_L0_013": {
+      "kind": "furniture",
+      "type": "toilet",
+      "visible_share": 0.3481,
+      "area_frac": 0.10403,
+      "centre_px": [
+       341.1,
+       906.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 15482
+     },
+     "f_L0_014": {
+      "kind": "furniture",
+      "type": "washbasin",
+      "visible_share": 0.5053,
+      "area_frac": 0.15551,
+      "centre_px": [
+       1373.8,
+       786.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 110297
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_ebeveyn_yatak_odasi_1": {
+   "camera": "cam_r_L0_ebeveyn_yatak_odasi_1",
+   "room_id": "r_L0_ebeveyn_yatak_odasi",
+   "room_type": "bedroom",
+   "room_label": "Ebeveyn Yatak Odası",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "c3dd21123f6678ec",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 29,
+     "wenart_id": "f_L0_010",
+     "kind": "furniture",
+     "type": "wardrobe",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_ebeveyn_yatak_odasi",
+     "room_ids": [
+      "r_L0_ebeveyn_yatak_odasi"
+     ],
+     "own_room": true,
+     "pixels": 527517,
+     "area_frac": 0.254397,
+     "box_px": [
+      755,
+      30,
+      1427,
+      815
+     ],
+     "box_1000": [
+      393,
+      27,
+      744,
+      755
+     ],
+     "touches_border": false,
+     "visibility": 0.98,
+     "in_frame": 1.0,
+     "unoccluded": 0.98,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:155",
+       "block": "DOLAP"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 12,
+     "wenart_id": "win_L0_003",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_ebeveyn_yatak_odasi"
+     ],
+     "own_room": true,
+     "pixels": 245159,
+     "area_frac": 0.118229,
+     "box_px": [
+      0,
+      0,
+      415,
+      658
+     ],
+     "box_1000": [
+      0,
+      0,
+      217,
+      610
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:D4",
+       "block": "PENCERE_180"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:133",
+       "block": "PENCERE_180"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 26,
+     "wenart_id": "f_L0_007",
+     "kind": "furniture",
+     "type": "bed_double",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_ebeveyn_yatak_odasi",
+     "room_ids": [
+      "r_L0_ebeveyn_yatak_odasi"
+     ],
+     "own_room": true,
+     "pixels": 139670,
+     "area_frac": 0.067356,
+     "box_px": [
+      1514,
+      327,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      788,
+      302,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0028,
+     "in_frame": 0.0089,
+     "unoccluded": 0.3126,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:14F",
+       "block": "YATAK_CIFT"
+      }
+     ],
+     "host_decor": [
+      "cushion"
+     ],
+     "role": "optional"
+    },
+    {
+     "index": 5,
+     "wenart_id": "d_L0_005",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_ebeveyn_yatak_odasi",
+      "r_L0_hol"
+     ],
+     "own_room": true,
+     "pixels": 12129,
+     "area_frac": 0.005849,
+     "box_px": [
+      1903,
+      57,
+      1920,
+      775
+     ],
+     "box_1000": [
+      991,
+      52,
+      1000,
+      718
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:C6",
+       "block": "KAPI_90"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:125",
+       "block": "KAPI_90"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 50,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_005": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.0,
+      "area_frac": 0.0,
+      "centre_px": null,
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 12129
+     },
+     "win_L0_003": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.3556,
+      "area_frac": 0.11155,
+      "centre_px": [
+       204.8,
+       295.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 245159
+     },
+     "f_L0_007": {
+      "kind": "furniture",
+      "type": "bed_double",
+      "visible_share": 0.1842,
+      "area_frac": 0.2155,
+      "centre_px": [
+       1695.0,
+       541.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 139670
+     },
+     "f_L0_010": {
+      "kind": "furniture",
+      "type": "wardrobe",
+      "visible_share": 1.0,
+      "area_frac": 0.25836,
+      "centre_px": [
+       1091.8,
+       423.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 527517
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_ebeveyn_yatak_odasi_2": {
+   "camera": "cam_r_L0_ebeveyn_yatak_odasi_2",
+   "room_id": "r_L0_ebeveyn_yatak_odasi",
+   "room_type": "bedroom",
+   "room_label": "Ebeveyn Yatak Odası",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "c3dd21123f6678ec",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 29,
+     "wenart_id": "f_L0_010",
+     "kind": "furniture",
+     "type": "wardrobe",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_ebeveyn_yatak_odasi",
+     "room_ids": [
+      "r_L0_ebeveyn_yatak_odasi"
+     ],
+     "own_room": true,
+     "pixels": 500040,
+     "area_frac": 0.241146,
+     "box_px": [
+      1457,
+      0,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      758,
+      0,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.1537,
+     "in_frame": 0.1579,
+     "unoccluded": 0.9736,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:155",
+       "block": "DOLAP"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 26,
+     "wenart_id": "f_L0_007",
+     "kind": "furniture",
+     "type": "bed_double",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_ebeveyn_yatak_odasi",
+     "room_ids": [
+      "r_L0_ebeveyn_yatak_odasi"
+     ],
+     "own_room": true,
+     "pixels": 277599,
+     "area_frac": 0.133873,
+     "box_px": [
+      0,
+      330,
+      574,
+      1080
+     ],
+     "box_1000": [
+      0,
+      305,
+      299,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0238,
+     "in_frame": 0.0496,
+     "unoccluded": 0.4789,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:14F",
+       "block": "YATAK_CIFT"
+      }
+     ],
+     "host_decor": [
+      "cushion"
+     ],
+     "role": "optional"
+    },
+    {
+     "index": 12,
+     "wenart_id": "win_L0_003",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_ebeveyn_yatak_odasi"
+     ],
+     "own_room": true,
+     "pixels": 227809,
+     "area_frac": 0.109862,
+     "box_px": [
+      752,
+      0,
+      1258,
+      475
+     ],
+     "box_1000": [
+      391,
+      0,
+      656,
+      440
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:D4",
+       "block": "PENCERE_180"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:133",
+       "block": "PENCERE_180"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 30,
+     "wenart_id": "f_L0_011",
+     "kind": "furniture",
+     "type": "dresser",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_ebeveyn_yatak_odasi",
+     "room_ids": [
+      "r_L0_ebeveyn_yatak_odasi"
+     ],
+     "own_room": true,
+     "pixels": 62325,
+     "area_frac": 0.030056,
+     "box_px": [
+      362,
+      464,
+      712,
+      750
+     ],
+     "box_1000": [
+      188,
+      429,
+      371,
+      695
+     ],
+     "touches_border": false,
+     "visibility": 0.6796,
+     "in_frame": 1.0,
+     "unoccluded": 0.6796,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:157",
+       "block": "SIFONYER"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 50,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_003": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.9632,
+      "area_frac": 0.11062,
+      "centre_px": [
+       1007.0,
+       233.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 227809
+     },
+     "f_L0_007": {
+      "kind": "furniture",
+      "type": "bed_double",
+      "visible_share": 0.3795,
+      "area_frac": 0.27953,
+      "centre_px": [
+       304.3,
+       577.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 277599
+     },
+     "f_L0_010": {
+      "kind": "furniture",
+      "type": "wardrobe",
+      "visible_share": 0.2101,
+      "area_frac": 0.24239,
+      "centre_px": [
+       1690.3,
+       539.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 500040
+     },
+     "f_L0_011": {
+      "kind": "furniture",
+      "type": "dresser",
+      "visible_share": 0.736,
+      "area_frac": 0.04388,
+      "centre_px": [
+       536.4,
+       604.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 62325
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_ebeveyn_yatak_odasi_3": {
+   "camera": "cam_r_L0_ebeveyn_yatak_odasi_3",
+   "room_id": "r_L0_ebeveyn_yatak_odasi",
+   "room_type": "bedroom",
+   "room_label": "Ebeveyn Yatak Odası",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "c3dd21123f6678ec",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 26,
+     "wenart_id": "f_L0_007",
+     "kind": "furniture",
+     "type": "bed_double",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_ebeveyn_yatak_odasi",
+     "room_ids": [
+      "r_L0_ebeveyn_yatak_odasi"
+     ],
+     "own_room": true,
+     "pixels": 432222,
+     "area_frac": 0.20844,
+     "box_px": [
+      1194,
+      221,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      621,
+      204,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.1547,
+     "in_frame": 0.2645,
+     "unoccluded": 0.5848,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:14F",
+       "block": "YATAK_CIFT"
+      }
+     ],
+     "host_decor": [
+      "cushion"
+     ],
+     "role": "optional"
+    },
+    {
+     "index": 29,
+     "wenart_id": "f_L0_010",
+     "kind": "furniture",
+     "type": "wardrobe",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_ebeveyn_yatak_odasi",
+     "room_ids": [
+      "r_L0_ebeveyn_yatak_odasi"
+     ],
+     "own_room": true,
+     "pixels": 320760,
+     "area_frac": 0.154688,
+     "box_px": [
+      0,
+      0,
+      297,
+      1080
+     ],
+     "box_1000": [
+      0,
+      0,
+      155,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0002,
+     "in_frame": 0.0002,
+     "unoccluded": 0.9656,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:155",
+       "block": "DOLAP"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 5,
+     "wenart_id": "d_L0_005",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_ebeveyn_yatak_odasi",
+      "r_L0_hol"
+     ],
+     "own_room": true,
+     "pixels": 282565,
+     "area_frac": 0.136268,
+     "box_px": [
+      456,
+      18,
+      805,
+      833
+     ],
+     "box_1000": [
+      237,
+      16,
+      420,
+      772
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:C6",
+       "block": "KAPI_90"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:125",
+       "block": "KAPI_90"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 27,
+     "wenart_id": "f_L0_008",
+     "kind": "furniture",
+     "type": "nightstand",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_ebeveyn_yatak_odasi",
+     "room_ids": [
+      "r_L0_ebeveyn_yatak_odasi"
+     ],
+     "own_room": true,
+     "pixels": 49179,
+     "area_frac": 0.023717,
+     "box_px": [
+      872,
+      641,
+      1092,
+      899
+     ],
+     "box_1000": [
+      454,
+      593,
+      569,
+      833
+     ],
+     "touches_border": false,
+     "visibility": 0.869,
+     "in_frame": 1.0,
+     "unoccluded": 0.869,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:151",
+       "block": "KOMIDIN"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 28,
+     "wenart_id": "f_L0_009",
+     "kind": "furniture",
+     "type": "nightstand",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_ebeveyn_yatak_odasi",
+     "room_ids": [
+      "r_L0_ebeveyn_yatak_odasi"
+     ],
+     "own_room": true,
+     "pixels": 2461,
+     "area_frac": 0.001187,
+     "box_px": [
+      1891,
+      641,
+      1920,
+      732
+     ],
+     "box_1000": [
+      984,
+      593,
+      1000,
+      678
+     ],
+     "touches_border": true,
+     "visibility": 0.0297,
+     "in_frame": 0.07,
+     "unoccluded": 0.4239,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:153",
+       "block": "KOMIDIN"
+      }
+     ],
+     "host_decor": [],
+     "role": "ignore"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 50,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_005": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.9967,
+      "area_frac": 0.13307,
+      "centre_px": [
+       635.2,
+       424.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 282565
+     },
+     "f_L0_007": {
+      "kind": "furniture",
+      "type": "bed_double",
+      "visible_share": 0.5983,
+      "area_frac": 0.35646,
+      "centre_px": [
+       1544.9,
+       563.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 432222
+     },
+     "f_L0_008": {
+      "kind": "furniture",
+      "type": "nightstand",
+      "visible_share": 1.0,
+      "area_frac": 0.02729,
+      "centre_px": [
+       982.1,
+       767.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 49179
+     },
+     "f_L0_009": {
+      "kind": "furniture",
+      "type": "nightstand",
+      "visible_share": 0.042,
+      "area_frac": 0.0028,
+      "centre_px": [
+       1908.3,
+       680.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 2461
+     },
+     "f_L0_010": {
+      "kind": "furniture",
+      "type": "wardrobe",
+      "visible_share": 0.1832,
+      "area_frac": 0.15714,
+      "centre_px": [
+       151.0,
+       540.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 320760
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_hol_1": {
+   "camera": "cam_r_L0_hol_1",
+   "room_id": "r_L0_hol",
+   "room_type": "hall",
+   "room_label": "Hol",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "c3dd21123f6678ec",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 3,
+     "wenart_id": "d_L0_003",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_salon",
+      "r_L0_hol"
+     ],
+     "own_room": true,
+     "pixels": 813240,
+     "area_frac": 0.392188,
+     "box_px": [
+      1167,
+      0,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      607,
+      0,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:C2",
+       "block": "KAPI_90"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:121",
+       "block": "KAPI_90"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 5,
+     "wenart_id": "d_L0_005",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_ebeveyn_yatak_odasi",
+      "r_L0_hol"
+     ],
+     "own_room": true,
+     "pixels": 170506,
+     "area_frac": 0.082227,
+     "box_px": [
+      678,
+      0,
+      850,
+      1080
+     ],
+     "box_1000": [
+      353,
+      0,
+      443,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:C6",
+       "block": "KAPI_90"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:125",
+       "block": "KAPI_90"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 9,
+     "wenart_id": "d_L0_009",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_hol",
+      "r_L0_calisma_odasi"
+     ],
+     "own_room": true,
+     "pixels": 98407,
+     "area_frac": 0.047457,
+     "box_px": [
+      189,
+      146,
+      395,
+      645
+     ],
+     "box_1000": [
+      98,
+      135,
+      206,
+      598
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:CE",
+       "block": "KAPI_80"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:12D",
+       "block": "KAPI_80"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 8,
+     "wenart_id": "d_L0_008",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_hol",
+      "r_L0_yatak_odasi"
+     ],
+     "own_room": true,
+     "pixels": 21443,
+     "area_frac": 0.010341,
+     "box_px": [
+      68,
+      0,
+      103,
+      835
+     ],
+     "box_1000": [
+      35,
+      0,
+      54,
+      774
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:CC",
+       "block": "KAPI_80"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:12B",
+       "block": "KAPI_80"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 7,
+     "wenart_id": "d_L0_007",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_hol",
+      "r_L0_banyo"
+     ],
+     "own_room": true,
+     "pixels": 4433,
+     "area_frac": 0.002138,
+     "box_px": [
+      0,
+      0,
+      12,
+      1080
+     ],
+     "box_1000": [
+      0,
+      0,
+      7,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:CA",
+       "block": "KAPI_80"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:129",
+       "block": "KAPI_80"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 50,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_003": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.3281,
+      "area_frac": 0.37355,
+      "centre_px": [
+       1534.1,
+       541.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 813240
+     },
+     "d_L0_005": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.155,
+      "area_frac": 0.0864,
+      "centre_px": [
+       816.2,
+       528.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 170506
+     },
+     "d_L0_007": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.0,
+      "area_frac": 0.0,
+      "centre_px": null,
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 4433
+     },
+     "d_L0_008": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.0,
+      "area_frac": 0.01275,
+      "centre_px": null,
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 21443
+     },
+     "d_L0_009": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.9972,
+      "area_frac": 0.04736,
+      "centre_px": [
+       291.8,
+       395.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 98407
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_hol_2": {
+   "camera": "cam_r_L0_hol_2",
+   "room_id": "r_L0_hol",
+   "room_type": "hall",
+   "room_label": "Hol",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "c3dd21123f6678ec",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 5,
+     "wenart_id": "d_L0_005",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_ebeveyn_yatak_odasi",
+      "r_L0_hol"
+     ],
+     "own_room": true,
+     "pixels": 555120,
+     "area_frac": 0.267708,
+     "box_px": [
+      1360,
+      0,
+      1874,
+      1080
+     ],
+     "box_1000": [
+      708,
+      0,
+      977,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:C6",
+       "block": "KAPI_90"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:125",
+       "block": "KAPI_90"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 7,
+     "wenart_id": "d_L0_007",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_hol",
+      "r_L0_banyo"
+     ],
+     "own_room": true,
+     "pixels": 392040,
+     "area_frac": 0.189062,
+     "box_px": [
+      0,
+      0,
+      363,
+      1080
+     ],
+     "box_1000": [
+      0,
+      0,
+      190,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:CA",
+       "block": "KAPI_80"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:129",
+       "block": "KAPI_80"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 9,
+     "wenart_id": "d_L0_009",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_hol",
+      "r_L0_calisma_odasi"
+     ],
+     "own_room": true,
+     "pixels": 104366,
+     "area_frac": 0.050331,
+     "box_px": [
+      835,
+      135,
+      1035,
+      662
+     ],
+     "box_1000": [
+      434,
+      125,
+      540,
+      613
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:CE",
+       "block": "KAPI_80"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:12D",
+       "block": "KAPI_80"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 8,
+     "wenart_id": "d_L0_008",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_hol",
+      "r_L0_yatak_odasi"
+     ],
+     "own_room": true,
+     "pixels": 73465,
+     "area_frac": 0.035429,
+     "box_px": [
+      609,
+      0,
+      693,
+      936
+     ],
+     "box_1000": [
+      317,
+      0,
+      361,
+      867
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:CC",
+       "block": "KAPI_80"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:12B",
+       "block": "KAPI_80"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 50,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_005": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.2674,
+      "area_frac": 0.27083,
+      "centre_px": [
+       1642.2,
+       539.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 555120
+     },
+     "d_L0_007": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.3132,
+      "area_frac": 0.16667,
+      "centre_px": [
+       155.7,
+       540.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 392040
+     },
+     "d_L0_008": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.0,
+      "area_frac": 0.03893,
+      "centre_px": null,
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 73465
+     },
+     "d_L0_009": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.9972,
+      "area_frac": 0.05005,
+      "centre_px": [
+       935.1,
+       397.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 104366
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_hol_3": {
+   "camera": "cam_r_L0_hol_3",
+   "room_id": "r_L0_hol",
+   "room_type": "hall",
+   "room_label": "Hol",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "c3dd21123f6678ec",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 2,
+     "wenart_id": "d_L0_002",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_hol",
+      "r_L0_antre"
+     ],
+     "own_room": true,
+     "pixels": 623160,
+     "area_frac": 0.300521,
+     "box_px": [
+      0,
+      0,
+      577,
+      1080
+     ],
+     "box_1000": [
+      0,
+      0,
+      301,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:C0",
+       "block": "KAPI_80"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:11F",
+       "block": "KAPI_80"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 7,
+     "wenart_id": "d_L0_007",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_hol",
+      "r_L0_banyo"
+     ],
+     "own_room": true,
+     "pixels": 157054,
+     "area_frac": 0.07574,
+     "box_px": [
+      1070,
+      0,
+      1227,
+      1080
+     ],
+     "box_1000": [
+      557,
+      0,
+      640,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:CA",
+       "block": "KAPI_80"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:129",
+       "block": "KAPI_80"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 9,
+     "wenart_id": "d_L0_009",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_hol",
+      "r_L0_calisma_odasi"
+     ],
+     "own_room": true,
+     "pixels": 98408,
+     "area_frac": 0.047458,
+     "box_px": [
+      1525,
+      146,
+      1731,
+      645
+     ],
+     "box_1000": [
+      794,
+      135,
+      902,
+      598
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:CE",
+       "block": "KAPI_80"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:12D",
+       "block": "KAPI_80"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 8,
+     "wenart_id": "d_L0_008",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_hol",
+      "r_L0_yatak_odasi"
+     ],
+     "own_room": true,
+     "pixels": 37015,
+     "area_frac": 0.017851,
+     "box_px": [
+      1344,
+      52,
+      1401,
+      762
+     ],
+     "box_1000": [
+      700,
+      48,
+      730,
+      706
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:CC",
+       "block": "KAPI_80"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:12B",
+       "block": "KAPI_80"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 5,
+     "wenart_id": "d_L0_005",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_ebeveyn_yatak_odasi",
+      "r_L0_hol"
+     ],
+     "own_room": true,
+     "pixels": 12976,
+     "area_frac": 0.006258,
+     "box_px": [
+      1899,
+      0,
+      1920,
+      1075
+     ],
+     "box_1000": [
+      989,
+      0,
+      1000,
+      996
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:C6",
+       "block": "KAPI_90"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:125",
+       "block": "KAPI_90"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 50,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_002": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.2151,
+      "area_frac": 0.28023,
+      "centre_px": [
+       272.7,
+       534.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 623160
+     },
+     "d_L0_005": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.0,
+      "area_frac": 0.0,
+      "centre_px": null,
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 12976
+     },
+     "d_L0_007": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.2236,
+      "area_frac": 0.07985,
+      "centre_px": [
+       1109.2,
+       525.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 157054
+     },
+     "d_L0_008": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.0,
+      "area_frac": 0.01898,
+      "centre_px": null,
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 37015
+     },
+     "d_L0_009": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.9972,
+      "area_frac": 0.04736,
+      "centre_px": [
+       1628.2,
+       395.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 98408
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_mutfak_1": {
+   "camera": "cam_r_L0_mutfak_1",
+   "room_id": "r_L0_mutfak",
+   "room_type": "kitchen",
+   "room_label": "Mutfak",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "c3dd21123f6678ec",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 35,
+     "wenart_id": "f_L0_016",
+     "kind": "furniture",
+     "type": "kitchen_counter",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_mutfak",
+     "room_ids": [
+      "r_L0_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 393810,
+     "area_frac": 0.189916,
+     "box_px": [
+      0,
+      458,
+      851,
+      1080
+     ],
+     "box_1000": [
+      0,
+      424,
+      444,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.6107,
+     "in_frame": 0.6299,
+     "unoccluded": 0.9695,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:161",
+       "block": "TEZGAH"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 38,
+     "wenart_id": "f_L0_019",
+     "kind": "furniture",
+     "type": "fridge",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_mutfak",
+     "room_ids": [
+      "r_L0_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 267199,
+     "area_frac": 0.128858,
+     "box_px": [
+      1547,
+      99,
+      1895,
+      913
+     ],
+     "box_1000": [
+      805,
+      91,
+      987,
+      846
+     ],
+     "touches_border": false,
+     "visibility": 0.9919,
+     "in_frame": 1.0,
+     "unoccluded": 0.9919,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:167",
+       "block": "BUZDOLABI"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 14,
+     "wenart_id": "win_L0_005",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 218218,
+     "area_frac": 0.105236,
+     "box_px": [
+      81,
+      0,
+      530,
+      519
+     ],
+     "box_1000": [
+      42,
+      0,
+      277,
+      481
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:D8",
+       "block": "PENCERE_120"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:137",
+       "block": "PENCERE_120"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 34,
+     "wenart_id": "f_L0_015",
+     "kind": "furniture",
+     "type": "kitchen_counter",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_mutfak",
+     "room_ids": [
+      "r_L0_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 152172,
+     "area_frac": 0.073385,
+     "box_px": [
+      785,
+      438,
+      1548,
+      827
+     ],
+     "box_1000": [
+      408,
+      405,
+      807,
+      766
+     ],
+     "touches_border": false,
+     "visibility": 0.6178,
+     "in_frame": 1.0,
+     "unoccluded": 0.6178,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:15F",
+       "block": "TEZGAH"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 15,
+     "wenart_id": "win_L0_006",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 128000,
+     "area_frac": 0.061728,
+     "box_px": [
+      1126,
+      75,
+      1481,
+      460
+     ],
+     "box_1000": [
+      586,
+      69,
+      772,
+      426
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:DA",
+       "block": "PENCERE_120"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:139",
+       "block": "PENCERE_120"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 37,
+     "wenart_id": "f_L0_018",
+     "kind": "furniture",
+     "type": "stove",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_mutfak",
+     "room_ids": [
+      "r_L0_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 72205,
+     "area_frac": 0.034821,
+     "box_px": [
+      1195,
+      452,
+      1446,
+      813
+     ],
+     "box_1000": [
+      622,
+      418,
+      754,
+      753
+     ],
+     "touches_border": false,
+     "visibility": 0.8384,
+     "in_frame": 1.0,
+     "unoccluded": 0.8384,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:165",
+       "block": "OCAK"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 36,
+     "wenart_id": "f_L0_017",
+     "kind": "furniture",
+     "type": "sink_kitchen",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_mutfak",
+     "room_ids": [
+      "r_L0_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 2683,
+     "area_frac": 0.001294,
+     "box_px": [
+      848,
+      374,
+      1116,
+      458
+     ],
+     "box_1000": [
+      441,
+      346,
+      582,
+      425
+     ],
+     "touches_border": false,
+     "visibility": 0.0286,
+     "in_frame": 1.0,
+     "unoccluded": 0.0286,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:163",
+       "block": "EVIYE"
+      }
+     ],
+     "host_decor": [],
+     "role": "ignore"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 50,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_005": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.9387,
+      "area_frac": 0.11042,
+      "centre_px": [
+       298.1,
+       254.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 218218
+     },
+     "win_L0_006": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 1.0,
+      "area_frac": 0.06161,
+      "centre_px": [
+       1307.6,
+       268.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 128000
+     },
+     "f_L0_015": {
+      "kind": "furniture",
+      "type": "kitchen_counter",
+      "visible_share": 0.8053,
+      "area_frac": 0.11879,
+      "centre_px": [
+       1167.8,
+       632.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 152172
+     },
+     "f_L0_016": {
+      "kind": "furniture",
+      "type": "kitchen_counter",
+      "visible_share": 0.7699,
+      "area_frac": 0.19589,
+      "centre_px": [
+       424.7,
+       763.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 393810
+     },
+     "f_L0_017": {
+      "kind": "furniture",
+      "type": "sink_kitchen",
+      "visible_share": 0.4256,
+      "area_frac": 0.04526,
+      "centre_px": [
+       983.2,
+       553.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 2683
+     },
+     "f_L0_018": {
+      "kind": "furniture",
+      "type": "stove",
+      "visible_share": 0.6743,
+      "area_frac": 0.04129,
+      "centre_px": [
+       1319.6,
+       627.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 72205
+     },
+     "f_L0_019": {
+      "kind": "furniture",
+      "type": "fridge",
+      "visible_share": 1.0,
+      "area_frac": 0.1293,
+      "centre_px": [
+       1720.0,
+       506.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 267199
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_mutfak_2": {
+   "camera": "cam_r_L0_mutfak_2",
+   "room_id": "r_L0_mutfak",
+   "room_type": "kitchen",
+   "room_label": "Mutfak",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "c3dd21123f6678ec",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 35,
+     "wenart_id": "f_L0_016",
+     "kind": "furniture",
+     "type": "kitchen_counter",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_mutfak",
+     "room_ids": [
+      "r_L0_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 397384,
+     "area_frac": 0.19164,
+     "box_px": [
+      0,
+      495,
+      792,
+      1080
+     ],
+     "box_1000": [
+      0,
+      458,
+      413,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.1262,
+     "in_frame": 0.1288,
+     "unoccluded": 0.98,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:161",
+       "block": "TEZGAH"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 14,
+     "wenart_id": "win_L0_005",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 233557,
+     "area_frac": 0.112634,
+     "box_px": [
+      0,
+      0,
+      393,
+      658
+     ],
+     "box_1000": [
+      0,
+      0,
+      205,
+      610
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:D8",
+       "block": "PENCERE_120"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:137",
+       "block": "PENCERE_120"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 38,
+     "wenart_id": "f_L0_019",
+     "kind": "furniture",
+     "type": "fridge",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_mutfak",
+     "room_ids": [
+      "r_L0_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 219089,
+     "area_frac": 0.105656,
+     "box_px": [
+      1413,
+      141,
+      1770,
+      818
+     ],
+     "box_1000": [
+      735,
+      130,
+      922,
+      758
+     ],
+     "touches_border": false,
+     "visibility": 0.9203,
+     "in_frame": 1.0,
+     "unoccluded": 0.9203,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:167",
+       "block": "BUZDOLABI"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 34,
+     "wenart_id": "f_L0_015",
+     "kind": "furniture",
+     "type": "kitchen_counter",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_mutfak",
+     "room_ids": [
+      "r_L0_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 160704,
+     "area_frac": 0.0775,
+     "box_px": [
+      595,
+      457,
+      1472,
+      797
+     ],
+     "box_1000": [
+      309,
+      423,
+      767,
+      738
+     ],
+     "touches_border": false,
+     "visibility": 0.5284,
+     "in_frame": 1.0,
+     "unoccluded": 0.5284,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:15F",
+       "block": "TEZGAH"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 15,
+     "wenart_id": "win_L0_006",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 134689,
+     "area_frac": 0.064954,
+     "box_px": [
+      960,
+      88,
+      1327,
+      455
+     ],
+     "box_1000": [
+      500,
+      81,
+      692,
+      422
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:DA",
+       "block": "PENCERE_120"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:139",
+       "block": "PENCERE_120"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 37,
+     "wenart_id": "f_L0_018",
+     "kind": "furniture",
+     "type": "stove",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_mutfak",
+     "room_ids": [
+      "r_L0_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 75497,
+     "area_frac": 0.036409,
+     "box_px": [
+      1116,
+      455,
+      1362,
+      804
+     ],
+     "box_1000": [
+      581,
+      421,
+      710,
+      745
+     ],
+     "touches_border": false,
+     "visibility": 0.8804,
+     "in_frame": 1.0,
+     "unoccluded": 0.8804,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:165",
+       "block": "OCAK"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 36,
+     "wenart_id": "f_L0_017",
+     "kind": "furniture",
+     "type": "sink_kitchen",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_mutfak",
+     "room_ids": [
+      "r_L0_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 3717,
+     "area_frac": 0.001793,
+     "box_px": [
+      676,
+      378,
+      960,
+      472
+     ],
+     "box_1000": [
+      352,
+      350,
+      500,
+      438
+     ],
+     "touches_border": false,
+     "visibility": 0.0315,
+     "in_frame": 1.0,
+     "unoccluded": 0.0315,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:163",
+       "block": "EVIYE"
+      }
+     ],
+     "host_decor": [],
+     "role": "ignore"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 50,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_005": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.5645,
+      "area_frac": 0.10569,
+      "centre_px": [
+       186.9,
+       298.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 233557
+     },
+     "win_L0_006": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 1.0,
+      "area_frac": 0.06374,
+      "centre_px": [
+       1141.8,
+       272.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 134689
+     },
+     "f_L0_015": {
+      "kind": "furniture",
+      "type": "kitchen_counter",
+      "visible_share": 0.7772,
+      "area_frac": 0.14667,
+      "centre_px": [
+       1033.1,
+       627.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 160704
+     },
+     "f_L0_016": {
+      "kind": "furniture",
+      "type": "kitchen_counter",
+      "visible_share": 0.664,
+      "area_frac": 0.19556,
+      "centre_px": [
+       396.7,
+       787.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 397384
+     },
+     "f_L0_017": {
+      "kind": "furniture",
+      "type": "sink_kitchen",
+      "visible_share": 0.5048,
+      "area_frac": 0.05686,
+      "centre_px": [
+       818.2,
+       581.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 3717
+     },
+     "f_L0_018": {
+      "kind": "furniture",
+      "type": "stove",
+      "visible_share": 0.6743,
+      "area_frac": 0.0411,
+      "centre_px": [
+       1239.1,
+       625.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 75497
+     },
+     "f_L0_019": {
+      "kind": "furniture",
+      "type": "fridge",
+      "visible_share": 0.85,
+      "area_frac": 0.11398,
+      "centre_px": [
+       1588.5,
+       479.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 219089
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_mutfak_3": {
+   "camera": "cam_r_L0_mutfak_3",
+   "room_id": "r_L0_mutfak",
+   "room_type": "kitchen",
+   "room_label": "Mutfak",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "c3dd21123f6678ec",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 38,
+     "wenart_id": "f_L0_019",
+     "kind": "furniture",
+     "type": "fridge",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_mutfak",
+     "room_ids": [
+      "r_L0_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 428404,
+     "area_frac": 0.206599,
+     "box_px": [
+      1353,
+      55,
+      1841,
+      1013
+     ],
+     "box_1000": [
+      704,
+      50,
+      959,
+      938
+     ],
+     "touches_border": false,
+     "visibility": 0.9316,
+     "in_frame": 1.0,
+     "unoccluded": 0.9316,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:167",
+       "block": "BUZDOLABI"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 34,
+     "wenart_id": "f_L0_015",
+     "kind": "furniture",
+     "type": "kitchen_counter",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_mutfak",
+     "room_ids": [
+      "r_L0_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 351469,
+     "area_frac": 0.169497,
+     "box_px": [
+      193,
+      493,
+      1420,
+      973
+     ],
+     "box_1000": [
+      100,
+      456,
+      740,
+      901
+     ],
+     "touches_border": false,
+     "visibility": 0.5812,
+     "in_frame": 1.0,
+     "unoccluded": 0.5812,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:15F",
+       "block": "TEZGAH"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 15,
+     "wenart_id": "win_L0_006",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 232806,
+     "area_frac": 0.112271,
+     "box_px": [
+      759,
+      6,
+      1241,
+      489
+     ],
+     "box_1000": [
+      395,
+      5,
+      647,
+      453
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:DA",
+       "block": "PENCERE_120"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:139",
+       "block": "PENCERE_120"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 35,
+     "wenart_id": "f_L0_016",
+     "kind": "furniture",
+     "type": "kitchen_counter",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_mutfak",
+     "room_ids": [
+      "r_L0_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 198997,
+     "area_frac": 0.095967,
+     "box_px": [
+      0,
+      567,
+      397,
+      1080
+     ],
+     "box_1000": [
+      0,
+      525,
+      207,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0003,
+     "in_frame": 0.0003,
+     "unoccluded": 0.9739,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:161",
+       "block": "TEZGAH"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 37,
+     "wenart_id": "f_L0_018",
+     "kind": "furniture",
+     "type": "stove",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_mutfak",
+     "room_ids": [
+      "r_L0_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 149241,
+     "area_frac": 0.071972,
+     "box_px": [
+      960,
+      490,
+      1267,
+      987
+     ],
+     "box_1000": [
+      500,
+      453,
+      660,
+      914
+     ],
+     "touches_border": false,
+     "visibility": 0.9693,
+     "in_frame": 1.0,
+     "unoccluded": 0.9693,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:165",
+       "block": "OCAK"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 36,
+     "wenart_id": "f_L0_017",
+     "kind": "furniture",
+     "type": "sink_kitchen",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_mutfak",
+     "room_ids": [
+      "r_L0_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 8790,
+     "area_frac": 0.004239,
+     "box_px": [
+      321,
+      388,
+      753,
+      520
+     ],
+     "box_1000": [
+      167,
+      359,
+      393,
+      482
+     ],
+     "touches_border": false,
+     "visibility": 0.0355,
+     "in_frame": 1.0,
+     "unoccluded": 0.0355,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:163",
+       "block": "EVIYE"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 50,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_006": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 1.0,
+      "area_frac": 0.1094,
+      "centre_px": [
+       999.7,
+       248.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 232806
+     },
+     "f_L0_015": {
+      "kind": "furniture",
+      "type": "kitchen_counter",
+      "visible_share": 0.8772,
+      "area_frac": 0.29163,
+      "centre_px": [
+       806.4,
+       735.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 351469
+     },
+     "f_L0_016": {
+      "kind": "furniture",
+      "type": "kitchen_counter",
+      "visible_share": 0.2118,
+      "area_frac": 0.09853,
+      "centre_px": [
+       197.1,
+       823.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 198997
+     },
+     "f_L0_017": {
+      "kind": "furniture",
+      "type": "sink_kitchen",
+      "visible_share": 0.4314,
+      "area_frac": 0.11933,
+      "centre_px": [
+       541.1,
+       670.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 8790
+     },
+     "f_L0_018": {
+      "kind": "furniture",
+      "type": "stove",
+      "visible_share": 1.0,
+      "area_frac": 0.07372,
+      "centre_px": [
+       1112.6,
+       732.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 149241
+     },
+     "f_L0_019": {
+      "kind": "furniture",
+      "type": "fridge",
+      "visible_share": 0.8506,
+      "area_frac": 0.21983,
+      "centre_px": [
+       1592.2,
+       534.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 428404
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_salon_1": {
+   "camera": "cam_r_L0_salon_1",
+   "room_id": "r_L0_salon",
+   "room_type": "living",
+   "room_label": "Salon",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "c3dd21123f6678ec",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 10,
+     "wenart_id": "win_L0_001",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_salon"
+     ],
+     "own_room": true,
+     "pixels": 225294,
+     "area_frac": 0.108649,
+     "box_px": [
+      134,
+      0,
+      545,
+      614
+     ],
+     "box_1000": [
+      69,
+      0,
+      284,
+      569
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:D0",
+       "block": "PENCERE_180"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:12F",
+       "block": "PENCERE_180"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 20,
+     "wenart_id": "f_L0_001",
+     "kind": "furniture",
+     "type": "sofa",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_salon",
+     "room_ids": [
+      "r_L0_salon"
+     ],
+     "own_room": true,
+     "pixels": 205116,
+     "area_frac": 0.098918,
+     "box_px": [
+      885,
+      490,
+      1753,
+      862
+     ],
+     "box_1000": [
+      460,
+      453,
+      914,
+      799
+     ],
+     "touches_border": false,
+     "visibility": 0.6025,
+     "in_frame": 1.0,
+     "unoccluded": 0.6025,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:143",
+       "block": "KANEPE_3LU"
+      }
+     ],
+     "host_decor": [
+      "cushion"
+     ],
+     "role": "required"
+    },
+    {
+     "index": 21,
+     "wenart_id": "f_L0_002",
+     "kind": "furniture",
+     "type": "table_coffee",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_salon",
+     "room_ids": [
+      "r_L0_salon"
+     ],
+     "own_room": true,
+     "pixels": 93743,
+     "area_frac": 0.045208,
+     "box_px": [
+      1157,
+      742,
+      1832,
+      1080
+     ],
+     "box_1000": [
+      602,
+      687,
+      955,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.3521,
+     "in_frame": 0.8338,
+     "unoccluded": 0.4223,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:145",
+       "block": "SEHPA"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 24,
+     "wenart_id": "f_L0_005",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_salon",
+     "room_ids": [
+      "r_L0_salon"
+     ],
+     "own_room": true,
+     "pixels": 54159,
+     "area_frac": 0.026118,
+     "box_px": [
+      1711,
+      728,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      891,
+      674,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0855,
+     "in_frame": 0.1279,
+     "unoccluded": 0.6682,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:14B",
+       "block": "SANDALYE"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 51,
+     "wenart_id": "dec_L0_003",
+     "kind": "decor",
+     "type": "plant",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "assumed",
+     "room_id": "r_L0_salon",
+     "room_ids": [
+      "r_L0_salon"
+     ],
+     "own_room": true,
+     "pixels": 12307,
+     "area_frac": 0.005935,
+     "box_px": [
+      625,
+      605,
+      774,
+      786
+     ],
+     "box_1000": [
+      325,
+      560,
+      404,
+      728
+     ],
+     "touches_border": false,
+     "visibility": 0.3733,
+     "in_frame": 1.0,
+     "unoccluded": 0.3733,
+     "evidence": [
+      {
+       "file": "decor",
+       "method": "rule",
+       "confidence": 1.0,
+       "text": "plant in r_L0_salon on the floor"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 50,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_001": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.6362,
+      "area_frac": 0.13466,
+      "centre_px": [
+       337.0,
+       279.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 225294
+     },
+     "f_L0_001": {
+      "kind": "furniture",
+      "type": "sofa",
+      "visible_share": 0.8802,
+      "area_frac": 0.16417,
+      "centre_px": [
+       1331.6,
+       670.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 205116
+     },
+     "f_L0_002": {
+      "kind": "furniture",
+      "type": "table_coffee",
+      "visible_share": 0.8281,
+      "area_frac": 0.10706,
+      "centre_px": [
+       1488.0,
+       910.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 93743
+     },
+     "f_L0_005": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.2163,
+      "area_frac": 0.03909,
+      "centre_px": [
+       1814.9,
+       892.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 54159
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_salon_2": {
+   "camera": "cam_r_L0_salon_2",
+   "room_id": "r_L0_salon",
+   "room_type": "living",
+   "room_label": "Salon",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "c3dd21123f6678ec",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 20,
+     "wenart_id": "f_L0_001",
+     "kind": "furniture",
+     "type": "sofa",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_salon",
+     "room_ids": [
+      "r_L0_salon"
+     ],
+     "own_room": true,
+     "pixels": 385812,
+     "area_frac": 0.186059,
+     "box_px": [
+      1015,
+      583,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      528,
+      539,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.061,
+     "in_frame": 0.0682,
+     "unoccluded": 0.8938,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:143",
+       "block": "KANEPE_3LU"
+      }
+     ],
+     "host_decor": [
+      "cushion"
+     ],
+     "role": "optional"
+    },
+    {
+     "index": 10,
+     "wenart_id": "win_L0_001",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_salon"
+     ],
+     "own_room": true,
+     "pixels": 304139,
+     "area_frac": 0.146672,
+     "box_px": [
+      442,
+      0,
+      1085,
+      473
+     ],
+     "box_1000": [
+      230,
+      0,
+      566,
+      438
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:D0",
+       "block": "PENCERE_180"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:12F",
+       "block": "PENCERE_180"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 21,
+     "wenart_id": "f_L0_002",
+     "kind": "furniture",
+     "type": "table_coffee",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_salon",
+     "room_ids": [
+      "r_L0_salon"
+     ],
+     "own_room": true,
+     "pixels": 119246,
+     "area_frac": 0.057507,
+     "box_px": [
+      48,
+      836,
+      716,
+      1080
+     ],
+     "box_1000": [
+      25,
+      774,
+      373,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.1729,
+     "in_frame": 0.1837,
+     "unoccluded": 0.9412,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:145",
+       "block": "SEHPA"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 11,
+     "wenart_id": "win_L0_002",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_salon"
+     ],
+     "own_room": true,
+     "pixels": 43228,
+     "area_frac": 0.020847,
+     "box_px": [
+      0,
+      45,
+      101,
+      473
+     ],
+     "box_1000": [
+      0,
+      41,
+      53,
+      438
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:D2",
+       "block": "PENCERE_120"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:131",
+       "block": "PENCERE_120"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 50,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_001": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.9429,
+      "area_frac": 0.14455,
+      "centre_px": [
+       765.8,
+       238.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 304139
+     },
+     "win_L0_002": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.2333,
+      "area_frac": 0.02661,
+      "centre_px": [
+       52.5,
+       259.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 43228
+     },
+     "f_L0_001": {
+      "kind": "furniture",
+      "type": "sofa",
+      "visible_share": 0.5825,
+      "area_frac": 0.20817,
+      "centre_px": [
+       1462.6,
+       815.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 385812
+     },
+     "f_L0_002": {
+      "kind": "furniture",
+      "type": "table_coffee",
+      "visible_share": 0.4257,
+      "area_frac": 0.0611,
+      "centre_px": [
+       388.9,
+       960.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 119246
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_salon_3": {
+   "camera": "cam_r_L0_salon_3",
+   "room_id": "r_L0_salon",
+   "room_type": "living",
+   "room_label": "Salon",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "c3dd21123f6678ec",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 3,
+     "wenart_id": "d_L0_003",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_salon",
+      "r_L0_hol"
+     ],
+     "own_room": true,
+     "pixels": 291694,
+     "area_frac": 0.14067,
+     "box_px": [
+      1249,
+      0,
+      1613,
+      860
+     ],
+     "box_1000": [
+      650,
+      0,
+      841,
+      797
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:C2",
+       "block": "KAPI_90"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "KAPI",
+       "entity": "INSERT:121",
+       "block": "KAPI_90"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 25,
+     "wenart_id": "f_L0_006",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_salon",
+     "room_ids": [
+      "r_L0_salon"
+     ],
+     "own_room": true,
+     "pixels": 102747,
+     "area_frac": 0.04955,
+     "box_px": [
+      582,
+      609,
+      915,
+      1080
+     ],
+     "box_1000": [
+      303,
+      563,
+      477,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.6173,
+     "in_frame": 0.9864,
+     "unoccluded": 0.6258,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:14D",
+       "block": "SANDALYE"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 22,
+     "wenart_id": "f_L0_003",
+     "kind": "furniture",
+     "type": "tv_unit",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_salon",
+     "room_ids": [
+      "r_L0_salon"
+     ],
+     "own_room": true,
+     "pixels": 87120,
+     "area_frac": 0.042014,
+     "box_px": [
+      1553,
+      803,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      808,
+      743,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0436,
+     "in_frame": 0.0451,
+     "unoccluded": 0.966,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:147",
+       "block": "TV_UNITESI"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 23,
+     "wenart_id": "f_L0_004",
+     "kind": "furniture",
+     "type": "table_dining",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_salon",
+     "room_ids": [
+      "r_L0_salon"
+     ],
+     "own_room": true,
+     "pixels": 72044,
+     "area_frac": 0.034743,
+     "box_px": [
+      507,
+      502,
+      1201,
+      953
+     ],
+     "box_1000": [
+      264,
+      464,
+      626,
+      883
+     ],
+     "touches_border": false,
+     "visibility": 0.2767,
+     "in_frame": 1.0,
+     "unoccluded": 0.2767,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:149",
+       "block": "YEMEK_MASASI"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 24,
+     "wenart_id": "f_L0_005",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_salon",
+     "room_ids": [
+      "r_L0_salon"
+     ],
+     "own_room": true,
+     "pixels": 71175,
+     "area_frac": 0.034324,
+     "box_px": [
+      310,
+      570,
+      583,
+      987
+     ],
+     "box_1000": [
+      161,
+      527,
+      304,
+      914
+     ],
+     "touches_border": false,
+     "visibility": 0.566,
+     "in_frame": 1.0,
+     "unoccluded": 0.566,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:14B",
+       "block": "SANDALYE"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 20,
+     "wenart_id": "f_L0_001",
+     "kind": "furniture",
+     "type": "sofa",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_salon",
+     "room_ids": [
+      "r_L0_salon"
+     ],
+     "own_room": true,
+     "pixels": 51249,
+     "area_frac": 0.024715,
+     "box_px": [
+      0,
+      480,
+      312,
+      730
+     ],
+     "box_1000": [
+      0,
+      444,
+      163,
+      676
+     ],
+     "touches_border": true,
+     "visibility": 0.1178,
+     "in_frame": 0.2267,
+     "unoccluded": 0.5193,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:143",
+       "block": "KANEPE_3LU"
+      }
+     ],
+     "host_decor": [
+      "cushion"
+     ],
+     "role": "optional"
+    },
+    {
+     "index": 21,
+     "wenart_id": "f_L0_002",
+     "kind": "furniture",
+     "type": "table_coffee",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_salon",
+     "room_ids": [
+      "r_L0_salon"
+     ],
+     "own_room": true,
+     "pixels": 28955,
+     "area_frac": 0.013964,
+     "box_px": [
+      0,
+      637,
+      379,
+      813
+     ],
+     "box_1000": [
+      0,
+      589,
+      198,
+      753
+     ],
+     "touches_border": true,
+     "visibility": 0.1787,
+     "in_frame": 0.6103,
+     "unoccluded": 0.2928,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:145",
+       "block": "SEHPA"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 50,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_003": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.9491,
+      "area_frac": 0.13848,
+      "centre_px": [
+       1440.1,
+       427.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 291694
+     },
+     "f_L0_001": {
+      "kind": "furniture",
+      "type": "sofa",
+      "visible_share": 0.2759,
+      "area_frac": 0.04759,
+      "centre_px": [
+       164.8,
+       633.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 51249
+     },
+     "f_L0_002": {
+      "kind": "furniture",
+      "type": "table_coffee",
+      "visible_share": 0.5357,
+      "area_frac": 0.04769,
+      "centre_px": [
+       189.5,
+       804.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 28955
+     },
+     "f_L0_003": {
+      "kind": "furniture",
+      "type": "tv_unit",
+      "visible_share": 0.3286,
+      "area_frac": 0.04251,
+      "centre_px": [
+       1746.0,
+       942.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 87120
+     },
+     "f_L0_004": {
+      "kind": "furniture",
+      "type": "table_dining",
+      "visible_share": 0.8531,
+      "area_frac": 0.12555,
+      "centre_px": [
+       855.4,
+       728.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 72044
+     },
+     "f_L0_005": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.9247,
+      "area_frac": 0.06064,
+      "centre_px": [
+       461.3,
+       759.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 71175
+     },
+     "f_L0_006": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.992,
+      "area_frac": 0.07918,
+      "centre_px": [
+       749.2,
+       824.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 102747
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_yatak_odasi_1": {
+   "camera": "cam_r_L0_yatak_odasi_1",
+   "room_id": "r_L0_yatak_odasi",
+   "room_type": "bedroom",
+   "room_label": "Yatak Odası",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "c3dd21123f6678ec",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 17,
+     "wenart_id": "win_L0_008",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_yatak_odasi"
+     ],
+     "own_room": true,
+     "pixels": 208240,
+     "area_frac": 0.100424,
+     "box_px": [
+      497,
+      0,
+      948,
+      501
+     ],
+     "box_1000": [
+      258,
+      0,
+      494,
+      464
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:DE",
+       "block": "PENCERE_120"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:13D",
+       "block": "PENCERE_120"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 43,
+     "wenart_id": "f_L0_024",
+     "kind": "furniture",
+     "type": "bed_single",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_yatak_odasi",
+     "room_ids": [
+      "r_L0_yatak_odasi"
+     ],
+     "own_room": true,
+     "pixels": 180424,
+     "area_frac": 0.08701,
+     "box_px": [
+      210,
+      371,
+      1213,
+      1080
+     ],
+     "box_1000": [
+      109,
+      343,
+      632,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.1126,
+     "in_frame": 0.455,
+     "unoccluded": 0.2474,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:171",
+       "block": "YATAK_TEK"
+      }
+     ],
+     "host_decor": [
+      "cushion"
+     ],
+     "role": "optional"
+    },
+    {
+     "index": 44,
+     "wenart_id": "f_L0_025",
+     "kind": "furniture",
+     "type": "bed_single",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_yatak_odasi",
+     "room_ids": [
+      "r_L0_yatak_odasi"
+     ],
+     "own_room": true,
+     "pixels": 134639,
+     "area_frac": 0.06493,
+     "box_px": [
+      920,
+      366,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      479,
+      338,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.1699,
+     "in_frame": 0.8394,
+     "unoccluded": 0.2025,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:173",
+       "block": "YATAK_TEK"
+      }
+     ],
+     "host_decor": [
+      "cushion"
+     ],
+     "role": "optional"
+    },
+    {
+     "index": 45,
+     "wenart_id": "f_L0_026",
+     "kind": "furniture",
+     "type": "nightstand",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_yatak_odasi",
+     "room_ids": [
+      "r_L0_yatak_odasi"
+     ],
+     "own_room": true,
+     "pixels": 40243,
+     "area_frac": 0.019407,
+     "box_px": [
+      693,
+      639,
+      956,
+      934
+     ],
+     "box_1000": [
+      360,
+      591,
+      498,
+      865
+     ],
+     "touches_border": false,
+     "visibility": 0.5962,
+     "in_frame": 1.0,
+     "unoccluded": 0.5962,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:175",
+       "block": "KOMIDIN"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 50,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_008": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.929,
+      "area_frac": 0.10341,
+      "centre_px": [
+       724.1,
+       245.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 208240
+     },
+     "f_L0_024": {
+      "kind": "furniture",
+      "type": "bed_single",
+      "visible_share": 0.7995,
+      "area_frac": 0.35169,
+      "centre_px": [
+       718.7,
+       724.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 180424
+     },
+     "f_L0_025": {
+      "kind": "furniture",
+      "type": "bed_single",
+      "visible_share": 0.8647,
+      "area_frac": 0.3207,
+      "centre_px": [
+       1418.8,
+       722.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 134639
+     },
+     "f_L0_026": {
+      "kind": "furniture",
+      "type": "nightstand",
+      "visible_share": 0.7786,
+      "area_frac": 0.03255,
+      "centre_px": [
+       822.7,
+       782.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 40243
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_yatak_odasi_2": {
+   "camera": "cam_r_L0_yatak_odasi_2",
+   "room_id": "r_L0_yatak_odasi",
+   "room_type": "bedroom",
+   "room_label": "Yatak Odası",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "c3dd21123f6678ec",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 17,
+     "wenart_id": "win_L0_008",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_yatak_odasi"
+     ],
+     "own_room": true,
+     "pixels": 208503,
+     "area_frac": 0.100551,
+     "box_px": [
+      972,
+      0,
+      1423,
+      501
+     ],
+     "box_1000": [
+      506,
+      0,
+      742,
+      464
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:DE",
+       "block": "PENCERE_120"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:13D",
+       "block": "PENCERE_120"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 44,
+     "wenart_id": "f_L0_025",
+     "kind": "furniture",
+     "type": "bed_single",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_yatak_odasi",
+     "room_ids": [
+      "r_L0_yatak_odasi"
+     ],
+     "own_room": true,
+     "pixels": 185432,
+     "area_frac": 0.089425,
+     "box_px": [
+      871,
+      372,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      453,
+      344,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0845,
+     "in_frame": 0.3401,
+     "unoccluded": 0.2485,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:173",
+       "block": "YATAK_TEK"
+      }
+     ],
+     "host_decor": [
+      "cushion"
+     ],
+     "role": "optional"
+    },
+    {
+     "index": 43,
+     "wenart_id": "f_L0_024",
+     "kind": "furniture",
+     "type": "bed_single",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_yatak_odasi",
+     "room_ids": [
+      "r_L0_yatak_odasi"
+     ],
+     "own_room": true,
+     "pixels": 158971,
+     "area_frac": 0.076664,
+     "box_px": [
+      13,
+      367,
+      1070,
+      1080
+     ],
+     "box_1000": [
+      6,
+      339,
+      558,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.1872,
+     "in_frame": 0.8475,
+     "unoccluded": 0.2209,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:171",
+       "block": "YATAK_TEK"
+      }
+     ],
+     "host_decor": [
+      "cushion"
+     ],
+     "role": "optional"
+    },
+    {
+     "index": 45,
+     "wenart_id": "f_L0_026",
+     "kind": "furniture",
+     "type": "nightstand",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_yatak_odasi",
+     "room_ids": [
+      "r_L0_yatak_odasi"
+     ],
+     "own_room": true,
+     "pixels": 44187,
+     "area_frac": 0.021309,
+     "box_px": [
+      1041,
+      648,
+      1310,
+      956
+     ],
+     "box_1000": [
+      542,
+      600,
+      683,
+      886
+     ],
+     "touches_border": false,
+     "visibility": 0.613,
+     "in_frame": 1.0,
+     "unoccluded": 0.613,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:175",
+       "block": "KOMIDIN"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 50,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_008": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.9355,
+      "area_frac": 0.10341,
+      "centre_px": [
+       1195.9,
+       245.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 208503
+     },
+     "f_L0_024": {
+      "kind": "furniture",
+      "type": "bed_single",
+      "visible_share": 0.8976,
+      "area_frac": 0.34708,
+      "centre_px": [
+       541.6,
+       723.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 158971
+     },
+     "f_L0_025": {
+      "kind": "furniture",
+      "type": "bed_single",
+      "visible_share": 0.7516,
+      "area_frac": 0.35984,
+      "centre_px": [
+       1394.9,
+       724.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 185432
+     },
+     "f_L0_026": {
+      "kind": "furniture",
+      "type": "nightstand",
+      "visible_share": 0.7576,
+      "area_frac": 0.03476,
+      "centre_px": [
+       1178.1,
+       798.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 44187
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_yatak_odasi_3": {
+   "camera": "cam_r_L0_yatak_odasi_3",
+   "room_id": "r_L0_yatak_odasi",
+   "room_type": "bedroom",
+   "room_label": "Yatak Odası",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "c3dd21123f6678ec",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 17,
+     "wenart_id": "win_L0_008",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_yatak_odasi"
+     ],
+     "own_room": true,
+     "pixels": 259864,
+     "area_frac": 0.12532,
+     "box_px": [
+      672,
+      0,
+      1204,
+      503
+     ],
+     "box_1000": [
+      350,
+      0,
+      628,
+      466
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:DE",
+       "block": "PENCERE_120"
+      },
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "PENCERE",
+       "entity": "INSERT:13D",
+       "block": "PENCERE_120"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 43,
+     "wenart_id": "f_L0_024",
+     "kind": "furniture",
+     "type": "bed_single",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_yatak_odasi",
+     "room_ids": [
+      "r_L0_yatak_odasi"
+     ],
+     "own_room": true,
+     "pixels": 134264,
+     "area_frac": 0.064749,
+     "box_px": [
+      0,
+      372,
+      821,
+      1080
+     ],
+     "box_1000": [
+      0,
+      344,
+      428,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0415,
+     "in_frame": 0.1779,
+     "unoccluded": 0.2331,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:171",
+       "block": "YATAK_TEK"
+      }
+     ],
+     "host_decor": [
+      "cushion"
+     ],
+     "role": "optional"
+    },
+    {
+     "index": 44,
+     "wenart_id": "f_L0_025",
+     "kind": "furniture",
+     "type": "bed_single",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_yatak_odasi",
+     "room_ids": [
+      "r_L0_yatak_odasi"
+     ],
+     "own_room": true,
+     "pixels": 123138,
+     "area_frac": 0.059384,
+     "box_px": [
+      1145,
+      372,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      596,
+      344,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0364,
+     "in_frame": 0.1609,
+     "unoccluded": 0.2265,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:173",
+       "block": "YATAK_TEK"
+      }
+     ],
+     "host_decor": [
+      "cushion"
+     ],
+     "role": "optional"
+    },
+    {
+     "index": 45,
+     "wenart_id": "f_L0_026",
+     "kind": "furniture",
+     "type": "nightstand",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_yatak_odasi",
+     "room_ids": [
+      "r_L0_yatak_odasi"
+     ],
+     "own_room": true,
+     "pixels": 76510,
+     "area_frac": 0.036897,
+     "box_px": [
+      853,
+      693,
+      1120,
+      1014
+     ],
+     "box_1000": [
+      444,
+      641,
+      584,
+      939
+     ],
+     "touches_border": false,
+     "visibility": 0.9039,
+     "in_frame": 1.0,
+     "unoccluded": 0.9039,
+     "evidence": [
+      {
+       "file": "zemin_kat_mobilya.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "MOBILYA",
+       "entity": "INSERT:175",
+       "block": "KOMIDIN"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 50,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_008": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.9398,
+      "area_frac": 0.12692,
+      "centre_px": [
+       938.1,
+       247.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 259864
+     },
+     "f_L0_024": {
+      "kind": "furniture",
+      "type": "bed_single",
+      "visible_share": 0.6683,
+      "area_frac": 0.27776,
+      "centre_px": [
+       411.8,
+       724.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 134264
+     },
+     "f_L0_025": {
+      "kind": "furniture",
+      "type": "bed_single",
+      "visible_share": 0.6425,
+      "area_frac": 0.26213,
+      "centre_px": [
+       1531.6,
+       724.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 123138
+     },
+     "f_L0_026": {
+      "kind": "furniture",
+      "type": "nightstand",
+      "visible_share": 1.0,
+      "area_frac": 0.04082,
+      "centre_px": [
+       986.7,
+       850.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 76510
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  }
+ },
+ "warnings": []
+}

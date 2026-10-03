@@ -1,0 +1,37 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "synthetic-05",
+ "stage": "photos",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 7.69,
+ "fingerprint": null,
+ "inputs": {},
+ "outputs": [
+  "style_photos/passes.json",
+  "style_photos/terms.json"
+ ],
+ "started_utc": "2026-10-03T03:24:29Z",
+ "git_commit": "95a675fea4156aaa2403ebb85a9e31db368e58b6",
+ "log": "logs/photos.log",
+ "note": null,
+ "run_id": "20261003-030812-full-20261003T031435Z",
+ "steps": [
+  {
+   "name": "read glm",
+   "rc": 0,
+   "seconds": 4.1
+  },
+  {
+   "name": "read qwen",
+   "rc": 0,
+   "seconds": 3.29
+  },
+  {
+   "name": "combine",
+   "rc": 0,
+   "seconds": 0.3
+  }
+ ]
+}

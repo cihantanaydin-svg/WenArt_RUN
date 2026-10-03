@@ -1,0 +1,103 @@
+{
+ "schema_version": "0.1",
+ "kind": "final",
+ "project": "synthetic-02",
+ "status": "needs_review",
+ "private": false,
+ "reasons": [
+  "no vector floor plan page could be used (raster pages need the recognition path)"
+ ],
+ "hints": [
+  "add a DXF or vector PDF floor plan; scans and photos need the recognition path"
+ ],
+ "documents": [
+  {
+   "file": "plan_photo.jpg",
+   "page": 1,
+   "format": "image",
+   "class": "other",
+   "kind": "photo",
+   "level_id": null,
+   "scale": null,
+   "confidence": 0.0,
+   "skip_reason": "no text layer: raster pages need OCR/VLM recognition (Milestone 2 bake-off), not run here",
+   "debug_image": "debug/plan_photo_jpg_p1.png",
+   "debug_preview": "debug/plan_photo_jpg_p1.jpg"
+  },
+  {
+   "file": "plan_scan.png",
+   "page": 1,
+   "format": "image",
+   "class": "other",
+   "kind": "scan",
+   "level_id": null,
+   "scale": null,
+   "confidence": 0.0,
+   "skip_reason": "no text layer: raster pages need OCR/VLM recognition (Milestone 2 bake-off), not run here",
+   "debug_image": "debug/plan_scan_png_p1.png",
+   "debug_preview": "debug/plan_scan_png_p1.jpg"
+  }
+ ],
+ "debug_images": [
+  {
+   "source": "debug/plan_photo_jpg_p1.png",
+   "preview": "debug/plan_photo_jpg_p1.jpg",
+   "bytes": 116967
+  },
+  {
+   "source": "debug/plan_scan_png_p1.png",
+   "preview": "debug/plan_scan_png_p1.jpg",
+   "bytes": 123434
+  }
+ ],
+ "building": {
+  "status": "needs_review",
+  "levels": 0,
+  "walls": 0,
+  "openings": 0,
+  "rooms": 0,
+  "furniture": 0,
+  "conflicts": [],
+  "unverified": [],
+  "warnings": [
+   "plan_photo.jpg p1: photo page skipped (no text layer: raster pages need OCR/VLM recognition (Milestone 2 bake-off), not run here)",
+   "plan_scan.png p1: scan page skipped (no text layer: raster pages need OCR/VLM recognition (Milestone 2 bake-off), not run here)",
+   "needs review: no vector floor plan page could be used (raster pages need the recognition path)"
+  ]
+ },
+ "intake": null,
+ "run_id": "20261003-030812-full-20261003T031435Z",
+ "run_stages": [
+  {
+   "stage": "intake",
+   "status": "skipped",
+   "seconds": 0.0,
+   "note": "private only",
+   "rc": null,
+   "started_utc": "2026-10-03T03:15:08Z",
+   "run_id": "20261003-030812-full-20261003T031435Z"
+  },
+  {
+   "stage": "pipeline",
+   "status": "needs_review",
+   "seconds": 12.16,
+   "note": "building needs review (report.md); earlier outputs without run records moved to /workspace/outputs-archive/synthetic-02-20261003T031435Z",
+   "rc": 1,
+   "started_utc": "2026-10-03T03:15:20Z",
+   "run_id": "20261003-030812-full-20261003T031435Z"
+  }
+ ],
+ "earlier_run_stages": [],
+ "summary": {
+  "views": 0,
+  "polished": 0,
+  "cycles": 0,
+  "cycles_by_reason": {},
+  "needs_review": 0
+ },
+ "views": [],
+ "advisory_flags": [
+  "needs review: no vector floor plan page could be used (raster pages need the recognition path)"
+ ],
+ "warnings": []
+}
