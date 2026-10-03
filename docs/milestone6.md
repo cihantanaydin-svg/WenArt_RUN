@@ -99,7 +99,12 @@ Per project and stage: `<out_dir>/run/<stage>.json`
   `finished_utc`, `seconds`, `latency_s` at any depth; raw bytes otherwise; a folder hashes its sorted
   `(relpath, sha)` list.
 - `fingerprint = sha256(json([stage, STAGE_VERSION[stage], args, sorted(inputs), code_hash(stage)]))`;
-  `code_hash` = sha256 of the source files that implement the stage (listed per stage in `wenart/run/stages.py`).
+  `code_hash` = sha256 of the source files that implement the stage (listed per stage in `wenart/run/stages.py`,
+  plus the package `__init__.py` of every listed module). For every stage reused by its fingerprint (and the
+  gate calibration) the list covers the whole `wenart` import closure of the stage's CLI, imports inside functions
+  included (`tests/test_run_stages.py` computes it with `ast` and fails on a missing file), plus the data files
+  it reads, so a committed fix in an imported module (e.g. `synthetic/blocks.py` for the pipeline,
+  `blender/proxies.py` for fit) is never hidden by a reuse.
 - A stage with `reuse: fingerprint` is skipped (status `reused`) when the stored fingerprint equals the new
   one, the stored status is `ok`, `warning` or `reused` (a reused record carries over the status of the run
   that made the outputs, so a third run of an unchanged project still skips) and every listed output exists. Stages with their own
@@ -110,7 +115,9 @@ Per project and stage: `<out_dir>/run/<stage>.json`
   `no style photos`, `polish off`, `no empty room`, `smoke profile`, `gate not validated`, `not in this phase`;
   `incomplete` = cut by the deadline (rc 3 or an output file with `incomplete: true`, §2.2).
 - A project's state: `needs_review` when stage 1 (or 0) says so; `failed` when any stage failed; `incomplete`
-  when any stage is incomplete; else `ok`.
+  when any stage is incomplete; else `ok`. Only the project stages 0–17 count: the AB stages of a project that is
+  also in `--ab` never decide its state or its test lists (a failed or incomplete AB stage fails the run's exit
+  code on its own, `look_alt` never).
 - `build.build_fingerprint` hashes the building with `canonical_sha256` (area L), so a re-run pipeline that
   only changed `created_utc` never rebuilds the scene.
 
@@ -176,7 +183,12 @@ python -m wenart.run copy --projects ... [--private ...] [--ab ...] --results $R
 - `pod` (inside `full.sh`): the whole run. Exit 0 when every project ended `ok` or `needs_review`, no AB stage
   failed or ended incomplete (`look_alt` excluded), and every GPU test group passed; else 1.
 - `--ab-phase render`: AB prepare, builds, renders and control renders only; `judge`: realism calls, combine and
-  summary only (the AB files from an earlier pod are on the volume); `all` (default): both.
+  summary only (the AB files from an earlier pod are on the volume); `all` (default): both. **`judge` needs the
+  same control project as `render`** (`--ab-controls`, `AB_CONTROL_PROJECT` in `full.sh`); without it, the one AB
+  project whose `ab/control_views.json` the render pod wrote is used (printed), and the run is refused (exit 2)
+  when several have one. `judge` reuses each project's complete `ab/pairs.json` (`ab_pairs` `reused`: every pair's
+  images exist, control sets present for the control project) instead of rebuilding it; any rebuild of a pairs
+  file keeps `--controls` when the stored file has control sets.
 - `copy`: copies the small result files into the results layout, only files newer than `--since` (a stamp
   file) unless omitted. Public filter (as `polish.sh copy_files`): `*.json`, `*.md` (< 8 MB), `*_preview.jpg`,
   `*_alt_preview.jpg`, `*_gate.jpg`, `*_check.jpg`, `*_plan.jpg`, `contact_*.jpg`, `debug/*.jpg` (< 301 KB),
@@ -206,28 +218,30 @@ PY = `/workspace/venv/bin/python`, POLISH_PY = `/opt/wenart/venv-polish/bin/pyth
 
 | # | Stage | Command (existing CLIs unless marked new) | Holder | Reuse | On failure |
 |---|---|---|---|---|---|
-| 0 | intake (private only) | `PY -m wenart.intake stage <alias> --out out/input/<alias>` (§7.1) | – | fingerprint | exit 4 (or manifest `status: needs_review`) → `needs_review` (not uploaded, a name collision, no document, a cap; the note is one of the intake's fixed reasons, never a file name); other → failed |
-| 1 | pipeline | `PY -m wenart.ingest.pipeline <project_dir> --out out` | – | fingerprint (project files + `wenart/ingest/**`, `wenart/building.py`, `wenart/geometry.py`) | exit 1 + building status `needs_review` → **needs_review** (stop); other → failed |
+| 0 | intake (private only) | `PY -m wenart.intake stage <alias> --out out/input/<alias>` (§7.1), also when the upload folder is missing (the CLI then writes a fresh `needs_review` manifest and removes an older staged copy, so an earlier ok intake never reaches the report) | – | fingerprint (of the upload's listing: relative path, size, mtime of every file, never its bytes; the intake's own sha256 of the kept files drives the later stages) | exit 4 (or manifest `status: needs_review`) → `needs_review` (not uploaded, a name collision, no document, a cap; the note is one of the intake's fixed reasons, never a file name); other → failed |
+| 1 | pipeline | `PY -m wenart.ingest.pipeline <project_dir> --out out` | – | fingerprint (project files + `wenart/ingest/**`, `wenart/synthetic/**` (block types and sizes), `wenart/building.py`, `wenart/geometry.py`, `wenart/schema/**`) | exit 1 + building status `needs_review` → **needs_review** (stop); other → failed |
 | 2 | photos (style photos in the brief or folder) | `PY -m wenart.style.photos read <photos> --model-key <k> --server <url> --out out/style_photos/passes.json` for glm and qwen; `PY -m wenart.style.photos combine out/style_photos/passes.json --out out/style_photos/terms.json` | VLM (GLM session, then Qwen session) | skipped when `passes.json` holds a valid answer (data, no error) of both check.yaml model **ids** for every current photo sha256 (the revision is not recorded; `--force photos` after a revision change) | warning (style from the brief only) |
 | 3 | style | `PY -m wenart.style <project_dir> --out out/style.json [--photo-terms out/style_photos/terms.json]` (terms only when complete) | – | always (deterministic, < 1 s) | failed |
 | 4 | assets | `PY -m wenart.assets fetch --style out/style.json --assets /workspace/assets --size 2k` | – | always (cached) | warning |
-| 5 | fit | `PY -m wenart.furniture.fit out/building.json --catalog wenart/furniture/catalog.json --out out/building_fitted.json --assets /workspace/assets` | – | fingerprint | failed |
+| 5 | fit | `PY -m wenart.furniture.fit out/building.json --catalog wenart/furniture/catalog.json --out out/building_fitted.json --assets /workspace/assets` | – | fingerprint; never reused while the output has a piece whose model download failed | failed; a failed model download (fit exits 0 with a parametric fallback, `fallback_reason: download of ...`) → warning `N model download(s) failed: parametric fallback`, and the next run fits and downloads again |
 | 6 | layout (rooms without documented furniture; skipped `no empty room`) | `PY -m wenart.furniture.layout out/building_fitted.json --style out/style.json --server <url> --model Qwen/Qwen3-VL-8B-Instruct --out out/building_furnished.json --debug out/layout_debug --passes 2` | VLM Qwen | fingerprint (+ Qwen id and revision) | failed (never reused) |
 | 7 | decor | `PY -m wenart.furniture.decor <furnished or fitted> --out out/building_decor.json` | – | fingerprint | failed |
-| 8 | refit | `PY -m wenart.furniture.fit out/building_decor.json ... --out out/building_final.json` | – | fingerprint | failed |
+| 8 | refit | `PY -m wenart.furniture.fit out/building_decor.json ... --out out/building_final.json` | – | fingerprint (as fit) | failed; failed model download → warning (as fit) |
 | 9 | build | `PY -m wenart.blender.cli build --building out/building_final.json --style out/style.json --assets /workspace/assets --out out/scene --preview-samples 32 --camera-policy search --reuse` | Blender | build fingerprint | exit ≠ 0 → failed (stage 1 already stopped needs_review buildings; exit 2 here is a refused request or a usage error; note = last line of build.log) |
 | 10 | render | `PY -m wenart.blender.cli render --scene out/scene/scene.blend --out out/renders --cameras all --samples $RENDER_SAMPLES --res 1920x1080 --exposure auto --white-balance auto` | Blender | render_key | exit 3 → incomplete; else failed |
 | 11 | controls | `PY -m wenart.vision_check select-controls --project-out out`; when `check/controls.json["hide_sets"]` is not empty: `PY -m wenart.blender.cli render --scene out/scene/scene.blend --out out/controls --hide-sets "<hide_sets>" --look-from out/renders/render_manifest.json` (same string as polish.sh's `HIDE_SETS` line) | Blender | render_key | warning (check stays advisory) |
-| 12 | gate calibrate + validate (polish on; skipped `polish off`) | `POLISH_PY -m wenart.gate calibrate --project-out out`; `PY -m wenart.gate validate --project-out out` (§7.3), always after calibrate (a failed calibrate's file, stale or partial, is first moved to `gate/gate_calibration.failed.json`, so `gate_validation.json` always describes this run) | gate models | own | calibration incomplete → incomplete; calibrate exit ≠ 0 → warning, no polish; validation decides stage 13 |
+| 12 | gate calibrate + validate (polish on; skipped `polish off`) | `POLISH_PY -m wenart.gate calibrate --project-out out`; `PY -m wenart.gate validate --project-out out` (§7.3), always after calibrate (a failed calibrate's file, stale or partial, is first moved to `gate/gate_calibration.failed.json`, so `gate_validation.json` always describes this run) | gate models | calibrate: fingerprint in the gate record (args, `(camera, scene_sha256, render_key)` of `renders/` and `controls/hide_*/` render manifests, `check/controls.json`, `polish/sweep/polish_manifest.json`, the gate code incl. `thresholds.yaml`); a complete calibration (`incomplete: false`, rates) whose fingerprint matches is reused (step `calibrate` with `reused: true`, note `(calibration reused)`) and never moved aside; `--force gate` recalibrates. validate: always | calibration incomplete → incomplete; calibrate exit ≠ 0 → warning, no polish; validation decides stage 13 |
 | 13 | polish (decision `ok` or `flagged`; else skipped `gate not validated`) | `POLISH_PY -m wenart.polish run --project-out out` (`PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True`) | diffusion | attempt_key | rc 1 → warning (views keep Cycles) |
 | 14 | expected + plan crops | `PY -m wenart.vision_check expected` / `plan-crops --project-out out` | – | always | failed |
 | 15 | check (per model session) | `vision_check run --model-key K --server URL --kinds cycles,polished --workers <seqs>`; `preference --kinds polished`; `style-photo --photo tests/fixtures/style_photo_synthetic-03_salon.jpg --out out/check/style_photo_test.json` (every public project: 1 call per model, read by `tests/gpu/test_check.py::test_style_photo_test`) | VLM Qwen, then GLM | answers by call key | failed |
 | 16 | combine | `vision_check combine`, `calibrate` | – | always | failed |
-| 17 | report | `PY -m wenart.report final --project-out out` (+ `--private` for a private project; also for needs_review, §7.4) | – | always | failed |
+| 17 | report | `PY -m wenart.report final --project-out out` (+ `--private` for a private project; also for needs_review, §7.4) | – | always | failed; exit 1 with `final_manifest.json` `stages.render: not_run` (written by this run) for a project that already ended `incomplete` or `failed` → warning `no renders in this run` (a deadline cut before the first render stays `incomplete`) |
 
 Deadline cuts are read from the outputs, whatever the rc: `polish/polish_manifest.json`,
 `gate/gate_calibration.json`, `check/answers_<slug>.json`, `check/realism/answers_<slug>.json` with
 `incomplete: true`, or render exit 3 (`cli.main` passes 3 through; area L) → the stage is `incomplete`.
+`check/answers_<slug>.json` is read after each step that writes it (`run`, then `preference`), and a cut seen
+once stays a cut: a preference that asks nothing rewrites the file with `incomplete: false`.
 
 AB stages (§6.3) run inside the same phases for the projects in `--ab`. GPU tests run once at the end (§2.4).
 
@@ -246,7 +260,8 @@ Phases, each over all active projects in the given order, stopping a project at 
 5. Blender: build, render, controls for every project; AB builds, renders, `cameras_check.json`, control-view
    choice (`realism.control_views`) and control renders.
 6. Diffusion: per project with polish on: gate calibrate → gate validate → polish when the decision allows it.
-7. CPU: expected, plan crops; AB pairs files (`realism-pairs`).
+7. CPU: expected, plan crops; AB pairs files (`realism-pairs`; `judge`: the render pod's complete file reused,
+   §2.1).
 8. VLM Qwen session: check run, preference, style-photo test, realism (AB; `look_alt` only when
    `now + est(look_alt) + est(GLM start + GLM non-look_alt realism + GLM check) < deadline`).
 9. VLM GLM session: the same.
@@ -269,6 +284,16 @@ Rules:
 - Server sessions are skipped when no project needs them (3 starts without photos, 4 with uncached photos, 2
   with no empty room and no photos, 2 for `--ab-phase judge`).
 - `--force stage,...` ignores the fingerprint for those stages.
+- **Outputs of earlier jobs.** Before its first stage, a public project's out_dir (also an AB-only project's) that
+  exists, is not empty and has no `run/` folder (written only by `wenart.run`) holds outputs of an earlier job:
+  on the volume, `outputs/synthetic-01` and `outputs/synthetic-03` of the M5 `polish.sh` (renders and previews of
+  cameras the M6 search no longer makes, an old polish manifest, `controls/hide_*`, ...). It is renamed, never
+  deleted, to `<archive root>/<name>-<UTC stamp>` (`-2`, `-3`, ... when taken); archive root =
+  `$WENART_OUTPUTS_ARCHIVE`, else `<repo>/../outputs-archive` (pod: `/workspace/outputs-archive`, outside the
+  repo, so `pod_entry.sh`'s `git clean` never touches it). The move is printed, recorded in the run manifest
+  (`archived_outputs` of the project or AB entry) and in the note of the project's first stage record that is
+  not a skip (e.g. `pipeline`: `earlier outputs without run records moved to ...`). A failed rename is noted the
+  same way and the run goes on. Private out_dirs are created by `wenart.run` and are never moved this way.
 - `run_manifest.json` in `$RESULTS` (public projects with all details; private aliases with their state only)
   and `$JOB_DIR/results-private/_run_manifest.json` (private details): per project state and stage list
   (status, seconds, note), per phase start/end, server starts (seconds to ready), totals, deadline, profile,
@@ -695,14 +720,14 @@ synthetic-03 searches to 49).
 |---|---|---|---|
 | A | full run synthetic-01 + synthetic-03 | ≈ 83–88 min job, ≈ 92 pod-min | ≈ $1.15 |
 | B | full run synthetic-04 + synthetic-05 (photos → 4 server starts) + synthetic-02 (needs_review) + `PRIVATE_SELFTEST=1` + AB `synthetic-01 synthetic-03` with `AB_PHASE=render` and controls on synthetic-01 | ≈ 21 + 13 + 15 + 13 (AB renders) + 6 (controls) ≈ 69 min job | ≈ $0.95 |
-| C | AB `synthetic-01 synthetic-03`, `AB_PHASE=judge` (2 server starts, 460 calls per model) | ≈ 6 + 7 + 34 + 3 ≈ 50 min job | ≈ $0.65 |
+| C | AB `synthetic-01 synthetic-03`, `AB_PHASE=judge`, `AB_CONTROL_PROJECT=synthetic-01` (the same control project as pod B, §2.1; 2 server starts, 460 calls per model) | ≈ 6 + 7 + 34 + 3 ≈ 50 min job | ≈ $0.65 |
 
 `python scripts/gpu_run.py run --job scripts/jobs/full.sh --gpu 'RTX PRO 4500' --disk 130 --max-minutes 115
 --grace 600 --env RUN_PROJECTS=... [--env ...] --purpose "M6 ..."` (`RTX 4090` when the 4500 has no stock;
 the runner stops the pod after collecting). Pods run one at a time, A first. Before pod A: the CPU suite, the
 smoke e2e (§2.5) and `python -m wenart.run plan` for all five projects green in the session. A pod that the
-deadline cuts exits 1; the same command resumes from the volume (fingerprints, render keys, attempts,
-answers). Cap for M6: $4.00 in total; ask the user before going over it or the $10/day limit. Every pod is
+deadline cuts exits 1; the same command resumes from the volume (fingerprints, render keys, complete gate
+calibrations, attempts, answers). Cap for M6: $4.00 in total; ask the user before going over it or the $10/day limit. Every pod is
 logged in `docs/gpu-log.md` (private projects only by alias and counts); no pod is left running.
 
 ## 9. Tests
@@ -717,7 +742,12 @@ CPU (`pytest -m "not gpu"`):
   a fake process (ready, early exit, timeout, deadline, TERM/KILL, pid file), copy mapping and filters (public
   layout, private allow-list: no file outside it), run manifests (private details only in the private one),
   traceback redirect and count-only copy output for private runs, exit code rules, `plan` golden output for
-  synthetic-01..05 (status, views 29/–/50/14/25, minutes, server starts, split); `full.sh` static checks
+  synthetic-01..05 (status, views 29/–/50/14/25, minutes, server starts, split); the code lists cover each
+  fingerprinted stage's import closure (`ast`, imports inside functions included); judge without `--ab-controls`
+  (control project from `ab/control_views.json`, pairs reused, two candidates refused); calibration reuse; failed
+  model downloads → warning, retried; a cut check run seen through the preference; a report without renders
+  keeps a cut project `incomplete`; A/B records outside the project state; the upload fingerprinted by its
+  listing; outputs of earlier jobs moved aside; `full.sh` static checks
   (shebang, `set -Eeuo pipefail`, ERR trap, logs under `/workspace/logs`, exports, flock, EXIT trap kills the
   vLLM pid); `layout.py` transport error → exit 3, no file; smoke e2e (§2.5, `slow`).
 - synthetic: five projects generated, counts, truth equality (synthetic-04/05 in `test_matches_truth` and

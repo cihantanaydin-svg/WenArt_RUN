@@ -13,6 +13,7 @@ import hashlib
 import json
 import os
 import re
+import shutil
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -172,6 +173,11 @@ class FakeCLI:
 
     def h_intake(self, cmd, project, log):
         out = Path(opt(cmd, "--out"))
+        if not (Path(opt(cmd, "--root")) / project).is_dir():
+            # wenart.intake: no upload -> a fresh needs_review manifest, the old staged copy removed, exit 4.
+            shutil.rmtree(out, ignore_errors=True)
+            write(out.parent.parent / "intake_manifest.json", {"status": "needs_review", "reasons": ["not uploaded"]})
+            return 4
         status = self.flags.get("intake", {}).get(project, "ok")
         out.mkdir(parents=True, exist_ok=True)
         write(out / "plan.dxf", "x")
@@ -215,7 +221,14 @@ class FakeCLI:
         write(opt(cmd, "--out"), {"photo_terms": opt(cmd, "--photo-terms")})
 
     def h_fit(self, cmd, project, log):
-        write(opt(cmd, "--out"), json.loads(Path(cmd[3]).read_text()))
+        b = json.loads(Path(cmd[3]).read_text())
+        if project in self.flags.get("download_fail", ()):
+            # wenart.furniture.fit: a failed model download is a parametric fallback with exit 0.
+            b["furniture"] = list(b.get("furniture") or []) + [{
+                "id": "f_doc", "room_id": "r1", "source": "from_documents",
+                "asset": {"method": "parametric", "fallback_reason": "download of sofa_01 failed (NetworkError: "
+                                                                     "offline); parametric fallback"}}]
+        write(opt(cmd, "--out"), b)
 
     h_refit = h_fit
 
@@ -253,8 +266,11 @@ class FakeCLI:
         cut = project in self.flags.get("render_cut", ())
         if cut:
             cams = cams[:1]
-        write(out / "render_manifest.json", {"renders": [{"camera": c, "preview": f"{c}_preview.jpg"} for c in cams],
-                                             "incomplete": cut})
+        key = self.flags.get("render_key", {}).get(project, "k1")
+        write(out / "render_manifest.json", {"renders": [{"camera": c, "preview": f"{c}_preview.jpg",
+                                                          "scene_sha256": "s1", "render_key": key, "skipped": False}
+                                                         for c in cams],
+                                             "incomplete": cut, "deadline": self.clock()})
         return 3 if cut else 0
 
     def h_control_renders(self, cmd, project, log):
@@ -268,7 +284,8 @@ class FakeCLI:
 
     def h_gate_calibrate(self, cmd, project, log):
         write(Path(opt(cmd, "--project-out")) / "gate" / "gate_calibration.json",
-              {"incomplete": project in self.flags.get("gate_cut", ())})
+              {"kind": "gate_calibration", "incomplete": project in self.flags.get("gate_cut", ()),
+               "rates": {"benign_accept": 1.0, "negative_reject": 0.95}})
 
     def h_gate_validate(self, cmd, project, log):
         decision = self.flags.get("gate_decision", {}).get(project, "ok")
@@ -281,14 +298,16 @@ class FakeCLI:
     def h_expected(self, cmd, project, log):
         write(Path(opt(cmd, "--project-out")) / "check" / "expected_views.json", {"views": {}})
 
-    def _answers(self, cmd, project, sub=""):
+    def _answers(self, cmd, project, sub="", cut=False):
         key = opt(cmd, "--model-key")
         path = Path(opt(cmd, "--project-out")) / "check" / sub / f"answers_{MODELS[key]['slug']}.json"
-        cut = (project, key) in self.flags.get("answers_cut", ())
+        cut = cut or (project, key) in self.flags.get("answers_cut", ())
         write(path, {"incomplete": cut, "sets": opt(cmd, "--sets")})
 
     def h_check_run(self, cmd, project, log):
-        self._answers(cmd, project)
+        # run_cut: only the run step is cut; the preference after it asks nothing and rewrites the same answers
+        # file with incomplete: false (vision_check.calls.run_specs).
+        self._answers(cmd, project, cut=(project, opt(cmd, "--model-key")) in self.flags.get("run_cut", ()))
 
     def h_preference(self, cmd, project, log):
         self._answers(cmd, project)
@@ -300,9 +319,20 @@ class FakeCLI:
         write(Path(opt(cmd, "--project-out")) / "check" / "check_manifest.json", {"views": {}})
 
     def h_report(self, cmd, project, log):
-        out = Path(opt(cmd, "--project-out")) / "final"
-        write(out / "final_report.md", "# final\n")
-        write(out / "final_manifest.json", {"status": "ok"})
+        # wenart.report final: exit 1 with status not_rendered when there is no render manifest and the project
+        # is not needs_review.
+        po = Path(opt(cmd, "--project-out"))
+        reviews = [(json.loads(p.read_text()) if p.is_file() else {}).get("status")
+                   for p in (po / "building.json", po / "intake_manifest.json")]
+        if (po / "renders" / "render_manifest.json").is_file():
+            status, render, rc = "ok", "run", 0
+        elif "needs_review" in reviews:
+            status, render, rc = "needs_review", "not_run", 0
+        else:
+            status, render, rc = "not_rendered", "not_run", 1
+        write(po / "final" / "final_report.md", "# final\n")
+        write(po / "final" / "final_manifest.json", {"status": status, "stages": {"render": render}})
+        return rc
 
     def h_ab_m5(self, cmd, project, log):
         out = Path(opt(cmd, "--project-out"))
@@ -315,11 +345,18 @@ class FakeCLI:
         write(out / "ab" / "building_m5.json", b)
 
     def h_realism_pairs(self, cmd, project, log):
+        out = Path(opt(cmd, "--project-out"))
         pairs = [{"pair_id": f"m5_vs_m6:c{i}", "set": "m5_vs_m6"} for i in range(3)]
         pairs += [{"pair_id": f"look_alt:c{i}", "set": "look_alt"} for i in range(3)]
         if "--controls" in cmd:
             pairs += [{"pair_id": f"{s}:c{i}", "set": s} for s in ("ctl_flat", "null_identical") for i in range(2)]
-        write(Path(opt(cmd, "--project-out")) / "ab" / "pairs.json", {"pairs": pairs, "dropped": []})
+        for p in pairs:                       # paths relative to the project output, as realism-pairs writes them
+            name = p["pair_id"].replace(":", "_")
+            p.update(a=f"ab/fake/{name}_a.jpg", b=f"ab/fake/{name}_b.jpg")
+            write(out / p["a"], b"a")
+            write(out / p["b"], b"b")
+        write(out / "ab" / "pairs.json", {"kind": "realism_pairs", "controls": "--controls" in cmd, "pairs": pairs,
+                                          "dropped": []})
 
     def h_realism(self, cmd, project, log):
         self._answers(cmd, project, "realism")
@@ -731,9 +768,9 @@ def test_look_alt_only_when_the_glm_session_still_fits(tmp_path):
     sets = [opt(c["cmd"], "--sets") for c in big.cli.find("realism")]
     assert sets == ["ctl_flat,null_identical,m5_vs_m6", "look_alt", "ctl_flat,null_identical,m5_vs_m6", "look_alt"]
     # Tight deadline: Qwen's look_alt does not fit before the GLM session; GLM's own look_alt neither.
-    # judge: pairs 1 s; Qwen start 300; main 14 calls (est 30.8 s, takes 50 s) -> t = 351; Qwen look_alt needs
-    # 6 calls (13.2 s) + GLM start 150 + GLM main 30.8 -> 545 > deadline 540: skipped; GLM starts at 351 (501 < 540),
-    # its main (est 531.8 < 540) runs to 551; its look_alt (564.2) is skipped.
+    # judge: the render pod's pairs reused (0 s); Qwen start 300; main 14 calls (est 30.8 s, takes 50 s) -> t = 350;
+    # Qwen look_alt needs 6 calls (13.2 s) + GLM start 150 + GLM main 30.8 -> 544 > deadline 540: skipped; GLM
+    # starts at 350 (500 < 540), its main (est 530.8 < 540) runs to 550; its look_alt (563.2) is skipped.
     tmp2 = tmp_path / "tight"
     tmp2.mkdir()
     Run(tmp2, {"p1": {}}, ab=["p1"], ab_controls="p1", ab_phase="render").run()
@@ -911,12 +948,47 @@ def test_run_manifests_keep_private_details_private(tmp_path):
 
 
 def test_not_uploaded_private_project_is_needs_review(tmp_path):
+    # An earlier ok run of the alias left an ok intake manifest and a staged copy; the upload is gone now.
+    write(tmp_path / "po" / "real-02" / "intake_manifest.json", {"status": "ok", "reasons": []})
+    write(tmp_path / "po" / "real-02" / "input" / "real-02" / "plan.dxf", "old")
     r = Run(tmp_path, {"p1": {}}, projects=["p1"], private=["real-02"])
     assert r.run() == 0
     rec = r.record("real-02", "intake", root="po")
     assert rec["status"] == "needs_review" and rec["note"] == "not uploaded"
-    assert not r.cli.find("intake") and not r.cli.find("pipeline", "real-02")
+    # IE-2: the intake CLI runs anyway, so the old ok manifest and staged copy are replaced (the report then says
+    # needs_review instead of showing the old renders as an ok report).
+    assert r.cli.find("intake", "real-02") and not r.cli.find("pipeline", "real-02")
+    manifest = json.loads((tmp_path / "po" / "real-02" / "intake_manifest.json").read_text())
+    assert manifest["status"] == "needs_review" and manifest["reasons"] == ["not uploaded"]
+    assert not (tmp_path / "po" / "real-02" / "input" / "real-02").exists()
+    assert json.loads((tmp_path / "po" / "real-02" / "final" / "final_manifest.json").read_text())["status"] == \
+        "needs_review"
     assert r.servers.starts == ["qwen", "qwen", "glm"]
+
+
+def test_intake_fingerprint_is_the_upload_listing_never_its_bytes(tmp_path, monkeypatch):
+    """IE-6: the orchestrator never reads the raw upload (GBs of skipped files): the intake's fingerprint is the
+    upload's listing (path, size, mtime); a changed file is still seen through its size or mtime."""
+    import wenart.canonical as CN
+    upload = tmp_path / "pp" / "real-01"
+    write(upload / "plan.dxf", "x" * 100)
+    write(upload / "renders" / "video.mp4", b"\0" * 4096)
+    read: list = []
+    real = CN._file_sha256
+    monkeypatch.setattr(CN, "_file_sha256", lambda p: read.append(Path(p)) or real(p))
+    r = Run(tmp_path, {"p1": {}}, private=["real-01"])
+    assert r.run() == 0
+    assert not [p for p in read if upload in p.parents], read
+    rec = r.record("real-01", "intake", root="po")
+    assert rec["inputs"] == {str(upload): ST.listing_sha256(upload)} and rec["status"] == "ok"
+    # Unchanged upload: reused. Same size, other mtime: run again.
+    r2 = Run(tmp_path, private=["real-01"])
+    r2.run()
+    assert r2.record("real-01", "intake", root="po")["status"] == "reused"
+    os.utime(upload / "plan.dxf", ns=(1_000_000_000, 1_000_000_000))
+    r3 = Run(tmp_path, private=["real-01"])
+    r3.run()
+    assert r3.record("real-01", "intake", root="po")["status"] == "ok" and r3.cli.find("intake")
 
 
 def test_intake_collision_is_needs_review(tmp_path):
@@ -1062,3 +1134,213 @@ def test_layout_deadline_estimate_counts_its_calls_one_at_a_time(tmp_path):
     rec = r.record("p1", "layout")
     assert rec["status"] == "incomplete" and rec["note"] == "deadline: layout not started"
     assert not r.cli.find("layout")
+
+
+# --------------------------------------------------------------------------
+# Review fixes (M6 review: R1/V1, R3, R4, R5, R6, IE-4, pre-M6 outputs)
+# --------------------------------------------------------------------------
+
+def test_judge_without_ab_controls_keeps_the_render_pods_control_sets(tmp_path):
+    """R1/V1: pod C run as §8.1 first described it (no AB_CONTROL_PROJECT) must neither rebuild ab/pairs.json
+    without the control sets nor run the summary without the control project."""
+    Run(tmp_path, {"p1": {}, "p3": {}}, ab=["p1", "p3"], ab_controls="p1", ab_phase="render").run()
+    pairs = tmp_path / "outputs" / "p1" / "ab" / "pairs.json"
+    before = pairs.read_text()
+    assert json.loads(before)["controls"] is True
+    r = Run(tmp_path, ab=["p1", "p3"], ab_phase="judge")
+    assert r.run() == 0
+    assert not r.cli.find("realism-pairs")                       # judge reuses the render pod's complete files
+    assert pairs.read_text() == before
+    for p in ("p1", "p3"):
+        rec = r.record(p, "ab_pairs")
+        assert rec["status"] == "reused" and rec["note"].startswith("ab/pairs.json of the render pod"), rec
+    sets = [opt(c["cmd"], "--sets") for c in r.cli.find("realism", "p1")]
+    assert sets == ["ctl_flat,null_identical,m5_vs_m6", "look_alt"] * 2
+    assert opt(r.cli.find("realism-summary")[0]["cmd"], "--controls-project") == "p1"
+    m = r.manifest()
+    assert m["ab_controls"] == "p1" and {a["name"]: a["controls"] for a in m["ab"]} == {"p1": True, "p3": False}
+    assert any(line.startswith("A/B controls: p1") for line in r.lines)
+    assert m["test_lists"]["AB_TEST_PROJECTS"] == "p1 p3"
+
+
+def test_judge_refuses_two_control_projects_without_ab_controls(tmp_path):
+    make_repo(tmp_path, {"p1": {}, "p3": {}})
+    for p in ("p1", "p3"):
+        (tmp_path / "outputs" / p / "run").mkdir(parents=True)
+        write(tmp_path / "outputs" / p / "ab" / "control_views.json", {"views": ["cam_a_1"]})
+    r = Run(tmp_path, ab=["p1", "p3"], ab_phase="judge")
+    lines = []
+    assert SC.run_pod(r.opts, out=lines.append, runner=r.cli, clock=r.clock, server_factory=r.servers,
+                      check_models=MODELS) == 2
+    assert "p1, p3" in lines[-1] and "--ab-controls" in lines[-1]
+    assert not r.cli.calls
+    # --ab-controls decides.
+    r2 = Run(tmp_path, ab=["p1", "p3"], ab_phase="judge", ab_controls="p3")
+    orch = SC.Orchestrator(r2.opts, runner=r2.cli, clock=r2.clock, server_factory=r2.servers,
+                           out=r2.lines.append, check_models=MODELS)
+    orch.setup()
+    assert orch.ab_controls == "p3"
+
+
+def test_a_pairs_rebuild_never_drops_stored_control_sets(tmp_path):
+    Run(tmp_path, {"p1": {}}, ab=["p1"], ab_controls="p1", ab_phase="render").run()
+    # A second render pod without --ab-controls rebuilds the pairs: the control sets stay.
+    r = Run(tmp_path, ab=["p1"], ab_phase="render")
+    r.run()
+    assert "--controls" in r.cli.find("realism-pairs", "p1")[0]["cmd"]
+    assert json.loads((tmp_path / "outputs" / "p1" / "ab" / "pairs.json").read_text())["controls"] is True
+    # Judge with a pairs file whose image is gone: rebuilt (with the control sets).
+    (tmp_path / "outputs" / "p1" / "ab" / "fake" / "m5_vs_m6_c0_a.jpg").unlink()
+    r2 = Run(tmp_path, ab=["p1"], ab_phase="judge")
+    assert r2.run() == 0
+    assert "--controls" in r2.cli.find("realism-pairs", "p1")[0]["cmd"]
+    assert r2.record("p1", "ab_pairs")["status"] == "ok"
+    # Judge of the control project whose render pod wrote no control sets: rebuilt with them.
+    tmp2 = tmp_path / "b"
+    tmp2.mkdir()
+    Run(tmp2, {"p1": {}}, ab=["p1"], ab_phase="render").run()
+    r3 = Run(tmp2, ab=["p1"], ab_controls="p1", ab_phase="judge")
+    r3.run()
+    assert "--controls" in r3.cli.find("realism-pairs", "p1")[0]["cmd"]
+
+
+def test_ab_records_never_decide_the_state_of_a_project_also_in_projects(tmp_path):
+    """R3: look_alt is never counted; a failed A/B stage fails the run (exit 1) but not the project's state."""
+    r = Run(tmp_path, {"p1": {}}, projects=["p1"], ab=["p1"], ab_controls="p1",
+            rc={"realism": lambda cli: 1 if opt(cli.calls[-1]["cmd"], "--sets") == "look_alt" else 0})
+    assert r.run() == 0
+    assert r.record("p1", "ab_look_alt")["status"] == "failed"
+    m = r.manifest()
+    assert m["projects"][0]["state"] == "ok" and m["test_lists"]["RUN_TEST_PROJECTS"] == "p1"
+    assert m["test_lists"]["RENDER_TEST_PROJECTS"] == "p1" and m["test_lists"]["POLISH_TEST_PROJECTS"] == "p1"
+    tmp2 = tmp_path / "b"
+    tmp2.mkdir()
+    r2 = Run(tmp2, {"p1": {}}, projects=["p1"], ab=["p1"], ab_controls="p1", rc={"realism-pairs": 1})
+    assert r2.run() == 1                                     # the A/B failed ...
+    assert r2.manifest()["projects"][0]["state"] == "ok"      # ... the project did not
+    assert r2.manifest()["test_lists"]["RUN_TEST_PROJECTS"] == "p1"
+
+
+def test_gate_calibration_reused_on_resume_when_nothing_changed(tmp_path):
+    """R4: a complete calibration of the same renders, controls and gate code is reused; it is never moved aside
+    when calibrate did not run."""
+    r = Run(tmp_path, {"p1": {}}, projects=["p1"])
+    assert r.run() == 0
+    gate = tmp_path / "outputs" / "p1" / "gate"
+    # A resumed pod (the renders are reused: another deadline in the render manifest). A calibrate that ran
+    # would crash here and move the calibration aside.
+    r2 = Run(tmp_path, projects=["p1"], rc={"gate calibrate": 1})
+    assert r2.run() == 0
+    assert not r2.cli.find("gate calibrate") and r2.cli.find("gate validate") and r2.cli.find("polish")
+    rec = r2.record("p1", "gate")
+    assert rec["status"] == "ok" and rec["note"] == "gate decision ok (calibration reused)"
+    assert rec["steps"][0] == {"name": "calibrate", "rc": 0, "seconds": 0.0, "reused": True}
+    assert (gate / "gate_calibration.json").is_file() and not (gate / "gate_calibration.failed.json").exists()
+    assert r2.manifest()["test_lists"]["GATE_TEST_PROJECTS"] == "p1"
+    # Other renders (render_key) -> calibrated again.
+    r3 = Run(tmp_path, projects=["p1"], flags={"render_key": {"p1": "k2"}})
+    assert r3.run() == 0
+    assert len(r3.cli.find("gate calibrate")) == 1 and r3.record("p1", "gate")["note"] == "gate decision ok"
+    # --force gate -> calibrated again.
+    r4 = Run(tmp_path, projects=["p1"], flags={"render_key": {"p1": "k2"}}, force=frozenset({"gate"}))
+    r4.run()
+    assert len(r4.cli.find("gate calibrate")) == 1
+    # A calibration the deadline cut is never reused.
+    tmp2 = tmp_path / "cut"
+    tmp2.mkdir()
+    Run(tmp2, {"p1": {}}, projects=["p1"], flags={"gate_cut": ("p1",)}).run()
+    r5 = Run(tmp2, projects=["p1"])
+    assert r5.run() == 0 and len(r5.cli.find("gate calibrate")) == 1
+
+
+def test_failed_model_downloads_are_a_warning_and_never_reused(tmp_path):
+    """R5: fit exits 0 with a parametric fallback when a model download fails; the stage is a warning and the
+    next run fits (and downloads) again instead of reusing the fallback."""
+    r = Run(tmp_path, {"p1": {}}, projects=["p1"], flags={"download_fail": ("p1",)})
+    assert r.run() == 0
+    assert r.record("p1", "fit")["status"] == "warning"
+    assert r.record("p1", "fit")["note"] == "1 model download(s) failed: parametric fallback"
+    assert r.record("p1", "refit")["status"] == "warning"
+    assert r.record("p1", "refit")["note"].endswith("model download(s) failed: parametric fallback")
+    assert r.manifest()["projects"][0]["state"] == "ok"
+    r2 = Run(tmp_path, projects=["p1"])                     # the asset host is back
+    assert r2.run() == 0
+    assert len(r2.cli.find("fit")) == 1 and len(r2.cli.find("refit")) == 1
+    assert r2.record("p1", "fit")["status"] == "ok" and r2.record("p1", "refit")["status"] == "ok"
+    r3 = Run(tmp_path, projects=["p1"])
+    r3.run()
+    assert r3.record("p1", "fit")["status"] == "reused" and r3.record("p1", "refit")["status"] == "reused"
+
+
+def test_a_cut_check_run_is_not_hidden_by_the_preference_after_it(tmp_path):
+    """R6: run writes incomplete: true, the preference after it (nothing to ask) rewrites the same answers file
+    with incomplete: false; the check still ends incomplete."""
+    r = Run(tmp_path, {"p1": {}}, projects=["p1"], flags={"run_cut": {("p1", "glm")}})
+    assert r.run() == 1
+    rec = r.record("p1", "check")
+    assert rec["status"] == "incomplete" and rec["note"] == "deadline: glm answers incomplete"
+    answers = tmp_path / "outputs" / "p1" / "check" / "answers_glm-4.6v-flash.json"
+    assert json.loads(answers.read_text())["incomplete"] is False
+    # A private project (no style-photo step) too.
+    tmp2 = tmp_path / "private"
+    tmp2.mkdir()
+    r2 = Run(tmp2, {"p1": {}}, private=["real-01"], flags={"run_cut": {("real-01", "qwen")}})
+    write(tmp2 / "pp" / "real-01" / "a.dxf", "x")
+    assert r2.run() == 1
+    assert r2.record("real-01", "check", root="po")["status"] == "incomplete"
+
+
+def test_report_of_a_project_cut_before_its_first_render_keeps_it_incomplete(tmp_path):
+    """IE-4: the deadline stops the build; the report has nothing to report (exit 1, render not_run): a warning,
+    the project stays incomplete (resumed with the same command), never failed."""
+    # pipeline 5 + fit 1 + style 1 + Qwen start 300 + layout 40 + assets/decor/refit 3 = 350; the build needs 60.
+    r = Run(tmp_path, {"p1": {}}, projects=["p1"], deadline_in=380)
+    assert r.run() == 1
+    assert r.record("p1", "build")["note"] == "deadline: build not started"
+    rec = r.record("p1", "report")
+    assert rec["status"] == "warning" and rec["note"] == "no renders in this run" and rec["rc"] == 1
+    assert r.manifest()["projects"][0]["state"] == "incomplete"
+    # A report that fails for an ok project stays a failure.
+    tmp2 = tmp_path / "b"
+    tmp2.mkdir()
+    r2 = Run(tmp2, {"p1": {}}, projects=["p1"], rc={"report": 1})
+    assert r2.run() == 1
+    assert r2.record("p1", "report")["status"] == "failed" and r2.manifest()["projects"][0]["state"] == "failed"
+
+
+def test_outputs_of_an_earlier_job_are_moved_aside_never_deleted(tmp_path, monkeypatch):
+    """§2.3: an out_dir without run/ (the M5 polish.sh outputs on the volume) is renamed to
+    <archive root>/<name>-<UTC stamp> before the project starts; private out_dirs never are."""
+    monkeypatch.delenv("WENART_OUTPUTS_ARCHIVE", raising=False)
+    old = tmp_path / "outputs"
+    write(old / "p1" / "renders" / "cam_r_L0_hol_3_preview.jpg", b"m5")
+    write(old / "p1" / "polish" / "polish_manifest.json", {"views": []})
+    write(old / "p2" / "ab" / "pairs.json", {"pairs": []})                    # an A/B-only project
+    write(tmp_path / "po" / "real-01" / "notes.txt", "private")                 # a private out_dir: kept as is
+    r = Run(tmp_path, {"p1": {}, "p2": {}, "p3": {}}, projects=["p1"], ab=["p2"], ab_controls="p2",
+            private=["real-01"])
+    assert r.run() == 0
+    archive = tmp_path / "outputs-archive"
+    moved = {p.name.split("-", 1)[0]: p for p in archive.iterdir()}
+    assert set(moved) == {"p1", "p2"}
+    assert all(re.fullmatch(r"p[12]-\d{8}T\d{6}Z", p.name) for p in moved.values())
+    assert (moved["p1"] / "renders" / "cam_r_L0_hol_3_preview.jpg").read_bytes() == b"m5"
+    assert (moved["p1"] / "polish" / "polish_manifest.json").is_file()
+    assert not (old / "p1" / "renders" / "cam_r_L0_hol_3_preview.jpg").exists() and (old / "p1" / "run").is_dir()
+    assert (tmp_path / "po" / "real-01" / "notes.txt").is_file()
+    note = f"earlier outputs without run records moved to {moved['p1']}"
+    assert r.record("p1", "pipeline")["note"] == note
+    assert r.record("p1", "intake")["note"] == "private only"                 # a skip keeps its reason
+    assert r.record("p2", "pipeline")["note"] == f"earlier outputs without run records moved to {moved['p2']}"
+    m = r.manifest()
+    entries = {p["name"]: p for p in m["projects"]}
+    assert entries["p1"]["archived_outputs"] == str(moved["p1"]) and "archived_outputs" not in entries["real-01"]
+    assert {a["name"]: a.get("archived_outputs") for a in m["ab"]} == {"p2": str(moved["p2"])}
+    assert f"p1: {note}" in r.lines
+    # A later run finds run/ and moves nothing; WENART_OUTPUTS_ARCHIVE sets the archive root.
+    monkeypatch.setenv("WENART_OUTPUTS_ARCHIVE", str(tmp_path / "elsewhere"))
+    write(old / "p3" / "renders" / "x.jpg", b"x")
+    r2 = Run(tmp_path, projects=["p1", "p3"], ab=["p2"], ab_controls="p2")
+    r2.run()
+    assert len(list(archive.iterdir())) == 2 and "archived_outputs" not in r2.manifest()["projects"][0]
+    assert [p.name.split("-", 1)[0] for p in (tmp_path / "elsewhere").iterdir()] == ["p3"]
