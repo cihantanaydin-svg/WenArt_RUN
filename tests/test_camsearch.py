@@ -7,8 +7,13 @@ the blocked rule, the view-count and diversity rules, determinism, the plan
 fields, the searched views of the synthetic projects (better than the M5
 rules by the model, never blocked without the warning), the search time on
 synthetic-03 (<= 60 s) and that the M5 policy still reproduces every
-committed M5 camera (``git show a2adcef``) within 1 mm. No Blender needed
-(one test runs the search inside Blender's Python when it is installed).
+committed M5 camera (``git show a2adcef``) within 1 mm. The height profile
+of pieces with a back (beds, chairs, sofas, toilets) is checked against the
+builder's parts and, ray by ray, against the built parametric meshes; the
+five searched views of pod run 20261003-205431 whose listed piece was not
+in the render are replayed from tests/fixtures/camsearch_pod_20261003.json.
+No Blender needed (one test runs the search inside Blender's Python when it
+is installed).
 """
 import json
 import math
@@ -76,8 +81,10 @@ ROOM_A = dict(
 def _brute_force(building: dict, position, yaw_deg: float, shift_y: float, grid=(64, 36)):
     """Labels (names) and planar depths of an axis-aligned room, ray by ray in plain Python.
 
-    Independent of camsearch: the room is the box of its rectangular polygon (exit plane of the box),
-    openings are rectangles on those planes, pieces are world-axis boxes (rotation 0 or 90 only)."""
+    Independent of camsearch's caster: the room is the box of its rectangular polygon (exit plane of the
+    box), openings are rectangles on those planes, pieces are world-axis boxes (rotation a multiple of 90
+    only): the boxes of ``camsearch.piece_profile`` (one box, or the low part and the back slab of a piece
+    with a back; the profile itself is checked against the builder's parts below)."""
     (x0, y0), (x1, y1) = building["rooms"][0]["polygon"][0], building["rooms"][0]["polygon"][2]
     z0 = building["levels"][0]["elevation"]
     z1 = z0 + building["levels"][0]["ceiling_height"]
@@ -90,11 +97,15 @@ def _brute_force(building: dict, position, yaw_deg: float, shift_y: float, grid=
                       o["sill_height"] + o["height"], o["id"]))
     boxes = []
     for f in building["furniture"]:
-        w, d, h = f["asset"]["bbox_m"]
-        if abs(f["footprint"]["rotation_deg"] % 180 - 90) < 1e-9:
-            w, d = d, w
+        quarter = round(f["footprint"]["rotation_deg"] / 90.0) % 4
+        assert abs(f["footprint"]["rotation_deg"] - 90.0 * round(f["footprint"]["rotation_deg"] / 90.0)) < 1e-9
         cx, cy = f["footprint"]["center"]
-        boxes.append(((cx - w / 2, cy - d / 2, z0), (cx + w / 2, cy + d / 2, z0 + h), f["id"]))
+        for bx0, by0, bx1, by1, top in C.piece_profile(f):
+            corners = [(bx0, by0), (bx1, by1)]
+            for _ in range(quarter):                                   # turn by 90 degrees: (x, y) -> (-y, x)
+                corners = [(-y, x) for x, y in corners]
+            xs, ys = [cx + p[0] for p in corners], [cy + p[1] for p in corners]
+            boxes.append(((min(xs), min(ys), z0), (max(xs), max(ys), z0 + top), f["id"]))
     W, H = 1920.0, 1080.0
     fpx = 24.0 / 36.0 * W
     yaw = math.radians(yaw_deg)
@@ -652,6 +663,249 @@ def test_a_long_piece_seen_from_the_side_is_listed_although_its_centre_is_outsid
         if not inside and share >= 0.1:
             found += 1
     assert found >= 1
+
+
+# --------------------------------------------------------------------------
+# Pieces with a back: the height profile (pod run 20261003-205431)
+# --------------------------------------------------------------------------
+
+POD_FIXTURE = ROOT / "tests" / "fixtures" / "camsearch_pod_20261003.json"
+MODEL_HIDDEN_SHARE = 0.005          # tests/gpu/test_render.py: a listed piece may be absent below this model share
+
+
+def _parametric(building: dict, heights: dict) -> dict:
+    """``building`` with the pieces of ``heights`` ({id: type height}) built parametrically (no library asset)."""
+    for f in building["furniture"]:
+        if f["id"] in heights:
+            f["asset"] = None
+            f["height"] = heights[f["id"]]
+    return building
+
+
+def _true_shares(building: dict, position, yaw: float, grid=(64, 36)) -> dict:
+    """``{piece id: ray share}`` of the meshes the scene builds for the room's parametric pieces
+    (``parametric.build_parts`` with the footprint and the type height, placed by ``parametric.world_mesh`` as
+    ``furniture._parametric_object`` places them), nearest of them and the bare room, found by the independent
+    triangle caster ``_mesh_hits``."""
+    from wenart.blender import parametric as P
+    from wenart.blender.proxies import proxy_height
+
+    room = building["rooms"][0]
+    a, b = C.ray_grid(grid, shift_y=C.SHIFT_Y)
+    dirs = C.yaw_directions([yaw], a, b)[0]
+    _, best = C.RoomModel(room, dict(building, furniture=[])).cast(position, dirs)
+    owner = np.full(best.shape, None, dtype=object)
+    for f in building["furniture"]:
+        assert not (f.get("asset") or {}).get("method") == "library", f["id"]
+        fp = f["footprint"]
+        h, _ = proxy_height(f["type"], f.get("height"))
+        parts = P.build_parts(f["type"], fp["size"][0], fp["size"][1], h, piece=f)
+        verts, faces, _ = P.world_mesh(parts, fp["center"], fp["rotation_deg"], 0.0)
+        t = _mesh_hits([{"verts": verts, "faces": faces}], 0.0, position, dirs)
+        closer = t < best
+        best = np.where(closer, t, best)
+        owner[closer] = f["id"]
+    return {f["id"]: float((owner == f["id"]).mean()) for f in building["furniture"]}
+
+
+def _shares(building: dict, position, yaw: float, grid=(64, 36)) -> dict:
+    model, labels, _ = _cast(building, position, yaw, grid=grid)
+    names = np.array(_model_names(model, labels), dtype=object)
+    return {f["id"]: float((names == f["id"]).mean()) for f in building["furniture"]}
+
+
+@pytest.mark.parametrize("ftype, size, height, low", [("bed_double", (1.6, 2.0), 0.55, 0.55),
+                                                     ("bed_single", (0.9, 2.0), 0.5, 0.5),
+                                                     ("chair", (0.46, 0.4), 0.9, 0.45),
+                                                     ("sofa", (2.0, 0.9), 0.85, 0.45),
+                                                     ("armchair", (0.8, 0.85), 0.85, 0.45),
+                                                     ("toilet", (0.4, 0.7), 0.4, 0.4)])
+def test_profile_is_the_builders_low_part_and_back(ftype, size, height, low):
+    """A piece with a back is modelled as the parts the scene builds: the low part at the builder's mattress /
+    seat / bowl top (``low``: bed = type height, chair min(0.45, h / 2), sofa seat min(0.45, 0.55 h), toilet bowl
+    = type height), the sofa arms, and the back slab on the rear edge (+Y, opposite the front) up to the piece's
+    full height. Every vertex of those parts lies inside the profile, the profile inside the piece's box."""
+    from wenart.blender import parametric as P
+
+    piece = {"id": "p", "type": ftype, "height": height, "asset": None,
+             "footprint": {"center": [1.0, 2.0], "size": list(size), "rotation_deg": 30.0}}
+    w, d, top, source = P.piece_bbox(piece)
+    assert source == "parametric"
+    boxes = C.piece_profile(piece)
+    low_roles, side_roles = C.PROFILES[ftype]
+    assert boxes[0][4] == pytest.approx(low) and boxes[-1][4] == pytest.approx(top) and top > low + 0.3
+    assert len(boxes) == 2 + (2 if side_roles else 0)
+    parts = P.build_parts(ftype, size[0], size[1], height)
+    back = [p for p in parts if p["role"] == "back"]
+    assert boxes[-1][1] == pytest.approx(P.parts_bbox(back)[1]) and boxes[-1][3] == pytest.approx(d / 2.0)
+    assert boxes[-1][3] - boxes[-1][1] <= max(0.2, 0.3 * d)                  # a slab, not the footprint
+    for x0, y0, x1, y1, z1 in boxes:
+        assert -w / 2 - 1e-9 <= x0 < x1 <= w / 2 + 1e-9 and -d / 2 - 1e-9 <= y0 < y1 <= d / 2 + 1e-9 and z1 <= top
+    for part in parts:
+        if part["role"] in low_roles + side_roles + ("back",):
+            for x, y, z in part["verts"]:
+                assert any(x0 - 1e-9 <= x <= x1 + 1e-9 and y0 - 1e-9 <= y <= y1 + 1e-9 and z <= z1 + 1e-9
+                           for x0, y0, x1, y1, z1 in boxes), (part["role"], (x, y, z))
+
+
+def test_library_profile_takes_the_fitted_box_and_the_builders_seat():
+    """A library asset sits in the same frame (front -Y), so its back rises to the fitted box's height (a
+    1.53 m headboard, a 0.74 m chair back) and its mattress or seat is the builder's at the type height;
+    a low library piece (its box no taller than the seat) stays one box, as do types without a back."""
+    def piece(ftype, size, bbox, height=None):
+        return {"id": "p", "type": ftype, "height": height, "footprint": {"center": [0, 0], "size": list(size),
+                                                                          "rotation_deg": 0.0},
+                "asset": {"method": "library", "bbox_m": list(bbox)}}
+
+    bed = C.piece_profile(piece("bed_double", (1.8, 2.0), (1.8, 2.0, 1.5348), 0.5))
+    assert [round(v, 4) for v in bed[0]] == [-0.9, -1.0, 0.9, 1.0, 0.5]           # frame + mattress, 0.5 m
+    assert [round(v, 4) for v in bed[1]] == [-0.9, 0.94, 0.9, 1.0, 1.5348]        # 0.06 m headboard to 1.53 m
+    chair = C.piece_profile(piece("chair", (0.4572, 0.4572), (0.4572, 0.4572, 0.7436)))
+    assert chair[0][4] == pytest.approx(0.45) and chair[-1][4] == pytest.approx(0.7436)
+    assert chair[-1][3] - chair[-1][1] == pytest.approx(min(0.04, 0.4572 * 0.1))
+    assert C.piece_profile(piece("bed", (1.0, 1.0), (1.0, 1.0, 0.5))) == [(-0.5, -0.5, 0.5, 0.5, 0.5)]
+    assert C.piece_profile(piece("wardrobe", (1.2, 0.6), (1.2, 0.6, 2.1))) == [(-0.6, -0.3, 0.6, 0.3, 2.1)]
+
+
+@pytest.mark.parametrize("rotation", [0.0, 90.0, 207.0, 315.0])
+def test_profile_boxes_turn_with_the_footprint_back_opposite_the_front(rotation):
+    """The profile boxes stand where the scene builds the parts: turned by the footprint rotation about its
+    centre, so the back lies opposite ``front_deg`` (= rotation + 270, the convention of every stage). Rays
+    straight down onto a chair: the seat top near the front, the back's top on the rear edge, the seat again
+    just in front of the back."""
+    building = _parametric(_building(4.0, 4.0, furniture=[("chair", "chair", (2.0, 2.0), (0.5, 0.5), rotation,
+                                                           (0.5, 0.5, 0.9))]), {"chair": 0.9})
+    building["furniture"][0]["front_deg"] = (rotation + 270.0) % 360.0
+    model = C.RoomModel(building["rooms"][0], building)
+    front = math.radians(building["furniture"][0]["front_deg"])
+    t = min(0.04, 0.5 * 0.1)                                         # parametric._chair's back depth
+
+    def down(offset: float):
+        """Label and hit height of a ray straight down at ``offset`` m from the centre towards the front."""
+        labels, depth = model.cast((2.0 + offset * math.cos(front), 2.0 + offset * math.sin(front), 2.0),
+                                   np.array([[0.0, 0.0, -1.0]]))
+        return _model_names(model, labels)[0], round(2.0 - float(depth[0]), 9)
+
+    assert down(0.2) == ("chair", 0.45) and down(-0.24) == ("chair", 0.9)
+    assert down(-0.25 + t - 0.002) == ("chair", 0.9) and down(-0.25 + t + 0.002) == ("chair", 0.45)
+
+
+def test_a_bed_beside_the_camera_shows_its_mattress_not_its_headboard(monkeypatch):
+    """Pod case synthetic-06 cam_r_L0_bed_room_2: a double bed beside the camera, its tall headboard on the
+    far wall out of the frame. The box model put the 1.53 m headboard height over the whole footprint (0.35
+    of the frame); the profile sees a strip of mattress at the bottom edge and nothing above it, and for a
+    parametric bed it sees what the built mesh shows."""
+    def room(library: bool) -> dict:
+        b = _building(3.2, 3.35, furniture=[("bed", "bed_double", (1.57, 2.33), (1.8, 2.0), 0.0, (1.8, 2.0, 1.5348)),
+                                            ("ns", "nightstand", (2.98, 1.18), (0.5, 0.4), 270.0, (0.5, 0.4, 0.495))])
+        for f in b["furniture"]:
+            f["height"] = 0.5
+        return b if library else _parametric(b, {"bed": 0.5, "ns": 0.5})
+
+    position, yaw = (1.0, 1.0, 1.25), 0
+    model, labels, depth = _cast(room(True), position, yaw)
+    names = np.array(_model_names(model, labels), dtype=object)
+    a, b = C.ray_grid(shift_y=C.SHIFT_Y)
+    z = position[2] + depth * b                                      # planar depth x vertical slope
+    on_bed = names == "bed"
+    assert 0 < on_bed.mean() < 0.05 and z[on_bed].max() <= 0.5 + 1e-9    # the mattress only
+    profile, truth = _shares(room(False), position, yaw), _true_shares(room(False), position, yaw)
+    assert abs(profile["bed"] - truth["bed"]) <= 0.005 and truth["bed"] < 0.05, (profile, truth)
+    monkeypatch.setattr(C, "PROFILES", {})                           # the box model of the pod run
+    assert _shares(room(True), position, yaw)["bed"] > 0.3 and _shares(room(False), position, yaw)["bed"] > 0.1
+
+
+# real01's dining room (tests/fixtures/camsearch_pod_20261003.json) moved to the origin: a table and six chairs.
+DINING = [("table", "table_dining", (1.3914, 1.2384), (1.2383, 0.7353), 90.0, (1.2383, 0.7353, 0.75)),
+          ("c11", "chair", (1.3943, 0.3913), (0.4618, 0.3824), 90.0, (0.4618, 0.3824, 0.9)),
+          ("c12", "chair", (1.3943, 2.0885), (0.4618, 0.3824), 90.0, (0.4618, 0.3824, 0.9)),
+          ("c13", "chair", (0.7958, 0.9193), (0.4618, 0.3824), 0.0, (0.4618, 0.3824, 0.9)),
+          ("c14", "chair", (0.7958, 1.559), (0.4618, 0.3794), 0.0, (0.4618, 0.3794, 0.9)),
+          ("c15", "chair", (1.9914, 0.9193), (0.4647, 0.3824), 0.0, (0.4647, 0.3824, 0.9)),
+          ("c16", "chair", (1.9914, 1.559), (0.4647, 0.3794), 0.0, (0.4647, 0.3794, 0.9))]
+
+
+def test_a_chair_beside_the_table_is_hidden_as_in_the_render(monkeypatch):
+    """Pod case real01 cam_r_L0_dining_1: chair c14 (f_L0_014) next to the table, half out of the frame: its
+    seat is below the frame, its back outside it, but the 0.9 m box over its footprint showed a corner above
+    the table top. The profile hides it like the built chair; every chair and the table get the share the
+    built meshes show (within 0.005)."""
+    building = _parametric(_building(4.268, 2.438, furniture=DINING), {"table": 0.75, **{f"c1{i}": 0.9 for i in
+                                                                                         range(1, 7)}})
+    position, yaw = (0.5, 0.4225, 1.25), 30
+    profile, truth = _shares(building, position, yaw), _true_shares(building, position, yaw)
+    assert profile["c14"] == truth["c14"] == 0.0
+    for fid in profile:
+        assert abs(profile[fid] - truth[fid]) <= 0.005, (fid, profile[fid], truth[fid])
+    assert sum(1 for fid in profile if fid.startswith("c") and truth[fid] > 0.01) >= 4    # chairs in the view
+    monkeypatch.setattr(C, "PROFILES", {})
+    assert _shares(building, position, yaw)["c14"] > 0.02
+
+
+@pytest.mark.parametrize("rotation, behind", [(0.0, "seat hidden, back above the table top"),
+                                              (180.0, "back against the table edge")])
+def test_a_chair_behind_the_table_shows_what_the_built_chair_shows(rotation, behind, monkeypatch):
+    """A chair behind a 0.75 m table, facing it (its 0.9 m back on the far edge) or turned away (its back on
+    the table edge): the table top hides the 0.45 m seat, only the back rises into view. The profile's share
+    is the built mesh's (within 0.005); the box model put the back's height over the whole seat and saw more.
+    (A chair behind a table is never hidden by it unless its back is lower than the table top: none of the
+    pod's absent chairs was; they stood at the frame edge, see the dining test above.)"""
+    building = _parametric(_building(4.0, 4.0, furniture=[
+        ("table", "table_dining", (2.0, 2.0), (1.6, 0.9), 0.0, (1.6, 0.9, 0.75)),
+        ("chair", "chair", (2.0, 2.7), (0.46, 0.42), rotation, (0.46, 0.42, 0.9))]), {"table": 0.75, "chair": 0.9})
+    position, yaw = (2.0, 0.6, 1.25), 90
+    profile, truth = _shares(building, position, yaw), _true_shares(building, position, yaw)
+    for fid in ("table", "chair"):
+        assert abs(profile[fid] - truth[fid]) <= 0.005, (behind, fid, profile[fid], truth[fid])
+    assert truth["table"] > 0.1
+    monkeypatch.setattr(C, "PROFILES", {})
+    assert _shares(building, position, yaw)["chair"] > truth["chair"] + 0.003, behind
+
+
+def test_a_toilet_whose_cistern_is_out_of_the_frame_is_hidden(monkeypatch):
+    """Pod case synthetic-01 cam_r_L1_banyo_3: the toilet beside the camera, its cistern (1.2 m) behind the
+    camera plane, its 0.8 m bowl below the frame. The box model put the cistern height over the bowl (0.23 of
+    the frame, in front of the door); the profile hides it like the built toilet. The door leaf in that
+    render is closed in its frame (shell.build_openings builds every leaf closed), which the door rectangle
+    of the model is: the door gets the rays the toilet box took."""
+    building = _building(3.3, 2.9, openings=[("door", "door", "w", 1.45, 0.8, 0.0, 2.1)], furniture=[
+        ("shower", "shower", (1.121, 0.471), (0.9, 0.9), 180.0, (0.9, 0.9, 2.0)),
+        ("toilet", "toilet", (0.55, 2.529), (0.4, 0.7), 0.0, (0.4, 0.7, 1.2)),
+        ("basin", "washbasin", (0.246, 0.35), (0.6, 0.45), 90.0, (0.6, 0.45, 1.0)),
+        ("tub", "bathtub", (2.904, 2.029), (1.7, 0.75), 270.0, (1.7, 0.75, 0.75))])
+    _parametric(building, {"shower": 2.0, "toilet": 0.8, "basin": 0.85, "tub": 0.6})
+    position, yaw = (1.0, 2.5, 1.25), 240
+    profile, truth = _shares(building, position, yaw), _true_shares(building, position, yaw)
+    assert profile["toilet"] == truth["toilet"] == 0.0 and profile["shower"] > 0.2
+    model, labels, _ = _cast(building, position, yaw)
+    door_profile = float((np.array(_model_names(model, labels), dtype=object) == "door").mean())
+    monkeypatch.setattr(C, "PROFILES", {})
+    model, labels, _ = _cast(building, position, yaw)
+    assert _shares(building, position, yaw)["toilet"] > 0.2
+    assert door_profile > float((np.array(_model_names(model, labels), dtype=object) == "door").mean()) + 0.1
+
+
+def _pod_cases():
+    doc = json.loads(POD_FIXTURE.read_text(encoding="utf-8"))
+    return [(key, building, cam) for key, building in doc["rooms"].items() for cam in building["cameras"]]
+
+
+@pytest.mark.parametrize("key, building, cam", _pod_cases(), ids=lambda v: v["name"] if isinstance(v, dict) and
+                         "name" in v else None)
+def test_pod_cameras_replayed_the_absent_pieces_are_hidden(key, building, cam, monkeypatch):
+    """The five searched views of pod run 20261003-205431 whose listed piece was absent from the index pass
+    (the room data of the run, tests/fixtures/camsearch_pod_20261003.json). The box model reproduces the
+    run's shares (so the fixture is complete); the profile model gives the four parametric or low-chair
+    cases a share below the GPU test's 0.005 and the library bed (shape unknown beyond its box) a thin strip
+    of mattress (0.35 -> 0.026, its headboard not in view)."""
+    piece = cam["failed_piece"]
+    after = C.model_shares(building, cam).get(piece, 0.0)
+    if piece == "f_L0_013" and key.startswith("synthetic-06"):
+        assert 0.0 < after < 0.03
+    else:
+        assert after < MODEL_HIDDEN_SHARE, (cam["name"], piece, after)
+    monkeypatch.setattr(C, "PROFILES", {})
+    assert C.model_shares(building, cam).get(piece, 0.0) == pytest.approx(cam["pod_model_share"], abs=1e-4)
 
 
 def test_search_is_deterministic_and_independent_of_input_order():

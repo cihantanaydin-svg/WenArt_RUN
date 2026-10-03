@@ -29,6 +29,26 @@ How:
   is open as in the scene (review dwgblender-2: the 3.17 m box hid the
   walls behind the flights and the search picked hall views without the
   stair). The ceiling opening over the stair stays closed in the model.
+  A piece with a back (beds, chairs, sofas, armchairs, toilets:
+  ``PROFILES``) is not one box at its full height but its height profile
+  (``piece_profile``): the low part (mattress, seat, bowl), the sofa arms
+  and the back slab (headboard, chair or sofa back, cistern) on the rear
+  edge, read from the parts ``parametric.build_parts`` builds for the
+  piece (back = local +Y, the side opposite the front, as the scene builds
+  both parametric meshes and library assets); the back rises to the piece's
+  ``piece_bbox`` height (a library asset's fitted box). The full-height box
+  over the whole footprint loomed into the frame where the real piece is a
+  0.5 m mattress or a 0.45 m seat (pod run 20261003-205431: a bed beside
+  the camera at 0.35 of the frame, chairs at the frame edge whose seat was
+  below the frame and back outside it, a toilet whose cistern was behind
+  the camera; none of them in the render). The soft bedding of a
+  parametric bed (duvet, pillows: up to 0.15 m above the mattress) is left
+  out: for a parametric bed the model errs towards seeing less, not more.
+  A library asset's real seat or mattress is not known beyond its fitted
+  box; the builder's height stands for it.
+  Door leaves need no part of their own: the scene builder builds every
+  leaf closed inside its frame (``shell.build_openings``, checked by
+  tests/test_blender_build.py), which the door rectangle on the wall is.
   Pure numpy, no Blender, no shapely: build.py runs it inside Blender's
   Python.
 - Rays: a 64 x 36 grid over the 1920 x 1080 frame of a 24 mm lens on a
@@ -104,6 +124,7 @@ from wenart import geometry as G
 from wenart.blender import cameras, geom2d
 from wenart.blender import parametric as P
 from wenart.blender.parametric import obstacle_rect, piece_bbox
+from wenart.blender.proxies import proxy_height
 from wenart.blender.shell import opening_vertical, plan_stairs
 
 POLICY = "search"
@@ -161,6 +182,19 @@ EMPTY_ROOM_VIEWS = 1
 MIN_EMPTY_ROOM_AREA_M2 = 2.5
 BLOCKED_WARNING = "blocked unavoidable"
 SCORE_DECIMALS = 6                   # scores are rounded before sorting (deterministic ties)
+
+# Height profiles of the pieces with a back (``piece_profile``): per type, the roles of the parametric parts
+# (``parametric.build_parts``) whose box is the low part (frame and mattress, seat, bowl and seat ring) and the
+# roles kept as one box per part (the sofa arms); the parts of role ``PROFILE_BACK_ROLE`` (headboard, chair and
+# sofa back, cistern) make the back slab on the rear edge. Every other type stays one box (``piece_bbox``).
+PROFILE_BACK_ROLE = "back"
+PROFILES: dict[str, tuple[tuple[str, ...], tuple[str, ...]]] = {
+    "bed": (("body", "mattress"), ()), "bed_single": (("body", "mattress"), ()),
+    "bed_double": (("body", "mattress"), ()),
+    "chair": (("top",), ()),
+    "sofa": (("body", "cushion"), ("arm",)), "armchair": (("body", "cushion"), ("arm",)),
+    "toilet": (("bowl", "seat"), ()),
+}
 
 # Ray labels; elements (doors, windows, pieces) follow from FIRST_ELEMENT.
 NOTHING, FLOOR, CEILING, WALL, OPENING = 0, 1, 2, 3, 4
@@ -330,6 +364,47 @@ def camera_directions(position, target, a: np.ndarray, b: np.ndarray) -> np.ndar
 # The room model
 # --------------------------------------------------------------------------
 
+def piece_profile(piece: dict) -> list[tuple[float, float, float, float, float]]:
+    """Boxes ``(x0, y0, x1, y1, top)`` of a piece in its own frame (width X, depth Y, front -Y, back +Y,
+    centred on the footprint centre), each standing on the floor up to ``top``.
+
+    One box of ``piece_bbox`` for most types. A type of ``PROFILES`` (a piece with a back) gets the
+    boxes of the parts the scene builder makes for it (``parametric.build_parts`` with the footprint
+    and the type height, as ``furniture._parametric_object``): the low part, the side parts and the
+    back slab, the back reaching the rear edge and the full ``piece_bbox`` height (a library asset's
+    fitted box: its back or headboard top). A library asset is placed in the same frame (front -Y;
+    ``furniture.fit_vertices``), so its profile is the parametric one stretched to its fitted box,
+    every part clamped to that box's height; its seat or mattress height is the builder's. When the
+    low part is as tall as the box the profile is the box."""
+    w, d, top, _ = piece_bbox(piece)
+    whole = [(-w / 2.0, -d / 2.0, w / 2.0, d / 2.0, top)]
+    profile = PROFILES.get(piece.get("type"))
+    if profile is None:
+        return whole
+    low_roles, side_roles = profile
+    fp = piece["footprint"]
+    fw, fd = float(fp["size"][0]), float(fp["size"][1])
+    h, _ = proxy_height(piece["type"], piece.get("height"))
+    parts = P.build_parts(piece["type"], fw, fd, h, piece=piece)
+    sx = w / fw if fw > 1e-9 else 1.0
+    sy = d / fd if fd > 1e-9 else 1.0
+
+    def box(group, back=False):
+        x0, y0, _, x1, y1, z1 = P.parts_bbox(group)
+        if back:                                       # to the rear edge, up to the piece's top
+            return (x0 * sx, y0 * sy, x1 * sx, d / 2.0, top)
+        return (x0 * sx, y0 * sy, x1 * sx, y1 * sy, min(z1, top))
+
+    low = [p for p in parts if p["role"] in low_roles]
+    back = [p for p in parts if p["role"] == PROFILE_BACK_ROLE]
+    if not low or not back:
+        return whole
+    boxes = [box(low)] + [box([p]) for p in parts if p["role"] in side_roles]
+    if max(b[4] for b in boxes) >= top - 1e-9:
+        return whole
+    return boxes + [box(back, back=True)]
+
+
 def convex_parts_solid(parts, floor_z: float = 0.0):
     """``(lo, hi, planes)`` of convex parts (``parametric`` parts: ``verts``, ``faces`` wound outwards,
     z above the floor) for ``RoomModel``: the world bounding box (3-vectors, the floor added) and per part
@@ -447,11 +522,13 @@ class RoomModel:
                 spans.append((along, float(o["width"]) / 2.0, bottom, top, code))
             self.edges.append((a[0], a[1], b[0] - a[0], b[1] - a[1], length, spans))
 
-        # Furniture boxes: piece_bbox in the footprint frame, standing on the floor. A stair (fixed
-        # equipment, parametric.SHELL_TYPES) is its built parts instead (review dwgblender-2): the step
-        # prisms on their sloped waist, the riser plates, the landing slab and the rails, open under the
-        # upper flight and the landing as shell.build_stairs builds it; its bounding box is a solid block
-        # taller than the room that hid the walls behind the flights.
+        # Furniture boxes: the piece's height profile (piece_profile: piece_bbox, or the low part, the
+        # sides and the back slab of a piece with a back) in the footprint frame, standing on the floor;
+        # the boxes of one piece share its label. A stair (fixed equipment, parametric.SHELL_TYPES) is its
+        # built parts instead (review dwgblender-2): the step prisms on their sloped waist, the riser
+        # plates, the landing slab and the rails, open under the upper flight and the landing as
+        # shell.build_stairs builds it; its bounding box is a solid block taller than the room that hid
+        # the walls behind the flights.
         self.boxes = []
         self.solids = []
         stair_plans = None
@@ -466,11 +543,14 @@ class RoomModel:
                     if solid is not None:
                         self.solids.append((code,) + solid)
                         continue
-            w, d, h, _ = piece_bbox(f)
             fp = f["footprint"]
             rot = math.radians(float(fp.get("rotation_deg") or 0.0))
-            self.boxes.append((code, float(fp["center"][0]), float(fp["center"][1]), self.floor_z + h / 2.0,
-                               w / 2.0, d / 2.0, h / 2.0, math.cos(rot), math.sin(rot)))
+            c, s = math.cos(rot), math.sin(rot)
+            fx, fy = float(fp["center"][0]), float(fp["center"][1])
+            for x0, y0, x1, y1, top in piece_profile(f):
+                lx, ly = (x0 + x1) / 2.0, (y0 + y1) / 2.0       # box centre in the piece frame -> world
+                self.boxes.append((code, fx + c * lx - s * ly, fy + s * lx + c * ly, self.floor_z + top / 2.0,
+                                   (x1 - x0) / 2.0, (y1 - y0) / 2.0, top / 2.0, c, s))
 
     # ------------------------------------------------------------------
     def cast(self, origin, dirs: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
