@@ -470,8 +470,11 @@ with the unit-aware parser.
   - everything else → AI **candidate** (§3): in the building as `type "unknown"`, `unverified`, `type_method "none"`
     until answers exist.
 - **Front**: the side within 0.25 m of a wall is the back when it is the only such side; a bed's head = the side with
-  ≥ 2 small closed shapes (pillows); a chair's back faces away from the nearest table. AI front (§3.3) must agree with a
-  unique deterministic candidate, or both passes agree when there is none; else `front_deg null`.
+  ≥ 2 small closed shapes (pillows); a chair's back faces away from the nearest table. A unique deterministic candidate
+  is kept when a pass names a side, also when an AI pass names another side (CLAUDE.md trust order: vector > AI; the
+  disagreement is a `symbol_front_disagreement` conflict; changed after pod B, where both models named one fixed side
+  for every bed and the old rule built real01's south bed reversed); with no deterministic candidate both passes must
+  agree; else `front_deg null`.
 
 ### 2.9 Report and debug image (G3)
 
