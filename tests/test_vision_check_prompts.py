@@ -127,8 +127,11 @@ def test_preference_schema():
     ({"status": "different", "seen_as": "plant"}, "potted_plant", False, "present"),
     ({"status": "different", "seen_as": "lamp"}, "floor_lamp", False, "present"),
     ({"status": "different", "seen_as": "side_table"}, "floor_lamp", False, "different"),
-    ({"status": "present", "seen_as": "potted_plant"}, "plant", False, "unsure"),     # not the other way round
-    ({"status": "different", "seen_as": "potted_plant"}, "plant", False, "different"),
+    # ... and the other way round (review vision-2): the decor plant seen as potted_plant, a lamp as floor_lamp.
+    ({"status": "present", "seen_as": "potted_plant"}, "plant", False, "present"),
+    ({"status": "different", "seen_as": "potted_plant"}, "plant", False, "present"),
+    ({"status": "different", "seen_as": "floor_lamp"}, "lamp", False, "present"),
+    ({"status": "different", "seen_as": "vase"}, "plant", False, "different"),
 ])
 def test_normalise_answer(answer, category, unverified, status):
     out, changed = S.normalise_answer(dict(answer, confidence=0.5), category, unverified)
@@ -213,7 +216,9 @@ def test_new_furniture_types_have_photo_hints_and_plant_stays_decor():
         assert t in S.CATEGORIES and t in P.HINTS and P.HINTS[t] != t
     assert "plant" in S.DECOR_CATEGORIES and S.category_class("plant") == "decor"
     assert S.element_category("furniture", "potted_plant") == "potted_plant"
-    assert S.EQUIVALENT == {"potted_plant": ("plant",), "floor_lamp": ("lamp",)}
+    # Both ways round (review vision-2): the decor plant seen as potted_plant is the same object too.
+    assert S.EQUIVALENT == {"potted_plant": ("plant",), "plant": ("potted_plant",), "floor_lamp": ("lamp",),
+                            "lamp": ("floor_lamp",)}
     line = P.element_line({"label": "E1", "type": "stair", "box_1000": [1, 2, 3, 4]})
     assert line == "- E1: stair (staircase with steps); expected inside box [1, 2, 3, 4]"
 

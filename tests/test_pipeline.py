@@ -802,6 +802,10 @@ def test_questions_new_in_the_answer_run_are_not_pending(tmp_path):
         store.save()
     building, build = P.run_project(project, out, answers=rec)
     assert build.pending == [missing] and P.exit_code(building, build) == P.EXIT_QUESTIONS
+    # Review cross-5: both are unanswered; the report says which one is not waited for.
+    assert sorted(build.unanswered) == sorted([missing, late])
+    assert ("2 without a complete pair of answers (1 not in the round the answers belong to: not applied, they stay "
+            "unknown/unverified)") in (out / "report.md").read_text(encoding="utf-8")
     assert late in [q["key"] for q in build.questions]                   # written again, for a later round
     assert any(late in w and "not in the round the answers belong to" in w for w in building["warnings"])
     assert missing not in " ".join(w for w in building["warnings"] if "not in the round" in w)

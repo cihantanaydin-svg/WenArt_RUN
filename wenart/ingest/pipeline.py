@@ -161,7 +161,14 @@ class ProjectBuild:
         self.furniture_works: list[PageWork] = []
         self.questions: list[dict] = []
         self.pending: list[str] = []
+        # Every question without a complete pair of answers, with or without --no-ai (``pending`` is empty with
+        # --no-ai: nothing waits for answers then, but they are still unanswered).
+        self.unanswered: list[str] = []
+        self.no_ai = False
         self.generic: list[PageWork] = []
+        # (page, the extraction's notes, evidence only): rule outcomes report.md lists per page
+        # (``LevelExtraction.notes``).
+        self.page_notes: list[tuple[str, list[str], bool]] = []
         # Raster pages that stopped before a building but asked questions whose answers may let them go on (a
         # provisional scale waiting for the room-size labels, §3.4), and the review reasons those answers decide.
         self.question_only: list[LevelExtraction] = []
@@ -858,6 +865,8 @@ def _documents(records: list[PageRecord], works: dict, out_dir: Path, project_di
             if work.extraction.report.get("rectified_image"):
                 entry["rectified_image"] = work.extraction.report["rectified_image"]
                 entry["to_original"] = work.extraction.report["to_original"]
+            if work.extraction.report.get("aspect"):
+                entry["aspect"] = dict(work.extraction.report["aspect"])     # photos: the sheet ratio (§4.1)
         kind = _source_kind(record, work)
         if kind is not None and "source_kind" not in doc:
             doc["source_kind"] = kind
@@ -1219,14 +1228,19 @@ def _generic_sections(b: dict, build: ProjectBuild) -> list[str]:
             method = f["type_method"] + (f" ({_cell(notes[0])})" if notes else "")
             lines.append(f"| {f['id']} | {f['type']} | {method} | {_cell(cands)} | "
                          f"{'yes' if f.get('build', True) else 'no (drawn symbol, not built)'} | {f['status']} |")
-        if build.questions:
-            lines += ["", f"Recognition questions: {len(build.questions)} (`recognition/requests.json`), "
-                          f"{len(build.pending)} without a complete pair of answers."]
     else:
         lines.append("None.")
+    if build.questions:
+        # Also when no piece is typed (a raster page asks its room labels with or without furniture).
+        lines += ["", f"Recognition questions: {len(build.questions)} (`recognition/requests.json`), "
+                      f"{unanswered_text(build)}."]
 
     lines += ["", "## Assumed values", ""]
     assumed = []
+    for doc in b["documents"]:
+        for page in doc.get("pages") or []:
+            if (page.get("aspect") or {}).get("assumed"):
+                assumed.append(f"{doc['file']} p{page['page']}: {aspect_text(page['aspect'])}")
     for lv in b["levels"]:
         if lv.get("label_source") == "assumed":
             assumed.append(f"{lv['id']}: level '{lv['label']}' assumed (no level title on the page)")
@@ -1245,6 +1259,19 @@ def _generic_sections(b: dict, build: ProjectBuild) -> list[str]:
                                + (f" ({_cell(stair['reason'])})" if stair.get("reason") else ""))
     lines += [f"- {a}" for a in assumed] or ["None."]
     return lines
+
+
+def _notes_section(build: ProjectBuild) -> list[str]:
+    """``LevelExtraction.notes`` of every extracted page (rule outcomes: strokes and drawn details dropped, the photo
+    aspect, unanswered candidates, ...), one block per page; a note's own '<file> p<n>: ' prefix is left out."""
+    lines = ["", "## Notes", ""]
+    for where, notes, secondary in build.page_notes:
+        lines += [f"### {where}" + (" (evidence-only page)" if secondary else ""), ""]
+        for note in notes:
+            text = note[len(where) + 2:] if note.startswith(where + ": ") else note
+            lines.append(f"- {text}")
+        lines.append("")
+    return lines[:-1]
 
 
 def write_report(building: dict, out_path: Path, review_reasons: list[str],
@@ -1286,6 +1313,8 @@ def write_report(building: dict, out_path: Path, review_reasons: list[str],
                      f"{fp['size'][0]:.2f} x {fp['size'][1]:.2f} | {fp['rotation_deg']:.0f} | {f['status']} | {f['evidence'][0]['file']} |")
     if build is not None and build.generic:
         lines += _generic_sections(b, build)
+    if build is not None and build.page_notes:
+        lines += _notes_section(build)
     lines += ["", "## Conflicts", ""]
     if b["conflicts"]:
         lines += ["| Id | Kind | Elements | Description | Resolution |", "|---|---|---|---|---|"]
@@ -1360,7 +1389,44 @@ def _extract_raster(record: PageRecord, out_dir: Path, answers, no_ai: bool, evi
     ex.report["raster_page"] = rp
     ex.report["rectified_image"] = rect_path.relative_to(out_dir).as_posix()
     ex.report["to_original"] = [[round(v, 9) for v in row] for row in rp.page.to_original]
+    aspect = aspect_entry(getattr(rp.rect, "aspect", None))
+    if aspect is not None:
+        ex.report["aspect"] = aspect
+        if aspect.get("assumed"):
+            # An assumed value that changes the geometry (every length across the page scales with it): a warning
+            # of the building, the page entry's ``aspect`` and report.md's assumed values (§4.1 "assumed, reported").
+            ex.warnings.append(f"{record.file} p{record.page}: {aspect_text(aspect)}")
     return ex
+
+
+ASPECT_KEYS = ("measured", "method", "side_ratio", "snapped", "name", "off_pct", "assumed", "solved_from", "factor",
+               "checked_by_dimensions")
+
+
+def aspect_entry(aspect: Optional[dict]) -> Optional[dict]:
+    """A photo's sheet aspect (``rectify.rectify_photo``: measured from the page quad, snapped to a standard sheet
+    ratio or solved from the dimension groups) as the page entry's ``aspect`` (JSON values, ratios width / height
+    of the page quad). None for scans."""
+    if not aspect:
+        return None
+    out = {}
+    for key in ASPECT_KEYS:
+        value = aspect.get(key)
+        if isinstance(value, (float, np.floating)):
+            value = round(float(value), 5)
+        out[key] = value
+    out["assumed"] = bool(out.get("assumed"))
+    return out
+
+
+def aspect_text(aspect: dict) -> str:
+    """One report line for an assumed photo aspect."""
+    check = aspect.get("checked_by_dimensions")
+    how = (f"the dimension groups agree within {abs(float(check) - 1.0) * 100:.2f} %" if check is not None
+           else "no dimension groups to check it")
+    return (f"photo aspect assumed: the page quad measures {float(aspect['measured']):.4f} (width / height, "
+            f"{aspect.get('method')}), snapped to the {aspect.get('name')} sheet ratio {float(aspect['snapped']):.4f} "
+            f"({float(aspect.get('off_pct') or 0.0):.1f} % off; {how})")
 
 
 def _mark_unverified(ex: LevelExtraction) -> None:
@@ -1381,20 +1447,58 @@ def _asked_before(answers) -> Optional[set]:
     return {(it.get("key"), it.get("input_sha256")) for it in doc.get("items") or []}
 
 
-def _write_questions(build: ProjectBuild, out_dir: Path, asked: Optional[set] = None) -> None:
+def _without_answers(items: list[dict], answers) -> list[str]:
+    """Keys of ``items`` without a complete pair of answers (both ``MODEL_KEYS``) in ``answers`` (a recognition
+    folder, or ``{key: {model: data}}``; None: no answers at all). The same rule as the core's ``pending``, but
+    independent of ``--no-ai`` (which only stops the run from waiting for them)."""
+    from wenart.recognition import answers as A
+
+    if not items:
+        return []
+    loaded: dict = {}
+    if isinstance(answers, (str, Path)):
+        loaded = A.load(Path(answers), items)
+    elif isinstance(answers, dict):
+        loaded = answers
+    return [it["key"] for it in items
+            if not all((loaded.get(it["key"]) or {}).get(m) is not None for m in A.MODEL_KEYS)]
+
+
+def unanswered_text(build: ProjectBuild) -> str:
+    """'N without a complete pair of answers' for report.md and the CLI, saying what happens to them: with
+    ``--no-ai`` the answers are not applied (nothing waits for them); a question that was not in the round the
+    answers belong to is not waited for either."""
+    n = len(build.unanswered)
+    text = f"{n} without a complete pair of answers"
+    if n and build.no_ai:
+        text += " (--no-ai: not applied, they stay unknown/unverified)"
+    elif n > len(build.pending):
+        text += (f" ({n - len(build.pending)} not in the round the answers belong to: not applied, they stay "
+                 f"unknown/unverified)")
+    return text
+
+
+def _write_questions(build: ProjectBuild, out_dir: Path, asked: Optional[set] = None, answers=None) -> None:
     """``<out>/recognition/requests.json`` with the questions of the pages whose furniture is in the building
     (§1.4); an earlier file is rewritten (empty when nothing is asked) so it never lists stale questions.
 
     ``asked``: the (key, input hash) pairs of the requests the given answers belong to (``_asked_before``). §1.4 has
     one round of questions: a question this run asks that was not in that round (a raster page whose accepted
     labels changed what it asks) cannot have answers, so it is not pending (the run never exits 4 for it); it is
-    written to the requests, its piece stays ``unknown``/``unverified`` and a warning lists it."""
+    written to the requests, its piece stays ``unknown``/``unverified`` and a warning lists it.
+
+    ``build.unanswered`` (and each extraction's ``report["unanswered"]``) lists every question without a complete
+    pair of ``answers``, also with ``--no-ai`` (where ``pending`` is empty because nothing waits for them)."""
     from wenart.recognition import answers as A
 
-    items, pending = [], []
+    items, pending, unanswered = [], [], []
     for ex in [w.extraction for w in build.furniture_works] + build.question_only:
-        items.extend(ex.report.get("questions") or [])
+        mine = list(ex.report.get("questions") or [])
+        items.extend(mine)
         pending.extend(ex.report.get("pending") or [])
+        ex.report["unanswered"] = _without_answers(mine, answers)
+        unanswered.extend(ex.report["unanswered"])
+    build.unanswered = unanswered
     if asked is not None and pending:
         hashes = {it["key"]: it.get("input_sha256") for it in items}
         late = [k for k in pending if (k, hashes.get(k)) not in asked]
@@ -1423,6 +1527,7 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
         brief = yaml.safe_load(brief_path.read_text(encoding="utf-8")) or {}
     building = B.empty_building(project_dir.name, project_dir.as_posix(), pipeline_commit(), brief=brief)
     build = ProjectBuild(building)
+    build.no_ai = bool(no_ai)
     asked = _asked_before(answers)              # read before this run rewrites requests.json
 
     records = classify_pages(project_dir, work_dir=out_dir / "converted", ocr=ocr)
@@ -1484,6 +1589,9 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
                        f"unverified")
         for text in extraction.warnings:
             build.warn(f"{text} (evidence-only page)" if secondary else text)
+        if extraction.notes:
+            where = record.file if record.format in ("dxf", "dwg") else f"{record.file} p{record.page}"
+            build.page_notes.append((where, list(extraction.notes), secondary))
         if secondary:
             # An evidence-only raster page never stops the project and adds no conflicts of its own: what it cannot
             # show, or disagrees with, is a warning (§0); its counts are compared with the master's later.
@@ -1535,7 +1643,7 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
         systems = [w.extraction.units_system or "metric" for w in masters]
         building["project"]["unit_system"] = "imperial" if systems.count("imperial") > systems.count("metric") \
             else "metric"
-    _write_questions(build, out_dir, asked)
+    _write_questions(build, out_dir, asked, answers)
 
     # Conflicts: stable order and ids.
     build.raw_conflicts.sort(key=lambda c: CONFLICT_ORDER.index(c["kind"]) if c["kind"] in CONFLICT_ORDER else 99)
@@ -1593,7 +1701,9 @@ def main(argv=None) -> int:
     building, build = run_project(project_dir, out_dir, answers=Path(args.answers) if args.answers else None,
                                   no_ai=args.no_ai)
     code = exit_code(building, build, args.no_ai)
-    asked = f", {len(build.questions)} questions ({len(build.pending)} unanswered)" if build.questions else ""
+    unanswered = f"{len(build.unanswered)} unanswered" + (", --no-ai: not applied" if build.no_ai and build.unanswered
+                                                          else "")
+    asked = f", {len(build.questions)} questions ({unanswered})" if build.questions else ""
     print(f"{building['project']['id']}: status {building['status']}, {len(building['levels'])} levels, "
           f"{len(building['walls'])} walls, {len(building['openings'])} openings, {len(building['rooms'])} rooms, "
           f"{len(building['furniture'])} furniture, {len(building['conflicts'])} conflicts, "

@@ -69,6 +69,7 @@ RECLUSTER_M = 0.002
 CONTAIN_SHARE = 0.8
 CONTAIN_KEEP_SIDE_M = 0.3
 DETAIL_M = 0.20
+LINE_DETAIL_M = 0.05           # a cluster whose minimum rectangle is thinner than this is a drawn line, not furniture
 MAX_SIDE_M = 4.5
 CONTOUR_MIN_M = 0.20
 CONTOUR_OVERLAP = 0.15
@@ -82,6 +83,9 @@ STAIR_DIVIDER_SHARE = 0.8
 STAIR_MIN_TREADS = 5
 STAIR_STEP_M = (0.20, 0.35)
 STAIR_STEP_TOL = 0.10
+TREAD_LENGTH_M = (0.5, 3.0)    # an isolated tread line spans a flight 0.5-3.0 m wide (size table: stair 0.7-3.0 m)
+TREAD_ALIGN_M = 0.01           # equal tread lines: both ends within 10 mm (the stair rule's flight sides)
+TREAD_WALL_M = 0.03            # the tread area, shrunk by 30 mm, must hold no wall
 COUNTER_END_M = 0.05
 COUNTER_DEPTH_M = (0.45, 0.75)
 FRONT_WALL_M = 0.25
@@ -339,13 +343,19 @@ class Cluster:
     def geom(self):
         return unary_union([s.geom for s in self.segs])
 
-    def bounds(self) -> tuple[float, float, float, float]:
-        xs = [p[0] for s in self.segs for p in s.pts]
-        ys = [p[1] for s in self.segs for p in s.pts]
+    def bounds(self, theta: float = 0.0) -> tuple[float, float, float, float]:
+        """Bounding box on the page axes, or in the plan's aligned frame (rotated by -``theta``) when ``theta`` is
+        not 0: on a plan drawn at an angle the page-axis box of a rotated piece covers its neighbours (§2.8)."""
+        pts = [p for s in self.segs for p in s.pts]
+        if theta % 360.0:
+            to_f, _ = _frame(theta)
+            pts = [to_f(p) for p in pts]
+        xs = [p[0] for p in pts]
+        ys = [p[1] for p in pts]
         return (min(xs), min(ys), max(xs), max(ys))
 
-    def size(self) -> tuple[float, float]:
-        b = self.bounds()
+    def size(self, theta: float = 0.0) -> tuple[float, float]:
+        b = self.bounds(theta)
         return (b[2] - b[0], b[3] - b[1])
 
     def stroke_ids(self) -> list[str]:
@@ -501,9 +511,10 @@ def _rect_sides(geom) -> tuple[float, float]:
     return (math.dist(c[0], c[1]), math.dist(c[1], c[2]))
 
 
-def _closed_outline(cl: Cluster) -> Optional[Polygon]:
-    """The cluster's own closed outline: a contour covering >= 80 % of the cluster's bbox area, else None."""
-    b = cl.bounds()
+def _closed_outline(cl: Cluster, theta: float = 0.0) -> Optional[Polygon]:
+    """The cluster's own closed outline: a contour covering >= 80 % of the cluster's bbox area (aligned frame of
+    ``theta``), else None."""
+    b = cl.bounds(theta)
     area = max((b[2] - b[0]) * (b[3] - b[1]), 1e-12)
     best = None
     for poly, _ in contours(cl.segs):
@@ -512,41 +523,44 @@ def _closed_outline(cl: Cluster) -> Optional[Polygon]:
     return best
 
 
-def _merge_contained(clusters: list[Cluster], table: dict) -> list[Cluster]:
+def _merge_contained(clusters: list[Cluster], table: dict, theta: float = 0.0) -> list[Cluster]:
     """A cluster whose bbox lies >= 80 % inside another merges into it, unless it is a closed polygon with both sides
     >= 0.3 m that fits a size-table type and is not an inner outline of the container (a closed contour of the
-    container encloses it and it covers >= 40 % of that contour: a bed's double outline, a table's inlay)."""
-    order = sorted(range(len(clusters)), key=lambda i: -_bbox_area(clusters[i].bounds()))
+    container encloses it and it covers >= 40 % of that contour: a bed's double outline, a table's inlay).
+
+    The boxes are taken in the plan's aligned frame (``theta``, the dominant wall angle), like the walls and the
+    footprints: on a plan drawn at an angle a page-axis box of a rotated stair covers the chairs next door."""
+    boxes = {i: clusters[i].bounds(theta) for i in range(len(clusters))}
+    order = sorted(range(len(clusters)), key=lambda i: -_bbox_area(boxes[i]))
     alive = {i: clusters[i] for i in order}
     container_contours: dict[int, list] = {}
     for pos, i in enumerate(order):
         if i not in alive:
             continue
-        bi = alive[i].bounds()
+        bi = boxes[i]
         for j in order[pos + 1:]:
             if j not in alive:
                 continue
-            bj = alive[j].bounds()
-            if _inside_share(bj, bi) < CONTAIN_SHARE:
+            if _inside_share(boxes[j], bi) < CONTAIN_SHARE:
                 continue
-            if _keeps_own_piece(alive[j], alive[i], table, container_contours, i):
+            if _keeps_own_piece(alive[j], alive[i], table, container_contours, i, theta):
                 continue
             alive[i].segs.extend(alive[j].segs)
             del alive[j]
             container_contours.pop(i, None)
-            bi = alive[i].bounds()
+            bi = boxes[i] = alive[i].bounds(theta)
     return list(alive.values())
 
 
-def _keeps_own_piece(inner: Cluster, outer: Cluster, table: dict, cache: dict, key) -> bool:
+def _keeps_own_piece(inner: Cluster, outer: Cluster, table: dict, cache: dict, key, theta: float = 0.0) -> bool:
     """The containment exception of §2.8 (a sink or hob in a counter stays its own piece), limited to shapes that
     are not drawn details of the container: when a closed contour of the container encloses the shape, the shape is
     the container's inner outline (>= 40 % of its area: a bed's double outline, a table's inlay) or a detail on it
     (spanning < 60 % of its short side: pillows on a bed); a sink spans most of a counter's depth."""
-    w, h = inner.size()
+    w, h = inner.size(theta)
     if min(w, h) < CONTAIN_KEEP_SIDE_M:
         return False
-    poly = _closed_outline(inner)
+    poly = _closed_outline(inner, theta)
     if poly is None or not fitting_types(table, _rect_sides(poly)):
         return False
     if key not in cache:
@@ -735,18 +749,19 @@ def _parts_count(cl: Cluster) -> int:
     return max(1, len(top_contours(cl)), len(clusters_of(cl.segs, RECLUSTER_M)) if len(cl.segs) < 50 else 1)
 
 
-def reclose(cl: Cluster, pool: list[Seg], taken: set) -> int:
+def reclose(cl: Cluster, pool: list[Seg], taken: set, theta: float = 0.0) -> int:
     """Give a cluster back the near-wall segments that close its contours.
 
     The outline rule drops every segment within 20 mm of a wall face, which also removes the back edge of a bed or a
     nightstand standing against the wall (real01: 6-9 mm off the face). A chain of dropped segments that lies inside
     the cluster's bbox (grown 20 mm) and joins two ends of the cluster's strokes is part of the piece, not wall
-    outline. Returns the number of segments added."""
-    b = cl.bounds()
+    outline. Returns the number of segments added. The bbox is taken in the aligned frame of ``theta``."""
+    b = cl.bounds(theta)
     grow = OUTLINE_NEAR_M
     box_ = (b[0] - grow, b[1] - grow, b[2] + grow, b[3] + grow)
-    near = [s for s in pool if id(s) not in taken and all(box_[0] <= p[0] <= box_[2] and box_[1] <= p[1] <= box_[3]
-                                                          for p in s.pts)]
+    to_f = _frame(theta)[0] if theta % 360.0 else (lambda p: p)
+    near = [s for s in pool if id(s) not in taken and all(box_[0] <= q[0] <= box_[2] and box_[1] <= q[1] <= box_[3]
+                                                          for q in map(to_f, s.pts))]
     if not near:
         return 0
     allsegs = cl.segs + near
@@ -920,6 +935,91 @@ def _flight(group) -> Optional[dict]:
             "segs": [s for g in group for s in g[3]]}
 
 
+def group_treads(clusters: list[Cluster], theta: float, wall_geom=None, notes: Optional[list] = None
+                 ) -> list[Cluster]:
+    """Isolated tread lines become one stair cluster (§2.8).
+
+    Treads drawn from wall face to wall face lose their side strokes with the wall outline, so every tread is a
+    cluster of its own and the stair rule never sees >= 5 of them together. Clusters that are one straight line
+    along a frame axis (``theta``), 0.5-3.0 m long, with both ends within 10 mm of each other's, evenly spaced
+    0.20-0.35 m apart (+-10 %, >= 5 lines: the flight test of the stair rule) and with no wall in the area between the
+    first and the last line, are merged into one cluster - kept only when the stair rule then finds its flight.
+    Returns the new cluster list; ``notes`` receives a line per stair candidate."""
+    to_f, from_f = _frame(theta)
+    lines: dict[str, list] = {"h": [], "v": []}
+    for i, cl in enumerate(clusters):
+        if not cl.segs or any(s.curve or s.dot for s in cl.segs):
+            continue
+        st = _straight(cl.segs, to_f)
+        if len(st) != len(cl.segs) or len({x[0] for x in st}) != 1:
+            continue
+        merged = _merge_collinear(st)
+        if len(merged) != 1:
+            continue
+        off, lo, hi, _ = merged[0]
+        if TREAD_LENGTH_M[0] <= hi - lo <= TREAD_LENGTH_M[1]:
+            lines[st[0][0]].append((off, lo, hi, [i]))
+    step_lo = STAIR_STEP_M[0] * (1 - STAIR_STEP_TOL)
+    step_hi = STAIR_STEP_M[1] * (1 + STAIR_STEP_TOL)
+    groups: list[list[int]] = []
+    for axis, items in lines.items():
+        bins: list[list] = []
+        for it in sorted(items, key=lambda x: (x[1], x[2], x[0])):
+            for b in bins:
+                if abs(b[0][1] - it[1]) <= TREAD_ALIGN_M and abs(b[0][2] - it[2]) <= TREAD_ALIGN_M:
+                    b.append(it)
+                    break
+            else:
+                bins.append([it])
+        for b in bins:
+            b.sort(key=lambda x: x[0])
+            rows: list = []                                  # a line drawn twice is one tread
+            for it in b:
+                if rows and it[0] - rows[-1][0] <= STAIR_MERGE_M:
+                    rows[-1] = (rows[-1][0], rows[-1][1], rows[-1][2], rows[-1][3] + it[3])
+                else:
+                    rows.append(it)
+            run: list = []
+            for it in rows + [None]:
+                if it is not None and run and step_lo <= it[0] - run[-1][0] <= step_hi:
+                    run.append(it)
+                    continue
+                if len(run) >= STAIR_MIN_TREADS and _flight(run) is not None \
+                        and not _wall_between(run, axis, from_f, wall_geom):
+                    groups.append([k for r in run for k in r[3]])
+                run = [it] if it is not None else []
+    if not groups:
+        return clusters
+    out = list(clusters)
+    gone: set = set()
+    for idx in groups:
+        merged = Cluster([s for k in idx for s in clusters[k].segs])
+        if stair_rule(merged, theta) is None:
+            continue
+        merged.note.append(f"{len(idx)} isolated tread lines grouped")
+        out.append(merged)
+        gone.update(idx)
+        if notes is not None:
+            b = merged.bounds()
+            notes.append(f"{len(idx)} isolated, evenly spaced tread lines at ({(b[0] + b[2]) / 2:.2f}, "
+                         f"{(b[1] + b[3]) / 2:.2f}) grouped as a stair candidate")
+    return [cl for k, cl in enumerate(out) if k not in gone]
+
+
+def _wall_between(run, axis: str, from_f, wall_geom) -> bool:
+    """True when a wall (or an opening rectangle) lies in the area spanned by the tread lines ``run``, shrunk by 30
+    mm: lines on both sides of a wall are no flight."""
+    if wall_geom is None or wall_geom.is_empty:
+        return False
+    lo = max(r[1] for r in run) + TREAD_WALL_M
+    hi = min(r[2] for r in run) - TREAD_WALL_M
+    a, b = run[0][0] + TREAD_WALL_M, run[-1][0] - TREAD_WALL_M
+    if hi <= lo or b <= a:
+        return False
+    corners = [(lo, a), (hi, a), (hi, b), (lo, b)] if axis == "h" else [(a, lo), (b, lo), (b, hi), (a, hi)]
+    return Polygon([from_f(p) for p in corners]).intersects(wall_geom)
+
+
 def _chains(segs: list[Seg], to_f) -> list[list[Seg]]:
     """Straight axis segments joined end to end (within 5 mm) into simple chains, in order."""
     straight = [s for s in segs if not s.curve and not s.dot]
@@ -1084,6 +1184,23 @@ def min_rect(pts) -> tuple[list[tuple[float, float]], float]:
     box = cv2.boxPoints(cv2.minAreaRect((arr - o).astype(np.float32)))
     corners = [(float(x) + o[0], float(y) + o[1]) for x, y in box]
     return corners, math.dist(corners[0], corners[1]) * math.dist(corners[1], corners[2])
+
+
+def short_side(segs: list[Seg]) -> float:
+    """Short side of the minimum-area rectangle of a stroke set (0 for one straight line, whatever its angle)."""
+    pts = list({p for s in segs for p in s.pts})
+    if len(pts) < 3:
+        return 0.0
+    c, _ = min_rect(pts)
+    return min(math.dist(c[0], c[1]), math.dist(c[1], c[2]))
+
+
+def _short_ids(ids, limit: int = 12) -> str:
+    """``id_ranges`` of ``ids``, at most ``limit`` entries (then ``... (+n)``)."""
+    parts = id_ranges(ids).split(",") if ids else []
+    if len(parts) <= limit:
+        return ",".join(parts)
+    return ",".join(parts[:limit]) + f",... (+{len(parts) - limit})"
 
 
 def circle_fit(segs: list[Seg]) -> Optional[dict]:
@@ -1376,19 +1493,24 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
 
     clusters = clusters_of(inside)
     taken: set = set()
-    for cl in sorted(clusters, key=lambda c: -_bbox_area(c.bounds())):
-        reclose(cl, pool, taken)
-    clusters = _merge_contained(clusters, table)
+    for cl in sorted(clusters, key=lambda c: -_bbox_area(c.bounds(ctx.theta))):
+        reclose(cl, pool, taken, ctx.theta)
+    clusters = group_treads(clusters, ctx.theta, wall_geom, notes)
+    clusters = _merge_contained(clusters, table, ctx.theta)
 
     wall_polys = [TP.wall_polygon(w) for w in walls]
     pieces: list[FurnitureItem] = []
     cands: list[dict] = []
     details = 0
+    line_ids: list[str] = []
     parts_all: list[tuple[Cluster, int]] = []
     for cl in clusters:
-        w, h = cl.size()
+        w, h = cl.size(ctx.theta)
         if max(w, h) < DETAIL_M:
             details += 1
+            continue
+        if short_side(cl.segs) < LINE_DETAIL_M:
+            line_ids.extend(cl.stroke_ids())
             continue
         fp = footprint([p for s in cl.segs for p in s.pts], ctx.theta)
         if max(fp[1], fp[2]) > MAX_SIDE_M:
@@ -1409,7 +1531,7 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
                 used.update(id(s) for s in leg["segs"])
             rest = [s for s in cl.segs if id(s) not in used]
             for sub in clusters_of(rest, CLUSTER_M):
-                if max(sub.size()) >= DETAIL_M:
+                if max(sub.size(ctx.theta)) >= DETAIL_M:
                     parts_all.extend(split_composite(sub, table))
                 else:
                     details += 1
@@ -1419,8 +1541,11 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
     # Footprints of all parts first (the chair rule looks at the tables).
     infos = []
     for part, n in parts_all:
-        if max(part.size()) < DETAIL_M:
+        if max(part.size(ctx.theta)) < DETAIL_M:
             details += 1
+            continue
+        if short_side(part.segs) < LINE_DETAIL_M:
+            line_ids.extend(part.stroke_ids())
             continue
         pts = [p for s in part.segs for p in s.pts]
         fp = footprint(pts, ctx.theta)
@@ -1447,6 +1572,9 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
         cands.append(cand)
     if details:
         notes.append(f"{details} drawn details smaller than {DETAIL_M} m ignored")
+    if line_ids:
+        notes.append(f"{len(line_ids)} line details (minimum rectangle thinner than {LINE_DETAIL_M} m: single lines, "
+                     f"not furniture) ignored: {_short_ids(line_ids)}")
     decor = _site_decor(outside, ctx, raster_page, notes, wall_geom)
     apply_room_checks(pieces, cands, faces, notes)
     return pieces, cands, decor

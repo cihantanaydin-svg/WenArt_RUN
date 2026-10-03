@@ -510,16 +510,148 @@ def test_search_plans_carry_the_spec_fields():
 
 
 def test_frustum_lists_use_the_shift():
+    """Openings: centre in the shifted frustum. Pieces (review dwgblender-2, changed on purpose): centre in
+    the shifted frustum, or seen by the model's rays of the view (a long piece seen from the side)."""
     building = _building(**ROOM_A)
     for p in _search(building):
         tangents = geom2d.frustum_tangents(24.0, 36.0, (1920, 1080))
+        seen = C.score_camera(building, p)["shares"]["elements"]
         for f in building["furniture"]:
             centre = (*f["footprint"]["center"], f["asset"]["bbox_m"][2] / 2.0)
             inside = geom2d.point_in_frustum(centre, p["position"], p["target"], tangents, shift_y=-0.10)
-            assert (f["id"] in p["visible_furniture"]) == inside
+            assert (f["id"] in p["visible_furniture"]) == (inside or seen.get(f["id"], 0.0) > 0.0)
         for o in building["openings"]:
             inside = geom2d.point_in_frustum((*o["center"], 1.0), p["position"], p["target"], tangents, shift_y=-0.1)
             assert (o["id"] in p["visible_openings"]) == inside
+
+
+# --------------------------------------------------------------------------
+# The stair (review dwgblender-2): its built parts, not a solid box
+# --------------------------------------------------------------------------
+
+def _stair_hall() -> dict:
+    """real01's stair hall (tests/test_blender_geometry.py): the drawn U stair in its 1.53 x 4.57 m hall."""
+    from test_blender_geometry import HALL, HALL_WALLS, LEVEL0, real01_stair_piece
+
+    return {"project": {"id": "hall"}, "status": "ok", "levels": [dict(LEVEL0)],
+            "walls": [dict(w) for w in HALL_WALLS], "openings": [], "rooms": [dict(HALL)],
+            "furniture": [real01_stair_piece()]}
+
+
+def _mesh_hits(parts, floor_z: float, origin, dirs: np.ndarray) -> np.ndarray:
+    """Nearest hit parameter of every ray on the triangles of ``parts`` (inf: none). Independent of
+    camsearch: Moeller-Trumbore on the fan triangles of every face."""
+    o = np.asarray(origin, dtype=float)
+    best = np.full(dirs.shape[0], np.inf)
+    for part in parts:
+        v = np.array([(x, y, z + floor_z) for x, y, z in part["verts"]])
+        for face in part["faces"]:
+            for k in range(1, len(face) - 1):
+                p0, p1, p2 = v[face[0]], v[face[k]], v[face[k + 1]]
+                e1, e2 = p1 - p0, p2 - p0
+                pv = np.cross(dirs, e2)
+                det = pv @ e1
+                ok = np.abs(det) > 1e-12
+                inv = np.where(ok, 1.0 / np.where(ok, det, 1.0), 0.0)
+                tv = o - p0
+                u = (pv @ tv) * inv
+                qv = np.cross(tv, e1)
+                w = (dirs @ qv) * inv
+                t = (qv @ e2) * inv
+                hit = ok & (u >= 0) & (w >= 0) & (u + w <= 1) & (t > 1e-6)
+                best = np.where(hit & (t < best), t, best)
+    return best
+
+
+def test_stair_rays_pass_under_the_upper_flight_and_the_landing():
+    """The model's stair is the built stair: a ray under the landing and under the upper flight reaches the
+    wall behind (the old 3.17 m box stopped both), a ray onto a tread stops on it, a ray along the upper
+    flight at 2 m stops on its sloped soffit, not at the start of the footprint."""
+    from wenart.blender import parametric as P
+
+    ft, rh = 0.3048, 2.85 / 16
+    building = _stair_hall()
+    model = C.RoomModel(building["rooms"][0], building)
+    assert P.piece_bbox(building["furniture"][0])[2] > 2.7          # the box: taller than the room
+
+    def ray(origin, direction):
+        labels, depth = model.cast(origin, np.array([direction], dtype=float))
+        return _model_names(model, labels)[0], float(depth[0])
+
+    assert ray((12.5 * ft, 16.5 * ft, 2.5), (0, 0, -1)) == ("f_L0_019", pytest.approx(2.5 - 2 * rh, abs=1e-6))
+    # Under the landing (slab 1.27-1.43 m) at 0.6 m: across the hall to the east wall face (16.26 ft).
+    assert ray((11.5 * ft, 22.2 * ft, 0.6), (1, 0, 0)) == ("wall", pytest.approx(4.76 * ft, abs=1e-6))
+    # Under the upper flight (it rises south from the landing, soffit >= 1.2 m) at 0.5 m: to the north wall.
+    assert ray((15.0 * ft, 12.0 * ft, 0.5), (0, 1, 0)) == ("wall", pytest.approx(11.257 * ft, abs=1e-6))
+    # At 2.0 m the same ray meets the soffit of the upper flight (2.0 m high 1.08 m south of the landing).
+    name, t = ray((15.0 * ft, 12.0 * ft, 2.0), (0, 1, 0))
+    k = rh / (0.833 * ft)
+    soffit_s = (2.0 - 8 * rh + P.STAIR_WAIST_M * math.sqrt(1 + k * k)) / k
+    assert name == "f_L0_019" and t == pytest.approx(21.085 * ft - soffit_s - 12.0 * ft, abs=2e-3)
+    assert model.solids and not model.boxes
+
+
+@pytest.mark.parametrize("position,yaws", [((12.3, 9.3), (60, 90, 120)), ((15.3, 9.0), (60, 90, 120)),
+                                           ((15.0, 12.5), (60, 90, 120))])
+def test_stair_shares_match_the_built_mesh(position, yaws):
+    """Every ray of the 64 x 36 grid: the model sees the stair exactly where an independent triangle caster
+    on the built parts (``shell.plan_stairs`` / ``parametric.stair_parts``, what ``build_stairs`` builds)
+    hits it before the walls, floor or ceiling. The old box model was off by up to 0.66 of the frame on
+    real01's hall (27.5 % model vs 4.3 % in the render)."""
+    from wenart.blender import parametric as P, shell
+
+    ft = 0.3048
+    building = _stair_hall()
+    model = C.RoomModel(building["rooms"][0], building)
+    bare = C.RoomModel(building["rooms"][0], dict(building, furniture=[]))
+    plan = shell.plan_stairs(building, building["levels"][0])[0]["plan"]
+    parts = P.stair_parts(plan)
+    a, b = C.ray_grid(shift_y=C.SHIFT_Y)
+    origin = (position[0] * ft, position[1] * ft, C.CAMERA_HEIGHT)
+    code = C.FIRST_ELEMENT
+    for yaw in yaws:
+        dirs = C.yaw_directions([yaw], a, b)[0]
+        labels, depth = model.cast(origin, dirs)
+        _, room_depth = bare.cast(origin, dirs)
+        t = _mesh_hits(parts, 0.0, origin, dirs)
+        truth = t < room_depth
+        assert truth.mean() > 0.05, yaw                                  # the stair is in the view
+        assert np.array_equal(labels == code, truth), (yaw, int((labels == code).sum()), int(truth.sum()))
+        assert np.allclose(depth[truth], t[truth], atol=1e-6)
+
+
+def test_hall_views_show_the_stair_and_list_it():
+    """real01's hall: the picked views look at the stair (model share >= 0.15, the model now matching the
+    built stair) and list it in ``visible_furniture``. With the box model the search marked every view
+    towards the stair blocked and picked two views of the walls with ``visible_furniture: []``."""
+    building = _stair_hall()
+    plans = _search(building)
+    assert len(plans) == C.views_for_area(G.polygon_area(C.room_polygon(building["rooms"][0])))
+    for p in plans:
+        share = C.score_camera(building, p)["shares"]["elements"].get("f_L0_019", 0.0)
+        assert share >= 0.15 and "f_L0_019" in p["visible_furniture"], (p["name"], share)
+        assert not p["score"]["blocked"] and p["warning"] is None
+
+
+def test_a_long_piece_seen_from_the_side_is_listed_although_its_centre_is_outside():
+    """``visible_furniture`` lists a piece the view's rays see even when its centre is outside the frame
+    (a 2.4 m stair whose side fills half the picture)."""
+    ft = 0.3048
+    building = _stair_hall()
+    room = building["rooms"][0]
+    model = C.RoomModel(room, building)
+    stair = building["furniture"][0]
+    tangents = geom2d.frustum_tangents(24.0, 36.0, (1920, 1080))
+    found = 0
+    for c in C.score_candidates(model, [(12.0 * ft, 13.5 * ft), (15.8 * ft, 13.0 * ft), (13.75 * ft, 9.0 * ft)]):
+        share = c["shares"]["elements"].get("f_L0_019", 0.0)
+        plan = C._plan(model, 1, c, None)
+        centre = (*stair["footprint"]["center"], 3.17 / 2.0)
+        inside = geom2d.point_in_frustum(centre, plan["position"], plan["target"], tangents, shift_y=C.SHIFT_Y)
+        assert ("f_L0_019" in plan["visible_furniture"]) == (inside or share > 0.0)
+        if not inside and share >= 0.1:
+            found += 1
+    assert found >= 1
 
 
 def test_search_is_deterministic_and_independent_of_input_order():

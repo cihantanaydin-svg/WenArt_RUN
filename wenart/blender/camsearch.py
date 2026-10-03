@@ -93,8 +93,9 @@ import numpy as np
 
 from wenart import geometry as G
 from wenart.blender import cameras, geom2d
+from wenart.blender import parametric as P
 from wenart.blender.parametric import obstacle_rect, piece_bbox
-from wenart.blender.shell import opening_vertical
+from wenart.blender.shell import opening_vertical, plan_stairs
 
 POLICY = "search"
 
@@ -320,6 +321,65 @@ def camera_directions(position, target, a: np.ndarray, b: np.ndarray) -> np.ndar
 # The room model
 # --------------------------------------------------------------------------
 
+def convex_parts_solid(parts, floor_z: float = 0.0):
+    """``(lo, hi, planes)`` of convex parts (``parametric`` parts: ``verts``, ``faces`` wound outwards,
+    z above the floor) for ``RoomModel``: the world bounding box (3-vectors, the floor added) and per part
+    ``(normals k x 3, offsets k)`` with the inside ``normals . x <= offsets``. None without a part."""
+    planes, pts = [], []
+    for part in parts:
+        verts = [(float(x), float(y), float(z) + float(floor_z)) for x, y, z in part["verts"]]
+        normals, offsets = [], []
+        for face in part["faces"]:
+            n = geom2d.face_normal(verts, face)
+            if n == (0.0, 0.0, 0.0):
+                continue
+            c = geom2d.face_center(verts, face)
+            normals.append(n)
+            offsets.append(n[0] * c[0] + n[1] * c[1] + n[2] * c[2])
+        if len(normals) >= 4:
+            planes.append((np.array(normals), np.array(offsets)))
+            pts.extend(verts)
+    if not planes:
+        return None
+    arr = np.array(pts)
+    return arr.min(axis=0), arr.max(axis=0), planes
+
+
+def _cast_convex_parts(origin, d: np.ndarray, lo, hi, parts, depth: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """``(t, hit)`` of rays ``origin + t d`` (N x 3) against convex parts (``convex_parts_solid``): ``hit``
+    where a part lies nearer than ``depth``, ``t`` the entry parameter there (the exit one for an origin
+    inside a part). Rays that miss the bounding box ``lo``-``hi`` skip the parts."""
+    o = np.asarray(origin, dtype=np.float64)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        t1, t2 = (lo[None, :] - o[None, :]) / d, (hi[None, :] - o[None, :]) / d
+        tmin = np.fmax.reduce(np.fmin(t1, t2), axis=1)
+        tmax = np.fmin.reduce(np.fmax(t1, t2), axis=1)
+    sel = np.nonzero((tmax >= np.maximum(tmin, _EPS_T)) & (tmin < depth))[0]
+    t_out = np.array(depth, dtype=np.float64, copy=True)
+    hit_out = np.zeros(d.shape[0], dtype=bool)
+    if sel.size == 0:
+        return t_out, hit_out
+    ds = d[sel]
+    best = t_out[sel]
+    hit = np.zeros(sel.size, dtype=bool)
+    for normals, offsets in parts:
+        den = ds @ normals.T                        # R x k
+        num = offsets - normals @ o                 # k: >= 0 where the origin is inside that plane
+        with np.errstate(divide="ignore", invalid="ignore"):
+            t = num[None, :] / den
+        enter = np.where(den < -1e-12, t, -np.inf).max(axis=1)
+        leave = np.where(den > 1e-12, t, np.inf).min(axis=1)
+        parallel_out = ((np.abs(den) <= 1e-12) & (num[None, :] < 0)).any(axis=1)
+        ok = ~parallel_out & (leave >= np.maximum(enter, _EPS_T))
+        th = np.where(enter > _EPS_T, enter, leave)
+        closer = ok & (th < best)
+        best = np.where(closer, th, best)
+        hit |= closer
+    t_out[sel] = best
+    hit_out[sel] = hit
+    return t_out, hit_out
+
+
 class RoomModel:
     """Ray-cast model of one room (see the module docstring).
 
@@ -378,14 +438,29 @@ class RoomModel:
                 spans.append((along, float(o["width"]) / 2.0, bottom, top, code))
             self.edges.append((a[0], a[1], b[0] - a[0], b[1] - a[1], length, spans))
 
-        # Furniture boxes: piece_bbox in the footprint frame, standing on the floor.
+        # Furniture boxes: piece_bbox in the footprint frame, standing on the floor. A stair (fixed
+        # equipment, parametric.SHELL_TYPES) is its built parts instead (review dwgblender-2): the step
+        # prisms on their sloped waist, the riser plates, the landing slab and the rails, open under the
+        # upper flight and the landing as shell.build_stairs builds it; its bounding box is a solid block
+        # taller than the room that hid the walls behind the flights.
         self.boxes = []
+        self.solids = []
+        stair_plans = None
         for k, f in enumerate(self.pieces):
+            code = FIRST_ELEMENT + len(self.elements) - len(self.pieces) + k
+            if f.get("type") in P.SHELL_TYPES:
+                if stair_plans is None:
+                    stair_plans = {item["piece"]["id"]: item["plan"] for item in plan_stairs(building, self.level)}
+                plan = stair_plans.get(f["id"])
+                if plan is not None:
+                    solid = convex_parts_solid(P.stair_parts(plan), self.floor_z)
+                    if solid is not None:
+                        self.solids.append((code,) + solid)
+                        continue
             w, d, h, _ = piece_bbox(f)
             fp = f["footprint"]
             rot = math.radians(float(fp.get("rotation_deg") or 0.0))
-            self.boxes.append((FIRST_ELEMENT + len(self.elements) - len(self.pieces) + k,
-                               float(fp["center"][0]), float(fp["center"][1]), self.floor_z + h / 2.0,
+            self.boxes.append((code, float(fp["center"][0]), float(fp["center"][1]), self.floor_z + h / 2.0,
                                w / 2.0, d / 2.0, h / 2.0, math.cos(rot), math.sin(rot)))
 
     # ------------------------------------------------------------------
@@ -443,6 +518,11 @@ class RoomModel:
             closer = hit & (t < depth)
             depth = np.where(closer, t, depth)
             labels = np.where(closer, code, labels)
+
+        for code, lo, hi, parts in self.solids:
+            t, hit = _cast_convex_parts((ox, oy, oz), d, lo, hi, parts, depth)
+            depth = np.where(hit, t, depth)
+            labels = np.where(hit, code, labels)
         return labels.reshape(shape), depth.reshape(shape)
 
     # ------------------------------------------------------------------
@@ -627,15 +707,20 @@ def _round(v: float, nd: int = 4) -> float:
     return 0.0 if r == 0 else r
 
 
-def _frustum_lists(model: RoomModel, position, target) -> tuple[list[str], list[str]]:
-    """The room's openings and pieces whose centre is inside the shifted frustum (as the M5 lists)."""
+def _frustum_lists(model: RoomModel, position, target, seen=None) -> tuple[list[str], list[str]]:
+    """The room's openings whose centre is inside the shifted frustum (as the M5 lists), and its pieces
+    whose centre is inside it or that the model's rays see (``seen``: ``{element id: ray share}`` of
+    this view, the ``elements`` of ``RoomModel.measure``). A long piece seen from the side (a 2.4 m stair
+    filling half the frame) can have its centre outside the frame (review dwgblender-2)."""
     tangents = geom2d.frustum_tangents(LENS_MM, SENSOR_MM, RESOLUTION)
     fz = model.floor_z
+    seen = seen or {}
     opens = [o["id"] for o in model.openings
              if geom2d.point_in_frustum((o["center"][0], o["center"][1], fz + 1.0), position, target, tangents,
                                         shift_x=SHIFT_X, shift_y=SHIFT_Y)]
     pieces = [f["id"] for f in model.pieces
-              if geom2d.point_in_frustum((f["footprint"]["center"][0], f["footprint"]["center"][1],
+              if seen.get(f["id"], 0.0) > 0.0
+              or geom2d.point_in_frustum((f["footprint"]["center"][0], f["footprint"]["center"][1],
                                           fz + piece_bbox(f)[2] / 2.0), position, target, tangents,
                                          shift_x=SHIFT_X, shift_y=SHIFT_Y)]
     return opens, pieces
@@ -657,7 +742,7 @@ def _plan(model: RoomModel, index: int, pick: dict, warning: Optional[str]) -> d
     placement = (f"search: score {score['total']:.3f} = furniture {score['furniture']:.3f} + openings "
                  f"{score['openings']:.3f} + floor {score['floor']:.3f} + depth {score['depth']:.3f} - penalties "
                  f"{score['penalties']:.3f}; yaw {pick['yaw']:.0f} deg")
-    opens, pieces = _frustum_lists(model, position, target)
+    opens, pieces = _frustum_lists(model, position, target, m.get("elements"))
     return {
         "name": f"cam_{room['id']}_{index}",
         "room_id": room["id"], "level_id": room["level_id"], "index": index,

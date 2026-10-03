@@ -163,6 +163,80 @@ def test_stair_rule_single_flight_and_uneven_lines():
     assert not [p for p in pieces2 if p.type == "stair"]
 
 
+def test_single_lines_are_line_details_not_zero_depth_furniture():
+    """review2 ingest-4: a lone straight stroke (one side >= 0.2 m, the other ~0) fits no type; it is a drawn line
+    detail (counted and reported), never an 'unknown' piece of depth 0 that Blender would build as a sliver."""
+    lone = R.stroke([(1.0, 2.5), (2.0, 2.5)])                                 # 1.0 x 0.0 m
+    slanted = R.stroke([(3.0, 1.0), (3.8, 1.6)])                               # 1.0 m at 37 deg
+    table = _rect_strokes(2.5, 3.0, 3.7, 3.8)
+    notes = []
+    pieces, cands, _ = _furn([lone, slanted] + table, notes=notes)
+    found = _all(pieces, cands)
+    assert len(found) == 1 and min(found[0].size) == pytest.approx(0.8)      # only the table
+    assert all(min(p.size) >= SY.LINE_DETAIL_M for p in found)
+    line_note = [n for n in notes if "line details" in n]
+    assert len(line_note) == 1 and line_note[0].startswith("2 line details")
+    assert line_note[0].endswith(SY.id_ranges([lone.id, slanted.id]))           # the strokes are named
+
+
+def test_isolated_treads_between_walls_become_a_stair():
+    """review2 ingest-4: treads drawn from wall face to wall face (no stringer, no walk line) are separate clusters;
+    they are grouped into one stair candidate that the stair rule types, not 8 zero-depth unknown pieces."""
+    walls = _room(0.0, 0.0, 1.7, 4.0)                                          # faces x 0.1-1.6, y 0.1-3.9
+    treads = [R.stroke([(0.1, 1.0 + 0.25 * k), (1.6, 1.0 + 0.25 * k)]) for k in range(8)]
+    notes = []
+    pieces, cands, _ = _furn(treads, walls=walls, notes=notes)
+    assert not cands
+    assert [(p.type, p.type_method, p.status) for p in pieces] == [("stair", "rule", "verified")]
+    st = pieces[0].details["stair"]
+    assert len(st["flights"]) == 1 and st["flights"][0]["lines"] == 8
+    assert st["flights"][0]["width"] == pytest.approx(1.5) and st["flights"][0]["spacing"] == pytest.approx(0.25)
+    assert sorted(pieces[0].size) == pytest.approx([1.5, 1.75])
+    assert any("8 isolated, evenly spaced tread lines" in n for n in notes)
+    # Lines on both sides of a wall are no flight: 3 + 3 evenly spaced lines with a wall (faces y 1.575-1.675)
+    # between them stay line details.
+    walls2 = _room(0.0, 0.0, 1.7, 4.0) + [R.wall((0.0, 1.625), (1.7, 1.625), 0.1)]
+    split = [R.stroke([(0.1, y), (1.6, y)]) for y in (1.0, 1.25, 1.5, 1.75, 2.0, 2.25)]
+    notes2 = []
+    pieces2, cands2, _ = _furn(split, walls=walls2, notes=notes2)
+    assert not [p for p in pieces2 if p.type == "stair"] and not cands2 and not pieces2
+    assert any("line details" in n for n in notes2)
+
+
+def test_rotated_plan_containment_merge_uses_the_aligned_frame():
+    """review2 ingest-5: on a plan drawn at 30 deg the page-axis box of the stair covers a chair across the wall;
+    the containment merge works in the plan's frame, so the stair keeps its own strokes and size."""
+    a = math.radians(30.0)
+
+    def rot(p):
+        return (p[0] * math.cos(a) - p[1] * math.sin(a), p[0] * math.sin(a) + p[1] * math.cos(a))
+
+    def rotated(strokes):
+        return [R.stroke([rot(p) for p in s.pts]) for s in strokes]
+
+    def scene(turn):
+        f = rot if turn else (lambda p: p)
+        walls = [R.wall(f(s), f(e), t) for s, e, t in (((0, 0.1), (6, 0.1), 0.2), ((5.9, 0), (5.9, 5), 0.2),
+                                                      ((6, 4.9), (0, 4.9), 0.2), ((0.1, 5), (0.1, 0), 0.2),
+                                                      ((2.1, 0.2), (2.1, 4.8), 0.2))]
+        stair = _stair_strokes(x0=0.4, y0=0.5, width=1.5)                       # x 0.4-1.9, y 0.5-2.91
+        stair += [R.stroke([(0.4, 0.5), (0.4, 2.91)]), R.stroke([(1.9, 0.5), (1.9, 2.91)])]   # side lines
+        # An open chair outline (three sides) in the next room, 0.1 m from the wall face: turned by 30 deg, 98 % of
+        # its page-axis box lies inside the stair's page-axis box.
+        chair = [R.stroke([(2.3, 1.95), (2.3, 2.4)]), R.stroke([(2.3, 2.4), (2.75, 2.4)]),
+                 R.stroke([(2.75, 2.4), (2.75, 1.95)])]
+        strokes = rotated(stair + chair) if turn else stair + chair
+        return _furn(strokes, walls=walls)
+
+    for turn in (False, True):
+        pieces, cands, _ = scene(turn)
+        stairs = [p for p in pieces if p.type == "stair"]
+        assert len(stairs) == 1, turn
+        assert sorted(stairs[0].size) == pytest.approx([1.5, 1.75 + 0.66], abs=1e-3), turn
+        # The chair is its own candidate (merged into the stair, the stair would grow and the chair vanish).
+        assert len(cands) == 1 and sorted(cands[0]["item"].size) == pytest.approx([0.45, 0.45], abs=1e-3), turn
+
+
 def test_kitchen_counter_rule_l_shape_with_a_window_behind():
     walls = _room(0, 0, 4, 4)
     window = OpeningItem(kind="window", width=1.2, center=(2.0, 4.0), rotation_deg=0.0, box=[], entity="w",

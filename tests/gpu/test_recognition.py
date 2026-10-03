@@ -121,13 +121,16 @@ def test_m7_recognition_answers_complete():
         with_requests.append(project)
         summary[project] = A.status(rec)
     (RESULTS / "m7_recognition_status.json").write_text(json.dumps(summary, indent=1))
-    assert "real01" in with_requests, "real01 wrote no recognition requests"
+    if "real01" in PREP_PROJECTS:
+        assert "real01" in with_requests, "real01 wrote no recognition requests"
     incomplete = {p: s["models"] for p, s in summary.items() if s is not None and not s["complete"]}
     assert not incomplete, f"answers incomplete: {incomplete}"
 
 
 @needs_prep
 def test_m7_real01_ai_typing_is_mostly_right_and_never_verified_wrong():
+    if "real01" not in PREP_PROJECTS:
+        pytest.skip("real01 not in WENART_PREP_PROJECTS")
     building = _building("real01")
     ref = [p for p in _reference()["furniture"] if not p.get("not_a_piece") and "centre_ft" in p]
 

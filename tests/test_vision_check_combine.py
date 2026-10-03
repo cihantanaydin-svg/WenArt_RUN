@@ -347,6 +347,32 @@ def test_an_added_potted_plant_is_decor_and_never_rejects():
     assert CB.polish_decision(cyc, pol, False)["polished_reasons"][0]["what"] == "added_by_polish"
 
 
+def test_the_decor_plant_seen_as_potted_plant_is_the_same_object():
+    """Review vision-2: the equivalence works both ways. The decor floor plant (expected "plant", optional) seen as
+    the M7 category "potted_plant" on the polished image is present, so the polish is not rejected; a drawn
+    potted_plant seen as "plant" (the first direction) and a lamp seen as "floor_lamp" are present too."""
+    from wenart.vision_check import schemas as S
+    exp = expected_view()
+    exp["elements"].append(el(7, "dec_plant", "decor", "plant", 4000, role="optional", box=(880, 700, 990, 990),
+                              source="added_by_ai"))
+    exp["elements"].append(el(8, "f_pot", "furniture", "potted_plant", 4000, box=(700, 820, 790, 990)))
+    exp["elements"].append(el(9, "fx_lamp", "fixture", "lamp", 3000, role="optional", box=(400, 300, 450, 480),
+                              source="added_by_ai"))
+    spec = spec_for(exp)
+    cyc = combine(spec, {k: answer(spec) for k in KEYS})                                    # seen as expected
+    seen = {"dec_plant": ("different", "potted_plant"), "f_pot": ("different", "plant"),
+            "fx_lamp": ("different", "floor_lamp")}
+    pol = combine(spec, {k: answer(spec, seen) for k in KEYS})
+    for wid in ("dec_plant", "f_pot", "fx_lamp"):
+        assert cyc["elements"][wid]["result"] == "ok", wid
+        assert pol["elements"][wid]["result"] == "ok", (wid, pol["elements"][wid])
+    assert not CB.polish_decision(cyc, pol, single_pass=False)["polished_rejected"]
+    # "present" with the equivalent category is consistent (was "unsure"); anything else stays different.
+    assert S.normalise_answer({"status": "present", "seen_as": "potted_plant"}, "plant")[0]["status"] == "present"
+    assert S.normalise_answer({"status": "present", "seen_as": "lamp"}, "floor_lamp")[0]["status"] == "present"
+    assert S.normalise_answer({"status": "different", "seen_as": "vase"}, "plant")[0]["status"] == "different"
+
+
 def test_check_incomplete_for_a_failed_or_unreliable_pass():
     cyc, pol = _pair(polished_rec=False)
     d = CB.polish_decision(cyc, pol, False)

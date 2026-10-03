@@ -13,7 +13,9 @@ old outputs on the volume):
   ``reused``, ``warning`` or ``skipped`` with an allowed reason (warnings are
   printed); the pipeline may be ``pending`` (recognition questions, M7 §1.4)
   only with a ``recognize`` stage and a ``pipeline_final`` that ended ``ok``
-  or ``reused`` in this run, whose building has no pending question; the
+  or ``reused`` in this run (or ``warning`` for second-round questions it
+  left unanswered with ``--no-ai``, wenart/run/stages.py
+  ``SECOND_ROUND_NOTE``), whose building has no pending question; the
   final report's view count equals the render manifest; a project whose
   gate decision is ``polish_disabled`` or ``not_validated`` has Cycles
   finals only;
@@ -33,6 +35,7 @@ from pathlib import Path
 import pytest
 
 from wenart.canonical import canonical_sha256
+from wenart.run.stages import SECOND_ROUND_NOTE
 from wenart.run.state import SKIP_REASONS
 
 pytestmark = pytest.mark.gpu
@@ -103,19 +106,25 @@ def test_run_project_is_ok_with_allowed_stage_states(manifest, project):
 @pytest.mark.parametrize("project", RUN)
 def test_pending_pipeline_has_its_final_building(manifest, project):
     """M7 §9.1: a pipeline that wrote recognition questions (pending) is ok only with this run's recognize stage
-    and a pipeline_final that ended ok or reused; that building is the one the later stages used."""
+    and a pipeline_final that ended ok or reused; that building is the one the later stages used. A pipeline_final
+    whose answers opened second-round questions ran once more with --no-ai and is a warning with exactly
+    SECOND_ROUND_NOTE (the new pieces stay unknown/unverified, listed in its report): allowed, printed."""
     stages = {s["stage"]: s for s in _entry(manifest, project)["stages"]}
     if stages.get("pipeline", {}).get("status") != "pending":
         assert stages.get("pipeline_final", {}).get("note") == "no questions", stages.get("pipeline_final")
         return
     assert "recognize" in stages and stages["recognize"]["status"] in ("ok", "reused", "warning"), stages
-    assert stages.get("pipeline_final", {}).get("status") in ("ok", "reused"), stages.get("pipeline_final")
+    final = stages.get("pipeline_final", {})
+    second_round = final.get("status") == "warning" and final.get("note") == SECOND_ROUND_NOTE
+    assert final.get("status") in ("ok", "reused") or second_round, final
     record = _load(project, "run/pipeline_final.json")
     building = OUTPUTS / project / "building.json"
     assert record["written"]["building.json"] == canonical_sha256(building)
     assert json.loads(building.read_text(encoding="utf-8"))["status"] == "ok"
     if stages["recognize"]["status"] == "warning":
         print(f"{project} warning recognize: {stages['recognize']['note']}")
+    if second_round:
+        print(f"{project} warning pipeline_final: {final['note']}")
 
 
 @pytest.mark.parametrize("project", RUN)

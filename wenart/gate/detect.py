@@ -419,8 +419,14 @@ def confirm(candidates: list[dict], t_strong: Optional[float], extras: Iterable[
 
 
 def target_hit(candidates: list[dict], target_box, need: float = TARGET_COVER) -> Optional[dict]:
-    """The best-scoring candidate covering >= ``need`` of an insertion target's box (None when none does)."""
-    hits = [c for c in candidates if box_cover(c["box_px"], target_box) >= need]
+    """The best-scoring NON-DECOR candidate covering >= ``need`` of an insertion target's box (None when none does).
+
+    Decor boxes (picture frame, mirror, rug, ...) never count as a hit: the
+    decision only rejects on confirmed non-decor candidates, so the insertion
+    rate of the calibration and of the per-run controls measures the same
+    thing (review vision-1: a "picture frame" box over an inserted window
+    counted as found although it can never reject a polish)."""
+    hits = [c for c in candidates if non_decor(c.get("class")) and box_cover(c["box_px"], target_box) >= need]
     return max(hits, key=lambda c: (float(c["score"]), c["group"]), default=None)
 
 
@@ -752,8 +758,9 @@ def build_pairs(project_outs: Iterable, perturbations: Iterable[str] = PERTURBAT
 
 def pair_scores(pair: dict, cycles_boxes: list[dict], polished_boxes: list[dict], index_map=None,
                 table=None) -> dict:
-    """The scores the calibration needs from one pair: ``hit`` (positives: the best candidate on the target),
-    ``false`` (negatives: the best non-decor candidate), at the record floor (every candidate)."""
+    """The scores the calibration needs from one pair: ``hit`` (positives: the best non-decor candidate on the
+    target, ``target_hit``), ``false`` (negatives: the best non-decor candidate), at the record floor (every
+    candidate). Both sides count only what the decision can reject on (non-decor)."""
     cands = added_candidates(polished_boxes, cycles_boxes, 0.0, index_map, table, pair.get("exclude_ids") or ())
     if pair["kind"] == "positive":
         hit = target_hit(cands, pair["target_box_px"])
@@ -780,8 +787,9 @@ def calibrate_scores(hits: list, falses: list, grid: Iterable[float] = GRID, tar
       a non-decor candidate at >= t) is <= ``false_confirmed_max`` (3 %);
     - ``t_det``: the lowest grid score whose false share is <=
       ``false_flagged_max`` (10 %), at most ``t_strong``;
-    - ``targets_met``: insertion confirmed (positives with a candidate on
-      the target at >= ``t_strong``) >= 60 % and false confirmed <= 3 %;
+    - ``targets_met``: insertion confirmed (positives with a non-decor
+      candidate on the target at >= ``t_strong``) >= 60 % and false
+      confirmed <= 3 %;
       ``usable`` = targets met with both thresholds found.
     Without positives or negatives nothing is proposed.
     """

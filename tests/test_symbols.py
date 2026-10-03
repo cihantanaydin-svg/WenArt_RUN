@@ -257,6 +257,19 @@ def test_disagreeing_passes_keep_unknown_with_both_candidates_and_a_conflict(tab
     assert res["type"] == "unknown" and res["conflict"] is not None and res["build"] is True
 
 
+def test_the_size_veto_tests_what_the_choices_offered(table):
+    """The offered choices and the size veto test the same sides (rounded to 1 mm): a type the models could not be
+    offered is never accepted, and an offered type is never vetoed, by sub-millimetre noise at a range edge."""
+    edge = 0.35 / (1.0 + S.SIZE_TOLERANCE)                      # the chair's lower edge, 0.304348 m
+    for side in (edge - 0.0004, edge + 0.00001, edge + 0.0004, 0.3046):
+        size = (side, 0.40)
+        offered = "chair" in S.choices_for(size, table)
+        res = S.decide(candidate(size=size), {"qwen": answer("chair"), "glm": answer("chair")}, table, "dining")
+        assert (res["type"] == "chair") == offered, (side, offered, res["type"])
+    assert "chair" not in S.choices_for((edge + 0.00001, 0.40), table)        # 0.30436 rounds to 0.304: outside
+    assert S.sides_mm((0.30436, 0.4)) == (0.304, 0.4)
+
+
 def test_size_veto_when_both_say_a_type_the_footprint_cannot_be(table):
     res = S.decide(candidate(size=(0.5, 0.5)), {"qwen": answer("bed_double"), "glm": answer("bed_double")}, table,
                    "bedroom")
@@ -348,6 +361,16 @@ def test_front_rule(table):
     assert res["front"] == 270.0 and res["front_assumed"] is True
     assert any("front assumed" in w for w in res["warnings"])
     assert S.decide(det, both("bottom", "none"), table, "living")["front_assumed"] is False   # a pass names it
+    # The generic core's candidates carry the rule that found the drawn front: an assumed front names it.
+    wall = "only side within 0.25 m of a wall is the back"
+    ruled = candidate(size=sofa, front_candidates=[{"front_deg": 270.0, "rule": wall}, 270.0])
+    res = S.decide(ruled, both("none", "none"), table, "living")
+    assert res["front"] == 270.0 and res["front_assumed"] is True and res["front_rule"] == wall
+    assert any("front assumed" in w and wall in w for w in res["warnings"])
+    assert S.decide(ruled, both("bottom", "bottom"), table, "living")["front_rule"] is None    # agreed: not assumed
+    assert S.decide(candidate(size=sofa, front_candidates=[{"front_deg": 270.0, "rule": wall},
+                                                           {"front_deg": 90.0, "rule": "pillows"}]),
+                    both("none", "none"), table, "living")["front"] is None                    # two drawn fronts
     # Two different deterministic candidates are not unique: the passes decide.
     two = candidate(size=sofa, front_candidates=[0.0, 180.0])
     assert S.decide(two, both("left", "left"), table, "living")["front"] == 180.0
@@ -393,13 +416,17 @@ def _bed_item(front_candidates=None):
 
 def test_core_keeps_the_drawn_front_assumed_when_both_passes_answer_none(table):
     from wenart.ingest.generic import core
-    cand = candidate(size=(2.0295, 1.7795), rotation=90.0, front_candidates=[270.0])
+    pillows = "head = side with >= 2 small closed shapes"
+    fronts = [{"front_deg": 270.0, "rule": pillows}]
+    cand = candidate(size=(2.0295, 1.7795), rotation=90.0, front_candidates=core._front_values(
+        {"front_candidates": fronts}))
     res = S.decide(cand, {"qwen": answer("bed_double"), "glm": answer("bed_double")}, table, "bedroom")
-    item = _bed_item()
-    core._apply_decision(item, res, table)
+    item = _bed_item(fronts)
+    assert core._apply_decision(item, res, table) == []           # the result's own warning names the assumed front
     assert (item.type, item.status) == ("bed_double", "verified")
     assert item.front_deg == 270.0 and item.rotation_deg == 0.0 and item.size == (1.7795, 2.0295)
-    assert item.details["front_assumed"] is True
+    assert item.details["front_assumed"] is True and item.details["front_rule"] == pillows
+    assert any("front assumed" in w and pillows in w for w in res["warnings"])
 
 
 def test_core_orients_a_typed_piece_without_a_front_by_its_type(table):
@@ -409,9 +436,20 @@ def test_core_orients_a_typed_piece_without_a_front_by_its_type(table):
                    "bedroom")
     assert res["front"] is None and res["type"] == "bed_double"
     item = _bed_item()
-    core._apply_decision(item, res, table)
+    warned = core._apply_decision(item, res, table)
     assert item.front_deg is None and item.size == (1.7795, 2.0295) and item.rotation_deg == 0.0
     assert "front_assumed" not in item.details and "bed_double" in item.details["front_note"]
+    # Never silent: the orientation by the type's convention is a warning (the builder's facing is assumed).
+    assert len(warned) == 1 and warned[0].startswith("sym_L0_001: bed_double without an agreed front")
+    assert "turned 90 deg" in warned[0]
+    # A type without a front (a table, a lamp, a plant): the convention only, nothing assumed to warn about.
+    res = S.decide(candidate(size=(0.7353, 1.2383)), {"qwen": answer("table_dining"), "glm": answer("table_dining")},
+                   table, "dining")
+    table_item = _bed_item()
+    table_item.size, table_item.rotation_deg = (0.7353, 1.2383), 0.0
+    assert core._apply_decision(table_item, res, table) == []
+    assert table_item.size == (1.2383, 0.7353) and table_item.rotation_deg == 90.0
+    assert "has no front" in table_item.details["front_note"]
     # An unknown type keeps the no-front convention.
     res = S.decide(cand, {"qwen": answer("bed_double"), "glm": answer("sofa")}, table, "bedroom")
     item = _bed_item()
@@ -466,3 +504,6 @@ def test_real01_beds_answered_front_none_keep_the_drawn_front(real01_first):
         assert f.front_deg in (90.0, 270.0)
         assert f.rotation_deg == round((f.front_deg + 90.0) % 360.0, 3)
         assert [round(v, 2) for v in f.size] == [1.78, 2.03]
+        assert "small closed shapes" in f.details["front_rule"]          # the pillows found it: its evidence
+    assumed = [w for w in ex.warnings if "front assumed" in w]
+    assert len(assumed) == 2 and all("small closed shapes" in w for w in assumed)

@@ -456,6 +456,78 @@ def test_plain_opening_runs_to_the_ceiling_with_a_soffit(built_variant):
     assert probe["rays"]["up_beside_opening"]["object"] == "w_L1_005"  # the wall head stays closed elsewhere
 
 
+FACE_SCRIPT = textwrap.dedent("""
+    import bpy, json, sys
+    out = sys.argv[sys.argv.index("--") + 1]
+    rows = {}
+    for ob in bpy.data.objects:
+        if ob.get("wenart_kind") != "wall":
+            continue
+        mats = [m.name if m else None for m in ob.data.materials]
+        rows[ob.name] = [{"centre": list(ob.matrix_world @ p.center), "normal": list(p.normal),
+                          "slot": p.material_index, "material": mats[p.material_index], "area": p.area}
+                         for p in ob.data.polygons]
+    json.dump(rows, open(out, "w"))
+""")
+
+
+def _merged_run_building() -> dict:
+    """An L-shaped plan whose east wall of the living room is ONE exterior run x = 5.0, y 0-6 (as the
+    generic core merges real01's w_L0_011): its south half is on the outer loop (outside: the yard), its
+    north half separates the living room from a kitchen (review ingest-3)."""
+    ev = [{"file": "t.pdf", "page": 1, "method": "vector", "confidence": 0.9}]
+
+    def wall(wid, a, b, exterior=True):
+        return {"id": wid, "level_id": "L0", "start": list(a), "end": list(b), "thickness": 0.2, "height": None,
+                "exterior": exterior, "status": "verified", "evidence": ev}
+
+    def room(rid, rtype, x0, y0, x1, y1):
+        return {"id": rid, "level_id": "L0", "label": rtype.title(), "room_type": rtype, "status": "verified",
+                "polygon": [[x0, y0], [x1, y0], [x1, y1], [x0, y1]], "evidence": ev}
+
+    walls = [wall("w_s", (-0.1, 0.0), (5.1, 0.0)), wall("w_w", (0.0, -0.1), (0.0, 6.1)),
+             wall("w_n", (-0.1, 6.0), (9.1, 6.0)), wall("w_run", (5.0, -0.1), (5.0, 6.1)),
+             wall("w_ks", (5.0, 3.0), (9.1, 3.0)), wall("w_ke", (9.0, 2.9), (9.0, 6.1))]
+    rooms = [room("r_liv", "living", 0.1, 0.1, 4.9, 5.9), room("r_kit", "kitchen", 5.1, 3.1, 8.9, 5.9)]
+    return {"schema_version": "0.1", "status": "ok", "project": {"id": "merged-run"},
+            "levels": [{"id": "L0", "label": "Ground floor", "elevation": 0.0, "ceiling_height": 2.7}],
+            "walls": walls, "openings": [], "rooms": rooms, "furniture": [], "decor": [], "warnings": [],
+            "unverified": []}
+
+
+def test_exterior_material_stops_where_a_merged_run_faces_a_room(tmp_path):
+    """Review ingest-3 in a built scene: the outward faces of the merged exterior run that look into the
+    kitchen take the wet-wall material, the stretch facing the yard keeps plaster_exterior, and no face
+    with the exterior material looks into a room."""
+    building = _merged_run_building()
+    path = tmp_path / "building.json"
+    path.write_text(json.dumps(building), encoding="utf-8")
+    out = tmp_path / "scene"
+    cli.run_blender(Path(cli.BUILD_SCRIPT), ["--building", str(path), "--style", str(STYLE), "--out", str(out),
+                                             "--no-textures", "--no-preview", "--no-glb"])
+    dump = tmp_path / "faces.json"
+    (tmp_path / "faces.py").write_text(FACE_SCRIPT, encoding="utf-8")
+    cli.run_blender(tmp_path / "faces.py", [str(dump)], blend=str(out / "scene.blend"))
+    faces = json.loads(dump.read_text(encoding="utf-8"))
+    rooms = {r["id"]: r["polygon"] for r in building["rooms"]}
+
+    def looks_into(f):
+        c, n = f["centre"], f["normal"]
+        probe = (c[0] + n[0] * 0.05, c[1] + n[1] * 0.05)
+        return [rid for rid, poly in rooms.items() if G.point_in_polygon(probe, poly)]
+
+    for name, rows in faces.items():
+        for f in rows:
+            if f["material"] == "plaster_exterior":
+                assert not looks_into(f), (name, f)
+    east = [f for f in faces["w_run"] if f["normal"][0] > 0.5 and f["area"] > 0.05]
+    yard = [f for f in east if f["centre"][1] < 2.9]
+    kitchen = [f for f in east if looks_into(f) == ["r_kit"]]
+    assert yard and {f["material"] for f in yard} == {"plaster_exterior"}
+    wet = json.loads(STYLE.read_text(encoding="utf-8")).get("wet_walls", {}).get("material")
+    assert kitchen and {f["slot"] for f in kitchen} == {2} and {f["material"] for f in kitchen} == {wet}
+
+
 def test_needs_review_building_is_refused(tmp_path):
     building = {"schema_version": "0.1", "status": "needs_review", "project": {"id": "x"}, "levels": [],
                 "walls": [], "openings": [], "rooms": [], "furniture": [], "warnings": []}
@@ -605,6 +677,36 @@ def test_m7_rays_see_treads_landing_ceiling_and_cap(built_m7):
     assert r["through_gap"]["hit"] is False, r["through_gap"]                    # the doorless gap is open
     assert r["lintel"]["object"] == "w_L0_e"                                       # cut to 2.10 m only
     assert r["across_separator"]["hit"] is False, r["across_separator"]          # no geometry on the line
+
+
+def test_m7_search_model_sees_the_stair_as_the_built_scene(built_m7):
+    """Review dwgblender-2: the camera search's ray model of the hall (camsearch.RoomModel) sees the stair
+    on the same rays as Blender's ray casts on the built scene (the old solid 3.17 m box saw 27.5 % of
+    a real01 hall view where the render showed 4.3 %)."""
+    from wenart.blender import camsearch as C
+
+    ft = 0.3048
+    building = built_m7["building"]
+    room = next(r for r in building["rooms"] if r["id"] == "r_L0_hall")
+    model = C.RoomModel(room, building)
+    code = C.FIRST_ELEMENT + [e["id"] for e in model.elements].index("f_L0_019")
+    a, b = C.ray_grid((32, 18), shift_y=C.SHIFT_Y)
+    rays, expected = {}, {}
+    for k, (x, y, yaw) in enumerate(((12.3, 9.3, 90), (15.3, 9.0, 120), (15.0, 12.5, 60))):
+        origin = (x * ft, y * ft, C.CAMERA_HEIGHT)
+        dirs = C.yaw_directions([yaw], a, b)[0]
+        labels, _ = model.cast(origin, dirs)
+        for j, d in enumerate(dirs):
+            n = float(np.linalg.norm(d))
+            rays[f"{k}_{j}"] = {"origin": list(origin), "direction": [float(v) / n for v in d], "distance": 30.0}
+            expected[f"{k}_{j}"] = bool(labels[j] == code)
+    got = {name: r["object"] == "furn_f_L0_019" for name, r in _probe(built_m7, rays, [])["rays"].items()}
+    for k in range(3):
+        names = [n for n in rays if n.startswith(f"{k}_")]
+        model_share = sum(expected[n] for n in names) / len(names)
+        scene_share = sum(got[n] for n in names) / len(names)
+        assert model_share >= 0.05 and abs(model_share - scene_share) <= 0.01, (k, model_share, scene_share)
+        assert sum(expected[n] != got[n] for n in names) <= 0.01 * len(names)
 
 
 def test_m7_doorless_gap_separator_build_false_and_site(built_m7):

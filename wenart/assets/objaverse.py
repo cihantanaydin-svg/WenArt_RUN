@@ -142,7 +142,8 @@ REASONS: dict[str, str] = {
     "untextured": "no image texture and no vertex colours",
     "not_rendered": "not rendered (Blender stopped before it)",
     "blender_error": "Blender could not import or render it",
-    "unit_none": "no unit factor puts the box in the type's size range",
+    "unit_none": "no unit factor fits and the box proportions (footprint, height / width) are outside the type's "
+                 "ranges",
     "unit_ambiguous": "more than one unit factor fits (never guessed)",
     "size_range": "box outside the resolved type's size range",
     "not_judged": "an answer of a judge is missing",
@@ -855,7 +856,11 @@ def guess_unit(extents_raw, types, cfg: dict, table: dict, tol: float) -> dict:
     ``{"ok": True, "scale", "type", "dims_m", "note", "fits": [...]}`` when exactly one factor of ``cfg["units"]``
     puts the box (x, y extents as the footprint, z as the height) in the range of one of ``types``; otherwise
     ``{"ok": False, "code": "unit_none" | "unit_ambiguous" | "size_range", "detail", "fits"}``. A bed group is
-    split by the width (shorter side) at ``bed_split_width_m``."""
+    split by the width (shorter side) at ``bed_split_width_m``.
+
+    When no factor fits, the model's units are unknown (prep pod 3 Oct 2026: 86 of 127 candidates, e.g. an
+    armchair of 353 x 441 x 514 raw): ``normalise_unit`` scales it to the type's typical size instead, and only its
+    proportions decide (``"normalised": True``)."""
     heights = {t: spec["height"] for t, spec in cfg["types"].items()}
     fits = []
     for factor in cfg["units"]:
@@ -865,8 +870,7 @@ def guess_unit(extents_raw, types, cfg: dict, table: dict, tol: float) -> dict:
             fits.append({"scale": float(factor), "types": ok, "dims_m": [round(v, 4) for v in dims]})
     factors = ", ".join(f"x{f:g}" for f in cfg["units"])
     if not fits:
-        return {"ok": False, "code": "unit_none", "fits": [],
-                "detail": f"no factor ({factors}) puts {_fmt_dims(extents_raw)} (raw) in the {'/'.join(types)} range"}
+        return normalise_unit(extents_raw, types, cfg, table, tol)
     if len(fits) > 1:
         return {"ok": False, "code": "unit_ambiguous", "fits": fits,
                 "detail": "factors " + ", ".join(f"x{f['scale']:g} ({_fmt_dims(f['dims_m'])} m)" for f in fits)
@@ -886,6 +890,90 @@ def guess_unit(extents_raw, types, cfg: dict, table: dict, tol: float) -> dict:
                 "detail": f"{_fmt_dims(dims)} m is a {ftype} by width but outside its size range"}
     unit_note = f"x{fit['scale']:g}: {_fmt_dims(extents_raw)} (raw) -> {_fmt_dims(dims)} m in the {ftype} range"
     return {"ok": True, "scale": fit["scale"], "type": ftype, "dims_m": dims, "fits": fits,
+            "note": unit_note + (f"; {note}" if note else "")}
+
+
+NORMALISED_NOTE = "normalised by type (model units unknown)"
+
+
+def shape_scales(extents_raw, ftype: str, table: dict, tol: float, heights: dict) -> list[tuple[float, float]]:
+    """The scale intervals ``[(lo, hi), ...]`` (one per footprint orientation) that put the raw box in the type's
+    size range (``fits_type``: footprint with ``tol``, height). Empty when the box's proportions (footprint
+    width / depth, height / width) are outside the type's ranges, whatever its unit."""
+    if ftype not in table or ftype not in heights:
+        return []
+    x, y, z = (float(v) for v in extents_raw)
+    (w0, w1), (d0, d1) = table[ftype]
+    h0, h1 = (float(v) for v in heights[ftype])
+    k = 1.0 + tol
+    out = []
+    for a, b in ((x, y), (y, x)):
+        lo = max(w0 / k / a, d0 / k / b, h0 / z)
+        hi = min(w1 * k / a, d1 * k / b, h1 / z)
+        if lo <= hi:
+            out.append((lo, hi))
+    return out
+
+
+def normalise_unit(extents_raw, types, cfg: dict, table: dict, tol: float) -> dict:
+    """The unit guess of a model whose units are unknown (no factor of ``cfg["units"]`` fits).
+
+    ``unit_scale`` = the type's typical footprint size (the size table centre, geometric mean of width and depth)
+    / the raw footprint size (geometric mean of x and y), moved to the nearest scale that keeps the box in the
+    type's range when the centre would not (it exists exactly when the proportions fit). The refusal rule is the
+    proportions (``shape_scales``): footprint width / depth and height / width in the type's ranges, else
+    ``unit_none``. A bed group is split by its proportions (width / length times a typical bed length, against
+    ``bed_split_width_m``), as the absolute width is unknown. The note starts with ``NORMALISED_NOTE``; the fit
+    scales every model to the drawn footprint anyway."""
+    heights = {t: spec["height"] for t, spec in cfg["types"].items()}
+    raw = [float(v) for v in extents_raw]
+    factors = ", ".join(f"x{f:g}" for f in cfg["units"])
+    if len(raw) != 3 or not all(math.isfinite(v) and v > 0 for v in raw):
+        return {"ok": False, "code": "unit_none", "fits": [], "detail": f"no usable box ({_fmt_dims(raw)} raw)"}
+    shapes = {t: shape_scales(raw, t, table, tol, heights) for t in types}
+    note = ""
+    if set(types) == {"bed_single", "bed_double"}:
+        long_side = sum(sum(table[t][1]) / 2.0 for t in types) / len(types)      # depth centres: bed length
+        ratio = min(raw[0], raw[1]) / max(raw[0], raw[1])
+        width = ratio * long_side
+        split = float(cfg["bed_split_width_m"])
+        ftype = "bed_single" if width <= split else "bed_double"
+        note = (f"bed width {width:.2f} m from the proportions (width / length {ratio:.3f} x a typical bed length "
+                f"{long_side:.3f} m) {'<=' if ftype == 'bed_single' else '>'} {split} m: {ftype}")
+        if not shapes[ftype]:
+            other = [t for t in types if t != ftype and shapes[t]]
+            code = "size_range" if other else "unit_none"
+            return {"ok": False, "code": code, "fits": [],
+                    "detail": f"no factor ({factors}) fits {_fmt_dims(raw)} (raw), and its proportions are not a "
+                              f"{ftype}'s ({note})"}
+    else:
+        fitting = [t for t in types if shapes[t]]
+        if not fitting:
+            return {"ok": False, "code": "unit_none", "fits": [],
+                    "detail": f"no factor ({factors}) puts {_fmt_dims(raw)} (raw) in the {'/'.join(types)} range, "
+                              f"and its proportions (footprint, height / width) are outside it at any scale"}
+        if len(fitting) > 1:
+            return {"ok": False, "code": "unit_ambiguous", "fits": [],
+                    "detail": f"units unknown and the proportions fit {', '.join(fitting)}"}
+        ftype = fitting[0]
+    (w0, w1), (d0, d1) = table[ftype]
+    wc, dc = (w0 + w1) / 2.0, (d0 + d1) / 2.0
+    centre = math.sqrt(wc * dc / (raw[0] * raw[1]))
+    intervals = shapes[ftype]
+    scale, moved = centre, ""
+    if not any(lo <= centre <= hi for lo, hi in intervals):
+        ends = [(lo * (1.0 + 1e-9), "lo") for lo, _ in intervals] + [(hi * (1.0 - 1e-9), "hi") for _, hi in intervals]
+        scale = min(ends, key=lambda e: abs(e[0] - centre))[0]
+        moved = f", moved from x{centre:.6g} to keep the box in the {ftype} range"
+    dims_raw = [v * scale for v in raw]
+    if not fits_type(dims_raw, ftype, table, tol, heights):                    # guards the arithmetic above
+        return {"ok": False, "code": "unit_none", "fits": [],
+                "detail": f"normalised box {_fmt_dims(dims_raw)} m is outside the {ftype} range"}
+    dims = [round(v, 4) for v in dims_raw]
+    unit_note = (f"{NORMALISED_NOTE}: no factor ({factors}) fits {_fmt_dims(raw)} (raw); x{scale:.6g} scales the "
+                 f"raw footprint to the typical {ftype} footprint (size table centre {wc:g} x {dc:g} m){moved}: "
+                 f"{_fmt_dims(dims)} m; its proportions are in the {ftype} range")
+    return {"ok": True, "scale": scale, "type": ftype, "dims_m": dims, "fits": [], "normalised": True,
             "note": unit_note + (f"; {note}" if note else "")}
 
 
@@ -1194,7 +1282,9 @@ FRONT_WORDS = ("the seat side of a sofa or chair, the foot end of a bed, the doo
 
 
 def judge_schema() -> dict:
-    """The §7.2 answer schema (strict: no other keys)."""
+    """The §7.2 answer schema (strict: no other keys). No ``uniqueItems`` on ``styles``: vLLM's xgrammar backend
+    does not implement it (every judge call of the 3 Oct 2026 prep pod failed with HTTP 400 "Unimplemented keys:
+    uniqueItems"); repeated styles are removed in code (``clean_judgement``)."""
     styles = list(style_values())
     return {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -1208,7 +1298,7 @@ def judge_schema() -> dict:
             "matches_type": {"type": "boolean"},
             "photoreal_quality": {"type": "integer", "minimum": 1, "maximum": 5},
             "has_mattress": {"type": ["boolean", "null"]},
-            "styles": {"type": "array", "items": {"enum": styles}, "uniqueItems": True, "maxItems": len(styles)},
+            "styles": {"type": "array", "items": {"enum": styles}, "maxItems": len(styles)},
             "front_view": {"type": ["integer", "null"], "minimum": 0, "maximum": len(VIEW_SIDES) - 1},
         },
     }
@@ -1223,6 +1313,18 @@ def judgement_errors(data) -> list[str]:
 
 def valid_judgement(data) -> bool:
     return data is not None and not judgement_errors(data)
+
+
+def clean_judgement(data):
+    """A judge answer with ``styles`` de-duplicated (first mention kept; the schema cannot forbid repeats, see
+    ``judge_schema``); anything else unchanged (None stays None)."""
+    if not isinstance(data, dict) or not isinstance(data.get("styles"), list):
+        return data
+    styles: list = []
+    for v in data["styles"]:
+        if v not in styles:
+            styles.append(v)
+    return dict(data, styles=styles)
 
 
 def judge_prompt(ftype: str, dims_m, has_front: bool) -> str:
@@ -1521,7 +1623,7 @@ def load_judgements(out: Path, models: Optional[dict] = None) -> dict:
         result[uid] = {}
         for key in MODEL_KEYS:
             rec = stores[key].valid(item) if key in stores else None
-            result[uid][key] = rec.get("data") if rec else None
+            result[uid][key] = clean_judgement(rec.get("data")) if rec else None
     return result
 
 
@@ -1538,7 +1640,7 @@ def decide(obj: dict, answers: dict, cfg: dict) -> dict:
     ftype = obj["type"]
     out = {"uid": obj["uid"], "type": ftype, "accepted": False, "failed": []}
     fail = out["failed"]
-    a, b = (answers.get(k) for k in MODEL_KEYS)
+    a, b = (clean_judgement(answers.get(k)) for k in MODEL_KEYS)
     missing = [k for k in MODEL_KEYS if answers.get(k) is None]
     if missing:
         fail.append(("not_judged", ", ".join(missing)))

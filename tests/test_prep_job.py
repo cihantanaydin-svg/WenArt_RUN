@@ -155,6 +155,15 @@ def test_prep_sh_env_knobs_reach_the_prep():
     assert 'PREP_ARGS=(--results "$RESULTS" --outputs "$PREP_OUTPUTS" --prep-root "$PREP_ROOT")' in text
 
 
+def test_prep_sh_header_documents_targeted_library_reruns():
+    """orch-3: the header says where the library work lives (the persistent prep root, $RESULTS/library is a copy)
+    and that a targeted library re-run on a new pod needs survey (the accepted GLBs are on the container disk)."""
+    header = " ".join(ln.lstrip("#").strip() for ln in _text().splitlines() if ln.startswith("#"))
+    assert "needs the library work of an earlier job in /workspace/prep/library" in header
+    assert "on a new pod add survey" in header and "PREP_ONLY=survey,session_qwen,session_glm,library" in header
+    assert "$RESULTS/library is its copy" in header
+
+
 # --------------------------------------------------------------------------
 # prep.sh in a sandbox
 # --------------------------------------------------------------------------
@@ -971,12 +980,71 @@ def test_selected_library_and_session_steps_fail_when_their_inputs_are_missing(t
     assert "no survey.json" in steps["thumbnails"]["note"] and "no thumbnails.json" in steps["library"]["note"]
     assert "no judge/requests.json" in steps["session_qwen"]["note"]
     assert not w.calls and not [e for e in w.events if e[0] == "start"]
-    # With recognition work but no library: the session asks, then fails for the missing judge requests.
+    # The library with thumbnails but never judged (no judge requests): failed before accept, not "nothing
+    # accepted" (a warning, exit 0).
+    P.write_json(w.prep_root / "library" / "thumbnails.json", {"counts": {"rendered": 2}})
+    assert w.prep(results=tmp_path / "results-2", only=("library",)).run_all() == 1
+    step = w.steps_of(tmp_path / "results-2")["library"]
+    assert step["status"] == "failed" and "no judge/requests.json" in step["note"] and not w.calls
+    # With recognition work and the library step but no library work: the session asks, then fails for the
+    # missing judge requests.
     w2 = World(tmp_path / "b")
-    assert w2.prep(only=("pipelines", "session_qwen")).run_all() == 1
+    assert w2.prep(only=("pipelines", "session_qwen", "library")).run_all() == 1
     assert "ask qwen real01" in w2.labels()
     assert w2.steps()["session_qwen"]["status"] == "failed"
     assert "library not judged" in w2.steps()["session_qwen"]["note"]
+
+
+def test_a_recognition_only_job_needs_no_library(tmp_path):
+    """orch-3: a job that leaves the library step out (PREP_ONLY=pipelines,session_qwen,session_glm,pipeline_final,
+    e.g. after a recognition prompt change) asks its questions and ends 0; the sessions note that nothing was
+    judged instead of failing for the judge requests that step would need."""
+    w = World(tmp_path)
+    assert w.prep(only=("pipelines", "session_qwen", "session_glm", "pipeline_final")).run_all() == 0, w.lines
+    assert "ask qwen real01" in w.labels() and "ask glm real01" in w.labels()
+    assert not [x for x in w.labels() if x.startswith("objaverse")]
+    steps = w.steps()
+    assert steps["session_qwen"]["status"] == "ok" and steps["session_glm"]["status"] == "ok"
+    session = w.manifest()["sessions"]["qwen"]
+    assert session["judge"] is None and session["missing"]["judge"] is None
+    assert session["judge_note"] == "library not judged: the library step is not in --only"
+    # The same with --skip library.
+    w2 = World(tmp_path / "b")
+    assert w2.prep(skip=("survey", "thumbnails", "judge_requests", "library", "tests")).run_all() == 0, w2.lines
+    assert w2.manifest()["sessions"]["glm"]["judge_note"] == "library not judged: the library step is in --skip"
+
+
+def test_a_library_rerun_on_a_new_pod_names_the_missing_glbs(tmp_path):
+    """orch-3 (verifier): the accepted GLBs live in the survey's container-disk cache. A targeted library re-run on
+    a new pod (no survey in it) fails at write-catalog; the note names the missing GLBs and says to include survey."""
+    w = World(tmp_path)
+    lib = w.prep_root / "library"
+    glb = tmp_path / "hf-old-pod" / "u1.glb"
+    P.write_json(lib / "survey.json", {"candidates": [{"uid": "u1", "glb": str(glb)}, {"uid": "u2", "glb": None}]})
+    P.write_json(lib / "thumbnails.json", {"counts": {"rendered": 2}})
+    P.write_json(lib / "judge" / "requests.json", {"items": [{"key": "u1"}]})
+    fake_write = w.write
+
+    def write(cmd, label):
+        if label == "objaverse accept":                   # the real accepted.json: one decision per object
+            P.write_json(lib / "accepted.json", {"accepted": [{"uid": "u1", "type": "sofa"}]})
+            return 0
+        if label == "objaverse write-catalog":            # every accepted GLB refused as glb_changed: exit 1
+            return 1
+        return fake_write(cmd, label)
+
+    w.write = write
+    assert w.prep(only=("library",)).run_all() == 1
+    step = w.steps()["library"]
+    assert step["status"] == "failed" and step["glbs_missing"] == 1
+    assert f"1 accepted GLB(s) not on this pod's disk (e.g. {glb})" in step["note"]
+    assert "must include survey" in step["note"]
+    # The GLB present (the survey ran on this pod): a write-catalog failure is reported without that diagnosis.
+    glb.parent.mkdir(parents=True)
+    glb.write_bytes(b"glTF")
+    assert w.prep(results=tmp_path / "results-2", only=("library",)).run_all() == 1
+    step = w.steps_of(tmp_path / "results-2")["library"]
+    assert step["note"] == "accept 0, write-catalog 1, report 0" and "glbs_missing" not in step
 
 
 def test_nothing_accepted_removes_an_earlier_catalogue_from_the_work_folder(tmp_path):

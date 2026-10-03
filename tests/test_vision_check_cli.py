@@ -15,10 +15,12 @@ import time
 import types
 from pathlib import Path
 
+import numpy as np
 import pytest
 from PIL import Image
 
 import vc_toy as T
+from wenart import geometry as G
 from wenart import views as V
 from wenart.vision_check import calls as C
 from wenart.vision_check import plan_crop as PC
@@ -80,6 +82,55 @@ def test_plan_crop_maps_a_known_building_point_to_its_pixel(tmp_path):
     assert info["crop_origin_px"] == [50, 150]
 
 
+def test_a_raster_page_is_drawn_on_its_rectified_image_with_y_up(tmp_path):
+    """Review cross-1: a scan/photo page's units are rectified pixel corners with y up, so the crop is drawn on
+    ``<project_out>/<rectified_image>`` at (x, H - y), never on the original file at (x, y). Here the toy plan,
+    padded by (60, 40) px, is the rectified image of a raster page whose original is the toy plan.png."""
+    out = T.write_toy_project(tmp_path)
+    project = Project(out)
+    original = Image.open(project.project_dir / "plan.png").convert("RGB")
+    rect = Image.new("RGB", (original.width + 100, original.height + 100), "white")
+    rect.paste(original, (60, 40))
+    rect_rel = "rectified/plan_png_p1.png"
+    (out / "rectified").mkdir()
+    rect.save(out / rect_rel)
+    H = rect.height
+    b = read(out / "building_final.json")
+    doc = b["documents"][0]
+    doc["source_kind"] = "raster_scan"
+    # Rectified pixel corner (c, r) = toy plan pixel + (60, 40); page units (c, H - r); building
+    # X = (c - 60) / 100 - 1, Y = 6 - (r - 40) / 100 = (u_y - (H - 640)) / 100.
+    doc["pages"][0].update(rectified_image=rect_rel,
+                           transform_to_building=[0.01, 0.0, -1.6, 0.0, 0.01, (640 - H) / 100],
+                           to_original=[[1.0, 0.0, -60.5], [0.0, -1.0, H - 40.5], [0.0, 0.0, 1.0]])
+    (out / "building_final.json").write_text(json.dumps(b), encoding="utf-8")
+    assert main(["plan-crops", "--project-out", str(out)]) == 0
+    info = read(out / "check" / "plan_crops.json")["views"][CAM]
+    assert info["crop_origin_px"] == [110, 190]                     # building (-0.5, 4.5) on the rectified image
+    assert info["drawn_on"] == rect_rel and info["source_kind"] == "raster_scan"
+    project = Project(out)
+    page = project.building["documents"][0]["pages"][0]
+    assert PC.source_file(project.building["documents"][0], project.project_dir, out, page) == out / rect_rel
+    raster = PC.load_raster(project.building["documents"][0], page, out / rect_rel, out)
+    image, mapping = PC.render_plan_crop(raster, page, project.room("r_salon"), T.CAMERA, [], project.building)
+    assert mapping.to_raster_px((0.0, 0.0)) == pytest.approx((160.0, 640.0))
+    assert mapping.to_raster_px((6.0, 4.0)) == pytest.approx((760.0, 240.0))
+    # The same building point through to_original lands on the toy plan's own pixel (100, 600) (pixel centre - 0.5).
+    to_page = G.invert_affine(page["transform_to_building"])
+    assert G.apply_homography(page["to_original"], G.apply_affine(to_page, (0.0, 0.0))) == pytest.approx((99.5, 599.5))
+    # The drawn room corner is dark in the written crop where the mapping puts it.
+    jpg = np.asarray(Image.open(out / "check" / f"{CAM}_plan.jpg").convert("L"))
+    x, y = (int(round(v)) for v in mapping.to_crop((0.0, 0.0)))
+    assert jpg[y - 3:y + 4, x - 3:x + 4].min() < 80
+    # Without its rectified image the page has no crop (the original file is in other units): reported.
+    (out / rect_rel).unlink()
+    assert main(["plan-crops", "--project-out", str(out)]) == 0
+    info = read(out / "check" / "plan_crops.json")
+    assert info["views"][CAM]["plan"] is None and "rectified image" in info["views"][CAM]["reason"]
+    with pytest.raises(FileNotFoundError):
+        PC.load_raster(project.building["documents"][0], page, project.project_dir / "plan.png", out)
+
+
 def test_plan_page_selection_and_dwg_source(tmp_path):
     def page(level, cls="floor_plan", n=1, t=True):
         return {"page": n, "class": cls, "level_id": level, "transform_to_building": [1, 0, 0, 0, 1, 0] if t else None}
@@ -94,6 +145,20 @@ def test_plan_page_selection_and_dwg_source(tmp_path):
     assert PC.plan_page(building, "L0", cited)[0]["file"] == "plan.pdf"           # the room's evidence wins
     assert PC.plan_page(building, "L1", {})[1]["page"] == 2
     assert PC.plan_page(building, "L9", {}) is None
+    # Review cross-1: raster documents rank by source kind (scan before photo), not by file name.
+    raster = {"documents": [
+        {"id": "p", "file": "a_photo.jpg", "format": "image", "source_kind": "raster_photo", "pages": [page("L0")]},
+        {"id": "s", "file": "b_scan.png", "format": "image", "source_kind": "raster_scan", "pages": [page("L0")]},
+    ]}
+    both = {"evidence": [{"file": "a_photo.jpg", "page": 1}, {"file": "b_scan.png", "page": None}]}
+    assert PC.plan_page(raster, "L0", both)[0]["file"] == "b_scan.png"
+    assert PC.plan_page(raster, "L0", {})[0]["file"] == "b_scan.png"
+    assert PC.plan_page(raster, "L0", {"evidence": [{"file": "a_photo.jpg", "page": 1}]})[0]["file"] == "a_photo.jpg"
+    raster["documents"].append({"id": "v", "file": "c.pdf", "format": "pdf", "source_kind": "cad_pdf",
+                                "pages": [page("L0")]})
+    assert PC.plan_page(raster, "L0", {})[0]["file"] == "c.pdf"             # vector PDF before the scan
+    assert [PC.trust_rank({"format": f}) for f in ("dxf", "dwg", "pdf")] == [0, 1, 2]
+    assert PC.trust_rank({"format": "pdf", "source_kind": "raster_scan"}) == 3
     conv = tmp_path / "out" / "converted"
     conv.mkdir(parents=True)
     (conv / "kat.dxf").write_text("0\nEOF\n")

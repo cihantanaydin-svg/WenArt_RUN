@@ -5,8 +5,10 @@ Walls: one object per wall element (named by its id, so every object stays
 traceable and the per-kind counts match the JSON), an extruded rectangle from
 the centre line, thickness and height, grouped in one collection per level.
 Faces get material slots by what they face: interior (style walls), exterior
-(``plaster_exterior`` for the outward faces of exterior walls) or wet-room
-(``wet_walls`` for faces looking into a bathroom / wc / kitchen).
+(``plaster_exterior`` for the outward faces of exterior walls that look into
+no indoor room: a merged exterior run can face a room along part of its
+length, ``wall_face_slot``) or wet-room (``wet_walls`` for faces looking into
+a bathroom / wc / kitchen).
 
 Openings: a boolean difference per opening with a cutter box of
 width x (thickness + 2 cm) x height centred on the wall centre line; doors
@@ -623,23 +625,47 @@ def _level_centre(walls: list[dict]) -> tuple[float, float]:
     return G.box_center(box)
 
 
+def wall_face_slot(wall: dict, centre, normal, outward, indoor_polys, wet_polys,
+                   probe: float = DEFAULTS["face_probe"]) -> int:
+    """Material slot of one wall face (pure): 0 interior, 1 exterior, 2 wet room.
+
+    ``centre`` / ``normal``: the face centre (x, y[, z]) and its unit normal
+    (x, y, z). Top, bottom, jamb and end faces are 0. A side face is probed
+    ``probe`` metres beyond its centre: the exterior slot needs an exterior
+    wall, a normal along ``outward`` AND a probe in no indoor room polygon
+    (``indoor_polys``: the level's rooms without balconies, which are
+    outside). The ingest flags a merged axis run exterior when part of it
+    touches the outer loop (review ingest-3: real01's ``w_L0_011`` runs from
+    the parking past the pooja and kitchen), so ``exterior`` alone does not
+    say what one face looks into; the faces are split at the room corners
+    first (``split_wall_at_room_corners``), so this decides per room stretch.
+    A face looking into a wet room (``wet_polys``) is 2, any other 0."""
+    nx, ny = G.unit_normal_left(wall["start"], wall["end"])
+    fx, fy, fz = float(normal[0]), float(normal[1]), float(normal[2])
+    if abs(fz) > 0.5 or abs(fx * nx + fy * ny) < 0.5:
+        return 0  # top, bottom, jambs, end faces
+    p = (float(centre[0]) + fx * probe, float(centre[1]) + fy * probe)
+    if wall.get("exterior") and (fx * outward[0] + fy * outward[1]) > 0.5 \
+            and not any(G.point_in_polygon(p, poly) for poly in indoor_polys):
+        return 1
+    return 2 if any(G.point_in_polygon(p, poly) for poly in wet_polys) else 0
+
+
+# Rooms that are outside: an exterior face looking into one keeps the exterior material.
+OUTDOOR_ROOM_TYPES = {"balcony"}
+
+
 def _assign_wall_face_materials(ob, wall: dict, rooms: list[dict], outward) -> None:
     """Slot 0 interior, 1 exterior (faces of exterior walls whose normal
-    points ``outward``, see ``wall_outward_normal``), 2 wet-room faces."""
+    points ``outward``, see ``wall_outward_normal``, and that look into no
+    indoor room), 2 wet-room faces: ``wall_face_slot`` per face."""
     mesh = ob.data
-    nx, ny = G.unit_normal_left(wall["start"], wall["end"])
-    wet_polys = [r["polygon"] for r in rooms if slot_room_type(r.get("room_type")) in WET_ROOM_TYPES]
+    polys = [r for r in rooms if len(r["polygon"]) >= 3]
+    indoor = [r["polygon"] for r in polys if r.get("room_type") not in OUTDOOR_ROOM_TYPES]
+    wet_polys = [r["polygon"] for r in polys if slot_room_type(r.get("room_type")) in WET_ROOM_TYPES]
     for poly in mesh.polygons:
-        n = poly.normal
-        if abs(n.z) > 0.5 or abs(n.x * nx + n.y * ny) < 0.5:
-            poly.material_index = 0  # top, bottom, jambs, end faces
-            continue
-        if wall.get("exterior") and (n.x * outward[0] + n.y * outward[1]) > 0.5:
-            poly.material_index = 1
-            continue
-        c = poly.center
-        probe = (c.x + n.x * 0.05, c.y + n.y * 0.05)
-        poly.material_index = 2 if any(G.point_in_polygon(probe, p) for p in wet_polys) else 0
+        c = poly.center  # wall meshes are built in world coordinates (identity transform)
+        poly.material_index = wall_face_slot(wall, (c.x, c.y), tuple(poly.normal), outward, indoor, wet_polys)
 
 
 # --------------------------------------------------------------------------

@@ -30,13 +30,16 @@ What, in this fixed order (``STEPS``; every command runs with cwd = the repo roo
    not come up is recorded as ``max_seqs`` 4 and started again with 4), then ``wenart.recognition.answers ask``
    for every project with questions and ``objaverse judge``. No server starts when no project misses an answer
    of this model (stored or committed seeds; the seeds are copied without a server) and no judge item lacks one
-   (probe ``not run``). A missing ``judge/requests.json`` fails the step (after the asks).
+   (probe ``not run``). A missing ``judge/requests.json`` fails the step (after the asks) when the ``library``
+   step runs in this job; a job without it (recognition only) just notes that nothing was judged.
 8. ``session_glm``: the same with GLM.
 9. ``pipeline_final``: ``pipeline --answers <out>/recognition`` (``--no-ai`` when ``answers status`` finds an
    answer missing, so it never exits 4). An exit 4 with complete answers (new second-round questions) runs it
    once more with ``--no-ai`` (the new items stay unknown/unverified): ``warning``, never ``failed``.
 10. ``library``: ``objaverse accept``, ``write-catalog --assets``, ``report`` and ``ATTRIBUTION.md``
-    (``wenart.run.copy.library_attribution``) in ``<prep-root>/library``.
+    (``wenart.run.copy.library_attribution``) in ``<prep-root>/library``. The accepted GLBs are read from the
+    survey's container-disk cache (``$HF_HOME``): a failed write-catalog names the ones this pod does not have
+    (a targeted re-run on a new pod must include ``survey``, which downloads them again).
 11. ``copy``: the library folder -> ``$RESULTS/library/`` and the prep projects' small files
     (``wenart.run.copy.copy_project``) -> ``recognition/<p>/`` (requests, both answer files, crops),
     ``furniture/<p>/`` (building.json, report.md, debug images) and ``run/<p>/`` (the stage records).
@@ -46,8 +49,10 @@ What, in this fixed order (``STEPS``; every command runs with cwd = the repo roo
     ``tests/junit-<group>.xml``.
 
 A selected step whose inputs are missing (thumbnails without ``survey.json``, judge_requests and library without
-``thumbnails.json``, a session without ``judge/requests.json``) is ``failed``, never silently skipped: a targeted
-re-run (``--only session_qwen,session_glm,library``) needs the library of an earlier job in ``<prep-root>``.
+``thumbnails.json``, library without ``judge/requests.json``, a session without ``judge/requests.json`` while the
+library step runs) is ``failed``, never
+silently skipped: a targeted re-run (``--only survey,session_qwen,session_glm,library``) needs the library of an
+earlier job in ``<prep-root>`` and, on a new pod, ``survey`` for the candidate GLBs (container disk).
 
 Deadline (``WENART_DEADLINE``, epoch seconds; ``scripts/pod_entry.sh`` sets start + max - 15 min): a download or
 GPU step (``HEAVY``) starts only when now + its estimate (``EST_S``) < deadline, else it ends ``deadline``; the CPU
@@ -612,6 +617,10 @@ class Prep:
         lib = self.opts.library
         if not (lib / "thumbnails.json").is_file():
             return "failed", self.missing_input("thumbnails.json")
+        if not (lib / "judge" / "requests.json").is_file():
+            # Nothing was ever judged: accept would refuse every object and the step would pass as "nothing
+            # accepted" (a warning) although its input is missing.
+            return "failed", self.missing_input("judge/requests.json")
         rc_accept = self.run(self.objaverse("accept", "--out", lib), late=True, what="accept")
         rc_catalog = None
         if rc_accept == 0:
@@ -634,8 +643,26 @@ class Prep:
         if rc_accept == 1:
             return "warning", "nothing accepted: every type stays Poly Haven or parametric (library_report.md)"
         if rc_accept != 0 or rc_catalog not in (0, None) or rc_report != 0:
-            return "failed", f"accept {rc_accept}, write-catalog {rc_catalog}, report {rc_report}"
+            note = f"accept {rc_accept}, write-catalog {rc_catalog}, report {rc_report}"
+            absent = self.accepted_glbs_missing() if rc_catalog not in (0, None) else []
+            if absent:
+                entry["glbs_missing"] = len(absent)
+                note += (f"; {len(absent)} accepted GLB(s) not on this pod's disk (e.g. {absent[0]}): the survey's "
+                         f"cache is on the container disk, a targeted re-run on a new pod must include survey")
+            return "failed", note
         return "ok", f"{entry['accepted_models']} model(s) in catalog_objaverse.json"
+
+    def accepted_glbs_missing(self) -> list[str]:
+        """The survey GLB paths of the accepted objects (``accepted.json``) that are not files on this pod: the
+        survey downloads them into ``$HF_HOME`` on the container disk, so a new pod has none of them until its
+        own survey ran (write-catalog then refuses every object as ``glb_changed``)."""
+        lib = self.opts.library
+        acc, surv = read_json(lib / "accepted.json"), read_json(lib / "survey.json")
+        if not isinstance(acc, dict) or not isinstance(surv, dict):
+            return []
+        glbs = {c.get("uid"): c.get("glb") for c in surv.get("candidates") or [] if isinstance(c, dict)}
+        uids = [d.get("uid") for d in acc.get("accepted") or [] if isinstance(d, dict)]
+        return [str(glbs.get(u)) for u in uids if not glbs.get(u) or not Path(str(glbs[u])).is_file()]
 
     # ----- detector, timings ------------------------------------------------
 
@@ -845,7 +872,15 @@ class Prep:
         work = {p.name: self.recognition_missing(p, key) for p in self.pending()}
         judge_left = self.judge_missing(key)
         info["missing"] = {"recognition": {n: w[1] for n, w in work.items()}, "judge": judge_left}
-        no_library = None if judge_left is not None else self.missing_input("judge/requests.json")
+        # The judge answers feed this job's library step: without judge/requests.json the session fails when that
+        # step runs (a selected step's input is missing), and only notes it when the library is left out (a
+        # recognition-only job, e.g. PREP_ONLY=pipelines,session_qwen,session_glm,pipeline_final).
+        no_library = None
+        if judge_left is None:
+            if self.selected("library") is None:
+                no_library = self.missing_input("judge/requests.json")
+            else:
+                info["judge_note"] = f"library not judged: the library step is {self.selected('library')}"
         if not any(w[1] for w in work.values()) and not judge_left:
             info.update(probe="not run", note="nothing to ask: no server started (every answer is stored)")
             for p in self.pending():

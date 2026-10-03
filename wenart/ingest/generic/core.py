@@ -229,14 +229,14 @@ def _crop_context(cand: dict, wall_polys: list, others: list[tuple[set, tuple, l
     return {"walls": wall_polys, "others": near}
 
 
-def _front_values(cand: dict) -> list[float]:
-    """``symbols.front_candidates`` gives ``[{"front_deg", "rule"}]``; ``recognition.symbols.decide`` reads plain
-    angles."""
+def _front_values(cand: dict) -> list[dict]:
+    """``symbols.front_candidates`` (``[{"front_deg", "rule"}]``, or plain angles) as ``{"front_deg", "rule"}``
+    dicts for ``recognition.symbols.decide``, which names the rule of a front it keeps as assumed."""
     out = []
     for c in cand.get("front_candidates") or []:
-        v = c.get("front_deg") if isinstance(c, dict) else c
+        v, rule = (c.get("front_deg"), c.get("rule")) if isinstance(c, dict) else (c, None)
         if v is not None:
-            out.append(float(v))
+            out.append({"front_deg": float(v), "rule": rule})
     return out
 
 
@@ -250,13 +250,16 @@ def _apply_front(item: FurnitureItem, front_deg: float) -> None:
     item.front_deg = round(front_deg % 360.0, 3)
 
 
-def _apply_decision(item: FurnitureItem, result: dict, table: Optional[dict] = None) -> None:
+def _apply_decision(item: FurnitureItem, result: dict, table: Optional[dict] = None) -> list[str]:
     """Apply ``recognition.symbols.decide``'s result to the candidate's piece. A front (agreed, or the drawn one kept
-    as assumed when both passes answered none: ``details["front_assumed"]``) sets rotation and width; a typed piece
-    without a front is oriented by its type's width/depth convention (``symbols.oriented_size``), the front stays
-    unknown (review ingest-6: the no-front rule's 'width = longer side' built real01's beds 90 deg off)."""
+    as assumed when both passes answered none: ``details["front_assumed"]`` and ``details["front_rule"]``) sets
+    rotation and width; a typed piece without a front is oriented by its type's width/depth convention
+    (``symbols.oriented_size``), the front stays unknown (review ingest-6: the no-front rule's 'width = longer side'
+    built real01's beds 90 deg off). Returns the warnings for what was assumed (never silent): the orientation by
+    the type's convention (the result's own warnings already name an assumed front)."""
     from wenart.recognition import symbols as RS
 
+    messages: list[str] = []
     item.type = result["type"]
     item.status = result["status"]
     item.type_method = result["type_method"]
@@ -266,12 +269,22 @@ def _apply_decision(item: FurnitureItem, result: dict, table: Optional[dict] = N
         _apply_front(item, float(result["front"]))
         if result.get("front_assumed"):
             item.details["front_assumed"] = True
+            if result.get("front_rule"):
+                item.details["front_rule"] = result["front_rule"]
     elif result["type"] != "unknown":
         size, rotation, swapped = RS.oriented_size(item.size, item.rotation_deg, result["type"], table)
         if swapped:
             item.size, item.rotation_deg = (round(size[0], 4), round(size[1], 4)), rotation
-        item.details["front_note"] = (f"front unknown: width and depth follow the {result['type']} size convention"
-                                      + (" (footprint turned 90 deg)" if swapped else ""))
+        turned = " (footprint turned 90 deg)" if swapped else ""
+        if result["type"] in RS.FRONTLESS_TYPES:
+            item.details["front_note"] = (f"{result['type']} has no front: width and depth follow its size "
+                                          f"convention{turned}")
+        else:
+            item.details["front_note"] = (f"front unknown: width and depth follow the {result['type']} size "
+                                          f"convention{turned}")
+            key = item.details.get("candidate_key") or item.entity
+            messages.append(f"{key}: {result['type']} without an agreed front: {item.details['front_note']}; the "
+                            "side the builder faces is assumed")
     if result.get("confidence") is not None:
         item.details["type_confidence"] = result["confidence"]
     if result.get("build") is False:
@@ -280,6 +293,7 @@ def _apply_decision(item: FurnitureItem, result: dict, table: Optional[dict] = N
         item.details["note"] = result["note"]
     if result.get("conflict"):
         item.details["ai_conflict"] = dict(result["conflict"])
+    return messages
 
 
 def _ask_and_apply(ex: LevelExtraction, page: GenericPage, cands: list[dict], wall_polys: list, others: list, answers,
@@ -356,8 +370,9 @@ def _ask_and_apply(ex: LevelExtraction, page: GenericPage, cands: list[dict], wa
         dc = {"key": cand["key"], "footprint": cand["footprint"], "strokes": cand["strokes"], "bbox": cand["bbox"],
               "file": page.file, "page": _evidence_page(page), "front_candidates": _front_values(cand)}
         result = RS.decide(dc, got, table, cand.get("room_type"))
-        _apply_decision(cand["item"], result, table)
+        assumed = _apply_decision(cand["item"], result, table)
         ex.warnings.extend(result.get("warnings") or [])
+        ex.warnings.extend(assumed)
         decided += 1
     ex.report["questions"] = items
     ex.report["pending"] = [] if no_ai else pending
@@ -943,6 +958,10 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
             ex.report["questions"] = list(ex.report.get("questions") or []) + list(label_items)
             ex.report["pending"] = [] if no_ai else list(ex.report.get("pending") or []) + list(label_pending)
             ex.report["review_awaits_answers"] = bool(label_pending) and not no_ai
+            if label_pending:
+                ex.notes.append(f"{len(label_pending)} of {len(label_items)} raster room faces have no complete pair "
+                                f"of label answers" + (" (--no-ai: Tesseract names stay unconfirmed)" if no_ai else
+                                                       " (the scale waits for them)"))
         return ex
     ex.scale = confirmed
     for w in scale_warnings:

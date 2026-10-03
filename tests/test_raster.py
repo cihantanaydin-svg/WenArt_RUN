@@ -362,6 +362,22 @@ def test_synthetic_02_photo_alone(tmp_path):
     rect = RF.rectify(cv2.imread(str(project / "plan_photo.jpg"), cv2.IMREAD_GRAYSCALE), "photo")
     truth_ppm = _truth_px_per_m("synthetic-02", "plan_photo.jpg", rect)
     assert abs(1.0 / page["scale"]["metres_per_unit"] / truth_ppm - 1.0) <= 0.03
+    # Review cross-2: the photo's sheet ratio, snapped to ISO 2.7 % off the quad, is an assumed value: in the page
+    # entry, the building warnings and report.md's assumed values; the page's notes are in report.md.
+    aspect = page["aspect"]
+    assert aspect["assumed"] is True and aspect["snapped"] == pytest.approx(math.sqrt(2.0), abs=1e-4)
+    assert abs(aspect["measured"] / aspect["snapped"] - 1.0) == pytest.approx(aspect["off_pct"] / 100.0, abs=1e-3)
+    assert any(w.startswith("plan_photo.jpg p1: photo aspect assumed") for w in building["warnings"])
+    report = (tmp_path / "out" / "report.md").read_text(encoding="utf-8")
+    assumed = report.split("## Assumed values", 1)[1].split("\n## ", 1)[0]
+    assert "plan_photo.jpg p1: photo aspect assumed" in assumed and "ISO" in assumed
+    notes = report.split("## Notes", 1)[1].split("\n## ", 1)[0]
+    assert "### plan_photo.jpg p1" in notes and "- aspect snapped to ISO" in notes
+    assert "drawn details smaller than 0.2 m ignored" in notes
+    # Review cross-5: --no-ai applies no answer; the questions are unanswered all the same (none pending).
+    assert build.pending == [] and sorted(build.unanswered) == sorted(q["key"] for q in build.questions)
+    assert (f"{len(build.questions)} without a complete pair of answers (--no-ai: not applied, they stay "
+            f"unknown/unverified)") in report
     # Building metres -> page units (inverse transform) -> original photo pixels (to_original): the outer corners
     # of the building land on their truth pixels (the building frames agree within the wall tolerance).
     to_page = G.invert_affine(page["transform_to_building"])

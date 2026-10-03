@@ -24,8 +24,10 @@ building may say:
   (0 = +x, 90 = +y, as ``front_deg`` everywhere).
 
   When both passes agree on an accepted type and both answer ``none`` (no pass contradicts it), the unique
-  deterministic front is kept, marked assumed (``front_assumed``, a warning; review ingest-6). A typed piece that
-  still has no front is oriented by its type's width/depth convention (``oriented_size``, applied by the core).
+  deterministic front is kept, marked assumed (``front_assumed``, ``front_rule`` = the drawing rule that found it
+  when the candidate's ``front_candidates`` are the core's ``{front_deg, rule}`` dicts, a warning; review ingest-6). A
+  typed piece that still has no front is oriented by its type's width/depth convention (``oriented_size``, applied by
+  the core). The size veto tests the sides rounded to 1 mm (``sides_mm``), as the offered choices do.
 
 ``answers`` = ``{model_key: answer dict | None}`` as ``answers.load`` gives per key; the pass number and model id of
 each key come from ``answers.model_info`` (check.yaml). ``candidate`` carries ``key``, ``footprint {center, size,
@@ -61,6 +63,9 @@ HALL_ONLY_TYPES: tuple[str, ...] = ("stair",)
 # Room types the layout table may not have yet (docs/milestone7.md §6.5 adds dining to ALLOWED_TYPES).
 ROOM_TYPE_FALLBACK: dict[str, tuple[str, ...]] = {"dining": ("table_dining", "chair", "dresser", "bookshelf")}
 FRONT_SIDE_DEG: dict[str, float] = {"right": 0.0, "top": 90.0, "left": 180.0, "bottom": 270.0}
+# Types without a front (the question: "a round or square table, a plant, a lamp"; synthetic NO_FRONT_TYPES): a
+# typed piece of these with no front is not an assumption worth a warning (core._apply_decision).
+FRONTLESS_TYPES: tuple[str, ...] = ("table_dining", "table_coffee", "side_table", "floor_lamp", "potted_plant")
 NOT_BUILT_NOTE = "drawn symbol, not built"
 CONFLICT_RESOLUTION = "unresolved: the drawn footprint is kept as unknown, unverified"
 QUESTION_KINDS: tuple[str, ...] = ("vector", "raster")
@@ -146,9 +151,15 @@ def choices_for(size, table: Optional[dict] = None) -> list[str]:
     if size is None or len(size) < 2:
         return list(schemas.SYMBOL_TYPE_CHOICES)
     table = normalise_table(table if table is not None else load_size_table())
-    sides = (round(float(size[0]), 3), round(float(size[1]), 3))
+    sides = sides_mm(size)
     fitting = [t for t in schemas.FURNITURE_TYPES if t != "unknown" and fits(table, t, sides)]
     return fitting + ["unknown", schemas.NOT_FURNITURE]
+
+
+def sides_mm(size) -> tuple[float, float]:
+    """The footprint sides rounded to 1 mm: what the offered choices and the size veto of ``decide`` both test, so a
+    type offered to the models is never vetoed by sub-millimetre noise (and the reverse)."""
+    return round(float(size[0]), 3), round(float(size[1]), 3)
 
 
 def _clean_label(text) -> Optional[str]:
@@ -334,16 +345,27 @@ def _same_angle(a: float, b: float, tol: float = 1.0) -> bool:
     return abs((a - b + 180.0) % 360.0 - 180.0) <= tol
 
 
-def _deterministic_front(candidate: dict) -> Optional[float]:
-    """The unique deterministic front of the candidate (``front_deg`` or a one-valued ``front_candidates``)."""
-    values = []
-    for v in list(candidate.get("front_candidates") or []) + [candidate.get("front_deg")]:
+def _front_rules(candidate: dict) -> list[tuple[float, Optional[str]]]:
+    """The candidate's deterministic fronts as distinct ``(angle, rule)`` pairs: ``front_candidates`` holds plain
+    angles or the generic core's ``{"front_deg", "rule"}`` dicts; ``front_deg`` is a plain angle."""
+    out: list[tuple[float, Optional[str]]] = []
+    for c in list(candidate.get("front_candidates") or []) + [candidate.get("front_deg")]:
+        v, rule = (c.get("front_deg"), c.get("rule")) if isinstance(c, dict) else (c, None)
         if v is None:
             continue
         v = float(v) % 360.0
-        if not any(_same_angle(v, w) for w in values):
-            values.append(v)
-    return values[0] if len(values) == 1 else None
+        same = next((k for k, (w, _) in enumerate(out) if _same_angle(v, w)), None)
+        if same is None:
+            out.append((v, rule))
+        elif rule and not out[same][1]:
+            out[same] = (out[same][0], rule)
+    return out
+
+
+def _deterministic_front(candidate: dict) -> Optional[float]:
+    """The unique deterministic front of the candidate (``front_deg`` or a one-valued ``front_candidates``)."""
+    values = _front_rules(candidate)
+    return values[0][0] if len(values) == 1 else None
 
 
 def _front(candidate: dict, passes: list[dict], warnings: list[str]) -> Optional[float]:
@@ -373,9 +395,10 @@ def _evidence(candidate: dict, info: dict, ans: dict) -> dict:
 def decide(candidate: dict, answers: Optional[dict], size_table: dict, room_type: Optional[str]) -> dict:
     """The two-pass rule of §3.3 for one candidate; see the module docstring.
 
-    Returns ``{"type", "status", "type_method", "type_candidates", "front", "front_assumed", "confidence",
-    "ai_evidence", "conflict", "build", "note", "warnings"}``; ``ai_evidence`` has one evidence dict per pass that
-    answered (two when both did), ``conflict`` is ``{"kind", "element_ids", "description", "resolution"}`` or None.
+    Returns ``{"type", "status", "type_method", "type_candidates", "front", "front_assumed", "front_rule",
+    "confidence", "ai_evidence", "conflict", "build", "note", "warnings"}``; ``ai_evidence`` has one evidence dict per
+    pass that answered (two when both did), ``conflict`` is ``{"kind", "element_ids", "description", "resolution"}``
+    or None.
     """
     answers = answers or {}
     models = A.load_models()
@@ -400,8 +423,8 @@ def decide(candidate: dict, answers: Optional[dict], size_table: dict, room_type
         candidates.append({"type": ans["type"], "model": info["id"], "model_key": mk, "pass": info["pass"],
                            "confidence": float(ans["confidence"]), "front": ans["front"], "reason": ans["reason"]})
     result = {"type": "unknown", "status": "unverified", "type_method": "none", "type_candidates": candidates,
-              "front": None, "front_assumed": False, "confidence": None, "ai_evidence": evidence, "conflict": None,
-              "build": True, "note": None, "warnings": warnings}
+              "front": None, "front_assumed": False, "front_rule": None, "confidence": None, "ai_evidence": evidence,
+              "conflict": None, "build": True, "note": None, "warnings": warnings}
     element_ids = [str(candidate["element_id"])] if candidate.get("element_id") else []
 
     def conflict(description: str) -> dict:
@@ -424,7 +447,7 @@ def decide(candidate: dict, answers: Optional[dict], size_table: dict, room_type
     if agreed == "unknown":
         warnings.append(f"{key}: both passes say unknown: type left open")
         return result
-    if not fits(size_table, agreed, size):
+    if not fits(size_table, agreed, sides_mm(size)):
         w, d = (float(v) for v in size)
         result["conflict"] = conflict(f"{key}: both passes say {agreed}, but the drawn footprint {w:.2f} x {d:.2f} m "
                                       f"is outside the {agreed} size range")
@@ -435,9 +458,11 @@ def decide(candidate: dict, answers: Optional[dict], size_table: dict, room_type
     det = _deterministic_front(candidate)
     if result["front"] is None and det is not None and all(p["front_deg"] is None for p in passes):
         # Both passes answer 'none': nothing contradicts the drawn front (pillows, wall, table), so it stays,
-        # marked assumed (review ingest-6: dropping it built real01's beds 90 deg off).
-        result.update(front=det, front_assumed=True)
-        warnings.append(f"{key}: front assumed: both passes answered none; the drawn front {det:g} deg is kept")
+        # marked assumed with the rule that found it (review ingest-6: dropping it built real01's beds 90 deg off).
+        rule = _front_rules(candidate)[0][1]
+        result.update(front=det, front_assumed=True, front_rule=rule)
+        warnings.append(f"{key}: front assumed: both passes answered none; the drawn front {det:g} deg"
+                        + (f" ({rule})" if rule else "") + " is kept")
     allowed = allowed_types(room_type)
     if allowed is not None and agreed not in allowed:
         result["status"] = "unverified"

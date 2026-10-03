@@ -11,9 +11,18 @@ How:
 - Page: among ``building.documents[].pages[]`` of the camera's level that
   have a ``transform_to_building``, the page the room's evidence cites
   (file, and page for PDFs) wins; then floor plans before furniture plans,
-  then DXF > DWG > PDF > image (the trust order).
-- Raster: ``wenart.ingest.debug_image.raster_from_pdf/dxf/image`` (PDF pages
-  at 300 dpi). A DWG is read from its converted DXF
+  then the trust order DXF > DWG > PDF > scan > image > photo (a raster
+  document by its ``source_kind``: a room citing both the scan and the photo
+  of one plan gets the scan, review cross-1).
+- Raster: a raster page (scan or photo, also a raster-only PDF page; it
+  has ``rectified_image``) is drawn on its **rectified** image
+  (``<project_out>/<rectified_image>``, milestone7.md §4.1): its page units
+  are rectified pixel corners with y up (``wenart.ingest.rectify.page_flip``),
+  so a page point (x, y) is image pixel corner (x, H - y) (H the rectified
+  height), times the downscale; the original file would ignore the deskew,
+  the photo homography and the y flip (review cross-1: crops 2-4 m off).
+  Other pages: ``wenart.ingest.debug_image.raster_from_pdf/dxf/image`` (PDF
+  pages at 300 dpi). A DWG is read from its converted DXF
   (``<project_out>/converted/<stem>.dxf``, where the ingest wrote it). The
   crop is scaled to 800..1200 px on its longest side before drawing, so the
   labels stay sharp.
@@ -44,6 +53,9 @@ MIN_SIDE_PX = 800           # small crops (a room on a 1:100 PDF page) are scale
 PDF_DPI = 300               # the ingest debug images use 100 dpi: a 4 m room would be ~160 px
 MAX_JPEG_BYTES = 300_000
 FORMAT_ORDER = {"dxf": 0, "dwg": 1, "pdf": 2, "image": 3}
+# The trust order of the page choice: a raster document by its source kind (scan before photo), else by format.
+TRUST_ORDER = {"dxf": 0, "dwg": 1, "pdf": 2, "raster_scan": 3, "image": 4, "raster_photo": 5}
+RASTER_KINDS = ("raster_scan", "raster_photo")
 CLASS_ORDER = {"floor_plan": 0, "furniture_plan": 1}
 COLOURS = {"from_documents": (0, 150, 0), "added_by_ai": (235, 130, 0)}
 OTHER_COLOUR = (120, 120, 120)
@@ -79,15 +91,25 @@ def plan_page(building: dict, level_id: Optional[str], room: Optional[dict]) -> 
             if page.get("level_id") != level_id or not page.get("transform_to_building"):
                 continue
             hit = (doc["file"], page.get("page")) in cited or (doc["file"], None) in cited
-            key = (0 if hit else 1, CLASS_ORDER.get(page.get("class"), 2), FORMAT_ORDER.get(doc.get("format"), 4),
+            key = (0 if hit else 1, CLASS_ORDER.get(page.get("class"), 2), trust_rank(doc),
                    doc["file"], int(page.get("page") or 0))
             if best_key is None or key < best_key:
                 best, best_key = (doc, page), key
     return best
 
 
-def source_file(doc: dict, project_dir: Path, project_out: Path) -> Optional[Path]:
-    """The file to rasterise: the document in the project folder, or the converted DXF of a DWG."""
+def trust_rank(doc: dict) -> int:
+    """Rank of a document in the trust order (``TRUST_ORDER``; lower first)."""
+    kind = doc.get("source_kind")
+    return TRUST_ORDER.get(kind if kind in RASTER_KINDS else doc.get("format"), len(TRUST_ORDER))
+
+
+def source_file(doc: dict, project_dir: Path, project_out: Path, page: Optional[dict] = None) -> Optional[Path]:
+    """The file to rasterise: the rectified image of a raster page (in the project output), the document in the
+    project folder, or the converted DXF of a DWG."""
+    if page is not None and page.get("rectified_image"):
+        rect = Path(project_out) / page["rectified_image"]
+        return rect if rect.is_file() else None
     if doc.get("format") == "dwg":
         for cand in (Path(project_out) / "converted" / (Path(doc["file"]).stem + ".dxf"),
                      Path(project_dir) / (Path(doc["file"]).stem + ".dxf")):
@@ -98,10 +120,38 @@ def source_file(doc: dict, project_dir: Path, project_out: Path) -> Optional[Pat
     return path if path.is_file() else None
 
 
-def load_raster(doc: dict, page: dict, path: Path):
-    """``wenart.ingest.debug_image.PageRaster`` of the page (imported lazily)."""
+def rectified_raster(path: Path):
+    """``PageRaster`` of a raster page's rectified image: page units (rectified pixel corners, y up) -> image pixel
+    corners ``(x * f, (H - y) * f)``, H the rectified height, f the downscale of ``raster_from_image``."""
+    from PIL import Image
+
     from wenart.ingest import debug_image as DI
 
+    with Image.open(path) as im:
+        width, height = im.size
+    raster = DI.raster_from_image(path)
+    f = raster.image.width / float(width)
+
+    def to_pixels(p):
+        return (p[0] * f, (height - p[1]) * f)
+
+    return DI.PageRaster(image=raster.image, to_pixels=to_pixels, note="rectified")
+
+
+def load_raster(doc: dict, page: dict, path: Path, project_out: Optional[Path] = None):
+    """``wenart.ingest.debug_image.PageRaster`` of the page (imported lazily). A raster page (``rectified_image``)
+    is drawn on its rectified image under ``project_out`` (``path`` may be that image); FileNotFoundError when it
+    is missing (the original file is in other units)."""
+    from wenart.ingest import debug_image as DI
+
+    if page.get("rectified_image"):
+        if project_out is not None:
+            rect = Path(project_out) / page["rectified_image"]
+        else:                                     # ``path`` from ``source_file``: the rectified image itself
+            rect = Path(path) if Path(path).name == Path(page["rectified_image"]).name else None
+        if rect is None or not rect.is_file():
+            raise FileNotFoundError(f"rectified image {page['rectified_image']} of a raster page not found")
+        return rectified_raster(rect)
     fmt = doc.get("format")
     if fmt == "pdf":
         return DI.raster_from_pdf(path, int(page.get("page") or 1), dpi=PDF_DPI)
@@ -264,12 +314,13 @@ def write_plan_crops(project, cameras=None, log=print) -> dict:
         doc, page = found
         key = (doc["file"], page.get("page"))
         if key not in rasters:
-            path = source_file(doc, project.project_dir, project.out)
+            path = source_file(doc, project.project_dir, project.out, page)
             if path is None:
-                rasters[key] = (None, f"source file of {doc['file']} not found")
+                what = f"rectified image {page['rectified_image']}" if page.get("rectified_image") else "source file"
+                rasters[key] = (None, f"{what} of {doc['file']} not found")
             else:
                 try:
-                    rasters[key] = (load_raster(doc, page, path), None)
+                    rasters[key] = (load_raster(doc, page, path, project.out), None)
                 except Exception as exc:  # noqa: BLE001 - a missing rasteriser must not stop the check
                     rasters[key] = (None, f"{doc['file']}: raster failed ({type(exc).__name__}: {exc})")
         raster, why = rasters[key]
@@ -285,7 +336,9 @@ def write_plan_crops(project, cameras=None, log=print) -> dict:
             continue
         path = save_jpeg(image, project.plan_path(cam))
         out["views"][cam] = {"plan": rel(path, project.check_dir), "document": doc["file"], "page": page.get("page"),
-                             "format": doc.get("format"), "crop_origin_px": list(mapping.origin),
+                             "format": doc.get("format"), "source_kind": doc.get("source_kind"),
+                             "drawn_on": page.get("rectified_image") or doc["file"],
+                             "crop_origin_px": list(mapping.origin),
                              "scale": round(mapping.scale, 5), "bytes": path.stat().st_size}
     for cam, info in out["views"].items():
         if info.get("plan") is None:

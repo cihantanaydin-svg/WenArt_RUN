@@ -196,4 +196,6 @@ can be deleted by RunPod after a while.
   and a live probe of the endpoint (it answers 401 without a key). It is first really used when you
   create a key. If an upload fails, tell Claude the error message (never the key).
 - The pod side of the private path is tested with a synthetic project under the reserved alias
-  `selftest-02` (a copy of `projects/synthetic-02`; it ends "needs review" on purpose).
+  `selftest-02` (a copy of `tests/fixtures/projects/review-01`: two untitled plan pages; it ends "needs review" on
+  purpose). A stale copy on the volume (e.g. the M6 copy of synthetic-02) is moved to
+  `/workspace/outputs-archive/selftest-02-upload-<stamp>` and copied again.

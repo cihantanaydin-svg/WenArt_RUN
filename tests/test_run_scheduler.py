@@ -1699,6 +1699,37 @@ def test_pipeline_final_exit_4_runs_again_with_no_ai_and_is_a_warning(tmp_path):
     assert r.manifest()["projects"][0]["state"] == "ok"
 
 
+def test_the_gpu_full_run_test_accepts_a_second_round_warning(tmp_path):
+    """orch-1: tests/gpu/test_full_run.py::test_pending_pipeline_has_its_final_building (phase 11 on the pod) must
+    accept the second-round warning of pipeline_final (it used to demand ok or reused, so a pod whose raster
+    answers opened new questions failed its GPU tests); any other warning stays refused."""
+    import subprocess
+    import sys
+    r = Run(tmp_path, {"p1": {}}, buildings={"p1": {"questions": 2}}, projects=["p1"],
+            flags={"second_round": {"p1"}})
+    assert r.run() == 0
+    repo = Path(__file__).resolve().parents[1]
+    env = dict(os.environ, WENART_RESULTS=str(tmp_path / "results"), WENART_OUTPUTS=str(tmp_path / "outputs"),
+               RUN_TEST_PROJECTS="p1", NEEDS_REVIEW_TEST_PROJECTS="", SELFTEST_TEST_ALIAS="")
+
+    def gpu_test() -> subprocess.CompletedProcess:
+        return subprocess.run([sys.executable, "-m", "pytest", "-m", "gpu", "tests/gpu/test_full_run.py", "-k",
+                               "test_pending_pipeline_has_its_final_building", "-p", "no:cacheprovider", "-q", "-s"],
+                              cwd=repo, env=env, capture_output=True, text=True, timeout=300)
+
+    proc = gpu_test()
+    assert proc.returncode == 0 and "1 passed" in proc.stdout, proc.stdout + proc.stderr
+    assert "p1 warning pipeline_final: second-round questions left unanswered (no-ai)" in proc.stdout
+    # Another pipeline_final warning is not the second round: still refused.
+    path = tmp_path / "results" / "run_manifest.json"
+    doc = json.loads(path.read_text())
+    stage = next(s for s in doc["projects"][0]["stages"] if s["stage"] == "pipeline_final")
+    stage["note"] = "something else"
+    path.write_text(json.dumps(doc))
+    proc = gpu_test()
+    assert proc.returncode == 1 and "1 failed" in proc.stdout, proc.stdout + proc.stderr
+
+
 def test_smoke_profile_final_pipeline_has_no_ai(tmp_path):
     r = Run(tmp_path, {"p1": {}}, buildings={"p1": {"questions": 2}}, projects=["p1"], profile="smoke",
             vlm_url="http://127.0.0.1:9/v1")

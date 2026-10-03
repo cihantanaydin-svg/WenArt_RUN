@@ -342,6 +342,24 @@ def test_pair_scores_positive_and_negative():
     assert D.pair_scores(neg, [], [], INDEX, TABLE)["false"] is None
 
 
+def test_a_decor_box_on_the_target_is_not_an_insertion_hit():
+    """Review vision-1: combine rejects only on confirmed NON-DECOR boxes, so a picture frame or mirror box over an
+    inserted window must not count as "insertion found" in the calibration (the positives, like the negatives,
+    count only non-decor boxes)."""
+    target = [100, 100, 300, 400]
+    frame = bx("picture_frame", 0.90, (95, 95, 305, 405))
+    window = bx("window", 0.20, (100, 100, 300, 400))
+    assert frame["class"] == "decor" and window["class"] == "window"
+    assert D.target_hit([frame, window], target)["group"] == "window"
+    assert D.target_hit([frame, bx("mirror", 0.8, (100, 100, 300, 400))], target) is None
+    pos = {"kind": "positive", "target_box_px": target, "exclude_ids": ["w1"]}
+    got = D.pair_scores(pos, [], [frame, window])
+    assert (got["hit"], got["hit_group"]) == (0.2, "window")
+    assert D.rates_at(0.5, [got["hit"]], [None])["insertion"] == 0.0           # not confirmed at t_strong 0.5
+    got = D.pair_scores(pos, [], [frame])
+    assert got["hit"] is None and got["hit_group"] is None
+
+
 # --------------------------------------------------------------------------
 # run_detect and the CLI on the toy project
 # --------------------------------------------------------------------------
@@ -587,6 +605,25 @@ def test_an_added_plant_never_rejects_and_a_lamp_already_on_cycles_is_not_added(
     register_toy(det, out, polished_extra=[("lamp", 0.95, spot)], cycles_extra=[("lamp", 0.1, spot)])
     assert gate_main(["detect", str(out)], detector=det) == 0
     assert not check_flow(out, cfg_detector=CALIBRATED)["views"][CAM]["polished_rejected"]
+
+
+def test_the_insertion_control_counts_no_decor_box_on_the_target(tmp_path):
+    """Review vision-1 in combine.detector_control: a strong "picture frame" box over the shown sofa (the hidden
+    render has nothing) is not the control's hit; the weak sofa box is, and it is neither flagged nor confirmed."""
+    out = toy(tmp_path)
+    det = FakeDetector()
+    sofa = element_box(out, "f_sofa")
+    det.register(V.read_rgb(out / "renders" / f"{CAM}.png"), [("sofa", 0.2, sofa), ("picture frame", 0.95, sofa)])
+    det.register(V.read_rgb(out / "polish" / f"{CAM}_a1.png"), [("sofa", 0.2, sofa), ("picture frame", 0.95, sofa)])
+    det.register(V.read_rgb(out / "controls" / "hide_f_sofa" / f"{CAM}.png"), [])
+    assert gate_main(["detect", str(out)], detector=det) == 0
+    m = check_flow(out, cfg_detector=CALIBRATED)
+    dc = m["views"][CAM]["insertion:f_sofa"]["detector_control"]
+    assert dc["computed"] and dc["hit_group"] == "sofa" and dc["hit_score"] == pytest.approx(0.2, abs=1e-3)
+    assert dc["flagged"] is False and dc["confirmed"] is False
+    from wenart.vision_check.calibrate import calibrate
+    cal = calibrate(m, Project(out).cfg)
+    assert cal["metrics"]["detector_insertion"]["confirmed"] == 0.0
 
 
 def test_a_calibrated_detector_without_a_current_detection_is_check_incomplete(tmp_path):

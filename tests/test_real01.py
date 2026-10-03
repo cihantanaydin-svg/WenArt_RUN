@@ -419,6 +419,16 @@ def test_debug_image_report_and_questions(run):
     assert len(unknown) == len(keys)
     # --no-ai: nothing is pending, so the pipeline would not exit 4.
     assert run["build"].pending == [] and P.exit_code(run["building"], run["build"], no_ai=True) == 0
+    # ... but the 17 questions are still unanswered, and report.md says so (review cross-5).
+    assert run["build"].unanswered == keys
+    assert ("Recognition questions: 17 (`recognition/requests.json`), 17 without a complete pair of answers "
+            "(--no-ai: not applied, they stay unknown/unverified).") in report
+    # The page's rule outcomes (LevelExtraction.notes) are in report.md, one block per page (review cross-2).
+    notes = report.split("## Notes", 1)[1].split("\n## ", 1)[0]
+    assert "### real01.pdf p1" in notes
+    for note in run["work"].extraction.notes:
+        assert f"- {note.removeprefix('real01.pdf p1: ')}\n" in notes, note
+    assert "drawn details smaller than 0.2 m ignored" in notes and "17 of 17 furniture candidates" in notes
 
 
 # --------------------------------------------------------------------------

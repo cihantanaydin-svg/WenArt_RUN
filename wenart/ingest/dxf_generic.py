@@ -667,9 +667,11 @@ class _Reader:
         if dimtype == 0 and not dim.dxf.hasattr("angle"):
             angle = dimension_angle_from_block(dim)
             if angle is None:
+                # AutoCAD omits group code 50 when the angle is the DXF default 0: measure along x, as the
+                # synthetic reader (dxf_extract) does, and say so.
+                angle = 0.0
                 self.warnings.append(f"{where}: {eid} states no angle and its block draws no dimension line; "
-                                     "dropped")
-                return
+                                     "measured at the DXF default angle 0 (assumed)")
             # On the in-memory entity only (the file is never saved), so the shared measurement reads it.
             dim.dxf.angle = angle
         span, measured = _linear_dimension_span(dim)
@@ -688,10 +690,11 @@ def dimension_angle_from_block(dim) -> Optional[float]:
 
     ``defpoint`` lies on the dimension line, at the foot of one extension line (which one depends on the writer:
     ezdxf puts it at the first, AutoCAD at the second). The extension lines are perpendicular to the dimension line,
-    so the dimension line is the block LINE through ``defpoint`` that is perpendicular to ``defpoint -
-    defpoint2`` or to ``defpoint - defpoint3``; an extension line through ``defpoint`` is parallel to one of them.
-    With both offsets zero the longest line through ``defpoint`` is taken. None when the block draws no such
-    line."""
+    so the dimension line is the block LINE collinear with ``defpoint`` (``defpoint`` on the line or on its
+    extension: AutoCAD draws the dimension line from arrow base to arrow base, one arrow length short of
+    ``defpoint``) that is perpendicular to ``defpoint - defpoint2`` or to ``defpoint - defpoint3``; an extension
+    line through ``defpoint`` is parallel to one of them. With both offsets zero the longest such line is taken.
+    None when the block draws no such line."""
     try:
         parts = [e for e in dim.virtual_entities() if e.dxftype() == "LINE"]
     except Exception:  # noqa: BLE001 - a broken or missing block: no recovery
@@ -710,8 +713,8 @@ def dimension_angle_from_block(dim) -> Optional[float]:
             continue
         u = seg / length
         t = (d - a).dot(u)
-        if t < -tol or t > length + tol or ((a + u * t) - d).magnitude > tol:
-            continue                                       # not through defpoint
+        if ((a + u * t) - d).magnitude > tol:
+            continue                                       # defpoint is not on the line or its extension
         score = min((abs(o.dot(u)) for o in offsets), default=0.0)
         if score > DIM_LINE_TOL:
             continue                                       # an extension line, not the dimension line

@@ -217,6 +217,69 @@ def test_wall_outward_side_on_an_l_shaped_footprint():
     assert ambiguous and outward[1] == pytest.approx(-1.0)
 
 
+# real01 east part as the --no-ai pipeline writes it (review ingest-3): one merged exterior run w_L0_011 on
+# x = 9.489 from the parking (south) past the pooja and the kitchen (east of it from y 2.898).
+REAL01_W11 = {"id": "w_L0_011", "level_id": "L0", "start": [9.489, 0.221], "end": [9.489, 7.09], "thickness": 0.23,
+              "exterior": True}
+REAL01_EAST_ROOMS = [
+    {"id": "r_L0_drawing_room", "room_type": "living",
+     "polygon": [[5.106, 0.23], [9.374, 0.23], [9.374, 4.573], [8.086, 4.573], [8.086, 4.497], [5.106, 4.497]]},
+    {"id": "r_L0_dining", "room_type": "dining",
+     "polygon": [[5.106, 4.652], [8.086, 4.652], [8.086, 4.577], [9.374, 4.577], [9.374, 7.09], [5.106, 7.09]]},
+    {"id": "r_L0_pooja", "room_type": "prayer",
+     "polygon": [[9.604, 2.898], [11.05, 2.898], [11.05, 4.117], [9.604, 4.117]]},
+    {"id": "r_L0_store", "room_type": "storage",
+     "polygon": [[11.204, 2.898], [12.727, 2.898], [12.727, 4.117], [11.204, 4.117]]},
+    {"id": "r_L0_kitchen", "room_type": "kitchen",
+     "polygon": [[9.604, 4.267], [12.727, 4.267], [12.727, 7.09], [9.604, 7.09]]},
+]
+
+
+def _face_stretches(wall, rooms):
+    """``(side, along, centre)`` of every side-face stretch between the room-corner cuts of a wall
+    (``wall_split_positions``, what ``split_wall_at_room_corners`` cuts): both faces, mid-stretch."""
+    a, b = wall["start"], wall["end"]
+    length = G.distance(a, b)
+    nx, ny = G.unit_normal_left(a, b)
+    cuts = [0.0] + shell.wall_split_positions(wall, rooms) + [length]
+    out = []
+    for s0, s1 in zip(cuts, cuts[1:]):
+        px, py = G.point_along_segment(a, b, (s0 + s1) / 2.0 / length)
+        for side in (1, -1):
+            h = side * float(wall["thickness"]) / 2.0
+            out.append(((side * nx, side * ny, 0.0), (s0 + s1) / 2.0, (px + nx * h, py + ny * h)))
+    return out
+
+
+def test_exterior_material_only_where_the_face_looks_into_no_room():
+    """Review ingest-3: real01's merged exterior run w_L0_011 faces the parking on its south stretch and the
+    pooja and kitchen further north. Only the parking stretch takes the exterior slot (1); the outward
+    faces in the kitchen take the wet slot (2), the pooja's the interior slot (0), as the room faces of the
+    drawing and dining rooms on the other side. Every face whose probe lies in an indoor room is never 1."""
+    rooms = REAL01_EAST_ROOMS
+    outward, ambiguous = shell.wall_outward_normal(REAL01_W11, rooms, (6.5, 3.6))
+    assert outward == pytest.approx((1.0, 0.0)) and not ambiguous
+    indoor = [r["polygon"] for r in rooms]
+    wet = [r["polygon"] for r in rooms if r["room_type"] == "kitchen"]
+    slots = {}
+    for normal, along, centre in _face_stretches(REAL01_W11, rooms):
+        slot = shell.wall_face_slot(REAL01_W11, centre, normal, outward, indoor, wet)
+        probe = (centre[0] + normal[0] * 0.05, centre[1] + normal[1] * 0.05)
+        inside = [r["id"] for r in rooms if G.point_in_polygon(probe, r["polygon"])]
+        assert slot != 1 or not inside, (along, inside)
+        slots[(round(normal[0]), round(along, 2))] = (slot, inside)
+    east = {k[1]: v for k, v in slots.items() if k[0] == 1}
+    assert east[min(east)] == (1, [])                                      # the parking stretch
+    assert {v[0] for v in east.values() if v[1] == ["r_L0_kitchen"]} == {2}
+    assert {v[0] for v in east.values() if v[1] == ["r_L0_pooja"]} == {0}
+    assert {v[0] for k, v in slots.items() if k[0] == -1} == {0}           # drawing and dining rooms
+    # Top, bottom and jamb faces stay interior; a balcony counts as outside (the exterior slot).
+    assert shell.wall_face_slot(REAL01_W11, (9.489, 1.0), (0.0, 0.0, 1.0), outward, indoor, wet) == 0
+    assert shell.wall_face_slot(REAL01_W11, (9.489, 1.0), (0.0, 1.0, 0.0), outward, indoor, wet) == 0
+    assert shell.wall_face_slot(REAL01_W11, (9.604, 5.0), (1.0, 0.0, 0.0), outward, [], []) == 1
+    assert "balcony" in shell.OUTDOOR_ROOM_TYPES
+
+
 # --------------------------------------------------------------------------
 # Cameras
 # --------------------------------------------------------------------------

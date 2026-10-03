@@ -21,7 +21,9 @@
 #   PREP_PROJECTS   prep projects (default "real01 synthetic-02 synthetic-06 real01-scan real01-photo")
 #   PREP_SKIP       steps to leave out, comma separated; PREP_ONLY: only these (python -m wenart.run.prep --help);
 #                   a selected step whose inputs are missing fails (e.g. PREP_ONLY=session_qwen,session_glm,library
-#                   needs the library work of an earlier job in /workspace/prep/library)
+#                   needs the library work of an earlier job in /workspace/prep/library; on a new pod add survey:
+#                   the accepted GLBs live in its container-disk cache:
+#                   PREP_ONLY=survey,session_qwen,session_glm,library)
 #   CHECK_MODELS    check.yaml model keys of the setup (default "qwen glm")
 #   RENDER_SAMPLES  Cycles samples of the timing renders (default 128)
 #   RUN_THREADS     CPU threads per process (default: the pod's cgroup CPU quota, see cpu_budget)

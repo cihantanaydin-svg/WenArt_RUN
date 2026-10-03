@@ -15,10 +15,11 @@ variants of the three file schemas (``version=2``).
 Milestone 7 furniture types (docs/milestone7.md §0): ``stair``,
 ``side_table``, ``floor_lamp`` and ``potted_plant`` are categories like every
 furniture type, but ``potted_plant`` has the **decor** class (an added
-plant never rejects a polish, as the decor category ``plant`` today), and a
-drawn ``potted_plant`` seen as ``plant`` or a drawn ``floor_lamp`` seen as
-``lamp`` is the same object (``EQUIVALENT``): ``normalise_answer`` counts it
-as present instead of "different".
+plant never rejects a polish, as the decor category ``plant`` today), and
+``potted_plant``/``plant`` and ``floor_lamp``/``lamp`` name the same object
+both ways round (``EQUIVALENT``): a drawn ``potted_plant`` seen as ``plant``,
+or the decor ``plant`` seen as ``potted_plant``, counts as present instead of
+"different" in ``normalise_answer``.
 
 Categories are generated from the enums the rest of the pipeline uses, so
 prompt, schema and building JSON cannot drift: ``door``/``window`` (building
@@ -69,8 +70,15 @@ MAX_COUNT = 20
 LAMP_FIXTURE_MAX_Y1 = 400
 # Furniture types that are decor for the extras (an added potted plant never rejects, as "plant").
 DECOR_FURNITURE_TYPES: tuple[str, ...] = ("potted_plant",)
-# Categories that name the same object in a photo: the expected category -> what it may be seen as.
-EQUIVALENT: dict[str, tuple[str, ...]] = {"potted_plant": ("plant",), "floor_lamp": ("lamp",)}
+# Categories that name the same object in a photo, both ways round (review vision-2: the decor floor plant,
+# expected "plant", is often seen as the M7 "potted_plant" with its hint "large potted plant standing on the floor").
+EQUIVALENT_PAIRS: tuple[tuple[str, str], ...] = (("potted_plant", "plant"), ("floor_lamp", "lamp"))
+# The expected category -> what it may also be seen as (symmetric, built from ``EQUIVALENT_PAIRS``).
+EQUIVALENT: dict[str, tuple[str, ...]] = {}
+for _a, _b in EQUIVALENT_PAIRS:
+    EQUIVALENT[_a] = EQUIVALENT.get(_a, ()) + (_b,)
+    EQUIVALENT[_b] = EQUIVALENT.get(_b, ()) + (_a,)
+del _a, _b
 
 SCHEMA_ID = "https://json-schema.org/draft/2020-12/schema"
 CONFIDENCE: dict = {"type": "number", "minimum": 0, "maximum": 1}
@@ -159,8 +167,9 @@ def normalise_answer(answer: dict, category: Optional[str], type_unverified: boo
       ``EQUIVALENT`` one (for a type-unverified piece, ``category`` None,
       anything but ``nothing``);
     - different: ``seen_as`` must name another category (not ``nothing``);
-      an ``EQUIVALENT`` category (a potted plant seen as ``plant``) is the
-      same object: the answer becomes ``present`` (changed, raw kept);
+      an ``EQUIVALENT`` category (a potted plant seen as ``plant``, a decor
+      plant seen as ``potted_plant``) is the same object: the answer becomes
+      ``present`` (changed, raw kept);
     - absent: ``seen_as`` must be ``nothing``.
     Anything else becomes ``unsure`` (the raw answer is kept under ``raw``).
     """

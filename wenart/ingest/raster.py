@@ -2188,6 +2188,7 @@ def read_page(path: str | Path, page_no: int, file_rel: str, kind: str) -> Raste
         if rect.aspect.get("snapped") is not None and abs(factor - 1.0) <= ASPECT_CORRECTION:
             rp.notes.append(f"photo aspect: the dimension groups agree with the sheet ratio within "
                             f"{abs(factor - 1.0) * 100:.2f} %")
+            rp.rect.aspect = dict(rp.rect.aspect, checked_by_dimensions=round(factor, 5))   # still the snapped one
             break
         notes = notes + [f"photo aspect from the dimension groups ({detail['n_h']} horizontal, {detail['n_v']} "
                          f"vertical): height x {factor:.4f}"
