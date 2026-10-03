@@ -160,7 +160,7 @@
         "id": {"type": "string"},
         "level_id": {"type": "string"},
         "room_id": {"type": ["string", "null"]},
-        "type": {"enum": ["bed_single", "bed_double", "sofa", "armchair", "table_dining", "table_coffee", "desk", "chair", "wardrobe", "kitchen_counter", "kitchen_island", "fridge", "stove", "sink_kitchen", "washbasin", "toilet", "shower", "bathtub", "tv_unit", "bookshelf", "nightstand", "dresser", "washing_machine", "stair", "side_table", "floor_lamp", "plant", "unknown"]},
+        "type": {"enum": ["bed_single", "bed_double", "sofa", "armchair", "table_dining", "table_coffee", "desk", "chair", "wardrobe", "kitchen_counter", "kitchen_island", "fridge", "stove", "sink_kitchen", "washbasin", "toilet", "shower", "bathtub", "tv_unit", "bookshelf", "nightstand", "dresser", "washing_machine", "stair", "side_table", "floor_lamp", "potted_plant", "unknown"]},
         "type_raw": {"type": ["string", "null"], "description": "Block name or label as drawn, e.g. KANEPE_3LU, yatak"},
         "source": {"enum": ["from_documents", "added_by_ai"]},
         "footprint": {

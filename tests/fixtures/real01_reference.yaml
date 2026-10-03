@@ -1,0 +1,820 @@
+# Ground-truth reference for projects/real01/real01.pdf (page 1), reconciled from two independent readers
+# (ref_reader1, ref_reader2). Every disagreement was settled against the PDF vector data with pdfplumber 0.11.10
+# (27,259 lines, 9,592 curves, 26 rects, 163 chars), with 600 and 3000 dpi renders as a visual check.
+# Scratch: /tmp/claude-0/-home-user-WenArt-RUN/e7de83a2-176e-5840-aa6f-eabfbcc7d4c5/scratchpad/ref_reconcile/
+# PDF coordinates sit on a 0.12 pt grid, so measured positions are good to about +-0.01 ft. The tolerances below are
+# acceptance limits for the pipeline, not how accurate the reference is.
+#
+# reconciliation:
+#   C01 scale: R1 12.4352 pt/ft, R2 12.435 pt/ft. Same measurement: red arrow tip to tip 621.72 pt / 50 ft =
+#       12.4344 and 373.08 pt / 30 ft = 12.4360. Difference is rounding only. Kept 12.4352 (the mean). The spec says
+#       12.436; that is 0.005 % away.
+#   C02 ids: the readers numbered doors, windows, openings, chairs and rooms differently. Kept R1's numbering for
+#       D/W/O/F and R2's room ids (bed_nw / bed_sw are clearer than bed1 / bed2). Every element has an `aka:` with
+#       both readers' ids. Not a geometry difference.
+#   C03 door hinge + leaf: R1 hinges are 0.1-0.27 ft off with leaf 2.7/2.7/2.2/2.65/3.1; R2 hinges are at the arc
+#       centres with leaf 2.85/2.85/2.37/2.85/3.32. PDF: a circle fitted to each swing Bezier (max residual
+#       0.0004 ft) gives hinges (11.054,12.309) (11.112,11.710) (16.207,8.043) (41.722,13.852) (31.184,1.057) and
+#       radii 2.852/2.852/2.369/2.852/3.324, so R2 is right. The drawn leaf rectangles are shorter
+#       (2.605/2.605/2.162/2.605/3.040 ft), and R1's values fall between the two. Both are recorded:
+#       swing_radius_ft (arc) and leaf_drawn_ft (rectangle). D5 differed most: 0.22 ft on leaf, 0.27 ft on hinge.
+#   C04 door width: both readers agree on the rough opening (wall end to wall end). The PDF also shows frame
+#       (rebate) symbols at both jambs, and the clear width between them is about 0.4 ft less. Added
+#       clear_width_between_frames_ft. Tests use the rough opening, which matches the spec's arc rule radius = g +-12 %.
+#   C05 dining chairs: R1 w 1.14 / d 1.44-1.46, R2 w 1.29 / d 1.50. PDF: the gold strokes plus the grey seat dots
+#       per chair give 1.245-1.255 (across the front) x 1.457-1.461 (front to back). Used the PDF values. The 6
+#       chair centres agree within 0.01 ft.
+#   C06 sofa F14 depth: R1 2.31 (y 1.341-3.648), R2 2.20 (y 1.40-3.60). PDF: y 1.341-3.656, so 2.315. That is the
+#       same block as F15 (2.306 x 6.224). Used 2.31.
+#   C07 parking E-W extent (0.49 ft size difference): R1 to x 47.005 (15.50 ft), R2 to x 46.514 (15.01 ft). PDF:
+#       for y < 8.753 the only line east of the parking is the plot boundary line x 47.005 (it runs y -3.001..27.001).
+#       The plot-wall inner face line x 46.513 runs only y 8.753..26.499 and ends with a cap 46.513-47.005 at
+#       y 8.753. So the drawn area reaches x 47.005. The printed 15'3" (15.25) matches neither face; it matches the
+#       plot-wall centre line x 46.759 (15.252). Reference x1 = 47.005, and tests accept 46.46-47.06.
+#       Parking also moves from rooms to site.areas: it is an exterior label (spec 2.7.2) and its outline is not
+#       closed (no wall on the east, and open to the south setback below y 0).
+#   C08 opening count: R2 has 6 openings (O6 = parking frontage), R1 has 5 (frontage under site). PDF: the
+#       frontage is a gap in the plot wall, not in a house wall. Kept 5 house openings; the frontage is
+#       site.plot_wall.frontage_opening.
+#   C09 stair space type: R1 `stair`, R2 `hall`. The PDF has no label there. The schema has no `stair` room type,
+#       and spec 2.7.1 says a face that holds a stair gets `hall`. Chose hall.
+#   C10 stair hall / lobby split: both readers split at y 15.257. PDF: no wall, stub or separator line there. The
+#       only line is the stair's first tread line (one of 8 tread lines y 15.257..21.085), and no free wall end is
+#       near it (the runs x 11.006 and x 16.506 continue past it). Kept the two sub-spaces, but tests must also
+#       accept a single hall face [11.252, 8.251, 16.26, 23.257] that holds the stair (see circulation.merged_face).
+#   C11 round object F17 (type): R1 floor_lamp 0.55, R2 round_object with floor lamp 0.4. PDF at 3000 dpi: thin
+#       outer circle, thick black annulus, white ring with 8 spokes, centre ring; 1.419 ft across at (26.263,3.276).
+#       No text and no block name. Geometry agrees. The type stays uncertain: best guess floor_lamp at 0.45.
+#   C12 telephone on F3: R1 (9.37,22.69), R2 (9.10,22.40), 0.40 ft apart. PDF: symbol x 8.897-9.669,
+#       y 22.176-22.957, centre (9.28,22.57). Its 13 tiny rects form a keypad grid (all 26 rects on the page are the
+#       keypads of the two phones), which supports "telephone" (confidence raised to 0.75). Same check on F5: (2.35,1.57).
+#   C13 dining table rotation: R1 null, R2 0. The table is symmetric with its long axis N-S. In codebase terms:
+#       size [4.06, 2.41] (width = longer side, spec 2.8), rotation_deg 90 modulo 180, front_deg null.
+#   C14 rotation convention: both readers wrote the FRONT direction (CCW from +X) as `rotation_deg`. The codebase has
+#       footprint.rotation_deg with an unrotated piece facing -Y, so front_deg = (270 + rotation_deg) mod 360
+#       (wenart/synthetic/blocks.py). The reference gives front_deg (the readers' value) and rotation_deg (codebase)
+#       separately.
+#   C15 type names: the readers' names (double_bed, dining_table, dining_chair, sofa_3_seater/sofa_3_seat,
+#       coffee_table, kitchen_counter_L, stair_dog_leg) are mapped to the schema enums (bed_double, table_dining,
+#       chair, sofa, table_coffee, kitchen_counter, stair). The readers' names go in type_raw.
+#   C16 kitchen counter: R1 has two legs (north 8.42 incl. corner, east 3.25 beyond it); R2 has one L polygon (east
+#       leg 5.26 incl. corner). Same outline: PDF lines x 33.331-39.758 at y 21.249 and x 39.758 at y 17.997-21.249.
+#       Spec 2.8 makes an L two pieces, with the corner square in the longer leg, so R1's split is used (F18a, F18b)
+#       and the polygon is kept.
+#   C17 plants: R1 west column x 43.665 (about 1.5 ft), R2 x 43.57 (1.4 ft). PDF: 9 identical clusters of 949 strokes,
+#       each 1.462 x 1.391; west column x 43.654. Used the PDF values. Both readers count 9. The spec (2.10) says
+#       "about 13 plants", but the PDF has 9.
+#   C18 pooja window W9: R1 "window or ventilator (uncertain)", R2 window. PDF: same parallel-line symbol as the
+#       other 8 windows, 1.997 ft wide. Type window; subtype stays uncertain.
+#   C19 wall class of line x 30.755-31.507: R1 calls the piers interior_9in, R2 calls the whole line exterior. Same
+#       rectangles (0.752 ft = 9 in). Thickness class 9in for the whole line; role exterior where it faces the
+#       parking (W_ENT), interior for the piers P_1 and P_2.
+#   C20 label anchors: the readers gave block centres. Spec 2.7.2 anchors a label at the centre of its name line.
+#       Both are given (label_name_anchor_ft, label_block_centre_ft).
+#   C21 stair-space bbox, lobby, beds, nightstands, sofas F15, coffee table, windows (9), doors (5, positions and
+#       widths), walls, outline, plot, setbacks, planter strip, entrance step: the readers agree within 0.1 ft. Spot
+#       checks against the vectors confirmed them; the values below are the vector values.
+#   Spec notes (not reader differences, for the spec owner): plant count is 9, not about 13 (C17). Wall thickness
+#       classes measure 0.150-0.153 m (6 in) and 0.226-0.229 m (9 in), not 0.165 / 0.235 m (milestone7.md 2.4).
+
+reference_version: 1
+source:
+  file: projects/real01/real01.pdf
+  page: 1
+  page_size_pt: [842, 595]
+  kind: AutoCAD 2018 vector PDF (via Ghostscript), imperial, no raster images, 163 text chars, no title, no north arrow
+  wall_drawing: walls are dense 45-degree hatch (0.12 pt comb) bounded by axis-aligned black outline lines
+  coordinate_quantum_pt: 0.12
+  readers: [ref_reader1/real01_reference_reader1.yaml, ref_reader2/real01_reference_reader2.yaml]
+frame:
+  units: feet          # schema stores metres: 1 ft = 0.3048 m
+  origin: min corner (outer face) of the HOUSE walls = PDF point (165.64, 459.84) in pdfplumber top-down coords
+  axes: X right (plan east), Y up (plan north = page top; assumed, no north arrow drawn)
+  conversion: "X_ft = (x_pt - 165.64) / 12.4352 ;  Y_ft = (459.84 - top_pt) / 12.4352"
+conventions:
+  bbox: "[x0, y0, x1, y1] in feet, world axes"
+  size_wd_ft: "[width, depth] in the piece frame: width across the front, depth front to back; symmetric pieces: width = longer side"
+  front_deg: direction the piece faces, CCW from +X (0 = +X east, 90 = +Y north, 180 = -X, 270 = -Y); null = no front
+  rotation_deg: "codebase footprint.rotation_deg (unrotated piece faces -Y): rotation_deg = (front_deg + 90) mod 360"
+  rotation_mod: angle period of the symbol (360 has a front, 180 = 2-fold symmetric, 90 = square, 0 = round/any)
+  tol_keys:
+    centre: max distance between centres (ft)
+    edge: max error per bbox edge or wall face (ft)
+    size: max error per side (ft), sides compared in the order given unless `size_unordered` is true
+    width: max error of an opening width along its wall (ft)
+    rot_deg: max angle error after reducing by rotation_mod
+    area_rel: max relative area error
+  ai_typed_rule: >
+    For pieces whose type can only come from AI (no block names in this PDF), a test passes when the type is in
+    type_accept, OR when type is `unknown` and status is `unverified` and both candidates are listed (spec 2.10).
+    Type-checked deterministically (rule): stair, kitchen_counter.
+tolerances_default:   # spec 2.10 limits converted to feet (0.15 m = 0.49 ft, 0.10 m = 0.33 ft)
+  scale_rel: 0.002
+  wall: {edge: 0.15, thickness: 0.10}
+  outline: {vertex: 0.25, area_rel: 0.02}
+  room: {edge: 0.30, centre: 0.50, area_rel: 0.05, label_anchor: 0.40}
+  door: {centre: 0.49, width: 0.33, hinge: 0.25, swing_radius: 0.30}
+  window: {centre: 0.49, width: 0.33}
+  opening: {centre: 0.49, width: 0.33}
+  furniture: {centre: 0.49, size: 0.49, rot_deg: 10}
+  site_decor: {centre: 0.49, size: 0.49}
+  recall_precision_min: {doors_windows: 0.9}
+
+scale:
+  pt_per_ft: 12.4352
+  ft_per_pt: 0.080417
+  m_per_pt: 0.024511
+  how_measured: >
+    Two red dimension lines (stroke rgb 1,0,0). "50'": arrow tips x 128.44 -> 750.16 pt = 621.72 pt -> 12.4344 pt/ft.
+    "30'": tips top 124.08 -> 497.16 pt = 373.08 pt -> 12.4360 pt/ft. Mean 12.4352 (spread 0.013 %). Extension
+    lines sit on the plot-wall OUTER faces, so 50' x 30' is the plot. Cross-checks: house 528.60 x 298.44 pt =
+    42.508 x 24.000 ft; plot X = 0.5 + 2.5 + 42.5 + 4.0 + 0.5 = 50.0; all 8 room-size labels match within 0.2 %
+    (parking, which is not a room, within 1.6 %).
+  equivalent_ratio: about 1:69.5 (plotted to fit)
+  tol: {rel: 0.002}
+
+building_outline:
+  description: L-shaped house, outer wall faces; the south-east notch is the parking (outside the house); entrance step not included
+  polygon_ft: [[0.0, 0.0], [31.507, 0.0], [31.507, 8.753], [42.508, 8.753], [42.508, 24.0], [0.0, 24.0]]
+  bbox_ft: [0.0, 0.0, 42.508, 24.0]
+  size_ft: [42.508, 24.0]      # 42'6" x 24'0"
+  area_sqft_gross: 923.9
+  tol: {vertex: 0.25, area_rel: 0.02}
+
+wall_thickness_classes:
+  - {class: 9in, thickness_ft: 0.75, measured_ft: [0.743, 0.753], measured_m: [0.226, 0.229], tol: {thickness: 0.10}}
+  - {class: 6in, thickness_ft: 0.50, measured_ft: [0.492, 0.502], measured_m: [0.150, 0.153], tol: {thickness: 0.10}}
+  - {class: plot_6in, thickness_ft: 0.50, measured_ft: [0.493, 0.502], note: 'plot/compound wall, site only, never in building walls'}
+
+counts:   # exact counts the tests should use
+  doors: 5
+  door_hinge_side_definition: seen from the side the door swings into, facing the door
+  windows: 9
+  windows_none_in: [bath, store, stair_hall, lobby]
+  openings_house: 5            # O1-O5; the parking frontage is site.plot_wall.frontage_opening
+  openings_required: [O1, O2, O3, O5]   # O4 only when the stair hall and lobby are split (C10)
+  rooms_labelled: 8            # parking is a site area, not a room
+  rooms_unlabelled_hall: [1, 2]   # 1 merged hall face or 2 (stair_hall + lobby), C10
+  furniture_by_type:          # pieces inside the building (spec 2.10 list)
+    bed_double: 2
+    nightstand: 4
+    table_dining: 1
+    chair: 6
+    sofa: 2
+    table_coffee: 1
+    round_piece_type_open: 1  # F17, floor_lamp best guess
+    kitchen_counter: 2
+    stair: 1
+  furniture_total: 20
+  rooms_without_furniture_in_documents: [bath, pooja, store, lobby]
+  site_plants: 9
+  site_other_decor: 1          # entrance step
+
+walls:   # rect [x0, y0, x1, y1]; `openings` = ids of doors/windows/openings in that wall; runs = collinear pieces of one WallItem
+  exterior_9in:
+    - {id: W_N,   aka: [R1 N, R2 W_N],  rect: [0.0, 23.257, 42.508, 24.0],    openings: [W1, W6, W7], tol: {edge: 0.15, thickness: 0.10}}
+    - {id: W_W,   aka: [R1 W, R2 W_W],  rect: [0.0, 0.0, 0.753, 24.0],        openings: [W3, W2],     tol: {edge: 0.15, thickness: 0.10}}
+    - {id: W_S,   aka: [R1 S, R2 W_S],  rect: [0.0, 0.0, 31.507, 0.753],      openings: [W4, W5],     tol: {edge: 0.15, thickness: 0.10}}
+    - {id: W_E,   aka: [R1 E, R2 W_E],  rect: [41.756, 8.753, 42.508, 24.0],  openings: [W8],         tol: {edge: 0.15, thickness: 0.10}}
+    - {id: W_SE,  aka: [R1 SE_pooja_store, R2 W_SE], rect: [31.507, 8.753, 42.508, 9.505], openings: [W9], note: 'pooja/store south wall, faces parking', tol: {edge: 0.15, thickness: 0.10}}
+    - {id: W_ENT, aka: [R1 E_drawing_to_parking, R2 W_ENT], rect: [30.755, 0.0, 31.507, 9.833], openings: [D5], note: 'drawing-room east wall, faces parking and entrance step', tol: {edge: 0.15, thickness: 0.10}}
+  interior_9in:   # same axis line x 31.131 as W_ENT: run W_ENT + P_1 + P_2 with doorless gaps O5 (y 9.833-13.172) and O1 (y 16.0-21.249)
+    - {id: P_1, aka: [R1 dining_kitchen_line part, R2 P_1], rect: [30.755, 13.172, 31.507, 16.0],   note: "pier: drawing/dining (W) | pooja-top/kitchen (E)", tol: {edge: 0.15, thickness: 0.10}}
+    - {id: P_2, aka: [R1 dining_kitchen_line part, R2 P_2], rect: [30.755, 21.249, 31.507, 23.257], note: "stub from north wall: dining | kitchen", tol: {edge: 0.15, thickness: 0.10}}
+  interior_6in:
+    - {id: I_BED, aka: [R1 bed_partition, R2 I_BED], rect: [0.753, 11.754, 11.252, 12.256], note: bed_nw | bed_sw, tol: {edge: 0.15, thickness: 0.10}}
+    - {id: I_SWB, aka: [R1 bed2_bath, R2 I_SWB],     rect: [10.76, 0.753, 11.252, 8.753],   note: "bed_sw | bath; run x 11.006 = I_SWB + end of I_BED + I_NWB with doors D2 (y 8.753-11.754) and D1 (y 12.256-15.257)", tol: {edge: 0.15, thickness: 0.10}}
+    - {id: I_NWB, aka: [R1 bed1_stair, R2 I_NWB],    rect: [10.76, 15.257, 11.252, 23.257], note: bed_nw | stair hall, tol: {edge: 0.15, thickness: 0.10}}
+    - {id: I_BTH, aka: [R1 bath_north_partial, R2 I_BTH], rect: [11.252, 7.749, 13.751, 8.251], note: "bath north stub; door D3 from its end (x 13.751) to I_BD (x 16.26)", tol: {edge: 0.15, thickness: 0.10}}
+    - {id: I_BD,  aka: [R1 bath_east, R2 I_BD],      rect: [16.26, 0.753, 16.752, 8.753],   note: "bath | drawing; run x 16.506 = I_BD + I_SD with doorless gap O3 (y 8.753-14.755)", tol: {edge: 0.15, thickness: 0.10}}
+    - {id: I_SD,  aka: [R1 stair_dining, R2 I_SD],   rect: [16.26, 14.755, 16.752, 23.257], note: stair hall | dining, tol: {edge: 0.15, thickness: 0.10}}
+    - {id: I_DS,  aka: [R1 dining_south_partial, R2 I_DS], rect: [16.26, 14.755, 26.528, 15.257], note: "dining | drawing; FREE END at x 26.528 (separator O2 to P_1)", tol: {edge: 0.15, thickness: 0.10}}
+    - {id: I_KP,  aka: [R1 kitchen_south, R2 I_KP],  rect: [31.507, 13.5, 38.764, 14.002],  note: "kitchen | pooja + store; door D4 in gap x 38.764-41.756", tol: {edge: 0.15, thickness: 0.10}}
+    - {id: I_PS,  aka: [R1 pooja_store, R2 I_PS],    rect: [36.255, 9.505, 36.757, 13.5],   note: pooja | store, tol: {edge: 0.15, thickness: 0.10}}
+  must_not_contain: plot wall pieces (x < 0, y < 0, x > 42.508 or y > 24.0); planter edge lines; entrance step
+
+rooms:   # 8 labelled rooms; parking is in site.areas (exterior label)
+  - id: bed_nw
+    aka: [R1 bed1, R2 bed_nw]
+    label: 'Bed Room'
+    label_size_text: '11'' x 10'''
+    label_size_ft: [11.0, 10.0]
+    room_type: bedroom
+    type_accept: [bedroom]
+    bbox_ft: [0.753, 12.256, 10.76, 23.257]
+    centre_ft: [5.757, 17.757]
+    clear_size_xy_ft: [10.007, 11.001]
+    area_sqft: 110.1
+    label_name_anchor_ft: [5.065, 15.055]
+    label_block_centre_ft: [5.07, 14.43]
+    label_size_check: ok
+    tol: {edge: 0.30, centre: 0.50, area_rel: 0.05, label_anchor: 0.40}
+  - id: bed_sw
+    aka: [R1 bed2, R2 bed_sw]
+    label: 'Bed Room'
+    label_size_text: '11'' x 10'''
+    label_size_ft: [11.0, 10.0]
+    room_type: bedroom
+    type_accept: [bedroom]
+    bbox_ft: [0.753, 0.753, 10.76, 11.754]
+    centre_ft: [5.757, 6.254]
+    clear_size_xy_ft: [10.007, 11.001]
+    area_sqft: 110.1
+    label_name_anchor_ft: [5.395, 10.015]
+    label_block_centre_ft: [5.40, 9.39]
+    label_size_check: ok
+    note: two rooms share the label text; match them by position
+    tol: {edge: 0.30, centre: 0.50, area_rel: 0.05, label_anchor: 0.40}
+  - id: bath
+    aka: [R1 bath, R2 bath]
+    label: 'Bath+ Toilet'
+    label_lines: ['Bath+', 'Toilet', '7'' x 5''']
+    label_size_text: '7'' x 5'''
+    label_size_ft: [7.0, 5.0]
+    room_type: bathroom
+    type_accept: [bathroom]
+    bbox_ft: [11.252, 0.753, 16.26, 7.749]
+    centre_ft: [13.756, 4.251]
+    clear_size_xy_ft: [5.008, 6.996]
+    area_sqft: 35.0
+    label_name_anchor_ft: [13.745, 4.425]
+    label_block_centre_ft: [13.75, 3.80]
+    label_size_check: ok
+    note: no sanitary fixtures and no window or ventilator drawn
+    tol: {edge: 0.30, centre: 0.50, area_rel: 0.05, label_anchor: 0.40}
+  - id: drawing
+    aka: [R1 drawing, R2 drawing]
+    label: 'Drawing Room'
+    label_size_text: '14'' x 14'''
+    label_size_ft: [14.0, 14.0]
+    room_type: living
+    type_accept: [living]
+    bbox_ft: [16.752, 0.753, 30.755, 14.755]
+    centre_ft: [23.754, 7.754]
+    clear_size_xy_ft: [14.003, 14.002]
+    area_sqft: 196.1
+    label_name_anchor_ft: [20.775, 12.395]
+    label_block_centre_ft: [20.78, 11.77]
+    label_size_check: ok
+    open_sides: "W O3 (to lobby), N O2 (to dining), E O5 (to pooja); main door D5 in E wall"
+    note: "north edge is y 14.755 for x < 26.528 and the O2 separator (about y 15.006) for x 26.528-30.755"
+    tol: {edge: 0.30, centre: 0.50, area_rel: 0.05, label_anchor: 0.40}
+  - id: dining
+    aka: [R1 dining, R2 dining]
+    label: 'Dining'
+    label_size_text: '14'' x 8'''
+    label_size_ft: [14.0, 8.0]
+    room_type: dining
+    type_accept: [dining]
+    bbox_ft: [16.752, 15.257, 30.755, 23.257]
+    centre_ft: [23.754, 19.257]
+    clear_size_xy_ft: [14.003, 8.0]
+    area_sqft: 112.0
+    label_name_anchor_ft: [27.105, 19.375]
+    label_block_centre_ft: [27.07, 18.75]
+    label_size_check: ok
+    open_sides: "E O1 (to kitchen), S part O2 (to drawing)"
+    note: "printed order here is E-W x N-S; the other labels are mostly N-S first, so compare sizes unordered"
+    tol: {edge: 0.30, centre: 0.50, area_rel: 0.05, label_anchor: 0.40}
+  - id: kitchen
+    aka: [R1 kitchen, R2 kitchen]
+    label: 'Kitchen'
+    label_size_text: '9'' 3" x 10'' 3"'
+    label_size_ft: [9.25, 10.25]
+    room_type: kitchen
+    type_accept: [kitchen]
+    bbox_ft: [31.507, 14.002, 41.756, 23.257]
+    centre_ft: [36.632, 18.63]
+    clear_size_xy_ft: [10.249, 9.255]
+    area_sqft: 94.9
+    label_name_anchor_ft: [35.965, 18.565]
+    label_block_centre_ft: [35.97, 17.94]
+    label_size_check: ok
+    open_sides: "W O1 (to dining); door D4 to store in S wall"
+    tol: {edge: 0.30, centre: 0.50, area_rel: 0.05, label_anchor: 0.40}
+  - id: pooja
+    aka: [R1 pooja, R2 pooja]
+    label: 'Pooja'
+    label_size_text: '4'' x 4'' 9"'
+    label_size_ft: [4.0, 4.75]
+    room_type: prayer
+    type_accept: [prayer]
+    bbox_ft: [31.507, 9.505, 36.255, 13.5]
+    centre_ft: [33.881, 11.503]
+    clear_size_xy_ft: [4.748, 3.995]
+    area_sqft: 19.0
+    label_name_anchor_ft: [33.50, 12.00]
+    label_block_centre_ft: [33.54, 11.38]
+    label_size_check: ok
+    open_sides: "W O5 (to drawing, no door drawn); window W9 to parking"
+    uncertain: a pooja door or shutter may exist but is not drawn
+    tol: {edge: 0.30, centre: 0.50, area_rel: 0.05, label_anchor: 0.40}
+  - id: store
+    aka: [R1 store, R2 store]
+    label: 'Store'
+    label_size_text: '4'' x 5'''
+    label_size_ft: [4.0, 5.0]
+    room_type: storage
+    type_accept: [storage]
+    bbox_ft: [36.757, 9.505, 41.756, 13.5]
+    centre_ft: [39.257, 11.503]
+    clear_size_xy_ft: [4.999, 3.995]
+    area_sqft: 20.0
+    label_name_anchor_ft: [38.26, 11.655]
+    label_block_centre_ft: [38.28, 11.03]
+    label_size_check: ok
+    note: entered from the kitchen through D4; no window
+    tol: {edge: 0.30, centre: 0.50, area_rel: 0.05, label_anchor: 0.40}
+
+circulation:   # unlabelled spaces (spec 2.7.1: type hall, label null, unverified)
+  merged_face:
+    note: >
+      Accept EITHER the two sub-spaces below OR this one hall face. Nothing separates them in the PDF except the
+      first tread line at y 15.257 (C10). The face holds the stair F19.
+    bbox_ft: [11.252, 8.251, 16.26, 23.257]
+    room_type: hall
+    tol: {edge: 0.30, centre: 0.50, area_rel: 0.08}
+  spaces:
+    - id: stair_hall
+      aka: [R1 stair_well, R2 stair_hall]
+      label: null
+      room_type: hall
+      type_accept: [hall]
+      bbox_ft: [11.252, 15.257, 16.26, 23.257]
+      centre_ft: [13.756, 19.257]
+      size_xy_ft: [5.008, 8.0]
+      area_sqft: 40.1
+      contains: [F19]
+      bounded_by: "W I_NWB, E I_SD, N W_N; S open to lobby along y 15.257 (O4, the stair foot)"
+      tol: {edge: 0.30, centre: 0.50, area_rel: 0.05}
+    - id: lobby
+      aka: [R1 lobby, R2 lobby]
+      label: null
+      room_type: hall
+      type_accept: [hall]
+      bbox_ft: [11.252, 8.251, 16.26, 15.257]
+      centre_ft: [13.756, 11.754]
+      size_xy_ft: [5.008, 7.006]
+      area_sqft: 35.1
+      bounded_by: "W doors D1 + D2 with the I_BED end between them; S I_BTH + door D3; E O3 to drawing (6.0 ft); N O4 to stair"
+      note: "south edge is y 8.251 for x < 13.751 and the D3 opening (wall line y 7.749-8.251) for x 13.751-16.26"
+      uncertain: could be read as part of the drawing room; the printed 14' x 14' leaves it out
+      tol: {edge: 0.30, centre: 0.50, area_rel: 0.05}
+
+doors:   # width = rough opening between wall ends; hinge = arc centre; swing_radius = arc radius; swing_point = arc midpoint
+  - id: D1
+    aka: [R1 D1, R2 D2_bed_nw]
+    between: [lobby, bed_nw]
+    host_wall: I_SWB/I_NWB run (line x 11.006, 6in)
+    centre_ft: [11.006, 13.757]
+    span_y_ft: [12.256, 15.257]
+    width_ft: 3.001
+    clear_width_between_frames_ft: 2.596
+    hinge_ft: [11.054, 12.309]
+    hinge_jamb: south (next to the bedroom divider)
+    swing_radius_ft: 2.852
+    leaf_drawn_ft: 2.605
+    sweep_deg: 85.3
+    swing_point_ft: [9.093, 14.379]
+    swings_into: bed_nw
+    hinge_side_from_swing_side: right
+    open_leaf_rests: along the north face of I_BED (leaf rect x 8.203-10.808, y 12.381-12.497)
+    tol: {centre: 0.49, width: 0.33, hinge: 0.25, swing_radius: 0.30}
+  - id: D2
+    aka: [R1 D2, R2 D3_bed_sw]
+    between: [lobby, bed_sw]
+    host_wall: I_SWB/I_NWB run (line x 11.006, 6in)
+    centre_ft: [11.006, 10.254]
+    span_y_ft: [8.753, 11.754]
+    width_ft: 3.001
+    clear_width_between_frames_ft: 2.596
+    hinge_ft: [11.112, 11.710]
+    hinge_jamb: north (next to the bedroom divider)
+    swing_radius_ft: 2.852
+    leaf_drawn_ft: 2.605
+    sweep_deg: 85.3
+    swing_point_ft: [9.151, 9.640]
+    swings_into: bed_sw
+    hinge_side_from_swing_side: left
+    open_leaf_rests: along the south face of I_BED (leaf rect x 8.260-10.866, y 11.512-11.628)
+    tol: {centre: 0.49, width: 0.33, hinge: 0.25, swing_radius: 0.30}
+  - id: D3
+    aka: [R1 D3, R2 D4_bath]
+    between: [lobby, bath]
+    host_wall: I_BTH line (y 7.749-8.251, 6in), gap from the I_BTH end to I_BD
+    centre_ft: [15.006, 8.0]
+    span_x_ft: [13.751, 16.26]
+    width_ft: 2.509
+    clear_width_between_frames_ft: 2.152
+    hinge_ft: [16.207, 8.043]
+    hinge_jamb: east
+    swing_radius_ft: 2.369
+    leaf_drawn_ft: 2.162
+    sweep_deg: 85.3
+    swing_point_ft: [14.487, 6.414]
+    swings_into: bath
+    hinge_side_from_swing_side: right
+    open_leaf_rests: along the west face of I_BD (leaf rect x 16.038-16.135, y 5.674-7.836)
+    tol: {centre: 0.49, width: 0.33, hinge: 0.25, swing_radius: 0.30}
+  - id: D4
+    aka: [R1 D4, R2 D5_store]
+    between: [kitchen, store]
+    host_wall: I_KP line (y 13.5-14.002, 6in), gap from the I_KP end to W_E
+    centre_ft: [40.26, 13.751]
+    span_x_ft: [38.764, 41.756]
+    width_ft: 2.992
+    clear_width_between_frames_ft: 2.586
+    hinge_ft: [41.722, 13.852]
+    hinge_jamb: east
+    swing_radius_ft: 2.852
+    leaf_drawn_ft: 2.605
+    sweep_deg: 85.3
+    swing_point_ft: [39.652, 11.891]
+    swings_into: store
+    hinge_side_from_swing_side: right
+    open_leaf_rests: along the west face of W_E inside the store (leaf rect x 41.514-41.630, y 11.011-13.616)
+    tol: {centre: 0.49, width: 0.33, hinge: 0.25, swing_radius: 0.30}
+  - id: D5
+    aka: [R1 D5, R2 D1_main_entrance]
+    name: main entrance
+    between: [outside (parking / entrance step), drawing]
+    exterior: true
+    host_wall: W_ENT (line x 31.131, 9in)
+    centre_ft: [31.131, 2.746]
+    span_y_ft: [1.004, 4.487]
+    width_ft: 3.483
+    clear_width_between_frames_ft: 3.021
+    hinge_ft: [31.184, 1.057]
+    hinge_jamb: south
+    swing_radius_ft: 3.324
+    leaf_drawn_ft: 3.040
+    sweep_deg: 85.3
+    swing_point_ft: [28.898, 3.470]
+    swings_into: drawing
+    hinge_side_from_swing_side: right
+    open_leaf_rests: parallel to the south wall, 0.40 ft off its inner face (leaf rect x 27.869-30.909, y 1.148-1.283), tip x 27.87
+    tol: {centre: 0.49, width: 0.33, hinge: 0.25, swing_radius: 0.30}
+
+windows:   # symbol: parallel lines along the wall inside the gap (2 inner lines at 1/3 and 2/3 of the wall plus the face lines); sill/height not given
+  - {id: W1, aka: [R1 W1, R2 WN1], room: bed_nw,  wall: W_N,  centre_ft: [5.839, 23.629],  span_x_ft: [3.339, 8.338],   width_ft: 4.999, tol: {centre: 0.49, width: 0.33}}
+  - {id: W2, aka: [R1 W2, R2 WW1], room: bed_nw,  wall: W_W,  centre_ft: [0.376, 17.626],  span_y_ft: [15.623, 19.628], width_ft: 4.005, tol: {centre: 0.49, width: 0.33}}
+  - {id: W3, aka: [R1 W3, R2 WW2], room: bed_sw,  wall: W_W,  centre_ft: [0.376, 5.751],   span_y_ft: [3.754, 7.749],   width_ft: 3.995, tol: {centre: 0.49, width: 0.33}}
+  - {id: W4, aka: [R1 W4, R2 WS1], room: bed_sw,  wall: W_S,  centre_ft: [5.839, 0.376],   span_x_ft: [3.339, 8.338],   width_ft: 4.999, tol: {centre: 0.49, width: 0.33}}
+  - {id: W5, aka: [R1 W5, R2 WS2], room: drawing, wall: W_S,  centre_ft: [23.15, 0.376],   span_x_ft: [20.651, 25.65],  width_ft: 4.999, tol: {centre: 0.49, width: 0.33}}
+  - {id: W6, aka: [R1 W6, R2 WN2], room: dining,  wall: W_N,  centre_ft: [22.253, 23.629], span_x_ft: [19.754, 24.752], width_ft: 4.998, tol: {centre: 0.49, width: 0.33}}
+  - {id: W7, aka: [R1 W7, R2 WN3], room: kitchen, wall: W_N,  centre_ft: [36.26, 23.629],  span_x_ft: [34.258, 38.262], width_ft: 4.004, note: behind counter F18a, tol: {centre: 0.49, width: 0.33}}
+  - {id: W8, aka: [R1 W8, R2 WE1], room: kitchen, wall: W_E,  centre_ft: [42.132, 18.253], span_y_ft: [16.251, 20.255], width_ft: 4.004, note: "counter F18b covers its north part (y 18.0-20.26)", tol: {centre: 0.49, width: 0.33}}
+  - {id: W9, aka: [R1 W9, R2 WP1], room: pooja,   wall: W_SE, centre_ft: [33.51, 9.129],   span_x_ft: [32.511, 34.508], width_ft: 1.997, uncertain: "subtype: small window or ventilator (same symbol as the others)", tol: {centre: 0.49, width: 0.33}}
+
+openings:   # doorless; kind follows spec 2.6 / 2.7.1: wall_gap = gap in a collinear wall run, separator = virtual line (wall_id null)
+  - {id: O1, aka: [R1 O1, R2 O4], between: [dining, kitchen],    kind: wall_gap,  wall: "W_ENT/P_1/P_2 run (x 31.131, 9in)", centre_ft: [31.131, 18.625], span_y_ft: [16.0, 21.249],    width_ft: 5.249, tol: {centre: 0.49, width: 0.33}}
+  - {id: O2, aka: [R1 O2, R2 O3], between: [dining, drawing],    kind: separator, virtual: true, wall: null, line: "y 15.006 from the I_DS free end (x 26.528) to P_1 (x 30.755)", centre_ft: [28.642, 15.006], span_x_ft: [26.528, 30.755], width_ft: 4.227, note: 'end-to-wall separator, needed because Drawing Room and Dining would share a face', tol: {centre: 0.49, width: 0.33}}
+  - {id: O3, aka: [R1 O3, R2 O1], between: [lobby, drawing],     kind: wall_gap,  wall: "I_BD/I_SD run (x 16.506, 6in)", centre_ft: [16.506, 11.754], span_y_ft: [8.753, 14.755],  width_ft: 6.002, note: "gap 1.83 m <= 3.0 m, so a doorless opening in the run", tol: {centre: 0.49, width: 0.33}}
+  - {id: O4, aka: [R1 O4, R2 O2], between: [stair_hall, lobby],  kind: separator, virtual: true, wall: null, line: "y 15.257, x 11.252-16.26 (stair foot = first tread line)", centre_ft: [13.756, 15.257], span_x_ft: [11.252, 16.26], width_ft: 5.008, optional: true, note: "no free wall end here; absent when the pipeline keeps circulation.merged_face (C10)", tol: {centre: 0.49, width: 0.33}}
+  - {id: O5, aka: [R1 O5, R2 O5], between: [drawing, pooja],     kind: wall_gap,  wall: "W_ENT/P_1 run (x 31.131, 9in)", centre_ft: [31.131, 11.503], span_y_ft: [9.833, 13.172],  width_ft: 3.339, uncertain: no door leaf drawn; a pooja door may simply be left out, tol: {centre: 0.49, width: 0.33}}
+
+furniture:   # all source from_documents; lamps and phones are details inside the nightstand clusters, not pieces
+  - id: F1
+    aka: [R1 F1, R2 F01]
+    type: bed_double
+    type_raw: double_bed
+    type_accept: [bed_double]
+    room: bed_nw
+    bbox_ft: [2.972, 16.569, 8.801, 23.228]
+    centre_ft: [5.887, 19.899]
+    size_wd_ft: [5.83, 6.66]
+    front_deg: 270
+    rotation_deg: 0
+    rotation_mod: 360
+    note: headboard + 2 pillows against the north wall under W1, folded blanket
+    tol: {centre: 0.49, size: 0.49, rot_deg: 10}
+  - id: F2
+    aka: [R1 F2, R2 F02]
+    type: nightstand
+    type_accept: [nightstand, side_table]
+    room: bed_nw
+    side: west of F1
+    bbox_ft: [1.351, 21.780, 2.972, 23.237]
+    centre_ft: [2.162, 22.509]
+    size_wd_ft: [1.62, 1.46]
+    front_deg: 270
+    rotation_deg: 0
+    rotation_mod: 360
+    items: [{what: table_lamp, centre_ft: [2.080, 22.518], diameter_ft: 0.78}]
+    tol: {centre: 0.49, size: 0.49, rot_deg: 10}
+  - id: F3
+    aka: [R1 F3, R2 F03]
+    type: nightstand
+    type_accept: [nightstand, side_table]
+    room: bed_nw
+    side: east of F1
+    bbox_ft: [8.810, 21.761, 10.432, 23.218]
+    centre_ft: [9.621, 22.490]
+    size_wd_ft: [1.62, 1.46]
+    front_deg: 270
+    rotation_deg: 0
+    rotation_mod: 360
+    items:
+      - {what: table_lamp, centre_ft: [9.935, 22.123], diameter_ft: 0.78}
+      - {what: telephone, centre_ft: [9.283, 22.567], size_ft: [0.77, 0.78], confidence: 0.75, uncertain: "keypad grid of 13 tiny rects; could still be a clock/radio"}
+    tol: {centre: 0.49, size: 0.49, rot_deg: 10}
+  - id: F4
+    aka: [R1 F4, R2 F04]
+    type: bed_double
+    type_raw: double_bed
+    type_accept: [bed_double]
+    room: bed_sw
+    bbox_ft: [2.818, 0.917, 8.656, 7.575]
+    centre_ft: [5.737, 4.246]
+    size_wd_ft: [5.84, 6.66]
+    front_deg: 90
+    rotation_deg: 180
+    rotation_mod: 360
+    note: headboard against the south wall under W4; the NW bed group turned 180 degrees
+    tol: {centre: 0.49, size: 0.49, rot_deg: 10}
+  - id: F5
+    aka: [R1 F5, R2 F05]
+    type: nightstand
+    type_accept: [nightstand, side_table]
+    room: bed_sw
+    side: west of F4
+    bbox_ft: [1.197, 0.917, 2.818, 2.384]
+    centre_ft: [2.007, 1.650]
+    size_wd_ft: [1.62, 1.47]
+    front_deg: 90
+    rotation_deg: 180
+    rotation_mod: 360
+    items:
+      - {what: table_lamp, centre_ft: [1.694, 2.022], diameter_ft: 0.78}
+      - {what: telephone, centre_ft: [2.345, 1.573], size_ft: [0.77, 0.77], confidence: 0.75, uncertain: keypad grid; could still be a clock/radio}
+    tol: {centre: 0.49, size: 0.49, rot_deg: 10}
+  - id: F6
+    aka: [R1 F6, R2 F06]
+    type: nightstand
+    type_accept: [nightstand, side_table]
+    room: bed_sw
+    side: east of F4
+    bbox_ft: [8.656, 0.907, 10.277, 2.364]
+    centre_ft: [9.467, 1.636]
+    size_wd_ft: [1.62, 1.46]
+    front_deg: 90
+    rotation_deg: 180
+    rotation_mod: 360
+    items: [{what: table_lamp, centre_ft: [9.549, 1.626], diameter_ft: 0.78}]
+    tol: {centre: 0.49, size: 0.49, rot_deg: 10}
+  - id: F7
+    aka: [R1 F7, R2 F07]
+    type: table_dining
+    type_raw: dining_table
+    type_accept: [table_dining]
+    room: dining
+    bbox_ft: [20.111, 17.293, 22.523, 21.356]
+    centre_ft: [21.317, 19.325]
+    size_wd_ft: [4.06, 2.41]
+    size_unordered: true
+    front_deg: null
+    rotation_deg: 90
+    rotation_mod: 180
+    note: rectangular, long axis N-S, 6 chairs; drawn in gold (rgb 0.646, 0.486, 0)
+    tol: {centre: 0.49, size: 0.49, rot_deg: 10}
+  - {id: F8,  aka: [R1 F8,  R2 F11], type: chair, type_raw: dining_chair, type_accept: [chair], room: dining, side: west upper, bbox_ft: [18.663, 19.754, 20.120, 20.998], centre_ft: [19.392, 20.376], size_wd_ft: [1.25, 1.46], front_deg: 0,   rotation_deg: 90,  rotation_mod: 360, size_unordered: true, tol: {centre: 0.49, size: 0.49, rot_deg: 10}}
+  - {id: F9,  aka: [R1 F9,  R2 F10], type: chair, type_raw: dining_chair, type_accept: [chair], room: dining, side: west lower, bbox_ft: [18.663, 17.650, 20.120, 18.904], centre_ft: [19.392, 18.277], size_wd_ft: [1.25, 1.46], front_deg: 0,   rotation_deg: 90,  rotation_mod: 360, size_unordered: true, tol: {centre: 0.49, size: 0.49, rot_deg: 10}}
+  - {id: F10, aka: [R1 F10, R2 F13], type: chair, type_raw: dining_chair, type_accept: [chair], room: dining, side: east upper, bbox_ft: [22.523, 19.754, 23.984, 20.998], centre_ft: [23.254, 20.376], size_wd_ft: [1.25, 1.46], front_deg: 180, rotation_deg: 270, rotation_mod: 360, size_unordered: true, tol: {centre: 0.49, size: 0.49, rot_deg: 10}}
+  - {id: F11, aka: [R1 F11, R2 F12], type: chair, type_raw: dining_chair, type_accept: [chair], room: dining, side: east lower, bbox_ft: [22.523, 17.650, 23.984, 18.904], centre_ft: [23.254, 18.277], size_wd_ft: [1.25, 1.46], front_deg: 180, rotation_deg: 270, rotation_mod: 360, size_unordered: true, tol: {centre: 0.49, size: 0.49, rot_deg: 10}}
+  - {id: F12, aka: [R1 F12, R2 F08], type: chair, type_raw: dining_chair, type_accept: [chair], room: dining, side: north end, bbox_ft: [20.699, 21.356, 21.954, 22.813], centre_ft: [21.327, 22.085], size_wd_ft: [1.25, 1.46], front_deg: 270, rotation_deg: 0,   rotation_mod: 360, size_unordered: true, tol: {centre: 0.49, size: 0.49, rot_deg: 10}}
+  - {id: F13, aka: [R1 F13, R2 F09], type: chair, type_raw: dining_chair, type_accept: [chair], room: dining, side: south end, bbox_ft: [20.699, 15.845, 21.954, 17.302], centre_ft: [21.327, 16.574], size_wd_ft: [1.25, 1.46], front_deg: 90,  rotation_deg: 180, rotation_mod: 360, size_unordered: true, tol: {centre: 0.49, size: 0.49, rot_deg: 10}}
+  - id: F14
+    aka: [R1 F14, R2 F14]
+    type: sofa
+    type_raw: sofa_3_seater
+    type_accept: [sofa]
+    room: drawing
+    bbox_ft: [18.306, 1.341, 24.521, 3.656]
+    centre_ft: [21.414, 2.499]
+    size_wd_ft: [6.22, 2.31]
+    front_deg: 90
+    rotation_deg: 180
+    rotation_mod: 360
+    note: back toward the south wall (0.59 ft gap), 3 seat cushions, 2 arms, throw cushions; faces F16
+    tol: {centre: 0.49, size: 0.49, rot_deg: 10}
+  - id: F15
+    aka: [R1 F15, R2 F15]
+    type: sofa
+    type_raw: sofa_3_seater
+    type_accept: [sofa]
+    room: drawing
+    bbox_ft: [25.013, 4.902, 27.319, 11.126]
+    centre_ft: [26.166, 8.014]
+    size_wd_ft: [6.22, 2.31]
+    front_deg: 180
+    rotation_deg: 270
+    rotation_mod: 360
+    note: free-standing, back 3.44 ft from the east wall; faces F16
+    tol: {centre: 0.49, size: 0.49, rot_deg: 10}
+  - id: F16
+    aka: [R1 F16, R2 F16]
+    type: table_coffee
+    type_raw: coffee_table
+    type_accept: [table_coffee]
+    room: drawing
+    bbox_ft: [19.580, 6.195, 23.276, 9.882]
+    centre_ft: [21.428, 8.039]
+    size_wd_ft: [3.70, 3.69]
+    size_unordered: true
+    front_deg: null
+    rotation_deg: 0
+    rotation_mod: 90
+    confidence: 0.75
+    uncertain: "thick double outer frame + inner square; reads as a centre table (glass/inlay top); a small square rug is possible (no rug type in the schema)"
+    tol: {centre: 0.49, size: 0.49, rot_deg: 10}
+  - id: F17
+    aka: [R1 F17, R2 F17]
+    type: floor_lamp
+    type_raw: round_object
+    type_accept: [floor_lamp, side_table, plant, unknown]
+    type_open: true
+    room: drawing
+    bbox_ft: [25.553, 2.567, 26.972, 3.985]
+    centre_ft: [26.263, 3.276]
+    size_wd_ft: [1.42, 1.42]
+    diameter_ft: 1.419
+    front_deg: null
+    rotation_deg: 0
+    rotation_mod: 0
+    confidence: 0.45
+    placement: in the corner between the east end of F14 and the south end of F15
+    uncertain: >
+      Round symbol: thin outer circle, thick black annulus, white ring with 8 radial spokes, small centre ring.
+      Best guess floor lamp seen from above (shade spider), about 0.45. Round corner side table or pouf about 0.35,
+      planter or decorative wheel the rest. A different block from the bedside lamps. Tests check footprint only;
+      the type is AI-typed and open (spec 2.10: "round piece, type left open").
+    tol: {centre: 0.49, size: 0.49}
+  - id: F18a
+    aka: [R1 F18 leg north, R2 F18 north_wall leg]
+    type: kitchen_counter
+    type_raw: kitchen_counter_L
+    type_accept: [kitchen_counter]
+    type_method_expected: rule
+    room: kitchen
+    leg: north (longer leg, holds the corner square)
+    bbox_ft: [33.331, 21.249, 41.756, 23.257]
+    centre_ft: [37.544, 22.253]
+    size_wd_ft: [8.43, 2.01]
+    front_deg: 270
+    rotation_deg: 0
+    rotation_mod: 360
+    against_wall: W_N
+    note: west end 1.82 ft from the kitchen west face (x 31.507); outline only, no sink/hob/appliances
+    tol: {centre: 0.49, size: 0.49, rot_deg: 10}
+  - id: F18b
+    aka: [R1 F18 leg east, R2 F18 east_wall leg minus corner]
+    type: kitchen_counter
+    type_raw: kitchen_counter_L
+    type_accept: [kitchen_counter]
+    type_method_expected: rule
+    room: kitchen
+    leg: east (beyond the corner square)
+    bbox_ft: [39.758, 17.997, 41.756, 21.249]
+    centre_ft: [40.757, 19.623]
+    size_wd_ft: [3.25, 2.00]
+    front_deg: 180
+    rotation_deg: 270
+    rotation_mod: 360
+    against_wall: W_E
+    tol: {centre: 0.49, size: 0.49, rot_deg: 10}
+  - id: F18_polygon
+    note: "the same counter as one L outline (R2), for a test that prefers the polygon; do not count it as a third piece"
+    polygon_ft: [[33.331, 21.249], [39.758, 21.249], [39.758, 17.997], [41.756, 17.997], [41.756, 23.257], [33.331, 23.257]]
+    depth_ft: 2.0
+    not_a_piece: true
+  - id: F19
+    aka: [R1 F19, R2 F19]
+    type: stair
+    type_raw: stair_dog_leg
+    type_accept: [stair]
+    type_method_expected: rule
+    status_expected: verified
+    room: stair_hall
+    bbox_ft: [11.252, 15.257, 16.26, 23.257]
+    centre_ft: [13.756, 19.257]
+    size_wd_ft: [8.0, 5.008]
+    size_unordered: true
+    front_deg: null
+    rotation_deg: 90
+    rotation_mod: 180
+    subtype: dog-leg (U-turn), 2 flights side by side
+    flights:
+      - {id: A, x_ft: [11.252, 13.751], y_ft: [15.257, 21.085], width_ft: 2.499, treads: 7}
+      - {id: B, x_ft: [13.751, 16.26], y_ft: [15.257, 21.085], width_ft: 2.509, treads: 7}
+    tread_depth_ft: 0.833
+    tread_lines_y_ft: [15.257, 16.087, 16.916, 17.756, 18.586, 19.416, 20.255, 21.085]
+    landing: {x_ft: [11.252, 16.26], y_ft: [21.085, 23.257], depth_ft: 2.172}
+    centre_divider: line x 13.751 from y 15.257 to 23.257 (runs through the landing too)
+    uncertain: >
+      No UP arrow, break line or riser text, so the up direction and which flight starts at the lobby are unknown.
+      Because the divider runs through the landing, two parallel straight flights (or one 5 ft flight with a centre
+      rail) cannot be excluded. The landing (2.17 ft) is shallower than a flight is wide (2.5 ft).
+    tol: {centre: 0.49, size: 0.49, rot_deg: 10, flights: 0, treads_per_flight: 1, tread_depth: 0.10}
+
+site:   # not built in 3D; nothing here may appear in building walls/rooms
+  plot_wall:
+    outer_bbox_ft: [-2.992, -3.001, 47.005, 27.001]
+    inner_bbox_ft: [-2.499, -2.499, 46.513, 26.499]
+    thickness_in: 6
+    size_ft: [50.0, 30.0]   # outer faces = the two red dimensions
+    segments:
+      - {side: W, rect: [-2.992, -3.001, -2.499, 27.001]}
+      - {side: N, rect: [-2.992, 26.499, 47.005, 27.001]}
+      - {side: S, rect: [-2.992, -3.001, 47.005, -2.499]}
+      - {side: E, rect: [46.513, 8.753, 47.005, 27.001], note: alongside the planter strip only}
+    frontage_opening:
+      aka: [R1 site.plot_wall.east_opening, R2 O6]
+      x_ft: 47.005
+      span_y_ft: [-2.499, 8.753]
+      width_ft: 11.252
+      note: no wall, only the thin plot boundary line x 47.005; vehicle entry to the parking
+      uncertain: no gate drawn
+    tol: {edge: 0.15}
+  setbacks_ft: {west: 2.5, north: 2.5, south: 2.5, east: 4.0}
+  areas:
+    - id: parking
+      aka: [R1 rooms.parking, R2 rooms.parking]
+      label: 'Parking'
+      label_size_text: '11'' 3" x 15'' 3"'
+      label_size_ft: [11.25, 15.25]
+      label_name_anchor_ft: [39.205, 4.02]
+      label_block_centre_ft: [39.18, 3.39]
+      exterior: true
+      polygon: null   # not closed: no wall on the east, and open to the south setback below y 0 west of x 31.507
+      extent_bbox_ft: [31.507, -2.499, 47.005, 8.753]
+      extent_size_xy_ft: [15.498, 11.252]
+      size_note: >
+        N-S 11.25 exact (W_SE outer face y 8.753 to S plot-wall inner face y -2.499). E-W printed 15.25 = to the
+        plot-wall centre line x 46.759; drawn extent to the boundary line x 47.005 = 15.50; to the inner-face line
+        x 46.513 = 15.01 (C07).
+      car_drawn: false
+      uncertain: whether it is a covered car porch (no roof or columns shown)
+      tol: {label_anchor: 0.40, edge: 0.30, edge_east_accept_x: [46.46, 47.06]}
+    - id: planter_strip
+      aka: [R1 planter_bed, R2 planter_strip]
+      label: null
+      extent_bbox_ft: [42.508, 8.753, 46.513, 26.499]
+      size_xy_ft: [4.005, 17.746]
+      bounded_by: "W house E wall + thin line x 42.508 (y 24.0-26.499); E and N plot-wall inner faces; S thin line y 8.753 (x 42.508-47.005)"
+      tol: {edge: 0.30}
+    - id: setback_yard
+      label: null
+      note: 2.5 ft empty strips W (x -2.499..0), N (y 24..26.499) and S (y -2.499..0, joins the parking)
+  decor:
+    plants:
+      type: plant
+      count: 9
+      symbol: green leaf cluster with a brown pot rim (949 strokes each), identical blocks
+      size_xy_ft: [1.462, 1.391]
+      arrangement: two staggered columns in the planter strip, 5 west (x 43.654) + 4 east (x 45.50-45.64)
+      centres_ft:
+        - [43.654, 9.853]
+        - [45.642, 11.262]
+        - [43.654, 12.980]
+        - [45.568, 15.286]
+        - [43.654, 17.409]
+        - [45.496, 19.378]
+        - [43.654, 21.617]
+        - [45.531, 23.219]
+        - [43.654, 25.438]
+      tol: {centre: 0.49, size: 0.49, count: 0}
+    entrance_step:
+      type: other
+      location: outside D5, in the parking, against W_ENT
+      bbox_ft: [31.507, 0.0, 33.177, 4.487]
+      centre_ft: [32.342, 2.244]
+      size_xy_ft: [1.670, 4.487]
+      inner_line_x_ft: 32.337
+      treads: 2
+      front_deg: 0
+      uncertain: 2 treads of 0.83 ft assumed from one inner line; could be one step plus a landing/nosing line
+      tol: {centre: 0.49, size: 0.49}
+  dimensions:
+    - {text: "50'", value_ft: 50, colour: red, from_ft: [-2.992, 29.490], to_ft: [47.005, 29.490], length_pt: 621.72, measures: plot outer width (X), text_bbox_ft: [20.80, 28.45, 23.22, 30.32]}
+    - {text: "30'", value_ft: 30, colour: red, from_ft: [-5.935, -3.001], to_ft: [-5.935, 27.001], length_pt: 373.08, measures: plot outer depth (Y), text_bbox_ft: [-7.14, 10.96, -4.71, 12.82]}
+
+not_drawn:
+  - north arrow (north = page top assumed)
+  - title block / plan title / level name
+  - floor, ceiling, sill and lintel heights
+  - bathroom fixtures, kitchen sink/hob/appliances, wardrobes
+  - stair UP arrow and riser count
+  - gate at the parking frontage, car
+  - pooja door (opening O5 has no leaf)
+
+uncertain_summary:
+  - {id: F17, what: round object type (floor_lamp 0.45 / side table or pouf 0.35 / other)}
+  - {id: F16, what: centre table vs square rug (0.75 table)}
+  - {id: F19, what: stair direction and flight order; dog-leg vs two straight flights}
+  - {id: circulation, what: stair hall and lobby may be one hall face (no separator in the PDF)}
+  - {id: O5, what: pooja door possibly omitted}
+  - {id: W9, what: small window vs ventilator}
+  - {id: F3/F5 items, what: telephone (0.75) vs clock/radio}
+  - {id: entrance_step, what: 2 treads vs 1 step + landing}
+  - {id: parking, what: covered porch or open; E-W edge 46.51 / 46.76 / 47.005 depending on reading}
+  - {id: frame, what: north direction (no north arrow)}
