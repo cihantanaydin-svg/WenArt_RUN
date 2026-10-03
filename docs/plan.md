@@ -265,6 +265,17 @@ Rule-based (no AI): HDRI from the style profile (warm daylight), sun through win
 cameras at 1.4 m height, 24 mm equivalent, placed in the free area of the room polygon looking at the longest wall,
 at a window and from the door. Three views per room.
 
+**Milestone 6 (`docs/milestone6.md` §4–§5):** full runs use searched cameras: a numpy ray caster scores candidate
+positions on a 0.5 m grid (plus room corners) every 30° by furniture, opening, floor and depth shares with penalties for
+near, single-element, bare-wall, window and ceiling coverage; height 1.25 m, pitch 0 and lens shift `shift_y = −0.10`
+(straight verticals, the floor in the frame); 3 views for rooms ≥ 6 m², 2 for 3–6 m², 1 below; blocked candidates only
+when nothing else exists. The M5 rule set stays as `camera_policy: m5` (default of the library and the build CLI).
+Lighting: rooms with glass/floor < 0.08 get an assumed, camera-invisible ceiling area light; windowless rooms put their
+light at the pole of inaccessibility; a second save at EV − k pulls blown window panes (EXR passes unchanged).
+Measured on the M6 runs: median object share of the frame 0.16 → 0.30 (synthetic-01) and 0.06 → 0.16 (synthetic-03),
+views with < 10 % objects 8 → 3 and 32 → 18, no view metered at the +8 EV limit (M5: 4), no view with blown windows
+(M5: 19 with > 5 % clipped window pixels).
+
 ### 4.11 Cycles rendering
 
 Blender 5.2 LTS Cycles, OptiX, 1920×1080, 256–512 samples + OpenImageDenoise, passes: RGB, depth, normal, object
@@ -372,7 +383,15 @@ both VLMs run with `--quantization fp8 --max-model-len 8192`.
   `synthetic-02` (1 floor, scan only + a perspective-distorted "phone photo"; no brief → defaults),
   `synthetic-03` (3 floors as one multi-page PDF + a separate furniture plan DWG; one room label with "24,50 m²" area text;
   two style prompts for the consistency test).
-- Your real projects go into `projects/<name>/` later (never committed if they are confidential; add them to `.gitignore`).
+- Milestone 6 added `synthetic-04` (3rd-floor flat drawn as DXF + vector PDF of the same level, two L-shaped rooms, an
+  armchair at 45°, Japandi brief) and `synthetic-05` (notched outline, floor-plan DXF without furniture + a furniture-plan
+  DXF, en-suite, study, a style photo, `polish: false`) (`docs/synthetic.md`).
+- Real projects: this repository is **public**, so a real project is never committed and never placed under
+  `projects/` (the pod also runs `git clean -fdx` there). You upload a project folder straight to the network volume with
+  the RunPod S3 API under a neutral alias (`real-01`, …) and run it with `PRIVATE_PROJECTS=real-01`; outputs stay on the
+  volume, only an allow-listed summary (final report, previews, contact sheets) reaches the session (`docs/intake.md`).
+  DWG files are not read: export DXF (or a vector PDF) from the CAD program.
+- One command per pod runs every stage of every project (`scripts/jobs/full.sh` → `python -m wenart.run pod`).
 - Milestones 1–7 as in your brief; after each one: commit, push, `docs/progress.md`.
 
 ## 8. Licence flags (summary)
@@ -392,6 +411,9 @@ licence), Z-Image-Turbo-Fun-Controlnet-Union-2.1 (Apache-2.0; the 591-byte diffu
 personal repo without a licence and is vendored as architecture metadata), Depth-Anything-V2-Small-hf,
 SAM 2.1 hiera-large, DINOv2-base (Apache-2.0), Qwen3-VL-8B-Instruct (Apache-2.0), GLM-4.6V-Flash (MIT).
 Not used: Depth Anything V2 Base/Large and DA3-LARGE/GIANT (CC-BY-NC), DINOv3 (custom gated licence).
+
+Milestone 6: no new models. New textures from Poly Haven (CC0): `oak_veneer_01`, `walnut_veneer`, `rough_linen`;
+procedural tiles and bedding are our own code.
 
 ## 9. Sources
 
