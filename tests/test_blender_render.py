@@ -15,10 +15,12 @@ import json
 import os
 import re
 import subprocess
+import time
 from pathlib import Path
 
 import pytest
 
+from wenart import views as V
 from wenart.blender import cli, schemas
 from wenart.ingest.pipeline import build_project
 
@@ -171,6 +173,66 @@ def test_full_run_then_idempotent_rerun_pass_the_gpu_test_logic(scene, tmp_path,
     gpu.test_white_plaster_walls_are_neutral(project)
     with pytest.raises(AssertionError, match="OPTIX|CUDA|CPU"):
         gpu.test_gpu_device_and_full_resolution(project)
+
+
+@needs_blender
+def test_cameras_not_in_the_scene_move_to_dropped_stale_and_keep_their_files(scene):
+    # Review L2: an output folder reused across a camera-policy switch holds entries and files of cameras the
+    # scene no longer has. A run drops their entries (as before) and now lists them under dropped_stale with
+    # the reason and the files left on disk; the files are never deleted and no reader takes them as views.
+    out = scene["renders"]
+    path = out / "render_manifest.json"
+    manifest = json.loads(path.read_text(encoding="utf-8"))
+    gone = "cam_r_L0_gone_1"
+    old = dict(entries(manifest)[CAM_A], camera=gone, png=f"{gone}.png", preview=f"{gone}_preview.jpg")
+    manifest["renders"].append(old)
+    path.write_text(json.dumps(manifest), encoding="utf-8")
+    for suffix in (".png", "_preview.jpg"):
+        (out / f"{gone}{suffix}").write_bytes((out / f"{CAM_A}{suffix}").read_bytes())
+    m = render(scene["dir"], out, "all")
+    schemas.validate_render_manifest(m)
+    assert gone not in entries(m) and len(m["renders"]) == 15 and all(r["skipped"] for r in m["renders"])
+    (item,) = m["dropped_stale"]
+    assert item["camera"] == gone and "no such camera in the scene" in item["reason"]
+    assert item["files"] == [f"{gone}.png", f"{gone}_preview.jpg"] and item["render_key"] == old["render_key"]
+    assert (out / f"{gone}.png").is_file() and (out / f"{gone}_preview.jpg").is_file()      # never deleted
+    assert gone not in V.load_views(out, skip_stale=True)
+    # Carried over by later runs while its files remain; not listed once they are gone.
+    m = render(scene["dir"], out, CAM_A)
+    assert [d["camera"] for d in m["dropped_stale"]] == [gone]
+    for suffix in (".png", "_preview.jpg"):
+        (out / f"{gone}{suffix}").unlink()
+    assert render(scene["dir"], out, CAM_A)["dropped_stale"] == []
+
+
+@needs_blender
+def test_deadline_cut_drops_an_older_build_entry_it_did_not_render(scene, monkeypatch):
+    # Review L2 (b): a render cut by WENART_DEADLINE kept the entry of a camera it did not re-render even when
+    # that entry came from another scene build (M5 renders under the M6 camera name), and load_views returned it.
+    out = scene["renders"]
+    path = out / "render_manifest.json"
+    manifest = json.loads(path.read_text(encoding="utf-8"))
+    for r in manifest["renders"]:
+        if r["camera"] == CAM_A:
+            r["scene_sha256"] = "0" * 64
+    path.write_text(json.dumps(manifest), encoding="utf-8")
+    monkeypatch.setenv("WENART_DEADLINE", str(time.time() - 5))
+    with pytest.raises(cli.BlenderFailed) as err:
+        render(scene["dir"], out, "all")
+    assert err.value.returncode == 3
+    m = json.loads(path.read_text(encoding="utf-8"))
+    schemas.validate_render_manifest(m)
+    assert m["incomplete"] is True and m["not_rendered"] == [CAM_A]
+    assert CAM_A not in entries(m) and len(m["renders"]) == 14
+    (item,) = [d for d in m["dropped_stale"] if d["camera"] == CAM_A]
+    assert "WENART_DEADLINE" in item["reason"] and item["scene_sha256"] == "0" * 64
+    assert f"{CAM_A}.png" in item["files"] and (out / f"{CAM_A}.png").is_file()           # files kept
+    assert CAM_A not in V.load_views(out, skip_stale=True) and CAM_B in V.load_views(out)
+    # The resume renders it again and it leaves dropped_stale.
+    monkeypatch.delenv("WENART_DEADLINE")
+    m = render(scene["dir"], out, "all")
+    assert entries(m)[CAM_A]["skipped"] is False and entries(m)[CAM_A]["scene_sha256"] == scene["fingerprint"]
+    assert m["dropped_stale"] == [] and m["incomplete"] is False and len(m["renders"]) == 15
 
 
 def test_render_job_passes_the_rendered_projects_to_the_gpu_tests():

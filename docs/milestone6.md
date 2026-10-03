@@ -430,7 +430,12 @@ Score (all constants in one table `SCORE` in `camsearch.py`):
 
 Candidates: free points (`geom2d.point_is_free` with the existing wall 0.3 m / obstacle 0.2 m clearances) on a
 0.5 m grid plus two points per convex polygon corner (0.45 m and 0.6 m in along the bisector); yaw every 30°;
-height 1.25 m; pitch 0; `shift_y = −0.10`; lens 24 mm / 36 mm; 1920 × 1080.
+height 1.25 m; pitch 0; `shift_y = −0.10`; lens 24 mm / 36 mm; 1920 × 1080. A room without a free point gets
+the M5 fallback (`cameras._Search.fallback`, unchanged) anchored at the room's inner point (`lighting.polylabel`,
+always inside the polygon) instead of the centroid, which can lie outside an L-shaped room (review C1): that point,
+else the nearest point clear of the tall pieces, else the inner point itself. The warning names the inner point
+and says "INSIDE a proxy" only when it is in a tall piece (else its distance to the nearest wall); such a cramped
+view is then flagged `blocked unavoidable` by the pick.
 
 Blocked = model `near` > 0.30 or `max_single` > 0.50. Views per room: 3 when the room area ≥ 6 m², 2 when 3–6
 m², 1 when < 3 m². Greedy pick by score among unblocked candidates; a later pick must differ from every earlier
@@ -475,8 +480,9 @@ image files) only. Every new design-detail object or light gets a scene-manifest
 | 8 | Soft bedding (superellipsoid mattress, draped duvet, turn-down band, pillows leaning 14°) inside the bed's own box; veneer slugs (`wood_veneer_oak`, `wood_veneer_walnut`, Poly Haven `oak_veneer_01`, `walnut_veneer`) for furniture wood instead of the floor planks; fabric textures in flat albedo mode (Poly Haven `rough_linen`); `metallic = 1` for steel; one Bevel modifier (weight-limited, 0.05 m, 3 segments, per-part weights, ≤ 1/3 of the smallest side); `parametric.decor_rest_height` follows the bedding top for bed hosts (build time, so the M5 building of the A/B gets it too) | `parametric.py`, `furniture.py`, `materials.py`, `vocabulary.py`, `wenart/assets` | bbox equals the footprint box (1.6 × 2.0 × 1.0 m bed checked); `obstacle_rect`/`piece_bbox` unchanged for every type (the `m5` cameras depend on it) |
 | 9 | Doors: veneer with vertical grain, lever handles on both faces at 1.02 m (steel, the door's pass index); painted skirting 8 cm × 12 mm along dry-room walls, interrupted at doors, pass index 0, status `assumed` | `shell.py`, `materials.py` | handles inside the door's bbox + handle depth; skirting absent in wet rooms |
 | 10 | `--alt-look "AgX - Punchy"`: also save `<cam>_alt_preview.jpg` with that look and the **same** window pull (alt look saved at EV and at EV − k with the main PNG's k and mask, blended with the same mask) | `render.py`, `cli.py` | outside the mask the alt preview equals a plain alt-look save; main PNG unchanged |
-| 11 | Control and A/B flags for §6: `--max-bounces N`, `--no-denoise`, `--ev-offset X` (added to the auto or `--look-from` EV), `--preview-quality Q` (fixed JPEG quality, no size step-down; the AB renders use 85 = the committed M5 previews); all part of `render_key` | `render.py`, `cli.py` | key changes with each flag |
-| 12 | `render` stops before a new camera once `WENART_DEADLINE` is past, writes the manifest with `incomplete: true`, exit 3; `cli.main` passes 3 through | `render.py`, `cli.py` | CPU test with a past deadline |
+| 11 | Control and A/B flags for §6: `--max-bounces N`, `--no-denoise`, `--ev-offset X` (added to the auto or `--look-from` EV), `--preview-quality Q` (fixed JPEG quality, no size step-down; the AB renders use 85 = the committed M5 previews); all part of `render_key`. `--max-bounces N` sets N diffuse, glossy and volume bounces and keeps transmission and the total at ≥ 2, so camera rays still pass both faces of the window glass (a plain Cycles `max_bounces = 0` turned every pane black, review L1); the applied limits are in the render key and the manifest (`bounces`) | `render.py`, `cli.py` | key changes with each flag; `--max-bounces 0` keeps the sky in the panes (pane median > 0) with darker walls |
+| 12 | `render` stops before a new camera once `WENART_DEADLINE` is past, writes the manifest with `incomplete: true`, exit 3; `cli.main` passes 3 through. A camera it did not render whose carried-over entry comes from another scene build loses that entry (review L2) | `render.py`, `cli.py` | CPU test with a past deadline |
+| 12a | Stale entries (review L2): entries of cameras no longer in the scene (e.g. M5 cameras the search dropped) and the older-build entries of row 12 leave `renders` and are listed under `dropped_stale: [{camera, reason, scene_sha256, render_key, files}]`; their files are not deleted; an item is carried over while files of the camera remain and it has no entry. Readers take views from `renders` only; `views.load_views` also skips (`StaleRender`) an entry of a camera in `not_rendered` whose `scene_sha256` differs from the manifest's (manifests written before the fix) | `render.py`, `views.py` | CPU tests (Blender: dropped camera and deadline cut; views: old manifests, readers) |
 | 13 | `build --camera-policy search|m5` (default `m5`, part of the fingerprint; `cli.build(..., camera_policy="m5")`); building hashed with `canonical_sha256` | `build.py`, `cli.py` | fingerprint unchanged when only `created_utc` changes |
 
 Rules: furniture type, footprint, rotation and room never change; bedding, handles, fronts and skirting are
@@ -567,7 +573,7 @@ normal render; nuisance adds `--ev-offset 0.3`) and `--preview-quality 85`.
 |---|---|---|---|
 | `ctl_flat` | `build --no-textures` render vs normal, 8 views | B wins `materials` | order-consistent correct ≥ 70 % (consensus ≥ 60 %), wrong ≤ 5 % |
 | `ctl_proxy` | `build --proxies` vs normal, 8 views | B wins `furniture` | same |
-| `ctl_direct` | `render --max-bounces 0` vs normal, 8 views | B wins `lighting` | same |
+| `ctl_direct` | `render --max-bounces 0` (no indirect diffuse/glossy/volume light; window glass still transmits, §5 row 11) vs normal, 8 views | B wins `lighting` | same |
 | `ctl_lowspp` | `render --samples 4 --no-denoise` vs normal, 8 views | B wins `photo` | same |
 | `null_identical` | normal vs the byte-identical file, 8 views | T | ≥ 90 % T, every flip listed |
 | `null_reencode` | normal vs a JPEG q70 re-encode (PIL), 8 views | T | W ≤ 10 % |
@@ -661,7 +667,11 @@ per call (2 in flight) ≈ 10.5 min per model without `look_alt`, ≈ 17 min wit
 - `scripts/gpu_run.py`: `collect` also walks `results-private/` into `runs/<job>/results-private/` (same caps,
   one total); after a successful collection the runner stops the pod at once (REST stop, then the usual
   terminate) and logs the result as `<tag>, stopped by runner after collect (watchdog and job-end stop armed)`;
-  `self-stop ok` only when the pod reached EXITED before the runner sent a stop. `GPU_PRIORITY = ["RTX PRO
+  `self-stop ok` only when the pod reached EXITED before the runner sent a stop. A collection is successful
+  (review F2) only with job.log, the job-folder listing (5 tries, 10 s apart, like each tree's root listing:
+  without it the runner cannot know whether `results-private/` exists), every tree listed and no failed file
+  download (a file left out for its size is not a failure; the size cap stays a warning); otherwise the next
+  poll collects again (up to 3 times) and the pod is not stopped from the runner. `GPU_PRIORITY = ["RTX PRO
   4500", "RTX 4090", "RTX PRO 4000", "RTX A5000", "RTX A6000", "A40"]` (no L4).
 - `.gitignore`: `/projects-private/`, `/results-private/`, `/outputs-private/`.
 - `tests/test_private_guard.py`: every `results/<area>/<p>/` folder (areas `renders furniture polish gate check

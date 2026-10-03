@@ -256,6 +256,17 @@ RENDER_MANIFEST = {
         "incomplete": {"type": "boolean"},
         "not_rendered": {"type": "array", "items": {"type": "string"}},
         "deadline": {"type": ["number", "null"]},
+        # Review fixes L1 and L2: the applied bounce limits of --max-bounces, and the entries that left
+        # `renders` (camera not in the scene, or cut by the deadline with an older build's entry).
+        "bounces": {"type": ["object", "null"],
+                    "required": ["max_bounces", "diffuse_bounces", "glossy_bounces", "volume_bounces",
+                                 "transmission_bounces"],
+                    "additionalProperties": {"type": "integer", "minimum": 0}},
+        "dropped_stale": {"type": "array", "items": {
+            "type": "object", "required": ["camera", "reason", "files"],
+            "properties": {"camera": {"type": "string"}, "reason": {"type": "string"},
+                           "scene_sha256": {"type": ["string", "null"]}, "render_key": {"type": ["string", "null"]},
+                           "files": {"type": "array", "items": {"type": "string"}}}}},
     },
 }
 

@@ -471,6 +471,39 @@ def test_control_flags_are_checked():
             R.check_control_flags(R.parse_args(["--out", "x", *bad]))
 
 
+def test_max_bounces_limits_indirect_light_but_keeps_the_glass_transmitting():
+    # Review L1: --max-bounces 0 (ctl_direct) set only Cycles max_bounces = 0, so camera rays could not pass
+    # the two refracting faces of the window glass and every pane rendered black.
+    assert R.bounce_settings(0) == {"max_bounces": 2, "diffuse_bounces": 0, "glossy_bounces": 0,
+                                    "volume_bounces": 0, "transmission_bounces": 2}
+    assert R.bounce_settings(1)["transmission_bounces"] == 2 and R.bounce_settings(1)["diffuse_bounces"] == 1
+    assert R.bounce_settings(4) == {"max_bounces": 4, "diffuse_bounces": 4, "glossy_bounces": 4,
+                                    "volume_bounces": 4, "transmission_bounces": 4}
+    base = dict(samples=16, resolution=(64, 36), denoiser=None, exposure_mode="auto", exposure_value=None,
+                target=0.9, wb_mode="auto", wb_fixed=None, hidden=[], plugged=[])
+    settings = R.key_settings(**base, max_bounces=0)
+    assert settings["max_bounces"] == 0 and settings["bounces"] == R.bounce_settings(0)   # flag value kept
+    assert "bounces" not in R.key_settings(**base)                         # a normal render's key is unchanged
+    old_rule = {k: v for k, v in settings.items() if k != "bounces"}
+    assert R.render_key(settings) != R.render_key(old_rule)                # black-pane renders are not reused
+
+    class Cycles:
+        max_bounces = diffuse_bounces = glossy_bounces = transmission_bounces = volume_bounces = 12
+
+    class Layer:
+        pass
+
+    class Render:
+        pass
+
+    class Scene:
+        cycles, render, view_layers = Cycles(), Render(), [Layer()]
+
+    scene = Scene()
+    R.configure_render(scene, 4, (32, 18), "CPU", False, max_bounces=0)
+    assert {k: getattr(scene.cycles, k) for k in R.bounce_settings(0)} == R.bounce_settings(0)
+
+
 def test_deadline_from_the_environment():
     assert R.deadline_from_env({}) == (None, None)
     assert R.deadline_from_env({"WENART_DEADLINE": "1790000000"}) == (1790000000.0, None)
@@ -1075,6 +1108,24 @@ def test_row11_control_flags_reach_the_manifest_and_the_look(flat, pulled, tmp_p
     for bad in (["--alt-look", "No Such Look"], ["--preview-quality", "0"], ["--max-bounces", "-2"]):
         assert cli.main(["render", "--scene", str(flat["scene"] / "scene.blend"), "--out", str(tmp_path / "bad"),
                          "--cameras", KITCHEN_CAM, "--res", "16x9", "--samples", "1", "--device", "cpu", *bad]) == 2
+
+
+@needs_blender
+def test_row11_max_bounces_0_keeps_the_sky_in_the_window_panes(flat, pulled, tmp_path):
+    # Review L1: the ctl_direct render (--max-bounces 0, the look of the normal render) must differ from the
+    # normal one by its lighting only. With Cycles max_bounces = 0 the panes were pitch black (pane median 0,
+    # no pull); now they keep the sky while the walls get direct light only (darker than the normal render).
+    normal = pulled["entry"]["window_pull"]
+    path = cli.render(flat["scene"] / "scene.blend", tmp_path / "direct", cameras=KITCHEN_CAM, samples=8,
+                      res="128x72", device="cpu", look_from=pulled["out"] / "render_manifest.json", max_bounces=0,
+                      preview_quality=85)
+    m = json.loads(path.read_text(encoding="utf-8"))
+    schemas.validate_render_manifest(m)
+    assert m["max_bounces"] == 0 and m["bounces"] == R.bounce_settings(0)
+    pull = m["renders"][0]["window_pull"]
+    assert pull is not None and pull["pane_px"] > 50
+    assert pull["pane_median"] > 0.5 * normal["pane_median"] > 0.1
+    assert pull["wall_median"] < normal["wall_median"]                      # no bounce light on the walls
 
 
 @needs_blender

@@ -13,7 +13,11 @@ this module, so they agree on file formats, regions, edges and boxes.
   BGR). ``write_png16`` / ``write_png_rgb`` write the same formats, so a
   value above 255 survives the round trip.
 - ``View`` + ``load_views``: one rendered camera with absolute file paths and
-  its index statistics; an entry written before M5 raises ``StaleRender``.
+  its index statistics; an entry written before M5 raises ``StaleRender``, and
+  so does an entry of a deadline-cut manifest that was rendered from another
+  scene build (``deadline_stale``). Views come from ``renders`` only: the
+  manifest's ``dropped_stale`` items (cameras no longer in the scene; their
+  files stay on disk) are never views.
 - ``index_table``: pass index -> element (wenart id, kind, type, room, evidence)
   from the scene manifest; ``regions``: per-object and structure masks;
   ``geometry_edges``: the one definition of geometry edges (polish control and
@@ -66,16 +70,20 @@ PROXY_PREFIX = "proxy:"
 
 
 class StaleRender(Exception):
-    """A render-manifest entry written before Milestone 5 (no render_key, index_stats or files).
+    """A render-manifest entry that is not a view of the current scene: written before Milestone 5 (no
+    render_key, index_stats or files), or left by a deadline-cut run from another scene build
+    (``reason`` says so, ``missing`` is ``["scene_sha256"]``).
 
     Callers skip that view with a warning; ``load_views(..., skip_stale=True)``
     does that for them.
     """
 
-    def __init__(self, camera: str, missing: list[str]) -> None:
+    def __init__(self, camera: str, missing: list[str], reason: Optional[str] = None) -> None:
         self.camera = camera
         self.missing = list(missing)
-        super().__init__(f"{camera}: stale render entry (missing {', '.join(self.missing)}); re-render it")
+        self.reason = reason
+        why = reason or f"missing {', '.join(self.missing)}"
+        super().__init__(f"{camera}: stale render entry ({why}); re-render it")
 
 
 # --------------------------------------------------------------------------
@@ -325,16 +333,44 @@ def _stale_fields(entry: dict) -> list[str]:
     return missing
 
 
-def view_from_entry(entry: dict, render_dir, level_id: Optional[str] = None) -> View:
+def deadline_stale(entry: dict, manifest: Optional[dict]) -> Optional[str]:
+    """Why ``entry`` of ``manifest`` is not a view of the manifest's scene, or None.
+
+    A render cut by ``WENART_DEADLINE`` lists the cameras it did not render in
+    ``not_rendered``; one of them whose entry carries another ``scene_sha256``
+    than the manifest is an image of an earlier scene build (Milestone 5, or a
+    camera since moved) under the current camera name (review L2). render.py
+    drops such entries since the fix; this also covers manifests written
+    before it.
+    """
+    if not isinstance(manifest, dict):
+        return None
+    camera = entry.get("camera")
+    current = manifest.get("scene_sha256")
+    if not current or camera not in (manifest.get("not_rendered") or []):
+        return None
+    old = entry.get("scene_sha256")
+    if old == current:
+        return None
+    return (f"not re-rendered before the deadline; rendered from another scene build "
+            f"({str(old or 'none')[:12]}, scene now {str(current)[:12]})")
+
+
+def view_from_entry(entry: dict, render_dir, level_id: Optional[str] = None,
+                    manifest: Optional[dict] = None) -> View:
     """A ``View`` from one render-manifest entry; file names resolve against ``render_dir``.
 
     Raises ``StaleRender`` when the entry has no ``render_key``, no
-    ``index_stats``, no ``files.depth_mm``/``files.normal`` or no index PNG.
+    ``index_stats``, no ``files.depth_mm``/``files.normal`` or no index PNG,
+    or, given its ``manifest``, when the entry is ``deadline_stale``.
     """
     camera = entry.get("camera", "?")
     missing = _stale_fields(entry)
     if missing:
         raise StaleRender(camera, missing)
+    cut = deadline_stale(entry, manifest)
+    if cut:
+        raise StaleRender(camera, ["scene_sha256"], reason=cut)
     base = Path(render_dir).resolve()
     files = entry.get("files") or {}
     stats = {int(k): {"pixels": int(v["pixels"]), "box": [int(x) for x in v["box"]]}
@@ -378,10 +414,12 @@ def load_views(render_dir, cameras: Optional[Iterable[str]] = None, *, skip_stal
     """``{camera: View}`` from ``<render_dir>/render_manifest.json`` (manifest order, or the order asked).
 
     ``cameras``: None or "all" for every entry, else names (an iterable or a
-    comma string); an unknown name raises KeyError. A stale entry raises
-    ``StaleRender``; with ``skip_stale=True`` it is left out and a message is
-    appended to ``warnings`` (when given). ``level_id`` comes from the entry,
-    else from the scene manifest's camera list (found next to the scene).
+    comma string); an unknown name raises KeyError. A stale entry (pre-M5, or
+    ``deadline_stale``) raises ``StaleRender``; with ``skip_stale=True`` it is
+    left out and a message is appended to ``warnings`` (when given). Only
+    ``renders`` holds views: ``dropped_stale`` items are ignored (a name that
+    is only there is unknown). ``level_id`` comes from the entry, else from
+    the scene manifest's camera list (found next to the scene).
     """
     render_dir = Path(render_dir)
     manifest = json.loads((render_dir / "render_manifest.json").read_text(encoding="utf-8"))
@@ -405,7 +443,7 @@ def load_views(render_dir, cameras: Optional[Iterable[str]] = None, *, skip_stal
                 scene_cams = {c["name"]: c for c in scene.get("cameras", [])}
             level_id = (scene_cams.get(name) or {}).get("level_id")
         try:
-            views[name] = view_from_entry(entry, render_dir, level_id=level_id)
+            views[name] = view_from_entry(entry, render_dir, level_id=level_id, manifest=manifest)
         except StaleRender as exc:
             if not skip_stale:
                 raise
