@@ -1,0 +1,350 @@
+{
+ "schema_version": "0.1",
+ "kind": "recognition_answers",
+ "model_key": "qwen",
+ "model": "Qwen/Qwen3-VL-8B-Instruct",
+ "slug": "qwen3-vl-8b",
+ "incomplete": false,
+ "calls": {
+  "sym_L0_001": {
+   "task": "symbol_type",
+   "input_sha256": "b2eaec69d00eafd8f7e487bfa2955aedb14855bfac36b8144d69dbbb7baa3e3d",
+   "data": {
+    "type": "bed_double",
+    "front": "bottom",
+    "confidence": 0.95,
+    "reason": "The object has a wide rectangular footprint with a headboard line, matching a double bed's typical plan view."
+   },
+   "raw_text": "{\n  \"type\": \"bed_double\",\n  \"front\": \"bottom\",\n  \"confidence\": 0.95,\n  \"reason\": \"The object has a wide rectangular footprint with a headboard line, matching a double bed's typical plan view.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 2.026,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_001_ctx.png",
+    "crops/sym_L0_001_iso.png"
+   ]
+  },
+  "sym_L0_002": {
+   "task": "symbol_type",
+   "input_sha256": "cf4e88f8c44c011e6f463d34d87059dcfca55377c8bd6cd3cc15597a6fb97e9d",
+   "data": {
+    "type": "nightstand",
+    "front": "left",
+    "confidence": 0.95,
+    "reason": "Object has a small rectangular footprint with a lamp symbol, typical of a nightstand beside a bed."
+   },
+   "raw_text": "{\n  \"type\": \"nightstand\",\n  \"front\": \"left\",\n  \"confidence\": 0.95,\n  \"reason\": \"Object has a small rectangular footprint with a lamp symbol, typical of a nightstand beside a bed.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.993,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_002_ctx.png",
+    "crops/sym_L0_002_iso.png"
+   ]
+  },
+  "sym_L0_003": {
+   "task": "symbol_type",
+   "input_sha256": "98a9cd0c73a10877070d8c76215727e01f2c68358d7090ef822d4fb7aaae5aab",
+   "data": {
+    "type": "nightstand",
+    "front": "left",
+    "confidence": 0.95,
+    "reason": "The object's shape and size match a nightstand, and it's in a bedroom near a bed."
+   },
+   "raw_text": "{\n  \"type\": \"nightstand\",\n  \"front\": \"left\",\n  \"confidence\": 0.95,\n  \"reason\": \"The object's shape and size match a nightstand, and it's in a bedroom near a bed.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 2.014,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_003_ctx.png",
+    "crops/sym_L0_003_iso.png"
+   ]
+  },
+  "sym_L0_004": {
+   "task": "symbol_type",
+   "input_sha256": "4a832a64f8c5414748b351f5f2cda19ef58ea2fae806a808f3cf9b7178824af4",
+   "data": {
+    "type": "bed_double",
+    "front": "bottom",
+    "confidence": 0.95,
+    "reason": "The object is a wide rectangle with a headboard line, matching a double bed footprint and orientation."
+   },
+   "raw_text": "{\n  \"type\": \"bed_double\",\n  \"front\": \"bottom\",\n  \"confidence\": 0.95,\n  \"reason\": \"The object is a wide rectangle with a headboard line, matching a double bed footprint and orientation.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 2.003,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_004_ctx.png",
+    "crops/sym_L0_004_iso.png"
+   ]
+  },
+  "sym_L0_005": {
+   "task": "symbol_type",
+   "input_sha256": "a1bd1151d2914b6774872604f6159c04a1327df0712bfd399966f9a8592660a5",
+   "data": {
+    "type": "nightstand",
+    "front": "right",
+    "confidence": 0.95,
+    "reason": "Object is small, rectangular, with a lamp symbol on it, typical of a nightstand beside a bed."
+   },
+   "raw_text": "{\n  \"type\": \"nightstand\",\n  \"front\": \"right\",\n  \"confidence\": 0.95,\n  \"reason\": \"Object is small, rectangular, with a lamp symbol on it, typical of a nightstand beside a bed.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 2.015,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_005_ctx.png",
+    "crops/sym_L0_005_iso.png"
+   ]
+  },
+  "sym_L0_006": {
+   "task": "symbol_type",
+   "input_sha256": "4c9bc781398deb6423a1f12b756b68229bea8dcb886c8787a18a708c366feb50",
+   "data": {
+    "type": "nightstand",
+    "front": "left",
+    "confidence": 0.95,
+    "reason": "The object has a lamp symbol (cross) on it, typical for a nightstand beside a bed in a bedroom."
+   },
+   "raw_text": "{\n  \"type\": \"nightstand\",\n  \"front\": \"left\",\n  \"confidence\": 0.95,\n  \"reason\": \"The object has a lamp symbol (cross) on it, typical for a nightstand beside a bed in a bedroom.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 2.058,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_006_ctx.png",
+    "crops/sym_L0_006_iso.png"
+   ]
+  },
+  "sym_L0_007": {
+   "task": "symbol_type",
+   "input_sha256": "ccdd55f16d2541a97edc31787be842406f445f455d6db0e017aa4d25b51b50fa",
+   "data": {
+    "type": "table_dining",
+    "front": "top",
+    "confidence": 0.95,
+    "reason": "Rectangular shape, surrounded by chairs, in dining room, matches dining table dimensions."
+   },
+   "raw_text": "{\n  \"type\": \"table_dining\",\n  \"front\": \"top\",\n  \"confidence\": 0.95,\n  \"reason\": \"Rectangular shape, surrounded by chairs, in dining room, matches dining table dimensions.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.98,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_007_ctx.png",
+    "crops/sym_L0_007_iso.png"
+   ]
+  },
+  "sym_L0_008": {
+   "task": "symbol_type",
+   "input_sha256": "2f47f225ef8fd54e93f6ecf6263c314723875435def4e7bf56f6dae58435fe68",
+   "data": {
+    "type": "chair",
+    "front": "bottom",
+    "confidence": 0.95,
+    "reason": "The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a dining table."
+   },
+   "raw_text": "{\n  \"type\": \"chair\",\n  \"front\": \"bottom\",\n  \"confidence\": 0.95,\n  \"reason\": \"The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a dining table.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 2.503,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_008_ctx.png",
+    "crops/sym_L0_008_iso.png"
+   ]
+  },
+  "sym_L0_009": {
+   "task": "symbol_type",
+   "input_sha256": "062f3612a04685e38fce30cba33969cb88ca547263fa6ceb6186b61838cea70d",
+   "data": {
+    "type": "chair",
+    "front": "top",
+    "confidence": 0.95,
+    "reason": "The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a table in a dining room."
+   },
+   "raw_text": "{\n  \"type\": \"chair\",\n  \"front\": \"top\",\n  \"confidence\": 0.95,\n  \"reason\": \"The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a table in a dining room.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.36,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_009_ctx.png",
+    "crops/sym_L0_009_iso.png"
+   ]
+  },
+  "sym_L0_010": {
+   "task": "symbol_type",
+   "input_sha256": "6fd9120c6118683585e0a12aa1d1fbccec2c21de099678c2efec61d54c5b2d09",
+   "data": {
+    "type": "chair",
+    "front": "right",
+    "confidence": 0.95,
+    "reason": "The object's shape and size match a dining chair, placed around a table in a dining room."
+   },
+   "raw_text": "{\n  \"type\": \"chair\",\n  \"front\": \"right\",\n  \"confidence\": 0.95,\n  \"reason\": \"The object's shape and size match a dining chair, placed around a table in a dining room.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.146,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_010_ctx.png",
+    "crops/sym_L0_010_iso.png"
+   ]
+  },
+  "sym_L0_011": {
+   "task": "symbol_type",
+   "input_sha256": "ea5e69b2435d51262e10dec5a868551d422743e9c1ae0877931bd92787c1275c",
+   "data": {
+    "type": "chair",
+    "front": "right",
+    "confidence": 0.95,
+    "reason": "The object's shape and size match a dining chair, placed around a table in a dining room."
+   },
+   "raw_text": "{\n  \"type\": \"chair\",\n  \"front\": \"right\",\n  \"confidence\": 0.95,\n  \"reason\": \"The object's shape and size match a dining chair, placed around a table in a dining room.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.142,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_011_ctx.png",
+    "crops/sym_L0_011_iso.png"
+   ]
+  },
+  "sym_L0_012": {
+   "task": "symbol_type",
+   "input_sha256": "8aa7b87867e4d064484f036348f1ed6cb5c00b191215e3563e92554e002f094d",
+   "data": {
+    "type": "chair",
+    "front": "right",
+    "confidence": 0.95,
+    "reason": "The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a dining table."
+   },
+   "raw_text": "{\n  \"type\": \"chair\",\n  \"front\": \"right\",\n  \"confidence\": 0.95,\n  \"reason\": \"The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a dining table.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.272,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_012_ctx.png",
+    "crops/sym_L0_012_iso.png"
+   ]
+  },
+  "sym_L0_013": {
+   "task": "symbol_type",
+   "input_sha256": "db2d6ee2075ff269a1d58039d1630c79523aeb33461450c2fc76b0e809c6b804",
+   "data": {
+    "type": "chair",
+    "front": "right",
+    "confidence": 0.95,
+    "reason": "The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a dining table."
+   },
+   "raw_text": "{\n  \"type\": \"chair\",\n  \"front\": \"right\",\n  \"confidence\": 0.95,\n  \"reason\": \"The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a dining table.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.257,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_013_ctx.png",
+    "crops/sym_L0_013_iso.png"
+   ]
+  },
+  "sym_L0_014": {
+   "task": "symbol_type",
+   "input_sha256": "3d235f879bf7463f32113ca16515a73c92bd19b8a2568f7314f32ccfa30d4d51",
+   "data": {
+    "type": "sofa",
+    "front": "left",
+    "confidence": 0.95,
+    "reason": "Long rectangular shape with backrest lines, matches sofa dimensions and context in drawing room."
+   },
+   "raw_text": "{\n  \"type\": \"sofa\",\n  \"front\": \"left\",\n  \"confidence\": 0.95,\n  \"reason\": \"Long rectangular shape with backrest lines, matches sofa dimensions and context in drawing room.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.054,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_014_ctx.png",
+    "crops/sym_L0_014_iso.png"
+   ]
+  },
+  "sym_L0_015": {
+   "task": "symbol_type",
+   "input_sha256": "dfc7bffa600a79b932a2a58b0b554dab9a64c6e64977720d6e1cdd0db24a6613",
+   "data": {
+    "type": "wardrobe",
+    "front": "left",
+    "confidence": 0.95,
+    "reason": "Long, narrow rectangle with shallow depth, typical of a wardrobe against a wall."
+   },
+   "raw_text": "{\n  \"type\": \"wardrobe\",\n  \"front\": \"left\",\n  \"confidence\": 0.95,\n  \"reason\": \"Long, narrow rectangle with shallow depth, typical of a wardrobe against a wall.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.024,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_015_ctx.png",
+    "crops/sym_L0_015_iso.png"
+   ]
+  },
+  "sym_L0_016": {
+   "task": "symbol_type",
+   "input_sha256": "41961f593bfb2771be579498adb38161326424a6bf1efaa97e3f315ff9fa9bb2",
+   "data": {
+    "type": "table_coffee",
+    "front": "none",
+    "confidence": 0.95,
+    "reason": "Square shape, size 1.13x1.12m fits coffee table, no backrest or armrests visible."
+   },
+   "raw_text": "{\n  \"type\": \"table_coffee\",\n  \"front\": \"none\",\n  \"confidence\": 0.95,\n  \"reason\": \"Square shape, size 1.13x1.12m fits coffee table, no backrest or armrests visible.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.92,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_016_ctx.png",
+    "crops/sym_L0_016_iso.png"
+   ]
+  },
+  "sym_L0_017": {
+   "task": "symbol_type",
+   "input_sha256": "355021b999bc39c540ba4878cd473095a5b56228fbe4b9582f6b5bd7f1b70c3e",
+   "data": {
+    "type": "floor_lamp",
+    "front": "none",
+    "confidence": 0.95,
+    "reason": "Circular shape with radial spokes, typical of a floor lamp, and size matches 0.42m footprint."
+   },
+   "raw_text": "{\n  \"type\": \"floor_lamp\",\n  \"front\": \"none\",\n  \"confidence\": 0.95,\n  \"reason\": \"Circular shape with radial spokes, typical of a floor lamp, and size matches 0.42m footprint.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.754,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_017_ctx.png",
+    "crops/sym_L0_017_iso.png"
+   ]
+  }
+ }
+}

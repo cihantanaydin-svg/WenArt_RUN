@@ -490,7 +490,7 @@
  "grid": [
   {
    "t": 0.05,
-   "insertion": 0.8966,
+   "insertion": 0.8621,
    "false": 0.5154
   },
   {
@@ -570,72 +570,72 @@
   },
   {
    "t": 0.21,
-   "insertion": 0.7931,
+   "insertion": 0.6897,
    "false": 0.0
   },
   {
    "t": 0.22,
-   "insertion": 0.7931,
+   "insertion": 0.6897,
    "false": 0.0
   },
   {
    "t": 0.23,
-   "insertion": 0.7241,
+   "insertion": 0.6552,
    "false": 0.0
   },
   {
    "t": 0.24,
-   "insertion": 0.7241,
+   "insertion": 0.6552,
    "false": 0.0
   },
   {
    "t": 0.25,
-   "insertion": 0.7241,
+   "insertion": 0.6207,
    "false": 0.0
   },
   {
    "t": 0.26,
-   "insertion": 0.6207,
+   "insertion": 0.5172,
    "false": 0.0
   },
   {
    "t": 0.27,
-   "insertion": 0.6207,
+   "insertion": 0.5172,
    "false": 0.0
   },
   {
    "t": 0.28,
-   "insertion": 0.5517,
+   "insertion": 0.4483,
    "false": 0.0
   },
   {
    "t": 0.29,
-   "insertion": 0.5172,
+   "insertion": 0.4483,
    "false": 0.0
   },
   {
    "t": 0.3,
-   "insertion": 0.5172,
+   "insertion": 0.4138,
    "false": 0.0
   },
   {
    "t": 0.31,
-   "insertion": 0.5172,
+   "insertion": 0.4138,
    "false": 0.0
   },
   {
    "t": 0.32,
-   "insertion": 0.5172,
+   "insertion": 0.4138,
    "false": 0.0
   },
   {
    "t": 0.33,
-   "insertion": 0.4828,
+   "insertion": 0.4138,
    "false": 0.0
   },
   {
    "t": 0.34,
-   "insertion": 0.4483,
+   "insertion": 0.4138,
    "false": 0.0
   },
   {
@@ -985,8 +985,8 @@
    "id": "synthetic-01:insertion:win_L1_003",
    "kind": "positive",
    "source": "insertion_control",
-   "hit": 0.2874,
-   "hit_group": "picture_frame",
+   "hit": 0.2283,
+   "hit_group": "window",
    "candidates": 21
   },
   {
@@ -1617,24 +1617,24 @@
    "id": "synthetic-03:insertion:win_L1_003",
    "kind": "positive",
    "source": "insertion_control",
-   "hit": 0.2262,
-   "hit_group": "picture_frame",
+   "hit": 0.2021,
+   "hit_group": "window",
    "candidates": 11
   },
   {
    "id": "synthetic-03:insertion:win_L1_004",
    "kind": "positive",
    "source": "insertion_control",
-   "hit": 0.2575,
-   "hit_group": "mirror",
+   "hit": 0.2069,
+   "hit_group": "window",
    "candidates": 5
   },
   {
    "id": "synthetic-03:insertion:win_L-1_001",
    "kind": "positive",
    "source": "insertion_control",
-   "hit": 0.3361,
-   "hit_group": "mirror",
+   "hit": 0.2416,
+   "hit_group": "window",
    "candidates": 6
   },
   {
@@ -1649,8 +1649,8 @@
    "id": "synthetic-03:insertion:d_L0_004",
    "kind": "positive",
    "source": "insertion_control",
-   "hit": 0.0509,
-   "hit_group": "mirror",
+   "hit": null,
+   "hit_group": null,
    "candidates": 2
   },
   {
@@ -2833,8 +2833,8 @@
    "id": "synthetic-04:insertion:win_L3_008",
    "kind": "positive",
    "source": "insertion_control",
-   "hit": 0.3449,
-   "hit_group": "mirror",
+   "hit": 0.2949,
+   "hit_group": "window",
    "candidates": 4
   },
   {
@@ -2849,8 +2849,8 @@
    "id": "synthetic-04:insertion:win_L3_001",
    "kind": "positive",
    "source": "insertion_control",
-   "hit": 0.2238,
-   "hit_group": "picture_frame",
+   "hit": 0.2045,
+   "hit_group": "window",
    "candidates": 5
   },
   {
@@ -3249,8 +3249,8 @@
    "id": "synthetic-05:insertion:win_L0_010",
    "kind": "positive",
    "source": "insertion_control",
-   "hit": 0.3292,
-   "hit_group": "mirror",
+   "hit": 0.2553,
+   "hit_group": "window",
    "candidates": 4
   },
   {
@@ -3270,9 +3270,9 @@
    "candidates": 4
   }
  ],
- "detected_images": 365,
- "reused_images": 213,
- "seconds": 103.0,
+ "detected_images": 0,
+ "reused_images": 578,
+ "seconds": 11.6,
  "warnings": [],
  "check_yaml_block": {
   "advisory": false,

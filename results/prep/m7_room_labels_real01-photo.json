@@ -1,0 +1,42 @@
+[
+ {
+  "truth": "Bed Room",
+  "got": "Bed Room",
+  "ok": true
+ },
+ {
+  "truth": "Bed Room",
+  "got": "Bed Room",
+  "ok": true
+ },
+ {
+  "truth": "Bath+ Toilet",
+  "got": null,
+  "ok": false
+ },
+ {
+  "truth": "Drawing Room",
+  "got": "Drawing Room",
+  "ok": true
+ },
+ {
+  "truth": "Dining",
+  "got": "Dining",
+  "ok": true
+ },
+ {
+  "truth": "Kitchen",
+  "got": "Kitchen",
+  "ok": true
+ },
+ {
+  "truth": "Pooja",
+  "got": "Pooja",
+  "ok": true
+ },
+ {
+  "truth": "Store",
+  "got": null,
+  "ok": false
+ }
+]

@@ -1,0 +1,27 @@
+[
+ {
+  "truth": "SALON",
+  "got": "SALON",
+  "ok": true
+ },
+ {
+  "truth": "YATAK ODASI",
+  "got": "YATAK ODASI",
+  "ok": true
+ },
+ {
+  "truth": "MUTFAK",
+  "got": "MUTFAK",
+  "ok": true
+ },
+ {
+  "truth": "ANTRE",
+  "got": "ANTRE",
+  "ok": true
+ },
+ {
+  "truth": "BANYO",
+  "got": "BANYO",
+  "ok": true
+ }
+]

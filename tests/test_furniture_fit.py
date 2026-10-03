@@ -32,7 +32,17 @@ SCHEMA_TYPES = set(B.load_schema()["$defs"]["furniture"]["properties"]["type"]["
 
 @pytest.fixture(scope="module")
 def catalog():
-    return C.load()
+    """The Poly Haven catalogue alone (``catalog.json``): the pins below are about it; the committed Objaverse file
+    (``catalog_objaverse.json``, prep pod) and the merge are tested in ``test_committed_objaverse_catalogue``."""
+    return C.load(objaverse=False)
+
+
+def base_catalog_path(tmp_path: Path) -> Path:
+    """A copy of ``catalog.json`` with no Objaverse file next to it, for CLI runs pinned to the Poly Haven models."""
+    path = tmp_path / "catalog_base" / "catalog.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(C.CATALOG_PATH.read_text(encoding="utf-8"), encoding="utf-8")
+    return path
 
 
 @pytest.fixture(scope="module")
@@ -289,7 +299,7 @@ def test_cli_offline_falls_back_and_says_so(tmp_path, monkeypatch, capsys):
     B.save(load_truth("synthetic-01"), src)
     out = tmp_path / "building_fitted.json"
 
-    def failing_fetch(asset_id, out_dir, size="1k", source="polyhaven", licence=None):
+    def failing_fetch(asset_id, out_dir, size="1k", source="polyhaven", licence=None, meta=None):
         raise web.NetworkError("blocked host (simulated)")
 
     monkeypatch.setattr(models, "fetch_model", failing_fetch)
@@ -306,7 +316,8 @@ def test_cli_offline_falls_back_and_says_so(tmp_path, monkeypatch, capsys):
 
     # with downloads working (fake), the library fits stay
     fetched = []
-    monkeypatch.setattr(models, "fetch_model", lambda a, d, size="1k", source="polyhaven", licence=None: fetched.append(a))
+    monkeypatch.setattr(models, "fetch_model",
+                        lambda a, d, size="1k", source="polyhaven", licence=None, meta=None: fetched.append(a))
     assert F.main([str(src), "--out", str(out), "--assets", str(tmp_path / "assets"), "--report", str(tmp_path / "r.md")]) == 0
     fitted = B.load(out)
     assert {p["asset"]["method"] for p in fitted["furniture"]} == {"library", "parametric"}
@@ -322,7 +333,7 @@ def test_cli_offline_falls_back_and_says_so(tmp_path, monkeypatch, capsys):
 def test_uniform_scale_cap_rejects_stretched_models():
     """A 1.57 m sofa model must not be stretched 1.4x onto a 2.2 m footprint."""
     from wenart.furniture import catalog as C, fit as F
-    cat = C.load()
+    cat = C.load(objaverse=False)
     piece = {"id": "f", "type": "sofa", "footprint": {"center": [0, 0], "size": [2.2, 0.9], "rotation_deg": 0}}
     asset = F.fit_piece(piece, cat)
     for t in asset["candidates"]:
@@ -531,6 +542,30 @@ def test_load_merges_the_objaverse_catalogue(tmp_path, catalog):
         C.load(main)
 
 
+def test_committed_objaverse_catalogue():
+    """The prep pod's ``catalog_objaverse.json`` (M7 §7, committed): it validates on its own and merged, every model is
+    CC0 or CC BY 4.0 with its credit line, cache-only (glb + sha256), styled, and beds have a mattress."""
+    path = C.objaverse_path(C.CATALOG_PATH)
+    if not path.is_file():
+        pytest.skip("no catalog_objaverse.json committed yet (prep pod)")
+    extra = json.loads(path.read_text(encoding="utf-8"))
+    C.validate(extra, complete=False)
+    assert "ODC-By 1.0" in extra["notice"] or "ODC Attribution License" in extra["notice"]
+    allowed = set(C.style_values())
+    for e in extra["entries"]:
+        assert e["source"] == "objaverse" and e["licence"] in ("CC0", "CC-BY-4.0"), e["id"]
+        assert e["licence"] == "CC0" or e["attribution"].strip(), e["id"]
+        assert e["glb"] == f"models/objaverse/{e['uid']}.glb" and len(e["sha256_glb"]) == 64, e["id"]
+        assert e["styles"] and set(e["styles"]) <= allowed, e["id"]
+        if e["type"] in C.BED_TYPES:
+            assert e["has_mattress"] is True, e["id"]
+    merged = C.load()
+    C.validate(merged.data)
+    assert merged.merged["models_added"] == len(extra["entries"]) >= 25
+    assert set(merged.merged["parametric_replaced"]) <= {e["type"] for e in extra["entries"]}
+    assert set(merged.types()) == SCHEMA_TYPES and len(set(merged.ids())) == len(merged.ids())
+
+
 def test_style_family_of_a_profile():
     assert F.style_family_of({"family": "japandi", "source_text": "Scandinavian"}) == ("japandi", "the profile's family")
     assert F.style_family_of({"family": None, "source_text": "Scandinavian"})[0] is None
@@ -548,7 +583,8 @@ def test_cli_style_flag_filters_the_library(tmp_path, monkeypatch, capsys):
     style = tmp_path / "style.json"
     style.write_text(json.dumps(SP.profile_from_text("Scandinavian, light oak floor")), encoding="utf-8")
     out = tmp_path / "building_final.json"
-    assert F.main([str(src), "--out", str(out), "--style", str(style)]) == 0
+    base = ["--catalog", str(base_catalog_path(tmp_path))]      # the Poly Haven styles pinned below
+    assert F.main([str(src), "--out", str(out), "--style", str(style)] + base) == 0
     assert "style filter: family 'scandinavian'" in capsys.readouterr().out
     fitted = B.load(out)
     by_type = {}
@@ -564,7 +600,7 @@ def test_cli_style_flag_filters_the_library(tmp_path, monkeypatch, capsys):
     assert "Library style filter: family 'scandinavian'" in report and "sofa_02: styles ['classic']" in report
     F.assert_only_assets_changed(load_truth("synthetic-01"), fitted)
     # Without --style (the fit stage) nothing is filtered.
-    assert F.main([str(src), "--out", str(out)]) == 0
+    assert F.main([str(src), "--out", str(out)] + base) == 0
     assert any(p["asset"]["asset_id"] == "sofa_02" for p in B.load(out)["furniture"])
     # An Objaverse fit is fetched from the cache only: the fetcher gets the asset (uid, sha256) as meta.
     seen = []

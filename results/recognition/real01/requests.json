@@ -1,0 +1,1491 @@
+{
+ "schema_version": "0.1",
+ "kind": "recognition_requests",
+ "project": "real01",
+ "crop_version": "m7.1",
+ "models": {
+  "qwen": {
+   "id": "Qwen/Qwen3-VL-8B-Instruct",
+   "slug": "qwen3-vl-8b",
+   "pass": 1
+  },
+  "glm": {
+   "id": "zai-org/GLM-4.6V-Flash",
+   "slug": "glm-4.6v-flash",
+   "pass": 2
+  }
+ },
+ "items": [
+  {
+   "key": "sym_L0_001",
+   "task": "symbol_type",
+   "page": 1,
+   "images": [
+    "crops/sym_L0_001_ctx.png",
+    "crops/sym_L0_001_iso.png"
+   ],
+   "context": {
+    "file": "real01.pdf",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "bedroom",
+    "room_label": "Bed Room",
+    "footprint": {
+     "center": [
+      5.8557,
+      9.3779
+     ],
+     "size": [
+      2.0295,
+      1.7795
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     4.9659,
+     8.3632,
+     6.7454,
+     10.3927
+    ],
+    "crop": {
+     "object_box": [
+      4966,
+      8363,
+      6745,
+      10393
+     ],
+     "ctx_box": [
+      4232,
+      7754,
+      7479,
+      11002
+     ],
+     "iso_box": [
+      4587,
+      8110,
+      7124,
+      10646
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "bed_double",
+     "stair",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     2.03,
+     1.78
+    ],
+    "room": {
+     "label": "Bed Room",
+     "type": "bedroom"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "b2eaec69d00eafd8f7e487bfa2955aedb14855bfac36b8144d69dbbb7baa3e3d"
+  },
+  {
+   "key": "sym_L0_002",
+   "task": "symbol_type",
+   "page": 1,
+   "images": [
+    "crops/sym_L0_002_ctx.png",
+    "crops/sym_L0_002_iso.png"
+   ],
+   "context": {
+    "file": "real01.pdf",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "bedroom",
+    "room_label": "Bed Room",
+    "footprint": {
+     "center": [
+      6.9933,
+      10.1478
+     ],
+     "size": [
+      0.4956,
+      0.4868
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     6.7454,
+     9.9044,
+     7.2411,
+     10.3912
+    ],
+    "crop": {
+     "object_box": [
+      6745,
+      9904,
+      7241,
+      10391
+     ],
+     "ctx_box": [
+      5743,
+      8898,
+      8243,
+      11398
+     ],
+     "iso_box": [
+      6422,
+      9576,
+      7565,
+      10719
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "chair",
+     "fridge",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "toilet",
+     "nightstand",
+     "washing_machine",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.5,
+     0.49
+    ],
+    "room": {
+     "label": "Bed Room",
+     "type": "bedroom"
+    },
+    "neighbours": {
+     "similar": 2,
+     "next_to": [
+      2.03,
+      1.78
+     ],
+     "around": 2
+    }
+   },
+   "input_sha256": "cf4e88f8c44c011e6f463d34d87059dcfca55377c8bd6cd3cc15597a6fb97e9d"
+  },
+  {
+   "key": "sym_L0_003",
+   "task": "symbol_type",
+   "page": 1,
+   "images": [
+    "crops/sym_L0_003_ctx.png",
+    "crops/sym_L0_003_iso.png"
+   ],
+   "context": {
+    "file": "real01.pdf",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "bedroom",
+    "room_label": "Bed Room",
+    "footprint": {
+     "center": [
+      4.7196,
+      10.1743
+     ],
+     "size": [
+      0.4956,
+      0.4456
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     4.4718,
+     9.9515,
+     4.9674,
+     10.3971
+    ],
+    "crop": {
+     "object_box": [
+      4472,
+      9952,
+      4967,
+      10397
+     ],
+     "ctx_box": [
+      3470,
+      8924,
+      5970,
+      11424
+     ],
+     "iso_box": [
+      4148,
+      9603,
+      5291,
+      10746
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "chair",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "toilet",
+     "nightstand",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.5,
+     0.45
+    ],
+    "room": {
+     "label": "Bed Room",
+     "type": "bedroom"
+    },
+    "neighbours": {
+     "similar": 2,
+     "next_to": [
+      2.03,
+      1.78
+     ],
+     "around": 2
+    }
+   },
+   "input_sha256": "98a9cd0c73a10877070d8c76215727e01f2c68358d7090ef822d4fb7aaae5aab"
+  },
+  {
+   "key": "sym_L0_004",
+   "task": "symbol_type",
+   "page": 1,
+   "images": [
+    "crops/sym_L0_004_ctx.png",
+    "crops/sym_L0_004_iso.png"
+   ],
+   "context": {
+    "file": "real01.pdf",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "bedroom",
+    "room_label": "Bed Room",
+    "footprint": {
+     "center": [
+      5.8086,
+      4.6071
+     ],
+     "size": [
+      2.0295,
+      1.7795
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     4.9189,
+     3.5923,
+     6.6984,
+     5.6219
+    ],
+    "crop": {
+     "object_box": [
+      4919,
+      3592,
+      6698,
+      5622
+     ],
+     "ctx_box": [
+      4185,
+      2983,
+      7432,
+      6231
+     ],
+     "iso_box": [
+      4540,
+      3339,
+      7077,
+      5876
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "bed_double",
+     "stair",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     2.03,
+     1.78
+    ],
+    "room": {
+     "label": "Bed Room",
+     "type": "bedroom"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "4a832a64f8c5414748b351f5f2cda19ef58ea2fae806a808f3cf9b7178824af4"
+  },
+  {
+   "key": "sym_L0_005",
+   "task": "symbol_type",
+   "page": 1,
+   "images": [
+    "crops/sym_L0_005_ctx.png",
+    "crops/sym_L0_005_iso.png"
+   ],
+   "context": {
+    "file": "real01.pdf",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "bedroom",
+    "room_label": "Bed Room",
+    "footprint": {
+     "center": [
+      4.6725,
+      3.835
+     ],
+     "size": [
+      0.4956,
+      0.4853
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     4.4247,
+     3.5923,
+     4.9203,
+     4.0777
+    ],
+    "crop": {
+     "object_box": [
+      4425,
+      3592,
+      4920,
+      4078
+     ],
+     "ctx_box": [
+      3422,
+      2585,
+      5922,
+      5085
+     ],
+     "iso_box": [
+      4101,
+      3264,
+      5244,
+      4406
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "chair",
+     "fridge",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "toilet",
+     "nightstand",
+     "washing_machine",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.5,
+     0.49
+    ],
+    "room": {
+     "label": "Bed Room",
+     "type": "bedroom"
+    },
+    "neighbours": {
+     "similar": 2,
+     "next_to": [
+      2.03,
+      1.78
+     ],
+     "around": 2
+    }
+   },
+   "input_sha256": "a1bd1151d2914b6774872604f6159c04a1327df0712bfd399966f9a8592660a5"
+  },
+  {
+   "key": "sym_L0_006",
+   "task": "symbol_type",
+   "page": 1,
+   "images": [
+    "crops/sym_L0_006_ctx.png",
+    "crops/sym_L0_006_iso.png"
+   ],
+   "context": {
+    "file": "real01.pdf",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "bedroom",
+    "room_label": "Bed Room",
+    "footprint": {
+     "center": [
+      6.9462,
+      3.8122
+     ],
+     "size": [
+      0.4956,
+      0.4456
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     6.6984,
+     3.5894,
+     7.194,
+     4.035
+    ],
+    "crop": {
+     "object_box": [
+      6698,
+      3589,
+      7194,
+      4035
+     ],
+     "ctx_box": [
+      5696,
+      2562,
+      8196,
+      5062
+     ],
+     "iso_box": [
+      6375,
+      3241,
+      7518,
+      4384
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "chair",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "toilet",
+     "nightstand",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.5,
+     0.45
+    ],
+    "room": {
+     "label": "Bed Room",
+     "type": "bedroom"
+    },
+    "neighbours": {
+     "similar": 2,
+     "next_to": [
+      2.03,
+      1.78
+     ],
+     "around": 2
+    }
+   },
+   "input_sha256": "4c9bc781398deb6423a1f12b756b68229bea8dcb886c8787a18a708c366feb50"
+  },
+  {
+   "key": "sym_L0_007",
+   "task": "symbol_type",
+   "page": 1,
+   "images": [
+    "crops/sym_L0_007_ctx.png",
+    "crops/sym_L0_007_iso.png"
+   ],
+   "context": {
+    "file": "real01.pdf",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "dining",
+    "room_label": "Dining",
+    "footprint": {
+     "center": [
+      10.5574,
+      9.2029
+     ],
+     "size": [
+      1.2383,
+      0.7353
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     10.1897,
+     8.5838,
+     10.9251,
+     9.8221
+    ],
+    "crop": {
+     "object_box": [
+      10190,
+      8584,
+      10925,
+      9822
+     ],
+     "ctx_box": [
+      9307,
+      7953,
+      11807,
+      10453
+     ],
+     "iso_box": [
+      9783,
+      8429,
+      11331,
+      9977
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "sofa",
+     "armchair",
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "wardrobe",
+     "kitchen_counter",
+     "kitchen_island",
+     "shower",
+     "bathtub",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     1.24,
+     0.74
+    ],
+    "room": {
+     "label": "Dining",
+     "type": "dining"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "ccdd55f16d2541a97edc31787be842406f445f455d6db0e017aa4d25b51b50fa"
+  },
+  {
+   "key": "sym_L0_008",
+   "task": "symbol_type",
+   "page": 1,
+   "images": [
+    "crops/sym_L0_008_ctx.png",
+    "crops/sym_L0_008_iso.png"
+   ],
+   "context": {
+    "file": "real01.pdf",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "dining",
+    "room_label": "Dining",
+    "footprint": {
+     "center": [
+      10.5603,
+      8.3558
+     ],
+     "size": [
+      0.4618,
+      0.3824
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     10.3692,
+     8.1249,
+     10.7515,
+     8.5867
+    ],
+    "crop": {
+     "object_box": [
+      10369,
+      8125,
+      10752,
+      8587
+     ],
+     "ctx_box": [
+      9310,
+      7106,
+      11810,
+      9606
+     ],
+     "iso_box": [
+      9989,
+      7784,
+      11132,
+      8927
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "chair",
+     "sink_kitchen",
+     "washbasin",
+     "nightstand",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.46,
+     0.38
+    ],
+    "room": {
+     "label": "Dining",
+     "type": "dining"
+    },
+    "neighbours": {
+     "similar": 6,
+     "next_to": [
+      1.24,
+      0.74
+     ],
+     "around": 6
+    }
+   },
+   "input_sha256": "2f47f225ef8fd54e93f6ecf6263c314723875435def4e7bf56f6dae58435fe68"
+  },
+  {
+   "key": "sym_L0_009",
+   "task": "symbol_type",
+   "page": 1,
+   "images": [
+    "crops/sym_L0_009_ctx.png",
+    "crops/sym_L0_009_iso.png"
+   ],
+   "context": {
+    "file": "real01.pdf",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "dining",
+    "room_label": "Dining",
+    "footprint": {
+     "center": [
+      10.5603,
+      10.053
+     ],
+     "size": [
+      0.4618,
+      0.3824
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     10.3692,
+     9.8221,
+     10.7515,
+     10.2839
+    ],
+    "crop": {
+     "object_box": [
+      10369,
+      9822,
+      10752,
+      10284
+     ],
+     "ctx_box": [
+      9310,
+      8803,
+      11810,
+      11303
+     ],
+     "iso_box": [
+      9989,
+      9482,
+      11132,
+      10624
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "chair",
+     "sink_kitchen",
+     "washbasin",
+     "nightstand",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.46,
+     0.38
+    ],
+    "room": {
+     "label": "Dining",
+     "type": "dining"
+    },
+    "neighbours": {
+     "similar": 6,
+     "next_to": [
+      1.24,
+      0.74
+     ],
+     "around": 6
+    }
+   },
+   "input_sha256": "062f3612a04685e38fce30cba33969cb88ca547263fa6ceb6186b61838cea70d"
+  },
+  {
+   "key": "sym_L0_010",
+   "task": "symbol_type",
+   "page": 1,
+   "images": [
+    "crops/sym_L0_010_ctx.png",
+    "crops/sym_L0_010_iso.png"
+   ],
+   "context": {
+    "file": "real01.pdf",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "dining",
+    "room_label": "Dining",
+    "footprint": {
+     "center": [
+      9.9618,
+      8.8838
+     ],
+     "size": [
+      0.4618,
+      0.3824
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     9.7309,
+     8.6926,
+     10.1927,
+     9.075
+    ],
+    "crop": {
+     "object_box": [
+      9731,
+      8693,
+      10193,
+      9075
+     ],
+     "ctx_box": [
+      8712,
+      7634,
+      11212,
+      10134
+     ],
+     "iso_box": [
+      9390,
+      8312,
+      10533,
+      9455
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "chair",
+     "sink_kitchen",
+     "washbasin",
+     "nightstand",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.46,
+     0.38
+    ],
+    "room": {
+     "label": "Dining",
+     "type": "dining"
+    },
+    "neighbours": {
+     "similar": 6,
+     "next_to": [
+      1.24,
+      0.74
+     ],
+     "around": 6
+    }
+   },
+   "input_sha256": "6fd9120c6118683585e0a12aa1d1fbccec2c21de099678c2efec61d54c5b2d09"
+  },
+  {
+   "key": "sym_L0_011",
+   "task": "symbol_type",
+   "page": 1,
+   "images": [
+    "crops/sym_L0_011_ctx.png",
+    "crops/sym_L0_011_iso.png"
+   ],
+   "context": {
+    "file": "real01.pdf",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "dining",
+    "room_label": "Dining",
+    "footprint": {
+     "center": [
+      9.9618,
+      9.5235
+     ],
+     "size": [
+      0.4618,
+      0.3794
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     9.7309,
+     9.3338,
+     10.1927,
+     9.7132
+    ],
+    "crop": {
+     "object_box": [
+      9731,
+      9334,
+      10193,
+      9713
+     ],
+     "ctx_box": [
+      8712,
+      8274,
+      11212,
+      10774
+     ],
+     "iso_box": [
+      9390,
+      8952,
+      10533,
+      10095
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "chair",
+     "sink_kitchen",
+     "washbasin",
+     "nightstand",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.46,
+     0.38
+    ],
+    "room": {
+     "label": "Dining",
+     "type": "dining"
+    },
+    "neighbours": {
+     "similar": 6,
+     "next_to": [
+      1.24,
+      0.74
+     ],
+     "around": 6
+    }
+   },
+   "input_sha256": "ea5e69b2435d51262e10dec5a868551d422743e9c1ae0877931bd92787c1275c"
+  },
+  {
+   "key": "sym_L0_012",
+   "task": "symbol_type",
+   "page": 1,
+   "images": [
+    "crops/sym_L0_012_ctx.png",
+    "crops/sym_L0_012_iso.png"
+   ],
+   "context": {
+    "file": "real01.pdf",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "dining",
+    "room_label": "Dining",
+    "footprint": {
+     "center": [
+      11.1574,
+      8.8838
+     ],
+     "size": [
+      0.4647,
+      0.3824
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     10.9251,
+     8.6926,
+     11.3898,
+     9.075
+    ],
+    "crop": {
+     "object_box": [
+      10925,
+      8693,
+      11390,
+      9075
+     ],
+     "ctx_box": [
+      9907,
+      7634,
+      12407,
+      10134
+     ],
+     "iso_box": [
+      10586,
+      8312,
+      11729,
+      9455
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "chair",
+     "sink_kitchen",
+     "washbasin",
+     "nightstand",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.46,
+     0.38
+    ],
+    "room": {
+     "label": "Dining",
+     "type": "dining"
+    },
+    "neighbours": {
+     "similar": 6,
+     "next_to": [
+      1.24,
+      0.74
+     ],
+     "around": 6
+    }
+   },
+   "input_sha256": "8aa7b87867e4d064484f036348f1ed6cb5c00b191215e3563e92554e002f094d"
+  },
+  {
+   "key": "sym_L0_013",
+   "task": "symbol_type",
+   "page": 1,
+   "images": [
+    "crops/sym_L0_013_ctx.png",
+    "crops/sym_L0_013_iso.png"
+   ],
+   "context": {
+    "file": "real01.pdf",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "dining",
+    "room_label": "Dining",
+    "footprint": {
+     "center": [
+      11.1574,
+      9.5235
+     ],
+     "size": [
+      0.4647,
+      0.3794
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     10.9251,
+     9.3338,
+     11.3898,
+     9.7132
+    ],
+    "crop": {
+     "object_box": [
+      10925,
+      9334,
+      11390,
+      9713
+     ],
+     "ctx_box": [
+      9907,
+      8274,
+      12407,
+      10774
+     ],
+     "iso_box": [
+      10586,
+      8952,
+      11729,
+      10095
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "chair",
+     "sink_kitchen",
+     "washbasin",
+     "nightstand",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.46,
+     0.38
+    ],
+    "room": {
+     "label": "Dining",
+     "type": "dining"
+    },
+    "neighbours": {
+     "similar": 6,
+     "next_to": [
+      1.24,
+      0.74
+     ],
+     "around": 6
+    }
+   },
+   "input_sha256": "db2d6ee2075ff269a1d58039d1630c79523aeb33461450c2fc76b0e809c6b804"
+  },
+  {
+   "key": "sym_L0_014",
+   "task": "symbol_type",
+   "page": 1,
+   "images": [
+    "crops/sym_L0_014_ctx.png",
+    "crops/sym_L0_014_iso.png"
+   ],
+   "context": {
+    "file": "real01.pdf",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "living",
+    "room_label": "Drawing Room",
+    "footprint": {
+     "center": [
+      10.5868,
+      4.0746
+     ],
+     "size": [
+      1.8942,
+      0.7056
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     9.6397,
+     3.7218,
+     11.5339,
+     4.4274
+    ],
+    "crop": {
+     "object_box": [
+      9640,
+      3722,
+      11534,
+      4427
+     ],
+     "ctx_box": [
+      9071,
+      2559,
+      12102,
+      5590
+     ],
+     "iso_box": [
+      9403,
+      2891,
+      11771,
+      5258
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "bed_single",
+     "sofa",
+     "table_dining",
+     "desk",
+     "wardrobe",
+     "kitchen_counter",
+     "kitchen_island",
+     "bathtub",
+     "stair",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     1.89,
+     0.71
+    ],
+    "room": {
+     "label": "Drawing Room",
+     "type": "living"
+    },
+    "neighbours": {
+     "similar": 2,
+     "next_to": null,
+     "around": null
+    }
+   },
+   "input_sha256": "3d235f879bf7463f32113ca16515a73c92bd19b8a2568f7314f32ccfa30d4d51"
+  },
+  {
+   "key": "sym_L0_015",
+   "task": "symbol_type",
+   "page": 1,
+   "images": [
+    "crops/sym_L0_015_ctx.png",
+    "crops/sym_L0_015_iso.png"
+   ],
+   "context": {
+    "file": "real01.pdf",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "living",
+    "room_label": "Drawing Room",
+    "footprint": {
+     "center": [
+      12.0354,
+      5.7557
+     ],
+     "size": [
+      1.8972,
+      0.703
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     11.6839,
+     4.8071,
+     12.3869,
+     6.7043
+    ],
+    "crop": {
+     "object_box": [
+      11684,
+      4807,
+      12387,
+      6704
+     ],
+     "ctx_box": [
+      10518,
+      4238,
+      13553,
+      7273
+     ],
+     "iso_box": [
+      10850,
+      4570,
+      13221,
+      6941
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "bed_single",
+     "sofa",
+     "table_dining",
+     "desk",
+     "wardrobe",
+     "kitchen_counter",
+     "kitchen_island",
+     "bathtub",
+     "stair",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     1.9,
+     0.7
+    ],
+    "room": {
+     "label": "Drawing Room",
+     "type": "living"
+    },
+    "neighbours": {
+     "similar": 2,
+     "next_to": null,
+     "around": null
+    }
+   },
+   "input_sha256": "dfc7bffa600a79b932a2a58b0b554dab9a64c6e64977720d6e1cdd0db24a6613"
+  },
+  {
+   "key": "sym_L0_016",
+   "task": "symbol_type",
+   "page": 1,
+   "images": [
+    "crops/sym_L0_016_ctx.png",
+    "crops/sym_L0_016_iso.png"
+   ],
+   "context": {
+    "file": "real01.pdf",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "living",
+    "room_label": "Drawing Room",
+    "footprint": {
+     "center": [
+      10.5912,
+      5.763
+     ],
+     "size": [
+      1.1265,
+      1.1236
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     10.028,
+     5.2012,
+     11.1545,
+     6.3248
+    ],
+    "crop": {
+     "object_box": [
+      10028,
+      5201,
+      11154,
+      6325
+     ],
+     "ctx_box": [
+      9341,
+      4513,
+      11841,
+      7013
+     ],
+     "iso_box": [
+      9887,
+      5059,
+      11295,
+      6467
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "sofa",
+     "armchair",
+     "table_dining",
+     "table_coffee",
+     "kitchen_island",
+     "shower",
+     "potted_plant",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     1.13,
+     1.12
+    ],
+    "room": {
+     "label": "Drawing Room",
+     "type": "living"
+    },
+    "neighbours": null
+   },
+   "input_sha256": "41961f593bfb2771be579498adb38161326424a6bf1efaa97e3f315ff9fa9bb2"
+  },
+  {
+   "key": "sym_L0_017",
+   "task": "symbol_type",
+   "page": 1,
+   "images": [
+    "crops/sym_L0_017_ctx.png",
+    "crops/sym_L0_017_iso.png"
+   ],
+   "context": {
+    "file": "real01.pdf",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "living",
+    "room_label": "Drawing Room",
+    "footprint": {
+     "center": [
+      12.0648,
+      4.3115
+     ],
+     "size": [
+      0.4238,
+      0.4238
+     ],
+     "rotation_deg": 78.585
+    },
+    "bbox": [
+     11.8486,
+     4.0953,
+     12.281,
+     4.5277
+    ],
+    "crop": {
+     "object_box": [
+      11849,
+      4095,
+      12281,
+      4528
+     ],
+     "ctx_box": [
+      10815,
+      3062,
+      13315,
+      5562
+     ],
+     "iso_box": [
+      11493,
+      3740,
+      12636,
+      4883
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "chair",
+     "sink_kitchen",
+     "washbasin",
+     "nightstand",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.42,
+     0.42
+    ],
+    "room": {
+     "label": "Drawing Room",
+     "type": "living"
+    },
+    "neighbours": {
+     "similar": null,
+     "next_to": [
+      1.9,
+      0.7
+     ],
+     "around": null
+    }
+   },
+   "input_sha256": "355021b999bc39c540ba4878cd473095a5b56228fbe4b9582f6b5bd7f1b70c3e"
+  }
+ ]
+}

@@ -1,0 +1,350 @@
+{
+ "schema_version": "0.1",
+ "kind": "recognition_answers",
+ "model_key": "glm",
+ "model": "zai-org/GLM-4.6V-Flash",
+ "slug": "glm-4.6v-flash",
+ "incomplete": false,
+ "calls": {
+  "sym_L0_001": {
+   "task": "symbol_type",
+   "input_sha256": "b2eaec69d00eafd8f7e487bfa2955aedb14855bfac36b8144d69dbbb7baa3e3d",
+   "data": {
+    "type": "bed_double",
+    "front": "top",
+    "confidence": 1,
+    "reason": "The object has a rectangular shape with a headboard area and matches the size and typical appearance of a double bed."
+   },
+   "raw_text": "{\n    \"type\": \"bed_double\",\n    \"front\": \"top\",\n    \"confidence\": 1,\n    \"reason\": \"The object has a rectangular shape with a headboard area and matches the size and typical appearance of a double bed.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 2.892,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_001_ctx.png",
+    "crops/sym_L0_001_iso.png"
+   ]
+  },
+  "sym_L0_002": {
+   "task": "symbol_type",
+   "input_sha256": "cf4e88f8c44c011e6f463d34d87059dcfca55377c8bd6cd3cc15597a6fb97e9d",
+   "data": {
+    "type": "nightstand",
+    "front": "right",
+    "confidence": 0.9,
+    "reason": "The object has a telephone and a lamp symbol, typical for a nightstand."
+   },
+   "raw_text": "{\n    \"type\": \"nightstand\",\n    \"front\": \"right\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object has a telephone and a lamp symbol, typical for a nightstand.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 2.376,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_002_ctx.png",
+    "crops/sym_L0_002_iso.png"
+   ]
+  },
+  "sym_L0_003": {
+   "task": "symbol_type",
+   "input_sha256": "98a9cd0c73a10877070d8c76215727e01f2c68358d7090ef822d4fb7aaae5aab",
+   "data": {
+    "type": "nightstand",
+    "front": "left",
+    "confidence": 0.9,
+    "reason": "The object's footprint and the lamp symbol match a nightstand in a bedroom."
+   },
+   "raw_text": "{\n    \"type\": \"nightstand\",\n    \"front\": \"left\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object's footprint and the lamp symbol match a nightstand in a bedroom.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 2.391,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_003_ctx.png",
+    "crops/sym_L0_003_iso.png"
+   ]
+  },
+  "sym_L0_004": {
+   "task": "symbol_type",
+   "input_sha256": "4a832a64f8c5414748b351f5f2cda19ef58ea2fae806a808f3cf9b7178824af4",
+   "data": {
+    "type": "bed_double",
+    "front": "top",
+    "confidence": 0.9,
+    "reason": "The object's footprint and headboard lines match a bed_double."
+   },
+   "raw_text": "{\n    \"type\": \"bed_double\",\n    \"front\": \"top\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object's footprint and headboard lines match a bed_double.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 2.336,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_004_ctx.png",
+    "crops/sym_L0_004_iso.png"
+   ]
+  },
+  "sym_L0_005": {
+   "task": "symbol_type",
+   "input_sha256": "a1bd1151d2914b6774872604f6159c04a1327df0712bfd399966f9a8592660a5",
+   "data": {
+    "type": "nightstand",
+    "front": "left",
+    "confidence": 0.9,
+    "reason": "The object has a footprint of about 0.5x0.49 m, a lamp symbol on top, and is drawn inside a bedroom, matching the description of a nightstand."
+   },
+   "raw_text": "{\n    \"type\": \"nightstand\",\n    \"front\": \"left\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object has a footprint of about 0.5x0.49 m, a lamp symbol on top, and is drawn inside a bedroom, matching the description of a nightstand.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.318,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_005_ctx.png",
+    "crops/sym_L0_005_iso.png"
+   ]
+  },
+  "sym_L0_006": {
+   "task": "symbol_type",
+   "input_sha256": "4c9bc781398deb6423a1f12b756b68229bea8dcb886c8787a18a708c366feb50",
+   "data": {
+    "type": "nightstand",
+    "front": "right",
+    "confidence": 0.9,
+    "reason": "The object's footprint and the small symbol (lamp) match a nightstand."
+   },
+   "raw_text": "{\n    \"type\": \"nightstand\",\n    \"front\": \"right\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object's footprint and the small symbol (lamp) match a nightstand.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 2.376,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_006_ctx.png",
+    "crops/sym_L0_006_iso.png"
+   ]
+  },
+  "sym_L0_007": {
+   "task": "symbol_type",
+   "input_sha256": "ccdd55f16d2541a97edc31787be842406f445f455d6db0e017aa4d25b51b50fa",
+   "data": {
+    "type": "table_dining",
+    "front": "none",
+    "confidence": 0.9,
+    "reason": "The object is a large rectangle with chairs around it, matching the dining table description."
+   },
+   "raw_text": "{\n    \"type\": \"table_dining\",\n    \"front\": \"none\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object is a large rectangle with chairs around it, matching the dining table description.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 2.421,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_007_ctx.png",
+    "crops/sym_L0_007_iso.png"
+   ]
+  },
+  "sym_L0_008": {
+   "task": "symbol_type",
+   "input_sha256": "2f47f225ef8fd54e93f6ecf6263c314723875435def4e7bf56f6dae58435fe68",
+   "data": {
+    "type": "chair",
+    "front": "top",
+    "confidence": 0.9,
+    "reason": "The object has a seat and backrest, typical of a dining chair, and is drawn around a table in a dining room."
+   },
+   "raw_text": "{\n    \"type\": \"chair\",\n    \"front\": \"top\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object has a seat and backrest, typical of a dining chair, and is drawn around a table in a dining room.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 2.96,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_008_ctx.png",
+    "crops/sym_L0_008_iso.png"
+   ]
+  },
+  "sym_L0_009": {
+   "task": "symbol_type",
+   "input_sha256": "062f3612a04685e38fce30cba33969cb88ca547263fa6ceb6186b61838cea70d",
+   "data": {
+    "type": "chair",
+    "front": "top",
+    "confidence": 0.9,
+    "reason": "The object has a seat and backrest, typical of a dining chair, and matches the size and arrangement of chairs around a table."
+   },
+   "raw_text": "{\n    \"type\": \"chair\",\n    \"front\": \"top\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object has a seat and backrest, typical of a dining chair, and matches the size and arrangement of chairs around a table.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.638,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_009_ctx.png",
+    "crops/sym_L0_009_iso.png"
+   ]
+  },
+  "sym_L0_010": {
+   "task": "symbol_type",
+   "input_sha256": "6fd9120c6118683585e0a12aa1d1fbccec2c21de099678c2efec61d54c5b2d09",
+   "data": {
+    "type": "chair",
+    "front": "left",
+    "confidence": 0.9,
+    "reason": "Small seat with backrest line, around a table in a dining room."
+   },
+   "raw_text": "{\n    \"type\": \"chair\",\n    \"front\": \"left\",\n    \"confidence\": 0.9,\n    \"reason\": \"Small seat with backrest line, around a table in a dining room.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.372,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_010_ctx.png",
+    "crops/sym_L0_010_iso.png"
+   ]
+  },
+  "sym_L0_011": {
+   "task": "symbol_type",
+   "input_sha256": "ea5e69b2435d51262e10dec5a868551d422743e9c1ae0877931bd92787c1275c",
+   "data": {
+    "type": "chair",
+    "front": "left",
+    "confidence": 1,
+    "reason": "The object has a seat and a backrest, typical of a dining chair, and matches the size and context of other dining chairs around a table."
+   },
+   "raw_text": "{\n    \"type\": \"chair\",\n    \"front\": \"left\",\n    \"confidence\": 1,\n    \"reason\": \"The object has a seat and a backrest, typical of a dining chair, and matches the size and context of other dining chairs around a table.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.608,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_011_ctx.png",
+    "crops/sym_L0_011_iso.png"
+   ]
+  },
+  "sym_L0_012": {
+   "task": "symbol_type",
+   "input_sha256": "8aa7b87867e4d064484f036348f1ed6cb5c00b191215e3563e92554e002f094d",
+   "data": {
+    "type": "chair",
+    "front": "right",
+    "confidence": 0.9,
+    "reason": "The object has a seat and a backrest, typical of a dining chair, and matches the size and shape of other chairs around a table."
+   },
+   "raw_text": "{\n    \"type\": \"chair\",\n    \"front\": \"right\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object has a seat and a backrest, typical of a dining chair, and matches the size and shape of other chairs around a table.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.595,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_012_ctx.png",
+    "crops/sym_L0_012_iso.png"
+   ]
+  },
+  "sym_L0_013": {
+   "task": "symbol_type",
+   "input_sha256": "db2d6ee2075ff269a1d58039d1630c79523aeb33461450c2fc76b0e809c6b804",
+   "data": {
+    "type": "chair",
+    "front": "right",
+    "confidence": 0.9,
+    "reason": "The object has a seat and a backrest, typical of a dining chair, and matches the size and context of other chairs around a table."
+   },
+   "raw_text": "{\n    \"type\": \"chair\",\n    \"front\": \"right\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object has a seat and a backrest, typical of a dining chair, and matches the size and context of other chairs around a table.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.578,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_013_ctx.png",
+    "crops/sym_L0_013_iso.png"
+   ]
+  },
+  "sym_L0_014": {
+   "task": "symbol_type",
+   "input_sha256": "3d235f879bf7463f32113ca16515a73c92bd19b8a2568f7314f32ccfa30d4d51",
+   "data": {
+    "type": "sofa",
+    "front": "left",
+    "confidence": 1,
+    "reason": "The object is a long rectangle with a backrest line and pillows, matching the description of a sofa."
+   },
+   "raw_text": "{\n    \"type\": \"sofa\",\n    \"front\": \"left\",\n    \"confidence\": 1,\n    \"reason\": \"The object is a long rectangle with a backrest line and pillows, matching the description of a sofa.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.12,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_014_ctx.png",
+    "crops/sym_L0_014_iso.png"
+   ]
+  },
+  "sym_L0_015": {
+   "task": "symbol_type",
+   "input_sha256": "dfc7bffa600a79b932a2a58b0b554dab9a64c6e64977720d6e1cdd0db24a6613",
+   "data": {
+    "type": "sofa",
+    "front": "left",
+    "confidence": 1,
+    "reason": "The object is a long rectangle with a backrest line and pillows, matching the description of a sofa."
+   },
+   "raw_text": "{\n    \"type\": \"sofa\",\n    \"front\": \"left\",\n    \"confidence\": 1,\n    \"reason\": \"The object is a long rectangle with a backrest line and pillows, matching the description of a sofa.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.086,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_015_ctx.png",
+    "crops/sym_L0_015_iso.png"
+   ]
+  },
+  "sym_L0_016": {
+   "task": "symbol_type",
+   "input_sha256": "41961f593bfb2771be579498adb38161326424a6bf1efaa97e3f315ff9fa9bb2",
+   "data": {
+    "type": "table_coffee",
+    "front": "none",
+    "confidence": 0.8,
+    "reason": "The object's footprint is square and small, fitting the size range for a coffee table."
+   },
+   "raw_text": "{\n    \"type\": \"table_coffee\",\n    \"front\": \"none\",\n    \"confidence\": 0.8,\n    \"reason\": \"The object's footprint is square and small, fitting the size range for a coffee table.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.941,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_016_ctx.png",
+    "crops/sym_L0_016_iso.png"
+   ]
+  },
+  "sym_L0_017": {
+   "task": "symbol_type",
+   "input_sha256": "355021b999bc39c540ba4878cd473095a5b56228fbe4b9582f6b5bd7f1b70c3e",
+   "data": {
+    "type": "floor_lamp",
+    "front": "none",
+    "confidence": 0.9,
+    "reason": "The object is a small circle with spokes, typical of a floor lamp, and its size matches the description."
+   },
+   "raw_text": "{\n    \"type\": \"floor_lamp\",\n    \"front\": \"none\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object is a small circle with spokes, typical of a floor lamp, and its size matches the description.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.901,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_017_ctx.png",
+    "crops/sym_L0_017_iso.png"
+   ]
+  }
+ }
+}

@@ -1,0 +1,450 @@
+{
+ "schema_version": "0.1",
+ "kind": "recognition_answers",
+ "model_key": "qwen",
+ "model": "Qwen/Qwen3-VL-8B-Instruct",
+ "slug": "qwen3-vl-8b",
+ "incomplete": false,
+ "calls": {
+  "lbl_L0_1": {
+   "task": "room_label",
+   "input_sha256": "01fcd135f0e7557441f5a51d70c3bc7e7db6015d6dc93c922b5130308db9d7d0",
+   "data": {
+    "label": "YATAK ODASI",
+    "size_text": null,
+    "area_text": null,
+    "box": [
+     280,
+     770,
+     720,
+     870
+    ]
+   },
+   "raw_text": "{\n  \"label\": \"YATAK ODASI\",\n  \"size_text\": null,\n  \"area_text\": null,\n  \"box\": [280, 770, 720, 870]\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.84,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/lbl_L0_1.png"
+   ]
+  },
+  "lbl_L0_2": {
+   "task": "room_label",
+   "input_sha256": "4a6db1f4a6dc3c1cf408da827886c5b5d5ff5c4172a6424262e4a1f090aa76ec",
+   "data": {
+    "label": "BANYO",
+    "size_text": null,
+    "area_text": null,
+    "box": [
+     170,
+     500,
+     550,
+     650
+    ]
+   },
+   "raw_text": "{\n  \"label\": \"BANYO\",\n  \"size_text\": null,\n  \"area_text\": null,\n  \"box\": [\n    170,\n    500,\n    550,\n    650\n  ]\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.881,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/lbl_L0_2.png"
+   ]
+  },
+  "lbl_L0_3": {
+   "task": "room_label",
+   "input_sha256": "a88ff6ea30316f47e25c2e216f2ae3f79349db67196e59f043e78415855e4aaf",
+   "data": {
+    "label": "ANTRE",
+    "size_text": null,
+    "area_text": null,
+    "box": [
+     220,
+     220,
+     680,
+     780
+    ]
+   },
+   "raw_text": "{\n  \"label\": \"ANTRE\",\n  \"size_text\": null,\n  \"area_text\": null,\n  \"box\": [\n    220,\n    220,\n    680,\n    780\n  ]\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.844,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/lbl_L0_3.png"
+   ]
+  },
+  "lbl_L0_4": {
+   "task": "room_label",
+   "input_sha256": "44ae1045322d9c5ff9559625265897aacff2ce3ab2d1157f65929ffea4dcf47b",
+   "data": {
+    "label": "SALON",
+    "size_text": null,
+    "area_text": null,
+    "box": [
+     220,
+     460,
+     420,
+     560
+    ]
+   },
+   "raw_text": "{\n  \"label\": \"SALON\",\n  \"size_text\": null,\n  \"area_text\": null,\n  \"box\": [220, 460, 420, 560]\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.723,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/lbl_L0_4.png"
+   ]
+  },
+  "lbl_L0_5": {
+   "task": "room_label",
+   "input_sha256": "ffd8d0afd68b17f0d92224b0eb72d53ffc86e6c8c125fc2109ad73a23df8a3a0",
+   "data": {
+    "label": "MUTFAK",
+    "size_text": null,
+    "area_text": null,
+    "box": [
+     100,
+     500,
+     600,
+     700
+    ]
+   },
+   "raw_text": "{\n  \"label\": \"MUTFAK\",\n  \"size_text\": null,\n  \"area_text\": null,\n  \"box\": [100, 500, 600, 700]\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.714,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/lbl_L0_5.png"
+   ]
+  },
+  "sym_L0_001": {
+   "task": "symbol_type",
+   "input_sha256": "3da8f003ab2ca9de0f3f632afeb234163d6cacc90eb05b2f1bf186ca6a6cc502",
+   "data": {
+    "type": "unknown",
+    "front": "bottom",
+    "confidence": 0.95,
+    "reason": "Rectangular shape with no clear furniture features like headboard or drawers, but has a front edge at bottom."
+   },
+   "raw_text": "{\n  \"type\": \"unknown\",\n  \"front\": \"bottom\",\n  \"confidence\": 0.95,\n  \"reason\": \"Rectangular shape with no clear furniture features like headboard or drawers, but has a front edge at bottom.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.178,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_001_ctx.png",
+    "crops/sym_L0_001_iso.png"
+   ]
+  },
+  "sym_L0_002": {
+   "task": "symbol_type",
+   "input_sha256": "7bd68fc769b9d4cea1f8e874f6efce65cb4d268095ff596693c9502ea1bd741e",
+   "data": {
+    "type": "unknown",
+    "front": "left",
+    "confidence": 0.85,
+    "reason": "The object is a long shallow rectangle, but its exact type (e.g., cabinet, counter, or furniture) cannot be determined from the plan."
+   },
+   "raw_text": "{\n  \"type\": \"unknown\",\n  \"front\": \"left\",\n  \"confidence\": 0.85,\n  \"reason\": \"The object is a long shallow rectangle, but its exact type (e.g., cabinet, counter, or furniture) cannot be determined from the plan.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.443,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_002_ctx.png",
+    "crops/sym_L0_002_iso.png"
+   ]
+  },
+  "sym_L0_003": {
+   "task": "symbol_type",
+   "input_sha256": "6eadb3bbc13a48205ef79aa6ce72479d010730e0716014e2db553edbfc768327",
+   "data": {
+    "type": "kitchen_counter",
+    "front": "left",
+    "confidence": 0.95,
+    "reason": "Long shallow rectangle matching kitchen counter dimensions, likely along a kitchen wall."
+   },
+   "raw_text": "{\n  \"type\": \"kitchen_counter\",\n  \"front\": \"left\",\n  \"confidence\": 0.95,\n  \"reason\": \"Long shallow rectangle matching kitchen counter dimensions, likely along a kitchen wall.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.096,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_003_ctx.png",
+    "crops/sym_L0_003_iso.png"
+   ]
+  },
+  "sym_L0_004": {
+   "task": "symbol_type",
+   "input_sha256": "67d8ac62fc3cef6824c43d1545e3988f9e815d7f734a9738270c96edf8b21463",
+   "data": {
+    "type": "sofa",
+    "front": "left",
+    "confidence": 0.95,
+    "reason": "Rectangular shape with backrest line, size 1.64x0.95m fits sofa dimensions, front points left as user faces seating area."
+   },
+   "raw_text": "{\n  \"type\": \"sofa\",\n  \"front\": \"left\",\n  \"confidence\": 0.95,\n  \"reason\": \"Rectangular shape with backrest line, size 1.64x0.95m fits sofa dimensions, front points left as user faces seating area.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.489,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_004_ctx.png",
+    "crops/sym_L0_004_iso.png"
+   ]
+  },
+  "sym_L0_005": {
+   "task": "symbol_type",
+   "input_sha256": "990a52bc14e8dd9e6ad9f04d916d978af875f81919b870b66ad06360fb4c7ad7",
+   "data": {
+    "type": "sofa",
+    "front": "bottom",
+    "confidence": 0.95,
+    "reason": "Rectangular shape with backrest line, size 1.62x0.93m matches sofa dimensions, front is bottom where user sits."
+   },
+   "raw_text": "{\n  \"type\": \"sofa\",\n  \"front\": \"bottom\",\n  \"confidence\": 0.95,\n  \"reason\": \"Rectangular shape with backrest line, size 1.62x0.93m matches sofa dimensions, front is bottom where user sits.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.466,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_005_ctx.png",
+    "crops/sym_L0_005_iso.png"
+   ]
+  },
+  "sym_L0_006": {
+   "task": "symbol_type",
+   "input_sha256": "a3f06d4aa5563e37406b5c328020e2c0159a653bb5362661db5b4706b05dcc9c",
+   "data": {
+    "type": "wardrobe",
+    "front": "right",
+    "confidence": 0.95,
+    "reason": "The object is a tall, narrow rectangle against a wall, matching a wardrobe's typical footprint and placement."
+   },
+   "raw_text": "{\n  \"type\": \"wardrobe\",\n  \"front\": \"right\",\n  \"confidence\": 0.95,\n  \"reason\": \"The object is a tall, narrow rectangle against a wall, matching a wardrobe's typical footprint and placement.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.159,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_006_ctx.png",
+    "crops/sym_L0_006_iso.png"
+   ]
+  },
+  "sym_L0_007": {
+   "task": "symbol_type",
+   "input_sha256": "13c7da3270c3efa665ef02bcacab4af575139fd24f35d31ccd0ef0985cab69b6",
+   "data": {
+    "type": "desk",
+    "front": "left",
+    "confidence": 0.95,
+    "reason": "Rectangular shape 1.42x0.76m matches desk size, with door handle indicating it's a door, not furniture."
+   },
+   "raw_text": "{\n  \"type\": \"desk\",\n  \"front\": \"left\",\n  \"confidence\": 0.95,\n  \"reason\": \"Rectangular shape 1.42x0.76m matches desk size, with door handle indicating it's a door, not furniture.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.444,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_007_ctx.png",
+    "crops/sym_L0_007_iso.png"
+   ]
+  },
+  "sym_L0_008": {
+   "task": "symbol_type",
+   "input_sha256": "775ea2310f26d075a36cbe14e0b6ea8a4cce8f2093297513217c72dc13c4304c",
+   "data": {
+    "type": "shower",
+    "front": "bottom",
+    "confidence": 0.95,
+    "reason": "Square shape 1.00x0.93m matches shower footprint, and it's in a bathroom labeled 'BANYO'."
+   },
+   "raw_text": "{\n  \"type\": \"shower\",\n  \"front\": \"bottom\",\n  \"confidence\": 0.95,\n  \"reason\": \"Square shape 1.00x0.93m matches shower footprint, and it's in a bathroom labeled 'BANYO'.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.455,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_008_ctx.png",
+    "crops/sym_L0_008_iso.png"
+   ]
+  },
+  "sym_L0_009": {
+   "task": "symbol_type",
+   "input_sha256": "dd919679af1d9c01d84b6accb58ebfd381024caeb0035935e49e323db14a17fd",
+   "data": {
+    "type": "fridge",
+    "front": "left",
+    "confidence": 0.95,
+    "reason": "Square shape 0.92x0.92m matches fridge size, with a handle on left side indicating front."
+   },
+   "raw_text": "{\n  \"type\": \"fridge\",\n  \"front\": \"left\",\n  \"confidence\": 0.95,\n  \"reason\": \"Square shape 0.92x0.92m matches fridge size, with a handle on left side indicating front.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.25,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_009_ctx.png",
+    "crops/sym_L0_009_iso.png"
+   ]
+  },
+  "sym_L0_010": {
+   "task": "symbol_type",
+   "input_sha256": "f4d7dede27004a3173f622a9dcc2749b7c7e34a387c45a0d2c914142283fd5f4",
+   "data": {
+    "type": "shower",
+    "front": "left",
+    "confidence": 0.95,
+    "reason": "The shape and context suggest a shower, with a curved wall line typical of shower enclosures."
+   },
+   "raw_text": "{\n  \"type\": \"shower\",\n  \"front\": \"left\",\n  \"confidence\": 0.95,\n  \"reason\": \"The shape and context suggest a shower, with a curved wall line typical of shower enclosures.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.144,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_010_ctx.png",
+    "crops/sym_L0_010_iso.png"
+   ]
+  },
+  "sym_L0_011": {
+   "task": "symbol_type",
+   "input_sha256": "b8a227a53ca4a85c9b5ed1cc197298c937e8ba05f9e9fa2179d179450c8a246d",
+   "data": {
+    "type": "table_coffee",
+    "front": "bottom",
+    "confidence": 0.95,
+    "reason": "Rectangular shape, low profile, size matches coffee table, front edge at bottom."
+   },
+   "raw_text": "{\n  \"type\": \"table_coffee\",\n  \"front\": \"bottom\",\n  \"confidence\": 0.95,\n  \"reason\": \"Rectangular shape, low profile, size matches coffee table, front edge at bottom.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.111,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_011_ctx.png",
+    "crops/sym_L0_011_iso.png"
+   ]
+  },
+  "sym_L0_012": {
+   "task": "symbol_type",
+   "input_sha256": "6eab83c64708601c4847e6e2d8154da6155ddb07c16af8fa637f82af40160823",
+   "data": {
+    "type": "fridge",
+    "front": "left",
+    "confidence": 0.95,
+    "reason": "Square shape 0.73x0.70m matches fridge size, with top edge likely front for user access."
+   },
+   "raw_text": "{\n  \"type\": \"fridge\",\n  \"front\": \"left\",\n  \"confidence\": 0.95,\n  \"reason\": \"Square shape 0.73x0.70m matches fridge size, with top edge likely front for user access.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.08,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_012_ctx.png",
+    "crops/sym_L0_012_iso.png"
+   ]
+  },
+  "sym_L0_013": {
+   "task": "symbol_type",
+   "input_sha256": "4a181f10a88c959a80ac25045bf2c2ef718642d7a7ae812ebb78686ac454e396",
+   "data": {
+    "type": "side_table",
+    "front": "none",
+    "confidence": 0.95,
+    "reason": "Square shape, small size (0.72x0.68m), no visible front or back, typical for a side table."
+   },
+   "raw_text": "{\n  \"type\": \"side_table\",\n  \"front\": \"none\",\n  \"confidence\": 0.95,\n  \"reason\": \"Square shape, small size (0.72x0.68m), no visible front or back, typical for a side table.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.088,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_013_ctx.png",
+    "crops/sym_L0_013_iso.png"
+   ]
+  },
+  "sym_L0_014": {
+   "task": "symbol_type",
+   "input_sha256": "bf0761ef13ad1861f2d658836bf031019fbd469952ee78903866564dafe33a14",
+   "data": {
+    "type": "not_furniture",
+    "front": "left",
+    "confidence": 0.99,
+    "reason": "The object is a door, indicated by its rectangular shape and handle, which is not furniture."
+   },
+   "raw_text": "{\n  \"type\": \"not_furniture\",\n  \"front\": \"left\",\n  \"confidence\": 0.99,\n  \"reason\": \"The object is a door, indicated by its rectangular shape and handle, which is not furniture.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.967,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_014_ctx.png",
+    "crops/sym_L0_014_iso.png"
+   ]
+  },
+  "sym_L0_015": {
+   "task": "symbol_type",
+   "input_sha256": "3c4584d5ba83b6afd2c2158e35c03422bb04e06fbfc326460605679346fa28a4",
+   "data": {
+    "type": "unknown",
+    "front": "none",
+    "confidence": 0.95,
+    "reason": "The object is a rectangular outline with a handle, resembling a door or cabinet, but its context and exact function are unclear."
+   },
+   "raw_text": "{\n  \"type\": \"unknown\",\n  \"front\": \"none\",\n  \"confidence\": 0.95,\n  \"reason\": \"The object is a rectangular outline with a handle, resembling a door or cabinet, but its context and exact function are unclear.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.991,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_015_ctx.png",
+    "crops/sym_L0_015_iso.png"
+   ]
+  },
+  "sym_L0_016": {
+   "task": "symbol_type",
+   "input_sha256": "c80ba49076266e7de0ea559a93f7942bd821d8c66e5dcf8f3ff519fd861379f4",
+   "data": {
+    "type": "washbasin",
+    "front": "left",
+    "confidence": 0.95,
+    "reason": "Rectangular shape, size 0.76x0.39m fits washbasin, and it's in a bathroom (BANYO) context."
+   },
+   "raw_text": "{\n  \"type\": \"washbasin\",\n  \"front\": \"left\",\n  \"confidence\": 0.95,\n  \"reason\": \"Rectangular shape, size 0.76x0.39m fits washbasin, and it's in a bathroom (BANYO) context.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.106,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_016_ctx.png",
+    "crops/sym_L0_016_iso.png"
+   ]
+  }
+ }
+}

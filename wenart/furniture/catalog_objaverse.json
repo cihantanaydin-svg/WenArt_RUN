@@ -1,0 +1,4765 @@
+{
+ "schema_version": "0.1",
+ "kind": "objaverse_catalog",
+ "source": "objaverse",
+ "generated_utc": "2026-10-03T20:46:31Z",
+ "file_licence": "ODC-By-1.0",
+ "notice": "Contains information from Objaverse 1.0 (https://huggingface.co/datasets/allenai/objaverse, revision 21e4e14), which is made available under the ODC Attribution License (ODC-By 1.0, https://opendatacommons.org/licenses/by/1-0/). Every object keeps its own licence (here CC0 1.0 or CC BY 4.0), as declared by its uploader and not verified by WenArt_RUN: check it before commercial use. This file is licensed ODC-By 1.0, not MIT.",
+ "dataset": {
+  "repo": "allenai/objaverse",
+  "revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+  "licence": "ODC-By-1.0",
+  "licence_url": "https://opendatacommons.org/licenses/by/1-0/",
+  "page": "https://huggingface.co/datasets/allenai/objaverse"
+ },
+ "licences_verified": true,
+ "notes": [
+  "Written by python -m wenart.assets.objaverse write-catalog on the prep pod (docs/milestone7.md §7); the integrator copies it into wenart/furniture/ before the full runs.",
+  "Boxes are metres in the Z-up frame of Blender's glTF importer: the raw GLB box times unit_scale (the §7.2 unit guess). The scene builder scales the imported mesh by unit_scale before fit_scale.",
+  "front_axis: the side both judges named on the 2 x 2 sheet, equal to the geometric check (front_axis_note); front-less types keep -Y with front_axis_confidence low.",
+  "styles: the intersection of both judges' answers (neutral only when both name it).",
+  "Per-object licences are uploader-declared and unverified: flag them before commercial use."
+ ],
+ "refused_at_write": [],
+ "entries": [
+  {
+   "id": "objaverse_6eb4212e70b941a3bd2db196a47828b9",
+   "type": "bed_single",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Lowpoly Bed",
+   "bbox_m": [
+    1.1135,
+    1.7961,
+    0.6906
+   ],
+   "bbox_model_m": [
+    1.7961,
+    1.1135,
+    0.6906
+   ],
+   "bbox_min_m": [
+    0.07,
+    -0.9897,
+    -0.0026
+   ],
+   "bbox_max_m": [
+    1.8661,
+    0.1238,
+    0.688
+   ],
+   "front_axis": "-X",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.9681,
+    -0.433,
+    -0.0026
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 3 (camera on the -X side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +X (+0.349 of the extent): front -X",
+   "unit_scale": 0.005352657135546304,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 336 x 208 x 129 (raw); x0.00535266 scales the raw footprint to the typical bed_single footprint (size table centre 1 x 2 m): 1.8 x 1.11 x 0.691 m; its proportions are in the bed_single range; bed width 1.26 m from the proportions (width / length 0.620 x a typical bed length 2.025 m) <= 1.275 m: bed_single",
+   "styles": [
+    "scandinavian",
+    "japandi",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern'], glm ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern']",
+   "has_mattress": true,
+   "glb": "models/objaverse/6eb4212e70b941a3bd2db196a47828b9.glb",
+   "sha256_glb": "a00668740f227e5293b63b9576624111ca0ac64861dafbadd2da6896f1f42f3f",
+   "uid": "6eb4212e70b941a3bd2db196a47828b9",
+   "title": "Lowpoly Bed",
+   "author": "Mohamed199",
+   "source_url": "https://sketchfab.com/3d-models/6eb4212e70b941a3bd2db196a47828b9",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Lowpoly Bed\" by Mohamed199 (https://sketchfab.com/3d-models/6eb4212e70b941a3bd2db196a47828b9), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "bed"
+   ],
+   "objaverse_path": "glbs/000-005/6eb4212e70b941a3bd2db196a47828b9.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 14824,
+   "vertices": 9090,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": true,
+     "styles": [
+      "scandinavian",
+      "japandi",
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 3
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": true,
+     "styles": [
+      "scandinavian",
+      "japandi",
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 3
+    }
+   },
+   "likes": 27,
+   "views": 1798,
+   "thumbnail": "thumbs/bed_single/6eb4212e70b941a3bd2db196a47828b9.jpg"
+  },
+  {
+   "id": "objaverse_b547d81073b64d3e97200fd3ae9a74af",
+   "type": "bed_single",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Bed - Sample",
+   "bbox_m": [
+    1.0,
+    2.107,
+    0.9185
+   ],
+   "bbox_model_m": [
+    1.0,
+    2.107,
+    0.9185
+   ],
+   "bbox_min_m": [
+    -0.5,
+    -1.0535,
+    -0.0
+   ],
+   "bbox_max_m": [
+    0.5,
+    1.0535,
+    0.9185
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    -0.0
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.468 of the extent): front -Y",
+   "unit_scale": 0.01,
+   "unit_note": "x0.01: 100 x 211 x 91.9 (raw) -> 1 x 2.11 x 0.918 m in the bed_single range; bed width 1.00 m <= 1.275 m: bed_single",
+   "styles": [
+    "scandinavian",
+    "japandi",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern'], glm ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern']",
+   "has_mattress": true,
+   "glb": "models/objaverse/b547d81073b64d3e97200fd3ae9a74af.glb",
+   "sha256_glb": "9607742b2ab49f9ead596f3bef9f7bd3aa84bcd7f2ebd578cff2ac98fc665ec3",
+   "uid": "b547d81073b64d3e97200fd3ae9a74af",
+   "title": "Bed - Sample",
+   "author": "Mifu Saja",
+   "source_url": "https://sketchfab.com/3d-models/b547d81073b64d3e97200fd3ae9a74af",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Bed - Sample\" by Mifu Saja (https://sketchfab.com/3d-models/b547d81073b64d3e97200fd3ae9a74af), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "bed"
+   ],
+   "objaverse_path": "glbs/000-021/b547d81073b64d3e97200fd3ae9a74af.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 6304,
+   "vertices": 3850,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": true,
+     "styles": [
+      "scandinavian",
+      "japandi",
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": true,
+     "styles": [
+      "scandinavian",
+      "japandi",
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    }
+   },
+   "likes": 9,
+   "views": 359,
+   "thumbnail": "thumbs/bed_single/b547d81073b64d3e97200fd3ae9a74af.jpg"
+  },
+  {
+   "id": "objaverse_08f7f65edfea417b8ed9ca748381e507",
+   "type": "bed_double",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Bed",
+   "bbox_m": [
+    2.4283,
+    2.1232,
+    0.9
+   ],
+   "bbox_model_m": [
+    2.1232,
+    2.4283,
+    0.9
+   ],
+   "bbox_min_m": [
+    0.0,
+    0.0,
+    -0.0
+   ],
+   "bbox_max_m": [
+    2.1232,
+    2.4283,
+    0.9
+   ],
+   "front_axis": "-X",
+   "up_axis": "+Z",
+   "origin_offset": [
+    1.0616,
+    1.2142,
+    -0.0
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 3 (camera on the -X side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +X (+0.336 of the extent): front -X",
+   "unit_scale": 0.001,
+   "unit_note": "x0.001: 2.12e+03 x 2.43e+03 x 900 (raw) -> 2.12 x 2.43 x 0.9 m in the bed_double range; bed width 2.12 m > 1.275 m: bed_double",
+   "styles": [
+    "scandinavian",
+    "japandi",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern'], glm ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern']",
+   "has_mattress": true,
+   "glb": "models/objaverse/08f7f65edfea417b8ed9ca748381e507.glb",
+   "sha256_glb": "09477a064bdfc730401117b70cb9b704af1bd516a7412b29095599fbce4aead8",
+   "uid": "08f7f65edfea417b8ed9ca748381e507",
+   "title": "Bed",
+   "author": "Ambriel",
+   "source_url": "https://sketchfab.com/3d-models/08f7f65edfea417b8ed9ca748381e507",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Bed\" by Ambriel (https://sketchfab.com/3d-models/08f7f65edfea417b8ed9ca748381e507), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "bed"
+   ],
+   "objaverse_path": "glbs/000-123/08f7f65edfea417b8ed9ca748381e507.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 45202,
+   "vertices": 121599,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    5,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 5,
+     "has_mattress": true,
+     "styles": [
+      "scandinavian",
+      "japandi",
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 3
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": true,
+     "styles": [
+      "scandinavian",
+      "japandi",
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 3
+    }
+   },
+   "likes": 2,
+   "views": 196,
+   "thumbnail": "thumbs/bed_double/08f7f65edfea417b8ed9ca748381e507.jpg"
+  },
+  {
+   "id": "objaverse_2bd3fcc82c9f43cfb0c8cf26c7d0107c",
+   "type": "bed_double",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Bed For Vr",
+   "bbox_m": [
+    1.75,
+    1.9622,
+    1.499
+   ],
+   "bbox_model_m": [
+    1.9622,
+    1.75,
+    1.499
+   ],
+   "bbox_min_m": [
+    -0.5023,
+    -0.8758,
+    0.0062
+   ],
+   "bbox_max_m": [
+    1.4599,
+    0.8742,
+    1.5052
+   ],
+   "front_axis": "+X",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.4788,
+    -0.0008,
+    0.0062
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 1 (camera on the +X side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.431 of the extent): front +X",
+   "unit_scale": 0.0008053334349170668,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 2.44e+03 x 2.17e+03 x 1.86e+03 (raw); x0.000805333 scales the raw footprint to the typical bed_double footprint (size table centre 1.675 x 2.05 m): 1.96 x 1.75 x 1.5 m; its proportions are in the bed_double range; bed width 1.81 m from the proportions (width / length 0.892 x a typical bed length 2.025 m) > 1.275 m: bed_double",
+   "styles": [
+    "modern minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'modern']",
+   "has_mattress": true,
+   "glb": "models/objaverse/2bd3fcc82c9f43cfb0c8cf26c7d0107c.glb",
+   "sha256_glb": "b374972522eaf883c09fc2896bb788c8aba4afc8a8bd513c96e477b78067fd34",
+   "uid": "2bd3fcc82c9f43cfb0c8cf26c7d0107c",
+   "title": "Bed For Vr",
+   "author": "olamii",
+   "source_url": "https://sketchfab.com/3d-models/2bd3fcc82c9f43cfb0c8cf26c7d0107c",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Bed For Vr\" by olamii (https://sketchfab.com/3d-models/2bd3fcc82c9f43cfb0c8cf26c7d0107c), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "bed"
+   ],
+   "objaverse_path": "glbs/000-003/2bd3fcc82c9f43cfb0c8cf26c7d0107c.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 134735,
+   "vertices": 110088,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": true,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 1
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": true,
+     "styles": [
+      "modern minimal",
+      "modern"
+     ],
+     "front_view": 1
+    }
+   },
+   "likes": 13,
+   "views": 853,
+   "thumbnail": "thumbs/bed_double/2bd3fcc82c9f43cfb0c8cf26c7d0107c.jpg"
+  },
+  {
+   "id": "objaverse_5d3a99865ac84d8a8bf06b263aa5bb55",
+   "type": "bed_double",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Old Bed",
+   "bbox_m": [
+    1.4704,
+    2.5471,
+    1.3975
+   ],
+   "bbox_model_m": [
+    1.4704,
+    2.5471,
+    1.3975
+   ],
+   "bbox_min_m": [
+    -0.7383,
+    -1.2829,
+    0.0022
+   ],
+   "bbox_max_m": [
+    0.7321,
+    1.2643,
+    1.3997
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    -0.0031,
+    -0.0093,
+    0.0022
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.485 of the extent): front -Y",
+   "unit_scale": 0.01,
+   "unit_note": "x0.01: 147 x 255 x 140 (raw) -> 1.47 x 2.55 x 1.4 m in the bed_double range; bed width 1.47 m > 1.275 m: bed_double",
+   "styles": [
+    "industrial"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['industrial', 'modern minimal', 'minimal'], glm ['industrial']",
+   "has_mattress": true,
+   "glb": "models/objaverse/5d3a99865ac84d8a8bf06b263aa5bb55.glb",
+   "sha256_glb": "bef62b2ba437c38cd3f12c3f72bcd491de2d00e10ae4f352236c4d413e1d91c6",
+   "uid": "5d3a99865ac84d8a8bf06b263aa5bb55",
+   "title": "Old Bed",
+   "author": "barism09",
+   "source_url": "https://sketchfab.com/3d-models/5d3a99865ac84d8a8bf06b263aa5bb55",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Old Bed\" by barism09 (https://sketchfab.com/3d-models/5d3a99865ac84d8a8bf06b263aa5bb55), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "bed"
+   ],
+   "objaverse_path": "glbs/000-026/5d3a99865ac84d8a8bf06b263aa5bb55.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 11774,
+   "vertices": 8109,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": true,
+     "styles": [
+      "industrial",
+      "modern minimal",
+      "minimal"
+     ],
+     "front_view": 0
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": true,
+     "styles": [
+      "industrial"
+     ],
+     "front_view": 0
+    }
+   },
+   "likes": 13,
+   "views": 389,
+   "thumbnail": "thumbs/bed_double/5d3a99865ac84d8a8bf06b263aa5bb55.jpg"
+  },
+  {
+   "id": "objaverse_072d0468bb97447ab1ca7e3edea25f1f",
+   "type": "sofa",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Day 195: Street Couch Pt.9",
+   "bbox_m": [
+    2.2632,
+    1.0315,
+    0.7024
+   ],
+   "bbox_model_m": [
+    1.0315,
+    2.2632,
+    0.7024
+   ],
+   "bbox_min_m": [
+    -0.7902,
+    -0.4685,
+    0.0827
+   ],
+   "bbox_max_m": [
+    0.2413,
+    1.7947,
+    0.7851
+   ],
+   "front_axis": "-X",
+   "up_axis": "+Z",
+   "origin_offset": [
+    -0.2745,
+    0.6631,
+    0.0827
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 3 (camera on the -X side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +X (+0.173 of the extent): front -X",
+   "unit_scale": 1.0,
+   "unit_note": "x1: 1.03 x 2.26 x 0.702 (raw) -> 1.03 x 2.26 x 0.702 m in the sofa range",
+   "styles": [
+    "classic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['classic'], glm ['classic', 'rustic']",
+   "has_mattress": null,
+   "glb": "models/objaverse/072d0468bb97447ab1ca7e3edea25f1f.glb",
+   "sha256_glb": "189552218e8767e25edaf459928d16ed13abbcba4feec62dda252d1a53414a27",
+   "uid": "072d0468bb97447ab1ca7e3edea25f1f",
+   "title": "Day 195: Street Couch Pt.9",
+   "author": "alexdelker",
+   "source_url": "https://sketchfab.com/3d-models/072d0468bb97447ab1ca7e3edea25f1f",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Day 195: Street Couch Pt.9\" by alexdelker (https://sketchfab.com/3d-models/072d0468bb97447ab1ca7e3edea25f1f), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "sofa"
+   ],
+   "objaverse_path": "glbs/000-073/072d0468bb97447ab1ca7e3edea25f1f.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 15514,
+   "vertices": 46542,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "classic"
+     ],
+     "front_view": 3
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "classic",
+      "rustic"
+     ],
+     "front_view": 3
+    }
+   },
+   "likes": 14,
+   "views": 215,
+   "thumbnail": "thumbs/sofa/072d0468bb97447ab1ca7e3edea25f1f.jpg"
+  },
+  {
+   "id": "objaverse_42da0122f2134a189767d0911b401c1c",
+   "type": "sofa",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Couch Gameready",
+   "bbox_m": [
+    2.1589,
+    0.8993,
+    0.7073
+   ],
+   "bbox_model_m": [
+    2.1589,
+    0.8993,
+    0.7073
+   ],
+   "bbox_min_m": [
+    -1.0757,
+    -0.4015,
+    0.0077
+   ],
+   "bbox_max_m": [
+    1.0832,
+    0.4978,
+    0.715
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0037,
+    0.0481,
+    0.0077
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.109 of the extent): front -Y",
+   "unit_scale": 1.0,
+   "unit_note": "x1: 2.16 x 0.899 x 0.707 (raw) -> 2.16 x 0.899 x 0.707 m in the sofa range",
+   "styles": [
+    "modern minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'modern']",
+   "has_mattress": null,
+   "glb": "models/objaverse/42da0122f2134a189767d0911b401c1c.glb",
+   "sha256_glb": "3c11c4750eca45c3c6f7d30b3a3505bc1512ce96ec70a71c99b30133e86a8e14",
+   "uid": "42da0122f2134a189767d0911b401c1c",
+   "title": "Couch Gameready",
+   "author": "elijahorama",
+   "source_url": "https://sketchfab.com/3d-models/42da0122f2134a189767d0911b401c1c",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Couch Gameready\" by elijahorama (https://sketchfab.com/3d-models/42da0122f2134a189767d0911b401c1c), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "sofa"
+   ],
+   "objaverse_path": "glbs/000-091/42da0122f2134a189767d0911b401c1c.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 5194,
+   "vertices": 3865,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "modern"
+     ],
+     "front_view": 0
+    }
+   },
+   "likes": 10,
+   "views": 295,
+   "thumbnail": "thumbs/sofa/42da0122f2134a189767d0911b401c1c.jpg"
+  },
+  {
+   "id": "objaverse_9b1e09abe5e34d6397937ebf59901898",
+   "type": "sofa",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Modern Couch",
+   "bbox_m": [
+    2.7501,
+    0.8914,
+    0.8176
+   ],
+   "bbox_model_m": [
+    2.7501,
+    0.8914,
+    0.8176
+   ],
+   "bbox_min_m": [
+    -1.3751,
+    -0.408,
+    0.0001
+   ],
+   "bbox_max_m": [
+    1.3751,
+    0.4834,
+    0.8178
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0377,
+    0.0001
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.329 of the extent): front -Y",
+   "unit_scale": 1.0,
+   "unit_note": "x1: 2.75 x 0.891 x 0.818 (raw) -> 2.75 x 0.891 x 0.818 m in the sofa range",
+   "styles": [
+    "modern minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'modern']",
+   "has_mattress": null,
+   "glb": "models/objaverse/9b1e09abe5e34d6397937ebf59901898.glb",
+   "sha256_glb": "adef2da02c7df84a32c53391f4fdd8b4eceefeb1d4a61402c64311dd9a69acff",
+   "uid": "9b1e09abe5e34d6397937ebf59901898",
+   "title": "Modern Couch",
+   "author": "Smitty__Werben",
+   "source_url": "https://sketchfab.com/3d-models/9b1e09abe5e34d6397937ebf59901898",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Modern Couch\" by Smitty__Werben (https://sketchfab.com/3d-models/9b1e09abe5e34d6397937ebf59901898), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "sofa"
+   ],
+   "objaverse_path": "glbs/000-017/9b1e09abe5e34d6397937ebf59901898.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 24388,
+   "vertices": 13711,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "modern"
+     ],
+     "front_view": 0
+    }
+   },
+   "likes": 12,
+   "views": 598,
+   "thumbnail": "thumbs/sofa/9b1e09abe5e34d6397937ebf59901898.jpg"
+  },
+  {
+   "id": "objaverse_9c242421a7c1447f941f72b57e7473e5",
+   "type": "sofa",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "SOFA COUCH",
+   "bbox_m": [
+    2.1743,
+    0.8693,
+    0.9813
+   ],
+   "bbox_model_m": [
+    2.1743,
+    0.8693,
+    0.9813
+   ],
+   "bbox_min_m": [
+    -1.0871,
+    -0.4445,
+    -0.1464
+   ],
+   "bbox_max_m": [
+    1.0871,
+    0.4248,
+    0.8349
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    -0.0098,
+    -0.1464
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.288 of the extent): front -Y",
+   "unit_scale": 0.4003188579880621,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 5.43 x 2.17 x 2.45 (raw); x0.400319 scales the raw footprint to the typical sofa footprint (size table centre 2.1 x 0.9 m): 2.17 x 0.869 x 0.981 m; its proportions are in the sofa range",
+   "styles": [
+    "modern minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'modern']",
+   "has_mattress": null,
+   "glb": "models/objaverse/9c242421a7c1447f941f72b57e7473e5.glb",
+   "sha256_glb": "1892a8acf61237f9a6b2a909039912b3cabeb6f40e8faae934f76a6976eb980b",
+   "uid": "9c242421a7c1447f941f72b57e7473e5",
+   "title": "SOFA COUCH",
+   "author": "Samiix3D",
+   "source_url": "https://sketchfab.com/3d-models/9c242421a7c1447f941f72b57e7473e5",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"SOFA COUCH\" by Samiix3D (https://sketchfab.com/3d-models/9c242421a7c1447f941f72b57e7473e5), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "sofa"
+   ],
+   "objaverse_path": "glbs/000-069/9c242421a7c1447f941f72b57e7473e5.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 40260,
+   "vertices": 21410,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "modern"
+     ],
+     "front_view": 0
+    }
+   },
+   "likes": 10,
+   "views": 717,
+   "thumbnail": "thumbs/sofa/9c242421a7c1447f941f72b57e7473e5.jpg"
+  },
+  {
+   "id": "objaverse_ef3832963ab24d129ec88fd4cac4818f",
+   "type": "sofa",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Arno_Blush_Velvet_Sofa_HP",
+   "bbox_m": [
+    2.0,
+    0.9053,
+    0.7114
+   ],
+   "bbox_model_m": [
+    2.0,
+    0.9053,
+    0.7114
+   ],
+   "bbox_min_m": [
+    -1.0,
+    -0.4526,
+    -0.3557
+   ],
+   "bbox_max_m": [
+    1.0,
+    0.4526,
+    0.3557
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    -0.3557
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.238 of the extent): front -Y",
+   "unit_scale": 1.0,
+   "unit_note": "x1: 2 x 0.905 x 0.711 (raw) -> 2 x 0.905 x 0.711 m in the sofa range",
+   "styles": [
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern', 'modern minimal'], glm ['modern', 'minimal']",
+   "has_mattress": null,
+   "glb": "models/objaverse/ef3832963ab24d129ec88fd4cac4818f.glb",
+   "sha256_glb": "b02b73afafda775748b6f1ea67dc8d9ed795d51548b460a3d12694c6d211ff27",
+   "uid": "ef3832963ab24d129ec88fd4cac4818f",
+   "title": "Arno_Blush_Velvet_Sofa_HP",
+   "author": "Vitor.GomesPT",
+   "source_url": "https://sketchfab.com/3d-models/ef3832963ab24d129ec88fd4cac4818f",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Arno_Blush_Velvet_Sofa_HP\" by Vitor.GomesPT (https://sketchfab.com/3d-models/ef3832963ab24d129ec88fd4cac4818f), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "sofa"
+   ],
+   "objaverse_path": "glbs/000-013/ef3832963ab24d129ec88fd4cac4818f.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 31838,
+   "vertices": 17760,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern",
+      "modern minimal"
+     ],
+     "front_view": 0
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern",
+      "minimal"
+     ],
+     "front_view": 0
+    }
+   },
+   "likes": 33,
+   "views": 745,
+   "thumbnail": "thumbs/sofa/ef3832963ab24d129ec88fd4cac4818f.jpg"
+  },
+  {
+   "id": "objaverse_09ee59423b4b428f94f01fc5beccd227",
+   "type": "armchair",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Old Sofa",
+   "bbox_m": [
+    0.7606,
+    0.9499,
+    1.1082
+   ],
+   "bbox_model_m": [
+    0.7606,
+    0.9499,
+    1.1082
+   ],
+   "bbox_min_m": [
+    -0.3794,
+    -0.4602,
+    -0.503
+   ],
+   "bbox_max_m": [
+    0.3812,
+    0.4897,
+    0.6052
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0009,
+    0.0148,
+    -0.503
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.326 of the extent): front -Y",
+   "unit_scale": 0.002154225266534972,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 353 x 441 x 514 (raw); x0.00215423 scales the raw footprint to the typical armchair footprint (size table centre 0.85 x 0.85 m): 0.761 x 0.95 x 1.11 m; its proportions are in the armchair range",
+   "styles": [
+    "classic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['classic'], glm ['classic']",
+   "has_mattress": null,
+   "glb": "models/objaverse/09ee59423b4b428f94f01fc5beccd227.glb",
+   "sha256_glb": "324f1596dcb5dde77e7bdc2039ade26c31b256159f671fa8fcbac1ece3ebbaa9",
+   "uid": "09ee59423b4b428f94f01fc5beccd227",
+   "title": "Old Sofa",
+   "author": "Batuhan13",
+   "source_url": "https://sketchfab.com/3d-models/09ee59423b4b428f94f01fc5beccd227",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Old Sofa\" by Batuhan13 (https://sketchfab.com/3d-models/09ee59423b4b428f94f01fc5beccd227), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "armchair"
+   ],
+   "objaverse_path": "glbs/000-131/09ee59423b4b428f94f01fc5beccd227.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 3756,
+   "vertices": 3306,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    5,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 5,
+     "has_mattress": null,
+     "styles": [
+      "classic"
+     ],
+     "front_view": 0
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "classic"
+     ],
+     "front_view": 0
+    }
+   },
+   "likes": 21,
+   "views": 706,
+   "thumbnail": "thumbs/armchair/09ee59423b4b428f94f01fc5beccd227.jpg"
+  },
+  {
+   "id": "objaverse_124297e7e4574c48b9c1b814b6ddf516",
+   "type": "armchair",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "animated_sphere",
+   "bbox_m": [
+    0.7511,
+    0.8403,
+    0.9099
+   ],
+   "bbox_model_m": [
+    0.7511,
+    0.8403,
+    0.9099
+   ],
+   "bbox_min_m": [
+    -0.3756,
+    -0.4209,
+    -0.0
+   ],
+   "bbox_max_m": [
+    0.3756,
+    0.4193,
+    0.9099
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    -0.0008,
+    -0.0
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.237 of the extent): front -Y",
+   "unit_scale": 1.0,
+   "unit_note": "x1: 0.751 x 0.84 x 0.91 (raw) -> 0.751 x 0.84 x 0.91 m in the armchair range",
+   "styles": [
+    "classic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['classic'], glm ['classic']",
+   "has_mattress": null,
+   "glb": "models/objaverse/124297e7e4574c48b9c1b814b6ddf516.glb",
+   "sha256_glb": "b83e29f1fe7270f72c15631723f8f3dd64a6eee3eab94f32252774c89b92214f",
+   "uid": "124297e7e4574c48b9c1b814b6ddf516",
+   "title": "animated_sphere",
+   "author": "ferhatsen",
+   "source_url": "https://sketchfab.com/3d-models/124297e7e4574c48b9c1b814b6ddf516",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"animated_sphere\" by ferhatsen (https://sketchfab.com/3d-models/124297e7e4574c48b9c1b814b6ddf516), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "armchair"
+   ],
+   "objaverse_path": "glbs/000-039/124297e7e4574c48b9c1b814b6ddf516.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 2086,
+   "vertices": 1576,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    5,
+    5
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 5,
+     "has_mattress": null,
+     "styles": [
+      "classic"
+     ],
+     "front_view": 0
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 5,
+     "has_mattress": null,
+     "styles": [
+      "classic"
+     ],
+     "front_view": 0
+    }
+   },
+   "likes": 13,
+   "views": 150,
+   "thumbnail": "thumbs/armchair/124297e7e4574c48b9c1b814b6ddf516.jpg"
+  },
+  {
+   "id": "objaverse_69f1c0489a144f3c98e66dcfe72b3969",
+   "type": "armchair",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Oldfashioned armchair",
+   "bbox_m": [
+    0.5331,
+    0.6122,
+    0.6132
+   ],
+   "bbox_model_m": [
+    0.5331,
+    0.6122,
+    0.6132
+   ],
+   "bbox_min_m": [
+    -0.2665,
+    -0.2389,
+    -0.0008
+   ],
+   "bbox_max_m": [
+    0.2665,
+    0.3734,
+    0.6125
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0673,
+    -0.0008
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.381 of the extent): front -Y",
+   "unit_scale": 0.0254,
+   "unit_note": "x0.0254: 21 x 24.1 x 24.1 (raw) -> 0.533 x 0.612 x 0.613 m in the armchair range",
+   "styles": [
+    "classic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['classic'], glm ['classic']",
+   "has_mattress": null,
+   "glb": "models/objaverse/69f1c0489a144f3c98e66dcfe72b3969.glb",
+   "sha256_glb": "42dcc22349774f54d5547732fd76faaabb04a963cfe4cc5c1631744b72418318",
+   "uid": "69f1c0489a144f3c98e66dcfe72b3969",
+   "title": "Oldfashioned armchair",
+   "author": "yezzyx",
+   "source_url": "https://sketchfab.com/3d-models/69f1c0489a144f3c98e66dcfe72b3969",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Oldfashioned armchair\" by yezzyx (https://sketchfab.com/3d-models/69f1c0489a144f3c98e66dcfe72b3969), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "armchair"
+   ],
+   "objaverse_path": "glbs/000-079/69f1c0489a144f3c98e66dcfe72b3969.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 10864,
+   "vertices": 5892,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    5,
+    5
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 5,
+     "has_mattress": null,
+     "styles": [
+      "classic"
+     ],
+     "front_view": 0
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 5,
+     "has_mattress": null,
+     "styles": [
+      "classic"
+     ],
+     "front_view": 0
+    }
+   },
+   "likes": 11,
+   "views": 297,
+   "thumbnail": "thumbs/armchair/69f1c0489a144f3c98e66dcfe72b3969.jpg"
+  },
+  {
+   "id": "objaverse_aedb9509ef9347a5b055e02deeadeff7",
+   "type": "armchair",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Sofa",
+   "bbox_m": [
+    0.902,
+    0.9014,
+    0.943
+   ],
+   "bbox_model_m": [
+    0.9014,
+    0.902,
+    0.943
+   ],
+   "bbox_min_m": [
+    -0.4802,
+    -0.452,
+    0.0002
+   ],
+   "bbox_max_m": [
+    0.4212,
+    0.45,
+    0.9432
+   ],
+   "front_axis": "+X",
+   "up_axis": "+Z",
+   "origin_offset": [
+    -0.0295,
+    -0.001,
+    0.0002
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 1 (camera on the +X side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.384 of the extent): front +X",
+   "unit_scale": 0.01,
+   "unit_note": "x0.01: 90.1 x 90.2 x 94.3 (raw) -> 0.901 x 0.902 x 0.943 m in the armchair range",
+   "styles": [
+    "classic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['classic'], glm ['modern', 'classic']",
+   "has_mattress": null,
+   "glb": "models/objaverse/aedb9509ef9347a5b055e02deeadeff7.glb",
+   "sha256_glb": "f1e2aca421cebd2ba10178fc88899a41a06c27508609a639ba3c638be6788808",
+   "uid": "aedb9509ef9347a5b055e02deeadeff7",
+   "title": "Sofa",
+   "author": "mustafasahinfb",
+   "source_url": "https://sketchfab.com/3d-models/aedb9509ef9347a5b055e02deeadeff7",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Sofa\" by mustafasahinfb (https://sketchfab.com/3d-models/aedb9509ef9347a5b055e02deeadeff7), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "armchair"
+   ],
+   "objaverse_path": "glbs/000-158/aedb9509ef9347a5b055e02deeadeff7.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 5266,
+   "vertices": 3129,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    5
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "classic"
+     ],
+     "front_view": 1
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 5,
+     "has_mattress": null,
+     "styles": [
+      "modern",
+      "classic"
+     ],
+     "front_view": 1
+    }
+   },
+   "likes": 13,
+   "views": 669,
+   "thumbnail": "thumbs/armchair/aedb9509ef9347a5b055e02deeadeff7.jpg"
+  },
+  {
+   "id": "objaverse_da6d646358d1451fa751f1a9141290a3",
+   "type": "armchair",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "LPUVW",
+   "bbox_m": [
+    0.5331,
+    0.6122,
+    0.6132
+   ],
+   "bbox_model_m": [
+    0.5331,
+    0.6122,
+    0.6132
+   ],
+   "bbox_min_m": [
+    -0.2665,
+    -0.2389,
+    -0.0008
+   ],
+   "bbox_max_m": [
+    0.2665,
+    0.3734,
+    0.6125
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0673,
+    -0.0008
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.382 of the extent): front -Y",
+   "unit_scale": 0.0254,
+   "unit_note": "x0.0254: 21 x 24.1 x 24.1 (raw) -> 0.533 x 0.612 x 0.613 m in the armchair range",
+   "styles": [
+    "classic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['classic'], glm ['classic']",
+   "has_mattress": null,
+   "glb": "models/objaverse/da6d646358d1451fa751f1a9141290a3.glb",
+   "sha256_glb": "b984d521da3d77ac5f78fea42445978511a45d97ce97c2db3ffce67dff1797fb",
+   "uid": "da6d646358d1451fa751f1a9141290a3",
+   "title": "LPUVW",
+   "author": "HannaPachurka",
+   "source_url": "https://sketchfab.com/3d-models/da6d646358d1451fa751f1a9141290a3",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"LPUVW\" by HannaPachurka (https://sketchfab.com/3d-models/da6d646358d1451fa751f1a9141290a3), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "armchair"
+   ],
+   "objaverse_path": "glbs/000-051/da6d646358d1451fa751f1a9141290a3.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 10864,
+   "vertices": 5896,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    5,
+    5
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 5,
+     "has_mattress": null,
+     "styles": [
+      "classic"
+     ],
+     "front_view": 0
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 5,
+     "has_mattress": null,
+     "styles": [
+      "classic"
+     ],
+     "front_view": 0
+    }
+   },
+   "likes": 11,
+   "views": 96,
+   "thumbnail": "thumbs/armchair/da6d646358d1451fa751f1a9141290a3.jpg"
+  },
+  {
+   "id": "objaverse_f7f99449b896488fa6d468e70518b21d",
+   "type": "armchair",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Purple Armchair",
+   "bbox_m": [
+    0.9757,
+    0.7405,
+    0.8868
+   ],
+   "bbox_model_m": [
+    0.9757,
+    0.7405,
+    0.8868
+   ],
+   "bbox_min_m": [
+    -0.4878,
+    -0.3691,
+    -0.2112
+   ],
+   "bbox_max_m": [
+    0.4878,
+    0.3714,
+    0.6756
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0012,
+    -0.2112
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.351 of the extent): front -Y",
+   "unit_scale": 0.0883861731237514,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 11 x 8.38 x 10 (raw); x0.0883862 scales the raw footprint to the typical armchair footprint (size table centre 0.85 x 0.85 m): 0.976 x 0.741 x 0.887 m; its proportions are in the armchair range",
+   "styles": [
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern', 'modern minimal', 'scandinavian', 'japandi'], glm ['modern', 'neutral']",
+   "has_mattress": null,
+   "glb": "models/objaverse/f7f99449b896488fa6d468e70518b21d.glb",
+   "sha256_glb": "47a6aebe1fb2368faebd210fa231a29940af74059321e9a106995ac4a1f4a37e",
+   "uid": "f7f99449b896488fa6d468e70518b21d",
+   "title": "Purple Armchair",
+   "author": "Olena_Skrypka",
+   "source_url": "https://sketchfab.com/3d-models/f7f99449b896488fa6d468e70518b21d",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Purple Armchair\" by Olena_Skrypka (https://sketchfab.com/3d-models/f7f99449b896488fa6d468e70518b21d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "armchair"
+   ],
+   "objaverse_path": "glbs/000-043/f7f99449b896488fa6d468e70518b21d.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 4690,
+   "vertices": 3043,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern",
+      "modern minimal",
+      "scandinavian",
+      "japandi"
+     ],
+     "front_view": 0
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern",
+      "neutral"
+     ],
+     "front_view": 0
+    }
+   },
+   "likes": 18,
+   "views": 338,
+   "thumbnail": "thumbs/armchair/f7f99449b896488fa6d468e70518b21d.jpg"
+  },
+  {
+   "id": "objaverse_3b4ee19c627e4fb4a3305621cf925aa2",
+   "type": "table_dining",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Dining Set",
+   "bbox_m": [
+    1.3091,
+    1.2336,
+    0.7043
+   ],
+   "bbox_model_m": [
+    1.3091,
+    1.2336,
+    0.7043
+   ],
+   "bbox_min_m": [
+    -0.6564,
+    -0.5568,
+    0.0
+   ],
+   "bbox_max_m": [
+    0.6527,
+    0.6769,
+    0.7043
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    -0.0019,
+    0.06,
+    0.0
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "table_dining has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "unit_scale": 0.007745698942380334,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 169 x 159 x 90.9 (raw); x0.0077457 scales the raw footprint to the typical table_dining footprint (size table centre 1.7 x 0.95 m): 1.31 x 1.23 x 0.704 m; its proportions are in the table_dining range",
+   "styles": [
+    "rustic",
+    "neutral"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['rustic', 'modern', 'industrial', 'neutral'], glm ['rustic', 'neutral']",
+   "has_mattress": null,
+   "glb": "models/objaverse/3b4ee19c627e4fb4a3305621cf925aa2.glb",
+   "sha256_glb": "5f6c22ba24a2f6bd706628286cc2217b7614900ba71a6bd51a6c69ce48def2a6",
+   "uid": "3b4ee19c627e4fb4a3305621cf925aa2",
+   "title": "Dining Set",
+   "author": "dan2211082",
+   "source_url": "https://sketchfab.com/3d-models/3b4ee19c627e4fb4a3305621cf925aa2",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Dining Set\" by dan2211082 (https://sketchfab.com/3d-models/3b4ee19c627e4fb4a3305621cf925aa2), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "dining_table"
+   ],
+   "objaverse_path": "glbs/000-131/3b4ee19c627e4fb4a3305621cf925aa2.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 129436,
+   "vertices": 84780,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    5
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "rustic",
+      "modern",
+      "industrial",
+      "neutral"
+     ],
+     "front_view": null
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 5,
+     "has_mattress": null,
+     "styles": [
+      "rustic",
+      "neutral"
+     ],
+     "front_view": null
+    }
+   },
+   "likes": 2,
+   "views": 93,
+   "thumbnail": "thumbs/table_dining/3b4ee19c627e4fb4a3305621cf925aa2.jpg"
+  },
+  {
+   "id": "objaverse_5847113c458f4a2483aedd663376c7de",
+   "type": "table_dining",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Dining Table Set",
+   "bbox_m": [
+    1.3229,
+    2.1502,
+    0.65
+   ],
+   "bbox_model_m": [
+    1.3229,
+    2.1502,
+    0.65
+   ],
+   "bbox_min_m": [
+    -0.6614,
+    -1.0751,
+    -0.0
+   ],
+   "bbox_max_m": [
+    0.6614,
+    1.0751,
+    0.65
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    -0.0
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "table_dining has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "unit_scale": 0.001969695298807579,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 672 x 1.09e+03 x 330 (raw); x0.0019697 scales the raw footprint to the typical table_dining footprint (size table centre 1.7 x 0.95 m), moved from x0.00148419 to keep the box in the table_dining range: 1.32 x 2.15 x 0.65 m; its proportions are in the table_dining range",
+   "styles": [
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern', 'rustic', 'neutral'], glm ['modern', 'minimal']",
+   "has_mattress": null,
+   "glb": "models/objaverse/5847113c458f4a2483aedd663376c7de.glb",
+   "sha256_glb": "e1f07d4c35f1d49135a343b18c4049e9c57e88c15e76a09036999a8a0f80bb47",
+   "uid": "5847113c458f4a2483aedd663376c7de",
+   "title": "Dining Table Set",
+   "author": "Jainesh Pathak",
+   "source_url": "https://sketchfab.com/3d-models/5847113c458f4a2483aedd663376c7de",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Dining Table Set\" by Jainesh Pathak (https://sketchfab.com/3d-models/5847113c458f4a2483aedd663376c7de), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "dining_table"
+   ],
+   "objaverse_path": "glbs/000-094/5847113c458f4a2483aedd663376c7de.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 9220,
+   "vertices": 7198,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "scandinavian",
+      "japandi",
+      "modern minimal",
+      "minimal",
+      "modern",
+      "rustic",
+      "neutral"
+     ],
+     "front_view": null
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern",
+      "minimal"
+     ],
+     "front_view": null
+    }
+   },
+   "likes": 43,
+   "views": 2334,
+   "thumbnail": "thumbs/table_dining/5847113c458f4a2483aedd663376c7de.jpg"
+  },
+  {
+   "id": "objaverse_5f235f066a9a416fb7177496a9117ec7",
+   "type": "table_dining",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Low Poly - Chair and Table",
+   "bbox_m": [
+    1.6963,
+    1.0745,
+    0.65
+   ],
+   "bbox_model_m": [
+    1.6963,
+    1.0745,
+    0.65
+   ],
+   "bbox_min_m": [
+    -0.8415,
+    -0.5323,
+    -0.0161
+   ],
+   "bbox_max_m": [
+    0.8548,
+    0.5423,
+    0.6339
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0066,
+    0.005,
+    -0.0161
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "table_dining has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "unit_scale": 0.003482351830475967,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 487 x 309 x 187 (raw); x0.00348235 scales the raw footprint to the typical table_dining footprint (size table centre 1.7 x 0.95 m), moved from x0.00327789 to keep the box in the table_dining range: 1.7 x 1.07 x 0.65 m; its proportions are in the table_dining range",
+   "styles": [
+    "modern minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern', 'industrial', 'rustic', 'neutral'], glm ['modern minimal', 'modern']",
+   "has_mattress": null,
+   "glb": "models/objaverse/5f235f066a9a416fb7177496a9117ec7.glb",
+   "sha256_glb": "24ecc9ca3ddef33b7899920c493eb837fce57f45917dbbcc3b2c925335eef96a",
+   "uid": "5f235f066a9a416fb7177496a9117ec7",
+   "title": "Low Poly - Chair and Table",
+   "author": "tadeus",
+   "source_url": "https://sketchfab.com/3d-models/5f235f066a9a416fb7177496a9117ec7",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Low Poly - Chair and Table\" by tadeus (https://sketchfab.com/3d-models/5f235f066a9a416fb7177496a9117ec7), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "dining_table"
+   ],
+   "objaverse_path": "glbs/000-135/5f235f066a9a416fb7177496a9117ec7.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 2632,
+   "vertices": 1398,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "scandinavian",
+      "japandi",
+      "modern minimal",
+      "minimal",
+      "modern",
+      "industrial",
+      "rustic",
+      "neutral"
+     ],
+     "front_view": null
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "modern"
+     ],
+     "front_view": null
+    }
+   },
+   "likes": 6,
+   "views": 130,
+   "thumbnail": "thumbs/table_dining/5f235f066a9a416fb7177496a9117ec7.jpg"
+  },
+  {
+   "id": "objaverse_724d93a7f3644f96909e8c55909c6418",
+   "type": "table_dining",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "A table, chairs & few cups",
+   "bbox_m": [
+    1.1747,
+    1.1968,
+    0.85
+   ],
+   "bbox_model_m": [
+    1.1747,
+    1.1968,
+    0.85
+   ],
+   "bbox_min_m": [
+    -0.5827,
+    -0.682,
+    -0.0123
+   ],
+   "bbox_max_m": [
+    0.592,
+    0.5148,
+    0.8377
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0046,
+    -0.0836,
+    -0.0123
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "table_dining has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "unit_scale": 0.6019971541617573,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 1.95 x 1.99 x 1.41 (raw); x0.601997 scales the raw footprint to the typical table_dining footprint (size table centre 1.7 x 0.95 m), moved from x0.64522 to keep the box in the table_dining range: 1.17 x 1.2 x 0.85 m; its proportions are in the table_dining range",
+   "styles": [
+    "scandinavian",
+    "rustic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['rustic', 'scandinavian', 'japandi', 'modern minimal', 'neutral'], glm ['scandinavian', 'rustic']",
+   "has_mattress": null,
+   "glb": "models/objaverse/724d93a7f3644f96909e8c55909c6418.glb",
+   "sha256_glb": "0901ac1743054d61b67e1bf9153c962014812f823409a8f9f2ef32436399520e",
+   "uid": "724d93a7f3644f96909e8c55909c6418",
+   "title": "A table, chairs & few cups",
+   "author": "Sahramin",
+   "source_url": "https://sketchfab.com/3d-models/724d93a7f3644f96909e8c55909c6418",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"A table, chairs & few cups\" by Sahramin (https://sketchfab.com/3d-models/724d93a7f3644f96909e8c55909c6418), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "dining_table"
+   ],
+   "objaverse_path": "glbs/000-143/724d93a7f3644f96909e8c55909c6418.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 33500,
+   "vertices": 25255,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "rustic",
+      "scandinavian",
+      "japandi",
+      "modern minimal",
+      "neutral"
+     ],
+     "front_view": null
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "scandinavian",
+      "rustic"
+     ],
+     "front_view": null
+    }
+   },
+   "likes": 3,
+   "views": 44,
+   "thumbnail": "thumbs/table_dining/724d93a7f3644f96909e8c55909c6418.jpg"
+  },
+  {
+   "id": "objaverse_1d41e84fd76241e7a8929a314052269c",
+   "type": "table_coffee",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "LowPoly Industrial Tools vol. 1",
+   "bbox_m": [
+    1.0389,
+    0.7298,
+    0.4797
+   ],
+   "bbox_model_m": [
+    1.0389,
+    0.7298,
+    0.4797
+   ],
+   "bbox_min_m": [
+    -0.6037,
+    -0.3716,
+    -0.5701
+   ],
+   "bbox_max_m": [
+    0.4352,
+    0.3582,
+    -0.0904
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    -0.0843,
+    -0.0067,
+    -0.5701
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "table_coffee has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "unit_scale": 0.01,
+   "unit_note": "x0.01: 104 x 73 x 48 (raw) -> 1.04 x 0.73 x 0.48 m in the table_coffee range",
+   "styles": [
+    "scandinavian",
+    "japandi",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern', 'industrial', 'rustic', 'neutral'], glm ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "glb": "models/objaverse/1d41e84fd76241e7a8929a314052269c.glb",
+   "sha256_glb": "4f48c7da1b5799c6aefa80ceb58b0d20b8b4b777fd7460bd53fbcf1d3a17abe1",
+   "uid": "1d41e84fd76241e7a8929a314052269c",
+   "title": "LowPoly Industrial Tools vol. 1",
+   "author": "SANYABEAST",
+   "source_url": "https://sketchfab.com/3d-models/1d41e84fd76241e7a8929a314052269c",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"LowPoly Industrial Tools vol. 1\" by SANYABEAST (https://sketchfab.com/3d-models/1d41e84fd76241e7a8929a314052269c), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "coffee_table"
+   ],
+   "objaverse_path": "glbs/000-052/1d41e84fd76241e7a8929a314052269c.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 5422,
+   "vertices": 9278,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "scandinavian",
+      "japandi",
+      "modern minimal",
+      "minimal",
+      "modern",
+      "industrial",
+      "rustic",
+      "neutral"
+     ],
+     "front_view": null
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "scandinavian",
+      "japandi",
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": null
+    }
+   },
+   "likes": 4,
+   "views": 100,
+   "thumbnail": "thumbs/table_coffee/1d41e84fd76241e7a8929a314052269c.jpg"
+  },
+  {
+   "id": "objaverse_b0c0c9c65d06443c87391134a62e2287",
+   "type": "table_coffee",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Small Table",
+   "bbox_m": [
+    0.8944,
+    0.8944,
+    0.546
+   ],
+   "bbox_model_m": [
+    0.8944,
+    0.8944,
+    0.546
+   ],
+   "bbox_min_m": [
+    -0.4472,
+    -0.4472,
+    0.0015
+   ],
+   "bbox_max_m": [
+    0.4472,
+    0.4472,
+    0.5475
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0015
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "table_coffee has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "unit_scale": 0.4499130389791222,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 1.99 x 1.99 x 1.21 (raw); x0.449913 scales the raw footprint to the typical table_coffee footprint (size table centre 1 x 0.8 m): 0.894 x 0.894 x 0.546 m; its proportions are in the table_coffee range",
+   "styles": [
+    "japandi",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['japandi', 'modern minimal', 'minimal', 'modern'], glm ['japandi', 'modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "glb": "models/objaverse/b0c0c9c65d06443c87391134a62e2287.glb",
+   "sha256_glb": "5ebc8e670d3978b6f8f9f8dd1acfaee010142249ecc7f971df0d5c0956593d55",
+   "uid": "b0c0c9c65d06443c87391134a62e2287",
+   "title": "Small Table",
+   "author": "Pascal T. Monette",
+   "source_url": "https://sketchfab.com/3d-models/b0c0c9c65d06443c87391134a62e2287",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Small Table\" by Pascal T. Monette (https://sketchfab.com/3d-models/b0c0c9c65d06443c87391134a62e2287), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "coffee_table"
+   ],
+   "objaverse_path": "glbs/000-038/b0c0c9c65d06443c87391134a62e2287.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 48832,
+   "vertices": 26814,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "japandi",
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": null
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "japandi",
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": null
+    }
+   },
+   "likes": 3,
+   "views": 178,
+   "thumbnail": "thumbs/table_coffee/b0c0c9c65d06443c87391134a62e2287.jpg"
+  },
+  {
+   "id": "objaverse_c17577daa87849d09960669606c0ce27",
+   "type": "table_coffee",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Modern Table",
+   "bbox_m": [
+    1.3115,
+    0.5902,
+    0.6
+   ],
+   "bbox_model_m": [
+    1.3115,
+    0.5902,
+    0.6
+   ],
+   "bbox_min_m": [
+    -0.656,
+    -0.2949,
+    -0.0005
+   ],
+   "bbox_max_m": [
+    0.6555,
+    0.2952,
+    0.5995
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    -0.0003,
+    0.0002,
+    -0.0005
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "table_coffee has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "unit_scale": 0.655744718013067,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 2 x 0.9 x 0.915 (raw); x0.655745 scales the raw footprint to the typical table_coffee footprint (size table centre 1 x 0.8 m), moved from x0.666667 to keep the box in the table_coffee range: 1.31 x 0.59 x 0.6 m; its proportions are in the table_coffee range",
+   "styles": [
+    "japandi",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['japandi', 'modern minimal', 'minimal', 'modern'], glm ['japandi', 'modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "glb": "models/objaverse/c17577daa87849d09960669606c0ce27.glb",
+   "sha256_glb": "c505132e9bd2b21b4dcb13cec1f3582a5e8f5902190a25c728a13e40b18e45f3",
+   "uid": "c17577daa87849d09960669606c0ce27",
+   "title": "Modern Table",
+   "author": "Athlas",
+   "source_url": "https://sketchfab.com/3d-models/c17577daa87849d09960669606c0ce27",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Modern Table\" by Athlas (https://sketchfab.com/3d-models/c17577daa87849d09960669606c0ce27), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "coffee_table"
+   ],
+   "objaverse_path": "glbs/000-125/c17577daa87849d09960669606c0ce27.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 62400,
+   "vertices": 124800,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    5,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 5,
+     "has_mattress": null,
+     "styles": [
+      "japandi",
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": null
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "japandi",
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": null
+    }
+   },
+   "likes": 6,
+   "views": 261,
+   "thumbnail": "thumbs/table_coffee/c17577daa87849d09960669606c0ce27.jpg"
+  },
+  {
+   "id": "objaverse_c42d069236174467a2fb536f7d42d7f0",
+   "type": "table_coffee",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Coffee Shop Props",
+   "bbox_m": [
+    0.8944,
+    0.8944,
+    0.4325
+   ],
+   "bbox_model_m": [
+    0.8944,
+    0.8944,
+    0.4325
+   ],
+   "bbox_min_m": [
+    -0.4472,
+    -0.4472,
+    -0.0026
+   ],
+   "bbox_max_m": [
+    0.4472,
+    0.4472,
+    0.43
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    -0.0026
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "table_coffee has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "unit_scale": 0.2981427287195492,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 3 x 3 x 1.45 (raw); x0.298143 scales the raw footprint to the typical table_coffee footprint (size table centre 1 x 0.8 m): 0.894 x 0.894 x 0.432 m; its proportions are in the table_coffee range",
+   "styles": [
+    "japandi",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['japandi', 'modern minimal', 'minimal', 'modern'], glm ['japandi', 'modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "glb": "models/objaverse/c42d069236174467a2fb536f7d42d7f0.glb",
+   "sha256_glb": "87338afb2c60a8a14ab44dcf7aa741bf2ecef2845eecb300c57d7a067750f8bb",
+   "uid": "c42d069236174467a2fb536f7d42d7f0",
+   "title": "Coffee Shop Props",
+   "author": "Brendan",
+   "source_url": "https://sketchfab.com/3d-models/c42d069236174467a2fb536f7d42d7f0",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Coffee Shop Props\" by Brendan (https://sketchfab.com/3d-models/c42d069236174467a2fb536f7d42d7f0), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "coffee_table"
+   ],
+   "objaverse_path": "glbs/000-127/c42d069236174467a2fb536f7d42d7f0.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 5401,
+   "vertices": 4615,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "japandi",
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": null
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "japandi",
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": null
+    }
+   },
+   "likes": 26,
+   "views": 867,
+   "thumbnail": "thumbs/table_coffee/c42d069236174467a2fb536f7d42d7f0.jpg"
+  },
+  {
+   "id": "objaverse_f4031bb5f7e64ebca4c37d4fa5ba6e8d",
+   "type": "table_coffee",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "LP Table",
+   "bbox_m": [
+    1.1965,
+    0.6686,
+    0.3603
+   ],
+   "bbox_model_m": [
+    1.1965,
+    0.6686,
+    0.3603
+   ],
+   "bbox_min_m": [
+    -0.5983,
+    -0.3343,
+    -0.2132
+   ],
+   "bbox_max_m": [
+    0.5983,
+    0.3343,
+    0.147
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    -0.2132
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "table_coffee has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "unit_scale": 8.325952670722103,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.144 x 0.0803 x 0.0433 (raw); x8.32595 scales the raw footprint to the typical table_coffee footprint (size table centre 1 x 0.8 m): 1.2 x 0.669 x 0.36 m; its proportions are in the table_coffee range",
+   "styles": [
+    "classic",
+    "rustic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['classic', 'rustic'], glm ['classic', 'rustic']",
+   "has_mattress": null,
+   "glb": "models/objaverse/f4031bb5f7e64ebca4c37d4fa5ba6e8d.glb",
+   "sha256_glb": "2bc22be99daf7683d44c72511d94ff01a90a3d79f817289942edcba3606cbe6f",
+   "uid": "f4031bb5f7e64ebca4c37d4fa5ba6e8d",
+   "title": "LP Table",
+   "author": "doplerato",
+   "source_url": "https://sketchfab.com/3d-models/f4031bb5f7e64ebca4c37d4fa5ba6e8d",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"LP Table\" by doplerato (https://sketchfab.com/3d-models/f4031bb5f7e64ebca4c37d4fa5ba6e8d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "coffee_table"
+   ],
+   "objaverse_path": "glbs/000-157/f4031bb5f7e64ebca4c37d4fa5ba6e8d.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 4664,
+   "vertices": 3540,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "classic",
+      "rustic"
+     ],
+     "front_view": null
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "classic",
+      "rustic"
+     ],
+     "front_view": null
+    }
+   },
+   "likes": 4,
+   "views": 32,
+   "thumbnail": "thumbs/table_coffee/f4031bb5f7e64ebca4c37d4fa5ba6e8d.jpg"
+  },
+  {
+   "id": "objaverse_b930438e1f804c409fd9c3f5e4b01628",
+   "type": "desk",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Red industrial desk",
+   "bbox_m": [
+    1.5301,
+    0.8883,
+    0.65
+   ],
+   "bbox_model_m": [
+    1.5301,
+    0.8883,
+    0.65
+   ],
+   "bbox_min_m": [
+    -0.7882,
+    -0.5038,
+    -0.325
+   ],
+   "bbox_max_m": [
+    0.7419,
+    0.3844,
+    0.325
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    -0.0232,
+    -0.0597,
+    -0.325
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 1374 vs 79 vertices in the y slabs: front -Y",
+   "unit_scale": 0.0023763336860739945,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 644 x 374 x 274 (raw); x0.00237633 scales the raw footprint to the typical desk footprint (size table centre 1.45 x 0.7 m), moved from x0.00205359 to keep the box in the desk range: 1.53 x 0.888 x 0.65 m; its proportions are in the desk range",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "glb": "models/objaverse/b930438e1f804c409fd9c3f5e4b01628.glb",
+   "sha256_glb": "8c634383632ec993bc9bb0dc7672979cac2e53a3d1aadacb0706883ce8e74f3e",
+   "uid": "b930438e1f804c409fd9c3f5e4b01628",
+   "title": "Red industrial desk",
+   "author": "mhd.ayoub.chikhani",
+   "source_url": "https://sketchfab.com/3d-models/b930438e1f804c409fd9c3f5e4b01628",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Red industrial desk\" by mhd.ayoub.chikhani (https://sketchfab.com/3d-models/b930438e1f804c409fd9c3f5e4b01628), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "desk"
+   ],
+   "objaverse_path": "glbs/000-076/b930438e1f804c409fd9c3f5e4b01628.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 11150,
+   "vertices": 6047,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    }
+   },
+   "likes": 8,
+   "views": 359,
+   "thumbnail": "thumbs/desk/b930438e1f804c409fd9c3f5e4b01628.jpg"
+  },
+  {
+   "id": "objaverse_039c6026571943d6ac45c6816bcc7ff1",
+   "type": "chair",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Rocking Chair",
+   "bbox_m": [
+    0.4104,
+    0.6091,
+    0.8215
+   ],
+   "bbox_model_m": [
+    0.4104,
+    0.6091,
+    0.8215
+   ],
+   "bbox_min_m": [
+    -0.2052,
+    -0.3046,
+    -0.4108
+   ],
+   "bbox_max_m": [
+    0.2052,
+    0.3046,
+    0.4108
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    -0.4108
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.274 of the extent): front -Y",
+   "unit_scale": 0.6572038112008466,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.624 x 0.927 x 1.25 (raw); x0.657204 scales the raw footprint to the typical chair footprint (size table centre 0.5 x 0.5 m): 0.41 x 0.609 x 0.822 m; its proportions are in the chair range",
+   "styles": [
+    "classic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['classic'], glm ['classic', 'rustic']",
+   "has_mattress": null,
+   "glb": "models/objaverse/039c6026571943d6ac45c6816bcc7ff1.glb",
+   "sha256_glb": "0b0194506862bb798fef64f307041ca42cfa089811793a370c410e20f2a15c7c",
+   "uid": "039c6026571943d6ac45c6816bcc7ff1",
+   "title": "Rocking Chair",
+   "author": "Christian",
+   "source_url": "https://sketchfab.com/3d-models/039c6026571943d6ac45c6816bcc7ff1",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Rocking Chair\" by Christian (https://sketchfab.com/3d-models/039c6026571943d6ac45c6816bcc7ff1), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "chair"
+   ],
+   "objaverse_path": "glbs/000-000/039c6026571943d6ac45c6816bcc7ff1.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 15372,
+   "vertices": 11784,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    5,
+    5
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 5,
+     "has_mattress": null,
+     "styles": [
+      "classic"
+     ],
+     "front_view": 0
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 5,
+     "has_mattress": null,
+     "styles": [
+      "classic",
+      "rustic"
+     ],
+     "front_view": 0
+    }
+   },
+   "likes": 18,
+   "views": 1027,
+   "thumbnail": "thumbs/chair/039c6026571943d6ac45c6816bcc7ff1.jpg"
+  },
+  {
+   "id": "objaverse_0723b35415b0462eb5c01140b6b70340",
+   "type": "chair",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Old chair",
+   "bbox_m": [
+    0.5223,
+    0.5517,
+    0.7
+   ],
+   "bbox_model_m": [
+    0.5223,
+    0.5517,
+    0.7
+   ],
+   "bbox_min_m": [
+    -0.2611,
+    -0.2579,
+    -0.0
+   ],
+   "bbox_max_m": [
+    0.2611,
+    0.2938,
+    0.7
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0179,
+    -0.0
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.255 of the extent): front -Y",
+   "unit_scale": 0.6400626846025119,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.816 x 0.862 x 1.09 (raw); x0.640063 scales the raw footprint to the typical chair footprint (size table centre 0.5 x 0.5 m), moved from x0.596211 to keep the box in the chair range: 0.522 x 0.552 x 0.7 m; its proportions are in the chair range",
+   "styles": [
+    "classic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['classic'], glm ['classic']",
+   "has_mattress": null,
+   "glb": "models/objaverse/0723b35415b0462eb5c01140b6b70340.glb",
+   "sha256_glb": "37e3d8a18da3a67b8f58bbcf5913a1eee6a051fc231eee8b95f0b2de0514643b",
+   "uid": "0723b35415b0462eb5c01140b6b70340",
+   "title": "Old chair",
+   "author": "Dani Ortega",
+   "source_url": "https://sketchfab.com/3d-models/0723b35415b0462eb5c01140b6b70340",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Old chair\" by Dani Ortega (https://sketchfab.com/3d-models/0723b35415b0462eb5c01140b6b70340), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "chair"
+   ],
+   "objaverse_path": "glbs/000-050/0723b35415b0462eb5c01140b6b70340.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 10828,
+   "vertices": 7131,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    5,
+    5
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 5,
+     "has_mattress": null,
+     "styles": [
+      "classic"
+     ],
+     "front_view": 0
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 5,
+     "has_mattress": null,
+     "styles": [
+      "classic"
+     ],
+     "front_view": 0
+    }
+   },
+   "likes": 43,
+   "views": 493,
+   "thumbnail": "thumbs/chair/0723b35415b0462eb5c01140b6b70340.jpg"
+  },
+  {
+   "id": "objaverse_9234d8196b73434684bcbb8092cc9e2a",
+   "type": "chair",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Victorian Chair",
+   "bbox_m": [
+    0.4666,
+    0.5358,
+    0.9315
+   ],
+   "bbox_model_m": [
+    0.5358,
+    0.4666,
+    0.9315
+   ],
+   "bbox_min_m": [
+    -0.2679,
+    -0.2333,
+    -0.4658
+   ],
+   "bbox_max_m": [
+    0.2679,
+    0.2333,
+    0.4658
+   ],
+   "front_axis": "-X",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    -0.4658
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 3 (camera on the -X side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +X (+0.368 of the extent): front -X",
+   "unit_scale": 0.4657600265527886,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 1.15 x 1 x 2 (raw); x0.46576 scales the raw footprint to the typical chair footprint (size table centre 0.5 x 0.5 m): 0.536 x 0.467 x 0.931 m; its proportions are in the chair range",
+   "styles": [
+    "classic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['classic'], glm ['classic']",
+   "has_mattress": null,
+   "glb": "models/objaverse/9234d8196b73434684bcbb8092cc9e2a.glb",
+   "sha256_glb": "79f2c01c9f733233c38759ee87ac3d6c4503f398fcdde344389b24ef5758f9dc",
+   "uid": "9234d8196b73434684bcbb8092cc9e2a",
+   "title": "Victorian Chair",
+   "author": "Jamie McFarlane",
+   "source_url": "https://sketchfab.com/3d-models/9234d8196b73434684bcbb8092cc9e2a",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Victorian Chair\" by Jamie McFarlane (https://sketchfab.com/3d-models/9234d8196b73434684bcbb8092cc9e2a), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "chair"
+   ],
+   "objaverse_path": "glbs/000-150/9234d8196b73434684bcbb8092cc9e2a.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 2504,
+   "vertices": 2808,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "classic"
+     ],
+     "front_view": 3
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "classic"
+     ],
+     "front_view": 3
+    }
+   },
+   "likes": 33,
+   "views": 798,
+   "thumbnail": "thumbs/chair/9234d8196b73434684bcbb8092cc9e2a.jpg"
+  },
+  {
+   "id": "objaverse_cb43e2abac66494d81e1e7116eb47043",
+   "type": "chair",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Vintage Chair",
+   "bbox_m": [
+    0.4828,
+    0.6035,
+    1.0293
+   ],
+   "bbox_model_m": [
+    0.4828,
+    0.6035,
+    1.0293
+   ],
+   "bbox_min_m": [
+    -0.2414,
+    -0.3018,
+    -0.5146
+   ],
+   "bbox_max_m": [
+    0.2414,
+    0.3018,
+    0.5146
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    -0.5146
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.452 of the extent): front -Y",
+   "unit_scale": 1.0,
+   "unit_note": "x1: 0.483 x 0.604 x 1.03 (raw) -> 0.483 x 0.604 x 1.03 m in the chair range",
+   "styles": [
+    "industrial",
+    "rustic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['industrial', 'rustic'], glm ['industrial', 'rustic']",
+   "has_mattress": null,
+   "glb": "models/objaverse/cb43e2abac66494d81e1e7116eb47043.glb",
+   "sha256_glb": "3ffccf3e4f2a922ebf69e8d60c6ea7f8057b0426d1b03e9cf90168e22429d914",
+   "uid": "cb43e2abac66494d81e1e7116eb47043",
+   "title": "Vintage Chair",
+   "author": "Maycho",
+   "source_url": "https://sketchfab.com/3d-models/cb43e2abac66494d81e1e7116eb47043",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Vintage Chair\" by Maycho (https://sketchfab.com/3d-models/cb43e2abac66494d81e1e7116eb47043), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "chair"
+   ],
+   "objaverse_path": "glbs/000-055/cb43e2abac66494d81e1e7116eb47043.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 2560,
+   "vertices": 1520,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "industrial",
+      "rustic"
+     ],
+     "front_view": 0
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "industrial",
+      "rustic"
+     ],
+     "front_view": 0
+    }
+   },
+   "likes": 10,
+   "views": 288,
+   "thumbnail": "thumbs/chair/cb43e2abac66494d81e1e7116eb47043.jpg"
+  },
+  {
+   "id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+   "type": "chair",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Chair",
+   "bbox_m": [
+    0.5168,
+    0.503,
+    0.8292
+   ],
+   "bbox_model_m": [
+    0.5168,
+    0.503,
+    0.8292
+   ],
+   "bbox_min_m": [
+    -0.2584,
+    -0.2367,
+    -0.4159
+   ],
+   "bbox_max_m": [
+    0.2584,
+    0.2663,
+    0.4134
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0148,
+    -0.4159
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.230 of the extent): front -Y",
+   "unit_scale": 0.01,
+   "unit_note": "x0.01: 51.7 x 50.3 x 82.9 (raw) -> 0.517 x 0.503 x 0.829 m in the chair range",
+   "styles": [
+    "scandinavian",
+    "japandi",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern'], glm ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "glb": "models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
+   "sha256_glb": "3851bf0d21d98a40810ee7029dcf21589a6c5667ba56f0ae74a707536fead537",
+   "uid": "d2785b57e7da45858f2fe8bf4dedd68d",
+   "title": "Chair",
+   "author": "杭州维界科技有限公司",
+   "source_url": "https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Chair\" by 杭州维界科技有限公司 (https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "chair"
+   ],
+   "objaverse_path": "glbs/000-141/d2785b57e7da45858f2fe8bf4dedd68d.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 108288,
+   "vertices": 56936,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    5,
+    5
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 5,
+     "has_mattress": null,
+     "styles": [
+      "scandinavian",
+      "japandi",
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 5,
+     "has_mattress": null,
+     "styles": [
+      "scandinavian",
+      "japandi",
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    }
+   },
+   "likes": 10,
+   "views": 485,
+   "thumbnail": "thumbs/chair/d2785b57e7da45858f2fe8bf4dedd68d.jpg"
+  },
+  {
+   "id": "objaverse_05a035c3347645b8a7ceb6d65f825ac3",
+   "type": "wardrobe",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Dikkies Closet",
+   "bbox_m": [
+    1.1358,
+    0.6244,
+    1.7635
+   ],
+   "bbox_model_m": [
+    1.1358,
+    0.6244,
+    1.7635
+   ],
+   "bbox_min_m": [
+    -0.5428,
+    -0.3671,
+    -0.8192
+   ],
+   "bbox_max_m": [
+    0.593,
+    0.2573,
+    0.9442
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0251,
+    -0.0549,
+    -0.8192
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 837 vs 224 vertices in the y slabs: front -Y",
+   "unit_scale": 1.0,
+   "unit_note": "x1: 1.14 x 0.624 x 1.76 (raw) -> 1.14 x 0.624 x 1.76 m in the wardrobe range",
+   "styles": [
+    "classic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['classic'], glm ['classic', 'rustic']",
+   "has_mattress": null,
+   "glb": "models/objaverse/05a035c3347645b8a7ceb6d65f825ac3.glb",
+   "sha256_glb": "2d6c858c3a867759c50f43abde9845dab646db82eef58f68fa340d0aee5f7f6f",
+   "uid": "05a035c3347645b8a7ceb6d65f825ac3",
+   "title": "Dikkies Closet",
+   "author": "klaxoneer",
+   "source_url": "https://sketchfab.com/3d-models/05a035c3347645b8a7ceb6d65f825ac3",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Dikkies Closet\" by klaxoneer (https://sketchfab.com/3d-models/05a035c3347645b8a7ceb6d65f825ac3), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "armoire"
+   ],
+   "objaverse_path": "glbs/000-014/05a035c3347645b8a7ceb6d65f825ac3.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 140073,
+   "vertices": 273064,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    5,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 5,
+     "has_mattress": null,
+     "styles": [
+      "classic"
+     ],
+     "front_view": 0
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "classic",
+      "rustic"
+     ],
+     "front_view": 0
+    }
+   },
+   "likes": 24,
+   "views": 414,
+   "thumbnail": "thumbs/wardrobe/05a035c3347645b8a7ceb6d65f825ac3.jpg"
+  },
+  {
+   "id": "objaverse_b3a99e956be64ab6958f7f5e1895f031",
+   "type": "wardrobe",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Warn Wardrobe",
+   "bbox_m": [
+    1.2928,
+    0.564,
+    2.3142
+   ],
+   "bbox_model_m": [
+    1.2928,
+    0.564,
+    2.3142
+   ],
+   "bbox_min_m": [
+    -0.6464,
+    0.8226,
+    -0.1415
+   ],
+   "bbox_max_m": [
+    0.6464,
+    1.3866,
+    2.1728
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    1.1046,
+    -0.1415
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 1068 vs 533 vertices in the y slabs: front -Y",
+   "unit_scale": 1.0,
+   "unit_note": "x1: 1.29 x 0.564 x 2.31 (raw) -> 1.29 x 0.564 x 2.31 m in the wardrobe range",
+   "styles": [
+    "classic",
+    "rustic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['classic', 'rustic'], glm ['classic', 'rustic']",
+   "has_mattress": null,
+   "glb": "models/objaverse/b3a99e956be64ab6958f7f5e1895f031.glb",
+   "sha256_glb": "1970974866a1ad4addb863289782071ae7c83aeea5c67f4dc47daed290d7cd2e",
+   "uid": "b3a99e956be64ab6958f7f5e1895f031",
+   "title": "Warn Wardrobe",
+   "author": "seenoise",
+   "source_url": "https://sketchfab.com/3d-models/b3a99e956be64ab6958f7f5e1895f031",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Warn Wardrobe\" by seenoise (https://sketchfab.com/3d-models/b3a99e956be64ab6958f7f5e1895f031), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "wardrobe"
+   ],
+   "objaverse_path": "glbs/000-055/b3a99e956be64ab6958f7f5e1895f031.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 8442,
+   "vertices": 7329,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "classic",
+      "rustic"
+     ],
+     "front_view": 0
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "classic",
+      "rustic"
+     ],
+     "front_view": 0
+    }
+   },
+   "likes": 81,
+   "views": 3263,
+   "thumbnail": "thumbs/wardrobe/b3a99e956be64ab6958f7f5e1895f031.jpg"
+  },
+  {
+   "id": "objaverse_b46803ba0bc64e12b31f832fb761c4e0",
+   "type": "wardrobe",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Simple Tall Shelf",
+   "bbox_m": [
+    1.0464,
+    0.5628,
+    2.6
+   ],
+   "bbox_model_m": [
+    1.0464,
+    0.5628,
+    2.6
+   ],
+   "bbox_min_m": [
+    -0.5232,
+    -0.2814,
+    -1.3
+   ],
+   "bbox_max_m": [
+    0.5232,
+    0.2814,
+    1.3
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    -1.3
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 1532 vs 92 vertices in the y slabs: front -Y",
+   "unit_scale": 0.11815790853312536,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 8.86 x 4.76 x 22 (raw); x0.118158 scales the raw footprint to the typical wardrobe footprint (size table centre 1.9 x 0.6 m), moved from x0.164402 to keep the box in the wardrobe range: 1.05 x 0.563 x 2.6 m; its proportions are in the wardrobe range",
+   "styles": [
+    "scandinavian",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern'], glm ['scandinavian', 'modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "glb": "models/objaverse/b46803ba0bc64e12b31f832fb761c4e0.glb",
+   "sha256_glb": "bea8ed217db2f3e92a1f5d4d5125b3f9c184a977d9203aba89f7624cc01940ec",
+   "uid": "b46803ba0bc64e12b31f832fb761c4e0",
+   "title": "Simple Tall Shelf",
+   "author": "Blender3D",
+   "source_url": "https://sketchfab.com/3d-models/b46803ba0bc64e12b31f832fb761c4e0",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Simple Tall Shelf\" by Blender3D (https://sketchfab.com/3d-models/b46803ba0bc64e12b31f832fb761c4e0), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "armoire"
+   ],
+   "objaverse_path": "glbs/000-006/b46803ba0bc64e12b31f832fb761c4e0.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 3296,
+   "vertices": 3180,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "scandinavian",
+      "japandi",
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "scandinavian",
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    }
+   },
+   "likes": 48,
+   "views": 1100,
+   "thumbnail": "thumbs/wardrobe/b46803ba0bc64e12b31f832fb761c4e0.jpg"
+  },
+  {
+   "id": "objaverse_2071bda681b642218b6829b82e4fd93b",
+   "type": "fridge",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Refrigerator - Grey Polished Metal",
+   "bbox_m": [
+    0.7657,
+    0.6611,
+    1.5389
+   ],
+   "bbox_model_m": [
+    0.7657,
+    0.6611,
+    1.5389
+   ],
+   "bbox_min_m": [
+    -0.3824,
+    -0.3477,
+    0.0012
+   ],
+   "bbox_max_m": [
+    0.3833,
+    0.3135,
+    1.5402
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0004,
+    -0.0171,
+    0.0012
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 3030 vs 42 vertices in the y slabs: front -Y",
+   "unit_scale": 0.19351901786029488,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 3.96 x 3.42 x 7.95 (raw); x0.193519 scales the raw footprint to the typical fridge footprint (size table centre 0.75 x 0.675 m): 0.766 x 0.661 x 1.54 m; its proportions are in the fridge range",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "glb": "models/objaverse/2071bda681b642218b6829b82e4fd93b.glb",
+   "sha256_glb": "6847894ecee8880b88c879f6d3113bf14f1558ab57c9beab5f3a5c5ba02ac071",
+   "uid": "2071bda681b642218b6829b82e4fd93b",
+   "title": "Refrigerator - Grey Polished Metal",
+   "author": "Glowbox 3D",
+   "source_url": "https://sketchfab.com/3d-models/2071bda681b642218b6829b82e4fd93b",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Refrigerator - Grey Polished Metal\" by Glowbox 3D (https://sketchfab.com/3d-models/2071bda681b642218b6829b82e4fd93b), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "refrigerator"
+   ],
+   "objaverse_path": "glbs/000-077/2071bda681b642218b6829b82e4fd93b.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 2096,
+   "vertices": 5921,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    }
+   },
+   "likes": 76,
+   "views": 5127,
+   "thumbnail": "thumbs/fridge/2071bda681b642218b6829b82e4fd93b.jpg"
+  },
+  {
+   "id": "objaverse_68d69bbf7a454a09a2536ac0762532f3",
+   "type": "fridge",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Old Fridge",
+   "bbox_m": [
+    0.7253,
+    0.698,
+    1.0881
+   ],
+   "bbox_model_m": [
+    0.698,
+    0.7253,
+    1.0881
+   ],
+   "bbox_min_m": [
+    -0.2981,
+    -0.383,
+    -0.5142
+   ],
+   "bbox_max_m": [
+    0.3999,
+    0.3423,
+    0.5739
+   ],
+   "front_axis": "+X",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0509,
+    -0.0204,
+    -0.5142
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 1 (camera on the +X side) shows the front; geometry: detail_side: 221 vs 24 vertices in the x slabs: front +X",
+   "unit_scale": 0.4196741214858973,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 1.66 x 1.73 x 2.59 (raw); x0.419674 scales the raw footprint to the typical fridge footprint (size table centre 0.75 x 0.675 m): 0.698 x 0.725 x 1.09 m; its proportions are in the fridge range",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "glb": "models/objaverse/68d69bbf7a454a09a2536ac0762532f3.glb",
+   "sha256_glb": "8f80c749cbd00ea7007e102cda52309771a4f7bb567ba8cb110354caa2e9b7d9",
+   "uid": "68d69bbf7a454a09a2536ac0762532f3",
+   "title": "Old Fridge",
+   "author": "golddog",
+   "source_url": "https://sketchfab.com/3d-models/68d69bbf7a454a09a2536ac0762532f3",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Old Fridge\" by golddog (https://sketchfab.com/3d-models/68d69bbf7a454a09a2536ac0762532f3), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "refrigerator"
+   ],
+   "objaverse_path": "glbs/000-006/68d69bbf7a454a09a2536ac0762532f3.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 2074,
+   "vertices": 1686,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 1
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 1
+    }
+   },
+   "likes": 22,
+   "views": 638,
+   "thumbnail": "thumbs/fridge/68d69bbf7a454a09a2536ac0762532f3.jpg"
+  },
+  {
+   "id": "objaverse_7c5c9dec5c2e4ff998c386410b0e3686",
+   "type": "stove",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Stove",
+   "bbox_m": [
+    0.5917,
+    0.7099,
+    0.8667
+   ],
+   "bbox_model_m": [
+    0.7099,
+    0.5917,
+    0.8667
+   ],
+   "bbox_min_m": [
+    -0.3743,
+    -0.2958,
+    0.0
+   ],
+   "bbox_max_m": [
+    0.3355,
+    0.2958,
+    0.8667
+   ],
+   "front_axis": "-X",
+   "up_axis": "+Z",
+   "origin_offset": [
+    -0.0194,
+    0.0,
+    0.0
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 3 (camera on the -X side) shows the front; geometry: detail_side: 1653 vs 183 vertices in the x slabs: front -X",
+   "unit_scale": 0.002288581993818243,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 310 x 259 x 379 (raw); x0.00228858 scales the raw footprint to the typical stove footprint (size table centre 0.7 x 0.6 m): 0.71 x 0.592 x 0.867 m; its proportions are in the stove range",
+   "styles": [
+    "industrial"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['industrial'], glm ['industrial', 'rustic']",
+   "has_mattress": null,
+   "glb": "models/objaverse/7c5c9dec5c2e4ff998c386410b0e3686.glb",
+   "sha256_glb": "1d02d9b6e155ca617cfc2b02235a3dbec0f894221549cee3c6d065bb2f1bd602",
+   "uid": "7c5c9dec5c2e4ff998c386410b0e3686",
+   "title": "Stove",
+   "author": "Daniyal Malik",
+   "source_url": "https://sketchfab.com/3d-models/7c5c9dec5c2e4ff998c386410b0e3686",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Stove\" by Daniyal Malik (https://sketchfab.com/3d-models/7c5c9dec5c2e4ff998c386410b0e3686), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "stove"
+   ],
+   "objaverse_path": "glbs/000-065/7c5c9dec5c2e4ff998c386410b0e3686.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 5242,
+   "vertices": 4036,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "industrial"
+     ],
+     "front_view": 3
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "industrial",
+      "rustic"
+     ],
+     "front_view": 3
+    }
+   },
+   "likes": 92,
+   "views": 1303,
+   "thumbnail": "thumbs/stove/7c5c9dec5c2e4ff998c386410b0e3686.jpg"
+  },
+  {
+   "id": "objaverse_ce1a06f7cbe1425099a145f851fc5dee",
+   "type": "washbasin",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Sink",
+   "bbox_m": [
+    0.6486,
+    0.476,
+    0.5497
+   ],
+   "bbox_model_m": [
+    0.6486,
+    0.476,
+    0.5497
+   ],
+   "bbox_min_m": [
+    -0.3243,
+    -0.238,
+    -0.2748
+   ],
+   "bbox_max_m": [
+    0.3243,
+    0.238,
+    0.2748
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    -0.2748
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.087 of the extent): front -Y",
+   "unit_scale": 0.32432313118014205,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 2 x 1.47 x 1.69 (raw); x0.324323 scales the raw footprint to the typical washbasin footprint (size table centre 0.65 x 0.475 m): 0.649 x 0.476 x 0.55 m; its proportions are in the washbasin range",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "glb": "models/objaverse/ce1a06f7cbe1425099a145f851fc5dee.glb",
+   "sha256_glb": "e1b99caba563b6c71d79eb960591d5e1049a3e7c086c6518aa83772a0621fbae",
+   "uid": "ce1a06f7cbe1425099a145f851fc5dee",
+   "title": "Sink",
+   "author": "Shining Salt",
+   "source_url": "https://sketchfab.com/3d-models/ce1a06f7cbe1425099a145f851fc5dee",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Sink\" by Shining Salt (https://sketchfab.com/3d-models/ce1a06f7cbe1425099a145f851fc5dee), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "sink"
+   ],
+   "objaverse_path": "glbs/000-120/ce1a06f7cbe1425099a145f851fc5dee.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 6466,
+   "vertices": 3853,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    }
+   },
+   "likes": 90,
+   "views": 3125,
+   "thumbnail": "thumbs/washbasin/ce1a06f7cbe1425099a145f851fc5dee.jpg"
+  },
+  {
+   "id": "objaverse_0b3325fad3e740b1ac86173c90b56afd",
+   "type": "toilet",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Toilettes",
+   "bbox_m": [
+    0.4622,
+    0.6206,
+    0.8387
+   ],
+   "bbox_model_m": [
+    0.4622,
+    0.6206,
+    0.8387
+   ],
+   "bbox_min_m": [
+    -0.2311,
+    -0.2846,
+    -0.3554
+   ],
+   "bbox_max_m": [
+    0.2311,
+    0.3361,
+    0.4833
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0257,
+    -0.3554
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.345 of the extent): front -Y",
+   "unit_scale": 0.014667514011936599,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 31.5 x 42.3 x 57.2 (raw); x0.0146675 scales the raw footprint to the typical toilet footprint (size table centre 0.425 x 0.675 m): 0.462 x 0.621 x 0.839 m; its proportions are in the toilet range",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "glb": "models/objaverse/0b3325fad3e740b1ac86173c90b56afd.glb",
+   "sha256_glb": "97457cb78dd8c70a6072095e0508d02773f4a283a8fa7d2195bf0b42c440f321",
+   "uid": "0b3325fad3e740b1ac86173c90b56afd",
+   "title": "Toilettes",
+   "author": "Lightningx",
+   "source_url": "https://sketchfab.com/3d-models/0b3325fad3e740b1ac86173c90b56afd",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Toilettes\" by Lightningx (https://sketchfab.com/3d-models/0b3325fad3e740b1ac86173c90b56afd), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "toilet"
+   ],
+   "objaverse_path": "glbs/000-088/0b3325fad3e740b1ac86173c90b56afd.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 7206,
+   "vertices": 3885,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    }
+   },
+   "likes": 5,
+   "views": 319,
+   "thumbnail": "thumbs/toilet/0b3325fad3e740b1ac86173c90b56afd.jpg"
+  },
+  {
+   "id": "objaverse_24d1b493899d407780140688abae19bc",
+   "type": "toilet",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Toilet",
+   "bbox_m": [
+    0.4533,
+    0.6329,
+    0.8011
+   ],
+   "bbox_model_m": [
+    0.4533,
+    0.6329,
+    0.8011
+   ],
+   "bbox_min_m": [
+    -0.2243,
+    -0.3013,
+    -0.0081
+   ],
+   "bbox_max_m": [
+    0.229,
+    0.3316,
+    0.793
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0024,
+    0.0151,
+    -0.0081
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.313 of the extent): front -Y",
+   "unit_scale": 0.7449258675631375,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.609 x 0.85 x 1.08 (raw); x0.744926 scales the raw footprint to the typical toilet footprint (size table centre 0.425 x 0.675 m): 0.453 x 0.633 x 0.801 m; its proportions are in the toilet range",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "glb": "models/objaverse/24d1b493899d407780140688abae19bc.glb",
+   "sha256_glb": "6100b03fcf4f8483b1b6581fb45d6973be378d26bed27424c56081b8550a048d",
+   "uid": "24d1b493899d407780140688abae19bc",
+   "title": "Toilet",
+   "author": "Xill",
+   "source_url": "https://sketchfab.com/3d-models/24d1b493899d407780140688abae19bc",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Toilet\" by Xill (https://sketchfab.com/3d-models/24d1b493899d407780140688abae19bc), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "toilet"
+   ],
+   "objaverse_path": "glbs/000-038/24d1b493899d407780140688abae19bc.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 57572,
+   "vertices": 33392,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    }
+   },
+   "likes": 114,
+   "views": 12099,
+   "thumbnail": "thumbs/toilet/24d1b493899d407780140688abae19bc.jpg"
+  },
+  {
+   "id": "objaverse_3446229dce1f47528fa871cc7669136c",
+   "type": "toilet",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Toilet",
+   "bbox_m": [
+    0.4527,
+    0.6337,
+    0.7612
+   ],
+   "bbox_model_m": [
+    0.6337,
+    0.4527,
+    0.7612
+   ],
+   "bbox_min_m": [
+    -0.2535,
+    -0.2274,
+    -0.1579
+   ],
+   "bbox_max_m": [
+    0.3802,
+    0.2253,
+    0.6032
+   ],
+   "front_axis": "+X",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0633,
+    -0.001,
+    -0.1579
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 1 (camera on the +X side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.348 of the extent): front +X",
+   "unit_scale": 0.0015794044280053182,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 401 x 287 x 482 (raw); x0.0015794 scales the raw footprint to the typical toilet footprint (size table centre 0.425 x 0.675 m): 0.634 x 0.453 x 0.761 m; its proportions are in the toilet range",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "glb": "models/objaverse/3446229dce1f47528fa871cc7669136c.glb",
+   "sha256_glb": "a6d949e891156c2267555fd2d7ccdf2bdabe1a12e76b53bf39a1fb9b9e64389b",
+   "uid": "3446229dce1f47528fa871cc7669136c",
+   "title": "Toilet",
+   "author": "Ali107_YT",
+   "source_url": "https://sketchfab.com/3d-models/3446229dce1f47528fa871cc7669136c",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Toilet\" by Ali107_YT (https://sketchfab.com/3d-models/3446229dce1f47528fa871cc7669136c), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "toilet"
+   ],
+   "objaverse_path": "glbs/000-044/3446229dce1f47528fa871cc7669136c.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 70122,
+   "vertices": 38690,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 1
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 1
+    }
+   },
+   "likes": 4,
+   "views": 288,
+   "thumbnail": "thumbs/toilet/3446229dce1f47528fa871cc7669136c.jpg"
+  },
+  {
+   "id": "objaverse_51d928b33e5549898cc86cbdaf966d83",
+   "type": "bookshelf",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Simple Book Shelf | [FREE] | Agustin Honnun",
+   "bbox_m": [
+    1.1957,
+    0.4189,
+    1.9929
+   ],
+   "bbox_model_m": [
+    1.1957,
+    0.4189,
+    1.9929
+   ],
+   "bbox_min_m": [
+    -0.5979,
+    -0.2196,
+    -0.0
+   ],
+   "bbox_max_m": [
+    0.5979,
+    0.1993,
+    1.9929
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    -0.0101,
+    -0.0
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: open_side: closed panel 1.00 at +Y, 0.08 at the other side: front -Y",
+   "unit_scale": 1.0,
+   "unit_note": "x1: 1.2 x 0.419 x 1.99 (raw) -> 1.2 x 0.419 x 1.99 m in the bookshelf range",
+   "styles": [
+    "modern minimal",
+    "minimal"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'japandi', 'scandinavian', 'rustic'], glm ['modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "glb": "models/objaverse/51d928b33e5549898cc86cbdaf966d83.glb",
+   "sha256_glb": "8876efd23bfdc64030a37788be6960c5cd318440e1da3e8ce945d936977510fa",
+   "uid": "51d928b33e5549898cc86cbdaf966d83",
+   "title": "Simple Book Shelf | [FREE] | Agustin Honnun",
+   "author": "Agustín Hönnun",
+   "source_url": "https://sketchfab.com/3d-models/51d928b33e5549898cc86cbdaf966d83",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Simple Book Shelf | [FREE] | Agustin Honnun\" by Agustín Hönnun (https://sketchfab.com/3d-models/51d928b33e5549898cc86cbdaf966d83), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "bookcase"
+   ],
+   "objaverse_path": "glbs/000-047/51d928b33e5549898cc86cbdaf966d83.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 3132,
+   "vertices": 3730,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "japandi",
+      "scandinavian",
+      "rustic"
+     ],
+     "front_view": 0
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    }
+   },
+   "likes": 141,
+   "views": 5071,
+   "thumbnail": "thumbs/bookshelf/51d928b33e5549898cc86cbdaf966d83.jpg"
+  },
+  {
+   "id": "objaverse_6c5ac2547db34c3c81b2e4808b000386",
+   "type": "bookshelf",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Dusty Old Bookshelf (FREE)",
+   "bbox_m": [
+    0.9199,
+    0.3865,
+    2.08
+   ],
+   "bbox_model_m": [
+    0.9199,
+    0.3865,
+    2.08
+   ],
+   "bbox_min_m": [
+    -0.4599,
+    -0.1922,
+    -0.0
+   ],
+   "bbox_max_m": [
+    0.4599,
+    0.1943,
+    2.08
+   ],
+   "front_axis": "+Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.001,
+    -0.0
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 2 (camera on the +Y side) shows the front; geometry: open_side: closed panel 0.88 at -Y, 0.01 at the other side: front +Y",
+   "unit_scale": 1.0,
+   "unit_note": "x1: 0.92 x 0.387 x 2.08 (raw) -> 0.92 x 0.387 x 2.08 m in the bookshelf range",
+   "styles": [
+    "classic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'industrial', 'classic'], glm ['classic', 'rustic']",
+   "has_mattress": null,
+   "glb": "models/objaverse/6c5ac2547db34c3c81b2e4808b000386.glb",
+   "sha256_glb": "0bf132f8e636d5bd7106faa3df6585e43e94fc1bc047c8963280035087a061aa",
+   "uid": "6c5ac2547db34c3c81b2e4808b000386",
+   "title": "Dusty Old Bookshelf (FREE)",
+   "author": "Brandon Westlake",
+   "source_url": "https://sketchfab.com/3d-models/6c5ac2547db34c3c81b2e4808b000386",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Dusty Old Bookshelf (FREE)\" by Brandon Westlake (https://sketchfab.com/3d-models/6c5ac2547db34c3c81b2e4808b000386), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "bookcase"
+   ],
+   "objaverse_path": "glbs/000-022/6c5ac2547db34c3c81b2e4808b000386.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 7616,
+   "vertices": 10237,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "industrial",
+      "classic"
+     ],
+     "front_view": 2
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "classic",
+      "rustic"
+     ],
+     "front_view": 2
+    }
+   },
+   "likes": 559,
+   "views": 15655,
+   "thumbnail": "thumbs/bookshelf/6c5ac2547db34c3c81b2e4808b000386.jpg"
+  },
+  {
+   "id": "objaverse_b43c45317fd74a4aa9ba443b9a355ea3",
+   "type": "bookshelf",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Bookcase",
+   "bbox_m": [
+    1.0475,
+    0.4344,
+    1.9166
+   ],
+   "bbox_model_m": [
+    1.0475,
+    0.4344,
+    1.9166
+   ],
+   "bbox_min_m": [
+    1.0463,
+    6.3031,
+    0.0004
+   ],
+   "bbox_max_m": [
+    2.0938,
+    6.7375,
+    1.917
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    1.57,
+    6.5203,
+    0.0004
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: open_side: closed panel 1.00 at +Y, 0.28 at the other side: front -Y",
+   "unit_scale": 0.3488374504472206,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 3 x 1.25 x 5.49 (raw); x0.348837 scales the raw footprint to the typical bookshelf footprint (size table centre 1.3 x 0.35 m): 1.05 x 0.434 x 1.92 m; its proportions are in the bookshelf range",
+   "styles": [
+    "modern",
+    "neutral"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['japandi', 'modern minimal', 'minimal', 'modern', 'industrial', 'rustic', 'neutral'], glm ['modern', 'neutral']",
+   "has_mattress": null,
+   "glb": "models/objaverse/b43c45317fd74a4aa9ba443b9a355ea3.glb",
+   "sha256_glb": "70298044f77eba5dab85291b64780bd3fccdfd16d0ea537dd0a18d2ae8a9ce66",
+   "uid": "b43c45317fd74a4aa9ba443b9a355ea3",
+   "title": "Bookcase",
+   "author": "Icanreed",
+   "source_url": "https://sketchfab.com/3d-models/b43c45317fd74a4aa9ba443b9a355ea3",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Bookcase\" by Icanreed (https://sketchfab.com/3d-models/b43c45317fd74a4aa9ba443b9a355ea3), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "bookcase"
+   ],
+   "objaverse_path": "glbs/000-157/b43c45317fd74a4aa9ba443b9a355ea3.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 9814,
+   "vertices": 17896,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    5,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 5,
+     "has_mattress": null,
+     "styles": [
+      "japandi",
+      "modern minimal",
+      "minimal",
+      "modern",
+      "industrial",
+      "rustic",
+      "neutral"
+     ],
+     "front_view": 0
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern",
+      "neutral"
+     ],
+     "front_view": 0
+    }
+   },
+   "likes": 16,
+   "views": 982,
+   "thumbnail": "thumbs/bookshelf/b43c45317fd74a4aa9ba443b9a355ea3.jpg"
+  },
+  {
+   "id": "objaverse_01c53767c1f84f55ad9f46eb89949cf9",
+   "type": "floor_lamp",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Street Lamp",
+   "bbox_m": [
+    0.3317,
+    0.381,
+    2.1
+   ],
+   "bbox_model_m": [
+    0.3317,
+    0.381,
+    2.1
+   ],
+   "bbox_min_m": [
+    -0.1659,
+    -0.1905,
+    -0.0
+   ],
+   "bbox_max_m": [
+    0.1659,
+    0.1905,
+    2.1
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    -0.0
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "floor_lamp has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "unit_scale": 0.6117404400929363,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.542 x 0.623 x 3.43 (raw); x0.61174 scales the raw footprint to the typical floor_lamp footprint (size table centre 0.425 x 0.425 m), moved from x0.731315 to keep the box in the floor_lamp range: 0.332 x 0.381 x 2.1 m; its proportions are in the floor_lamp range",
+   "styles": [
+    "classic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['classic'], glm ['classic']",
+   "has_mattress": null,
+   "glb": "models/objaverse/01c53767c1f84f55ad9f46eb89949cf9.glb",
+   "sha256_glb": "6e055595d82cea4c179605e564ddb66426b0253c4b32607239138c1bda7759a1",
+   "uid": "01c53767c1f84f55ad9f46eb89949cf9",
+   "title": "Street Lamp",
+   "author": "emelyarules",
+   "source_url": "https://sketchfab.com/3d-models/01c53767c1f84f55ad9f46eb89949cf9",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Street Lamp\" by emelyarules (https://sketchfab.com/3d-models/01c53767c1f84f55ad9f46eb89949cf9), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "lamp"
+   ],
+   "objaverse_path": "glbs/000-000/01c53767c1f84f55ad9f46eb89949cf9.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 26268,
+   "vertices": 17823,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "classic"
+     ],
+     "front_view": null
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "classic"
+     ],
+     "front_view": null
+    }
+   },
+   "likes": 19,
+   "views": 564,
+   "thumbnail": "thumbs/floor_lamp/01c53767c1f84f55ad9f46eb89949cf9.jpg"
+  },
+  {
+   "id": "objaverse_33eb258d9873435690254cfbb0ea46ec",
+   "type": "floor_lamp",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Floor Lamp",
+   "bbox_m": [
+    0.5172,
+    0.5172,
+    2.0
+   ],
+   "bbox_model_m": [
+    0.5172,
+    0.5172,
+    2.0
+   ],
+   "bbox_min_m": [
+    -0.2586,
+    -0.2586,
+    -1.0
+   ],
+   "bbox_max_m": [
+    0.2586,
+    0.2586,
+    1.0
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "floor_lamp has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "unit_scale": 1.0,
+   "unit_note": "x1: 0.517 x 0.517 x 2 (raw) -> 0.517 x 0.517 x 2 m in the floor_lamp range",
+   "styles": [
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern', 'neutral']",
+   "has_mattress": null,
+   "glb": "models/objaverse/33eb258d9873435690254cfbb0ea46ec.glb",
+   "sha256_glb": "2e0632e929cb349ed1b0253af432f0339fbb13cac865c59fa8b5968c924d0eec",
+   "uid": "33eb258d9873435690254cfbb0ea46ec",
+   "title": "Floor Lamp",
+   "author": "bilgehan.korkmaz",
+   "source_url": "https://sketchfab.com/3d-models/33eb258d9873435690254cfbb0ea46ec",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Floor Lamp\" by bilgehan.korkmaz (https://sketchfab.com/3d-models/33eb258d9873435690254cfbb0ea46ec), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "lamp"
+   ],
+   "objaverse_path": "glbs/000-098/33eb258d9873435690254cfbb0ea46ec.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 3732,
+   "vertices": 3979,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    5
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": null
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 5,
+     "has_mattress": null,
+     "styles": [
+      "modern",
+      "neutral"
+     ],
+     "front_view": null
+    }
+   },
+   "likes": 91,
+   "views": 5753,
+   "thumbnail": "thumbs/floor_lamp/33eb258d9873435690254cfbb0ea46ec.jpg"
+  },
+  {
+   "id": "objaverse_71853da424aa4b208e14f6cf430339ae",
+   "type": "floor_lamp",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Street lights",
+   "bbox_m": [
+    0.3486,
+    0.3486,
+    2.1
+   ],
+   "bbox_model_m": [
+    0.3486,
+    0.3486,
+    2.1
+   ],
+   "bbox_min_m": [
+    -0.0193,
+    0.1309,
+    0.6705
+   ],
+   "bbox_max_m": [
+    0.3293,
+    0.4796,
+    2.7705
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.155,
+    0.3053,
+    0.6705
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "floor_lamp has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "unit_scale": 1.7441231920626032,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.2 x 0.2 x 1.2 (raw); x1.74412 scales the raw footprint to the typical floor_lamp footprint (size table centre 0.425 x 0.425 m), moved from x2.12628 to keep the box in the floor_lamp range: 0.349 x 0.349 x 2.1 m; its proportions are in the floor_lamp range",
+   "styles": [
+    "industrial",
+    "classic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['classic', 'industrial'], glm ['industrial', 'classic']",
+   "has_mattress": null,
+   "glb": "models/objaverse/71853da424aa4b208e14f6cf430339ae.glb",
+   "sha256_glb": "1b7fe55ddb43494e046527dbc87da9d6a0b79e6a406611070cb07a8118c2efac",
+   "uid": "71853da424aa4b208e14f6cf430339ae",
+   "title": "Street lights",
+   "author": "U-like",
+   "source_url": "https://sketchfab.com/3d-models/71853da424aa4b208e14f6cf430339ae",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Street lights\" by U-like (https://sketchfab.com/3d-models/71853da424aa4b208e14f6cf430339ae), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "lamp"
+   ],
+   "objaverse_path": "glbs/000-087/71853da424aa4b208e14f6cf430339ae.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 6560,
+   "vertices": 12851,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    5,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 5,
+     "has_mattress": null,
+     "styles": [
+      "classic",
+      "industrial"
+     ],
+     "front_view": null
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "industrial",
+      "classic"
+     ],
+     "front_view": null
+    }
+   },
+   "likes": 77,
+   "views": 1942,
+   "thumbnail": "thumbs/floor_lamp/71853da424aa4b208e14f6cf430339ae.jpg"
+  },
+  {
+   "id": "objaverse_8170cf1409924abc9c3fc8becccdd36e",
+   "type": "floor_lamp",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Lamp - WIP",
+   "bbox_m": [
+    0.425,
+    0.425,
+    1.3391
+   ],
+   "bbox_model_m": [
+    0.425,
+    0.425,
+    1.3391
+   ],
+   "bbox_min_m": [
+    0.0861,
+    -0.863,
+    -1.3379
+   ],
+   "bbox_max_m": [
+    0.5111,
+    -0.438,
+    0.0012
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.2986,
+    -0.6505,
+    -1.3379
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "floor_lamp has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "unit_scale": 0.07572880318058094,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 5.61 x 5.61 x 17.7 (raw); x0.0757288 scales the raw footprint to the typical floor_lamp footprint (size table centre 0.425 x 0.425 m): 0.425 x 0.425 x 1.34 m; its proportions are in the floor_lamp range",
+   "styles": [
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern', 'neutral']",
+   "has_mattress": null,
+   "glb": "models/objaverse/8170cf1409924abc9c3fc8becccdd36e.glb",
+   "sha256_glb": "d0d637119a9eb5df1326942c35928d5322feca6a625c6e85b741d25ba2474cf7",
+   "uid": "8170cf1409924abc9c3fc8becccdd36e",
+   "title": "Lamp - WIP",
+   "author": "KeenanBabcock",
+   "source_url": "https://sketchfab.com/3d-models/8170cf1409924abc9c3fc8becccdd36e",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Lamp - WIP\" by KeenanBabcock (https://sketchfab.com/3d-models/8170cf1409924abc9c3fc8becccdd36e), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "lamp"
+   ],
+   "objaverse_path": "glbs/000-030/8170cf1409924abc9c3fc8becccdd36e.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 8184,
+   "vertices": 5194,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": null
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern",
+      "neutral"
+     ],
+     "front_view": null
+    }
+   },
+   "likes": 3,
+   "views": 165,
+   "thumbnail": "thumbs/floor_lamp/8170cf1409924abc9c3fc8becccdd36e.jpg"
+  },
+  {
+   "id": "objaverse_71b53eaee72e4a829a9256a7bcfb7dab",
+   "type": "potted_plant",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "Cacti pot",
+   "bbox_m": [
+    0.2217,
+    0.2337,
+    0.305
+   ],
+   "bbox_model_m": [
+    0.2217,
+    0.2337,
+    0.305
+   ],
+   "bbox_min_m": [
+    -0.1104,
+    -0.1169,
+    0.0026
+   ],
+   "bbox_max_m": [
+    0.1112,
+    0.1168,
+    0.3075
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0004,
+    -0.0001,
+    0.0026
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "potted_plant has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "unit_scale": 0.0254,
+   "unit_note": "x0.0254: 8.73 x 9.2 x 12 (raw) -> 0.222 x 0.234 x 0.305 m in the potted_plant range",
+   "styles": [
+    "rustic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['industrial', 'rustic'], glm ['rustic', 'neutral']",
+   "has_mattress": null,
+   "glb": "models/objaverse/71b53eaee72e4a829a9256a7bcfb7dab.glb",
+   "sha256_glb": "4e1e68c8b3a990ebedd2547bac36049ea616555c1c5e1d6f2dba1d65099a89ee",
+   "uid": "71b53eaee72e4a829a9256a7bcfb7dab",
+   "title": "Cacti pot",
+   "author": "Spacyy",
+   "source_url": "https://sketchfab.com/3d-models/71b53eaee72e4a829a9256a7bcfb7dab",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Cacti pot\" by Spacyy (https://sketchfab.com/3d-models/71b53eaee72e4a829a9256a7bcfb7dab), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "flowerpot"
+   ],
+   "objaverse_path": "glbs/000-007/71b53eaee72e4a829a9256a7bcfb7dab.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 146504,
+   "vertices": 90688,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "industrial",
+      "rustic"
+     ],
+     "front_view": null
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "rustic",
+      "neutral"
+     ],
+     "front_view": null
+    }
+   },
+   "likes": 74,
+   "views": 1373,
+   "thumbnail": "thumbs/potted_plant/71b53eaee72e4a829a9256a7bcfb7dab.jpg"
+  },
+  {
+   "id": "objaverse_b99c584dd11d4691b5d13303383371e5",
+   "type": "potted_plant",
+   "source": "objaverse",
+   "licence": "CC-BY-4.0",
+   "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+   "name": "FlowerPot",
+   "bbox_m": [
+    0.6,
+    0.6,
+    0.5802
+   ],
+   "bbox_model_m": [
+    0.6,
+    0.6,
+    0.5802
+   ],
+   "bbox_min_m": [
+    -0.3,
+    -0.3,
+    0.0003
+   ],
+   "bbox_max_m": [
+    0.3,
+    0.3,
+    0.5805
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0,
+    0.0003
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "potted_plant has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "unit_scale": 0.0027578968763880608,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 218 x 218 x 210 (raw); x0.0027579 scales the raw footprint to the typical potted_plant footprint (size table centre 0.6 x 0.6 m): 0.6 x 0.6 x 0.58 m; its proportions are in the potted_plant range",
+   "styles": [
+    "mediterranean"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['mediterranean'], glm ['mediterranean', 'rustic']",
+   "has_mattress": null,
+   "glb": "models/objaverse/b99c584dd11d4691b5d13303383371e5.glb",
+   "sha256_glb": "d1a93800257b9be26fc463eb478ebd9466d6c6c28d49dac1f40f32c6170979ad",
+   "uid": "b99c584dd11d4691b5d13303383371e5",
+   "title": "FlowerPot",
+   "author": "ibrahmcingi",
+   "source_url": "https://sketchfab.com/3d-models/b99c584dd11d4691b5d13303383371e5",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"FlowerPot\" by ibrahmcingi (https://sketchfab.com/3d-models/b99c584dd11d4691b5d13303383371e5), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+   "lvis_categories": [
+    "flowerpot"
+   ],
+   "objaverse_path": "glbs/000-143/b99c584dd11d4691b5d13303383371e5.glb",
+   "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
+   "polycount": 4864,
+   "vertices": 3359,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "mediterranean"
+     ],
+     "front_view": null
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "mediterranean",
+      "rustic"
+     ],
+     "front_view": null
+    }
+   },
+   "likes": 2,
+   "views": 96,
+   "thumbnail": "thumbs/potted_plant/b99c584dd11d4691b5d13303383371e5.jpg"
+  }
+ ]
+}

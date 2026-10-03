@@ -1,0 +1,4364 @@
+{
+ "schema_version": "0.1",
+ "project": {
+  "id": "real01-photo",
+  "source_folder": "tests/fixtures/real01_raster/real01-photo",
+  "created_utc": "2026-10-03T20:46:04Z",
+  "pipeline_commit": "d69054ba",
+  "unit_system": "imperial"
+ },
+ "status": "ok",
+ "documents": [
+  {
+   "id": "doc_real01_photo_jpg",
+   "file": "real01_photo.jpg",
+   "format": "image",
+   "converter": null,
+   "pages": [
+    {
+     "page": 1,
+     "class": "floor_plan",
+     "skip_reason": null,
+     "kind": "photo",
+     "level_id": "L0",
+     "level_label_raw": null,
+     "classifier": "generic_labels",
+     "scale": {
+      "metres_per_unit": 0.012711967148461732,
+      "method": "dimension_text",
+      "confidence": 0.7,
+      "evidence": {
+       "file": "real01_photo.jpg",
+       "method": "ocr",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "ocr:1",
+       "text": "50",
+       "model": "tesseract --oem 1 --psm 7 -l eng+tur (glyph row)",
+       "pixel_box": [
+        913.9,
+        201.9,
+        962.1,
+        238.1
+       ]
+      }
+     },
+     "transform_to_building": [
+      0.012711967148461732,
+      0.0,
+      -4.14,
+      0.0,
+      0.012711967148461732,
+      -3.4343
+     ],
+     "confidence": 0.5,
+     "evidence": [
+      {
+       "file": "real01_photo.jpg",
+       "method": "ocr",
+       "confidence": 0.9664,
+       "page": 1,
+       "pixel_box": [
+        1027.6,
+        459.4,
+        1096.7,
+        485.2
+       ],
+       "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+       "text": "Dining"
+      },
+      {
+       "file": "real01_photo.jpg",
+       "method": "ocr",
+       "confidence": 0.9665,
+       "page": 1,
+       "pixel_box": [
+        1232.5,
+        481.8,
+        1315.0,
+        503.1
+       ],
+       "model": "tesseract --oem 1 --psm 7 -l eng+tur (glyph row)",
+       "text": "Kitchen"
+      },
+      {
+       "file": "real01_photo.jpg",
+       "method": "ocr",
+       "confidence": 0.9644,
+       "page": 1,
+       "pixel_box": [
+        470.2,
+        558.0,
+        588.3,
+        579.1
+       ],
+       "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+       "text": "Bed Room"
+      },
+      {
+       "file": "real01_photo.jpg",
+       "method": "ocr",
+       "confidence": 0.9626,
+       "page": 1,
+       "pixel_box": [
+        826.5,
+        627.1,
+        989.5,
+        652.8
+       ],
+       "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+       "text": "Drawing Room"
+      },
+      {
+       "file": "real01_photo.jpg",
+       "method": "ocr",
+       "confidence": 0.9691,
+       "page": 1,
+       "pixel_box": [
+        1180.0,
+        639.7,
+        1242.4,
+        665.2
+       ],
+       "model": "tesseract --oem 1 --psm 7 -l eng+tur (glyph row)",
+       "text": "Pooja"
+      },
+      {
+       "file": "real01_photo.jpg",
+       "method": "ocr",
+       "confidence": 0.9682,
+       "page": 1,
+       "pixel_box": [
+        1295.0,
+        649.8,
+        1352.1,
+        669.3
+       ],
+       "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+       "text": "Store"
+      },
+      {
+       "file": "real01_photo.jpg",
+       "method": "ocr",
+       "confidence": 0.9645,
+       "page": 1,
+       "pixel_box": [
+        478.7,
+        680.5,
+        596.7,
+        701.6
+       ],
+       "model": "tesseract --oem 1 --psm 7 -l eng+tur (glyph row)",
+       "text": "Bed Room"
+      },
+      {
+       "file": "real01_photo.jpg",
+       "method": "ocr",
+       "confidence": 0.9269,
+       "page": 1,
+       "pixel_box": [
+        706.3,
+        801.3,
+        771.2,
+        821.6
+       ],
+       "model": "tesseract --oem 1 --psm 7 -l eng+tur (glyph row)",
+       "text": "Bath+"
+      },
+      {
+       "file": "real01_photo.jpg",
+       "method": "ocr",
+       "confidence": 0.9695,
+       "page": 1,
+       "pixel_box": [
+        708.3,
+        832.0,
+        769.0,
+        851.7
+       ],
+       "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+       "text": "Toilet"
+      },
+      {
+       "file": "real01_photo.jpg",
+       "method": "raster",
+       "confidence": 0.8,
+       "text": "kind: paper outline is a skewed quadrilateral (corners moved up to 6.3%)"
+      }
+     ],
+     "debug_image": "debug/real01_photo_jpg_p1.png",
+     "rectified_image": "rectified/real01_photo_jpg_p1.png",
+     "to_original": [
+      [
+       1.053938543,
+       -0.029566232,
+       92.232581056
+      ],
+      [
+       0.020597678,
+       -1.073368727,
+       1260.566319375
+      ],
+      [
+       1.5861e-05,
+       -4.5062e-05,
+       1.053740063
+      ]
+     ],
+     "aspect": {
+      "measured": 1.40496,
+      "method": "side_ratio",
+      "side_ratio": 1.40496,
+      "snapped": 1.41421,
+      "name": "ISO (sqrt 2)",
+      "off_pct": 0.65,
+      "assumed": true,
+      "solved_from": null,
+      "factor": null,
+      "checked_by_dimensions": null
+     }
+    }
+   ],
+   "unit_system": "imperial",
+   "source_kind": "raster_photo"
+  }
+ ],
+ "levels": [
+  {
+   "id": "L0",
+   "label": "Ground floor",
+   "order": 0,
+   "elevation": 0.0,
+   "ceiling_height": 2.7,
+   "ceiling_height_source": "assumed_default",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "ocr",
+     "confidence": 0.9664,
+     "page": 1,
+     "pixel_box": [
+      1027.6,
+      459.4,
+      1096.7,
+      485.2
+     ],
+     "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+     "text": "Dining"
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ocr",
+     "confidence": 0.9665,
+     "page": 1,
+     "pixel_box": [
+      1232.5,
+      481.8,
+      1315.0,
+      503.1
+     ],
+     "model": "tesseract --oem 1 --psm 7 -l eng+tur (glyph row)",
+     "text": "Kitchen"
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ocr",
+     "confidence": 0.9644,
+     "page": 1,
+     "pixel_box": [
+      470.2,
+      558.0,
+      588.3,
+      579.1
+     ],
+     "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+     "text": "Bed Room"
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ocr",
+     "confidence": 0.9626,
+     "page": 1,
+     "pixel_box": [
+      826.5,
+      627.1,
+      989.5,
+      652.8
+     ],
+     "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+     "text": "Drawing Room"
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ocr",
+     "confidence": 0.9691,
+     "page": 1,
+     "pixel_box": [
+      1180.0,
+      639.7,
+      1242.4,
+      665.2
+     ],
+     "model": "tesseract --oem 1 --psm 7 -l eng+tur (glyph row)",
+     "text": "Pooja"
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ocr",
+     "confidence": 0.9682,
+     "page": 1,
+     "pixel_box": [
+      1295.0,
+      649.8,
+      1352.1,
+      669.3
+     ],
+     "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+     "text": "Store"
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ocr",
+     "confidence": 0.9645,
+     "page": 1,
+     "pixel_box": [
+      478.7,
+      680.5,
+      596.7,
+      701.6
+     ],
+     "model": "tesseract --oem 1 --psm 7 -l eng+tur (glyph row)",
+     "text": "Bed Room"
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ocr",
+     "confidence": 0.9269,
+     "page": 1,
+     "pixel_box": [
+      706.3,
+      801.3,
+      771.2,
+      821.6
+     ],
+     "model": "tesseract --oem 1 --psm 7 -l eng+tur (glyph row)",
+     "text": "Bath+"
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ocr",
+     "confidence": 0.9695,
+     "page": 1,
+     "pixel_box": [
+      708.3,
+      832.0,
+      769.0,
+      851.7
+     ],
+     "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+     "text": "Toilet"
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.8,
+     "text": "kind: paper outline is a skewed quadrilateral (corners moved up to 6.3%)"
+    }
+   ],
+   "label_source": "assumed"
+  }
+ ],
+ "walls": [
+  {
+   "id": "w_L0_001",
+   "level_id": "L0",
+   "start": [
+    0.27,
+    0.13
+   ],
+   "end": [
+    9.64,
+    0.13
+   ],
+   "thickness": 0.26,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "note": "run of 3 pieces"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_002",
+   "level_id": "L0",
+   "start": [
+    3.47,
+    2.4564
+   ],
+   "end": [
+    4.28,
+    2.4564
+   ],
+   "thickness": 0.19,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      681.1,
+      737.0,
+      744.9,
+      752.5
+     ]
+    }
+   ]
+  },
+  {
+   "id": "w_L0_003",
+   "level_id": "L0",
+   "start": [
+    9.64,
+    2.797
+   ],
+   "end": [
+    13.0,
+    2.797
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "note": "run of 2 pieces"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_004",
+   "level_id": "L0",
+   "start": [
+    2.52,
+    3.6464
+   ],
+   "end": [
+    3.3,
+    3.6464
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      606.0,
+      640.1,
+      667.8,
+      660.5
+     ]
+    }
+   ]
+  },
+  {
+   "id": "w_L0_005",
+   "level_id": "L0",
+   "start": [
+    0.0,
+    3.6805
+   ],
+   "end": [
+    3.3,
+    3.6805
+   ],
+   "thickness": 0.18,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "note": "run of 2 pieces"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_006",
+   "level_id": "L0",
+   "start": [
+    11.86,
+    4.1914
+   ],
+   "end": [
+    11.9,
+    4.1914
+   ],
+   "thickness": 0.14,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      1338.9,
+      608.9,
+      1342.3,
+      620.0
+     ]
+    }
+   ]
+  },
+  {
+   "id": "w_L0_007",
+   "level_id": "L0",
+   "start": [
+    9.64,
+    4.2164
+   ],
+   "end": [
+    11.86,
+    4.2164
+   ],
+   "thickness": 0.19,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      1146.7,
+      603.0,
+      1339.3,
+      619.9
+     ]
+    }
+   ]
+  },
+  {
+   "id": "w_L0_008",
+   "level_id": "L0",
+   "start": [
+    5.148,
+    4.5964
+   ],
+   "end": [
+    8.14,
+    4.5964
+   ],
+   "thickness": 0.19,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      800.0,
+      569.1,
+      1049.7,
+      586.9
+     ]
+    }
+   ]
+  },
+  {
+   "id": "w_L0_009",
+   "level_id": "L0",
+   "start": [
+    0.2729,
+    7.2319
+   ],
+   "end": [
+    13.0,
+    7.2319
+   ],
+   "thickness": 0.26,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "note": "run of 4 pieces"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_010",
+   "level_id": "L0",
+   "start": [
+    0.1379,
+    0.0014
+   ],
+   "end": [
+    0.1379,
+    7.3714
+   ],
+   "thickness": 0.27,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "note": "run of 4 pieces"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_011",
+   "level_id": "L0",
+   "start": [
+    0.715,
+    7.0514
+   ],
+   "end": [
+    0.715,
+    7.1019
+   ],
+   "thickness": 0.17,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      453.6,
+      370.9,
+      467.3,
+      375.2
+     ]
+    }
+   ]
+  },
+  {
+   "id": "w_L0_012",
+   "level_id": "L0",
+   "start": [
+    2.555,
+    3.7714
+   ],
+   "end": [
+    2.555,
+    3.8014
+   ],
+   "thickness": 0.07,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      606.0,
+      637.7,
+      611.6,
+      640.1
+     ]
+    }
+   ]
+  },
+  {
+   "id": "w_L0_013",
+   "level_id": "L0",
+   "start": [
+    3.365,
+    3.7714
+   ],
+   "end": [
+    3.365,
+    3.8114
+   ],
+   "thickness": 0.19,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      665.4,
+      637.5,
+      680.5,
+      640.8
+     ]
+    }
+   ]
+  },
+  {
+   "id": "w_L0_014",
+   "level_id": "L0",
+   "start": [
+    3.385,
+    0.26
+   ],
+   "end": [
+    3.385,
+    7.1019
+   ],
+   "thickness": 0.17,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "note": "run of 2 pieces"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_015",
+   "level_id": "L0",
+   "start": [
+    5.03,
+    1.7414
+   ],
+   "end": [
+    5.03,
+    2.5514
+   ],
+   "thickness": 0.24,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      794.0,
+      738.0,
+      813.2,
+      801.5
+     ]
+    }
+   ]
+  },
+  {
+   "id": "w_L0_016",
+   "level_id": "L0",
+   "start": [
+    5.058,
+    0.26
+   ],
+   "end": [
+    5.058,
+    7.1019
+   ],
+   "thickness": 0.18,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "note": "run of 3 pieces"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_017",
+   "level_id": "L0",
+   "start": [
+    9.46,
+    1.3314
+   ],
+   "end": [
+    9.46,
+    1.3614
+   ],
+   "thickness": 0.14,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      1142.1,
+      833.4,
+      1152.9,
+      835.8
+     ]
+    }
+   ]
+  },
+  {
+   "id": "w_L0_018",
+   "level_id": "L0",
+   "start": [
+    9.475,
+    0.3414
+   ],
+   "end": [
+    9.475,
+    0.3814
+   ],
+   "thickness": 0.11,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      1142.8,
+      908.9,
+      1151.3,
+      912.1
+     ]
+    }
+   ]
+  },
+  {
+   "id": "w_L0_019",
+   "level_id": "L0",
+   "start": [
+    9.515,
+    0.26
+   ],
+   "end": [
+    9.515,
+    7.1019
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "note": "run of 5 pieces"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_020",
+   "level_id": "L0",
+   "start": [
+    11.15,
+    2.922
+   ],
+   "end": [
+    11.15,
+    4.1214
+   ],
+   "thickness": 0.18,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      1274.3,
+      619.3,
+      1290.8,
+      713.4
+     ]
+    }
+   ]
+  },
+  {
+   "id": "w_L0_021",
+   "level_id": "L0",
+   "start": [
+    12.87,
+    2.9214
+   ],
+   "end": [
+    12.87,
+    7.1019
+   ],
+   "thickness": 0.26,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "note": "run of 2 pieces"
+    }
+   ]
+  }
+ ],
+ "openings": [
+  {
+   "id": "win_L0_001",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_001",
+   "center": [
+    1.79,
+    0.13
+   ],
+   "width": 1.46,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:1042,seg:1036,seg:1032,seg:1030",
+     "pixel_box": [
+      492.1,
+      914.5,
+      606.7,
+      935.3
+     ]
+    }
+   ],
+   "assumed": [
+    "height",
+    "sill_height"
+   ]
+  },
+  {
+   "id": "win_L0_002",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_001",
+   "center": [
+    7.08,
+    0.13
+   ],
+   "width": 1.5,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:1043,seg:1038,seg:1033,seg:1031",
+     "pixel_box": [
+      903.5,
+      916.9,
+      1019.9,
+      937.5
+     ]
+    }
+   ],
+   "assumed": [
+    "height",
+    "sill_height"
+   ]
+  },
+  {
+   "id": "win_L0_003",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_003",
+   "center": [
+    10.245,
+    2.797
+   ],
+   "width": 0.57,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:684,seg:675,seg:656,seg:647",
+     "pixel_box": [
+      1188.5,
+      712.5,
+      1233.2,
+      732.4
+     ]
+    }
+   ],
+   "assumed": [
+    "height",
+    "sill_height"
+   ]
+  },
+  {
+   "id": "o_L0_001",
+   "type": "opening",
+   "level_id": "L0",
+   "wall_id": "w_L0_005",
+   "center": [
+    2.91,
+    3.6805
+   ],
+   "width": 0.78,
+   "height": 2.1,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "derived",
+     "confidence": 0.5,
+     "page": 1,
+     "entity": "gap:raster:mask",
+     "note": "unclassified gap content: arc:26,arc:22"
+    }
+   ],
+   "assumed": [
+    "height"
+   ],
+   "type_raw": "unclassified gap content"
+  },
+  {
+   "id": "win_L0_004",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_009",
+   "center": [
+    1.81,
+    7.2319
+   ],
+   "width": 1.5,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:127,seg:122,seg:119,seg:116",
+     "pixel_box": [
+      488.0,
+      350.2,
+      608.7,
+      373.1
+     ]
+    }
+   ],
+   "assumed": [
+    "height",
+    "sill_height"
+   ]
+  },
+  {
+   "id": "win_L0_005",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_009",
+   "center": [
+    6.815,
+    7.2319
+   ],
+   "width": 1.49,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:125,seg:123,seg:120,seg:117",
+     "pixel_box": [
+      888.9,
+      356.0,
+      1007.4,
+      378.7
+     ]
+    }
+   ],
+   "assumed": [
+    "height",
+    "sill_height"
+   ]
+  },
+  {
+   "id": "win_L0_006",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_009",
+   "center": [
+    11.08,
+    7.2319
+   ],
+   "width": 1.18,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:126,seg:124,seg:121,seg:118",
+     "pixel_box": [
+      1238.3,
+      361.0,
+      1331.6,
+      383.2
+     ]
+    }
+   ],
+   "assumed": [
+    "height",
+    "sill_height"
+   ]
+  },
+  {
+   "id": "win_L0_007",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_010",
+   "center": [
+    0.1379,
+    1.7764
+   ],
+   "width": 1.19,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:695,seg:697,seg:698,seg:699",
+     "pixel_box": [
+      407.1,
+      748.9,
+      429.5,
+      842.4
+     ]
+    }
+   ],
+   "assumed": [
+    "height",
+    "sill_height"
+   ]
+  },
+  {
+   "id": "win_L0_008",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_010",
+   "center": [
+    0.1379,
+    5.4014
+   ],
+   "width": 1.2,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:371,seg:370,seg:372,seg:368",
+     "pixel_box": [
+      404.0,
+      459.4,
+      426.6,
+      556.1
+     ]
+    }
+   ],
+   "assumed": [
+    "height",
+    "sill_height"
+   ]
+  },
+  {
+   "id": "d_L0_001",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_014",
+   "center": [
+    3.385,
+    3.1514
+   ],
+   "width": 0.82,
+   "height": 2.1,
+   "sill_height": null,
+   "swing_side": "r_L0_bed_room",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "arc:26",
+     "pixel_box": [
+      667.8,
+      657.3,
+      681.2,
+      722.1
+     ],
+     "note": "swing arc without a drawn leaf"
+    }
+   ],
+   "assumed": [
+    "height"
+   ]
+  },
+  {
+   "id": "d_L0_002",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_014",
+   "center": [
+    3.385,
+    4.1914
+   ],
+   "width": 0.84,
+   "height": 2.1,
+   "sill_height": null,
+   "swing_side": "r_L0_bed_room_2",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "arc:22",
+     "pixel_box": [
+      667.8,
+      574.0,
+      681.3,
+      640.8
+     ],
+     "note": "swing arc without a drawn leaf"
+    }
+   ],
+   "assumed": [
+    "height"
+   ]
+  },
+  {
+   "id": "d_L0_003",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_016",
+   "center": [
+    5.058,
+    2.1464
+   ],
+   "width": 0.81,
+   "height": 2.1,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "arc:32",
+     "pixel_box": [
+      798.5,
+      738.0,
+      813.0,
+      801.5
+     ],
+     "note": "swing arc without a drawn leaf"
+    }
+   ],
+   "assumed": [
+    "height"
+   ]
+  },
+  {
+   "id": "o_L0_002",
+   "type": "opening",
+   "level_id": "L0",
+   "wall_id": "w_L0_016",
+   "center": [
+    5.058,
+    3.6114
+   ],
+   "width": 1.78,
+   "height": 2.1,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "derived",
+     "confidence": 0.8,
+     "page": 1,
+     "entity": "gap:raster:mask"
+    }
+   ],
+   "assumed": [
+    "height"
+   ]
+  },
+  {
+   "id": "d_L0_004",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_019",
+   "center": [
+    9.515,
+    0.8514
+   ],
+   "width": 1.02,
+   "height": 2.1,
+   "sill_height": null,
+   "swing_side": "r_L0_drawing_room",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "arc:43",
+     "pixel_box": [
+      1140.5,
+      833.4,
+      1161.5,
+      912.1
+     ],
+     "note": "swing arc without a drawn leaf"
+    }
+   ],
+   "assumed": [
+    "height"
+   ]
+  },
+  {
+   "id": "o_L0_003",
+   "type": "opening",
+   "level_id": "L0",
+   "wall_id": "w_L0_019",
+   "center": [
+    9.515,
+    3.5214
+   ],
+   "width": 0.98,
+   "height": 2.1,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "derived",
+     "confidence": 0.8,
+     "page": 1,
+     "entity": "gap:raster:mask"
+    }
+   ],
+   "assumed": [
+    "height"
+   ]
+  },
+  {
+   "id": "o_L0_004",
+   "type": "opening",
+   "level_id": "L0",
+   "wall_id": "w_L0_019",
+   "center": [
+    9.515,
+    5.7014
+   ],
+   "width": 1.56,
+   "height": 2.1,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "derived",
+     "confidence": 0.8,
+     "page": 1,
+     "entity": "gap:raster:mask"
+    }
+   ],
+   "assumed": [
+    "height"
+   ]
+  },
+  {
+   "id": "win_L0_009",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_021",
+   "center": [
+    12.87,
+    5.5814
+   ],
+   "width": 1.18,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:351,seg:350,seg:348",
+     "pixel_box": [
+      1409.3,
+      458.7,
+      1432.6,
+      552.4
+     ]
+    }
+   ],
+   "assumed": [
+    "height",
+    "sill_height"
+   ]
+  },
+  {
+   "id": "o_L0_005",
+   "type": "opening",
+   "level_id": "L0",
+   "wall_id": null,
+   "virtual": true,
+   "line": [
+    [
+     8.14,
+     4.5964
+    ],
+    [
+     9.39,
+     4.5964
+    ]
+   ],
+   "center": [
+    8.765,
+    4.5964
+   ],
+   "width": 1.25,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "derived",
+     "confidence": 0.8,
+     "page": 1,
+     "entity": "separator:raster:mask|raster:mask",
+     "note": "virtual separator (end-to-wall, 1.25 m): two room names shared one face"
+    }
+   ]
+  }
+ ],
+ "rooms": [
+  {
+   "id": "r_L0_bed_room",
+   "level_id": "L0",
+   "label": "Bed Room",
+   "label_raw": "Bed Room",
+   "room_type": "bedroom",
+   "polygon": [
+    [
+     0.2729,
+     0.26
+    ],
+    [
+     3.3,
+     0.26
+    ],
+    [
+     3.3,
+     3.5214
+    ],
+    [
+     2.52,
+     3.5214
+    ],
+    [
+     2.52,
+     3.5905
+    ],
+    [
+     0.2729,
+     3.5905
+    ]
+   ],
+   "area_computed": 10.028,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "ocr",
+     "confidence": 0.9645,
+     "page": 1,
+     "pixel_box": [
+      478.7,
+      680.5,
+      596.7,
+      701.6
+     ],
+     "model": "tesseract --oem 1 --psm 7 -l eng+tur (glyph row)",
+     "text": "Bed Room"
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ai",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "recognition:lbl_L0_7",
+     "pixel_box": [
+      474.1,
+      675.3,
+      602.4,
+      734.6
+     ],
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Bed Room"
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ai",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "recognition:lbl_L0_7",
+     "pixel_box": [
+      475.9,
+      669.1,
+      597.3,
+      729.8
+     ],
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "Bed Room"
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_001,w_L0_004,w_L0_005,w_L0_010,w_L0_014"
+    }
+   ],
+   "label_size": {
+    "text": "11' x 10'",
+    "width_m": 3.3528,
+    "length_m": 3.048,
+    "measured": [
+     3.33,
+     3.027
+    ],
+    "status": "ok",
+    "off_pct": [
+     0.7,
+     0.7
+    ]
+   }
+  },
+  {
+   "id": "r_L0_bath_toilet",
+   "level_id": "L0",
+   "label": "Bath+ Toilet",
+   "label_raw": "Bath+ Toilet",
+   "room_type": "bathroom",
+   "polygon": [
+    [
+     3.47,
+     0.26
+    ],
+    [
+     4.968,
+     0.26
+    ],
+    [
+     4.968,
+     1.7414
+    ],
+    [
+     4.91,
+     1.7414
+    ],
+    [
+     4.91,
+     2.5514
+    ],
+    [
+     4.968,
+     2.5514
+    ],
+    [
+     4.968,
+     7.1019
+    ],
+    [
+     3.47,
+     7.1019
+    ],
+    [
+     3.47,
+     2.5514
+    ],
+    [
+     4.28,
+     2.5514
+    ],
+    [
+     4.28,
+     2.3614
+    ],
+    [
+     3.47,
+     2.3614
+    ]
+   ],
+   "area_computed": 10.048,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "ocr",
+     "confidence": 0.9269,
+     "page": 1,
+     "pixel_box": [
+      706.3,
+      801.3,
+      771.2,
+      821.6
+     ],
+     "model": "tesseract --oem 1 --psm 7 -l eng+tur (glyph row)",
+     "text": "Bath+"
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ocr",
+     "confidence": 0.9695,
+     "page": 1,
+     "pixel_box": [
+      708.3,
+      832.0,
+      769.0,
+      851.7
+     ],
+     "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+     "text": "Toilet"
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ai",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "recognition:lbl_L0_5",
+     "pixel_box": [
+      670.9,
+      722.0,
+      809.0,
+      894.5
+     ],
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Bath+ Toilet"
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ai",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "recognition:lbl_L0_5",
+     "pixel_box": [
+      695.7,
+      790.6,
+      782.3,
+      861.5
+     ],
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "Bath+ Toilet"
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_001,w_L0_002,w_L0_009,w_L0_014,w_L0_015,w_L0_016"
+    }
+   ],
+   "label_size": {
+    "text": "7' x 5'",
+    "width_m": 2.1336,
+    "length_m": 1.524,
+    "measured": [
+     6.842,
+     1.498
+    ],
+    "status": "conflict",
+    "off_pct": [
+     -68.8,
+     1.7
+    ]
+   }
+  },
+  {
+   "id": "r_L0_drawing_room",
+   "level_id": "L0",
+   "label": "Drawing Room",
+   "label_raw": "Drawing Room",
+   "room_type": "living",
+   "polygon": [
+    [
+     5.148,
+     0.26
+    ],
+    [
+     9.39,
+     0.26
+    ],
+    [
+     9.39,
+     4.5964
+    ],
+    [
+     8.14,
+     4.5964
+    ],
+    [
+     8.14,
+     4.5014
+    ],
+    [
+     5.148,
+     4.5014
+    ],
+    [
+     5.148,
+     2.5514
+    ],
+    [
+     5.15,
+     2.5514
+    ],
+    [
+     5.15,
+     1.7414
+    ],
+    [
+     5.148,
+     1.7414
+    ]
+   ],
+   "area_computed": 18.109,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "ocr",
+     "confidence": 0.9626,
+     "page": 1,
+     "pixel_box": [
+      826.5,
+      627.1,
+      989.5,
+      652.8
+     ],
+     "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+     "text": "Drawing Room"
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ai",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "recognition:lbl_L0_3",
+     "pixel_box": [
+      822.5,
+      622.0,
+      988.0,
+      674.2
+     ],
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Drawing Room"
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ai",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "recognition:lbl_L0_3",
+     "pixel_box": [
+      824.2,
+      619.5,
+      991.8,
+      680.5
+     ],
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "Drawing Room"
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_001,w_L0_008,w_L0_015,w_L0_016,w_L0_017,w_L0_019"
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "derived",
+     "confidence": 0.8,
+     "entity": "separator:o_L0_005"
+    }
+   ],
+   "label_size": {
+    "text": "14' x 14'",
+    "width_m": 4.2672,
+    "length_m": 4.2672,
+    "measured": [
+     4.336,
+     4.242
+    ],
+    "status": "ok",
+    "off_pct": [
+     -1.6,
+     0.6
+    ]
+   }
+  },
+  {
+   "id": "r_L0_pooja",
+   "level_id": "L0",
+   "label": "Pooja",
+   "label_raw": "Pooja",
+   "room_type": "prayer",
+   "polygon": [
+    [
+     9.64,
+     2.922
+    ],
+    [
+     11.06,
+     2.922
+    ],
+    [
+     11.06,
+     4.1214
+    ],
+    [
+     9.64,
+     4.1214
+    ]
+   ],
+   "area_computed": 1.703,
+   "area_label": null,
+   "has_documented_furniture": false,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "ocr",
+     "confidence": 0.9691,
+     "page": 1,
+     "pixel_box": [
+      1180.0,
+      639.7,
+      1242.4,
+      665.2
+     ],
+     "model": "tesseract --oem 1 --psm 7 -l eng+tur (glyph row)",
+     "text": "Pooja"
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ocr",
+     "confidence": 0.7514,
+     "page": 1,
+     "pixel_box": [
+      1164.6,
+      670.5,
+      1257.4,
+      690.8
+     ],
+     "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+     "text": "4'x4'9\""
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ai",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "recognition:lbl_L0_2",
+     "pixel_box": [
+      1143.8,
+      613.1,
+      1278.8,
+      701.2
+     ],
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Pooja"
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ai",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "recognition:lbl_L0_2",
+     "pixel_box": [
+      1169.9,
+      634.6,
+      1246.0,
+      687.1
+     ],
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "Pooja"
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_003,w_L0_007,w_L0_019,w_L0_020"
+    }
+   ],
+   "label_size": {
+    "text": "4' x 4' 9\"",
+    "width_m": 1.2192,
+    "length_m": 1.4478,
+    "measured": [
+     1.199,
+     1.42
+    ],
+    "status": "ok",
+    "off_pct": [
+     1.7,
+     2.0
+    ]
+   }
+  },
+  {
+   "id": "r_L0_bed_room_2",
+   "level_id": "L0",
+   "label": "Bed Room",
+   "label_raw": "Bed Room",
+   "room_type": "bedroom",
+   "polygon": [
+    [
+     0.2729,
+     3.7705
+    ],
+    [
+     2.52,
+     3.7705
+    ],
+    [
+     2.52,
+     3.8014
+    ],
+    [
+     2.59,
+     3.8014
+    ],
+    [
+     2.59,
+     3.7714
+    ],
+    [
+     3.27,
+     3.7714
+    ],
+    [
+     3.27,
+     3.8114
+    ],
+    [
+     3.3,
+     3.8114
+    ],
+    [
+     3.3,
+     7.1019
+    ],
+    [
+     0.8,
+     7.1019
+    ],
+    [
+     0.8,
+     7.0514
+    ],
+    [
+     0.63,
+     7.0514
+    ],
+    [
+     0.63,
+     7.1019
+    ],
+    [
+     0.2729,
+     7.1019
+    ]
+   ],
+   "area_computed": 10.072,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "ocr",
+     "confidence": 0.9644,
+     "page": 1,
+     "pixel_box": [
+      470.2,
+      558.0,
+      588.3,
+      579.1
+     ],
+     "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+     "text": "Bed Room"
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ai",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "recognition:lbl_L0_6",
+     "pixel_box": [
+      463.3,
+      550.8,
+      598.9,
+      611.2
+     ],
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Bed Room"
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ai",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "recognition:lbl_L0_6",
+     "pixel_box": [
+      467.7,
+      558.8,
+      590.2,
+      609.4
+     ],
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "Bed Room"
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_004,w_L0_005,w_L0_009,w_L0_010,w_L0_011,w_L0_012,w_L0_013,w_L0_014"
+    }
+   ],
+   "label_size": {
+    "text": "11' x 10'",
+    "width_m": 3.3528,
+    "length_m": 3.048,
+    "measured": [
+     3.331,
+     3.027
+    ],
+    "status": "ok",
+    "off_pct": [
+     0.6,
+     0.7
+    ]
+   }
+  },
+  {
+   "id": "r_L0_kitchen",
+   "level_id": "L0",
+   "label": "Kitchen",
+   "label_raw": "Kitchen",
+   "room_type": "kitchen",
+   "polygon": [
+    [
+     9.64,
+     4.3114
+    ],
+    [
+     11.86,
+     4.3114
+    ],
+    [
+     11.86,
+     4.2614
+    ],
+    [
+     11.9,
+     4.2614
+    ],
+    [
+     11.9,
+     4.1214
+    ],
+    [
+     11.24,
+     4.1214
+    ],
+    [
+     11.24,
+     2.922
+    ],
+    [
+     12.74,
+     2.922
+    ],
+    [
+     12.74,
+     7.1019
+    ],
+    [
+     9.64,
+     7.1019
+    ]
+   ],
+   "area_computed": 10.611,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "ocr",
+     "confidence": 0.9665,
+     "page": 1,
+     "pixel_box": [
+      1232.5,
+      481.8,
+      1315.0,
+      503.1
+     ],
+     "model": "tesseract --oem 1 --psm 7 -l eng+tur (glyph row)",
+     "text": "Kitchen"
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ai",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "recognition:lbl_L0_1",
+     "pixel_box": [
+      1208.5,
+      457.2,
+      1371.8,
+      550.0
+     ],
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Kitchen"
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ai",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "recognition:lbl_L0_1",
+     "pixel_box": [
+      1229.0,
+      474.9,
+      1325.6,
+      527.3
+     ],
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "Kitchen"
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_003,w_L0_006,w_L0_007,w_L0_009,w_L0_019,w_L0_020,w_L0_021"
+    }
+   ],
+   "label_size": {
+    "text": "9' 3\" x 10' 3\"",
+    "width_m": 2.8194,
+    "length_m": 3.1242,
+    "measured": [
+     3.1,
+     4.18
+    ],
+    "status": "conflict",
+    "off_pct": [
+     -17.0
+    ]
+   }
+  },
+  {
+   "id": "r_L0_dining",
+   "level_id": "L0",
+   "label": "Dining",
+   "label_raw": "Dining",
+   "room_type": "dining",
+   "polygon": [
+    [
+     5.148,
+     4.6914
+    ],
+    [
+     8.14,
+     4.6914
+    ],
+    [
+     8.14,
+     4.5964
+    ],
+    [
+     9.39,
+     4.5964
+    ],
+    [
+     9.39,
+     7.1019
+    ],
+    [
+     5.148,
+     7.1019
+    ]
+   ],
+   "area_computed": 10.344,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "ocr",
+     "confidence": 0.9664,
+     "page": 1,
+     "pixel_box": [
+      1027.6,
+      459.4,
+      1096.7,
+      485.2
+     ],
+     "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+     "text": "Dining"
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ocr",
+     "confidence": 0.8331,
+     "page": 1,
+     "pixel_box": [
+      1024.2,
+      490.9,
+      1094.6,
+      511.5
+     ],
+     "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+     "text": "14'x8"
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ai",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "recognition:lbl_L0_4",
+     "pixel_box": [
+      1011.2,
+      448.0,
+      1099.0,
+      508.2
+     ],
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Dining"
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ai",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "recognition:lbl_L0_4",
+     "pixel_box": [
+      1025.8,
+      455.6,
+      1098.8,
+      501.7
+     ],
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "Dining"
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_008,w_L0_009,w_L0_016,w_L0_019"
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "derived",
+     "confidence": 0.8,
+     "entity": "separator:o_L0_005"
+    }
+   ],
+   "label_size": {
+    "text": "14' x 8'",
+    "width_m": 4.2672,
+    "length_m": 2.4384,
+    "measured": [
+     4.242,
+     2.505
+    ],
+    "status": "ok",
+    "off_pct": [
+     0.6,
+     -2.7
+    ]
+   }
+  }
+ ],
+ "furniture": [
+  {
+   "id": "f_L0_001",
+   "level_id": "L0",
+   "room_id": "r_L0_kitchen",
+   "type": "unknown",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     10.1964,
+     5.3448
+    ],
+    "size": [
+     0.2286,
+     0.1727
+    ],
+    "rotation_deg": 57.212
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": null,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:450,seg:452,seg:459,seg:469-470,seg:473,seg:486,seg:490-491,seg:497,seg:507",
+     "pixel_box": [
+      1201.1,
+      510.4,
+      1222.7,
+      533.3
+     ],
+     "note": "possible group of 6 pieces"
+    }
+   ],
+   "type_method": "none",
+   "type_candidates": [],
+   "build": true
+  },
+  {
+   "id": "f_L0_002",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room_2",
+   "type": "unknown",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     1.8207,
+     6.9147
+    ],
+    "size": [
+     0.3412,
+     0.108
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": null,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:132,seg:134,seg:152,seg:160,seg:162,seg:164,seg:216-217",
+     "pixel_box": [
+      545.0,
+      373.5,
+      553.8,
+      401.3
+     ],
+     "note": "possible group of 6 pieces"
+    }
+   ],
+   "type_method": "none",
+   "type_candidates": [],
+   "build": true
+  },
+  {
+   "id": "f_L0_003",
+   "level_id": "L0",
+   "room_id": "r_L0_dining",
+   "type": "unknown",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     6.8947,
+     5.9606
+    ],
+    "size": [
+     0.4261,
+     0.0505
+    ],
+    "rotation_deg": 85.646
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": null,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "arc:12",
+     "pixel_box": [
+      949.7,
+      452.4,
+      956.7,
+      486.8
+     ],
+     "note": "fits no size-table type"
+    }
+   ],
+   "type_method": "none",
+   "type_candidates": [],
+   "build": true
+  },
+  {
+   "id": "f_L0_004",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room_2",
+   "type": "unknown",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     1.9689,
+     4.2741
+    ],
+    "size": [
+     0.2019,
+     0.1193
+    ],
+    "rotation_deg": 85.1
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": null,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "arc:19,seg:540,seg:544",
+     "pixel_box": [
+      556.7,
+      591.2,
+      567.6,
+      608.2
+     ],
+     "note": "fits no size-table type"
+    }
+   ],
+   "type_method": "none",
+   "type_candidates": [],
+   "build": true
+  },
+  {
+   "id": "f_L0_005",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room",
+   "type": "unknown",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     1.1253,
+     2.7353
+    ],
+    "size": [
+     0.2329,
+     0.0881
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": null,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:664,seg:669,seg:671",
+     "pixel_box": [
+      492.3,
+      711.7,
+      499.4,
+      730.2
+     ],
+     "note": "possible group of 2 pieces"
+    }
+   ],
+   "type_method": "none",
+   "type_candidates": [],
+   "build": true
+  },
+  {
+   "id": "f_L0_006",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room_2",
+   "type": "unknown",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     1.7828,
+     4.2761
+    ],
+    "size": [
+     0.2277,
+     0.0698
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": null,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:545-546,seg:548",
+     "pixel_box": [
+      544.5,
+      590.3,
+      550.2,
+      608.5
+     ],
+     "note": "possible group of 2 pieces"
+    }
+   ],
+   "type_method": "none",
+   "type_candidates": [],
+   "build": true
+  },
+  {
+   "id": "f_L0_007",
+   "level_id": "L0",
+   "room_id": "r_L0_drawing_room",
+   "type": "unknown",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     6.5752,
+     3.4628
+    ],
+    "size": [
+     0.2271,
+     0.0698
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": null,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:589-591",
+     "pixel_box": [
+      922.8,
+      658.6,
+      928.5,
+      676.6
+     ],
+     "note": "possible group of 2 pieces"
+    }
+   ],
+   "type_method": "none",
+   "type_candidates": [],
+   "build": true
+  },
+  {
+   "id": "f_L0_008",
+   "level_id": "L0",
+   "room_id": "r_L0_drawing_room",
+   "type": "unknown",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     6.0072,
+     3.4614
+    ],
+    "size": [
+     0.2105,
+     0.0748
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": null,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:579,seg:592-593,seg:596,seg:599,seg:604-606",
+     "pixel_box": [
+      878.0,
+      659.0,
+      884.1,
+      675.6
+     ],
+     "note": "possible group of 5 pieces"
+    }
+   ],
+   "type_method": "none",
+   "type_candidates": [],
+   "build": true
+  },
+  {
+   "id": "f_L0_009",
+   "level_id": "L0",
+   "room_id": "r_L0_drawing_room",
+   "type": "unknown",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     6.7749,
+     3.4406
+    ],
+    "size": [
+     0.2168,
+     0.0596
+    ],
+    "rotation_deg": 86.808
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": null,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:583,seg:598,seg:601,seg:603,seg:609",
+     "pixel_box": [
+      938.3,
+      660.8,
+      944.2,
+      678.2
+     ],
+     "note": "possible group of 4 pieces"
+    }
+   ],
+   "type_method": "none",
+   "type_candidates": [],
+   "build": true
+  },
+  {
+   "id": "f_L0_010",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room",
+   "type": "unknown",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     1.8882,
+     2.7443
+    ],
+    "size": [
+     0.215,
+     0.0624
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": null,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:667-668,seg:673",
+     "pixel_box": [
+      553.8,
+      712.3,
+      558.8,
+      729.3
+     ],
+     "note": "possible group of 2 pieces"
+    }
+   ],
+   "type_method": "none",
+   "type_candidates": [],
+   "build": true
+  },
+  {
+   "id": "f_L0_011",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room",
+   "type": "unknown",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     1.3162,
+     2.7446
+    ],
+    "size": [
+     0.2144,
+     0.0624
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": null,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:665-666,seg:672",
+     "pixel_box": [
+      508.5,
+      711.9,
+      513.5,
+      728.8
+     ],
+     "note": "possible group of 2 pieces"
+    }
+   ],
+   "type_method": "none",
+   "type_candidates": [],
+   "build": true
+  },
+  {
+   "id": "f_L0_012",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room",
+   "type": "bed_double",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     1.534,
+     1.3263
+    ],
+    "size": [
+     2.3444,
+     2.0593
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "arc:35,arc:39,seg:701-710,seg:718,seg:721-723,seg:728-729,seg:731,seg:737,seg:739,seg:775-782,seg:784-786,seg:797,seg:801-802,seg:813-814,seg:816-818,seg:821-822,seg:826-829,seg:839-840,seg:856,seg:858,seg:867,seg:882-883,seg:886,seg:892-899,seg:904-907,seg:910,seg:913-914,seg:916-919,seg:923-927,seg:929-930,seg:932-933,seg:935-937,seg:939,seg:943,seg:945,seg:952-953,seg:955,seg:958,seg:960-963,seg:965-967,seg:974-978,seg:993-994,seg:1002,seg:1004,seg:1011,seg:1014-1018,seg:1021-1025",
+     "pixel_box": [
+      435.6,
+      750.3,
+      621.2,
+      912.4
+     ]
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_001",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "bed_double",
+     "front": "bottom",
+     "reason": "The object has a rectangular footprint with a headboard line at the top, matching a bed_double."
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ai",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "recognition:sym_L0_001",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "bed_double",
+     "front": "top",
+     "reason": "The object has a headboard and a rectangular shape consistent with a bed_double."
+    }
+   ],
+   "type_method": "ai_two_pass",
+   "type_candidates": [
+    {
+     "type": "bed_double",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "bottom",
+     "reason": "The object has a rectangular footprint with a headboard line at the top, matching a bed_double."
+    },
+    {
+     "type": "bed_double",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "top",
+     "reason": "The object has a headboard and a rectangular shape consistent with a bed_double."
+    }
+   ],
+   "build": true
+  },
+  {
+   "id": "f_L0_013",
+   "level_id": "L0",
+   "room_id": "r_L0_kitchen",
+   "type": "unknown",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     11.5171,
+     6.3318
+    ],
+    "size": [
+     2.9562,
+     0.914
+    ],
+    "rotation_deg": 152.222
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": null,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:172,seg:269,seg:272-273,seg:275,seg:426,seg:434",
+     "pixel_box": [
+      1196.0,
+      355.4,
+      1438.9,
+      532.9
+     ]
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ai",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "recognition:sym_L0_002",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "not_furniture",
+     "front": "none",
+     "reason": "The object is a kitchen area with walls and no furniture features like a backrest or doors."
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ai",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "recognition:sym_L0_002",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "not_furniture",
+     "front": "none",
+     "reason": "The object is a wall section with a door swing, not a piece of furniture."
+    }
+   ],
+   "type_method": "none",
+   "type_candidates": [
+    {
+     "type": "not_furniture",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 1.0,
+     "front": "none",
+     "reason": "The object is a kitchen area with walls and no furniture features like a backrest or doors."
+    },
+    {
+     "type": "not_furniture",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "none",
+     "reason": "The object is a wall section with a door swing, not a piece of furniture."
+    }
+   ],
+   "build": false
+  },
+  {
+   "id": "f_L0_014",
+   "level_id": "L0",
+   "room_id": "r_L0_bath_toilet",
+   "type": "stair",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     4.2249,
+     5.807
+    ],
+    "size": [
+     1.4859,
+     2.2749
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": null,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:170,seg:277-278,seg:341-342,seg:373-375,seg:410,seg:446,seg:511,seg:524,seg:533-536",
+     "pixel_box": [
+      682.3,
+      386.8,
+      801.0,
+      570.8
+     ]
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_003",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "stair",
+     "front": "left",
+     "reason": "The object has multiple parallel horizontal lines, typical of stair treads, and fits the size of a stair."
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ai",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "recognition:sym_L0_003",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "stair",
+     "front": "bottom",
+     "reason": "The object has parallel, evenly spaced tread lines, typical of a stair."
+    }
+   ],
+   "type_method": "ai_two_pass",
+   "type_candidates": [
+    {
+     "type": "stair",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "left",
+     "reason": "The object has multiple parallel horizontal lines, typical of stair treads, and fits the size of a stair."
+    },
+    {
+     "type": "stair",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 1.0,
+     "front": "bottom",
+     "reason": "The object has parallel, evenly spaced tread lines, typical of a stair."
+    }
+   ],
+   "build": true
+  },
+  {
+   "id": "f_L0_015",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room_2",
+   "type": "bed_double",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     1.8092,
+     5.8899
+    ],
+    "size": [
+     1.6526,
+     1.8178
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "arc:10,seg:232,seg:243-246,seg:252,seg:254-255,seg:257-258,seg:260-263,seg:274,seg:276,seg:280-283,seg:285-286,seg:288,seg:290-291,seg:297-300,seg:310-313,seg:317-318,seg:323,seg:326-327,seg:329,seg:334-335,seg:345-346,seg:349,seg:352,seg:367,seg:369,seg:376-377,seg:379-380,seg:441-444,seg:477-478,seg:480,seg:483,seg:515-519",
+     "pixel_box": [
+      475.6,
+      402.5,
+      621.6,
+      537.4
+     ]
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_004",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "bed_double",
+     "front": "bottom",
+     "reason": "The object has a rectangular footprint with a headboard line at the top, matching a bed_double."
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ai",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "recognition:sym_L0_004",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "bed_double",
+     "front": "top",
+     "reason": "The object has a rectangular shape with a headboard-like top edge, matching the bed_double description."
+    }
+   ],
+   "type_method": "ai_two_pass",
+   "type_candidates": [
+    {
+     "type": "bed_double",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "bottom",
+     "reason": "The object has a rectangular footprint with a headboard line at the top, matching a bed_double."
+    },
+    {
+     "type": "bed_double",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "top",
+     "reason": "The object has a rectangular shape with a headboard-like top edge, matching the bed_double description."
+    }
+   ],
+   "build": true
+  },
+  {
+   "id": "f_L0_016",
+   "level_id": "L0",
+   "room_id": "r_L0_drawing_room",
+   "type": "unknown",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     7.9936,
+     2.4807
+    ],
+    "size": [
+     1.8807,
+     0.7373
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": null,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "arc:28,arc:33-34,seg:610-620,seg:622-633,seg:635-637,seg:640-646,seg:648,seg:654-655,seg:659-663,seg:677-681,seg:683,seg:692,seg:700,seg:712-717,seg:719-720,seg:724-725,seg:730,seg:732-736,seg:738,seg:741-748,seg:750-763",
+     "pixel_box": [
+      1005.5,
+      671.7,
+      1065.4,
+      819.0
+     ]
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_005",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "wardrobe",
+     "front": "right",
+     "reason": "Vertical rectangle with shallow depth, typical of a wardrobe against a wall, front facing right."
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ai",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "recognition:sym_L0_005",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "sofa",
+     "front": "top",
+     "reason": "The object has a long rectangular shape with a backrest and seat cushions, matching the description of a sofa."
+    }
+   ],
+   "type_method": "none",
+   "type_candidates": [
+    {
+     "type": "wardrobe",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "right",
+     "reason": "Vertical rectangle with shallow depth, typical of a wardrobe against a wall, front facing right."
+    },
+    {
+     "type": "sofa",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "top",
+     "reason": "The object has a long rectangular shape with a backrest and seat cushions, matching the description of a sofa."
+    }
+   ],
+   "build": true
+  },
+  {
+   "id": "f_L0_017",
+   "level_id": "L0",
+   "room_id": "r_L0_drawing_room",
+   "type": "sofa",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     6.5374,
+     0.7921
+    ],
+    "size": [
+     1.8717,
+     0.7126
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "arc:36-37,arc:40-41,seg:787-790,seg:792-796,seg:798-799,seg:803-807,seg:810,seg:875-876,seg:890,seg:940,seg:942,seg:944,seg:947,seg:950-951,seg:956,seg:968,seg:970-972,seg:979-980,seg:983,seg:986-987,seg:989-992,seg:995-997,seg:999-1000,seg:1003,seg:1005-1007",
+     "pixel_box": [
+      847.2,
+      847.8,
+      993.3,
+      903.9
+     ]
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_006",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "sofa",
+     "front": "left",
+     "reason": "Long rectangular shape with backrest lines and armrests, matching sofa dimensions and orientation."
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ai",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "recognition:sym_L0_006",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "sofa",
+     "front": "left",
+     "reason": "The object is a long rectangle with a backrest line and pillows, matching the sofa description and size."
+    }
+   ],
+   "type_method": "ai_two_pass",
+   "type_candidates": [
+    {
+     "type": "sofa",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "left",
+     "reason": "Long rectangular shape with backrest lines and armrests, matching sofa dimensions and orientation."
+    },
+    {
+     "type": "sofa",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 1.0,
+     "front": "left",
+     "reason": "The object is a long rectangle with a backrest line and pillows, matching the sofa description and size."
+    }
+   ],
+   "build": true
+  },
+  {
+   "id": "f_L0_018",
+   "level_id": "L0",
+   "room_id": "r_L0_drawing_room",
+   "type": "unknown",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     6.5381,
+     2.4768
+    ],
+    "size": [
+     0.8517,
+     0.8517
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": null,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:649-653,seg:696,seg:726-727",
+     "pixel_box": [
+      888.2,
+      711.3,
+      955.5,
+      778.4
+     ]
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ai",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "recognition:sym_L0_007",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "unknown",
+     "front": "none",
+     "reason": "The object is a simple square outline with no distinguishing features to identify it as a specific furniture type."
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ai",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "recognition:sym_L0_007",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "unknown",
+     "front": "none",
+     "reason": "The object is a square with no distinct features, so its type cannot be determined."
+    }
+   ],
+   "type_method": "none",
+   "type_candidates": [
+    {
+     "type": "unknown",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.9,
+     "front": "none",
+     "reason": "The object is a simple square outline with no distinguishing features to identify it as a specific furniture type."
+    },
+    {
+     "type": "unknown",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.7,
+     "front": "none",
+     "reason": "The object is a square with no distinct features, so its type cannot be determined."
+    }
+   ],
+   "build": true
+  },
+  {
+   "id": "f_L0_019",
+   "level_id": "L0",
+   "room_id": "r_L0_kitchen",
+   "type": "unknown",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     12.2159,
+     3.6775
+    ],
+    "size": [
+     1.0784,
+     0.1944
+    ],
+    "rotation_deg": 138.348
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": null,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "arc:20",
+     "pixel_box": [
+      1328.3,
+      620.9,
+      1402.7,
+      689.1
+     ]
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_008",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "not_furniture",
+     "front": "none",
+     "reason": "The object is a curved line, likely a door swing or window line, not a furniture item."
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ai",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "recognition:sym_L0_008",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "not_furniture",
+     "front": "none",
+     "reason": "The object is a curved line, not a piece of furniture or a plant."
+    }
+   ],
+   "type_method": "none",
+   "type_candidates": [
+    {
+     "type": "not_furniture",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "none",
+     "reason": "The object is a curved line, likely a door swing or window line, not a furniture item."
+    },
+    {
+     "type": "not_furniture",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "none",
+     "reason": "The object is a curved line, not a piece of furniture or a plant."
+    }
+   ],
+   "build": false
+  },
+  {
+   "id": "f_L0_020",
+   "level_id": "L0",
+   "room_id": "r_L0_dining",
+   "type": "unknown",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     6.5057,
+     6.7094
+    ],
+    "size": [
+     0.7639,
+     0.6018
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": null,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:157,seg:159,seg:161,seg:163,seg:165,seg:167-168,seg:171,seg:173-174,seg:177,seg:183,seg:193,seg:199,seg:227,seg:247-248,seg:250,seg:259,seg:265-268,seg:270-271,seg:279",
+     "pixel_box": [
+      892.6,
+      384.4,
+      953.7,
+      433.7
+     ]
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_009",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "side_table",
+     "front": "none",
+     "reason": "The object is a small rectangular table with a jar on top, matching the size and shape of a side table."
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ai",
+     "confidence": 0.8,
+     "page": 1,
+     "entity": "recognition:sym_L0_009",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "potted_plant",
+     "front": "top",
+     "reason": "The object is a rounded shape with a top rim, typical of a potted plant, and its size fits the footprint."
+    }
+   ],
+   "type_method": "none",
+   "type_candidates": [
+    {
+     "type": "side_table",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "none",
+     "reason": "The object is a small rectangular table with a jar on top, matching the size and shape of a side table."
+    },
+    {
+     "type": "potted_plant",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.8,
+     "front": "top",
+     "reason": "The object is a rounded shape with a top rim, typical of a potted plant, and its size fits the footprint."
+    }
+   ],
+   "build": true
+  },
+  {
+   "id": "f_L0_021",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room_2",
+   "type": "unknown",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     2.9749,
+     6.8644
+    ],
+    "size": [
+     0.4246,
+     0.3794
+    ],
+    "rotation_deg": 98.381
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": null,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:137,seg:141-142,seg:148-151,seg:154,seg:166,seg:185,seg:188,seg:205,seg:207,seg:209-210,seg:213,seg:222,seg:225,seg:231,seg:234,seg:236,seg:238-240",
+     "pixel_box": [
+      624.4,
+      373.3,
+      659.4,
+      412.2
+     ]
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_010",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "nightstand",
+     "front": "right",
+     "reason": "The object has a small rectangle with a cross symbol, typical of a nightstand with a lamp."
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ai",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "recognition:sym_L0_010",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "floor_lamp",
+     "front": "none",
+     "reason": "The object has a circular base with spokes, typical of a floor lamp."
+    }
+   ],
+   "type_method": "none",
+   "type_candidates": [
+    {
+     "type": "nightstand",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "right",
+     "reason": "The object has a small rectangle with a cross symbol, typical of a nightstand with a lamp."
+    },
+    {
+     "type": "floor_lamp",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "none",
+     "reason": "The object has a circular base with spokes, typical of a floor lamp."
+    }
+   ],
+   "build": true
+  },
+  {
+   "id": "f_L0_022",
+   "level_id": "L0",
+   "room_id": "r_L0_dining",
+   "type": "chair",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     6.5173,
+     5.1106
+    ],
+    "size": [
+     0.4146,
+     0.3786
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:487,seg:496,seg:508-510,seg:512-513,seg:520-523,seg:526-528",
+     "pixel_box": [
+      907.5,
+      520.4,
+      937.7,
+      553.8
+     ]
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_011",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "chair",
+     "front": "bottom",
+     "reason": "The object is a small seat with a backrest, typical of a dining chair around a table."
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ai",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "recognition:sym_L0_011",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "chair",
+     "front": "top",
+     "reason": "The object has a seat shape and is positioned around a table, matching a dining chair."
+    }
+   ],
+   "type_method": "ai_two_pass",
+   "type_candidates": [
+    {
+     "type": "chair",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "bottom",
+     "reason": "The object is a small seat with a backrest, typical of a dining chair around a table."
+    },
+    {
+     "type": "chair",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "top",
+     "reason": "The object has a seat shape and is positioned around a table, matching a dining chair."
+    }
+   ],
+   "build": true
+  }
+ ],
+ "conflicts": [
+  {
+   "id": "c_001",
+   "kind": "label_size_mismatch",
+   "element_ids": [
+    "r_L0_bath_toilet"
+   ],
+   "description": "r_L0_bath_toilet: label size '7' x 5'' vs the room's clear size 22' 5\" x 4' 11\" (-68.8%, +1.7%)",
+   "resolution": "drawn walls kept; room marked unverified"
+  },
+  {
+   "id": "c_002",
+   "kind": "label_size_mismatch",
+   "element_ids": [
+    "r_L0_kitchen"
+   ],
+   "description": "r_L0_kitchen: label size '9' 3\" x 10' 3\"' vs the room's clear size 10' 2\" x 13' 9\" (-17.0%)",
+   "resolution": "drawn walls kept (within 10 %)"
+  },
+  {
+   "id": "c_003",
+   "kind": "symbol_type_disagreement",
+   "element_ids": [
+    "f_L0_016"
+   ],
+   "description": "f_L0_016: sym_L0_005: the passes disagree: pass 1 (Qwen/Qwen3-VL-8B-Instruct) wardrobe, pass 2 (zai-org/GLM-4.6V-Flash) sofa",
+   "resolution": "unresolved: the drawn footprint is kept as unknown, unverified"
+  },
+  {
+   "id": "c_004",
+   "kind": "symbol_type_disagreement",
+   "element_ids": [
+    "f_L0_020"
+   ],
+   "description": "f_L0_020: sym_L0_009: the passes disagree: pass 1 (Qwen/Qwen3-VL-8B-Instruct) side_table, pass 2 (zai-org/GLM-4.6V-Flash) potted_plant",
+   "resolution": "unresolved: the drawn footprint is kept as unknown, unverified"
+  },
+  {
+   "id": "c_005",
+   "kind": "symbol_type_disagreement",
+   "element_ids": [
+    "f_L0_021"
+   ],
+   "description": "f_L0_021: sym_L0_010: the passes disagree: pass 1 (Qwen/Qwen3-VL-8B-Instruct) nightstand, pass 2 (zai-org/GLM-4.6V-Flash) floor_lamp",
+   "resolution": "unresolved: the drawn footprint is kept as unknown, unverified"
+  }
+ ],
+ "unverified": [
+  "o_L0_001",
+  "d_L0_003",
+  "r_L0_bath_toilet",
+  "f_L0_001",
+  "f_L0_002",
+  "f_L0_003",
+  "f_L0_004",
+  "f_L0_005",
+  "f_L0_006",
+  "f_L0_007",
+  "f_L0_008",
+  "f_L0_009",
+  "f_L0_010",
+  "f_L0_011",
+  "f_L0_013",
+  "f_L0_014",
+  "f_L0_016",
+  "f_L0_018",
+  "f_L0_019",
+  "f_L0_020",
+  "f_L0_021"
+ ],
+ "warnings": [
+  "level title missing: assumed L0 Ground floor",
+  "real01_photo.jpg p1: wall component without room labels at (17.39, 0.28) m (0.48 x 0.10 m) is not part of the building: recorded in site, not built",
+  "real01_photo.jpg p1: scale from one dimension, corroborated by 5 room sizes",
+  "real01_photo.jpg p1: 1 of 6 room-size labels differ from the scale by more than 5%: Bath+ Toilet 7' x 5' vs 6.84 x 1.50 m (-68.8%, +1.7%)",
+  "sym_L0_001: bed_double without an agreed front: front unknown: width and depth follow the bed_double size convention; the side the builder faces is assumed",
+  "sym_L0_002: both passes say not_furniture: kept as an obstacle, not built",
+  "sym_L0_003: stair is not a type allowed in a bathroom room: kept, unverified",
+  "sym_L0_003: stair named by both passes, but the stair rule found no treads there: flights unknown, unverified",
+  "sym_L0_003: stair without an agreed front: front unknown: width and depth follow the stair size convention (footprint turned 90 deg); the side the builder faces is assumed",
+  "sym_L0_004: bed_double without an agreed front: front unknown: width and depth follow the bed_double size convention (footprint turned 90 deg); the side the builder faces is assumed",
+  "sym_L0_006: AI front [180.0] disagrees with the drawn front 90: front unknown",
+  "sym_L0_006: sofa without an agreed front: front unknown: width and depth follow the sofa size convention; the side the builder faces is assumed",
+  "sym_L0_007: both passes say unknown: type left open",
+  "sym_L0_008: both passes say not_furniture: kept as an obstacle, not built",
+  "sym_L0_009: AI front [90.0] disagrees with the drawn front 270: front unknown",
+  "sym_L0_011: AI front [90.0, 270.0] disagrees with the drawn front 90: front unknown",
+  "sym_L0_011: chair without an agreed front: front unknown: width and depth follow the chair size convention; the side the builder faces is assumed",
+  "real01_photo.jpg p1: photo aspect assumed: the page quad measures 1.4050 (width / height, side_ratio), snapped to the ISO (sqrt 2) sheet ratio 1.4142 (0.7 % off; no dimension groups to check it)",
+  "Level L0: ceiling height assumed 2.70 m (no section drawing found)",
+  "r_L0_kitchen: Tesseract also read 'Store' in this room on real01_photo.jpg; replaced by the accepted label 'Kitchen' (§3.4)",
+  "d_L0_003: swing side (4.92, 2.15) lies in no room of L0"
+ ],
+ "site": {
+  "boundary_walls": [
+   {
+    "id": "sw_L0_001",
+    "level_id": "L0",
+    "start": [
+     13.01,
+     -3.1586
+    ],
+    "end": [
+     13.49,
+     -3.1586
+    ],
+    "thickness": 0.1,
+    "evidence": [
+     {
+      "file": "real01_photo.jpg",
+      "method": "raster",
+      "confidence": 0.85,
+      "page": 1,
+      "entity": "raster:mask",
+      "pixel_box": [
+       1409.4,
+       1174.5,
+       1445.9,
+       1182.0
+      ]
+     }
+    ],
+    "kind": "other"
+   },
+   {
+    "id": "sw_L0_002",
+    "level_id": "L0",
+    "start": [
+     -0.91,
+     -0.8286
+    ],
+    "end": [
+     14.38,
+     -0.8286
+    ],
+    "thickness": 0.18,
+    "evidence": [
+     {
+      "file": "real01_photo.jpg",
+      "method": "raster",
+      "confidence": 0.85,
+      "page": 1,
+      "entity": "raster:mask",
+      "pixel_box": [
+       338.0,
+       990.9,
+       1519.7,
+       1010.1
+      ]
+     }
+    ],
+    "kind": "plot"
+   },
+   {
+    "id": "sw_L0_003",
+    "level_id": "L0",
+    "start": [
+     -0.9,
+     8.1764
+    ],
+    "end": [
+     14.37,
+     8.1764
+    ],
+    "thickness": 0.19,
+    "evidence": [
+     {
+      "file": "real01_photo.jpg",
+      "method": "raster",
+      "confidence": 0.85,
+      "page": 1,
+      "entity": "raster:mask",
+      "pixel_box": [
+       328.8,
+       273.5,
+       1545.6,
+       307.6
+      ]
+     }
+    ],
+    "kind": "plot"
+   },
+   {
+    "id": "sw_L0_004",
+    "level_id": "L0",
+    "start": [
+     -0.81,
+     -0.7386
+    ],
+    "end": [
+     -0.81,
+     8.0814
+    ],
+    "thickness": 0.18,
+    "evidence": [
+     {
+      "file": "real01_photo.jpg",
+      "method": "raster",
+      "confidence": 0.85,
+      "page": 1,
+      "entity": "raster:mask",
+      "pixel_box": [
+       329.0,
+       289.1,
+       352.9,
+       991.0
+      ]
+     }
+    ],
+    "kind": "plot"
+   },
+   {
+    "id": "sw_L0_005",
+    "level_id": "L0",
+    "start": [
+     14.28,
+     2.6714
+    ],
+    "end": [
+     14.28,
+     8.0814
+    ],
+    "thickness": 0.18,
+    "evidence": [
+     {
+      "file": "real01_photo.jpg",
+      "method": "raster",
+      "confidence": 0.85,
+      "page": 1,
+      "entity": "raster:mask",
+      "pixel_box": [
+       1515.0,
+       307.4,
+       1545.0,
+       735.0
+      ]
+     }
+    ],
+    "kind": "plot"
+   }
+  ],
+  "areas": [
+   {
+    "id": "sa_L0_parking",
+    "level_id": "L0",
+    "label": "Parking",
+    "label_raw": "Parking",
+    "polygon": null,
+    "evidence": [
+     {
+      "file": "real01_photo.jpg",
+      "method": "ocr",
+      "confidence": 0.9668,
+      "page": 1,
+      "pixel_box": [
+       1300.1,
+       831.3,
+       1380.9,
+       855.4
+      ],
+      "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+      "text": "Parking"
+     }
+    ],
+    "extent_m": [
+     4.738,
+     3.411
+    ],
+    "anchor": [
+     11.9661,
+     1.2501
+    ]
+   }
+  ],
+  "decor": [
+   {
+    "id": "sd_L0_001",
+    "level_id": "L0",
+    "kind": "other",
+    "center": [
+     15.1185,
+     -3.096
+    ],
+    "size": [
+     3.1656,
+     0.3489
+    ],
+    "evidence": [
+     {
+      "file": "real01_photo.jpg",
+      "method": "raster",
+      "confidence": 0.7,
+      "page": 1,
+      "entity": "arc:44,seg:1060-1064,seg:1066-1068,seg:1071,seg:1076-1078,seg:1080,seg:1091-1093,seg:1096,seg:1099-1100,seg:1102-1105,seg:1108-1111,seg:1113-1115,seg:1117-1124,seg:1126-1130,seg:1132-1135",
+      "pixel_box": [
+       1447.8,
+       1149.6,
+       1689.2,
+       1198.0
+      ]
+     }
+    ]
+   },
+   {
+    "id": "sd_L0_002",
+    "level_id": "L0",
+    "kind": "other",
+    "center": [
+     9.8956,
+     0.7098
+    ],
+    "size": [
+     0.4712,
+     1.411
+    ],
+    "evidence": [
+     {
+      "file": "real01_photo.jpg",
+      "method": "raster",
+      "confidence": 0.7,
+      "page": 1,
+      "entity": "seg:765-772,seg:1035,seg:1040-1041",
+      "pixel_box": [
+       1160.7,
+       829.4,
+       1199.5,
+       938.2
+      ]
+     }
+    ]
+   },
+   {
+    "id": "sd_L0_003",
+    "level_id": "L0",
+    "kind": "other",
+    "center": [
+     -1.6294,
+     1.2752
+    ],
+    "size": [
+     1.1418,
+     4.3723
+    ],
+    "evidence": [
+     {
+      "file": "real01_photo.jpg",
+      "method": "raster",
+      "confidence": 0.7,
+      "page": 1,
+      "entity": "seg:600,seg:1050",
+      "pixel_box": [
+       230.2,
+       661.0,
+       326.5,
+       1004.2
+      ]
+     }
+    ]
+   },
+   {
+    "id": "sd_L0_004",
+    "level_id": "L0",
+    "kind": "other",
+    "center": [
+     13.3247,
+     3.0082
+    ],
+    "size": [
+     0.2258,
+     0.2638
+    ],
+    "evidence": [
+     {
+      "file": "real01_photo.jpg",
+      "method": "raster",
+      "confidence": 0.7,
+      "page": 1,
+      "entity": "arc:29,seg:639",
+      "pixel_box": [
+       1435.6,
+       694.5,
+       1463.2,
+       721.6
+      ]
+     }
+    ]
+   },
+   {
+    "id": "sd_L0_005",
+    "level_id": "L0",
+    "kind": "other",
+    "center": [
+     13.9434,
+     3.4354
+    ],
+    "size": [
+     0.3437,
+     0.0835
+    ],
+    "evidence": [
+     {
+      "file": "real01_photo.jpg",
+      "method": "raster",
+      "confidence": 0.7,
+      "page": 1,
+      "entity": "arc:27,seg:597",
+      "pixel_box": [
+       1484.9,
+       671.9,
+       1511.6,
+       678.6
+      ]
+     }
+    ]
+   },
+   {
+    "id": "sd_L0_006",
+    "level_id": "L0",
+    "kind": "other",
+    "center": [
+     13.375,
+     3.9689
+    ],
+    "size": [
+     0.2215,
+     0.3104
+    ],
+    "evidence": [
+     {
+      "file": "real01_photo.jpg",
+      "method": "raster",
+      "confidence": 0.7,
+      "page": 1,
+      "entity": "arc:21,seg:560-561",
+      "pixel_box": [
+       1440.9,
+       619.9,
+       1470.8,
+       646.3
+      ]
+     }
+    ]
+   },
+   {
+    "id": "sd_L0_007",
+    "level_id": "L0",
+    "kind": "other",
+    "center": [
+     -1.623,
+     6.1063
+    ],
+    "size": [
+     1.1291,
+     4.3723
+    ],
+    "evidence": [
+     {
+      "file": "real01_photo.jpg",
+      "method": "raster",
+      "confidence": 0.7,
+      "page": 1,
+      "entity": "seg:105,seg:107",
+      "pixel_box": [
+       224.1,
+       270.1,
+       321.0,
+       625.4
+      ]
+     }
+    ]
+   },
+   {
+    "id": "sd_L0_008",
+    "level_id": "L0",
+    "kind": "other",
+    "center": [
+     13.369,
+     7.8066
+    ],
+    "size": [
+     0.1454,
+     0.3224
+    ],
+    "evidence": [
+     {
+      "file": "real01_photo.jpg",
+      "method": "raster",
+      "confidence": 0.7,
+      "page": 1,
+      "entity": "arc:4,seg:108",
+      "pixel_box": [
+       1452.8,
+       314.8,
+       1479.0,
+       342.3
+      ]
+     }
+    ]
+   },
+   {
+    "id": "sd_L0_009",
+    "level_id": "L0",
+    "kind": "other",
+    "center": [
+     -2.792,
+     11.0826
+    ],
+    "size": [
+     2.6905,
+     0.2633
+    ],
+    "evidence": [
+     {
+      "file": "real01_photo.jpg",
+      "method": "raster",
+      "confidence": 0.7,
+      "page": 1,
+      "entity": "arc:1,seg:59,seg:61-64,seg:66-67,seg:70-71,seg:75,seg:78,seg:80-86",
+      "pixel_box": [
+       58.0,
+       14.4,
+       281.5,
+       60.1
+      ]
+     }
+    ]
+   }
+  ],
+  "openings": []
+ }
+}

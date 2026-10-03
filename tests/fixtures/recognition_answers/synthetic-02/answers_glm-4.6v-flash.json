@@ -1,0 +1,450 @@
+{
+ "schema_version": "0.1",
+ "kind": "recognition_answers",
+ "model_key": "glm",
+ "model": "zai-org/GLM-4.6V-Flash",
+ "slug": "glm-4.6v-flash",
+ "incomplete": false,
+ "calls": {
+  "lbl_L0_1": {
+   "task": "room_label",
+   "input_sha256": "01fcd135f0e7557441f5a51d70c3bc7e7db6015d6dc93c922b5130308db9d7d0",
+   "data": {
+    "label": "YATAK ODASI",
+    "size_text": null,
+    "area_text": null,
+    "box": [
+     286,
+     786,
+     698,
+     845
+    ]
+   },
+   "raw_text": "{\n    \"label\": \"YATAK ODASI\",\n    \"size_text\": null,\n    \"area_text\": null,\n    \"box\": [286, 786, 698, 845]\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.052,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/lbl_L0_1.png"
+   ]
+  },
+  "lbl_L0_2": {
+   "task": "room_label",
+   "input_sha256": "4a6db1f4a6dc3c1cf408da827886c5b5d5ff5c4172a6424262e4a1f090aa76ec",
+   "data": {
+    "label": "BANYO",
+    "size_text": null,
+    "area_text": null,
+    "box": [
+     211,
+     522,
+     563,
+     614
+    ]
+   },
+   "raw_text": "{\n    \"label\": \"BANYO\",\n    \"size_text\": null,\n    \"area_text\": null,\n    \"box\": [211, 522, 563, 614]\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.93,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/lbl_L0_2.png"
+   ]
+  },
+  "lbl_L0_3": {
+   "task": "room_label",
+   "input_sha256": "a88ff6ea30316f47e25c2e216f2ae3f79349db67196e59f043e78415855e4aaf",
+   "data": {
+    "label": "ANTRE",
+    "size_text": null,
+    "area_text": null,
+    "box": [
+     239,
+     495,
+     620,
+     590
+    ]
+   },
+   "raw_text": "{\n    \"label\": \"ANTRE\",\n    \"size_text\": null,\n    \"area_text\": null,\n    \"box\": [239, 495, 620, 590]\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.886,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/lbl_L0_3.png"
+   ]
+  },
+  "lbl_L0_4": {
+   "task": "room_label",
+   "input_sha256": "44ae1045322d9c5ff9559625265897aacff2ce3ab2d1157f65929ffea4dcf47b",
+   "data": {
+    "label": "SALON",
+    "size_text": null,
+    "area_text": null,
+    "box": [
+     229,
+     470,
+     384,
+     526
+    ]
+   },
+   "raw_text": "{\n    \"label\": \"SALON\",\n    \"size_text\": null,\n    \"area_text\": null,\n    \"box\": [229, 470, 384, 526]\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.838,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/lbl_L0_4.png"
+   ]
+  },
+  "lbl_L0_5": {
+   "task": "room_label",
+   "input_sha256": "ffd8d0afd68b17f0d92224b0eb72d53ffc86e6c8c125fc2109ad73a23df8a3a0",
+   "data": {
+    "label": "MUTFAK",
+    "size_text": null,
+    "area_text": null,
+    "box": [
+     132,
+     640,
+     356,
+     780
+    ]
+   },
+   "raw_text": "{\n    \"label\": \"MUTFAK\",\n    \"size_text\": null,\n    \"area_text\": null,\n    \"box\": [132, 640, 356, 780]\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.786,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/lbl_L0_5.png"
+   ]
+  },
+  "sym_L0_001": {
+   "task": "symbol_type",
+   "input_sha256": "3da8f003ab2ca9de0f3f632afeb234163d6cacc90eb05b2f1bf186ca6a6cc502",
+   "data": {
+    "type": "bed_double",
+    "front": "bottom",
+    "confidence": 0.9,
+    "reason": "The object's footprint matches the typical size and shape of a double bed."
+   },
+   "raw_text": "{\n    \"type\": \"bed_double\",\n    \"front\": \"bottom\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object's footprint matches the typical size and shape of a double bed.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.397,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_001_ctx.png",
+    "crops/sym_L0_001_iso.png"
+   ]
+  },
+  "sym_L0_002": {
+   "task": "symbol_type",
+   "input_sha256": "7bd68fc769b9d4cea1f8e874f6efce65cb4d268095ff596693c9502ea1bd741e",
+   "data": {
+    "type": "kitchen_counter",
+    "front": "left",
+    "confidence": 0.8,
+    "reason": "The object's footprint matches a kitchen counter size, and the front is the left side where a user would stand."
+   },
+   "raw_text": "{\n    \"type\": \"kitchen_counter\",\n    \"front\": \"left\",\n    \"confidence\": 0.8,\n    \"reason\": \"The object's footprint matches a kitchen counter size, and the front is the left side where a user would stand.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.627,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_002_ctx.png",
+    "crops/sym_L0_002_iso.png"
+   ]
+  },
+  "sym_L0_003": {
+   "task": "symbol_type",
+   "input_sha256": "6eadb3bbc13a48205ef79aa6ce72479d010730e0716014e2db553edbfc768327",
+   "data": {
+    "type": "kitchen_counter",
+    "front": "top",
+    "confidence": 0.9,
+    "reason": "The object is a long shallow rectangle fitting the kitchen counter size and shape."
+   },
+   "raw_text": "{\n    \"type\": \"kitchen_counter\",\n    \"front\": \"top\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object is a long shallow rectangle fitting the kitchen counter size and shape.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.416,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_003_ctx.png",
+    "crops/sym_L0_003_iso.png"
+   ]
+  },
+  "sym_L0_004": {
+   "task": "symbol_type",
+   "input_sha256": "67d8ac62fc3cef6824c43d1545e3988f9e815d7f734a9738270c96edf8b21463",
+   "data": {
+    "type": "table_dining",
+    "front": "bottom",
+    "confidence": 0.8,
+    "reason": "Footprint matches dining table size, front is bottom edge."
+   },
+   "raw_text": "{\n    \"type\": \"table_dining\",\n    \"front\": \"bottom\",\n    \"confidence\": 0.8,\n    \"reason\": \"Footprint matches dining table size, front is bottom edge.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.373,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_004_ctx.png",
+    "crops/sym_L0_004_iso.png"
+   ]
+  },
+  "sym_L0_005": {
+   "task": "symbol_type",
+   "input_sha256": "990a52bc14e8dd9e6ad9f04d916d978af875f81919b870b66ad06360fb4c7ad7",
+   "data": {
+    "type": "table_dining",
+    "front": "bottom",
+    "confidence": 0.8,
+    "reason": "Footprint matches table_dining size, no backrest or headboard lines."
+   },
+   "raw_text": "{\n    \"type\": \"table_dining\",\n    \"front\": \"bottom\",\n    \"confidence\": 0.8,\n    \"reason\": \"Footprint matches table_dining size, no backrest or headboard lines.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.428,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_005_ctx.png",
+    "crops/sym_L0_005_iso.png"
+   ]
+  },
+  "sym_L0_006": {
+   "task": "symbol_type",
+   "input_sha256": "a3f06d4aa5563e37406b5c328020e2c0159a653bb5362661db5b4706b05dcc9c",
+   "data": {
+    "type": "wardrobe",
+    "front": "right",
+    "confidence": 0.9,
+    "reason": "The object is a long, shallow rectangle against a wall, matching the description of a wardrobe."
+   },
+   "raw_text": "{\n    \"type\": \"wardrobe\",\n    \"front\": \"right\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object is a long, shallow rectangle against a wall, matching the description of a wardrobe.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.455,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_006_ctx.png",
+    "crops/sym_L0_006_iso.png"
+   ]
+  },
+  "sym_L0_007": {
+   "task": "symbol_type",
+   "input_sha256": "13c7da3270c3efa665ef02bcacab4af575139fd24f35d31ccd0ef0985cab69b6",
+   "data": {
+    "type": "wardrobe",
+    "front": "right",
+    "confidence": 0.9,
+    "reason": "The object is a long, shallow rectangle against a wall, matching the typical size and shape of a wardrobe."
+   },
+   "raw_text": "{\n    \"type\": \"wardrobe\",\n    \"front\": \"right\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object is a long, shallow rectangle against a wall, matching the typical size and shape of a wardrobe.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.511,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_007_ctx.png",
+    "crops/sym_L0_007_iso.png"
+   ]
+  },
+  "sym_L0_008": {
+   "task": "symbol_type",
+   "input_sha256": "775ea2310f26d075a36cbe14e0b6ea8a4cce8f2093297513217c72dc13c4304c",
+   "data": {
+    "type": "shower",
+    "front": "bottom",
+    "confidence": 0.9,
+    "reason": "The object is a square with a 1m scale bar, matching the typical size and shape of a shower in a bathroom."
+   },
+   "raw_text": "{\n    \"type\": \"shower\",\n    \"front\": \"bottom\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object is a square with a 1m scale bar, matching the typical size and shape of a shower in a bathroom.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 2.18,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_008_ctx.png",
+    "crops/sym_L0_008_iso.png"
+   ]
+  },
+  "sym_L0_009": {
+   "task": "symbol_type",
+   "input_sha256": "dd919679af1d9c01d84b6accb58ebfd381024caeb0035935e49e323db14a17fd",
+   "data": {
+    "type": "fridge",
+    "front": "left",
+    "confidence": 0.9,
+    "reason": "The object is a square with a handle on the left side, matching the typical size and shape of a fridge."
+   },
+   "raw_text": "{\n    \"type\": \"fridge\",\n    \"front\": \"left\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object is a square with a handle on the left side, matching the typical size and shape of a fridge.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.54,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_009_ctx.png",
+    "crops/sym_L0_009_iso.png"
+   ]
+  },
+  "sym_L0_010": {
+   "task": "symbol_type",
+   "input_sha256": "f4d7dede27004a3173f622a9dcc2749b7c7e34a387c45a0d2c914142283fd5f4",
+   "data": {
+    "type": "shower",
+    "front": "none",
+    "confidence": 0.9,
+    "reason": "The object has a square footprint with a curved edge, typical of a shower enclosure."
+   },
+   "raw_text": "{\n    \"type\": \"shower\",\n    \"front\": \"none\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object has a square footprint with a curved edge, typical of a shower enclosure.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.453,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_010_ctx.png",
+    "crops/sym_L0_010_iso.png"
+   ]
+  },
+  "sym_L0_011": {
+   "task": "symbol_type",
+   "input_sha256": "b8a227a53ca4a85c9b5ed1cc197298c937e8ba05f9e9fa2179d179450c8a246d",
+   "data": {
+    "type": "table_coffee",
+    "front": "bottom",
+    "confidence": 0.8,
+    "reason": "The object's footprint is a low rectangle, fitting the size and shape of a coffee table."
+   },
+   "raw_text": "{\n    \"type\": \"table_coffee\",\n    \"front\": \"bottom\",\n    \"confidence\": 0.8,\n    \"reason\": \"The object's footprint is a low rectangle, fitting the size and shape of a coffee table.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.484,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_011_ctx.png",
+    "crops/sym_L0_011_iso.png"
+   ]
+  },
+  "sym_L0_012": {
+   "task": "symbol_type",
+   "input_sha256": "6eab83c64708601c4847e6e2d8154da6155ddb07c16af8fa637f82af40160823",
+   "data": {
+    "type": "unknown",
+    "front": "none",
+    "confidence": 0.6,
+    "reason": "The object is a square with a small line inside, size fits unknown furniture, no clear features to identify."
+   },
+   "raw_text": "{\n    \"type\": \"unknown\",\n    \"front\": \"none\",\n    \"confidence\": 0.6,\n    \"reason\": \"The object is a square with a small line inside, size fits unknown furniture, no clear features to identify.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.487,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_012_ctx.png",
+    "crops/sym_L0_012_iso.png"
+   ]
+  },
+  "sym_L0_013": {
+   "task": "symbol_type",
+   "input_sha256": "4a181f10a88c959a80ac25045bf2c2ef718642d7a7ae812ebb78686ac454e396",
+   "data": {
+    "type": "fridge",
+    "front": "right",
+    "confidence": 0.9,
+    "reason": "The object's footprint size and shape match a typical kitchen fridge."
+   },
+   "raw_text": "{\n    \"type\": \"fridge\",\n    \"front\": \"right\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object's footprint size and shape match a typical kitchen fridge.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.357,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_013_ctx.png",
+    "crops/sym_L0_013_iso.png"
+   ]
+  },
+  "sym_L0_014": {
+   "task": "symbol_type",
+   "input_sha256": "bf0761ef13ad1861f2d658836bf031019fbd469952ee78903866564dafe33a14",
+   "data": {
+    "type": "not_furniture",
+    "front": "none",
+    "confidence": 0.9,
+    "reason": "The object is a door swing, not furniture."
+   },
+   "raw_text": "{\n    \"type\": \"not_furniture\",\n    \"front\": \"none\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object is a door swing, not furniture.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.286,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_014_ctx.png",
+    "crops/sym_L0_014_iso.png"
+   ]
+  },
+  "sym_L0_015": {
+   "task": "symbol_type",
+   "input_sha256": "3c4584d5ba83b6afd2c2158e35c03422bb04e06fbfc326460605679346fa28a4",
+   "data": {
+    "type": "stove",
+    "front": "right",
+    "confidence": 0.8,
+    "reason": "The object's footprint and shape match a stove in a kitchen."
+   },
+   "raw_text": "{\n    \"type\": \"stove\",\n    \"front\": \"right\",\n    \"confidence\": 0.8,\n    \"reason\": \"The object's footprint and shape match a stove in a kitchen.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.215,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_015_ctx.png",
+    "crops/sym_L0_015_iso.png"
+   ]
+  },
+  "sym_L0_016": {
+   "task": "symbol_type",
+   "input_sha256": "c80ba49076266e7de0ea559a93f7942bd821d8c66e5dcf8f3ff519fd861379f4",
+   "data": {
+    "type": "washbasin",
+    "front": "left",
+    "confidence": 0.8,
+    "reason": "The object's footprint matches the size and shape of a washbasin from above."
+   },
+   "raw_text": "{\n    \"type\": \"washbasin\",\n    \"front\": \"left\",\n    \"confidence\": 0.8,\n    \"reason\": \"The object's footprint matches the size and shape of a washbasin from above.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.832,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_016_ctx.png",
+    "crops/sym_L0_016_iso.png"
+   ]
+  }
+ }
+}

@@ -1,0 +1,91 @@
+{
+ "real01": {
+  "items": 17,
+  "models": {
+   "qwen": {
+    "slug": "qwen3-vl-8b",
+    "answered": 17,
+    "stale": 0,
+    "failed": 0,
+    "missing": 0,
+    "incomplete": false
+   },
+   "glm": {
+    "slug": "glm-4.6v-flash",
+    "answered": 17,
+    "stale": 0,
+    "failed": 0,
+    "missing": 0,
+    "incomplete": false
+   }
+  },
+  "complete": true
+ },
+ "synthetic-02": {
+  "items": 21,
+  "models": {
+   "qwen": {
+    "slug": "qwen3-vl-8b",
+    "answered": 21,
+    "stale": 0,
+    "failed": 0,
+    "missing": 0,
+    "incomplete": false
+   },
+   "glm": {
+    "slug": "glm-4.6v-flash",
+    "answered": 21,
+    "stale": 0,
+    "failed": 0,
+    "missing": 0,
+    "incomplete": false
+   }
+  },
+  "complete": true
+ },
+ "synthetic-06": null,
+ "real01-scan": {
+  "items": 19,
+  "models": {
+   "qwen": {
+    "slug": "qwen3-vl-8b",
+    "answered": 19,
+    "stale": 0,
+    "failed": 0,
+    "missing": 0,
+    "incomplete": false
+   },
+   "glm": {
+    "slug": "glm-4.6v-flash",
+    "answered": 19,
+    "stale": 0,
+    "failed": 0,
+    "missing": 0,
+    "incomplete": false
+   }
+  },
+  "complete": true
+ },
+ "real01-photo": {
+  "items": 18,
+  "models": {
+   "qwen": {
+    "slug": "qwen3-vl-8b",
+    "answered": 18,
+    "stale": 0,
+    "failed": 0,
+    "missing": 0,
+    "incomplete": false
+   },
+   "glm": {
+    "slug": "glm-4.6v-flash",
+    "answered": 18,
+    "stale": 0,
+    "failed": 0,
+    "missing": 0,
+    "incomplete": false
+   }
+  },
+  "complete": true
+ }
+}
