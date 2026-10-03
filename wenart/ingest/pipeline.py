@@ -420,7 +420,9 @@ def _assemble_level(build: ProjectBuild, level_id: str, works: list[PageWork]) -
     for piece in ex.furniture:
         furniture.append(_furniture_dict(level_id, piece, build.ids.next("furniture", level_id), rooms, build, walls))
     bld["furniture"].extend(furniture)
-    if ex.furniture:
+    if ex.furniture or (ex.report or {}).get("questions"):
+        # Its questions go to requests.json: furniture candidates, and the room_label questions of a raster page
+        # (asked for every room face, furnished or not, §3.4).
         build.furniture_works.append(master)
     if generic:
         _add_site(build, level_id, ex)
@@ -1349,15 +1351,41 @@ def _mark_unverified(ex: LevelExtraction) -> None:
         item.status = "unverified"
 
 
-def _write_questions(build: ProjectBuild, out_dir: Path) -> None:
+def _asked_before(answers) -> Optional[set]:
+    """``{(key, input_sha256)}`` of the requests the answers in ``answers`` (a recognition folder) were given for,
+    read before this run rewrites them; None without such a folder or file."""
+    from wenart.recognition import answers as A
+
+    if not isinstance(answers, (str, Path)):
+        return None
+    doc = A.read_requests(Path(answers))
+    if not doc:
+        return None
+    return {(it.get("key"), it.get("input_sha256")) for it in doc.get("items") or []}
+
+
+def _write_questions(build: ProjectBuild, out_dir: Path, asked: Optional[set] = None) -> None:
     """``<out>/recognition/requests.json`` with the questions of the pages whose furniture is in the building
-    (§1.4); an earlier file is rewritten (empty when nothing is asked) so it never lists stale questions."""
+    (§1.4); an earlier file is rewritten (empty when nothing is asked) so it never lists stale questions.
+
+    ``asked``: the (key, input hash) pairs of the requests the given answers belong to (``_asked_before``). §1.4 has
+    one round of questions: a question this run asks that was not in that round (a raster page whose accepted
+    labels changed what it asks) cannot have answers, so it is not pending (the run never exits 4 for it); it is
+    written to the requests, its piece stays ``unknown``/``unverified`` and a warning lists it."""
     from wenart.recognition import answers as A
 
     items, pending = [], []
     for ex in [w.extraction for w in build.furniture_works] + build.question_only:
         items.extend(ex.report.get("questions") or [])
         pending.extend(ex.report.get("pending") or [])
+    if asked is not None and pending:
+        hashes = {it["key"]: it.get("input_sha256") for it in items}
+        late = [k for k in pending if (k, hashes.get(k)) not in asked]
+        if late:
+            pending = [k for k in pending if k not in late]
+            build.warn(f"{len(late)} recognition questions were not in the round the answers belong to "
+                       f"({', '.join(late)}): not answered, they stay unknown / unverified (one round of questions, "
+                       f"§1.4)")
     build.questions, build.pending = items, pending
     rec_dir = out_dir / RECOGNITION_DIR
     if items or (rec_dir / A.REQUESTS_NAME).is_file():
@@ -1378,6 +1406,7 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
         brief = yaml.safe_load(brief_path.read_text(encoding="utf-8")) or {}
     building = B.empty_building(project_dir.name, project_dir.as_posix(), pipeline_commit(), brief=brief)
     build = ProjectBuild(building)
+    asked = _asked_before(answers)              # read before this run rewrites requests.json
 
     records = classify_pages(project_dir, work_dir=out_dir / "converted", ocr=ocr)
     evidence_only = _evidence_only_pages(records)
@@ -1487,7 +1516,7 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
         systems = [w.extraction.units_system or "metric" for w in masters]
         building["project"]["unit_system"] = "imperial" if systems.count("imperial") > systems.count("metric") \
             else "metric"
-    _write_questions(build, out_dir)
+    _write_questions(build, out_dir, asked)
 
     # Conflicts: stable order and ids.
     build.raw_conflicts.sort(key=lambda c: CONFLICT_ORDER.index(c["kind"]) if c["kind"] in CONFLICT_ORDER else 99)

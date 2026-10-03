@@ -58,6 +58,7 @@ import math
 import re
 import subprocess
 import tempfile
+import dataclasses
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional, Sequence
@@ -1865,6 +1866,10 @@ DIM_PROTECT_PX = 1.5               # ... except where another stroke passes with
 ASPECT_GROUP_AGREEMENT = 0.01      # photos: each dimension group (horizontal, vertical) agrees within 1 % ...
 ASPECT_GROUP_MIN = 2               # ... with >= 2 dimensions
 ASPECT_CORRECTION = 0.015          # the groups override the sheet-ratio snap when they differ by > 1.5 %
+TEXT_PX = 20.0                     # working resolution: printed texts this tall (the 150 dpi fixtures: 15-21 px) ...
+RESAMPLE_ABOVE = 1.5               # ... a page whose texts are > 1.5 x that tall is resampled down to it
+PROBE_LONG_PX = 2600               # the text-height probe reads a copy whose long side is at most this
+PROBE_CONF = 0.8                   # ... and measures the words read with this confidence
 
 
 @dataclass
@@ -1883,9 +1888,31 @@ class RasterPage:
         return self.rect.image
 
 
+def read_grey(path: str | Path) -> Optional[np.ndarray]:
+    """An image file as grey uint8 (None when OpenCV cannot read it). An alpha channel is composited onto white
+    paper first: a plan exported with a transparent background has black (0) colour under alpha 0, which a plain
+    grey read turns into an all-ink page. Images without alpha are read as before (``IMREAD_GRAYSCALE``, which
+    also applies a JPEG's EXIF orientation)."""
+    path = Path(path)
+    gray = cv2.imread(str(path), cv2.IMREAD_GRAYSCALE)
+    if gray is None or path.suffix.lower() not in (".png", ".tif", ".tiff", ".webp"):
+        return gray
+    raw = cv2.imread(str(path), cv2.IMREAD_UNCHANGED)
+    if raw is None or raw.ndim != 3 or raw.shape[2] not in (2, 4):
+        return gray
+    scale = 255.0 / float(np.iinfo(raw.dtype).max) if np.issubdtype(raw.dtype, np.integer) else 255.0
+    arr = raw.astype(np.float64) * scale
+    alpha = arr[..., -1:] / 255.0
+    colour = arr[..., :1] if raw.shape[2] == 2 else arr[..., :3]
+    flat = colour * alpha + 255.0 * (1.0 - alpha)                     # onto white paper
+    flat = np.clip(np.round(flat), 0, 255).astype(np.uint8)
+    return flat[..., 0] if raw.shape[2] == 2 else cv2.cvtColor(flat, cv2.COLOR_BGR2GRAY)
+
+
 def load_image(path: str | Path, page_no: int = 1) -> tuple[np.ndarray, Optional[float], str]:
-    """(grey image, verified dpi or None, how): image files as they are (dpi from PNG pHYs / TIFF resolution only);
-    PDF pages rendered at ``PDF_DPI`` with pdftoppm (a verified pixel size)."""
+    """(grey image, verified dpi or None, how): image files as they are (dpi from PNG pHYs / TIFF resolution only;
+    a transparent background composited onto white, ``read_grey``); PDF pages rendered at ``PDF_DPI`` with
+    pdftoppm (a verified pixel size)."""
     path = Path(path)
     if path.suffix.lower() == ".pdf":
         from wenart.synthetic.raster import rasterise_pdf_page
@@ -1893,7 +1920,7 @@ def load_image(path: str | Path, page_no: int = 1) -> tuple[np.ndarray, Optional
             png = rasterise_pdf_page(path, page_no, Path(tmp) / "page.png", dpi=PDF_DPI, gray=True)
             gray = cv2.imread(str(png), cv2.IMREAD_GRAYSCALE)
         return gray, float(PDF_DPI), f"PDF page rendered at {PDF_DPI} dpi"
-    gray = cv2.imread(str(path), cv2.IMREAD_GRAYSCALE)
+    gray = read_grey(path)
     if gray is None:
         raise FileNotFoundError(f"{path}: not readable as an image")
     dpi = None
@@ -2016,21 +2043,74 @@ def _aspect_from_dimensions(dims) -> Optional[tuple[float, dict]]:
                                    "n_v": len(groups["v"])}
 
 
+def text_height_probe(gray: np.ndarray) -> tuple[Optional[float], int]:
+    """(median height in pixels of ``gray`` of the words Tesseract reads with conf >= ``PROBE_CONF`` and >= 3
+    letters or digits, number of such words): one psm 11 pass at 0° on a copy whose long side is at most
+    ``PROBE_LONG_PX``, lighting flattened. (None, 0) when no word is read."""
+    g = np.asarray(gray, dtype=np.uint8)
+    s = min(1.0, PROBE_LONG_PX / float(max(g.shape)))
+    small = cv2.resize(g, None, fx=s, fy=s, interpolation=cv2.INTER_AREA) if s < 1.0 else g
+    items = tesseract(RF.flatten_illumination(small), PAGE_PSM, 0)
+    heights = [_text_height_px(i) / s for i in items
+               if i["confidence"] >= PROBE_CONF and sum(ch.isalnum() for ch in str(i["text"])) >= 3]
+    return (statistics_median(heights), len(heights)) if heights else (None, 0)
+
+
+def working_resolution(gray: np.ndarray) -> tuple[np.ndarray, tuple[float, float], Optional[str]]:
+    """The page at the working resolution the pixel constants of this module are tuned for (the 150 dpi fixtures,
+    whose texts are 15-21 px tall): a page whose measured text height (``text_height_probe``) is more than
+    ``RESAMPLE_ABOVE`` x ``TEXT_PX`` is resampled down (``INTER_AREA``) so its texts are ``TEXT_PX`` tall; others
+    stay as they are (never enlarged). Returns (work image, (fx, fy) = work / original size, note or None).
+    ``_in_original`` folds the factor into ``to_original``, so every box still points at the file as given."""
+    height, words = text_height_probe(gray)
+    if height is None or height <= RESAMPLE_ABOVE * TEXT_PX:
+        return gray, (1.0, 1.0), None
+    f = TEXT_PX / height
+    h0, w0 = gray.shape[:2]
+    w1, h1 = max(1, int(round(w0 * f))), max(1, int(round(h0 * f)))
+    work = cv2.resize(gray, (w1, h1), interpolation=cv2.INTER_AREA)
+    note = (f"working resolution: texts {height:.1f} px tall ({words} words read) > {RESAMPLE_ABOVE:g} x {TEXT_PX:g} "
+            f"px; the page is read resampled to {w1} x {h1} px (x {f:.4f}), boxes map to the original")
+    return work, (w1 / float(w0), h1 / float(h0)), note
+
+
+def _in_original(rect: RF.Rectified, scale_xy: tuple[float, float], full_size: tuple[int, int]) -> RF.Rectified:
+    """A rectification of the work image (``working_resolution``) -> the same rectified image whose
+    ``to_original``, ``quad`` and ``original_size`` refer to the original image (pixel centres: a work pixel x is
+    original (x + 0.5) / f - 0.5)."""
+    fx, fy = scale_xy
+    if fx == 1.0 and fy == 1.0:
+        return rect
+    back = np.linalg.inv(np.array([[fx, 0.0, 0.5 * fx - 0.5], [0.0, fy, 0.5 * fy - 0.5], [0.0, 0.0, 1.0]]))
+    to_orig = back @ np.asarray(rect.to_original, dtype=np.float64)
+    quad = [[round(v, 2) for v in RF.apply_h(back, x, y)] for x, y in rect.quad] if rect.quad else rect.quad
+    return dataclasses.replace(rect, to_original=[[float(v) for v in row] for row in to_orig], quad=quad,
+                               original_size=(int(full_size[0]), int(full_size[1])), notes=list(rect.notes))
+
+
 def read_page(path: str | Path, page_no: int, file_rel: str, kind: str) -> RasterPage:
-    """One raster page -> ``RasterPage`` (see the module docstring). ``kind`` is ``scan`` or ``photo``."""
+    """One raster page -> ``RasterPage`` (see the module docstring). ``kind`` is ``scan`` or ``photo``.
+
+    The page is read at the working resolution (``working_resolution``: a 300 or 600 dpi scan is read like the
+    150 dpi one); ``rect.to_original``, the OCR and debug images and every ``pixel_box`` refer to the original."""
     from wenart.ingest.generic import scale as SC
 
-    gray, dpi, how = load_image(path, page_no)
+    original, dpi, how = load_image(path, page_no)
+    gray, scale_xy, res_note = working_resolution(original)
+    full_size = (int(original.shape[1]), int(original.shape[0]))
+    if dpi and scale_xy != (1.0, 1.0):
+        dpi = dpi * scale_xy[0]                     # pixels per inch of the page units (work pixels)
     rect = RF.rectify(gray, kind)
-    notes = [how] + list(rect.notes)
+    notes = [how] + ([res_note] if res_note else []) + list(rect.notes)
     if rect.review:
+        rect = _in_original(rect, scale_xy, full_size)
         rp = RasterPage(page=_page(file_rel, page_no, kind, rect, [], [], None), rect=rect, notes=notes,
-                        review=[rect.review], original=gray)
+                        review=[rect.review], original=original)
         return rp
     if kind == "photo":
         dpi = None                                  # a photo has no single pixel size
     for attempt in range(2):
-        rp = _read_rectified(gray, rect, file_rel, page_no, kind, dpi, notes)
+        rp = _read_rectified(original, _in_original(rect, scale_xy, full_size), file_rel, page_no, kind, dpi, notes)
         if kind != "photo" or rect.aspect is None or attempt == 1:
             break
         solved = _aspect_from_dimensions(rp.info.get("dims") or [])
@@ -2048,10 +2128,10 @@ def read_page(path: str | Path, page_no: int, file_rel: str, kind: str) -> Raste
                          f"vertical): height x {factor:.4f}"
                          + (f" (overrides the assumed {rect.aspect.get('name')})" if rect.aspect.get("snapped")
                             else "")]
-        rect = RF.rescale_y(rect, gray, factor)
+        rect = RF.rescale_y(rect, gray, factor)              # work image coordinates
         rect.aspect = dict(rect.aspect, snapped=None, assumed=False, solved_from="dimension groups",
                            factor=round(factor, 5))
-    rp.original = gray
+    rp.original = original
     return rp
 
 

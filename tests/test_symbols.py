@@ -123,6 +123,104 @@ def test_question_is_the_request_item_of_the_rendered_crops(tmp_path):
     assert S.question(dict(cand, crops=rendered)) == item
     with pytest.raises(ValueError):
         S.question(cand)
+    # The item carries its question facts (prep pod P5): what answers.call_args asks is what was hashed.
+    assert item["question"] == rendered["question"] == S.question_facts(cand, "vector")
+    assert item["question"]["choices"] == S.choices_for((1.6, 2.0))
+    # A room type without a printed label is not stated (it would be a guess): "an unlabelled room".
+    assert item["question"]["room"] == {"label": None, "type": None}
+
+
+# --------------------------------------------------------------------------
+# The question facts (prep pod finding P5)
+# --------------------------------------------------------------------------
+
+def test_choices_are_the_types_whose_size_fits_plus_unknown_and_not_furniture(table):
+    chair = S.choices_for((0.4618, 0.3824), table)          # a real01 dining chair
+    assert chair[-2:] == ["unknown", "not_furniture"]
+    assert "chair" in chair and "nightstand" in chair and "side_table" in chair
+    for wrong in ("armchair", "bed_double", "sofa", "tv_unit", "table_dining", "wardrobe"):
+        assert wrong not in chair, wrong
+    assert all(S.fits(table, t, (0.4618, 0.3824)) for t in chair[:-2])
+    order = list(schemas.SYMBOL_TYPE_CHOICES)
+    assert chair == sorted(chair, key=order.index)           # the schema's order: deterministic
+    night = S.choices_for((0.4956, 0.4868), table)          # a real01 nightstand (GLM said tv_unit)
+    assert "nightstand" in night and "tv_unit" not in night
+    assert S.choices_for((2.0295, 1.7795), table)[:1] == ["bed_double"]
+    assert S.choices_for((1.4966, 0.0), table) == ["unknown", "not_furniture"]       # a sliver fits nothing
+    assert S.choices_for(None, table) == list(schemas.SYMBOL_TYPE_CHOICES)          # no footprint: the full list
+    # Sub-millimetre noise does not change the list.
+    assert S.choices_for((0.46184, 0.38236), table) == chair
+
+
+def test_question_facts_vector_and_raster(table):
+    cand = candidate(size=(0.4618, 0.3824), room_type="dining", room_label=" Dining\n",
+                     neighbours={"similar": 6, "next_to": [1.2383, 0.7353], "around": 6})
+    facts = S.question_facts(cand, "vector", table)
+    assert facts == {"kind": "vector", "choices": S.choices_for((0.4618, 0.3824), table), "size_m": [0.46, 0.38],
+                     "room": {"label": "Dining", "type": "dining"},
+                     "neighbours": {"similar": 6, "next_to": [1.24, 0.74], "around": 6}}
+    # Raster: room names and clusters on a raster page may change with the label answers of the same round
+    # (review raster-1/raster-2), so the symbol question never depends on them.
+    raster = S.question_facts(cand, "raster", table)
+    assert raster == {"kind": "raster", "choices": facts["choices"], "size_m": [0.46, 0.38], "room": None,
+                      "neighbours": None}
+    # No room: nothing said about one; a face without a label: unlabelled, no guessed type.
+    assert S.question_facts(candidate(size=(0.46, 0.38)), "vector", table)["room"] is None
+    unl = S.question_facts(candidate(size=(0.46, 0.38), room_index=3, room_type="hall"), "vector", table)
+    assert unl["room"] == {"label": None, "type": None}
+    # A label whose room type has no plain words (other, unknown, an exterior area): the label alone.
+    ext = S.question_facts(candidate(size=(0.46, 0.38), room_label="Parking", room_type=None), "vector", table)
+    assert ext["room"] == {"label": "Parking", "type": None}
+    with pytest.raises(ValueError):
+        S.question_facts(cand, "photo", table)
+
+
+def _piece(key, centre, size, room=0, rotation=0.0):
+    return {"key": key, "footprint": {"center": list(centre), "size": list(size), "rotation_deg": rotation},
+            "room_index": room}
+
+
+def test_neighbour_facts_count_similar_pieces_around_a_larger_one():
+    table = _piece("t", (10.0, 10.0), (1.24, 0.74), rotation=90.0)       # 0.74 wide in x, 1.24 in y
+    chairs = [_piece("c1", (10.0, 9.18), (0.46, 0.38), rotation=90.0), _piece("c2", (10.0, 10.82), (0.46, 0.38),
+                                                                               rotation=90.0),
+              _piece("c3", (9.40, 9.70), (0.46, 0.38)), _piece("c4", (9.40, 10.30), (0.465, 0.379)),
+              _piece("c5", (10.60, 9.70), (0.46, 0.38)), _piece("c6", (10.60, 10.30), (0.465, 0.38))]
+    bed = _piece("b", (3.0, 3.0), (2.03, 1.78), room=1, rotation=90.0)
+    stands = [_piece("n1", (1.85, 3.6), (0.4956, 0.4868), room=1), _piece("n2", (4.15, 3.6), (0.4956, 0.4456),
+                                                                           room=1)]
+    far = _piece("x", (20.0, 20.0), (0.46, 0.38), room=2)                # same size, another room
+    facts = S.neighbour_facts([table] + chairs + [bed] + stands + [far])
+    for c in chairs:
+        assert facts[c["key"]] == {"similar": 6, "next_to": [1.24, 0.74], "around": 6}, c["key"]
+    assert facts["t"] == {"similar": None, "next_to": None, "around": None}
+    for n in stands:
+        assert facts[n["key"]] == {"similar": 2, "next_to": [2.03, 1.78], "around": 2}
+    assert facts["b"] == {"similar": None, "next_to": None, "around": None}
+    assert facts["x"] == {"similar": None, "next_to": None, "around": None}
+    # Deterministic: the input order does not matter.
+    assert S.neighbour_facts(list(reversed([table] + chairs + [bed] + stands + [far]))) == facts
+    # Similar pieces without a larger one next to them: only the count.
+    sofas = [_piece("s1", (0.0, 0.0), (1.89, 0.71)), _piece("s2", (5.0, 0.0), (1.90, 0.70), rotation=90.0)]
+    assert S.neighbour_facts(sofas)["s1"] == {"similar": 2, "next_to": None, "around": None}
+
+
+# --------------------------------------------------------------------------
+# A typed piece without a front: the type's width/depth convention (review ingest-6)
+# --------------------------------------------------------------------------
+
+def test_oriented_size_follows_the_type_convention(table):
+    # real01's bed: footprint [2.03, 1.78] at 90 deg (no-front rule: width = longer side). A bed_double is
+    # 1.35-2.0 wide and 1.85-2.25 deep: width = the 1.78 side.
+    size, rot, swapped = S.oriented_size((2.0295, 1.7795), 90.0, "bed_double", table)
+    assert swapped and size == (1.7795, 2.0295) and rot == 0.0
+    # Already in the convention: unchanged.
+    assert S.oriented_size((1.9, 0.7), 0.0, "sofa", table) == ((1.9, 0.7), 0.0, False)
+    size, rot, swapped = S.oriented_size((0.7, 1.9), 0.0, "sofa", table)
+    assert swapped and size == (1.9, 0.7) and rot == 90.0
+    # Types with the same width and depth range: nothing to decide.
+    assert S.oriented_size((0.46, 0.38), 90.0, "chair", table) == ((0.46, 0.38), 90.0, False)
+    assert S.oriented_size((1.0, 2.0), 30.0, "unknown", table) == ((1.0, 2.0), 30.0, False)
 
 
 # --------------------------------------------------------------------------
@@ -243,7 +341,13 @@ def test_front_rule(table):
     assert S.decide(det, both("bottom", "bottom"), table, "living")["front"] == 270.0
     res = S.decide(det, both("bottom", "top"), table, "living")
     assert res["front"] is None and any("disagrees with the drawn front" in w for w in res["warnings"])
-    assert S.decide(det, both("none", "none"), table, "living")["front"] is None
+    assert res["front_assumed"] is False
+    # Both passes 'none' (no pass contradicts it) and the type accepted: the drawn front stays, marked assumed
+    # (review ingest-6; this assertion was 'front is None' before, changed on purpose).
+    res = S.decide(det, both("none", "none"), table, "living")
+    assert res["front"] == 270.0 and res["front_assumed"] is True
+    assert any("front assumed" in w for w in res["warnings"])
+    assert S.decide(det, both("bottom", "none"), table, "living")["front_assumed"] is False   # a pass names it
     # Two different deterministic candidates are not unique: the passes decide.
     two = candidate(size=sofa, front_candidates=[0.0, 180.0])
     assert S.decide(two, both("left", "left"), table, "living")["front"] == 180.0
@@ -273,3 +377,92 @@ def test_decide_reads_the_model_ids_and_passes_from_check_yaml():
     with pytest.raises(A.UsageError):
         A.model_info("llava")
     assert set(schemas.SYMBOL_TYPE_CHOICES) == set(schemas.FURNITURE_TYPES) | {"not_furniture"}
+
+
+# --------------------------------------------------------------------------
+# The core applies the decision (review ingest-6) and asks the improved question (prep pod P5): real01
+# --------------------------------------------------------------------------
+
+def _bed_item(front_candidates=None):
+    from wenart.ingest.model import FurnitureItem
+    return FurnitureItem(type="unknown", type_raw=None, center=(5.86, 9.38), size=(2.0295, 1.7795), rotation_deg=90.0,
+                         front_deg=None, box=[0, 0, 1, 1], entity="path:1", evidence={"method": "vector"},
+                         status="unverified", type_method="none",
+                         details={"candidate_key": "sym_L0_001", "front_candidates": front_candidates or []})
+
+
+def test_core_keeps_the_drawn_front_assumed_when_both_passes_answer_none(table):
+    from wenart.ingest.generic import core
+    cand = candidate(size=(2.0295, 1.7795), rotation=90.0, front_candidates=[270.0])
+    res = S.decide(cand, {"qwen": answer("bed_double"), "glm": answer("bed_double")}, table, "bedroom")
+    item = _bed_item()
+    core._apply_decision(item, res, table)
+    assert (item.type, item.status) == ("bed_double", "verified")
+    assert item.front_deg == 270.0 and item.rotation_deg == 0.0 and item.size == (1.7795, 2.0295)
+    assert item.details["front_assumed"] is True
+
+
+def test_core_orients_a_typed_piece_without_a_front_by_its_type(table):
+    from wenart.ingest.generic import core
+    cand = candidate(size=(2.0295, 1.7795), rotation=90.0)                 # no drawn front
+    res = S.decide(cand, {"qwen": answer("bed_double", "bottom"), "glm": answer("bed_double", "top")}, table,
+                   "bedroom")
+    assert res["front"] is None and res["type"] == "bed_double"
+    item = _bed_item()
+    core._apply_decision(item, res, table)
+    assert item.front_deg is None and item.size == (1.7795, 2.0295) and item.rotation_deg == 0.0
+    assert "front_assumed" not in item.details and "bed_double" in item.details["front_note"]
+    # An unknown type keeps the no-front convention.
+    res = S.decide(cand, {"qwen": answer("bed_double"), "glm": answer("sofa")}, table, "bedroom")
+    item = _bed_item()
+    core._apply_decision(item, res, table)
+    assert item.size == (2.0295, 1.7795) and item.rotation_deg == 90.0 and "front_note" not in item.details
+
+
+@pytest.fixture(scope="module")
+def real01_first():
+    pytest.importorskip("pdfplumber")
+    from wenart.ingest import cad_pdf
+    from wenart.ingest.generic import core
+    page = cad_pdf.read_page(ROOT / "projects" / "real01" / "real01.pdf", 1, "real01.pdf")
+    return page, core.extract(page, "L0", "real01.pdf")
+
+
+def test_real01_questions_carry_room_fitting_types_and_neighbours(real01_first):
+    _, ex = real01_first
+    items = {q["key"]: q for q in ex.report["questions"]}
+    assert len(items) == 17
+    chair = next(q for q in items.values() if q["question"]["room"] == {"label": "Dining", "type": "dining"}
+                 and q["question"]["neighbours"]["around"])
+    facts = chair["question"]
+    assert facts["kind"] == "vector" and facts["neighbours"]["around"] == 6 and facts["neighbours"]["similar"] == 6
+    assert "chair" in facts["choices"] and "armchair" not in facts["choices"]
+    beds = [q for q in items.values() if q["question"]["choices"][:1] == ["bed_double"]]
+    assert len(beds) == 2 and all(q["question"]["room"]["label"] == "Bed Room" for q in beds)
+    stands = [q for q in items.values() if (q["question"]["neighbours"] or {}).get("next_to") == [2.03, 1.78]]
+    assert len(stands) == 4 and all(q["question"]["neighbours"]["around"] == 2 for q in stands)
+    from wenart.recognition import answers as A
+    from wenart.recognition import crops as C
+    for q in items.values():
+        args = A.call_args(q, ".")
+        digest = C.question_digest("symbol_type", q["question"])
+        assert args["prompt"] == digest["prompt"] and args["schema"] == digest["schema"]
+        assert args["schema"]["properties"]["type"]["enum"] == q["question"]["choices"]
+
+
+def test_real01_beds_answered_front_none_keep_the_drawn_front(real01_first):
+    """Review ingest-6: agreeing answers with front 'none' (as tests/test_real01.py::_answer) must not build the bed
+    rotated 90 deg: the drawn front (pillows, wall) is kept, assumed; size [width, depth] = [1.78, 2.03]."""
+    from wenart.ingest.generic import core
+    page, ex0 = real01_first
+    beds = [c["key"] for c in ex0.candidates if c["request"]["question"]["choices"][:1] == ["bed_double"]]
+    answers = {c["key"]: {"qwen": answer("bed_double" if c["key"] in beds else "unknown"),
+                          "glm": answer("bed_double" if c["key"] in beds else "unknown")} for c in ex0.candidates}
+    ex = core.extract(page, "L0", "real01.pdf", answers=answers)
+    typed = [f for f in ex.furniture if f.type == "bed_double"]
+    assert len(typed) == 2
+    for f in typed:
+        assert f.status == "verified" and f.details.get("front_assumed") is True
+        assert f.front_deg in (90.0, 270.0)
+        assert f.rotation_deg == round((f.front_deg + 90.0) % 360.0, 3)
+        assert [round(v, 2) for v in f.size] == [1.78, 2.03]

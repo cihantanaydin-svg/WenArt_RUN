@@ -478,7 +478,8 @@ def raster_kind(path: Path) -> tuple[str, str]:
                 return "photo", "EXIF camera tags"
     except Exception:  # noqa: BLE001 - unreadable EXIF is not fatal
         pass
-    gray = cv2.imread(str(path), cv2.IMREAD_GRAYSCALE)
+    from wenart.ingest.raster import read_grey
+    gray = read_grey(path)                        # a transparent background on white paper, as the adapter reads it
     if gray is None:
         return "scan", "image not readable by OpenCV, assumed scan"
     h, w = gray.shape

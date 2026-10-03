@@ -181,9 +181,91 @@ def test_m7_symbol_type_prompt_matches_its_schema():
     for name in schemas.SYMBOL_TYPE["properties"]:
         assert f"- {name}:" in text, name
     assert str(schemas.REASON_MAX_CHARS) in text
-    # One fixed text for every object and both models: no room hint, nothing per item.
-    assert prompts.symbol_type_prompt() == text and prompts.symbol_type_prompt.__code__.co_argcount == 0
+    # Without item facts: the generic text (full type list, vector crops). The question of a real request carries
+    # its item's facts (prep pod finding P5, changed on purpose: room, fitting types, neighbours; see below).
+    assert prompts.symbol_type_prompt() == text == prompts.symbol_type_prompt(None)
     assert len(prompts.SYMBOL_IMAGE_LABELS) == 2
+
+
+DINING_CHAIR = {"kind": "vector", "choices": ["chair", "nightstand", "side_table", "floor_lamp", "potted_plant",
+                                              "unknown", "not_furniture"],
+                "size_m": [0.46, 0.38], "room": {"label": "Dining", "type": "dining"},
+                "neighbours": {"similar": 6, "next_to": [1.24, 0.74], "around": 6}}
+
+
+def _allowed_line(text: str) -> str:
+    return next(line for line in text.splitlines() if line.startswith("Allowed values for type:"))
+
+
+def test_m7_symbol_prompt_carries_the_item_facts():
+    """Prep pod P5: the room's documented label and type, only the types whose size range fits the drawn footprint
+    (plus unknown and not_furniture), the neighbours; deterministic text, so it can be hashed."""
+    text = prompts.symbol_type_prompt(DINING_CHAIR)
+    assert text == prompts.symbol_type_prompt(dict(DINING_CHAIR)) == prompts.m7_prompt("symbol_type", DINING_CHAIR)
+    assert text.startswith(prompts.SYMBOL_QUESTION) and text.rstrip().endswith("Answer only with JSON.")
+    assert 'labelled "Dining"' in text and "dining room" in text
+    assert "0.46 x 0.38 m" in text
+    assert "one of 6 objects" in text and "1.24 x 0.74 m" in text
+    allowed = _allowed_line(text)
+    for value in DINING_CHAIR["choices"]:
+        assert value in allowed
+    for value in ("armchair", "bed_double", "sofa", "tv_unit", "stove"):
+        assert value not in allowed and f"- {value}:" not in text
+    assert "- not_furniture:" in text and "- unknown:" in text
+    # Each fact changes the text (and so the hash).
+    assert prompts.symbol_type_prompt(dict(DINING_CHAIR, room={"label": "Kitchen", "type": "kitchen"})) != text
+    assert prompts.symbol_type_prompt(dict(DINING_CHAIR, neighbours=None)) != text
+    assert prompts.symbol_type_prompt(dict(DINING_CHAIR, choices=["chair", "unknown", "not_furniture"])) != text
+    # An unlabelled room says so; no room says nothing about a room.
+    bare = prompts.symbol_type_prompt(dict(DINING_CHAIR, room={"label": None, "type": "hall"}, neighbours=None))
+    assert "unlabelled room" in bare and "hall or corridor" not in bare      # no guessed type for an unlabelled room
+    none = prompts.symbol_type_prompt(dict(DINING_CHAIR, room=None, neighbours=None))
+    assert "labelled" not in none and "same size and shape" not in none
+
+
+def test_m7_symbol_prompt_defines_the_front_and_the_symbols_on_top():
+    """Prep pod P5 (c), (e): small symbols drawn on a piece belong to it; the front in image terms, unambiguous."""
+    for text in (prompts.symbol_type_prompt(), prompts.symbol_type_prompt(DINING_CHAIR)):
+        assert "belong to it" in text and "telephone" in text and "lamp" in text
+        assert "opposite the headboard" in text and "opposite the backrest" in text
+        assert "edge of the second image" in text
+        for side in ("top", "right", "bottom", "left", "none"):
+            assert side in text
+
+
+def test_m7_symbol_prompt_raster_variant():
+    """Review raster-7: a raster crop is a pixel copy of the scan: every line is ink and text may appear, so the
+    vector wording (grey coding, no text) is never sent with it."""
+    vector = prompts.symbol_type_prompt(DINING_CHAIR)
+    raster = prompts.symbol_type_prompt(dict(DINING_CHAIR, kind="raster", room=None, neighbours=None))
+    assert "mid-grey" in vector and "There is no text in the images." in vector
+    assert "mid-grey" not in raster and "light grey" not in raster and "no text" not in raster
+    assert "scanned or photographed" in raster and "dark ink" in raster and "ignore" in raster
+    assert "1 m long" in raster and "dashed box" in raster
+    with pytest.raises(ValueError):
+        prompts.symbol_type_prompt(dict(DINING_CHAIR, kind="photo"))
+
+
+def test_m7_symbol_type_schema_narrows_the_type_enum():
+    """The grammar of one item offers exactly the item's choices; stored answers are still checked against the full
+    schema (``schemas.SYMBOL_TYPE``)."""
+    narrow = schemas.symbol_type_schema(["chair", "unknown", "not_furniture"])
+    assert narrow["properties"]["type"]["enum"] == ["chair", "unknown", "not_furniture"]
+    assert {k: v for k, v in narrow["properties"].items() if k != "type"} == \
+        {k: v for k, v in schemas.SYMBOL_TYPE["properties"].items() if k != "type"}
+    assert schemas.symbol_type_schema() == schemas.symbol_type_schema(None) == schemas.SYMBOL_TYPE
+    assert schemas.SYMBOL_TYPE["properties"]["type"]["enum"] == list(schemas.SYMBOL_TYPE_CHOICES)    # untouched
+    import jsonschema
+    good = {"type": "chair", "front": "top", "confidence": 0.7, "reason": "seat and back"}
+    jsonschema.validate(good, narrow)
+    with pytest.raises(jsonschema.ValidationError):
+        jsonschema.validate(dict(good, type="armchair"), narrow)
+    # The order is the schema's, whatever order the caller gives; unknown names are refused.
+    assert schemas.symbol_type_schema(["not_furniture", "chair", "unknown"])["properties"]["type"]["enum"] == \
+        ["chair", "unknown", "not_furniture"]
+    for bad in (["couch"], [], ["door"]):
+        with pytest.raises(ValueError):
+            schemas.symbol_type_schema(bad)
 
 
 def test_m7_room_label_prompt_matches_its_schema():

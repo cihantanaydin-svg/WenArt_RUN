@@ -685,9 +685,14 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
         ex.texts = _text_items(page, dim_text_ids, {r.id for b in blocks for r in b.runs})
         if label_items:
             # The printed room sizes that could corroborate the scale wait for their label answers (§3.4): the
-            # questions are written now; the run with the answers decides.
-            ex.report["questions"] = list(label_items)
-            ex.report["pending"] = [] if no_ai else list(label_pending)
+            # questions are written now; the run with the answers decides. §1.4 has one round of questions, so
+            # the furniture candidates are asked now as well, at the provisional scale: the confirmed scale keeps
+            # its metres per unit, so the crops and their input hashes are the same in the run with the answers.
+            # (Raster candidates are pixel crops of the rectified page: no wall or stroke context needed.)
+            _ask_and_apply(ex, page, cands, [], [], answers, no_ai, Path(rec_dir) if rec_dir is not None else None,
+                           level_id, raster=raster, evidence_only=evidence_only)
+            ex.report["questions"] = list(ex.report.get("questions") or []) + list(label_items)
+            ex.report["pending"] = [] if no_ai else list(ex.report.get("pending") or []) + list(label_pending)
             ex.report["review_awaits_answers"] = bool(label_pending) and not no_ai
         return ex
     ex.scale = confirmed

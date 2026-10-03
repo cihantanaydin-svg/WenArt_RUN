@@ -210,6 +210,56 @@ def test_hash_is_a_canonical_description_not_png_bytes(tmp_path):
         prompts.SYMBOL_QUESTION = old
 
 
+def test_hash_covers_the_question_facts_of_the_item(tmp_path):
+    """Prep pod P5: the question names the room, the fitting types and the neighbours, so they are hashed (a stored
+    answer to another question is stale). Raster questions never depend on room names or neighbours (they may change
+    with the label answers of the same round), so those do not change a raster hash (review raster-1)."""
+    cands = toy_candidates()
+    chair, ctx = cands[1], toy_context(cands, "sym_T0_2")
+    base = C.canonical_sha256(C.vector_description(chair, ctx))
+    for change in ({"room_type": "living"}, {"room_label": "Salon"},
+                   {"neighbours": {"similar": 2, "next_to": None, "around": None}},
+                   {"footprint": dict(chair["footprint"], size=[0.7, 0.7])}):
+        assert C.canonical_sha256(C.vector_description(dict(chair, **change), ctx)) != base, change
+    page = np.full((600, 800), 255, np.uint8)
+    page[200:260, 300:420] = 0
+    raster = {"key": "sym_R0_1", "footprint": {"center": [3.6, 3.7], "size": [1.2, 0.6], "rotation_deg": 0.0},
+              "strokes": [rect(3.0, 3.4, 4.2, 4.0)], "bbox": [3.0, 3.4, 4.2, 4.0]}
+    rctx = {"image": page, "to_px": [100.0, 0.0, 0.0, 0.0, -100.0, 600.0]}
+    rbase = C.canonical_sha256(C.raster_crops(raster, rctx)[0])
+    for change in ({"room_type": "living"}, {"room_label": "Salon"},
+                   {"neighbours": {"similar": 2, "next_to": None, "around": None}}):
+        assert C.canonical_sha256(C.raster_crops(dict(raster, **change), rctx)[0]) == rbase, change
+    desc = C.raster_crops(raster, rctx)[0]
+    assert desc["question"]["facts"]["kind"] == "raster" and "mid-grey" not in desc["question"]["prompt"]
+
+
+def test_call_args_ask_exactly_the_hashed_question(toy):
+    rec, items = toy
+    for item in items:
+        args = A.call_args(item, rec)
+        digest = C.question_digest("symbol_type", item["question"])
+        assert args["prompt"] == digest["prompt"] and args["schema"] == digest["schema"]
+        assert args["schema"]["properties"]["type"]["enum"] == item["question"]["choices"]
+        assert args["labels"] == list(prompts.SYMBOL_IMAGE_LABELS)
+    bed = A.call_args(items[0], rec)
+    assert "bed_double" in bed["schema"]["properties"]["type"]["enum"]
+    assert "chair" not in bed["schema"]["properties"]["type"]["enum"]
+    assert "bed_double" not in A.call_args(items[1], rec)["schema"]["properties"]["type"]["enum"]
+    # An item without facts (hand-made, older requests) gets the generic question and the full list.
+    bare = {k: v for k, v in items[0].items() if k != "question"}
+    assert A.call_args(bare, rec)["prompt"] == prompts.symbol_type_prompt()
+    assert A.call_args(bare, rec)["schema"] == schemas.SYMBOL_TYPE
+
+
+def test_requests_refuse_a_broken_question(toy, tmp_path):
+    _, items = toy
+    for bad in ({"kind": "vector", "choices": ["couch", "unknown"]}, {"kind": "vector", "choices": []},
+                {"kind": "photo", "choices": ["chair"]}, "chair"):
+        with pytest.raises(ValueError, match="question"):
+            A.write_requests(tmp_path, "toy", [dict(items[0], question=bad)])
+
+
 def test_canonical_rings_do_not_depend_on_vertex_order():
     ring = [[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]
     rotated = [[1, 1], [0, 1], [0, 0], [1, 0], [1, 1]]
