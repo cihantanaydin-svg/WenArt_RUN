@@ -856,6 +856,11 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
     wall_strokes = prim_ids - set(wall_info.get("dropped_strokes", []))
     non_wall = [st for st in strokes_m if st.id not in wall_strokes]
     walls2, openings, gap_log, owned = O.gaps_and_openings(walls, non_wall, file_rel, page_no, units_to_m=s)
+    for e in gap_log:
+        if e.get("kind") == "wall_piece":
+            # A door leaf fused to a wall face (the run's faces kept; also in the wall's evidence note) or a frame or
+            # nub at a wall end (no wall end of its own): never silent (CLAUDE.md).
+            ex.notes.append(f"{where}: wall {e['wall']}: {e['note']}")
     if is_raster:
         joined = _close_raster_joints(walls2, RASTER_JOINT_PX * s)
         if joined:

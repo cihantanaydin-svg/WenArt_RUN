@@ -1211,7 +1211,7 @@ def _generic_sections(b: dict, build: ProjectBuild) -> list[str]:
 
     lines += ["", "## Gaps", ""]
     gaps = [(work, e) for work in build.generic for e in work.extraction.report.get("gaps") or []
-            if e.get("kind") != "free_end"]
+            if e.get("kind") not in ("free_end", "wall_piece")]      # wall_piece entries are page notes
     if gaps:
         lines += ["| Page | Kind | Class | Width | Owned strokes |", "|---|---|---|---|---|"]
         for work, e in gaps:

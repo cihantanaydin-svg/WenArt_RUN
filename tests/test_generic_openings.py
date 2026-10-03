@@ -229,6 +229,76 @@ def test_door_beside_a_perpendicular_wall_in_an_open_run_gap_is_an_end_gap():
     assert len([w for w in out_walls if w.thickness == 0.15]) == 2  # the open gap keeps the pieces apart
 
 
+def test_an_end_cap_is_no_wall_end():
+    """P7 (real01 photo, store door): a 0.04 m piece 0.14 m thick at the end of a 0.19 m wall (a door frame or nub in
+    the mask) kept the wall's end from being free, so the door's end gap was never cast. The cap is no wall end: the
+    wall's end is free and its end gap, from the wall's end as on vector pages, holds the door. The cap stays as
+    drawn and is logged with a note, not silent. Frames inside a run gap (the entrance's) leave its width alone and
+    cast no gap of their own."""
+    walls = [R.wall((3, -2), (3, 2), 0.2, entity="perp"), R.wall((0, 0), (2, 0), 0.19, entity="free"),
+             R.wall((2, 0.025), (2.04, 0.025), 0.14, entity="cap")]
+    door = _door((2.88, 0.06), 0.88, 180, 90, leaf=False)
+    out_walls, openings, log, owned = _run(walls, door)
+    assert [o.kind for o in openings] == ["door"] and door[0].id in owned
+    assert openings[0].width == pytest.approx(0.9) and openings[0].center == pytest.approx((2.45, 0.0))
+    host = [w for w in out_walls if "free" in w.entity.split(",")]
+    assert len(host) == 1 and host[0].thickness == pytest.approx(0.19)
+    assert sorted((host[0].start, host[0].end)) == [pytest.approx((0.0, 0.0)), pytest.approx((2.9, 0.0))]
+    assert "extended to host the drawn door" in host[0].evidence["note"]
+    cap = [w for w in out_walls if w.entity == "cap"]
+    assert [(w.start, w.end, w.thickness) for w in cap] == [((2, 0.025), (2.04, 0.025), 0.14)]   # as drawn
+    assert "not a wall end of its own" in cap[0].evidence["note"]
+    caps = [e for e in log if e["kind"] == "wall_piece"]
+    assert [(e["how"], e["thickness"], out_walls[e["of"]] is host[0]) for e in caps] == [("end_cap", 0.14, True)]
+    # Frames 0.04 m long at both ends of a run gap: the door spans wall end to wall end, no end gap from a frame.
+    run = [R.wall((0, 5), (2, 5), 0.25), R.wall((2, 4.98), (2.04, 4.98), 0.12, entity="frame1"),
+           R.wall((2.86, 4.98), (2.9, 4.98), 0.12, entity="frame2"), R.wall((2.9, 5), (5, 5), 0.25)]
+    door = _door((2.0, 5.1), 0.9, 0, 90, leaf=False)
+    _, openings, log, _ = _run(run, door)
+    assert [(o.kind, o.width) for o in openings] == [("door", pytest.approx(0.9))]
+    assert [e["class"] for e in log if e["kind"] == "run"] == ["door"] and not [e for e in log if e["kind"] == "end"]
+    assert [e["how"] for e in log if e["kind"] == "wall_piece"] == ["end_cap", "end_cap"]
+
+
+def test_a_door_leaf_fused_to_a_wall_face_is_not_wall():
+    """P7 (real01 photo and scan, bath door): the leaf, filled into the wall mask along the face it rests on, made
+    that stretch of the run 0.05 m thicker, so it left the run; the run saw a 'gap' there, and the gap took the
+    door's arc. The stretch joins its run (one face flush, a strip <= a leaf's width on the swing's side, the swing
+    hinged at it and the strip as long as its leaf): no gap there, and the end gap from the bath wall to the run's
+    true face holds the door."""
+    run = [R.wall((3, -2), (3, 0.05), 0.19, entity="south"),
+           R.wall((2.975, 0.05), (2.975, 0.83), 0.24, entity="strip"),
+           R.wall((3, 0.83), (3, 3), 0.19, entity="north")]
+    bath = R.wall((0, 0.1), (2.2, 0.1), 0.19, entity="bath")
+    swing = R.arc((2.89, 0.1), 0.72, 180, 90)                    # closed at the bath wall's end, open along x 2.89
+    out_walls, openings, log, owned = _run(run + [bath], [swing])
+    assert [o.kind for o in openings] == ["door"] and swing.id in owned
+    assert openings[0].width == pytest.approx(0.705) and openings[0].center == pytest.approx((2.5525, 0.1))
+    assert not [e for e in log if e["kind"] in ("run", "split")]          # no 'gap' where the leaf lies
+    wall = [w for w in out_walls if "strip" in w.entity.split(",")]
+    assert len(wall) == 1 and {"south", "north"} <= set(wall[0].entity.split(","))
+    assert wall[0].thickness == pytest.approx(0.19) and wall[0].start[0] == pytest.approx(3.0)
+    assert "is not counted as wall" in wall[0].evidence["note"]
+    joined = [e for e in log if e["kind"] == "wall_piece"]
+    assert [(e["how"], e["thickness"], e["run_thickness"], e["strip"], e["arc"]) for e in joined] == \
+        [("fused_strip", 0.24, 0.19, 0.05, swing.id)]
+
+
+def test_thicker_wall_stretches_without_their_evidence_stay_walls():
+    """The joins need their evidence: a thicker stretch between two run pieces that no door swing explains (a
+    pilaster), one thicker on both faces (a column) and a thicker wall continuing a run (a real thickness change)
+    keep their own thickness."""
+    pilaster = [R.wall((0, 0), (2, 0), 0.19), R.wall((2, 0.025), (2.8, 0.025), 0.24, entity="pilaster"),
+                R.wall((2.8, 0), (5, 0), 0.19)]
+    column = [R.wall((0, 3), (2, 3), 0.15), R.wall((2, 3), (2.3, 3), 0.25, entity="column"),
+              R.wall((2.3, 3), (5, 3), 0.15)]
+    thicker = [R.wall((0, 6), (3, 6), 0.15), R.wall((3, 6.03), (6, 6.03), 0.19, entity="thicker")]
+    out_walls, _, log, _ = _run(pilaster + column + thicker, [])
+    assert not [e for e in log if e["kind"] == "wall_piece"]
+    for name, t in (("pilaster", 0.24), ("column", 0.25), ("thicker", 0.19)):
+        assert [w.thickness for w in out_walls if w.entity == name] == [t]
+
+
 # --------------------------------------------------------------------------
 # Continuous-wall symbols (synthetic convention)
 # --------------------------------------------------------------------------

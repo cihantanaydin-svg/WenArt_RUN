@@ -345,6 +345,16 @@ box, height and rotation. Zero-length strokes (dots) are kept. `pipeline.py` dis
 ### 2.6 Openings (`generic/openings.py`, G2)
 
 - **Runs**: rectangles on one axis line (centre-line offset ≤ 20 mm, thickness ± 30 mm).
+  Odd mask pieces (P7, real01 photo), each logged as a page note and in the wall's evidence note:
+  - *fused strip*: a door leaf filled into the wall mask along a wall face makes a stretch thicker on one face, so it
+    leaves its run and the run sees a false gap. It joins the run (run faces kept, the strip is not wall) when it lies
+    between two run pieces, one face is flush (≤ 20 mm), the other is out by ≤ 60 mm (+ 1.5 px on rasters), and a
+    door swing explains it (arc of 60–100°, hinged within 0.08 m of the piece, swinging on the strip's side; the
+    strip runs from within 0.10 m of the hinge for 0.85–1.05 r + 0.10 m).
+  - *end cap*: a piece shorter than its own thickness touching (on one side only) the end of a longer wall of
+    another cross-section, ≤ 60 mm (+ 1.5 px) outside its band, on a line with no other wall pieces than such caps
+    (a door frame or nub, not a short junction piece of a wall run) is no wall end: no gap is cast
+    from or to it, and it keeps no end from being free; the opening runs from wall end to wall end.
 - **Gaps** (all three kinds go through the same classifier):
   - (a) *run gap* between consecutive pieces of a run;
   - (b) *end gap*: from a free wall end (no wall within 50 mm of its end face) along its axis to the first wall face hit

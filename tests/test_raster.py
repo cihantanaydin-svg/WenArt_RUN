@@ -528,7 +528,57 @@ def test_real01_raster_targets(kind, targets, real01_vector, real01_raster):
                     G.apply_homography(h.tolist(), (PT_PER_FT / 0.3048, 0.0)))
     assert abs(1.0 / page["scale"]["metres_per_unit"] / ppm - 1.0) <= scale_max
     labelled = [r for r in building["rooms"] if r.get("label") and r["status"] == "verified"]
-    assert len(labelled) >= 6
+    assert len(labelled) == 8          # all 8 labelled rooms (P7: the photo had 6, its bath and store doors missed)
+
+
+@pytest.mark.slow
+def test_real01_photo_bath_and_store_doors(real01_vector, real01_raster):
+    """P7 (real01 photo, prep pod 2: 6/8 rooms with the right label). The store door's wall ended in a 0.04 m end
+    cap of another thickness, so its end was not free and the door's end gap was never cast: the arc became a
+    furniture cluster and the store merged into the kitchen. The bath door's leaf, filled into the wall mask along
+    the drawing room's west wall, made that stretch 0.05 m thicker: the run saw a 'gap' there that took the bath
+    door's arc, and the bath ran up through the passage (6.84 x 1.50 m). ``openings.end_caps`` (the nub is no wall
+    end) and ``openings.join_fused_strips`` (the leaf strip is not wall, a door swing explains it) fix both, noted;
+    both doors now sit in their end gaps and both rooms are faces of their printed size."""
+    from wenart.ingest.generic import core
+    from wenart.recognition.room_labels import norm_value
+
+    building = real01_raster("photo")[2]
+    rooms = {r["label_raw"]: r for r in building["rooms"] if r.get("label_raw")}
+    for name, size_ft in (("Store", (4.0, 5.0)), ("Bath+ Toilet", (7.0, 5.0)), ("Kitchen", (9.25, 10.25))):
+        room = rooms[name]
+        check = room["label_size"]
+        assert room["status"] == "verified" and check["status"] == "ok", (name, check)
+        for got, want in zip(sorted(check["measured"]), sorted(v * 0.3048 for v in size_ft)):
+            assert abs(got - want) <= max(0.05 * want, 0.15), (name, check)       # §2.7.3 tolerance
+    # The doors of the vector page, at the same place (0.20 m), each swinging into its room; all 18 openings found.
+    assert openings_recall(building, real01_vector) == (1.0, [])
+    vec_rooms = {r["id"]: r["label_raw"] for r in real01_vector["rooms"]}
+    for name in ("Store", "Bath+ Toilet"):
+        ref = next(o for o in real01_vector["openings"] if o["type"] == "door"
+                   and vec_rooms.get(o.get("swing_side")) == name)
+        door = next(o for o in building["openings"] if o["type"] == "door"
+                    and math.dist(o["center"], ref["center"]) <= 0.20)
+        assert door["swing_side"] == rooms[name]["id"] and door["status"] == "verified", door
+        assert abs(door["width"] - ref["width"]) <= 0.10, (name, door["width"], ref["width"])   # reference tol 0.33 ft
+        # The door owns its swing: no furniture piece holds the arc, and the store (nothing drawn) has no piece.
+        arc_ids = core._expand_ids(door["evidence"][0]["entity"])
+        assert arc_ids and not [f["id"] for f in building["furniture"]
+                                if arc_ids & set().union(*(core._expand_ids(e.get("entity")) for e in f["evidence"]))]
+    assert not [f["id"] for f in building["furniture"] if f["room_id"] == rooms["Store"]["id"]]
+    # Never silent: the end caps (the store wall's nub, the entrance frames) and the fused bath leaf carry notes.
+    notes = [e.get("note") or "" for w in building["walls"] for e in w["evidence"]]
+    assert sum("not a wall end of its own" in n for n in notes) >= 1
+    assert sum("is not counted as wall" in n for n in notes) == 1
+    # tests/gpu/test_recognition.py's count (the room at each reference room, fake label answers): 8/8 (was 6/8).
+    right = 0
+    for t in [r for r in yaml.safe_load(REFERENCE.read_text(encoding="utf-8"))["rooms"] if r.get("label")]:
+        x0, y0, x1, y1 = (v * 0.3048 for v in t["bbox_ft"])
+        inside = [r for r in building["rooms"]
+                  if x0 <= sum(p[0] for p in r["polygon"]) / len(r["polygon"]) <= x1
+                  and y0 <= sum(p[1] for p in r["polygon"]) / len(r["polygon"]) <= y1]
+        right += int(bool(inside) and norm_value(inside[0].get("label_raw") or "") == norm_value(t["label"]))
+    assert right == 8
 
 
 @pytest.mark.slow

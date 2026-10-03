@@ -4,7 +4,12 @@ Real plans leave a gap in the wall where a door, window or doorless opening is, 
 two pieces of one wall: real01's bath and store doors lie between a free wall end and the face of a perpendicular
 wall, and its two bedroom doors share one run gap that the end of the wall between the bedrooms splits in two. So:
 
-- **Runs**: wall rectangles on one axis line (centre-line offset <= 20 mm, thickness +- 30 mm).
+- **Runs**: wall rectangles on one axis line (centre-line offset <= 20 mm, thickness +- 30 mm). Two kinds of odd
+  pieces a wall mask gives (real01's photo, P7) are handled first, each logged (``kind "wall_piece"``) with a note:
+  a **fused strip** (``join_fused_strips``: a door leaf filled into the mask along a wall face, one face flush, <= a
+  leaf's width out, a door swing hinged at it, the strip as long as its leaf) joins its run with the run's faces;
+  an **end cap** (``end_caps``: a piece shorter than its thickness at the end of a longer wall, a door frame or a
+  nub) is no wall end: no gap is cast from or to it and it keeps no end from being free.
 - **Gaps**, all classified the same way:
   (a) *run gap* between consecutive pieces of a run;
   (c) a run gap holding the end of a perpendicular wall inside the run band is *split* at that wall;
@@ -61,6 +66,8 @@ HINGE_M = 0.08
 RADIUS_TOL = 0.12
 SWEEP_DEG = (60.0, 100.0)
 LEAF_WIDTH_M = 0.06
+FUSED_STRIP_M = LEAF_WIDTH_M       # a door leaf fused along a wall face in the mask is at most a leaf wide ...
+RASTER_EDGE_PX = 1.5               # ... plus the raster mask's edge precision (core.RASTER_JOINT_PX), in pixels
 LEAF_CORRIDOR_M = 0.09
 LEAF_START_M = 0.10
 LEAF_LENGTH = (0.85, 1.05)
@@ -168,6 +175,149 @@ def group_runs(pieces: list[Piece]) -> list[list[Piece]]:
             q.run = i
         out.append(ps)
     return out
+
+
+def _touching(p: Piece, others) -> tuple[list[Piece], list[Piece]]:
+    """The pieces of ``others`` on p's axis whose end face p's start (``before``) or end (``after``) touches."""
+    before = [q for q in others if q is not p and q.axis == p.axis and abs(q.b - p.a) <= GAP_IGNORE_M]
+    after = [q for q in others if q is not p and q.axis == p.axis and abs(q.a - p.b) <= GAP_IGNORE_M]
+    return before, after
+
+
+def _outside(p: Piece, touching: list[Piece]) -> tuple[float, float, float, float]:
+    """``(out_lo, out_hi, lo, hi)``: how far p's faces lie outside the (mean) faces ``lo``/``hi`` of the touching
+    pieces (> 0 outside, < 0 inside)."""
+    lo = statistics.mean(q.c - q.t / 2.0 for q in touching)
+    hi = statistics.mean(q.c + q.t / 2.0 for q in touching)
+    return lo - (p.c - p.t / 2.0), (p.c + p.t / 2.0) - hi, lo, hi
+
+
+def end_caps(runs: list[list[Piece]], edge_m: float = 0.0) -> tuple[set[int], list[dict]]:
+    """Pieces that are a wall end's frame or nub, not a wall end of their own: shorter than their own thickness,
+    touching on one side only the end face of a longer piece on their axis that is not in their run (another
+    cross-section), their band overlapping that piece's band by >= half their thickness and lying outside it by <=
+    ``FUSED_STRIP_M`` + ``edge_m``, and in a run of such pieces only (alone, or the two frames of one opening: a short
+    junction piece of a wall run is no cap). A drawn door frame (a jamb nub inside the opening) or a ragged wall end
+    gives such pieces in a raster mask (real01's photo: a 0.04 m piece 0.14 m thick at the end of the kitchen-store
+    wall kept that wall's end from being free, so the store door's end gap was never cast and its arc became
+    furniture; the entrance door's frames, 0.03-0.04 m long inside its run gap, sit there the same way).
+
+    An end cap is no wall end: it neither keeps the end of the wall it caps from being free nor is a free end itself,
+    no gap is cast from it or stops at it, it splits no run gap and is in no run (the frame belongs to the opening,
+    whose width runs from wall end to wall end as on vector pages). It stays in the walls as drawn. ``runs`` come
+    from ``group_runs``. Returns ``(ids, log)``: the ``id()`` of the cap pieces and one log entry each (``kind
+    "wall_piece"``, ``how "end_cap"``, with a note)."""
+    found: dict[int, tuple[Piece, Piece]] = {}
+    pieces = [q for run in runs for q in run]
+    for p in pieces:
+        length = p.b - p.a
+        if length >= p.t:
+            continue
+        before, after = _touching(p, [q for q in pieces if q.run != p.run])
+        touching = before + after
+        if bool(before) == bool(after) or max(q.b - q.a for q in touching) <= length:
+            continue
+        out_lo, out_hi, lo, hi = _outside(p, touching)
+        if max(out_lo, out_hi) > FUSED_STRIP_M + edge_m or \
+                min(hi, p.c + p.t / 2.0) - max(lo, p.c - p.t / 2.0) < 0.5 * p.t:
+            continue
+        found[id(p)] = (p, touching[0])
+    caps: set[int] = set()
+    log: list[dict] = []
+    for run in runs:
+        if not all(id(q) in found for q in run):
+            continue
+        for p in run:
+            q = found[id(p)][1]
+            caps.add(id(p))
+            log.append({"kind": "wall_piece", "how": "end_cap", "piece": p.k, "of": q.k,
+                        "length": round(p.b - p.a, 4), "thickness": round(p.t, 4),
+                        "note": f"a {p.b - p.a:.3f} m piece ({p.t:.3f} m thick) at the end of a {q.t:.3f} m wall is "
+                                f"a frame or nub of that wall's end, not a wall end of its own (no gap is cast from "
+                                f"or to it)"})
+    return caps, log
+
+
+def join_fused_strips(runs: list[list[Piece]], index: Optional["StrokeIndex"] = None,
+                      edge_m: float = 0.0) -> tuple[list[list[Piece]], list[dict]]:
+    """A door leaf drawn against a wall face and filled into the wall mask with it makes that stretch of the wall
+    thicker on one face, so it leaves its run and the run sees a 'gap' there (real01's photo and scan: the bath
+    door's leaf along the drawing room's west wall, 0.05 m; on the photo that gap took the bath door's arc, and the
+    end gap of the bath wall stopped 0.05 m short of the wall's face). Such a piece joins the run, with the run's
+    centre line and thickness, on this evidence (all needed):
+
+    - it is alone on its axis line and lies between two pieces of the run (touching their end faces);
+    - one face is flush with theirs (<= ``RUN_OFFSET_M``), the other lies outside by more than that and by <=
+      ``FUSED_STRIP_M`` (a leaf's width) + ``edge_m`` (the raster mask's edge precision; 0 on vector pages);
+    - a door swing explains the strip (``_leaf_swing``: an arc hinged at the piece, swinging on the strip's side,
+      the strip as long as its leaf).
+
+    The strip is never counted as wall: the run's faces stand. Nothing is silently changed: each join is a log entry
+    (``kind "wall_piece"``, ``how "fused_strip"``) with the piece's own thickness and a note that the merged wall's
+    evidence carries too. Returns ``(runs, log)``; runs are renumbered."""
+    log: list[dict] = []
+    for p in sorted((run[0] for run in runs if len(run) == 1), key=lambda p: (p.axis, p.c, p.a)):
+        length = p.b - p.a
+        if length > GAP_MAX_M:
+            continue
+        for ri, run in enumerate(runs):
+            if len(run) < 2 or run[0].axis != p.axis:
+                continue
+            before, after = _touching(p, run)
+            if not before or not after:
+                continue
+            out_lo, out_hi, _, _ = _outside(p, before + after)
+            strip = max(out_lo, out_hi)
+            if min(out_lo, out_hi) < -RUN_OFFSET_M or min(abs(out_lo), abs(out_hi)) > RUN_OFFSET_M or \
+                    not RUN_OFFSET_M < strip <= FUSED_STRIP_M + edge_m:
+                continue
+            swing = _leaf_swing(p, 1.0 if out_hi > out_lo else -1.0, index)
+            if swing is None:
+                continue
+            c, t = _run_c(run), _run_t(run)
+            arc_id = swing[0].st.id
+            log.append({"kind": "wall_piece", "how": "fused_strip", "piece": p.k, "length": round(length, 4),
+                        "thickness": round(p.t, 4), "run_thickness": round(t, 4), "strip": round(strip, 4),
+                        "arc": arc_id,
+                        "note": f"a {strip:.3f} m strip along one face over {length:.2f} m, where the leaf of door "
+                                f"swing {arc_id} rests (a leaf fused to the wall face in the wall mask), is not "
+                                f"counted as wall: thickness {t:.3f} m as the rest of the run, not {p.t:.3f} m"})
+            p.c, p.t = c, t
+            run.append(p)
+            run.sort(key=lambda q: q.a)
+            runs = [r for r in runs if not (len(r) == 1 and r[0] is p)]
+            break
+    for i, run in enumerate(runs):
+        for q in run:
+            q.run = i
+    return runs, log
+
+
+def _leaf_swing(p: Piece, side: float, index: Optional["StrokeIndex"]):
+    """``(item, arc)`` of a door swing whose leaf rests along piece ``p`` on its ``side`` (+1: towards larger across
+    values), or None: an arc of ``SWEEP_DEG`` hinged within ``HINGE_M`` of the piece's rectangle, its middle on that
+    side of the piece's centre line, the piece starting within ``LEAF_START_M`` of the hinge and running on for
+    ``LEAF_LENGTH`` x r (+ ``LEAF_START_M``: the hinge pin), the leaf rule of ``_leaf``."""
+    if index is None:
+        return None
+    x0, y0, x1, y1 = p.rect()
+    reach = HINGE_M + (p.b - p.a) / LEAF_LENGTH[0]                # the swing lies within one radius of the hinge
+    best = None
+    for it, arc in _arcs_in(index.query((x0 - reach, y0 - reach, x1 + reach, y1 + reach))):
+        hx, hy = arc["center"]
+        if not SWEEP_DEG[0] <= arc["sweep"] <= SWEEP_DEG[1] or \
+                not (x0 - HINGE_M <= hx <= x1 + HINGE_M and y0 - HINGE_M <= hy <= y1 + HINGE_M):
+            continue
+        mid = _arc_mid(arc)
+        if ((mid[1] if p.axis == "h" else mid[0]) - p.c) * side <= 0:
+            continue
+        along = hx if p.axis == "h" else hy
+        near, far = sorted((abs(along - p.a), abs(p.b - along)))
+        r = arc["radius"]
+        if near <= LEAF_START_M and LEAF_LENGTH[0] * r <= far <= LEAF_LENGTH[1] * r + LEAF_START_M \
+                and (best is None or near < best[0]):
+            best = (near, it, arc)
+    return None if best is None else (best[1], best[2])
 
 
 # --------------------------------------------------------------------------
@@ -482,9 +632,23 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
     """
     theta = dominant_angle(walls)
     pieces, others = pieces_of(walls, theta)
-    runs = group_runs(pieces)
     index = StrokeIndex(strokes_m, theta)
     raster = bool(strokes_m) and all(st.source == "raster" for st in strokes_m)
+    edge_m = RASTER_EDGE_PX * units_to_m if raster and units_to_m else 0.0
+    runs = group_runs(pieces)
+    order = {id(q): q.run for q in pieces}
+    caps, cap_log = end_caps(runs, edge_m)
+    ends = [p for p in pieces if id(p) not in caps]    # the pieces that end walls (frames and nubs do not)
+    runs = [r for r in ([q for q in run if id(q) not in caps] for run in runs) if r]
+    runs, piece_log = join_fused_strips(runs, index, edge_m)
+    piece_log += cap_log
+    join_notes = {e["piece"]: e["note"] for e in piece_log}
+    # An end cap stays a wall of its own, in its place among the runs (the output walls keep their order).
+    runs = sorted(runs + [[p] for p in pieces if id(p) in caps],
+                  key=lambda r: (min(order[id(q)] for q in r), r[0].a))
+    for i, run in enumerate(runs):
+        for q in run:
+            q.run = i
     ctx = _Ctx(file_rel, page_no, units_to_m, theta, raster)
     owned: set[str] = set()
     gaps: list[Gap] = []
@@ -498,7 +662,7 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
             if q.a <= p.b + GAP_IGNORE_M:
                 merge_after[ri].add(i)
                 continue
-            subs = _split(p, q, pieces)
+            subs = _split(p, q, ends)
             if any(b - a > GAP_MAX_M for a, b in subs):
                 for a, b in subs:
                     gaps.append(Gap("run" if len(subs) == 1 else "split", p.axis, p.c, _run_t(run), a, b, [p, q],
@@ -516,11 +680,11 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
 
     # (b): end gaps from free ends.
     end_log: list[dict] = []
-    for p in pieces:
+    for p in ends:
         for which in ("start", "end"):
-            if not _is_free(p, which, pieces):
+            if not _is_free(p, which, ends):
                 continue
-            hit = _cast(p, which, pieces)
+            hit = _cast(p, which, ends)
             if hit is None:
                 end_log.append({"piece": p, "which": which, "gap": None})
                 continue
@@ -567,7 +731,7 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
             if i < len(run) and (i - 1) in merge_after[ri]:
                 seg.append(run[i])
                 continue
-            out_walls.append(_merged_wall(seg, ctx, extended))
+            out_walls.append(_merged_wall(seg, ctx, extended, join_notes))
             for q in seg:
                 piece_out[q.k] = len(out_walls) - 1
             if i < len(run):
@@ -602,6 +766,12 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
                     "gap_class": (g.cls if g is not None else "none"),
                     "gap": (None if g is None else gap_pos.get(id(g))),
                     "same_as_run_gap": bool(e.get("same_as_run_gap"))})
+    for e in piece_log:
+        entry = dict(e, wall=piece_out.get(e["piece"]))
+        entry["input_wall"] = entry.pop("piece")
+        if "of" in entry:
+            entry["of"] = piece_out.get(entry["of"])
+        log.append(entry)
 
     # Continuous-wall symbols (synthetic convention, raster double-line walls).
     cont_doors, cont_windows = _continuous_symbols(out_walls, index, owned, theta, ctx, openings)
@@ -749,12 +919,18 @@ def _own(g: Gap, index: StrokeIndex, owned: set) -> None:
     owned.update(ids)
 
 
-def _merged_wall(seg: list[Piece], ctx: _Ctx, extended: dict) -> WallItem:
+def _merged_wall(seg: list[Piece], ctx: _Ctx, extended: dict, joined: Optional[dict] = None) -> WallItem:
     """One WallItem for consecutive run pieces (thickness = length-weighted median); an unchanged single piece is
-    returned as it was."""
+    returned as it was (with the note of ``joined``, if any). ``joined``: input wall index -> the note of a piece
+    ``join_fused_strips`` gave the run's centre line and thickness, or of an end cap (``end_caps``)."""
     theta = ctx.theta
+    joined = joined or {}
     if len(seg) == 1 and seg[0].k not in extended:
-        return seg[0].wall
+        w = seg[0].wall
+        if seg[0].k not in joined:
+            return w
+        old = w.evidence.get("note")
+        return dataclasses.replace(w, evidence=dict(w.evidence, note=(old + "; " if old else "") + joined[seg[0].k]))
     axis = seg[0].axis
     a = min(q.a for q in seg)
     b = max(q.b for q in seg)
@@ -778,7 +954,7 @@ def _merged_wall(seg: list[Piece], ctx: _Ctx, extended: dict) -> WallItem:
     methods = {q.wall.evidence.get("method") for q in seg}
     method = "raster" if methods == {"raster"} else "vector"
     confidence = min(q.wall.evidence.get("confidence", 1.0) for q in seg)
-    notes = []
+    notes = [joined[q.k] for q in seg if q.k in joined]
     for q in seg:
         if q.k in extended:
             ids, reason = extended[q.k]
