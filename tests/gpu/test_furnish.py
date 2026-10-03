@@ -11,6 +11,15 @@ in $FURNISH_TEST_PROJECTS (default synthetic-01):
 - the layout came from the real server: the model is the Qwen checkpoint, the
   server latency is logged per room and per pass (> 0) in layout.json and the
   report lists it.
+
+Milestone 7 (docs/milestone7.md §0, §6.3, §6.5):
+
+- an empty prayer room is never sent to the model; layout.json lists it as
+  skipped with the reason (no passes);
+- refit (``building_final.json``, when the run got that far): every library
+  model's catalogue ``styles`` hold the project's style family (``style.json``)
+  or ``neutral``, no bed model without a mattress, every CC BY model with its
+  credit line.
 """
 import json
 import os
@@ -56,7 +65,13 @@ def test_every_empty_room_was_laid_out(project):
     missing = sorted(r["id"] for r in empty if r["id"] not in done)
     assert not missing, f"{name}: rooms never sent to the model: {missing}"
     for entry in summary["rooms"]:
+        if entry["room_type"] in schemas.NOT_FURNISHED_ROOM_TYPES:
+            assert entry["passes"] == [] and "never furnished by AI" in (entry["skipped"] or ""), entry
+            continue
         assert len(entry["passes"]) == 2, entry["room_id"]
+    prayer = [r["id"] for r in building["rooms"] if not r["has_documented_furniture"]
+              and r["room_type"] in schemas.NOT_FURNISHED_ROOM_TYPES]
+    assert not [f for f in building["furniture"] if f["source"] == "added_by_ai" and f["room_id"] in prayer]
 
 
 def test_rooms_got_what_their_type_calls_for(project):
@@ -102,10 +117,41 @@ def test_real_model_and_latency_logged(project):
     for entry in summary["rooms"]:
         for p in entry["passes"]:
             assert p["model"] == EXPECTED_MODEL and p["latency_s"] > 0, (entry["room_id"], p)
-        assert entry["latency_s"] > 0
+        if entry["room_type"] not in schemas.NOT_FURNISHED_ROOM_TYPES:      # never asked: no latency
+            assert entry["latency_s"] > 0
     models = {f["evidence"][0]["model"] for f in building["furniture"] if f["source"] == "added_by_ai"}
     assert models <= {EXPECTED_MODEL}, models
     report = (OUTPUTS / name / "layout_report.md").read_text(encoding="utf-8")
     assert " s)" in report, "latency per pass missing from the report"
     debug = OUTPUTS / name / "layout_debug"
     assert any(debug.glob("*.png")) and any(debug.glob("*.json"))
+
+
+def test_refit_library_models_fit_the_style(project):
+    """docs/milestone7.md §6.3: refit takes a library model only when its styles hold the project's family or
+    neutral; no bed without a mattress; every CC BY model carries its credit line."""
+    from wenart.furniture import catalog as C
+    from wenart.furniture import fit as F
+
+    name, _building, _summary = project
+    final, style = OUTPUTS / name / "building_final.json", OUTPUTS / name / "style.json"
+    if not final.exists() or not style.exists():
+        pytest.skip(f"{name}: no building_final.json / style.json (refit not run in this job)")
+    building = json.loads(final.read_text(encoding="utf-8"))
+    family, how = F.style_family_of(json.loads(style.read_text(encoding="utf-8")))
+    catalog = C.load()
+    wrong, library = [], 0
+    for f in building["furniture"]:
+        asset = f.get("asset") or {}
+        if asset.get("method") != "library":
+            continue
+        library += 1
+        entry = catalog.entry(asset["asset_id"])
+        assert entry is not None, (f["id"], asset["asset_id"])
+        if not C.styles_match(entry, family) or not C.has_mattress(entry):
+            wrong.append((f["id"], asset["asset_id"], entry.get("styles"), entry.get("has_mattress")))
+        assert asset.get("style_family") == family, (f["id"], asset.get("style_family"), family)
+        if asset["licence"] == C.CC_BY:
+            assert all(str(asset.get(k) or "").strip() for k in C.CC_BY_FIELDS), (f["id"], asset)
+    print(f"{name}: style family {family!r} ({how}); {library} library models")
+    assert not wrong, f"{name}: library models of another style or without a mattress: {wrong}"

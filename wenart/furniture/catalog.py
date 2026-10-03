@@ -1,4 +1,5 @@
-"""The furniture catalogue: our furniture types -> CC0 Poly Haven models.
+"""The furniture catalogue: our furniture types -> CC0 Poly Haven models (and,
+from Milestone 7, CC0 / CC BY 4.0 Objaverse models).
 
 ``catalog.json`` was written by hand on 2026-10-01 after surveying the 521
 models of ``GET https://api.polyhaven.com/assets?type=models`` (85 in the
@@ -39,6 +40,31 @@ Entry shapes in ``catalog.json``::
     {"type": "toilet", "parametric": true, "reason": "..."}
 
 ``gltf`` is relative to the assets dir (where ``fetch_model`` puts it).
+
+Milestone 7 (docs/milestone7.md §6.3, §6.6, user decision 7):
+
+- Every furniture model carries ``styles`` (style families of
+  ``wenart.style.vocabulary.STYLE_FAMILIES`` or ``neutral``) and every
+  Poly Haven model a ``style_note`` (why). The Poly Haven tags were taken
+  from ``GET https://api.polyhaven.com/info/<id>`` (tags, description,
+  attributes) on 2026-10-03, and for the ten models the Milestone 6 renders
+  show, from those renders (``results/renders``); the thumbnails
+  (cdn.polyhaven.com) were not reachable from the session. A family is
+  claimed only when the tags or the description say it (conservative: a
+  missing family means the parametric mesh, a wrong one the clash the user
+  saw). Beds carry ``has_mattress``; ``old_bed_frame`` (a wire-mesh frame
+  without a mattress) is gone, so ``bed_single`` is parametric until the
+  Objaverse library adds one.
+- ``load()`` merges ``catalog_objaverse.json`` (next to the catalogue file,
+  written by the prep pod; absent -> nothing) after ``catalog.json``: its
+  models are added and a type that is parametric in ``catalog.json`` but has
+  models in the Objaverse file stops being parametric (``merged``
+  records it). Both files pass ``validate`` (the Objaverse file alone with
+  ``complete=False``: it need not cover every type).
+- Sources and licences: ``polyhaven`` entries are CC0; ``objaverse``
+  entries are ``CC0`` or ``CC-BY-4.0`` (no NC/ND/SA) and carry ``glb``,
+  ``sha256_glb``, ``uid``, ``title``, ``author``, ``source_url``,
+  ``licence_url``, ``via`` and ``attribution`` (all required for CC BY).
 """
 from __future__ import annotations
 
@@ -48,28 +74,59 @@ from pathlib import Path
 from typing import Optional
 
 CATALOG_PATH = Path(__file__).resolve().parent / "catalog.json"
+OBJAVERSE_SUFFIX = "_objaverse"        # catalog.json -> catalog_objaverse.json (same folder)
 LICENCE = "CC0"
-SOURCES = ("polyhaven",)
+CC_BY = "CC-BY-4.0"
+SOURCES = ("polyhaven", "objaverse")
+# Source -> licences its models may carry (docs/milestone7.md §6.3): Poly Haven is CC0 only; Objaverse
+# objects carry the uploader's licence, of which only CC0 and CC BY 4.0 are taken.
+SOURCE_LICENCES: dict[str, tuple[str, ...]] = {"polyhaven": (LICENCE,), "objaverse": (LICENCE, CC_BY)}
+# Fields a CC BY entry needs for its credit line (CC BY 4.0 §3(a)(1)).
+CC_BY_FIELDS = ("title", "author", "source_url", "licence_url", "via", "attribution")
 AXES = ("-Y", "+Y", "-X", "+X")
+NEUTRAL = "neutral"
+BED_TYPES = ("bed_single", "bed_double")
 
 # Every furniture type of the building schema enum (wenart/schema/building.schema.json).
 FURNITURE_TYPES = (
     "bed_single", "bed_double", "sofa", "armchair", "table_dining", "table_coffee", "desk", "chair", "wardrobe",
     "kitchen_counter", "kitchen_island", "fridge", "stove", "sink_kitchen", "washbasin", "toilet", "shower",
-    "bathtub", "tv_unit", "bookshelf", "nightstand", "dresser", "washing_machine", "unknown",
+    "bathtub", "tv_unit", "bookshelf", "nightstand", "dresser", "washing_machine",
+    "stair", "side_table", "floor_lamp", "potted_plant",              # Milestone 7 (documented-only types)
+    "unknown",
 )
 
-# Heights of the parametric fallback (the Milestone 3 proxy table, docs/milestone3.md, conventions).
+# Heights of the parametric fallback (the Milestone 3 proxy table, docs/milestone3.md, conventions; the
+# Milestone 7 types as in wenart/furniture/schemas.py HEIGHTS).
 PARAMETRIC_HEIGHTS: dict[str, float] = {
     "bed_single": 0.55, "bed_double": 0.55, "sofa": 0.85, "armchair": 0.85, "table_dining": 0.75,
     "table_coffee": 0.45, "desk": 0.75, "chair": 0.9, "wardrobe": 2.1, "bookshelf": 1.8, "tv_unit": 0.5,
     "nightstand": 0.5, "dresser": 0.8, "kitchen_counter": 0.9, "kitchen_island": 0.9, "fridge": 1.8,
     "stove": 0.9, "sink_kitchen": 0.9, "washbasin": 0.85, "toilet": 0.4, "shower": 2.0, "bathtub": 0.55,
-    "washing_machine": 0.85, "unknown": 0.8,
+    "washing_machine": 0.85, "stair": 2.7, "side_table": 0.55, "floor_lamp": 1.6, "potted_plant": 1.0,
+    "unknown": 0.8,
 }
 
-REQUIRED_MODEL_FIELDS = ("id", "type", "source", "licence", "bbox_m", "bbox_model_m", "bbox_min_m", "bbox_max_m",
-                         "front_axis", "up_axis", "origin_offset", "front_axis_confidence", "url", "gltf")
+# The frame fields every model has, whatever its source.
+FRAME_FIELDS = ("id", "type", "source", "licence", "bbox_m", "bbox_model_m", "bbox_min_m", "bbox_max_m",
+                "front_axis", "up_axis", "origin_offset", "front_axis_confidence")
+# Poly Haven models (and the Poly Haven decor models).
+REQUIRED_MODEL_FIELDS = FRAME_FIELDS + ("url", "gltf")
+# Objaverse models (docs/milestone7.md §6.6), written by the prep pod.
+OBJAVERSE_FIELDS = FRAME_FIELDS + ("glb", "sha256_glb", "uid") + CC_BY_FIELDS + ("styles",)
+
+
+def style_values() -> tuple[str, ...]:
+    """The words ``styles`` may hold: the family keywords of ``vocabulary.STYLE_FAMILIES`` and ``neutral``."""
+    from wenart.style import vocabulary as V   # pure tables; no PyYAML needed
+
+    return tuple(name for name, _ in V.STYLE_FAMILIES) + (NEUTRAL,)
+
+
+def objaverse_path(path: Path) -> Path:
+    """The Objaverse catalogue next to a catalogue file: ``<stem>_objaverse.json``."""
+    path = Path(path)
+    return path.with_name(f"{path.stem}{OBJAVERSE_SUFFIX}{path.suffix}")
 
 
 class CatalogError(ValueError):
@@ -84,6 +141,7 @@ class Catalog:
         self.path = path
         self.entries: list[dict] = list(data.get("entries", []))
         self.decor: list[dict] = list(data.get("decor", []))
+        self.merged: dict = dict(data.get("merged") or {})
         validate(data)
 
     @property
@@ -111,47 +169,86 @@ class Catalog:
         return sorted({e["type"] for e in self.entries})
 
 
-def load(path: Optional[Path] = None) -> Catalog:
+def load(path: Optional[Path] = None, objaverse: Optional[Path] | bool = True) -> Catalog:
+    """The catalogue at ``path`` (default ``catalog.json``) merged with its Objaverse file
+    (``objaverse_path(path)`` when ``objaverse`` is True, a given path, or nothing with False/None);
+    a missing Objaverse file adds nothing."""
     path = Path(path) if path else CATALOG_PATH
-    return Catalog(json.loads(path.read_text(encoding="utf-8")), path)
+    data = json.loads(path.read_text(encoding="utf-8"))
+    extra_path = objaverse_path(path) if objaverse is True else (Path(objaverse) if objaverse else None)
+    if extra_path is not None and extra_path.is_file():
+        extra = json.loads(extra_path.read_text(encoding="utf-8"))
+        data = merge(data, extra, source=extra_path.name)
+    return Catalog(data, path)
 
 
-def validate(data: dict) -> None:
-    """Raise ``CatalogError`` unless every entry is complete and consistent."""
+def merge(base: dict, extra: dict, source: str = "catalog_objaverse.json") -> dict:
+    """``base`` with the models of ``extra`` appended (docs/milestone7.md §6.6). Both are validated first
+    (``extra`` with ``complete=False``); a type that is parametric in ``base`` but has models in ``extra``
+    loses its parametric entry. ``merged`` records the source, the number of models added and those types."""
+    validate(base)
+    validate(extra, complete=False)
+    added = [e for e in extra.get("entries", []) if not e.get("parametric")]
+    library_types = {e["type"] for e in added}
+    replaced = sorted(e["type"] for e in base.get("entries", []) if e.get("parametric") and e["type"] in library_types)
+    out = dict(base)
+    out["entries"] = [e for e in base.get("entries", []) if not (e.get("parametric") and e["type"] in library_types)]
+    out["entries"] += added
+    out["merged"] = {"source": source, "models_added": len(added), "parametric_replaced": replaced}
+    return out
+
+
+def validate(data: dict, complete: bool = True) -> None:
+    """Raise ``CatalogError`` unless every entry is complete and consistent. ``complete`` (the main
+    catalogue and the merged one): every furniture type has a library or a parametric entry; the
+    Objaverse file alone is checked with ``complete=False`` (models only, any subset of types)."""
     entries = data.get("entries")
     if not isinstance(entries, list) or not entries:
         raise CatalogError("catalog has no entries")
     seen_types, seen_ids = set(), set()
     for e in entries:
         if e.get("parametric"):
+            if not complete:
+                raise CatalogError(f"parametric entry {e.get('type')!r} in a partial (Objaverse) catalogue")
             if e.get("type") not in FURNITURE_TYPES:
                 raise CatalogError(f"parametric entry with unknown type {e.get('type')!r}")
             if e["type"] in seen_types:
                 raise CatalogError(f"type {e['type']} is both parametric and library")
             seen_types.add(e["type"])
             continue
-        _validate_model(e, seen_ids)
+        _validate_model(e, seen_ids, furniture=True)
         if e["type"] not in FURNITURE_TYPES:
             raise CatalogError(f"{e['id']}: unknown furniture type {e['type']!r}")
     library_types = {e["type"] for e in entries if not e.get("parametric")}
     if library_types & seen_types:
         raise CatalogError(f"types both parametric and library: {sorted(library_types & seen_types)}")
     missing = set(FURNITURE_TYPES) - library_types - seen_types
-    if missing:
+    if complete and missing:
         raise CatalogError(f"types with neither a library entry nor a parametric entry: {sorted(missing)}")
     for e in data.get("decor", []):
-        _validate_model(e, seen_ids)
+        _validate_model(e, seen_ids, furniture=False)
 
 
-def _validate_model(e: dict, seen_ids: set) -> None:
-    for key in REQUIRED_MODEL_FIELDS:
+def _validate_model(e: dict, seen_ids: set, furniture: bool) -> None:
+    source = e.get("source")
+    if source not in SOURCES:
+        raise CatalogError(f"{e.get('id', '?')}: source {source!r} is not one of {SOURCES}")
+    required = REQUIRED_MODEL_FIELDS if source == "polyhaven" else OBJAVERSE_FIELDS
+    if furniture and source == "polyhaven":
+        required = required + ("styles", "style_note")
+    for key in required:
         if key not in e:
             raise CatalogError(f"{e.get('id', '?')}: missing field {key!r}")
     if e["id"] in seen_ids:
         raise CatalogError(f"duplicate id {e['id']}")
     seen_ids.add(e["id"])
-    if e["source"] not in SOURCES or e["licence"] != LICENCE:
-        raise CatalogError(f"{e['id']}: source/licence {e['source']}/{e['licence']} is not CC0 Poly Haven")
+    if e["licence"] not in SOURCE_LICENCES[source]:
+        raise CatalogError(f"{e['id']}: source/licence {source}/{e['licence']} is not allowed "
+                           f"({source}: {', '.join(SOURCE_LICENCES[source])})")
+    if e["licence"] == CC_BY:
+        empty = [k for k in CC_BY_FIELDS if not (isinstance(e.get(k), str) and e[k].strip())]
+        if empty:
+            raise CatalogError(f"{e['id']}: a CC BY 4.0 entry needs {', '.join(empty)} for its credit line")
     for key in ("bbox_m", "bbox_model_m"):
         if len(e[key]) != 3 or not all(isinstance(v, (int, float)) and v > 0 for v in e[key]):
             raise CatalogError(f"{e['id']}: {key} must be three positive numbers")
@@ -166,6 +263,39 @@ def _validate_model(e: dict, seen_ids: set) -> None:
     if any(abs(a - b) > 1e-6 for a, b in zip(expect, e["bbox_m"])):
         raise CatalogError(f"{e['id']}: bbox_m {e['bbox_m']} does not match bbox_model_m {e['bbox_model_m']} "
                            f"re-oriented by front_axis {e['front_axis']} ({expect})")
+    if "styles" in e:
+        styles = e["styles"]
+        allowed = style_values()
+        if not isinstance(styles, list) or not all(isinstance(v, str) for v in styles):
+            raise CatalogError(f"{e['id']}: styles must be a list of style words")
+        unknown = [v for v in styles if v not in allowed]
+        if unknown:
+            raise CatalogError(f"{e['id']}: unknown style word(s) {unknown} (allowed: {', '.join(allowed)})")
+        if source == "objaverse" and not styles:
+            raise CatalogError(f"{e['id']}: an Objaverse model needs at least one style (docs/milestone7.md §7.2)")
+    if "style_note" in e and not (isinstance(e["style_note"], str) and e["style_note"].strip()):
+        raise CatalogError(f"{e['id']}: style_note must say why the styles were chosen")
+    if furniture and e["type"] in BED_TYPES and not isinstance(e.get("has_mattress"), bool):
+        raise CatalogError(f"{e['id']}: a bed model needs has_mattress (true/false)")
+    if source == "objaverse":
+        if not (isinstance(e["sha256_glb"], str) and len(e["sha256_glb"]) == 64):
+            raise CatalogError(f"{e['id']}: sha256_glb must be 64 hex digits")
+        if not str(e["glb"]).endswith(".glb"):
+            raise CatalogError(f"{e['id']}: glb {e['glb']!r} is not a .glb path")
+
+
+def styles_match(entry: dict, family: Optional[str]) -> bool:
+    """True when ``entry`` may be used for a project of style ``family``: its ``styles`` contain the
+    family or ``neutral``; every entry matches when the family is None (docs/milestone7.md §6.3)."""
+    if family is None:
+        return True
+    styles = entry.get("styles") or []
+    return family in styles or NEUTRAL in styles
+
+
+def has_mattress(entry: dict) -> bool:
+    """A bed model is usable only with a mattress (user decision 7); other types always are."""
+    return entry["type"] not in BED_TYPES or entry.get("has_mattress") is True
 
 
 # --------------------------------------------------------------------------

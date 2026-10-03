@@ -80,9 +80,11 @@ my-folder/
 
 Rules:
 
-- **Export DXF (or a vector PDF) from the CAD program. DWG files are not read.** A DWG next to a DXF
-  of the same name is skipped; a DWG alone is kept with a note, and the pipeline cannot use it (the
-  project then normally stops with "needs review").
+- **DWG is read with LibreDWG 0.14 (beta); if it fails, export DXF** (or a vector PDF) from the CAD
+  program. A DWG next to a DXF of the same name is skipped (the DXF is used); a DWG alone is kept with
+  that note and converted on the pod. A conversion that fails or gives an empty drawing stops the
+  project with "needs review" and says so; nothing of a DWG is guessed. Only the model space is read
+  (no layouts or paper space).
 - Plans in subfolders are fine: `plans/zemin.dxf` is used as `plans__zemin.dxf`. Two files that end
   up with the same name (also when they differ only in upper/lower case) stop the project with
   "document name collision"; rename one of them.
@@ -132,8 +134,9 @@ way. Every run stages the upload again from scratch, so a file you removed is ne
   never changed or deleted by the pipeline.**
 - Then the same pipeline as for the test projects runs: plans to building JSON, furniture, renders,
   optional AI polish, checks, final report.
-- If something is missing (no usable plan, no scale, a DWG only, a name collision, not uploaded),
-  the project ends with **needs review** and a report that says why. Nothing is guessed.
+- If something is missing (no usable plan, no scale, a DWG that LibreDWG cannot convert, a name
+  collision, not uploaded), the project ends with **needs review** and a report that says why. Nothing
+  is guessed.
 - Files kept with a note (a DWG, a brief that is not read) are counted by note in the final report,
   without their names.
 - If the job's time runs out before the renders of your project, the report says "no renders in this
@@ -144,7 +147,7 @@ way. Every run stages the upload again from scratch, so a file you removed is ne
 
 | Reaches Claude (and you, in the session) | Stays on the volume only |
 |---|---|
-| `final/final_report.md`: status, room ids and names, counts, element ids, the names of your document files (in evidence and, for needs review, the page table), warnings; from the intake only counts and fixed note texts (for example "DWG is not read", or a brief that was not read), never a file name | your documents (`projects-private/<alias>/`) |
+| `final/final_report.md`: status, room ids and names, counts, element ids, the names of your document files (in evidence and, for needs review, the page table), warnings; from the intake only counts and fixed note texts (for example "DWG is read with LibreDWG 0.14 (beta); if it fails, export DXF", or a brief that was not read), never a file name | your documents (`projects-private/<alias>/`) |
 | `final/*_final_preview.jpg` and `final/contact_*.jpg`: the final renders | plan crops (`check/*_plan.jpg`) and debug overlays of your plan pages (`debug/`, `final/debug/`) |
 | stage records `run/<stage>.json` (status, seconds, a short note; without the input file list) | building JSON, `report.md`, `intake_manifest.json`, layout debug images, check answers |
 | `_run_manifest.json` (the state of each private project, its stages, their status and notes) | per-stage logs (`outputs-private/<alias>/run/logs/`), which hold the full tool output |

@@ -7,9 +7,37 @@ Per page we decide
   outline that is a non-rectangular quadrilateral);
 - ``page_class`` from title keywords (``KAT PLANI`` -> floor_plan, ``MOBİLYA``
   -> furniture_plan, ``KESİT`` -> section, ``GÖRÜNÜŞ`` -> elevation,
-  ``VAZİYET`` -> site_plan);
-- the level (``level_label_raw`` -> normalised label, order, ``level_id``);
-- the scale source (``$INSUNITS`` or ``ÖLÇEK 1/100``), with evidence.
+  ``VAZİYET`` -> site_plan; English ``FLOOR PLAN``, ``FURNITURE (LAYOUT)
+  PLAN``);
+- the level (``level_label_raw`` -> normalised label, order, ``level_id``;
+  Turkish titles and English ``GROUND FLOOR``, ``FIRST FLOOR``, ``BASEMENT``,
+  ``3RD FLOOR``, ...);
+- the scale source (``$INSUNITS`` or ``ÖLÇEK 1/100``), with evidence;
+- which extractor reads the page (``extractor``): the synthetic readers
+  (``pdf_extract``, ``dxf_extract``) for pages drawn the synthetic way, the
+  generic core (``generic.core``) for everything else.
+
+Generic rule (docs/milestone7.md §2.1): a vector page without a title is a
+floor plan (confidence 0.6, ``classifier "generic_labels"``, evidence = the
+room-name runs) when it carries at least two room-name labels (English or
+Turkish, ``generic.labels.room_name_runs``) **and** a cheap wall test
+passes (``wall_structure``: a hatch comb, dark grey fills, closed thin
+polygons, or for DXF a hatch/solid/closed polyline on a wall layer). Labels
+alone never make a plan. A project with exactly one plan page and no level
+title gets level ``L0`` "Ground floor" as an *assumed* value
+(``label_source "assumed"``); several untitled plan pages cannot be ordered
+(``level_problem``, the pipeline stops with ``needs_review``).
+
+DWG: a DWG with a DXF of the same name in the project is recorded with
+``skip_reason "DXF of the same name is used"`` and not converted (the DXF
+wins). Otherwise ``dwg.convert`` writes the DXF into ``work_dir``; its
+version, entity counts and audit are kept in ``conversion``.
+
+PDF pages with paths but no characters and no large image are vector pages
+whose texts are drawn as geometry (AutoCAD SHX fonts): they need OCR, which
+the raster area builds later; until then they are skipped with
+``skip_reason "text drawn as geometry ..."`` and the pipeline reports
+``needs_review``.
 
 Raster pages have no text layer here. When an ``ocr`` callable is given
 (the Milestone 2 bake-off supplies one later) its texts are classified with
@@ -18,6 +46,7 @@ Nothing is guessed from the file name.
 """
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable, Optional
@@ -28,14 +57,37 @@ import pdfplumber
 from PIL import Image
 
 from wenart import building as B
+from wenart.ingest import cad_pdf
 from wenart.ingest import dwg as dwg_mod
-from wenart.ingest.dxf_extract import metres_per_unit_from_insunits, read_dxf
-from wenart.ingest.model import METRES_PER_POINT, TextItem, page_class_for, parse_scale_text, text_role
-from wenart.ingest.pdf_extract import read_page_objects
+from wenart.ingest import dxf_generic
+from wenart.ingest.dxf_extract import has_synthetic_layers, metres_per_unit_from_insunits, read_dxf
+from wenart.ingest.generic import labels as generic_labels
+from wenart.ingest.generic.model import GenericPage, TextRun
+from wenart.ingest.model import (METRES_PER_POINT, TextItem, normalise_level, page_class_for, parse_scale_text,
+                                 text_role)
+from wenart.ingest.pdf_extract import LW_TOLERANCE, LW_WALL, read_page_objects
 
 IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp", ".webp"}
 SKIP_DIRS = {"truth", "outputs", "debug"}
 RASTER_SKIP_REASON = "no text layer: raster pages need OCR/VLM recognition (Milestone 2 bake-off), not run here"
+NO_TITLE_REASON = "no plan title found (KAT PLANI, MOBİLYA PLANI, KESİT, GÖRÜNÜŞ, VAZİYET, FLOOR PLAN)"
+SAME_STEM_REASON = "DXF of the same name is used"
+SHX_TEXT_REASON = ("text drawn as geometry (no text layer, e.g. AutoCAD SHX fonts): such pages need OCR of the "
+                   "vector page, not built yet")
+GENERIC_CONFIDENCE = 0.6
+ASSUMED_LEVEL = ("Ground floor", 0)
+
+# Cheap wall test (§2.1), page units, no scale yet; fractions of the page's short side.
+HATCH_MIN_LINES = 200
+HATCH_ANGLE_TOL_DEG = 1.0
+HATCH_STEP_REL = 0.005           # median perpendicular step of the comb
+HATCH_LENGTH_REL = 0.05          # hatch lines are short
+DARK_FILL_LUMINANCE = 0.35       # dark grey fills (walls.py's rule) ...
+DARK_FILL_CHROMA = 0.10
+DARK_FILL_MIN_REL = 0.05         # ... at least one wall-sized (not an arrowhead or a dot)
+THIN_POLYGONS_MIN = 4            # closed thin polygons (outline walls)
+THIN_POLYGON_WIDTH_REL = 0.02
+THIN_POLYGON_ELONGATION = 4.0
 
 # EXIF tags that identify a camera (Make, Model).
 _EXIF_CAMERA_TAGS = (271, 272)
@@ -60,6 +112,14 @@ class PageRecord:
     converter: Optional[str] = None            # DWG only
     source_path: Optional[str] = None          # the file to extract from (converted DXF for DWG)
     texts: list = field(default_factory=list)  # TextItems used for the decision (not serialised)
+    # Milestone 7 (docs/milestone7.md §2.1); not serialised unless said so.
+    classifier: Optional[str] = None           # title | generic_labels | ocr (serialised)
+    extractor: str = "synthetic"               # synthetic (pdf_extract / dxf_extract) | generic (generic.core)
+    label_source: Optional[str] = None         # title | assumed (levels[].label_source)
+    level_problem: Optional[str] = None        # why the level cannot be decided (needs_review)
+    wall_test: Optional[str] = None            # what passed the cheap wall test
+    conversion: Optional[dict] = None          # DWG: dwg.Conversion.to_json()
+    generic_page: Optional[GenericPage] = None  # the page as read for the generic test (reused by the pipeline)
 
     def is_extractable(self) -> bool:
         return self.kind == "vector" and self.page_class in ("floor_plan", "furniture_plan") and self.skip_reason is None
@@ -67,9 +127,9 @@ class PageRecord:
     def to_json(self) -> dict:
         return {
             "page": self.page, "class": self.page_class, "skip_reason": self.skip_reason, "kind": self.kind,
-            "level_id": self.level_id, "level_label_raw": self.level_label_raw, "scale": self.scale,
-            "transform_to_building": None, "confidence": self.confidence, "evidence": list(self.evidence),
-            "debug_image": None,
+            "level_id": self.level_id, "level_label_raw": self.level_label_raw, "classifier": self.classifier,
+            "scale": self.scale, "transform_to_building": None, "confidence": self.confidence,
+            "evidence": list(self.evidence), "debug_image": None,
         }
 
 
@@ -111,7 +171,7 @@ def classify_texts(texts: list[TextItem]) -> tuple[str, Optional[TextItem], floa
         page_class = page_class_for(item.text)
         if page_class is not None:
             candidates.append((item.height, 1.0, page_class, item))
-        elif B.normalise_level_label(item.text) is not None:
+        elif normalise_level(item.text) is not None:
             candidates.append((item.height, 0.7, "floor_plan", item))
     if not candidates:
         return "other", None, 0.5 if texts else 0.0
@@ -125,10 +185,150 @@ def apply_level(record: PageRecord, title: Optional[TextItem]) -> None:
     if title is None:
         return
     record.level_label_raw = title.text
-    level = B.normalise_level_label(title.text)
+    record.classifier = record.classifier or "title"
+    level = normalise_level(title.text)
     if level is not None:
         record.level_label, record.level_order = level
         record.level_id = B.level_id(record.level_order)
+        record.label_source = "title"
+
+
+# --------------------------------------------------------------------------
+# Generic rule: room-name labels + a wall structure (§2.1)
+# --------------------------------------------------------------------------
+
+def _straight_ends(st) -> Optional[tuple[tuple[float, float], tuple[float, float]]]:
+    """End points of an open, unfilled stroke whose points lie on its chord (a hatch line candidate)."""
+    if st.closed or st.fill is not None or len(st.pts) < 2 or st.arc is not None:
+        return None
+    a, b = st.pts[0], st.pts[-1]
+    length = math.dist(a, b)
+    if length <= 0:
+        return None
+    if len(st.pts) > 2:
+        ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
+        if any(abs((p[0] - a[0]) * uy - (p[1] - a[1]) * ux) > 1e-3 * length for p in st.pts[1:-1]):
+            return None
+    return a, b
+
+
+def _hatch_test(page: GenericPage, short: float) -> Optional[str]:
+    """>= 200 strokes of one colour within +-1 deg, each <= 5 % of the short side, whose perpendicular offsets
+    have a median step <= 0.5 % of it (a hatch comb)."""
+    by_colour: dict = {}
+    for st in page.strokes:
+        ends = _straight_ends(st)
+        if ends is None:
+            continue
+        (ax, ay), (bx, by) = ends
+        length = math.hypot(bx - ax, by - ay)
+        if length > HATCH_LENGTH_REL * short:
+            continue
+        angle = math.degrees(math.atan2(by - ay, bx - ax)) % 180.0
+        key = tuple(round(c, 3) for c in st.colour) if st.colour else None
+        by_colour.setdefault(key, []).append((angle, (ax + bx) / 2.0, (ay + by) / 2.0))
+    for colour, items in by_colour.items():
+        if len(items) < HATCH_MIN_LINES:
+            continue
+        arr = np.array(items, dtype=float)
+        counts = np.bincount(np.round(arr[:, 0]).astype(int) % 180, minlength=180)
+        for peak in np.argsort(counts)[::-1][:3]:
+            diff = np.abs((arr[:, 0] - peak + 90.0) % 180.0 - 90.0)
+            group = arr[diff <= HATCH_ANGLE_TOL_DEG]
+            if len(group) < HATCH_MIN_LINES:
+                continue
+            t = math.radians(float(np.median(group[:, 0])))
+            offsets = np.unique(np.round(-group[:, 1] * math.sin(t) + group[:, 2] * math.cos(t), 4))
+            if len(offsets) < 2:
+                continue
+            step = float(np.median(np.diff(offsets)))
+            if step <= HATCH_STEP_REL * short:
+                return (f"hatch comb of {len(group)} lines at {math.degrees(t):.0f} deg, median step "
+                        f"{step:.3g} {page.units}")
+    return None
+
+
+def _luminance(rgb) -> float:
+    return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2]
+
+
+def wall_structure(page: GenericPage) -> Optional[str]:
+    """The cheap wall test of §2.1 in page units (no scale yet): what passed, or None. A hatch comb; or a dark grey
+    fill of wall size (one bbox side >= 5 % of the page's short side, so arrowheads and dots do not count); or
+    >= 4 closed thin polygons (4-12 vertices, short side <= 2 % of the page's short side, >= 4 x longer)."""
+    from shapely.geometry import Polygon
+
+    short = max(min(page.size), 1e-9)
+    hatch = _hatch_test(page, short)
+    if hatch:
+        return hatch
+    thin = 0
+    for st in page.strokes:
+        if not st.closed or len(st.pts) < 3:
+            continue
+        xs = [p[0] for p in st.pts]
+        ys = [p[1] for p in st.pts]
+        if st.fill is not None:
+            lum, chroma = _luminance(st.fill), max(st.fill) - min(st.fill)
+            if lum <= DARK_FILL_LUMINANCE and chroma <= DARK_FILL_CHROMA \
+                    and max(max(xs) - min(xs), max(ys) - min(ys)) >= DARK_FILL_MIN_REL * short:
+                return f"dark grey fill {st.id}"
+        if st.colour is not None and 4 <= len(st.pts) <= 12:
+            poly = Polygon(st.pts)
+            if not poly.is_valid or poly.area <= 0:
+                continue
+            rect = list(poly.minimum_rotated_rectangle.exterior.coords)
+            a, b = math.dist(rect[0], rect[1]), math.dist(rect[1], rect[2])
+            lo, hi = min(a, b), max(a, b)
+            if 0 < lo <= THIN_POLYGON_WIDTH_REL * short and hi >= THIN_POLYGON_ELONGATION * lo:
+                thin += 1
+                if thin >= THIN_POLYGONS_MIN:
+                    return f"{thin} closed thin polygons"
+    return None
+
+
+def dxf_wall_layer_entities(doc) -> Optional[str]:
+    """DXF: a HATCH or SOLID, or a closed polyline, on a wall-hint layer (``WALL``, ``A-WALL``, ``DUVAR``, ...)."""
+    for ent in doc.modelspace():
+        layer = ent.dxf.get("layer") or ""
+        if not dxf_generic.is_wall_hint_layer(layer):
+            continue
+        kind = ent.dxftype()
+        if kind in ("HATCH", "SOLID"):
+            return f"{kind}:{ent.dxf.handle} on layer {layer}"
+        if kind == "LWPOLYLINE" and ent.closed or kind == "POLYLINE" and ent.is_closed:
+            return f"closed {kind}:{ent.dxf.handle} on layer {layer}"
+    return None
+
+
+def _text_runs(texts: list[TextItem]) -> list[TextRun]:
+    return [TextRun(id=t.entity, text=t.text, box=tuple(t.box), height=t.height, rotation_deg=t.rotation_deg)
+            for t in texts]
+
+
+def apply_generic_rule(record: PageRecord, runs: list[TextRun], wall_test: Optional[str], page_no: Optional[int],
+                       evidence_of=None) -> bool:
+    """Turn an untitled vector page into a ``generic_labels`` floor plan when >= 2 room-name runs and a wall
+    structure exist; the evidence lists the runs. Returns whether it applied."""
+    names = generic_labels.room_name_runs(runs)
+    if len(names) < 2 or not wall_test:
+        why = (f"only {len(names)} room-name label(s)" if len(names) < 2 else "no wall structure (hatch, dark fill, "
+               "thin outlines or wall-layer entities)")
+        record.skip_reason = f"{NO_TITLE_REASON}; generic rule not met: {why}"
+        return False
+    record.page_class = "floor_plan"
+    record.confidence = GENERIC_CONFIDENCE
+    record.classifier = "generic_labels"
+    record.extractor = "generic"
+    record.wall_test = wall_test
+    record.skip_reason = None
+    for run in names:
+        if evidence_of is not None:
+            record.evidence.append(evidence_of(run))
+        else:
+            record.evidence.append(B.evidence(record.file, "vector", 1.0, page=page_no, entity=run.id,
+                                              text=run.text))
+    return True
 
 
 # --------------------------------------------------------------------------
@@ -147,29 +347,60 @@ def _classify_dxf(file_rel: str, path: Path, fmt: str, converter: Optional[str])
     page_class, title, confidence = classify_texts(texts)
     record = PageRecord(file=file_rel, page=1, format=fmt, kind="vector", page_class=page_class,
                         confidence=confidence, converter=converter, source_path=str(path), texts=texts)
+    synthetic = has_synthetic_layers(doc)
+    record.extractor = "synthetic" if synthetic else "generic"
     apply_level(record, title)
     if title is not None:
         record.evidence.append(B.evidence(file_rel, "vector", confidence, layer=None, entity=title.entity, text=title.text))
     insunits = doc.header.get("$INSUNITS", 0)
-    mpu = metres_per_unit_from_insunits(insunits)
+    # The exact factors for in, ft, mm, cm, m (ezdxf's table gives 0.0254000000001 for inches); others from ezdxf.
+    mpu = dxf_generic.units_to_m(insunits) or metres_per_unit_from_insunits(insunits)
     if mpu is not None:
         record.scale = {"metres_per_unit": mpu, "method": "dxf_insunits", "confidence": 1.0,
                         "evidence": B.evidence(file_rel, "vector", 1.0, entity=f"$INSUNITS={insunits}")}
     if page_class == "other":
-        record.skip_reason = "no plan title found (KAT PLANI, MOBİLYA PLANI, KESİT, GÖRÜNÜŞ, VAZİYET)"
+        record.skip_reason = NO_TITLE_REASON
+        if not synthetic:
+            # Texts of the whole model space, block texts and ATTRIBs included (room tags are often blocks).
+            runs = dxf_generic.collect_texts(doc, file_rel)
+            wall = dxf_wall_layer_entities(doc)
+            if wall is None and len(generic_labels.room_name_runs(runs)) >= 2:
+                page = dxf_generic.read_page(path, file_rel)
+                record.generic_page = page
+                wall = wall_structure(page)
+            apply_generic_rule(record, runs, wall, None,
+                               evidence_of=lambda r: dict(r.evidence[0]) if r.evidence else
+                               B.evidence(file_rel, "vector", 1.0, entity=r.id, text=r.text))
     if auditor.has_errors:
         record.confidence = min(record.confidence, 0.9)
     return record
 
 
+def same_stem_dxf(path: Path) -> Optional[Path]:
+    """A DXF next to the DWG with the same stem (any letter case), or None."""
+    for other in sorted(path.parent.iterdir()):
+        if other.is_file() and other.suffix.lower() == ".dxf" and other.stem.lower() == path.stem.lower():
+            return other
+    return None
+
+
 def _classify_dwg(file_rel: str, path: Path, work_dir: Optional[Path]) -> PageRecord:
+    if same_stem_dxf(path) is not None:
+        return PageRecord(file=file_rel, page=1, format="dwg", kind="vector", page_class="other", confidence=0.0,
+                          skip_reason=SAME_STEM_REASON)
     try:
-        dxf_path, converter = dwg_mod.dwg_to_dxf(path, work_dir)
+        conversion = dwg_mod.convert(path, work_dir)
     except (dwg_mod.ConverterNotFound, dwg_mod.ConversionError, FileNotFoundError) as exc:
         return PageRecord(file=file_rel, page=1, format="dwg", kind="vector", page_class="other", confidence=0.0,
                           skip_reason=f"DWG conversion failed: {exc}")
-    record = _classify_dxf(file_rel, dxf_path, "dwg", converter)
+    record = _classify_dxf(file_rel, conversion.dxf_path, "dwg", conversion.converter)
+    record.conversion = conversion.to_json()
     return record
+
+
+def _wall_rectangles(objects) -> int:
+    """Closed 4-corner paths of the synthetic wall line width (``pdf_extract.LW_WALL``)."""
+    return sum(1 for p in objects.paths if abs(p.linewidth - LW_WALL) <= LW_TOLERANCE and p.corners())
 
 
 def _classify_pdf(file_rel: str, path: Path, ocr: Optional[Callable]) -> list[PageRecord]:
@@ -192,7 +423,18 @@ def _classify_pdf(file_rel: str, path: Path, ocr: Optional[Callable]) -> list[Pa
                                     "evidence": B.evidence(file_rel, "vector", 1.0, page=number,
                                                            entity=scale_text.entity, text=scale_text.text)}
                 if page_class == "other":
-                    record.skip_reason = "no plan title found (KAT PLANI, MOBİLYA PLANI, KESİT, GÖRÜNÜŞ, VAZİYET)"
+                    record.skip_reason = NO_TITLE_REASON
+                    generic_page = cad_pdf.page_from_pdfplumber(page, number, file_rel)
+                    runs = generic_page.texts
+                    wall = wall_structure(generic_page) if len(generic_labels.room_name_runs(runs)) >= 2 else None
+                    if apply_generic_rule(record, runs, wall, number):
+                        record.generic_page = generic_page
+                elif _wall_rectangles(objects) == 0:
+                    # A titled page not drawn the synthetic way (no 0.5 pt wall rectangles): the generic core.
+                    record.extractor = "generic"
+            elif objects.paths and not objects.n_chars and not _large_image(page):
+                record = PageRecord(file=file_rel, page=number, format="pdf", kind="vector", page_class="other",
+                                    source_path=str(path), skip_reason=SHX_TEXT_REASON)
             else:
                 # No text layer: an embedded scan (or an empty page). OCR of PDF
                 # pages would need rendering first; the raster path does that.
@@ -200,6 +442,17 @@ def _classify_pdf(file_rel: str, path: Path, ocr: Optional[Callable]) -> list[Pa
                 _classify_raster_record(record, None, ocr)
             records.append(record)
     return records
+
+
+def _large_image(page) -> bool:
+    """An embedded image covering >= 50 % of the page (a scanned or raster-only page)."""
+    area = float(page.width) * float(page.height)
+    for im in page.images:
+        w = abs(float(im["x1"]) - float(im["x0"]))
+        h = abs(float(im["bottom"]) - float(im["top"]))
+        if area > 0 and w * h >= 0.5 * area:
+            return True
+    return False
 
 
 def raster_kind(path: Path) -> tuple[str, str]:
@@ -265,11 +518,34 @@ def _classify_image(file_rel: str, path: Path, ocr: Optional[Callable]) -> PageR
 # Entry point
 # --------------------------------------------------------------------------
 
+def assign_untitled_levels(records: list[PageRecord]) -> None:
+    """Level of untitled plan pages (§2.1): a project whose only plan page has no level title gets ``L0`` "Ground
+    floor" as an assumed value (``label_source "assumed"``); several untitled plan pages, or an untitled page next
+    to titled ones, cannot be ordered (``level_problem``)."""
+    plans = [r for r in records if r.kind == "vector" and r.page_class in ("floor_plan", "furniture_plan")
+             and r.skip_reason is None]
+    untitled = [r for r in plans if r.level_id is None]
+    if not untitled:
+        return
+    if len(plans) == 1:
+        record = untitled[0]
+        record.level_label, record.level_order = ASSUMED_LEVEL
+        record.level_id = B.level_id(record.level_order)
+        record.label_source = "assumed"
+        return
+    where = ", ".join(f"{r.file} p{r.page}" for r in untitled)
+    for record in untitled:
+        record.level_problem = (f"cannot order untitled plan pages ({where})" if len(untitled) > 1 else
+                                f"{record.page_class} without a level title next to titled plan pages "
+                                f"(found: {record.level_label_raw!r})")
+
+
 def classify_pages(project_dir: str | Path, work_dir: Optional[str | Path] = None,
                    ocr: Optional[Callable] = None) -> list[PageRecord]:
     """Classify every page of every document in ``project_dir``.
 
-    ``work_dir`` receives DWG conversions (default: next to the DWG).
+    ``work_dir`` receives DWG conversions (required for a DWG: a converted DXF is never written into the
+    project folder; without it the DWG is recorded as not convertible).
     ``ocr`` is an optional callable ``(image_path) -> [{"text", "box", "confidence"}]``.
     """
     project_dir = Path(project_dir)
@@ -286,4 +562,5 @@ def classify_pages(project_dir: str | Path, work_dir: Optional[str | Path] = Non
             records.extend(_classify_pdf(file_rel, path, ocr))
         else:
             records.append(_classify_image(file_rel, path, ocr))
+    assign_untitled_levels(records)
     return records

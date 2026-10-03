@@ -27,6 +27,10 @@ PROXY_HEIGHTS: dict[str, float] = {
     "nightstand": 0.5, "dresser": 0.8, "kitchen_counter": 0.9, "kitchen_island": 0.9,
     "fridge": 1.8, "stove": 0.9, "sink_kitchen": 0.9, "washbasin": 0.85, "toilet": 0.4,
     "shower": 2.0, "bathtub": 0.55, "washing_machine": 0.85, "unknown": 0.8,
+    # Milestone 7 documented-only types (docs/milestone7.md §6.4): a stair rises to the floor above
+    # (the default ceiling 2.70 m of wenart/defaults.yaml + the assumed 0.15 m slab; the scene builder
+    # uses the level's own ceiling), the others as wenart.furniture.schemas.HEIGHTS.
+    "stair": 2.85, "side_table": 0.55, "floor_lamp": 1.6, "potted_plant": 1.0,
 }
 
 # Types rendered with a glass look instead of the grey proxy material.

@@ -1,9 +1,11 @@
-# Synthetic test projects (Milestone 2 §1, Milestone 6 §3)
+# Synthetic test projects (Milestone 2 §1, Milestone 6 §3, Milestone 7 §5.2)
 
-Five generated projects with known ground truth, used to test the vector path
+Six generated projects with known ground truth, used to test the vector path
 (`wenart/ingest`), the raster bake-off (`wenart/recognition`) and, from
 Milestone 6, the one-command full runs (`wenart/run`): synthetic-01..03 were made
-in Milestone 2, synthetic-04 and synthetic-05 in Milestone 6 (docs/milestone6.md §3).
+in Milestone 2, synthetic-04 and synthetic-05 in Milestone 6 (docs/milestone6.md §3),
+synthetic-06 (a DWG drawn the way real CAD offices draw) in Milestone 7
+(docs/milestone7.md §5.2, section [synthetic-06](#synthetic-06-the-cad-project) below).
 
 ```
 python -m wenart.synthetic.generate --out projects --results results/synthetic
@@ -12,10 +14,13 @@ python -m wenart.synthetic.generate --out projects --results results/synthetic
 The command is deterministic and idempotent: fixed seeds, fixed DXF/PDF metadata,
 byte-identical files on every run (`tests/test_synthetic.py::test_deterministic`
 and `test_committed_projects_are_current` check this). After changing the
-generator, run it again and commit `projects/` and `results/synthetic/`
-(`--only synthetic-05` regenerates one project).
+generator, run it again and commit `projects/`, `results/synthetic/` and
+`tests/fixtures/synthetic-06-titled/` (`--only synthetic-05` regenerates one project).
+synthetic-06's DWG needs LibreDWG's `dxf2dwg` (0.14, d9468ae; `scripts/cloud-setup.sh`
+builds it into `~/.cache/wenart/libredwg/bin`); without it the generator writes
+everything else and says that the DWG was not written.
 
-## The five projects
+## The five Level-based projects
 
 | Project | Documents | Levels / rooms | Furniture in documents | Brief | Deliberate conflicts |
 |---|---|---|---|---|---|
@@ -65,6 +70,55 @@ edge, in edge order: each wall runs to the outer corner at a convex vertex and
 on to the inner corner (one wall thickness past the vertex) at a reflex vertex,
 so the wall rectangles overlap at every corner and their union is one closed
 ring. The default rectangle is the same rule with four vertices.
+
+## synthetic-06: the CAD project
+
+A 2+1 flat (24'-0" × 30'-6") drawn "the real way" in **inches** with English names,
+delivered as a **DWG only** — the case the generic DXF adapter
+(`wenart/ingest/dxf_generic.py`) and LibreDWG (`wenart/ingest/dwg.py`) exist for. It
+is a `CadProject` (`wenart/synthetic/projects.py: plan_06`, `project_06`), written by
+`dxf_writer.write_cad_dxf` and `generate.generate_cad_project`.
+
+| | |
+|---|---|
+| Folder | `synthetic-06.dwg` (the only document), `source/synthetic-06.dxf` (what the DWG is written from; not read by the pipeline, which reads the top level only), `brief.yaml` (Mid-century modern), `truth/building.json`, `truth/pages.json` |
+| DWG | `dxf2dwg --as r2000` (AC1015, codepage ANSI_1252); deterministic, sha256 pinned in `projects.DWG_SHA256_06` (the generator refuses another hash) |
+| Units | `$INSUNITS = 1` (inches), `$MEASUREMENT = 0`, `$LUNITS = 4`; the building sits at (480", 240") in the drawing, so `transform_to_building = [0.0254, 0, -12.192, 0, 0.0254, -6.096]` |
+| Walls (`A-WALL`) | one SOLID HATCH, ACI 7, over the wall union: the outer loop (external path) and one island per room face (5), plus the same rings as closed outline polylines; exterior walls 9", interior 6"; the walls run on through doors and windows |
+| Doors (`A-DOOR`) | an ARC (centre = hinge on the face of the wall it swings from, radius = clear width) and the open leaf as a LINE from the hinge to the arc end: entrance 3'-0", bath 2'-6", the bedroom and living doors 2'-8" |
+| Windows (`A-GLAZ`) | three lines along the wall band (both faces and the glass) and two jamb lines; 8 windows |
+| Furniture (`A-FURN`) | block inserts (`blocks.CAD_BLOCKS`, inches, front = −Y): `SOFA-3`, `DINING-6` (the table; its six chairs are nested `CHAIR` inserts, 2" clear of it), `BED-DOUBLE` (pillows at the head), `WC` (cistern + an ELLIPSE bowl), `BASIN` (a CIRCLE bowl); the bedroom and the lobby are empty |
+| Labels (`A-ANNO`) | MTEXT `LIVING ROOM` + `14'-0" X 12'-0"` (the size line; the living face is exactly 14' × 12'), a `ROOMTAG` insert whose `NAME` attribute says `KITCHEN`, TEXT `LOBBY`, `BATH`, `BED ROOM`, `MASTER BED ROOM`; **no title** |
+| Dimensions (`A-DIMS`) | feet-inch texts as the override (ezdxf cannot format architectural units): bottom chain 9'-0" + 15'-0" and 24'-0" as rotated dimensions; left chain 13'-0" + 5'-6" + 12'-0" and 30'-6" as **aligned** dimensions (dimtype 1); one **rotated vertical** 30'-6" on the right (its angle is lost in the DWG and recovered by the reader) |
+| Open kitchen | the kitchen (8'-0" × 12'-0") is open to the living room beside a wall stub whose free end stops 6'-0" short of the outer wall: the expected **virtual separator** `o_L0_001` runs from the stub's end along its axis to the wall face (docs/milestone7.md §2.7.1) |
+
+Truth (`build_cad_truth`, the §1.3 fields the generic core must reproduce):
+`project.unit_system` and `documents[].unit_system` `imperial`, `documents[].source_kind`
+`dxf`, the converter `libredwg dwg2dxf 0.14 d9468ae…`; page class `floor_plan` by
+classifier `generic_labels` (confidence 0.6); level `L0` "Ground floor" with
+`label_source: "assumed"` (evidence = the six room labels) and the warning `level title
+missing: assumed L0 Ground floor`; 9 walls (4 exterior; true thicknesses 0.2286 / 0.1524 m,
+the core rounds to 5 mm), evidence the hatch; 5 doors (`height` 2.10 `assumed`), 8 windows
+(`sill_height` 0.90, `height` 1.20 `assumed`), the separator (`virtual`, `wall_id null`,
+`line`, evidence `derived`); 6 rooms whose faces are the holes of the wall union with the
+separator's band (the stub's band extended to the face) bridged — Kitchen (from the
+attribute), Living Room (with `label_size` status `ok`), Bath, Lobby (hall), Bed Room,
+Master Bed Room; 11 pieces typed by block name (`type_method: block_name`, `type_raw` =
+the block chain, e.g. `DINING-6/CHAIR`), the table without a front (nothing drawn says
+which side it is). The DWG and the DXF read the same (`tests/test_dwg.py`).
+
+LibreDWG 0.14 workarounds in the writer (documented in `write_cad_dxf`): `dxf2dwg` stops on
+an MTEXT rotation angle (code 50), so the upright texts of the rendered dimension blocks
+carry a direction vector; it stores an MTEXT's DXF code 40 in the reference-rectangle width
+(height 0 in the DWG), so the label MTEXT also states its height inline (`\H9;`); and it
+drops the angle of rotated dimensions, which `dxf_generic` recovers from the dimension
+block (`dimension_angle_from_block`).
+
+The **titled variant** (`TEXT "GROUND FLOOR PLAN"`, 18", above the plan; written last, so
+every other handle is the same) is a test fixture, not a project:
+`tests/fixtures/synthetic-06-titled/synthetic-06-titled.dxf` + `truth/building.json`
+(level "Ground Floor" from the title, `label_source: "title"`, classifier `title`). The
+generator writes it when `--out` is the repository's `projects` folder (or `--fixtures DIR`).
 
 ## Coordinate conventions
 
@@ -166,7 +220,7 @@ walls, dimensions}`. Boxes are `[x0, y0, x1, y1]` in page units. `texts` carry
 - Scans are ~1.4 MB each (noise does not compress well); the whole set is ~3.8 MB
   (synthetic-04 and -05 together ~0.5 MB, most of it the 78 KB style photo and the DXFs).
 - Previews: `results/synthetic/<project>_<file stem>_p<page>.jpg`, ≤ 1200 px wide,
-  ≤ 300 KB (13 files for the five projects). The DXF previews are rendered from the
+  ≤ 300 KB (14 files for the six projects; synthetic-06's is rendered from its source DXF). The DXF previews are rendered from the
   written file with ezdxf's matplotlib backend. The names derive from the file stem,
   so two documents of one project need different stems: synthetic-04's PDF is
   `3_kat_plani_pdf.pdf` next to `3_kat_plani.dxf`.

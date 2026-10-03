@@ -8,7 +8,8 @@ What lives here:
 - ID generation following the convention in docs/milestone2.md
   (``L0``, ``w_L0_001``, ``d_L0_001``, ``win_L0_001``, ``o_L0_001``,
   ``r_L0_salon``, ``f_L0_001``, ``c_001``).
-- Label normalisation for Turkish room labels and level titles.
+- Label normalisation for room labels (Turkish and, since Milestone 7, English:
+  vocabulary, type priority, casing) and Turkish level titles.
 - ``validate`` against the schema with jsonschema, plus ``save``/``load``.
 
 Why a module and not ad-hoc dicts: three code paths (synthetic truth, vector
@@ -25,6 +26,8 @@ from pathlib import Path
 from typing import Any, Optional
 
 import jsonschema
+
+from wenart import units
 
 SCHEMA_PATH = Path(__file__).resolve().parent / "schema" / "building.schema.json"
 SCHEMA_VERSION = "0.1"
@@ -44,9 +47,9 @@ ID_PREFIX = {
 }
 
 # Keyword (lower-case, Turkish letters folded to ASCII) -> room_type
-# (docs/milestone2.md, extended in docs/milestone6.md §3.3). A keyword matches
-# at the start of a word, so inflected forms count (``banyosu`` -> ``banyo``).
-_ROOM_TYPE_KEYWORDS = [
+# (docs/milestone2.md, extended in docs/milestone6.md §3.3). A Turkish keyword
+# matches at the start of a word, so inflected forms count (``banyosu`` -> ``banyo``).
+_TURKISH_ROOM_KEYWORDS = [
     ("salon", "living"),
     ("yatak", "bedroom"),
     ("cocuk", "bedroom"),
@@ -67,13 +70,61 @@ _ROOM_TYPE_KEYWORDS = [
     ("depo", "storage"),
     ("calisma", "other"),
 ]
+# English room names (docs/milestone7.md §2.7.2). An English keyword is a whole word (an
+# optional plural ``s``/``es`` allowed); the words of a two-word keyword may be written
+# together or joined by a space, hyphen or underscore (``bed room``, ``bedroom``, ``bed-room``).
+# ``hall`` alone is a living room in a large face (``room_type_for`` with the face size).
+# The few one-word compounds (``kitchenette``, ``storeroom``, ``hallway``) are listed as such.
+_ENGLISH_ROOM_KEYWORDS = [
+    ("drawing", "living"), ("living", "living"), ("lounge", "living"), ("family", "living"),
+    ("sitting", "living"),
+    ("dining", "dining"),
+    ("bed room", "bedroom"), ("master", "bedroom"), ("guest room", "bedroom"), ("kids", "bedroom"),
+    ("children", "bedroom"), ("nursery", "bedroom"), ("br", "bedroom"),
+    ("kitchen", "kitchen"), ("kitchenette", "kitchen"), ("kit", "kitchen"), ("pantry", "kitchen"),
+    ("bath", "bathroom"), ("bath room", "bathroom"), ("shower", "bathroom"),
+    ("toilet", "wc"), ("wc", "wc"), ("w.c", "wc"), ("powder", "wc"),
+    ("hall", "hall"), ("hallway", "hall"), ("lobby", "hall"), ("passage", "hall"), ("corridor", "hall"),
+    ("foyer", "hall"), ("entrance", "hall"), ("entry", "hall"), ("landing", "hall"),
+    ("balcony", "balcony"), ("terrace", "balcony"), ("deck", "balcony"), ("verandah", "balcony"),
+    ("veranda", "balcony"),
+    ("store", "storage"), ("storeroom", "storage"), ("storage", "storage"), ("closet", "storage"),
+    ("box room", "storage"),
+    ("pooja", "prayer"), ("puja", "prayer"), ("prayer", "prayer"), ("mandir", "prayer"),
+    ("study", "other"), ("office", "other"), ("utility", "other"), ("laundry", "other"),
+    ("servant", "other"), ("maid", "other"),
+]
+_ROOM_TYPE_KEYWORDS = _TURKISH_ROOM_KEYWORDS + _ENGLISH_ROOM_KEYWORDS
+# English words for the bathroom rule: a bath or shower word together with a toilet word is a
+# bathroom (``Bath+ Toilet``, ``Bath/WC``); Turkish labels keep wc first (``Banyo/WC`` -> wc).
+_ENGLISH_BATH_WORDS = ("bath", "bath room", "shower")
+_ENGLISH_TOILET_WORDS = ("toilet", "wc", "w.c")
+# Keywords that say nothing about the language (for the casing rule of normalise_room_label).
+_NEUTRAL_KEYWORDS = ("wc",)
+# Turkish words that are no room-type keyword but show a Turkish label (``YEMEK ODASI``).
+_TURKISH_MARKERS = ("oda", "yemek", "giyinme", "camasir", "merdiven", "asansor")
+_TURKISH_LETTERS = set("çğıöşüÇĞİÖŞÜ")
 # When several keywords match, the room type that comes first here wins:
 # ``EBEVEYN BANYO`` is a bathroom, ``SALON + MUTFAK`` a living room (its
-# documented kitchen pieces stay kitchen pieces).
-ROOM_TYPE_PRIORITY = ("wc", "bathroom", "storage", "balcony", "bedroom", "living", "kitchen", "hall", "other")
+# documented kitchen pieces stay kitchen pieces), ``Kitchen & Dining`` a kitchen.
+ROOM_TYPE_PRIORITY = ("wc", "bathroom", "storage", "balcony", "bedroom", "living", "kitchen", "dining", "prayer",
+                      "hall", "other")
+# ``hall`` alone names a living room when its face is at least this large and this compact (§2.7.2).
+HALL_AS_LIVING_MIN_AREA = 9.0
+HALL_AS_LIVING_MAX_ASPECT = 2.5
 
-# Area suffix such as "24,50 m²", "24.5 m2", "24,50m²".
-_AREA_RE = re.compile(r"\s*(\d+(?:[.,]\d+)?)\s*m(?:²|2)\s*$", re.IGNORECASE)
+
+def english_keyword_re(keyword: str) -> re.Pattern:
+    """Whole-word pattern for an English keyword on ``fold_ascii`` text (see ``_ENGLISH_ROOM_KEYWORDS``)."""
+    words = [re.escape(w) for w in keyword.split()]
+    body = r"[\s\-_]*".join(words)
+    return re.compile(rf"(?<![a-z]){body}(?:s|es)?(?![a-z])")
+
+
+_ENGLISH_PATTERNS = [(english_keyword_re(k), k, t) for k, t in _ENGLISH_ROOM_KEYWORDS]
+
+# Area suffix such as "24,50 m²", "24.5 m2", "24,50m²", "110 sq ft" (wenart.units).
+_AREA_RE = units.AREA_SUFFIX_RE
 _LEVEL_NUMBER_RE = re.compile(r"(\d+)\s*\.?\s*KAT")
 
 
@@ -186,43 +237,101 @@ def slugify(text: str) -> str:
 # --------------------------------------------------------------------------
 
 def parse_area_label(text: str) -> tuple[str, Optional[float]]:
-    """Split an optional area suffix off a label: ``SALON 24,50 m²`` -> (``SALON``, 24.5)."""
-    match = _AREA_RE.search(text)
-    if not match:
+    """Split an optional area suffix off a label: ``SALON 24,50 m²`` -> (``SALON``, 24.5).
+
+    The area is parsed by ``wenart.units`` (m² or sq ft, returned in m²).
+    """
+    split = units.area_suffix(text)
+    if split is None:
         return text.strip(), None
-    number = match.group(1).replace(",", ".")
-    return text[: match.start()].strip(), float(number)
+    head, m2, _system, _area_text = split
+    return head, m2
 
 
-def room_type_for(label: str) -> str:
+def room_keyword_hits(label: str) -> tuple[list[tuple[str, str]], list[tuple[str, str]]]:
+    """(Turkish hits, English hits) as (keyword, room_type) pairs found in a label."""
+    folded = fold_ascii(label)
+    turkish = [(keyword, room_type) for keyword, room_type in _TURKISH_ROOM_KEYWORDS
+               if re.search(rf"(^|[^a-z]){keyword}", folded)]
+    english = [(keyword, room_type) for pattern, keyword, room_type in _ENGLISH_PATTERNS if pattern.search(folded)]
+    return turkish, english
+
+
+def room_type_for(label: str, face_area_m2: Optional[float] = None, face_aspect: Optional[float] = None) -> str:
     """Map a (normalised or raw) room label to the schema ``room_type``.
 
-    Every keyword of ``_ROOM_TYPE_KEYWORDS`` that starts a word of the folded
-    label matches (``EBEVEYN BANYOSU`` -> ``ebeveyn`` and ``banyo``); among the
-    matches the type earliest in ``ROOM_TYPE_PRIORITY`` wins. No match ->
-    ``other``.
+    Every Turkish keyword that starts a word of the folded label matches
+    (``EBEVEYN BANYOSU`` -> ``ebeveyn`` and ``banyo``), every English keyword
+    that is a whole word of it (``Bath+ Toilet`` -> ``bath`` and ``toilet``).
+    An English bath or shower word with a toilet word is a bathroom (before the
+    priority; Turkish labels keep wc first: ``Banyo/WC`` -> wc). Otherwise the
+    type earliest in ``ROOM_TYPE_PRIORITY`` wins. ``hall`` alone is a living
+    room when the face is given and is at least ``HALL_AS_LIVING_MIN_AREA`` m²
+    with an aspect of at most ``HALL_AS_LIVING_MAX_ASPECT``. No match -> ``other``.
     """
-    folded = fold_ascii(label)
-    matched = {room_type for keyword, room_type in _ROOM_TYPE_KEYWORDS
-               if re.search(rf"(^|[^a-z]){keyword}", folded)}
+    turkish, english = room_keyword_hits(label)
+    english_words = {keyword for keyword, _ in english}
+    if english_words & set(_ENGLISH_BATH_WORDS) and english_words & set(_ENGLISH_TOILET_WORDS):
+        return "bathroom"
+    if not turkish and english_words == {"hall"} and face_area_m2 is not None and face_aspect is not None:
+        if face_area_m2 >= HALL_AS_LIVING_MIN_AREA and face_aspect <= HALL_AS_LIVING_MAX_ASPECT:
+            return "living"
+    matched = {room_type for _, room_type in turkish + english}
     for room_type in ROOM_TYPE_PRIORITY:
         if room_type in matched:
             return room_type
     return "other"
 
 
-def normalise_room_label(label_raw: str) -> tuple[str, str, Optional[float]]:
+def has_turkish_letters(text: str) -> bool:
+    """``ç ğ ı ö ş ü`` (either case) or a dotted capital ``İ`` in the text."""
+    return any(ch in _TURKISH_LETTERS for ch in text)
+
+
+def is_turkish_label(text: str) -> bool:
+    """Whether a label is written in Turkish (for casing): Turkish letters, a Turkish word that
+    is no keyword (``ODASI``, ``YEMEK``), or a Turkish keyword without any English one
+    (``wc`` counts for neither language)."""
+    if has_turkish_letters(text):
+        return True
+    folded = fold_ascii(text)
+    if any(re.search(rf"(^|[^a-z]){marker}", folded) for marker in _TURKISH_MARKERS):
+        return True
+    if re.search(r"(^|[^a-z])ve($|[^a-z])", folded):
+        return True                                   # "BANYO VE WC"
+    turkish, english = room_keyword_hits(text)
+    turkish = [k for k, _ in turkish if k not in _NEUTRAL_KEYWORDS]
+    english = [k for k, _ in english if k not in _NEUTRAL_KEYWORDS]
+    return bool(turkish) and not english
+
+
+def plain_title(text: str) -> str:
+    """Title case without Turkish rules: ``LIVING ROOM`` -> ``Living Room``, ``BATH+TOILET`` ->
+    ``Bath+Toilet``, ``children's room`` -> ``Children's Room``; the word ``WC`` stays upper-case."""
+    lowered = text.lower()
+    titled = re.sub(r"(?<![^\W_])(?<!['’])[^\W\d_]", lambda m: m.group(0).upper(), lowered)
+    return re.sub(r"(?<![^\W_])wc(?![^\W_])", "WC", titled, flags=re.IGNORECASE)
+
+
+def normalise_room_label(label_raw: str, turkish: Optional[bool] = None) -> tuple[str, str, Optional[float]]:
     """``label_raw`` as read -> (``label``, ``room_type``, ``area_label``).
 
-    ``label`` is the Turkish title-case label without the area, ``WC`` stays
-    upper-case. ``area_label`` is a float in m² or None.
+    ``label`` is the title-case label without the area: Turkish title case
+    (``YATAK ODASI`` -> ``Yatak Odası``) for Turkish labels, plain title case
+    otherwise (``LIVING ROOM`` -> ``Living Room``); ``WC`` stays upper-case.
+    ``turkish`` forces the language (e.g. from the page); None decides by
+    ``is_turkish_label``. ``area_label`` is a float in m² or None.
     """
     text, area = parse_area_label(label_raw.strip())
     text = re.sub(r"\s+", " ", text)
+    if turkish is None:
+        turkish = is_turkish_label(text)
     if fold_ascii(text) == "wc":
         label = "WC"
-    else:
+    elif turkish:
         label = turkish_title(text)
+    else:
+        label = plain_title(text)
     return label, room_type_for(label), area
 
 

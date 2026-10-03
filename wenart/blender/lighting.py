@@ -32,6 +32,10 @@ Milestone 6 (docs/milestone6.md §5 rows 5 and 6):
   ceiling light at half the power per m2 (6 W/m2), invisible to the camera,
   recorded ``assumed`` with the ratio as the reason (lighting mood: the
   documents say nothing about lamps).
+
+Milestone 7 (docs/milestone7.md §6.4): the stair openings of a level
+(``shell.plan_stairs``) are holes for ``polylabel``, so a ceiling light never
+hangs in an opening, among the steps of the last flight.
 """
 from __future__ import annotations
 
@@ -104,37 +108,43 @@ POLYLABEL_PRECISION_M = 0.01
 # Pole of inaccessibility (pure Python; Blender's Python has no shapely)
 # --------------------------------------------------------------------------
 
-def _signed_distance(x: float, y: float, polygon) -> float:
-    """Distance from (x, y) to the polygon boundary, negative outside."""
+def _signed_distance(x: float, y: float, polygon, holes=()) -> float:
+    """Distance from (x, y) to the polygon boundary, negative outside.
+    ``holes`` (Milestone 7: stair openings in the ceiling) count as outside,
+    and their edges as boundary (even-odd over all rings, as Mapbox's polylabel)."""
     inside = False
     best = math.inf
-    n = len(polygon)
-    for i in range(n):
-        ax, ay = polygon[i]
-        bx, by = polygon[(i + 1) % n]
-        if (ay > y) != (by > y) and x < (bx - ax) * (y - ay) / (by - ay) + ax:
-            inside = not inside
-        dx, dy = bx - ax, by - ay
-        length_sq = dx * dx + dy * dy
-        t = 0.0 if length_sq == 0 else max(0.0, min(1.0, ((x - ax) * dx + (y - ay) * dy) / length_sq))
-        px, py = ax + t * dx - x, ay + t * dy - y
-        best = min(best, px * px + py * py)
+    for ring in (polygon, *holes):
+        n = len(ring)
+        for i in range(n):
+            ax, ay = ring[i]
+            bx, by = ring[(i + 1) % n]
+            if (ay > y) != (by > y) and x < (bx - ax) * (y - ay) / (by - ay) + ax:
+                inside = not inside
+            dx, dy = bx - ax, by - ay
+            length_sq = dx * dx + dy * dy
+            t = 0.0 if length_sq == 0 else max(0.0, min(1.0, ((x - ax) * dx + (y - ay) * dy) / length_sq))
+            px, py = ax + t * dx - x, ay + t * dy - y
+            best = min(best, px * px + py * py)
     d = math.sqrt(best)
     return d if inside else -d
 
 
-def polylabel(polygon, precision: float = POLYLABEL_PRECISION_M) -> tuple[float, float, float]:
+def polylabel(polygon, precision: float = POLYLABEL_PRECISION_M, holes=()) -> tuple[float, float, float]:
     """``(x, y, distance)``: the pole of inaccessibility of a simple polygon,
     the inside point farthest from its boundary, to within ``precision``
     (Mapbox's polylabel: square cells over the bounding box in a priority
     queue by the best distance a cell could still hold; cells that cannot
     beat the best found by more than ``precision`` are dropped). The
-    centroid and the bounding-box centre seed the search. Deterministic."""
+    centroid and the bounding-box centre seed the search. Deterministic.
+    ``holes``: polygons inside it that are not part of it (each lying
+    inside ``polygon`` or beyond its edges; Milestone 7 stair openings)."""
     poly = [(float(p[0]), float(p[1])) for p in polygon]
     if len(poly) > 1 and poly[0] == poly[-1]:
         poly = poly[:-1]
     if len(poly) < 3:
         raise ValueError("polylabel needs a polygon with at least 3 points")
+    rings = [[(float(p[0]), float(p[1])) for p in h] for h in holes if len(h) >= 3]
     xs, ys = [p[0] for p in poly], [p[1] for p in poly]
     x0, y0, x1, y1 = min(xs), min(ys), max(xs), max(ys)
     width, height = x1 - x0, y1 - y0
@@ -147,7 +157,7 @@ def polylabel(polygon, precision: float = POLYLABEL_PRECISION_M) -> tuple[float,
 
     def push(cx: float, cy: float, half: float) -> None:
         nonlocal counter
-        d = _signed_distance(cx, cy, poly)
+        d = _signed_distance(cx, cy, poly, rings)
         heapq.heappush(queue, (-(d + half * math.sqrt(2.0)), counter, cx, cy, half, d))
         counter += 1
 
@@ -159,9 +169,9 @@ def polylabel(polygon, precision: float = POLYLABEL_PRECISION_M) -> tuple[float,
             x += cell
         y += cell
     cx, cy = G.polygon_centroid(poly)
-    best = (cx, cy, _signed_distance(cx, cy, poly))
+    best = (cx, cy, _signed_distance(cx, cy, poly, rings))
     bx, by = x0 + width / 2.0, y0 + height / 2.0
-    d = _signed_distance(bx, by, poly)
+    d = _signed_distance(bx, by, poly, rings)
     if d > best[2]:
         best = (bx, by, d)
     while queue:
@@ -177,13 +187,15 @@ def polylabel(polygon, precision: float = POLYLABEL_PRECISION_M) -> tuple[float,
     return best
 
 
-def area_light_plan(polygon) -> dict:
+def area_light_plan(polygon, holes=()) -> dict:
     """Where a room's square ceiling light goes (pure): ``{"center": [x, y],
     "size", "boundary_distance"}``. Centre = ``polylabel``; size = half the
     smaller bounding-box side, between ``AREA_LIGHT_MIN_SIZE`` and
     ``AREA_LIGHT_MAX_SIZE``, and never above ``sqrt(2) * distance`` so the
-    whole square (half-diagonal = size / sqrt(2)) lies inside the room."""
-    x, y, d = polylabel(polygon)
+    whole square (half-diagonal = size / sqrt(2)) lies inside the room.
+    ``holes`` (Milestone 7): the stair openings of the level; the light stays
+    under the ceiling that is left, never in an opening."""
+    x, y, d = polylabel(polygon, holes=holes)
     d = math.floor(d * 1e4) / 1e4                      # recorded to 0.1 mm, never more than the real distance
     bx0, by0, bx1, by1 = G.bbox(polygon)
     size = min(AREA_LIGHT_MAX_SIZE, max(AREA_LIGHT_MIN_SIZE, min(bx1 - bx0, by1 - by0) * 0.5))
@@ -210,6 +222,13 @@ def fill_light_reason(windows: list[dict], ratio: float | None) -> str | None:
     if ratio is not None and ratio < DIM_ROOM_RATIO:
         return f"room has little daylight (window/floor {ratio:.3f} < {DIM_ROOM_RATIO})"
     return None
+
+
+def stair_openings(building: dict, level: dict) -> list[list[tuple[float, float]]]:
+    """The ceiling openings of the stairs of a level (pure, ``shell.plan_stairs``): every void loop."""
+    from wenart.blender.shell import plan_stairs
+
+    return [loop for s in plan_stairs(building, level) if s["plan"] is not None for loop in s["plan"]["void"]]
 
 
 def sun_direction(elevation_deg: float, azimuth_deg: float) -> tuple[float, float, float]:
@@ -264,6 +283,7 @@ def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: s
         floor_z = float(level["elevation"])
         ceil_z = floor_z + float(level["ceiling_height"])
         levels_above = any(float(lv["elevation"]) > floor_z for lv in building["levels"])
+        voids = stair_openings(building, level)
         for room in building["rooms"]:
             if room["level_id"] != level["id"]:
                 continue
@@ -279,7 +299,7 @@ def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: s
             if why is None:
                 continue
             dim = bool(windows)
-            plan = area_light_plan(polygon)
+            plan = area_light_plan(polygon, holes=voids)
             size = plan["size"]
             per_m2 = AREA_LIGHT_W_PER_M2 * (DIM_POWER_FACTOR if dim else 1.0)
             power = min(AREA_LIGHT_MAX_W, max(AREA_LIGHT_MIN_W, per_m2 * area))
@@ -335,7 +355,7 @@ def build_portals(building: dict, levels: list[dict], collection, manifest_objec
         for opening in building["openings"]:
             if opening["level_id"] != level["id"] or opening["type"] != "window":
                 continue
-            wall = walls.get(opening["wall_id"])
+            wall = walls.get(opening.get("wall_id"))
             if wall is None:
                 continue  # build_openings already warned: no window object either
             plan = portal_plan(opening, wall, level, levels_above, rooms)

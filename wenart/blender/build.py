@@ -56,6 +56,20 @@ Milestone 6 (docs/milestone6.md §4.2, §5):
   dim-room lights at the pole of inaccessibility (lighting.py); every new
   design-detail object or light has an ``assumed`` entry with ``parent``,
   ``kind`` and ``reason``.
+
+Milestone 7 (docs/milestone7.md §6.4):
+
+- stairs are fixed equipment: ``shell.plan_stairs`` / ``shell.build_stairs``
+  build them (steps from the drawn lines, landing, rails, the ceiling
+  opening and its capped shaft) and furniture.py never sees them
+  (``furniture_building``); they count as parametric pieces in the
+  ``furniture`` summary and are listed under ``stairs``;
+- pieces with ``build: false`` are not built (furniture.py and
+  ``build_stairs``); the summary lists them under ``not_built``;
+- the building's ``site`` (plot walls, exterior areas, site decor) is never
+  built; the manifest's ``site`` records what was left out
+  (``site_summary``);
+- virtual separators and doorless openings: see shell.py.
 """
 from __future__ import annotations
 
@@ -260,6 +274,46 @@ def reusable_build(out: Path, fingerprint: str) -> tuple[bool, str]:
     return True, ""
 
 
+SITE_KEYS = ("boundary_walls", "areas", "decor", "openings")
+SITE_REASON = "site elements are recorded in the building JSON and reported, never built (docs/milestone7.md §6.4)"
+
+
+def site_summary(building: dict) -> dict | None:
+    """What the scene leaves out of the building's ``site`` (pure): counts
+    per kind and the ids, ``built: false``; None without a site."""
+    site = building.get("site")
+    if not isinstance(site, dict):
+        return None
+    out = {"built": False, "reason": SITE_REASON}
+    for key in SITE_KEYS:
+        items = [i for i in site.get(key) or [] if isinstance(i, dict)]
+        out[key] = {"count": len(items), "ids": [str(i["id"]) for i in items if i.get("id") is not None]}
+    return out
+
+
+def furniture_building(building: dict) -> dict:
+    """The building furniture.create_furniture gets (pure): every piece but the
+    fixed equipment that shell.build_stairs builds (``parametric.SHELL_TYPES``),
+    so nothing is built twice."""
+    from wenart.blender.parametric import SHELL_TYPES
+
+    return dict(building, furniture=[p for p in building.get("furniture") or [] if p.get("type") not in SHELL_TYPES])
+
+
+def add_furniture_summary(total: dict, summary: dict) -> None:
+    """Add one level's furniture (or stair) summary to the build total (pure):
+    counts, methods, fallbacks, ``not_built`` and the stair ids."""
+    for key in ("pieces", "proxies", "decor"):
+        total[key] += summary.get(key, 0)
+    for method, count in (summary.get("by_method") or {}).items():
+        total["by_method"][method] = total["by_method"].get(method, 0) + count
+    total["fallbacks"].extend(summary.get("fallbacks") or [])
+    total["not_built"].extend(summary.get("not_built") or [])
+    if summary.get("ids"):                                  # shell.build_stairs: parametric fixed equipment
+        total["by_method"]["parametric"] = total["by_method"].get("parametric", 0) + len(summary["ids"])
+        total["stairs"].extend(summary["ids"])
+
+
 def default_style() -> dict:
     """The default profile of wenart.style (docs/milestone3.md §1): the default
     style text run through the vocabulary, so the asset ids are the ones the
@@ -279,7 +333,9 @@ def load_style(path: str | None, warnings: list[str], assumed: list[dict] | None
     """``(style, path)``: the style file, or the default profile when none is
     given or the file is missing (a loud warning plus an ``assumed`` entry).
     Slots a partial style file leaves out are filled from the default profile
-    and each fill is recorded in ``assumed`` and ``warnings``."""
+    and each fill is recorded in ``assumed`` and ``warnings``; ``family``
+    (Milestone 7) is never filled: a pre-M7 style file has none, and the scene
+    does not read it."""
     assumed = assumed if assumed is not None else []
     default = default_style()
     if not path or not Path(path).exists():
@@ -297,6 +353,8 @@ def load_style(path: str | None, warnings: list[str], assumed: list[dict] | None
     for key, value in default.items():
         if key in style:
             continue
+        if key == "family":
+            continue  # Milestone 7: only refit's library style filter reads it; never filled from the default
         style[key] = value
         if key in ("matched_terms", "unmatched_terms", "warnings"):
             continue  # bookkeeping lists, not a styling choice
@@ -405,22 +463,22 @@ def main(argv: list[str]) -> int:
     checks: dict = {"door_rays": []}
     level_collections = {}
     furniture_summary = {"pieces": 0, "by_method": {}, "fallbacks": [], "proxies": 0, "decor": 0,
-                         "proxies_forced": bool(args.proxies)}
+                         "proxies_forced": bool(args.proxies), "not_built": [], "stairs": []}
+    loose_furniture = furniture_building(building)            # stairs are built with the shell
 
     for level in levels:
         col = common.get_or_make_collection(f"level_{level['id']}")
         level_collections[level["id"]] = col
+        stairs = shell.plan_stairs(building, level)
         shell.build_walls(building, level, col, library, style, manifest_objects, assumed, warnings)
         shell.build_openings(building, level, col, library, style, pass_indices, manifest_objects, assumed, warnings)
         shell.build_skirting(building, level, col, library, style, manifest_objects, assumed)
-        shell.build_floors_ceilings(building, level, col, library, style, manifest_objects, warnings)
-        summary = furniture.create_furniture(building, level, col, library, style, args.assets, pass_indices,
+        shell.build_floors_ceilings(building, level, col, library, style, manifest_objects, warnings, stairs=stairs)
+        summary = furniture.create_furniture(loose_furniture, level, col, library, style, args.assets, pass_indices,
                                              manifest_objects, assumed, warnings, use_proxies=args.proxies)
-        for key in ("pieces", "proxies", "decor"):
-            furniture_summary[key] += summary[key]
-        for method, count in summary["by_method"].items():
-            furniture_summary["by_method"][method] = furniture_summary["by_method"].get(method, 0) + count
-        furniture_summary["fallbacks"].extend(summary["fallbacks"])
+        add_furniture_summary(furniture_summary, summary)
+        add_furniture_summary(furniture_summary, shell.build_stairs(building, level, col, library, style, pass_indices,
+                                                                    manifest_objects, assumed, warnings, plans=stairs))
         plans = cams.plan_cameras(building, level["id"], policy=args.camera_policy)
         for plan in plans:
             plan.setdefault("policy", args.camera_policy)
@@ -507,6 +565,7 @@ def main(argv: list[str]) -> int:
         "build_args": fp_args,
         "files": files,
         "furniture": furniture_summary,
+        "site": site_summary(building),
         "seconds": round(time.time() - t0, 1),
     }
     (out / "scene_manifest.json").write_text(json.dumps(manifest, indent=1, ensure_ascii=False), encoding="utf-8")

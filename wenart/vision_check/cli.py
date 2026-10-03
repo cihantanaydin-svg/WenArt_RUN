@@ -43,6 +43,28 @@ read no scene of the project, only its ``ab/`` folder):
   set and aspect (``--project-out`` is not used; exit 1 when no project has
   a ``realism_ab.json``).
 
+Realism v2 (docs/milestone7.md §8.2, ``realism.V2``; one aspect per call, the
+M6 files above are kept and never read):
+
+- ``realism2-pairs [--controls] [--project-outs AB_OUT ...]``:
+  ``ab/pairs_v2.json``; ``--controls`` adds the control sets from this
+  project's M6 ``ab/`` renders (the control project); ``look_alt`` takes this
+  project's share of the 32 cameras chosen over ``--project-outs`` (the
+  outputs of every A/B project; default: this project alone; a project not
+  listed gets no look_alt pairs). Exit 1 when no pair could be made or the
+  control renders are missing;
+- ``realism2 --model-key ... --server ... [--sets s,...] [--skip-sets s,...]
+  [--workers N]``: 8 calls per pair (4 aspects x 2 orders) into
+  ``check/realism/answers_realism2_<slug>.json``, ``null_identical`` with
+  ``check.yaml realism2.null_identical_workers`` (1) calls at once (exit 1
+  without ``ab/pairs_v2.json``);
+- ``realism2-combine [--models qwen,glm]``: ``check/realism/realism2_ab.json``,
+  ``realism2_report.md``, ``contact_realism2_<set>_<n>.jpg``;
+- ``realism2-summary --project-outs OUT [OUT ...] --controls-project <p or
+  its output folder> --out DIR``: ``DIR/realism2_summary.json`` and ``.md``
+  (the decision for ``look_alt``; exit 1 when no project has a
+  ``realism2_ab.json``).
+
 ``--deadline`` (default env ``WENART_DEADLINE``, epoch seconds): ``run``,
 ``preference``, ``realism`` and ``style-photo`` start no new call after it
 and wait for no call past it (a call still running is left for the next
@@ -76,6 +98,8 @@ MANIFEST = "check_manifest.json"
 CALIBRATION = "check_calibration.json"
 REPORT = "check_report.md"
 REALISM_COMMANDS = ("realism-pairs", "realism", "realism-combine", "realism-summary")
+REALISM2_COMMANDS = ("realism2-pairs", "realism2", "realism2-combine", "realism2-summary")
+SUMMARY_COMMANDS = ("realism-summary", "realism2-summary")
 
 
 def deadline_of(value: Optional[float]) -> Optional[float]:
@@ -94,36 +118,39 @@ def parse_args(argv) -> argparse.Namespace:
     parser = argparse.ArgumentParser(prog="python -m wenart.vision_check",
                                      description="final vision check of the renders (docs/milestone5.md §5)")
     parser.add_argument("command", choices=["expected", "plan-crops", "select-controls", "run", "preference",
-                                            "combine", "calibrate", "style-photo", *REALISM_COMMANDS])
-    parser.add_argument("--project-out", help="outputs/<project> (every command but realism-summary)")
+                                            "combine", "calibrate", "style-photo", *REALISM_COMMANDS,
+                                            *REALISM2_COMMANDS])
+    parser.add_argument("--project-out", help="outputs/<project> (every command but the summaries)")
     parser.add_argument("--render-dir", help="render folder (default <project-out>/renders)")
     parser.add_argument("--model-key", help="qwen | glm (check.yaml models)")
     parser.add_argument("--server", default=DEFAULT_SERVER, help=f"vLLM base URL (default {DEFAULT_SERVER})")
     parser.add_argument("--kinds", help="run: cycles,polished,controls,plan_ab (default cycles,polished); "
                                         "preference: polished|sweep (default polished)")
-    parser.add_argument("--models", help="combine, realism-combine, realism-summary: model keys "
+    parser.add_argument("--models", help="combine, realism(2)-combine, realism(2)-summary: model keys "
                                          "(default CHECK_MODELS, else 'qwen glm')")
     parser.add_argument("--deadline", type=float, default=None, help="epoch seconds (default env WENART_DEADLINE)")
     parser.add_argument("--max-side", type=int, default=None, help="longest image side sent (default: the client's)")
     parser.add_argument("--workers", type=int, default=None,
-                        help="run/preference/realism: calls at once (default check.yaml calls.workers)")
+                        help="run/preference/realism/realism2: calls at once (default check.yaml calls.workers)")
     parser.add_argument("--photo", action="append", default=[], help="style-photo: photo file (repeatable)")
     parser.add_argument("--out", help="style-photo: output JSON (default <project-out>/check/style_photos.json); "
                                       "realism-summary: output folder ($RESULTS/realism)")
     parser.add_argument("--no-debug", action="store_true", help="combine: no debug images; realism-combine: no "
                                                                 "contact sheets")
     parser.add_argument("--controls", action="store_true",
-                        help="realism-pairs: also the control sets (the --ab-controls project)")
-    parser.add_argument("--sets", help=f"realism: only these sets (comma list of {', '.join(RZ.SET_ORDER)})")
-    parser.add_argument("--skip-sets", help="realism: leave these sets out (e.g. look_alt near the deadline)")
+                        help="realism-pairs / realism2-pairs: also the control sets (the control project)")
+    parser.add_argument("--sets", help=f"realism: only these sets (comma list of {', '.join(RZ.SET_ORDER)}); "
+                                       f"realism2: of {', '.join(RZ.V2.set_order)}")
+    parser.add_argument("--skip-sets", help="realism, realism2: leave these sets out")
     parser.add_argument("--project-outs", nargs="+", default=[],
-                        help="realism-summary: the project outputs of every A/B project (space or comma separated)")
-    parser.add_argument("--controls-project", help="realism-summary: the control project (name or output folder)")
+                        help="realism(2)-summary: the project outputs of every A/B project; realism2-pairs: the A/B "
+                             "project outputs the 32 look_alt cameras are chosen from (space or comma separated)")
+    parser.add_argument("--controls-project", help="realism(2)-summary: the control project (name or output folder)")
     args = parser.parse_args(argv)
-    if args.command != "realism-summary" and not args.project_out:
+    if args.command not in SUMMARY_COMMANDS and not args.project_out:
         parser.error(f"{args.command}: --project-out is required")
-    if args.command == "realism-summary" and not (args.project_outs and args.out):
-        parser.error("realism-summary: --project-outs and --out are required")
+    if args.command in SUMMARY_COMMANDS and not (args.project_outs and args.out):
+        parser.error(f"{args.command}: --project-outs and --out are required")
     return args
 
 
@@ -459,8 +486,105 @@ def cmd_realism_summary(args) -> int:
     return 0 if any(p["found"] for p in summary["projects"]) else 1
 
 
+# --------------------------------------------------------------------------
+# Realism v2 (docs/milestone7.md §8.2)
+# --------------------------------------------------------------------------
+
+def cmd_realism2_pairs(args) -> int:
+    out = Path(args.project_out).resolve()
+    ab_outs = _split(args.project_outs) or None
+    try:
+        doc = RZ.build_pairs2(out, controls=args.controls, ab_outs=ab_outs)
+    except FileNotFoundError as exc:
+        print(f"vision_check realism2-pairs: {exc}", file=sys.stderr)
+        return 1
+    path = write_json(out / RZ.V2.pairs_json, doc)
+    sets = ", ".join(f"{s} {n}" for s, n in doc["sets"].items()) or "none"
+    look = doc["look_alt"]
+    print(f"vision_check realism2-pairs: {len(doc['pairs'])} pair(s) ({sets}), look_alt {len(look['selected'])}"
+          f" of {look['selected_total']} camera(s) over {len(look['projects'])} project(s), "
+          f"{len(doc['skipped'])} skipped pair(s) -> {path}")
+    for w in doc["warnings"]:
+        print(f"vision_check realism2-pairs: warning: {w}")
+    return 0 if doc["pairs"] else 1
+
+
+def cmd_realism2(args, client_factory) -> int:
+    from wenart.vision_check.config import load_config
+    out = Path(args.project_out).resolve()
+    cfg = load_config()
+    sets = RZ.select_sets(args.sets, args.skip_sets, RZ.V2)
+    pairs_doc = read_json(out / RZ.V2.pairs_json)
+    if pairs_doc is None:
+        print(f"vision_check realism2: no {RZ.V2.pairs_json.as_posix()} in {out} (run realism2-pairs first)",
+              file=sys.stderr)
+        return 1
+    deadline = deadline_of(args.deadline)
+    client = _client_for(cfg, args, client_factory)
+    model = str(client.model)
+    slug = cfg["models"][args.model_key]["slug"]
+    store = C.AnswerStore(RZ.answers_path(out, slug, RZ.V2), args.model_key, slug, model)
+    warnings: list[str] = []
+    specs = RZ.realism2_specs(out, pairs_doc, model, sets=sets, warnings=warnings)
+    workers = args.workers or int((cfg.get("calls") or {}).get("workers", 1))
+    serial = int(RZ.realism2_cfg(cfg)["null_identical_workers"])
+    stats = RZ.run_realism2(specs, store, RZ.RealismClient2(client), deadline=deadline, max_side=args.max_side,
+                            workers=workers, serial_workers=serial)
+    asked = sorted({s.image_kind for s in specs}, key=RZ.V2.set_order.index)
+    print(f"vision_check realism2 [{args.model_key}]: {len(specs)} call(s) in {len(asked)} set(s): {stats['asked']} "
+          f"asked ({stats['failed']} failed), {stats['reused']} reused, {stats['left']} left"
+          f"{' (deadline: incomplete)' if stats['incomplete'] else ''} -> {store.path}")
+    for w in warnings:
+        print(f"vision_check realism2: warning: {w}")
+    return 0
+
+
+def cmd_realism2_combine(args) -> int:
+    out = Path(args.project_out).resolve()
+    keys = CB.model_keys(args.models)
+    try:
+        doc = RZ.combine(out, keys, proto=RZ.V2)
+    except FileNotFoundError as exc:
+        print(f"vision_check realism2-combine: {exc}", file=sys.stderr)
+        return 1
+    path = RZ.write_combine(out, doc, sheets=not args.no_debug)
+    sets = ", ".join(f"{s} {st['pairs']}" for s, st in doc["sets"].items()) or "none"
+    answered = sum(c["answered"] for c in doc["calls"])
+    expected = sum(c["expected"] for c in doc["calls"])
+    print(f"vision_check realism2-combine [{', '.join(keys)}]: {len(doc['rows'])} pair(s) ({sets}), {answered}/"
+          f"{expected} call(s) answered{', controls table' if doc['controls'] else ''} -> {path}")
+    for w in doc["warnings"]:
+        print(f"vision_check realism2-combine: warning: {w}")
+    return 0
+
+
+def cmd_realism2_summary(args) -> int:
+    keys = CB.model_keys(args.models)
+    summary = RZ.summarise(_split(args.project_outs), args.controls_project, keys, proto=RZ.V2)
+    path = RZ.write_summary(Path(args.out), summary)
+    decisions = ", ".join(f"{s} {st['decision']}" for s, st in summary["sets"].items()) or "no A/B set"
+    signal = ", ".join(f"{k} {'yes' if ok else 'no'}" for k, ok in summary["signal"].items())
+    print(f"vision_check realism2-summary: {decisions} (signal: {signal}"
+          f"{'; single_model' if summary['single_model'] else ''}) -> {path}")
+    for w in summary["warnings"]:
+        print(f"vision_check realism2-summary: warning: {w}")
+    return 0 if any(p["found"] for p in summary["projects"]) else 1
+
+
 def main(argv=None, client_factory=None) -> int:
     args = parse_args(argv)
+    if args.command in REALISM2_COMMANDS:
+        try:
+            if args.command == "realism2-pairs":
+                return cmd_realism2_pairs(args)
+            if args.command == "realism2":
+                return cmd_realism2(args, client_factory)
+            if args.command == "realism2-combine":
+                return cmd_realism2_combine(args)
+            return cmd_realism2_summary(args)
+        except C.UsageError as exc:
+            print(f"vision_check {args.command}: {exc}", file=sys.stderr)
+            return 2
     if args.command in REALISM_COMMANDS:
         try:
             if args.command == "realism-pairs":

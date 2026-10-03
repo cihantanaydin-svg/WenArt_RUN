@@ -54,6 +54,30 @@ Milestone 6 (docs/milestone6.md §5 rows 3 and 9):
 - handles and skirting are design details: status ``assumed``, a scene
   manifest ``assumed`` entry with ``parent`` (door or room id), ``kind`` and
   ``reason``; nothing is added to the building JSON.
+
+Milestone 7 (docs/milestone7.md §6.4):
+
+- doorless openings (type ``opening``) are cut to their ``height`` (the
+  recognition core writes 2.10 m and lists it in the opening's ``assumed``;
+  every field listed there is recorded as assumed here too), with the
+  threshold face and no frame or leaf; without a height they still run to
+  the wall top (Milestone 3);
+- virtual separators (``virtual: true``, ``wall_id: null``) have no
+  geometry: a manifest entry (``has_geometry: false``, ``virtual``,
+  ``line``) and nothing else; the room floors and ceilings meet at the line;
+  the skirting stops along it. An opening without a wall that is not
+  virtual is a warning, never a crash;
+- stairs (``furniture`` of type ``stair``) are fixed equipment built here,
+  not by furniture.py: ``plan_stairs`` (pure: rise = ceiling + the assumed
+  0.15 m slab, or floor to floor when a level lies above) and
+  ``build_stairs`` (steps, landing, rails as ``furn_<id>``: kind
+  ``furniture``, the piece's pass index; the shaft and cap that close the
+  ceiling opening as ``<id>_void``: kind ``ceiling``, status ``assumed``);
+  ``build_floors_ceilings(..., stairs=)`` cuts the opening out of every
+  ceiling it crosses (``geom2d.polygon_faces``); pieces with ``build:
+  false`` are not built and listed;
+- dining and prayer rooms take the living-room slots (``slot_room_type``):
+  dry floor, plain walls, skirting.
 """
 from __future__ import annotations
 
@@ -61,6 +85,7 @@ import math
 
 from wenart import geometry as G
 from wenart.blender import geom2d
+from wenart.blender import parametric as P
 
 DEFAULTS = {
     "door_height": 2.10,
@@ -80,6 +105,8 @@ DEFAULTS = {
 WET_ROOM_TYPES = {"bathroom", "wc", "kitchen"}
 # Rooms without skirting: wet rooms keep their tiles to the floor, a balcony is outside.
 NO_SKIRTING_TYPES = WET_ROOM_TYPES | {"balcony"}
+# Milestone 7 room types that take another type's material slots (docs/milestone7.md §6.4).
+ROOM_SLOT_TYPES = {"dining": "living", "prayer": "living"}
 SKIRTING_H = 0.08
 SKIRTING_T = 0.012
 SKIRTING_MIN_SPAN = 0.02
@@ -94,6 +121,16 @@ HANDLE_EDGE_INSET = 0.075
 HANDLE_DEPTH = 0.055
 
 
+def slot_room_type(room_type: str | None) -> str | None:
+    """The room type whose material slots a room uses: dining and prayer rooms the living room's."""
+    return ROOM_SLOT_TYPES.get(room_type, room_type)
+
+
+def is_virtual(opening: dict) -> bool:
+    """A virtual separator (docs/milestone7.md §2.7.1): ``virtual: true`` with no wall; it has no geometry."""
+    return bool(opening.get("virtual")) and opening.get("wall_id") is None
+
+
 # --------------------------------------------------------------------------
 # Opening sizes (pure Python, used by shell and the tests)
 # --------------------------------------------------------------------------
@@ -101,13 +138,19 @@ HANDLE_DEPTH = 0.055
 def opening_vertical(opening: dict, level: dict, levels_above: bool) -> tuple[float, float, dict]:
     """``(bottom_z, top_z, assumed)`` of an opening in world Z.
 
-    ``assumed`` lists the defaults that filled ``null`` fields of the JSON."""
+    ``assumed`` lists the defaults that filled ``null`` fields of the JSON
+    and the values the JSON itself lists as assumed (Milestone 7: the
+    opening's ``assumed`` list, e.g. a doorless gap's 2.10 m height)."""
     floor_z = float(level["elevation"])
     ceiling = float(level["ceiling_height"])
     assumed = {}
     kind = opening["type"]
     height = opening.get("height")
     sill = opening.get("sill_height")
+    listed = opening.get("assumed") or ()
+    for field, value in (("height", height), ("sill_height", sill)):
+        if field in listed and value is not None:
+            assumed[field] = float(value)
     if kind == "door":
         if sill is None:
             sill = 0.0
@@ -296,6 +339,24 @@ def skirting_spans(polygon, gaps, min_span: float = SKIRTING_MIN_SPAN) -> list[t
     return spans
 
 
+def skirting_gaps(openings: list[dict], level: dict, levels_above: bool) -> list[tuple[list, float]]:
+    """``(centre, width)`` of the openings that interrupt a room's skirting:
+    doors, plain openings and windows reaching below the board; a virtual
+    separator by its whole ``line`` (no wall there, so no board along it)."""
+    floor_z = float(level["elevation"])
+    gaps = []
+    for o in openings:
+        line = o.get("line")
+        if is_virtual(o) and isinstance(line, (list, tuple)) and len(line) == 2:
+            (ax, ay), (bx, by) = line[0][:2], line[1][:2]
+            gaps.append(([(ax + bx) / 2.0, (ay + by) / 2.0], G.distance((ax, ay), (bx, by))))
+            continue
+        bottom, _top, _ = opening_vertical(o, level, levels_above)
+        if o["type"] in ("door", "opening") or bottom - floor_z < SKIRTING_H:
+            gaps.append((o["center"], float(o["width"])))
+    return gaps
+
+
 def skirting_boxes(polygon, spans, floor_z: float, height: float = SKIRTING_H,
                    thickness: float = SKIRTING_T) -> tuple[list, list]:
     """``(verts, faces)`` of the skirting boards of ``spans`` (``skirting_spans``):
@@ -459,9 +520,9 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
         objects.append(ob)
         pairs.append((ob, wall))
 
-        # Cutters for the openings of this wall.
+        # Cutters for the openings of this wall (a virtual separator has no wall: never cut).
         for opening in openings:
-            if opening["wall_id"] != wall["id"]:
+            if opening.get("wall_id") != wall["id"]:
                 continue
             bottom, top, _ = opening_vertical(opening, level, has_above)
             extra = DEFAULTS["cutter_extra"]
@@ -567,7 +628,7 @@ def _assign_wall_face_materials(ob, wall: dict, rooms: list[dict], outward) -> N
     points ``outward``, see ``wall_outward_normal``), 2 wet-room faces."""
     mesh = ob.data
     nx, ny = G.unit_normal_left(wall["start"], wall["end"])
-    wet_polys = [r["polygon"] for r in rooms if r.get("room_type") in WET_ROOM_TYPES]
+    wet_polys = [r["polygon"] for r in rooms if slot_room_type(r.get("room_type")) in WET_ROOM_TYPES]
     for poly in mesh.polygons:
         n = poly.normal
         if abs(n.z) > 0.5 or abs(n.x * nx + n.y * ny) < 0.5:
@@ -611,14 +672,21 @@ def build_openings(building: dict, level: dict, collection, library, style: dict
     for opening in building["openings"]:
         if opening["level_id"] != level_id:
             continue
-        wall = walls.get(opening["wall_id"])
+        if is_virtual(opening):
+            # A separator line between two rooms where no wall exists: no geometry at all.
+            manifest_objects.append(separator_entry(opening, level_id))
+            continue
+        wall = walls.get(opening.get("wall_id"))
         if wall is None:
-            warnings.append(f"{opening['id']}: wall {opening['wall_id']} not found on {level_id}")
+            warnings.append(f"{opening['id']}: wall {opening.get('wall_id')} not found on {level_id}; "
+                            f"opening not built")
             continue
         bottom, top, op_assumed = opening_vertical(opening, level, has_above)
+        listed = opening.get("assumed") or ()
         for field, value in op_assumed.items():
             assumed.append({"object": opening["id"], "field": field, "value": value,
-                            "reason": f"{opening['type']} {field} not in the JSON; default"})
+                            "reason": f"{opening['type']} {field} listed as assumed in the building JSON"
+                            if field in listed else f"{opening['type']} {field} not in the JSON; default"})
         angle = G.segment_angle_deg(wall["start"], wall["end"])
         width = float(opening["width"])
         thickness = float(wall["thickness"])
@@ -743,17 +811,33 @@ def _opening_entry(opening, name, level_id, material, textured, index, op_assume
         "name": name or opening["id"], "wenart_id": opening["id"], "kind": opening["type"],
         "status": opening.get("status", "verified"), "level_id": level_id, "element_id": opening["id"],
         "evidence": opening.get("evidence", []), "material": material, "textured": textured,
-        "pass_index": index, "assumed": dict(op_assumed), "wall_id": opening["wall_id"],
+        "pass_index": index, "assumed": dict(op_assumed), "wall_id": opening.get("wall_id"),
         "has_geometry": name is not None, "center_shift": round(shift, 4),
     }
+
+
+def separator_entry(opening: dict, level_id: str) -> dict:
+    """Manifest entry of a virtual separator (pure): kind ``opening``, no
+    geometry, no wall, its ``line``; floors and ceilings meet there."""
+    entry = _opening_entry(opening, None, level_id, None, False, None, {}, 0.0)
+    entry.update({"virtual": True, "line": opening.get("line"),
+                  "note": "virtual separator: no geometry; the room floors and ceilings meet at the line"})
+    return entry
+
+
+def floor_style(room: dict, style: dict) -> tuple[dict, bool]:
+    """``(style slot, wet)`` of a room floor: the wet-room floor for bathroom /
+    wc / kitchen, the style floor otherwise (dining and prayer rooms as living
+    rooms, ``slot_room_type``)."""
+    wet = slot_room_type(room.get("room_type")) in WET_ROOM_TYPES
+    return (style.get("wet_floor") if wet else None) or style["floor"], wet
 
 
 def floor_material(room: dict, style: dict, library):
     """``(material, wet)`` of a room floor: the style floor, the wet-room floor
     for bathroom / wc / kitchen, the dashed-red overlay for unverified rooms."""
-    wet = room.get("room_type") in WET_ROOM_TYPES
-    floor_style = (style.get("wet_floor") if wet else None) or style["floor"]
-    mat = library.get(floor_style["material"], floor_style.get("asset"), floor_style.get("tint"),
+    slot, wet = floor_style(room, style)
+    mat = library.get(slot["material"], slot.get("asset"), slot.get("tint"),
                       unverified=room.get("status") == "unverified")
     return mat, wet
 
@@ -779,7 +863,7 @@ def _threshold(opening, wall, centre, angle, floor_z, has_below, rooms, style, l
         "name": ob.name, "wenart_id": opening["id"], "kind": "floor", "status": opening.get("status", "verified"),
         "level_id": opening["level_id"], "element_id": opening["id"], "evidence": opening.get("evidence", []),
         "material": mat.name, "textured": library.textured(mat), "pass_index": None, "assumed": dict(op_assumed),
-        "wall_id": opening["wall_id"], "room_id": room["id"] if room else None,
+        "wall_id": opening.get("wall_id"), "room_id": room["id"] if room else None,
         "room_type": room.get("room_type") if room else None, "wet": wet, "center_shift": round(shift, 4),
         "lifted": z - floor_z,
     })
@@ -802,7 +886,7 @@ def _soffit(opening, wall, centre, angle, z, style, library, collection, manifes
         "name": ob.name, "wenart_id": opening["id"], "kind": "ceiling", "status": opening.get("status", "verified"),
         "level_id": opening["level_id"], "element_id": opening["id"], "evidence": opening.get("evidence", []),
         "material": mat.name, "textured": library.textured(mat), "pass_index": None, "assumed": dict(op_assumed),
-        "wall_id": opening["wall_id"], "room_type": None, "wet": False, "center_shift": round(shift, 4),
+        "wall_id": opening.get("wall_id"), "room_type": None, "wet": False, "center_shift": round(shift, 4),
     })
     return ob
 
@@ -821,15 +905,39 @@ def _local_to_world(parts, origin, angle_deg):
 # Floors and ceilings
 # --------------------------------------------------------------------------
 
+def ceiling_faces(polygon, voids, ceil_z: float) -> tuple[list, list, list[int]]:
+    """``(verts, faces, cut)`` of a room ceiling (pure): one n-gon facing down
+    as before, or, when stair openings (``voids``: lists of polygons, one
+    list per stair) cross the room, the room minus the openings
+    (``geom2d.polygon_faces``); ``cut`` = the indices of the stairs whose
+    opening took area from the room."""
+    verts, faces = geom2d.polygon_face(polygon, ceil_z, facing_up=False)
+    area = G.polygon_area([v[:2] for v in verts])
+    holes, cut = [], []
+    for i, loops in enumerate(voids):
+        rest_v, rest_f = geom2d.polygon_faces(polygon, list(loops), ceil_z, facing_up=False)
+        if geom2d.faces_area(rest_v, rest_f) < area - 1e-6:
+            holes.extend(loops)
+            cut.append(i)
+    if not cut:
+        return verts, faces, []
+    verts, faces = geom2d.polygon_faces(polygon, holes, ceil_z, facing_up=False)
+    return verts, faces, cut
+
+
 def build_floors_ceilings(building: dict, level: dict, collection, library, style: dict,
-                          manifest_objects: list, warnings: list) -> list:
+                          manifest_objects: list, warnings: list, stairs: list | None = None) -> list:
     """One floor face and one ceiling face per room, material per style and
-    wet-room rule; unverified rooms get the dashed-red overlay on the floor."""
+    wet-room rule; unverified rooms get the dashed-red overlay on the floor.
+    ``stairs`` (``plan_stairs``): their ceiling openings are cut out of the
+    ceilings they cross (the shaft and cap come with ``build_stairs``)."""
     from wenart.blender import common
 
     level_id = level["id"]
     floor_z = float(level["elevation"])
     ceil_z = floor_z + float(level["ceiling_height"])
+    planned = [s for s in (stairs or []) if s.get("plan") is not None and s["plan"]["void"]]
+    voids = [s["plan"]["void"] for s in planned]
     created = []
     for room in building["rooms"]:
         if room["level_id"] != level_id:
@@ -850,16 +958,24 @@ def build_floors_ceilings(building: dict, level: dict, collection, library, styl
             "material": floor_mat.name, "textured": _textured(library, floor_mat),
             "pass_index": None, "assumed": {}, "room_type": room.get("room_type"), "wet": wet,
         })
-        cv, cf = geom2d.polygon_face(room["polygon"], ceil_z, facing_up=False)
+        cv, cf, cut = ceiling_faces(room["polygon"], voids, ceil_z)
+        if not cf:
+            warnings.append(f"{room['id']}: the stair opening covers the whole ceiling; no ceiling face")
+            continue
         ob = common.new_mesh_object(f"{room['id']}_ceiling", cv, cf, collection=collection, wenart_id=room["id"],
                                     kind="ceiling", status=room.get("status", "verified"), materials=[ceil_mat])
         created.append(ob)
-        manifest_objects.append({
+        entry = {
             "name": ob.name, "wenart_id": room["id"], "kind": "ceiling", "status": room.get("status", "verified"),
             "level_id": level_id, "element_id": room["id"], "evidence": room.get("evidence", []),
             "material": ceil_mat.name, "textured": _textured(library, ceil_mat),
             "pass_index": None, "assumed": {}, "room_type": room.get("room_type"), "wet": wet,
-        })
+        }
+        if cut:
+            ids = [planned[i]["piece"]["id"] for i in cut]
+            entry["stair_void"] = ids
+            entry["assumed"]["stair_void"] = f"ceiling opening of {', '.join(ids)} cut out (assumed)"
+        manifest_objects.append(entry)
     return created
 
 
@@ -881,18 +997,14 @@ def build_skirting(building: dict, level: dict, collection, library, style: dict
     reason = "design detail of the room's documented walls (painted skirting board); not in the documents"
     created = []
     for room in building["rooms"]:
-        if room["level_id"] != level["id"] or room.get("room_type") in NO_SKIRTING_TYPES:
+        if room["level_id"] != level["id"] or slot_room_type(room.get("room_type")) in NO_SKIRTING_TYPES:
             continue
         polygon = [tuple(p[:2]) for p in room["polygon"]]
         if len(polygon) > 1 and G.distance(polygon[0], polygon[-1]) < 1e-9:
             polygon = polygon[:-1]
         if len(polygon) < 3:
             continue
-        gaps = []
-        for o in room_openings(room, polygon, building):
-            bottom, _top, _ = opening_vertical(o, level, has_above)
-            if o["type"] in ("door", "opening") or bottom - floor_z < SKIRTING_H:
-                gaps.append((o["center"], float(o["width"])))
+        gaps = skirting_gaps(room_openings(room, polygon, building), level, has_above)
         spans = skirting_spans(polygon, gaps)
         if not spans:
             continue
@@ -914,6 +1026,184 @@ def build_skirting(building: dict, level: dict, collection, library, style: dict
                         "value": f"{SKIRTING_H * 100:g} cm x {SKIRTING_T * 1000:g} mm, {length} m in {len(spans)} runs",
                         "reason": reason, "parent": room["id"], "kind": "skirting"})
     return created
+
+
+# --------------------------------------------------------------------------
+# Stairs (Milestone 7, docs/milestone7.md §6.4): fixed equipment, built with the shell
+# --------------------------------------------------------------------------
+
+STAIR_NOT_BUILT_REASON = "build false: kept in the building, not built"
+STAIR_METHOD = "parametric (fixed equipment: the drawn flights and landing)"
+STAIR_METHOD_GENERIC = "parametric (fixed equipment: one assumed flight, no drawn flights)"
+# Above the level the shaft cap stays this far under the next floor (no coplanar faces with it).
+STAIR_UPPER_FLOOR_GAP = 0.005
+
+
+def stair_rise(building: dict, level: dict) -> tuple[float, float, str, str | None]:
+    """``(rise, cap_height, riser_source, warning)`` of the stairs of a level
+    (pure, metres above its floor): with nothing above, the ceiling height +
+    the assumed ``STAIR_SLAB_M`` and the cap ``STAIR_SHAFT_CAP_M`` above the
+    ceiling; with a level above, floor to floor and the cap just under its
+    floor (whose own floor is not cut: a warning says so)."""
+    floor_z = float(level["elevation"])
+    ceiling = float(level["ceiling_height"])
+    above = sorted(float(lv["elevation"]) for lv in building["levels"] if float(lv["elevation"]) > floor_z + 1e-6)
+    if above:
+        rise = above[0] - floor_z
+        cap = min(ceiling + P.STAIR_SHAFT_CAP_M, rise - STAIR_UPPER_FLOOR_GAP)
+        return rise, cap, "derived from the level elevations (floor to floor)", \
+            "the floor of the level above is not cut; the stair opening is capped under it"
+    if level.get("ceiling_height_source") == "assumed_default":
+        source = P.STAIR_RISER_SOURCE
+    else:
+        source = "derived from the documented ceiling and assumed slab"
+    return ceiling + P.STAIR_SLAB_M, ceiling + P.STAIR_SHAFT_CAP_M, source, None
+
+
+def plan_stairs(building: dict, level: dict) -> list[dict]:
+    """The stairs of a level (pure): ``[{"piece", "plan", "reason"}]`` with
+    ``plan = parametric.stair_plan(...)`` (rise from ``stair_rise``, the
+    level's walls for the handrail sides), or ``plan: None`` and the reason
+    for a piece with ``build: false``. Site elements are never read."""
+    walls = [w for w in building["walls"] if w["level_id"] == level["id"]]
+    rise, cap, source, warning = stair_rise(building, level)
+    out = []
+    for piece in building.get("furniture") or []:
+        if piece.get("level_id") != level["id"] or piece.get("type") not in P.SHELL_TYPES:
+            continue
+        if piece.get("build", True) is False:
+            out.append({"piece": piece, "plan": None, "reason": STAIR_NOT_BUILT_REASON})
+            continue
+        plan = P.stair_plan(piece, rise, float(level["ceiling_height"]), cap, walls, source)
+        if warning:
+            plan["warnings"].append(warning)
+        out.append({"piece": piece, "plan": plan, "reason": None})
+    return out
+
+
+def stair_mesh(plan: dict, floor_z: float) -> tuple[list, list, list[int], list[dict]]:
+    """``(verts, faces, slots, parts)`` of a planned stair in world metres
+    (pure): ``parametric.stair_parts`` lifted to the floor, one material slot
+    per face (``parametric.STAIR_SLOTS``)."""
+    parts = P.stair_parts(plan)
+    verts, faces = geom2d.merge([(p["verts"], p["faces"]) for p in parts])
+    return [(x, y, z + floor_z) for x, y, z in verts], faces, P.stair_face_slots(parts), parts
+
+
+def stair_room(piece: dict, rooms: list[dict]) -> dict | None:
+    """The room of a stair: its ``room_id``, else the room holding its footprint centre."""
+    by_id = {r["id"]: r for r in rooms}
+    if piece.get("room_id") in by_id:
+        return by_id[piece["room_id"]]
+    centre = piece["footprint"]["center"]
+    return next((r for r in rooms if len(r["polygon"]) >= 3 and G.point_in_polygon(centre, r["polygon"])), None)
+
+
+def build_stairs(building: dict, level: dict, collection, library, style: dict, pass_indices: dict,
+                 manifest_objects: list, assumed: list, warnings: list, plans: list | None = None) -> dict:
+    """Build the stairs of a level (``plan_stairs``): one ``furn_<id>``
+    object (kind ``furniture``, the piece's pass index; treads in the room's
+    floor finish, structure in the wall finish, steel rails) and one
+    ``<id>_void`` object closing the ceiling opening (kind ``ceiling``,
+    status ``assumed``, the ceiling finish). Every assumption of the plan
+    becomes a scene-manifest ``assumed`` entry (parent = the piece). Returns
+    ``{"pieces", "ids", "not_built"}``."""
+    from wenart.blender import common
+
+    floor_z = float(level["elevation"])
+    plans = plan_stairs(building, level) if plans is None else plans
+    rooms = [r for r in building["rooms"] if r["level_id"] == level["id"]]
+    summary = {"pieces": 0, "ids": [], "not_built": []}
+    walls_style = style.get("walls") or {"material": "plaster_white"}
+    ceiling_style = style.get("ceiling") or {"material": "plaster_white"}
+    steel = library.get("steel_brushed")
+    for item in plans:
+        piece, plan = item["piece"], item["plan"]
+        if plan is None:
+            summary["not_built"].append({"id": piece["id"], "type": piece["type"], "reason": item["reason"]})
+            continue
+        status = piece.get("status", "verified")
+        unverified = status == "unverified"
+        room = stair_room(piece, rooms)
+        slot, _wet = floor_style(room or {}, style)
+        tread = library.get(slot["material"], slot.get("asset"), slot.get("tint"), unverified=unverified)
+        structure = library.get(walls_style["material"], walls_style.get("asset"), unverified=unverified)
+        verts, faces, slots, parts = stair_mesh(plan, floor_z)
+        name = f"furn_{piece['id']}"
+        ob = common.new_mesh_object(name, verts, faces, collection=collection, wenart_id=piece["id"],
+                                    kind="furniture", status=status, materials=[tread, structure, steel],
+                                    face_material_indices=slots)
+        index = len(pass_indices) + 1
+        pass_indices[piece["id"]] = index
+        ob.pass_index = index
+        ob["wenart_type"] = piece["type"]
+        ob["wenart_room"] = piece.get("room_id") or (room["id"] if room else "")
+        ob["wenart_source"] = piece.get("source") or "from_documents"
+        ob["wenart_asset"] = "parametric"
+        fp = piece["footprint"]
+        rot = float(fp["rotation_deg"])
+        x0, y0, z0, x1, y1, z1 = P.local_bbox_of_world_points(verts, fp["center"], rot)
+        entry = {
+            "name": name, "wenart_id": piece["id"], "kind": "furniture", "status": status, "level_id": level["id"],
+            "element_id": piece["id"], "room_id": piece.get("room_id"), "type": piece["type"],
+            "source": piece.get("source"), "evidence": piece.get("evidence", []), "pass_index": index,
+            "assumed": {}, "decor": [],
+            "center": [float(fp["center"][0]), float(fp["center"][1]), floor_z + plan["rise_m"] / 2.0],
+            "size": [float(fp["size"][0]), float(fp["size"][1]), round(plan["rise_m"], 4)], "rotation_deg": rot,
+            "front_deg": None if piece.get("front_deg") is None else float(piece["front_deg"]),
+            "asset": piece.get("asset"), "fit_scale": [1.0, 1.0, 1.0],
+            "method": STAIR_METHOD_GENERIC if plan["generic"] else STAIR_METHOD,
+            "bbox_m": [round(x1 - x0, 4), round(y1 - y0, 4), round(z1 - z0, 4)], "fallback_reason": None,
+            "materials": [m.name for m in (tread, structure, steel)], "material": tread.name,
+            "textured": any(library.textured(m) for m in (tread, structure)),
+            "stair": stair_record(plan, parts),
+        }
+        shaft_name = f"{piece['id']}_void"
+        for a in plan["assumed"]:
+            owner = shaft_name if a["kind"] == "stair_void" else name
+            if owner == name:
+                entry["assumed"][a["field"]] = a["value"]
+            assumed.append({"object": owner, "field": a["field"], "value": a["value"], "reason": a["reason"],
+                            "parent": piece["id"], "kind": a["kind"]})
+        for w in plan["warnings"]:
+            warnings.append(f"{piece['id']}: stair {w}")
+        manifest_objects.append(entry)
+        summary["pieces"] += 1
+        summary["ids"].append(piece["id"])
+        sv, sf = P.void_shaft(plan)
+        if sf:
+            cap_mat = library.get(ceiling_style["material"], ceiling_style.get("asset"), ceiling_style.get("tint"))
+            shaft = common.new_mesh_object(shaft_name, [(x, y, z + floor_z) for x, y, z in sv], sf,
+                                           collection=collection, wenart_id=shaft_name, kind="ceiling",
+                                           status="assumed", materials=[cap_mat])
+            void = next((a for a in plan["assumed"] if a["kind"] == "stair_void"), {})
+            manifest_objects.append({
+                "name": shaft.name, "wenart_id": shaft_name, "kind": "ceiling", "status": "assumed",
+                "level_id": level["id"], "element_id": piece["id"], "parent": piece["id"], "evidence": [],
+                "material": cap_mat.name, "textured": library.textured(cap_mat), "pass_index": None,
+                "room_type": None, "wet": False,
+                "assumed": {"detail": "stair_void", "cap_z": round(floor_z + plan["cap_z"], 4),
+                            "void": [[[round(x, 4), round(y, 4)] for x, y in loop] for loop in plan["void"]],
+                            "reason": void.get("reason", "assumed ceiling opening")},
+            })
+    return summary
+
+
+def stair_record(plan: dict, parts: list[dict]) -> dict:
+    """The scene manifest's ``stair`` record of a built stair (pure)."""
+    return {
+        "risers": plan["risers"], "riser_m": round(plan["riser_m"], 4), "riser_source": plan["riser_source"],
+        "rise_m": round(plan["rise_m"], 4), "direction": plan["direction"], "turn": plan["turn"],
+        "generic": plan["generic"],
+        "flights": [{"index": f["index"], "lines": f["lines"], "width": round(f["width"], 4),
+                     "going": round(f["going"], 4), "rise_dir": [round(f["rise_dir"][0], 4), round(f["rise_dir"][1], 4)],
+                     "base_z": round(f["base_z"], 4), "top_z": round(f["top_z"], 4),
+                     "treads": sum(1 for p in parts if p["role"] == "step" and p.get("flight") == f["index"])}
+                    for f in plan["flights"]],
+        "landing": None if plan["landing"] is None else {"role": plan["landing"]["role"],
+                                                         "z": round(plan["landing"]["z"], 4)},
+        "rails": plan["rails"], "notes": plan["notes"],
+    }
 
 
 # --------------------------------------------------------------------------
@@ -940,9 +1230,9 @@ def door_ray_checks(building: dict, level: dict, scene) -> list[dict]:
     for opening in building["openings"]:
         if opening["level_id"] != level_id or opening["type"] not in ("door", "opening"):
             continue
-        wall = walls.get(opening["wall_id"])
+        wall = walls.get(opening.get("wall_id"))
         if wall is None:
-            continue
+            continue  # a virtual separator (no wall, no geometry) or a missing wall (warned in build_openings)
         nx, ny = G.unit_normal_left(wall["start"], wall["end"])
         cx, cy, _shift = opening_centre_on_wall(opening, wall)
         reach = float(wall["thickness"]) / 2.0 + 0.3

@@ -5,8 +5,8 @@ empty when no project rendered: then every test is skipped, never a fallback
 to old outputs on the volume). They read ``$WENART_OUTPUTS/<p>/scene`` and
 ``/renders``:
 
-- the renders are Milestone 6 renders (render code ``m6.1``, a
-  ``window_pull`` record per view);
+- the renders are Milestone 6 renders with the Milestone 7 look (render
+  code ``m7.1``, look ``AgX - Punchy``, a ``window_pull`` record per view);
 - views of rooms with an unverified piece have no colour cast from the
   stripes: |white-balance tint| <= 40 (Milestone 5: -92 to -97);
 - parametric kitchen counters are not black: the mean display luminance of
@@ -69,7 +69,7 @@ def _assumed(scene: dict, kind: str) -> list[dict]:
 
 def test_renders_are_milestone_6_renders(project):
     name, _scene, render = project
-    assert render["render_code_version"] == "m6.1", name
+    assert render["render_code_version"] == "m7.1" and render["look"] == "AgX - Punchy", name
     missing = [r["camera"] for r in render["renders"] if "window_pull" not in r]
     assert not missing, f"{name}: entries without a window_pull record: {missing}"
 

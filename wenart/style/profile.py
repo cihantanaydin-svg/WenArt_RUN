@@ -12,6 +12,12 @@ wins). Slots the brief does not name come from the style family word
 ("Scandinavian") or from ``wenart/defaults.yaml``; every such fill is written
 to ``warnings`` as ``assumed: ...`` so nothing is silent. Phrases with no
 keyword at all go to ``unmatched_terms``.
+
+Milestone 7 (docs/milestone7.md §6.3): the profile also records ``family``,
+the style family keyword of ``vocabulary.STYLE_FAMILIES`` the text (or an
+agreed style photo) names, ``null`` when none matched. ``refit`` uses it to
+take only library models whose ``styles`` contain the family or
+``neutral``; the scene builder does not read it.
 """
 from __future__ import annotations
 
@@ -26,7 +32,7 @@ from wenart.style import vocabulary as V
 DEFAULTS_PATH = Path(__file__).resolve().parents[1] / "defaults.yaml"
 
 # The slots of the profile, in output order (shape of docs/milestone3.md §1).
-PROFILE_KEYS = ("source_text", "floor", "walls", "ceiling", "wet_floor", "wet_walls", "trim", "door",
+PROFILE_KEYS = ("source_text", "family", "floor", "walls", "ceiling", "wet_floor", "wet_walls", "trim", "door",
                 "window_frame", "lighting", "matched_terms", "unmatched_terms", "warnings")
 
 # The default style text and slot fallbacks of wenart/defaults.yaml, repeated
@@ -246,6 +252,7 @@ def profile_from_text(text: str, defaults: Optional[dict] = None, photo_terms=No
 
     return {
         "source_text": text,
+        "family": family,
         "floor": {"material": floor, "asset": V.MATERIALS[floor]["asset"]},
         "walls": {"material": walls, "asset": V.MATERIALS[walls]["asset"]},
         "ceiling": {"material": V.CEILING_MATERIAL},

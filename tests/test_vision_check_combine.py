@@ -337,6 +337,16 @@ def test_added_by_polish_extra_rejects_unless_cycles_had_it():
     assert not CB.polish_decision(cyc, pol, False)["polished_rejected"]
 
 
+def test_an_added_potted_plant_is_decor_and_never_rejects():
+    pot = extra("potted_plant", (900, 850, 980, 990))              # M7 type: decor class, as "plant"
+    cyc, pol = _pair(polished_extras=[pot])
+    assert [x["class"] for x in pol["extras"] if x["confirmed"]] == ["decor"] and pol["verdict"] == "info"
+    assert not CB.polish_decision(cyc, pol, False)["polished_rejected"]
+    floor_lamp = extra("floor_lamp", (300, 400, 360, 900))         # a standing lamp is furniture: rejects
+    cyc, pol = _pair(polished_extras=[floor_lamp])
+    assert CB.polish_decision(cyc, pol, False)["polished_reasons"][0]["what"] == "added_by_polish"
+
+
 def test_check_incomplete_for_a_failed_or_unreliable_pass():
     cyc, pol = _pair(polished_rec=False)
     d = CB.polish_decision(cyc, pol, False)

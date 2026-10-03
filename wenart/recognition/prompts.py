@@ -8,6 +8,13 @@ apart (``tests/test_recognition_cpu.py`` checks this).
 The models receive one image per call. Boxes are asked for in the 0..1000
 normalised frame (see ``schemas.py``). The prompt also states the pixel size
 of the image so a model that prefers absolute coordinates has the numbers.
+
+Milestone 7 (docs/milestone7.md §3.3, §3.4): ``symbol_type_prompt`` (two crops
+of one drawn object: the plan around it with a dashed box, then the object
+alone with a 1 m bar; the full type list, no room hint) and
+``room_label_prompt`` (one crop of one raster room face). Both are fixed texts
+(no per-item parts), so their sha256 is part of every request's
+``input_sha256`` and a changed prompt makes the stored answers stale.
 """
 from __future__ import annotations
 
@@ -71,6 +78,10 @@ SYMBOL_HINTS: dict[str, str] = {
     "nightstand": "a small rectangle about 0.5 x 0.4 m next to a bed",
     "dresser": "a rectangle about 1.2 x 0.5 m in a bedroom",
     "washing_machine": "a square about 0.6 x 0.6 m in a bathroom or kitchen",
+    "stair": "a row of parallel, evenly spaced tread lines about 0.25-0.30 m apart, often split by a centre line",
+    "side_table": "a small square or round table about 0.4-0.6 m, beside a sofa, armchair or bed",
+    "floor_lamp": "a small circle about 0.3-0.5 m, often with rings or spokes, in a corner or beside a sofa",
+    "potted_plant": "a circle or star of leaf shapes about 0.3-0.8 m",
     "unknown": "a clear furniture footprint whose type you cannot tell",
 }
 
@@ -166,3 +177,81 @@ PROMPTS = {
 def prompt_for(task: str, width: int, height: int) -> str:
     """The user prompt for ``task`` and an image of ``width`` x ``height`` pixels."""
     return PROMPTS[task](width, height)
+
+
+# --------------------------------------------------------------------------
+# Milestone 7: one drawn object (two crops), one raster room face (one crop)
+# --------------------------------------------------------------------------
+
+M7_SYSTEM_PROMPT = (
+    "You read architectural floor plans (English or Turkish) and answer only with JSON that follows the "
+    "given schema. Report only what is visible in the images. Never invent elements. When unsure, lower "
+    "the confidence or answer unknown or null."
+)
+
+# The question of docs/milestone7.md §3.3, verbatim.
+SYMBOL_QUESTION = (
+    "Two crops of an architectural floor plan seen from above. The dashed box in the first image (shown alone "
+    "in the second, with a 1 m bar) marks one drawn object. Which object type is it?"
+)
+NOT_FURNITURE_HINT = (
+    "lines that are not one piece of furniture or fixed equipment: wall pieces, door swings, window lines, "
+    "dimension lines, hatching, text or a rug outline"
+)
+# Text label sent before each image of a symbol question (vlm_client.build_request ``labels``).
+SYMBOL_IMAGE_LABELS: tuple[str, str] = ("Image 1 (plan crop):", "Image 2 (the marked object alone):")
+
+
+def symbol_type_prompt() -> str:
+    """The symbol-type question (§3.3): the same text for every object and both models."""
+    choices = schemas.SYMBOL_TYPE_CHOICES
+    hints = [f"- {name}: {SYMBOL_HINTS[name]}" for name in choices if name in SYMBOL_HINTS]
+    hints.append(f"- {schemas.NOT_FURNITURE}: {NOT_FURNITURE_HINT}")
+    fronts = ", ".join(f for f in schemas.FRONT_CHOICES if f != "none")
+    return "\n\n".join([
+        SYMBOL_QUESTION,
+        "In the first image walls are mid-grey, other drawn objects light grey and the marked object black. "
+        "The second image shows the marked object alone, without rotating it; the black bar under it is 1 m "
+        "long, so use it to judge the size. There is no text in the images.",
+        f"Allowed values for type: {', '.join(choices)}.\nWhat the types look like from above:\n" + "\n".join(hints),
+        "Fields of the answer:\n"
+        "- type: one of the allowed values.\n"
+        f"- front: the side of the object that faces the room as seen in the second image ({fronts}): the open "
+        "side of a sofa or chair seat, the foot of a bed, the doors of a cabinet or appliance, the user side of "
+        "a counter or basin; none when the object has no front or you cannot tell.\n"
+        "- confidence: 0..1, how sure you are about the type.\n"
+        f"- reason: one short sentence, at most {schemas.REASON_MAX_CHARS} characters, on what you see.",
+        "Answer only with JSON.",
+    ])
+
+
+def room_label_prompt() -> str:
+    """The room-label question for one room face of a raster plan (§3.4)."""
+    return "\n\n".join([
+        "Task: read the room name printed inside the room in the middle of this crop of a scanned or "
+        "photographed floor plan. The crop shows one room and about 0.5 m around it.",
+        "Labels may be English (BED ROOM, Kitchen, Bath+ Toilet, Drawing Room) or Turkish (SALON = living room, "
+        "YATAK ODASI = bedroom, MUTFAK = kitchen, BANYO = bathroom, ANTRE = entrance hall). Do not translate.",
+        "Fields of the answer:\n"
+        "- label: the room name exactly as printed; a name printed on two lines is joined with one space; null "
+        "when no room name is printed inside this room.\n"
+        "- size_text: the room size exactly as printed with the name (e.g. 11' x 10', 14'-0\" X 12'-0\", "
+        "3,20 x 4,10), or null.\n"
+        "- area_text: the area exactly as printed with the name (e.g. 24,50 m², 110 sq ft), or null.\n"
+        f"- box: the box around the printed room name, [x0, y0, x1, y1] normalised to 0..{schemas.BOX_MAX} of "
+        "the image width (x) and height (y), origin top-left; null when there is no name.\n"
+        "Do not read dimension numbers along the walls, the page title, the scale or names of the "
+        "neighbouring rooms at the crop edges.",
+        "Answer only with JSON.",
+    ])
+
+
+M7_PROMPTS = {
+    "symbol_type": symbol_type_prompt,
+    "room_label": room_label_prompt,
+}
+
+
+def m7_prompt(task: str) -> str:
+    """The user prompt of a Milestone 7 per-item task (``symbol_type`` or ``room_label``)."""
+    return M7_PROMPTS[task]()

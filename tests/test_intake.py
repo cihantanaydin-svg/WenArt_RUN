@@ -356,7 +356,8 @@ def test_dwg_rule(env):
     assert r.status == "ok"
     f = by_path(manifest(env))
     assert f["ZEMIN.dwg"]["reason"] == "DWG not read: the DXF of the same name is used" and not f["ZEMIN.dwg"]["kept"]
-    assert f["kat1.dwg"]["note"] == "DWG is not read; export DXF from the CAD program" and f["kat1.dwg"]["kept"]
+    assert f["kat1.dwg"]["note"] == "DWG is read with LibreDWG 0.14 (beta); if it fails, export DXF"
+    assert f["kat1.dwg"]["kept"]
     assert f["sub/zemin.dwg"]["note"] == I.DWG_NOTE and f["sub/zemin.dwg"]["staged"] == "sub__zemin.dwg"
     assert f["zemin.dxf"]["note"] is None
     assert staged_files(out_for(env)) == ["kat1.dwg", "sub__zemin.dwg", "zemin.dxf"]

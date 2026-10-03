@@ -11,7 +11,8 @@ Where the words come from (nothing is guessed; every fallback is listed in
 ``warnings``):
 
 - room words: the room type of the building JSON (``ROOM_WORDS``);
-- family: the style family word of the rendered profile's ``source_text``
+- family: the profile's ``family`` (Milestone 7) or, for older profiles,
+  the style family word of its ``source_text``
   (``wenart.style.profile.match_text``); no family word -> the "in ... style"
   part is left out;
 - wall / floor words: the slugs of the rendered style profile, the wet-room
@@ -47,6 +48,8 @@ ROOM_WORDS: dict[str, str] = {
     "hall": "hallway",
     "balcony": "balcony",
     "storage": "storage room",
+    "dining": "dining room",          # Milestone 7 (docs/milestone7.md §6.5)
+    "prayer": "prayer room",
     "other": "room",
     "unknown": "room",
 }
@@ -128,6 +131,11 @@ FURNITURE_WORDS: dict[str, str] = {
     "nightstand": "nightstand",
     "dresser": "dresser",
     "washing_machine": "washing machine",
+    # Milestone 7 (docs/milestone7.md §6.5): documented-only types.
+    "stair": "staircase",
+    "side_table": "side table",
+    "floor_lamp": "floor lamp",
+    "potted_plant": "potted plant",
 }
 
 PROMPT_TAIL = ("light through the windows, soft natural shadows, realistic materials and textures, "
@@ -151,8 +159,12 @@ def _slot(profile: dict, slot: str) -> Optional[str]:
 
 
 def style_family(profile: dict) -> Optional[str]:
-    """The style family keyword (``vocabulary.STYLE_FAMILIES``) of the rendered profile, or None."""
+    """The style family keyword (``vocabulary.STYLE_FAMILIES``) of the rendered profile, or None:
+    the profile's ``family`` field (Milestone 7) when it names a family, else the old derivation."""
     from wenart.style.profile import match_text
+    recorded = (profile or {}).get("family")
+    if isinstance(recorded, str) and recorded in dict(VOC.STYLE_FAMILIES):
+        return recorded
     text = (profile or {}).get("source_text")
     family = match_text(text)["family"] if isinstance(text, str) and text.strip() else None
     if family:

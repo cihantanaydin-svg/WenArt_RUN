@@ -222,16 +222,91 @@ def test_models_cli_verify_and_fetch(monkeypatch, capsys):
 
 
 # --------------------------------------------------------------------------
+# Milestone 7: the Objaverse cache (docs/milestone7.md §6.3), offline by design
+# --------------------------------------------------------------------------
+
+def _objaverse_meta(uid="0123456789abcdef0123456789abcdef", sha="", **extra):
+    meta = {"uid": uid, "sha256_glb": sha, "glb": f"models/objaverse/{uid}.glb", "title": "Chair",
+            "author": "someone", "source_url": f"https://sketchfab.com/3d-models/{uid}",
+            "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+            "via": "Objaverse (allenai/objaverse, ODC-By 1.0)", "attribution": '"Chair" by someone, CC BY 4.0'}
+    meta.update(extra)
+    return meta
+
+
+def test_objaverse_models_come_from_the_cache_only(tmp_path, monkeypatch):
+    """A cache hit with the catalogue sha256 is recorded with its credit line; a miss or another sha256 is
+    AssetNotFound (the fit turns it into the parametric fallback); the network is never touched."""
+    def no_network(*a, **k):
+        raise AssertionError("network")
+
+    monkeypatch.setattr(models.web, "download", no_network)
+    monkeypatch.setattr(models.polyhaven, "info", no_network)
+    monkeypatch.setattr(models.polyhaven, "files", no_network)
+    assets = tmp_path / "assets"
+    uid = "0123456789abcdef0123456789abcdef"
+    glb = assets / models.objaverse_relpath(uid)
+    assert models.objaverse_relpath(uid) == f"models/objaverse/{uid}.glb" and models.OBJAVERSE_CACHE == "models/objaverse"
+    with pytest.raises(fetch.AssetNotFound, match="not in the cache"):
+        models.fetch_model("objaverse_chair", assets, source="objaverse", licence="CC-BY-4.0",
+                           meta=_objaverse_meta(sha="0" * 64))
+    glb.parent.mkdir(parents=True)
+    glb.write_bytes(b"glTF\x02\x00\x00\x00 fake glb")
+    sha = web.sha256_file(glb)
+    with pytest.raises(fetch.AssetNotFound, match="sha256"):
+        models.fetch_model("objaverse_chair", assets, source="objaverse", licence="CC-BY-4.0",
+                           meta=_objaverse_meta(sha="f" * 64))
+    with pytest.raises(fetch.AssetNotFound, match="sha256_glb"):
+        models.fetch_model("objaverse_chair", assets, source="objaverse", licence="CC-BY-4.0", meta=_objaverse_meta())
+    with pytest.raises(fetch.AssetNotFound, match="plain object id"):
+        models.fetch_model("objaverse_chair", assets, source="objaverse", licence="CC0",
+                           meta=_objaverse_meta(uid="../../etc/passwd", sha=sha))
+    with pytest.raises(fetch.LicenceError, match="credit line"):
+        models.fetch_model("objaverse_chair", assets, source="objaverse", licence="CC-BY-4.0",
+                           meta=_objaverse_meta(sha=sha, attribution=""))
+    with pytest.raises(fetch.LicenceError):
+        models.fetch_model("objaverse_chair", assets, source="objaverse", licence="CC-BY-NC-4.0",
+                           meta=_objaverse_meta(sha=sha))
+    entry = models.fetch_model("objaverse_chair", assets, source="objaverse", licence="CC-BY-4.0",
+                               meta=_objaverse_meta(sha=sha))
+    assert entry["source"] == "objaverse" and entry["licence"] == "CC-BY-4.0" and entry["cache_only"] is True
+    assert entry["files"] == {"glb": f"models/objaverse/{uid}.glb"} and entry["sha256"] == {"glb": sha}
+    assert entry["attribution"].startswith('"Chair" by someone') and entry["uid"] == uid
+    assert fetch.load_manifest(assets)["models"]["objaverse_chair"] == entry
+    mtime = fetch.manifest_path(assets).stat().st_mtime_ns
+    assert models.fetch_model("objaverse_chair", assets, source="objaverse", licence="CC-BY-4.0",
+                              meta=_objaverse_meta(sha=sha)) == entry                    # idempotent, no rewrite
+    assert fetch.manifest_path(assets).stat().st_mtime_ns == mtime
+
+
+def test_a_cache_miss_is_a_parametric_fallback_in_the_fit(tmp_path, capsys):
+    from wenart.furniture import fit as F
+
+    asset = dict(_objaverse_meta(sha="a" * 64), method="library", library="objaverse", asset_id="objaverse_chair",
+                 licence="CC-BY-4.0")
+    piece = {"id": "f_L0_001", "type": "chair", "footprint": {"center": [0, 0], "size": [0.5, 0.5], "rotation_deg": 0},
+             "asset": asset}
+    building = {"furniture": [piece]}
+    result = F.download_fitted(building, tmp_path / "assets")
+    assert result["fetched"] == [] and "AssetNotFound" in result["failed"]["objaverse_chair"]
+    fallback = building["furniture"][0]["asset"]
+    assert fallback["method"] == "parametric" and fallback["fallback_reason"].startswith("download of objaverse_chair")
+    assert "not in the cache" in fallback["fallback_reason"]
+
+
+# --------------------------------------------------------------------------
 # Live API
 # --------------------------------------------------------------------------
 
 def test_catalog_ids_exist_on_the_api():
-    """Every library and decor id of the catalogue is on the Poly Haven model listing (one call)."""
+    """Every Poly Haven library and decor id of the catalogue is on the Poly Haven model listing (one call;
+    Milestone 7: Objaverse entries of a merged catalogue come from the prep pod, not from this listing)."""
     catalog = C.load()
-    rows = network_or_skip(models.verify_catalog, catalog.ids())
+    ids = [e["id"] for e in catalog.models + catalog.decor if e["source"] == "polyhaven"]
+    rows = network_or_skip(models.verify_catalog, ids)
     missing = [r["id"] for r in rows if not r["exists"]]
     assert not missing, missing
-    assert len(rows) == len(catalog.ids()) >= 30
+    assert len(rows) == len(ids) >= 30
     for row in rows:
         entry = catalog.entry(row["id"])
         assert row["dimensions_api_mm"] and len(row["dimensions_api_mm"]) == 3

@@ -14,7 +14,10 @@ Modules:
 - ``controls``: removal/insertion/type-swap controls (select-controls);
 - ``debug`` / ``report``: debug images and ``check_report.md``;
 - ``realism``: the realism A/B of docs/milestone6.md §6 (pairs, forced-choice
-  calls in both orders, outcomes, controls, ``realism_summary.json``);
+  calls in both orders, outcomes, controls, ``realism_summary.json``) and its
+  v2 of docs/milestone7.md §8.2 (one aspect per call, ``realism2-*``);
+- the added-object detector (docs/milestone7.md §8.1) runs in
+  ``wenart.gate.detect``; ``combine`` reads its ``detect/<cam>.json``;
 - ``cli``: ``python -m wenart.vision_check <subcommand>``.
 
 Importing the package imports nothing heavy (no PIL, OpenCV or torch).

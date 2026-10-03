@@ -49,6 +49,18 @@ def read_dxf(path: str | Path):
     return recover.readfile(str(path))
 
 
+SYNTHETIC_LAYERS = (blocks.LAYER_WALLS, blocks.LAYER_DOORS, blocks.LAYER_WINDOWS, blocks.LAYER_FURNITURE)
+
+
+def has_synthetic_layers(doc) -> bool:
+    """True when a model-space entity lies on one of the synthetic-convention layers (``DUVAR``, ``KAPI``,
+    ``PENCERE``, ``MOBILYA``, any letter case): this module reads such a file; any other DXF/DWG goes to the
+    generic adapter ``wenart.ingest.dxf_generic`` (docs/milestone7.md §5.2). Entities count, not layer-table rows:
+    templates often define layers nobody draws on."""
+    wanted = set(SYNTHETIC_LAYERS)
+    return any((entity.dxf.get("layer") or "").upper() in wanted for entity in doc.modelspace())
+
+
 def metres_per_unit_from_insunits(insunits: int) -> Optional[float]:
     """``$INSUNITS`` code -> metres per drawing unit; None for unitless or unknown codes."""
     try:

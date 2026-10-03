@@ -11,6 +11,11 @@ From ``check_manifest.json`` (written by ``combine``):
   render without the element), ``removal_confirmed`` (every pass does),
   ``insertion`` (a confirmed extra covers >= 50 % of the element's box),
   ``swap_flagged`` / ``swap_confirmed`` (info);
+- ``detector_insertion`` (docs/milestone7.md §8.1, info, never a target):
+  the same insertion controls seen by the added-object detector
+  (``detector_control`` of combine): the share where a candidate covers the
+  element at all (``found``), at ``t_det`` (``flagged``) and confirmed
+  (``confirmed``; None while the detector is advisory);
 - targets of ``check.yaml``; a missed target (or one without data, or a
   single-pass check) makes the check ``advisory``: an open item that needs
   the user's OK before the milestone is called done. The differential
@@ -102,6 +107,28 @@ def control_rates(views_out: dict, prefix: str) -> dict:
             "confirmed": ratio(sum(r["confirmed"] for r in rows), len(rows)), "rows": rows}
 
 
+def detector_insertion(views_out: dict) -> dict:
+    """The detector's insertion rates over the computed ``detector_control`` records of the insertion controls."""
+    rows = []
+    advisory = None
+    for cam, kinds in views_out.items():
+        for kind, entry in kinds.items():
+            if not isinstance(entry, dict) or not kind.startswith("insertion:"):
+                continue
+            dc = entry.get("detector_control") or {}
+            if not dc.get("computed"):
+                continue
+            advisory = bool(dc.get("advisory")) if advisory is None else advisory or bool(dc.get("advisory"))
+            rows.append({"camera": cam, "kind": kind, "hit_score": dc.get("hit_score"),
+                         "hit_group": dc.get("hit_group"),
+                         "flagged": dc.get("flagged"), "confirmed": dc.get("confirmed")})
+    n = len(rows)
+    calibrated = n > 0 and not advisory
+    return {"n": n, "advisory": advisory, "found": ratio(sum(r["hit_score"] is not None for r in rows), n),
+            "flagged": ratio(sum(bool(r["flagged"]) for r in rows), n) if calibrated else None,
+            "confirmed": ratio(sum(bool(r["confirmed"]) for r in rows), n) if calibrated else None, "rows": rows}
+
+
 def plan_ab(views_out: dict, single_pass: bool, plan_image: bool = False) -> dict:
     """The plan A/B: false alarms and removal detection without and with the plan crop.
 
@@ -162,6 +189,7 @@ def calibrate(manifest: dict, cfg: dict) -> dict:
                "insertion": None if single else insertion["confirmed"],
                "insertion_flagged": insertion["flagged"],
                "swap_flagged": swap["flagged"], "swap_confirmed": None if single else swap["confirmed"],
+               "detector_insertion": detector_insertion(views_out),
                "controls": {"removal": removal, "insertion": insertion, "swap": swap}}
     targets = dict(cfg["targets"])
     missed = []

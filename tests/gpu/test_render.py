@@ -29,7 +29,9 @@ Milestone 6 (docs/milestone6.md §4.2), cameras by policy (a scene-manifest
 camera without ``policy`` is an M5 camera):
 
 - policy ``m5``: three views per room; policy ``search``: 1-3 views per room
-  by the area rule (``camsearch.room_view_count``) and every room of the
+  by the area rule (``camsearch.room_view_count``; Milestone 7: a room with
+  nothing to show at most one view, none below 2.5 m2, listed in the scene
+  manifest's ``rooms_without_view``) and every other room of the
   building at least one;
 - no searched view is blocked (index pass: one element over 0.55 of the
   frame, or depth pass: over 0.35 of the pixels nearer than 0.9 m) unless its
@@ -99,7 +101,9 @@ def _building(name: str, scene: dict) -> dict:
 
 def test_every_room_has_three_views(project):
     """By camera policy (docs/milestone6.md §4.2; the M5 name is kept, tests/test_blender_render.py calls it):
-    ``m5`` three views per room, ``search`` 1-3 views per room by the area rule, every room at least one."""
+    ``m5`` three views per room, ``search`` 1-3 views per room by the area rule, every room at least one,
+    except (Milestone 7, docs/milestone7.md §6.2) rooms with nothing to show: at most one view, none below
+    2.5 m2, and those are listed in the scene manifest's ``rooms_without_view`` with the reason."""
     from wenart.blender import camsearch
 
     name, scene, render = project
@@ -118,11 +122,19 @@ def test_every_room_has_three_views(project):
     building = _building(name, scene)
     levels = {lv["id"] for lv in scene["levels"]}
     rooms = {r["id"]: r for r in building["rooms"] if r["level_id"] in levels}
-    assert set(by_room) == set(rooms), f"{name}: rooms without a view {sorted(set(rooms) - set(by_room))}"
+    listed = {r["room_id"]: r for r in scene.get("rooms_without_view") or []}
+    expected = {r["room_id"] for lv in levels for r in camsearch.rooms_without_view(building, lv)}
+    assert set(listed) == expected, f"{name}: rooms_without_view {sorted(listed)}, the rule gives {sorted(expected)}"
+    assert all(r.get("reason") for r in listed.values()), f"{name}: a room without a view has no reason"
+    assert set(by_room) == set(rooms) - expected, \
+        f"{name}: rooms without a view {sorted(set(rooms) - expected - set(by_room))}, unexpected views " \
+        f"{sorted(set(by_room) & expected)}"
+    empty = sorted(r for r in by_room if not camsearch.shown_pieces(rooms[r], building))
+    print(f"{name}: rooms with nothing to show (one view): {empty}; without a view: {sorted(expected)}")
     for room_id, cams in by_room.items():
-        n = camsearch.room_view_count(rooms[room_id])
+        n = camsearch.room_view_count(rooms[room_id], building)
         names = sorted(c["name"] for c in cams)
-        assert 1 <= len(cams) <= n, f"{name}: {room_id} has {len(cams)} views, the area rule allows 1..{n}"
+        assert 1 <= len(cams) <= n, f"{name}: {room_id} has {len(cams)} views, the view rule allows 1..{n}"
         assert names == sorted(f"cam_{room_id}_{i}" for i in range(1, len(cams) + 1)), names
 
 
@@ -259,7 +271,8 @@ def test_entries_are_m5_renders_with_helper_maps(project):
             if not (out / r["files"][key]).is_file():
                 missing.append((r["camera"], r["files"][key]))
     assert not missing, f"{name}: helper maps missing: {missing}"
-    assert render["view_transform"] == "AgX" and render["look"] == "None"
+    # Milestone 7 (docs/milestone7.md §6.1, user decision 6): the default look is AgX - Punchy.
+    assert render["view_transform"] == "AgX" and render["look"] == "AgX - Punchy"
     assert not render["hidden"] and not render["plugged"], f"{name}: the normal renders hide nothing"
 
 

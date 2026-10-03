@@ -37,6 +37,36 @@ for every type):
   smallest side, 0 for smooth parts);
 - ``decor_rest_height`` puts decor on a parametric bed on the bedding top
   (``bedding_top``), not inside the pillows.
+
+Milestone 7 (docs/milestone7.md §6.4), four documented-only types:
+
+- ``stair`` (fixed equipment, built by ``shell.build_stairs`` like the walls):
+  ``stair_plan`` reads the drawn flights and landing (``piece["stair"]``, or
+  ``piece["details"]["stair"]`` as the recognition core writes it); every
+  drawn tread line is a nosing, so a flight of n lines has n risers and
+  n - 1 treads, never one more or less; riser height = rise / all risers
+  (rise = ceiling height + the assumed 0.15 m slab, ``riser_source``
+  "derived from assumed ceiling and slab"), a warning outside 0.15-0.20 m;
+  the rise direction comes from ``stair.direction`` (else +local Y, noted);
+  side-by-side flights rise in turn (a U-turn): the flight rising towards
+  the landing climbs first. Steps are convex prisms on a 0.15 m waist slab
+  (``stair_parts``), a riser plate closes the last riser of each flight, a
+  steel handrail runs 0.90 m above the nosings on every side that is not
+  against a wall. The ceiling opening (``void``) covers the last flight and
+  the landing only, offset 2 mm so the shaft faces never touch the steps;
+  ``void_shaft`` closes it with neutral walls and a cap 0.5 m above the
+  ceiling. Every assumption is listed in ``plan["assumed"]`` (the scene
+  manifest's ``assumed`` entries). Without drawn flights (an AI-typed stair)
+  one straight flight along +local Y with an assumed riser count fills the
+  footprint, recorded as such.
+- ``side_table``: round (``piece_is_round``: the piece says ``shape:
+  "round"`` or a circle fits >= 90 % of its drawn points) or square.
+- ``floor_lamp``: base, pole and a fabric drum shade; no light.
+- ``potted_plant``: the decor plant (pot, soil, stem, crown) filling the drawn
+  footprint.
+
+``build_parts`` takes the piece for the two types that read it (``stair``,
+``side_table``); the others ignore it.
 """
 from __future__ import annotations
 
@@ -55,7 +85,11 @@ PARAMETRIC_TYPES: tuple[str, ...] = (
     "bed", "bed_single", "bed_double", "sofa", "armchair", "table_dining", "table_coffee", "desk", "chair",
     "wardrobe", "dresser", "nightstand", "tv_unit", "bookshelf", "kitchen_counter", "kitchen_island",
     "fridge", "stove", "sink_kitchen", "washbasin", "toilet", "shower", "bathtub", "washing_machine",
+    # Milestone 7 documented-only types (docs/milestone7.md §6.4).
+    "stair", "side_table", "floor_lamp", "potted_plant",
 )
+# Built by shell.build_stairs with the walls (fixed equipment), never by furniture.create_furniture.
+SHELL_TYPES: tuple[str, ...] = ("stair",)
 DECOR_TYPES: tuple[str, ...] = ("cushion", "book_set", "plant")
 MATERIAL_KEYS: tuple[str, ...] = ("wood", "fabric", "bedding", "ceramic", "steel", "painted", "worktop", "dark",
                                   "glass", "green", "terracotta", "duvet")
@@ -77,6 +111,9 @@ BEVEL_BY_ROLE: dict[str, float] = {
     "pillow": 0.045, "cushion": 0.035, "top": 0.004, "body": 0.006, "back": 0.008, "arm": 0.03, "front": 0.003,
     "handle": 0.002, "leg": 0.003, "shelf": 0.002, "side": 0.003, "bottom": 0.002, "drawers": 0.003,
     "plinth": 0.002, "tray": 0.01, "basin": 0.008, "pedestal": 0.02,
+    # Milestone 7
+    "step": 0.003, "riser": 0.002, "landing": 0.003, "rail": 0.008, "post": 0.004, "base": 0.006,
+    "pole": 0.0, "shade": 0.004,
 }
 BEVEL_SOFT_KEYS: dict[str, float] = {"fabric": 0.03, "bedding": 0.03, "duvet": 0.03}
 BEVEL_BY_KEY: dict[str, float] = {"ceramic": 0.012}
@@ -482,6 +519,535 @@ def _washing_machine(w: float, d: float, h: float) -> list[Part]:
     ]
 
 
+# --------------------------------------------------------------------------
+# Milestone 7: side table, floor lamp, potted plant (docs/milestone7.md §6.4)
+# --------------------------------------------------------------------------
+
+# A drawn piece is round when a circle fits at least this share of its points (the recognition core
+# records ``shape: "round"`` or ``circle_fit: {"share": s}`` on the piece or in its ``details``).
+ROUND_FIT_SHARE = 0.9
+ROUND_SHAPES = ("round", "circle", "circular")
+
+
+def piece_is_round(piece: dict | None) -> bool:
+    """True when the building says the drawn piece is round: ``shape`` in
+    ``ROUND_SHAPES`` or ``circle_fit.share >= ROUND_FIT_SHARE`` on the piece
+    or in its ``details``. Nothing is guessed from the footprint (a square
+    footprint is the box of a round and of a square table alike)."""
+    if not piece:
+        return False
+    for src in (piece, piece.get("details") or {}):
+        shape = src.get("shape")
+        if isinstance(shape, str) and shape.strip().lower() in ROUND_SHAPES:
+            return True
+        fit = src.get("circle_fit")
+        share = fit.get("share") if isinstance(fit, dict) else None
+        if isinstance(share, (int, float)) and not isinstance(share, bool) and share >= ROUND_FIT_SHARE:
+            return True
+    return False
+
+
+def _frustum_z(cx: float, cy: float, z0: float, rx0: float, ry0: float, rx1: float, ry1: float, h: float,
+               key: str, role: str, n: int = 32) -> Part:
+    """Elliptic truncated cone along Z (bottom radii ``rx0, ry0``, top ``rx1, ry1``), wound outwards."""
+    bottom = [(cx + rx0 * math.cos(2 * math.pi * i / n), cy + ry0 * math.sin(2 * math.pi * i / n), z0)
+              for i in range(n)]
+    top = [(cx + rx1 * math.cos(2 * math.pi * i / n), cy + ry1 * math.sin(2 * math.pi * i / n), z0 + h)
+           for i in range(n)]
+    faces = [[i, (i + 1) % n, n + (i + 1) % n, n + i] for i in range(n)]
+    faces.append(list(range(n, 2 * n)))
+    faces.append(list(range(n - 1, -1, -1)))
+    return {"verts": bottom + top, "faces": faces, "key": key, "role": role}
+
+
+def _side_table(w: float, d: float, h: float, piece: dict | None = None) -> list[Part]:
+    """Round side table (top disc, pedestal, base disc) when ``piece_is_round``,
+    else a square one (top, four legs, a lower shelf)."""
+    top_t = min(0.03, h * 0.1)
+    if piece_is_round(piece):
+        base_t = min(0.025, h * 0.08)
+        col = min(0.035, w * 0.12, d * 0.12)
+        return [
+            _cylinder_z(0.0, 0.0, h - top_t, w / 2.0, d / 2.0, top_t, "wood", "top", n=40),
+            _cylinder_z(0.0, 0.0, base_t, col, col, h - top_t - base_t, "wood", "leg", n=16),
+            _cylinder_z(0.0, 0.0, 0.0, w * 0.3, d * 0.3, base_t, "wood", "base", n=32),
+        ]
+    leg = min(0.035, w * 0.1, d * 0.1)
+    inset = min(0.02, w * 0.05, d * 0.05)
+    parts = [_box(0.0, 0.0, h - top_t, w, d, top_t, "wood", "top")]
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            parts.append(_box(sx * (w / 2.0 - inset - leg / 2.0), sy * (d / 2.0 - inset - leg / 2.0), 0.0, leg, leg,
+                              h - top_t, "wood", "leg"))
+    shelf_w, shelf_d = w - 2 * (inset + leg), d - 2 * (inset + leg)
+    if shelf_w > 0.05 and shelf_d > 0.05:
+        parts.append(_box(0.0, 0.0, min(0.15, h * 0.3), shelf_w, shelf_d, 0.02, "wood", "shelf"))
+    return parts
+
+
+def _floor_lamp(w: float, d: float, h: float) -> list[Part]:
+    """Floor lamp: a dark base disc, a steel pole and a fabric drum shade
+    whose bottom rim fills the footprint. Geometry only: no light."""
+    base_t = 0.025
+    shade_h = min(0.4, h * 0.3)
+    r = min(w, d)
+    return [
+        _cylinder_z(0.0, 0.0, 0.0, max(0.05, r * 0.35), max(0.05, r * 0.35), base_t, "dark", "base", n=32),
+        _cylinder_z(0.0, 0.0, base_t, 0.012, 0.012, h - shade_h + 0.05 - base_t, "steel", "pole", n=12),
+        _frustum_z(0.0, 0.0, h - shade_h, w / 2.0, d / 2.0, w / 2.0 * 0.8, d / 2.0 * 0.8, shade_h, "bedding",
+                   "shade"),
+    ]
+
+
+def _potted_plant(w: float, d: float, h: float) -> list[Part]:
+    """The decor plant (``decor_parts("plant")``: terracotta pot, soil, stem,
+    green crown) at the drawn size: the crown fills the footprint."""
+    rx, ry = w / 2.0, d / 2.0
+    pot_h = h * 0.35
+    return [
+        _cylinder_z(0.0, 0.0, 0.0, rx * 0.7, ry * 0.7, pot_h, "terracotta", "pot", n=24),
+        _cylinder_z(0.0, 0.0, pot_h - 0.01, rx * 0.62, ry * 0.62, 0.01, "dark", "soil", n=24),
+        _cylinder_z(0.0, 0.0, pot_h, 0.012, 0.012, (h - pot_h) * 0.4, "wood", "stem", n=8),
+        _cylinder_z(0.0, 0.0, pot_h + (h - pot_h) * 0.35, rx, ry, (h - pot_h) * 0.65, "green", "crown", n=16),
+    ]
+
+
+# --------------------------------------------------------------------------
+# Milestone 7: stair (docs/milestone7.md §6.4)
+# --------------------------------------------------------------------------
+
+STAIR_SLAB_M = 0.15                # assumed slab between the ceiling and the floor above
+STAIR_WAIST_M = 0.15               # assumed waist slab under the steps; also the landing slab
+STAIR_RISER_RANGE = (0.15, 0.20)   # a derived riser outside this range is a warning
+STAIR_GENERIC_RISER_M = 0.175      # riser of a stair without drawn flights (count assumed)
+STAIR_RAIL_HEIGHT = 0.90           # handrail top above the nosing line
+STAIR_RAIL_W = 0.04
+STAIR_RAIL_T = 0.05
+STAIR_RAIL_INSET = 0.04            # rail centre this far inside the flight side
+STAIR_RAIL_MIN_M = 0.3             # a rail shorter than this (cut by the cap) is left out
+STAIR_POST = 0.04
+STAIR_RISER_PLATE = 0.02           # closes the last riser of a flight, standing on its last tread
+STAIR_SHAFT_CAP_M = 0.5            # the neutral cap of the ceiling opening, above the ceiling
+STAIR_SHAFT_GAP = 0.002            # the void stands this far outside the steps and the landing
+STAIR_SHAFT_LIP = 0.02             # shaft faces reach this far below the ceiling: a slab edge, no slit
+STAIR_CAP_CLEARANCE = 0.03         # rails stay this far below the cap
+STAIR_HEADROOM_M = 2.0             # below this under the ceiling at a flight's top: a warning
+STAIR_WALL_PROBE = 0.05            # a side is against a wall when points this far outside it lie in one
+STAIR_RISER_SOURCE = "derived from assumed ceiling and slab"
+
+
+def stair_data(piece: dict | None) -> dict | None:
+    """The stair record of a piece: ``piece["stair"]`` (building JSON,
+    docs/milestone7.md §1.3) or ``piece["details"]["stair"]`` (recognition
+    core output); None when there is none."""
+    if not piece:
+        return None
+    data = piece.get("stair")
+    if not isinstance(data, dict):
+        data = (piece.get("details") or {}).get("stair")
+    return data if isinstance(data, dict) else None
+
+
+def _v(a, b) -> tuple[float, float]:
+    return (float(b[0]) - float(a[0]), float(b[1]) - float(a[1]))
+
+
+def _d2(a, b) -> float:
+    return float(a[0]) * float(b[0]) + float(a[1]) * float(b[1])
+
+
+def _unit2(v) -> tuple[float, float] | None:
+    n = math.hypot(float(v[0]), float(v[1]))
+    return None if n < 1e-9 else (float(v[0]) / n, float(v[1]) / n)
+
+
+def _local_to_world2(p, center, rot) -> tuple[float, float]:
+    return G.rotate_point((float(center[0]) + p[0], float(center[1]) + p[1]), rot, (float(center[0]),
+                                                                                     float(center[1])))
+
+
+def stair_plan(piece: dict, rise: float, ceiling_height: float | None = None, cap_height: float | None = None,
+               walls: Sequence[dict] = (), rise_source: str = STAIR_RISER_SOURCE) -> dict:
+    """How a stair piece is built (pure; world XY, z above the level floor).
+
+    ``rise`` = floor to the floor above (the caller: ceiling height + the
+    assumed ``STAIR_SLAB_M``, or the level elevations); ``ceiling_height``
+    (default ``rise - STAIR_SLAB_M``) and ``cap_height`` (default ceiling +
+    ``STAIR_SHAFT_CAP_M``) place the void's shaft; ``walls`` decide which
+    flight sides get a handrail. Returns ``{"flights": [...] (climbing
+    order; per flight ``lines``, ``width``, ``going``, ``rise_dir``,
+    ``nosings``, ``base_z``, ``top_z``), "risers", "riser_m",
+    "riser_source", "rise_m", "landing", "void", "void_raw", "ceiling_z",
+    "cap_z", "rails", "direction", "turn", "generic", "assumed", "warnings",
+    "notes"}``. ``assumed`` entries are ``{"field", "kind", "value",
+    "reason"}`` for the scene manifest."""
+    fp = piece["footprint"]
+    center = (float(fp["center"][0]), float(fp["center"][1]))
+    rot = float(fp.get("rotation_deg") or 0.0)
+    fw, fd = float(fp["size"][0]), float(fp["size"][1])
+    local_y = G.rotate_point((0.0, 1.0), rot)
+    data = stair_data(piece) or {}
+    rise = float(rise)
+    ceiling = float(ceiling_height) if ceiling_height is not None else rise - STAIR_SLAB_M
+    cap = float(cap_height) if cap_height is not None else ceiling + STAIR_SHAFT_CAP_M
+    assumed: list[dict] = []
+    warnings: list[str] = []
+    notes: list[str] = []
+
+    flights = []
+    raw = data.get("flights") or []
+    for k, f in enumerate(raw):
+        try:
+            s = (float(f["start"][0]), float(f["start"][1]))
+            e = (float(f["end"][0]), float(f["end"][1]))
+            n, width = int(f["lines"]), float(f["width"])
+        except (KeyError, TypeError, ValueError, IndexError):
+            warnings.append(f"flight {k + 1}: start, end, width or lines missing; not built")
+            continue
+        length = G.distance(s, e)
+        if n < 2 or length < 1e-6 or width <= 0:
+            warnings.append(f"flight {k + 1}: {n} tread line(s) over {length:.3f} m, width {width:.3f} m: "
+                            f"no direction to build; not built")
+            continue
+        flights.append({"index": k, "start": s, "end": e, "lines": n, "width": width,
+                        "axis": _unit2(_v(s, e)), "going": length / (n - 1)})
+    generic = not flights
+    if generic:
+        n = max(2, int(round(rise / STAIR_GENERIC_RISER_M)))
+        s = _local_to_world2((0.0, -fd / 2.0), center, rot)
+        e = _local_to_world2((0.0, fd / 2.0), center, rot)
+        flights = [{"index": 0, "start": s, "end": e, "lines": n, "width": fw, "axis": local_y,
+                    "going": fd / (n - 1)}]
+        why = "no drawn flights" if not raw else "no buildable drawn flight"
+        assumed.append({"field": "flights", "kind": "stair_flights",
+                        "value": f"one straight flight of {n} risers along +local Y filling the footprint",
+                        "reason": f"{why}: the riser count is assumed ({rise:.2f} m / {STAIR_GENERIC_RISER_M} m)"})
+        warnings.append(f"{why}: one straight flight of {n} assumed risers fills the footprint")
+
+    # Rise direction: the recorded one (assumed by the recognition rule unless drawn), else +local Y.
+    a0 = flights[0]["axis"]
+    rec = data.get("direction")
+    d_vec = _unit2(rec) if isinstance(rec, (list, tuple)) and len(rec) >= 2 else None
+    if d_vec is None:
+        d_vec, d_src = local_y, "no direction recorded: steps rise along +local Y of the footprint"
+    elif data.get("direction_assumed", True) is not False:
+        d_src = str(data.get("reason") or "rise direction assumed by the recognition rule (no UP arrow drawn)")
+    else:
+        d_src = None                                       # drawn
+    dot0 = _d2(a0, d_vec)
+    if abs(dot0) < 0.5:
+        if abs(_d2(a0, local_y)) >= 0.5:
+            dot0 = _d2(a0, local_y)
+            notes.append("the recorded direction does not run along the flights: +local Y used")
+        else:
+            dot0 = 1.0
+            notes.append("neither the recorded direction nor +local Y runs along the flights: "
+                         "first to last drawn line used")
+        d_src = d_src or "recorded direction not along the flights"
+    r0 = a0 if dot0 >= 0 else (-a0[0], -a0[1])
+    rdirs = [r0]
+    for f in flights[1:]:
+        a, prev = f["axis"], rdirs[-1]
+        if abs(_d2(a, prev)) >= 0.9:                        # side by side: a U-turn rises the other way
+            rdirs.append(a if _d2(a, prev) < 0 else (-a[0], -a[1]))
+        else:
+            rdirs.append(a if _d2(a, d_vec) >= 0 else (-a[0], -a[1]))
+            notes.append(f"flight {f['index'] + 1} is not parallel to flight 1: it rises along the recorded direction")
+    if d_src is not None:
+        assumed.append({"field": "direction", "kind": "stair_direction", "value": [round(r0[0], 4), round(r0[1], 4)],
+                        "reason": d_src})
+    turn = data.get("turn") or ("straight" if len(flights) == 1 else "U" if len(flights) == 2 else "other")
+    if len(flights) >= 2 and data.get("turn_assumed", True) is not False:
+        assumed.append({"field": "turn", "kind": "stair_turn", "value": turn,
+                        "reason": "flights side by side read as a turning stair, climbed in turn; nothing drawn "
+                                  "says which flight starts at the floor"})
+
+    # Landing and climbing order: with a landing the flight rising towards it climbs first.
+    land = data.get("landing")
+    poly = land.get("polygon") if isinstance(land, dict) else land
+    landing_poly = [(float(p[0]), float(p[1])) for p in poly] if isinstance(poly, (list, tuple)) and len(poly) >= 3 \
+        else None
+    order = list(range(len(flights)))
+    if landing_poly is not None and len(flights) >= 2:
+        c = G.polygon_centroid(landing_poly)
+        mid0 = G.segment_midpoint(flights[0]["start"], flights[0]["end"])
+        if _d2(_v(mid0, c), rdirs[0]) <= 0:
+            order.reverse()
+    elif landing_poly is None and len(flights) >= 2:
+        notes.append("no landing drawn: the flights are climbed in the drawn order without a landing slab")
+
+    # Risers: every drawn line is a nosing; riser = rise / all risers (or a documented riser).
+    total = sum(f["lines"] for f in flights)
+    documented = data.get("riser_m")
+    doc_source = str(data.get("riser_source") or "")
+    if isinstance(documented, (int, float)) and not isinstance(documented, bool) and documented > 0 \
+            and not doc_source.startswith("derived"):
+        riser, riser_source = float(documented), doc_source or "documented"
+        if abs(riser * total - rise) > 0.02:
+            warnings.append(f"documented riser {riser:.3f} m x {total} risers = {riser * total:.3f} m differs from "
+                            f"the rise {rise:.3f} m")
+    else:
+        riser, riser_source = rise / total, rise_source
+        assumed.append({"field": "riser_m", "kind": "stair_riser", "value": round(riser, 4),
+                        "reason": f"{riser_source}: {rise:.3f} m / {total} drawn risers"
+                                  + (" (assumed count)" if generic else "")})
+    lo, hi = STAIR_RISER_RANGE
+    if not lo - 1e-9 <= riser <= hi + 1e-9:
+        warnings.append(f"riser {riser:.3f} m outside {lo:.2f}-{hi:.2f} m ({riser_source}, {total} risers)")
+
+    z = 0.0
+    planned = []
+    for idx in order:
+        f = dict(flights[idx])
+        r = rdirs[idx]
+        n, g, a = f["lines"], f["going"], f["axis"]
+        first = f["start"] if _d2(a, r) > 0 else f["end"]
+        f.update({"rise_dir": r, "base_z": z, "top_z": z + n * riser,
+                  "nosings": [(first[0] + r[0] * g * i, first[1] + r[1] * g * i) for i in range(n)]})
+        z = f["top_z"]
+        planned.append(f)
+
+    landing = None
+    if landing_poly is not None:
+        if len(planned) >= 2:
+            role, z_l = "mid", planned[0]["top_z"]
+        else:
+            f = planned[0]
+            towards = _d2(_v(G.segment_midpoint(f["start"], f["end"]), G.polygon_centroid(landing_poly)),
+                          f["rise_dir"]) > 0
+            role, z_l = ("top", f["top_z"]) if towards else ("floor", 0.0)
+            if role == "floor":
+                notes.append("the landing lies at the foot of the flight: it is the floor, no slab")
+        landing = {"polygon": landing_poly, "z": z_l, "role": role, "thickness": STAIR_WAIST_M}
+
+    # The ceiling opening: the last flight and the landing (in the frame of flight 1).
+    void, void_raw = [], []
+    if rise > ceiling + 1e-6:
+        o = flights[0]["start"]
+        u = a0
+        vx, vy = -u[1], u[0]
+
+        def to_f(p):
+            q = _v(o, p)
+            return (q[0] * vx + q[1] * vy, _d2(q, u))
+
+        def from_f(q):
+            return (o[0] + vx * q[0] + u[0] * q[1], o[1] + vy * q[0] + u[1] * q[1])
+
+        last = planned[-1]
+        hw = last["width"] / 2.0
+        lp = (-last["axis"][1], last["axis"][0])
+        corners = [(p[0] + lp[0] * s * hw, p[1] + lp[1] * s * hw) for p in (last["start"], last["end"]) for s in (-1, 1)]
+        rects = [_frame_box([to_f(c) for c in corners])]
+        if landing is not None and landing["role"] in ("mid", "top"):
+            rects.append(_frame_box([to_f(p) for p in landing_poly]))
+        g = STAIR_SHAFT_GAP
+        void_raw = [[from_f(p) for p in loop] for loop in geom2d.rect_union_outline(rects)]
+        void = [[from_f(p) for p in loop]
+                for loop in geom2d.rect_union_outline([(b[0] - g, b[1] - g, b[2] + g, b[3] + g) for b in rects])]
+        what = "the last flight" + (" and the landing" if len(rects) > 1 else "")
+        reason = "nothing drawn above the stair; the opening is assumed" if data.get("void_assumed", True) \
+            is not False else "drawn"
+        assumed.append({"field": "void", "kind": "stair_void",
+                        "value": f"ceiling opening over {what}, closed by a neutral shaft cap "
+                                 f"{cap - ceiling:.2f} m above the ceiling",
+                        "reason": f"{reason}; the floor above is not modelled, so the cap hides the shaft"})
+        for f in planned[:-1]:
+            headroom = ceiling - f["top_z"]
+            if headroom < STAIR_HEADROOM_M:
+                warnings.append(f"flight {f['index'] + 1}: {headroom:.2f} m under the ceiling at its top "
+                                f"(the opening covers {what} only, assumed)")
+
+    # Handrails: every flight side that is not against a wall.
+    wall_rects = [G.centerline_to_rectangle(w["start"], w["end"], float(w["thickness"])) for w in walls
+                  if G.distance(w["start"], w["end"]) > 1e-9]
+    rails = []
+    for f in planned:
+        r = f["rise_dir"]
+        p = (-r[1], r[0])
+        hw = f["width"] / 2.0
+        a_, b_ = f["nosings"][0], f["nosings"][-1]
+        for side, sgn in (("left", 1.0), ("right", -1.0)):
+            reach = sgn * (hw + STAIR_WALL_PROBE)
+            probes = [(a_[0] + (b_[0] - a_[0]) * t + p[0] * reach, a_[1] + (b_[1] - a_[1]) * t + p[1] * reach)
+                      for t in (0.25, 0.5, 0.75)]
+            if sum(1 for q in probes if any(G.point_in_polygon(q, rect) for rect in wall_rects)) >= 2:
+                continue
+            rails.append({"flight": f["index"], "side": side, "offset": sgn * (hw - STAIR_RAIL_INSET)})
+    if rails:
+        assumed.append({"field": "handrail", "kind": "stair_handrail",
+                        "value": f"{len(rails)} steel rail(s) {STAIR_RAIL_HEIGHT:.2f} m above the nosings",
+                        "reason": "design detail on every flight side not against a wall; not in the documents"})
+    assumed.append({"field": "waist", "kind": "stair_structure",
+                    "value": f"{STAIR_WAIST_M:.2f} m waist slab under the steps and landing slab",
+                    "reason": "the documents show the stair in plan only"})
+    # A cap lowered under the floor of a level above: the last riser (and a top landing) stop just under it.
+    top_limit = cap - STAIR_CAP_CLEARANCE / 3.0 if rise > cap - STAIR_CAP_CLEARANCE / 3.0 else None
+    if top_limit is not None:
+        notes.append(f"the last riser stops at {top_limit:.3f} m, under the shaft cap ({cap:.3f} m)")
+    return {"flights": planned, "risers": total, "riser_m": riser, "riser_source": riser_source, "rise_m": rise,
+            "landing": landing, "void": void, "void_raw": void_raw, "ceiling_z": ceiling, "cap_z": cap,
+            "top_limit": top_limit, "rails": rails, "direction": [round(r0[0], 4), round(r0[1], 4)], "turn": turn,
+            "generic": generic, "assumed": assumed, "warnings": warnings, "notes": notes}
+
+
+def _frame_box(points) -> tuple[float, float, float, float]:
+    xs, ys = [p[0] for p in points], [p[1] for p in points]
+    return (min(xs), min(ys), max(xs), max(ys))
+
+
+def _part(mesh: tuple, key: str, role: str, **extra) -> Part:
+    verts, faces = mesh
+    return dict({"verts": verts, "faces": faces, "key": key, "role": role}, **extra)
+
+
+def stair_parts(plan: dict) -> list[Part]:
+    """The parts of a planned stair (world XY, z above the level floor):
+    per flight ``n - 1`` step prisms (tread between two drawn nosings, on a
+    ``STAIR_WAIST_M`` waist slab, never below the floor) and the riser plate
+    of the last riser; the landing slab (``mid`` / ``top`` landings); the
+    rails and their two posts, cut ``STAIR_CAP_CLEARANCE`` below the cap.
+    Steps, plates and the landing carry ``rise_dir`` for ``stair_face_slots``."""
+    riser = float(plan["riser_m"])
+    limit = plan.get("top_limit")
+    parts: list[Part] = []
+    rails = {}
+    for rail in plan["rails"]:
+        rails.setdefault(rail["flight"], []).append(rail)
+    for f in plan["flights"]:
+        n, g, width, base = f["lines"], f["going"], f["width"], f["base_z"]
+        r, origin = f["rise_dir"], f["nosings"][0]
+        k = riser / g
+        t_v = STAIR_WAIST_M * math.sqrt(1.0 + k * k)            # waist measured square to the soffit
+        extra = {"flight": f["index"], "rise_dir": [r[0], r[1]]}
+        for i in range(1, n):
+            s0, s1 = (i - 1) * g, i * g
+            top = base + i * riser
+            z0, z1 = base + s0 * k - t_v, base + s1 * k - t_v       # soffit under the root line
+            if z0 < 0.0 < z1:
+                sc = (t_v - base) / k
+                profile = [(s0, 0.0), (sc, 0.0), (s1, z1), (s1, top), (s0, top)]
+            else:
+                profile = [(s0, max(0.0, z0)), (s1, max(0.0, z1)), (s1, top), (s0, top)]
+            parts.append(_part(geom2d.extrude_profile(profile, origin, r, width), "worktop", "step", **extra))
+        sn = (n - 1) * g
+        z_lo = base + (n - 1) * riser
+        z_hi = base + n * riser if limit is None else min(base + n * riser, limit)
+        if z_hi - z_lo > 1e-4:
+            parts.append(_part(geom2d.extrude_profile(
+                [(sn - STAIR_RISER_PLATE, z_lo), (sn, z_lo), (sn, z_hi), (sn - STAIR_RISER_PLATE, z_hi)],
+                origin, r, width), "worktop", "riser", **extra))
+        for rail in rails.get(f["index"], []):
+            parts.extend(_rail_parts(f, rail["offset"], riser, plan["cap_z"] - STAIR_CAP_CLEARANCE))
+    landing = plan.get("landing")
+    if landing is not None and landing["role"] in ("mid", "top"):
+        z_top = landing["z"] if limit is None else min(landing["z"], limit)
+        parts.append(_part(geom2d.prism(landing["polygon"], z_top - landing["thickness"], z_top),
+                           "worktop", "landing", flight=None, rise_dir=None))
+    return parts
+
+
+def _rail_parts(f: dict, offset: float, riser: float, limit: float) -> list[Part]:
+    """A sloped rail bar ``STAIR_RAIL_HEIGHT`` above the nosing line of a
+    flight, ``offset`` metres left of its centre line, and a post at each end
+    standing on its tread; cut where its top would pass ``limit``."""
+    n, g, base = f["lines"], f["going"], f["base_z"]
+    r, o = f["rise_dir"], f["nosings"][0]
+    p = (-r[1], r[0])
+    k = riser / g
+
+    def rail_top(s):
+        return base + riser + s * k + STAIR_RAIL_HEIGHT
+
+    s_a, s_b = 0.05, (n - 1) * g - 0.05
+    if rail_top(s_b) > limit:
+        s_b = (limit - STAIR_RAIL_HEIGHT - base - riser) / k
+    if s_b - s_a < STAIR_RAIL_MIN_M:
+        return []
+
+    def at(s, q, z):
+        return (o[0] + r[0] * s + p[0] * q, o[1] + r[1] * s + p[1] * q, z)
+
+    verts = [at(s, offset + dq, rail_top(s) + dz) for s in (s_a, s_b) for dq in (-STAIR_RAIL_W / 2.0, STAIR_RAIL_W / 2.0)
+             for dz in (-STAIR_RAIL_T, 0.0)]
+    # index = 4 * s + 2 * q + z
+    faces = [[0, 2, 6, 4], [1, 5, 7, 3], [0, 4, 5, 1], [2, 3, 7, 6], [0, 1, 3, 2], [4, 6, 7, 5]]
+    parts = [_part(geom2d.convex_solid(verts, faces), "steel", "rail", flight=f["index"])]
+    for s in (s_a + STAIR_POST / 2.0, s_b - STAIR_POST / 2.0):
+        tread = base + (min(n - 1, int(s / g)) + 1) * riser
+        cx, cy, _ = at(s, offset, 0.0)
+        z_top = rail_top(s) - STAIR_RAIL_T
+        if z_top - tread > 0.02:
+            parts.append(_part(geom2d.box((cx, cy, (tread + z_top) / 2.0), (STAIR_POST, STAIR_POST, z_top - tread),
+                                          math.degrees(math.atan2(r[1], r[0]))), "steel", "post", flight=f["index"]))
+    return parts
+
+
+# Material slots of a built stair (shell.build_stairs): treads and risers, structure, steel.
+STAIR_SLOTS = ("tread", "structure", "steel")
+
+
+def stair_face_slots(parts: Sequence[Part]) -> list[int]:
+    """Slot per face of ``stair_parts`` (``STAIR_SLOTS``): the top and the
+    climbing-side face of steps, riser plates and the landing are ``tread``
+    (the floor finish), their other faces ``structure`` (soffit, sides), rails
+    and posts ``steel``."""
+    slots = []
+    for part in parts:
+        if part["key"] == "steel":
+            slots.extend([2] * len(part["faces"]))
+            continue
+        r = part.get("rise_dir")
+        for f in part["faces"]:
+            nx, ny, nz = geom2d.face_normal(part["verts"], f)
+            front = r is not None and -(nx * r[0] + ny * r[1]) > 0.5
+            slots.append(0 if nz > 0.5 or front else 1)
+    return slots
+
+
+def void_shaft(plan: dict) -> tuple[list, list]:
+    """``(verts, faces)`` closing the ceiling opening (z above the level
+    floor): one inward-facing quad per edge of every void loop, from
+    ``STAIR_SHAFT_LIP`` below the ceiling up to the cap, and the cap faces
+    (facing down). Empty when the stair needs no opening."""
+    parts = []
+    z0, z1 = plan["ceiling_z"] - STAIR_SHAFT_LIP, plan["cap_z"]
+    for loop in plan["void"]:
+        pts = list(loop)
+        if G.polygon_signed_area(pts) < 0:
+            pts = pts[::-1]
+        n = len(pts)
+        verts, faces = [], []
+        for i in range(n):
+            (ax, ay), (bx, by) = pts[i], pts[(i + 1) % n]
+            j = len(verts)
+            verts += [(ax, ay, z0), (ax, ay, z1), (bx, by, z1), (bx, by, z0)]   # normal to the left: inwards
+            faces.append([j, j + 1, j + 2, j + 3])
+        parts.append((verts, faces))
+        parts.append(geom2d.polygon_faces(pts, [], z1, facing_up=False))
+    return geom2d.merge(parts)
+
+
+def _stair(w: float, d: float, h: float, piece: dict | None = None) -> list[Part]:
+    """Stair parts in the piece's local frame (``build_parts``): the drawn
+    flights of ``piece`` (or one assumed flight filling ``w x d``) with ``h``
+    as the rise; no walls, so every side gets a rail."""
+    fp = dict((piece or {}).get("footprint") or {"center": [0.0, 0.0], "rotation_deg": 0.0})
+    fp["size"] = [w, d]
+    center = (float(fp["center"][0]), float(fp["center"][1]))
+    rot = float(fp.get("rotation_deg") or 0.0)
+    plan = stair_plan(dict(piece or {}, footprint=fp), h)
+    out = []
+    for part in stair_parts(plan):
+        verts = [(*G.rotate_point((x - center[0], y - center[1]), -rot), z) for x, y, z in part["verts"]]
+        rd = part.get("rise_dir")
+        local = dict(part, verts=verts)
+        if rd is not None:
+            local["rise_dir"] = list(G.rotate_point((rd[0], rd[1]), -rot))
+        out.append(local)
+    return out
+
+
 _BUILDERS = {
     "bed": _bed, "bed_single": _bed, "bed_double": _bed,
     "sofa": _sofa, "armchair": lambda w, d, h: _sofa(w, d, h, cushions=1),
@@ -490,16 +1056,23 @@ _BUILDERS = {
     "bookshelf": _bookshelf, "kitchen_counter": _counter, "kitchen_island": lambda w, d, h: _counter(w, d, h, True),
     "fridge": _fridge, "stove": _stove, "sink_kitchen": _sink, "washbasin": _washbasin, "toilet": _toilet,
     "shower": _shower, "bathtub": _bathtub, "washing_machine": _washing_machine,
+    "stair": _stair, "side_table": _side_table, "floor_lamp": _floor_lamp, "potted_plant": _potted_plant,
 }
+# Builders that read the piece itself (drawn flights, round shape); the others take only the box.
+_PIECE_BUILDERS = ("stair", "side_table")
 
 
-def build_parts(ftype: str, w: float, d: float, h: float) -> list[Part]:
+def build_parts(ftype: str, w: float, d: float, h: float, piece: dict | None = None) -> list[Part]:
     """Parts of a parametric piece in its local frame. ``KeyError`` for a
-    type without a builder (``unknown`` keeps the proxy box)."""
+    type without a builder (``unknown`` keeps the proxy box). ``piece``
+    (optional) is read by the stair (its drawn flights) and the side table
+    (round or square); without it a stair is one assumed flight."""
     try:
         builder = _BUILDERS[ftype]
     except KeyError:
         raise KeyError(f"no parametric builder for furniture type {ftype!r}") from None
+    if ftype in _PIECE_BUILDERS:
+        return builder(float(w), float(d), float(h), piece)
     return builder(float(w), float(d), float(h))
 
 
@@ -604,9 +1177,10 @@ def world_mesh(parts: Sequence[Part], center: Sequence[float], rotation_deg: flo
     return verts, faces, keys
 
 
-def parametric_bbox(ftype: str, w: float, d: float, h: float) -> tuple[float, float, float]:
-    """``(width, depth, height)`` of the parametric mesh (its real box)."""
-    x0, y0, z0, x1, y1, z1 = _bbox(build_parts(ftype, w, d, h))
+def parametric_bbox(ftype: str, w: float, d: float, h: float, piece: dict | None = None) -> tuple[float, float, float]:
+    """``(width, depth, height)`` of the parametric mesh (its real box);
+    ``piece`` as in ``build_parts``."""
+    x0, y0, z0, x1, y1, z1 = _bbox(build_parts(ftype, w, d, h, piece=piece))
     return (x1 - x0, y1 - y0, z1 - z0)
 
 
@@ -626,7 +1200,7 @@ def piece_bbox(piece: dict) -> tuple[float, float, float, str]:
         bw, bd, bh = (float(v) for v in asset["bbox_m"][:3])
         return (bw, bd, bh, "library")
     if piece["type"] in _BUILDERS:
-        bw, bd, bh = parametric_bbox(piece["type"], w, d, h)
+        bw, bd, bh = parametric_bbox(piece["type"], w, d, h, piece=piece)
         return (bw, bd, bh, "parametric")
     return (w, d, h, "proxy")
 

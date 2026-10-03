@@ -1,4 +1,4 @@
-"""CC0 furniture models from Poly Haven: download, measure, record in the manifest.
+"""Furniture models: CC0 Poly Haven downloads and the Objaverse cache, recorded in the manifest.
 
 What: ``fetch_model(asset_id, out_dir, size="1k")`` downloads the glTF of one
 Poly Haven model (the ``.gltf`` plus every file it includes: ``.bin`` and the
@@ -30,12 +30,23 @@ Verified with real calls on 2026-10-01 (``docs/milestone4.md`` section 1):
   (height) and the glTF Z extent (0.818 m) the API's y (depth).
 - No per-asset licence field exists; every Poly Haven asset is CC0
   (https://polyhaven.com/license), recorded by ``fetch.LICENCES``.
+
+Milestone 7 (docs/milestone7.md §6.3): ``fetch_model(..., source="objaverse",
+licence=..., meta=<fit asset>)`` never goes to the network: it reads only
+the cache ``<assets>/models/objaverse/<uid>.glb`` the prep pod wrote
+(``/workspace/assets/models/objaverse`` on the volume) and checks its sha256
+against the catalogue's ``sha256_glb``. A miss or a mismatch raises
+``fetch.AssetNotFound`` (the fitter turns it into the parametric fallback
+and says why; full runs are offline). The licence gate is the model rule of
+``fetch.check_licence`` (CC0 or CC BY 4.0 with the credit fields), and the
+manifest entry keeps the credit line.
 """
 from __future__ import annotations
 
 import base64
 import json
 import math
+import re
 import struct
 from pathlib import Path
 from typing import Iterable, Optional
@@ -45,6 +56,11 @@ from wenart.assets import fetch, polyhaven, web
 MODELS_DIR = "models"
 DEFAULT_SIZE = "1k"
 PAGE_URL = "https://polyhaven.com/a/{id}"
+OBJAVERSE = "objaverse"
+OBJAVERSE_CACHE = f"{MODELS_DIR}/objaverse"     # <assets>/models/objaverse/<uid>.glb, written by the prep pod
+_UID_RE = re.compile(r"[A-Za-z0-9_-]{1,64}")
+# Fields of the fit asset (catalogue entry) kept in the manifest entry of an Objaverse model.
+OBJAVERSE_META = ("uid", "title", "author", "source_url", "licence_url", "via", "attribution")
 
 # glTF component types -> struct format and byte size.
 _COMPONENT = {5120: ("b", 1), 5121: ("B", 1), 5122: ("h", 2), 5123: ("H", 2), 5125: ("I", 4), 5126: ("f", 4)}
@@ -236,7 +252,7 @@ def measure_gltf(path: Path) -> dict:
 def _manifest_models(manifest: dict) -> dict:
     models = manifest.setdefault("models", {})
     for asset_id, entry in models.items():
-        fetch.check_licence(entry.get("source", "?"), entry.get("licence"))
+        fetch.check_licence(entry.get("source", "?"), entry.get("licence"), kind="models", entry=entry)
     return models
 
 
@@ -255,9 +271,55 @@ def gltf_relpath(asset_id: str, size: str = DEFAULT_SIZE) -> str:
     return f"{MODELS_DIR}/{asset_id}/{asset_id}_{size}.gltf"
 
 
+def objaverse_relpath(uid: str) -> str:
+    """Where the prep pod puts an Objaverse GLB (relative to the assets dir): ``models/objaverse/<uid>.glb``."""
+    if not _UID_RE.fullmatch(str(uid or "")):
+        raise fetch.AssetNotFound(f"objaverse: uid {uid!r} is not a plain object id")
+    return f"{OBJAVERSE_CACHE}/{uid}.glb"
+
+
+def fetch_objaverse_cached(asset_id: str, out_dir: Path, licence: str, meta: Optional[dict]) -> dict:
+    """The cached GLB of one Objaverse model, recorded in the manifest (no network, ever).
+
+    ``meta`` is the fit's asset dict (or the catalogue entry): ``uid``, ``sha256_glb`` and the credit
+    fields. Raises ``fetch.AssetNotFound`` when the file is missing or its sha256 differs from the
+    catalogue's; the manifest entry is ``{"id", "source": "objaverse", "licence", "files": {"glb": rel},
+    "sha256": {"glb": hex}, "uid", "title", "author", "source_url", "licence_url", "via", "attribution",
+    "cache_only": true, "fetched_utc"}``."""
+    out_dir = Path(out_dir)
+    meta = dict(meta or {})
+    sha = str(meta.get("sha256_glb") or "")
+    rel = objaverse_relpath(meta.get("uid"))
+    if len(sha) != 64:
+        raise fetch.AssetNotFound(f"objaverse {asset_id}: no sha256_glb in the catalogue entry; refused")
+    path = out_dir / rel
+    if not path.is_file():
+        raise fetch.AssetNotFound(f"objaverse {asset_id}: {rel} is not in the cache {out_dir / OBJAVERSE_CACHE} "
+                                  f"(the prep pod writes it; full runs never download)")
+    digest = web.sha256_file(path)
+    if digest != sha:
+        raise fetch.AssetNotFound(f"objaverse {asset_id}: cached {rel} has sha256 {digest[:12]}..., the catalogue "
+                                  f"says {sha[:12]}...; refused")
+    entry = {"id": asset_id, "source": OBJAVERSE, "licence": str(licence).strip().upper(),
+             "files": {"glb": rel}, "sha256": {"glb": digest}, "cache_only": True,
+             **{k: meta.get(k) for k in OBJAVERSE_META}}
+    manifest = fetch.load_manifest(out_dir)
+    models = _manifest_models(manifest)
+    old = models.get(asset_id)
+    if old and {k: v for k, v in old.items() if k != "fetched_utc"} == entry:
+        return old                                      # idempotent: the manifest is not rewritten
+    entry["fetched_utc"] = fetch._now()
+    fetch.check_licence(OBJAVERSE, entry["licence"], kind="models", entry=entry)
+    models[asset_id] = entry
+    fetch.save_manifest(out_dir, manifest)
+    return entry
+
+
 def fetch_model(asset_id: str, out_dir: Path, size: str = DEFAULT_SIZE, source: str = polyhaven.SOURCE,
-                licence: Optional[str] = None) -> dict:
-    """Download one Poly Haven model (glTF + bin + textures) and record it in the manifest.
+                licence: Optional[str] = None, meta: Optional[dict] = None) -> dict:
+    """Download one Poly Haven model (glTF + bin + textures) and record it in the manifest; for
+    ``source="objaverse"`` take the cached GLB instead (``fetch_objaverse_cached``, ``meta`` = the fit's
+    asset dict with ``uid``, ``sha256_glb`` and the credit fields).
 
     Returns the manifest entry: ``{"id", "source", "licence": "CC0",
     "licence_url", "files": {"gltf": rel, "<include path>": rel, ...},
@@ -267,9 +329,11 @@ def fetch_model(asset_id: str, out_dir: Path, size: str = DEFAULT_SIZE, source: 
     Paths are relative to ``out_dir``; the box is in the Z-up frame, metres.
     """
     out_dir = Path(out_dir)
-    fetch.check_licence(source, licence)
+    fetch.check_licence(source, licence, kind="models", entry=meta if source == OBJAVERSE else None)
+    if source == OBJAVERSE:
+        return fetch_objaverse_cached(asset_id, out_dir, licence, meta)
     if source != polyhaven.SOURCE:
-        raise fetch.AssetNotFound(f"models come from Poly Haven only, not '{source}'")
+        raise fetch.AssetNotFound(f"models come from Poly Haven or the Objaverse cache only, not '{source}'")
     manifest = fetch.load_manifest(out_dir)
     cached = _manifest_models(manifest).get(asset_id)
     if cached and _entry_ok(out_dir, cached, size):

@@ -13,7 +13,13 @@ synthetic-03), with the model keys of $CHECK_MODELS (default ``qwen glm``):
   metrics and the ``check.yaml`` targets (a metric without data counts as missed; a single-model
   check is always advisory), and ``check_manifest.json`` carries the same flag;
 - ``check/style_photo_test.json`` (each model read ``tests/fixtures/style_photo_synthetic-03_salon.jpg``,
-  §6): every model gives walls ``plaster_charcoal`` and floor ``concrete_polished``.
+  §6): every model gives walls ``plaster_charcoal`` and floor ``concrete_polished``;
+- insertion measured in every run (docs/milestone7.md §8.1, the check runs ``--kinds
+  cycles,polished,controls``): a project whose ``check/controls.json`` lists controls has every
+  insertion control in ``check_manifest.json`` and an insertion rate in the calibration (two
+  models); when the ``detect`` stage detected control renders, the detector's insertion rate
+  (``detector_insertion``) is recorded too. The rates are printed, never asserted (they are
+  measurements of the judges).
 """
 import json
 import os
@@ -162,3 +168,26 @@ def test_style_photo_test(project):
         assert answers, f"{project}: no answer of {key} on the style test photo"
         got = {slot: answers[-1].get(slot) for slot in STYLE_PHOTO_EXPECTED}
         assert got == STYLE_PHOTO_EXPECTED, f"{project}: {key} read {got}, expected {STYLE_PHOTO_EXPECTED}"
+
+
+def test_insertion_measured(project, cfg):
+    controls = _load(project, "check/controls.json").get("controls") or []
+    rendered = [c for c in controls if (OUTPUTS / project / c["dir"] / "render_manifest.json").is_file()]
+    if not rendered:
+        pytest.skip(f"{project}: no rendered insertion control")
+    manifest = _load(project, "check/check_manifest.json")
+    kinds = {kind for v in manifest["views"].values() for kind in v if kind.startswith("insertion:")}
+    missing = sorted({"insertion:" + c["id"] for c in rendered} - kinds)
+    assert not missing, f"{project}: insertion controls not checked (--kinds without controls?): {missing}"
+    cal = _load(project, "check/check_calibration.json")
+    ins = cal["metrics"]["controls"]["insertion"]
+    assert ins["n"] >= len(rendered), f"{project}: {ins['n']} insertion rows for {len(rendered)} controls"
+    single = bool(cal.get("single_pass")) or len(MODEL_KEYS) < 2
+    assert (cal["metrics"]["insertion"] is None) is single, f"{project}: insertion rate {cal['metrics']['insertion']}"
+    det = cal["metrics"].get("detector_insertion") or {}
+    detected = any(json.loads(f.read_text(encoding="utf-8")).get("controls")
+                   for f in (OUTPUTS / project / "detect").glob("*.json") if f.name != "detect_manifest.json")
+    if detected:
+        assert det.get("n", 0) > 0, f"{project}: control renders were detected but no detector insertion recorded"
+    print(f"{project}: insertion VLM {cal['metrics']['insertion']} ({ins['n']} controls); detector found "
+          f"{det.get('found')} flagged {det.get('flagged')} confirmed {det.get('confirmed')} ({det.get('n', 0)})")

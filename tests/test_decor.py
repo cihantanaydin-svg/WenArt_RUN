@@ -165,3 +165,27 @@ def test_plant_never_stands_in_another_pieces_clearance():
     assert not [d for d in out["decor"] if d["type"] == "plant"]
     row = next(r for r in rows if r["room_id"] == ROOM_ID)
     assert "clearance of another piece" in row["note"]
+
+
+def test_prayer_rooms_get_no_decor_and_build_false_pieces_host_none():
+    """docs/milestone7.md §0: a prayer (pooja) room gets no decor at all, not even on a drawn piece; a drawn symbol
+    with ``build: false`` (not built) hosts no decor but stays an obstacle for the plant."""
+    building = load_truth("synthetic-01")
+    sofa_room = next(f["room_id"] for f in building["furniture"] if f["type"] == "sofa" and f["status"] == "verified")
+    room = next(r for r in building["rooms"] if r["id"] == sofa_room)
+    out, rows = D.add_decor(building)
+    assert any(d["room_id"] == sofa_room for d in out["decor"])
+    room["room_type"] = "prayer"
+    out, rows = D.add_decor(building)
+    assert not [d for d in out["decor"] if d["room_id"] == sofa_room]
+    row = next(r for r in rows if r["room_id"] == sofa_room)
+    assert row["note"] == "prayer room: no decor (docs/milestone7.md §0)" and row["cushions"] == row["books"] == 0
+    assert "prayer room: no decor" in D.decor_report(out, rows)
+    assert D.NO_DECOR_ROOM_TYPES == ("prayer",)
+    # build: false hosts nothing.
+    building = load_truth("synthetic-01")
+    for f in building["furniture"]:
+        if f["type"] in D.HOST_TYPES:
+            f["build"] = False
+    out, _rows = D.add_decor(building)
+    assert not [d for d in out["decor"] if d["host_id"] is not None]

@@ -1,14 +1,17 @@
-"""CPU tests for the synthetic project generator (docs/milestone2.md §1, docs/milestone6.md §3).
+"""CPU tests for the synthetic project generator (docs/milestone2.md §1, docs/milestone6.md §3, docs/milestone7.md
+§5.2).
 
 The generator runs once into a temp folder (module fixture). Tests then check
 files, schema validity, DXF content via ezdxf, PDF content via pdfplumber,
 raster sizes and ink under the truth boxes, determinism, that the
-committed projects/ folder matches a fresh run, the five projects' counts,
-the non-rectangular outline builder and the copied style photo.
+committed projects/ folder matches a fresh run, the projects' counts,
+the non-rectangular outline builder, the copied style photo, and synthetic-06
+(the CAD project delivered as a DWG, its truth and the titled fixture).
 """
 import json
 import shutil
 import subprocess
+from collections import Counter
 from pathlib import Path
 
 import ezdxf
@@ -22,15 +25,22 @@ from shapely.geometry import Point, Polygon
 
 from wenart import building as B
 from wenart import geometry as G
+from wenart import units
+from wenart.ingest import dwg as dwg_tool
 from wenart.synthetic import blocks
 from wenart.synthetic.dxf_writer import dimension_printed_text
-from wenart.synthetic.generate import generate_project, main, write_style_photos
+from wenart.synthetic.generate import generate_project, generate_titled_fixture, main, write_style_photos
 from wenart.synthetic.model import LevelBuilder, outer_wall_lines, wall_union
-from wenart.synthetic.projects import OUTLINE_05, STYLE_PHOTO_05, Project, all_projects
+from wenart.synthetic.projects import (DWG_SHA256_06, INCH, OUTLINE_05, STYLE_PHOTO_05, Project, all_projects,
+                                       feet_inches, plan_06, project_06)
 
 ROOT = Path(__file__).resolve().parents[1]
 COMMITTED = ROOT / "projects"
+# The Level-based projects (Milestones 2 and 6); synthetic-06 is drawn the CAD way and has tests of its own.
 NAMES = ["synthetic-01", "synthetic-02", "synthetic-03", "synthetic-04", "synthetic-05"]
+ALL_NAMES = NAMES + ["synthetic-06"]
+HAS_DXF2DWG = dwg_tool.find_tool("dxf2dwg") is not None
+TITLED_06 = ROOT / "tests" / "fixtures" / "synthetic-06-titled"
 
 EXPECTED_FILES = {
     "synthetic-01": ["zemin_kat.dxf", "1_kat.pdf", "1_kat_scan.png", "brief.yaml", "truth/building.json", "truth/pages.json"],
@@ -39,6 +49,9 @@ EXPECTED_FILES = {
     "synthetic-04": ["3_kat_plani.dxf", "3_kat_plani_pdf.pdf", "brief.yaml", "truth/building.json", "truth/pages.json"],
     "synthetic-05": ["zemin_kat.dxf", "zemin_kat_mobilya.dxf", "style_photos/salon_referans.jpg", "brief.yaml",
                      "truth/building.json", "truth/pages.json"],
+    # The DWG is written by LibreDWG's dxf2dwg; where it is not built the generator skips it (and says so).
+    "synthetic-06": (["synthetic-06.dwg"] if HAS_DXF2DWG else []) + ["source/synthetic-06.dxf", "brief.yaml",
+                                                                      "truth/building.json", "truth/pages.json"],
 }
 # Preview JPEGs per project: one per visible page (results/synthetic/<project>_<file stem>_p<page>.jpg).
 EXPECTED_PREVIEWS = {
@@ -47,6 +60,7 @@ EXPECTED_PREVIEWS = {
     "synthetic-03": ["kat_planlari_p1", "kat_planlari_p2", "kat_planlari_p3", "mobilya_plani_p1"],
     "synthetic-04": ["3_kat_plani_p1", "3_kat_plani_pdf_p1"],
     "synthetic-05": ["zemin_kat_p1", "zemin_kat_mobilya_p1"],
+    "synthetic-06": ["synthetic-06_p1"],
 }
 
 
@@ -71,11 +85,11 @@ def pages(generated, name):
 # Files, schema, determinism
 # --------------------------------------------------------------------------
 
-def test_all_projects_lists_five():
-    assert [p.name for p in all_projects()] == NAMES
+def test_all_projects_lists_six():
+    assert [p.name for p in all_projects()] == ALL_NAMES
 
 
-@pytest.mark.parametrize("name", NAMES)
+@pytest.mark.parametrize("name", ALL_NAMES)
 def test_files_exist(generated, name):
     out = generated[0] / name
     for rel in EXPECTED_FILES[name]:
@@ -87,7 +101,7 @@ def test_files_exist(generated, name):
     assert (out / "style_photos").is_dir() == (name == "synthetic-05")
 
 
-@pytest.mark.parametrize("name", NAMES)
+@pytest.mark.parametrize("name", ALL_NAMES)
 def test_truth_validates_against_schema(generated, name):
     b = truth(generated, name)  # B.load validates
     assert b["status"] == "ok"
@@ -237,7 +251,7 @@ def test_deterministic(generated, tmp_path):
     out2 = tmp_path / "again"
     for project in all_projects():
         generate_project(project, out2, None)
-    for name in NAMES:
+    for name in ALL_NAMES:
         for rel in EXPECTED_FILES[name]:
             a = (generated[0] / name / rel).read_bytes()
             b = (out2 / name / rel).read_bytes()
@@ -296,7 +310,7 @@ def test_rasters_match_tolerates_encoder_noise_but_not_content(tmp_path):
 
 
 @pytest.mark.skipif(not COMMITTED.exists(), reason="projects/ not present")
-@pytest.mark.parametrize("name", NAMES)
+@pytest.mark.parametrize("name", ALL_NAMES)
 def test_committed_projects_are_current(generated, name):
     for rel in EXPECTED_FILES[name]:
         committed = COMMITTED / name / rel
@@ -324,7 +338,7 @@ def test_cli_runs(tmp_path):
 
 @pytest.mark.skipif(not COMMITTED.exists(), reason="projects/ not present")
 def test_committed_previews_are_current(generated):
-    """results/synthetic holds exactly one preview per visible page of the five projects."""
+    """results/synthetic holds exactly one preview per visible page of the six projects."""
     committed = sorted(p.stem for p in (ROOT / "results" / "synthetic").glob("*.jpg"))
     assert committed == sorted(p.stem for p in generated[1].glob("*.jpg"))
 
@@ -750,3 +764,160 @@ def test_rendered_scan_looks_like_a_plan(generated):
     assert shutil.which("pdftoppm")  # the generator depends on poppler
     out = subprocess.run(["pdftoppm", "-v"], capture_output=True, text=True)
     assert "pdftoppm" in (out.stdout + out.stderr)
+
+
+# --------------------------------------------------------------------------
+# synthetic-06: the CAD project delivered as a DWG (docs/milestone7.md §5.2)
+# --------------------------------------------------------------------------
+
+def test_feet_inches_texts_parse_back():
+    assert [feet_inches(v) for v in (108, 180, 288, 156, 66, 144, 366)] == [
+        "9'-0\"", "15'-0\"", "24'-0\"", "13'-0\"", "5'-6\"", "12'-0\"", "30'-6\""]
+    for dim in plan_06().dimensions:
+        length = units.parse_length(dim.text)
+        assert length.system == "imperial"
+        assert length.metres == pytest.approx(G.distance(dim.p1, dim.p2) * INCH, abs=1e-9)
+
+
+def test_synthetic_06_truth_fields(generated):
+    b = truth(generated, "synthetic-06")
+    assert b["project"]["unit_system"] == "imperial" and b["project"]["brief"]["style"].startswith("Mid-century")
+    doc = b["documents"][0]
+    assert len(b["documents"]) == 1 and (doc["file"], doc["format"]) == ("synthetic-06.dwg", "dwg")
+    assert doc["converter"].startswith("libredwg dwg2dxf 0.14 d9468ae")
+    assert (doc["unit_system"], doc["source_kind"]) == ("imperial", "dxf")
+    page = doc["pages"][0]
+    assert (page["class"], page["level_id"], page["level_label_raw"], page["classifier"], page["confidence"]) == (
+        "floor_plan", "L0", None, "generic_labels", 0.6)
+    assert page["scale"]["method"] == "dxf_insunits" and page["scale"]["metres_per_unit"] == INCH
+    assert page["transform_to_building"] == [INCH, 0.0, -480 * INCH, 0.0, INCH, -240 * INCH]
+    level = b["levels"][0]
+    assert (level["id"], level["label"], level["label_source"]) == ("L0", "Ground floor", "assumed")
+    assert {e["text"] for e in level["evidence"]} == {"LIVING ROOM", "KITCHEN", "LOBBY", "BATH", "BED ROOM",
+                                                     "MASTER BED ROOM"}
+    assert "level title missing: assumed L0 Ground floor" in b["warnings"]
+    walls, openings = b["walls"], b["openings"]
+    assert (len(walls), sum(w["exterior"] for w in walls)) == (9, 4)
+    assert sorted({w["thickness"] for w in walls}) == [0.1524, 0.2286]
+    assert all(w["evidence"][0]["entity"].startswith("HATCH:") and w["evidence"][0]["layer"] == "A-WALL"
+               for w in walls)
+    assert [sum(o["type"] == t for o in openings) for t in ("door", "window", "opening")] == [5, 8, 1]
+    sep = next(o for o in openings if o["type"] == "opening")
+    assert sep["virtual"] is True and sep["wall_id"] is None and sep["width"] == pytest.approx(72 * INCH)
+    assert sep["evidence"][0]["method"] == "derived"
+    assert all(o["assumed"] == ["height"] and o["height"] == 2.10 for o in openings if o["type"] == "door")
+    assert all(o["assumed"] == ["height", "sill_height"] and (o["sill_height"], o["height"]) == (0.90, 1.20)
+               for o in openings if o["type"] == "window")
+    rooms = {r["label"]: r for r in b["rooms"]}
+    assert {k: r["room_type"] for k, r in rooms.items()} == {
+        "Kitchen": "kitchen", "Living Room": "living", "Bath": "bathroom", "Lobby": "hall", "Bed Room": "bedroom",
+        "Master Bed Room": "bedroom"}
+    size = rooms["Living Room"]["label_size"]
+    assert size["text"] == "14'-0\" X 12'-0\"" and size["status"] == "ok"
+    assert size["measured"] == pytest.approx([size["width_m"], size["length_m"]])
+    assert {k for k, r in rooms.items() if r["has_documented_furniture"]} == {
+        "Kitchen", "Living Room", "Bath", "Master Bed Room"}
+    assert rooms["Kitchen"]["evidence"][0]["entity"].startswith("ATTRIB:")
+    assert rooms["Kitchen"]["evidence"][0]["block"] == "ROOMTAG"
+    assert rooms["Living Room"]["evidence"][0]["entity"].startswith("MTEXT:")
+    furniture = b["furniture"]
+    assert all(f["type_method"] == "block_name" and f["status"] == "verified" for f in furniture)
+    assert Counter(f["type"] for f in furniture) == Counter(
+        {"chair": 6, "sofa": 1, "table_dining": 1, "bed_double": 1, "toilet": 1, "washbasin": 1})
+    assert {f["type_raw"] for f in furniture if f["type"] == "chair"} == {"DINING-6/CHAIR"}
+    assert [f["front_deg"] for f in furniture if f["type"] == "table_dining"] == [None]
+    assert b["conflicts"] == [] and b["unverified"] == []
+
+
+def test_synthetic_06_truth_geometry_is_consistent(generated):
+    b = truth(generated, "synthetic-06")
+    walls = {w["id"]: w for w in b["walls"]}
+    rooms = {r["id"]: r for r in b["rooms"]}
+    for o in b["openings"]:
+        if o.get("virtual"):
+            # The separator runs from the stub's free end along its axis to the opposite wall face.
+            (x0, y0), (x1, y1) = o["line"]
+            stub = next(w for w in walls.values() if w["start"] == [x0, y0] or w["end"] == [x0, y0])
+            assert x0 == x1 == stub["start"][0] and G.distance(o["center"], [x0, (y0 + y1) / 2]) < 1e-9
+            continue
+        w = walls[o["wall_id"]]
+        assert G.point_segment_distance(o["center"], w["start"], w["end"]) < 1e-6
+        if o["type"] == "door":
+            assert rooms[o["swing_side"]]["level_id"] == "L0"
+    polys = [Polygon(r["polygon"]) for r in b["rooms"]]
+    assert all(a.intersection(c).area < 1e-9 for i, a in enumerate(polys) for c in polys[i + 1:])
+    for r in b["rooms"]:
+        assert abs(G.polygon_area(r["polygon"]) - r["area_computed"]) < 1e-3
+    for f in b["furniture"]:
+        fp = f["footprint"]
+        corners = G.rotated_rectangle(fp["center"], fp["size"], fp["rotation_deg"])
+        assert all(G.point_in_polygon(c, rooms[f["room_id"]]["polygon"]) for c in corners), f["id"]
+        name = f["type_raw"].split("/")[-1]
+        ftype, width, depth = blocks.CAD_BLOCKS[name]
+        assert f["type"] == ftype and fp["size"] == pytest.approx([width * INCH, depth * INCH])
+        if f["front_deg"] is not None:
+            assert f["front_deg"] == G.front_direction_deg(fp["rotation_deg"])
+
+
+def test_synthetic_06_source_is_drawn_the_cad_way(generated):
+    path = generated[0] / "synthetic-06" / "source" / "synthetic-06.dxf"
+    doc, auditor = recover.readfile(str(path))
+    assert not auditor.has_errors and doc.dxfversion == "AC1015"
+    assert (doc.header["$INSUNITS"], doc.header["$MEASUREMENT"], doc.header["$LUNITS"]) == (1, 0, 4)
+    assert {name for name, _ in blocks.CAD_LAYERS} <= {layer.dxf.name for layer in doc.layers}
+    assert not set(blocks.LAYERS) & {layer.dxf.name for layer in doc.layers}
+    msp = doc.modelspace()
+    hatches = msp.query("HATCH")
+    assert len(hatches) == 1 and hatches[0].dxf.solid_fill == 1 and hatches[0].dxf.color == 7
+    assert len(hatches[0].paths) == 6 and hatches[0].dxf.layer == "A-WALL"
+    assert not msp.query("TEXT").query('*[text ? "PLAN"]')                      # untitled
+    dims = msp.query("DIMENSION")
+    assert sorted(d.dimtype for d in dims) == [0] * 4 + [1] * 4                # rotated and aligned
+    assert all(d.dxf.hasattr("angle") for d in dims if d.dimtype == 0)
+    # LibreDWG's dxf2dwg reads no MTEXT rotation angle: the upright dimension texts carry a direction vector.
+    dim_texts = [e for blk in doc.blocks if blk.name.startswith("*D") for e in blk if e.dxftype() == "MTEXT"]
+    assert len(dim_texts) == 8 and not any(e.dxf.hasattr("rotation") for e in dim_texts)
+    assert sorted(tuple(e.dxf.text_direction)[:2] for e in dim_texts if e.dxf.hasattr("text_direction")) == \
+        [(0.0, 1.0)] * 5
+    mtext = msp.query("MTEXT")[0]
+    assert mtext.text == "\\H9;LIVING ROOM\\P14'-0\" X 12'-0\""
+    tag = msp.query("INSERT[name=='ROOMTAG']")[0]
+    assert [(a.dxf.tag, a.dxf.text) for a in tag.attribs] == [("NAME", "KITCHEN")]
+    dining = doc.blocks.get("DINING-6")
+    assert [e.dxf.name for e in dining.query("INSERT")] == ["CHAIR"] * 6
+
+
+@pytest.mark.skipif(not HAS_DXF2DWG, reason="LibreDWG dxf2dwg not built here (scripts/cloud-setup.sh)")
+def test_synthetic_06_dwg_hash(generated):
+    import hashlib
+    fresh = generated[0] / "synthetic-06" / "synthetic-06.dwg"
+    assert hashlib.sha256(fresh.read_bytes()).hexdigest() == DWG_SHA256_06
+
+
+def test_synthetic_06_titled_fixture(generated, tmp_path):
+    fresh = generate_titled_fixture(project_06(), tmp_path)
+    name = "synthetic-06-titled"
+    for rel in (f"{name}.dxf", "truth/building.json"):
+        assert (TITLED_06 / rel).read_bytes() == (tmp_path / name / rel).read_bytes(), \
+            f"tests/fixtures/{name}/{rel} is stale: run python -m wenart.synthetic.generate --out projects"
+    assert sorted(p.relative_to(TITLED_06).as_posix() for p in TITLED_06.rglob("*") if p.is_file()) == [
+        f"{name}.dxf", "truth/building.json"]
+    project = truth(generated, "synthetic-06")
+    doc = fresh["documents"][0]
+    assert (doc["file"], doc["format"], doc["converter"]) == (f"{name}.dxf", "dxf", None)
+    page = doc["pages"][0]
+    assert (page["level_label_raw"], page["classifier"], page["confidence"]) == ("GROUND FLOOR PLAN", "title", 1.0)
+    level = fresh["levels"][0]
+    assert (level["label"], level["label_source"]) == ("Ground Floor", "title")
+    assert level["evidence"][0]["text"] == "GROUND FLOOR PLAN" and level["evidence"][0]["entity"].startswith("TEXT:")
+    assert not any("level title missing" in w for w in fresh["warnings"])
+    # Everything drawn is the same as in the untitled project, evidence included: the title is written last, so
+    # every other entity keeps its handle.
+
+    def same(elements):
+        return json.loads(json.dumps(elements).replace(f"{name}.dxf", "synthetic-06.dwg"))
+
+    for key in ("walls", "openings", "rooms", "furniture"):
+        assert same(fresh[key]) == project[key], key
+    texts = [e.dxf.text for e in recover.readfile(str(TITLED_06 / f"{name}.dxf"))[0].modelspace().query("TEXT")]
+    assert "GROUND FLOOR PLAN" in texts

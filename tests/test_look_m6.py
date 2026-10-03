@@ -999,7 +999,7 @@ PULL_SCRIPT = textwrap.dedent("""
     spec = json.load(open(sys.argv[sys.argv.index("--") + 1]))
     out = Path(spec["out"])
     code = R.main(["--out", str(out), "--cameras", spec["camera"], "--samples", "8", "--res", "128x72",
-                   "--device", "cpu", "--alt-look", "AgX - Punchy", "--preview-quality", "85"])
+                   "--device", "cpu", "--alt-look", "None", "--preview-quality", "85"])
     res = {"code": code}
     scene = bpy.context.scene
     result = bpy.data.images["Render Result"]
@@ -1023,11 +1023,13 @@ PULL_SCRIPT = textwrap.dedent("""
         pulled = R.save_display(scene, result, tmp, ev - pull["k"])
         res["final_is_blend"] = bool(np.array_equal(R.blend_pull(plain, pulled, weights), final))
         res["clip_after"] = R.clip_share(final, mask)
-    # Alt look: outside the mask (grown by two JPEG blocks) the alt preview equals a plain alt-look save.
+    # Alt look (M7: None, the old default): outside the mask (grown by two JPEG blocks) the alt preview
+    # equals a plain alt-look save.
     vs = scene.view_settings
-    vs.look, vs.exposure = "AgX - Punchy", ev
+    res["main_look"] = vs.look
+    vs.look, vs.exposure = "None", ev
     R.save_preview(scene, result, out / "plain_alt.jpg", 85)
-    vs.look = "None"
+    vs.look = R.LOOK
     def jpeg(p):
         return np.asarray(oiio.ImageBuf(str(p)).get_pixels(oiio.UINT8))[:, :, :3].astype(int)
     alt, plain_alt = jpeg(out / entry["alt_preview"]), jpeg(out / "plain_alt.jpg")
@@ -1075,7 +1077,8 @@ def test_row7_window_pull_changes_only_the_panes(pulled):
     assert pull["rule"] and pull["tried"][-1]["k"] == pull["k"] or pull["rule"].startswith("lowest")
     assert r["outside_max_diff"] == 0 and r["inside_changed"] > 0             # pixels outside the mask unchanged
     assert r["final_is_blend"]
-    assert pulled["manifest"]["render_code_version"] == "m6.1"
+    assert pulled["manifest"]["render_code_version"] == "m7.1" and pulled["manifest"]["look"] == "AgX - Punchy"
+    assert r["main_look"] == R.LOOK == "AgX - Punchy"                         # the pull saved with the main look
     assert e["exposure"]["window_clip_frac"] is not None and e["exposure"]["ev_offset"] == 0.0
 
 
@@ -1092,7 +1095,7 @@ def test_row10_alt_preview_has_the_same_pull(pulled):
     r, e = pulled["result"], pulled["entry"]
     assert e["alt_preview"] == f"{KITCHEN_CAM}_alt_preview.jpg" and (pulled["out"] / e["alt_preview"]).is_file()
     assert e["alt_preview_bytes"] == (pulled["out"] / e["alt_preview"]).stat().st_size
-    assert pulled["manifest"]["alt_look"] == "AgX - Punchy" and pulled["manifest"]["preview_quality"] == 85
+    assert pulled["manifest"]["alt_look"] == "None" and pulled["manifest"]["preview_quality"] == 85
     assert r["alt_far_max_diff"] == 0                                        # outside the mask: a plain alt save
     assert r["alt_mask_diff"] > 1.0                                          # the panes are pulled
     assert r["alt_vs_main_far_diff"] > 0.5                                   # another look than the main preview
@@ -1153,7 +1156,7 @@ def test_row12_render_stops_at_the_deadline(flat, pulled, tmp_path, monkeypatch)
     assert err.value.returncode == 3
     # Cameras whose files can be reused still count: nothing new to render, so the run is complete.
     path = cli.render(flat["scene"] / "scene.blend", pulled["out"], cameras=KITCHEN_CAM, samples=8, res="128x72",
-                      device="cpu", alt_look="AgX - Punchy", preview_quality=85)
+                      device="cpu", alt_look="None", preview_quality=85)
     m = json.loads(path.read_text(encoding="utf-8"))
     assert m["incomplete"] is False and m["renders"][0]["skipped"] is True and m["not_rendered"] == []
     monkeypatch.setenv("WENART_DEADLINE", "not a time")

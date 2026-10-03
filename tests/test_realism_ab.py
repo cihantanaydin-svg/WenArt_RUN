@@ -15,10 +15,22 @@ end to end on hand-made ``ab/`` folders with tiny JPEGs, resumable answers
 answers in combine, contact sheets, the summary table header of §6.3, the
 system prompt reaching the request, CLI usage errors and the ``check.yaml``
 realism block.
+
+Realism v2 (docs/milestone7.md §8.2, §11 V): the question template and the
+aspect cues verbatim from the spec, the question and the answer enum
+alternating with the order, the v2 schema, keys and files, outcomes over the
+per-aspect calls, the 32 look_alt cameras (furniture share, <= 2 per room,
+round-robin over the projects), ``ab/pairs_v2.json`` (control sets from the
+control project's M6 ``ab/`` renders, the M6 pairs file untouched), a fake
+judge end to end (8 calls per pair, ``null_identical`` one call at a time,
+controls, the look_alt decision), the named-first confound caught by the
+null control, resumable answers and CLI usage.
 """
 import json
 import re
+import threading
 import time
+from collections import Counter
 from pathlib import Path
 
 import jsonschema
@@ -902,3 +914,375 @@ def test_check_yaml_realism_block():
     assert RZ.realism_cfg() == {**RZ.DEFAULTS, "targets": RZ.DEFAULTS["targets"]}
     assert RZ.realism_cfg({"models": {}}) == RZ.DEFAULTS
     assert RZ.realism_cfg({"realism": {"min_rooms": 5, "targets": {"wrong_max": 0.1}}})["targets"]["wrong_max"] == 0.1
+
+
+# ==========================================================================
+# Realism v2 (docs/milestone7.md §8.2): one aspect per call, both orders, image order also in the question
+# ==========================================================================
+
+SPEC7 = ROOT / "docs" / "milestone7.md"
+
+
+def spec7_section(heading: str) -> str:
+    text = SPEC7.read_text(encoding="utf-8")
+    start = text.index(heading)
+    end = text.find("\n### ", start + len(heading))
+    end2 = text.find("\n## ", start + len(heading))
+    ends = [e for e in (end, end2) if e > 0]
+    return text[start:min(ends) if ends else None]
+
+
+def test_v2_template_and_cues_are_verbatim_from_the_spec():
+    section = spec7_section("### 8.2")
+    block = re.search(r"```text\n(.*?)\n```", section, re.S).group(1)
+    assert block == RZ.PROMPT2_TEMPLATE
+    after = " ".join(section[section.index("```", section.index("```text") + 3) + 3:].split())
+    cues = dict(re.findall(r"(materials|lighting|furniture|photo) — \"([^\"]+)\"", after))
+    assert cues == RZ.ASPECT_CUES2 and list(cues) == list(RZ.ASPECTS)
+    assert '"Image 1"/"Image 2" for `ab`, swapped for `ba`' in after
+
+
+@pytest.mark.parametrize("order, first, second, enum", [
+    ("ab", "Image 1", "Image 2", ["image_1", "image_2"]),
+    ("ba", "Image 2", "Image 1", ["image_2", "image_1"]),
+])
+def test_v2_question_and_enum_alternate_with_the_order(order, first, second, enum):
+    for aspect in RZ.ASPECTS:
+        text = RZ.prompt2(aspect, order)
+        assert text.splitlines() == [
+            "Look at the two images. Both show the same interior from the same camera.",
+            f"Question: which image looks more like a real photograph in its {aspect}? Compare {first} with "
+            f"{second}.",
+            f"Judge only {aspect}: {RZ.ASPECT_CUES2[aspect]}",
+            f"Answer with the image whose {aspect} is more photographic. There is no tie."]
+    schema = S.realism2_schema(order)
+    jsonschema.Draft202012Validator.check_schema(schema)
+    assert schema["properties"]["winner"]["enum"] == enum and schema["required"] == ["winner", "confidence"]
+    assert schema["additionalProperties"] is False and set(schema["properties"]) == {"winner", "confidence"}
+    assert schema_errors(schema, {"winner": enum[0], "confidence": 0.6}) == []
+    for bad in ({"winner": "same", "confidence": 0.5}, {"winner": "image_1"}, {"winner": "image_2", "confidence": 2},
+                {"winner": "image_1", "confidence": 0.5, "margin": "large"}):
+        assert schema_errors(schema, bad)
+    with pytest.raises(KeyError):
+        S.realism2_schema("aa")
+
+
+def test_v2_keys_files_and_outcomes():
+    assert RZ.call_key2(RZ.pair_id("ctl_flat", "cam_1"), "photo", "ba") == "realism2|ctl_flat:cam_1|photo|ba"
+    assert RZ.answers_path(Path("/o"), "glm-4.6v-flash", RZ.V2) == \
+        Path("/o/check/realism/answers_realism2_glm-4.6v-flash.json")
+    assert RZ.answers_path(Path("/o"), "x") == Path("/o/check/realism/answers_x.json")             # M6 unchanged
+    assert RZ.V2.pairs_json == Path("ab/pairs_v2.json") and RZ.V1.pairs_json == Path("ab/pairs.json")
+    assert RZ.V2.set_order == S.REALISM2_SETS and "m5_vs_m6" not in RZ.V2.set_order and RZ.V2.ab_sets == ("look_alt",)
+    assert RZ.V2.calls_per_pair == 8 and RZ.V1.calls_per_pair == 2
+    assert (RZ.SETS2["look_alt"].a, RZ.SETS2["look_alt"].b) == ("renders/{cam}_preview.jpg",
+                                                                 "renders/{cam}_alt_preview.jpg")
+    assert all(RZ.SETS2[s] == RZ.SETS[s] for s in RZ.CONTROL_SETS + RZ.NULL_SETS + (RZ.NUISANCE_SET,))
+    w = {"winner": "image_2", "confidence": 0.9}
+    a = {"winner": "image_1", "confidence": 0.9}
+    assert RZ.model_outcome2(w, a)["outcome"] == "W" and RZ.model_outcome2(w, a)["graded"] == 2     # B both orders
+    assert RZ.model_outcome2(a, w)["outcome"] == "L" and RZ.model_outcome2(a, w)["graded"] == -2
+    assert RZ.model_outcome2(a, a)["outcome"] == "T" and RZ.model_outcome2(a, a)["graded"] == 0    # follows position
+    rec = RZ.model_outcome2(w, None)
+    assert rec["outcome"] == "NC" and rec["graded"] is None and rec["winners"] == ["image_2", None]
+    assert RZ.select_sets("look_alt,ctl_flat", None, RZ.V2) == ["ctl_flat", "look_alt"]
+    with pytest.raises(Exception):
+        RZ.select_sets("m5_vs_m6", None, RZ.V2)
+
+
+def write_main(root: Path, name: str, rooms: int, per_room: int, alt: bool = True, look=("AgX - Punchy", "None"),
+               share=None) -> Path:
+    """``root/outputs/<name>/renders/`` + ``scene/`` of an M7 full run with ``--alt-look None`` (look_alt)."""
+    out = root / "outputs" / name
+    cams = [(f"cam_{name[-2:]}_r{r}_{i}", f"r_{r}") for r in range(rooms) for i in range(1, per_room + 1)]
+    entries = []
+    for k, (cam, room) in enumerate(cams):
+        jpeg(out / "renders" / f"{cam}_preview.jpg", 120)
+        if alt:
+            jpeg(out / "renders" / f"{cam}_alt_preview.jpg", 135)
+        px = share(k) if share else 10 + k
+        entries.append({"camera": cam, "room_id": room, "resolution": [32, 18], "preview": f"{cam}_preview.jpg",
+                        "index_stats": {"1": {"pixels": px, "box": [0, 0, 8, 8]}}})
+    (out / "renders" / "render_manifest.json").write_text(json.dumps(
+        {"schema_version": "0.1", "look": look[0], "alt_look": look[1], "renders": entries}), encoding="utf-8")
+    (out / "scene").mkdir(parents=True, exist_ok=True)
+    (out / "scene" / "scene_manifest.json").write_text(json.dumps(
+        {"project": name, "objects": [{"wenart_id": "f_1", "kind": "furniture", "type": "sofa", "pass_index": 1}],
+         "cameras": [{"name": c, "room_id": r} for c, r in cams]}), encoding="utf-8")
+    return out
+
+
+def test_look_alt_selection_32_cameras_two_per_room_round_robin(tmp_path):
+    a = write_main(tmp_path, "synthetic-03", rooms=10, per_room=3)     # 30 cameras, 20 within 2 per room
+    b = write_main(tmp_path, "synthetic-05", rooms=6, per_room=3)      # 12 within the room limit
+    c = write_main(tmp_path, "synthetic-04", rooms=2, per_room=2)      # 4
+    sel = RZ.look_alt_selection([a, b, c], 32, 2)
+    assert sel == RZ.look_alt_selection([c, b, a], 32, 2)              # the order of the outputs does not matter
+    counts = {Path(k).name: len(v) for k, v in sel.items()}
+    assert counts == {"synthetic-03": 16, "synthetic-04": 4, "synthetic-05": 12} and sum(counts.values()) == 32
+    for cams in sel.values():
+        rooms = Counter(cam.rsplit("_", 1)[0] for cam in cams)
+        assert max(rooms.values()) <= 2
+    # Ranked by furniture share (the later cameras of write_main have more), ties by name.
+    ranking = RZ.look_alt_ranking(a, 2)
+    assert ranking[0] == "cam_03_r9_3" and ranking[1] == "cam_03_r9_2" and "cam_03_r9_1" not in ranking
+    assert sel[str(a.resolve())][:2] == ranking[:2]
+    # Cameras without both previews are not eligible; a project without renders gives none (warned).
+    noalt = write_main(tmp_path, "synthetic-06", rooms=2, per_room=1, alt=False)
+    warnings = []
+    assert RZ.look_alt_ranking(noalt, 2, warnings) == [] and "without both previews" in warnings[0]
+    assert RZ.look_alt_selection([tmp_path / "nothing"], 32, 2, warnings) == {str((tmp_path / "nothing").resolve()): []}
+
+
+def test_v2_pairs_file(tmp_path):
+    ctl = write_ab(tmp_path, "synthetic-01", rooms=4, per_room=3, controls=True)
+    write_main(tmp_path, "synthetic-01", rooms=3, per_room=2)
+    m6_pairs = ctl / "ab" / "pairs.json"
+    m6_pairs.write_text('{"kind": "realism_pairs", "m6": true}', encoding="utf-8")
+    ab3 = write_main(tmp_path, "synthetic-03", rooms=12, per_room=2)
+    # The control project is not an A/B project: control sets only.
+    assert main(["realism2-pairs", "--project-out", str(ctl), "--controls", "--project-outs", str(ab3)]) == 0
+    doc = read(ctl / "ab" / "pairs_v2.json")
+    jsonschema.validate(doc, S.realism_pairs_file_schema(2))
+    with pytest.raises(jsonschema.ValidationError):
+        jsonschema.validate(doc, S.realism_pairs_file_schema())                  # a v1 file it is not
+    assert m6_pairs.read_text(encoding="utf-8") == '{"kind": "realism_pairs", "m6": true}'   # M6 file untouched
+    assert doc["kind"] == "realism2_pairs" and doc["controls"] is True and doc["look_alt"]["selected"] == []
+    assert doc["sets"] == {"ctl_flat": 8, "ctl_proxy": 8, "ctl_direct": 8, "ctl_lowspp": 8, "null_identical": 8,
+                           "null_reencode": 8, "nuisance_ev": 8}
+    assert doc["control_views"] == [c for c, _ in cams_of(4, 3)][::-1][:8]      # the M6 rule on the M6 renders
+    p = next(p for p in doc["pairs"] if p["set"] == "ctl_proxy")
+    assert (p["a"], p["b"]) == (f"ab/ctl_proxy/renders/{p['cam']}_preview.jpg", f"ab/renders/{p['cam']}_preview.jpg")
+    assert p["room_id"] == "r_3" and p["target_aspect"] == "furniture" and p["expected"] == "b"
+    assert (ctl / "ab" / "null_reencode" / f"{p['cam']}_reencode.jpg").is_file()
+    # An A/B project: look_alt from its main renders (A Punchy, B None).
+    assert main(["realism2-pairs", "--project-out", str(ab3), "--project-outs", str(ab3)]) == 0
+    doc = read(ab3 / "ab" / "pairs_v2.json")
+    jsonschema.validate(doc, S.realism_pairs_file_schema(2))
+    assert doc["sets"] == {"look_alt": 24} and doc["look_alt"]["looks"] == {"a": "AgX - Punchy", "b": "None"}
+    la = doc["pairs"][0]
+    assert (la["a"], la["b"]) == (f"renders/{la['cam']}_preview.jpg", f"renders/{la['cam']}_alt_preview.jpg")
+    assert la["delta_ev"] > 0 and la["room_id"] and la["expected"] is None and doc["warnings"] == []
+    assert not (ab3 / "ab" / "pairs.json").exists()
+    # Without --controls a project with no look_alt camera has no pair: exit 1; --controls without M6 renders: 1.
+    assert main(["realism2-pairs", "--project-out", str(ctl), "--project-outs", str(ab3)]) == 1
+    assert main(["realism2-pairs", "--project-out", str(ab3), "--controls"]) == 1
+    # Other looks are reported.
+    odd = write_main(tmp_path, "synthetic-04", rooms=1, per_room=1, look=("AgX - Punchy", "AgX - Base Contrast"))
+    assert any("not 'AgX - Punchy' and 'None'" in w for w in RZ.build_pairs2(odd)["warnings"])
+
+
+def smart_score2(path, aspect: str) -> int:
+    """A judge that sees every degradation and prefers look None (B) on every aspect of look_alt."""
+    if Path(str(path)).name.endswith("_alt_preview.jpg"):
+        return 2
+    return smart_score(path, aspect)
+
+
+class FakeJudge2:
+    """v2 judge: reads the aspect from the question and the enum from the schema; equal scores pick image 1
+    (shown first: T); ``named_first``: equal scores pick the image the question names first (enum[0]: L).
+    Records the calls in flight per set."""
+
+    def __init__(self, model="fake/judge", blind=False, score=smart_score2, delay=0.0, named_first=False):
+        self.model = model
+        self.blind = blind
+        self.score = score
+        self.delay = delay
+        self.named_first = named_first
+        self.calls = []
+        self.lock = threading.Lock()
+        self.active = 0
+        self.max_active: dict = {}
+
+    def run_schema(self, images, prompt, schema, *, seed=0, task="custom", max_side=None, labels=None,
+                   system_prompt=None):
+        set_name = task.split(":", 1)[1]
+        with self.lock:
+            self.active += 1
+            self.max_active[set_name] = max(self.max_active.get(set_name, 0), self.active)
+            self.calls.append({"images": [str(i) for i in images], "prompt": prompt, "task": task, "labels": labels,
+                               "system_prompt": system_prompt, "enum": schema["properties"]["winner"]["enum"]})
+        try:
+            if self.delay:
+                time.sleep(self.delay)
+            aspect = re.search(r"^Judge only (\w+):", prompt, re.M).group(1)
+            enum = schema["properties"]["winner"]["enum"]
+            s1, s2 = self.score(images[0], aspect), self.score(images[1], aspect)
+            if self.blind or s1 == s2:
+                winner = enum[0] if self.named_first else "image_1"
+            else:
+                winner = "image_1" if s1 > s2 else "image_2"
+            data = {"winner": winner, "confidence": 0.8}
+            assert not schema_errors(schema, data)
+            return VLMResult(task=task, model=self.model, data=data, raw_text=json.dumps(data), latency_s=0.01,
+                             attempts=1)
+        finally:
+            with self.lock:
+                self.active -= 1
+
+
+def run_all2(tmp_path, judges, workers="2"):
+    """Control project synthetic-01 (M6 ab/ renders, not an A/B project) and two A/B projects (look_alt)."""
+    ctl = write_ab(tmp_path, "synthetic-01", rooms=6, per_room=3, controls=True)
+    ab3 = write_main(tmp_path, "synthetic-03", rooms=8, per_room=3)
+    ab5 = write_main(tmp_path, "synthetic-05", rooms=8, per_room=3)
+    f = factory_for(judges)
+    abs_ = [str(ab3), str(ab5)]
+    assert main(["realism2-pairs", "--project-out", str(ctl), "--controls", "--project-outs", *abs_]) == 0
+    for out in (ab3, ab5):
+        assert main(["realism2-pairs", "--project-out", str(out), "--project-outs", *abs_]) == 0
+    for out in (ctl, ab3, ab5):
+        for key in MODELS:
+            assert main(["realism2", "--project-out", str(out), "--model-key", key, "--server", "http://x:8001/v1",
+                         "--workers", workers], client_factory=f) == 0
+        assert main(["realism2-combine", "--project-out", str(out), "--models", "qwen,glm"]) == 0
+    dest = tmp_path / "results" / "realism"
+    assert main(["realism2-summary", "--project-outs", *abs_, "--controls-project", str(ctl), "--out", str(dest),
+                 "--models", "qwen,glm"]) == 0
+    return ctl, ab3, ab5, dest
+
+
+def test_v2_end_to_end_with_fake_judges(tmp_path):
+    judges = {"qwen": FakeJudge2("fake/qwen", delay=0.003), "glm": FakeJudge2("fake/glm", blind=True)}
+    ctl, ab3, ab5, dest = run_all2(tmp_path, judges)
+    calls = judges["qwen"].calls
+    assert len(calls) == 8 * (7 * 8 + 16 + 16)                   # 8 calls per pair; 32 look_alt pairs in all
+    assert all(c["system_prompt"] == RZ.SYSTEM_PROMPT and c["labels"] == ["Image 1:", "Image 2:"] for c in calls)
+    # Controls first (one project), each pair: every aspect in both orders, the question and enum alternating.
+    first8 = calls[:8]
+    assert [c["task"] for c in first8] == ["realism2:ctl_flat"] * 8
+    assert [re.search(r"Judge only (\w+):", c["prompt"]).group(1) for c in first8] == [
+        a for a in RZ.ASPECTS for _ in RZ.ORDERS]
+    assert first8[0]["images"] == list(reversed(first8[1]["images"]))
+    assert "Compare Image 1 with Image 2." in first8[0]["prompt"] and first8[0]["enum"] == ["image_1", "image_2"]
+    assert "Compare Image 2 with Image 1." in first8[1]["prompt"] and first8[1]["enum"] == ["image_2", "image_1"]
+    # null_identical one call at a time, the other sets two.
+    assert judges["qwen"].max_active["null_identical"] == 1 and judges["qwen"].max_active["ctl_flat"] == 2
+    # Answers: own file per model, v2 keys; the M6 answers file is never written.
+    ans = read(ctl / "check" / "realism" / "answers_realism2_qwen3-vl-8b.json")
+    assert not (ctl / "check" / "realism" / "answers_qwen3-vl-8b.json").exists() and ans["incomplete"] is False
+    cam = read(ctl / "ab" / "pairs_v2.json")["control_views"][0]
+    rec = ans["calls"][f"realism2|ctl_flat:{cam}|materials|ba"]
+    assert rec["prompt_kind"] == "realism2" and rec["order"] == "ba" and rec["data"]["winner"] == "image_1"
+    assert rec["prompt"] == RZ.prompt2("materials", "ba") and rec["labels"] == {"image_1": "b", "image_2": "a"}
+    assert len(ans["calls"]) == 8 * 7 * 8
+    # Per project: outcomes over the per-aspect calls; controls for the control project only.
+    ab1 = read(ctl / "check" / "realism" / "realism2_ab.json")
+    jsonschema.validate(ab1, S.realism_ab_schema(2))
+    assert keys_named(ab1, "decision") == [] and ab1["controls"]["signal"] == {"qwen": True, "glm": False}
+    row = next(r for r in ab1["rows"] if r["set"] == "ctl_flat")
+    assert row["models"]["qwen"]["aspects"]["materials"]["outcome"] == "W"
+    assert row["models"]["qwen"]["aspects"]["photo"]["outcome"] == "T"            # one aspect per call: no halo
+    assert set(row["models"]["qwen"]["calls"]) == set(RZ.V2.call_names)
+    assert ab1["controls"]["halo"]["qwen"]["share"] == 0.0
+    assert {(c["set"], c["expected"], c["status"]) for c in ab1["calls"] if c["model"] == "qwen"} == {
+        (s, 64, "complete") for s in S.REALISM2_SETS if s != "look_alt"}
+    sheets = ab1["contact_sheets"]
+    assert sheets["ctl_flat"] == ["contact_realism2_ctl_flat_1.jpg"]
+    assert (ctl / "check" / "realism" / "realism2_report.md").read_text(encoding="utf-8").startswith(
+        "# Realism A/B v2 – synthetic-01")
+    ab3_doc = read(ab3 / "check" / "realism" / "realism2_ab.json")
+    assert ab3_doc["controls"] is None and set(ab3_doc["sets"]) == {"look_alt"} and ab3_doc["sets"]["look_alt"][
+        "pairs"] == 16
+    # Summary: controls from the control project (an output folder), decision for look_alt only.
+    summary = read(dest / "realism2_summary.json")
+    jsonschema.validate(summary, S.realism_summary_schema(2))
+    assert summary["kind"] == "realism2_summary" and set(summary["sets"]) == {"look_alt"}
+    assert summary["controls_project"] == "synthetic-01" and summary["single_model"] is True
+    la = summary["sets"]["look_alt"]
+    assert la["decision"] == "better" and la["pairs"] == 32 and la["rooms"] == 16
+    assert la["aspects"]["photo"]["consensus"] == {"W": 32, "L": 0, "T": 0, "NC": 0}
+    assert la["aspects"]["photo"]["models"]["qwen"]["mean_graded"] == 2.0
+    md = (dest / "realism2_summary.md").read_text(encoding="utf-8")
+    assert md.startswith("# Realism A/B v2 summary") and "| look_alt | **better** | yes | 32 | 16 |" in md
+    assert not (dest / "realism_summary.json").exists()
+
+
+def test_v2_null_controls_catch_a_judge_that_prefers_the_image_named_first(tmp_path):
+    """The v2 question always names A first: a judge that picks the first-named image reads as L in both orders,
+    so the identical pairs flip and the null control removes its signal (the documented confound)."""
+    judges = {"qwen": FakeJudge2("fake/qwen"), "glm": FakeJudge2("fake/glm", named_first=True)}
+    ctl, _, _, dest = run_all2(tmp_path, judges)
+    ctrl = read(ctl / "check" / "realism" / "realism2_ab.json")["controls"]
+    ni = ctrl["sets"]["null_identical"]["models"]
+    assert ni["qwen"]["tie_rate"] == 1.0 and ni["glm"]["tie_rate"] == 0.0 and len(ni["glm"]["flips"]) == 32
+    assert ctrl["signal"]["glm"] is False and "null_identical" in ctrl["failed_sets"]["glm"]
+
+
+def test_v2_answers_are_resumable_and_a_changed_image_is_asked_again(tmp_path):
+    out = write_main(tmp_path, "synthetic-03", rooms=2, per_room=2)
+    judge = FakeJudge2("fake/qwen")
+    f = factory_for({"qwen": judge})
+    args = ["realism2", "--project-out", str(out), "--model-key", "qwen"]
+    assert main(["realism2-pairs", "--project-out", str(out)]) == 0
+    assert main(args, client_factory=f) == 0 and len(judge.calls) == 8 * 4
+    assert main(args, client_factory=f) == 0 and len(judge.calls) == 32               # nothing asked again
+    jpeg(out / "renders" / "cam_03_r1_2_alt_preview.jpg", 60)
+    assert main(args, client_factory=f) == 0
+    assert len(judge.calls) == 40 and {c["images"][0].split("/")[-1] for c in judge.calls[32:]} >= {
+        "cam_03_r1_2_preview.jpg"}
+    doc = RZ.combine(out, ["qwen"], proto=RZ.V2)
+    assert any("changed after realism-pairs" in w for w in doc["warnings"])
+    # A past deadline: nothing asked, the file is incomplete (over every segment).
+    judge2 = FakeJudge2("fake/qwen-2")
+    assert main(args + ["--deadline", str(time.time() - 1)], client_factory=factory_for({"qwen": judge2})) == 0
+    assert judge2.calls == [] and read(out / "check" / "realism" / "answers_realism2_qwen3-vl-8b.json")["incomplete"]
+    # Stale answers (another model id) are not used by combine: NC, never a tie or a loss.
+    doc = RZ.combine(out, ["qwen"], proto=RZ.V2)
+    assert {r["consensus"]["photo"] for r in doc["rows"]} == {"NC"}
+
+
+def test_run_realism2_segments_the_serial_set():
+    specs = [C_spec("ctl_flat"), C_spec("null_identical"), C_spec("null_identical"), C_spec("null_reencode")]
+
+    class Store:
+        def __init__(self):
+            self.data = {"incomplete": False}
+
+        def save(self):
+            pass
+
+    seen = []
+
+    def fake_run_specs(seg, store, client, **kw):
+        seen.append((kw["workers"], [s.image_kind for s in seg]))
+        return {"asked": len(seg), "reused": 0, "failed": 0, "left": 1 if kw["workers"] == 1 else 0,
+                "incomplete": kw["workers"] == 1}
+
+    import wenart.vision_check.calls as Cmod
+    old = Cmod.run_specs
+    Cmod.run_specs = fake_run_specs
+    try:
+        stats = RZ.run_realism2(specs, Store(), None, workers=4, serial_workers=1)
+    finally:
+        Cmod.run_specs = old
+    assert seen == [(4, ["ctl_flat"]), (1, ["null_identical", "null_identical"]), (4, ["null_reencode"])]
+    assert stats["asked"] == 4 and stats["left"] == 1 and stats["incomplete"] is True
+
+
+def C_spec(set_name):
+    from wenart.vision_check.calls import CallSpec
+    return CallSpec(key=f"k|{set_name}", camera="c", image_kind=set_name, prompt_kind="realism2", prompt="",
+                    schema={}, images=[], image_labels=[], size=(1, 1))
+
+
+def test_v2_cli_usage_and_config(tmp_path, capsys):
+    out = write_main(tmp_path, "synthetic-03", rooms=1, per_room=1)
+    f = factory_for({"qwen": FakeJudge2()})
+    assert main(["realism2", "--project-out", str(out), "--model-key", "qwen"], client_factory=f) == 1   # no pairs
+    assert main(["realism2-combine", "--project-out", str(out)]) == 1
+    assert main(["realism2-pairs", "--project-out", str(out)]) == 0
+    assert main(["realism2", "--project-out", str(out), "--model-key", "qwen", "--sets", "m5_vs_m6"],
+                client_factory=f) == 2
+    assert main(["realism2", "--project-out", str(out), "--model-key", "llava"], client_factory=f) == 2
+    with pytest.raises(SystemExit):
+        main(["realism2-summary", "--project-outs", str(out)])                       # no --out
+    assert main(["realism2-summary", "--project-outs", str(tmp_path / "missing"), "--out", str(tmp_path / "r")]) == 1
+    from wenart.vision_check.config import load_config
+    block = load_config()["realism2"]
+    assert block == {"look_alt_cameras": 32, "look_alt_per_room": 2, "null_identical_workers": 1}
+    assert RZ.realism2_cfg() == RZ.DEFAULTS2 and RZ.realism2_cfg({"realism2": {"look_alt_cameras": 8}})[
+        "look_alt_cameras"] == 8
+    # The v1 commands and files stay as they were (M6 tests above); the protocols differ only in files and keys.
+    assert RZ.protocol_of({"kind": "realism2_ab"}) is RZ.V2 and RZ.protocol_of({"kind": "realism_ab"}) is RZ.V1

@@ -585,3 +585,100 @@ def test_door_swing_side_through_thick_wall(tmp_path):
         if door["type"] == "door" and door["id"] not in (banyo_door["id"], lost_door["id"]):
             assert door["swing_side"] == truth[tuple(door["center"])]["swing_side"]
     B.validate(building)
+
+
+# --------------------------------------------------------------------------
+# Milestone 7: generic pages (docs/milestone7.md §1.2-§1.4, §2.1, §2.2, §2.9)
+# --------------------------------------------------------------------------
+
+def test_dxf_without_synthetic_layers_goes_through_the_generic_core(tmp_path):
+    """synthetic-06's DXF (A-WALL hatch, blocks, feet and inches, no title): walls, doors and windows as in its
+    truth, furniture typed by block names, the level assumed, imperial units."""
+    project = tmp_path / "synthetic-06"
+    project.mkdir()
+    shutil.copyfile(PROJECTS / "synthetic-06" / "source" / "synthetic-06.dxf", project / "synthetic-06.dxf")
+    building = build_project(project, tmp_path / "out", no_ai=True)
+    truth = B.load(PROJECTS / "synthetic-06" / "truth" / "building.json")
+    B.validate(building)
+    assert building["status"] == "ok" and building["project"]["unit_system"] == "imperial"
+    doc = building["documents"][0]
+    assert (doc["unit_system"], doc["source_kind"], doc["pages"][0]["classifier"]) == ("imperial", "dxf",
+                                                                                       "generic_labels")
+    assert doc["pages"][0]["scale"]["method"] == "dxf_insunits"
+    assert doc["pages"][0]["transform_to_building"][0] == 0.0254
+    assert building["levels"][0]["label_source"] == "assumed"
+    assert "level title missing: assumed L0 Ground floor" in building["warnings"]
+    assert len(building["walls"]) == len(truth["walls"])
+    for t in truth["walls"]:
+        assert sum(1 for w in building["walls"] if abs(w["thickness"] - t["thickness"]) <= 0.005 and min(
+            G.distance(w["start"], t["start"]) + G.distance(w["end"], t["end"]),
+            G.distance(w["start"], t["end"]) + G.distance(w["end"], t["start"])) <= 0.02) == 1, t["id"]
+    for t in [o for o in truth["openings"] if o["type"] in ("door", "window")]:
+        hits = [o for o in building["openings"] if o["type"] == t["type"]
+                and G.distance(o["center"], t["center"]) <= 0.02 and abs(o["width"] - t["width"]) <= 0.02]
+        assert len(hits) == 1, t["id"]
+        assert hits[0]["assumed"] == t["assumed"] and hits[0]["height"] == t["height"]
+    by_type = {}
+    for f in building["furniture"]:
+        if f["type_method"] == "block_name" and f["status"] == "verified":
+            by_type[f["type"]] = by_type.get(f["type"], 0) + 1
+    assert by_type.get("bed_double") == 1 and by_type.get("sofa") == 1 and by_type.get("table_dining") == 1
+    assert by_type.get("chair") == 6 and by_type.get("washbasin") == 1
+    assert {f["type_raw"] for f in building["furniture"] if f["type"] == "chair"} == {"DINING-6/CHAIR"}
+    # Every room name of the drawing names a room (or, while two names share a face, is listed in a conflict).
+    named = " ".join([r["label_raw"] or "" for r in building["rooms"]]
+                     + [c["description"] for c in building["conflicts"]])
+    assert all(t["label_raw"] in named for t in truth["rooms"])
+    assert not (building.get("site") or {}).get("boundary_walls")
+    report = (tmp_path / "out" / "report.md").read_text(encoding="utf-8")
+    assert "## Units" in report and "Project unit system: **imperial**" in report
+
+
+def test_several_untitled_plan_pages_need_review(tmp_path):
+    project = tmp_path / "two"
+    project.mkdir()
+    shutil.copyfile(PROJECTS / "real01" / "real01.pdf", project / "a.pdf")
+    shutil.copyfile(PROJECTS / "real01" / "real01.pdf", project / "b.pdf")
+    building = build_project(project, tmp_path / "out")
+    assert building["status"] == "needs_review" and building["levels"] == []
+    assert any("cannot order untitled plan pages (a.pdf p1, b.pdf p1)" in w for w in building["warnings"])
+    assert not (tmp_path / "out" / "recognition" / "requests.json").exists()
+
+
+def test_text_drawn_as_geometry_needs_review(tmp_path):
+    from reportlab.pdfgen import canvas as rl_canvas
+    project = tmp_path / "shx"
+    project.mkdir()
+    c = rl_canvas.Canvas(str(project / "plan.pdf"), pagesize=(842, 595))
+    c.line(100, 100, 400, 100)
+    c.line(100, 100, 100, 300)
+    c.showPage()
+    c.save()
+    building = build_project(project, tmp_path / "out")
+    assert building["status"] == "needs_review"
+    assert any("text drawn as geometry" in w and w.startswith("needs review") for w in building["warnings"])
+
+
+def test_dwg_next_to_a_dxf_of_the_same_name_is_not_a_review_reason(tmp_path):
+    project = tmp_path / "p"
+    project.mkdir()
+    (project / "zemin_kat.dwg").write_bytes(b"AC1015" + b"\0" * 64)
+    shutil.copyfile(PROJECTS / "synthetic-01" / "zemin_kat.dxf", project / "zemin_kat.dxf")
+    building = build_project(project, tmp_path / "out")
+    assert building["status"] == "ok"
+    assert "zemin_kat.dwg: DXF of the same name is used" in building["warnings"]
+    assert not any(w.startswith("needs review") for w in building["warnings"])
+    page = next(d for d in building["documents"] if d["format"] == "dwg")["pages"][0]
+    assert page["skip_reason"] == "DXF of the same name is used"
+
+
+def test_old_extractors_write_no_m7_only_fields(built):
+    """The synthetic projects keep their shape: no site, no type_method; levels say their label came from a title."""
+    building, _ = built["synthetic-01"]
+    assert "site" not in building and "unit_system" not in building["project"]
+    assert all(lv["label_source"] == "title" for lv in building["levels"])
+    assert all("type_method" not in f for f in building["furniture"])
+    assert all(o["height"] is None and "assumed" not in o for o in building["openings"])
+    docs = {d["file"]: d for d in building["documents"]}
+    assert docs["zemin_kat.dxf"]["unit_system"] == "metric" and docs["zemin_kat.dxf"]["source_kind"] == "dxf"
+    assert docs["1_kat.pdf"]["pages"][0]["classifier"] == "title"

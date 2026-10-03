@@ -7,8 +7,10 @@ box (DXF millimetres or PDF points, origin bottom-left) for the debug image
 and one evidence dict that points at the source entity.
 
 The small text helpers at the end (``text_role``, ``parse_scale_text``,
-``parse_number``) are shared by the extractors and the classifier so the
-Turkish plan vocabulary is interpreted in one place.
+``parse_number``, ``normalise_level``) are shared by the extractors and the
+classifier so the plan vocabulary (Turkish, and since Milestone 7 English
+titles and imperial lengths) is interpreted in one place. Numbers go through
+``wenart.units`` (one parser for metric and imperial text).
 """
 from __future__ import annotations
 
@@ -17,6 +19,7 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 from wenart import building as B
+from wenart import units as U
 
 # Metres per PDF point at scale 1:1 (1 pt = 1/72 inch).
 METRES_PER_POINT = 0.0254 / 72.0
@@ -25,17 +28,27 @@ METRES_PER_POINT = 0.0254 / 72.0
 # that contains the probe is the swing side.
 DOOR_SWING_PROBE = 0.3
 
-_SCALE_RE = re.compile(r"(?:OLCEK|ÖLÇEK|OLÇEK|SCALE)\s*:?\s*1\s*[/:]\s*(\d+)", re.IGNORECASE)
-_NUMBER_RE = re.compile(r"^\s*(\d+(?:[.,]\d+)?)\s*(?:m|cm|mm)?\s*$", re.IGNORECASE)
+# A metric scale note; an imperial note (``SCALE 1/4" = 1'-0"``) is not 1:4 (generic.scale.note_ratio reads it).
+_SCALE_RE = re.compile(r"(?:OLCEK|ÖLÇEK|OLÇEK|SCALE)\s*:?\s*1\s*[/:]\s*(\d+)(?!\d|\.\d|\s*(?:\"|”|″|''|IN\b|INCH))",
+                       re.IGNORECASE)
 
-# Page class keywords (ASCII-folded, upper case), first match wins.
+# Page class keywords (ASCII-folded, upper case), first match wins: Turkish titles, then the English class words
+# of docs/milestone7.md §2.1 (``FURNITURE (LAYOUT) PLAN`` before ``FLOOR PLAN``: "FIRST FLOOR FURNITURE PLAN").
 CLASS_KEYWORDS = [
     ("MOBILYA", "furniture_plan"),
+    (re.compile(r"\bFURNITURE\s+(?:LAYOUT\s+)?PLAN"), "furniture_plan"),
     ("KAT PLANI", "floor_plan"),
+    (re.compile(r"\bFLOOR\s+PLAN"), "floor_plan"),
     ("KESIT", "section"),
     ("GORUNUS", "elevation"),
     ("VAZIYET", "site_plan"),
 ]
+
+# English level titles (§2.1): GROUND FLOOR, FIRST/SECOND/THIRD FLOOR, BASEMENT, <n>(st|nd|rd|th) FLOOR.
+_EN_ORDINALS = {"FIRST": 1, "SECOND": 2, "THIRD": 3}
+_EN_LEVEL_WORD_RE = re.compile(r"\b(GROUND|FIRST|SECOND|THIRD)\s+FLOOR\b")
+_EN_LEVEL_NUMBER_RE = re.compile(r"\b(\d+)\s*(ST|ND|RD|TH)\s+FLOOR\b")
+_EN_BASEMENT_RE = re.compile(r"\bBASEMENT\b")
 
 
 @dataclass
@@ -50,6 +63,10 @@ class TextItem:
     role: str = "other"              # title | scale | dimension | room_label | other
     evidence: Optional[dict] = None
     element_id: Optional[str] = None  # room id once a label is placed (pipeline)
+    # Milestone 7 (generic core): the label block this text stands for (``generic.labels.LabelBlock``: name lines,
+    # printed size and area, exterior flag) and whether the page is labelled in Turkish (casing, placeholder).
+    block: Optional[object] = None
+    turkish: Optional[bool] = None
 
 
 @dataclass
@@ -155,6 +172,8 @@ class LevelExtraction:
     candidates: list[dict] = field(default_factory=list)         # furniture candidates waiting for AI typing
     wall_mask_png: Optional[str] = None             # debug PNG of the wall mask
     notes: list[str] = field(default_factory=list)  # report lines (rules that fired, dropped separators, ...)
+    review: list[str] = field(default_factory=list) # needs_review reasons found while reading the page (generic core)
+    report: dict = field(default_factory=dict)      # generic core: data for the report and debug image (not saved)
 
     @property
     def metres_per_unit(self) -> Optional[float]:
@@ -172,35 +191,50 @@ class LevelExtraction:
 # --------------------------------------------------------------------------
 
 def parse_scale_text(text: str) -> Optional[int]:
-    """``ÖLÇEK 1/100`` -> 100; None when the text is not a scale note."""
+    """``ÖLÇEK 1/100`` -> 100; None when the text is not a (metric) scale note."""
     match = _SCALE_RE.search(B.fold_ascii(text).upper())
     return int(match.group(1)) if match else None
 
 
 def parse_number(text: str) -> Optional[float]:
-    """``3,45`` / ``3.45`` / ``345 cm`` -> metres as float; None if not a plain number.
+    """``3,45`` / ``3.45`` / ``345 cm`` -> metres as float; None if not a plain metric number.
 
-    Units: a bare number or ``m`` means metres; ``cm`` and ``mm`` are converted.
+    Units: a bare number or ``m`` means metres; ``cm`` and ``mm`` are converted (``wenart.units``; feet and
+    inches are lengths too, but not a plain number here: ``text_role`` calls them dimensions separately).
     """
-    match = _NUMBER_RE.match(text)
-    if not match:
-        return None
-    value = float(match.group(1).replace(",", "."))
-    lowered = text.lower()
-    if lowered.rstrip().endswith("mm"):
-        return value / 1000.0
-    if lowered.rstrip().endswith("cm"):
-        return value / 100.0
-    return value
+    length = U.parse_length(text)
+    return length.metres if length is not None and length.system == "metric" else None
 
 
 def page_class_for(text: str) -> Optional[str]:
     """Page class from the keywords in a title text, or None."""
     folded = B.fold_ascii(text).upper()
     for keyword, page_class in CLASS_KEYWORDS:
-        if keyword in folded:
+        if (keyword.search(folded) if isinstance(keyword, re.Pattern) else keyword in folded):
             return page_class
     return None
+
+
+def english_level_label(title_raw: str) -> Optional[tuple[str, int]]:
+    """English level title -> (label, order): ``GROUND FLOOR PLAN`` -> (``Ground floor``, 0); ``FIRST FLOOR`` ->
+    (``First floor``, 1); ``3RD FLOOR`` -> (``3rd floor``, 3); ``BASEMENT`` -> (``Basement``, -1); else None."""
+    upper = B.fold_ascii(title_raw).upper()
+    if _EN_BASEMENT_RE.search(upper):
+        return "Basement", -1
+    match = _EN_LEVEL_WORD_RE.search(upper)
+    if match:
+        word = match.group(1)
+        return f"{word.capitalize()} floor", _EN_ORDINALS.get(word, 0)
+    match = _EN_LEVEL_NUMBER_RE.search(upper)
+    if match:
+        n = int(match.group(1))
+        return f"{n}{match.group(2).lower()} floor", n
+    return None
+
+
+def normalise_level(title_raw: str) -> Optional[tuple[str, int]]:
+    """Level title (Turkish, ``building.normalise_level_label``, or English) -> (label, order), or None."""
+    return B.normalise_level_label(title_raw) or english_level_label(title_raw)
 
 
 def text_role(text: str) -> str:
@@ -210,8 +244,8 @@ def text_role(text: str) -> str:
         return "other"
     if parse_scale_text(stripped) is not None:
         return "scale"
-    if parse_number(stripped) is not None:
+    if parse_number(stripped) is not None or U.parse_length(stripped) is not None:
         return "dimension"
-    if page_class_for(stripped) is not None or B.normalise_level_label(stripped) is not None:
+    if page_class_for(stripped) is not None or normalise_level(stripped) is not None:
         return "title"
     return "room_label"

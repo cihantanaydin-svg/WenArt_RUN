@@ -1,4 +1,5 @@
-"""Model wrappers of the change gate (docs/milestone5.md §1.3, §1.6, §4.2): DAv2-Small, SAM 2.1, DINOv2.
+"""Model wrappers of the change gate (docs/milestone5.md §1.3, §1.6, §4.2): DAv2-Small, SAM 2.1, DINOv2;
+and the OWLv2 detector of the added-object check (docs/milestone7.md §8.1, ``Detector``).
 
 What: ``Models`` loads the three gate models lazily (first use) from the
 local folders of the pinned snapshots of ``models.yaml``
@@ -41,6 +42,21 @@ otherwise each model is moved to the GPU for its call and back to the CPU
 afterwards (``torch.cuda.empty_cache()`` after the move). ``release_gpu()``
 switches to that per-call path at any time (the polish's CUDA OOM retry).
 All three run in float32 (small models; the gate is a measurement).
+
+``Detector`` (OWLv2 ``google/owlv2-base-patch16-ensemble``, the ``detect``
+block of ``models.yaml``, outside the gate's ``models:`` so the gate key
+does not depend on it) loads ``Owlv2Processor`` and
+``Owlv2ForObjectDetection`` lazily from the local snapshot like the gate
+models and gives ``raw(rgb, texts) -> (logits [P, Q], pred_boxes [P, 4])``
+as float32 numpy: the class logits of every image patch for every text
+query and the patch boxes (centre x, centre y, width, height relative to
+the processor's padded square). ``wenart.gate.detect`` turns them into
+boxes (sigmoid, per-group NMS, scaling by the long side). Checked against
+the transformers 5.18.0 source (``models/owlv2/processing_owlv2.py``
+``__call__``: text padded to ``max_length``; ``image_processing_owlv2.py``:
+images padded to a square, then resized to 960 x 960;
+``modeling_owlv2.py`` ``Owlv2ObjectDetectionOutput.logits`` /
+``pred_boxes``); it runs on the pod only (``tests/gpu/test_detect.py``).
 
 torch and transformers are imported inside the methods only.
 """
@@ -247,3 +263,54 @@ class Models:
             return np.asarray(tokens, dtype=np.float32).reshape(gh, gw, -1)
         finally:
             self._release("dino")
+
+
+class Detector:
+    """Lazy OWLv2 wrapper of the added-object detector (see the module docstring)."""
+
+    def __init__(self, config: Optional[dict] = None, device: str = "cuda") -> None:
+        cfg = config if config is not None else load_models_config()
+        block = cfg.get("detect", cfg) if isinstance(cfg, dict) else None
+        if not isinstance(block, dict) or not block.get("repo") or not block.get("revision"):
+            raise KeyError("models.yaml lacks the detect block (repo, revision)")
+        self.config = block
+        self.device = device
+        self._loaded: Optional[tuple] = None             # (processor, model)
+        self.load_seconds: Optional[float] = None
+
+    def info(self) -> dict:
+        """``{"repo", "revision", "licence"}`` (recorded in every detection file and in the calibration)."""
+        return {"repo": self.config["repo"], "revision": self.config["revision"],
+                "licence": self.config.get("licence")}
+
+    def _load(self) -> tuple:
+        import time
+
+        import torch
+        from transformers import Owlv2ForObjectDetection, Owlv2Processor
+
+        from wenart.hfcache import local_snapshot
+        start = time.time()
+        path = str(local_snapshot(self.config["repo"], self.config["revision"], self.config.get("allow_patterns")))
+        proc = Owlv2Processor.from_pretrained(path)
+        model = Owlv2ForObjectDetection.from_pretrained(path, dtype=torch.float32)
+        model.eval()
+        model.to(self.device)
+        self.load_seconds = round(time.time() - start, 2)
+        return proc, model
+
+    def raw(self, rgb, texts) -> tuple[np.ndarray, np.ndarray]:
+        """``(logits [P, Q], pred_boxes [P, 4])`` float32 of one RGB uint8 image for the text queries ``texts``."""
+        import torch
+        from PIL import Image
+        if self._loaded is None:
+            self._loaded = self._load()
+        proc, model = self._loaded
+        image = Image.fromarray(np.ascontiguousarray(np.asarray(rgb, dtype=np.uint8)[:, :, :3]))
+        inputs = proc(text=[list(texts)], images=image, return_tensors="pt")
+        inputs = {k: v.to(self.device) for k, v in inputs.items()}
+        with torch.inference_mode():
+            outputs = model(**inputs)
+        logits = outputs.logits[0].float().cpu().numpy()
+        boxes = outputs.pred_boxes[0].float().cpu().numpy()
+        return np.asarray(logits, dtype=np.float32), np.asarray(boxes, dtype=np.float32)

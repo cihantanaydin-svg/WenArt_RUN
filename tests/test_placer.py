@@ -153,6 +153,21 @@ def test_window_rule_height_vs_sill():
     assert low["windows_free"] is False and bed["windows_free"] is True
 
 
+def test_documented_only_types_have_heights_and_count_as_obstacles():
+    """docs/milestone7.md §6.5: a drawn stair, side table, floor lamp or potted plant is an obstacle with a height for
+    the placer (and the decor plant) like any drawn piece; the layout schema never proposes one."""
+    building, room = make_building()
+    ctx = P.room_context(building, room)
+    for ftype in schemas.DOCUMENTED_ONLY_TYPES:
+        drawn = P.piece_from_furniture({"type": ftype, "footprint": {"center": [3.6, 1.5], "size": [0.45, 0.45],
+                                                                      "rotation_deg": 0.0}})
+        assert drawn.height() == schemas.HEIGHTS[ftype] and ftype not in schemas.LAYOUT_TYPES
+        chair = P.Piece("chair", (3.6, 1.5), 0.0, (0.45, 0.45), False, index=1)
+        assert P.check_piece(chair, [drawn], ctx)["no_overlap"] is False, ftype
+    assert schemas.HEIGHTS["stair"] > schemas.HEIGHTS["floor_lamp"] > schemas.HEIGHTS["potted_plant"] > \
+        schemas.HEIGHTS["side_table"]
+
+
 def test_wall_contact_within_5cm(ctx):
     away, = checks_of(ctx, [piece("bed_double", (2.0, 1.7), against_wall=True)])     # back at y = 2.7
     assert away["wall_contact"] is False

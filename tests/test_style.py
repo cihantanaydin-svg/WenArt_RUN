@@ -70,6 +70,32 @@ def test_family_fills_are_recorded_as_assumed():
     assert len(assumed) == 2 and all("Scandinavian" in w or "scandinavian" in w for w in assumed)
 
 
+@pytest.mark.parametrize("text,family", [
+    ("Scandinavian, light oak floor, white walls", "scandinavian"),
+    ("Japandi, walnut floor, cream walls, warm daylight, linen and paper lamps", "japandi"),
+    ("Modern minimal, polished concrete floor, charcoal and white", "modern minimal"),
+    ("Modern, white walls, warm daylight", "modern"),
+    ("Warm Mediterranean, terracotta floor", "mediterranean"),
+    ("walnut floor, brick walls, overcast", None),
+    ("something nobody understands", None),
+])
+def test_profile_records_the_style_family(text, family):
+    """Milestone 7 (docs/milestone7.md §6.3): ``family`` is the family keyword of the text, null without one
+    (refit's library style filter reads it; families come from vocabulary.STYLE_FAMILIES only)."""
+    profile = P.profile_from_text(text)
+    assert profile["family"] == family
+    assert family is None or family in dict(V.STYLE_FAMILIES)
+    assert list(profile)[:2] == ["source_text", "family"]
+
+
+def test_a_style_photo_family_fills_the_family_slot():
+    terms = {"terms": [{"slot": "family", "value": "japandi", "files": ["a.jpg"]}]}
+    assert P.profile_from_text("oak floor, white walls", photo_terms=terms)["family"] == "japandi"
+    # The brief's own family word wins over a photo term.
+    assert P.profile_from_text("Rustic, oak floor", photo_terms=terms)["family"] == "rustic"
+    assert P.profile_from_brief(None)["family"] == "scandinavian"          # the default text (assumed)
+
+
 def test_no_words_at_all_uses_defaults_and_says_so():
     profile = P.profile_from_text("something nobody understands")
     assert profile["unmatched_terms"] == ["something nobody understands"]

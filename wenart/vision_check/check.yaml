@@ -80,6 +80,22 @@ plan_image: false
 calls:
   workers: 2
 
+# Added-object detector (docs/milestone7.md §8.1, wenart/gate/detect.py; read by `combine`). A polished box with
+# score >= t_det that has no Cycles box of its group at IoU >= match_iou and is not covered >= cover_frac by one
+# element of a compatible type is a candidate; it is confirmed by score >= t_strong or by a VLM extra of either
+# reliable pass at IoU >= confirm_iou, and a confirmed non-decor one rejects the polished image (added_by_polish).
+# No thresholds yet: the detector is advisory (boxes recorded and listed, nothing rejected). Between the prep pod
+# and the full runs the integrator replaces this block with `check_yaml_block` of $RESULTS/detect/
+# detector_calibration.json (t_det, t_strong, calibration) when that file says `usable: true`.
+detector:
+  advisory: true
+  t_det: null
+  t_strong: null
+  match_iou: 0.3
+  cover_frac: 0.5
+  confirm_iou: 0.3
+  calibration: null
+
 # Realism preference (§5.6): preferred when >= 3 of 4 answers pick the polished image.
 preference:
   min_votes: 3
@@ -113,3 +129,14 @@ realism:
     nuisance_brighter_max: 0.30   # +0.3 EV: brighter image wins > 30 % -> flag every A/B pair with |dEV| > 0.3
     delta_ev_flag: 0.3
     halo_max: 0.80                # non-target aspects following the target winner; above: note for M7
+
+# Realism v2 (docs/milestone7.md §8.2, `realism2-*` commands): one aspect per call, both orders; the statistics,
+# controls and decision rules (and their thresholds) are those of `realism:` above. look_alt = renders/<cam>_preview.jpg
+# (A, AgX - Punchy) vs renders/<cam>_alt_preview.jpg (B, look None) on `look_alt_cameras` cameras of the A/B
+# projects (highest furniture share, <= `look_alt_per_room` per room, round-robin over the projects by name);
+# the control sets come from the control project's M6 ab/ renders. null_identical (byte-identical images) is asked
+# with `null_identical_workers` calls at once (1: a batch of requests on one server must not change an answer).
+realism2:
+  look_alt_cameras: 32
+  look_alt_per_room: 2
+  null_identical_workers: 1

@@ -22,3 +22,16 @@ models:
     licence: Apache-2.0
     allow_patterns: ["*.json", "*.safetensors"]
     size_gb: 0.35
+
+# Added-object detector (docs/milestone7.md §8.1): OWLv2, used by `python -m wenart.gate detect` and
+# `detect-calibrate` (wenart/gate/detect.py, wenart.gate.models.Detector). Not a gate model: it is outside
+# `models:` so the gate key, the gate's model list and the polish manifest's gate models stay depth/sam/dino.
+# Files at this revision (HF API, 3 Oct 2026): config.json, preprocessor_config.json, tokenizer_config.json,
+# special_tokens_map.json, added_tokens.json, vocab.json, merges.txt, model.safetensors (620 MB);
+# pytorch_model.bin is left out by the allow patterns.
+detect:
+  repo: google/owlv2-base-patch16-ensemble
+  revision: cfd3195ba4ea9592eec887ded089f4c08eff231d
+  licence: Apache-2.0
+  allow_patterns: ["*.json", "*.safetensors", "*.txt"]
+  size_gb: 0.62

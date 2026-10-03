@@ -12,6 +12,11 @@ that are inconsistent.
 - synthetic-05 (Milestone 6): notched outline, a floor-plan DXF without
   furniture plus a furniture-plan DXF, an en-suite, a study (room type
   ``other``), a style photo and ``polish: false``.
+- synthetic-06 (Milestone 7): a 2+1 flat drawn "the real way" in inches
+  (``CadPlan``): one wall hatch, door arcs and window lines on continuous
+  walls, nested furniture blocks, MTEXT/TEXT/attribute labels, feet-inch
+  dimensions, an open kitchen behind a wall stub, no title; delivered as a
+  DWG written by LibreDWG ``dxf2dwg`` (docs/milestone7.md §5.2).
 
 Coordinates: metres in the building frame (origin = outer corner of the
 outer wall, X right, Y up). Rotations: degrees counter-clockwise.
@@ -22,6 +27,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
 
+from wenart import geometry as G
+from wenart.synthetic import blocks
 from wenart.synthetic.model import Level, LevelBuilder, Opening, format_metres
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -624,5 +631,197 @@ def project_05() -> Project:
     )
 
 
-def all_projects() -> list[Project]:
-    return [project_01(), project_02(), project_03(), project_04(), project_05()]
+# --------------------------------------------------------------------------
+# synthetic-06: 2+1 flat drawn "the real way" (docs/milestone7.md §5.2)
+# --------------------------------------------------------------------------
+
+INCH = 0.0254                 # metres per drawing unit ($INSUNITS = 1)
+BRIEF_06 = {"style": "Mid-century modern, walnut floor, white walls, mustard and teal accents, warm daylight"}
+# sha256 of projects/synthetic-06/synthetic-06.dwg as LibreDWG 0.14 (d9468ae) dxf2dwg --as r2000 writes it from
+# source/synthetic-06.dxf. The generator refuses a DWG with another hash (another LibreDWG build or a changed
+# source DXF): update this value only together with a reviewed source change.
+DWG_SHA256_06 = "86c53507d1c44cfa5665179b20f6d8842a0d47d06db5df56e9f5bef59bd84702"
+
+
+@dataclass
+class CadWall:
+    """A wall as its centre line (inches, building frame: origin = outer corner, X right, Y up)."""
+    start: tuple[float, float]
+    end: tuple[float, float]
+    thickness: float
+    exterior: bool = False
+
+    def rectangle(self) -> list[tuple[float, float]]:
+        return [G.snap_point(c, 6) for c in G.centerline_to_rectangle(self.start, self.end, self.thickness)]
+
+
+@dataclass
+class CadDoor:
+    """A door drawn on a continuous wall: hinge on the face it swings from, the open leaf as a line along ``swing``
+    (into the room it opens into), the arc from the leaf end to the far jamb at ``hinge + along * width``."""
+    wall: int
+    hinge: tuple[float, float]
+    along: tuple[float, float]       # unit vector from the hinge across the opening
+    swing: tuple[float, float]       # unit vector into the room the door opens into
+    width: float                     # clear width = arc radius (inches)
+    into: str                        # name line of that room's label
+
+    def center(self, walls: list[CadWall]) -> tuple[float, float]:
+        """Middle of the opening on the wall centre line."""
+        w = walls[self.wall]
+        mid = (self.hinge[0] + self.along[0] * self.width / 2, self.hinge[1] + self.along[1] * self.width / 2)
+        (x0, y0), (x1, y1) = w.start, w.end
+        length = G.distance(w.start, w.end)
+        ux, uy = (x1 - x0) / length, (y1 - y0) / length
+        t = (mid[0] - x0) * ux + (mid[1] - y0) * uy
+        return G.snap_point((x0 + ux * t, y0 + uy * t), 6)
+
+
+@dataclass
+class CadWindow:
+    wall: int
+    center: tuple[float, float]      # on the wall centre line
+    width: float
+
+
+@dataclass
+class CadLabel:
+    """``kind``: ``mtext`` (``at`` = top left), ``text`` (left baseline) or ``roomtag`` (the ROOMTAG insert point,
+    the attribute at its origin). ``lines``: the name line, then an optional size line."""
+    kind: str
+    lines: tuple[str, ...]
+    at: tuple[float, float]
+    height: float
+
+
+@dataclass
+class CadPiece:
+    block: str                       # blocks.CAD_BLOCKS name
+    center: tuple[float, float]
+    rotation_deg: float = 0.0
+
+
+@dataclass
+class CadDimension:
+    """A feet-inch dimension between two points of the outer faces; ``offset`` > 0 puts the dimension line left
+    of p1 -> p2. ``kind``: ``rotated`` (DXF dimtype 0 with an angle) or ``aligned`` (dimtype 1)."""
+    p1: tuple[float, float]
+    p2: tuple[float, float]
+    offset: float
+    kind: str
+    text: str
+
+
+@dataclass
+class CadSeparator:
+    """The line that closes an open plan at the free end of a wall stub (the expected virtual separator)."""
+    wall: int
+    start: tuple[float, float]       # the stub's free end on its centre line
+    end: tuple[float, float]         # where the stub's axis meets the opposite wall face
+
+
+@dataclass
+class CadPlan:
+    walls: list[CadWall]
+    doors: list[CadDoor]
+    windows: list[CadWindow]
+    labels: list[CadLabel]
+    furniture: list[CadPiece]
+    dimensions: list[CadDimension]
+    separators: list[CadSeparator]
+    origin: tuple[float, float]      # drawing coordinates (inches) of the building-frame origin
+    ceiling_height: float = 2.70
+
+
+@dataclass
+class CadProject:
+    """A project delivered as one DWG (written from ``source_dxf`` by LibreDWG ``dxf2dwg``); the titled variant is
+    written as a test fixture."""
+    name: str
+    brief: Optional[dict]
+    plan: CadPlan
+    dwg: str
+    source_dxf: str
+    dwg_sha256: str
+    titled_fixture: str              # folder under tests/fixtures/
+    titled_title: str
+    titled_level: tuple[str, int]    # (label, order) the title names (building.normalise_level_label must agree)
+
+
+def feet_inches(inches: float) -> str:
+    """168 -> ``14'-0"`` (architectural dimension text)."""
+    total = int(round(inches))
+    return f"{total // 12}'-{total % 12}\""
+
+
+def plan_06() -> CadPlan:
+    """24'-0" x 30'-6", exterior walls 9", interior 6". Bottom: kitchen (8'-0" x 12'-0") open to the living room
+    (14'-0" x 12'-0") beside a stub wall whose free end stops 6'-0" short of the outer wall; middle: bath and
+    lobby; top: bed room and master bed room."""
+    walls = [
+        CadWall((4.5, 0.0), (4.5, 366.0), 9.0, True),        # 0 left (the longer outer walls keep the corners)
+        CadWall((283.5, 0.0), (283.5, 366.0), 9.0, True),    # 1 right
+        CadWall((9.0, 4.5), (279.0, 4.5), 9.0, True),        # 2 bottom
+        CadWall((9.0, 361.5), (279.0, 361.5), 9.0, True),    # 3 top
+        CadWall((9.0, 156.0), (279.0, 156.0), 6.0),          # 4 kitchen + living | bath + lobby
+        CadWall((9.0, 222.0), (279.0, 222.0), 6.0),          # 5 bath + lobby | bedrooms
+        CadWall((108.0, 81.0), (108.0, 153.0), 6.0),         # 6 stub: kitchen | living, free end at y 81
+        CadWall((96.0, 159.0), (96.0, 219.0), 6.0),          # 7 bath | lobby
+        CadWall((138.0, 225.0), (138.0, 357.0), 6.0),        # 8 bed room | master bed room
+    ]
+    doors = [
+        CadDoor(1, (279.0, 171.0), (0.0, 1.0), (-1.0, 0.0), 36.0, "LOBBY"),            # entrance
+        CadDoor(7, (93.0, 174.0), (0.0, 1.0), (-1.0, 0.0), 30.0, "BATH"),
+        CadDoor(5, (102.0, 225.0), (1.0, 0.0), (0.0, 1.0), 32.0, "BED ROOM"),
+        CadDoor(5, (146.0, 225.0), (1.0, 0.0), (0.0, 1.0), 32.0, "MASTER BED ROOM"),
+        CadDoor(4, (230.0, 153.0), (1.0, 0.0), (0.0, -1.0), 32.0, "LIVING ROOM"),
+    ]
+    windows = [
+        CadWindow(2, (57.0, 4.5), 48.0), CadWindow(2, (195.0, 4.5), 72.0), CadWindow(1, (283.5, 81.0), 48.0),
+        CadWindow(0, (4.5, 189.0), 24.0), CadWindow(3, (72.0, 361.5), 60.0), CadWindow(3, (210.0, 361.5), 60.0),
+        CadWindow(1, (283.5, 291.0), 48.0), CadWindow(0, (4.5, 291.0), 48.0),
+    ]
+    labels = [
+        CadLabel("mtext", ("LIVING ROOM", feet_inches(168) + " X " + feet_inches(144)), (160.0, 112.0), 9.0),
+        CadLabel("roomtag", ("KITCHEN",), (24.0, 142.0), 9.0),
+        CadLabel("text", ("LOBBY",), (140.0, 185.0), 9.0),
+        CadLabel("text", ("BATH",), (41.0, 186.0), 6.0),
+        CadLabel("text", ("BED ROOM",), (30.0, 300.0), 9.0),
+        CadLabel("text", ("MASTER BED ROOM",), (150.0, 262.0), 9.0),
+    ]
+    furniture = [
+        CadPiece("SOFA-3", (195.0, 29.0), 180.0),
+        CadPiece("DINING-6", (57.0, 81.0), 90.0),
+        CadPiece("BED-DOUBLE", (210.0, 315.0), 0.0),
+        CadPiece("WC", (25.0, 172.0), 90.0),
+        CadPiece("BASIN", (50.0, 209.0), 0.0),
+    ]
+    W, H = 288.0, 366.0
+    dimensions = [
+        CadDimension((0.0, 0.0), (108.0, 0.0), -36.0, "rotated", feet_inches(108)),
+        CadDimension((108.0, 0.0), (W, 0.0), -36.0, "rotated", feet_inches(W - 108)),
+        CadDimension((0.0, 0.0), (W, 0.0), -60.0, "rotated", feet_inches(W)),
+        CadDimension((0.0, 0.0), (0.0, 156.0), 36.0, "aligned", feet_inches(156)),
+        CadDimension((0.0, 156.0), (0.0, 222.0), 36.0, "aligned", feet_inches(66)),
+        CadDimension((0.0, 222.0), (0.0, H), 36.0, "aligned", feet_inches(H - 222)),
+        CadDimension((0.0, 0.0), (0.0, H), 60.0, "aligned", feet_inches(H)),
+        # The one vertical rotated dimension: LibreDWG's dxf2dwg drops its angle, the reader recovers it.
+        CadDimension((W, 0.0), (W, H), -48.0, "rotated", feet_inches(H)),
+    ]
+    separators = [CadSeparator(6, (108.0, 81.0), (108.0, 9.0))]
+    return CadPlan(walls=walls, doors=doors, windows=windows, labels=labels, furniture=furniture,
+                   dimensions=dimensions, separators=separators, origin=(480.0, 240.0))
+
+
+def project_06() -> CadProject:
+    for piece in plan_06().furniture:
+        assert piece.block in blocks.CAD_BLOCKS, piece.block
+    return CadProject(name="synthetic-06", brief=BRIEF_06, plan=plan_06(), dwg="synthetic-06.dwg",
+                      source_dxf="source/synthetic-06.dxf", dwg_sha256=DWG_SHA256_06,
+                      titled_fixture="synthetic-06-titled", titled_title="GROUND FLOOR PLAN",
+                      titled_level=("Ground Floor", 0))
+
+
+def all_projects() -> list:
+    """synthetic-01..05 (``Project``) and synthetic-06 (``CadProject``)."""
+    return [project_01(), project_02(), project_03(), project_04(), project_05(), project_06()]

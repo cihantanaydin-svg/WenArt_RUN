@@ -1,7 +1,11 @@
 """Rule-based decor: cushions on sofas and beds, books on shelves and desks, one
 potted plant per living room or bedroom (docs/milestone4.md section 4).
 
-Only when ``brief.decor`` is not false (default true, ``wenart/defaults.yaml``).
+Only when ``brief.decor`` is not false (default true, ``wenart/defaults.yaml``),
+and never in a prayer room (``NO_DECOR_ROOM_TYPES``, docs/milestone7.md §0:
+a pooja room gets no decor, not even on a drawn piece; the report says so).
+Pieces with ``build: false`` (drawn symbols that are not built) never host
+decor but stay obstacles for the plant.
 Decor is ``added_by_ai`` with ``method: "rule"``, never larger than 0.6 m, and
 never on a walkway: a plant goes into a free room corner that passes the
 placer checks (inside the room, no overlap with furniture, not on a door
@@ -39,6 +43,7 @@ BOOK_SIZE = (0.3, 0.22)
 PLANT_SIZE = (0.4, 0.4)
 PLANT_HEIGHT_M = 1.0
 PLANT_ROOM_TYPES: tuple[str, ...] = ("living", "bedroom")
+NO_DECOR_ROOM_TYPES: tuple[str, ...] = ("prayer",)   # Milestone 7: no decor at all in these rooms
 CORNER_INSET_M = 0.25             # plant centre from each wall of the corner
 HOST_TYPES: dict[str, str] = {    # host type -> decor type
     "sofa": "cushion", "bed_double": "cushion", "bed_single": "cushion",
@@ -145,8 +150,12 @@ def add_decor(building: dict) -> tuple[dict, list[dict]]:
     for room in out["rooms"]:
         pieces = furniture_by_room.get(room["id"], [])
         row = {"room_id": room["id"], "label": room["label"], "cushions": 0, "books": 0, "plant": "-", "note": ""}
+        if room.get("room_type") in NO_DECOR_ROOM_TYPES:
+            row["note"] = f"{room['room_type']} room: no decor (docs/milestone7.md §0)"
+            rows.append(row)
+            continue
         for host in pieces:
-            if host.get("status") != "verified" or host["type"] not in HOST_TYPES:
+            if host.get("status") != "verified" or host["type"] not in HOST_TYPES or host.get("build", True) is False:
                 continue
             for item in host_decor(host):
                 assert max(item["size"]) <= MAX_DECOR_M

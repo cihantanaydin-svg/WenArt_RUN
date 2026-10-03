@@ -1,0 +1,168 @@
+# Objaverse 1.0 furniture library: survey, thumbnails, judging, acceptance (docs/milestone7.md §7).
+#
+# Read by wenart/assets/objaverse.py (`load_config`). Tables only: the rules that use them live in the module.
+#
+# Verified from the session on 3 Oct 2026 (Hugging Face API, no LFS download):
+#   GET https://huggingface.co/api/datasets/allenai/objaverse/tree/<revision> -> lvis-annotations.json.gz
+#   (924,451 B), object-paths.json.gz (19,803,736 B), metadata/ (160 shards 000-000.json.gz ... 000-159.json.gz,
+#   577 MB in all), glbs/ (160 folders 000-000 ... 000-159); README.md: "ODC-By v1.0 ... Individual objects ...
+#   CC-BY 4.0 (721K objects), CC-BY-NC 4.0 (25K), CC-BY-NC-SA 4.0 (52K), CC-BY-SA 4.0 (16K), CC0 1.0 (3.5K). The
+#   metadata will provide the license for each object."
+# NOT verified here (LFS downloads are blocked in the session; marked `to verify on the pod`): the exact licence
+# strings and metadata field names inside the shards, and the LVIS category names inside lvis-annotations.json.gz.
+# The survey records every licence value, every metadata key and every missing LVIS category it meets
+# (survey.json, library_report.md), and tests/gpu/test_library.py fails when a name below is not found, so a wrong
+# guess here can only refuse objects, never accept a wrong licence.
+
+dataset:
+  repo: allenai/objaverse
+  repo_type: dataset
+  revision: 21e4e142159e2153706c23a3a02e55cec5591cea
+  licence: ODC-By-1.0
+  licence_url: https://opendatacommons.org/licenses/by/1-0/
+  page: https://huggingface.co/datasets/allenai/objaverse
+  lvis_file: lvis-annotations.json.gz          # {lvis category: [uid, ...]} (to verify on the pod)
+  paths_file: object-paths.json.gz             # {uid: "glbs/000-NNN/<uid>.glb"} (to verify on the pod)
+  metadata_dir: metadata                       # metadata/000-NNN.json.gz = {uid: Sketchfab record}; NNN = the glbs folder
+
+# Fields of a metadata record (Sketchfab API v3 model records as published with Objaverse 1.0; to verify on the
+# pod). A record without the credit fields is refused (CC BY 4.0 §3(a)(1) needs title, author and a link).
+metadata_fields:
+  licence: license
+  title: name
+  author: [user, displayName]
+  author_fallback: [user, username]
+  source_url: viewerUrl
+  face_count: [archives, glb, faceCount]
+  face_count_fallback: faceCount
+  glb_size: [archives, glb, size]              # bytes
+  texture_count: [archives, glb, textureCount]
+  likes: likeCount
+  views: viewCount
+
+# Licence values of the metadata field `license` (compared case-insensitively, spaces collapsed).
+# `accept` maps our catalogue licence to the strings that mean exactly that licence; the Sketchfab slugs `cc0` and
+# `by` are what the Objaverse 1.0 metadata is expected to hold (to verify on the pod); the long forms are the
+# README's names of the same licences. Everything in `refuse` and every value not listed is refused (NC, ND, SA,
+# Sketchfab Standard / Free Standard / Editorial, unknown): docs/milestone7.md §7.1 step 3.
+licences:
+  verified: false                              # to verify on the pod: set true once survey.json shows the values
+  accept:
+    CC0: [cc0, "cc0 1.0", "cc0-1.0"]
+    CC-BY-4.0: [by, "cc-by 4.0", "cc by 4.0", "cc-by-4.0"]
+  refuse: [by-sa, by-nc, by-nc-sa, by-nd, by-nc-nd, "cc-by-sa 4.0", "cc-by-nc 4.0", "cc-by-nc-sa 4.0",
+           "cc-by-nd 4.0", "cc-by-nc-nd 4.0", free-st, st, ed]
+  urls:
+    CC0: https://creativecommons.org/publicdomain/zero/1.0/
+    CC-BY-4.0: https://creativecommons.org/licenses/by/4.0/
+  names:                                       # as printed in the credit line (docs/milestone7.md §7.3)
+    CC0: CC0 1.0
+    CC-BY-4.0: CC BY 4.0
+
+# Prefilter (§7.1 step 4): metadata first, then the downloaded file.
+prefilter:
+  face_count: [2000, 150000]                   # triangles of the GLB archive
+  max_glb_mb: 40
+  per_type_limit: 8                            # <= 8 candidates per furniture type (a category that maps to two
+                                               # types, `bed`, may hold 8 per type = 16 before the size split)
+  max_downloads_per_type: 16                   # downloads tried in rank order until per_type_limit pass the file checks
+  rank: [likes, views]                         # descending; ties by uid
+
+# LVIS category -> furniture type(s) (§7.1 step 2). Category names to verify on the pod against the downloaded
+# lvis-annotations.json.gz (the survey lists missing ones). `chair` is not in the §7.1 list; it is added because
+# the dining chair is the most repeated drawn piece (real01 has 6) and LVIS has the category (spec_deviations).
+# No category for tv_unit, kitchen_counter, kitchen_island, sink_kitchen, shower, washing_machine, side_table,
+# stair: those stay parametric.
+categories:
+  bed: {types: [bed_double, bed_single]}       # split by the bed width after the unit guess (bed_split_width_m)
+  sofa: {types: [sofa]}
+  armchair: {types: [armchair]}
+  chair: {types: [chair]}
+  dining_table: {types: [table_dining]}
+  coffee_table: {types: [table_coffee]}
+  bookcase: {types: [bookshelf]}
+  wardrobe: {types: [wardrobe]}
+  armoire: {types: [wardrobe]}
+  nightstand: {types: [nightstand]}
+  chest_of_drawers_(furniture): {types: [dresser]}
+  desk: {types: [desk]}
+  toilet: {types: [toilet]}
+  sink: {types: [washbasin]}                   # LVIS `sink` holds kitchen sinks too: the judges' matches_type decides
+  bathtub: {types: [bathtub]}
+  refrigerator: {types: [fridge]}
+  stove: {types: [stove]}
+  lamp: {types: [floor_lamp], prefer_words: [floor, standing]}   # floor lamp by height; titles/tags with these
+                                                                 # words rank first (a ranking hint, never a decision)
+  flowerpot: {types: [potted_plant]}
+
+# Unit guess (§7.2): the factors tried on the GLB's measured box; the one that puts the box in the type's size
+# range is taken; none -> refused, more than one -> refused (never guessed).
+units: [1.0, 0.01, 0.0254, 0.001]
+# Bed type by the width (the shorter side of the box): <= 1.275 m single, above it double (midway between the
+# size table's single maximum 1.20 and double minimum 1.35, both inside the +15 % tolerance bands).
+bed_split_width_m: 1.275
+
+# Per type: plausible overall height in metres (plausibility filter for the unit guess; common furniture
+# heights, widened: beds with headboards, sofas and armchairs with high backs, tall fridges) and the geometric
+# front rule (§7.2, the Poly Haven rule of wenart/furniture/catalog.py):
+#   back_taller - seating, beds, toilet, washbasin: the side under the top 30 % of the vertices is the back
+#   detail_side - cabinets and appliances: the side with the doors, drawers, handles or knobs (more vertices in
+#                 its 5 % slab) is the front
+#   open_side   - open shelving: the side with the flat back panel (outward faces in its slab) is the back
+#   none        - no front (tables, lamps, plants): front_axis -Y with front_axis_confidence low
+# Footprints come from wenart/recognition/size_table.yaml (width/depth, either orientation, its tolerance).
+types:
+  bed_double:   {height: [0.25, 1.60], front: back_taller}
+  bed_single:   {height: [0.25, 1.60], front: back_taller}
+  sofa:         {height: [0.55, 1.20], front: back_taller}
+  armchair:     {height: [0.60, 1.30], front: back_taller}
+  chair:        {height: [0.70, 1.20], front: back_taller}
+  table_dining: {height: [0.65, 0.85], front: none}
+  table_coffee: {height: [0.25, 0.60], front: none}
+  desk:         {height: [0.65, 1.20], front: detail_side}
+  wardrobe:     {height: [1.40, 2.60], front: detail_side}
+  bookshelf:    {height: [0.70, 2.50], front: open_side}
+  nightstand:   {height: [0.35, 0.80], front: detail_side}
+  dresser:      {height: [0.60, 1.40], front: detail_side}
+  toilet:       {height: [0.35, 1.10], front: back_taller}
+  washbasin:    {height: [0.10, 1.20], front: back_taller}
+  bathtub:      {height: [0.40, 0.80], front: detail_side}
+  fridge:       {height: [0.80, 2.10], front: detail_side}
+  stove:        {height: [0.80, 1.20], front: detail_side}
+  floor_lamp:   {height: [1.20, 2.10], front: none}
+  potted_plant: {height: [0.30, 2.20], front: none}
+
+front_rules:
+  top_fraction: 0.30            # back_taller: vertices in the top 30 % of the height (as models.measure_gltf)
+  side_fraction: 0.05           # detail_side / open_side: slab of 5 % of the extent at each side (as measure_gltf)
+  back_taller: {min_offset: 0.08, dominance: 2.0}           # |top centroid offset| / extent on the decisive axis,
+                                                            # and that many times the other axis's
+  detail_side: {min_ratio: 1.3, dominance: 1.2, min_count: 20}   # vertex count ratio of the two slabs of an axis
+  open_side: {min_panel: 0.5, max_open_share: 0.5, normal_dot: 0.9}  # outward face area / side area
+
+# Thumbnails (§7.2): one Blender process, Cycles (GPU when available), four views of the GLB framed on its box.
+# The four views are the four sides (camera on the model's -Y, +X, +Y, -X side, 30 degrees above), so the
+# judges' front_view 0..3 names one model axis (spec_deviations: §7.2 lists front, 45 degrees, side, top).
+thumbnails:
+  resolution: 256
+  samples: 16
+  elevation_deg: 30
+  lens_mm: 50
+  sensor_mm: 36
+  margin: 1.08
+  background: 0.6               # uniform grey world (linear), strength 1
+  sun_energy: 3.0
+  sun_elevation_deg: 50
+  sun_azimuth_offset_deg: 45    # the sun comes from the camera side, turned 45 degrees about the vertical
+  sheet_jpeg_quality: 90        # 2 x 2 judging sheet, 512 px
+  thumb_px: 256                 # thumbs/<type>/<uid>.jpg, the sheet scaled down
+  thumb_jpeg_quality: 85
+
+accept:
+  min_quality: 4                # both judges' photoreal_quality >= 4
+  per_type_max: 6               # catalog_objaverse.json keeps <= 6 per type (rank: lower quality, mean quality,
+                                # likes, views)
+
+attribution:
+  via: Objaverse (allenai/objaverse, ODC-By 1.0)
+  changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched

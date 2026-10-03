@@ -22,10 +22,10 @@ How, per file of the upload (sorted, symlinks never followed):
 - a file in a subfolder is staged at the top level as ``<subfolder>__<name>`` (nested folders:
   ``a__b__name``), because the pipeline reads the top level only; ``style_photos/`` keeps its folder
   and holds images only (a nested folder inside it is flattened the same way);
-- a DWG is not read by the pipeline (no converter on the pod; users export DXF): a DWG next to a DXF of
-  the same stem is skipped ("the DXF of the same name is used"); a DWG alone is staged with the note
-  ``DWG is not read; export DXF from the CAD program`` (without a converter the pipeline then ends
-  ``needs_review``; with one, its geometry is still checked like any other page);
+- a DWG is read through LibreDWG 0.14 (beta, docs/milestone7.md §5.1): a DWG next to a DXF of the same
+  stem is skipped ("the DXF of the same name is used", the pipeline applies the same rule); a DWG alone is
+  staged with the note ``DWG is read with LibreDWG 0.14 (beta); if it fails, export DXF`` (a failed or empty
+  conversion ends the project ``needs_review``; a converted DWG is checked like any other page);
 - a ``brief.yaml`` that is not at the top level, or a top-level brief with another spelling
   (``Brief.yaml``, ``brief.yml``), is staged with a note: only ``<top>/brief.yaml`` is read.
 
@@ -82,7 +82,7 @@ SUBFOLDER_SEP = "__"
 FILE_CAP_BYTES = 500_000_000
 PROJECT_CAP_BYTES = 2_000_000_000
 NAME_MAX_BYTES = 255
-DWG_NOTE = "DWG is not read; export DXF from the CAD program"
+DWG_NOTE = "DWG is read with LibreDWG 0.14 (beta); if it fails, export DXF"
 EXIT_OK, EXIT_ERROR, EXIT_REFUSED, EXIT_NEEDS_REVIEW = 0, 1, 2, 4
 
 # Reasons of a needs_review intake (public text: never a file name).

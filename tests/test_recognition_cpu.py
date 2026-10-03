@@ -5,7 +5,10 @@ tests cover the schemas (accept/reject), prompt/schema consistency, the request
 body of the vLLM client, box conversion, the two-pass matching logic, the
 metrics on hand-made data, OCR normalisation and Tesseract TSV parsing, the
 bake-off page discovery / resumability / summary, and the DWG round-trip
-bookkeeping with stand-in converters.
+bookkeeping with stand-in converters. Milestone 7 (docs/milestone7.md §3.3,
+§3.4): the strict ``symbol_type`` / ``room_label`` schemas and their prompts
+(the requests, answers and two-pass rule are in tests/test_recognition_answers.py
+and tests/test_symbols.py).
 """
 import json
 import os
@@ -88,6 +91,54 @@ def test_grammar_schema_has_no_dollar_schema():
     g = schemas.grammar_schema("symbols")
     assert "$schema" not in g and g["additionalProperties"] is False
     assert "$schema" in schemas.SYMBOLS  # the original is untouched
+    for task in schemas.M7_TASKS:
+        g = schemas.grammar_schema(task)
+        assert "$schema" not in g and g["additionalProperties"] is False
+        assert "$schema" in schemas.M7_SCHEMAS[task]
+
+
+def test_m7_schema_enums_and_tasks():
+    """docs/milestone7.md §3.3: every furniture type of the building schema plus not_furniture; the M2 page tasks
+    stay as they were."""
+    assert schemas.SYMBOL_TYPE_CHOICES == schemas.FURNITURE_TYPES + ("not_furniture",)
+    for t in ("stair", "side_table", "floor_lamp", "potted_plant", "unknown"):
+        assert t in schemas.SYMBOL_TYPE_CHOICES
+    assert "door" not in schemas.SYMBOL_TYPE_CHOICES and "window" not in schemas.SYMBOL_TYPE_CHOICES
+    assert schemas.FRONT_CHOICES == ("top", "right", "bottom", "left", "none")
+    assert set(schemas.M7_TASKS) == {"symbol_type", "room_label"}
+    assert not set(schemas.M7_TASKS) & set(schemas.TASKS)
+    assert schemas.SYMBOL_TYPE["properties"]["type"]["enum"] == list(schemas.SYMBOL_TYPE_CHOICES)
+
+
+def test_m7_symbol_type_schema_is_strict():
+    good = {"type": "sofa", "front": "bottom", "confidence": 0.8, "reason": "three seats and a back"}
+    assert schemas.is_valid("symbol_type", good)
+    assert schemas.is_valid("symbol_type", dict(good, type="not_furniture", front="none", reason=""))
+    assert not schemas.is_valid("symbol_type", dict(good, type="couch"))                 # not in the enum
+    assert not schemas.is_valid("symbol_type", dict(good, type="door"))                  # openings are not asked
+    assert not schemas.is_valid("symbol_type", dict(good, front="up"))
+    assert not schemas.is_valid("symbol_type", dict(good, confidence=1.2))
+    assert not schemas.is_valid("symbol_type", dict(good, reason="x" * 161))            # <= 160 chars
+    assert schemas.is_valid("symbol_type", dict(good, reason="x" * 160))
+    assert not schemas.is_valid("symbol_type", dict(good, room="bedroom"))              # additionalProperties
+    for name in good:
+        missing = dict(good)
+        del missing[name]
+        assert not schemas.is_valid("symbol_type", missing), name                       # all required
+    assert not schemas.is_valid("symbol_type", None)
+
+
+def test_m7_room_label_schema_is_strict():
+    good = {"label": "Bed Room", "size_text": "11' x 10'", "area_text": None, "box": [100, 200, 400, 260]}
+    assert schemas.is_valid("room_label", good)
+    assert schemas.is_valid("room_label", {"label": None, "size_text": None, "area_text": None, "box": None})
+    assert not schemas.is_valid("room_label", dict(good, box=[1, 2, 3]))
+    assert not schemas.is_valid("room_label", dict(good, box=[0, 0, 10, 1001]))
+    assert not schemas.is_valid("room_label", dict(good, label=5))
+    assert not schemas.is_valid("room_label", dict(good, extra="x"))
+    missing = dict(good)
+    del missing["area_text"]
+    assert not schemas.is_valid("room_label", missing)
 
 
 # --------------------------------------------------------------------------
@@ -113,6 +164,35 @@ def test_prompt_matches_schema(task):
     for name in fields:
         assert name in text, f"prompt for {task} does not mention field {name}"
     assert "KAT PLANI" in text and "YATAK ODASI" in text  # Turkish vocabulary explained
+
+
+def test_m7_symbol_type_prompt_matches_its_schema():
+    text = prompts.m7_prompt("symbol_type")
+    assert text.startswith(prompts.SYMBOL_QUESTION)
+    assert prompts.SYMBOL_QUESTION == (                                     # docs/milestone7.md §3.3, verbatim
+        "Two crops of an architectural floor plan seen from above. The dashed box in the first image (shown alone "
+        "in the second, with a 1 m bar) marks one drawn object. Which object type is it?")
+    assert text.rstrip().endswith("Answer only with JSON.")
+    for value in schemas.SYMBOL_TYPE_CHOICES:
+        assert value in text
+        assert value in prompts.SYMBOL_HINTS or value == "not_furniture"
+    for value in schemas.FRONT_CHOICES:
+        assert value in text
+    for name in schemas.SYMBOL_TYPE["properties"]:
+        assert f"- {name}:" in text, name
+    assert str(schemas.REASON_MAX_CHARS) in text
+    # One fixed text for every object and both models: no room hint, nothing per item.
+    assert prompts.symbol_type_prompt() == text and prompts.symbol_type_prompt.__code__.co_argcount == 0
+    assert len(prompts.SYMBOL_IMAGE_LABELS) == 2
+
+
+def test_m7_room_label_prompt_matches_its_schema():
+    text = prompts.m7_prompt("room_label")
+    assert text.rstrip().endswith("Answer only with JSON.")
+    for name in schemas.ROOM_LABEL["properties"]:
+        assert f"- {name}:" in text, name
+    assert str(schemas.BOX_MAX) in text and "null" in text and "Do not translate" in text
+    assert prompts.room_label_prompt.__code__.co_argcount == 0
 
 
 # --------------------------------------------------------------------------
@@ -817,7 +897,7 @@ def test_pod_setup_stamps_paddle_only_after_a_real_gpu_op():
 
 
 # --------------------------------------------------------------------------
-# Milestone 3 follow-ups: tiled symbol column, --tiled flag, LibreDWG 0.14.1 first
+# Milestone 3 follow-ups: tiled symbol column, --tiled flag; LibreDWG (0.14 from git since M7, §5.1)
 # --------------------------------------------------------------------------
 
 def test_summary_has_a_tiled_symbols_column_that_is_empty_without_the_pass():
@@ -852,76 +932,88 @@ def test_bakeoff_cli_has_the_tiled_flags_and_runs_without_a_server(tmp_path):
     assert rc == 0 and not list(tmp_path.glob("*_tiled.json"))   # no server: nothing invented
 
 
-def test_pod_setup_builds_libredwg_0_14_1_first_with_0_13_3_fallback():
+def test_pod_setup_builds_libredwg_0_14_from_git_static():
+    """docs/milestone7.md §5.1: tag 0.14 pinned by commit (no 0.14.1 exists), a static cmake/ninja build on the
+    container disk, three programs + VERSION installed into /workspace/tools/libredwg/bin."""
     text = (ROOT / "scripts/pod_setup_recognition.sh").read_text(encoding="utf-8")
-    assert "LIBREDWG_VERSION=0.14.1" in text and "LIBREDWG_FALLBACK_VERSION=0.13.3" in text
-    assert "https://ftp.gnu.org/gnu/libredwg/libredwg-$1.tar.xz" in text
-    assert text.index("LIBREDWG_VERSION=0.14.1") < text.index("LIBREDWG_FALLBACK_VERSION=0.13.3")
+    for pin in ("LIBREDWG_GIT=https://github.com/LibreDWG/libredwg.git", "LIBREDWG_TAG=0.14",
+                "LIBREDWG_COMMIT=d9468ae948b8f07a08efa756c19f8916052358c0", 'LIBREDWG_VERSION_STRING="0.14 d9468ae"',
+                "LIBREDWG_BIN=$TOOLS/libredwg/bin", "LIBREDWG_SRC=$FAST/build/libredwg",
+                "submodule update --init --depth 1 jsmn", "-G Ninja -DCMAKE_BUILD_TYPE=Release -DDISABLE_WERROR=ON",
+                "-DENABLE_LTO=OFF -DBUILD_SHARED_LIBS=OFF", 'ninja -C "$LIBREDWG_SRC/build" dwg2dxf dwgread dxf2dwg',
+                '"$LIBREDWG_BIN/dwg2dxf" --help', "build-essential cmake ninja-build git"):
+        assert pin in text, pin
+    for gone in ("LIBREDWG_VERSION=0.14.1", "LIBREDWG_FALLBACK_VERSION", "ftp.gnu.org", "./configure", "--as "):
+        assert gone not in text, gone
+    assert 'RECOG_PARTS_ALL="vllm paddle libredwg models"' in text
     assert subprocess.run(["bash", "-n", str(ROOT / "scripts/pod_setup_recognition.sh")], capture_output=True).returncode == 0
 
 
-def _libredwg_decision(tmp_path: Path, available_versions: set, installed) -> tuple:
-    """Run the LibreDWG download decision of the setup script with a fake ``curl``.
-
-    The fake curl writes a file only for URLs of ``available_versions`` and logs
-    every URL it was asked for. Returns ``(LIBREDWG_BUILD, urls_in_order)``.
-    """
+def _libredwg_script(tmp_path: Path, body: str, fake_head: str = "") -> subprocess.CompletedProcess:
+    """Run ``body`` after the setup script's two LibreDWG functions, with the folders under ``tmp_path`` and fake
+    ``git`` (clone makes the folder, ``rev-parse HEAD`` prints ``fake_head``), ``cmake`` (logs its arguments) and
+    ``ninja`` (writes three stand-in programs into the build folder)."""
     text = (ROOT / "scripts/pod_setup_recognition.sh").read_text(encoding="utf-8")
-    start = text.index("# fetch_libredwg <version> <tarball>")
-    end = text.index('if [ -n "$LIBREDWG_BUILD" ]')
-    decision = text[start:end]
-    tmp_path.mkdir(parents=True, exist_ok=True)
-    bin_dir = tmp_path / "bin"
-    bin_dir.mkdir()
-    urls_log = tmp_path / "urls.txt"
-    versions = " ".join(sorted(available_versions)) or "none"
-    _write_tool(bin_dir / "curl", f"""url="${{@: -1}}"
-echo "$url" >> "{urls_log}"
-out=""
-while [ $# -gt 0 ]; do [ "$1" = "-o" ] && out="$2"; shift; done
-for v in {versions}; do
-  case "$url" in *"libredwg-$v.tar.xz") echo tarball > "$out"; exit 0;; esac
-done
-exit 22
+    functions = "\n".join(f"{name}() {{\n{_bash_function_body(text, name)}}}"
+                          for name in ("libredwg_usable", "build_libredwg"))
+    bin_dir = tmp_path / "fake-bin"
+    bin_dir.mkdir(parents=True, exist_ok=True)
+    _write_tool(bin_dir / "git", f"""case "$1" in
+  clone) mkdir -p "${{@: -1}}"; echo "$@" > "{tmp_path}/git-clone.txt";;
+  -C) case "$3" in rev-parse) echo "$FAKE_HEAD";; esac;;
+esac
 """)
-    prefix = tmp_path / "tools" / "libredwg"
-    if installed:
-        (prefix / "bin").mkdir(parents=True)
-        for name in ("dwg2dxf", "dxf2dwg"):
-            _write_tool(prefix / "bin" / name, "exit 0\n")
-        (prefix / "VERSION").write_text(f"dwg2dxf {installed}\n", encoding="utf-8")
+    _write_tool(bin_dir / "cmake", f'echo "$@" > "{tmp_path}/cmake.txt"\n')
+    _write_tool(bin_dir / "ninja", """dir="$2"; mkdir -p "$dir"
+for t in dwg2dxf dwgread dxf2dwg; do printf '#!/usr/bin/env bash\\nexit 0\\n' > "$dir/$t"; chmod +x "$dir/$t"; done
+""")
     script = "\n".join([
-        "set -Eeuo pipefail",
-        f'export PATH="{bin_dir}:$PATH"',
-        'log() { echo "log: $*"; }',
-        "LIBREDWG_VERSION=0.14.1", "LIBREDWG_FALLBACK_VERSION=0.13.3",
-        'libredwg_url() { echo "https://ftp.gnu.org/gnu/libredwg/libredwg-$1.tar.xz"; }',
-        'libredwg_url_fallback() { echo "https://github.com/LibreDWG/libredwg/releases/download/$1/libredwg-$1.tar.xz"; }',
-        f'LIBREDWG_PREFIX="{prefix}"', f'SRC="{tmp_path / "src"}"', 'mkdir -p "$SRC"',
-        decision,
-        'echo "BUILD=$LIBREDWG_BUILD"',
+        "set -Eeuo pipefail", f'export PATH="{bin_dir}:$PATH"', f'export FAKE_HEAD="{fake_head}"',
+        'log() { echo "log: $*"; }', f'LOGS="{tmp_path}/logs"', 'mkdir -p "$LOGS"',
+        "LIBREDWG_GIT=https://github.com/LibreDWG/libredwg.git", "LIBREDWG_TAG=0.14",
+        "LIBREDWG_COMMIT=d9468ae948b8f07a08efa756c19f8916052358c0", 'LIBREDWG_VERSION_STRING="0.14 d9468ae"',
+        f'LIBREDWG_BIN="{tmp_path}/tools/libredwg/bin"', f'LIBREDWG_SRC="{tmp_path}/fast/build/libredwg"',
+        functions, body,
     ])
-    proc = subprocess.run(["bash", "-c", script], capture_output=True, text=True, timeout=60)
-    assert proc.returncode == 0, proc.stderr + proc.stdout
-    build = re.search(r"^BUILD=(.*)$", proc.stdout, re.M).group(1)
-    urls = urls_log.read_text(encoding="utf-8").split() if urls_log.is_file() else []
-    return build, urls
+    return subprocess.run(["bash", "-c", script], capture_output=True, text=True, timeout=60)
 
 
-def test_libredwg_decision_prefers_0_14_1_and_falls_back_to_0_13_3(tmp_path):
-    # 0.14.1 available on the GNU mirror: first and only request.
-    build, urls = _libredwg_decision(tmp_path / "a", {"0.14.1", "0.13.3"}, installed=None)
-    assert build == "0.14.1" and urls == ["https://ftp.gnu.org/gnu/libredwg/libredwg-0.14.1.tar.xz"]
-    # 0.14.1 nowhere: GNU then GitHub for 0.14.1, then 0.13.3 from the GNU mirror.
-    build, urls = _libredwg_decision(tmp_path / "b", {"0.13.3"}, installed=None)
-    assert build == "0.13.3" and len(urls) == 3
-    assert urls[0].endswith("libredwg-0.14.1.tar.xz") and "github.com" in urls[1] and urls[2].endswith("libredwg-0.13.3.tar.xz")
-    # Nothing downloadable: no build, no crash (the round trip reports the missing tools).
-    build, urls = _libredwg_decision(tmp_path / "c", set(), installed=None)
-    assert build == "" and len(urls) == 4
-    # 0.14.1 already on the volume: no download at all.
-    build, urls = _libredwg_decision(tmp_path / "d", set(), installed="0.14.1")
-    assert build == "0.14.1" and urls == []
-    # 0.13.3 on the volume (Milestone 2) but 0.14.1 downloadable: upgrade.
-    build, urls = _libredwg_decision(tmp_path / "e", {"0.14.1"}, installed="0.13.3")
-    assert build == "0.14.1" and len(urls) == 1
+def test_libredwg_is_reused_only_when_complete_pinned_and_working(tmp_path):
+    def check(case: str) -> str:
+        proc = _libredwg_script(tmp_path / case, 'if libredwg_usable; then echo REUSE; else echo BUILD; fi')
+        assert proc.returncode == 0, proc.stderr
+        return proc.stdout.strip()
+
+    def install(case: str, version: str = "0.14 d9468ae", tools=("dwg2dxf", "dwgread", "dxf2dwg"), rc: int = 0):
+        bin_dir = tmp_path / case / "tools" / "libredwg" / "bin"
+        bin_dir.mkdir(parents=True)
+        for name in tools:
+            _write_tool(bin_dir / name, f"exit {rc}\n")
+        (bin_dir / "VERSION").write_text(version + "\n", encoding="utf-8")
+
+    assert check("none") == "BUILD"
+    install("ok")
+    assert check("ok") == "REUSE"
+    install("old", version="0.13.3")
+    assert check("old") == "BUILD"
+    install("broken", rc=127)                                  # dwg2dxf --help does not run
+    assert check("broken") == "BUILD"
+    install("partial", tools=("dwg2dxf", "dxf2dwg"))           # dwgread missing
+    assert check("partial") == "BUILD"
+
+
+def test_libredwg_build_checks_the_commit_before_installing(tmp_path):
+    body = 'if build_libredwg; then echo BUILT; else echo FAILED; fi'
+    wrong = _libredwg_script(tmp_path / "wrong", body, fake_head="0123456789abcdef")
+    assert wrong.returncode == 0 and wrong.stdout.strip().endswith("FAILED")
+    assert "expected d9468ae948b8f07a08efa756c19f8916052358c0: not built" in wrong.stdout
+    assert not (tmp_path / "wrong" / "tools").exists() and not (tmp_path / "wrong" / "cmake.txt").exists()
+    good = _libredwg_script(tmp_path / "good", body, fake_head="d9468ae948b8f07a08efa756c19f8916052358c0")
+    assert good.returncode == 0 and good.stdout.strip() == "BUILT", good.stdout + good.stderr
+    clone = (tmp_path / "good" / "git-clone.txt").read_text(encoding="utf-8")
+    assert "--depth 1 --branch 0.14 https://github.com/LibreDWG/libredwg.git" in clone
+    cmake = (tmp_path / "good" / "cmake.txt").read_text(encoding="utf-8")
+    assert "-G Ninja" in cmake and "-DBUILD_SHARED_LIBS=OFF" in cmake and "fast/build/libredwg" in cmake
+    bin_dir = tmp_path / "good" / "tools" / "libredwg" / "bin"
+    assert sorted(p.name for p in bin_dir.iterdir()) == ["VERSION", "dwg2dxf", "dwgread", "dxf2dwg"]
+    assert (bin_dir / "VERSION").read_text(encoding="utf-8") == "0.14 d9468ae\n"

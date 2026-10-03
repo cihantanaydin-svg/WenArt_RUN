@@ -20,8 +20,10 @@ How:
   (``cameras.room_openings`` and ``shell.opening_vertical``; a plain
   opening is labelled ``opening``, it is neither wall nor element) and the
   room's furniture boxes (``parametric.piece_bbox`` turned by the footprint
-  rotation, standing on the floor; decor is ignored). Pure numpy, no
-  Blender, no shapely: build.py runs it inside Blender's Python.
+  rotation, standing on the floor; decor is ignored, and so are pieces with
+  ``build: false``: drawn symbols the scene does not build, ``shown_pieces``).
+  Pure numpy, no Blender, no shapely: build.py runs it inside Blender's
+  Python.
 - Rays: a 64 x 36 grid over the 1920 x 1080 frame of a 24 mm lens on a
   36 mm sensor (horizontal sensor fit) with the lens shift of §1.3
   (``a = (col + 0.5 - W/2 + shift_x W) / f``, ``b = -(row + 0.5 - H/2 -
@@ -45,7 +47,9 @@ How:
   L-shaped room can lie in the notch): that point, or the nearest point
   clear of the tall boxes, or that point inside a box.
 - Pick (``select_views``): views per room by the room area (3 from 6 m2,
-  2 from 3 m2, else 1); a candidate is blocked when its near share is over
+  2 from 3 m2, else 1; Milestone 7: a room with nothing to show gets one
+  view, and none below 2.5 m2, see below); a candidate is blocked when its
+  near share is over
   0.30 or one element covers over 0.50 of the rays; greedy by score among
   the unblocked candidates (ties: score, then x, y, yaw), a later pick must
   differ from every earlier one by at least 50 degrees of yaw or 1.0 m, and a
@@ -60,6 +64,16 @@ How:
   pieces whose centre is inside the shifted frustum (as the M5 lists),
   ``search_seconds`` = the wall time of the level's search (the same value
   on every plan of the level; ``level_search_seconds`` collects it).
+
+Milestone 7 (docs/milestone7.md §6.2, user decision 8): a room whose
+``RoomModel.pieces`` is empty (no furniture after layout and decor, decor
+and ``build: false`` pieces not counted) gets ``EMPTY_ROOM_VIEWS`` = 1 view
+whatever its area; such a room below ``MIN_EMPTY_ROOM_AREA_M2`` = 2.5 m2
+gets none: ``plan_room`` returns no plan and ``rooms_without_view`` lists it
+with the reason (the scene manifest's ``rooms_without_view``). The room
+still gets its walls, floor, ceiling and openings; only the camera is left
+out. ``room_view_count(room)`` without the building is the area rule alone
+(the pre-layout estimate).
 
 CLI (inspection only; the build calls ``plan_level``): ``python -m
 wenart.blender.camsearch outputs/<p>/building_final.json --out cameras.json
@@ -132,6 +146,9 @@ MIN_YAW_DIFF_DEG = 50.0
 MIN_DISTANCE_M = 1.0
 DROP_BELOW_BEST = 0.5
 VIEW_AREAS = ((6.0, 3), (3.0, 2))    # (minimum area m2, views); smaller rooms get 1 view
+# Milestone 7 (§6.2): a room with nothing to show gets one view, none below this area (listed).
+EMPTY_ROOM_VIEWS = 1
+MIN_EMPTY_ROOM_AREA_M2 = 2.5
 BLOCKED_WARNING = "blocked unavoidable"
 SCORE_DECIMALS = 6                   # scores are rounded before sorting (deterministic ties)
 
@@ -161,9 +178,46 @@ def room_polygon(room: dict) -> list[tuple[float, float]]:
     return poly
 
 
-def room_view_count(room: dict) -> int:
-    """Views of ``room`` by the area of its polygon (§4.1; also used by ``wenart.run plan``)."""
-    return views_for_area(G.polygon_area(room_polygon(room)))
+def shown_pieces(room: dict, building: dict) -> list[dict]:
+    """The furniture a camera of ``room`` can show: the room's pieces after layout and decor, without
+    decor (``kind: decor``) and without ``build: false`` pieces (drawn symbols both recognition passes
+    called ``not_furniture``: kept in the building as obstacles, never built, docs/milestone7.md §3.3)."""
+    return [f for f in building.get("furniture") or []
+            if f.get("room_id") == room["id"] and f.get("kind") != "decor" and f.get("build", True) is not False]
+
+
+def room_view_count(room: dict, building: Optional[dict] = None) -> int:
+    """Views of ``room``: by the area of its polygon (§4.1; without ``building`` this area rule alone,
+    the pre-layout estimate of ``wenart.run plan``); with ``building``, a room without ``shown_pieces``
+    gets ``EMPTY_ROOM_VIEWS``, or 0 below ``MIN_EMPTY_ROOM_AREA_M2`` (docs/milestone7.md §6.2)."""
+    area = G.polygon_area(room_polygon(room))
+    if building is not None and not shown_pieces(room, building):
+        return EMPTY_ROOM_VIEWS if area >= MIN_EMPTY_ROOM_AREA_M2 else 0
+    return views_for_area(area)
+
+
+def no_view_reason(room: dict, building: dict) -> Optional[str]:
+    """Why ``room`` gets no camera (None when it gets at least one)."""
+    if room_view_count(room, building) > 0:
+        return None
+    area = G.polygon_area(room_polygon(room))
+    return (f"no furniture after layout and decor and {area:.2f} m2 < {MIN_EMPTY_ROOM_AREA_M2:g} m2: "
+            f"no view (docs/milestone7.md §6.2)")
+
+
+def rooms_without_view(building: dict, level_id: Optional[str] = None) -> list[dict]:
+    """The rooms (of ``level_id``, or of every level) the search gives no camera, in building order:
+    ``[{"room_id", "level_id", "label", "area_m2", "reason"}]`` (the scene manifest's
+    ``rooms_without_view``)."""
+    out = []
+    for room in building.get("rooms") or []:
+        if level_id is not None and room["level_id"] != level_id:
+            continue
+        reason = no_view_reason(room, building)
+        if reason is not None:
+            out.append({"room_id": room["id"], "level_id": room["level_id"], "label": room.get("label"),
+                        "area_m2": round(G.polygon_area(room_polygon(room)), 3), "reason": reason})
+    return out
 
 
 def type_weight(piece_type: Optional[str]) -> float:
@@ -281,8 +335,7 @@ class RoomModel:
         self.ceil_z = self.floor_z + float(self.level["ceiling_height"])
         levels_above = any(float(lv["elevation"]) > self.floor_z for lv in building["levels"])
         self.polygon = room_polygon(room)
-        self.pieces = [f for f in building.get("furniture") or []
-                       if f.get("room_id") == room["id"] and f.get("kind") != "decor"]
+        self.pieces = shown_pieces(room, building)
         self.openings = cameras.room_openings(room, self.polygon, building)
         walls = {w["id"]: w for w in building.get("walls", []) if w["level_id"] == room["level_id"]}
 
@@ -465,7 +518,7 @@ def candidate_positions(room: dict, building: dict) -> tuple[list[tuple[float, f
     """Camera points of a room and a warning: the free convex-corner points and the free 0.5 m grid
     points (sorted by x, y); without any, the M5 fallback point with its warning."""
     polygon = room_polygon(room)
-    pieces = [f for f in building.get("furniture") or [] if f.get("room_id") == room["id"] and f.get("kind") != "decor"]
+    pieces = shown_pieces(room, building)
     obstacles = [obstacle_rect(f) for f in pieces]
     corners = [p for p in convex_corner_points(polygon)
                if geom2d.point_is_free(p, polygon, obstacles, WALL_CLEARANCE, OBSTACLE_CLEARANCE)]
@@ -617,13 +670,17 @@ def _plan(model: RoomModel, index: int, pick: dict, warning: Optional[str]) -> d
 
 
 def plan_room(room: dict, building: dict, level: Optional[dict] = None) -> tuple[list[dict], int]:
-    """``(plans, candidates scored)`` of one room."""
+    """``(plans, candidates scored)`` of one room; ``([], 0)`` for a room without a view
+    (``no_view_reason``)."""
     model = RoomModel(room, building, level)
     if len(model.polygon) < 3:
         raise ValueError(f"room {room['id']}: polygon with fewer than 3 vertices, no camera can be placed")
+    n = room_view_count(room, building)
+    if n == 0:
+        return [], 0
     positions, fallback = candidate_positions(room, building)
     cands = score_candidates(model, positions)
-    picks, blocked = select_views(cands, room_view_count(room))
+    picks, blocked = select_views(cands, n)
     warning = "; ".join(w for w in (fallback, blocked) if w) or None
     return [_plan(model, i, p, warning) for i, p in enumerate(picks, start=1)], len(cands)
 
@@ -663,7 +720,8 @@ def model_shares(building: dict, camera: dict, grid=(192, 108)) -> dict[str, flo
 # CLI (inspection)
 # --------------------------------------------------------------------------
 
-def report_md(building: dict, plans: Sequence[dict]) -> str:
+def report_md(building: dict, plans: Sequence[dict], without: Optional[Sequence[dict]] = None) -> str:
+    """Markdown table of the views; ``without`` (``rooms_without_view`` rows) adds the rooms left without one."""
     rooms = {r["id"]: r for r in building["rooms"]}
     lines = [f"# Camera search: {building.get('project', {}).get('id', '?')}", "",
              f"Policy `search`: height {CAMERA_HEIGHT} m, pitch 0, shift_y {SHIFT_Y}, lens {LENS_MM:.0f} mm; "
@@ -677,6 +735,9 @@ def report_md(building: dict, plans: Sequence[dict]) -> str:
         lines.append(f"| {p['name']} | {p['room_id']} | {area:.2f} | {s['total']:.3f} | {s['furniture']:.3f} | "
                      f"{s['openings']:.3f} | {s['floor']:.3f} | {s['depth']:.3f} | {s['penalties']:.3f} | "
                      f"{s['shares']['floor']:.3f} | {s['shares']['near']:.3f} | {p['warning'] or ''} |")
+    if without:
+        lines += ["", "Rooms without a view (docs/milestone7.md §6.2):", ""]
+        lines += [f"- {r['room_id']} ({r.get('label') or '-'}, {r['area_m2']:.2f} m2): {r['reason']}" for r in without]
     return "\n".join(lines) + "\n"
 
 
@@ -696,14 +757,15 @@ def main(argv=None) -> int:
     for level_id in levels:
         plans.extend(plan_level(building, level_id))
     out = {"schema_version": "0.1", "kind": "camera_search", "building": args.building, "policy": POLICY,
-           "search_seconds": level_search_seconds(plans), "cameras": plans}
+           "search_seconds": level_search_seconds(plans), "cameras": plans,
+           "rooms_without_view": [r for level_id in levels for r in rooms_without_view(building, level_id)]}
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
     Path(args.out).write_text(json.dumps(out, indent=1, ensure_ascii=False), encoding="utf-8")
     if args.report:
-        Path(args.report).write_text(report_md(building, plans), encoding="utf-8")
+        Path(args.report).write_text(report_md(building, plans, out["rooms_without_view"]), encoding="utf-8")
     blocked = [p["name"] for p in plans if p["warning"] and BLOCKED_WARNING in p["warning"]]
     print(f"{len(plans)} views, search {sum(out['search_seconds'].values()):.1f} s, blocked unavoidable: "
-          f"{blocked or 'none'}")
+          f"{blocked or 'none'}, rooms without a view: {[r['room_id'] for r in out['rooms_without_view']] or 'none'}")
     return 0
 
 

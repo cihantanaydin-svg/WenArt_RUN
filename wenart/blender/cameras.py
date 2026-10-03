@@ -6,7 +6,13 @@ objects (with the plan's lens shift).
 
 Two policies (docs/milestone6.md §4): ``m5`` (the default, below, unchanged
 since Milestone 5) and ``search`` (``camsearch.py``: ray-cast scored views,
-1-3 per room by area, pitch 0 with lens shift).
+1-3 per room by area, pitch 0 with lens shift; Milestone 7: one view for a
+room with nothing to show, none below 2.5 m2, listed by
+``rooms_without_view``).
+
+Milestone 7 (docs/milestone7.md §3.3): pieces with ``build: false`` (drawn
+symbols the scene does not build) are neither obstacles nor frustum entries
+for either policy: the scene has nothing there.
 
 Policy ``m5``, per room, at 1.4 m above the floor, 24 mm lens on a 36 mm sensor, 1920x1080:
 1. ``cam_<room>_1``: a point of the free area (room polygon shrunk by 0.5 m,
@@ -96,13 +102,28 @@ def plan_cameras(building: dict, level_id: str, policy: str = "m5") -> list[dict
     return plans
 
 
+def rooms_without_view(building: dict, level_id: str, policy: str = "m5") -> list[dict]:
+    """Rooms of ``level_id`` the policy gives no camera, with the reason (the scene manifest's
+    ``rooms_without_view``): none for ``m5`` (three cameras per room), ``camsearch.rooms_without_view``
+    for ``search`` (docs/milestone7.md §6.2)."""
+    if policy not in CAMERA_POLICIES:
+        raise ValueError(f"unknown camera policy {policy!r} (expected one of {CAMERA_POLICIES})")
+    if policy != "search":
+        return []
+    from wenart.blender import camsearch  # camsearch imports this module
+
+    return camsearch.rooms_without_view(building, level_id)
+
+
 def plan_room_cameras(room: dict, building: dict, floor_z: float) -> list[dict]:
     polygon = [tuple(p[:2]) for p in room["polygon"]]
     if len(polygon) > 1 and G.distance(polygon[0], polygon[-1]) < 1e-9:
         polygon = polygon[:-1]
     # Decor items (kind decor, when a stage lists them among the furniture)
-    # are ignored: they sit on their hosts and never block a camera.
-    furniture = [f for f in building["furniture"] if f.get("room_id") == room["id"] and f.get("kind") != "decor"]
+    # are ignored: they sit on their hosts and never block a camera. Pieces
+    # with build: false are not in the scene (Milestone 7).
+    furniture = [f for f in building["furniture"] if f.get("room_id") == room["id"] and f.get("kind") != "decor"
+                 and f.get("build", True) is not False]
     # Obstacles are the fitted boxes (library bbox x fit scale, parametric
     # box, proxy box), never smaller than the drawn footprint (milestone 4 §2).
     obstacles = [obstacle_rect(f) for f in furniture]

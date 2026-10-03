@@ -1,10 +1,11 @@
 {
   "schema_version": "0.1",
-  "project": {"id": "synthetic-01", "source_folder": "projects/synthetic-01", "created_utc": "2026-10-01T12:00:00Z", "pipeline_commit": "abc1234"},
+  "project": {"id": "synthetic-01", "source_folder": "projects/synthetic-01", "created_utc": "2026-10-01T12:00:00Z", "pipeline_commit": "abc1234", "unit_system": "metric"},
   "status": "ok",
   "documents": [
-    {"id": "doc_dwg", "file": "zemin_kat.dwg", "format": "dwg", "converter": "libredwg dwg2dxf", "pages": [
-      {"page": 1, "class": "floor_plan", "kind": "vector", "level_id": "L0", "level_label_raw": "ZEMİN KAT PLANI",
+    {"id": "doc_dwg", "file": "zemin_kat.dwg", "format": "dwg", "converter": "libredwg dwg2dxf 0.14 d9468ae; audit: 0 errors, 0 fixes",
+     "unit_system": "metric", "source_kind": "dxf", "pages": [
+      {"page": 1, "class": "floor_plan", "kind": "vector", "level_id": "L0", "level_label_raw": "ZEMİN KAT PLANI", "classifier": "title",
        "scale": {"metres_per_unit": 0.001, "method": "dxf_insunits", "confidence": 1.0,
                  "evidence": {"file": "zemin_kat.dwg", "page": null, "layer": null, "entity": "$INSUNITS=4", "method": "vector", "confidence": 1.0}},
        "transform_to_building": [1, 0, 0, 1, 0, 0], "confidence": 0.99,
@@ -21,22 +22,28 @@
     ]}
   ],
   "levels": [
-    {"id": "L0", "label": "Zemin Kat", "order": 0, "elevation": 0.0, "ceiling_height": 2.7, "ceiling_height_source": "assumed_default", "evidence": []},
-    {"id": "L1", "label": "1. Kat", "order": 1, "elevation": 3.0, "ceiling_height": 2.7, "ceiling_height_source": "assumed_default", "evidence": []}
+    {"id": "L0", "label": "Zemin Kat", "order": 0, "elevation": 0.0, "ceiling_height": 2.7, "ceiling_height_source": "assumed_default", "label_source": "title", "evidence": []},
+    {"id": "L1", "label": "1. Kat", "order": 1, "elevation": 3.0, "ceiling_height": 2.7, "ceiling_height_source": "assumed_default", "label_source": "title", "evidence": []}
   ],
   "walls": [
     {"id": "w_L0_001", "level_id": "L0", "start": [0.0, 0.0], "end": [9.6, 0.0], "thickness": 0.25, "height": 2.7, "exterior": true, "status": "verified",
      "evidence": [{"file": "zemin_kat.dwg", "page": null, "layer": "DUVAR", "entity": "LWPOLYLINE:3F2", "method": "vector", "confidence": 1.0}]}
   ],
   "openings": [
-    {"id": "d_L0_001", "type": "door", "level_id": "L0", "wall_id": "w_L0_007", "center": [4.2, 3.6], "width": 0.9, "height": 2.1, "sill_height": 0.0, "swing_side": "r_L0_salon", "status": "verified",
+    {"id": "d_L0_001", "type": "door", "level_id": "L0", "wall_id": "w_L0_007", "center": [4.2, 3.6], "width": 0.9, "height": 2.1, "sill_height": 0.0, "assumed": ["height"], "swing_side": "r_L0_salon", "status": "verified",
      "evidence": [{"file": "zemin_kat.dwg", "page": null, "layer": "KAPI", "entity": "INSERT:41A", "block": "KAPI_90", "method": "vector", "confidence": 1.0}]},
     {"id": "win_L1_003", "type": "window", "level_id": "L1", "wall_id": "w_L1_002", "center": [2.1, 0.0], "width": 1.5, "height": 1.3, "sill_height": 0.9, "swing_side": null, "status": "unverified",
-     "evidence": [{"file": "1_kat.pdf", "page": 1, "pixel_box": [410, 95, 520, 112], "dpi": 200, "method": "ai", "model": "Qwen3-VL-8B-Instruct", "pass": 1, "confidence": 0.71}]}
+     "evidence": [{"file": "1_kat.pdf", "page": 1, "pixel_box": [410, 95, 520, 112], "dpi": 200, "method": "ai", "model": "Qwen3-VL-8B-Instruct", "pass": 1, "confidence": 0.71}]},
+    {"id": "o_L0_001", "type": "opening", "level_id": "L0", "wall_id": "w_L0_004", "center": [7.4, 2.0], "width": 1.6, "height": 2.1, "sill_height": null, "assumed": ["height"], "swing_side": null, "status": "verified",
+     "evidence": [{"file": "zemin_kat.dwg", "page": null, "entity": "gap:HATCH:4C", "method": "derived", "confidence": 0.8}]},
+    {"id": "o_L0_002", "type": "opening", "level_id": "L0", "wall_id": null, "virtual": true, "line": [[6.25, 2.0], [6.25, 4.25]], "center": [6.25, 3.125], "width": 2.25,
+     "height": null, "sill_height": null, "swing_side": null, "status": "verified",
+     "evidence": [{"file": "zemin_kat.dwg", "page": null, "entity": "separator:HATCH:4C", "method": "derived", "confidence": 0.8}]}
   ],
   "rooms": [
     {"id": "r_L0_salon", "level_id": "L0", "label": "Salon", "label_raw": "SALON 24,50 m²", "room_type": "living",
      "polygon": [[0.25, 0.25], [6.25, 0.25], [6.25, 4.25], [0.25, 4.25]], "area_computed": 24.0, "area_label": 24.5, "has_documented_furniture": true, "style_override": null, "status": "verified",
+     "label_size": {"text": "6,00 x 4,00", "width_m": 6.0, "length_m": 4.0, "measured": [6.0, 4.0], "status": "ok", "off_pct": [0.0, 0.0]},
      "evidence": [{"file": "zemin_kat.dwg", "page": null, "layer": "YAZI", "entity": "TEXT:2B7", "method": "vector", "confidence": 1.0, "text": "SALON 24,50 m²"},
                   {"file": "zemin_kat.dwg", "page": null, "layer": "DUVAR", "entity": "derived-from:w_L0_001,w_L0_002,w_L0_007,w_L0_008", "method": "derived", "confidence": 0.98}]},
     {"id": "r_L1_yatak", "level_id": "L1", "label": "Yatak Odası", "label_raw": "YATAK ODASI", "room_type": "bedroom",
@@ -51,11 +58,35 @@
     {"id": "f_L1_001", "level_id": "L1", "room_id": "r_L1_yatak", "type": "bed_double", "type_raw": null, "source": "added_by_ai",
      "footprint": {"center": [2.2, 2.4], "size": [1.6, 2.0], "rotation_deg": 0}, "front_deg": 270, "height": 0.5,
      "asset": null, "status": "verified",
-     "evidence": [{"file": "brief.yaml", "page": null, "method": "derived", "confidence": 1.0, "text": "empty_rooms: furnish (project default)"}]}
+     "evidence": [{"file": "brief.yaml", "page": null, "method": "derived", "confidence": 1.0, "text": "empty_rooms: furnish (project default)"}]},
+    {"id": "f_L0_002", "level_id": "L0", "room_id": "r_L0_salon", "type": "table_coffee", "type_raw": null, "source": "from_documents",
+     "footprint": {"center": [3.2, 2.2], "size": [1.1, 0.6], "rotation_deg": 0}, "front_deg": null, "height": null, "asset": null, "status": "verified",
+     "type_method": "ai_two_pass", "build": true,
+     "type_candidates": [{"type": "table_coffee", "model": "Qwen/Qwen3-VL-8B-Instruct", "pass": 1, "confidence": 0.82, "front": "none", "reason": "low rectangle in front of the sofa"},
+                         {"type": "table_coffee", "model": "zai-org/GLM-4.6V-Flash", "pass": 2, "confidence": 0.77, "front": "none", "reason": "coffee table"}],
+     "evidence": [{"file": "zemin_kat.dwg", "page": null, "entity": "LINE:6A0-6A3", "method": "vector", "confidence": 0.9},
+                  {"file": "zemin_kat.dwg", "page": null, "entity": "recognition:sym_L0_001", "method": "ai", "model": "Qwen/Qwen3-VL-8B-Instruct", "pass": 1, "confidence": 0.82, "text": "table_coffee"},
+                  {"file": "zemin_kat.dwg", "page": null, "entity": "recognition:sym_L0_001", "method": "ai", "model": "zai-org/GLM-4.6V-Flash", "pass": 2, "confidence": 0.77, "text": "table_coffee"}]},
+    {"id": "f_L0_003", "level_id": "L0", "room_id": "r_L0_salon", "type": "stair", "type_raw": null, "source": "from_documents",
+     "footprint": {"center": [5.5, 1.5], "size": [2.4, 1.0], "rotation_deg": 90}, "front_deg": null, "height": null, "asset": null, "status": "unverified",
+     "type_method": "rule", "type_candidates": [], "build": true,
+     "stair": {"flights": [{"start": [5.5, 0.4], "end": [5.5, 2.4], "width": 1.0, "lines": 9}], "landing": null, "direction": [0.0, 1.0],
+               "direction_assumed": true, "turn_assumed": true, "void_assumed": true, "riser_m": null, "riser_source": null},
+     "evidence": [{"file": "zemin_kat.dwg", "page": null, "entity": "LINE:700-708", "method": "vector", "confidence": 0.9, "note": "stair rule: 1 flight(s), 9 tread lines"}]}
   ],
   "conflicts": [
     {"id": "c_001", "kind": "area_label_vs_computed", "element_ids": ["r_L0_salon"], "description": "Label says 24,50 m², polygon gives 24,00 m² (2.0%)", "resolution": "within tolerance (3%), kept polygon from DWG"}
   ],
-  "unverified": ["win_L1_003"],
-  "warnings": ["Level L0: ceiling height assumed 2.70 m (no section drawing found)"]
+  "unverified": ["win_L1_003", "f_L0_003"],
+  "warnings": ["Level L0: ceiling height assumed 2.70 m (no section drawing found)", "zemin_kat.dwg: stair drawn in the labelled room 'Salon' (living): unverified"],
+  "site": {
+    "boundary_walls": [{"id": "sw_L0_001", "level_id": "L0", "start": [-2.0, -2.0], "end": [11.6, -2.0], "thickness": 0.15, "kind": "plot",
+                        "evidence": [{"file": "zemin_kat.dwg", "page": null, "entity": "HATCH:9B1", "method": "vector", "confidence": 0.95}]}],
+    "areas": [{"id": "sa_L0_parking", "level_id": "L0", "label": "Parking", "label_raw": "PARKING", "polygon": null, "extent_m": [5.0, 3.2], "anchor": [10.5, 1.0],
+               "label_size": {"text": "5,00 x 3,00", "width_m": 5.0, "length_m": 3.0, "measured": [5.0, 3.2], "status": "unchecked"},
+               "evidence": [{"file": "zemin_kat.dwg", "page": null, "entity": "TEXT:2C0", "method": "vector", "confidence": 1.0, "text": "PARKING"}]}],
+    "decor": [{"id": "sd_L0_001", "level_id": "L0", "kind": "plant", "center": [11.0, 6.0], "size": [0.45, 0.45],
+               "evidence": [{"file": "zemin_kat.dwg", "page": null, "entity": "INSERT:9C0", "method": "vector", "confidence": 0.9}]}],
+    "openings": []
+  }
 }

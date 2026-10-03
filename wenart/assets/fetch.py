@@ -20,6 +20,14 @@ field; the site-wide CC0 statements are recorded in ``LICENCES`` and anything
 from another source, with another licence string, or a manifest entry that
 is not CC0, is refused with ``LicenceError``.
 
+Milestone 7 (docs/milestone7.md §6.3): the rule is per kind
+(``check_licence(..., kind=...)``): textures and HDRIs stay CC0 only, from
+the CC0 sources; models may also come from Objaverse with the object's own
+licence, CC0 or CC BY 4.0 (``MODEL_SOURCE_LICENCES``; NC, ND, SA and
+anything else refused), and a CC BY 4.0 model needs its credit fields
+(``CC_BY_FIELDS``). ``load_manifest`` checks every entry against the rule
+of its section.
+
 Idempotent: an asset whose manifest entry and files are present with the
 recorded sha256 is returned without any network call.
 """
@@ -41,6 +49,13 @@ LICENCE = "CC0"
 # https://polyhaven.com/license and the ambientcg.com footer / asset pages ("CC0 1.0 Universal").
 LICENCES = {"polyhaven": "CC0", "ambientcg": "CC0"}
 LICENCE_URLS = {"polyhaven": "https://polyhaven.com/license", "ambientcg": "https://ambientcg.com/"}
+CC_BY = "CC-BY-4.0"
+# Model sources whose objects carry their own licence (Milestone 7): only these licences are taken.
+MODEL_SOURCE_LICENCES = {"objaverse": (LICENCE, CC_BY)}
+# Manifest sections; the licence rule depends on the kind.
+KINDS = ("textures", "hdris", "models")
+# The credit line of a CC BY 4.0 model (CC BY 4.0 §3(a)(1)): every field must be non-empty.
+CC_BY_FIELDS = ("title", "author", "source_url", "licence_url", "via", "attribution")
 
 
 class LicenceError(RuntimeError):
@@ -55,18 +70,37 @@ class AssetNotFound(RuntimeError):
 # Licence and manifest
 # --------------------------------------------------------------------------
 
-def check_licence(source: str, licence: Optional[str] = None) -> str:
-    """Return ``"CC0"`` or raise ``LicenceError``.
+def check_licence(source: str, licence: Optional[str] = None, kind: str = "textures",
+                  entry: Optional[dict] = None) -> str:
+    """Return the licence (``"CC0"`` or ``"CC-BY-4.0"``) or raise ``LicenceError``.
 
-    ``source`` must be a known CC0 source; a ``licence`` string given by the
-    caller or a manifest must equal ``CC0`` exactly.
+    Every kind: a CC0 source (``LICENCES``) with no licence string or exactly
+    ``CC0``. Kind ``models`` only: an Objaverse object whose ``licence`` (required)
+    is one of ``MODEL_SOURCE_LICENCES``; a CC BY 4.0 one with ``entry`` given must
+    carry every ``CC_BY_FIELDS`` field. Textures and HDRIs are CC0 only.
     """
+    if kind not in KINDS:
+        raise ValueError(f"unknown asset kind {kind!r} (expected one of {KINDS})")
     expected = LICENCES.get(source)
-    if expected is None:
-        raise LicenceError(f"source '{source}' is not in the CC0 source list {sorted(LICENCES)}; refused")
-    if licence is not None and str(licence).strip().upper() != LICENCE:
-        raise LicenceError(f"{source}: licence '{licence}' is not {LICENCE}; refused")
-    return expected
+    if expected is not None:
+        if licence is not None and str(licence).strip().upper() != LICENCE:
+            raise LicenceError(f"{source}: licence '{licence}' is not {LICENCE}; refused")
+        return expected
+    allowed = MODEL_SOURCE_LICENCES.get(source) if kind == "models" else None
+    if allowed is None:
+        sources = sorted(LICENCES) + (sorted(MODEL_SOURCE_LICENCES) if kind == "models" else [])
+        raise LicenceError(f"source '{source}' is not a {kind} source {sources}; refused")
+    if licence is None:
+        raise LicenceError(f"{source}: no per-object licence given; refused")
+    text = str(licence).strip().upper()
+    if text not in allowed:
+        raise LicenceError(f"{source}: licence '{licence}' is not one of {', '.join(allowed)}; refused")
+    if text == CC_BY and entry is not None:
+        missing = [k for k in CC_BY_FIELDS if not str(entry.get(k) or "").strip()]
+        if missing:
+            raise LicenceError(f"{source}: CC BY 4.0 model {entry.get('id', '?')!r} without {', '.join(missing)} "
+                               f"(no credit line); refused")
+    return text
 
 
 def manifest_path(assets_dir: Path) -> Path:
@@ -78,7 +112,8 @@ def empty_manifest() -> dict:
 
 
 def load_manifest(assets_dir: Path) -> dict:
-    """The manifest (empty when missing). Every entry's licence is checked; non-CC0 -> LicenceError."""
+    """The manifest (empty when missing). Every entry's licence is checked by the rule of its kind
+    (``check_licence``); a refused entry -> LicenceError."""
     path = manifest_path(assets_dir)
     if not path.is_file():
         return empty_manifest()
@@ -86,9 +121,9 @@ def load_manifest(assets_dir: Path) -> dict:
     manifest.setdefault("textures", {})
     manifest.setdefault("hdris", {})
     manifest.setdefault("models", {})
-    for kind in ("textures", "hdris", "models"):
+    for kind in KINDS:
         for asset_id, entry in manifest[kind].items():
-            check_licence(entry.get("source", "?"), entry.get("licence"))
+            check_licence(entry.get("source", "?"), entry.get("licence"), kind=kind, entry=entry)
     return manifest
 
 

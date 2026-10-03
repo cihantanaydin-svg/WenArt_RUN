@@ -18,6 +18,14 @@ with ``rotation_deg = 0`` faces down (-Y) and its back edge is on +Y.
 Size options: three per type, the middle one is the drawing block size of
 ``wenart/synthetic/blocks.py`` (checked by ``tests/test_layout.py``). The
 placer's shrink repair steps down this list.
+
+Milestone 7 (docs/milestone7.md §6.5): ``stair``, ``side_table``,
+``floor_lamp`` and ``potted_plant`` are documented-only types
+(``DOCUMENTED_ONLY_TYPES``): they have size options and heights for the fit
+and the placer (a drawn stair is an obstacle like any drawn piece) but are
+not in ``LAYOUT_TYPES``, so the layout model can never add one. ``dining``
+rooms get their own allowed types (anchor: the dining table); ``prayer``
+rooms are never furnished by AI (``NOT_FURNISHED_ROOM_TYPES``).
 """
 from __future__ import annotations
 
@@ -54,6 +62,12 @@ SIZE_OPTIONS: dict[str, list[tuple[float, float]]] = {
     "nightstand": [(0.4, 0.4), (0.5, 0.4), (0.6, 0.45)],
     "dresser": [(1.0, 0.45), (1.2, 0.5), (1.4, 0.5)],
     "washing_machine": [(0.55, 0.55), (0.6, 0.6), (0.7, 0.7)],
+    # Documented-only types (Milestone 7): never proposed by the layout model; the sizes are typical
+    # pieces within the recognition size table (wenart/recognition/size_table.yaml), for the placer only.
+    "stair": [(0.9, 2.7), (1.0, 3.0), (2.0, 3.0)],              # one flight; a dog-leg pair of flights
+    "side_table": [(0.4, 0.4), (0.45, 0.45), (0.6, 0.6)],
+    "floor_lamp": [(0.3, 0.3), (0.4, 0.4), (0.5, 0.5)],
+    "potted_plant": [(0.3, 0.3), (0.4, 0.4), (0.6, 0.6)],
 }
 DEFAULT_SIZE_INDEX = 1
 
@@ -66,9 +80,14 @@ HEIGHTS: dict[str, float] = {
     "stove": 0.9, "sink_kitchen": 0.9, "washbasin": 0.85, "toilet": 0.8,
     "shower": 2.0, "bathtub": 0.6, "tv_unit": 0.5, "bookshelf": 1.8,
     "nightstand": 0.5, "dresser": 0.8, "washing_machine": 0.85,
+    # Milestone 7 documented-only types: a stair rises to the floor above (the default ceiling
+    # height of wenart/defaults.yaml); the potted plant is the decor plant's height (decor.PLANT_HEIGHT_M).
+    "stair": 2.7, "side_table": 0.55, "floor_lamp": 1.6, "potted_plant": 1.0,
 }
 
-LAYOUT_TYPES: tuple[str, ...] = tuple(SIZE_OPTIONS)   # everything but ``unknown``
+# Types only the documents give (docs/milestone7.md §6.5): never proposed by the layout model.
+DOCUMENTED_ONLY_TYPES: tuple[str, ...] = ("stair", "side_table", "floor_lamp", "potted_plant")
+LAYOUT_TYPES: tuple[str, ...] = tuple(t for t in SIZE_OPTIONS if t not in DOCUMENTED_ONLY_TYPES)
 
 # Room type -> types the model may place there.
 ALLOWED_TYPES: dict[str, tuple[str, ...]] = {
@@ -79,9 +98,13 @@ ALLOWED_TYPES: dict[str, tuple[str, ...]] = {
     "bathroom": ("washbasin", "toilet", "shower", "bathtub", "washing_machine"),
     "wc": ("toilet", "washbasin"),
     "hall": ("dresser", "chair", "bookshelf"),
+    "dining": ("table_dining", "chair", "dresser", "bookshelf"),      # Milestone 7 (§6.5)
     "other": ("armchair", "chair", "table_dining", "bookshelf", "desk"),
 }
 FURNISHABLE_ROOM_TYPES: tuple[str, ...] = tuple(ALLOWED_TYPES)
+# Room types the AI never furnishes even when the documents leave them empty (docs/milestone7.md §0:
+# a pooja / prayer room is never furnished by AI and gets no decor).
+NOT_FURNISHED_ROOM_TYPES: tuple[str, ...] = ("prayer",)
 
 # Room type -> the piece its type calls for (GPU test: a bedroom gets a bed, a living room a sofa).
 ANCHOR_TYPES: dict[str, tuple[str, ...]] = {
@@ -90,6 +113,7 @@ ANCHOR_TYPES: dict[str, tuple[str, ...]] = {
     "kitchen": ("kitchen_counter",),
     "bathroom": ("washbasin", "toilet"),
     "wc": ("toilet",),
+    "dining": ("table_dining",),
 }
 
 # Types whose back normally touches a wall (prompt hint; the check applies to

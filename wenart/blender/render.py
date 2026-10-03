@@ -4,13 +4,13 @@
         --cameras all|cam_a,cam_b --samples 256 --res 1920x1080 --out outputs/<p>/renders [--force] \
         [--exposure auto|off|<EV>] [--exposure-target 0.9] [--white-balance auto|off|fixed:r,g,b] \
         [--look-from <render_manifest.json>] [--hide ID[,ID] [--plug]] [--hide-sets 'cam:id;cam:id+plug'] \
-        [--alt-look 'AgX - Punchy'] [--max-bounces N] [--no-denoise] [--ev-offset X] [--preview-quality Q]
+        [--alt-look None] [--max-bounces N] [--no-denoise] [--ev-offset X] [--preview-quality Q]
 
 Device: OPTIX, then CUDA, then CPU (printed as ``DEVICE=...``). Passes:
 Combined, Depth (Z), Normal, Object Index (every proxy and opening has a
 unique ``pass_index`` from the scene manifest) and Diffuse Color (Milestone
 6, the pane mask of the window pull). Files per camera:
-``<cam>.png`` (display-referred RGB8: AgX, look None, the camera's exposure
+``<cam>.png`` (display-referred RGB8: AgX, look ``LOOK``, the camera's exposure
 and white balance), ``<cam>_passes.exr`` (multilayer, half float, ZIP,
 scene-linear: exposure and white balance never reach it),
 ``<cam>_preview.jpg`` (<= 300 KB), and the helper maps written with the
@@ -95,7 +95,8 @@ Milestone 6 (docs/milestone6.md §5 rows 7, 10-12; ``RENDER_CODE_VERSION``
   (pixels outside the mask stay exactly as saved) and recorded as
   ``window_pull: {ev (-k), k, pane_ev, clip_before, clip_after, pane_px,
   pane_median, wall_median, rule}``, ``null`` when no pane is in view.
-- ``--alt-look "AgX - Punchy"``: also ``<cam>_alt_preview.jpg``, the Render
+- ``--alt-look <look>`` (Milestone 6: ``"AgX - Punchy"``; Milestone 7: ``None``):
+  also ``<cam>_alt_preview.jpg``, the Render
   Result saved with that look at the EV and, when the panes were pulled, at
   EV - k with the main image's k, blended with the same mask.
 - Control and A/B flags (§6): ``--max-bounces N``, ``--no-denoise``,
@@ -117,6 +118,15 @@ Milestone 6 (docs/milestone6.md §5 rows 7, 10-12; ``RENDER_CODE_VERSION``
   Previews with a pull are written by Blender's JPEG writer from the
   blended PNG (``encode_preview``), the same encoder and quality as a direct
   save (decoded pixels equal).
+
+Milestone 7 (docs/milestone7.md §6.1, user decision 6; ``RENDER_CODE_VERSION``
+``m7.1``): the default look is ``AgX - Punchy`` (``LOOK``; Milestones 5-6 used
+``None``). The view transform and the look are part of the render key, so a
+render of another look is never reused. The window pull saves its EV - k
+images with the same look (``save_display(..., look=LOOK)``), so the pulled
+panes blend into a picture of one look. The A/B alternative is now the old
+look: ``--alt-look None`` (``stages.ALT_LOOK``). EV and white balance are
+metered scene-linear (before the view transform) and do not change.
 """
 from __future__ import annotations
 
@@ -147,10 +157,11 @@ DEPTH_BACKGROUND = 1e9  # Blender writes a huge value where no surface was hit
 # m5.2: plugs take the wall faces' materials (wet-room tiles). The window glass of the same
 # day (both faces refract) is a build change: the build fingerprint and scene_sha256 cover it.
 # m6.1: the Diffuse Color pass in the final render and the window pull (docs/milestone6.md §5).
-RENDER_CODE_VERSION = "m6.1"
+# m7.1: the look AgX - Punchy (docs/milestone7.md §6.1); view transform and look also enter the key.
+RENDER_CODE_VERSION = "m7.1"
 PASSES = ("combined", "z", "normal", "object_index", "diffuse_color")
 VIEW_TRANSFORM = "AgX"
-LOOK = "None"
+LOOK = "AgX - Punchy"
 PREVIEW_QUALITIES = (85, 70, 55, 40, 30, 20)
 
 # Window pull (docs/milestone6.md §5 row 7).
@@ -206,7 +217,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--hide", help="wenart ids to hide (comma separated)")
     parser.add_argument("--plug", action="store_true", help="close the wall holes of hidden doors/windows")
     parser.add_argument("--hide-sets", help="'cam:id[,id][+plug];...': one control render per set")
-    parser.add_argument("--alt-look", help="also save <cam>_alt_preview.jpg with this AgX look ('AgX - Punchy')")
+    parser.add_argument("--alt-look", help="also save <cam>_alt_preview.jpg with this AgX look (e.g. 'None')")
     parser.add_argument("--max-bounces", type=int,
                         help="N indirect diffuse/glossy/volume bounces (0 = direct light only); window glass "
                              "still transmits (transmission and total bounces >= 2)")
@@ -224,7 +235,7 @@ def check_control_flags(args: argparse.Namespace) -> None:
     if args.preview_quality is not None and not 1 <= args.preview_quality <= 100:
         raise UsageError(f"--preview-quality must be 1..100, not {args.preview_quality}")
     if args.alt_look is not None and not str(args.alt_look).strip():
-        raise UsageError("--alt-look needs a look name such as 'AgX - Punchy'")
+        raise UsageError("--alt-look needs a look name such as 'None' or 'AgX - Punchy'")
 
 
 def deadline_from_env(env=None) -> tuple[float | None, str | None]:
@@ -459,10 +470,12 @@ def key_settings(samples: int, resolution, denoiser, exposure_mode: str, exposur
                  alt_look: str | None = None, max_bounces: int | None = None, ev_offset: float = 0.0,
                  preview_quality: int | None = None) -> dict:
     """What the render key covers (docs/milestone5.md §2.5, docs/milestone6.md
-    §5 rows 10-11). With ``look_from_values`` (``{"ev", "whitepoint"}`` of the
-    source entry) the exposure and white balance are mode ``from`` with those
-    values; ``alt_look``, ``max_bounces``, ``ev_offset`` and ``preview_quality``
-    are the Milestone 6 control flags."""
+    §5 rows 10-11, docs/milestone7.md §6.1). With ``look_from_values``
+    (``{"ev", "whitepoint"}`` of the source entry) the exposure and white
+    balance are mode ``from`` with those values; ``alt_look``, ``max_bounces``,
+    ``ev_offset`` and ``preview_quality`` are the Milestone 6 control flags;
+    ``view_transform`` and ``look`` are the display transform of the PNG and
+    the preview (Milestone 7: a change of the default look re-renders)."""
     if look_from_values is not None:
         exposure = {"mode": "from", "ev": look_from_values.get("ev"), "whitepoint": look_from_values.get("whitepoint")}
         wb = "from"
@@ -477,7 +490,7 @@ def key_settings(samples: int, resolution, denoiser, exposure_mode: str, exposur
     settings = {"samples": int(samples), "resolution": [int(v) for v in resolution], "denoiser": denoiser,
                 "exposure": exposure, "white_balance": wb, "passes": list(PASSES),
                 "hidden": sorted(hidden), "plugged": sorted(plugged), "code": RENDER_CODE_VERSION,
-                "alt_look": alt_look or None, "max_bounces": None if max_bounces is None else int(max_bounces),
+                "view_transform": VIEW_TRANSFORM, "look": LOOK, "alt_look": alt_look or None, "max_bounces": None if max_bounces is None else int(max_bounces),
                 "ev_offset": round(float(ev_offset or 0.0), 6),
                 "preview_quality": None if preview_quality is None else int(preview_quality)}
     if max_bounces is not None:
@@ -1582,7 +1595,7 @@ class RenderRun:
         tmp = self.out / f".pull_{cam.name}.png"
         candidates, images = [], {}
         for k in PULL_STEPS:
-            img = save_display(self.ctx.scene, result, tmp, float(look["ev"]) - k)
+            img = save_display(self.ctx.scene, result, tmp, float(look["ev"]) - k, look=LOOK)
             cand = {"k": k, "clip": clip_share(img, mask), "median": masked_median(img, mask)}
             candidates.append(cand)
             images[k] = img

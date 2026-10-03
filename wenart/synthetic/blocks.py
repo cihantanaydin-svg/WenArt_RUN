@@ -90,3 +90,43 @@ def opening_from_block(block_name: str) -> Optional[tuple[str, float]]:
         return None
     kind = "door" if match.group(1) == "KAPI" else "window"
     return kind, int(match.group(2)) / 100.0
+
+
+# --------------------------------------------------------------------------
+# synthetic-06 (docs/milestone7.md §5.2): a plan drawn "the real way" in
+# inches with English layer and block names. The generic DXF adapter reads
+# it; nothing in wenart.ingest looks these names up (the generic core types
+# blocks by its own keyword table), they are listed here so the generator and
+# the truth use one table.
+# --------------------------------------------------------------------------
+
+# AIA-style layers and their ACI colours (7 = black on the sheet).
+CAD_LAYER_WALLS = "A-WALL"
+CAD_LAYER_DOORS = "A-DOOR"
+CAD_LAYER_GLAZING = "A-GLAZ"
+CAD_LAYER_FURNITURE = "A-FURN"
+CAD_LAYER_ANNOTATION = "A-ANNO"
+CAD_LAYER_DIMENSIONS = "A-DIMS"
+CAD_LAYERS: tuple[tuple[str, int], ...] = (
+    (CAD_LAYER_WALLS, 7), (CAD_LAYER_DOORS, 2), (CAD_LAYER_GLAZING, 4), (CAD_LAYER_FURNITURE, 8),
+    (CAD_LAYER_ANNOTATION, 7), (CAD_LAYER_DIMENSIONS, 1),
+)
+
+# Block name -> (furniture type, width (X), depth (Y)) in INCHES; same local frame as BLOCKS (footprint centred
+# at the origin, front = -Y). DINING-6 is the table; its six chairs are nested CHAIR inserts.
+CAD_BLOCKS: dict[str, tuple[str, float, float]] = {
+    "BED-DOUBLE": ("bed_double", 60.0, 80.0),
+    "SOFA-3": ("sofa", 84.0, 36.0),
+    "DINING-6": ("table_dining", 72.0, 36.0),
+    "CHAIR": ("chair", 18.0, 18.0),
+    "WC": ("toilet", 20.0, 28.0),
+    "BASIN": ("washbasin", 20.0, 16.0),
+}
+# The room tag: one attribute definition, no frame (a frame would be a drawn shape the core has to explain).
+CAD_ROOMTAG = "ROOMTAG"
+CAD_ROOMTAG_ATTRIBUTE = "NAME"
+# DINING-6: chair centres and rotations in the table's frame (2 per long side, 1 per end; 2 in clear of the table).
+CAD_DINING_CHAIRS: tuple[tuple[float, float, float], ...] = (
+    (-18.0, 29.0, 0.0), (18.0, 29.0, 0.0), (-18.0, -29.0, 180.0), (18.0, -29.0, 180.0),
+    (47.0, 0.0, 270.0), (-47.0, 0.0, 90.0),
+)

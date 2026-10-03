@@ -111,8 +111,113 @@ def test_room_type_priority_covers_every_keyword_type():
     keyword_types = {room_type for _, room_type in B._ROOM_TYPE_KEYWORDS}
     assert keyword_types <= set(B.ROOM_TYPE_PRIORITY) <= set(B.ROOM_TYPES)
     assert len(B.ROOM_TYPE_PRIORITY) == len(set(B.ROOM_TYPE_PRIORITY))
-    assert B.ROOM_TYPE_PRIORITY == ("wc", "bathroom", "storage", "balcony", "bedroom", "living", "kitchen", "hall",
-                                    "other")
+    # docs/milestone7.md §1.3 adds dining and prayer (between kitchen and hall) to the M6 order.
+    assert B.ROOM_TYPE_PRIORITY == ("wc", "bathroom", "storage", "balcony", "bedroom", "living", "kitchen", "dining",
+                                    "prayer", "hall", "other")
+    assert {t for _, t in B._ENGLISH_ROOM_KEYWORDS} == set(B.ROOM_TYPE_PRIORITY)
+
+
+# docs/milestone7.md §2.7.2: every row of the English vocabulary table.
+ENGLISH_VOCABULARY = {
+    "living": ["Drawing Room", "LIVING ROOM", "Lounge", "Family Room", "Sitting Room"],
+    "dining": ["Dining", "DINING"],
+    "bedroom": ["Bed Room", "BEDROOM", "Bed-Room", "Master", "Guest Room", "Kids Room", "Children's Room",
+                "Nursery", "BR 2", "M.BR"],
+    "kitchen": ["Kitchen", "KIT.", "Pantry", "Kitchenette"],
+    "bathroom": ["Bath", "Bathroom", "Shower", "Bath+ Toilet", "Bath/WC", "Shower + W.C.", "Master Bath"],
+    "wc": ["Toilet", "WC", "W.C.", "Powder Room", "Guest WC", "Toilets"],
+    "hall": ["Lobby", "Passage", "Corridor", "Foyer", "Entrance", "Entry", "Landing", "Hall", "Entrance Hall",
+             "Hallway"],
+    "balcony": ["Balcony", "Terrace", "Deck", "Verandah", "Veranda"],
+    "storage": ["Store", "Storage", "Closet", "Box Room", "Walk-in Closet", "Storeroom"],
+    "prayer": ["Pooja", "Puja", "Prayer Room", "Mandir", "Pooja Room"],
+    "other": ["Study", "Office", "Utility", "Laundry", "Servant Room", "Maid's Room", "Gym", "Media Room"],
+}
+
+
+@pytest.mark.parametrize("room_type, label", [(t, l) for t, labels in ENGLISH_VOCABULARY.items() for l in labels])
+def test_english_vocabulary(room_type, label):
+    assert B.room_type_for(label) == room_type
+
+
+@pytest.mark.parametrize("label, room_type", [
+    # §1.3: the English bath + toilet rule comes before the priority; Turkish labels keep wc first.
+    ("Bath+ Toilet", "bathroom"),
+    ("BATH+TOILET", "bathroom"),
+    ("Bath / WC", "bathroom"),
+    ("Banyo/WC", "wc"),
+    ("WC + DUŞ", "wc"),
+    ("Banyo + Toilet", "wc"),
+    # Priority with the new types: kitchen > dining > prayer > hall.
+    ("Kitchen & Dining", "kitchen"),
+    ("Living / Dining", "living"),
+    ("Dining Hall", "dining"),
+    ("Pooja Hall", "prayer"),
+    ("Master Bath", "bathroom"),
+    ("Servant Toilet", "wc"),
+    ("Terrace Garden", "balcony"),
+    # Whole English words only.
+    ("STOREY", "other"),
+    ("BRICK", "other"),
+    ("KITE", "other"),
+    ("DECKCHAIR", "other"),
+    ("Parking", "other"),
+])
+def test_english_rules_and_priority(label, room_type):
+    assert B.room_type_for(label) == room_type
+
+
+def test_hall_alone_is_a_living_room_in_a_large_compact_face():
+    assert B.room_type_for("Hall") == "hall"                                       # no face: hall
+    assert B.room_type_for("HALL", face_area_m2=12.0, face_aspect=1.4) == "living"
+    assert B.room_type_for("Hall", face_area_m2=9.0, face_aspect=2.5) == "living"
+    assert B.room_type_for("Hall", face_area_m2=8.9, face_aspect=1.0) == "hall"    # too small
+    assert B.room_type_for("Hall", face_area_m2=14.0, face_aspect=3.5) == "hall"   # a corridor
+    assert B.room_type_for("Entrance Hall", face_area_m2=12.0, face_aspect=1.4) == "hall"
+    assert B.room_type_for("Living Hall", face_area_m2=6.0, face_aspect=1.4) == "living"
+    assert B.room_type_for("Hallway", face_area_m2=12.0, face_aspect=1.4) == "hall"
+
+
+@pytest.mark.parametrize("raw, label, room_type, area", [
+    # Plain title case for English labels (no Turkish dotless i), WC kept upper-case.
+    ("LIVING ROOM", "Living Room", "living", None),
+    ("DINING", "Dining", "dining", None),
+    ("Bath+ Toilet", "Bath+ Toilet", "bathroom", None),
+    ("BATH+TOILET", "Bath+Toilet", "bathroom", None),
+    ("GUEST WC", "Guest WC", "wc", None),
+    ("children's room", "Children's Room", "bedroom", None),
+    ("2nd BEDROOM", "2nd Bedroom", "bedroom", None),
+    ("KITCHEN 10 sq m", "Kitchen", "kitchen", 10.0),
+    ("BED ROOM 110 sq ft", "Bed Room", "bedroom", pytest.approx(110 * 0.09290304)),
+    ("PARKING", "Parking", "other", None),
+    ("MEDIA ROOM", "Media Room", "other", None),
+    ("SALON / LIVING", "Salon / Living", "living", None),
+    # Turkish casing stays for Turkish labels (keyword, Turkish letters or a Turkish word).
+    ("YEMEK ODASI", "Yemek Odası", "other", None),
+    ("KİLER", "Kiler", "storage", None),
+    ("BANYO VE WC", "Banyo Ve Wc", "wc", None),
+    ("MİSAFİR ODASI", "Misafir Odası", "other", None),
+])
+def test_normalise_room_label_casing(raw, label, room_type, area):
+    assert B.normalise_room_label(raw) == (label, room_type, area)
+
+
+def test_normalise_room_label_language_can_be_forced():
+    assert B.normalise_room_label("LIVING", turkish=True)[0] == "Lıvıng"
+    assert B.normalise_room_label("YEMEK ODASI", turkish=False)[0] == "Yemek Odasi"
+    assert B.is_turkish_label("ÇALIŞMA") and B.is_turkish_label("ODASI") and B.is_turkish_label("SALON")
+    assert not B.is_turkish_label("LIVING ROOM") and not B.is_turkish_label("WC")
+    assert not B.is_turkish_label("SALON / LIVING")
+
+
+def test_parse_area_label_keeps_metric_and_reads_square_feet():
+    assert B.parse_area_label("SALON 24,50 m²") == ("SALON", 24.5)
+    assert B.parse_area_label("MUTFAK 8.25 m2") == ("MUTFAK", 8.25)
+    assert B.parse_area_label("  salon   24,5 m² ") == ("salon", 24.5)
+    assert B.parse_area_label("SALON") == ("SALON", None)
+    label, area = B.parse_area_label("Bed Room 110 sq ft")
+    assert label == "Bed Room" and area == pytest.approx(110 * 0.09290304)
+    assert B._AREA_RE.search("SALON 24,50 m²").group("num") == "24,50"
 
 
 # Every room of the five synthetic projects: id -> (label as drawn, room_type). The Milestone 2 projects

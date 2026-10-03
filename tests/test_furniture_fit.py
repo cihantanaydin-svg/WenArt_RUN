@@ -2,7 +2,9 @@
 
 Catalogue: every entry complete (bbox, frame fields, CC0, Poly Haven), every
 furniture type of the schema covered by a library or a parametric entry,
-malformed catalogues refused. Fitting: aspect-closest candidate, the 15 %
+malformed catalogues refused. Milestone 7 (docs/milestone7.md §6.3, §6.6):
+styles and style notes, beds with a mattress only, the style filter of
+refit, CC BY / Objaverse entries and the merge of catalog_objaverse.json. Fitting: aspect-closest candidate, the 15 %
 non-uniform cap moves to the next candidate or the parametric fallback,
 the three synthetic buildings (truth JSON of all three, pipeline output of
 the two vector projects) get a fit on every piece with the footprint and
@@ -20,6 +22,7 @@ from wenart.furniture import catalog as C
 from wenart.furniture import fit as F
 from wenart.furniture.__main__ import main as furniture_main
 from wenart.ingest.pipeline import build_project
+from wenart.style import vocabulary as V
 
 from conftest import PROJECTS, SYNTHETIC, load_truth
 
@@ -52,17 +55,21 @@ def test_catalog_covers_every_schema_type(catalog):
     assert set(C.FURNITURE_TYPES) == SCHEMA_TYPES
     assert set(catalog.types()) == SCHEMA_TYPES
     assert len(catalog.models) >= 25 and len(catalog.parametric_types) >= 8
-    for ftype in ("sofa", "armchair", "chair", "table_dining", "table_coffee", "desk", "bed_single", "bed_double",
+    for ftype in ("sofa", "armchair", "chair", "table_dining", "table_coffee", "desk", "bed_double",
                   "nightstand", "bookshelf", "tv_unit", "dresser"):
         assert 1 <= len(catalog.candidates(ftype)) <= 3, ftype
+    # Milestone 7: old_bed_frame (no mattress) is gone, so bed_single is parametric until Objaverse adds one; the
+    # four documented-only types are parametric (the stair is built from the drawn flights).
     for ftype in ("toilet", "washbasin", "shower", "bathtub", "fridge", "washing_machine", "kitchen_counter",
-                  "kitchen_island", "sink_kitchen", "wardrobe", "unknown"):
+                  "kitchen_island", "sink_kitchen", "wardrobe", "unknown", "bed_single", "stair", "side_table",
+                  "floor_lamp", "potted_plant"):
         assert ftype in catalog.parametric_types and catalog.candidates(ftype) == []
+    assert catalog.entry("old_bed_frame") is None
     assert len(set(catalog.ids())) == len(catalog.ids())
 
 
 def test_catalog_entries_are_complete(catalog):
-    for entry in catalog.models + catalog.decor:
+    for entry in [e for e in catalog.models + catalog.decor if e["source"] == "polyhaven"]:
         for key in C.REQUIRED_MODEL_FIELDS:
             assert key in entry, (entry.get("id"), key)
         assert entry["source"] == "polyhaven" and entry["licence"] == "CC0"
@@ -123,11 +130,12 @@ def test_frame_helpers():
 # Fitting rule on a hand-made catalogue
 # --------------------------------------------------------------------------
 
-def _entry(asset_id, ftype, w, d, h):
+def _entry(asset_id, ftype, w, d, h, styles=("neutral",), **extra):
     return {"id": asset_id, "type": ftype, "source": "polyhaven", "licence": "CC0", "bbox_m": [w, d, h],
             "bbox_model_m": [w, d, h], "bbox_min_m": [-w / 2, -d / 2, 0.0], "bbox_max_m": [w / 2, d / 2, h],
             "front_axis": "-Y", "up_axis": "+Z", "origin_offset": [0.0, 0.0, 0.0], "front_axis_confidence": "high",
-            "url": f"https://polyhaven.com/a/{asset_id}", "gltf": f"models/{asset_id}/{asset_id}_1k.gltf"}
+            "url": f"https://polyhaven.com/a/{asset_id}", "gltf": f"models/{asset_id}/{asset_id}_1k.gltf",
+            "styles": list(styles), "style_note": "test entry", **extra}
 
 
 def _piece(ftype, w, d, source="from_documents", pid="f_L0_001"):
@@ -237,9 +245,11 @@ def test_fit_synthetic_buildings(catalog, buildings):
                 sx, sy, sz = asset["fit_scale"]
                 assert max(sx, sy, sz) / min(sx, sy, sz) <= F.NON_UNIFORM_CAP + 1e-6, (name, piece["id"], asset)
                 assert sz == pytest.approx((sx + sy) / 2, abs=1e-3)
-                assert asset["licence"] == "CC0" and asset["library"] == "polyhaven"
                 entry = catalog.entry(asset["asset_id"])
-                assert entry["type"] == piece["type"] and asset["gltf"] == entry["gltf"]
+                assert asset["library"] == entry["source"] and asset["licence"] in C.SOURCE_LICENCES[entry["source"]]
+                assert entry["type"] == piece["type"]
+                assert asset.get("gltf", asset.get("glb")) == entry.get("gltf", entry.get("glb"))
+                assert asset["style_family"] is None and asset["styles"] == entry["styles"]   # fit: no filter
                 assert asset["bbox_m"][2] == pytest.approx(entry["bbox_m"][2] * sz, abs=1e-3)
             else:
                 assert asset["fallback_reason"] and asset["licence"] == "n/a"
@@ -258,7 +268,7 @@ def test_fit_synthetic_buildings(catalog, buildings):
             if asset["method"] == "parametric":
                 assert f"- {piece['id']} ({piece['type']}): {asset['fallback_reason']}" in report
             else:
-                assert f"- {asset['asset_id']} (polyhaven, CC0)" in report
+                assert f"- {asset['asset_id']} ({asset['library']}, {asset['licence']})" in report
 
 
 def test_fit_is_deterministic(catalog):
@@ -352,3 +362,204 @@ def test_parametric_box_is_what_blender_builds():
     assert fit["bbox_m"][2] > 0.5                                           # the headboard rises above the mattress
     tall = dict(_piece("wardrobe", 1.2, 0.6), height=2.4)
     assert F.parametric_fit(tall, "test")["bbox_m"][2] == pytest.approx(P.parametric_bbox("wardrobe", 1.2, 0.6, 2.4)[2])
+
+
+
+# --------------------------------------------------------------------------
+# Milestone 7: styles, mattresses, the refit style filter, CC BY / Objaverse (docs/milestone7.md §6.3, §6.6)
+# --------------------------------------------------------------------------
+
+def test_every_model_has_styles_a_note_and_beds_a_mattress(catalog):
+    allowed = set(C.style_values())
+    assert allowed == {name for name, _ in V.STYLE_FAMILIES} | {"neutral"}
+    polyhaven = [e for e in catalog.models if e["source"] == "polyhaven"]
+    assert len(polyhaven) == 30                                       # the 31 surveyed models minus old_bed_frame
+    for e in polyhaven:
+        assert e["styles"] and set(e["styles"]) <= allowed, e["id"]
+        assert e["style_note"].startswith("Poly Haven /info (2026-10-03): tags"), e["id"]
+    by_id = {e["id"]: e for e in polyhaven}
+    assert by_id["GothicBed_01"]["styles"] == ["classic"] and by_id["GothicCommode_01"]["styles"] == ["classic"]
+    assert by_id["GothicBed_01"]["has_mattress"] is True
+    for e in catalog.models:
+        if e["type"] in C.BED_TYPES:
+            assert e["has_mattress"] is True, e["id"]
+    # What a Scandinavian project (the default style) can take from Poly Haven: the plain oak side table, the
+    # pine shelves and the neutral stove; everything else is parametric (user decision 7).
+    scandi = sorted({e["type"] for e in catalog.models if C.styles_match(e, "scandinavian")})
+    assert scandi == ["bookshelf", "nightstand", "stove"]
+
+
+def _styled_catalog():
+    entries = [
+        _entry("sofa_classic", "sofa", 2.0, 0.8, 0.8, styles=("classic",)),
+        _entry("sofa_scandi", "sofa", 2.1, 0.85, 0.8, styles=("scandinavian", "japandi")),
+        _entry("sofa_any", "sofa", 1.6, 1.0, 0.8, styles=("neutral",)),
+        _entry("bed_frame", "bed_double", 1.6, 2.0, 1.0, has_mattress=False),
+        _entry("bed_soft", "bed_single", 0.9, 2.0, 0.6, has_mattress=True, styles=("rustic",)),
+    ]
+    entries += [{"type": t, "parametric": True, "reason": "test"} for t in C.FURNITURE_TYPES
+                if t not in ("sofa", "bed_double", "bed_single")]
+    return C.Catalog({"entries": entries})
+
+
+def test_refit_takes_only_models_of_the_style_family_or_neutral():
+    cat = _styled_catalog()
+    piece = _piece("sofa", 2.1, 0.85)
+    assert F.fit_piece(piece, cat)["asset_id"] == "sofa_scandi"          # no family: every model (fit)
+    fit = F.fit_piece(piece, cat, style_family="scandinavian")
+    assert fit["asset_id"] == "sofa_scandi" and fit["style_family"] == "scandinavian"
+    assert fit["styles"] == ["scandinavian", "japandi"]
+    assert [x["id"] for x in fit["excluded"]] == ["sofa_classic"] and "classic" in fit["excluded"][0]["reason"]
+    fit = F.fit_piece(piece, cat, style_family="industrial")            # only the neutral one is left ...
+    assert fit["method"] == "parametric" and [c["id"] for c in fit["candidates"]] == ["sofa_any"]   # ... too square
+    assert {x["id"] for x in fit["excluded"]} == {"sofa_classic", "sofa_scandi"}
+    assert F.fit_piece(_piece("sofa", 1.6, 1.0), cat, style_family="industrial")["asset_id"] == "sofa_any"
+    no_neutral = C.Catalog({"entries": [e for e in cat.entries if e.get("id") != "sofa_any"]})
+    fit = F.fit_piece(piece, no_neutral, style_family="industrial")
+    assert fit["method"] == "parametric" and fit["fallback_reason"] == "no model for style industrial"
+    assert fit["candidates"] == [] and {x["id"] for x in fit["excluded"]} == {"sofa_classic", "sofa_scandi"}
+    building = {"furniture": [piece, _piece("sofa", 2.0, 0.8, pid="f_L0_002")]}
+    fitted = F.fit_building(building, cat, style_family="classic")
+    assert [p["asset"]["asset_id"] for p in fitted["furniture"]] == ["sofa_classic", "sofa_classic"]
+
+
+def test_beds_without_a_mattress_are_never_taken():
+    cat = _styled_catalog()
+    fit = F.fit_piece(_piece("bed_double", 1.6, 2.0), cat)
+    assert fit["method"] == "parametric" and fit["fallback_reason"] == "no bed_double model with a mattress"
+    assert fit["excluded"] == [{"id": "bed_frame", "reason": "bed model without a mattress"}]
+    assert F.fit_piece(_piece("bed_single", 0.9, 2.0), cat)["asset_id"] == "bed_soft"
+    assert F.fit_piece(_piece("bed_single", 0.9, 2.0), cat, style_family="modern")["fallback_reason"] == \
+        "no model for style modern"
+
+
+def _objaverse_entry(uid, ftype, w, d, h, licence="CC-BY-4.0", styles=("modern",), **extra):
+    e = _entry(f"objaverse_{uid}", ftype, w, d, h, styles=styles)
+    for key in ("url", "gltf", "style_note"):
+        e.pop(key)
+    e.update({"source": "objaverse", "licence": licence, "uid": uid, "glb": f"models/objaverse/{uid}.glb",
+              "sha256_glb": "ab" * 32, "title": f"Model {uid}", "author": "someone",
+              "source_url": f"https://sketchfab.com/3d-models/{uid}",
+              "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+              "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+              "attribution": f'"Model {uid}" by someone (https://sketchfab.com/3d-models/{uid}), CC BY 4.0'})
+    e.update(extra)
+    return e
+
+
+def test_validation_of_sources_licences_styles_and_mattresses(catalog):
+    base = copy.deepcopy(catalog.data)
+    C.validate(base)
+
+    def broken(mutate, complete=True, data=None):
+        d = copy.deepcopy(data or base)
+        mutate(d)
+        with pytest.raises(C.CatalogError):
+            C.validate(d, complete=complete)
+
+    first = next(i for i, e in enumerate(base["entries"]) if not e.get("parametric"))
+    bed = next(i for i, e in enumerate(base["entries"]) if e.get("type") == "bed_double" and not e.get("parametric"))
+    broken(lambda d: d["entries"][first].update(licence="CC-BY-4.0"))      # Poly Haven is CC0 only
+    broken(lambda d: d["entries"][first].update(source="sketchfab"))
+    broken(lambda d: d["entries"][first].update(styles=["boho"]))
+    broken(lambda d: d["entries"][first].update(styles="classic"))
+    broken(lambda d: d["entries"][first].pop("styles"))
+    broken(lambda d: d["entries"][first].pop("style_note"))
+    broken(lambda d: d["entries"][bed].pop("has_mattress"))
+    broken(lambda d: d["entries"][bed].update(has_mattress="yes"))
+    extra = {"entries": [_objaverse_entry("u1", "bed_single", 0.9, 2.0, 0.6, has_mattress=True)]}
+    C.validate(extra, complete=False)
+    with pytest.raises(C.CatalogError, match="neither a library entry"):
+        C.validate(extra)                                                  # alone it covers one type only
+    broken(lambda d: d["entries"][0].update(licence="CC-BY-NC-4.0"), complete=False, data=extra)
+    broken(lambda d: d["entries"][0].update(licence="CC-BY-SA-4.0"), complete=False, data=extra)
+    for field in C.CC_BY_FIELDS:
+        broken(lambda d, f=field: d["entries"][0].update({f: ""}), complete=False, data=extra)
+    broken(lambda d: d["entries"][0].update(styles=[]), complete=False, data=extra)
+    broken(lambda d: d["entries"][0].update(sha256_glb="abc"), complete=False, data=extra)
+    broken(lambda d: d["entries"][0].pop("has_mattress"), complete=False, data=extra)
+    broken(lambda d: d["entries"].append({"type": "sofa", "parametric": True, "reason": "x"}), complete=False,
+           data=extra)
+    cc0 = {"entries": [_objaverse_entry("u2", "floor_lamp", 0.4, 0.4, 1.6, licence="CC0", attribution="")]}
+    C.validate(cc0, complete=False)                                        # CC0 needs no credit line
+
+
+def test_load_merges_the_objaverse_catalogue(tmp_path, catalog):
+    main = tmp_path / "catalog.json"
+    main.write_text(json.dumps(catalog.data), encoding="utf-8")
+    assert C.load(main).merged == {} and C.objaverse_path(main) == tmp_path / "catalog_objaverse.json"
+    extra = {"schema_version": "0.1", "notice": "ODC-By 1.0", "entries": [
+        _objaverse_entry("u1", "bed_single", 0.9, 2.0, 0.6, has_mattress=True, styles=("scandinavian",)),
+        _objaverse_entry("u2", "sofa", 2.2, 0.9, 0.8, styles=("scandinavian",)),
+        _objaverse_entry("u3", "floor_lamp", 0.4, 0.4, 1.6, licence="CC0", styles=("neutral",))]}
+    C.objaverse_path(main).write_text(json.dumps(extra), encoding="utf-8")
+    merged = C.load(main)
+    assert merged.merged == {"source": "catalog_objaverse.json", "models_added": 3,
+                             "parametric_replaced": ["bed_single", "floor_lamp"]}
+    assert "bed_single" not in merged.parametric_types and "floor_lamp" not in merged.parametric_types
+    assert [e["id"] for e in merged.candidates("bed_single")] == ["objaverse_u1"]
+    assert C.load(main, objaverse=False).merged == {}
+    # A Scandinavian refit takes the Objaverse sofa with its credit line; the report lists it.
+    building = {"project": {"id": "t"}, "furniture": [_piece("sofa", 2.2, 0.9), _piece("bed_single", 0.9, 2.0,
+                                                                                        pid="f_L0_002")]}
+    fitted = F.fit_building(building, merged, style_family="scandinavian")
+    sofa, bed = (p["asset"] for p in fitted["furniture"])
+    assert sofa["asset_id"] == "objaverse_u2" and sofa["library"] == "objaverse" and sofa["licence"] == "CC-BY-4.0"
+    assert sofa["glb"] == "models/objaverse/u2.glb" and sofa["sha256_glb"] == "ab" * 32 and "gltf" not in sofa
+    assert sofa["attribution"].startswith('"Model u2" by someone') and sofa["via"].startswith("Objaverse")
+    assert bed["asset_id"] == "objaverse_u1"
+    report = F.fit_report(fitted, style_note="family 'scandinavian'")
+    assert "## Attribution (CC BY 4.0)" in report and '- objaverse_u2: "Model u2" by someone' in report
+    assert "Library style filter: family 'scandinavian'" in report and "## Models not taken" in report
+    # A broken Objaverse file is refused, not half-used.
+    extra["entries"][0]["licence"] = "CC-BY-NC-4.0"
+    C.objaverse_path(main).write_text(json.dumps(extra), encoding="utf-8")
+    with pytest.raises(C.CatalogError):
+        C.load(main)
+
+
+def test_style_family_of_a_profile():
+    assert F.style_family_of({"family": "japandi", "source_text": "Scandinavian"}) == ("japandi", "the profile's family")
+    assert F.style_family_of({"family": None, "source_text": "Scandinavian"})[0] is None
+    assert F.style_family_of({"source_text": "Modern minimal, concrete"})[0] == "modern minimal"   # pre-M7 file
+    assert F.style_family_of([{"family": "rustic"}, {"family": "modern"}])[0] == "rustic"
+    assert F.style_family_of({})[0] is None
+
+
+def test_cli_style_flag_filters_the_library(tmp_path, monkeypatch, capsys):
+    from wenart.assets import models
+    from wenart.style import profile as SP
+
+    src = tmp_path / "building.json"
+    B.save(load_truth("synthetic-01"), src)
+    style = tmp_path / "style.json"
+    style.write_text(json.dumps(SP.profile_from_text("Scandinavian, light oak floor")), encoding="utf-8")
+    out = tmp_path / "building_final.json"
+    assert F.main([str(src), "--out", str(out), "--style", str(style)]) == 0
+    assert "style filter: family 'scandinavian'" in capsys.readouterr().out
+    fitted = B.load(out)
+    by_type = {}
+    for p in fitted["furniture"]:
+        by_type.setdefault(p["type"], set()).add((p["asset"]["method"], p["asset"]["asset_id"]))
+        assert p["asset"]["style_family"] == "scandinavian"
+    assert by_type["sofa"] == {("parametric", "parametric:sofa")}         # sofa_02 is classic
+    assert ("library", "side_table_01") in by_type["nightstand"]
+    assert all(m == "parametric" for m, _ in by_type["bed_double"])         # GothicBed_01 is classic
+    sofa = next(p for p in fitted["furniture"] if p["type"] == "sofa")
+    assert sofa["asset"]["fallback_reason"] == "no model for style scandinavian"
+    report = (tmp_path / "building_final_report.md").read_text(encoding="utf-8")
+    assert "Library style filter: family 'scandinavian'" in report and "sofa_02: styles ['classic']" in report
+    F.assert_only_assets_changed(load_truth("synthetic-01"), fitted)
+    # Without --style (the fit stage) nothing is filtered.
+    assert F.main([str(src), "--out", str(out)]) == 0
+    assert any(p["asset"]["asset_id"] == "sofa_02" for p in B.load(out)["furniture"])
+    # An Objaverse fit is fetched from the cache only: the fetcher gets the asset (uid, sha256) as meta.
+    seen = []
+    monkeypatch.setattr(models, "fetch_model", lambda a, d, size="1k", source="polyhaven", licence=None, meta=None:
+                        seen.append((a, source, licence, (meta or {}).get("uid"))))
+    asset = _objaverse_entry("u9", "sofa", 2.2, 0.9, 0.8)
+    building = {"furniture": [dict(_piece("sofa", 2.2, 0.9), asset={
+        "method": "library", "library": "objaverse", "asset_id": asset["id"], "licence": "CC-BY-4.0",
+        "uid": "u9", "sha256_glb": asset["sha256_glb"], "glb": asset["glb"]})]}
+    assert F.download_fitted(building, tmp_path / "assets", log=lambda *_: None)["fetched"] == ["objaverse_u9"]
+    assert seen == [("objaverse_u9", "objaverse", "CC-BY-4.0", "u9")]

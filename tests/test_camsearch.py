@@ -386,9 +386,41 @@ def test_select_views_ties_and_blocked_candidates():
 
 
 def test_a_tiny_room_gets_one_blocked_view_with_the_warning():
-    building = _building(1.2, 1.2)
+    # Milestone 7 (§6.2): a tiny room with a piece to show still gets its one (blocked) view ...
+    building = _building(1.2, 1.2, furniture=[("wb", "washbasin", (0.6, 0.95), (0.5, 0.4), 0.0, (0.5, 0.4, 0.85))])
     plans = cameras.plan_cameras(building, "L0", policy="search")
     assert len(plans) == 1 and plans[0]["warning"] == "blocked unavoidable" and plans[0]["score"]["blocked"]
+    assert C.rooms_without_view(building) == []
+
+
+def test_rooms_without_furniture_get_one_view_or_none_below_2_5_m2():
+    # Milestone 7 (docs/milestone7.md §6.2, user decision 8).
+    assert (C.EMPTY_ROOM_VIEWS, C.MIN_EMPTY_ROOM_AREA_M2) == (1, 2.5)
+    big = _building(5.0, 4.0, openings=ROOM_A["openings"])            # 20 m2, nothing to show: one view
+    plans = cameras.plan_cameras(big, "L0", policy="search")
+    assert [p["name"] for p in plans] == ["cam_r_1"] and C.room_view_count(big["rooms"][0], big) == 1
+    assert C.room_view_count(big["rooms"][0]) == 3                      # the area rule alone (pre-layout estimate)
+    assert C.rooms_without_view(big) == []
+    tiny = _building(1.2, 1.2)                                        # 1.44 m2, empty: no view, listed
+    assert cameras.plan_cameras(tiny, "L0", policy="search") == []
+    assert C.plan_room(tiny["rooms"][0], tiny) == ([], 0)
+    (row,) = C.rooms_without_view(tiny, "L0")
+    assert row["room_id"] == "r" and row["level_id"] == "L0" and row["label"] == "Oda" and row["area_m2"] == 1.44
+    assert row["reason"].startswith("no furniture after layout and decor and 1.44 m2 < 2.5 m2")
+    assert cameras.rooms_without_view(tiny, "L0", "search") == [row] and cameras.rooms_without_view(tiny, "L0") == []
+    assert len(cameras.plan_cameras(tiny, "L0")) == 3                    # the m5 policy is unchanged
+    assert C.room_view_count(_building(2.5, 1.0)["rooms"][0], _building(2.5, 1.0)) == 1   # exactly 2.5 m2: one view
+    # Decor and build: false pieces do not count as something to show (and are not in the model).
+    shown = _building(5.0, 4.0, furniture=[("sym", "unknown", (2.0, 2.0), (0.6, 0.6), 0.0, (0.6, 0.6, 0.8)),
+                                           ("cush", "cushion", (3.0, 2.0), (0.4, 0.2), 0.0, (0.4, 0.2, 0.2))])
+    shown["furniture"][0]["build"] = False
+    shown["furniture"][1]["kind"] = "decor"
+    assert C.shown_pieces(shown["rooms"][0], shown) == [] and C.RoomModel(shown["rooms"][0], shown).pieces == []
+    plans = cameras.plan_cameras(shown, "L0", policy="search")
+    assert len(plans) == 1 and plans[0]["visible_furniture"] == []
+    assert all("sym" not in p["visible_furniture"] for p in cameras.plan_cameras(shown, "L0"))
+    shown["furniture"][0]["build"] = True
+    assert len(C.shown_pieces(shown["rooms"][0], shown)) == 1 and C.room_view_count(shown["rooms"][0], shown) == 3
 
 
 def test_a_room_without_a_free_point_gets_the_fallback_with_a_warning():
@@ -546,10 +578,16 @@ def test_synthetic_search_views_per_room(searched):
     by_room = {}
     for p in plans:
         by_room.setdefault(p["room_id"], []).append(p)
-    assert set(by_room) == {r["id"] for r in building["rooms"]}, name
+    without = {r["room_id"] for r in C.rooms_without_view(building)}
+    assert set(by_room) == {r["id"] for r in building["rooms"]} - without and not set(by_room) & without, name
     for room in building["rooms"]:
+        if room["id"] in without:
+            assert not C.shown_pieces(room, building) and G.polygon_area(C.room_polygon(room)) < 2.5, room["id"]
+            continue
         views = by_room[room["id"]]
-        assert 1 <= len(views) <= C.room_view_count(room), room["id"]
+        assert 1 <= len(views) <= C.room_view_count(room, building) <= C.room_view_count(room), room["id"]
+        if not C.shown_pieces(room, building):
+            assert len(views) == 1, room["id"]                           # Milestone 7: nothing to show, one view
         assert [p["name"] for p in views] == [f"cam_{room['id']}_{i}" for i in range(1, len(views) + 1)]
 
 
@@ -596,6 +634,14 @@ def test_plan_count_of_the_committed_buildings_follows_the_area_rule():
     # docs/milestone6.md §8.1: 29 views for synthetic-01 and 50 for synthetic-03 by the area rule.
     assert sum(C.room_view_count(r) for r in _final("synthetic-01")["rooms"]) == 29
     assert sum(C.room_view_count(r) for r in _final("synthetic-03")["rooms"]) == 50
+    # Milestone 7 (§6.2): synthetic-03's two storage rooms and the balcony have nothing to show (3 + 2 + 1 -> 1
+    # each); synthetic-01's furnished rooms keep the area rule. No committed room is empty and under 2.5 m2.
+    final = {name: _final(name) for name in ("synthetic-01", "synthetic-03")}
+    assert sum(C.room_view_count(r, final["synthetic-01"]) for r in final["synthetic-01"]["rooms"]) == 29
+    assert sum(C.room_view_count(r, final["synthetic-03"]) for r in final["synthetic-03"]["rooms"]) == 44
+    assert [r["id"] for r in final["synthetic-03"]["rooms"] if not C.shown_pieces(r, final["synthetic-03"])] == \
+        ["r_L-1_kiler", "r_L-1_kiler_2", "r_L1_balkon"]
+    assert all(C.rooms_without_view(b) == [] for b in final.values())
 
 
 def test_search_time_of_synthetic_03_is_within_budget():

@@ -7,7 +7,18 @@ inconsistent element answer into ``unsure``. Milestone 6 adds the realism
 A/B answer schema (``realism_schema``: one forced choice per aspect, no tie)
 and the schemas of the realism files (``realism_pairs_file_schema``,
 ``realism_ab_schema``, ``realism_summary_schema``), see
-``wenart/vision_check/realism.py``.
+``wenart/vision_check/realism.py``. Milestone 7 (docs/milestone7.md §8.2) adds
+the realism v2 answer schema (``realism2_schema(order)``: one aspect per call,
+the answer enum in the order the question names the images) and the v2
+variants of the three file schemas (``version=2``).
+
+Milestone 7 furniture types (docs/milestone7.md §0): ``stair``,
+``side_table``, ``floor_lamp`` and ``potted_plant`` are categories like every
+furniture type, but ``potted_plant`` has the **decor** class (an added
+plant never rejects a polish, as the decor category ``plant`` today), and a
+drawn ``potted_plant`` seen as ``plant`` or a drawn ``floor_lamp`` seen as
+``lamp`` is the same object (``EQUIVALENT``): ``normalise_answer`` counts it
+as present instead of "different".
 
 Categories are generated from the enums the rest of the pipeline uses, so
 prompt, schema and building JSON cannot drift: ``door``/``window`` (building
@@ -56,6 +67,10 @@ MAX_COUNT = 20
 # ceiling (fixture); one reaching lower stands on the floor or a table
 # (furniture). Only the label depends on it: both classes reject a polish.
 LAMP_FIXTURE_MAX_Y1 = 400
+# Furniture types that are decor for the extras (an added potted plant never rejects, as "plant").
+DECOR_FURNITURE_TYPES: tuple[str, ...] = ("potted_plant",)
+# Categories that name the same object in a photo: the expected category -> what it may be seen as.
+EQUIVALENT: dict[str, tuple[str, ...]] = {"potted_plant": ("plant",), "floor_lamp": ("lamp",)}
 
 SCHEMA_ID = "https://json-schema.org/draft/2020-12/schema"
 CONFIDENCE: dict = {"type": "number", "minimum": 0, "maximum": 1}
@@ -67,10 +82,13 @@ def category_class(category: Optional[str], box_1000=None) -> Optional[str]:
     """Class of a category: door, window, furniture, fixture or decor (None for ``nothing``/unknown).
 
     ``lamp`` is a fixture when its box (0..1000) ends above
-    ``LAMP_FIXTURE_MAX_Y1``, else furniture (floor or table lamp).
+    ``LAMP_FIXTURE_MAX_Y1``, else furniture (floor or table lamp);
+    ``potted_plant`` is decor (``DECOR_FURNITURE_TYPES``).
     """
     if category in OPENING_TYPES:
         return category
+    if category in DECOR_FURNITURE_TYPES:
+        return "decor"
     if category in FURNITURE_TYPES or category == "other_furniture":
         return "furniture"
     if category == "lamp":
@@ -137,19 +155,26 @@ def preference_schema() -> dict:
 def normalise_answer(answer: dict, category: Optional[str], type_unverified: bool = False) -> tuple[dict, bool]:
     """One element answer made consistent: ``(answer, changed)``.
 
-    - present: ``seen_as`` must be the expected category (for a
-      type-unverified piece, ``category`` None, anything but ``nothing``);
+    - present: ``seen_as`` must be the expected category or an
+      ``EQUIVALENT`` one (for a type-unverified piece, ``category`` None,
+      anything but ``nothing``);
     - different: ``seen_as`` must name another category (not ``nothing``);
+      an ``EQUIVALENT`` category (a potted plant seen as ``plant``) is the
+      same object: the answer becomes ``present`` (changed, raw kept);
     - absent: ``seen_as`` must be ``nothing``.
     Anything else becomes ``unsure`` (the raw answer is kept under ``raw``).
     """
     status, seen = answer.get("status"), answer.get("seen_as")
+    same = () if category is None else (category,) + EQUIVALENT.get(category, ())
+    if status == "different" and not type_unverified and category is not None and seen in same[1:]:
+        return {"status": "present", "seen_as": seen, "confidence": answer.get("confidence"),
+                "raw": dict(answer)}, True
     ok = True
     if status == "present":
         if type_unverified or category is None:
             ok = seen not in (None, NOTHING)
         else:
-            ok = seen == category
+            ok = seen in same
     elif status == "different":
         ok = seen not in (None, NOTHING) and (seen != category or type_unverified or category is None)
     elif status == "absent":
@@ -179,6 +204,11 @@ REALISM_MAX_CUES = 3
 # Pair sets in the order they are asked (§6.2: controls first, then m5_vs_m6, then look_alt).
 REALISM_SETS: tuple[str, ...] = ("ctl_flat", "ctl_proxy", "ctl_direct", "ctl_lowspp", "null_identical",
                                  "null_reencode", "nuisance_ev", "m5_vs_m6", "look_alt")
+# Realism v2 (docs/milestone7.md §8.2): no m5_vs_m6; look_alt = AgX - Punchy (A) vs look None (B).
+REALISM2_SETS: tuple[str, ...] = ("ctl_flat", "ctl_proxy", "ctl_direct", "ctl_lowspp", "null_identical",
+                                  "null_reencode", "nuisance_ev", "look_alt")
+# The answer enum in the order the question names the images: ab "Image 1 ... Image 2", ba "Image 2 ... Image 1".
+REALISM2_ENUMS: dict[str, tuple[str, ...]] = {"ab": ("image_1", "image_2"), "ba": ("image_2", "image_1")}
 REALISM_OUTCOMES: tuple[str, ...] = ("W", "L", "T", "NC")
 REALISM_DECISIONS: tuple[str, ...] = ("better", "worse", "no_detectable_difference", "not_measurable")
 REALISM_EXPECTED: tuple = ("b", "a", "tie", None)
@@ -206,12 +236,31 @@ def realism_schema() -> dict:
             "required": list(REALISM_ASPECTS), "properties": {a: copy.deepcopy(aspect) for a in REALISM_ASPECTS}}
 
 
-def realism_pairs_file_schema() -> dict:
-    """``out/ab/pairs.json`` written by ``realism-pairs`` (§6.3); paths are relative to the project output."""
+def realism2_schema(order: str) -> dict:
+    """The strict answer schema of one realism v2 call (docs/milestone7.md §8.2): one aspect, a forced choice.
+
+    ``{"winner": enum, "confidence": 0..1}``; the enum lists the images in the
+    order the question names them (``REALISM2_ENUMS``: ``ab`` ``[image_1,
+    image_2]``, ``ba`` ``[image_2, image_1]``). KeyError for another order.
+    """
+    return {"$schema": SCHEMA_ID, "title": "RealismAspect", "type": "object", "additionalProperties": False,
+            "required": ["winner", "confidence"],
+            "properties": {"winner": {"enum": list(REALISM2_ENUMS[order])}, "confidence": copy.deepcopy(CONFIDENCE)}}
+
+
+def _kind(base: str, version: int) -> str:
+    """File kind of a realism file: ``realism_<x>`` (v1) or ``realism2_<x>`` (v2)."""
+    return base if int(version) == 1 else base.replace("realism_", "realism2_", 1)
+
+
+def realism_pairs_file_schema(version: int = 1) -> dict:
+    """``out/ab/pairs.json`` written by ``realism-pairs`` (§6.3), or (``version=2``) ``out/ab/pairs_v2.json`` of
+    ``realism2-pairs``; paths are relative to the project output."""
+    sets = REALISM_SETS if int(version) == 1 else REALISM2_SETS
     pair = {"type": "object",
             "required": ["pair_id", "set", "cam", "room_id", "a", "b", "expected", "target_aspect", "a_sha256",
                          "b_sha256", "a_bytes", "b_bytes", "delta_ev"],
-            "properties": {"pair_id": {"type": "string", "minLength": 3}, "set": {"enum": list(REALISM_SETS)},
+            "properties": {"pair_id": {"type": "string", "minLength": 3}, "set": {"enum": list(sets)},
                            "cam": {"type": "string", "minLength": 1}, "room_id": _TEXT_OR_NULL,
                            "a": {"type": "string"}, "b": {"type": "string"},
                            "expected": {"enum": list(REALISM_EXPECTED)},
@@ -223,7 +272,7 @@ def realism_pairs_file_schema() -> dict:
     return {"$schema": SCHEMA_ID, "title": "RealismPairs", "type": "object",
             "required": ["schema_version", "kind", "project", "controls", "control_views", "pairs", "sets", "dropped",
                          "skipped", "warnings"],
-            "properties": {"schema_version": {"const": "0.1"}, "kind": {"const": "realism_pairs"},
+            "properties": {"schema_version": {"const": "0.1"}, "kind": {"const": _kind("realism_pairs", version)},
                            "project": {"type": "string"}, "controls": {"type": "boolean"},
                            "control_views": {"type": "array", "items": {"type": "string"}},
                            "pairs": {"type": "array", "items": pair},
@@ -237,11 +286,13 @@ def _outcome_counts() -> dict:
             "properties": {o: {"type": "integer", "minimum": 0} for o in REALISM_OUTCOMES}}
 
 
-def realism_ab_schema() -> dict:
-    """``check/realism/realism_ab.json`` of one project (``realism-combine``): outcomes and statistics, no decision."""
+def realism_ab_schema(version: int = 1) -> dict:
+    """``check/realism/realism_ab.json`` of one project (``realism-combine``; ``version=2``: ``realism2_ab.json``
+    of ``realism2-combine``): outcomes and statistics, no decision."""
+    sets = REALISM_SETS if int(version) == 1 else REALISM2_SETS
     row = {"type": "object",
            "required": ["pair_id", "set", "cam", "room_id", "room", "project", "models", "consensus"],
-           "properties": {"set": {"enum": list(REALISM_SETS)},
+           "properties": {"set": {"enum": list(sets)},
                           "consensus": {"type": "object", "required": list(REALISM_ASPECTS),
                                         "properties": {a: {"enum": list(REALISM_OUTCOMES)}
                                                        for a in REALISM_ASPECTS}}}}
@@ -249,7 +300,7 @@ def realism_ab_schema() -> dict:
             "required": ["schema_version", "kind", "project", "models", "sets", "rows", "controls", "calls", "dropped",
                          "skipped", "warnings", "contact_sheets"],
             "not": {"required": ["decision"]},
-            "properties": {"schema_version": {"const": "0.1"}, "kind": {"const": "realism_ab"},
+            "properties": {"schema_version": {"const": "0.1"}, "kind": {"const": _kind("realism_ab", version)},
                            "project": {"type": "string"}, "models": {"type": "object"},
                            "sets": {"type": "object"}, "rows": {"type": "array", "items": row},
                            "controls": {"type": ["object", "null"]}, "calls": {"type": "array"},
@@ -257,8 +308,9 @@ def realism_ab_schema() -> dict:
                                               "additionalProperties": {"type": "array", "items": {"type": "string"}}}}}
 
 
-def realism_summary_schema() -> dict:
-    """``realism_summary.json`` (``realism-summary``): pooled statistics and the decision per set and aspect."""
+def realism_summary_schema(version: int = 1) -> dict:
+    """``realism_summary.json`` (``realism-summary``; ``version=2``: ``realism2_summary.json`` of
+    ``realism2-summary``): pooled statistics and the decision per set and aspect."""
     aspect = {"type": "object",
               "required": ["decision", "models", "consensus", "n", "decisive", "decisive_rooms", "win_rate",
                            "sign_p", "rooms", "rooms_sign_p", "net_win_ci95"],
@@ -276,7 +328,7 @@ def realism_summary_schema() -> dict:
             "required": ["schema_version", "kind", "projects", "controls_project", "models", "controls", "signal",
                          "measurable", "single_model", "consensus_models", "sets", "position_bias", "ev_flags",
                          "top_cues", "calls", "notes", "warnings"],
-            "properties": {"schema_version": {"const": "0.1"}, "kind": {"const": "realism_summary"},
+            "properties": {"schema_version": {"const": "0.1"}, "kind": {"const": _kind("realism_summary", version)},
                            "projects": {"type": "array", "items": {"type": "object", "required": ["project", "found"]}},
                            "controls_project": _TEXT_OR_NULL, "models": {"type": "object"},
                            "controls": {"type": ["object", "null"]},

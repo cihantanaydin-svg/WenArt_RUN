@@ -41,6 +41,9 @@ def test_every_category_has_a_hint():
     ("book_set", None, "decor"), ("textile", None, "decor"), ("other_object", None, "decor"),
     ("lamp", [400, 10, 450, 120], "fixture"), ("lamp", [400, 500, 450, 900], "furniture"),
     ("nothing", None, None),
+    # Milestone 7 types (docs/milestone7.md §0): an added potted plant never rejects, as "plant".
+    ("stair", None, "furniture"), ("side_table", None, "furniture"), ("floor_lamp", None, "furniture"),
+    ("potted_plant", None, "decor"),
 ])
 def test_category_classes(category, box, cls):
     assert S.category_class(category, box) == cls
@@ -118,6 +121,14 @@ def test_preference_schema():
     ({"status": "present", "seen_as": "wardrobe"}, None, True, "present"),         # type unverified: any piece
     ({"status": "present", "seen_as": "nothing"}, None, True, "unsure"),
     ({"status": "different", "seen_as": "wardrobe"}, None, True, "different"),
+    # Milestone 7: a drawn potted plant seen as the decor "plant" (a floor lamp as a "lamp") is the same object.
+    ({"status": "present", "seen_as": "plant"}, "potted_plant", False, "present"),
+    ({"status": "present", "seen_as": "potted_plant"}, "potted_plant", False, "present"),
+    ({"status": "different", "seen_as": "plant"}, "potted_plant", False, "present"),
+    ({"status": "different", "seen_as": "lamp"}, "floor_lamp", False, "present"),
+    ({"status": "different", "seen_as": "side_table"}, "floor_lamp", False, "different"),
+    ({"status": "present", "seen_as": "potted_plant"}, "plant", False, "unsure"),     # not the other way round
+    ({"status": "different", "seen_as": "potted_plant"}, "plant", False, "different"),
 ])
 def test_normalise_answer(answer, category, unverified, status):
     out, changed = S.normalise_answer(dict(answer, confidence=0.5), category, unverified)
@@ -195,6 +206,16 @@ def test_swap_replaces_one_type_in_the_list():
     items = P.check_items(expected_fixture(), None, swap={"id": "f_tv", "type": "desk"})
     tv = next(it for it in items if it["wenart_id"] == "f_tv")
     assert tv["type"] == "desk" and tv["category"] == "desk" and tv["swapped_from"] == "tv_unit"
+
+
+def test_new_furniture_types_have_photo_hints_and_plant_stays_decor():
+    for t in ("stair", "side_table", "floor_lamp", "potted_plant"):
+        assert t in S.CATEGORIES and t in P.HINTS and P.HINTS[t] != t
+    assert "plant" in S.DECOR_CATEGORIES and S.category_class("plant") == "decor"
+    assert S.element_category("furniture", "potted_plant") == "potted_plant"
+    assert S.EQUIVALENT == {"potted_plant": ("plant",), "floor_lamp": ("lamp",)}
+    line = P.element_line({"label": "E1", "type": "stair", "box_1000": [1, 2, 3, 4]})
+    assert line == "- E1: stair (staircase with steps); expected inside box [1, 2, 3, 4]"
 
 
 def test_prompt_lines_have_the_spec_form():

@@ -14,10 +14,12 @@
 #                            The venv is stamped as good only after a real kernel launch on gpu:0
 #                            (a matmul): pip accepts any wheel, the GPU does not.
 #   /opt/wenart/hf           the two VLM checkpoints (HF cache; download speed logged in MB/s)
-#   apt                      tesseract-ocr tesseract-ocr-tur + build tools for LibreDWG
-#   /workspace/tools/libredwg  GNU LibreDWG 0.14.1 built from the GNU tarball, 0.13.3 when the
-#                            0.14.1 download fails (./configure --disable-bindings --disable-python
-#                            --prefix=...); rebuilt when the installed VERSION differs
+#   apt                      tesseract-ocr tesseract-ocr-tur + build tools for LibreDWG (cmake, ninja)
+#   /workspace/tools/libredwg/bin  LibreDWG 0.14 (git tag 0.14 = commit d9468ae; there is no 0.14.1),
+#                            built from git on the container disk (/opt/wenart/build/libredwg) as static
+#                            binaries dwg2dxf, dwgread, dxf2dwg + VERSION "0.14 d9468ae"
+#                            (docs/milestone7.md §5.1); reused when VERSION matches and `dwg2dxf --help` runs.
+#                            GPL-3.0: called as separate programs, never shipped with the repository.
 #
 # Parts (Milestone 5): RECOG_SETUP_PARTS, space separated, default all of
 # "vllm paddle libredwg models". The M5 check phase (scripts/pod_setup_polish.sh) runs only
@@ -30,9 +32,9 @@
 #   PaddleOCR v3.7.0 docs/version3.x/paddlepaddle_installation.en.md: pip install
 #     paddlepaddle-gpu==3.2.0 -i https://www.paddlepaddle.org.cn/packages/stable/cu126/
 #     (PaddleOCR 3.7.x needs PaddlePaddle >= 3.0.0 per paddleocr_and_paddlex.en.md).
-#   LibreDWG 0.13.3 README: ./configure [--disable-bindings] [--disable-python] ...; NEWS: 0.13.3 of 2023-02-26.
-#   LibreDWG 0.14.1 tarball URL from docs/milestone3.md (ftp.gnu.org is not reachable from the
-#     cloud session's proxy, so the URL is verified on the pod: a failed download falls back to 0.13.3).
+#   LibreDWG tags via `git ls-remote https://github.com/LibreDWG/libredwg.git` (3 Oct 2026): 0.14 =
+#     d9468ae948b8f07a08efa756c19f8916052358c0, no 0.14.1. Static cmake/ninja build measured in the session
+#     (2 min 41 s on 4 cores); `dwg2dxf --version` prints no version, hence the VERSION file.
 #   huggingface_hub >= 1.0 (vllm needs >= 1.31): hf_transfer is no longer used; the fast path is
 #     hf_xet with HF_XET_HIGH_PERFORMANCE=1. HF_HUB_ENABLE_HF_TRANSFER=1 is still exported for
 #     older hubs and only warns when HF_XET_HIGH_PERFORMANCE is unset.
@@ -60,14 +62,14 @@ mkdir -p "$PIP_CACHE_DIR"
 VLLM_VERSION=0.30.0
 PADDLEOCR_VERSION=3.7.0
 PADDLE_VERSION=3.2.0
-# LibreDWG: 0.14.1 first (docs/milestone3.md section 5); when neither the GNU mirror nor the
-# GitHub release serves that tarball, 0.13.3 (the Milestone 2 build) is used and logged.
-# The version that was built ends up in $TOOLS/libredwg/VERSION and, through
-# `dwg2dxf --version`, in results/bakeoff/dwg_roundtrip.json.
-LIBREDWG_VERSION=0.14.1
-LIBREDWG_FALLBACK_VERSION=0.13.3
-libredwg_url() { echo "https://ftp.gnu.org/gnu/libredwg/libredwg-$1.tar.xz"; }
-libredwg_url_fallback() { echo "https://github.com/LibreDWG/libredwg/releases/download/$1/libredwg-$1.tar.xz"; }
+# LibreDWG 0.14 from git, pinned by commit (docs/milestone7.md §5.1). The pipeline finds the binaries in
+# $LIBREDWG_BIN (wenart/ingest/dwg.py) and puts VERSION into its fingerprint.
+LIBREDWG_GIT=https://github.com/LibreDWG/libredwg.git
+LIBREDWG_TAG=0.14
+LIBREDWG_COMMIT=d9468ae948b8f07a08efa756c19f8916052358c0
+LIBREDWG_VERSION_STRING="0.14 d9468ae"
+LIBREDWG_BIN=$TOOLS/libredwg/bin
+LIBREDWG_SRC=$FAST/build/libredwg     # container disk: the build tree is thousands of small files
 # Space-separated list, overridable from the job (BAKEOFF_MODELS="a/b c/d", or "a/b@<revision>").
 read -r -a MODELS <<< "${BAKEOFF_MODELS:-Qwen/Qwen3-VL-8B-Instruct zai-org/GLM-4.6V-Flash}"
 VENV_VLLM=$FAST/venv-vllm             # also the home of the `hf` CLI used by the model downloads
@@ -95,7 +97,7 @@ if [ ! -f $STAMP_APT ]; then
   export DEBIAN_FRONTEND=noninteractive
   apt-get update -qq
   apt-get install -y -qq --no-install-recommends tesseract-ocr tesseract-ocr-tur \
-    build-essential autoconf automake libtool pkg-config xz-utils curl ca-certificates \
+    build-essential cmake ninja-build git pkg-config xz-utils curl ca-certificates \
     libgl1 libglib2.0-0 poppler-utils >/dev/null
   touch $STAMP_APT
 fi
@@ -221,66 +223,53 @@ else
   log "skipped: venv-paddle (PaddleOCR) (RECOG_SETUP_PARTS='${PARTS[*]}')"
 fi
 
-# --- LibreDWG from the GNU tarball ----------------------------------------------
-if part_on libredwg; then
-  step_start "LibreDWG $LIBREDWG_VERSION (fallback $LIBREDWG_FALLBACK_VERSION)"
-  LIBREDWG_PREFIX=$TOOLS/libredwg
-  SRC=$FAST/src                         # build on the container disk, install into the volume
-  mkdir -p "$SRC"
+# --- LibreDWG 0.14 from git (static) ---------------------------------------------
+# libredwg_usable: the three binaries are installed, VERSION is this pin and dwg2dxf runs (a binary copied
+# from another machine or a half-written install fails the --help call).
+libredwg_usable() {
+  local tool
+  for tool in dwg2dxf dwgread dxf2dwg; do
+    [ -x "$LIBREDWG_BIN/$tool" ] || return 1
+  done
+  [ "$(head -1 "$LIBREDWG_BIN/VERSION" 2>/dev/null)" = "$LIBREDWG_VERSION_STRING" ] || return 1
+  "$LIBREDWG_BIN/dwg2dxf" --help >/dev/null 2>&1 || return 1
+}
 
-  # fetch_libredwg <version> <tarball>: GNU mirror first, then the GitHub release. `-f` makes a
-  # 404 a failure instead of an HTML "tarball"; a partial file is removed so the next try is clean.
-  fetch_libredwg() {
-    local ver=$1 tar=$2
-    [ -s "$tar" ] && return 0
-    if curl -fsSL --retry 3 -o "$tar" "$(libredwg_url "$ver")"; then return 0; fi
-    log "LibreDWG $ver: GNU mirror failed, trying the GitHub release"
-    if curl -fsSL --retry 3 -o "$tar" "$(libredwg_url_fallback "$ver")"; then return 0; fi
-    rm -f "$tar"
+# build_libredwg: clone the tag, check the commit, build the three static programs, install them + VERSION.
+# Every step returns on failure (the caller logs it); nothing is installed from an unverified checkout.
+build_libredwg() {
+  rm -rf "$LIBREDWG_SRC"
+  mkdir -p "$(dirname "$LIBREDWG_SRC")"
+  git clone --quiet --depth 1 --branch "$LIBREDWG_TAG" "$LIBREDWG_GIT" "$LIBREDWG_SRC" \
+    > "$LOGS/libredwg-clone.log" 2>&1 || return 1
+  local head
+  head=$(git -C "$LIBREDWG_SRC" rev-parse HEAD) || return 1
+  if [ "$head" != "$LIBREDWG_COMMIT" ]; then
+    log "LibreDWG tag $LIBREDWG_TAG is commit $head, expected $LIBREDWG_COMMIT: not built"
     return 1
-  }
-  # The version that is installed on the volume (empty when none): first x.y.z in the VERSION file.
-  libredwg_installed() {
-    { grep -oE '[0-9]+\.[0-9]+\.[0-9]+' "$LIBREDWG_PREFIX/VERSION" 2>/dev/null || true; } | head -1
-  }
-  libredwg_usable() {
-    [ -x "$LIBREDWG_PREFIX/bin/dwg2dxf" ] && [ -x "$LIBREDWG_PREFIX/bin/dxf2dwg" ]
-  }
+  fi
+  git -C "$LIBREDWG_SRC" submodule update --init --depth 1 jsmn >> "$LOGS/libredwg-clone.log" 2>&1 || return 1
+  cmake -S "$LIBREDWG_SRC" -B "$LIBREDWG_SRC/build" -G Ninja -DCMAKE_BUILD_TYPE=Release -DDISABLE_WERROR=ON \
+    -DENABLE_LTO=OFF -DBUILD_SHARED_LIBS=OFF > "$LOGS/libredwg-cmake.log" 2>&1 || return 1
+  ninja -C "$LIBREDWG_SRC/build" dwg2dxf dwgread dxf2dwg > "$LOGS/libredwg-ninja.log" 2>&1 || return 1
+  rm -rf "$LIBREDWG_BIN"
+  mkdir -p "$LIBREDWG_BIN"
+  install -m 0755 "$LIBREDWG_SRC/build/dwg2dxf" "$LIBREDWG_SRC/build/dwgread" "$LIBREDWG_SRC/build/dxf2dwg" \
+    "$LIBREDWG_BIN/" || return 1
+  echo "$LIBREDWG_VERSION_STRING" > "$LIBREDWG_BIN/VERSION"
+  libredwg_usable
+}
 
-  # Decide which version this pod builds: the wanted one when its tarball can be fetched (or is
-  # already installed), otherwise the fallback. The decision is logged either way.
-  LIBREDWG_BUILD=""
-  if libredwg_usable && [ "$(libredwg_installed)" = "$LIBREDWG_VERSION" ]; then
-    LIBREDWG_BUILD=$LIBREDWG_VERSION
-  elif fetch_libredwg "$LIBREDWG_VERSION" "$SRC/libredwg-$LIBREDWG_VERSION.tar.xz"; then
-    LIBREDWG_BUILD=$LIBREDWG_VERSION
+if part_on libredwg; then
+  step_start "LibreDWG $LIBREDWG_TAG ($LIBREDWG_VERSION_STRING, static)"
+  if libredwg_usable; then
+    log "LibreDWG: reusing $LIBREDWG_BIN ($LIBREDWG_VERSION_STRING)"
+  elif build_libredwg; then
+    log "LibreDWG: built $LIBREDWG_VERSION_STRING into $LIBREDWG_BIN"
   else
-    log "LibreDWG $LIBREDWG_VERSION tarball not available; falling back to $LIBREDWG_FALLBACK_VERSION"
-    if libredwg_usable && [ "$(libredwg_installed)" = "$LIBREDWG_FALLBACK_VERSION" ]; then
-      LIBREDWG_BUILD=$LIBREDWG_FALLBACK_VERSION
-    elif fetch_libredwg "$LIBREDWG_FALLBACK_VERSION" "$SRC/libredwg-$LIBREDWG_FALLBACK_VERSION.tar.xz"; then
-      LIBREDWG_BUILD=$LIBREDWG_FALLBACK_VERSION
-    else
-      log "LibreDWG: no tarball could be downloaded ($LIBREDWG_VERSION, $LIBREDWG_FALLBACK_VERSION); the DWG round trip will report the missing tools"
-    fi
+    # DWG projects then stop with needs_review ("LibreDWG dwg2dxf not found"); the other parts go on.
+    log "LibreDWG: build FAILED (see $LOGS/libredwg-*.log); DWG projects will end needs_review"
   fi
-
-  if [ -n "$LIBREDWG_BUILD" ] && { ! libredwg_usable || [ "$(libredwg_installed)" != "$LIBREDWG_BUILD" ]; }; then
-    TAR=$SRC/libredwg-$LIBREDWG_BUILD.tar.xz
-    rm -rf "$SRC/libredwg-$LIBREDWG_BUILD"
-    tar -xJf "$TAR" -C "$SRC"
-    rm -rf "$LIBREDWG_PREFIX"            # an older build must not survive next to the new one
-    (
-      cd "$SRC/libredwg-$LIBREDWG_BUILD"
-      ./configure --disable-bindings --disable-python --prefix="$LIBREDWG_PREFIX" > "$LOGS/libredwg-configure.log" 2>&1
-      make -j"$(nproc)" > "$LOGS/libredwg-make.log" 2>&1
-      make install > "$LOGS/libredwg-install.log" 2>&1
-    )
-    "$LIBREDWG_PREFIX/bin/dwg2dxf" --version > "$LIBREDWG_PREFIX/VERSION" 2>&1 || true
-    # Some releases print only the program name; make sure the file names the version.
-    grep -qE '[0-9]+\.[0-9]+\.[0-9]+' "$LIBREDWG_PREFIX/VERSION" 2>/dev/null || echo "libredwg $LIBREDWG_BUILD" >> "$LIBREDWG_PREFIX/VERSION"
-  fi
-  log "LibreDWG: $(head -1 "$LIBREDWG_PREFIX/VERSION" 2>/dev/null || echo "not installed") (wanted $LIBREDWG_VERSION, built $LIBREDWG_BUILD)"
   step_end
 else
   log "skipped: LibreDWG (RECOG_SETUP_PARTS='${PARTS[*]}')"

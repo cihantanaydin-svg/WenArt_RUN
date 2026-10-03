@@ -5,7 +5,9 @@ decor items on their host pieces.
 
 Per piece of ``building.furniture`` on the level:
 
-- ``asset`` with ``method: library`` and a readable, CC0 glTF/GLB file ->
+- ``asset`` with ``method: library`` and a readable glTF/GLB file whose
+  licence passes the model gate (``licence_refusal``: Poly Haven CC0;
+  Objaverse CC0 or CC BY 4.0 with its credit line) ->
   the file is imported (``bpy.ops.import_scene.gltf``), its meshes merged
   into one object, re-oriented from the catalogue frame (``front_axis``,
   ``up_axis``) into the piece frame (width X, depth Y, front -Y, Z up),
@@ -42,6 +44,13 @@ soft bedding of a bed and the fronts of a kitchen counter are recorded as
 ``assumed`` design details (``design_details``: parent = the piece, kind,
 reason); decor on a parametric bed rests on the bedding top.
 
+Milestone 7 (docs/milestone7.md §6.3-6.4): Objaverse models are GLB files
+in the prep pod's cache (``asset.glb`` = ``models/objaverse/<uid>.glb``
+under the assets dir; the importer reads GLB like glTF). Pieces with
+``build: false`` (drawn symbols both recognition passes called
+``not_furniture``) are not built at all: no object, no proxy, no pass index,
+no decor; the summary lists them under ``not_built``.
+
 The glTF importer of Blender 5.2.2 (checked with ``get_rna_type``):
 ``filepath``, ``import_shading`` (NORMALS/FLAT/SMOOTH), ``merge_vertices``,
 ``import_pack_images``, ``import_scene_as_collection`` (default True: a new
@@ -62,7 +71,14 @@ from wenart.blender import proxies
 from wenart.blender.proxies import COINCIDENT_LIFT, footprints_overlap, proxy_height
 
 CC0 = "CC0"
-LIBRARIES = ("polyhaven", "parametric")
+CC_BY = "CC-BY-4.0"
+LIBRARIES = ("polyhaven", "objaverse", "parametric")
+# Licence gate of the model kind (docs/milestone7.md §6.3; the same rule as wenart.assets.fetch.check_licence
+# with kind "models", repeated here because Blender's Python imports this module without the asset code).
+MODEL_LICENCES = {"polyhaven": (CC0,), "objaverse": (CC0, CC_BY)}
+CC_BY_FIELDS = ("title", "author", "source_url", "licence_url", "via", "attribution")
+OBJAVERSE_CACHE = "models/objaverse"          # <assets>/models/objaverse/<uid>.glb (written by the prep pod)
+NOT_BUILT_REASON = "build false: a drawn symbol both recognition passes call not_furniture; kept as an obstacle, not built"
 # A fitted box may differ from the footprint by this much before a warning.
 FIT_TOLERANCE_M = 0.01
 AXES = {"+X": (1.0, 0.0, 0.0), "-X": (-1.0, 0.0, 0.0), "+Y": (0.0, 1.0, 0.0), "-Y": (0.0, -1.0, 0.0),
@@ -79,6 +95,30 @@ def asset_licence(asset: dict) -> str | None:
     return asset.get("licence", asset.get("license"))
 
 
+def licence_refusal(asset: dict) -> str | None:
+    """Why a library asset may not be built (None when it may): Poly Haven models are CC0 only;
+    Objaverse models CC0 or CC BY 4.0, and a CC BY one only with every credit field (CC BY 4.0
+    §3(a)(1)). An asset without a library is held to the Poly Haven rule (the strictest)."""
+    source = asset.get("library") or asset.get("source") or "polyhaven"
+    licence = asset_licence(asset)
+    allowed = MODEL_LICENCES.get(source)
+    if allowed is None:
+        return f"asset {asset.get('asset_id')!r} comes from {source!r}, not a model source {sorted(MODEL_LICENCES)}; refused"
+    text = str(licence or "").strip().upper()
+    if text not in allowed:
+        return f"asset {asset.get('asset_id')!r} licence {licence!r} is not {' or '.join(allowed)}; refused"
+    if text == CC_BY:
+        missing = [k for k in CC_BY_FIELDS if not str(asset.get(k) or "").strip()]
+        if missing:
+            return f"asset {asset.get('asset_id')!r} is CC BY 4.0 without {', '.join(missing)} (no credit line); refused"
+    return None
+
+
+def is_built(piece: dict) -> bool:
+    """False for a piece with ``build: false`` (docs/milestone7.md §3.3): it stays in the building, unbuilt."""
+    return piece.get("build", True) is not False
+
+
 def resolve_asset(asset: dict | None, assets_dir: str | None) -> tuple[Path | None, str | None]:
     """``(file, reason)``: the glTF/GLB file of a fitted library asset, or
     None and why the parametric fallback is used (docs/milestone4.md §2:
@@ -90,16 +130,19 @@ def resolve_asset(asset: dict | None, assets_dir: str | None) -> tuple[Path | No
         return None, "fitting chose the parametric mesh"
     if method != "library":
         return None, f"asset method {method!r} is not 'library'"
-    licence = asset_licence(asset)
-    if str(licence or "").strip().upper() != CC0:
-        return None, f"asset {asset.get('asset_id')!r} licence {licence!r} is not {CC0}; refused"
-    file = asset.get("file") or asset.get("gltf")   # the fitter records the catalogue's `gltf` path
+    refusal = licence_refusal(asset)
+    if refusal is not None:
+        return None, refusal
+    # The fitter records the catalogue's `gltf` path (Poly Haven) or `glb` path (Objaverse cache).
+    file = asset.get("file") or asset.get("gltf") or asset.get("glb")
     candidates: list[Path] = []
     if file:
         p = Path(file)
         if not p.is_absolute() and assets_dir:
             p = Path(assets_dir) / p
         candidates.append(p)
+    elif asset.get("uid") and assets_dir:
+        candidates.append(Path(assets_dir) / OBJAVERSE_CACHE / f"{asset['uid']}.glb")
     elif asset.get("asset_id") and assets_dir:
         base = Path(assets_dir) / "models" / str(asset["asset_id"])
         candidates += [base / f"{asset['asset_id']}_1k.gltf", base / f"{asset['asset_id']}.gltf",
@@ -473,13 +516,15 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
     ``proxies``, ``decor``)."""
     floor_z = float(level["elevation"])
     mats = _Materials(library, style, assumed)
-    pieces = [p for p in building.get("furniture", []) if p["level_id"] == level["id"]]
+    on_level = [p for p in building.get("furniture", []) if p["level_id"] == level["id"]]
+    pieces = [p for p in on_level if is_built(p)]
+    not_built = [{"id": p["id"], "type": p["type"], "reason": NOT_BUILT_REASON} for p in on_level if not is_built(p)]
     proxy_pieces = [p for p in pieces if use_proxies or p["type"] == "unknown" or p["type"] not in P.PARAMETRIC_TYPES]
     for p in proxy_pieces:
         if p["type"] != "unknown" and not use_proxies:
             warnings.append(f"{p['id']}: furniture type {p['type']!r} has no parametric builder; proxy box used")
     summary = {"pieces": len(pieces), "by_method": {}, "fallbacks": [], "proxies": len(proxy_pieces), "decor": 0,
-               "proxies_forced": bool(use_proxies)}
+               "proxies_forced": bool(use_proxies), "not_built": not_built}
     if proxy_pieces:
         proxies.create_proxies({"furniture": proxy_pieces}, level, collection, {
             "proxy": library.proxy("proxy"), "proxy_glass": library.proxy("proxy_glass"),

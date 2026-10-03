@@ -54,6 +54,55 @@ def test_licence_refuses_everything_but_cc0(tmp_path):
         fetch.fetch_hdri("kloppenheim_06", tmp_path, source="ambientcg")
 
 
+def test_licence_gates_per_kind():
+    """docs/milestone7.md §6.3: textures and HDRIs CC0 only; models CC0, or CC BY 4.0 from Objaverse with the
+    credit fields; NC/ND/SA and unknown sources refused."""
+    assert fetch.KINDS == ("textures", "hdris", "models") and fetch.CC_BY == "CC-BY-4.0"
+    for kind in ("textures", "hdris"):
+        assert fetch.check_licence("polyhaven", "CC0", kind=kind) == "CC0"
+        for licence in ("CC0", "CC-BY-4.0"):
+            with pytest.raises(fetch.LicenceError):
+                fetch.check_licence("objaverse", licence, kind=kind)
+    assert fetch.check_licence("polyhaven", kind="models") == "CC0"
+    with pytest.raises(fetch.LicenceError):
+        fetch.check_licence("polyhaven", "CC-BY-4.0", kind="models")          # Poly Haven is CC0 only
+    assert fetch.check_licence("objaverse", "cc0", kind="models") == "CC0"
+    assert fetch.check_licence("objaverse", "CC-BY-4.0", kind="models") == "CC-BY-4.0"
+    for bad in (None, "CC-BY-NC-4.0", "CC-BY-SA-4.0", "CC-BY-ND-4.0", "CC-BY", "CC-BY 4.0", "free standard", ""):
+        with pytest.raises(fetch.LicenceError):
+            fetch.check_licence("objaverse", bad, kind="models")
+    with pytest.raises(fetch.LicenceError):
+        fetch.check_licence("sketchfab", "CC0", kind="models")
+    credits = {"title": "t", "author": "a", "source_url": "u", "licence_url": "l", "via": "Objaverse",
+               "attribution": "a line"}
+    assert fetch.check_licence("objaverse", "CC-BY-4.0", kind="models", entry=credits) == "CC-BY-4.0"
+    for field in fetch.CC_BY_FIELDS:
+        with pytest.raises(fetch.LicenceError, match=field):
+            fetch.check_licence("objaverse", "CC-BY-4.0", kind="models", entry=dict(credits, **{field: " "}))
+    assert fetch.check_licence("objaverse", "CC0", kind="models", entry={}) == "CC0"   # CC0 needs no credit
+    with pytest.raises(ValueError):
+        fetch.check_licence("polyhaven", kind="fonts")
+    assert set(fetch.LICENCES) == {"polyhaven", "ambientcg"}               # the CC0 source list is unchanged
+
+
+def test_manifest_entries_are_checked_by_their_kind(tmp_path):
+    credits = {"title": "t", "author": "a", "source_url": "u", "licence_url": "l", "via": "Objaverse",
+               "attribution": "a line"}
+    manifest = fetch.empty_manifest()
+    manifest["models"]["o"] = dict(credits, id="o", source="objaverse", licence="CC-BY-4.0", files={})
+    fetch.save_manifest(tmp_path, manifest)
+    assert fetch.load_manifest(tmp_path)["models"]["o"]["licence"] == "CC-BY-4.0"
+    manifest["models"]["o"]["attribution"] = ""
+    fetch.save_manifest(tmp_path, manifest)
+    with pytest.raises(fetch.LicenceError):
+        fetch.load_manifest(tmp_path)                                     # CC BY without its credit line
+    manifest = fetch.empty_manifest()
+    manifest["textures"]["o"] = dict(credits, id="o", source="objaverse", licence="CC0", files={})
+    fetch.save_manifest(tmp_path, manifest)
+    with pytest.raises(fetch.LicenceError):
+        fetch.load_manifest(tmp_path)                                     # textures: CC0 sources only
+
+
 def test_manifest_with_non_cc0_entry_is_refused(tmp_path):
     manifest = fetch.empty_manifest()
     manifest["textures"]["x"] = {"id": "x", "source": "polyhaven", "licence": "CC-BY", "files": {}}

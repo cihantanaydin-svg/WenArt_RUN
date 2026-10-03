@@ -476,3 +476,169 @@ def test_scene_manifest_search_seconds():
     assert B.search_seconds(plans, "search") == 3.75
     assert B.search_seconds(plans, "m5") is None and B.search_seconds([], "search") == 0
     assert schemas.SCENE_MANIFEST["properties"]["search_seconds"] == {"type": ["number", "null"]}
+
+
+# --------------------------------------------------------------------------
+# Milestone 7 (docs/milestone7.md §6.4, §11 L): stair from the drawn lines with its capped ceiling opening,
+# doorless opening, virtual separator, build: false, site, dining / prayer rooms, the new parametric types
+# --------------------------------------------------------------------------
+
+def _m7_building() -> dict:
+    """The real01 stair hall (tests/test_blender_geometry.py) with an open dining + prayer space east of it: a
+    doorless 0.914 m gap (2.10 m, assumed) in the wall between, a virtual separator between dining and prayer,
+    a round side table, a floor lamp, a potted plant and a build-false symbol in the dining room, and a plot
+    wall, a parking area and site plants that are never built."""
+    from test_blender_geometry import FT, HALL, LEVEL0, real01_stair_piece
+
+    def ft(x, y):
+        return [x * FT, y * FT]
+
+    ev = [{"file": "real01.pdf", "page": 1, "method": "vector", "confidence": 0.9}]
+    t = 0.492 * FT
+
+    def wall(wid, a, b, exterior=True):
+        return {"id": wid, "level_id": "L0", "start": ft(*a), "end": ft(*b), "thickness": t, "height": None,
+                "exterior": exterior, "status": "verified", "evidence": ev}
+
+    walls = [wall("w_L0_w", (11.006, 8.005), (11.006, 23.503)), wall("w_L0_e", (16.506, 8.005), (16.506, 23.503), False),
+             wall("w_L0_e2", (24.246, 8.005), (24.246, 23.503)), wall("w_L0_n", (10.76, 23.503), (24.492, 23.503)),
+             wall("w_L0_s", (10.76, 8.005), (24.492, 8.005))]
+    openings = [
+        {"id": "o_L0_001", "level_id": "L0", "type": "opening", "wall_id": "w_L0_e", "center": ft(16.506, 10.5),
+         "width": 3.0 * FT, "height": 2.1, "sill_height": None, "assumed": ["height"], "status": "verified",
+         "evidence": ev},
+        {"id": "o_L0_002", "level_id": "L0", "type": "opening", "wall_id": None, "virtual": True,
+         "line": [ft(16.752, 15.0), ft(24.0, 15.0)], "center": ft(20.376, 15.0), "width": 7.248 * FT,
+         "height": None, "sill_height": None, "status": "verified",
+         "evidence": [{"file": "real01.pdf", "page": 1, "method": "derived", "confidence": 0.8}]},
+    ]
+
+    def room(rid, label, rtype, x0, y0, x1, y1):
+        return {"id": rid, "level_id": "L0", "label": label, "room_type": rtype, "status": "verified",
+                "polygon": [ft(x0, y0), ft(x1, y0), ft(x1, y1), ft(x0, y1)], "evidence": ev}
+
+    rooms = [dict(HALL), room("r_L0_din", "Dining", "dining", 16.752, 8.251, 24.0, 15.0),
+             room("r_L0_pry", "Pooja", "prayer", 16.752, 15.0, 24.0, 23.257)]
+
+    def piece(fid, ftype, x, y, size, **extra):
+        return dict({"id": fid, "level_id": "L0", "room_id": "r_L0_din", "type": ftype, "source": "from_documents",
+                     "status": "verified", "front_deg": None, "height": None, "evidence": ev,
+                     "footprint": {"center": ft(x, y), "size": list(size), "rotation_deg": 0.0}}, **extra)
+
+    furniture = [real01_stair_piece(),
+                 piece("f_L0_021", "side_table", 20.0, 10.0, (0.43, 0.43), details={"shape": "round"}),
+                 piece("f_L0_022", "floor_lamp", 23.2, 9.0, (0.4, 0.4)),
+                 piece("f_L0_023", "potted_plant", 17.5, 14.0, (0.4, 0.4)),
+                 piece("f_L0_024", "unknown", 21.5, 13.0, (0.5, 0.5), build=False, status="unverified")]
+    site = {"boundary_walls": [{"id": "sw_L0_001", "start": ft(0.0, 0.0), "end": ft(50.0, 0.0), "thickness": 0.15,
+                                "kind": "plot", "evidence": ev}],
+            "areas": [{"id": "sa_L0_parking", "label": "Parking", "label_raw": "Parking", "polygon": None,
+                       "evidence": ev}],
+            "decor": [{"id": f"sd_L0_00{i}", "kind": "plant", "center": ft(43.6, 3.0 * i), "size": [0.45, 0.45],
+                       "evidence": ev} for i in range(1, 4)],
+            "openings": []}
+    return {"schema_version": "0.1", "status": "ok", "project": {"id": "m7-test"}, "levels": [dict(LEVEL0)],
+            "walls": walls, "openings": openings, "rooms": rooms, "furniture": furniture, "decor": [], "site": site,
+            "warnings": [], "unverified": ["r_L0_hall", "f_L0_024"]}
+
+
+@pytest.fixture(scope="module")
+def built_m7(tmp_path_factory):
+    tmp = tmp_path_factory.mktemp("blender_m7")
+    building = _m7_building()
+    path = tmp / "building.json"
+    path.write_text(json.dumps(building), encoding="utf-8")
+    out = tmp / "scene"
+    cli.run_blender(Path(cli.BUILD_SCRIPT), ["--building", str(path), "--style", str(STYLE), "--out", str(out),
+                                             "--no-textures", "--no-preview", "--no-glb"])
+    manifest = json.loads((out / "scene_manifest.json").read_text(encoding="utf-8"))
+    dump = tmp / "objects.json"
+    (tmp / "dump.py").write_text(DUMP_SCRIPT, encoding="utf-8")
+    cli.run_blender(tmp / "dump.py", [str(dump)], blend=str(out / "scene.blend"))
+    objects = {o["name"]: o for o in json.loads(dump.read_text(encoding="utf-8"))}
+    return {"building": building, "out": out, "manifest": manifest, "objects": objects, "tmp": tmp}
+
+
+def test_m7_stair_is_built_from_the_drawn_lines_with_its_assumptions(built_m7):
+    from wenart.blender import parametric as P
+
+    m, objects = built_m7["manifest"], built_m7["objects"]
+    schemas.validate_scene_manifest(m)
+    entries = {o["name"]: o for o in m["objects"]}
+    stair = entries["furn_f_L0_019"]
+    assert stair["kind"] == "furniture" and stair["wenart_id"] == "f_L0_019" and stair["method"] == shell.STAIR_METHOD
+    assert stair["pass_index"] == m["pass_index"]["f_L0_019"] == objects["furn_f_L0_019"]["pass_index"]
+    assert stair["stair"]["risers"] == 16 and stair["stair"]["riser_m"] == pytest.approx(2.85 / 16, abs=1e-4)
+    assert stair["stair"]["riser_source"] == "derived from assumed ceiling and slab"
+    assert [f["treads"] for f in stair["stair"]["flights"]] == [7, 7] and stair["box3d"]
+    assert objects["furn_f_L0_019"]["materials"] == stair["materials"] and len(stair["materials"]) == 3
+    assert "f_L0_019" in m["furniture"]["stairs"] and m["furniture"]["pieces"] == 4
+    kinds = {(a["object"], a["kind"]) for a in m["assumed"] if a.get("parent") == "f_L0_019"}
+    assert {("furn_f_L0_019", k) for k in ("stair_riser", "stair_direction", "stair_turn", "stair_handrail",
+                                           "stair_structure")} | {("f_L0_019_void", "stair_void")} <= kinds
+    assert [w for w in m["warnings"] if w.startswith("f_L0_019: stair flight 1: 1.28 m under the ceiling")]
+    shaft = entries["f_L0_019_void"]
+    assert shaft["kind"] == "ceiling" and shaft["status"] == "assumed" and shaft["parent"] == "f_L0_019"
+    assert shaft["assumed"]["cap_z"] == pytest.approx(2.7 + P.STAIR_SHAFT_CAP_M)
+    assert entries["r_L0_hall_ceiling"]["stair_void"] == ["f_L0_019"]
+    assert "stair_void" not in entries["r_L0_din_ceiling"]
+
+
+def test_m7_rays_see_treads_landing_ceiling_and_cap(built_m7):
+    ft = 0.3048
+    rh = 2.85 / 16
+    probe = _probe(built_m7, {
+        # flight A rises north from y 15.257 ft: y 16.5 ft lies on its second tread
+        "tread_a2": {"origin": [12.5 * ft, 16.5 * ft, 2.5], "direction": [0, 0, -1], "distance": 3.0},
+        "landing": {"origin": [15.0 * ft, 22.0 * ft, 3.1], "direction": [0, 0, -1], "distance": 3.0},
+        "ceiling_over_a": {"origin": [12.5 * ft, 17.0 * ft, 1.5], "direction": [0, 0, 1], "distance": 3.0},
+        "cap_over_b": {"origin": [15.0 * ft, 18.0 * ft, 2.95], "direction": [0, 0, 1], "distance": 3.0},
+        "through_gap": {"origin": [16.0 * ft, 10.5 * ft, 1.0], "direction": [1, 0, 0], "distance": 0.8},
+        "lintel": {"origin": [16.0 * ft, 10.5 * ft, 2.3], "direction": [1, 0, 0], "distance": 0.8},
+        "across_separator": {"origin": [20.0 * ft, 13.0 * ft, 1.0], "direction": [0, 1, 0], "distance": 1.5},
+    }, [])
+    r = probe["rays"]
+    assert r["tread_a2"]["object"] == "furn_f_L0_019" and r["tread_a2"]["location"][2] == pytest.approx(2 * rh, abs=1e-3)
+    assert r["landing"]["object"] == "furn_f_L0_019" and r["landing"]["location"][2] == pytest.approx(8 * rh, abs=1e-3)
+    assert r["ceiling_over_a"]["object"] == "r_L0_hall_ceiling" and r["ceiling_over_a"]["location"][2] == pytest.approx(2.7)
+    assert r["cap_over_b"]["object"] == "f_L0_019_void" and r["cap_over_b"]["location"][2] == pytest.approx(3.2)
+    assert r["through_gap"]["hit"] is False, r["through_gap"]                    # the doorless gap is open
+    assert r["lintel"]["object"] == "w_L0_e"                                       # cut to 2.10 m only
+    assert r["across_separator"]["hit"] is False, r["across_separator"]          # no geometry on the line
+
+
+def test_m7_doorless_gap_separator_build_false_and_site(built_m7):
+    m, objects = built_m7["manifest"], built_m7["objects"]
+    entries = {o["name"]: o for o in m["objects"]}
+    gap = entries["o_L0_001"]
+    assert gap["kind"] == "opening" and gap["has_geometry"] is False and gap["assumed"] == {"height": 2.1}
+    assert "o_L0_001_threshold" in objects and not [n for n in objects if n.startswith("o_L0_001_")
+                                                    and n != "o_L0_001_threshold"]
+    assert {r["opening_id"]: r["hit"] for r in m["checks"]["door_rays"]} == {"o_L0_001": False}
+    sep = entries["o_L0_002"]
+    assert sep["virtual"] is True and sep["wall_id"] is None and sep["has_geometry"] is False
+    assert sorted(sep["room_ids"]) == ["r_L0_din", "r_L0_pry"]
+    assert not [n for n in objects if n.startswith("o_L0_002")]
+    assert not [w for w in m["warnings"] if "o_L0_002" in w]
+    assert [r["id"] for r in m["furniture"]["not_built"]] == ["f_L0_024"]
+    assert not [o for o in m["objects"] if o.get("element_id") == "f_L0_024"] and "f_L0_024" not in m["pass_index"]
+    assert m["site"]["built"] is False and m["site"]["decor"]["count"] == 3
+    assert not [o for o in m["objects"] if str(o["wenart_id"]).startswith(("sw_", "sa_", "sd_"))]
+    assert not [n for n in objects if n.startswith(("sw_", "sa_", "sd_"))]
+    # Dining and prayer rooms: the living-room slots (dry floor, skirting).
+    din, pry = entries["r_L0_din_floor"], entries["r_L0_pry_floor"]
+    assert din["material"] == pry["material"] and not din["wet"] and not pry["wet"]
+    assert din["material"].startswith("wood_oak_light")
+    assert {o["parent"] for o in m["objects"] if o["name"].startswith("skirting_")} >= {"r_L0_din", "r_L0_pry"}
+
+
+def test_m7_side_table_lamp_and_plant_are_parametric(built_m7):
+    m, objects = built_m7["manifest"], built_m7["objects"]
+    entries = {o["element_id"]: o for o in m["objects"] if o["kind"] == "furniture"}
+    for fid in ("f_L0_021", "f_L0_022", "f_L0_023"):
+        assert entries[fid]["method"].startswith("parametric"), entries[fid]["method"]
+    # The round side table (the piece says round): top disc 40, pedestal 16, base 32 segments.
+    assert objects["furn_f_L0_021"]["verts"] == 2 * (40 + 16 + 32)
+    assert entries["f_L0_022"]["bbox_m"] == pytest.approx([0.4, 0.4, 1.6], abs=1e-3)
+    assert entries["f_L0_023"]["bbox_m"] == pytest.approx([0.4, 0.4, 1.0], abs=1e-3)
+    assert not [o for o in objects.values() if o["type"] == "LIGHT" and "f_L0_022" in o["name"]]   # no lamp light

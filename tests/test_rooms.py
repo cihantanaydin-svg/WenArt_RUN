@@ -144,3 +144,103 @@ def test_room_containing():
     rooms = [{"id": "a", "polygon": [[0, 0], [2, 0], [2, 2], [0, 2]]}]
     assert R.room_containing(rooms, (1, 1))["id"] == "a"
     assert R.room_containing(rooms, (3, 1)) is None
+
+
+# --------------------------------------------------------------------------
+# Generic core pages (docs/milestone7.md §2.7): label blocks, separators, placeholders, size labels
+# --------------------------------------------------------------------------
+
+def wall(start, end, t=0.2, entity="w"):
+    ev = B.evidence("p.pdf", "vector", 0.95, entity=entity)
+    return WallItem(tuple(start), tuple(end), t, [0, 0, 0, 0], entity, ev)
+
+
+def two_rooms(open_plan: bool = False):
+    """Outer box 0..8 x 0..4 (0.2 m walls) split at x = 4 (a stub from the top to y = 2.6 when ``open_plan``)."""
+    walls = [wall((0, 0.1), (8, 0.1)), wall((0, 3.9), (8, 3.9)), wall((0.1, 0), (0.1, 4)), wall((7.9, 0), (7.9, 4))]
+    walls.append(wall((4, 3.8), (4, 2.6)) if open_plan else wall((4, 0.2), (4, 3.8)))
+    return walls
+
+
+def blocks_at(*items, turkish=False):
+    """Label blocks built by generic.labels from (name, size or None, anchor) and their TextItems."""
+    from wenart.ingest.generic import labels as LB
+    from wenart.ingest.generic.model import TextRun
+
+    runs = []
+    for k, (name, size, (x, y)) in enumerate(items):
+        runs.append(TextRun(id=f"char:{10 * k}", text=name, box=(x - 0.5, y, x + 0.5, y + 0.2), height=0.2))
+        if size:
+            runs.append(TextRun(id=f"char:{10 * k + 5}", text=size, box=(x - 0.5, y - 0.3, x + 0.5, y - 0.1),
+                                height=0.2))
+    blocks = LB.merge_label_blocks(runs, "p.pdf", 1)
+    labels = [TextItem(b.name, b.anchor, list(b.box), 0.0, b.name_runs[0].id, 0.2, role="room_label",
+                       evidence=b.evidence[0], block=b, turkish=turkish) for b in blocks]
+    return labels, [b.anchor for b in blocks]
+
+
+def test_generic_labels_name_type_and_check_the_printed_size():
+    # Faces: 3.7 x 3.6 m (x 0.2-3.9, y 0.2-3.8) and 3.6 x 3.6 m.
+    labels, points = blocks_at(("LIVING ROOM", "12' 2\" x 11' 10\"", (2, 2)), ("BED ROOM", "11' x 10'", (6, 2)))
+    result = R.derive_rooms("L0", two_rooms(), labels, points, None, "p.pdf")
+    rooms = {r["label"]: r for r in result.rooms}
+    assert set(rooms) == {"Living Room", "Bed Room"}
+    living, bed = rooms["Living Room"], rooms["Bed Room"]
+    assert living["label_raw"] == "LIVING ROOM" and living["room_type"] == "living" and living["status"] == "verified"
+    assert living["label_size"]["status"] == "ok" and living["label_size"]["measured"] == [3.7, 3.6]
+    assert len(living["evidence"]) == 2                                   # name run and size run
+    # 11' x 10' (3.35 x 3.05 m) in a 3.7 x 3.6 m face: a conflict, beyond 10 % -> unverified.
+    assert bed["label_size"]["status"] == "conflict" and bed["status"] == "unverified"
+    assert result.label_size_conflicts == [(bed["id"], result.label_size_conflicts[0][1])]
+    assert result.label_size_conflicts[0][1]["text"] == "11' x 10'"
+    assert result.multi_labels == []
+
+
+def test_virtual_separator_splits_an_open_plan_face():
+    from wenart.ingest.model import OpeningItem
+    labels, points = blocks_at(("KITCHEN", None, (2, 2)), ("DINING", None, (6, 2)))
+    merged = R.derive_rooms("L0", two_rooms(open_plan=True), labels, points, None, "p.pdf")
+    assert len(merged.rooms) == 1 and merged.rooms[0]["status"] == "unverified"
+    assert merged.multi_labels == [(merged.rooms[0]["id"], "Kitchen", ["DINING"])]
+    sep = OpeningItem(kind="opening", width=2.4, center=(4.0, 1.4), rotation_deg=90.0, box=[0, 0, 0, 0], entity="sep",
+                      evidence=B.evidence("p.pdf", "derived", 0.8, entity="sep"), virtual=True,
+                      line=((4.0, 0.2), (4.0, 2.6)))
+    split = R.derive_rooms("L0", two_rooms(open_plan=True), labels, points, None, "p.pdf", separators=[sep])
+    assert sorted((r["label"], r["room_type"], r["status"]) for r in split.rooms) == \
+        [("Dining", "dining", "verified"), ("Kitchen", "kitchen", "verified")]
+    # A ready union (walls, openings and separators bridged) gives the same faces.
+    from wenart.ingest.generic import topology as TP
+    union = TP.bridged_union(two_rooms(open_plan=True), [], [sep])
+    ready = R.derive_rooms("L0", two_rooms(open_plan=True), labels, points, None, "p.pdf", union=union)
+    assert sorted(r["polygon"] == s["polygon"] for r, s in zip(ready.rooms, split.rooms)) == [True, True]
+
+
+def test_exterior_face_is_no_room_and_unlabelled_faces_get_the_placeholder():
+    labels, points = blocks_at(("GARDEN", None, (2, 2)))
+    result = R.derive_rooms("L0", two_rooms(), labels, points, None, "p.pdf", unlabelled_label="Room",
+                            face_type=lambda poly: ("hall", "unlabelled face touching 2 doors/openings"))
+    assert len(result.rooms) == 1                                         # the garden face is not a room
+    room = result.rooms[0]
+    assert (room["label"], room["label_raw"], room["room_type"], room["status"]) == ("Room", None, "hall", "unverified")
+    assert room["id"] == "r_L0_room" and "label_size" not in room
+    assert any("has no label: unlabelled face touching 2 doors/openings" in w for w in result.warnings)
+    assert result.unplaced_labels == []
+
+
+def test_generic_label_outside_the_building_is_no_review_reason_but_one_on_a_wall_is():
+    labels, points = blocks_at(("STUDY", None, (12, 2)), ("OFFICE", None, (4, 2)))
+    result = R.derive_rooms("L0", two_rooms(), labels, points, None, "p.pdf")
+    assert [t.text for t in result.unplaced_labels] == ["OFFICE"]         # on the partition: walls do not close
+    assert all(r["label_raw"] is None for r in result.rooms)
+
+
+def test_hall_alone_in_a_large_compact_face_is_a_living_room_and_turkish_casing():
+    labels, points = blocks_at(("HALL", None, (2, 2)), ("SALON", None, (6, 2)), turkish=False)
+    labels[1].turkish = True
+    result = R.derive_rooms("L0", two_rooms(), labels, points, None, "p.pdf")
+    rooms = {r["label"]: r for r in result.rooms}
+    assert rooms["Hall"]["room_type"] == "living"                          # 13.3 m², aspect 1.03
+    assert rooms["Salon"]["room_type"] == "living" and rooms["Salon"]["label_raw"] == "SALON"
+    narrow = [wall((0, 0.1), (8, 0.1)), wall((0, 1.9), (8, 1.9)), wall((0.1, 0), (0.1, 2)), wall((7.9, 0), (7.9, 2))]
+    labels, points = blocks_at(("HALL", None, (2, 1)))
+    assert R.derive_rooms("L0", narrow, labels, points, None, "p.pdf").rooms[0]["room_type"] == "hall"

@@ -19,6 +19,12 @@ scene manifest's ``camera_policy``, ``assumed`` entries with ``parent`` and
 reason), render entries' ``window_pull`` and ``alt_preview``, the exposure's
 ``ev_offset`` and the render manifest's ``incomplete`` / ``not_rendered`` /
 ``deadline`` and control flags.
+
+Milestone 7 (docs/milestone7.md §6.4), optional as well: opening entries'
+``virtual`` and ``line`` (a separator without geometry), furniture entries'
+``stair`` record, the furniture summary's ``not_built`` (``build: false``
+pieces) and ``stairs``, and the manifest's ``site`` (what the scene leaves
+out: plot walls, exterior areas, site decor, ``built: false``).
 """
 from __future__ import annotations
 
@@ -103,6 +109,14 @@ SCENE_OBJECT = {
         # Milestone 5 (§2.7): rooms carrying an opening, world box of a piece as built.
         "room_ids": {"type": "array", "items": {"type": "string"}},
         "box3d": BOX3D,
+        # Milestone 7 (§6.4): a virtual separator (no geometry) and a built stair.
+        "virtual": {"type": "boolean"},
+        "line": {"type": ["array", "null"], "items": {"type": "array", "items": {"type": "number"}},
+                 "minItems": 2, "maxItems": 2},
+        "stair": {"type": "object", "required": ["risers", "riser_m", "riser_source", "flights"],
+                  "properties": {"risers": {"type": "integer", "minimum": 2},
+                                 "riser_m": {"type": "number", "exclusiveMinimum": 0},
+                                 "riser_source": {"type": "string"}, "flights": {"type": "array"}}},
     },
     "allOf": [
         {"if": {"properties": {"kind": {"enum": ["door", "window"]}}, "required": ["kind"]},
@@ -189,7 +203,15 @@ SCENE_MANIFEST = {
                               "type": "object", "required": ["id", "type", "reason"]}},
                           "proxies": {"type": "integer"},
                           "decor": {"type": "integer"},
+                          # Milestone 7: pieces not built (build: false) and the stairs built with the shell.
+                          "not_built": {"type": "array", "items": {
+                              "type": "object", "required": ["id", "type", "reason"]}},
+                          "stairs": {"type": "array", "items": {"type": "string"}},
                       }},
+        "site": {"oneOf": [{"type": "null"}, {
+            "type": "object", "required": ["built", "reason"],
+            "properties": {"built": {"const": False}, "reason": {"type": "string"}},
+            "additionalProperties": {"type": "object", "required": ["count", "ids"]}}]},
     },
 }
 

@@ -199,10 +199,58 @@ def test_default_sizes_are_the_drawing_block_sizes():
             assert schemas.default_size(ftype) in blocks[ftype], ftype
         assert ftype in schemas.HEIGHTS
     assert {t for t, _w, _d in BLOCKS.values()} <= set(schemas.SIZE_OPTIONS)
-    assert set(schemas.SIZE_OPTIONS) == set(B.load_schema()["$defs"]["furniture"]["properties"]["type"]["enum"]) - {"unknown"}
+    schema_types = set(B.load_schema()["$defs"]["furniture"]["properties"]["type"]["enum"]) - {"unknown"}
+    assert set(schemas.SIZE_OPTIONS) == schema_types                    # the fit and the placer know every type
+    # docs/milestone7.md §6.5: every schema type except the documented-only ones can be proposed by the layout.
+    assert schemas.DOCUMENTED_ONLY_TYPES == ("stair", "side_table", "floor_lamp", "potted_plant")
+    assert set(schemas.LAYOUT_TYPES) == schema_types - set(schemas.DOCUMENTED_ONLY_TYPES)
+    assert set(schemas.LAYOUT["properties"]["pieces"]["items"]["properties"]["type"]["enum"]) == set(schemas.LAYOUT_TYPES)
+    assert not set(schemas.DOCUMENTED_ONLY_TYPES) & {t for types in schemas.ALLOWED_TYPES.values() for t in types}
     assert schemas.smaller_size("wardrobe", (1.8, 0.6)) == (1.2, 0.6)
     assert schemas.smaller_size("wardrobe", (1.2, 0.6)) is None
     assert schemas.smaller_size("sofa", (2.0, 0.9)) == (1.6, 0.9)      # not an option: next option below
+
+
+def test_documented_only_types_are_never_proposed():
+    for ftype in schemas.DOCUMENTED_ONLY_TYPES:
+        assert not schemas.is_valid({"pieces": [pc(ftype, (1, 1))]}), ftype
+        assert ftype in schemas.HEIGHTS and len(schemas.SIZE_OPTIONS[ftype]) == 3
+
+
+DINING_TABLE = {
+    ("r_L1_yatak_odasi", 1): {"pieces": [pc("table_dining", (7.7, 2.1), size=(1.2, 0.8), wall=False),
+                                         pc("chair", (7.7, 1.4), wall=False)]},
+    ("r_L1_yatak_odasi", 2): {"pieces": [pc("table_dining", (7.7, 2.1), size=(1.2, 0.8), wall=False)]},
+}
+
+
+def test_dining_rooms_are_furnished_and_prayer_rooms_never():
+    """docs/milestone7.md §0 and §6.5: a dining room gets the dining types (anchor: the dining table); a prayer room
+    is never asked, it is listed as skipped with the reason and stays empty."""
+    building = load_truth("synthetic-01")
+    rooms = {r["id"]: r for r in building["rooms"]}
+    rooms["r_L1_yatak_odasi"]["room_type"] = "dining"
+    rooms["r_L1_banyo"]["room_type"] = "prayer"
+    assert schemas.ALLOWED_TYPES["dining"] == ("table_dining", "chair", "dresser", "bookshelf")
+    assert schemas.ANCHOR_TYPES["dining"] == ("table_dining",) and "dining" in schemas.FURNISHABLE_ROOM_TYPES
+    assert "prayer" not in schemas.FURNISHABLE_ROOM_TYPES and schemas.NOT_FURNISHED_ROOM_TYPES == ("prayer",)
+    assert [r["id"] for r in L.not_furnished_rooms(building)] == ["r_L1_banyo"]
+    assert "r_L1_banyo" not in {r["id"] for r in L.empty_rooms(building)}
+    client = FakeClient(DINING_TABLE)
+    out, layouts = L.furnish_building(building, "x", client)
+    assert "r_L1_banyo" not in {r for r, _ in client.calls} and ("r_L1_yatak_odasi", 1) in client.calls
+    prayer = next(l for l in layouts if l.room_id == "r_L1_banyo")
+    assert prayer.pieces == [] and prayer.proposals == [] and "never furnished by AI" in prayer.skipped
+    assert any(w.startswith("r_L1_banyo: no AI furniture, prayer room: never furnished by AI") for w in out["warnings"])
+    dining = {f["type"]: f for f in by_room(out)["r_L1_yatak_odasi"]}
+    assert set(dining) == {"table_dining", "chair"} and dining["table_dining"]["evidence"][0]["confidence"] == 0.9
+    room = rooms["r_L1_yatak_odasi"]
+    doors, windows = P.room_openings(building, room)
+    prompt = prompts.layout_prompt(room, doors, windows, "Scandinavian", 1)
+    assert "dining room (Turkish: YEMEK ODASI)" in prompt and "one dining table in the middle" in prompt
+    assert "- table_dining: height 0.75 m" in prompt and "- sofa:" not in prompt
+    assert set(prompts.ROOM_TYPE_TEXT) >= set(schemas.ALLOWED_TYPES) | {"prayer"}
+    assert set(prompts.ROOM_GUIDE) == set(prompts.ROOM_TYPE_TEXT)
 
 
 def test_schema_is_strict():

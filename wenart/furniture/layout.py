@@ -10,6 +10,9 @@ type, centre within 0.5 m) gets confidence 0.9, the rest 0.6. Added pieces
 are ``source: added_by_ai``, ``status: verified`` with evidence
 ``{method: ai, model, pass, text: <reason>}`` and the six placer checks, all
 true. A room whose answers are unusable stays empty and the report says so.
+Milestone 7 (docs/milestone7.md §0, §6.5): ``dining`` rooms are furnished
+like the others (anchor: the dining table); a ``prayer`` room is never
+furnished by AI: it is listed as skipped with the reason, never asked.
 A pass whose last attempt could not reach the server (``VLMError``, or the
 model lookup failed) is a transport error, not an answer: the CLI then exits
 3 and writes no furnished building, so a dead server never yields a
@@ -205,6 +208,13 @@ def empty_rooms(building: dict) -> list[dict]:
             if not r.get("has_documented_furniture") and r.get("room_type") in schemas.FURNISHABLE_ROOM_TYPES]
 
 
+def not_furnished_rooms(building: dict) -> list[dict]:
+    """Empty rooms whose type is never furnished by AI (``schemas.NOT_FURNISHED_ROOM_TYPES``: prayer), in
+    building order; the layout lists them as skipped instead of passing them over silently."""
+    return [r for r in building["rooms"]
+            if not r.get("has_documented_furniture") and r.get("room_type") in schemas.NOT_FURNISHED_ROOM_TYPES]
+
+
 def _next_furniture_number(building: dict, level_id: str) -> int:
     pattern = re.compile(rf"^f_{re.escape(level_id)}_(\d+)$")
     numbers = [int(m.group(1)) for f in building["furniture"] for m in [pattern.match(f["id"])] if m]
@@ -290,6 +300,10 @@ def furnish_building(building: dict, style_text: str, client, passes: int = 2,
     layouts: list[RoomLayout] = []
     brief = (out.get("project") or {}).get("brief") or {}
     mode = brief.get("empty_rooms", "ai")
+    for room in not_furnished_rooms(out):
+        layouts.append(RoomLayout(room["id"], room["label"], room.get("room_type", "other"),
+                                  skipped=f"{room.get('room_type')} room: never furnished by AI "
+                                          f"(docs/milestone7.md §0)"))
     for room in empty_rooms(out):
         if mode != "ai":
             layouts.append(RoomLayout(room["id"], room["label"], room.get("room_type", "other"),

@@ -56,6 +56,42 @@ How (one CLI subcommand per step, ``wenart/vision_check/cli.py``):
   ``realism_summary.json`` and ``realism_summary.md``.
 
 Thresholds live in ``check.yaml: realism`` (``realism_cfg``).
+
+Realism v2 (docs/milestone7.md §8.2, protocol ``V2``; the M6 protocol is
+``V1`` and keeps every file, key and command): **one aspect per call**
+(``PROMPT2_TEMPLATE``, verbatim from the spec, with the aspect's cues), both
+orders, and the image order alternated inside the question and the answer
+enum as well (``ab``: images A, B; "Compare Image 1 with Image 2", enum
+``[image_1, image_2]``; ``ba``: images B, A; "Compare Image 2 with Image 1",
+enum ``[image_2, image_1]``); the answer is ``{"winner", "confidence"}``
+(``schemas.realism2_schema(order)``). One pair costs 8 calls per model.
+
+- ``realism2-pairs`` (``build_pairs2``) writes ``ab/pairs_v2.json`` (never the
+  M6 ``ab/pairs.json``): with ``--controls`` the seven control sets on the 8
+  control views of the control project's **M6** ``ab/`` renders (the same
+  files and views as M6), and ``look_alt`` = ``renders/<cam>_preview.jpg``
+  (A, AgX - Punchy, the M7 default) vs ``renders/<cam>_alt_preview.jpg`` (B,
+  look None) on the project's share of ``look_alt_selection``: 32 cameras of
+  the A/B projects, ranked by furniture share, at most 2 per room,
+  round-robin over the projects (sorted by name). No ``m5_vs_m6``.
+- ``realism2`` (``realism2_specs`` + ``run_realism2``): keys
+  ``realism2|<set>:<cam>|<aspect>|<order>`` in
+  ``check/realism/answers_realism2_<slug>.json``; ``input_sha256`` hashes the
+  per-call prompt (system prompt, prompt, schema, labels, image bytes, model
+  id). ``null_identical`` is asked with one call at a time
+  (``check.yaml: realism2.null_identical_workers``).
+- ``realism2-combine`` / ``realism2-summary``: the same outcomes, statistics,
+  controls, halo, position bias and decision rules over the per-aspect calls
+  (``combine(..., proto=V2)``: per model and aspect W/L/T/NC from the two
+  calls of that aspect; graded = +-1 per order toward B, -2..+2, since v2
+  has no margin) into ``realism2_ab.json``, ``realism2_report.md``,
+  ``contact_realism2_<set>_<n>.jpg``, ``realism2_summary.json`` / ``.md``;
+  the decision is made for ``look_alt``.
+
+A known confound of the v2 order rule, reported, not hidden: the question
+always names A first and lists A's label first in the enum, so a model that
+prefers the image named first (rather than shown first) reads as L (A
+preferred in both orders); the ``null_identical`` control shows it as flips.
 """
 from __future__ import annotations
 
@@ -191,6 +227,98 @@ DEFAULTS = {
 MODEL_NAMES = {"qwen": "Qwen", "glm": "GLM"}
 HALO_NOTE = "ask one aspect per call (M7)"
 
+# Realism v2 (docs/milestone7.md §8.2): look_alt in the project's main renders (M7 default look vs look None).
+SETS2: dict[str, PairSet] = {s: SETS[s] for s in S.REALISM2_SETS if s != "look_alt"}
+SETS2["look_alt"] = PairSet("look_alt", "renders/{cam}_preview.jpg", "renders/{cam}_alt_preview.jpg", None, None,
+                            False, "A = AgX - Punchy (the M7 default look), B = look None")
+assert tuple(SETS2) == S.REALISM2_SETS
+DEFAULTS2 = {"look_alt_cameras": 32, "look_alt_per_room": 2, "null_identical_workers": 1}
+SERIAL_SETS = ("null_identical",)          # asked with check.yaml realism2.null_identical_workers calls at once
+
+# The v2 question (docs/milestone7.md §8.2, verbatim; tests/test_realism_ab.py compares it with the spec).
+PROMPT2_TEMPLATE = "\n".join([
+    "Look at the two images. Both show the same interior from the same camera.",
+    "Question: which image looks more like a real photograph in its {aspect_name}? Compare {first_image} with "
+    "{second_image}.",
+    "Judge only {aspect_name}: {aspect_cues}",
+    "Answer with the image whose {aspect_name} is more photographic. There is no tie.",
+])
+ASPECT_CUES2: dict[str, str] = {
+    "materials": "surface texture, reflections, wear, believable material scale",
+    "lighting": "light falloff, soft shadows, window light, no flat fill",
+    "furniture": "proportions, contact with the floor, soft goods, believable detail",
+    "photo": "the image as a whole: camera, exposure, colour, absence of render artefacts",
+}
+ORDER_NAMES2: dict[str, tuple[str, str]] = {"ab": ("Image 1", "Image 2"), "ba": ("Image 2", "Image 1")}
+PROMPT_KIND2 = "realism2"
+
+
+@dataclass(frozen=True)
+class Protocol:
+    """The files, call keys and pair sets of one realism protocol (``V1``: docs/milestone6.md §6; ``V2``:
+    docs/milestone7.md §8.2). Every function that reads or writes a realism file takes one (default ``V1``)."""
+    version: int
+    prefix: str                     # call-key prefix and prompt kind: realism | realism2
+    sets: dict                      # name -> PairSet, in the asking order
+    ab_sets: tuple                  # the sets realism-summary decides
+    pairs_json: Path
+    answers_prefix: str             # answers_<slug>.json | answers_realism2_<slug>.json
+    ab_json: str
+    report_md: str
+    summary_json: str
+    summary_md: str
+    sheet_prefix: str
+    spec: str
+
+    @property
+    def set_order(self) -> tuple[str, ...]:
+        return tuple(self.sets)
+
+    @property
+    def call_names(self) -> tuple[str, ...]:
+        """The calls of one pair and model, as ``realism_ab.json`` rows name them (``calls``)."""
+        if self.version == 1:
+            return ORDERS
+        return tuple(f"{a}|{o}" for a in ASPECTS for o in ORDERS)
+
+    @property
+    def calls_per_pair(self) -> int:
+        return len(self.call_names)
+
+    def kind(self, base: str) -> str:
+        """``realism_pairs`` -> ``realism2_pairs`` for v2 (the file kinds of ``schemas``)."""
+        return base if self.version == 1 else base.replace("realism_", "realism2_", 1)
+
+
+V1 = Protocol(1, PROMPT_KIND, SETS, AB_SETS, PAIRS_JSON, "answers_", REALISM_AB, REPORT_MD, SUMMARY_JSON, SUMMARY_MD,
+              SHEET_PREFIX, "docs/milestone6.md §6")
+V2 = Protocol(2, PROMPT_KIND2, SETS2, ("look_alt",), AB_DIR / "pairs_v2.json", "answers_realism2_", "realism2_ab.json",
+              "realism2_report.md", "realism2_summary.json", "realism2_summary.md", "contact_realism2_",
+              "docs/milestone7.md §8.2")
+PROTOCOLS = {1: V1, 2: V2}
+
+
+def protocol_of(doc: Optional[dict]) -> Protocol:
+    """The protocol of a realism file (by its ``kind``: ``realism2_*`` is v2, anything else v1)."""
+    return V2 if str((doc or {}).get("kind") or "").startswith("realism2_") else V1
+
+
+def realism2_cfg(cfg: Optional[dict] = None) -> dict:
+    """``check.yaml: realism2`` over ``DEFAULTS2`` (``cfg`` = the whole check config, None = this package's)."""
+    if cfg is None:
+        from wenart.vision_check.config import load_config
+        cfg = load_config()
+    out = dict(DEFAULTS2)
+    out.update((cfg or {}).get("realism2") or {})
+    return out
+
+
+def prompt2(aspect: str, order: str) -> str:
+    """The v2 question for one aspect and order (``ab``: "Compare Image 1 with Image 2"; ``ba``: swapped)."""
+    first, second = ORDER_NAMES2[order]
+    return PROMPT2_TEMPLATE.format(aspect_name=aspect, first_image=first, second_image=second,
+                                   aspect_cues=ASPECT_CUES2[aspect])
+
 
 def realism_cfg(cfg: Optional[dict] = None) -> dict:
     """``check.yaml: realism`` (``cfg`` = the whole check config, None = this package's) over ``DEFAULTS``."""
@@ -217,19 +345,27 @@ def call_key(pid: str, order: str) -> str:
     return f"{PROMPT_KIND}|{pid}|{order}"
 
 
-def answers_path(out: Path, slug: str) -> Path:
-    return Path(out) / REALISM_DIR / f"answers_{slug}.json"
+def call_key2(pid: str, aspect: str, order: str) -> str:
+    """``realism2|<set>:<cam>|<aspect>|<order>`` (M7 §8.2)."""
+    return f"{PROMPT_KIND2}|{pid}|{aspect}|{order}"
 
 
-def select_sets(sets: Optional[str] = None, skip: Optional[str] = None) -> list[str]:
+def answers_path(out: Path, slug: str, proto: Protocol = None) -> Path:
+    """``check/realism/answers_<slug>.json`` (v1) or ``answers_realism2_<slug>.json`` (v2)."""
+    return Path(out) / REALISM_DIR / f"{(proto or V1).answers_prefix}{slug}.json"
+
+
+def select_sets(sets: Optional[str] = None, skip: Optional[str] = None, proto: Protocol = None) -> list[str]:
     """Set names from ``--sets`` (default all) minus ``--skip-sets``, in the asking order (UsageError if unknown)."""
+    proto = proto or V1
+
     def names(text):
         return [s for s in (text or "").replace(",", " ").split() if s]
     chosen, skipped = names(sets), names(skip)
-    unknown = [s for s in chosen + skipped if s not in SETS]
+    unknown = [s for s in chosen + skipped if s not in proto.sets]
     if unknown:
-        raise C.UsageError(f"unknown realism set(s) {unknown}; choose from {', '.join(SET_ORDER)}")
-    return [s for s in SET_ORDER if (not chosen or s in chosen) and s not in skipped]
+        raise C.UsageError(f"unknown realism set(s) {unknown}; choose from {', '.join(proto.set_order)}")
+    return [s for s in proto.set_order if (not chosen or s in chosen) and s not in skipped]
 
 
 # --------------------------------------------------------------------------
@@ -310,6 +446,37 @@ def model_outcome(ans_ab: Optional[dict], ans_ba: Optional[dict], aspect: str) -
         graded += weight if pick else -weight
     rec["outcome"] = "W" if all(b) else "L" if not any(b) else "T"
     rec["graded"] = graded
+    return rec
+
+
+class RealismClient2(RealismClient):
+    """``RealismClient`` for v2: the same system prompt; the answer is checked against the call's own schema (the
+    enum order differs per order), a schema miss is a failed call."""
+
+    def run_schema(self, images, prompt, schema, **kwargs):
+        kwargs["system_prompt"] = SYSTEM_PROMPT
+        result = self.client.run_schema(images, prompt, schema, **kwargs)
+        if result.data is not None:
+            problems = schema_errors(schema, result.data)
+            if problems:
+                result.data = None
+                result.error = "schema: " + "; ".join(problems[:5])
+        return result
+
+
+def model_outcome2(ans_ab: Optional[dict], ans_ba: Optional[dict]) -> dict:
+    """One model, one pair, one aspect from the two v2 calls of that aspect: ``{outcome, graded, winners,
+    confidences, margins, cues}``; W/L/T/NC as ``model_outcome``; graded = +-1 per order toward B (-2..+2)."""
+    answers = (ans_ab, ans_ba)
+    winners = [(a or {}).get("winner") for a in answers]
+    confidences = [(a or {}).get("confidence") for a in answers]
+    rec = {"outcome": "NC", "graded": None, "winners": winners, "confidences": confidences, "margins": [None, None],
+           "cues": [None, None]}
+    if ans_ab is None or ans_ba is None:
+        return rec
+    b = [picks_b(o, w) for o, w in zip(ORDERS, winners)]
+    rec["outcome"] = "W" if all(b) else "L" if not any(b) else "T"
+    rec["graded"] = sum(1 if pick else -1 for pick in b)
     return rec
 
 
@@ -821,6 +988,149 @@ def build_pairs(out, controls: bool = False, cfg: Optional[dict] = None) -> dict
             "sets": sets, "pairs": pairs, "dropped": dropped, "skipped": skipped, "warnings": warnings}
 
 
+RENDER_MANIFEST = Path("renders") / "render_manifest.json"
+SCENE_MANIFEST = Path("scene") / "scene_manifest.json"
+
+
+def look_alt_ranking(out, per_room: int = 2, warnings: Optional[list] = None) -> list[str]:
+    """One A/B project's look_alt cameras in rank order: highest furniture share first (ties by name), at most
+    ``per_room`` per room, only cameras with both previews (``renders/<cam>_preview.jpg`` and ``_alt_preview.jpg``).
+    """
+    out = Path(out)
+    manifest = read_json(out / RENDER_MANIFEST)
+    if manifest is None:
+        if warnings is not None:
+            warnings.append(f"{out.name}: no {RENDER_MANIFEST.as_posix()}: no look_alt cameras")
+        return []
+    scene = read_json(out / SCENE_MANIFEST) or {}
+    table = views.index_table(scene)
+    rooms = _room_ids(manifest, scene)
+    scored: dict[str, float] = {}
+    missing = 0
+    for e in manifest.get("renders") or []:
+        cam = e.get("camera")
+        if not cam or cam in scored:
+            continue
+        if not all((out / f.format(cam=cam)).is_file() for f in (SETS2["look_alt"].a, SETS2["look_alt"].b)):
+            missing += 1
+            continue
+        scored[cam] = furniture_share(e, table)
+    if missing and warnings is not None:
+        warnings.append(f"{out.name}: {missing} camera(s) without both previews (rendered without --alt-look?): "
+                        "not in the look_alt ranking")
+    per: Counter = Counter()
+    ranked = []
+    for cam in sorted(scored, key=lambda c: (-scored[c], c)):
+        room = rooms.get(cam) or f"?{cam}"
+        if per[room] >= int(per_room):
+            continue
+        per[room] += 1
+        ranked.append(cam)
+    return ranked
+
+
+def look_alt_selection(outs: Iterable, n: int = 32, per_room: int = 2, warnings: Optional[list] = None
+                       ) -> dict[str, list[str]]:
+    """``{project output (resolved, as text): [cameras]}``: ``n`` look_alt cameras over the A/B projects, taken
+    round-robin (projects sorted by folder name) from each project's ``look_alt_ranking``. The same list for every
+    project that computes it, whatever order the outputs are given in."""
+    projects = sorted(dict.fromkeys(Path(o).resolve() for o in outs), key=lambda o: (o.name, str(o)))
+    ranked = {str(o): look_alt_ranking(o, per_room, warnings) for o in projects}
+    chosen: dict[str, list[str]] = {str(o): [] for o in projects}
+    taken, k = 0, 0
+    while taken < int(n) and any(k < len(r) for r in ranked.values()):
+        for o in projects:
+            r = ranked[str(o)]
+            if k < len(r) and taken < int(n):
+                chosen[str(o)].append(r[k])
+                taken += 1
+        k += 1
+    return chosen
+
+
+def build_pairs2(out, controls: bool = False, ab_outs: Optional[Iterable] = None, cfg: Optional[dict] = None) -> dict:
+    """The ``ab/pairs_v2.json`` content of one project output (M7 §8.2); writes the ``null_reencode`` A files.
+
+    ``controls``: the seven control sets on the 8 control views of this
+    project's M6 ``ab/`` renders (``ab/renders/render_manifest.json`` and
+    ``ab/scene/scene_manifest.json``; FileNotFoundError without the render
+    manifest). ``look_alt``: this project's cameras of
+    ``look_alt_selection(ab_outs)`` (``ab_outs`` default: this project
+    alone; a project not among them gets none). A pair whose file is missing
+    is listed under ``skipped``. ValueError on a duplicate pair id.
+    """
+    out = Path(out).resolve()
+    rc = realism_cfg(cfg)
+    r2 = realism2_cfg(cfg)
+    warnings: list[str] = []
+    skipped: list[dict] = []
+    main_manifest = read_json(out / RENDER_MANIFEST) or {}
+    main_scene = read_json(out / SCENE_MANIFEST) or {}
+    rooms = _room_ids(main_manifest, main_scene)
+    chosen: list[str] = []
+    ab_rooms: dict = {}
+    if controls:
+        manifest = read_json(out / AB_RENDER_MANIFEST)
+        if manifest is None:
+            raise FileNotFoundError(f"no {AB_RENDER_MANIFEST.as_posix()} in {out} (the control project's M6 A/B "
+                                    "renders)")
+        scene = read_json(out / AB_SCENE_MANIFEST) or {}
+        if not scene:
+            warnings.append(f"no {AB_SCENE_MANIFEST.as_posix()}: control views ranked without the index table")
+        chosen = control_views(manifest, scene, int(rc["control_views"]))
+        ab_rooms = _room_ids(manifest, scene)
+        for cam in chosen:
+            src = out / NORMAL.format(cam=cam)
+            if src.is_file():
+                write_reencode(src, out / SETS2["null_reencode"].a.format(cam=cam), int(rc["reencode_quality"]))
+    outs = [out] if ab_outs is None else [Path(o).resolve() for o in ab_outs]
+    selection = look_alt_selection(outs, int(r2["look_alt_cameras"]), int(r2["look_alt_per_room"]), warnings)
+    look_cams = selection.get(str(out), [])
+    looks = {"a": main_manifest.get("look"), "b": main_manifest.get("alt_look")}
+    if look_cams and (looks["a"], looks["b"]) != ("AgX - Punchy", "None"):
+        warnings.append(f"look_alt: renders/render_manifest.json has look {looks['a']!r} and alt look {looks['b']!r}, "
+                        "not 'AgX - Punchy' and 'None' (docs/milestone7.md §8.2)")
+    project = str(main_scene.get("project") or (read_json(out / AB_SCENE_MANIFEST) or {}).get("project") or out.name)
+    pairs: list[dict] = []
+    sha: dict = {}
+    lum: dict = {}
+
+    def file_sha(p: Path) -> str:
+        key = str(p)
+        if key not in sha:
+            sha[key] = sha256_file(p)
+        return sha[key]
+
+    for s in V2.set_order:
+        pset = SETS2[s]
+        for cam in (chosen if pset.control else look_cams):
+            a, b = out / pset.a.format(cam=cam), out / pset.b.format(cam=cam)
+            missing = [rel(p, out) for p in (a, b) if not p.is_file()]
+            if missing:
+                skipped.append({"set": s, "cam": cam, "reason": "missing " + ", ".join(dict.fromkeys(missing))})
+                continue
+            room_id = (ab_rooms if pset.control else rooms).get(cam)
+            msg = f"{cam}: no room id in the render or scene manifest; the camera is its own room"
+            if room_id is None and msg not in warnings:
+                warnings.append(msg)
+            pairs.append({
+                "pair_id": pair_id(s, cam), "set": s, "cam": cam, "room_id": room_id,
+                "a": rel(a, out), "b": rel(b, out), "expected": pset.expected, "target_aspect": pset.target_aspect,
+                "a_sha256": file_sha(a), "b_sha256": file_sha(b), "a_bytes": a.stat().st_size,
+                "b_bytes": b.stat().st_size, "delta_ev": delta_ev(a, b, lum),
+            })
+    check_unique(pairs)
+    sets = {s: sum(1 for p in pairs if p["set"] == s) for s in V2.set_order if any(p["set"] == s for p in pairs)}
+    return {"schema_version": "0.1", "kind": V2.kind("realism_pairs"), "project": project,
+            "controls": bool(controls), "control_views": chosen, "reencode_quality": int(rc["reencode_quality"]),
+            "look_alt": {"cameras": int(r2["look_alt_cameras"]), "per_room": int(r2["look_alt_per_room"]),
+                         "projects": [Path(o).name for o in selection], "selected": look_cams,
+                         "selected_total": sum(len(v) for v in selection.values()), "looks": looks,
+                         "in_selection": str(out) in selection},
+            "render_manifest": RENDER_MANIFEST.as_posix(), "sets": sets, "pairs": pairs, "dropped": [],
+            "skipped": skipped, "warnings": warnings}
+
+
 # --------------------------------------------------------------------------
 # Calls (realism)
 # --------------------------------------------------------------------------
@@ -898,12 +1208,82 @@ def realism_specs(out, pairs_doc: dict, model: str = "", sets: Optional[Iterable
     return specs
 
 
+def input_sha256_2(image_shas: list[str], model: str, prompt: str, schema: dict) -> str:
+    """v2: sha256 of the system prompt, the per-call prompt and schema, the labels, the image bytes and the model."""
+    payload = {"system": SYSTEM_PROMPT, "prompt": prompt, "schema": schema, "labels": list(LABELS),
+               "images": list(image_shas), "model": model}
+    blob = json.dumps(payload, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+    return hashlib.sha256(blob.encode("utf-8")).hexdigest()
+
+
+def pair_spec2(out: Path, pair: dict, aspect: str, order: str, model: str, cache: dict,
+               warnings: Optional[list] = None) -> Optional[C.CallSpec]:
+    """The v2 call of one pair, aspect and order, or None when an image is missing (a warning)."""
+    base = pair_spec(out, pair, order, model, cache, warnings)
+    if base is None:
+        return None
+    prompt, schema = prompt2(aspect, order), S.realism2_schema(order)
+    shas = [cache[str(p.resolve())] for p in base.images]
+    spec = C.CallSpec(key=call_key2(pair["pair_id"], aspect, order), camera=pair["cam"], image_kind=pair["set"],
+                      prompt_kind=PROMPT_KIND2, prompt=prompt, schema=schema, images=base.images,
+                      image_labels=list(LABELS), size=base.size, items=base.items, order=order)
+    spec.input_sha256 = input_sha256_2(shas, model, prompt, schema)
+    return spec
+
+
+def realism2_specs(out, pairs_doc: dict, model: str = "", sets: Optional[Iterable[str]] = None,
+                   warnings: Optional[list] = None) -> list[C.CallSpec]:
+    """Every v2 call of the pairs file: sets in ``V2`` order, per pair every aspect, ``ab`` then ``ba``."""
+    out = Path(out).resolve()
+    wanted = set(V2.set_order if sets is None else sets)
+    cache: dict = {}
+    specs = []
+    for s in V2.set_order:
+        if s not in wanted:
+            continue
+        for pair in pairs_doc.get("pairs") or []:
+            if pair.get("set") != s:
+                continue
+            for aspect in ASPECTS:
+                for order in ORDERS:
+                    spec = pair_spec2(out, pair, aspect, order, model, cache, warnings)
+                    if spec is not None:
+                        specs.append(spec)
+    return specs
+
+
+def run_realism2(specs: list[C.CallSpec], store: C.AnswerStore, client, *, deadline: Optional[float] = None,
+                 max_side: Optional[int] = None, workers: int = 2, serial_workers: int = 1, log=print) -> dict:
+    """``calls.run_specs`` over the specs in their order, the ``SERIAL_SETS`` with ``serial_workers`` calls at once
+    (consecutive specs with the same worker count go in one run); stats summed, ``incomplete`` if any run was."""
+    segments: list[tuple[int, list]] = []
+    for spec in specs:
+        w = int(serial_workers) if spec.image_kind in SERIAL_SETS else int(workers)
+        if segments and segments[-1][0] == w:
+            segments[-1][1].append(spec)
+        else:
+            segments.append((w, [spec]))
+    total = {"asked": 0, "reused": 0, "failed": 0, "left": 0, "incomplete": False, "segments": []}
+    for w, seg in segments or [(int(workers), [])]:
+        stats = C.run_specs(seg, store, client, deadline=deadline, max_side=max_side, workers=w, log=log)
+        for k in ("asked", "reused", "failed", "left"):
+            total[k] += stats[k]
+        total["incomplete"] = total["incomplete"] or stats["incomplete"]
+        total["segments"].append({"workers": w, "calls": len(seg), "sets": sorted({s.image_kind for s in seg})})
+    store.data["incomplete"] = total["incomplete"]
+    store.save()
+    return total
+
+
 # --------------------------------------------------------------------------
 # realism-combine
 # --------------------------------------------------------------------------
 
 def call_answer(store: C.AnswerStore, spec: Optional[C.CallSpec]) -> tuple[str, Optional[dict]]:
-    """``(status, answer)``: ``answered`` (current inputs, valid answer), ``failed``, ``stale`` or ``missing``."""
+    """``(status, answer)``: ``answered`` (current inputs, valid answer), ``failed``, ``stale`` or ``missing``.
+
+    v1 answers go through ``post_validate``; v2 answers (``spec.prompt_kind`` realism2) are checked against the
+    call's own schema."""
     if spec is None:
         return "missing", None
     rec = store.get(spec.key)
@@ -913,6 +1293,8 @@ def call_answer(store: C.AnswerStore, spec: Optional[C.CallSpec]) -> tuple[str, 
         return "stale", None
     if rec.get("data") is None or rec.get("error"):
         return "failed", None
+    if spec.prompt_kind == PROMPT_KIND2:
+        return ("failed", None) if schema_errors(spec.schema, rec["data"]) else ("answered", copy.deepcopy(rec["data"]))
     data, error = post_validate(rec["data"])
     return ("answered", data) if error is None else ("failed", None)
 
@@ -922,25 +1304,27 @@ def room_key(project: str, room_id: Optional[str], cam: str) -> str:
     return f"{project}:{room_id}" if room_id else f"{project}:?{cam}"
 
 
-def stores_for(out: Path, keys: list[str], cfg: dict) -> dict:
+def stores_for(out: Path, keys: list[str], cfg: dict, proto: Protocol = None) -> dict:
     models = cfg["models"]
     unknown = [k for k in keys if k not in models]
     if unknown:
         raise C.UsageError(f"model key(s) {unknown} not in check.yaml (known: {', '.join(models)})")
-    return {k: C.AnswerStore(answers_path(out, models[k]["slug"]), k, models[k]["slug"]) for k in keys}
+    return {k: C.AnswerStore(answers_path(out, models[k]["slug"], proto), k, models[k]["slug"]) for k in keys}
 
 
-def call_stats(project: str, rows: list[dict], models: list[str]) -> list[dict]:
-    """Per set and model: calls expected (2 per pair), answered, failed, stale, missing and the set status."""
+def call_stats(project: str, rows: list[dict], models: list[str], proto: Protocol = None) -> list[dict]:
+    """Per set and model: calls expected (2 per pair, v2: 8), answered, failed, stale, missing and the set status."""
+    proto = proto or V1
     out = []
     by_set = _by_set(rows)
-    for s in SET_ORDER:
+    for s in proto.set_order:
         rs = by_set.get(s)
         if not rs:
             continue
         for m in models:
-            c = Counter(((r["models"].get(m) or {}).get("calls") or {}).get(o, "missing") for r in rs for o in ORDERS)
-            expected = 2 * len(rs)
+            c = Counter(((r["models"].get(m) or {}).get("calls") or {}).get(o, "missing") for r in rs
+                        for o in proto.call_names)
+            expected = proto.calls_per_pair * len(rs)
             recorded = c["answered"] + c["failed"] + c["stale"]
             status = "complete" if c["answered"] == expected else "not_started" if recorded == 0 else "incomplete"
             out.append({"project": project, "set": s, "model": m, "expected": expected, "answered": c["answered"],
@@ -949,26 +1333,55 @@ def call_stats(project: str, rows: list[dict], models: list[str]) -> list[dict]:
     return out
 
 
-def combine(out, keys: list[str], cfg: Optional[dict] = None) -> dict:
-    """The ``realism_ab.json`` content of one project: rows, statistics per set, controls, calls (no decision).
+def _model_row(proto: Protocol, store: C.AnswerStore, out: Path, pair: dict, model: str, cache: dict,
+               warnings: list, key: str) -> dict:
+    """``{"calls": {call name: status}, "aspects": {aspect: outcome record}}`` of one model on one pair."""
+    statuses: dict = {}
+    if proto.version == 1:
+        answers = {}
+        specs = {o: pair_spec(out, pair, o, model, cache, warnings) for o in ORDERS}
+        for order, spec in specs.items():
+            statuses[order], answers[order] = call_answer(store, spec)
+    else:
+        specs = {f"{a}|{o}": pair_spec2(out, pair, a, o, model, cache, warnings) for a in ASPECTS for o in ORDERS}
+        answers2 = {}
+        for name, spec in specs.items():
+            statuses[name], answers2[name] = call_answer(store, spec)
+    for name, status in statuses.items():
+        if status == "stale":
+            msg = f"{key}: stale answer for {specs[name].key} (inputs changed); not used"
+            if msg not in warnings:
+                warnings.append(msg)
+    if proto.version == 1:
+        aspects = {a: model_outcome(answers["ab"], answers["ba"], a) for a in ASPECTS}
+    else:
+        aspects = {a: model_outcome2(answers2[f"{a}|ab"], answers2[f"{a}|ba"]) for a in ASPECTS}
+    return {"calls": statuses, "aspects": aspects}
 
-    Raises FileNotFoundError without ``ab/pairs.json``, ``calls.UsageError``
+
+def combine(out, keys: list[str], cfg: Optional[dict] = None, proto: Protocol = None) -> dict:
+    """The ``realism_ab.json`` (v2: ``realism2_ab.json``) content of one project: rows, statistics per set,
+    controls, calls (no decision).
+
+    Raises FileNotFoundError without ``ab/pairs.json`` (v2: ``ab/pairs_v2.json``), ``calls.UsageError``
     for a model key that is not in ``check.yaml``.
     """
     from wenart.vision_check.config import load_config
+    proto = proto or V1
     out = Path(out).resolve()
     cfg = cfg if cfg is not None else load_config()
     rc = realism_cfg(cfg)
-    pairs_doc = read_json(out / PAIRS_JSON)
+    pairs_doc = read_json(out / proto.pairs_json)
     if pairs_doc is None:
-        raise FileNotFoundError(f"no {PAIRS_JSON.as_posix()} in {out} (run realism-pairs first)")
+        cmd = "realism-pairs" if proto.version == 1 else "realism2-pairs"
+        raise FileNotFoundError(f"no {proto.pairs_json.as_posix()} in {out} (run {cmd} first)")
     keys = list(keys)
-    stores = stores_for(out, keys, cfg)
+    stores = stores_for(out, keys, cfg, proto)
     project = str(pairs_doc.get("project") or out.name)
     warnings: list[str] = []
     cache: dict = {}
     rows = []
-    for s in SET_ORDER:
+    for s in proto.set_order:
         for pair in pairs_doc.get("pairs") or []:
             if pair.get("set") != s:
                 continue
@@ -978,16 +1391,7 @@ def combine(out, keys: list[str], cfg: Optional[dict] = None) -> dict:
                    "target_aspect": pair.get("target_aspect"), "delta_ev": pair.get("delta_ev"), "models": {}}
             for k in keys:
                 model = stores[k].data.get("model") or ""
-                answers, statuses = {}, {}
-                for order in ORDERS:
-                    spec = pair_spec(out, pair, order, model, cache, warnings)
-                    statuses[order], answers[order] = call_answer(stores[k], spec)
-                    if statuses[order] == "stale":
-                        msg = f"{k}: stale answer for {call_key(pair['pair_id'], order)} (inputs changed); not used"
-                        if msg not in warnings:
-                            warnings.append(msg)
-                row["models"][k] = {"calls": statuses,
-                                    "aspects": {a: model_outcome(answers["ab"], answers["ba"], a) for a in ASPECTS}}
+                row["models"][k] = _model_row(proto, stores[k], out, pair, model, cache, warnings, k)
             row["consensus"] = {a: row_consensus(row, a, keys) for a in ASPECTS}
             rows.append(row)
     by_set = _by_set(rows)
@@ -999,10 +1403,11 @@ def combine(out, keys: list[str], cfg: Optional[dict] = None) -> dict:
                           "incomplete": bool(stores[k].data.get("incomplete")),
                           "position_bias": position_bias(rows, k)}
     return {
-        "schema_version": "0.1", "kind": "realism_ab", "project": project, "project_out": views.repo_path_text(out),
-        "pairs_file": rel(out / PAIRS_JSON, out / REALISM_DIR), "models": models_info,
-        "sets": {s: set_stats(by_set[s], keys, keys, rc) for s in SET_ORDER if s in by_set},
-        "controls": evaluate_controls(rows, keys, rc), "calls": call_stats(project, rows, keys),
+        "schema_version": "0.1", "kind": proto.kind("realism_ab"), "project": project,
+        "project_out": views.repo_path_text(out),
+        "pairs_file": rel(out / proto.pairs_json, out / REALISM_DIR), "models": models_info,
+        "sets": {s: set_stats(by_set[s], keys, keys, rc) for s in proto.set_order if s in by_set},
+        "controls": evaluate_controls(rows, keys, rc), "calls": call_stats(project, rows, keys, proto),
         "control_views": list(pairs_doc.get("control_views") or []),
         "dropped": list(pairs_doc.get("dropped") or []), "skipped": list(pairs_doc.get("skipped") or []),
         "warnings": list(pairs_doc.get("warnings") or []) + warnings, "contact_sheets": {}, "rows": rows,
@@ -1039,9 +1444,11 @@ def _thumb(path: Path, width: int = THUMB_W):
         return None
 
 
-def sheet_image(out: Path, project: str, set_name: str, rows: list[dict], models: list[str], page: int, pages: int):
+def sheet_image(out: Path, project: str, set_name: str, rows: list[dict], models: list[str], page: int, pages: int,
+                proto: Protocol = None):
     """One contact sheet: a header, then per pair a row A | B | outcomes (per model with graded score, consensus)."""
     from PIL import Image, ImageDraw
+    proto = proto or V1
     thumbs = [(_thumb(Path(out) / r["a"]), _thumb(Path(out) / r["b"])) for r in rows]
     th = max([t.height for pair in thumbs for t in pair if t is not None] or [round(THUMB_W * 9 / 16)])
     line = 18
@@ -1050,8 +1457,9 @@ def sheet_image(out: Path, project: str, set_name: str, rows: list[dict], models
     sheet = Image.new("RGB", (width, HEADER_H + len(rows) * row_h + 6), (28, 28, 28))
     draw = ImageDraw.Draw(sheet)
     font, small = _font(16), _font(14)
-    pset = SETS[set_name]
-    draw.text((8, 4), f"{project}  {set_name}  ({page}/{pages})", fill=(255, 255, 255), font=font)
+    pset = proto.sets[set_name]
+    draw.text((8, 4), f"{project}  {set_name}{'  v2' if proto.version == 2 else ''}  ({page}/{pages})",
+              fill=(255, 255, 255), font=font)
     expected = (f"expected: {pset.expected.upper()} wins {pset.target_aspect}" if pset.expected in ("a", "b")
                 else "expected: T" if pset.expected == "tie" else "no expected direction")
     draw.text((8, 24), f"left A, right B: {pset.text} | {expected}", fill=(200, 200, 200), font=small)
@@ -1088,22 +1496,25 @@ def sheet_image(out: Path, project: str, set_name: str, rows: list[dict], models
 
 
 def write_contact_sheets(out: Path, doc: dict, models: list[str], rows_per_sheet: int = SHEET_ROWS) -> dict:
-    """``check/realism/contact_realism_<set>_<n>.jpg`` (<= 300 KB each); older sheets of a set beyond ``n`` go."""
+    """``check/realism/contact_realism_<set>_<n>.jpg`` (v2: ``contact_realism2_``; <= 300 KB each); older sheets of
+    a set beyond ``n`` go."""
     from wenart.vision_check.plan_crop import save_jpeg
+    proto = protocol_of(doc)
+    prefix = proto.sheet_prefix
     out = Path(out)
     folder = out / REALISM_DIR
     names: dict[str, list] = {}
     by_set = _by_set(doc["rows"])
-    for s in SET_ORDER:
+    for s in proto.set_order:
         rows = by_set.get(s, [])
         chunks = [rows[i:i + rows_per_sheet] for i in range(0, len(rows), rows_per_sheet)]
         made = []
         for i, chunk in enumerate(chunks):
-            name = f"{SHEET_PREFIX}{s}_{i + 1}.jpg"
-            save_jpeg(sheet_image(out, doc["project"], s, chunk, models, i + 1, len(chunks)), folder / name)
+            name = f"{prefix}{s}_{i + 1}.jpg"
+            save_jpeg(sheet_image(out, doc["project"], s, chunk, models, i + 1, len(chunks), proto), folder / name)
             made.append(name)
-        pattern = re.compile(rf"{re.escape(SHEET_PREFIX + s)}_(\d+)\.jpg")
-        for old in folder.glob(f"{SHEET_PREFIX}{s}_*.jpg") if folder.is_dir() else []:
+        pattern = re.compile(rf"{re.escape(prefix + s)}_(\d+)\.jpg")
+        for old in folder.glob(f"{prefix}{s}_*.jpg") if folder.is_dir() else []:
             if pattern.fullmatch(old.name) and old.name not in made:
                 old.unlink()
         if made:
@@ -1234,18 +1645,24 @@ def calls_lines(calls: list[dict], with_project: bool = False) -> list[str]:
 
 
 def report_md(doc: dict) -> str:
-    """``realism_report.md`` of one project (statistics only; the decision is in realism_summary.md)."""
+    """``realism_report.md`` (v2: ``realism2_report.md``) of one project (statistics only; the decision is in the
+    summary)."""
+    proto = protocol_of(doc)
     models = list(doc["models"])
-    lines = [f"# Realism A/B – {doc['project']}", "",
-             "Pairwise forced choice per aspect, both orders, models "
+    how = ("Pairwise forced choice per aspect, both orders" if proto.version == 1 else
+           "Pairwise forced choice, one aspect per call, both orders (the question and the answer enum name the "
+           "images in the order of the call)")
+    summary_cmd = "realism-summary" if proto.version == 1 else "realism2-summary"
+    lines = [f"# Realism A/B{' v2' if proto.version == 2 else ''} – {doc['project']}", "",
+             f"{how}, models "
              + ", ".join(f"{model_name(k)} (`{v['id']}`)" for k, v in doc["models"].items())
-             + " (docs/milestone6.md §6). W = B picked in both orders, L = A in both, T = the pick follows the "
-               "position, NC = a call is missing or failed. No decision here: `realism-summary` decides over all "
+             + f" ({proto.spec}). W = B picked in both orders, L = A in both, T = the pick follows the "
+               f"position, NC = a call is missing or failed. No decision here: `{summary_cmd}` decides over all "
                "A/B projects after the controls.", "",
              f"Pairs: {len(doc['rows'])} in {len(doc['sets'])} set(s); dropped cameras: {len(doc['dropped'])}; "
              f"skipped pairs: {len(doc['skipped'])}.", "", "## Calls", ""] + calls_lines(doc["calls"])
     for s, st in doc["sets"].items():
-        pset = SETS[s]
+        pset = proto.sets[s]
         lines += ["", f"## {s} ({pset.text})", "",
                   f"{st['pairs']} pairs from {st['rooms']} rooms; consensus of "
                   f"{', '.join(model_name(m) for m in st['consensus_models'])}.", ""]
@@ -1275,14 +1692,16 @@ def report_md(doc: dict) -> str:
 
 
 def write_combine(out, doc: dict, sheets: bool = True) -> Path:
-    """``realism_ab.json``, ``realism_report.md`` and (``sheets``) the contact sheets of one project."""
+    """``realism_ab.json``, ``realism_report.md`` and (``sheets``) the contact sheets of one project (v2 by the
+    doc's kind: ``realism2_ab.json``, ``realism2_report.md``, ``contact_realism2_*``)."""
+    proto = protocol_of(doc)
     out = Path(out).resolve()
     folder = out / REALISM_DIR
     folder.mkdir(parents=True, exist_ok=True)
     if sheets:
         doc["contact_sheets"] = write_contact_sheets(out, doc, list(doc["models"]))
-    path = write_json(folder / REALISM_AB, doc)
-    (folder / REPORT_MD).write_text(report_md(doc), encoding="utf-8")
+    path = write_json(folder / proto.ab_json, doc)
+    (folder / proto.report_md).write_text(report_md(doc), encoding="utf-8")
     return path
 
 
@@ -1290,7 +1709,9 @@ def write_combine(out, doc: dict, sheets: bool = True) -> Path:
 # realism-summary
 # --------------------------------------------------------------------------
 
-def _controls_doc(docs: list[tuple[Path, Optional[dict]]], controls_project: Optional[str], warnings: list):
+def _controls_doc(docs: list[tuple[Path, Optional[dict]]], controls_project: Optional[str], warnings: list,
+                 proto: Protocol = None):
+    proto = proto or V1
     if not controls_project:
         warnings.append("no --controls-project given: no controls")
         return None
@@ -1298,15 +1719,19 @@ def _controls_doc(docs: list[tuple[Path, Optional[dict]]], controls_project: Opt
         if doc is not None and controls_project in (doc.get("project"), out.name, str(out)):
             return doc
     path = Path(controls_project)
-    doc = read_json(path.resolve() / REALISM_DIR / REALISM_AB) if path.is_dir() else None
+    doc = read_json(path.resolve() / REALISM_DIR / proto.ab_json) if path.is_dir() else None
     if doc is None:
-        warnings.append(f"controls project {controls_project}: no {REALISM_DIR.as_posix()}/{REALISM_AB}")
+        warnings.append(f"controls project {controls_project}: no {REALISM_DIR.as_posix()}/{proto.ab_json}")
     return doc
 
 
-def summarise(outs: Iterable, controls_project: Optional[str], keys: list[str], cfg: Optional[dict] = None) -> dict:
-    """``realism_summary.json`` over the projects' ``realism_ab.json`` (§6.1-6.3): pooled A/B sets, decisions."""
+def summarise(outs: Iterable, controls_project: Optional[str], keys: list[str], cfg: Optional[dict] = None,
+              proto: Protocol = None) -> dict:
+    """``realism_summary.json`` over the projects' ``realism_ab.json`` (§6.1-6.3): pooled A/B sets, decisions.
+    v2 (``proto=V2``): ``realism2_summary.json`` over ``realism2_ab.json``, the decision for ``look_alt``.
+    ``controls_project``: a project name among ``outs`` or an output folder."""
     from wenart.vision_check.config import load_config
+    proto = proto or V1
     cfg = cfg if cfg is not None else load_config()
     rc = realism_cfg(cfg)
     keys = list(keys)
@@ -1317,14 +1742,15 @@ def summarise(outs: Iterable, controls_project: Optional[str], keys: list[str], 
     docs: list[tuple[Path, Optional[dict]]] = []
     projects = []
     for out in dict.fromkeys(Path(o).resolve() for o in outs):        # a project given twice counts once
-        doc = read_json(out / REALISM_DIR / REALISM_AB)
+        doc = read_json(out / REALISM_DIR / proto.ab_json)
         docs.append((out, doc))
         if doc is None:
-            warnings.append(f"{out.name}: no {REALISM_DIR.as_posix()}/{REALISM_AB} (run realism-combine)")
+            cmd = "realism-combine" if proto.version == 1 else "realism2-combine"
+            warnings.append(f"{out.name}: no {REALISM_DIR.as_posix()}/{proto.ab_json} (run {cmd})")
         projects.append({"project": (doc or {}).get("project") or out.name, "project_out": views.repo_path_text(out),
                          "found": doc is not None, "pairs": len((doc or {}).get("rows") or []),
                          "dropped": len((doc or {}).get("dropped") or [])})
-    cdoc = _controls_doc(docs, controls_project, warnings)
+    cdoc = _controls_doc(docs, controls_project, warnings, proto)
     controls = evaluate_controls(cdoc.get("rows") or [], keys, rc) if cdoc else None
     if cdoc is not None and controls is None:
         warnings.append(f"controls project {cdoc.get('project')}: no control pairs")
@@ -1341,7 +1767,7 @@ def summarise(outs: Iterable, controls_project: Optional[str], keys: list[str], 
     all_rows = [r for _, doc in docs if doc for r in doc.get("rows") or []]
     by_set = _by_set(all_rows)
     sets = {}
-    for s in AB_SETS:
+    for s in proto.ab_sets:
         rows = by_set.get(s)
         if not rows:
             continue
@@ -1356,7 +1782,7 @@ def summarise(outs: Iterable, controls_project: Optional[str], keys: list[str], 
     t = rc["targets"]
     flag_active = bool(controls and controls["sets"][NUISANCE_SET]["flag"])
     flagged = [{"project": r["project"], "pair_id": r["pair_id"], "delta_ev": r["delta_ev"]}
-               for s in AB_SETS for r in by_set.get(s, [])
+               for s in proto.ab_sets for r in by_set.get(s, [])
                if r.get("delta_ev") is not None and abs(r["delta_ev"]) > float(t["delta_ev_flag"])]
     models_info = {}
     for k in keys:
@@ -1365,7 +1791,7 @@ def summarise(outs: Iterable, controls_project: Optional[str], keys: list[str], 
                           "answered_by": sorted({(doc["models"].get(k) or {}).get("model") or "-"
                                                  for _, doc in docs if doc})}
     return {
-        "schema_version": "0.1", "kind": "realism_summary", "projects": projects,
+        "schema_version": "0.1", "kind": proto.kind("realism_summary"), "projects": projects,
         "controls_project": (cdoc or {}).get("project") or controls_project, "models": models_info,
         "controls": controls, "signal": signal, "measurable": measurable, "single_model": single,
         "consensus_models": cons_models, "sets": sets,
@@ -1379,12 +1805,16 @@ def summarise(outs: Iterable, controls_project: Optional[str], keys: list[str], 
 
 
 def summary_md(summary: dict) -> str:
-    """``realism_summary.md``: the decision table of §6.3 per set, controls, position bias, dEV flags, cues."""
+    """``realism_summary.md`` (v2: ``realism2_summary.md``): the decision table of §6.3 per set, controls, position
+    bias, dEV flags, cues."""
+    proto = protocol_of(summary)
     keys = list(summary["models"])
     cfg = summary["config"]
     found = [p for p in summary["projects"] if p["found"]]
-    lines = ["# Realism A/B summary", "",
-             "Pairwise forced choice per aspect, both orders, two models (docs/milestone6.md §6). W = B picked in "
+    how = ("Pairwise forced choice per aspect, both orders" if proto.version == 1 else
+           "Pairwise forced choice, one aspect per call, both orders")
+    lines = [f"# Realism A/B{' v2' if proto.version == 2 else ''} summary", "",
+             f"{how}, two models ({proto.spec}). W = B picked in "
              "both orders, L = A in both, T = the pick follows the position, NC = a call failed. Decision rule: "
              f"consensus `photo` W > L with sign p < {cfg['alpha']}, >= {cfg['min_decisive']} decisive pairs from >= "
              f"{cfg['min_rooms']} rooms, room-level net-win interval above 0, no aspect significantly worse "
@@ -1405,7 +1835,7 @@ def summary_md(summary: dict) -> str:
     if not summary["sets"]:
         lines.append("| - | no A/B pairs | - | 0 | 0 | - |")
     for s, st in summary["sets"].items():
-        lines += ["", f"## {s}: {st['decision']} ({SETS[s].text})", ""] + stats_table(st, keys)
+        lines += ["", f"## {s}: {st['decision']} ({proto.sets[s].text})", ""] + stats_table(st, keys)
         lines += ["", "Per aspect: " + ", ".join(f"{a} {st['aspects'][a]['decision']}" for a in ASPECTS) + ".",
                   "Rooms (consensus per room W/L/T): " + ", ".join(
                       f"{a} {st['aspects'][a]['rooms']['W']}/{st['aspects'][a]['rooms']['L']}/"
@@ -1433,8 +1863,10 @@ def summary_md(summary: dict) -> str:
 
 
 def write_summary(dest, summary: dict) -> Path:
+    """``realism_summary.json`` / ``.md`` (v2 by the summary's kind: ``realism2_summary.*``) in ``dest``."""
+    proto = protocol_of(summary)
     dest = Path(dest)
     dest.mkdir(parents=True, exist_ok=True)
-    path = write_json(dest / SUMMARY_JSON, summary)
-    (dest / SUMMARY_MD).write_text(summary_md(summary), encoding="utf-8")
+    path = write_json(dest / proto.summary_json, summary)
+    (dest / proto.summary_md).write_text(summary_md(summary), encoding="utf-8")
     return path

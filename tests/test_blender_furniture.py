@@ -103,6 +103,79 @@ def test_parametric_types_cover_the_schema_and_the_spec_table():
     assert set(PROXY_HEIGHTS) - {"unknown"} <= set(P.PARAMETRIC_TYPES)
     with pytest.raises(KeyError, match="unknown"):
         P.build_parts("unknown", 1.0, 1.0, 0.8)
+    # Milestone 7 (docs/milestone7.md §6.4): every schema type has a type height; the stair is fixed
+    # equipment built with the shell (shell.build_stairs), never by furniture.create_furniture.
+    assert types <= set(PROXY_HEIGHTS)
+    assert {"stair", "side_table", "floor_lamp", "potted_plant"} <= set(P.PARAMETRIC_TYPES)
+    assert P.SHELL_TYPES == ("stair",)
+    assert PROXY_HEIGHTS["stair"] == pytest.approx(2.70 + P.STAIR_SLAB_M)
+
+
+# Milestone 7 parametric types (docs/milestone7.md §6.4): footprints from the furniture size table.
+M7_SIZES = {"stair": (1.0, 3.0), "side_table": (0.45, 0.45), "floor_lamp": (0.4, 0.4), "potted_plant": (0.4, 0.4)}
+
+
+@pytest.mark.parametrize("ftype", sorted(M7_SIZES))
+def test_milestone_7_types_fill_their_footprints(ftype):
+    parts = _parts_ok(ftype, *M7_SIZES[ftype])
+    roles = {p["role"] for p in parts}
+    assert {"stair": {"step", "riser", "rail", "post"}, "side_table": {"top", "leg", "shelf"},
+            "floor_lamp": {"base", "pole", "shade"}, "potted_plant": {"pot", "soil", "stem", "crown"}}[ftype] <= roles
+    w, d = (0.6, 0.35) if ftype != "stair" else (1.2, 2.4)        # a non-square footprint is filled as well
+    _parts_ok(ftype, w, d)
+
+
+def test_side_table_is_round_only_when_the_building_says_so():
+    square = P.build_parts("side_table", 0.43, 0.43, 0.55)
+    assert {p["role"] for p in square} == {"top", "leg", "shelf"} and len(square) == 6
+    for piece in ({"shape": "round"}, {"details": {"shape": "Round"}}, {"details": {"circle_fit": {"share": 0.93}}}):
+        parts = P.build_parts("side_table", 0.43, 0.43, 0.55, piece=piece)
+        assert P.piece_is_round(piece) and [p["role"] for p in parts] == ["top", "leg", "base"], piece
+        top = parts[0]
+        radii = {round(math.hypot(x, y), 6) for x, y, _ in top["verts"]}
+        assert radii == {0.215}                                    # a disc filling the drawn 0.43 m footprint
+    for piece in (None, {}, {"details": {"circle_fit": {"share": 0.85}}}, {"details": {"shape": "square"}},
+                  {"details": {"circle_fit": 0.95}}):
+        assert not P.piece_is_round(piece)
+        assert len(P.build_parts("side_table", 0.43, 0.43, 0.55, piece=piece)) == 6
+    # The round reading is the piece's own, never inferred from a square footprint: both have the same box.
+    assert P.parametric_bbox("side_table", 0.43, 0.43, 0.55, piece={"shape": "round"}) == pytest.approx(
+        P.parametric_bbox("side_table", 0.43, 0.43, 0.55))
+
+
+def test_floor_lamp_has_a_fabric_shade_and_no_light():
+    parts = P.build_parts("floor_lamp", 0.45, 0.45, 1.6)
+    by_role = {p["role"]: p for p in parts}
+    assert set(by_role) == {"base", "pole", "shade"}
+    assert by_role["shade"]["key"] == "bedding" and by_role["pole"]["key"] == "steel"
+    shade_z = [v[2] for v in by_role["shade"]["verts"]]
+    assert max(shade_z) == pytest.approx(1.6) and min(shade_z) == pytest.approx(1.6 - 0.4)
+    assert max(v[2] for v in by_role["pole"]["verts"]) > min(shade_z)       # the pole reaches into the shade
+    assert not [p for p in parts if p["key"] in ("light", "emission") or p["role"] in ("light", "bulb")]
+
+
+def test_potted_plant_is_the_decor_plant_at_the_drawn_size():
+    parts = P.build_parts("potted_plant", 0.5, 0.4, 1.0)
+    decor = P.decor_parts("plant", 0.4, 0.4, 0.6)
+    assert [(p["role"], p["key"]) for p in parts] == [(p["role"], p["key"]) for p in decor]
+    x0, y0, z0, x1, y1, z1 = P.parts_bbox(parts)
+    assert (x1 - x0, y1 - y0, z0, z1) == pytest.approx((0.5, 0.4, 0.0, 1.0))      # not capped at DECOR_MAX_M
+
+
+def test_stair_piece_box_is_the_drawn_footprint():
+    """``piece_bbox`` (cameras, fitter, vision check) builds a stair from its drawn flights in the piece frame:
+    the footprint, rising to the rails under the shaft cap (rise 2.85 m = the type height, cap 0.5 m above
+    the assumed 2.70 m ceiling)."""
+    from test_blender_geometry import FT, real01_stair_piece
+
+    piece = real01_stair_piece()
+    w, d, h, source = P.piece_bbox(piece)
+    assert source == "parametric" and (w, d) == pytest.approx((8.0 * FT, 5.008 * FT), abs=1e-6)
+    assert h == pytest.approx(2.70 + P.STAIR_SHAFT_CAP_M - P.STAIR_CAP_CLEARANCE)
+    parts = P.build_parts("stair", 8.0 * FT, 5.008 * FT, 2.85, piece=piece)
+    assert sum(p["role"] == "step" for p in parts) == 14 and sum(p["role"] == "landing" for p in parts) == 1
+    # Local frame (rotation 90): the flights run along local X; rise directions turn with the frame.
+    assert {tuple(round(c, 6) for c in p["rise_dir"]) for p in parts if p["role"] == "step"} == {(1.0, 0.0), (-1.0, 0.0)}
 
 
 @pytest.mark.parametrize("ftype,size", [("chair", (0.4, 0.4)), ("nightstand", (0.4, 0.35)), ("toilet", (0.36, 0.6)),
@@ -665,3 +738,103 @@ def test_proxies_flag_restores_the_milestone_3_boxes(tmp_path, glb):
             assert o["pass_index"] == m["pass_index"][o["wenart_id"]]
         else:
             assert o["pass_index"] == m["pass_index"][f"proxy:{o['host_id']}"]
+
+
+# --------------------------------------------------------------------------
+# Milestone 7: library licence gate, Objaverse GLBs from the cache, build: false (docs/milestone7.md §6.3-6.4)
+# --------------------------------------------------------------------------
+
+OBJ_UID = "0123456789abcdef0123456789abcdef"
+CREDITS = {"title": "Cube", "author": "someone", "source_url": "https://sketchfab.com/3d-models/x",
+           "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+           "via": "Objaverse (allenai/objaverse, ODC-By 1.0)", "attribution": '"Cube" by someone, CC BY 4.0'}
+
+
+def _objaverse_asset(bbox, **extra):
+    asset = _library_asset(bbox, library="objaverse", asset_id=f"objaverse_{OBJ_UID}", licence="CC-BY-4.0",
+                           uid=OBJ_UID, glb=f"models/objaverse/{OBJ_UID}.glb", **CREDITS)
+    asset.pop("file")
+    asset.update(extra)
+    return asset
+
+
+def test_model_licence_gate_matches_the_asset_rule():
+    from wenart.assets import fetch
+
+    assert F.MODEL_LICENCES == {"polyhaven": ("CC0",), "objaverse": ("CC0", "CC-BY-4.0")}
+    assert F.CC_BY_FIELDS == fetch.CC_BY_FIELDS and F.CC_BY == fetch.CC_BY
+    assert F.licence_refusal(_library_asset([1, 1, 1])) is None
+    assert F.licence_refusal(_objaverse_asset([1, 1, 1])) is None
+    assert F.licence_refusal(_objaverse_asset([1, 1, 1], licence="CC0", attribution="")) is None
+    assert "not CC0" in F.licence_refusal(_library_asset([1, 1, 1], licence="CC-BY-4.0"))        # Poly Haven
+    for bad in ("CC-BY-NC-4.0", "CC-BY-SA-4.0", None, "CC-BY"):
+        assert "is not CC0 or CC-BY-4.0" in F.licence_refusal(_objaverse_asset([1, 1, 1], licence=bad)), bad
+    for field in F.CC_BY_FIELDS:
+        why = F.licence_refusal(_objaverse_asset([1, 1, 1], **{field: ""}))
+        assert why and field in why and "no credit line" in why
+    assert "not a model source" in F.licence_refusal(_library_asset([1, 1, 1], library="sketchfab"))
+    no_library = {k: v for k, v in _library_asset([1, 1, 1], licence="CC-BY-4.0", **CREDITS).items() if k != "library"}
+    assert "not CC0" in F.licence_refusal(no_library)                       # held to the Poly Haven rule
+
+
+def test_resolve_asset_finds_the_objaverse_glb_in_the_cache(tmp_path):
+    asset = _objaverse_asset([1, 1, 1])
+    assert F.resolve_asset(asset, str(tmp_path))[1] == f"asset file missing: {tmp_path / 'models/objaverse' / (OBJ_UID + '.glb')}"
+    glb = tmp_path / F.OBJAVERSE_CACHE / f"{OBJ_UID}.glb"
+    glb.parent.mkdir(parents=True)
+    glb.write_bytes(b"glTF")
+    assert F.resolve_asset(asset, str(tmp_path)) == (glb, None)
+    by_uid = {k: v for k, v in asset.items() if k != "glb"}
+    assert F.resolve_asset(by_uid, str(tmp_path)) == (glb, None)
+    refused = F.resolve_asset(dict(asset, attribution=None), str(tmp_path))
+    assert refused[0] is None and "no credit line" in refused[1]
+
+
+def test_build_false_pieces_are_not_built():
+    assert F.is_built({"type": "sofa"}) and F.is_built({"type": "sofa", "build": True})
+    assert not F.is_built({"type": "unknown", "build": False})
+    assert "not_furniture" in F.NOT_BUILT_REASON
+
+
+@needs_blender
+def test_objaverse_glb_cc_by_and_build_false_in_a_scene(tmp_path, glb):
+    """An Objaverse CC BY piece is imported from the cache GLB with its credit kept in the manifest; one without
+    the credit line falls back to the parametric mesh with the reason; a build: false symbol is not built at all
+    (no object, no proxy, no pass index, its decor skipped) and listed under not_built."""
+    import shutil
+
+    assets = tmp_path / "assets"
+    cache = assets / F.OBJAVERSE_CACHE / f"{OBJ_UID}.glb"
+    cache.parent.mkdir(parents=True)
+    shutil.copy(glb / "models" / "test_cube" / "test_cube.glb", cache)
+    building = _building(assets)
+    room = building["rooms"][0]["id"]
+    building["furniture"] = [
+        _piece("f_obj", "armchair", (3.0, 3.0), (0.8, 0.5), 0.0, asset=_objaverse_asset([0.8, 0.5, 0.9]), room_id=room),
+        _piece("f_nocredit", "armchair", (5.0, 3.0), (0.8, 0.5), 0.0,
+               asset=_objaverse_asset([0.8, 0.5, 0.9], attribution=""), room_id=room),
+        dict(_piece("f_symbol", "unknown", (7.0, 3.0), (0.6, 0.6), 0.0, room_id=room), build=False,
+             status="unverified"),
+    ]
+    building["decor"] = [{"type": "cushion", "host_id": "f_symbol", "center": [7.0, 3.0], "rotation_deg": 0.0,
+                          "size": [0.4, 0.4], "asset": None}]
+    building["unverified"] = ["f_symbol"]
+    path = tmp_path / "building.json"
+    path.write_text(json.dumps(building), encoding="utf-8")
+    out = tmp_path / "scene"
+    cli.run_blender(Path(cli.BUILD_SCRIPT), ["--building", str(path), "--style", str(STYLE), "--assets", str(assets),
+                                             "--out", str(out), "--no-textures", "--no-preview", "--no-glb"],
+                    log_path=out / "build.log")
+    m = json.loads((out / "scene_manifest.json").read_text(encoding="utf-8"))
+    schemas.validate_scene_manifest(m)
+    entries = {o["wenart_id"]: o for o in m["objects"] if o["kind"] in ("furniture", "furniture_proxy", "decor")}
+    assert entries["f_obj"]["method"] == "library" and entries["f_obj"]["file"] == str(cache)
+    assert entries["f_obj"]["asset"]["attribution"] == CREDITS["attribution"]
+    assert entries["f_nocredit"]["method"].startswith("parametric (fallback: ")
+    assert "no credit line" in entries["f_nocredit"]["fallback_reason"]
+    assert "f_symbol" not in entries and "proxy:f_symbol" not in entries
+    assert "f_symbol" not in m["pass_index"] and "proxy:f_symbol" not in m["pass_index"]
+    assert not [o for o in m["objects"] if o.get("element_id") == "f_symbol" or o.get("host_id") == "f_symbol"]
+    assert m["furniture"]["pieces"] == 2 and m["furniture"]["proxies"] == 0
+    assert [r["id"] for r in m["furniture"]["not_built"]] == ["f_symbol"]
+    assert all("f_symbol" not in c["visible_furniture"] for c in m["cameras"])

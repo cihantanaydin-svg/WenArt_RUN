@@ -15,7 +15,8 @@
         "source_folder": {"type": "string"},
         "created_utc": {"type": "string", "format": "date-time"},
         "pipeline_commit": {"type": "string"},
-        "brief": {"type": "object", "description": "Parsed brief.yaml or defaults"}
+        "brief": {"type": "object", "description": "Parsed brief.yaml or defaults"},
+        "unit_system": {"enum": ["imperial", "metric"], "description": "The unit system of the master pages (docs/milestone7.md §1.1); reports show imperial projects in feet-inches with metres"}
       }
     },
     "status": {"enum": ["ok", "needs_review"], "description": "needs_review = something critical is missing (scale, closed outer walls). The pipeline stops after the report."},
@@ -28,11 +29,36 @@
     "conflicts": {"type": "array", "items": {"$ref": "#/$defs/conflict"}},
     "unverified": {"type": "array", "items": {"type": "string"}, "description": "IDs of elements with status=unverified (copied here for the report)"},
     "warnings": {"type": "array", "items": {"type": "string"}},
-    "site": {"type": ["object", "null"], "description": "Plot elements outside the building (docs/milestone7.md §1.3): recorded and reported, never built in 3D", "properties": {
-      "boundary_walls": {"type": "array", "items": {"type": "object"}},
-      "areas": {"type": "array", "items": {"type": "object"}},
-      "decor": {"type": "array", "items": {"type": "object"}},
-      "openings": {"type": "array", "items": {"type": "object"}}
+    "site": {"type": ["object", "null"], "description": "Plot elements outside the building (docs/milestone7.md §1.3, §2.5): recorded and reported, never built in 3D", "properties": {
+      "boundary_walls": {"type": "array", "items": {"type": "object", "required": ["id", "start", "end", "thickness", "evidence", "kind"], "properties": {
+        "id": {"type": "string", "description": "sw_<level>_<n>"},
+        "level_id": {"type": "string"},
+        "start": {"$ref": "#/$defs/point"},
+        "end": {"$ref": "#/$defs/point"},
+        "thickness": {"type": "number"},
+        "kind": {"enum": ["plot", "other"], "description": "plot = a wall component whose convex hull holds the building (compound wall); other = any other wall without room labels"},
+        "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}}
+      }}},
+      "areas": {"type": "array", "items": {"type": "object", "required": ["id", "label", "polygon", "evidence"], "properties": {
+        "id": {"type": ["string", "null"], "description": "sa_<level>_<slug>"},
+        "level_id": {"type": "string"},
+        "label": {"type": "string", "description": "Exterior label as printed: Parking, Garden, ..."},
+        "label_raw": {"type": ["string", "null"]},
+        "label_size": {"$ref": "#/$defs/label_size"},
+        "polygon": {"type": ["array", "null"], "items": {"$ref": "#/$defs/point"}, "description": "null unless a closed face exists"},
+        "extent_m": {"type": "array", "items": {"type": "number"}, "description": "Open extent around the label (x, y) to the nearest wall or the plot hull, metres"},
+        "anchor": {"$ref": "#/$defs/point"},
+        "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}}
+      }}},
+      "decor": {"type": "array", "items": {"type": "object", "required": ["id", "kind", "center", "size", "evidence"], "properties": {
+        "id": {"type": ["string", "null"], "description": "sd_<level>_<n>"},
+        "level_id": {"type": "string"},
+        "kind": {"enum": ["plant", "tree", "car", "other"]},
+        "center": {"$ref": "#/$defs/point"},
+        "size": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2},
+        "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}}
+      }}},
+      "openings": {"type": "array", "items": {"type": "object", "description": "Doors, windows and gaps in site boundary walls"}}
     }}
   },
   "$defs": {
@@ -63,7 +89,10 @@
         "id": {"type": "string"},
         "file": {"type": "string"},
         "format": {"enum": ["dwg", "dxf", "pdf", "image"]},
-        "converter": {"type": ["string", "null"], "description": "e.g. libredwg dwg2dxf 0.13.3"},
+        "converter": {"type": ["string", "null"], "description": "e.g. libredwg dwg2dxf 0.14 d9468ae; audit: 0 errors, 0 fixes"},
+        "conversion": {"type": "object", "description": "DWG only: LibreDWG version, $ACADVER of the source, model-space entity counts, audit (docs/milestone7.md §5.1)"},
+        "unit_system": {"enum": ["imperial", "metric"], "description": "Majority of the document's parsed lengths (docs/milestone7.md §1.1)"},
+        "source_kind": {"type": ["string", "null"], "enum": ["cad_pdf", "dxf", "raster_scan", "raster_photo", null], "description": "How the document was read (generic page model, docs/milestone7.md §1.2)"},
         "pages": {"type": "array", "items": {
           "type": "object",
           "required": ["page", "class", "kind", "confidence"],
@@ -74,6 +103,9 @@
             "kind": {"enum": ["vector", "scan", "photo"]},
             "level_id": {"type": ["string", "null"]},
             "level_label_raw": {"type": ["string", "null"], "description": "e.g. 'ZEMİN KAT PLANI'"},
+            "classifier": {"type": ["string", "null"], "description": "Which rule classified the page: title | generic_labels (room-name labels + a wall structure, docs/milestone7.md §2.1) | ocr"},
+            "rectified_image": {"type": ["string", "null"], "description": "Raster pages: the rectified image under the output folder"},
+            "to_original": {"type": ["array", "null"], "description": "Raster pages: 3x3 matrix, page units -> original image pixels"},
             "scale": {"type": ["object", "null"], "properties": {
               "metres_per_unit": {"type": "number"},
               "method": {"enum": ["dxf_insunits", "pdf_scale_text", "dimension_text", "area_label", "fallback_door_width", "room_size_label"]},
@@ -98,6 +130,7 @@
         "elevation": {"type": "number"},
         "ceiling_height": {"type": "number"},
         "ceiling_height_source": {"enum": ["section", "elevation_drawing", "assumed_default"]},
+        "label_source": {"enum": ["title", "assumed"], "description": "assumed = no level title on the only plan page: L0 Ground floor (docs/milestone7.md §2.1); evidence = the room labels"},
         "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}}
       }
     },
@@ -130,6 +163,8 @@
         "width": {"type": "number"},
         "height": {"type": ["number", "null"]},
         "sill_height": {"type": ["number", "null"]},
+        "assumed": {"type": "array", "items": {"enum": ["height", "sill_height"]}, "description": "Values that are defaults, not drawn (door and doorless height 2.10 m, window sill 0.90 m and height 1.20 m)"},
+        "type_raw": {"type": ["string", "null"], "description": "e.g. 'unclassified gap content' for a gap whose strokes are no door, window or empty gap"},
         "swing_side": {"type": ["string", "null"], "description": "Room id the door opens into, if drawn"},
         "status": {"enum": ["verified", "unverified"]},
         "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/evidence"}}
@@ -146,7 +181,8 @@
         "room_type": {"enum": ["living", "dining", "bedroom", "kitchen", "bathroom", "wc", "hall", "balcony", "storage", "prayer", "other", "unknown"]},
         "polygon": {"type": "array", "items": {"$ref": "#/$defs/point"}, "minItems": 3},
         "area_computed": {"type": "number"},
-        "area_label": {"type": ["number", "null"], "description": "Area read from the drawing, e.g. 24.5 from 'Salon 24,50 m²'"},
+        "area_label": {"type": ["number", "null"], "description": "Area read from the drawing in m², e.g. 24.5 from 'Salon 24,50 m²' (sq ft converted)"},
+        "label_size": {"$ref": "#/$defs/label_size"},
         "has_documented_furniture": {"type": "boolean"},
         "style_override": {"type": ["string", "null"]},
         "status": {"enum": ["verified", "unverified"]},
@@ -162,6 +198,23 @@
         "room_id": {"type": ["string", "null"]},
         "type": {"enum": ["bed_single", "bed_double", "sofa", "armchair", "table_dining", "table_coffee", "desk", "chair", "wardrobe", "kitchen_counter", "kitchen_island", "fridge", "stove", "sink_kitchen", "washbasin", "toilet", "shower", "bathtub", "tv_unit", "bookshelf", "nightstand", "dresser", "washing_machine", "stair", "side_table", "floor_lamp", "potted_plant", "unknown"]},
         "type_raw": {"type": ["string", "null"], "description": "Block name or label as drawn, e.g. KANEPE_3LU, yatak"},
+        "type_method": {"enum": ["block_name", "rule", "ai_two_pass", "none"], "description": "How the type was decided (generic core, docs/milestone7.md §2.8, §3.3)"},
+        "type_candidates": {"type": "array", "items": {"type": "object"}, "description": "The AI passes' answers: {type, model, pass, confidence, front, reason}"},
+        "build": {"type": "boolean", "description": "false = a drawn symbol both AI passes call not_furniture: kept as an obstacle, not built (default true)"},
+        "stair": {"type": "object", "description": "Stair rule result: flights [{start, end, width, lines}], landing, direction, *_assumed, riser_m, riser_source", "properties": {
+          "flights": {"type": "array", "items": {"type": "object", "properties": {"start": {"$ref": "#/$defs/point"}, "end": {"$ref": "#/$defs/point"}, "width": {"type": "number"}, "lines": {"type": "integer"}}}},
+          "landing": {"type": ["object", "null"]},
+          "direction": {"type": ["array", "null"]},
+          "direction_assumed": {"type": "boolean"},
+          "turn_assumed": {"type": "boolean"},
+          "void_assumed": {"type": "boolean"},
+          "riser_m": {"type": ["number", "null"]},
+          "riser_source": {"type": ["string", "null"]}
+        }},
+        "counter_run": {"type": "object", "description": "Kitchen counter rule: the wall the run stands against and its strokes", "properties": {
+          "wall_id": {"type": ["string", "null"]},
+          "strokes": {"type": "array", "items": {"type": "string"}}
+        }},
         "source": {"enum": ["from_documents", "added_by_ai"]},
         "footprint": {
           "type": "object",
@@ -179,6 +232,19 @@
         }},
         "status": {"enum": ["verified", "unverified"]},
         "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/evidence"}}
+      }
+    },
+    "label_size": {
+      "type": ["object", "null"],
+      "description": "A printed room size vs the face's clear size (docs/milestone7.md §2.7.3): ok within max(5 %, 0.15 m) per side, conflict beyond, unchecked for a face that is not rectangular (then w x l vs the face area at 8 %)",
+      "required": ["text", "status"],
+      "properties": {
+        "text": {"type": "string"},
+        "width_m": {"type": ["number", "null"]},
+        "length_m": {"type": ["number", "null"]},
+        "measured": {"type": ["array", "null"], "items": {"type": "number"}},
+        "status": {"enum": ["ok", "conflict", "unchecked"]},
+        "off_pct": {"type": "array", "items": {"type": "number"}}
       }
     },
     "conflict": {

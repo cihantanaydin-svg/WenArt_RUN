@@ -252,7 +252,12 @@ def test_render_key_covers_every_setting():
     assert R.render_key(R.key_settings(**dict(base, exposure_mode="off"))) == \
         R.render_key(R.key_settings(**dict(base, exposure_mode="off", target=0.5)))
     settings = R.key_settings(**base)
-    assert settings["code"] == R.RENDER_CODE_VERSION == "m6.1" and settings["passes"] == list(R.PASSES)
+    assert settings["code"] == R.RENDER_CODE_VERSION == "m7.1" and settings["passes"] == list(R.PASSES)
+    # Milestone 7 (docs/milestone7.md §6.1): AgX - Punchy is the default look; view transform and look are keyed.
+    assert (R.VIEW_TRANSFORM, R.LOOK) == ("AgX", "AgX - Punchy")
+    assert settings["view_transform"] == "AgX" and settings["look"] == "AgX - Punchy"
+    old_look = dict(settings, look="None", code="m6.1")
+    assert R.render_key(old_look) != k0                                  # an M6 render (look None) is not reused
     assert "diffuse_color" in R.PASSES                       # the window pull's pane mask (Milestone 6)
     # Milestone 6 control and A/B flags (docs/milestone6.md §5 rows 10-11): each one changes the key.
     flags = [dict(alt_look="AgX - Punchy"), dict(max_bounces=0), dict(max_bounces=4), dict(ev_offset=0.3),
@@ -699,6 +704,7 @@ def test_metering_records_a_clamped_exposure_and_a_whitepoint(room):
     schemas.validate_render_manifest(manifest)
     assert manifest["exposure_mode"] == "auto" and manifest["white_balance_mode"] == "auto"
     assert manifest["scene"] == "../scene/scene.blend" and manifest["view_transform"] == "AgX"
+    assert manifest["look"] == "AgX - Punchy" and manifest["render_code_version"] == "m7.1"     # Milestone 7
     for e in manifest["renders"]:
         x = e["exposure"]
         assert x["mode"] == "auto" and x["wb_mode"] == "auto" and x["source"] is None

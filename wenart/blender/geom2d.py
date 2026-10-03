@@ -6,6 +6,13 @@ Python has no shapely) and in the CPU tests outside Blender. Vertices are
 ``(x, y, z)`` tuples in world metres; faces are index lists wound
 counter-clockwise seen from outside, which is what Blender expects for
 outward normals.
+
+Milestone 7 (docs/milestone7.md §6.4): ``extrude_profile`` and
+``convex_solid`` (the steps of a stair: a convex (s, z) profile pushed across
+the flight width), ``rect_union_outline`` (the stair void = the last flight
+plus the landing, an L-shaped outline) and ``polygon_faces`` (a ceiling with
+the void cut out: trapezoids of "inside the outer polygon and outside every
+hole", since a Blender n-gon has no holes).
 """
 from __future__ import annotations
 
@@ -125,6 +132,245 @@ def face_center(verts: Sequence[Vec3], face: Sequence[int]) -> Vec3:
     xs = [verts[i] for i in face]
     n = float(len(xs))
     return (sum(p[0] for p in xs) / n, sum(p[1] for p in xs) / n, sum(p[2] for p in xs) / n)
+
+
+# --------------------------------------------------------------------------
+# Milestone 7: convex solids, rectangle unions, polygons with holes
+# --------------------------------------------------------------------------
+
+def convex_solid(verts: Sequence[Vec3], faces: Sequence[Sequence[int]]) -> tuple[list[Vec3], list[list[int]]]:
+    """The faces of a convex solid wound outwards: a face whose normal points
+    towards the centroid of the vertices is reversed (valid only for convex
+    solids, where every face sees the centroid on its inner side)."""
+    verts = [tuple(float(c) for c in v) for v in verts]
+    n = float(len(verts))
+    centre = (sum(v[0] for v in verts) / n, sum(v[1] for v in verts) / n, sum(v[2] for v in verts) / n)
+    out = []
+    for f in faces:
+        nrm = face_normal(verts, f)
+        c = face_center(verts, f)
+        if _dot(nrm, (c[0] - centre[0], c[1] - centre[1], c[2] - centre[2])) < 0:
+            f = list(reversed(f))
+        out.append(list(f))
+    return verts, out
+
+
+def extrude_profile(profile: Sequence[Sequence[float]], origin: Sequence[float], along: Sequence[float],
+                    width: float) -> tuple[list[Vec3], list[list[int]]]:
+    """A convex profile ``[(s, z), ...]`` (in the vertical plane through
+    ``origin`` along the horizontal unit vector ``along``) pushed sideways
+    by ``width`` (centred on the plane): two end caps and one quad per
+    profile edge, wound outwards. ``origin`` = ``(x, y)``; z is absolute."""
+    ux, uy = float(along[0]), float(along[1])
+    px, py = -uy, ux                                   # left of ``along``
+    h = float(width) / 2.0
+    ox, oy = float(origin[0]), float(origin[1])
+    k = len(profile)
+    verts = []
+    for q in (-h, h):
+        for s, z in profile:
+            verts.append((ox + ux * s + px * q, oy + uy * s + py * q, float(z)))
+    faces = [list(range(k)), list(range(k, 2 * k))]
+    for j in range(k):
+        a, b = j, (j + 1) % k
+        faces.append([a, b, k + b, k + a])
+    return convex_solid(verts, faces)
+
+
+def prism(polygon: Sequence[Sequence[float]], z0: float, z1: float) -> tuple[list[Vec3], list[list[int]]]:
+    """Vertical prism of a convex 2D polygon from ``z0`` to ``z1``, wound outwards."""
+    pts = [tuple(p[:2]) for p in polygon]
+    if len(pts) > 1 and G.distance(pts[0], pts[-1]) < 1e-9:
+        pts = pts[:-1]
+    k = len(pts)
+    verts = [(float(x), float(y), float(z0)) for x, y in pts] + [(float(x), float(y), float(z1)) for x, y in pts]
+    faces = [list(range(k)), list(range(k, 2 * k))]
+    for j in range(k):
+        a, b = j, (j + 1) % k
+        faces.append([a, b, k + b, k + a])
+    return convex_solid(verts, faces)
+
+
+def rect_union_outline(rects: Sequence[Sequence[float]], tol: float = 1e-7) -> list[list[tuple[float, float]]]:
+    """Outline loops of the union of axis-aligned rectangles ``(x0, y0, x1,
+    y1)``: counter-clockwise outer loops, clockwise holes, collinear points
+    removed. Grid method: the cells between the distinct edge coordinates
+    are covered or not; the boundary is every cell side with an uncovered
+    neighbour, chained into loops (covered cell on the left)."""
+    boxes = [(min(r[0], r[2]), min(r[1], r[3]), max(r[0], r[2]), max(r[1], r[3])) for r in rects]
+    boxes = [b for b in boxes if b[2] - b[0] > tol and b[3] - b[1] > tol]
+    if not boxes:
+        return []
+
+    def uniq(values):
+        out = []
+        for v in sorted(values):
+            if not out or v - out[-1] > tol:
+                out.append(v)
+        return out
+
+    xs = uniq([b[0] for b in boxes] + [b[2] for b in boxes])
+    ys = uniq([b[1] for b in boxes] + [b[3] for b in boxes])
+    nx, ny = len(xs) - 1, len(ys) - 1
+
+    def covered(i: int, j: int) -> bool:
+        if not (0 <= i < nx and 0 <= j < ny):
+            return False
+        cx, cy = (xs[i] + xs[i + 1]) / 2.0, (ys[j] + ys[j + 1]) / 2.0
+        return any(b[0] < cx < b[2] and b[1] < cy < b[3] for b in boxes)
+
+    cells = {(i, j) for i in range(nx) for j in range(ny) if covered(i, j)}
+    edges: dict[tuple[int, int], list[tuple[int, int]]] = {}
+    for i, j in sorted(cells):
+        if (i, j - 1) not in cells:
+            edges.setdefault((i, j), []).append((i + 1, j))          # bottom, left to right
+        if (i + 1, j) not in cells:
+            edges.setdefault((i + 1, j), []).append((i + 1, j + 1))  # right, upwards
+        if (i, j + 1) not in cells:
+            edges.setdefault((i + 1, j + 1), []).append((i, j + 1))  # top, right to left
+        if (i - 1, j) not in cells:
+            edges.setdefault((i, j + 1), []).append((i, j))          # left, downwards
+    loops = []
+    while edges:
+        start = min(edges)
+        loop = [start]
+        cur = start
+        while True:
+            nxt = edges[cur].pop(0)
+            if not edges[cur]:
+                del edges[cur]
+            if nxt == start:
+                break
+            loop.append(nxt)
+            cur = nxt
+            if cur not in edges:      # broken chain (cannot happen for a cell boundary); stop safely
+                break
+        pts = [(xs[i], ys[j]) for i, j in loop]
+        loops.append(_drop_collinear(pts))
+    return [lp for lp in loops if len(lp) >= 3]
+
+
+def _drop_collinear(pts: list[tuple[float, float]], tol: float = 1e-9) -> list[tuple[float, float]]:
+    out = list(pts)
+    changed = True
+    while changed and len(out) > 3:
+        changed = False
+        for k in range(len(out)):
+            a, b, c = out[k - 1], out[k], out[(k + 1) % len(out)]
+            if abs((b[0] - a[0]) * (c[1] - b[1]) - (b[1] - a[1]) * (c[0] - b[0])) <= tol:
+                del out[k]
+                changed = True
+                break
+    return out
+
+
+def polygon_faces(outer: Sequence[Sequence[float]], holes: Sequence[Sequence[Sequence[float]]], z: float,
+                  facing_up: bool = True, tol: float = 1e-9) -> tuple[list[Vec3], list[list[int]]]:
+    """Faces covering the region inside ``outer`` and outside every polygon
+    of ``holes`` (holes may reach beyond ``outer``), at height ``z``.
+
+    Trapezoidal decomposition in horizontal bands: the band edges are every
+    vertex y and every y where an edge of one polygon crosses an edge of
+    another, so no two edges cross inside a band; in each band the edges
+    are sorted along x and the even-odd parity of the outer polygon and of
+    the holes says which intervals are inside the region; each interval is a
+    trapezoid (or a triangle) between its two bounding edges. Faces are
+    counter-clockwise seen from above (``facing_up``) or reversed; vertices
+    on the band lines are shared."""
+    def clean(poly):
+        pts = [(float(p[0]), float(p[1])) for p in poly]
+        if len(pts) > 1 and G.distance(pts[0], pts[-1]) < tol:
+            pts = pts[:-1]
+        return pts
+
+    polys = [clean(outer)] + [clean(h) for h in holes if len(h) >= 3]
+    edges = []                                    # (x0, y0, x1, y1, polygon index); non-horizontal only
+    for k, poly in enumerate(polys):
+        n = len(poly)
+        for i in range(n):
+            (ax, ay), (bx, by) = poly[i], poly[(i + 1) % n]
+            if abs(ay - by) > tol:
+                edges.append((ax, ay, bx, by, k))
+    ys = {p[1] for poly in polys for p in poly}
+    for i, e in enumerate(edges):
+        for f in edges[i + 1:]:
+            if e[4] == f[4]:
+                continue
+            y = _edge_crossing_y(e, f, tol)
+            if y is not None:
+                ys.add(y)
+    bands = []
+    for y in sorted(ys):
+        if not bands or y - bands[-1] > tol:
+            bands.append(y)
+    verts: list[Vec3] = []
+    index: dict[tuple[float, float], int] = {}
+
+    def vid(x: float, y: float) -> int:
+        key = (round(x, 9), round(y, 9))
+        if key not in index:
+            index[key] = len(verts)
+            verts.append((x, y, float(z)))
+        return index[key]
+
+    faces: list[list[int]] = []
+    for y0, y1 in zip(bands, bands[1:]):
+        ym = (y0 + y1) / 2.0
+        hits = []
+        for ax, ay, bx, by, k in edges:
+            if min(ay, by) < ym < max(ay, by):
+                def x_at(y, ax=ax, ay=ay, bx=bx, by=by):
+                    return ax + (bx - ax) * (y - ay) / (by - ay)
+                hits.append((x_at(ym), x_at(y0), x_at(y1), k))
+        hits.sort(key=lambda h: h[0])
+        parity = [False] * len(polys)
+        left = None
+        for xm, x0, x1, k in hits:
+            was = parity[0] and not any(parity[1:])
+            parity[k] = not parity[k]
+            now = parity[0] and not any(parity[1:])
+            if now and not was:
+                left = (x0, x1)
+            elif was and not now and left is not None:
+                lx0, lx1 = left
+                bottom = x0 - lx0 > tol
+                top = x1 - lx1 > tol
+                if bottom and top:
+                    face = [vid(lx0, y0), vid(x0, y0), vid(x1, y1), vid(lx1, y1)]
+                elif bottom:
+                    face = [vid(lx0, y0), vid(x0, y0), vid(lx1, y1)]
+                elif top:
+                    face = [vid(lx0, y0), vid(x1, y1), vid(lx1, y1)]
+                else:
+                    face = None
+                if face is not None:
+                    faces.append(face if facing_up else list(reversed(face)))
+                left = None
+    return verts, faces
+
+
+def _edge_crossing_y(e, f, tol: float) -> float | None:
+    """y of the proper crossing of two segments (None when parallel or not crossing)."""
+    ax, ay, bx, by = e[:4]
+    cx, cy, dx, dy = f[:4]
+    rx, ry = bx - ax, by - ay
+    sx, sy = dx - cx, dy - cy
+    den = rx * sy - ry * sx
+    if abs(den) < 1e-15:
+        return None
+    t = ((cx - ax) * sy - (cy - ay) * sx) / den
+    u = ((cx - ax) * ry - (cy - ay) * rx) / den
+    if -tol <= t <= 1 + tol and -tol <= u <= 1 + tol:
+        return ay + t * ry
+    return None
+
+
+def faces_area(verts: Sequence[Vec3], faces: Sequence[Sequence[int]]) -> float:
+    """Total area of planar faces projected on the XY plane (absolute)."""
+    total = 0.0
+    for f in faces:
+        total += abs(G.polygon_signed_area([verts[i][:2] for i in f]))
+    return total
 
 
 # --------------------------------------------------------------------------

@@ -9,6 +9,10 @@ two answers are independent enough for the agreement confidence.
 
 Everything the model may answer is rendered from ``schemas.py`` so prompt and
 schema cannot drift apart (``tests/test_layout.py`` checks this).
+
+Milestone 7 (docs/milestone7.md §6.5): texts for ``dining`` rooms; the
+``prayer`` entry exists for completeness only (a prayer room is never
+furnished by AI, ``schemas.NOT_FURNISHED_ROOM_TYPES``, so no prompt is sent).
 """
 from __future__ import annotations
 
@@ -17,9 +21,10 @@ from typing import Any
 
 from wenart.furniture import schemas
 
+# Milestone 7: "of a home" (was "of a Turkish apartment"): real01 is an Indian house with English labels.
 SYSTEM_PROMPT = (
-    "You are an interior planner. You place furniture in one empty room of a Turkish "
-    "apartment and answer only with JSON that follows the given schema. Use the room "
+    "You are an interior planner. You place furniture in one empty room of a home (an "
+    "apartment or a house) and answer only with JSON that follows the given schema. Use the room "
     "polygon, doors and windows exactly as given. Never place furniture outside the room, "
     "on a door, in a door swing or overlapping another piece."
 )
@@ -31,6 +36,8 @@ ROOM_TYPE_TEXT: dict[str, str] = {
     "bathroom": "bathroom (Turkish: BANYO)",
     "wc": "toilet room (Turkish: WC)",
     "hall": "hall or corridor (Turkish: HOL, ANTRE, KORİDOR)",
+    "dining": "dining room (Turkish: YEMEK ODASI)",
+    "prayer": "prayer room (Indian plans: POOJA, PUJA, MANDIR)",
     "other": "room of unspecified use",
 }
 
@@ -50,6 +57,10 @@ ROOM_GUIDE: dict[str, str] = {
     "wc": "one toilet against the wall opposite the door and one small washbasin.",
     "hall": "at most one slim dresser (console) or bookshelf against a wall and one chair; keep the "
             "corridor between the doors free.",
+    "dining": "one dining table in the middle of the room with chairs on its long sides (each chair's "
+              "front towards the table), optionally a dresser (sideboard) or a bookshelf against a wall; "
+              "keep the walkway around the table free.",
+    "prayer": "nothing: a prayer room is never furnished by AI (this text is never sent).",
     "other": "a small table with chairs or a desk and a bookshelf; keep it sparse.",
 }
 

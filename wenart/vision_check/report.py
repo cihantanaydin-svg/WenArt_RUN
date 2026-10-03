@@ -3,8 +3,9 @@
 Summary table, one row per view, every confirmed mismatch on a Cycles render
 with its source and evidence (never auto-fixed; added_by_ai pieces labelled
 as a render/polish issue), the JSON cross-check findings, the polished
-images rejected and why, unreliable passes, controls, the calibration and
-the plan A/B outcome.
+images rejected and why, the added-object detector (docs/milestone7.md §8.1:
+its thresholds or "advisory", the confirmed and the unmatched boxes per
+view), unreliable passes, controls, the calibration and the plan A/B outcome.
 """
 from __future__ import annotations
 
@@ -38,6 +39,49 @@ def _fmt(v) -> str:
     if isinstance(v, float):
         return f"{v:.3f}"
     return str(v)
+
+
+def _box(b) -> str:
+    return f"{b['group']} {float(b['score']):.2f} at {[round(v) for v in b['box_px']]}"
+
+
+def detector_lines(manifest: dict) -> list[str]:
+    """The detector section: status and thresholds, then per polished view what it found (M7 §8.1)."""
+    det = manifest.get("detector") or {}
+    status = det.get("status") or "not_run"
+    if status == "not_run":
+        return ["Not run for this project (no `detect/` folder)."]
+    lines = []
+    if det.get("advisory"):
+        lines.append(f"Advisory: {det.get('reason') or 'no thresholds'}. Unmatched polished boxes are listed, "
+                     "nothing is confirmed or rejected.")
+    else:
+        th = det.get("thresholds") or {}
+        lines.append(f"Calibrated: t_det {th.get('t_det')}, t_strong {th.get('t_strong')}; a confirmed added "
+                     "non-decor object rejects the polished image.")
+    model = det.get("model") or {}
+    if model:
+        lines.append(f"Model: {model.get('repo')} @ {str(model.get('revision') or '-')[:12]} ({model.get('licence')}).")
+    if det.get("not_computed"):
+        lines.append(f"No current detection: {', '.join(det['not_computed'])}.")
+    rows = []
+    for cam, v in sorted((manifest.get("views") or {}).items()):
+        d = v.get("detector")
+        if not d or not d.get("computed"):
+            continue
+        if d.get("status") == "advisory":
+            listed = d.get("unmatched") or []
+            rows.append(f"| {cam} | advisory | {'; '.join(_box(b) for b in listed[:5]) or '-'} |")
+        else:
+            added = d.get("added") or []
+            other = [c for c in d.get("candidates") or [] if c not in added]
+            text = "; ".join(f"{_box(c)} ({', '.join(c['confirmed_by'])})" for c in added) or "none"
+            if other:
+                text += f" (+ {len(other)} unconfirmed or decor)"
+            rows.append(f"| {cam} | {'added_by_polish' if added else 'ok'} | {text} |")
+    if rows:
+        lines += ["", "| camera | detector | boxes |", "|---|---|---|"] + rows
+    return lines
 
 
 def check_report(manifest: dict, calibration: Optional[dict] = None, expected: Optional[dict] = None) -> str:
@@ -152,11 +196,18 @@ def check_report(manifest: dict, calibration: Optional[dict] = None, expected: O
         for r in v.get("polished_reasons") or []:
             if r.get("what") == "element":
                 details.append(f"{r['id']} ({r['type']}, {r['source']}) {r['cycles']} -> {r['polished']}")
+            elif r.get("what") == "added_by_polish" and r.get("source") == "detector":
+                details.append(f"added_by_polish {r['class']} (detector: {r['categories'].get('detector')} "
+                               f"{r['score']:.2f}, confirmed by {', '.join(r.get('confirmed_by') or [])}) at "
+                               f"{[round(b) for b in r['box_px']]}")
             elif r.get("what") == "added_by_polish":
-                details.append(f"added_by_polish {r['class']} {sorted(set(r['categories'].values()))}")
+                details.append(f"added_by_polish {r['class']} {sorted(set(r['categories'].values()))}"
+                               + (" (+ detector)" if r.get("detector") else ""))
             else:
                 details.append(f"{r.get('image')}: {r.get('detail')}")
         lines.append(f"- {cam}: {v.get('polished_reason')}: {'; '.join(details)}")
+
+    lines += ["", "## Added-object detector", ""] + detector_lines(manifest)
 
     lines += ["", "## Realism preference (info only)", ""]
     rows = []
@@ -212,6 +263,10 @@ def check_report(manifest: dict, calibration: Optional[dict] = None, expected: O
         lines.append(f"| removal flagged | {_fmt(m['removal_flagged'])} | >= {t['removal_flagged_min']} |")
         lines.append(f"| removal confirmed | {_fmt(m['removal_confirmed'])} | >= {t['removal_confirmed_min']} |")
         lines.append(f"| insertion detected | {_fmt(m['insertion'])} | >= {t['insertion_min']} |")
+        di = m.get("detector_insertion") or {}
+        if di.get("n"):
+            lines.append(f"| detector insertion found / flagged / confirmed ({di['n']} controls) | "
+                         f"{_fmt(di.get('found'))} / {_fmt(di.get('flagged'))} / {_fmt(di.get('confirmed'))} | - |")
         lines.append(f"| type swap confirmed | {_fmt(m['swap_confirmed'])} | - |")
         for k, mm in (m.get("models") or {}).items():
             lines.append(f"| {k}: answered / decoy accepted / single-pass FA missing | {_fmt(mm['answer_rate'])} / "

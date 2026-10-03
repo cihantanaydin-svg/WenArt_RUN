@@ -343,6 +343,22 @@ def test_crosscheck_finds_a_dropped_piece_and_a_dropped_door(tmp_path):
     assert [x["id"] for x in cc["in_json_not_rendered"]] == ["d_1"]          # an empty doorway is not a door
 
 
+def test_crosscheck_skips_pieces_that_are_not_built(tmp_path):
+    """Milestone 7 §3.3: a drawn symbol both AI passes call not furniture stays in the building with
+    ``build: false`` and is not in the scene, so its absence from the render is not a mismatch."""
+    out = T.write_toy_project(tmp_path, drop=("f_arm",))
+    path = out / "building_final.json"
+    building = json.loads(path.read_text(encoding="utf-8"))
+    for piece in building["furniture"]:
+        if piece["id"] == "f_arm":
+            piece["build"] = False
+    path.write_text(json.dumps(building), encoding="utf-8")
+    view = V.load_views(out / "renders")[CAM]
+    scene = json.loads((out / "scene" / "scene_manifest.json").read_text(encoding="utf-8"))
+    cc = X.expected_view(view, scene, building)["json_crosscheck"]
+    assert cc["in_json_not_rendered"] == []
+
+
 def test_crosscheck_skips_what_a_control_render_hides_on_purpose(tmp_path):
     out = T.write_toy_project(tmp_path, controls=("f_arm",))
     hidden = V.load_views(out / "controls" / "hide_f_arm")[CAM]

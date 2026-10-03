@@ -271,6 +271,19 @@ def test_prompt_fallbacks_are_listed_in_warnings():
     assert empty["prompt"].startswith("Photorealistic interior photograph of a room. Natural light")
 
 
+def test_prompt_takes_the_profile_family_and_the_milestone_7_words():
+    # docs/milestone7.md §6.3/§6.5: the profile's family field wins; dining/prayer rooms and the new types have words.
+    profile = dict(committed_profile(), family="japandi")
+    out = PR.build_prompt(profile, "dining", ["table_dining", "chair", "side_table", "floor_lamp"])
+    assert out["prompt"].startswith("Photorealistic interior photograph of a dining room in Japandi style.")
+    assert "dining table, chair, side table, floor lamp." in out["prompt"] and out["family"] == "japandi"
+    assert PR.build_prompt(dict(profile, family=None), "prayer", [])["family"] == "scandinavian"   # old derivation
+    assert PR.build_prompt(profile, "prayer", [])["prompt"].startswith(
+        "Photorealistic interior photograph of a prayer room in Japandi style.")
+    hall = PR.build_prompt(profile, "hall", ["stair", "potted_plant"])
+    assert "staircase, potted plant." in hall["prompt"] and hall["warnings"] == []
+
+
 def test_furniture_types_from_expected_elements():
     def el(t, pixels, kind="furniture", own=True, role="required", status="verified"):
         return {"type": t, "pixels": pixels, "kind": kind, "own_room": own, "role": role, "status": status}

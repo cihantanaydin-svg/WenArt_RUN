@@ -18,6 +18,23 @@ end on an interior ring, not the exterior one, and are not loose ends.
 Coordinates are snapped to 1 mm and the union is closed by a 2 mm
 morphological pass so that sub-millimetre gaps between touching rectangles
 (PDF coordinate rounding) do not merge two rooms.
+
+Generic core pages (docs/milestone7.md §2.7) pass more: ``union`` is the
+ready wall union with every opening and virtual separator bridged (the
+loose-end test is not needed then: gaps are bridged by their openings),
+``separators`` adds separator lines to the plain wall union otherwise, and
+labels that carry a ``block`` (``generic.labels.LabelBlock``) are named,
+typed and size-checked from it: Turkish or plain casing by the page
+language, the room type from the name and the face (``hall`` alone becomes
+``living`` in a large, compact face), the printed size against the face's
+clear size (``label_size``, §2.7.3), area labels in m² or sq ft. A face
+named only by exterior labels (Parking, Garden) is no room (``site`` holds
+it); an unlabelled face gets ``unlabelled_label`` (``Oda`` / ``Room``),
+``label_raw`` None, a type from ``face_type`` (``hall`` or ``unknown``) and
+is always ``unverified``. A face holding several room names keeps the
+first, is ``unverified`` and is listed in ``multi_labels`` (the pipeline
+makes it a conflict). A generic label outside the building outline is a
+warning (``topology.split_plot`` reports it), not a sign of open walls.
 """
 from __future__ import annotations
 
@@ -48,6 +65,10 @@ class RoomResult:
     exterior_walls: list[int] = field(default_factory=list)
     unplaced_labels: list[TextItem] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
+    # Generic core pages: faces naming two rooms (room id, kept label, other labels) and failed size checks
+    # (room id, label_size dict).
+    multi_labels: list[tuple[str, str, list[str]]] = field(default_factory=list)
+    label_size_conflicts: list[tuple[str, dict]] = field(default_factory=list)
 
 
 def wall_polygons(walls: list[WallItem]) -> list[Polygon]:
@@ -125,15 +146,38 @@ def ring_to_polygon(ring) -> list[tuple[float, float]]:
     return cleaned[start:] + cleaned[:start]
 
 
+def _separator_strips(separators) -> list[Polygon]:
+    from wenart.ingest.generic.topology import separator_polygon
+    strips = []
+    for sep in separators or ():
+        line = sep.line if hasattr(sep, "line") else sep
+        if line:
+            strips.append(separator_polygon(line))
+    return strips
+
+
+def _face_size(face: Polygon) -> tuple[float, float]:
+    """(area, aspect = long / short side of the minimum-area rectangle)."""
+    from wenart.ingest.generic.labels import clear_size
+    a, b, _ = clear_size(face)
+    short = min(a, b)
+    return face.area, (max(a, b) / short if short > 0 else float("inf"))
+
+
 def derive_rooms(level_id: str, walls: list[WallItem], labels: list[TextItem], label_points: list[tuple[float, float]],
                  label_fallback_points: Optional[list[tuple[float, float]]] = None,
-                 file_rel: str = "", ids: Optional[B.IdCounter] = None) -> RoomResult:
+                 file_rel: str = "", ids: Optional[B.IdCounter] = None, union=None, separators=(),
+                 unlabelled_label: str = UNLABELLED_LABEL, face_type=None) -> RoomResult:
     """Rooms of one level.
 
     ``label_points[i]`` is the anchor of ``labels[i]`` in building metres (the
     text insert point); ``label_fallback_points[i]`` (e.g. the box centre) is
     tried when the anchor is in no face. Returns schema-shaped room dicts
     (without ``has_documented_furniture`` decided: it starts ``False``).
+
+    Generic core pages: ``union`` (the bridged wall union), ``separators``,
+    ``unlabelled_label``, ``face_type(polygon) -> (room_type, reason)`` and
+    labels with a ``block`` (see the module docstring).
     """
     result = RoomResult()
     ids = ids or B.IdCounter()
@@ -141,8 +185,20 @@ def derive_rooms(level_id: str, walls: list[WallItem], labels: list[TextItem], l
         result.closed = False
         result.warnings.append(f"{level_id}: no walls")
         return result
-    union = wall_union(walls)
-    problem = closure_problem(walls, union)
+    if union is None:
+        union = wall_union(walls)
+        strips = _separator_strips(separators)
+        if strips:
+            union = unary_union([union] + strips).buffer(CLOSE_M, join_style="mitre").buffer(-CLOSE_M,
+                                                                                            join_style="mitre")
+        problem = closure_problem(walls, union)
+    elif union.geom_type != "Polygon":
+        parts = len(getattr(union, "geoms", []))
+        problem = f"outer walls do not form one closed loop ({union.geom_type}, {parts} parts)"
+    elif len(union.interiors) == 0:
+        problem = "walls form no enclosed room"
+    else:
+        problem = None
     if problem is not None:
         result.closed = False
         result.warnings.append(f"{level_id}: {problem}")
@@ -161,6 +217,7 @@ def derive_rooms(level_id: str, walls: list[WallItem], labels: list[TextItem], l
     faces = [ring_to_polygon(ring) for ring in union.interiors]
     faces.sort(key=lambda poly: (poly[0][1], poly[0][0]))
     fallbacks = label_fallback_points or [None] * len(labels)
+    outline = Polygon(exterior)
 
     def face_index_of(point) -> Optional[int]:
         if point is None:
@@ -176,6 +233,9 @@ def derive_rooms(level_id: str, walls: list[WallItem], labels: list[TextItem], l
         if j is None:
             j = face_index_of(fallbacks[i])
         if j is None:
+            block = getattr(label, "block", None)
+            if block is not None and (block.exterior or not outline.contains(ShapelyPoint(label_points[i]))):
+                continue              # a site label, or a room name outside the building: split_plot reports it
             result.unplaced_labels.append(label)
             result.warnings.append(f"{level_id}: label '{label.text}' ({label.entity}) is outside every room")
             continue
@@ -185,12 +245,51 @@ def derive_rooms(level_id: str, walls: list[WallItem], labels: list[TextItem], l
         shp = Polygon(face)
         area = round(shp.area, 3)
         indices = label_faces.get(j, [])
+        generic = [k for k in indices if getattr(labels[k], "block", None) is not None]
+        if generic:
+            indoor = [k for k in generic if not labels[k].block.exterior]
+            if not indoor:
+                continue              # named only by exterior labels: a site area, not a room (§2.5)
+            indices = indoor + [k for k in indices if k not in generic]
         status = "verified"
         evidence = []
+        label_size = None
+        size_conflict = None
         if not indices:
-            label, room_type, area_label, label_raw = UNLABELLED_LABEL, "unknown", None, None
+            label, area_label, label_raw = unlabelled_label, None, None
+            room_type = "unknown"
+            if face_type is not None:
+                room_type, reason = face_type(shp)
+                result.warnings.append(f"{level_id}: room at {face[0]} ({area:.2f} m²) has no label: {reason}")
+            else:
+                result.warnings.append(f"{level_id}: room at {face[0]} ({area:.2f} m²) has no label")
             status = "unverified"
-            result.warnings.append(f"{level_id}: room at {face[0]} ({area:.2f} m²) has no label")
+        elif getattr(labels[indices[0]], "block", None) is not None:
+            first = labels[indices[0]]
+            block = first.block
+            label, _, _ = B.normalise_room_label(block.name, turkish=first.turkish)
+            from wenart.ingest.generic.labels import check_label_size, room_type_for
+            face_area, aspect = _face_size(shp)
+            room_type = room_type_for(block.name, face_area, aspect)[0]
+            area_label = round(block.area_m2, 3) if block.area_m2 is not None else None
+            label_raw = block.name
+            for k in indices:
+                evidence.extend(labels[k].block.evidence if getattr(labels[k], "block", None) is not None
+                                else [labels[k].evidence])
+            check = check_label_size(block, shp)
+            if check is not None:
+                label_size = {key: check[key] for key in ("text", "width_m", "length_m", "measured", "status")}
+                if "off_pct" in check:
+                    label_size["off_pct"] = check["off_pct"]
+                if check.get("unverified"):
+                    status = "unverified"
+                if check["status"] == "conflict":
+                    size_conflict = check
+            if len(indices) > 1:
+                status = "unverified"
+                extra = [labels[k].text for k in indices[1:]]
+                result.warnings.append(f"{level_id}: room '{label}' has more labels: {', '.join(extra)}; first label "
+                                       f"kept")
         else:
             first = labels[indices[0]]
             label, room_type, area_label = B.normalise_room_label(first.text)
@@ -203,13 +302,20 @@ def derive_rooms(level_id: str, walls: list[WallItem], labels: list[TextItem], l
                 extra = ", ".join(labels[k].text for k in indices[1:])
                 result.warnings.append(f"{level_id}: room '{label}' has more labels: {extra}; first label kept")
         room_id = ids.room(level_id, label)
+        if generic and len(indices) > 1:
+            result.multi_labels.append((room_id, label, [labels[k].text for k in indices[1:]]))
+        if size_conflict is not None:
+            result.label_size_conflicts.append((room_id, size_conflict))
         touching = [i for i, poly in enumerate(polys) if poly.distance(shp) < TOUCH_M]
         result.room_walls[room_id] = touching
-        result.rooms.append({
+        room = {
             "id": room_id, "level_id": level_id, "label": label, "label_raw": label_raw, "room_type": room_type,
             "polygon": [list(p) for p in face], "area_computed": area, "area_label": area_label,
             "has_documented_furniture": False, "style_override": None, "status": status, "evidence": evidence,
-        })
+        }
+        if label_size is not None:
+            room["label_size"] = label_size
+        result.rooms.append(room)
     return result
 
 

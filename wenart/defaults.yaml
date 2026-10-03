@@ -14,6 +14,7 @@ style:
   # checks that this block and the code agree, so keep both in sync.
   profile:
     source_text: "Scandinavian, light oak floor, white walls, linen textiles, warm daylight"
+    family: scandinavian   # Milestone 7: the library style filter of refit (docs/milestone7.md §6.3)
     floor: {material: wood_oak_light, asset: WoodFloor051}
     walls: {material: plaster_white, asset: white_plaster_02}
     ceiling: {material: plaster_white}

@@ -26,8 +26,25 @@ outer walls of a level do not close, a DWG cannot be converted, a floor plan
 has no level title, or no vector plan page exists at all. The files are
 written in every case so the report explains what is missing.
 
-CLI: ``python -m wenart.ingest.pipeline projects/synthetic-01 --out outputs/synthetic-01``
-(exit code 1 when the status is ``needs_review``).
+Milestone 7 (docs/milestone7.md §1.2-§1.4, §2): pages the synthetic readers
+do not understand go to the generic plan core (``generic.core.extract``):
+PDF pages classified ``generic_labels`` and titled PDF pages without 0.5 pt
+wall rectangles (read by ``cad_pdf``), and DXF/DWG files without the
+synthetic layers (read by ``dxf_generic``). Their levels get virtual
+separators, doorless openings, room-size checks, a ``site`` block (plot
+walls, exterior areas, decor; recorded, never built), rule-typed stairs and
+kitchen counters, and AI candidates for the other drawn furniture. The
+candidates' questions are written to ``<out>/recognition/requests.json`` with
+their crops; a GPU stage answers them and the pipeline runs again with
+``--answers <out>/recognition``. A single untitled plan page is level ``L0``
+"Ground floor" (assumed, warned); several untitled plan pages need review.
+
+CLI: ``python -m wenart.ingest.pipeline projects/synthetic-01 --out outputs/synthetic-01
+[--answers <out>/recognition] [--no-ai]``. Exit codes: 0 ok, 1 ``needs_review``,
+4 = questions written and answers missing (the building is written in its
+pre-answer state: AI candidates ``unknown`` / ``unverified``). With complete
+answers, or with ``--no-ai`` (unanswered candidates stay ``unverified``), it
+never exits 4.
 """
 from __future__ import annotations
 
@@ -43,11 +60,12 @@ from shapely.geometry import Polygon
 
 from wenart import building as B
 from wenart import geometry as G
+from wenart import units as U
 from wenart.ingest import debug_image as DI
 from wenart.ingest import rooms as R
-from wenart.ingest.classify import PageRecord, classify_pages
+from wenart.ingest.classify import SAME_STEM_REASON, SHX_TEXT_REASON, PageRecord, classify_pages
 from wenart.ingest.dxf_extract import extract_dxf
-from wenart.ingest.model import DimensionItem, FurnitureItem, LevelExtraction, OpeningItem, WallItem
+from wenart.ingest.model import DimensionItem, FurnitureItem, LevelExtraction, OpeningItem, WallItem, normalise_level
 from wenart.ingest.pdf_extract import extract_pdf_page
 
 DEFAULT_CEILING_HEIGHT = 2.70
@@ -64,8 +82,12 @@ OUTLINE_TOL = 0.005             # metres, Hausdorff distance of exterior rings a
 SOURCE_RANK = {"dwg": 0, "dxf": 0, "pdf": 1}
 CLASS_RANK = {"floor_plan": 0, "furniture_plan": 1}
 CONFLICT_ORDER = ["area_label_vs_computed", "dimension_vs_measured", "count_mismatch", "outline_mismatch",
-                  "scale_disagreement", "type_disagreement", "other"]
+                  "scale_disagreement", "type_disagreement", "label_size_mismatch", "symbol_type_disagreement",
+                  "raster_count_mismatch", "other"]
 SOURCE_NAME = {"dwg": "DWG", "dxf": "DXF", "pdf": "vector PDF"}
+GENERIC_PDF_DPI = 150           # debug image of generic pages (docs/milestone7.md §2.9)
+EXIT_OK, EXIT_REVIEW, EXIT_QUESTIONS = 0, 1, 4
+RECOGNITION_DIR = "recognition"
 
 
 @dataclass
@@ -112,6 +134,12 @@ class ProjectBuild:
         self.raw_conflicts: list[dict] = []     # without ids; numbered at the end
         self.pages: list[PageWork] = []
         self.unions: dict[str, object] = {}     # level id -> shapely wall union
+        # Milestone 7: generic pages whose furniture went into the building (their questions count), the
+        # recognition questions and the keys still waiting for answers.
+        self.furniture_works: list[PageWork] = []
+        self.questions: list[dict] = []
+        self.pending: list[str] = []
+        self.generic: list[PageWork] = []
 
     def warn(self, text: str) -> None:
         if text not in self.building["warnings"]:
@@ -173,6 +201,12 @@ def _opening_dict(level_id: str, opening: OpeningItem, opening_id: str, walls: l
                   build: ProjectBuild) -> dict:
     opening.element_id = opening_id
     status = opening.status
+    if opening.virtual:
+        # A virtual separator (§2.7.1): no wall, a line between two rooms.
+        line = [list(opening.line[0]), list(opening.line[1])] if opening.line else None
+        return {"id": opening_id, "type": "opening", "level_id": level_id, "wall_id": None, "virtual": True,
+                "line": line, "center": list(opening.center), "width": opening.width, "height": None,
+                "sill_height": None, "swing_side": None, "status": status, "evidence": [opening.evidence]}
     wall, dist = _nearest_wall(opening.center, opening.rotation_deg, walls)
     if wall is None or dist > wall["thickness"] / 2 + WALL_TOL:
         status = "unverified"
@@ -188,12 +222,18 @@ def _opening_dict(level_id: str, opening: OpeningItem, opening_id: str, walls: l
             # door to the outside (the wall is not exterior), so do not guess.
             status = "unverified"
             build.warn(f"{opening_id}: swing side ({probe[0]:.2f}, {probe[1]:.2f}) lies in no room of {level_id}")
-    return {"id": opening_id, "type": opening.kind, "level_id": level_id, "wall_id": wall["id"] if wall else "",
-            "center": list(opening.center), "width": opening.width, "height": None, "sill_height": None,
-            "swing_side": swing_side, "status": status, "evidence": [opening.evidence]}
+    out = {"id": opening_id, "type": opening.kind, "level_id": level_id, "wall_id": wall["id"] if wall else "",
+           "center": list(opening.center), "width": opening.width, "height": opening.height,
+           "sill_height": opening.sill, "swing_side": swing_side, "status": status, "evidence": [opening.evidence]}
+    if opening.assumed:
+        out["assumed"] = list(opening.assumed)
+    if opening.type_raw:
+        out["type_raw"] = opening.type_raw
+    return out
 
 
-def _furniture_dict(level_id: str, piece: FurnitureItem, piece_id: str, rooms: list[dict], build: ProjectBuild) -> dict:
+def _furniture_dict(level_id: str, piece: FurnitureItem, piece_id: str, rooms: list[dict], build: ProjectBuild,
+                    walls: Optional[list[dict]] = None) -> dict:
     piece.element_id = piece_id
     status = piece.status
     room = R.room_containing(rooms, piece.center)
@@ -202,10 +242,78 @@ def _furniture_dict(level_id: str, piece: FurnitureItem, piece_id: str, rooms: l
         build.warn(f"{piece_id}: centre {piece.center} lies in no room of {level_id}")
     else:
         room["has_documented_furniture"] = True
-    return {"id": piece_id, "level_id": level_id, "room_id": room["id"] if room else None, "type": piece.type,
-            "type_raw": piece.type_raw, "source": "from_documents",
-            "footprint": {"center": list(piece.center), "size": list(piece.size), "rotation_deg": piece.rotation_deg},
-            "front_deg": piece.front_deg, "height": None, "asset": None, "status": status, "evidence": [piece.evidence]}
+    out = {"id": piece_id, "level_id": level_id, "room_id": room["id"] if room else None, "type": piece.type,
+           "type_raw": piece.type_raw, "source": "from_documents",
+           "footprint": {"center": list(piece.center), "size": list(piece.size), "rotation_deg": piece.rotation_deg},
+           "front_deg": piece.front_deg, "height": None, "asset": None, "status": status,
+           "evidence": [piece.evidence] + list(piece.extra_evidence)}
+    if piece.type_method is not None:
+        # Generic core pieces (docs/milestone7.md §1.3).
+        out["type_method"] = piece.type_method
+        out["type_candidates"] = list(piece.type_candidates)
+        out["build"] = piece.details.get("build", True) is not False
+        if piece.details.get("stair"):
+            out["stair"] = piece.details["stair"]
+        run = piece.details.get("counter_run")
+        if run:
+            index = run.get("wall_index")
+            wall_id = walls[index]["id"] if walls is not None and index is not None and 0 <= index < len(walls) \
+                else run.get("wall_id")
+            out["counter_run"] = {"wall_id": wall_id, "strokes": list(run.get("strokes") or [])}
+        conflict = piece.details.get("ai_conflict")
+        if conflict:
+            build.conflict(conflict["kind"], [piece_id], f"{piece_id}: {conflict['description']}",
+                           conflict["resolution"])
+    return out
+
+
+def _level_dict(level_id: str, record: PageRecord, works: list[PageWork]) -> dict:
+    label, order = record.level_label, record.level_order
+    if label is None:
+        normalised = normalise_level(record.level_label_raw or "")
+        label, order = normalised if normalised else (level_id, 0)
+    level = {
+        "id": level_id, "label": label, "order": order, "elevation": round(order * LEVEL_PITCH, 3),
+        "ceiling_height": DEFAULT_CEILING_HEIGHT, "ceiling_height_source": "assumed_default",
+        "evidence": [e for w in works for e in w.record.evidence],
+    }
+    if record.label_source is not None:
+        level["label_source"] = record.label_source
+    return level
+
+
+def _generic_rooms(build: ProjectBuild, level_id: str, ex: LevelExtraction) -> R.RoomResult:
+    """Rooms of a generic page: faces of the bridged wall union (openings and separators), named by the label
+    blocks (docs/milestone7.md §2.7)."""
+    from wenart.ingest.generic import topology as TP
+
+    stairs = [f for f in ex.furniture if f.type == "stair"]
+    real = [o for o in ex.openings if not o.virtual]
+    union = TP.bridged_union(ex.walls, real, ex.separators)
+
+    def face_type(poly):
+        return TP.unlabelled_face_type(poly, ex.walls, real, stairs)
+
+    anchors = [_to_building(ex, t.start) for t in ex.labels]
+    fallbacks = [_to_building(ex, G.box_center(t.box)) for t in ex.labels]
+    result = R.derive_rooms(level_id, ex.walls, ex.labels, anchors, fallbacks, ex.file, build.ids, union=union,
+                            unlabelled_label=ex.report.get("unlabelled_label", R.UNLABELLED_LABEL),
+                            face_type=face_type)
+    system = ex.units_system
+    for room_id, check in result.label_size_conflicts:
+        measured = check["measured"]
+        sides = " x ".join(U.format_length(v, system or "metric") for v in measured)
+        offs = ", ".join(f"{v:+.1f}%" for v in check.get("off_pct", []))
+        unverified = check.get("unverified")
+        build.conflict("label_size_mismatch", [room_id],
+                       f"{room_id}: label size '{check['text']}' vs the room's clear size {sides} ({offs})",
+                       "drawn walls kept; room marked unverified" if unverified else
+                       "drawn walls kept (within 10 %)")
+    for room_id, label, others in result.multi_labels:
+        build.conflict("other", [room_id], f"{room_id}: one face holds the room names '{label}' and "
+                                           f"{', '.join(repr(o) for o in others)}",
+                       "unresolved: first label kept, room unverified")
+    return result
 
 
 def _assemble_level(build: ProjectBuild, level_id: str, works: list[PageWork]) -> None:
@@ -215,30 +323,32 @@ def _assemble_level(build: ProjectBuild, level_id: str, works: list[PageWork]) -
     master = works[0]
     ex = master.extraction
     record = master.record
-    label, order = record.level_label, record.level_order
-    if label is None:
-        normalised = B.normalise_level_label(record.level_label_raw or "")
-        label, order = normalised if normalised else (level_id, 0)
-    bld["levels"].append({
-        "id": level_id, "label": label, "order": order, "elevation": round(order * LEVEL_PITCH, 3),
-        "ceiling_height": DEFAULT_CEILING_HEIGHT, "ceiling_height_source": "assumed_default",
-        "evidence": [e for w in works for e in w.record.evidence],
-    })
+    level = _level_dict(level_id, record, works)
+    bld["levels"].append(level)
     build.warn(f"Level {level_id}: ceiling height assumed {DEFAULT_CEILING_HEIGHT:.2f} m (no section drawing found)")
+    generic = ex.source_kind is not None
 
     # Rooms need the walls first (exterior flags come from the union).
-    anchors = [_to_building(ex, t.start) for t in ex.labels]
-    fallbacks = [_to_building(ex, G.box_center(t.box)) for t in ex.labels]
-    result = R.derive_rooms(level_id, ex.walls, ex.labels, anchors, fallbacks, ex.file, build.ids)
+    if generic:
+        result = _generic_rooms(build, level_id, ex)
+    else:
+        anchors = [_to_building(ex, t.start) for t in ex.labels]
+        fallbacks = [_to_building(ex, G.box_center(t.box)) for t in ex.labels]
+        result = R.derive_rooms(level_id, ex.walls, ex.labels, anchors, fallbacks, ex.file, build.ids)
     for text in result.warnings:
         build.warn(text)
-    if not result.closed:
+    if not result.closed and not any("outer walls do not close" in r for r in ex.review):
         build.review(f"{level_id}: outer walls do not form a closed loop ({master.where})")
     if result.unplaced_labels:
         # A room label outside every face means the walls around that room do not close.
         names = ", ".join(f"'{t.text}'" for t in result.unplaced_labels)
         build.review(f"{level_id}: room labels outside every enclosed room ({names}); walls do not close ({master.where})")
-    build.unions[level_id] = R.wall_union(ex.walls) if ex.walls else None
+    if generic:
+        from wenart.ingest.generic import topology as TP
+        build.unions[level_id] = TP.bridged_union(ex.walls, [o for o in ex.openings if not o.virtual],
+                                                  ex.separators) if ex.walls else None
+    else:
+        build.unions[level_id] = R.wall_union(ex.walls) if ex.walls else None
 
     walls = [_wall_dict(level_id, w, build.ids.next("wall", level_id), DEFAULT_CEILING_HEIGHT) for w in ex.walls]
     bld["walls"].extend(walls)
@@ -252,25 +362,66 @@ def _assemble_level(build: ProjectBuild, level_id: str, works: list[PageWork]) -
         for room in rooms:
             if any(e is text.evidence for e in room["evidence"]):
                 text.element_id = room["id"]
+    if generic:
+        for text in ex.labels:
+            room = R.room_containing(rooms, _to_building(ex, text.start))
+            if room is not None and room["label_raw"] is not None:
+                text.element_id = room["id"]
     bld["rooms"].extend(rooms)
 
     openings = []
-    for opening in ex.openings:
+    for opening in list(ex.openings) + list(ex.separators):
         opening_id = build.ids.next(opening.kind, level_id)
         openings.append(_opening_dict(level_id, opening, opening_id, walls, rooms, build))
     bld["openings"].extend(openings)
+    if generic:
+        # Rooms bounded by a separator name it as evidence too.
+        for opening, element in zip(list(ex.openings) + list(ex.separators), openings):
+            if not opening.virtual or not opening.line:
+                continue
+            for room in rooms:
+                if any(G.point_segment_distance(p, *opening.line) <= 0.01 for p in room["polygon"]):
+                    room["evidence"].append(B.evidence(ex.file, "derived", 0.8, entity=f"separator:{element['id']}"))
 
     furniture = []
     for piece in ex.furniture:
-        furniture.append(_furniture_dict(level_id, piece, build.ids.next("furniture", level_id), rooms, build))
+        furniture.append(_furniture_dict(level_id, piece, build.ids.next("furniture", level_id), rooms, build, walls))
     bld["furniture"].extend(furniture)
+    if ex.furniture:
+        build.furniture_works.append(master)
+    if generic:
+        _add_site(build, level_id, ex)
 
     for work in works[1:]:
-        _merge_secondary(build, level_id, label, master, work, walls, openings, furniture, rooms)
+        _merge_secondary(build, level_id, level["label"], master, work, walls, openings, furniture, rooms)
 
     for work in works:
         _check_dimensions(build, work, walls)
     _check_areas(build, rooms, master)
+
+
+def _add_site(build: ProjectBuild, level_id: str, ex: LevelExtraction) -> None:
+    """The level's ``site`` block (building frame) into ``building["site"]``: plot and other boundary walls,
+    exterior areas, decor and the openings of boundary walls; recorded, never built (§2.5)."""
+    site = ex.site or {}
+    target = build.building.setdefault("site", {"boundary_walls": [], "areas": [], "decor": [], "openings": []})
+    ids = []
+    for k, w in enumerate(site.get("boundary_walls", [])):
+        item = {"id": w.get("id") or f"sw_{level_id}_{k + 1:03d}", "level_id": level_id, **{
+            key: v for key, v in w.items() if key != "id"}}
+        ids.append(item["id"])
+        target["boundary_walls"].append(item)
+    for a in site.get("areas", []):
+        target["areas"].append({"id": a.get("id"), "level_id": level_id, **{k: v for k, v in a.items() if k != "id"}})
+    for d in site.get("decor", []):
+        target["decor"].append({"id": d.get("id"), "level_id": level_id,
+                                **{k: v for k, v in d.items() if k not in ("id", "box")}})
+    for k, o in enumerate(site.get("openings", [])):
+        index = o.get("boundary_wall")
+        item = {"id": f"so_{level_id}_{k + 1:03d}", "level_id": level_id, "type": o["type"], "center": o["center"],
+                "width": o["width"], "boundary_wall_id": ids[index] if index is not None and index < len(ids) else None,
+                "status": o.get("status", "verified"), "evidence": o.get("evidence", [])}
+        target["openings"].append(item)
 
 
 def _match(items, candidates, match_fn):
@@ -335,7 +486,7 @@ def _merge_secondary(build: ProjectBuild, level_id: str, level_label: str, maste
         return _footprint_disagreement(item, piece, master.where, work.where)
 
     def make_furniture(item: FurnitureItem, element_id: str) -> dict:
-        return _furniture_dict(level_id, item, element_id, rooms, build)
+        return _furniture_dict(level_id, item, element_id, rooms, build, walls)
 
     # (kind, secondary items, master elements, match, build element, describe a disagreement)
     groups = [
@@ -353,6 +504,7 @@ def _merge_secondary(build: ProjectBuild, level_id: str, level_label: str, maste
             element = make_furniture(item, build.ids.next("furniture", level_id))
             build.building["furniture"].append(element)
             furniture.append(element)
+        build.furniture_works.append(work)
         build.warn(f"{level_label}: furniture taken from {work.where} ({len(ex.furniture)} pieces); "
                    f"{master.where} draws none")
     elif ex.furniture or (furniture and furniture_plan):
@@ -399,7 +551,9 @@ def _merge_secondary(build: ProjectBuild, level_id: str, level_label: str, maste
 
     # Room labels of the secondary page confirm the master's rooms, or disagree.
     for text in ex.labels:
-        label, _, _ = B.normalise_room_label(text.text)
+        if text.block is not None and text.block.exterior:
+            continue
+        label, _, _ = B.normalise_room_label(text.text, turkish=text.turkish)
         anchor = _to_building(ex, text.start)
         room = R.room_containing(rooms, anchor) or R.room_containing(rooms, _to_building(ex, G.box_center(text.box)))
         if room is None:
@@ -516,16 +670,32 @@ def _check_outlines(build: ProjectBuild) -> None:
 # Documents, debug images, report
 # --------------------------------------------------------------------------
 
+def _source_kind(record: PageRecord, work: Optional[PageWork]) -> Optional[str]:
+    if work is not None and work.extraction.source_kind:
+        return work.extraction.source_kind
+    if record.format in ("dxf", "dwg"):
+        return "dxf"
+    if record.format == "pdf" and record.kind == "vector":
+        return "cad_pdf"
+    return None
+
+
 def _documents(records: list[PageRecord], works: dict, out_dir: Path, project_dir: Path, build: ProjectBuild) -> list[dict]:
     docs: dict[str, dict] = {}
     for record in records:
         doc = docs.setdefault(record.file, {"id": "doc_" + B.slugify(record.file), "file": record.file,
                                             "format": record.format, "converter": record.converter, "pages": []})
+        if record.conversion:
+            doc["conversion"] = {k: v for k, v in record.conversion.items() if k != "converter"}
         entry = record.to_json()
         work = works.get((record.file, record.page))
         if work is not None:
             entry["scale"] = work.extraction.scale
             entry["transform_to_building"] = work.extraction.transform_to_building
+            doc["unit_system"] = work.extraction.units_system or "metric"
+        kind = _source_kind(record, work)
+        if kind is not None and "source_kind" not in doc:
+            doc["source_kind"] = kind
         debug_path = _debug_image(record, work, out_dir, project_dir, build)
         entry["debug_image"] = debug_path.relative_to(out_dir).as_posix() if debug_path else None
         doc["pages"].append(entry)
@@ -536,9 +706,10 @@ def _debug_image(record: PageRecord, work: Optional[PageWork], out_dir: Path, pr
                  build: ProjectBuild) -> Optional[Path]:
     out_path = out_dir / "debug" / f"{B.slugify(record.file)}_p{record.page}.png"
     source = Path(record.source_path) if record.source_path else project_dir / record.file
+    generic = work is not None and work.extraction.source_kind is not None
     try:
         if record.format == "pdf":
-            raster = DI.raster_from_pdf(source, record.page)
+            raster = DI.raster_from_pdf(source, record.page, dpi=GENERIC_PDF_DPI if generic else DI.PDF_DPI)
         elif record.format in ("dxf", "dwg"):
             raster = DI.raster_from_dxf(source)
         else:
@@ -550,10 +721,100 @@ def _debug_image(record: PageRecord, work: Optional[PageWork], out_dir: Path, pr
     note = f"{record.file} p{record.page}: {record.page_class} / {record.kind}"
     if work is None:
         note += f" | skipped: {record.skip_reason}" if record.skip_reason else " | not extracted"
+    elif generic:
+        items = _generic_debug_items(work, build.building)
+        mask = work.extraction.report.get("mask")
+        if mask is not None:
+            DI.overlay_mask(raster, mask, work.extraction.report.get("units_to_m") or 1.0)
+        DI.write_debug_image(raster, items, out_path, note=DI.legend_note(note, generic=True))
+        return out_path
     else:
         items = _debug_items(work)
     DI.write_debug_image(raster, items, out_path, note=DI.legend_note(note))
     return out_path
+
+
+def _generic_debug_items(work: PageWork, building: dict) -> list[DI.DebugItem]:
+    """Overlays of a generic page (docs/milestone7.md §2.9): wall centre lines by method and confidence, doors with
+    their swing arc, windows, doorless openings dashed, separators dashed magenta, rooms with label and type,
+    furniture by ``type_method`` (rule green, block_name blue, ai_two_pass cyan, none red striped), site grey,
+    scale dimensions orange. The wall mask is drawn under them (``DI.overlay_mask``)."""
+    ex = work.extraction
+    to_page = G.invert_affine(ex.transform_to_building)
+
+    def page(pts) -> list:
+        return [G.apply_affine(to_page, p) for p in pts]
+
+    items: list[DI.DebugItem] = []
+    level_id = ex.level_id
+    for room in work.rooms:
+        label = f"{room['id']} {room['label']} ({room['room_type']})"
+        items.append(DI.DebugItem(page(room["polygon"]), "derived", 1.0, label=label, status=room["status"], width=1))
+    for wall in ex.walls:
+        corners = G.centerline_to_rectangle(wall.start, wall.end, wall.thickness)
+        items.append(DI.DebugItem(page(corners), wall.evidence["method"], wall.evidence["confidence"],
+                                  label=wall.element_id or "", status=wall.status, width=1))
+        items.append(DI.DebugItem(page([wall.start, wall.end]), wall.evidence["method"],
+                                  wall.evidence["confidence"], closed=False, width=2))
+    for opening in ex.openings:
+        corners = G.box_corners(opening.box)
+        method = opening.evidence.get("method", "vector")
+        conf = opening.evidence.get("confidence", 1.0)
+        if opening.kind == "opening":
+            items.append(DI.DebugItem(corners, method, conf, label=opening.element_id or "?", status=opening.status,
+                                      dashed=True))
+            continue
+        items.append(DI.DebugItem(corners, method, conf, label=opening.element_id or "?", status=opening.status))
+        if opening.kind == "door" and opening.swing_point is not None:
+            # The swing: a quarter circle from the hinge side over the swing point (drawn, not measured).
+            c = opening.center
+            r = opening.width
+            rot = math.radians(opening.rotation_deg)
+            u = (math.cos(rot), math.sin(rot))
+            v = (opening.swing_point[0] - c[0], opening.swing_point[1] - c[1])
+            norm = math.hypot(*v) or 1.0
+            v = (v[0] / norm, v[1] / norm)
+            hinge = (c[0] - u[0] * r / 2.0, c[1] - u[1] * r / 2.0)
+            arc = [(hinge[0] + r * (math.cos(a) * u[0] + math.sin(a) * v[0]),
+                    hinge[1] + r * (math.cos(a) * u[1] + math.sin(a) * v[1]))
+                   for a in [k * math.pi / 2 / 12 for k in range(13)]]
+            items.append(DI.DebugItem(page(arc), method, conf, closed=False, width=1))
+    for sep in ex.separators:
+        if sep.line:
+            items.append(DI.DebugItem(page(list(sep.line)), "derived", 1.0, label=sep.element_id or "sep",
+                                      colour=DI.SEPARATOR_COLOUR, dashed=True, closed=False, width=3))
+    for piece in ex.furniture:
+        corners = G.rotated_rectangle(piece.center, piece.size, piece.rotation_deg)
+        method = piece.type_method or "none"
+        items.append(DI.DebugItem(page(corners), "vector", piece.evidence.get("confidence", 0.9),
+                                  label=f"{piece.element_id or '?'} {piece.type}", status=piece.status,
+                                  colour=DI.TYPE_METHOD_COLOURS.get(method, DI.TYPE_METHOD_COLOURS["none"]),
+                                  striped=method == "none"))
+    site = building.get("site") or {}
+    for w in site.get("boundary_walls", []):
+        if w.get("level_id") != level_id:
+            continue
+        corners = G.centerline_to_rectangle(w["start"], w["end"], w["thickness"])
+        items.append(DI.DebugItem(page(corners), "derived", 1.0, label=w["id"], colour=DI.SITE_COLOUR, width=1))
+    for d in site.get("decor", []):
+        if d.get("level_id") != level_id:
+            continue
+        corners = G.rotated_rectangle(d["center"], d["size"], 0.0)
+        items.append(DI.DebugItem(page(corners), "derived", 1.0, label=d.get("kind", ""), colour=DI.SITE_COLOUR,
+                                  width=1))
+    for a in site.get("areas", []):
+        if a.get("level_id") != level_id or not a.get("anchor"):
+            continue
+        p = G.apply_affine(to_page, a["anchor"])
+        box = [p[0] - 1, p[1] - 1, p[0] + 1, p[1] + 1]
+        items.append(DI.DebugItem(G.box_corners(box), "derived", 1.0, label=f"{a['id']} (site)",
+                                  colour=DI.SITE_COLOUR, width=1))
+    for dim in ex.report.get("dims_page") or []:
+        items.append(DI.DebugItem([dim.p1, dim.p2], "vector", 1.0, label=dim.text, colour=DI.DIMENSION_COLOUR,
+                                  closed=False, width=3))
+    for text in ex.labels:
+        items.append(DI.DebugItem(G.box_corners(text.box), "vector", 1.0, label="", width=1))
+    return items
 
 
 def _debug_items(work: PageWork) -> list[DI.DebugItem]:
@@ -586,7 +847,157 @@ def _debug_items(work: PageWork) -> list[DI.DebugItem]:
     return items
 
 
-def write_report(building: dict, out_path: Path, review_reasons: list[str]) -> Path:
+def _length(metres: Optional[float], system: Optional[str]) -> str:
+    """A length in the project's system: imperial ``11' 3" (3.43 m)``, metric ``3,43 m``; ``-`` for None."""
+    if metres is None:
+        return "-"
+    if system == "imperial":
+        return f"{U.format_length(metres, 'imperial')} ({metres:.2f} m)"
+    return U.format_length(metres, "metric")
+
+
+def _cell(text) -> str:
+    return str(text).replace("|", "/").replace("\n", " ")
+
+
+def _generic_sections(b: dict, build: ProjectBuild) -> list[str]:
+    """Report sections of the generic core (docs/milestone7.md §2.9)."""
+    system = b["project"].get("unit_system")
+    lines = ["", "## Units", ""]
+    lines.append(f"Project unit system: **{system or 'metric'}**"
+                 + (" (lengths in feet and inches, metres in brackets)" if system == "imperial" else ""))
+    lines += ["", "| Document | Unit system | Source kind |", "|---|---|---|"]
+    for doc in b["documents"]:
+        lines.append(f"| {doc['file']} | {doc.get('unit_system') or '-'} | {doc.get('source_kind') or '-'} |")
+
+    lines += ["", "## Scale", ""]
+    for work in build.generic:
+        ex = work.extraction
+        sc = ex.scale or {}
+        lines.append(f"**{work.where}**: {sc.get('metres_per_unit', 0):.6g} m/unit, method "
+                     f"`{sc.get('method', '-')}`, confidence {sc.get('confidence', 0):.2f}")
+        lines.append("")
+        rows = ex.report.get("dimensions") or []
+        if rows:
+            lines += ["| Dimension text | Printed | Measured (page units) | Measured | Ratio (m/unit) | Off | "
+                      "End marks |", "|---|---|---|---|---|---|---|"]
+            for r in rows:
+                off = f"{r['off_pct']:+.2f}%" if "off_pct" in r else "-"
+                lines.append(f"| {_cell(r['text'])} | {_length(r['printed_m'], system)} | {r['measured_units']:.2f} | "
+                             f"{_length(r.get('measured_m'), system)} | {r['ratio']:.6g} | {off} | "
+                             f"{' / '.join(r['end_marks'])} ({r['how']}) |")
+            lines.append("")
+        labels = ex.report.get("size_labels") or []
+        if labels:
+            lines += ["| Room-size label | Printed | Measured (clear size) | Off | Status |", "|---|---|---|---|---|"]
+            for r in labels:
+                printed = f"{_length(r['width_m'], system)} x {_length(r['length_m'], system)}"
+                measured = " x ".join(_length(v, system) for v in r["measured"])
+                off = ", ".join(f"{v:+.1f}%" for v in r.get("off_pct", [])) or "-"
+                lines.append(f"| {_cell(r['name'])} ({_cell(r['text'])}) | {printed} | {measured} | {off} | "
+                             f"{r['status']} |")
+            lines.append("")
+        lines += [f"- {_cell(reason)}" for reason in ex.report.get("scale_reasons") or []]
+        lines.append("")
+
+    rooms = [r for r in b["rooms"] if r.get("label_size")]
+    lines += ["## Room size labels", ""]
+    if rooms:
+        lines += ["| Room | Label size | Measured | Status |", "|---|---|---|---|"]
+        for r in rooms:
+            ls = r["label_size"]
+            measured = " x ".join(_length(v, system) for v in ls.get("measured") or []) or "-"
+            lines.append(f"| {r['id']} | {_cell(ls['text'])} | {measured} | {ls['status']} |")
+    else:
+        lines.append("None.")
+
+    site = b.get("site") or {}
+    lines += ["", "## Site", "", "Recorded, not built."]
+    if any(site.get(k) for k in ("boundary_walls", "areas", "decor", "openings")):
+        lines += ["", "| Id | What | Detail |", "|---|---|---|"]
+        for w in site.get("boundary_walls", []):
+            length = G.distance(w["start"], w["end"])
+            lines.append(f"| {w['id']} | boundary wall ({w['kind']}) | {_length(length, system)} long, "
+                         f"{_length(w['thickness'], system)} thick |")
+        for a in site.get("areas", []):
+            ls = a.get("label_size") or {}
+            measured = " x ".join(_length(v, system) for v in ls.get("measured") or []) or "-"
+            detail = f"label size {ls.get('text') or '-'}, measured {measured} ({ls.get('status', '-')})"
+            if a.get("polygon") is None:
+                detail += ", no closed outline"
+            lines.append(f"| {a['id']} | area '{_cell(a['label'])}' | {detail} |")
+        for d in site.get("decor", []):
+            lines.append(f"| {d['id']} | decor ({d['kind']}) | {' x '.join(_length(v, system) for v in d['size'])} |")
+        for o in site.get("openings", []):
+            lines.append(f"| {o['id']} | {o['type']} in {o.get('boundary_wall_id') or '-'} | "
+                         f"{_length(o['width'], system)} wide |")
+    else:
+        lines += ["", "None."]
+
+    lines += ["", "## Separators", ""]
+    seps = [(work, e) for work in build.generic for e in work.extraction.report.get("separators") or []]
+    if seps:
+        lines += ["| Page | Kind | Length | Kept | Reason |", "|---|---|---|---|---|"]
+        for work, e in seps:
+            lines.append(f"| {work.where} | {e.get('kind', '-')} | {_length(e.get('length'), system)} | "
+                         f"{'yes' if e.get('kept') else 'no'} | {_cell(e.get('reason', '-'))} |")
+    else:
+        lines.append("None considered.")
+
+    lines += ["", "## Gaps", ""]
+    gaps = [(work, e) for work in build.generic for e in work.extraction.report.get("gaps") or []
+            if e.get("kind") != "free_end"]
+    if gaps:
+        lines += ["| Page | Kind | Class | Width | Owned strokes |", "|---|---|---|---|---|"]
+        for work, e in gaps:
+            owned = e.get("owned") or []
+            owned_text = ", ".join(owned[:6]) + (f" (+{len(owned) - 6})" if len(owned) > 6 else "") if owned else "-"
+            cls = e.get("class", "-")
+            lines.append(f"| {work.where} | {e.get('kind')} | {cls} | {_length(e.get('width'), system)} | "
+                         f"{_cell(owned_text)} |")
+    else:
+        lines.append("None.")
+
+    lines += ["", "## Furniture typing", ""]
+    typed = [f for f in b["furniture"] if f.get("type_method")]
+    if typed:
+        lines += ["| Piece | Type | Method | Candidates | Build | Status |", "|---|---|---|---|---|---|"]
+        for f in typed:
+            cands = "; ".join(f"pass {c.get('pass')}: {c.get('type')}" for c in f.get("type_candidates") or []) or "-"
+            notes = [e.get("note") for e in f["evidence"] if e.get("note")]
+            method = f["type_method"] + (f" ({_cell(notes[0])})" if notes else "")
+            lines.append(f"| {f['id']} | {f['type']} | {method} | {_cell(cands)} | "
+                         f"{'yes' if f.get('build', True) else 'no (drawn symbol, not built)'} | {f['status']} |")
+        if build.questions:
+            lines += ["", f"Recognition questions: {len(build.questions)} (`recognition/requests.json`), "
+                          f"{len(build.pending)} without a complete pair of answers."]
+    else:
+        lines.append("None.")
+
+    lines += ["", "## Assumed values", ""]
+    assumed = []
+    for lv in b["levels"]:
+        if lv.get("label_source") == "assumed":
+            assumed.append(f"{lv['id']}: level '{lv['label']}' assumed (no level title on the page)")
+        assumed.append(f"{lv['id']}: ceiling height {lv['ceiling_height']:.2f} m ({lv['ceiling_height_source']})")
+    for o in b["openings"]:
+        for key in o.get("assumed") or []:
+            value = o.get(key)
+            assumed.append(f"{o['id']} ({o['type']}): {key.replace('_', ' ')} "
+                           f"{_length(value, system) if value is not None else '-'}")
+    for f in b["furniture"]:
+        stair = f.get("stair")
+        if stair:
+            what = [k[:-len("_assumed")] for k in ("direction_assumed", "turn_assumed", "void_assumed") if stair.get(k)]
+            if what:
+                assumed.append(f"{f['id']} (stair): {', '.join(what)} assumed"
+                               + (f" ({_cell(stair['reason'])})" if stair.get("reason") else ""))
+    lines += [f"- {a}" for a in assumed] or ["None."]
+    return lines
+
+
+def write_report(building: dict, out_path: Path, review_reasons: list[str],
+                 build: Optional[ProjectBuild] = None) -> Path:
     b = building
     lines = [f"# Ingest report: {b['project']['id']}", ""]
     lines.append(f"Status: **{b['status']}**" + (f" ({'; '.join(review_reasons)})" if review_reasons else ""))
@@ -605,25 +1016,31 @@ def write_report(building: dict, out_path: Path, review_reasons: list[str]) -> P
     for lv in b["levels"]:
         lid = lv["id"]
         counts = [sum(1 for x in b[key] if x["level_id"] == lid) for key in ("walls", "openings", "rooms", "furniture")]
-        lines.append(f"| {lid} | {lv['label']} | {lv['order']} | {lv['elevation']:.2f} | {lv['ceiling_height']:.2f} "
+        label = lv["label"] + (" (assumed)" if lv.get("label_source") == "assumed" else "")
+        lines.append(f"| {lid} | {label} | {lv['order']} | {lv['elevation']:.2f} | {lv['ceiling_height']:.2f} "
                      f"({lv['ceiling_height_source']}) | {counts[0]} | {counts[1]} | {counts[2]} | {counts[3]} |")
-    lines += ["", "## Rooms", "", "| Room | Level | Label | Type | Area computed | Area label | Furniture in documents | Status |",
-              "|---|---|---|---|---|---|---|---|"]
+    lines += ["", "## Rooms", "", "| Room | Level | Label | As drawn | Type | Area computed | Area label | "
+              "Furniture in documents | Status |", "|---|---|---|---|---|---|---|---|---|"]
     for r in b["rooms"]:
         area_label = format_m2(r["area_label"]) if r["area_label"] is not None else "-"
-        lines.append(f"| {r['id']} | {r['level_id']} | {r['label']} | {r['room_type']} | {format_m2(r['area_computed'])} | "
-                     f"{area_label} | {'yes' if r['has_documented_furniture'] else 'no'} | {r['status']} |")
+        drawn = _cell(r["label_raw"]) if r["label_raw"] else "—"
+        lines.append(f"| {r['id']} | {r['level_id']} | {r['label']} | {drawn} | "
+                     f"{r['room_type']} | {format_m2(r['area_computed'])} | {area_label} | "
+                     f"{'yes' if r['has_documented_furniture'] else 'no'} | {r['status']} |")
     lines += ["", "## Furniture", "", "| Piece | Level | Room | Type | As drawn | Source | Size (m) | Rotation | Status | File |",
               "|---|---|---|---|---|---|---|---|---|---|"]
     for f in b["furniture"]:
         fp = f["footprint"]
         lines.append(f"| {f['id']} | {f['level_id']} | {f['room_id'] or '-'} | {f['type']} | {f['type_raw'] or '-'} | {f['source']} | "
                      f"{fp['size'][0]:.2f} x {fp['size'][1]:.2f} | {fp['rotation_deg']:.0f} | {f['status']} | {f['evidence'][0]['file']} |")
+    if build is not None and build.generic:
+        lines += _generic_sections(b, build)
     lines += ["", "## Conflicts", ""]
     if b["conflicts"]:
         lines += ["| Id | Kind | Elements | Description | Resolution |", "|---|---|---|---|---|"]
         for c in b["conflicts"]:
-            lines.append(f"| {c['id']} | {c['kind']} | {', '.join(c['element_ids'])} | {c['description']} | {c['resolution']} |")
+            lines.append(f"| {c['id']} | {c['kind']} | {', '.join(c['element_ids'])} | {_cell(c['description'])} | "
+                         f"{_cell(c['resolution'])} |")
     else:
         lines.append("None.")
     lines += ["", "## Unverified", ""]
@@ -639,8 +1056,48 @@ def write_report(building: dict, out_path: Path, review_reasons: list[str]) -> P
 # Entry point
 # --------------------------------------------------------------------------
 
-def build_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Callable] = None) -> dict:
-    """Run the vector path on a project folder; writes building.json, report.md and debug images."""
+def _extract_generic(record: PageRecord, out_dir: Path, answers, no_ai: bool) -> LevelExtraction:
+    """A page for the generic core: the page the classifier already read, else read now by its adapter."""
+    from wenart.ingest.generic import core
+
+    page = record.generic_page
+    if page is None:
+        if record.format == "pdf":
+            from wenart.ingest import cad_pdf
+            page = cad_pdf.read_page(record.source_path, record.page, record.file)
+        else:
+            from wenart.ingest import dxf_generic
+            page = dxf_generic.read_page(record.source_path, record.file)
+    record.generic_page = None                   # the page model is large; the extraction keeps what is needed
+    return core.extract(page, record.level_id, record.file, answers=answers, no_ai=no_ai,
+                        rec_dir=out_dir / RECOGNITION_DIR)
+
+
+def _mark_unverified(ex: LevelExtraction) -> None:
+    for item in list(ex.walls) + list(ex.openings) + list(ex.separators) + list(ex.furniture):
+        item.status = "unverified"
+
+
+def _write_questions(build: ProjectBuild, out_dir: Path) -> None:
+    """``<out>/recognition/requests.json`` with the questions of the pages whose furniture is in the building
+    (§1.4); an earlier file is rewritten (empty when nothing is asked) so it never lists stale questions."""
+    from wenart.recognition import answers as A
+
+    items, pending = [], []
+    for work in build.furniture_works:
+        items.extend(work.extraction.report.get("questions") or [])
+        pending.extend(work.extraction.report.get("pending") or [])
+    build.questions, build.pending = items, pending
+    rec_dir = out_dir / RECOGNITION_DIR
+    if items or (rec_dir / A.REQUESTS_NAME).is_file():
+        A.write_requests(rec_dir, build.building["project"]["id"], items)
+
+
+def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Callable] = None, answers=None,
+                no_ai: bool = False) -> tuple[dict, ProjectBuild]:
+    """Run the vector path on a project folder; writes building.json, report.md, debug images and (for generic
+    pages with AI candidates) ``recognition/requests.json`` with the crops. Returns the building and the build
+    state (questions, pending answers, review reasons)."""
     project_dir = Path(project_dir)
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -656,33 +1113,57 @@ def build_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Ca
     by_level: dict[str, list[PageWork]] = {}
     for record in records:
         if record.skip_reason and record.format == "dwg":
-            build.review(f"{record.file}: {record.skip_reason}")
+            if record.skip_reason == SAME_STEM_REASON:
+                build.warn(f"{record.file}: {record.skip_reason}")
+            else:
+                build.review(f"{record.file}: {record.skip_reason}")
             continue
         if record.kind != "vector":
             build.warn(f"{record.file} p{record.page}: {record.kind} page skipped ({record.skip_reason})")
+            continue
+        if record.skip_reason == SHX_TEXT_REASON:
+            build.review(f"{record.file} p{record.page}: {record.skip_reason}")
             continue
         if record.page_class not in ("floor_plan", "furniture_plan"):
             build.warn(f"{record.file} p{record.page}: class {record.page_class} not used by the vector path"
                        + (f" ({record.skip_reason})" if record.skip_reason else ""))
             continue
+        if record.level_problem:
+            build.review(f"{record.file} p{record.page}: {record.level_problem}")
+            continue
         if record.level_id is None:
             build.review(f"{record.file} p{record.page}: {record.page_class} without a level title "
                          f"(found: {record.level_label_raw!r})")
             continue
-        if record.format in ("dxf", "dwg"):
+        if record.label_source == "assumed":
+            build.warn(f"level title missing: assumed {record.level_id} {record.level_label}")
+        if record.extractor == "generic":
+            extraction = _extract_generic(record, out_dir, answers, no_ai)
+            extraction.level_assumed = record.label_source == "assumed"
+        elif record.format in ("dxf", "dwg"):
             extraction = extract_dxf(record.source_path, record.level_id, record.file)
         else:
             extraction = extract_pdf_page(record.source_path, record.page, record.level_id, record.file)
+        audit = (record.conversion or {}).get("audit") or {}
+        if audit.get("errors"):
+            _mark_unverified(extraction)
+            build.warn(f"{record.file}: the converted DXF has {audit['errors']} audit errors; its elements are "
+                       f"unverified")
         for text in extraction.warnings:
             build.warn(text)
+        for reason in extraction.review:
+            build.review(reason)
         for conflict in extraction.conflicts:
             build.conflict(conflict["kind"], conflict["element_ids"], conflict["description"], conflict["resolution"])
         if extraction.scale is None or extraction.transform_to_building is None:
-            build.review(f"{record.file} p{record.page}: no scale source")
+            if not extraction.review:
+                build.review(f"{record.file} p{record.page}: no scale source")
             continue
         work = PageWork(record=record, extraction=extraction)
         works[(record.file, record.page)] = work
         by_level.setdefault(record.level_id, []).append(work)
+        if extraction.source_kind is not None:
+            build.generic.append(work)
 
     if not by_level:
         build.review("no vector floor plan page could be used (raster pages need the recognition path)")
@@ -697,6 +1178,12 @@ def build_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Ca
         for work in by_level[level_id]:
             work.rooms = level_rooms
     _check_outlines(build)
+    if build.generic:
+        masters = [sorted(ws, key=lambda w: w.rank)[0] for ws in by_level.values()]
+        systems = [w.extraction.units_system or "metric" for w in masters]
+        building["project"]["unit_system"] = "imperial" if systems.count("imperial") > systems.count("metric") \
+            else "metric"
+    _write_questions(build, out_dir)
 
     # Conflicts: stable order and ids.
     build.raw_conflicts.sort(key=lambda c: CONFLICT_ORDER.index(c["kind"]) if c["kind"] in CONFLICT_ORDER else 99)
@@ -714,23 +1201,48 @@ def build_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Ca
         build.review_reasons.append("building JSON failed schema validation")
         building["warnings"].extend(f"schema: {e}" for e in errors[:20])
     B.save(building, out_dir / "building.json", check=False)
-    write_report(building, out_dir / "report.md", build.review_reasons)
-    return building
+    write_report(building, out_dir / "report.md", build.review_reasons, build)
+    return building, build
+
+
+def build_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Callable] = None, answers=None,
+                  no_ai: bool = False) -> dict:
+    """Run the vector path on a project folder; writes building.json, report.md and debug images."""
+    return run_project(project_dir, out_dir, ocr=ocr, answers=answers, no_ai=no_ai)[0]
+
+
+def exit_code(building: dict, build: ProjectBuild, no_ai: bool = False) -> int:
+    """0 ok, 1 needs_review, 4 = questions written and answers missing (never with ``--no-ai``) (§1.4).
+
+    ``needs_review`` wins over pending questions: a project that stops for review gets no GPU time for its
+    furniture questions (AI typing never causes a review)."""
+    if building["status"] != "ok":
+        return EXIT_REVIEW
+    return EXIT_QUESTIONS if build.pending and not no_ai else EXIT_OK
 
 
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description="Vector path: project folder -> building.json")
     parser.add_argument("project_dir")
     parser.add_argument("--out", default=None, help="output folder (default: outputs/<project name>)")
+    parser.add_argument("--answers", default=None,
+                        help="recognition folder with the answers of an earlier run (<out>/recognition)")
+    parser.add_argument("--no-ai", action="store_true",
+                        help="do not wait for AI answers: unanswered candidates stay unknown / unverified")
     args = parser.parse_args(argv)
     project_dir = Path(args.project_dir)
     out_dir = Path(args.out) if args.out else Path("outputs") / project_dir.name
-    building = build_project(project_dir, out_dir)
+    building, build = run_project(project_dir, out_dir, answers=Path(args.answers) if args.answers else None,
+                                  no_ai=args.no_ai)
+    code = exit_code(building, build, args.no_ai)
+    asked = f", {len(build.questions)} questions ({len(build.pending)} unanswered)" if build.questions else ""
     print(f"{building['project']['id']}: status {building['status']}, {len(building['levels'])} levels, "
           f"{len(building['walls'])} walls, {len(building['openings'])} openings, {len(building['rooms'])} rooms, "
           f"{len(building['furniture'])} furniture, {len(building['conflicts'])} conflicts, "
-          f"{len(building['unverified'])} unverified -> {out_dir / 'building.json'}")
-    return 0 if building["status"] == "ok" else 1
+          f"{len(building['unverified'])} unverified{asked} -> {out_dir / 'building.json'}")
+    if code == EXIT_QUESTIONS:
+        print(f"questions written to {out_dir / RECOGNITION_DIR / 'requests.json'}; answers missing (exit 4)")
+    return code
 
 
 if __name__ == "__main__":

@@ -13,7 +13,7 @@ def main(argv=None) -> int:
         from wenart.furniture.fit import main as fit_main
         return fit_main(argv[1:])
     print("usage: python -m wenart.furniture fit <building.json> --out <building_fitted.json> "
-          "[--catalog catalog.json] [--assets assets]\n"
+          "[--catalog catalog.json] [--assets assets] [--style style.json]\n"
           "       python -m wenart.furniture.layout ... (AI layout for empty rooms)")
     return 2
 

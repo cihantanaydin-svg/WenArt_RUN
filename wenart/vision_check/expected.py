@@ -729,6 +729,8 @@ def json_crosscheck(view, camera: Optional[dict], building: dict, table: dict, c
     for piece in building.get("furniture") or []:
         if piece.get("level_id") != level_id or not piece.get("footprint"):
             continue
+        if piece.get("build") is False:
+            continue        # a drawn symbol both AI passes call not furniture: never built (docs/milestone7.md §3.3)
         try:
             box3d = furniture_box3d(piece, level, built_height.get(piece["id"]))
         except (KeyError, TypeError, ValueError):

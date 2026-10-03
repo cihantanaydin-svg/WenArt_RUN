@@ -9,6 +9,13 @@ matplotlib backend at a known model-space window, or the image itself
 
 ``PageRaster`` carries ``to_pixels`` so callers pass geometry in page units
 (DXF drawing units, PDF points with origin bottom-left, image pixels).
+
+Generic core pages (docs/milestone7.md §2.9) are rendered at 150 dpi and add:
+the wall mask as a translucent layer (``overlay_mask``), open polylines
+(wall centre lines, door swings, separators, dimensions), dashed outlines
+(doorless openings, separators in magenta), fixed colours per meaning
+(furniture by ``type_method``: rule green, block_name blue, ai_two_pass
+cyan, none red striped; site grey; scale dimensions orange).
 """
 from __future__ import annotations
 
@@ -17,6 +24,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable, Optional
 
+import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
 from wenart import geometry as G
@@ -24,11 +32,24 @@ from wenart.synthetic.raster import rasterise_pdf_page
 
 COLOURS = {
     "vector": (0, 150, 0),
+    "raster": (0, 120, 120),
     "ocr": (30, 90, 220),
     "ai": (235, 130, 0),
     "derived": (120, 120, 120),
 }
 UNVERIFIED_COLOUR = (220, 20, 20)
+# Generic pages (§2.9): furniture by how its type was decided, separators, site elements, scale dimensions.
+TYPE_METHOD_COLOURS = {
+    "rule": (0, 170, 0),
+    "block_name": (30, 60, 230),
+    "ai_two_pass": (0, 190, 210),
+    "none": (220, 20, 20),
+}
+SEPARATOR_COLOUR = (220, 0, 220)
+SITE_COLOUR = (150, 150, 150)
+DIMENSION_COLOUR = (255, 140, 0)
+MASK_COLOUR = (90, 90, 255)
+MASK_ALPHA = 70
 PDF_DPI = 100
 DXF_WIDTH_PX = 1800
 IMAGE_MAX_WIDTH = 1600
@@ -44,6 +65,10 @@ class DebugItem:
     label: str = ""
     status: str = "verified"   # unverified -> dashed red
     width: int = 2
+    colour: Optional[tuple] = None   # fixed colour instead of the method colour (generic pages)
+    dashed: bool = False             # dashed outline (doorless openings, separators)
+    closed: bool = True              # False: an open polyline (centre line, swing arc, separator, dimension)
+    striped: bool = False            # diagonal stripes inside (furniture whose type nothing decided)
 
 
 @dataclass
@@ -59,6 +84,7 @@ class PageRaster:
 # --------------------------------------------------------------------------
 
 def raster_from_pdf(path: Path, page: int, dpi: int = PDF_DPI) -> PageRaster:
+    """The PDF page rendered by pdftoppm at ``dpi`` (100 for the synthetic pages, 150 for generic ones)."""
     with tempfile.TemporaryDirectory() as tmp:
         png = rasterise_pdf_page(path, page, Path(tmp) / "page.png", dpi=dpi, gray=False)
         image = Image.open(png).convert("RGB")
@@ -157,6 +183,24 @@ def _dashed_line(draw: ImageDraw.ImageDraw, a, b, fill, width: int, dash: float 
         pos = end + gap
 
 
+def _stripes(draw: ImageDraw.ImageDraw, pts: list, fill, step: float = 7.0) -> None:
+    """45-degree stripes clipped to the polygon ``pts`` (pixels)."""
+    from shapely.geometry import LineString, Polygon
+
+    poly = Polygon(pts)
+    if not poly.is_valid or poly.area <= 0:
+        return
+    x0, y0, x1, y1 = poly.bounds
+    k = x0 - (y1 - y0)
+    while k <= x1:
+        line = LineString([(k, y1), (k + (y1 - y0), y0)])
+        part = line.intersection(poly)
+        for seg in getattr(part, "geoms", [part]):
+            if seg.geom_type == "LineString" and seg.length > 0:
+                draw.line(list(seg.coords), fill=fill, width=1)
+        k += step
+
+
 def draw_items(image: Image.Image, items: list[DebugItem], to_pixels: Callable, note: str = "") -> Image.Image:
     """Return a copy of ``image`` with the items drawn on it."""
     base = image.convert("RGBA")
@@ -167,16 +211,22 @@ def draw_items(image: Image.Image, items: list[DebugItem], to_pixels: Callable, 
         pts = [to_pixels(p) for p in item.polygon]
         if len(pts) < 2:
             continue
-        colour = COLOURS.get(item.method, COLOURS["derived"])
+        colour = item.colour or COLOURS.get(item.method, COLOURS["derived"])
         alpha = int(255 * (0.35 + 0.65 * max(0.0, min(1.0, item.confidence))))
-        if item.status == "unverified":
-            fill = UNVERIFIED_COLOUR + (alpha,)
-            closed = pts + [pts[0]]
-            for a, b in zip(closed[:-1], closed[1:]):
+        unverified = item.status == "unverified"
+        if unverified and item.colour is None:
+            colour = UNVERIFIED_COLOUR
+        fill = colour + (alpha,)
+        path = pts + [pts[0]] if item.closed else pts
+        if item.striped and item.closed:
+            _stripes(draw, pts, colour + (110,))
+        if unverified or item.dashed:
+            for a, b in zip(path[:-1], path[1:]):
                 _dashed_line(draw, a, b, fill, item.width)
-        else:
-            fill = colour + (alpha,)
+        elif item.closed:
             draw.polygon(pts, outline=fill, width=item.width)
+        else:
+            draw.line(pts, fill=fill, width=item.width)
         if item.label:
             x = min(p[0] for p in pts) + 2
             y = min(p[1] for p in pts) + 1
@@ -185,6 +235,39 @@ def draw_items(image: Image.Image, items: list[DebugItem], to_pixels: Callable, 
         draw.rectangle([0, 0, base.width, 22], fill=(255, 255, 255, 200))
         draw.text((6, 4), note, fill=(0, 0, 0, 255), font=font)
     return Image.alpha_composite(base, overlay).convert("RGB")
+
+
+def overlay_mask(raster: PageRaster, mask, units_to_m: float, colour=MASK_COLOUR, alpha: int = MASK_ALPHA) -> None:
+    """Draw a wall mask (``MaskLayer`` in page metres) translucently onto ``raster.image`` (in place).
+
+    The mask grid maps to page units (``/ units_to_m``) and from there to pixels by the raster's affine
+    ``to_pixels``; the image is resampled nearest-neighbour."""
+    arr = np.asarray(mask.mask).astype(np.uint8) * 255
+    if arr.size == 0 or not arr.any():
+        return
+    rows, cols = arr.shape
+    x0, y1 = mask.origin
+    px = mask.px
+    s = float(units_to_m) or 1.0
+
+    def grid_to_pixel(c: float, r: float):
+        return raster.to_pixels(((x0 + c * px) / s, (y1 - r * px) / s))
+
+    o = grid_to_pixel(0.0, 0.0)
+    ax = grid_to_pixel(1.0, 0.0)
+    ay = grid_to_pixel(0.0, 1.0)
+    a, d = ax[0] - o[0], ax[1] - o[1]          # pixel per grid column
+    b, e = ay[0] - o[0], ay[1] - o[1]          # pixel per grid row
+    det = a * e - b * d
+    if abs(det) < 1e-12:
+        return
+    # Inverse affine (image pixel -> grid cell) for PIL's transform.
+    inv = (e / det, -b / det, (b * o[1] - e * o[0]) / det, -d / det, a / det, (d * o[0] - a * o[1]) / det)
+    src = Image.fromarray(arr, mode="L")
+    layer = src.transform(raster.image.size, Image.AFFINE, inv, resample=Image.NEAREST)
+    tint = Image.new("RGBA", raster.image.size, colour + (0,))
+    tint.putalpha(layer.point(lambda v: alpha if v else 0))
+    raster.image = Image.alpha_composite(raster.image.convert("RGBA"), tint).convert("RGB")
 
 
 def write_debug_image(raster: PageRaster, items: list[DebugItem], out_path: Path, note: str = "") -> Path:
@@ -199,6 +282,9 @@ def box_polygon(box) -> list[tuple[float, float]]:
     return G.box_corners(box)
 
 
-def legend_note(prefix: str = "") -> str:
+def legend_note(prefix: str = "", generic: bool = False) -> str:
     base = "green = vector, blue = ocr, orange = ai, grey = derived, dashed red = unverified"
+    if generic:
+        base = ("blue tint = wall mask, lines = wall centres, dashed = doorless / magenta separator, furniture: green "
+                "rule, blue block name, cyan AI, red striped none; grey = site; orange = scale dimensions")
     return f"{prefix} | {base}" if prefix else base

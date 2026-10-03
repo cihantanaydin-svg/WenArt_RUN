@@ -3,7 +3,9 @@
 Every YAML loads; the model ids, revisions, licences and files in
 ``polish.yaml``, ``gate/models.yaml`` and ``vision_check/check.yaml`` equal
 the table in docs/milestone5.md §1.6 (parsed from the markdown, so the spec
-and the configs cannot drift); ``thresholds.yaml`` equals the §4.2 block; the
+and the configs cannot drift), and the Milestone 7 detector (``detect`` in
+``gate/models.yaml``, outside the gate's ``models:``) equals
+docs/milestone7.md §8.1; ``thresholds.yaml`` equals the §4.2 block; the
 vendored ControlNet config matches its recorded sha256; the style photo
 fixture is a byte copy of the M4 render; the skeleton packages import
 without torch and expose the binding signatures.
@@ -88,6 +90,18 @@ def test_model_revisions_equal_the_spec_table():
         cfg = check[key]
         assert (cfg["id"], cfg["revision"], cfg["licence"]) == (row["repo"], row["revision"], row["licence"]), role
     assert set(gate) == {"depth", "sam", "dino"} and set(polish) == {"base", "controlnet"}
+
+
+def test_detect_model_equals_the_milestone7_spec():
+    spec7 = (ROOT / "docs" / "milestone7.md").read_text(encoding="utf-8")
+    pattern = r"OWLv2 `([^`]+)` @ `([0-9a-f]{40})` \(([^)]+)\) as `detect` in"
+    repo, revision, licence = re.search(pattern, spec7).groups()
+    det = gate_api.load_models_config()["detect"]
+    assert (det["repo"], det["revision"], det["licence"]) == (repo, revision, licence)
+    assert (repo, revision) == ("google/owlv2-base-patch16-ensemble", "cfd3195ba4ea9592eec887ded089f4c08eff231d")
+    assert det["allow_patterns"] == ["*.json", "*.safetensors", "*.txt"]
+    # Not a gate model: the gate key and the polish manifest's gate models stay depth/sam/dino.
+    assert set(gate_api.load_models_config()["models"]) == {"depth", "sam", "dino"}
 
 
 def test_thresholds_equal_the_spec_block():
