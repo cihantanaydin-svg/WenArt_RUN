@@ -424,8 +424,8 @@ Next step: see "Decisions of 3 Oct 2026" below.
 | 9 | Input formats | DWG **and** scans/photos are needed | Milestone 7: DWG reading (a working converter) and the recognition path for scanned and photographed plans in the pipeline. |
 | 10 | Confidentiality | not confidential for now | your projects go into `projects/<name>/` (public repo); the private upload path stays ready. |
 | 11 | Repository | stays public | no change. |
-| 12 | GPU | faster GPU for faster jobs | done: the runner now picks the fastest GPU in stock under $1/h (RTX 5090, RTX PRO 5000, RTX 4090, …; `CLAUDE.md`). The $1/h, $10/day and 2 h rules stay. |
+| 12 | GPU | faster GPU for faster jobs; GPU-hour limit raised from $1 to $5 | done: the runner picks the fastest GPU in stock under $5/h (RTX PRO 6000 first: 96 GB, same architecture as the PRO 4500, $2.09/h, in stock in EU-RO-1; H100/H200/A100 had no stock there); a pod whose worst case is over $5 needs your OK (`--over-5-ok`, CLAUDE.md rule). The $10/day and 2 h rules stay. |
 | 13 | Budget | no milestone cap | no cap per milestone; the `CLAUDE.md` limits ($10/day, $1/h, 2 h per pod, ask before any action over $5) stay. The volume is kept. |
 
-Next step (when you are ready): Milestone 7 with your real projects in `projects/<name>/`, plus items 3, 5, 6, 7, 8
-and 9 above.
+Next step (when you are ready): Milestone 7 with your real project `projects/real01/` (your upload, moved there from
+`projects/projects/real01/`), plus items 3, 5, 6, 7, 8 and 9 above.
