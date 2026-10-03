@@ -32,5 +32,6 @@ runner could not write it). Costs are estimates from the on-demand price at star
 | 2026-10-03 05:03 | tvmdvo88m67atz | NVIDIA RTX PRO 4500 Blackwell | 47 | 0.56 | M6 pod C: realism A/B judging (M5 vs M6 look, look_alt, controls), 2 VLMs | exit 1, stopped by runner after collect (watchdog and job-end stop armed) |
 | 2026-10-03 05:26 | yaf146kugb9dzp | NVIDIA RTX PRO 4500 Blackwell | 20 | 0.24 | M6 pod C2: judge re-run (answers reused) for the summary with the null-control signal rule and the GPU tests | ok, stopped by runner after collect (watchdog and job-end stop armed) |
 | 2026-10-03 18:15 | 87xpy12z302wrz | NVIDIA RTX PRO 6000 Blackwell Server Edition | 45 | 1.57 | M7 prep pod: recognition answers, Objaverse library, detector calibration, timings | exit 1, stopped by runner after collect (watchdog and job-end stop armed) |
+| 2026-10-03 20:27 | pending:20261003-202712-prep | RTX PRO 6000 | 75 | 2.61 | M7 prep pod 2: recognition answers (new prompt), Objaverse library judging, detector calibration (new hit counting) | creating (provisional, worst case) |
 
-**Total spent so far: $10.31** (budget: $100; limits: $5.00/GPU-hour, $10/day, 2 h/run)
+**Total spent so far: $12.92** (budget: $100; limits: $5.00/GPU-hour, $10/day, 2 h/run)
