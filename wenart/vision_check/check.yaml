@@ -9,6 +9,7 @@ models:
     revision: 0c351dd01ed87e9c1b53cbc748cba10e6187ff3b
     licence: Apache-2.0
     slug: qwen3-vl-8b
+    max_seqs: 8                 # probed on the RTX PRO 6000 (M7 prep pod)
     server_flags: ''
     size_gb: 17.5
   glm:                        # pass 2
@@ -16,6 +17,7 @@ models:
     revision: 411bb4d77144a3f03accbf4b780f5acb8b7cde4e
     licence: MIT
     slug: glm-4.6v-flash
+    max_seqs: 8                 # probed on the RTX PRO 6000 (M7 prep pod)
     server_flags: '--reasoning-parser glm45'
     size_gb: 20.6
 
@@ -87,14 +89,23 @@ calls:
 # No thresholds yet: the detector is advisory (boxes recorded and listed, nothing rejected). Between the prep pod
 # and the full runs the integrator replaces this block with `check_yaml_block` of $RESULTS/detect/
 # detector_calibration.json (t_det, t_strong, calibration) when that file says `usable: true`.
-detector:
-  advisory: true
-  t_det: null
-  t_strong: null
+detector:                         # calibrated on the M7 prep pod (results/detect/detector_calibration.json)
+  advisory: false
+  t_det: 0.08
+  t_strong: 0.11
   match_iou: 0.3
   cover_frac: 0.5
   confirm_iou: 0.3
-  calibration: null
+  calibration:
+    file: detector_calibration.json
+    model_revision: cfd3195ba4ea9592eec887ded089f4c08eff231d
+    detect_version: m7.1
+    positives: 29
+    negatives: 260
+    insertion_confirmed: 0.7931
+    false_confirmed: 0.0269
+    insertion_flagged: 0.7931
+    false_flagged: 0.0808
 
 # Realism preference (§5.6): preferred when >= 3 of 4 answers pick the polished image.
 preference:

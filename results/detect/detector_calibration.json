@@ -1,0 +1,3296 @@
+{
+ "schema_version": "0.1",
+ "kind": "detector_calibration",
+ "model": {
+  "repo": "google/owlv2-base-patch16-ensemble",
+  "revision": "cfd3195ba4ea9592eec887ded089f4c08eff231d",
+  "licence": "Apache-2.0"
+ },
+ "settings": {
+  "detect_version": "m7.1",
+  "image_long_side": 960,
+  "min_score": 0.05,
+  "nms_iou": 0.5,
+  "max_per_group": 20
+ },
+ "queries": {
+  "bed_single": {
+   "texts": [
+    "single bed"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "bed_single",
+    "bed_double",
+    "unknown"
+   ]
+  },
+  "bed_double": {
+   "texts": [
+    "double bed"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "bed_double",
+    "bed_single",
+    "unknown"
+   ]
+  },
+  "sofa": {
+   "texts": [
+    "sofa"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "sofa",
+    "armchair",
+    "chair",
+    "unknown"
+   ]
+  },
+  "armchair": {
+   "texts": [
+    "armchair"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "armchair",
+    "sofa",
+    "chair",
+    "unknown"
+   ]
+  },
+  "table_dining": {
+   "texts": [
+    "dining table"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "table_dining",
+    "table_coffee",
+    "desk",
+    "side_table",
+    "nightstand",
+    "kitchen_island",
+    "unknown"
+   ]
+  },
+  "table_coffee": {
+   "texts": [
+    "coffee table"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "table_coffee",
+    "table_dining",
+    "desk",
+    "side_table",
+    "nightstand",
+    "kitchen_island",
+    "unknown"
+   ]
+  },
+  "desk": {
+   "texts": [
+    "desk"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "desk",
+    "table_dining",
+    "table_coffee",
+    "side_table",
+    "nightstand",
+    "kitchen_island",
+    "unknown"
+   ]
+  },
+  "chair": {
+   "texts": [
+    "chair"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "chair",
+    "sofa",
+    "armchair",
+    "unknown"
+   ]
+  },
+  "wardrobe": {
+   "texts": [
+    "wardrobe"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "wardrobe",
+    "dresser",
+    "bookshelf",
+    "tv_unit",
+    "nightstand",
+    "unknown"
+   ]
+  },
+  "kitchen_counter": {
+   "texts": [
+    "kitchen counter"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "kitchen_counter",
+    "kitchen_island",
+    "stove",
+    "sink_kitchen",
+    "fridge",
+    "washing_machine",
+    "unknown"
+   ]
+  },
+  "kitchen_island": {
+   "texts": [
+    "kitchen island"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "kitchen_island",
+    "table_dining",
+    "table_coffee",
+    "desk",
+    "side_table",
+    "nightstand",
+    "kitchen_counter",
+    "stove",
+    "sink_kitchen",
+    "fridge",
+    "washing_machine",
+    "unknown"
+   ]
+  },
+  "fridge": {
+   "texts": [
+    "refrigerator"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "fridge",
+    "kitchen_counter",
+    "kitchen_island",
+    "stove",
+    "sink_kitchen",
+    "washing_machine",
+    "unknown"
+   ]
+  },
+  "stove": {
+   "texts": [
+    "stove"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "stove",
+    "kitchen_counter",
+    "kitchen_island",
+    "sink_kitchen",
+    "fridge",
+    "washing_machine",
+    "unknown"
+   ]
+  },
+  "sink_kitchen": {
+   "texts": [
+    "kitchen sink"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "sink_kitchen",
+    "kitchen_counter",
+    "kitchen_island",
+    "stove",
+    "fridge",
+    "washing_machine",
+    "unknown"
+   ]
+  },
+  "washbasin": {
+   "texts": [
+    "washbasin"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "washbasin",
+    "toilet",
+    "shower",
+    "bathtub",
+    "washing_machine",
+    "unknown"
+   ]
+  },
+  "toilet": {
+   "texts": [
+    "toilet"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "toilet",
+    "washbasin",
+    "shower",
+    "bathtub",
+    "washing_machine",
+    "unknown"
+   ]
+  },
+  "shower": {
+   "texts": [
+    "shower"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "shower",
+    "washbasin",
+    "toilet",
+    "bathtub",
+    "washing_machine",
+    "unknown"
+   ]
+  },
+  "bathtub": {
+   "texts": [
+    "bathtub"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "bathtub",
+    "washbasin",
+    "toilet",
+    "shower",
+    "washing_machine",
+    "unknown"
+   ]
+  },
+  "tv_unit": {
+   "texts": [
+    "tv stand"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "tv_unit",
+    "wardrobe",
+    "dresser",
+    "bookshelf",
+    "nightstand",
+    "unknown"
+   ]
+  },
+  "bookshelf": {
+   "texts": [
+    "bookshelf"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "bookshelf",
+    "wardrobe",
+    "dresser",
+    "tv_unit",
+    "nightstand",
+    "unknown"
+   ]
+  },
+  "nightstand": {
+   "texts": [
+    "nightstand"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "nightstand",
+    "table_dining",
+    "table_coffee",
+    "desk",
+    "side_table",
+    "kitchen_island",
+    "wardrobe",
+    "dresser",
+    "bookshelf",
+    "tv_unit",
+    "unknown"
+   ]
+  },
+  "dresser": {
+   "texts": [
+    "chest of drawers"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "dresser",
+    "wardrobe",
+    "bookshelf",
+    "tv_unit",
+    "nightstand",
+    "unknown"
+   ]
+  },
+  "washing_machine": {
+   "texts": [
+    "washing machine"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "washing_machine",
+    "kitchen_counter",
+    "kitchen_island",
+    "stove",
+    "sink_kitchen",
+    "fridge",
+    "washbasin",
+    "toilet",
+    "shower",
+    "bathtub",
+    "unknown"
+   ]
+  },
+  "stair": {
+   "texts": [
+    "staircase"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "stair",
+    "unknown"
+   ]
+  },
+  "side_table": {
+   "texts": [
+    "side table"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "side_table",
+    "table_dining",
+    "table_coffee",
+    "desk",
+    "nightstand",
+    "kitchen_island",
+    "unknown"
+   ]
+  },
+  "floor_lamp": {
+   "texts": [
+    "floor lamp"
+   ],
+   "class": "furniture",
+   "compatible": [
+    "floor_lamp",
+    "unknown"
+   ]
+  },
+  "potted_plant": {
+   "texts": [
+    "potted plant"
+   ],
+   "class": "decor",
+   "compatible": [
+    "potted_plant",
+    "plant",
+    "unknown"
+   ]
+  },
+  "door": {
+   "texts": [
+    "door"
+   ],
+   "class": "door",
+   "compatible": [
+    "door"
+   ]
+  },
+  "window": {
+   "texts": [
+    "window"
+   ],
+   "class": "window",
+   "compatible": [
+    "window"
+   ]
+  },
+  "lamp": {
+   "texts": [
+    "lamp"
+   ],
+   "class": "lamp",
+   "compatible": [
+    "floor_lamp"
+   ]
+  },
+  "picture_frame": {
+   "texts": [
+    "picture frame"
+   ],
+   "class": "decor",
+   "compatible": []
+  },
+  "rug": {
+   "texts": [
+    "rug"
+   ],
+   "class": "decor",
+   "compatible": []
+  },
+  "vase": {
+   "texts": [
+    "vase"
+   ],
+   "class": "decor",
+   "compatible": []
+  },
+  "cushion": {
+   "texts": [
+    "cushion"
+   ],
+   "class": "decor",
+   "compatible": [
+    "cushion",
+    "sofa",
+    "armchair",
+    "bed_single",
+    "bed_double"
+   ]
+  },
+  "mirror": {
+   "texts": [
+    "mirror"
+   ],
+   "class": "decor",
+   "compatible": []
+  },
+  "television": {
+   "texts": [
+    "television"
+   ],
+   "class": "decor",
+   "compatible": [
+    "tv_unit"
+   ]
+  }
+ },
+ "pairs_by_source": {
+  "insertion_control": {
+   "pairs": 29
+  },
+  "accepted_polish": {
+   "pairs": 65
+  },
+  "perturbation": {
+   "pairs": 195
+  }
+ },
+ "targets": {
+  "insertion_confirmed_min": 0.6,
+  "false_confirmed_max": 0.03,
+  "false_flagged_max": 0.1
+ },
+ "grid": [
+  {
+   "t": 0.05,
+   "insertion": 0.8966,
+   "false": 0.5154
+  },
+  {
+   "t": 0.06,
+   "insertion": 0.7931,
+   "false": 0.2885
+  },
+  {
+   "t": 0.07,
+   "insertion": 0.7931,
+   "false": 0.1538
+  },
+  {
+   "t": 0.08,
+   "insertion": 0.7931,
+   "false": 0.0808
+  },
+  {
+   "t": 0.09,
+   "insertion": 0.7931,
+   "false": 0.0538
+  },
+  {
+   "t": 0.1,
+   "insertion": 0.7931,
+   "false": 0.0385
+  },
+  {
+   "t": 0.11,
+   "insertion": 0.7931,
+   "false": 0.0269
+  },
+  {
+   "t": 0.12,
+   "insertion": 0.7931,
+   "false": 0.0192
+  },
+  {
+   "t": 0.13,
+   "insertion": 0.7931,
+   "false": 0.0154
+  },
+  {
+   "t": 0.14,
+   "insertion": 0.7931,
+   "false": 0.0115
+  },
+  {
+   "t": 0.15,
+   "insertion": 0.7931,
+   "false": 0.0077
+  },
+  {
+   "t": 0.16,
+   "insertion": 0.7931,
+   "false": 0.0077
+  },
+  {
+   "t": 0.17,
+   "insertion": 0.7931,
+   "false": 0.0038
+  },
+  {
+   "t": 0.18,
+   "insertion": 0.7931,
+   "false": 0.0038
+  },
+  {
+   "t": 0.19,
+   "insertion": 0.7931,
+   "false": 0.0
+  },
+  {
+   "t": 0.2,
+   "insertion": 0.7931,
+   "false": 0.0
+  },
+  {
+   "t": 0.21,
+   "insertion": 0.7931,
+   "false": 0.0
+  },
+  {
+   "t": 0.22,
+   "insertion": 0.7931,
+   "false": 0.0
+  },
+  {
+   "t": 0.23,
+   "insertion": 0.7241,
+   "false": 0.0
+  },
+  {
+   "t": 0.24,
+   "insertion": 0.7241,
+   "false": 0.0
+  },
+  {
+   "t": 0.25,
+   "insertion": 0.7241,
+   "false": 0.0
+  },
+  {
+   "t": 0.26,
+   "insertion": 0.6207,
+   "false": 0.0
+  },
+  {
+   "t": 0.27,
+   "insertion": 0.6207,
+   "false": 0.0
+  },
+  {
+   "t": 0.28,
+   "insertion": 0.5517,
+   "false": 0.0
+  },
+  {
+   "t": 0.29,
+   "insertion": 0.5172,
+   "false": 0.0
+  },
+  {
+   "t": 0.3,
+   "insertion": 0.5172,
+   "false": 0.0
+  },
+  {
+   "t": 0.31,
+   "insertion": 0.5172,
+   "false": 0.0
+  },
+  {
+   "t": 0.32,
+   "insertion": 0.5172,
+   "false": 0.0
+  },
+  {
+   "t": 0.33,
+   "insertion": 0.4828,
+   "false": 0.0
+  },
+  {
+   "t": 0.34,
+   "insertion": 0.4483,
+   "false": 0.0
+  },
+  {
+   "t": 0.35,
+   "insertion": 0.4138,
+   "false": 0.0
+  },
+  {
+   "t": 0.36,
+   "insertion": 0.4138,
+   "false": 0.0
+  },
+  {
+   "t": 0.37,
+   "insertion": 0.4138,
+   "false": 0.0
+  },
+  {
+   "t": 0.38,
+   "insertion": 0.4138,
+   "false": 0.0
+  },
+  {
+   "t": 0.39,
+   "insertion": 0.3448,
+   "false": 0.0
+  },
+  {
+   "t": 0.4,
+   "insertion": 0.3448,
+   "false": 0.0
+  },
+  {
+   "t": 0.41,
+   "insertion": 0.3448,
+   "false": 0.0
+  },
+  {
+   "t": 0.42,
+   "insertion": 0.2759,
+   "false": 0.0
+  },
+  {
+   "t": 0.43,
+   "insertion": 0.2759,
+   "false": 0.0
+  },
+  {
+   "t": 0.44,
+   "insertion": 0.2759,
+   "false": 0.0
+  },
+  {
+   "t": 0.45,
+   "insertion": 0.2759,
+   "false": 0.0
+  },
+  {
+   "t": 0.46,
+   "insertion": 0.2759,
+   "false": 0.0
+  },
+  {
+   "t": 0.47,
+   "insertion": 0.2759,
+   "false": 0.0
+  },
+  {
+   "t": 0.48,
+   "insertion": 0.2759,
+   "false": 0.0
+  },
+  {
+   "t": 0.49,
+   "insertion": 0.2414,
+   "false": 0.0
+  },
+  {
+   "t": 0.5,
+   "insertion": 0.2414,
+   "false": 0.0
+  },
+  {
+   "t": 0.51,
+   "insertion": 0.2414,
+   "false": 0.0
+  },
+  {
+   "t": 0.52,
+   "insertion": 0.2414,
+   "false": 0.0
+  },
+  {
+   "t": 0.53,
+   "insertion": 0.2414,
+   "false": 0.0
+  },
+  {
+   "t": 0.54,
+   "insertion": 0.2069,
+   "false": 0.0
+  },
+  {
+   "t": 0.55,
+   "insertion": 0.2069,
+   "false": 0.0
+  },
+  {
+   "t": 0.56,
+   "insertion": 0.2069,
+   "false": 0.0
+  },
+  {
+   "t": 0.57,
+   "insertion": 0.2069,
+   "false": 0.0
+  },
+  {
+   "t": 0.58,
+   "insertion": 0.1724,
+   "false": 0.0
+  },
+  {
+   "t": 0.59,
+   "insertion": 0.1724,
+   "false": 0.0
+  },
+  {
+   "t": 0.6,
+   "insertion": 0.1724,
+   "false": 0.0
+  },
+  {
+   "t": 0.61,
+   "insertion": 0.1724,
+   "false": 0.0
+  },
+  {
+   "t": 0.62,
+   "insertion": 0.1724,
+   "false": 0.0
+  },
+  {
+   "t": 0.63,
+   "insertion": 0.1724,
+   "false": 0.0
+  },
+  {
+   "t": 0.64,
+   "insertion": 0.1379,
+   "false": 0.0
+  },
+  {
+   "t": 0.65,
+   "insertion": 0.1379,
+   "false": 0.0
+  },
+  {
+   "t": 0.66,
+   "insertion": 0.1379,
+   "false": 0.0
+  },
+  {
+   "t": 0.67,
+   "insertion": 0.1379,
+   "false": 0.0
+  },
+  {
+   "t": 0.68,
+   "insertion": 0.1379,
+   "false": 0.0
+  },
+  {
+   "t": 0.69,
+   "insertion": 0.1034,
+   "false": 0.0
+  },
+  {
+   "t": 0.7,
+   "insertion": 0.1034,
+   "false": 0.0
+  },
+  {
+   "t": 0.71,
+   "insertion": 0.1034,
+   "false": 0.0
+  },
+  {
+   "t": 0.72,
+   "insertion": 0.1034,
+   "false": 0.0
+  },
+  {
+   "t": 0.73,
+   "insertion": 0.1034,
+   "false": 0.0
+  },
+  {
+   "t": 0.74,
+   "insertion": 0.1034,
+   "false": 0.0
+  },
+  {
+   "t": 0.75,
+   "insertion": 0.1034,
+   "false": 0.0
+  },
+  {
+   "t": 0.76,
+   "insertion": 0.0345,
+   "false": 0.0
+  },
+  {
+   "t": 0.77,
+   "insertion": 0.0345,
+   "false": 0.0
+  },
+  {
+   "t": 0.78,
+   "insertion": 0.0345,
+   "false": 0.0
+  },
+  {
+   "t": 0.79,
+   "insertion": 0.0345,
+   "false": 0.0
+  },
+  {
+   "t": 0.8,
+   "insertion": 0.0345,
+   "false": 0.0
+  },
+  {
+   "t": 0.81,
+   "insertion": 0.0,
+   "false": 0.0
+  },
+  {
+   "t": 0.82,
+   "insertion": 0.0,
+   "false": 0.0
+  },
+  {
+   "t": 0.83,
+   "insertion": 0.0,
+   "false": 0.0
+  },
+  {
+   "t": 0.84,
+   "insertion": 0.0,
+   "false": 0.0
+  },
+  {
+   "t": 0.85,
+   "insertion": 0.0,
+   "false": 0.0
+  },
+  {
+   "t": 0.86,
+   "insertion": 0.0,
+   "false": 0.0
+  },
+  {
+   "t": 0.87,
+   "insertion": 0.0,
+   "false": 0.0
+  },
+  {
+   "t": 0.88,
+   "insertion": 0.0,
+   "false": 0.0
+  },
+  {
+   "t": 0.89,
+   "insertion": 0.0,
+   "false": 0.0
+  },
+  {
+   "t": 0.9,
+   "insertion": 0.0,
+   "false": 0.0
+  },
+  {
+   "t": 0.91,
+   "insertion": 0.0,
+   "false": 0.0
+  },
+  {
+   "t": 0.92,
+   "insertion": 0.0,
+   "false": 0.0
+  },
+  {
+   "t": 0.93,
+   "insertion": 0.0,
+   "false": 0.0
+  },
+  {
+   "t": 0.94,
+   "insertion": 0.0,
+   "false": 0.0
+  },
+  {
+   "t": 0.95,
+   "insertion": 0.0,
+   "false": 0.0
+  }
+ ],
+ "t_det": 0.08,
+ "t_strong": 0.11,
+ "rates": {
+  "insertion_confirmed": 0.7931,
+  "false_confirmed": 0.0269,
+  "insertion_flagged": 0.7931,
+  "false_flagged": 0.0808
+ },
+ "targets_met": true,
+ "usable": true,
+ "positives": 29,
+ "negatives": 260,
+ "per_pair": [
+  {
+   "id": "synthetic-01:insertion:f_L0_001",
+   "kind": "positive",
+   "source": "insertion_control",
+   "hit": 0.6821,
+   "hit_group": "sofa",
+   "candidates": 13
+  },
+  {
+   "id": "synthetic-01:insertion:f_L1_013",
+   "kind": "positive",
+   "source": "insertion_control",
+   "hit": 0.4111,
+   "hit_group": "toilet",
+   "candidates": 7
+  },
+  {
+   "id": "synthetic-01:insertion:f_L0_018",
+   "kind": "positive",
+   "source": "insertion_control",
+   "hit": 0.7536,
+   "hit_group": "fridge",
+   "candidates": 8
+  },
+  {
+   "id": "synthetic-01:insertion:win_L1_003",
+   "kind": "positive",
+   "source": "insertion_control",
+   "hit": 0.2874,
+   "hit_group": "picture_frame",
+   "candidates": 21
+  },
+  {
+   "id": "synthetic-01:insertion:win_L0_002",
+   "kind": "positive",
+   "source": "insertion_control",
+   "hit": 0.255,
+   "hit_group": "window",
+   "candidates": 5
+  },
+  {
+   "id": "synthetic-01:insertion:d_L0_002",
+   "kind": "positive",
+   "source": "insertion_control",
+   "hit": null,
+   "hit_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-01:insertion:d_L1_002",
+   "kind": "positive",
+   "source": "insertion_control",
+   "hit": 0.0566,
+   "hit_group": "wardrobe",
+   "candidates": 2
+  },
+  {
+   "id": "synthetic-01:polish:cam_r_L0_banyo_1",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.0719,
+   "false_group": "bed_single",
+   "candidates": 5
+  },
+  {
+   "id": "synthetic-01:jpeg70:cam_r_L0_banyo_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-01:noise2:cam_r_L0_banyo_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0519,
+   "false_group": "kitchen_island",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-01:blur0.6:cam_r_L0_banyo_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-01:polish:cam_r_L0_banyo_2",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.0586,
+   "false_group": "toilet",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-01:jpeg70:cam_r_L0_banyo_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-01:noise2:cam_r_L0_banyo_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-01:blur0.6:cam_r_L0_banyo_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0512,
+   "false_group": "bathtub",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-01:polish:cam_r_L0_hol_1",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.0724,
+   "false_group": "door",
+   "candidates": 5
+  },
+  {
+   "id": "synthetic-01:jpeg70:cam_r_L0_hol_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-01:noise2:cam_r_L0_hol_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-01:blur0.6:cam_r_L0_hol_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-01:polish:cam_r_L0_hol_2",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.0642,
+   "false_group": "stair",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-01:jpeg70:cam_r_L0_hol_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-01:noise2:cam_r_L0_hol_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-01:blur0.6:cam_r_L0_hol_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-01:polish:cam_r_L0_salon_1",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": null,
+   "false_group": null,
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-01:jpeg70:cam_r_L0_salon_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.057,
+   "false_group": "side_table",
+   "candidates": 6
+  },
+  {
+   "id": "synthetic-01:noise2:cam_r_L0_salon_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-01:blur0.6:cam_r_L0_salon_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0628,
+   "false_group": "side_table",
+   "candidates": 8
+  },
+  {
+   "id": "synthetic-01:polish:cam_r_L0_salon_2",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.0614,
+   "false_group": "table_coffee",
+   "candidates": 3
+  },
+  {
+   "id": "synthetic-01:jpeg70:cam_r_L0_salon_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0556,
+   "false_group": "wardrobe",
+   "candidates": 2
+  },
+  {
+   "id": "synthetic-01:noise2:cam_r_L0_salon_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-01:blur0.6:cam_r_L0_salon_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0543,
+   "false_group": "wardrobe",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-01:polish:cam_r_L0_salon_3",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.0509,
+   "false_group": "fridge",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-01:jpeg70:cam_r_L0_salon_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0527,
+   "false_group": "side_table",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-01:noise2:cam_r_L0_salon_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-01:blur0.6:cam_r_L0_salon_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0781,
+   "false_group": "side_table",
+   "candidates": 4
+  },
+  {
+   "id": "synthetic-01:polish:cam_r_L1_banyo_2",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": null,
+   "false_group": null,
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-01:jpeg70:cam_r_L1_banyo_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-01:noise2:cam_r_L1_banyo_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0514,
+   "false_group": "shower",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-01:blur0.6:cam_r_L1_banyo_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0533,
+   "false_group": "toilet",
+   "candidates": 3
+  },
+  {
+   "id": "synthetic-01:polish:cam_r_L1_banyo_3",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.0631,
+   "false_group": "wardrobe",
+   "candidates": 2
+  },
+  {
+   "id": "synthetic-01:jpeg70:cam_r_L1_banyo_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-01:noise2:cam_r_L1_banyo_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-01:blur0.6:cam_r_L1_banyo_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-01:polish:cam_r_L1_ebeveyn_yatak_odasi_1",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.0689,
+   "false_group": "dresser",
+   "candidates": 4
+  },
+  {
+   "id": "synthetic-01:jpeg70:cam_r_L1_ebeveyn_yatak_odasi_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0676,
+   "false_group": "dresser",
+   "candidates": 3
+  },
+  {
+   "id": "synthetic-01:noise2:cam_r_L1_ebeveyn_yatak_odasi_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0522,
+   "false_group": "sofa",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-01:blur0.6:cam_r_L1_ebeveyn_yatak_odasi_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0686,
+   "false_group": "sofa",
+   "candidates": 6
+  },
+  {
+   "id": "synthetic-01:polish:cam_r_L1_ebeveyn_yatak_odasi_2",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-01:jpeg70:cam_r_L1_ebeveyn_yatak_odasi_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0588,
+   "false_group": "door",
+   "candidates": 3
+  },
+  {
+   "id": "synthetic-01:noise2:cam_r_L1_ebeveyn_yatak_odasi_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0647,
+   "false_group": "bathtub",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-01:blur0.6:cam_r_L1_ebeveyn_yatak_odasi_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0618,
+   "false_group": "sofa",
+   "candidates": 7
+  },
+  {
+   "id": "synthetic-01:polish:cam_r_L1_ebeveyn_yatak_odasi_3",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.0652,
+   "false_group": "floor_lamp",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-01:jpeg70:cam_r_L1_ebeveyn_yatak_odasi_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-01:noise2:cam_r_L1_ebeveyn_yatak_odasi_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-01:blur0.6:cam_r_L1_ebeveyn_yatak_odasi_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0732,
+   "false_group": "dresser",
+   "candidates": 4
+  },
+  {
+   "id": "synthetic-01:polish:cam_r_L1_hol_1",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-01:jpeg70:cam_r_L1_hol_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-01:noise2:cam_r_L1_hol_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-01:blur0.6:cam_r_L1_hol_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-01:polish:cam_r_L1_hol_2",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.147,
+   "false_group": "bathtub",
+   "candidates": 6
+  },
+  {
+   "id": "synthetic-01:jpeg70:cam_r_L1_hol_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0632,
+   "false_group": "bathtub",
+   "candidates": 3
+  },
+  {
+   "id": "synthetic-01:noise2:cam_r_L1_hol_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-01:blur0.6:cam_r_L1_hol_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0521,
+   "false_group": "bathtub",
+   "candidates": 4
+  },
+  {
+   "id": "synthetic-01:polish:cam_r_L1_hol_3",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.0506,
+   "false_group": "door",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-01:jpeg70:cam_r_L1_hol_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0532,
+   "false_group": "door",
+   "candidates": 2
+  },
+  {
+   "id": "synthetic-01:noise2:cam_r_L1_hol_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-01:blur0.6:cam_r_L1_hol_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-01:polish:cam_r_L1_yatak_odasi_1",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-01:jpeg70:cam_r_L1_yatak_odasi_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0549,
+   "false_group": "nightstand",
+   "candidates": 2
+  },
+  {
+   "id": "synthetic-01:noise2:cam_r_L1_yatak_odasi_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-01:blur0.6:cam_r_L1_yatak_odasi_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0714,
+   "false_group": "side_table",
+   "candidates": 8
+  },
+  {
+   "id": "synthetic-01:polish:cam_r_L1_yatak_odasi_2",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.0633,
+   "false_group": "nightstand",
+   "candidates": 3
+  },
+  {
+   "id": "synthetic-01:jpeg70:cam_r_L1_yatak_odasi_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0669,
+   "false_group": "nightstand",
+   "candidates": 2
+  },
+  {
+   "id": "synthetic-01:noise2:cam_r_L1_yatak_odasi_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-01:blur0.6:cam_r_L1_yatak_odasi_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0712,
+   "false_group": "nightstand",
+   "candidates": 4
+  },
+  {
+   "id": "synthetic-01:polish:cam_r_L1_yatak_odasi_3",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.0875,
+   "false_group": "dresser",
+   "candidates": 6
+  },
+  {
+   "id": "synthetic-01:jpeg70:cam_r_L1_yatak_odasi_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0502,
+   "false_group": "tv_unit",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-01:noise2:cam_r_L1_yatak_odasi_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-01:blur0.6:cam_r_L1_yatak_odasi_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0562,
+   "false_group": "tv_unit",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-03:insertion:f_L1_014",
+   "kind": "positive",
+   "source": "insertion_control",
+   "hit": 0.6341,
+   "hit_group": "bed_single",
+   "candidates": 23
+  },
+  {
+   "id": "synthetic-03:insertion:f_L1_001",
+   "kind": "positive",
+   "source": "insertion_control",
+   "hit": 0.3879,
+   "hit_group": "bed_single",
+   "candidates": 23
+  },
+  {
+   "id": "synthetic-03:insertion:f_L0_014",
+   "kind": "positive",
+   "source": "insertion_control",
+   "hit": 0.4891,
+   "hit_group": "bed_single",
+   "candidates": 27
+  },
+  {
+   "id": "synthetic-03:insertion:win_L1_003",
+   "kind": "positive",
+   "source": "insertion_control",
+   "hit": 0.2262,
+   "hit_group": "picture_frame",
+   "candidates": 11
+  },
+  {
+   "id": "synthetic-03:insertion:win_L1_004",
+   "kind": "positive",
+   "source": "insertion_control",
+   "hit": 0.2575,
+   "hit_group": "mirror",
+   "candidates": 5
+  },
+  {
+   "id": "synthetic-03:insertion:win_L-1_001",
+   "kind": "positive",
+   "source": "insertion_control",
+   "hit": 0.3361,
+   "hit_group": "mirror",
+   "candidates": 6
+  },
+  {
+   "id": "synthetic-03:insertion:d_L-1_002",
+   "kind": "positive",
+   "source": "insertion_control",
+   "hit": null,
+   "hit_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:insertion:d_L0_004",
+   "kind": "positive",
+   "source": "insertion_control",
+   "hit": 0.0509,
+   "hit_group": "mirror",
+   "candidates": 2
+  },
+  {
+   "id": "synthetic-03:polish:cam_r_L-1_banyo_1",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.0532,
+   "false_group": "armchair",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-03:jpeg70:cam_r_L-1_banyo_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0506,
+   "false_group": "armchair",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-03:noise2:cam_r_L-1_banyo_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0533,
+   "false_group": "armchair",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-03:blur0.6:cam_r_L-1_banyo_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:polish:cam_r_L-1_banyo_2",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.0606,
+   "false_group": "door",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-03:jpeg70:cam_r_L-1_banyo_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:noise2:cam_r_L-1_banyo_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:blur0.6:cam_r_L-1_banyo_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:polish:cam_r_L-1_kiler_1",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:jpeg70:cam_r_L-1_kiler_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:noise2:cam_r_L-1_kiler_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:blur0.6:cam_r_L-1_kiler_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:polish:cam_r_L-1_kiler_2",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": null,
+   "false_group": null,
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-03:jpeg70:cam_r_L-1_kiler_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:noise2:cam_r_L-1_kiler_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:blur0.6:cam_r_L-1_kiler_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:polish:cam_r_L-1_kiler_2_1",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:jpeg70:cam_r_L-1_kiler_2_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:noise2:cam_r_L-1_kiler_2_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:blur0.6:cam_r_L-1_kiler_2_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:polish:cam_r_L-1_kiler_2_2",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:jpeg70:cam_r_L-1_kiler_2_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:noise2:cam_r_L-1_kiler_2_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:blur0.6:cam_r_L-1_kiler_2_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:polish:cam_r_L-1_kiler_2_3",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.0528,
+   "false_group": "shower",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-03:jpeg70:cam_r_L-1_kiler_2_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:noise2:cam_r_L-1_kiler_2_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:blur0.6:cam_r_L-1_kiler_2_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:polish:cam_r_L-1_kiler_3",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:jpeg70:cam_r_L-1_kiler_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:noise2:cam_r_L-1_kiler_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:blur0.6:cam_r_L-1_kiler_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0536,
+   "false_group": "bathtub",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-03:polish:cam_r_L-1_wc_2",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.0532,
+   "false_group": "window",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-03:jpeg70:cam_r_L-1_wc_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0566,
+   "false_group": "window",
+   "candidates": 2
+  },
+  {
+   "id": "synthetic-03:noise2:cam_r_L-1_wc_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:blur0.6:cam_r_L-1_wc_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:polish:cam_r_L-1_yatak_odasi_1",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.0619,
+   "false_group": "nightstand",
+   "candidates": 2
+  },
+  {
+   "id": "synthetic-03:jpeg70:cam_r_L-1_yatak_odasi_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0514,
+   "false_group": "bed_single",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-03:noise2:cam_r_L-1_yatak_odasi_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:blur0.6:cam_r_L-1_yatak_odasi_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0625,
+   "false_group": "nightstand",
+   "candidates": 2
+  },
+  {
+   "id": "synthetic-03:polish:cam_r_L-1_yatak_odasi_2",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.0599,
+   "false_group": "nightstand",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-03:jpeg70:cam_r_L-1_yatak_odasi_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:noise2:cam_r_L-1_yatak_odasi_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:blur0.6:cam_r_L-1_yatak_odasi_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0661,
+   "false_group": "nightstand",
+   "candidates": 6
+  },
+  {
+   "id": "synthetic-03:polish:cam_r_L-1_yatak_odasi_3",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.1095,
+   "false_group": "nightstand",
+   "candidates": 3
+  },
+  {
+   "id": "synthetic-03:jpeg70:cam_r_L-1_yatak_odasi_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-03:noise2:cam_r_L-1_yatak_odasi_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:blur0.6:cam_r_L-1_yatak_odasi_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0543,
+   "false_group": "table_coffee",
+   "candidates": 3
+  },
+  {
+   "id": "synthetic-03:polish:cam_r_L0_antre_2",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.0634,
+   "false_group": "stair",
+   "candidates": 4
+  },
+  {
+   "id": "synthetic-03:jpeg70:cam_r_L0_antre_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-03:noise2:cam_r_L0_antre_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0502,
+   "false_group": "washing_machine",
+   "candidates": 2
+  },
+  {
+   "id": "synthetic-03:blur0.6:cam_r_L0_antre_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:polish:cam_r_L0_kiler_1",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:jpeg70:cam_r_L0_kiler_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:noise2:cam_r_L0_kiler_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:blur0.6:cam_r_L0_kiler_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:polish:cam_r_L0_mutfak_1",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.0794,
+   "false_group": "bed_single",
+   "candidates": 11
+  },
+  {
+   "id": "synthetic-03:jpeg70:cam_r_L0_mutfak_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0552,
+   "false_group": "sink_kitchen",
+   "candidates": 3
+  },
+  {
+   "id": "synthetic-03:noise2:cam_r_L0_mutfak_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0765,
+   "false_group": "lamp",
+   "candidates": 10
+  },
+  {
+   "id": "synthetic-03:blur0.6:cam_r_L0_mutfak_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0773,
+   "false_group": "lamp",
+   "candidates": 2
+  },
+  {
+   "id": "synthetic-03:polish:cam_r_L0_mutfak_2",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:jpeg70:cam_r_L0_mutfak_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0592,
+   "false_group": "washbasin",
+   "candidates": 2
+  },
+  {
+   "id": "synthetic-03:noise2:cam_r_L0_mutfak_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0539,
+   "false_group": "washbasin",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-03:blur0.6:cam_r_L0_mutfak_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0559,
+   "false_group": "washbasin",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-03:polish:cam_r_L0_mutfak_3",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.0521,
+   "false_group": "tv_unit",
+   "candidates": 3
+  },
+  {
+   "id": "synthetic-03:jpeg70:cam_r_L0_mutfak_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0515,
+   "false_group": "sink_kitchen",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-03:noise2:cam_r_L0_mutfak_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0533,
+   "false_group": "sink_kitchen",
+   "candidates": 2
+  },
+  {
+   "id": "synthetic-03:blur0.6:cam_r_L0_mutfak_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0608,
+   "false_group": "bathtub",
+   "candidates": 2
+  },
+  {
+   "id": "synthetic-03:polish:cam_r_L0_salon_1",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.071,
+   "false_group": "nightstand",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-03:jpeg70:cam_r_L0_salon_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.074,
+   "false_group": "desk",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-03:noise2:cam_r_L0_salon_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-03:blur0.6:cam_r_L0_salon_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:polish:cam_r_L0_salon_2",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:jpeg70:cam_r_L0_salon_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0754,
+   "false_group": "table_coffee",
+   "candidates": 3
+  },
+  {
+   "id": "synthetic-03:noise2:cam_r_L0_salon_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:blur0.6:cam_r_L0_salon_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0523,
+   "false_group": "table_coffee",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-03:polish:cam_r_L0_salon_3",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": null,
+   "false_group": null,
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-03:jpeg70:cam_r_L0_salon_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:noise2:cam_r_L0_salon_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0502,
+   "false_group": "window",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-03:blur0.6:cam_r_L0_salon_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:polish:cam_r_L0_wc_1",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.0658,
+   "false_group": "toilet",
+   "candidates": 5
+  },
+  {
+   "id": "synthetic-03:jpeg70:cam_r_L0_wc_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0512,
+   "false_group": "toilet",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-03:noise2:cam_r_L0_wc_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:blur0.6:cam_r_L0_wc_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:polish:cam_r_L0_yatak_odasi_1",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:jpeg70:cam_r_L0_yatak_odasi_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0501,
+   "false_group": "bathtub",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-03:noise2:cam_r_L0_yatak_odasi_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-03:blur0.6:cam_r_L0_yatak_odasi_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:polish:cam_r_L0_yatak_odasi_2",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": null,
+   "false_group": null,
+   "candidates": 2
+  },
+  {
+   "id": "synthetic-03:jpeg70:cam_r_L0_yatak_odasi_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0628,
+   "false_group": "bed_double",
+   "candidates": 3
+  },
+  {
+   "id": "synthetic-03:noise2:cam_r_L0_yatak_odasi_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 2
+  },
+  {
+   "id": "synthetic-03:blur0.6:cam_r_L0_yatak_odasi_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0716,
+   "false_group": "bed_double",
+   "candidates": 3
+  },
+  {
+   "id": "synthetic-03:polish:cam_r_L0_yatak_odasi_3",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:jpeg70:cam_r_L0_yatak_odasi_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:noise2:cam_r_L0_yatak_odasi_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:blur0.6:cam_r_L0_yatak_odasi_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:polish:cam_r_L1_balkon_1",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.1163,
+   "false_group": "bed_single",
+   "candidates": 4
+  },
+  {
+   "id": "synthetic-03:jpeg70:cam_r_L1_balkon_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:noise2:cam_r_L1_balkon_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0556,
+   "false_group": "kitchen_counter",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-03:blur0.6:cam_r_L1_balkon_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:polish:cam_r_L1_balkon_2",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.1809,
+   "false_group": "bed_single",
+   "candidates": 7
+  },
+  {
+   "id": "synthetic-03:jpeg70:cam_r_L1_balkon_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:noise2:cam_r_L1_balkon_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-03:blur0.6:cam_r_L1_balkon_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0544,
+   "false_group": "bed_single",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-03:polish:cam_r_L1_balkon_3",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.126,
+   "false_group": "bed_single",
+   "candidates": 9
+  },
+  {
+   "id": "synthetic-03:jpeg70:cam_r_L1_balkon_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:noise2:cam_r_L1_balkon_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0526,
+   "false_group": "door",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-03:blur0.6:cam_r_L1_balkon_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:polish:cam_r_L1_banyo_1",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.0697,
+   "false_group": "shower",
+   "candidates": 7
+  },
+  {
+   "id": "synthetic-03:jpeg70:cam_r_L1_banyo_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:noise2:cam_r_L1_banyo_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0509,
+   "false_group": "door",
+   "candidates": 2
+  },
+  {
+   "id": "synthetic-03:blur0.6:cam_r_L1_banyo_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0568,
+   "false_group": "lamp",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-03:polish:cam_r_L1_banyo_2",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.0631,
+   "false_group": "sink_kitchen",
+   "candidates": 2
+  },
+  {
+   "id": "synthetic-03:jpeg70:cam_r_L1_banyo_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.066,
+   "false_group": "door",
+   "candidates": 2
+  },
+  {
+   "id": "synthetic-03:noise2:cam_r_L1_banyo_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:blur0.6:cam_r_L1_banyo_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0509,
+   "false_group": "door",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-03:polish:cam_r_L1_banyo_3",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.0929,
+   "false_group": "fridge",
+   "candidates": 6
+  },
+  {
+   "id": "synthetic-03:jpeg70:cam_r_L1_banyo_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0573,
+   "false_group": "door",
+   "candidates": 4
+  },
+  {
+   "id": "synthetic-03:noise2:cam_r_L1_banyo_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.1355,
+   "false_group": "floor_lamp",
+   "candidates": 3
+  },
+  {
+   "id": "synthetic-03:blur0.6:cam_r_L1_banyo_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:polish:cam_r_L1_cocuk_odasi_1",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": null,
+   "false_group": null,
+   "candidates": 2
+  },
+  {
+   "id": "synthetic-03:jpeg70:cam_r_L1_cocuk_odasi_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0635,
+   "false_group": "bookshelf",
+   "candidates": 2
+  },
+  {
+   "id": "synthetic-03:noise2:cam_r_L1_cocuk_odasi_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0533,
+   "false_group": "dresser",
+   "candidates": 2
+  },
+  {
+   "id": "synthetic-03:blur0.6:cam_r_L1_cocuk_odasi_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0706,
+   "false_group": "bed_single",
+   "candidates": 7
+  },
+  {
+   "id": "synthetic-03:polish:cam_r_L1_cocuk_odasi_2",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.0541,
+   "false_group": "tv_unit",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-03:jpeg70:cam_r_L1_cocuk_odasi_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:noise2:cam_r_L1_cocuk_odasi_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0562,
+   "false_group": "tv_unit",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-03:blur0.6:cam_r_L1_cocuk_odasi_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0586,
+   "false_group": "washing_machine",
+   "candidates": 2
+  },
+  {
+   "id": "synthetic-03:polish:cam_r_L1_cocuk_odasi_3",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.0641,
+   "false_group": "stair",
+   "candidates": 3
+  },
+  {
+   "id": "synthetic-03:jpeg70:cam_r_L1_cocuk_odasi_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0915,
+   "false_group": "chair",
+   "candidates": 3
+  },
+  {
+   "id": "synthetic-03:noise2:cam_r_L1_cocuk_odasi_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:blur0.6:cam_r_L1_cocuk_odasi_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.1018,
+   "false_group": "chair",
+   "candidates": 5
+  },
+  {
+   "id": "synthetic-03:polish:cam_r_L1_ebeveyn_yatak_odasi_1",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": null,
+   "false_group": null,
+   "candidates": 2
+  },
+  {
+   "id": "synthetic-03:jpeg70:cam_r_L1_ebeveyn_yatak_odasi_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0669,
+   "false_group": "nightstand",
+   "candidates": 6
+  },
+  {
+   "id": "synthetic-03:noise2:cam_r_L1_ebeveyn_yatak_odasi_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:blur0.6:cam_r_L1_ebeveyn_yatak_odasi_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0954,
+   "false_group": "armchair",
+   "candidates": 6
+  },
+  {
+   "id": "synthetic-03:polish:cam_r_L1_ebeveyn_yatak_odasi_2",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.0821,
+   "false_group": "floor_lamp",
+   "candidates": 4
+  },
+  {
+   "id": "synthetic-03:jpeg70:cam_r_L1_ebeveyn_yatak_odasi_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0672,
+   "false_group": "side_table",
+   "candidates": 9
+  },
+  {
+   "id": "synthetic-03:noise2:cam_r_L1_ebeveyn_yatak_odasi_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0513,
+   "false_group": "nightstand",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-03:blur0.6:cam_r_L1_ebeveyn_yatak_odasi_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0817,
+   "false_group": "side_table",
+   "candidates": 13
+  },
+  {
+   "id": "synthetic-03:polish:cam_r_L1_ebeveyn_yatak_odasi_3",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.05,
+   "false_group": "door",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-03:jpeg70:cam_r_L1_ebeveyn_yatak_odasi_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0666,
+   "false_group": "stair",
+   "candidates": 4
+  },
+  {
+   "id": "synthetic-03:noise2:cam_r_L1_ebeveyn_yatak_odasi_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-03:blur0.6:cam_r_L1_ebeveyn_yatak_odasi_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0819,
+   "false_group": "chair",
+   "candidates": 5
+  },
+  {
+   "id": "synthetic-04:insertion:f_L3_018",
+   "kind": "positive",
+   "source": "insertion_control",
+   "hit": 0.277,
+   "hit_group": "wardrobe",
+   "candidates": 25
+  },
+  {
+   "id": "synthetic-04:insertion:f_L3_010",
+   "kind": "positive",
+   "source": "insertion_control",
+   "hit": 0.4125,
+   "hit_group": "sofa",
+   "candidates": 24
+  },
+  {
+   "id": "synthetic-04:insertion:f_L3_026",
+   "kind": "positive",
+   "source": "insertion_control",
+   "hit": 0.5724,
+   "hit_group": "desk",
+   "candidates": 8
+  },
+  {
+   "id": "synthetic-04:insertion:win_L3_008",
+   "kind": "positive",
+   "source": "insertion_control",
+   "hit": 0.3449,
+   "hit_group": "mirror",
+   "candidates": 4
+  },
+  {
+   "id": "synthetic-04:insertion:win_L3_010",
+   "kind": "positive",
+   "source": "insertion_control",
+   "hit": 0.2536,
+   "hit_group": "window",
+   "candidates": 5
+  },
+  {
+   "id": "synthetic-04:insertion:win_L3_001",
+   "kind": "positive",
+   "source": "insertion_control",
+   "hit": 0.2238,
+   "hit_group": "picture_frame",
+   "candidates": 5
+  },
+  {
+   "id": "synthetic-04:insertion:d_L3_002",
+   "kind": "positive",
+   "source": "insertion_control",
+   "hit": 0.5301,
+   "hit_group": "door",
+   "candidates": 5
+  },
+  {
+   "id": "synthetic-04:polish:cam_r_L3_banyo_1",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-04:jpeg70:cam_r_L3_banyo_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-04:noise2:cam_r_L3_banyo_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-04:blur0.6:cam_r_L3_banyo_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-04:polish:cam_r_L3_banyo_2",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.0748,
+   "false_group": "kitchen_counter",
+   "candidates": 3
+  },
+  {
+   "id": "synthetic-04:jpeg70:cam_r_L3_banyo_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0627,
+   "false_group": "kitchen_counter",
+   "candidates": 3
+  },
+  {
+   "id": "synthetic-04:noise2:cam_r_L3_banyo_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-04:blur0.6:cam_r_L3_banyo_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-04:polish:cam_r_L3_cocuk_odasi_1",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.0611,
+   "false_group": "tv_unit",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-04:jpeg70:cam_r_L3_cocuk_odasi_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0608,
+   "false_group": "chair",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-04:noise2:cam_r_L3_cocuk_odasi_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-04:blur0.6:cam_r_L3_cocuk_odasi_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0704,
+   "false_group": "sofa",
+   "candidates": 5
+  },
+  {
+   "id": "synthetic-04:polish:cam_r_L3_cocuk_odasi_2",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-04:jpeg70:cam_r_L3_cocuk_odasi_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-04:noise2:cam_r_L3_cocuk_odasi_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-04:blur0.6:cam_r_L3_cocuk_odasi_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-04:polish:cam_r_L3_cocuk_odasi_3",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.063,
+   "false_group": "dresser",
+   "candidates": 2
+  },
+  {
+   "id": "synthetic-04:jpeg70:cam_r_L3_cocuk_odasi_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0704,
+   "false_group": "bookshelf",
+   "candidates": 5
+  },
+  {
+   "id": "synthetic-04:noise2:cam_r_L3_cocuk_odasi_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-04:blur0.6:cam_r_L3_cocuk_odasi_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0633,
+   "false_group": "bookshelf",
+   "candidates": 4
+  },
+  {
+   "id": "synthetic-04:polish:cam_r_L3_hol_1",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.0773,
+   "false_group": "door",
+   "candidates": 2
+  },
+  {
+   "id": "synthetic-04:jpeg70:cam_r_L3_hol_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0578,
+   "false_group": "door",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-04:noise2:cam_r_L3_hol_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-04:blur0.6:cam_r_L3_hol_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0543,
+   "false_group": "door",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-04:polish:cam_r_L3_hol_2",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.1094,
+   "false_group": "bathtub",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-04:jpeg70:cam_r_L3_hol_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.086,
+   "false_group": "bathtub",
+   "candidates": 2
+  },
+  {
+   "id": "synthetic-04:noise2:cam_r_L3_hol_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-04:blur0.6:cam_r_L3_hol_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0859,
+   "false_group": "bathtub",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-04:polish:cam_r_L3_hol_3",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.0545,
+   "false_group": "window",
+   "candidates": 3
+  },
+  {
+   "id": "synthetic-04:jpeg70:cam_r_L3_hol_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-04:noise2:cam_r_L3_hol_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-04:blur0.6:cam_r_L3_hol_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.054,
+   "false_group": "desk",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-04:polish:cam_r_L3_salon_mutfak_1",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-04:jpeg70:cam_r_L3_salon_mutfak_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0585,
+   "false_group": "bed_single",
+   "candidates": 3
+  },
+  {
+   "id": "synthetic-04:noise2:cam_r_L3_salon_mutfak_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-04:blur0.6:cam_r_L3_salon_mutfak_1",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.1112,
+   "false_group": "desk",
+   "candidates": 9
+  },
+  {
+   "id": "synthetic-04:polish:cam_r_L3_salon_mutfak_2",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": 0.1601,
+   "false_group": "fridge",
+   "candidates": 3
+  },
+  {
+   "id": "synthetic-04:jpeg70:cam_r_L3_salon_mutfak_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0633,
+   "false_group": "side_table",
+   "candidates": 4
+  },
+  {
+   "id": "synthetic-04:noise2:cam_r_L3_salon_mutfak_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-04:blur0.6:cam_r_L3_salon_mutfak_2",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0894,
+   "false_group": "table_dining",
+   "candidates": 19
+  },
+  {
+   "id": "synthetic-04:polish:cam_r_L3_salon_mutfak_3",
+   "kind": "negative",
+   "source": "accepted_polish",
+   "false": null,
+   "false_group": null,
+   "candidates": 0
+  },
+  {
+   "id": "synthetic-04:jpeg70:cam_r_L3_salon_mutfak_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0705,
+   "false_group": "lamp",
+   "candidates": 2
+  },
+  {
+   "id": "synthetic-04:noise2:cam_r_L3_salon_mutfak_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0531,
+   "false_group": "lamp",
+   "candidates": 1
+  },
+  {
+   "id": "synthetic-04:blur0.6:cam_r_L3_salon_mutfak_3",
+   "kind": "negative",
+   "source": "perturbation",
+   "false": 0.0911,
+   "false_group": "lamp",
+   "candidates": 6
+  },
+  {
+   "id": "synthetic-05:insertion:f_L0_010",
+   "kind": "positive",
+   "source": "insertion_control",
+   "hit": 0.2735,
+   "hit_group": "wardrobe",
+   "candidates": 20
+  },
+  {
+   "id": "synthetic-05:insertion:f_L0_019",
+   "kind": "positive",
+   "source": "insertion_control",
+   "hit": 0.8093,
+   "hit_group": "fridge",
+   "candidates": 13
+  },
+  {
+   "id": "synthetic-05:insertion:f_L0_001",
+   "kind": "positive",
+   "source": "insertion_control",
+   "hit": 0.7509,
+   "hit_group": "sofa",
+   "candidates": 13
+  },
+  {
+   "id": "synthetic-05:insertion:win_L0_006",
+   "kind": "positive",
+   "source": "insertion_control",
+   "hit": 0.3876,
+   "hit_group": "window",
+   "candidates": 8
+  },
+  {
+   "id": "synthetic-05:insertion:win_L0_010",
+   "kind": "positive",
+   "source": "insertion_control",
+   "hit": 0.3292,
+   "hit_group": "mirror",
+   "candidates": 4
+  },
+  {
+   "id": "synthetic-05:insertion:d_L0_005",
+   "kind": "positive",
+   "source": "insertion_control",
+   "hit": null,
+   "hit_group": null,
+   "candidates": 4
+  },
+  {
+   "id": "synthetic-05:insertion:d_L0_009",
+   "kind": "positive",
+   "source": "insertion_control",
+   "hit": 0.0529,
+   "hit_group": "window",
+   "candidates": 4
+  }
+ ],
+ "detected_images": 365,
+ "reused_images": 213,
+ "seconds": 103.0,
+ "warnings": [],
+ "check_yaml_block": {
+  "advisory": false,
+  "t_det": 0.08,
+  "t_strong": 0.11,
+  "match_iou": 0.3,
+  "cover_frac": 0.5,
+  "confirm_iou": 0.3,
+  "calibration": {
+   "file": "detector_calibration.json",
+   "model_revision": "cfd3195ba4ea9592eec887ded089f4c08eff231d",
+   "detect_version": "m7.1",
+   "positives": 29,
+   "negatives": 260,
+   "insertion_confirmed": 0.7931,
+   "false_confirmed": 0.0269,
+   "insertion_flagged": 0.7931,
+   "false_flagged": 0.0808
+  }
+ }
+}

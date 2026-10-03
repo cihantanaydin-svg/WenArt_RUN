@@ -64,7 +64,8 @@ STARTS = {2: (1, 1), 3: (2, 1), 4: (2, 2)}
 # Relative speed per GPU (time = time on the RTX PRO 4500 / speed). The RTX PRO 6000 is measured by the prep pod
 # ($RESULTS/timing/gpu_speed.json, docs/milestone7.md §9.2) and committed here by the integrator; until then it
 # counts as 1.0 and the plan says so.
-GPU_SPEED = {"RTX PRO 4500": 1.0, "RTX 4090": 1.1}
+GPU_SPEED = {"RTX PRO 4500": 1.0, "RTX 4090": 1.1,
+             "RTX PRO 6000": 1.634}   # M7 prep pod 87xpy12z302wrz (3 Oct 2026): min of render and polish speed
 DEFAULT_SPEED = 1.0
 # VRAM per GPU (GB, RunPod catalog; scripts/gpu_run.py gpus): only the vLLM size tier (servers.server_seqs) uses it.
 GPU_MEMORY_GB = {"RTX PRO 6000": 96, "RTX PRO 6000 WK": 96, "RTX PRO 4500": 32, "RTX 4090": 24}
