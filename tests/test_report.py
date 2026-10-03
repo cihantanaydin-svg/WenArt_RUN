@@ -601,6 +601,23 @@ def test_missing_brief_is_assumed(tmp_path):
     assert "(default, not in brief.yaml)" in (out / "final" / "final_report.md").read_text(encoding="utf-8")
 
 
+def test_default_style_and_nested_brief_defaults_are_listed_as_assumed(tmp_path):
+    """M7 §0/§13: a project without a brief (real01) gets the default style, and the report must say so; nested
+    brief defaults are shown with their value (``render.samples: 256``), not ``None``."""
+    out = make_project(tmp_path, brief=None)
+    write_json(out / "style.json", {"source_text": "Scandinavian, light oak floor, white walls",
+                                    "warnings": ["assumed: no style in the brief, default style text from "
+                                                 "wenart/defaults.yaml", "unmatched: linen textiles"]})
+    manifest = F.write_final(out)
+    assumed = manifest["assumed"]
+    assert assumed["style"] == ['style: default text "Scandinavian, light oak floor, white walls" (no style in '
+                                'brief.yaml; wenart/defaults.yaml)']
+    assert {"key": "render.samples", "value": 256} in assumed["brief"]
+    assert all(a["value"] is not None for a in assumed["brief"])
+    text = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    assert 'style: default text "Scandinavian' in text and "render.samples: 256" in text
+
+
 def test_results_copy_without_pngs_uses_previews(tmp_path):
     """A results/ copy has no PNGs: previews come from the committed JPEGs and the decision says why."""
     out = make_project(tmp_path, pngs=False)

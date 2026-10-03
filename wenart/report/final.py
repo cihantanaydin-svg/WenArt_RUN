@@ -337,6 +337,7 @@ class Inputs:
     gate: Optional[dict] = None                          # gate_validation_summary (effective decision)
     side_by_side: dict = field(default_factory=dict)     # room id -> side-by-side sheet (M7 §9.4)
     side_by_side_note: Optional[str] = None              # why there is none
+    style: Optional[dict] = None                         # style.json of the style stage (assumed default style)
 
     @property
     def render_dir(self) -> Path:
@@ -467,6 +468,9 @@ def load_inputs(project_out, out_dir=None, private: bool = False) -> Inputs:
         else:
             inp.project = str(inp.scene.get("project") or out.name)
             inp.building_path = _building_path(inp.scene, out)
+    style_path = out / "style.json"
+    if style_path.is_file():
+        inp.style = C.read_json(style_path, w)
     if inp.scene is not None:
         inp.table = VW.index_table(inp.scene)
         inp.cameras = {c["name"]: c for c in inp.scene.get("cameras") or [] if isinstance(c, dict) and c.get("name")}
@@ -1646,7 +1650,8 @@ def assumed_summary(inp: Inputs) -> dict:
     b = inp.building if isinstance(inp.building, dict) else {}
     system = unit_system(b)
     values = (inp.brief or {}).get("values") or {}
-    brief = [{"key": k, "value": values.get(k)} for k in (inp.brief or {}).get("assumed") or []]
+    brief = [{"key": k, "value": _dotted(values, k)} for k in (inp.brief or {}).get("assumed") or []]
+    style = style_assumptions(inp.style)
     building: list[str] = []
     for lv in b.get("levels") or []:
         if not isinstance(lv, dict):
@@ -1682,7 +1687,33 @@ def assumed_summary(inp: Inputs) -> dict:
             scene.setdefault((str(a.get("field")), str(a.get("reason") or "-")), []).append(str(a.get("object")))
     scene_rows = [{"field": f, "reason": r, "count": len(objs), "examples": objs[:3]}
                   for (f, r), objs in sorted(scene.items())]
-    return {"brief": brief, "building": building, "scene": scene_rows}
+    return {"brief": brief, "style": style, "building": building, "scene": scene_rows}
+
+
+def _dotted(values: dict, key: str):
+    """``render.samples`` -> ``values["render"]["samples"]`` (wenart.brief lists nested defaults as dotted paths)."""
+    cur = values
+    for part in str(key).split("."):
+        cur = cur.get(part) if isinstance(cur, dict) else None
+    return cur
+
+
+def style_assumptions(style: Optional[dict]) -> list[str]:
+    """The assumed parts of the project's style (M7 §0, §13): the default style text when the brief has none, and
+    every other ``assumed:`` warning of the style stage (slot fills from the defaults)."""
+    if not isinstance(style, dict):
+        return []
+    out = []
+    for w in style.get("warnings") or []:
+        text = str(w)
+        if not text.startswith("assumed:"):
+            continue
+        if "no style in the brief" in text:
+            out.append(f"style: default text \"{style.get('source_text') or '?'}\" (no style in brief.yaml; "
+                       f"wenart/defaults.yaml)")
+        else:
+            out.append("style " + text[len("assumed:"):].strip())
+    return out
 
 
 def attribution_summary(building: Optional[dict]) -> dict:
@@ -2174,7 +2205,8 @@ def m7_building_lines(manifest: dict) -> list[str]:
         lines.append("None.")
     assumed = manifest.get("assumed") or {}
     lines += ["", "## Assumed values", ""]
-    items = [f"brief {a['key']}: {a['value']} (default, not in brief.yaml)" for a in assumed.get("brief") or []]
+    items = list(assumed.get("style") or [])
+    items += [f"brief {a['key']}: {a['value']} (default, not in brief.yaml)" for a in assumed.get("brief") or []]
     items += list(assumed.get("building") or [])
     lines += C.bullets(items)
     if assumed.get("scene"):
