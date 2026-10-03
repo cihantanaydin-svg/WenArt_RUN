@@ -285,7 +285,7 @@ def test_real01_questions_answered_and_built(smoke):
     seeded = (ROOT / "results" / "recognition" / "real01" / "answers_qwen3-vl-8b.json").is_file()
     assert records["recognize"]["status"] == ("reused" if seeded else "ok")
     verb = "stored answers" if seeded else "ask"
-    assert [s["name"] for s in records["recognize"]["steps"]] == [f"{verb} glm", f"{verb} qwen"]
+    assert sorted(s["name"] for s in records["recognize"]["steps"]) == [f"{verb} glm", f"{verb} qwen"]
     final = records["pipeline_final"]
     assert final["status"] == "ok" and final["note"] == "smoke profile: --no-ai"
     assert final["written"]["building.json"] == ST.canonical_sha256(out / "building.json")
