@@ -451,8 +451,16 @@ def test_controls_evaluation_signal_and_single_model(rc):
                                       "wrong_rate": 0.0, "pass": True}
     assert flat["models"]["glm"]["pass"] is False and flat["models"]["glm"]["tie"] == 8
     assert flat["consensus"]["pass"] is False                         # glm never agrees
-    assert ctl["signal"] == {"qwen": True, "glm": False} and ctl["no_signal"] == ["glm"]
-    assert "no signal from GLM" in ctl["notes"]
+    # The re-encode wins 4 of 32 pair-aspects for Qwen (12.5 % > 10 %): a missed null target removes the signal.
+    assert ctl["signal"] == {"qwen": False, "glm": False} and ctl["no_signal"] == ["qwen", "glm"]
+    assert ctl["failed_sets"]["qwen"] == ["null_reencode"]
+    assert "no signal from Qwen (fails null_reencode)" in ctl["notes"]
+    assert "no signal from GLM (fails ctl_flat, ctl_proxy, ctl_direct, ctl_lowspp)" in ctl["notes"]
+    ok = RZ.evaluate_controls(control_rows(flips=1), MODELS, rc)         # 31/32 ties >= 90 %: signal kept
+    assert ok["signal"] == {"qwen": True, "glm": False} and ok["failed_sets"]["qwen"] == []
+    noisy = RZ.evaluate_controls(control_rows(flips=4), MODELS, rc)      # 28/32 = 87.5 % < 90 % (M6 pod C, GLM)
+    assert noisy["sets"]["null_identical"]["models"]["qwen"]["pass"] is False
+    assert noisy["signal"]["qwen"] is False and noisy["failed_sets"]["qwen"] == ["null_identical"]
     ni = ctl["sets"]["null_identical"]["models"]["qwen"]
     assert ni["n"] == 32 and ni["tie"] == 31 and ni["flips"] == ["null_identical:cam_0/photo: W"] and ni["pass"]
     nr = ctl["sets"]["null_reencode"]["models"]["qwen"]
@@ -705,7 +713,7 @@ def test_fake_client_end_to_end(tmp_path):
     assert m5["aspects"]["photo"]["consensus"] == {"W": 36, "L": 0, "T": 0, "NC": 0}
     assert m5["aspects"]["photo"]["net_win_ci95"] == [1.0, 1.0] and m5["projects"] == ["synthetic-01", "synthetic-03"]
     assert summary["sets"]["look_alt"]["decision"] == "no_detectable_difference"
-    assert "no signal from GLM" in summary["notes"]
+    assert "no signal from GLM (fails ctl_flat, ctl_proxy, ctl_direct, ctl_lowspp)" in summary["notes"]
     assert summary["controls_project"] == "synthetic-01" and summary["controls"]["sets"]["ctl_flat"]["pairs"] == 8
     assert summary["ev_flags"]["active"] is False                       # the smart judge ignores brightness
     assert summary["position_bias"]["glm"]["index"] == 1.0

@@ -580,7 +580,10 @@ normal render; nuisance adds `--ev-offset 0.3`) and `--preview-quality 85`.
 | `nuisance_ev` | normal vs `--ev-offset 0.3`, 8 views | none | report brighter-wins share; > 30 % → flag ΔEV next to every A/B pair with \|ΔEV\| > 0.3 |
 | halo (derived) | on the four `ctl_*` sets, share of non-target aspects that follow the target winner | low | reported; > 80 % → note "ask one aspect per call" for M7 |
 
-A model has signal when it meets the target on each of the four `ctl_*` sets; a model without signal is
+A model has signal when it meets the target on each of the four `ctl_*` sets **and on both null sets** (changed after
+pod C, 3 Oct 2026: GLM answered 4 of 32 byte-identical pair-aspects decisively, 88 % ties against the 90 % target, and
+won 19 % of the re-encode pair-aspects; a judge that is not reproducible on identical requests cannot be trusted on
+the A/B pairs; the change is stricter and did not change any decision); a model without signal is
 reported as "no signal from <model>", the consensus then uses the other model alone and the decision is marked
 `single_model`. The 8 control views: `realism.control_views(render_manifest, scene_manifest, n=8)` = the 8 views
 of the control project's AB renders with the highest furniture pixel share (`index_stats` + the index table),
@@ -807,7 +810,7 @@ every `polish_disabled` or `not_validated` project has Cycles finals only), `tes
 luminance ≥ 0.15; `window_pull.clip_after ≤ 0.05` in ≥ 90 % of the views with panes; every dim-room view
 below +6 EV (three dim synthetic-03 rooms by the 0.08 rule, §5 row 6); the `assumed` entries as in the CPU test), `tests/gpu/test_realism.py` (realism_summary.json valid;
 ≥ 95 % of calls answered per model over the sets that were started, `look_alt` cut by the deadline reported,
-not counted; `null_identical` ≥ 90 % T; controls table present), `test_polish.py`
+not counted; the null results recorded (every flip listed) and a model that misses a null target has no signal; controls table present), `test_polish.py`
 (`test_gate_calibration_separates_benign_from_negative` becomes `test_gate_validation_recorded` over
 GATE_TEST_PROJECTS: `gate_validation.json` present, its rates equal a recomputation from
 `gate_calibration.json` with the current thresholds (with the thresholds the calibration recorded when they

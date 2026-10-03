@@ -135,14 +135,19 @@ def test_controls_table_present(summary):
 
 
 @needs_projects
-def test_null_identical_mostly_ties(summary):
+def test_null_controls_are_recorded_and_decide_the_signal(summary):
+    """The null sets are a measurement of the judges, not of our code: each model's null_identical ties (with
+    every flip listed) and null_reencode wins are recorded, and a model that misses a null target has no signal
+    (M6 pod C: GLM tied 88 % of the identical pair-aspects, target 90 %)."""
     controls = summary["controls"]
     assert controls is not None, "no controls in the summary"
-    per_model = controls["sets"]["null_identical"]["models"]
-    asked = {k: v for k, v in per_model.items() if k in MODEL_KEYS and v["n"] > 0}
+    asked = {k: v for k, v in controls["sets"]["null_identical"]["models"].items() if k in MODEL_KEYS and v["n"] > 0}
     assert asked, "null_identical: no model has answers"
     for key, v in asked.items():
+        assert len(v["flips"]) == v["n"] - v["tie"], key
+        assert v["pass"] == (v["tie_rate"] >= NULL_IDENTICAL_TIE_MIN), key
         if v["flips"]:
-            print(f"null_identical {key} flips: {', '.join(v['flips'])}")
-        assert v["tie_rate"] >= NULL_IDENTICAL_TIE_MIN, \
-            f"null_identical: {key} T on {v['tie_rate']:.0%} of {v['n']} pair-aspects; flips {v['flips']}"
+            print(f"null_identical {key} T {v['tie_rate']:.0%}; flips: {', '.join(v['flips'])}")
+        reenc = controls["sets"]["null_reencode"]["models"][key]
+        if not (v["pass"] and (reenc["n"] == 0 or reenc["pass"])):
+            assert controls["signal"][key] is False, f"{key} misses a null target but has signal"

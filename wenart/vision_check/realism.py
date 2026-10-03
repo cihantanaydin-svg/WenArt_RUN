@@ -48,7 +48,8 @@ How (one CLI subcommand per step, ``wenart/vision_check/cli.py``):
   decision here.
 - ``realism-summary`` (``summarise``): pools the A/B sets of every project,
   evaluates the controls of the control project (a model has signal when it
-  meets the targets on each of the four ``ctl_*`` sets), forms the
+  meets the targets on each of the four ``ctl_*`` sets and on both null
+  sets), forms the
   consensus from the models with signal (``single_model`` when only one has
   it) and writes ``decision`` per set and aspect (``better``, ``worse``,
   ``no_detectable_difference``, ``not_measurable``) into
@@ -500,7 +501,10 @@ def evaluate_controls(rows: list[dict], models: list[str], rc: dict) -> Optional
       ``|delta_ev| > delta_ev_flag`` are flagged (``flag``);
     - ``halo``: on the ``ctl_*`` pairs with a decisive target aspect, the
       share of the other aspects with the same outcome;
-    - ``signal``: a model has signal when it passes each of the four ``ctl_*``.
+    - ``signal``: a model has signal when it passes each of the four ``ctl_*``
+      and both null sets that were asked (a judge that answers decisively on
+      byte-identical requests, or prefers a JPEG re-encode, cannot be trusted
+      on the A/B pairs; M6 pod C: GLM 88 % ties on identical pairs).
     """
     by_set = _by_set(rows)
     if not any(s in by_set for s in CONTROL_SETS + NULL_SETS + (NUISANCE_SET,)):
@@ -584,8 +588,11 @@ def evaluate_controls(rows: list[dict], models: list[str], rc: dict) -> Optional
         share = _rate(follow, n)
         halo[m] = {"n": n, "follow": follow, "share": share,
                    "note": HALO_NOTE if share is not None and share > float(t["halo_max"]) else None}
-    signal = {m: all(sets[s]["models"][m]["pass"] for s in CONTROL_SETS) for m in models}
-    notes = [f"no signal from {model_name(m)}" for m in models if not signal[m]]
+    failed = {m: [s for s in CONTROL_SETS if not sets[s]["models"][m]["pass"]]
+              + [s for s in NULL_SETS if sets[s]["models"][m]["n"] and not sets[s]["models"][m]["pass"]]
+              for m in models}
+    signal = {m: not failed[m] for m in models}
+    notes = [f"no signal from {model_name(m)} (fails {', '.join(failed[m])})" for m in models if not signal[m]]
     notes += [f"halo {model_name(m)} {h['share']:.2f} > {float(t['halo_max']):.2f}: {HALO_NOTE}"
               for m, h in halo.items() if h["note"]]
     if sets[NUISANCE_SET]["flag"]:
@@ -593,6 +600,7 @@ def evaluate_controls(rows: list[dict], models: list[str], rc: dict) -> Optional
                      f"{', '.join(model_name(m) for m, v in sets[NUISANCE_SET]['models'].items() if v['flag'])}: "
                      f"A/B pairs with |dEV| > {float(t['delta_ev_flag'])} are flagged")
     return {"sets": sets, "halo": halo, "signal": signal, "no_signal": [m for m in models if not signal[m]],
+            "failed_sets": failed,
             "notes": notes, "targets": dict(t)}
 
 
@@ -1175,7 +1183,8 @@ def controls_lines(controls: Optional[dict], models: list[str]) -> list[str]:
     head = ["Set", "Target"] + [f"{model_name(m)} correct/wrong/T (n)" for m in models] + ["Consensus correct/wrong/T",
                                                                                          "Pass"]
     lines = [f"Targets per model: correct >= {t['correct_min']:.0%} (consensus >= {t['consensus_correct_min']:.0%}), "
-             f"wrong <= {t['wrong_max']:.0%}. A model has signal when it passes every ctl_* set.", "",
+             f"wrong <= {t['wrong_max']:.0%}. A model has signal when it passes every ctl_* set and both null "
+             "sets.", "",
              "| " + " | ".join(head) + " |", "|" + "---|" * len(head)]
     for s in CONTROL_SETS:
         e = controls["sets"][s]
