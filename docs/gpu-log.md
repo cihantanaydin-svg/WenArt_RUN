@@ -29,5 +29,6 @@ runner could not write it). Costs are estimates from the on-demand price at star
 | 2026-10-02 16:51 | 8dk042s008fqrl | NVIDIA RTX PRO 4500 Blackwell | 66 | 0.79 | M5 run 2 final: look (reused), polish ladder on 87 views, vision check (Cycles + polished, 2 models), final report, GPU tests | ok: renders and builds reused, 187 polish attempts (2.9 s/forward, peak 22.5 GiB), 44 polished / 43 Cycles finals, vision check 264 calls + 180 preference calls, reports, GPU tests 27+16 passed; self-stop ok |
 | 2026-10-03 03:07 | osej5qsm4v6cvv | NVIDIA RTX PRO 4500 Blackwell | 82 | 0.99 | M6 pod A: full run synthetic-01 + synthetic-03 (search cameras, M6 look, gate calibrate+validate, polish, check, report, GPU tests) | ok, stopped by runner after collect (watchdog and job-end stop armed) |
 | 2026-10-03 04:16 | pxy56z9yyehx1t | NVIDIA RTX PRO 4500 Blackwell | 68 | 0.82 | M6 pod B: full run synthetic-04/05/02 + private selftest + A/B renders (M5 cameras, controls on synthetic-01) | ok, stopped by runner after collect (watchdog and job-end stop armed) |
+| 2026-10-03 04:16 | pending:20261003-041653-full | RTX PRO 4500 | 115 | 1.38 | M6 pod C: realism A/B judging (M5 vs M6 look, look_alt, controls), 2 VLMs | creating (provisional, worst case) |
 
-**Total spent so far: $7.94** (budget: $100; limits: $1.00/GPU-hour, $10/day, 2 h/run)
+**Total spent so far: $9.32** (budget: $100; limits: $1.00/GPU-hour, $10/day, 2 h/run)
