@@ -1,4 +1,4 @@
-"""Milestone 6 GPU tests of the one-command full run (docs/milestone6.md §2.4, §9).
+"""GPU tests of the one-command full run (docs/milestone6.md §2.4, §9; docs/milestone7.md §11 GPU).
 
 Run on the pod by ``python -m wenart.run pod`` (phase 11, after the last vLLM
 server stopped) with ``pytest -m gpu tests/gpu/test_full_run.py ...``. They
@@ -11,9 +11,12 @@ old outputs on the volume):
 
 - ``RUN_TEST_PROJECTS``: every project ``ok``, every stage ``ok``,
   ``reused``, ``warning`` or ``skipped`` with an allowed reason (warnings are
-  printed); the final report's view count equals the render manifest; a
-  project whose gate decision is ``polish_disabled`` or ``not_validated`` has
-  Cycles finals only;
+  printed); the pipeline may be ``pending`` (recognition questions, M7 §1.4)
+  only with a ``recognize`` stage and a ``pipeline_final`` that ended ``ok``
+  or ``reused`` in this run, whose building has no pending question; the
+  final report's view count equals the render manifest; a project whose
+  gate decision is ``polish_disabled`` or ``not_validated`` has Cycles
+  finals only;
 - ``NEEDS_REVIEW_TEST_PROJECTS``: ``needs_review`` with at least one reason,
   no scene built in this run;
 - ``SELFTEST_TEST_ALIAS`` (only with ``PRIVATE_SELFTEST=1``): its files only
@@ -29,6 +32,7 @@ from pathlib import Path
 
 import pytest
 
+from wenart.canonical import canonical_sha256
 from wenart.run.state import SKIP_REASONS
 
 pytestmark = pytest.mark.gpu
@@ -39,8 +43,9 @@ RUN = [p for p in os.environ.get("RUN_TEST_PROJECTS", "").split() if p]
 NEEDS_REVIEW = [p for p in os.environ.get("NEEDS_REVIEW_TEST_PROJECTS", "").split() if p]
 SELFTEST = os.environ.get("SELFTEST_TEST_ALIAS", "").strip()
 ALLOWED = ("ok", "reused", "warning", "skipped")
-PRIVATE_ALLOWED = re.compile(r"^(final/(final_report\.md|final_manifest\.json|[^/]+_final_preview\.jpg|contact_[^/]+\.jpg)"
-                             r"|run/[^/]+\.json)$")
+# final/ATTRIBUTION.md: the credits of the public library models a private project's images show (M7 §7.3).
+PRIVATE_ALLOWED = re.compile(r"^(final/(final_report\.md|final_manifest\.json|[^/]+_final_preview\.jpg|contact_[^/]+\.jpg"
+                             r"|ATTRIBUTION\.md)|run/[^/]+\.json)$")
 
 
 @pytest.fixture(scope="module")
@@ -62,12 +67,25 @@ def _load(project: str, rel: str) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+@pytest.mark.skipif(not (RUN or NEEDS_REVIEW), reason="no public project in this run")
+def test_every_public_project_ended_ok_or_needs_review(manifest):
+    """A project that failed or was cut is in no test list: the manifest says it (M7 §11: real01 must be ok)."""
+    public = {p["name"]: p["state"] for p in manifest["projects"] if not p["private"]}
+    bad = {name: state for name, state in public.items() if state not in ("ok", "needs_review")}
+    assert not bad, f"projects neither ok nor needs_review: {bad}"
+    assert set(RUN) == {n for n, st in public.items() if st == "ok"}
+    if "real01" in public:
+        assert public["real01"] == "ok", "real01 (the user's first real project) must end ok"
+
+
 @pytest.mark.parametrize("project", RUN)
 def test_run_project_is_ok_with_allowed_stage_states(manifest, project):
     entry = _entry(manifest, project)
     assert entry["state"] == "ok", entry
     bad, warnings = [], []
     for stage in entry["stages"]:
+        if stage["stage"] == "pipeline" and stage["status"] == "pending":
+            continue                                   # checked by test_pending_pipeline_has_its_final_building
         if stage["status"] not in ALLOWED:
             bad.append(stage)
         elif stage["status"] == "skipped" and stage["note"] not in SKIP_REASONS:
@@ -80,6 +98,24 @@ def test_run_project_is_ok_with_allowed_stage_states(manifest, project):
     names = [s["stage"] for s in entry["stages"]]
     for stage in ("pipeline", "build", "render", "check", "report"):
         assert stage in names, f"{project}: no {stage} stage in this run"
+
+
+@pytest.mark.parametrize("project", RUN)
+def test_pending_pipeline_has_its_final_building(manifest, project):
+    """M7 §9.1: a pipeline that wrote recognition questions (pending) is ok only with this run's recognize stage
+    and a pipeline_final that ended ok or reused; that building is the one the later stages used."""
+    stages = {s["stage"]: s for s in _entry(manifest, project)["stages"]}
+    if stages.get("pipeline", {}).get("status") != "pending":
+        assert stages.get("pipeline_final", {}).get("note") == "no questions", stages.get("pipeline_final")
+        return
+    assert "recognize" in stages and stages["recognize"]["status"] in ("ok", "reused", "warning"), stages
+    assert stages.get("pipeline_final", {}).get("status") in ("ok", "reused"), stages.get("pipeline_final")
+    record = _load(project, "run/pipeline_final.json")
+    building = OUTPUTS / project / "building.json"
+    assert record["written"]["building.json"] == canonical_sha256(building)
+    assert json.loads(building.read_text(encoding="utf-8"))["status"] == "ok"
+    if stages["recognize"]["status"] == "warning":
+        print(f"{project} warning recognize: {stages['recognize']['note']}")
 
 
 @pytest.mark.parametrize("project", RUN)

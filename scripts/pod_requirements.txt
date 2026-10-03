@@ -1,13 +1,17 @@
 # Installed into /workspace/venv on the pod (torch comes from the base image).
+# matplotlib, opencv-python-headless, pillow and numpy are pinned to the session's versions (docs/milestone7.md
+# §9.1; scripts/cloud-setup.sh pins the same): the pipeline's recognition crops are drawn with cv2, saved with PIL
+# and hashed over numpy arrays, so the session and the pod must agree. scripts/pod_setup_polish.sh drops these
+# four pins (and the opencv line) for venv-polish, which keeps its own validated versions.
 huggingface_hub==2.0.0
 pytest==9.1.1
-numpy
-pillow
+numpy==2.4.6
+pillow==12.3.0
 pyyaml
 jsonschema
 ezdxf==1.4.4
 shapely==2.1.2
 pdfplumber==0.11.10
 pypdfium2==5.13.0
-opencv-python-headless
-matplotlib
+opencv-python-headless==5.0.0.93
+matplotlib==3.11.2

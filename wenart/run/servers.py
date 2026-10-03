@@ -1,4 +1,4 @@
-"""vLLM server sessions of a full run (docs/milestone6.md §1.4).
+"""vLLM server sessions of a full run (docs/milestone6.md §1.4, docs/milestone7.md §9.1).
 
 What: ``with server("qwen", deadline) as url: ...`` starts ``vllm serve`` for
 ``check.yaml models.<key>``, waits until ``/health`` answers, yields the
@@ -8,9 +8,11 @@ OpenAI base URL and stops the server afterwards. It is a port of
 
 - command: ``vllm serve <id> --revision <rev> --served-model-name <id>
   --port 8001 --limit-mm-per-prompt '{"image":2}' --gpu-memory-utilization
-  0.90 <server_flags of check.yaml> <size flags>``; size flags below 40 GB of
-  VRAM ``--quantization fp8 --max-model-len 8192 --max-num-seqs 2``, else
-  ``--max-model-len 16384 --max-num-seqs 4``; env
+  0.90 <server_flags of check.yaml> <size flags>``; size flags by the
+  sequences: 2 (below 40 GB of VRAM) ``--quantization fp8 --max-model-len
+  8192 --max-num-seqs 2``, up to 4 ``--max-model-len 16384 --max-num-seqs
+  N``, above 4 (the >= 80 GB tier of M7) ``--max-model-len 32768
+  --max-num-seqs N``; env
   ``VLLM_USE_FLASHINFER_SAMPLER=0`` (FlashInfer's sampler failed on sm_120);
 - log ``/workspace/logs/vllm-<key>.log`` (the job's EXIT trap copies a
   200-line tail); ``/health`` every 10 s; an early exit writes the last 40
@@ -20,8 +22,12 @@ OpenAI base URL and stops the server afterwards. It is a port of
 - the pid goes to ``$WENART_JOB_DIR/vllm.pid`` (the bash EXIT trap kills it
   if the orchestrator dies), removed after the stop.
 
-``seqs`` (2 or 4) is the ``--workers`` of every VLM stage. ``--vlm-url``
-(smoke profile) uses an external server instead (``external_server``).
+``seqs`` is the ``--workers`` of every VLM stage: ``server_seqs(mem,
+max_seqs)`` = min(``check.yaml models.<key>.max_seqs`` when set (probed per
+model by the prep pod, M7 §9.2), 8 from 80000 MiB of VRAM, 4 from 40000 MiB,
+else 2). There is no runtime fallback: a server that does not start with
+these sizes is a server error. ``--vlm-url`` (smoke profile) uses an
+external server instead (``external_server``).
 
 How: the process start (``spawn``), the health probe, the clock and the
 sleep are injectable, so the CPU tests drive a fake process.
@@ -49,6 +55,7 @@ HEALTH_TIMEOUT_S = 5.0
 STOP_WAIT_S = 60.0
 EARLY_EXIT_LINES = 40
 VRAM_SPLIT_MIB = 40000            # below: fp8, 8192 context, 2 sequences (bake-off sizes)
+VRAM_LARGE_MIB = 80000            # from here: 32768 context, 8 sequences (RTX PRO 6000, 96 GB; M7 §9.1)
 LIMIT_MM = '{"image":2}'          # render + source-plan crop (check), A + B (realism)
 GPU_MEMORY_UTILIZATION = "0.90"
 
@@ -69,31 +76,53 @@ def check_models(check_yaml: Path = CHECK_YAML) -> dict:
     return dict(data.get("models") or {})
 
 
+def max_seqs_of(models: dict, key: str) -> Optional[int]:
+    """``check.yaml models.<key>.max_seqs`` (None when unset or not a positive integer)."""
+    value = (models.get(key) or {}).get("max_seqs") if isinstance(models, dict) else None
+    try:
+        n = int(value) if value is not None else None
+    except (TypeError, ValueError):
+        return None
+    return n if n and n > 0 else None
+
+
 def check_field(key: str, field_name: str, check_yaml: Path = CHECK_YAML) -> str:
     """One value of ``check.yaml models.<key>`` as text ('' when unset); KeyError for an unknown key."""
     value = check_models(check_yaml)[key].get(field_name)
     return "" if value is None else str(value)
 
 
-def server_seqs(mem_mib: Optional[int]) -> int:
-    """Sequences the server takes at once: 2 below 40 GB of VRAM (or unknown), else 4."""
-    return 4 if (mem_mib or 0) >= VRAM_SPLIT_MIB else 2
+def server_seqs(mem_mib: Optional[int], max_seqs: Optional[int] = None) -> int:
+    """Sequences the server takes at once: 8 from 80000 MiB of VRAM, 4 from 40000 MiB, else 2 (also for an
+    unknown size), capped by ``max_seqs`` (``check.yaml models.<key>.max_seqs``, the prep pod's probe) when set."""
+    mem = mem_mib or 0
+    tier = 8 if mem >= VRAM_LARGE_MIB else 4 if mem >= VRAM_SPLIT_MIB else 2
+    try:
+        cap = int(max_seqs) if max_seqs is not None and str(max_seqs).strip() != "" else None
+    except (TypeError, ValueError):
+        cap = None
+    return max(1, min(tier, cap)) if cap is not None and cap > 0 else tier
 
 
-def server_args(seqs: int) -> list[str]:
-    if seqs <= 2:
-        return ["--quantization", "fp8", "--max-model-len", "8192", "--max-num-seqs", "2"]
-    return ["--max-model-len", "16384", "--max-num-seqs", "4"]
+def server_args(seqs: int, mem_mib: Optional[int] = None) -> list[str]:
+    """The size flags of ``vllm serve`` for ``seqs`` sequences (module docstring). fp8 only on a GPU below
+    40000 MiB (or of unknown size): a large GPU whose model is capped at 2 sequences keeps full precision."""
+    if seqs <= 2 and (mem_mib is None or mem_mib < VRAM_SPLIT_MIB):
+        return ["--quantization", "fp8", "--max-model-len", "8192", "--max-num-seqs", str(int(seqs))]
+    if seqs <= 4:
+        return ["--max-model-len", "16384", "--max-num-seqs", str(int(seqs))]
+    return ["--max-model-len", "32768", "--max-num-seqs", str(int(seqs))]
 
 
-def serve_command(vllm: str, model: str, revision: str, flags: str, seqs: int, port: int = VLM_PORT) -> list[str]:
+def serve_command(vllm: str, model: str, revision: str, flags: str, seqs: int, port: int = VLM_PORT,
+                  mem_mib: Optional[int] = None) -> list[str]:
     """The ``vllm serve`` command line (polish.sh start_server)."""
     cmd = [vllm, "serve", model]
     if revision:
         cmd += ["--revision", revision]
     cmd += ["--served-model-name", model, "--port", str(port), "--limit-mm-per-prompt", LIMIT_MM,
             "--gpu-memory-utilization", GPU_MEMORY_UTILIZATION]
-    return cmd + shlex.split(flags or "") + server_args(seqs)
+    return cmd + shlex.split(flags or "") + server_args(seqs, mem_mib)
 
 
 def base_url(port: int = VLM_PORT) -> str:
@@ -174,6 +203,7 @@ class VLMServer:
     key: str
     deadline: Optional[float] = None
     seqs: int = 2
+    mem_mib: Optional[int] = None             # the GPU's VRAM (the size flags; None: by the sequences alone)
     port: int = VLM_PORT
     logs_dir: Path = Path("/workspace/logs")
     job_dir: Optional[Path] = None
@@ -209,7 +239,7 @@ class VLMServer:
         m = models[self.key]
         self.model = str(m["id"])
         return serve_command(self.vllm, self.model, str(m.get("revision") or ""), str(m.get("server_flags") or ""),
-                             self.seqs, self.port)
+                             self.seqs, self.port, self.mem_mib)
 
     def _is_healthy(self) -> bool:
         return (self.health or (lambda: http_health(self.port)))()
@@ -323,15 +353,22 @@ def external_server(url: str, key: str = "", *, stats: Optional[list] = None):
     yield url.rstrip("/")
 
 
-def gpu_mem_from_text(text: str) -> int:
-    """Total VRAM in MiB from ``nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits`` output
-    (the first line that is a number; 0 when none)."""
+def gpu_from_text(text: str) -> tuple[Optional[str], int]:
+    """``(name, total VRAM in MiB)`` of the first GPU in ``nvidia-smi --query-gpu=name,memory.total
+    --format=csv,noheader,nounits`` output (``NVIDIA RTX PRO 6000 Blackwell Server Edition, 97887``); a line
+    that is only a number gives no name. ``(None, 0)`` when no line ends in a number."""
     for line in text.splitlines():
-        line = line.strip()
-        if line.isdigit():
-            return int(line)
-    return 0
+        parts = [p.strip() for p in line.strip().split(",")]
+        if parts and parts[-1].isdigit():
+            name = ",".join(parts[:-1]).strip()
+            return (name or None), int(parts[-1])
+    return None, 0
 
 
-NVIDIA_SMI_QUERY = ["nvidia-smi", "--query-gpu=memory.total", "--format=csv,noheader,nounits"]
+def gpu_mem_from_text(text: str) -> int:
+    """Total VRAM in MiB of the first GPU of the ``nvidia-smi`` output (``gpu_from_text``; 0 when none)."""
+    return gpu_from_text(text)[1]
+
+
+NVIDIA_SMI_QUERY = ["nvidia-smi", "--query-gpu=name,memory.total", "--format=csv,noheader,nounits"]
 

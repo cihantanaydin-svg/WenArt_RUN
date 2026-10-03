@@ -7,7 +7,10 @@
 #   venv     /opt/wenart/venv-polish (container disk, --system-site-packages: the image's torch
 #            2.9.1 stays): diffusers==0.40.0 transformers==5.18.0 accelerate==1.15.0
 #            huggingface-hub==1.33.0 "safetensors>=0.8.0" opencv-python-headless==4.14.0.94
-#            "numpy>=2" + the repo's CPU deps (scripts/pod_requirements.txt without its hub pin).
+#            "numpy>=2" + the repo's CPU deps (scripts/pod_requirements.txt without its hub and
+#            opencv lines and without the numpy/pillow/matplotlib version pins: those pins are for
+#            /workspace/venv, where the pipeline's crops must hash as in the session, M7 §9.1; this
+#            venv keeps the opencv pin above and the versions validated by the M5/M6 gate runs).
 #            Every pip install runs with -c /opt/wenart/image-constraints.txt (the image's torch,
 #            torchvision, torchaudio, triton pins from `python3 -m pip freeze`), so it can never
 #            replace the image's torch. torchvision==0.24.1 (the pair of torch 2.9.1, --no-deps,
@@ -18,13 +21,18 @@
 #            classes the polish and the gate load, and every wenart.polish / wenart.gate module.
 #            Needed by the phases polish, gate and tests (tests/gpu/test_polish.py runs here).
 #   models   the polish models (wenart/polish/polish.yaml) and the gate models
-#            (wenart/gate/models.yaml): huggingface_hub.snapshot_download with the pinned
-#            revision and allow patterns of those files, into HF_HOME=/opt/wenart/hf (container
-#            disk; the job runs the polish and the gate with HF_HUB_OFFLINE=1 afterwards).
+#            (wenart/gate/models.yaml `models:`, plus its `detect:` block: the OWLv2 added-object
+#            detector google/owlv2-base-patch16-ensemble @cfd3195, Apache-2.0, docs/milestone7.md
+#            §8.1, kept outside `models:` so it never enters the gate key): huggingface_hub.
+#            snapshot_download with the pinned revision and allow patterns of those files, into
+#            HF_HOME=/opt/wenart/hf (container disk; the job runs the polish, the gate and the
+#            detector with HF_HUB_OFFLINE=1 afterwards).
 #            Needed by the phases polish, gate and tests (tests/gpu/test_polish_backend.py
 #            loads the polish models) and by POLISH_MODE=smoke.
-#   check    scripts/pod_setup_recognition.sh with RECOG_SETUP_PARTS="vllm models" (no PaddleOCR,
-#            no LibreDWG) and BAKEOFF_MODELS = the ids of CHECK_MODELS (default "qwen glm") from
+#   check    scripts/pod_setup_recognition.sh with RECOG_SETUP_PARTS = POLISH_RECOG_PARTS (default
+#            "vllm libredwg models": no PaddleOCR; LibreDWG 0.14 for the DWG projects of the full and
+#            prep jobs, docs/milestone7.md §5.1, reused from /workspace/tools/libredwg/bin once built)
+#            and BAKEOFF_MODELS = the ids of CHECK_MODELS (default "qwen glm") from
 #            wenart/vision_check/check.yaml, each with its pinned revision ("<id>@<revision>").
 #            Needed by the phase check.
 # Writes setup_polish.json ($WENART_RESULTS, else /workspace/logs): per part state and seconds,
@@ -72,6 +80,7 @@ PINS=("diffusers==$DIFFUSERS_VERSION" "transformers==$TRANSFORMERS_VERSION" "acc
 MODE="${POLISH_MODE:-final}"
 read -r -a PHASES <<< "${POLISH_PHASES:-look controls polish gate check report tests}"
 read -r -a CHECK_KEYS <<< "${CHECK_MODELS:-qwen glm}"
+RECOG_PARTS="${POLISH_RECOG_PARTS:-vllm libredwg models}"   # the recognition setup's parts for the phase check
 
 log() { echo "[$(date -u +%H:%M:%S)] setup-polish: $*"; }
 step_start() { STEP_NAME="$1"; STEP_T0=$(date +%s); log "start: $STEP_NAME"; }
@@ -101,7 +110,7 @@ PY
 if [ "${POLISH_SETUP_PLAN_ONLY:-0}" = "1" ]; then
   echo "PLAN venv=$NEED_VENV models=$NEED_MODELS check=$NEED_CHECK mode=$MODE phases=${PHASES[*]}"
   if [ "$NEED_CHECK" = "1" ]; then
-    echo "PLAN RECOG_SETUP_PARTS=vllm models"
+    echo "PLAN RECOG_SETUP_PARTS=$RECOG_PARTS"
     echo "PLAN BAKEOFF_MODELS=$(vlm_entries)"
   fi
   exit 0
@@ -166,7 +175,8 @@ if keep != [0, 2]:
     sys.exit(f"torchvision.ops.nms on CUDA kept {keep}, expected [0, 2]")
 out["torchvision"] = torchvision.__version__
 from diffusers import ZImageControlNetModel, ZImageControlNetPipeline  # noqa: F401
-from transformers import AutoModel, AutoModelForDepthEstimation, Sam2Model, Sam2Processor  # noqa: F401
+from transformers import (AutoModel, AutoModelForDepthEstimation, Owlv2ForObjectDetection,  # noqa: F401
+                          Owlv2Processor, Sam2Model, Sam2Processor)
 
 import accelerate
 import cv2
@@ -206,7 +216,8 @@ part_venv() {
     log "no torch in the image's python: refusing to install a venv that could pull its own torch"; return 1
   fi
   reqs=$FAST/polish-requirements.txt
-  grep -viE '^huggingface[-_]hub' "$REPO_DIR/scripts/pod_requirements.txt" > "$reqs" || true
+  grep -viE '^huggingface[-_]hub' "$REPO_DIR/scripts/pod_requirements.txt" | grep -viE '^opencv-python-headless' \
+    | sed -E 's/^(numpy|pillow|matplotlib)[[:space:]]*==.*$/\1/' > "$reqs" || true
   pyv=$(python3 -c 'import sys; print("%d.%d.%d" % sys.version_info[:3])')
   req_hash=$( { printf '%s\n' "${PINS[@]}"; cat "$reqs" "$CONSTRAINTS"; echo "$pyv ${WENART_IMAGE:-}"; } | sha256sum | cut -c1-16)
   stamp=$VENV/.polish-$req_hash
@@ -260,7 +271,9 @@ sources = (("polish", repo / "wenart" / "polish" / "polish.yaml"), ("gate", repo
 records, failed = [], 0
 for group, path in sources:
     cfg = yaml.safe_load(path.read_text(encoding="utf-8"))
-    for role, m in cfg["models"].items():
+    # The OWLv2 detector (docs/milestone7.md §8.1) is the gate file's `detect:` block, outside `models:`.
+    extra = [("detect", cfg["detect"])] if group == "gate" and "detect" in cfg else []
+    for role, m in list(cfg["models"].items()) + extra:
         rec = {"group": group, "role": role, "repo": m["repo"], "revision": m["revision"],
                "licence": m.get("licence"), "allow_patterns": m.get("allow_patterns"), "files": m.get("files"),
                "expected_gb": m.get("size_gb"), "path": None, "n_files": 0, "bytes": 0, "seconds": None,
@@ -293,8 +306,8 @@ PY
 part_check() {
   local entries
   entries=$(vlm_entries) || { log "cannot read the VLM ids of '${CHECK_KEYS[*]}' from check.yaml"; return 1; }
-  log "recognition setup: RECOG_SETUP_PARTS='vllm models' BAKEOFF_MODELS='$entries'"
-  RECOG_SETUP_PARTS="vllm models" BAKEOFF_MODELS="$entries" bash "$REPO_DIR/scripts/pod_setup_recognition.sh"
+  log "recognition setup: RECOG_SETUP_PARTS='$RECOG_PARTS' BAKEOFF_MODELS='$entries'"
+  RECOG_SETUP_PARTS="$RECOG_PARTS" BAKEOFF_MODELS="$entries" bash "$REPO_DIR/scripts/pod_setup_recognition.sh"
 }
 
 # setup_polish.json: what was done, sizes, seconds, machine and versions.

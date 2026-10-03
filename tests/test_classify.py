@@ -33,20 +33,24 @@ def test_synthetic_01_pages():
     assert pdf.scale["method"] == "pdf_scale_text"
     assert pdf.scale["metres_per_unit"] == pytest.approx(100 * METRES_PER_POINT)
     assert pdf.evidence[0]["page"] == 1 and pdf.evidence[0]["entity"].startswith("char:")
+    # Milestone 7 (§4.1): the scan's title is read by OCR (Tesseract) and the page goes to the raster adapter.
     scan = recs[("1_kat_scan.png", 1)]
-    assert (scan.format, scan.kind, scan.page_class) == ("image", "scan", "other")
-    assert scan.skip_reason and "OCR" in scan.skip_reason
-    assert scan.level_id is None and scan.scale is None
-    assert not scan.is_extractable() and dxf.is_extractable() and pdf.is_extractable()
+    assert (scan.format, scan.kind, scan.page_class, scan.level_id) == ("image", "scan", "floor_plan", "L1")
+    assert scan.skip_reason is None and scan.classifier == "ocr" and scan.extractor == "raster"
+    assert scan.evidence[0]["method"] == "ocr" and scan.evidence[0]["text"] == "1. KAT PLANI"
+    assert scan.confidence <= C.RASTER_TITLE_MAX_CONFIDENCE and scan.scale is None
+    assert scan.is_extractable() and dxf.is_extractable() and pdf.is_extractable()
 
 
 def test_synthetic_02_raster_kinds():
     recs = by_page(C.classify_pages(PROJECTS / "synthetic-02"))
     assert recs[("plan_scan.png", 1)].kind == "scan"
     assert recs[("plan_photo.jpg", 1)].kind == "photo"
+    # Milestone 7: both pages are floor plans by their OCR title; the scan/photo decision is image processing.
     for rec in recs.values():
-        assert rec.page_class == "other" and rec.skip_reason
-        assert rec.evidence and rec.evidence[0]["method"] == "ai"
+        assert rec.page_class == "floor_plan" and rec.skip_reason is None and rec.level_id == "L0"
+        assert rec.evidence[0]["method"] == "ocr"
+        assert rec.evidence[-1]["method"] == "raster" and rec.evidence[-1]["text"].startswith("kind: ")
 
 
 def test_synthetic_03_pages():
@@ -171,7 +175,8 @@ def test_ocr_hook_classifies_raster_pages():
     scan = recs[("plan_scan.png", 1)]
     assert scan.page_class == "floor_plan" and scan.confidence == 0.5 and scan.level_id == "L0"
     assert scan.evidence[0]["method"] == "ocr" and scan.evidence[0]["pixel_box"] == [100, 50, 400, 80]
-    assert scan.skip_reason and not scan.is_extractable()
+    # Milestone 7: a titled raster page is extractable (raster adapter).
+    assert scan.skip_reason is None and scan.is_extractable() and scan.extractor == "raster"
 
 
 def test_project_documents_skips_truth_and_brief():

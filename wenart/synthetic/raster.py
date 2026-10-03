@@ -12,9 +12,23 @@ building -> PDF points -> pixels and store ``H_building_to_pixels``.
 
 All randomness comes from ``numpy.random.RandomState(seed)``; OpenCV and
 Pillow are deterministic for the same input, so the files are reproducible.
+
+Raster test fixtures from any vector PDF page (docs/milestone7.md §4.4: the
+real01 scan and photo)::
+
+    python -m wenart.synthetic.raster fixtures --pdf projects/real01/real01.pdf --page 1 \
+        --out tests/fixtures/real01_raster --name real01
+
+writes two one-page projects ``<out>/<name>-scan/<name>_scan.png`` and
+``<out>/<name>-photo/<name>_photo.jpg`` plus ``truth/raster.json`` in each (the
+source page, seed and the exact transform from PDF points to the image's
+pixels, so a test can compare the raster result with the vector one). The
+pipeline reads only the top level of a project folder, never ``truth/``.
 """
 from __future__ import annotations
 
+import argparse
+import json
 import subprocess
 import tempfile
 from pathlib import Path
@@ -152,3 +166,73 @@ def preview_from_dxf(dxf_path: Path, out_jpg: Path) -> Path:
         with Image.open(png) as img:
             write_preview(img, out_jpg)
     return Path(out_jpg)
+
+
+# --------------------------------------------------------------------------
+# Raster fixtures from a vector PDF page (docs/milestone7.md §4.4)
+# --------------------------------------------------------------------------
+
+FIXTURE_SCAN_SEED = 7101
+FIXTURE_PHOTO_SEED = 7102
+
+
+def _page_size_pt(pdf_path: Path, page: int) -> tuple[float, float]:
+    import pdfplumber
+    with pdfplumber.open(str(pdf_path)) as pdf:
+        pg = pdf.pages[page - 1]
+        return float(pg.width), float(pg.height)
+
+
+def make_raster_fixtures(pdf_path: Path, page: int, out_root: Path, name: str,
+                         scan_seed: int = FIXTURE_SCAN_SEED, photo_seed: int = FIXTURE_PHOTO_SEED) -> dict:
+    """Write ``<out_root>/<name>-scan/`` and ``<out_root>/<name>-photo/`` (one raster document each plus
+    ``truth/raster.json``); returns {kind: project dir}."""
+    pdf_path = Path(pdf_path)
+    out_root = Path(out_root)
+    width_pt, height_pt = _page_size_pt(pdf_path, page)
+    scan_dir = out_root / f"{name}-scan"
+    photo_dir = out_root / f"{name}-photo"
+    scan_png = scan_dir / f"{name}_scan.png"
+    pts_to_scan, scan_size = make_scan(pdf_path, page, height_pt, scan_png, seed=scan_seed)
+    photo_jpg = photo_dir / f"{name}_photo.jpg"
+    persp, photo_size = make_photo(scan_png, photo_jpg, seed=photo_seed)
+    pts_to_photo = G.matmul(persp, G.affine_to_matrix(pts_to_scan))
+    common = {"schema_version": "0.1", "kind": "raster_fixture", "source_pdf": pdf_path.as_posix(), "page": page,
+              "page_size_pt": [width_pt, height_pt], "dpi": SCAN_DPI,
+              "generator": "python -m wenart.synthetic.raster fixtures"}
+    truths = {
+        "scan": dict(common, file=scan_png.name, raster_kind="scan", seed=scan_seed, size=list(scan_size),
+                     scan_angle_noise={"max_deg": SCAN_MAX_ANGLE, "noise_sigma": SCAN_NOISE_SIGMA,
+                                       "blur_sigma": SCAN_BLUR_SIGMA},
+                     pdf_points_to_pixels=G.affine_to_matrix(pts_to_scan)),
+        "photo": dict(common, file=photo_jpg.name, raster_kind="photo", seed=photo_seed, scan_seed=scan_seed,
+                      size=list(photo_size), max_corner_shift=PHOTO_MAX_SHIFT, jpeg_quality=PHOTO_JPEG_QUALITY,
+                      pdf_points_to_pixels=[[float(v) for v in row] for row in pts_to_photo]),
+    }
+    for kind, folder in (("scan", scan_dir), ("photo", photo_dir)):
+        path = folder / "truth" / "raster.json"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(truths[kind], indent=1, sort_keys=True) + "\n", encoding="utf-8")
+    return {"scan": scan_dir, "photo": photo_dir}
+
+
+def main(argv=None) -> int:
+    parser = argparse.ArgumentParser(description="Raster test fixtures (scan + phone photo) from a vector PDF page.")
+    sub = parser.add_subparsers(dest="cmd", required=True)
+    fx = sub.add_parser("fixtures", help="write <out>/<name>-scan and <out>/<name>-photo")
+    fx.add_argument("--pdf", required=True)
+    fx.add_argument("--page", type=int, default=1)
+    fx.add_argument("--out", required=True)
+    fx.add_argument("--name", required=True)
+    fx.add_argument("--scan-seed", type=int, default=FIXTURE_SCAN_SEED)
+    fx.add_argument("--photo-seed", type=int, default=FIXTURE_PHOTO_SEED)
+    args = parser.parse_args(argv)
+    dirs = make_raster_fixtures(Path(args.pdf), args.page, Path(args.out), args.name, args.scan_seed,
+                                args.photo_seed)
+    for kind, folder in dirs.items():
+        print(f"{kind}: {folder}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

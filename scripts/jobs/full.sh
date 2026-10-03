@@ -1,18 +1,21 @@
 #!/usr/bin/env bash
-# Milestone 6 job: one-command full project run (docs/milestone6.md §2.4). Run by scripts/pod_entry.sh on a
-# RunPod pod (cwd /workspace/repo; WENART_RESULTS, WENART_JOB_DIR and WENART_DEADLINE set; /workspace/venv has
-# the CPU deps; Blender at /workspace/tools/blender/blender). This script keeps the proven bash parts of
-# scripts/jobs/polish.sh (traps, tee log, exports, cgroup thread budget, setup, HF offline, flock copy loop,
-# EXIT trap); the orchestrator `python -m wenart.run pod` does the rest: stages 0-17 of every project batched by
-# GPU holder, the vLLM server sessions (pid in $WENART_JOB_DIR/vllm.pid), the deadline, needs_review, the
-# fingerprints, the realism A/B, the GPU tests and the run manifests (wenart/run/scheduler.py).
+# Milestone 6/7 job: one-command full project run (docs/milestone6.md §2.4, docs/milestone7.md §9). Run by
+# scripts/pod_entry.sh on a RunPod pod (cwd /workspace/repo; WENART_RESULTS, WENART_JOB_DIR and WENART_DEADLINE
+# set; /workspace/venv has the CPU deps; Blender at /workspace/tools/blender/blender). This script keeps the
+# proven bash parts of scripts/jobs/polish.sh (traps, tee log, exports, cgroup thread budget, setup, HF offline,
+# flock copy loop, EXIT trap); the orchestrator `python -m wenart.run pod` does the rest: stages 0-20 of every
+# project batched by GPU holder, the vLLM server sessions (pid in $WENART_JOB_DIR/vllm.pid), the deadline,
+# needs_review, the fingerprints, the realism A/B, the GPU tests and the run manifests (wenart/run/scheduler.py).
 #
-#   scripts/gpu_run.py run --job scripts/jobs/full.sh --gpu 'RTX PRO 4500' --disk 130 --max-minutes 115 \
-#     --grace 600 --env RUN_PROJECTS='synthetic-01 synthetic-03' --purpose "M6 pod A: full run"
+#   scripts/gpu_run.py run --job scripts/jobs/full.sh --gpu 'RTX PRO 6000' --disk 150 --max-minutes 115 \
+#     --grace 600 --env RUN_PROJECTS='real01 synthetic-01 synthetic-04' --purpose "M7 pod B: full run"
 #
-# ('RTX 4090' when the 4500 has no stock, then 'RTX PRO 4000'; never L4.) --max-minutes 115 gives
-# WENART_DEADLINE = entry + 100 min; a pod that the deadline cuts exits 1 and the same command resumes from the
-# volume (stage fingerprints, render keys, polish attempts, check answers).
+# (M7 §9.5, §10: the RTX PRO 6000, 96 GB, is GPU_PRIORITY[0] of scripts/gpu_run.py; without stock the runner's
+# order applies (--gpu left out), never L4. --disk 150: the VLMs, the polish/gate/OWLv2 models, venv-vllm,
+# venv-polish and the LibreDWG build live on the container disk.) --max-minutes 115 gives WENART_DEADLINE =
+# entry + 100 min; a pod that the deadline cuts exits 1 and the same command resumes from the volume (stage
+# fingerprints, render keys, polish attempts, recognition and check answers). Run the prep job
+# (scripts/jobs/prep.sh, M7 §9.2) first: it measures GPU_SPEED and max_seqs and builds the Objaverse library.
 #
 # Env (one of RUN_PROJECTS, PRIVATE_PROJECTS, AB_PROJECTS required; PRIVATE_SELFTEST=1 alone also runs):
 #   RUN_PROJECTS        public projects, e.g. "synthetic-01 synthetic-03"
@@ -97,7 +100,10 @@ if [ -n "${PRIVATE_PROJECTS:-}" ]; then
 fi
 if [ "${PRIVATE_SELFTEST:-0}" = "1" ]; then POD_ARGS+=(--private-selftest); COPY_ARGS+=(--private-selftest); fi
 if [ -n "${AB_PROJECTS:-}" ]; then
-  POD_ARGS+=(--ab "$AB_PROJECTS" --ab-phase "$AB_PHASE"); COPY_ARGS+=(--ab "$AB_PROJECTS")
+  POD_ARGS+=(--ab "$AB_PROJECTS" --ab-phase "$AB_PHASE"); AB_COPY="$AB_PROJECTS"
+  # the control project may be outside AB_PROJECTS (M7 §8.2): copy its A/B files too, once
+  case " $AB_PROJECTS " in *" ${AB_CONTROL_PROJECT:-} "*) ;; *) AB_COPY="$AB_PROJECTS $AB_CONTROL_PROJECT" ;; esac
+  COPY_ARGS+=(--ab "$AB_COPY")
   if [ -n "${AB_CONTROL_PROJECT:-}" ]; then POD_ARGS+=(--ab-controls "$AB_CONTROL_PROJECT"); fi
 fi
 if [ -n "${RUN_FORCE:-}" ]; then POD_ARGS+=(--force "$RUN_FORCE"); fi
@@ -251,10 +257,11 @@ nvidia-smi --query-gpu=name,memory.total --format=csv,noheader 2>/dev/null || lo
 copy_loop &
 COPY_PID=$!
 
-# Setup: venv-polish, the polish + gate models and vLLM + both VLMs (every part: the phases list asks for all).
+# Setup: venv-polish, the polish + gate models (+ the OWLv2 detector), vLLM + both VLMs and LibreDWG 0.14 for
+# DWG projects (every part: the phases list asks for all; M7 §5.1: the recognition setup's 'libredwg' part).
 setup_rc=0
-POLISH_MODE=final POLISH_PHASES="look controls polish gate check report tests" \
-  bash scripts/pod_setup_polish.sh || setup_rc=$?
+POLISH_RECOG_PARTS="vllm libredwg models" POLISH_MODE=final \
+  POLISH_PHASES="look controls polish gate check report tests" bash scripts/pod_setup_polish.sh || setup_rc=$?
 if [ "$setup_rc" -ne 0 ]; then
   log "warning: pod_setup_polish.sh exit $setup_rc (see setup_polish.json): the stages that need a missing part fail"
 fi

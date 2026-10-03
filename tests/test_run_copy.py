@@ -1,5 +1,6 @@
 """``python -m wenart.run copy``: public mapping and filters, the private allow-list, ``--since`` stamps and the
-count-only output (docs/milestone6.md §2.1)."""
+count-only output (docs/milestone6.md §2.1); the Milestone 7 rules (debug and rectified PNGs, recognition
+questions, answers and crops, detections, pairs_v2) and ATTRIBUTION.md (docs/milestone7.md §9.1, §7.3)."""
 from __future__ import annotations
 
 import json
@@ -89,6 +90,18 @@ def fill(out: Path) -> None:
     put(out / "check" / "realism" / "answers_qwen3-vl-8b.json", {})
     put(out / "check" / "realism" / "contact_realism_m5_vs_m6_1.jpg", size=10)
     put(out / "input" / "real-01" / "a.dxf", "x")
+    # Milestone 7 (§9.1)
+    put(out / "debug" / "big_p2.png", size=3 * 1024 * KB + 1)          # over 3 MB
+    put(out / "rectified" / "plan_scan_p1.png", size=10)
+    put(out / "rectified" / "notes.txt", "x")
+    put(out / "recognition" / "requests.json", {"items": []})
+    put(out / "recognition" / "answers_glm-4.6v-flash.json", {"calls": {}})
+    put(out / "recognition" / "other.json", {})
+    put(out / "recognition" / "crops" / "sym_L0_001_ctx.png", size=10)
+    put(out / "detect" / "detect_manifest.json", {"views": {}})
+    put(out / "detect" / "cam_a.json", {"images": {}})
+    put(out / "ab" / "pairs_v2.json", {"pairs": []})
+    put(out / "converted" / "plan.dxf", "x")
 
 
 def files(root: Path) -> set:
@@ -112,6 +125,10 @@ PUBLIC_WANT = {
     "run/p/pipeline.json", "run/p/logs/pipeline.log",
     "realism/p/render_manifest.json", "realism/p/cam_a_alt_preview.jpg", "realism/p/cameras_check.json",
     "realism/p/pairs.json", "realism/p/answers_qwen3-vl-8b.json", "realism/p/contact_realism_m5_vs_m6_1.jpg",
+    # Milestone 7 (§9.1)
+    "furniture/p/debug/page_p1.png", "furniture/p/rectified/plan_scan_p1.png", "recognition/p/requests.json",
+    "recognition/p/answers_glm-4.6v-flash.json", "recognition/p/crops/sym_L0_001_ctx.png",
+    "check/p/detect/detect_manifest.json", "check/p/detect/cam_a.json", "realism/p/pairs_v2.json",
 }
 PRIVATE_WANT = {"final/final_report.md", "final/final_manifest.json", "final/cam_a_final_preview.jpg",
                 "final/contact_1.jpg", "run/pipeline.json"}
@@ -212,3 +229,81 @@ def test_copy_lock_is_the_jobs_flock(tmp_path):
         with pytest.raises(TimeoutError):
             with CP.copy_lock(lock, wait_s=0.2):
                 pass
+
+
+def objaverse_asset(uid, title):
+    return {"library": "objaverse", "method": "library", "asset_id": f"objaverse_{uid}", "uid": uid,
+            "licence": "CC-BY-4.0", "title": title, "author": "Ana", "source_url": f"https://sketchfab.com/{uid}",
+            "attribution": f'"{title}" by Ana (https://sketchfab.com/{uid}), CC BY 4.0 '
+                           "(https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, "
+                           "ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched"}
+
+
+def test_recognition_crops_are_capped_at_200(tmp_path):
+    results, pub, _priv = refs(tmp_path)
+    for i in range(205):
+        put(pub.out_dir / "recognition" / "crops" / f"sym_L0_{i:03d}_ctx.png", size=10)
+    CP.copy_project(pub)
+    crops = sorted(p.name for p in (results / "recognition" / "p" / "crops").iterdir())
+    assert len(crops) == CP.MAX_CROPS == 200 and crops[-1] == "sym_L0_199_ctx.png"
+    # An incremental copy never adds the crops past the cap either.
+    put(pub.out_dir / "recognition" / "crops" / "sym_L0_204_ctx.png", size=11)
+    CP.copy_results([pub], tmp_path / "stamp")
+    CP.copy_results([pub], tmp_path / "stamp")
+    assert len(list((results / "recognition" / "p" / "crops").iterdir())) == 200
+
+
+def test_attribution_goes_into_every_image_folder(tmp_path):
+    results, pub, priv = refs(tmp_path)
+    fill(pub.out_dir)
+    building = {"furniture": [
+        {"id": "f_L0_001", "type": "sofa", "asset": objaverse_asset("u1", "Grey sofa")},
+        {"id": "f_L0_002", "type": "sofa", "asset": objaverse_asset("u1", "Grey sofa")},
+        {"id": "f_L0_003", "type": "bed_double", "asset": {"library": "polyhaven", "method": "library",
+                                                           "asset_id": "GothicBed_01", "licence": "CC0"}},
+        {"id": "f_L0_004", "type": "chair", "asset": {"library": "objaverse", "method": "parametric",
+                                                      "asset_id": "objaverse_u9"}}]}
+    put(pub.out_dir / "building_final.json", building)
+    put(pub.out_dir / "gate" / "cam_a_gate.jpg", size=10)
+    n = CP.copy_project(pub)
+    got = files(results)
+    want = {f"{area}/p/{CP.ATTRIBUTION}" for area in ("renders", "polish", "gate", "check", "realism", "final")}
+    assert want <= got and n == len(PUBLIC_WANT) + 1 + len(want)
+    assert "furniture/p/ATTRIBUTION.md" not in got                     # no rendered image there
+    (results / "gate" / "p" / "cam_a_gate.jpg").unlink()
+    (results / "gate" / "p" / CP.ATTRIBUTION).unlink()
+    (pub.out_dir / "gate" / "cam_a_gate.jpg").unlink()
+    CP.copy_project(pub)
+    assert not (results / "gate" / "p" / CP.ATTRIBUTION).exists()      # a folder without images gets none
+    text = (results / "final" / "p" / CP.ATTRIBUTION).read_text()
+    assert text.count('"Grey sofa" by Ana') == 1 and "f_L0_001 (sofa), f_L0_002 (sofa)" in text
+    assert "GothicBed_01" not in text and "objaverse_u9" not in text   # CC0 Poly Haven and parametric: no credit
+    assert "ODC Attribution License" in text and "CC BY 4.0" in text
+    # Unchanged credits are not rewritten (an incremental copy counts nothing new).
+    assert CP.write_attributions(pub) == 0
+    # A private project: only its final folder, which the allow-list copies.
+    fill(priv.out_dir)
+    put(priv.out_dir / "building_final.json", building)
+    CP.copy_project(priv)
+    assert files(tmp_path / "pr" / "real-01") == PRIVATE_WANT | {"final/ATTRIBUTION.md"}
+    # A project without Objaverse models gets no file.
+    put(pub.out_dir / "building_final.json", {"furniture": [building["furniture"][2]]})
+    (results / "final" / "p" / CP.ATTRIBUTION).unlink()
+    CP.copy_project(pub)
+    assert not (results / "final" / "p" / CP.ATTRIBUTION).exists()
+
+
+def test_library_attribution_from_the_objaverse_catalogue(tmp_path):
+    lib = tmp_path / "library"
+    assert CP.library_attribution(lib) is None
+    entry = dict(objaverse_asset("u2", "Oak table"), id="objaverse_u2", type="table_dining")
+    put(lib / "catalog_objaverse.json", {"kind": "objaverse_catalog", "entries": [entry]})
+    path = CP.library_attribution(lib)
+    assert path == lib / "ATTRIBUTION.md" and '"Oak table" by Ana' in path.read_text()
+    # An entry without the credit line gets one built from its fields, or a visible gap.
+    del entry["attribution"]
+    entry["licence"] = "CC0"
+    put(lib / "catalog_objaverse.json", {"entries": [entry, {"id": "objaverse_u3"}]})
+    text = CP.library_attribution(lib).read_text()
+    assert '"Oak table" by Ana (https://sketchfab.com/u2), CC0 1.0' in text
+    assert "objaverse_u3: no attribution recorded" in text

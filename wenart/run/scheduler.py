@@ -1,60 +1,80 @@
-"""The full-run scheduler (docs/milestone6.md §2.3): all stages of all projects, batched by GPU holder.
+"""The full-run scheduler (docs/milestone6.md §2.3, docs/milestone7.md §9.1): all stages of all projects,
+batched by GPU holder.
 
-What: ``Orchestrator(options).run()`` runs the 11 phases of §2.3 over the
-projects of one pod, each phase over all active projects in the given order,
-and stops a project at its first terminal state (``needs_review``,
-``failed``, ``incomplete``):
+What: ``Orchestrator(options).run()`` runs the 11 phases over the projects of
+one pod, each phase over all active projects in the given order, and stops a
+project at its first terminal state (``needs_review``, ``failed``,
+``incomplete``):
 
- 1. CPU: intake, pipeline, fit; style (with the photo terms when the stored
-    photo answers are complete); A/B prepare part 1 (pipeline, style,
-    assets) for A/B projects not in ``--projects``.
+ 1. CPU: intake, pipeline (exit 4 -> ``pending``: recognition questions
+    written; the stored answers of both models are copied from
+    ``results/recognition/<p>/`` when they complete the set), fit (not for a
+    pending project: it fits after ``pipeline_final``); style (with the photo
+    terms when the stored photo answers are complete); A/B prepare part 1
+    for the control project whose control renders are missing.
  2. VLM GLM session, only when some project has style photos without a GLM
-    answer: photos (glm).
- 3. VLM Qwen session, only when some project needs a layout or Qwen photo
-    answers: photos (qwen), photo combine + style again for projects that got
-    new answers, layout.
- 4. CPU: assets, decor, refit; A/B prepare part 2 (M5 files from git).
- 5. Blender: build, render, controls; A/B build, render, camera check,
-    control views and control renders.
+    answer or recognition questions without a GLM answer: recognize (glm),
+    photos (glm).
+ 3. VLM Qwen session, only when some project needs Qwen recognition answers,
+    a layout or Qwen photo answers: recognize (qwen); pipeline_final (the
+    pipeline with ``--answers``, ``--no-ai`` when an answer is still
+    missing) and fit for the pending projects; photos (qwen), photo combine +
+    style again for projects that got new answers, layout.
+ 4. CPU: assets, decor, refit (``--style``); A/B prepare part 2 (M5 files
+    from git) for the control project whose control renders are missing.
+ 5. Blender: build, render (``--alt-look None`` for the A/B projects),
+    controls; the control project's A/B build, render, camera check, control
+    views and control renders when they are missing (else the M6 ones on the
+    volume are reused).
  6. Diffusion: gate calibrate (a complete calibration of the same renders,
     controls and gate code is reused) -> gate validate -> polish (when the
-    decision allows it).
- 7. CPU: expected, plan crops; A/B pairs (``--ab-phase judge``: the render
-    pod's complete ``ab/pairs.json`` is reused; a rebuild keeps its control
-    sets).
- 8. VLM Qwen session: check run, preference, style-photo test; realism
-    (``look_alt`` only when the GLM session still fits before the deadline).
+    decision allows it) -> detect (OWLv2 on the Cycles and polished images).
+ 7. CPU: expected, plan crops; A/B pairs (``realism2-pairs``; ``--ab-phase
+    judge``: the render pod's complete ``ab/pairs_v2.json`` is reused).
+ 8. VLM Qwen session: check run (``--kinds cycles,polished,controls``),
+    preference, style-photo test; realism v2 (every pair set).
  9. VLM GLM session: the same.
-10. CPU (always): combine + calibrate, realism-combine, realism-summary,
-    report for every project (also needs_review and incomplete ones).
+10. CPU (always): combine (reads ``detect/``) + calibrate,
+    realism2-combine, realism2-summary, report for every project (also
+    needs_review and incomplete ones).
 11. One copy of the small result files (``wenart.run copy``), the GPU tests
     (full profile), then ``run_manifest.json``.
 
-Rules: a heavy stage (build, render, controls, gate, polish, a server start,
-any VLM stage) starts only when ``now + estimate < WENART_DEADLINE``, else
-the project becomes ``incomplete``; subprocess timeouts are
-``max(60, deadline - now)`` in phases 1-9 and ``max(300, deadline + 600 -
+Rules: a heavy stage (build, render, controls, gate, polish, detect, a
+server start, any VLM stage) starts only when ``now + estimate / GPU speed <
+WENART_DEADLINE`` (``wenart.run.plan.GPU_SPEED`` of the pod's GPU, 1.0 when
+not measured), else the project becomes ``incomplete``; subprocess timeouts
+are ``max(60, deadline - now)`` in phases 1-9 and ``max(300, deadline + 600 -
 now)`` in phases 10-11 (TERM, then KILL, status ``incomplete``); a server
 session starts only when some project needs it; ``--force`` ignores the
-fingerprints (and passes ``--force`` to render and polish); a public out_dir
-without ``run/`` (an earlier job that is not ``wenart.run``) is moved to
-``$WENART_OUTPUTS_ARCHIVE`` (default ``<repo>/../outputs-archive``) before
-its project starts; ``--ab-phase judge`` without ``--ab-controls`` takes the
-one A/B project with ``ab/control_views.json``; a project's state counts its
-project stages only (the A/B stages count in the exit code on their own).
+fingerprints (and passes ``--force`` to render, polish and detect); a public
+out_dir without ``run/`` (an earlier job that is not ``wenart.run``) is
+moved to ``$WENART_OUTPUTS_ARCHIVE`` (default ``<repo>/../outputs-archive``)
+before its project starts; ``--ab-phase judge`` without ``--ab-controls``
+takes the one A/B project with ``ab/control_views.json``; a project's state
+counts its project stages only (the A/B stages count in the exit code on
+their own); a pending project without a ``pipeline_final`` of this run ends
+``incomplete``.
+
+The A/B (realism v2, M7 §8.2): ``--ab`` names the look_alt projects
+(``renders/<cam>_preview.jpg`` = AgX - Punchy vs ``<cam>_alt_preview.jpg``
+= look None, rendered in this run when the project is in ``--projects``,
+else taken from the volume); ``--ab-controls`` the control project (in
+``--ab`` or not) whose M6 control renders (``ab/renders``, ``ab/ctl_*``,
+``ab/nuisance_ev``) give the control sets.
 
 Why: one GPU holder at a time (each vLLM server takes 90 % of the VRAM;
-Blender and the polish need the GPU), as few server starts as possible
-(3 without style photos, 4 with uncached photos, 2 without empty rooms and
-photos, 2 for ``--ab-phase judge``), and a pod that the deadline cuts resumes
-from the volume with the same command.
+Blender and the polish need the GPU), as few server starts as possible (at
+most 4: 3 without style photos or questions, 2 without empty rooms, photos
+or questions, 2 for ``--ab-phase judge``), and a pod that the deadline cuts
+resumes from the volume with the same command.
 
 How: every subprocess goes through ONE injectable function
 ``runner(cmd, env, cwd, timeout, log_path) -> rc`` (cwd = repo root, output
-into ``<out>/run/logs/<stage>.log``); the clock, the server sessions and the
-A/B control-view choice are injectable too, so the CPU tests drive the whole
-schedule with fakes. Nothing about a private project reaches stdout except
-``<alias> <stage> <status> <seconds>s``.
+into ``<out>/run/logs/<stage>.log``); the clock, the server sessions, the
+GPU size and name and the A/B control-view choice are injectable too, so the
+CPU tests drive the whole schedule with fakes. Nothing about a private
+project reaches stdout except ``<alias> <stage> <status> <seconds>s``.
 """
 from __future__ import annotations
 
@@ -78,31 +98,34 @@ from wenart.run import servers as SV
 from wenart.run import stages as S
 from wenart.run import state as ST
 from wenart.run.projects import (PRIVATE_OUTPUTS, PRIVATE_RESULTS, PRIVATE_ROOT, REPO_ROOT, ProjectError,
-                                 ProjectRef, check_alias, check_name, private_project, public_project, upload_dir)
+                                 ProjectRef, check_alias, check_name, private_project, project_folder,
+                                 public_project, upload_dir)
 
 TIMEOUT_RC = 124                    # the runner's return code for a subprocess it stopped at its timeout
 NO_DEADLINE_TIMEOUT_S = 4 * 3600.0  # bound for a subprocess when no deadline is set (session runs)
 LOG_MARK = "[wenart.run]"
 SELFTEST_ALIAS = "selftest-02"
-SELFTEST_SOURCE = "synthetic-02"
+# The private self-test's source: a needs_review test project (two untitled plan pages, M7 §9.1); synthetic-02 is
+# a normal raster project since M7.
+SELFTEST_SOURCE = "review-01"
 AB_PHASES = ("all", "render", "judge")
 PROFILES = ("full", "smoke")
 PHASE_NAMES = {
     1: "cpu: intake, pipeline, fit, style",
-    2: "vlm glm: style photos",
-    3: "vlm qwen: style photos, layout",
+    2: "vlm glm: recognition, style photos",
+    3: "vlm qwen: recognition, pipeline_final, fit, style photos, layout",
     4: "cpu: assets, decor, refit, A/B prepare",
-    5: "blender: build, render, controls, A/B renders",
-    6: "diffusion: gate, polish",
+    5: "blender: build, render, controls, A/B control renders",
+    6: "diffusion: gate, polish, detect",
     7: "cpu: expected, plan crops, A/B pairs",
     8: "vlm qwen: check, realism",
     9: "vlm glm: check, realism",
     10: "cpu: combine, realism summary, report",
     11: "gpu tests, run manifest",
 }
-# §6.2/§6.3 order of the pair sets: controls first, then m5_vs_m6, then look_alt.
-SET_ORDER = ("ctl_flat", "ctl_proxy", "ctl_direct", "ctl_lowspp", "null_identical", "null_reencode", "nuisance_ev",
-             "m5_vs_m6", S.LOOK_ALT)
+# The control renders of the control project (M6 §6.2): ab/renders plus one render folder per control set.
+CONTROL_RENDER_MANIFESTS = ("ab/renders/render_manifest.json",) + tuple(
+    f"ab/{name}/renders/render_manifest.json" for name in S.CONTROL_RENDERS)
 # Notes that may be recorded for a private project (its records reach the session, §2.1): the intake's
 # fixed needs_review reasons, which never name a file of the upload (wenart/intake.py).
 PRIVATE_NOTES = (INTAKE.NOT_UPLOADED, INTAKE.COLLISION, INTAKE.ROOT_SYMLINK, INTAKE.NO_DOCUMENT,
@@ -117,11 +140,14 @@ GPU_TEST_GROUPS = (
                     ("tests/gpu/test_check.py", ("CHECK_TEST_PROJECTS",)),
                     ("tests/gpu/test_realism.py", ("AB_TEST_PROJECTS",))]),
     ("polish", "polish_py", [("tests/gpu/test_polish.py", ("POLISH_TEST_PROJECTS", "GATE_TEST_PROJECTS")),
-                             ("tests/gpu/test_polish_backend.py", ("POLISH_TEST_PROJECTS", "GATE_TEST_PROJECTS"))]),
+                             ("tests/gpu/test_polish_backend.py", ("POLISH_TEST_PROJECTS", "GATE_TEST_PROJECTS")),
+                             ("tests/gpu/test_detect.py", ("DETECT_TEST_PROJECTS",))]),
 )
+# The prep pod's detector calibration as the integrator commits it (M7 §9.2); tests/gpu/test_detect.py reads it.
+DETECT_CALIBRATION = Path("results") / "detect" / "detector_calibration.json"
 TEST_LISTS = ("RUN_TEST_PROJECTS", "NEEDS_REVIEW_TEST_PROJECTS", "RENDER_TEST_PROJECTS", "FURNISH_TEST_PROJECTS",
-              "CHECK_TEST_PROJECTS", "POLISH_TEST_PROJECTS", "GATE_TEST_PROJECTS", "AB_TEST_PROJECTS",
-              "SELFTEST_TEST_ALIAS")
+              "CHECK_TEST_PROJECTS", "POLISH_TEST_PROJECTS", "GATE_TEST_PROJECTS", "DETECT_TEST_PROJECTS",
+              "AB_TEST_PROJECTS", "AB_CONTROL_PROJECT", "SELFTEST_TEST_ALIAS")
 
 
 class RunError(RuntimeError):
@@ -246,9 +272,9 @@ def env_deadline() -> Optional[float]:
 class RunOptions:
     projects: list = field(default_factory=list)          # public projects (full run)
     private: list = field(default_factory=list)           # private aliases (full run)
-    private_selftest: bool = False                        # + selftest-02 (a private copy of synthetic-02)
-    ab: list = field(default_factory=list)                # realism A/B projects (§6.3)
-    ab_controls: Optional[str] = None                     # the A/B project with the control sets
+    private_selftest: bool = False                        # + selftest-02 (a private copy of review-01)
+    ab: list = field(default_factory=list)                # realism A/B (look_alt) projects (M7 §8.2)
+    ab_controls: Optional[str] = None                     # the control project (its M6 ab/ control renders)
     ab_phase: str = "all"                                 # all | render | judge
     results: Optional[Path] = None                        # $RESULTS
     profile: str = "full"                                 # full | smoke
@@ -279,7 +305,11 @@ class RunOptions:
 class ProjectRun:
     ref: ProjectRef
     full: bool = True                   # in --projects / --private (the whole run)
-    ab: bool = False                    # in --ab
+    ab: bool = False                    # an A/B project of this run: in --ab, or the control project
+    look_alt: bool = False              # in --ab: its main renders give look_alt pairs (M7 §8.2)
+    controls_needed: bool = False       # the control project whose control renders are missing: render them
+    pending: bool = False               # the pipeline wrote recognition questions (exit 4, M7 §1.4)
+    finalized: bool = False             # pipeline_final ran (or was reused) in this run
     records: dict = field(default_factory=dict)       # stage -> StageRecord of this run
     previous: dict = field(default_factory=dict)      # stage -> StageRecord found on the volume
     parts: dict = field(default_factory=dict)         # stage -> list of steps of this run (multi-part stages)
@@ -321,7 +351,8 @@ class Orchestrator:
     def __init__(self, opts: RunOptions, *, runner: Callable = subprocess_runner,
                  clock: Callable[[], float] = time.time, server_factory: Optional[Callable] = None,
                  out: Optional[Callable[[str], None]] = None, control_views: Optional[Callable] = None,
-                 gpu_mem: Optional[Callable[[], int]] = None, check_models: Optional[dict] = None):
+                 gpu_mem: Optional[Callable[[], int]] = None, check_models: Optional[dict] = None,
+                 gpu_name: Optional[Callable[[], Optional[str]]] = None):
         self.opts = opts
         self.runner = runner
         self.clock = clock
@@ -329,6 +360,7 @@ class Orchestrator:
         self.out = out or (lambda line: print(line, flush=True))
         self._control_views = control_views
         self._gpu_mem = gpu_mem
+        self._gpu_name = gpu_name
         self.repo_root = Path(opts.repo_root)
         self.outputs_root = Path(opts.outputs) if opts.outputs else self.repo_root / "outputs"
         self.results = Path(opts.results) if opts.results else None
@@ -351,7 +383,10 @@ class Orchestrator:
         # whose ab/control_views.json an earlier render pod wrote (setup).
         self.ab_controls: Optional[str] = opts.ab_controls
         self._code_cache: dict = {}
-        self._seqs: Optional[int] = None
+        self._seqs: dict = {}                     # model key -> sequences of its server
+        self._gpu: Optional[dict] = None          # {"name", "memory_mib"} of the pod's GPU (queried once)
+        self._speed: Optional[dict] = None        # {"name", "speed", "matched"} (wenart.run.plan.gpu_speed)
+        self._libredwg: Optional[tuple] = None    # (LibreDWG VERSION string,) once looked up
         self.phase = 0
         self.exit_code: Optional[int] = None
 
@@ -365,8 +400,20 @@ class Orchestrator:
         return float(self.clock())
 
     def can_start(self, estimate_s: float) -> bool:
-        """A heavy stage starts only when ``now + estimate < deadline`` (§2.3)."""
-        return self.deadline is None or self.now() + float(estimate_s) < float(self.deadline)
+        """A heavy stage starts only when ``now + estimate / GPU speed < deadline`` (§2.3; the estimates were
+        measured on the RTX PRO 4500, M7 §9.3)."""
+        if self.deadline is None:
+            return True
+        return self.now() + float(estimate_s) / self.gpu_speed() < float(self.deadline)
+
+    def gpu_speed(self) -> float:
+        """``wenart.run.plan.GPU_SPEED`` of this pod's GPU (1.0 for an unknown or unmeasured GPU and with
+        ``--vlm-url``, the smoke profile on the CPU)."""
+        if self._speed is None:
+            from wenart.run.plan import gpu_speed   # lazy: plan imports this module
+            name = None if self.opts.vlm_url else self.gpu_info().get("name")
+            self._speed = gpu_speed(name)
+        return float(self._speed["speed"])
 
     def timeout(self, late: bool = False) -> float:
         if self.deadline is None:
@@ -427,7 +474,7 @@ class Orchestrator:
 
     def finish(self, pr: ProjectRun, stage: str, status: str, note: Optional[str] = None, *,
                fingerprint: Optional[str] = None, inputs: Optional[dict] = None,
-               outputs: Optional[list] = None, merge: bool = False) -> ST.StageRecord:
+               outputs: Optional[list] = None, merge: bool = False, written: Optional[dict] = None) -> ST.StageRecord:
         """Write the record of ``stage`` (all steps of this run so far); ``merge`` keeps the worse of the
         status already recorded in this run and ``status`` (stages that span two model sessions)."""
         steps = list(pr.parts.get(stage, []))
@@ -450,7 +497,8 @@ class Orchestrator:
                              inputs=dict(inputs or {}),
                              outputs=list(outputs if outputs is not None else S.outputs_of(stage, pr.name)),
                              started_utc=first, git_commit=self.commit, log=f"logs/{stage}.log",
-                             note=self.private_note(pr, note), run_id=self.run_id, steps=steps)
+                             note=self.private_note(pr, note), run_id=self.run_id, steps=steps,
+                             written=dict(written or {}))
         pr.records[stage] = rec
         ST.write_record(pr.out, rec)
         self.say(pr, stage, status, rec.seconds, rec.note)
@@ -542,12 +590,18 @@ class Orchestrator:
                 raise RunError(f"invalid private alias (#{aliases.index(a) + 1} of --private): use real-01, "
                                "real-02, ... (real- and 2-3 digits)") from None
         for n in names + ab_names:
-            if not (self.repo_root / "projects" / n).is_dir():
+            if not project_folder(n, self.repo_root).is_dir():
                 raise RunError(f"no project folder projects/{n}")
         if ab_names:
             controls = o.ab_controls
-            if controls and controls not in ab_names:
-                raise RunError(f"--ab-controls {controls} is not one of the --ab projects")
+            if controls:
+                # M7 §8.2: the control project may be outside --ab (its M6 control renders on the volume).
+                try:
+                    check_name(controls)
+                except ProjectError as exc:
+                    raise RunError(f"--ab-controls: {exc}") from exc
+                if not project_folder(controls, self.repo_root).is_dir():
+                    raise RunError(f"--ab-controls: no project folder projects/{controls}")
         elif o.ab_controls:
             raise RunError("--ab-controls without --ab")
         if o.private_selftest:
@@ -568,12 +622,28 @@ class Orchestrator:
             if pr is None:
                 ref = replace(public_project(n, self.results, self.repo_root), out_dir=self.outputs_root / n)
                 pr = ProjectRun(ref, full=False)
+                by_name[n] = pr
+            pr.ab = pr.look_alt = True
+            self.ab_runs.append(pr)
+        if ab_names and o.ab_phase == "judge" and not self.ab_controls:
+            self.ab_controls = self.judge_controls(ab_names)
+        if self.ab_controls and self.ab_controls not in ab_names:
+            n = self.ab_controls
+            pr = by_name.get(n)
+            if pr is None:
+                ref = replace(public_project(n, self.results, self.repo_root), out_dir=self.outputs_root / n)
+                pr = ProjectRun(ref, full=False)
             pr.ab = True
             self.ab_runs.append(pr)
         for pr in self.runs + [p for p in self.ab_runs if not p.full]:
             self.archive_old_outputs(pr)
-        if ab_names and o.ab_phase == "judge" and not self.ab_controls:
-            self.ab_controls = self.judge_controls(ab_names)
+        control = self.controls_run()
+        if control is not None and self.opts.ab_phase != "judge":
+            missing = self.control_renders_missing(control)
+            control.controls_needed = bool(missing)
+            if missing:
+                self.out(f"A/B controls: {control.name} has no control renders ({missing[0]} missing): they are "
+                         "rendered in this run")
         for pr in self.runs + self.ab_runs:
             ST.run_dir(pr.out).mkdir(parents=True, exist_ok=True)
         if aliases and self.job_dir is not None:
@@ -629,11 +699,18 @@ class Orchestrator:
         self.out(f"{pr.name}: {pr.archive_note}")
 
     def prepare_selftest(self) -> None:
-        """``--private-selftest``: ``projects/synthetic-02`` copied once to ``<private_root>/selftest-02``."""
+        """``--private-selftest``: ``tests/fixtures/projects/review-01`` (two untitled plan pages: needs_review)
+        copied once to ``<private_root>/selftest-02``."""
         target = upload_dir(SELFTEST_ALIAS, Path(self.opts.private_root))
         if not target.exists():
             target.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copytree(self.repo_root / "projects" / SELFTEST_SOURCE, target)
+            shutil.copytree(project_folder(SELFTEST_SOURCE, self.repo_root), target)
+
+    @staticmethod
+    def control_renders_missing(pr: ProjectRun) -> list:
+        """The control render manifests (``CONTROL_RENDER_MANIFESTS``) the control project lacks: none when its M6
+        control renders are on the volume (they are used as they are, M7 §8.2)."""
+        return [rel for rel in CONTROL_RENDER_MANIFESTS if not (pr.out / rel).is_file()]
 
     def link_private_results(self, aliases: list) -> None:
         """``$JOB_DIR/results-private/<a>`` -> ``<private_results>/<a>`` (collected by the runner, §1.1)."""
@@ -697,7 +774,16 @@ class Orchestrator:
             self.stage_pipeline(pr)
             if not pr.active:
                 continue
-            self.fp_stage(pr, "fit", S.fit(self.tools, pr.ref), [pr.out / "building.json", self.repo_root / S.CATALOG])
+            if pr.pending:
+                # The questions of the first run: the stored (or committed) answers that complete a model's set are
+                # copied now; fit follows pipeline_final in phase 3 (M7 §9.1).
+                for key in self.recognition_keys():
+                    if not self.recognition_missing(pr, key):
+                        self.recognize_part(pr, key, None)
+            else:
+                self.skip(pr, "recognize", "no questions")
+                self.skip(pr, "pipeline_final", "no questions")
+                self.stage_fit(pr)
             if not pr.active:
                 continue
             self.photos_prepare(pr)
@@ -708,7 +794,137 @@ class Orchestrator:
             if self.opts.ab_phase == "judge":
                 self.skip(pr, "ab_prepare", "not in this phase")
                 continue
-            self.ab_prepare_part1(pr)
+            if pr.controls_needed:
+                self.ab_prepare_part1(pr)
+
+    def stage_fit(self, pr: ProjectRun) -> None:
+        """Stage fit (the building's documented pieces; ``catalog_objaverse.json`` is merged by catalog.load, so it
+        is an input too)."""
+        self.fp_stage(pr, "fit", S.fit(self.tools, pr.ref),
+                      [pr.out / "building.json", self.repo_root / S.CATALOG, self.repo_root / S.CATALOG_OBJAVERSE])
+
+    # ----- recognition (M7 §1.4, §9.1) --------------------------------------
+
+    def recognition_keys(self) -> list:
+        """The model keys that answer recognition questions in this run (both passes, ``CHECK_MODELS`` order)."""
+        return [k for k in self.opts.check_models if k in self.models]
+
+    def recognition_dir(self, pr: ProjectRun) -> Path:
+        return pr.out / S.RECOGNITION_DIR
+
+    def recognition_items(self, pr: ProjectRun) -> list:
+        data = read_json(self.recognition_dir(pr) / "requests.json")
+        items = data.get("items") if isinstance(data, dict) else None
+        return [i for i in items or [] if isinstance(i, dict) and i.get("key") and i.get("input_sha256")]
+
+    def answers_file(self, pr: ProjectRun, key: str) -> Path:
+        return self.recognition_dir(pr) / f"answers_{self.tools.model_slug(key)}.json"
+
+    def recognition_missing(self, pr: ProjectRun, key: str) -> list:
+        """The question keys without a current, schema-valid answer of ``key`` in ``<out>/recognition`` or in the
+        committed seeds (``results/recognition/<p>/``): what a server would have to answer."""
+        from wenart.recognition import answers as A    # lazy: jsonschema
+        items = self.recognition_items(pr)
+        if not items or key not in self.models:
+            return [i["key"] for i in items]
+        store = A.AnswerStore.for_model(self.recognition_dir(pr), key, self.models)
+        seeds = S.recognition_seeds(pr.ref, self.repo_root)
+        seed = None
+        if seeds is not None and (seeds / store.path.name).is_file():
+            seed = A.AnswerStore(seeds / store.path.name, key, store.data["slug"], self.tools.model_id(key))
+        return [i["key"] for i in items if store.valid(i) is None and (seed is None or seed.valid(i) is None)]
+
+    def recognition_complete(self, pr: ProjectRun) -> bool:
+        """Every question has a current answer of both models in ``<out>/recognition`` (the pipeline's own rule)."""
+        from wenart.recognition import answers as A    # lazy: jsonschema
+        items = self.recognition_items(pr)
+        if not items:
+            return True
+        return A.is_complete(A.load(self.recognition_dir(pr), items, self.models))
+
+    def recognize_part(self, pr: ProjectRun, key: str, url: Optional[str], seqs: int = 1) -> None:
+        """One model's answers (``url`` None: the stored and committed answers only, no server)."""
+        missing = self.recognition_missing(pr, key) if url is not None else []
+        if url is not None and not self.can_start(S.est_calls(len(missing), seqs)):
+            self.finish(pr, "recognize", "incomplete", f"deadline: recognition ({key}) not started", merge=True,
+                        outputs=self.recognition_outputs(pr))
+            return
+        seeds = S.recognition_seeds(pr.ref, self.repo_root)
+        cmd = S.recognize(self.tools, pr.ref, key, url, seqs, seeds if seeds is not None and seeds.is_dir() else None)
+        step = f"{'ask' if url is not None else 'stored answers'} {key}"
+        rc = self.run_step(pr, "recognize", step, cmd)
+        if rc == 0:
+            status, note = ("ok", None) if url is not None else ("reused", None)
+        elif rc in (3, TIMEOUT_RC):
+            status, note = "incomplete", f"deadline: recognition ({key}) cut"
+        else:
+            status, note = "warning", f"recognition {key} exit {rc}: its unanswered pieces stay unknown, unverified"
+        self.finish(pr, "recognize", status, note, merge=True, outputs=self.recognition_outputs(pr))
+
+    def recognition_outputs(self, pr: ProjectRun) -> list:
+        return [f"{S.RECOGNITION_DIR}/{self.answers_file(pr, k).name}" for k in self.recognition_keys()
+                if self.answers_file(pr, k).is_file()]
+
+    def finalize(self, pr: ProjectRun) -> None:
+        """A pending project once its answers are in (or will not come): pipeline_final, then fit (phase 3)."""
+        if not pr.active or not pr.pending or pr.finalized:
+            return
+        if self.status_of(pr, "recognize") is None:
+            # No model was asked in this run (no recognition model in CHECK_MODELS).
+            self.finish(pr, "recognize", "warning", "no recognition model in CHECK_MODELS: the pieces stay unknown, "
+                        "unverified", outputs=self.recognition_outputs(pr))
+        self.stage_pipeline_final(pr)
+        if pr.active:
+            self.stage_fit(pr)
+
+    def pipeline_final_inputs(self, pr: ProjectRun) -> dict:
+        ins = ST.file_hashes([pr.ref.project_dir] + [self.answers_file(pr, k) for k in self.models])
+        ins.update(self.converter_inputs())
+        return ins
+
+    def stage_pipeline_final(self, pr: ProjectRun) -> None:
+        """The pipeline again with ``--answers`` (``--no-ai`` when an answer is missing, so it never exits 4; the
+        smoke profile: ``--no-ai`` and no answers). Reused only while the stored ``building.json`` is the one it
+        wrote (its canonical sha256 in ``written``): a re-run first pipeline overwrites it."""
+        pr.finalized = True
+        complete = self.recognition_complete(pr)
+        smoke = self.opts.smoke
+        cmd = S.pipeline_final(self.tools, pr.ref, answers=not smoke, no_ai=smoke or not complete)
+        ins = self.pipeline_final_inputs(pr)
+        fp = ST.fingerprint("pipeline_final", S.STAGE_VERSION["pipeline_final"], cmd[1:], ins,
+                            self.code("pipeline_final"))
+        prev = self.previous(pr, "pipeline_final")
+        building = pr.out / "building.json"
+        if not self.forced("pipeline_final") and ST.reusable(prev, fp, pr.out) \
+                and prev.written.get("building.json") == ST.canonical_sha256(building):
+            self.finish(pr, "pipeline_final", "reused", fingerprint=fp, inputs=ins, outputs=prev.outputs,
+                        written=prev.written)
+            return
+        rc = self.run_step(pr, "pipeline_final", "pipeline_final", cmd)
+        data = read_json(building)
+        status = data.get("status") if isinstance(data, dict) else None
+        written = {"building.json": ST.canonical_sha256(building)}
+        rec = {"fingerprint": fp, "inputs": ins, "written": written}
+        how = ("smoke profile: --no-ai" if smoke else "answers applied" if complete
+               else "--no-ai: the unanswered pieces stay unknown, unverified")
+        if rc == 0 and status == "ok":
+            self.finish(pr, "pipeline_final", "ok", how, **rec)
+        elif rc == 1 and status == "needs_review":
+            self.finish(pr, "pipeline_final", "needs_review", "building needs review (report.md)", **rec)
+        elif rc == TIMEOUT_RC:
+            self.finish(pr, "pipeline_final", "incomplete", "timeout", **rec)
+        else:
+            self.finish(pr, "pipeline_final", "failed", f"exit {rc}, building status {status}", **rec)
+
+    def converter_inputs(self) -> dict:
+        """The LibreDWG ``VERSION`` string in the pipeline fingerprint (M7 §5.1; None without a binary)."""
+        if self._libredwg is None:
+            try:
+                from wenart.ingest.dwg import libredwg_version
+                self._libredwg = (libredwg_version(),)
+            except Exception:  # noqa: BLE001 - recorded as unknown; the pipeline reports a broken converter itself
+                self._libredwg = ("unknown",)
+        return {"<LibreDWG VERSION>": self._libredwg[0]}
 
     def stage_intake(self, pr: ProjectRun) -> None:
         if not pr.ref.private:
@@ -741,20 +957,31 @@ class Orchestrator:
             self.finish(pr, "intake", "failed", f"exit {rc}", fingerprint=fp, inputs=ins)
 
     def stage_pipeline(self, pr: ProjectRun) -> None:
+        """Stage pipeline. Exit 4 (checked first) = recognition questions written: ``pending`` (M7 §9.1); a stored
+        pending record is reused as ``pending`` (pipeline_final may have rewritten the building since)."""
         if not pr.ref.project_dir.is_dir():
             self.finish(pr, "pipeline", "failed", "no project folder")
             return
         cmd = S.pipeline(self.tools, pr.ref)
         ins = ST.file_hashes([pr.ref.project_dir])
+        ins.update(self.converter_inputs())
         fp = ST.fingerprint("pipeline", S.STAGE_VERSION["pipeline"], cmd[1:], ins, self.code("pipeline"))
         prev = self.previous(pr, "pipeline")
         if not self.forced("pipeline") and ST.reusable(prev, fp, pr.out):
-            self.finish(pr, "pipeline", "reused", fingerprint=fp, inputs=ins, outputs=prev.outputs)
+            if prev.status == "pending":
+                pr.pending = True
+                self.finish(pr, "pipeline", "pending", self.pending_note(pr, reused=True), fingerprint=fp,
+                            inputs=ins, outputs=prev.outputs)
+            else:
+                self.finish(pr, "pipeline", "reused", fingerprint=fp, inputs=ins, outputs=prev.outputs)
             return
         rc = self.run_step(pr, "pipeline", "pipeline", cmd)
         building = read_json(pr.out / "building.json")
         status = building.get("status") if isinstance(building, dict) else None
-        if rc != 0 and status == "needs_review":
+        if rc == 4:
+            pr.pending = True
+            self.finish(pr, "pipeline", "pending", self.pending_note(pr), fingerprint=fp, inputs=ins)
+        elif rc != 0 and status == "needs_review":
             self.finish(pr, "pipeline", "needs_review", "building needs review (report.md)", fingerprint=fp,
                         inputs=ins)
         elif rc == 0 and status == "ok":
@@ -764,6 +991,10 @@ class Orchestrator:
         else:
             self.finish(pr, "pipeline", "failed", f"exit {rc}, building status {status}", fingerprint=fp,
                         inputs=ins)
+
+    def pending_note(self, pr: ProjectRun, reused: bool = False) -> str:
+        n = len(self.recognition_items(pr))
+        return f"{'reused: ' if reused else ''}{n} recognition question(s) written (recognition/requests.json)"
 
     def stage_style(self, pr: ProjectRun, terms: bool) -> None:
         pr.parts.pop("style", None)
@@ -879,26 +1110,39 @@ class Orchestrator:
 
     # ----- server sessions ---------------------------------------------------
 
-    def seqs(self) -> int:
-        if self._seqs is None:
+    def seqs(self, key: str = "qwen") -> int:
+        """Sequences of ``key``'s server: ``servers.server_seqs(VRAM, check.yaml models.<key>.max_seqs)`` (2 with
+        ``--vlm-url``)."""
+        if key not in self._seqs:
             if self.opts.vlm_url:
-                self._seqs = 2
+                self._seqs[key] = 2
             else:
-                mem = self._gpu_mem() if self._gpu_mem is not None else self.query_gpu_mem()
-                self._seqs = SV.server_seqs(mem)
-        return self._seqs
+                self._seqs[key] = SV.server_seqs(self.gpu_info().get("memory_mib"), SV.max_seqs_of(self.models, key))
+        return self._seqs[key]
 
-    def query_gpu_mem(self) -> int:
+    def gpu_info(self) -> dict:
+        """``{"name", "memory_mib"}`` of the pod's GPU: the injected callables, else one ``nvidia-smi`` query (name
+        None and 0 MiB when it fails)."""
+        if self._gpu is None:
+            if self._gpu_mem is not None or self._gpu_name is not None:
+                self._gpu = {"name": self._gpu_name() if self._gpu_name is not None else None,
+                             "memory_mib": self._gpu_mem() if self._gpu_mem is not None else 0}
+            else:
+                self._gpu = self.query_gpu()
+        return self._gpu
+
+    def query_gpu(self) -> dict:
         log = (self.job_dir or self.outputs_root) / "logs" / "nvidia-smi.log"
         rc, _ = self.exec(log, SV.NVIDIA_SMI_QUERY)
         if rc != 0:
-            return 0
+            return {"name": None, "memory_mib": 0}
         try:
             text = log.read_text(encoding="utf-8", errors="replace")
         except OSError:
-            return 0
+            return {"name": None, "memory_mib": 0}
         lines = [ln for ln in text.splitlines() if not ln.startswith(LOG_MARK)]
-        return SV.gpu_mem_from_text("\n".join(lines[-4:]))
+        name, mem = SV.gpu_from_text("\n".join(lines[-4:]))
+        return {"name": name, "memory_mib": mem}
 
     @contextmanager
     def session(self, key: str):
@@ -910,7 +1154,8 @@ class Orchestrator:
             elif self.opts.vlm_url:
                 cm = SV.external_server(self.opts.vlm_url, key, stats=stats)
             else:
-                cm = SV.server(key, self.deadline, stats=stats, seqs=self.seqs(), logs_dir=self.opts.logs_dir,
+                cm = SV.server(key, self.deadline, stats=stats, seqs=self.seqs(key),
+                               mem_mib=self.gpu_info().get("memory_mib") or None, logs_dir=self.opts.logs_dir,
                                job_dir=self.job_dir, private=self.any_private, clock=self.clock, out=self.out)
             with cm as url:
                 yield url
@@ -931,14 +1176,35 @@ class Orchestrator:
 
     # ----- phase 2: GLM photos ---------------------------------------------
 
+    def recognition_needs(self, key: str) -> list:
+        """Active pending projects (not yet finalized) with questions ``key`` still has to answer."""
+        if key not in self.recognition_keys():
+            return []
+        return [pr for pr in self.runs if pr.active and pr.pending and not pr.finalized
+                and self.recognition_missing(pr, key)]
+
+    def recognition_server_failed(self, pr: ProjectRun, key: str, exc: "SV.ServerError") -> None:
+        if exc.reason == "deadline":
+            self.finish(pr, "recognize", "incomplete", f"deadline: {key} server not ready", merge=True,
+                        outputs=self.recognition_outputs(pr))
+        else:
+            self.finish(pr, "recognize", "warning", f"server {key}: {exc.reason}: its unanswered pieces stay "
+                        "unknown, unverified", merge=True, outputs=self.recognition_outputs(pr))
+
     def phase2(self) -> None:
-        need = [pr for pr in self.runs if pr.active and pr.photos and self.photo_missing(pr, "glm")]
-        if "glm" not in self.opts.check_models or not need:
-            self.out("phase 2: no project needs a GLM photo answer: no server")
+        need_recog = self.recognition_needs("glm")
+        need_photos = [pr for pr in self.runs if pr.active and pr.photos and self.photo_missing(pr, "glm")]
+        if "glm" not in self.opts.check_models or not (need_photos or need_recog):
+            self.out("phase 2: no project needs a GLM recognition or photo answer: no server")
             return
+        need = need_recog + [pr for pr in need_photos if pr not in need_recog]
 
         def fail(pr, status, note):
-            if status == "incomplete":
+            if status != "incomplete":
+                return
+            if pr in need_recog:
+                self.finish(pr, "recognize", "incomplete", note, merge=True, outputs=self.recognition_outputs(pr))
+            if pr in need_photos:
                 self.finish(pr, "photos", "incomplete", note, merge=True)
 
         cm = self.start_session("glm", need, fail)
@@ -946,13 +1212,19 @@ class Orchestrator:
             return
         try:
             with cm as url:
-                for pr in need:
+                for pr in need_recog:
                     if pr.active:
-                        self.photos_session_part(pr, "glm", url, self.seqs())
+                        self.recognize_part(pr, "glm", url, self.seqs("glm"))
+                for pr in need_photos:
+                    if pr.active:
+                        self.photos_session_part(pr, "glm", url, self.seqs("glm"))
         except SV.ServerError as exc:
             self.out(f"phase 2: {exc}")
-            for pr in need:
-                if exc.reason == "deadline":
+            for pr in need_recog:
+                if pr.active and "ask glm" not in [s["name"] for s in pr.parts.get("recognize", [])]:
+                    self.recognition_server_failed(pr, "glm", exc)
+            for pr in need_photos:
+                if exc.reason == "deadline" and pr.active:
                     fail(pr, "incomplete", "deadline: glm server not ready")
 
     # ----- phase 3: Qwen photos + layout -----------------------------------
@@ -1007,36 +1279,48 @@ class Orchestrator:
         for pr in self.runs:
             if pr.active and pr.photos and pr.new_photo_answers and not pr.terms_applied and self.photos_complete(pr):
                 self.apply_terms(pr, restyle=True)
+        # Pending projects whose answers are all in (or whose Qwen pass is not asked): the final building now.
+        need_recog = self.recognition_needs("qwen")
         for pr in self.runs:
-            if pr.active:
-                pr.layout_rooms = self.layout_needed(pr)
-                if not pr.layout_rooms:
-                    self.skip(pr, "layout", "no empty room")
-        need_photos = [pr for pr in self.runs
-                       if pr.active and pr.photos and "qwen" in self.opts.check_models and self.photo_missing(pr, "qwen")]
+            if pr.active and pr.pending and pr not in need_recog:
+                self.finalize(pr)
+        for pr in self.runs:
+            if pr.active and not (pr.pending and not pr.finalized):
+                self.layout_prepare(pr)
+        need_photos = [pr for pr in self.runs if pr.active and pr.photos and "qwen" in self.opts.check_models
+                       and self.photo_missing(pr, "qwen")]
         need_layout = [pr for pr in self.runs if pr.active and pr.layout_rooms and not self.layout_reusable(pr)]
-        if not need_photos and not need_layout:
-            self.out("phase 3: no project needs a layout or a Qwen photo answer: no server")
+        if not need_photos and not need_layout and not need_recog:
+            self.out("phase 3: no project needs Qwen recognition answers, a layout or a Qwen photo answer: no server")
             for pr in self.runs:
                 if pr.active and pr.layout_rooms:
                     self.stage_layout(pr, None)
                 self.photos_finish(pr)
             return
-        need = need_photos + [pr for pr in need_layout if pr not in need_photos]
+        need = need_recog + [pr for pr in need_photos + need_layout if pr not in need_recog]
 
         def fail(pr, status, note):
+            if pr in need_recog and not pr.finalized:
+                self.finish(pr, "recognize", status if status == "incomplete" else "warning", note, merge=True,
+                            outputs=self.recognition_outputs(pr))
             if pr in need_layout:
                 self.finish(pr, "layout", status, note)
-            elif status == "incomplete":
+            elif status == "incomplete" and pr in need_photos:
                 self.finish(pr, "photos", "incomplete", note, merge=True)
 
         cm = self.start_session("qwen", need, fail)
         if cm is not None:
             try:
                 with cm as url:
+                    for pr in need_recog:
+                        if pr.active:
+                            self.recognize_part(pr, "qwen", url, self.seqs("qwen"))
+                        self.finalize(pr)
+                        if pr.active:
+                            self.layout_prepare(pr)
                     for pr in need_photos:
                         if pr.active:
-                            self.photos_session_part(pr, "qwen", url, self.seqs())
+                            self.photos_session_part(pr, "qwen", url, self.seqs("qwen"))
                     for pr in self.runs:
                         if pr.active and pr.photos and pr.new_photo_answers and not pr.terms_applied \
                                 and self.photos_complete(pr):
@@ -1047,13 +1331,30 @@ class Orchestrator:
             except SV.ServerError as exc:
                 self.out(f"phase 3: {exc}")
                 status = "incomplete" if exc.reason == "deadline" else "failed"
+                for pr in need_recog:
+                    if pr.active and not pr.finalized and \
+                            "ask qwen" not in [s["name"] for s in pr.parts.get("recognize", [])]:
+                        self.recognition_server_failed(pr, "qwen", exc)
                 for pr in need_layout:
                     if pr.active and "layout" not in pr.records:
                         self.finish(pr, "layout", status, f"server qwen: {exc.reason}")
         for pr in self.runs:
+            # Questions without a Qwen session (a server error): the final building with the answers there are.
+            if pr.active and pr.pending and not pr.finalized:
+                self.finalize(pr)
+                if pr.active:
+                    self.layout_prepare(pr)
             if pr.active and pr.layout_rooms and "layout" not in pr.records:
                 self.stage_layout(pr, None)
             self.photos_finish(pr)
+
+    def layout_prepare(self, pr: ProjectRun) -> None:
+        """The rooms the layout furnishes, or the layout skipped (``no empty room``); once per project."""
+        if "layout" in pr.records or pr.layout_rooms:
+            return
+        pr.layout_rooms = self.layout_needed(pr)
+        if not pr.layout_rooms:
+            self.skip(pr, "layout", "no empty room")
 
     # ----- phase 4: CPU ----------------------------------------------------
 
@@ -1068,11 +1369,12 @@ class Orchestrator:
             if not pr.active:
                 continue
             self.fp_stage(pr, "refit", S.refit(self.tools, pr.ref),
-                          [pr.out / "building_decor.json", self.repo_root / S.CATALOG])
+                          [pr.out / "building_decor.json", pr.out / "style.json", self.repo_root / S.CATALOG,
+                           self.repo_root / S.CATALOG_OBJAVERSE])
         if self.opts.ab_phase == "judge":
             return
         for pr in self.ab_runs:
-            if not pr.ab_active:
+            if not pr.ab_active or not pr.controls_needed:
                 continue
             if pr.full and self.status_of(pr, "style") not in ST.GOING_ON:
                 pr.ab_dropped = "the project has no style"
@@ -1103,12 +1405,17 @@ class Orchestrator:
                 self.stage_controls(pr)
         if self.opts.ab_phase == "judge":
             return
-        for pr in self.ab_runs:
-            if pr.ab_active:
-                self.ab_render_stage(pr)
         controls = self.controls_run()
-        if controls is not None and controls.ab_active:
-            self.ab_controls_stage(controls)
+        if controls is None or not controls.ab_active:
+            return
+        if controls.controls_needed:
+            self.ab_render_stage(controls)
+            if controls.ab_active:
+                self.ab_controls_stage(controls)
+        else:
+            note = "the M6 control renders on the volume (ab/renders, ab/ctl_*, ab/nuisance_ev) are used as they are"
+            self.finish(controls, "ab_render", "reused", note, outputs=[])
+            self.finish(controls, "ab_controls", "reused", note, outputs=[])
 
     def stage_build(self, pr: ProjectRun) -> None:
         if not self.can_start(S.EST_BUILD_S):
@@ -1132,11 +1439,13 @@ class Orchestrator:
         return "ok", None
 
     def stage_render(self, pr: ProjectRun) -> None:
+        """Stage render; a look_alt project of the A/B also saves the alt previews (``--alt-look None``)."""
         pr.views = self.scene_views(pr)
         if not self.can_start(S.est_render(pr.views)):
             self.not_started(pr, "render")
             return
-        rc = self.run_step(pr, "render", "render", S.render(self.tools, pr.ref, force=self.forced("render")))
+        cmd = S.render(self.tools, pr.ref, force=self.forced("render"), alt_look=pr.look_alt)
+        rc = self.run_step(pr, "render", "render", cmd)
         status, note = self.render_status(rc, pr.out / "renders" / "render_manifest.json")
         self.finish(pr, "render", status, note)
 
@@ -1264,20 +1573,23 @@ class Orchestrator:
             if not pr.active:
                 continue
             if self.opts.smoke:
-                self.skip(pr, "gate", "smoke profile")
-                self.skip(pr, "polish", "smoke profile")
+                for stage in ("gate", "polish", "detect"):
+                    self.skip(pr, stage, "smoke profile")
                 continue
             if not self.polish_on(pr):
-                self.skip(pr, "gate", "polish off")
-                self.skip(pr, "polish", "polish off")
+                for stage in ("gate", "polish", "detect"):
+                    self.skip(pr, stage, "polish off")
                 continue
             self.stage_gate(pr)
             if not pr.active:
                 continue
             if pr.gate_decision in ("ok", "flagged"):
                 self.stage_polish(pr)
+                if pr.active:
+                    self.stage_detect(pr)
             else:
                 self.skip(pr, "polish", "gate not validated")
+                self.skip(pr, "detect", "gate not validated")
 
     def gate_inputs(self, pr: ProjectRun) -> dict:
         """What a calibration depends on besides the gate code: the renders, the control selection and its hidden
@@ -1365,6 +1677,24 @@ class Orchestrator:
         else:
             self.finish(pr, "polish", "failed", f"exit {rc}")
 
+    def stage_detect(self, pr: ProjectRun) -> None:
+        """Stage detect (M7 §8.1): OWLv2 boxes of the Cycles and the chosen polished image of every polished view
+        and of the control renders, read by combine. A failure is a warning (with a calibrated detector, combine
+        then keeps those views' Cycles images); a deadline cut is incomplete."""
+        if not self.can_start(S.est_detect(pr.views)):
+            self.not_started(pr, "detect")
+            return
+        rc = self.run_step(pr, "detect", "detect", S.detect(self.tools, pr.ref, force=self.forced("detect")),
+                           S.CUDA_ALLOC)
+        manifest = read_json(pr.out / "detect" / "detect_manifest.json")
+        manifest = manifest if isinstance(manifest, dict) else {}
+        if rc == TIMEOUT_RC or manifest.get("incomplete"):
+            self.finish(pr, "detect", "incomplete", "timeout" if rc == TIMEOUT_RC else "deadline: detection cut")
+        elif rc == 0:
+            self.finish(pr, "detect", "ok", f"skipped: {manifest['skipped']}" if manifest.get("skipped") else None)
+        else:
+            self.finish(pr, "detect", "warning", f"exit {rc}: no detection in this run")
+
     # ----- phase 7: CPU ----------------------------------------------------
 
     def phase7(self) -> None:
@@ -1372,35 +1702,61 @@ class Orchestrator:
             if pr.active:
                 self.simple_stage(pr, "expected", [("expected", S.expected(self.tools, pr.ref), None),
                                                    ("plan-crops", S.plan_crops(self.tools, pr.ref), None)])
+        outs = self.look_alt_outs()
         for pr in self.ab_runs:
             if not pr.ab_active:
                 continue
-            if not (pr.out / "ab" / "cameras_check.json").is_file():
-                self.finish(pr, "ab_pairs", "failed", "no ab/cameras_check.json (A/B render missing)", outputs=[])
-                pr.ab_dropped = "no A/B render"
-                continue
             controls = pr.name == self.ab_controls
-            stored = read_json(pr.out / "ab" / "pairs.json")
+            stored = read_json(pr.out / "ab" / "pairs_v2.json")
             stored = stored if isinstance(stored, dict) else {}
-            if self.opts.ab_phase == "judge" and self.pairs_complete(pr, stored, controls):
+            if not (controls or stored.get("controls")) and pr.out not in outs:
+                why = ("no render of this run" if pr.full else "no renders/render_manifest.json on the volume")
+                self.finish(pr, "ab_pairs", "failed", f"look_alt: {why}", outputs=[])
+                pr.ab_dropped = why
+                continue
+            if self.opts.ab_phase == "judge" and self.pairs_complete(pr, stored, controls, outs):
                 # Judge: the render pod's pairs file is kept as it is (§2.1), control sets included.
-                self.finish(pr, "ab_pairs", "reused", f"ab/pairs.json of the render pod ({len(stored['pairs'])} "
+                self.finish(pr, "ab_pairs", "reused", f"ab/pairs_v2.json of the render pod ({len(stored['pairs'])} "
                             f"pairs{', controls' if stored.get('controls') else ''})")
                 continue
-            # A rebuild never drops the control sets a stored pairs file has (pod B's renders stay on the volume).
+            # A rebuild never drops the control sets a stored pairs file has (the M6 renders stay on the volume).
             controls = controls or bool(stored.get("controls"))
-            self.simple_stage(pr, "ab_pairs", [("realism-pairs", S.realism_pairs(self.tools, pr.ref, controls), None)])
+            self.simple_stage(pr, "ab_pairs", [("realism2-pairs", S.realism2_pairs(self.tools, pr.ref, controls, outs),
+                                                None)])
             if self.status_of(pr, "ab_pairs") != "ok":
                 pr.ab_dropped = "no pairs"
 
+    def look_alt_outs(self) -> list:
+        """The outputs of the look_alt projects with usable renders, in ``--ab`` order (the same
+        ``--project-outs`` list for every ``realism2-pairs`` of the run): a project of ``--projects`` whose render
+        stage ended ok in this run, another one whose ``renders/render_manifest.json`` is on the volume (an earlier
+        run of it with ``--ab``)."""
+        outs = []
+        for pr in self.ab_runs:
+            if not pr.look_alt or not pr.ab_active:
+                continue
+            if pr.full:
+                usable = self.status_of(pr, "render") == "ok"
+            else:
+                usable = (pr.out / "renders" / "render_manifest.json").is_file()
+            if usable:
+                outs.append(pr.out)
+        return outs
+
     @staticmethod
-    def pairs_complete(pr: ProjectRun, stored: dict, controls: bool) -> bool:
-        """A stored ``ab/pairs.json`` that the judge phase can use as it is: a pairs file with pairs whose image
-        files all exist, with the control sets when ``pr`` is the control project."""
+    def pairs_complete(pr: ProjectRun, stored: dict, controls: bool, outs: list) -> bool:
+        """A stored ``ab/pairs_v2.json`` that the judge phase can use as it is: a v2 pairs file with pairs whose image
+        files all exist, with the control sets when ``pr`` is the control project, made over the same look_alt
+        projects."""
         pairs = stored.get("pairs")
-        if stored.get("kind") != "realism_pairs" or not isinstance(pairs, list) or not pairs:
+        if stored.get("kind") != "realism2_pairs" or not isinstance(pairs, list) or not pairs:
             return False
         if controls and not stored.get("controls"):
+            return False
+        made_over = (stored.get("look_alt") or {}).get("projects")
+        # realism2-pairs without --project-outs (no look_alt project in the run) takes the project alone.
+        expected = sorted(Path(o).name for o in outs) if outs else [pr.out.name]
+        if isinstance(made_over, list) and sorted(made_over) != expected:
             return False
         for p in pairs:
             if not isinstance(p, dict) or not p.get("a") or not p.get("b"):
@@ -1412,13 +1768,18 @@ class Orchestrator:
     # ----- phases 8 and 9: check and realism ---------------------------------
 
     def check_calls(self, pr: ProjectRun) -> int:
-        """Rough call count of one model's check of ``pr`` (deadline estimate only)."""
+        """Rough call count of one model's check of ``pr`` (deadline estimate only): 2 per Cycles and per polished
+        view, 4 per insertion control (removal and insertion, ``--kinds controls``, M7 §8.1), 1 style-photo test."""
         views = pr.views or self.scene_views(pr)
         polished = views if pr.polish_ran else 0
-        return 2 * views + 2 * polished + (0 if pr.ref.private else 1)
+        selection = read_json(pr.out / "check" / "controls.json")
+        hide_sets = selection.get("hide_sets") if isinstance(selection, dict) else ""
+        hide_sets = S.limit_hide_sets(hide_sets or "", S.SMOKE_CONTROL_VIEWS if self.opts.smoke else None)
+        controls = len(hide_sets.split(";")) if hide_sets else 0
+        return 2 * views + 2 * polished + 4 * controls + (0 if pr.ref.private else 1)
 
     def pair_counts(self, pr: ProjectRun) -> dict:
-        data = read_json(pr.out / "ab" / "pairs.json")
+        data = read_json(pr.out / "ab" / "pairs_v2.json")
         pairs = data.get("pairs") if isinstance(data, dict) else data
         counts: dict = {}
         for p in pairs or []:
@@ -1426,24 +1787,10 @@ class Orchestrator:
                 counts[p["set"]] = counts.get(p["set"], 0) + 1
         return counts
 
-    def main_sets(self, pr: ProjectRun) -> list:
-        counts = self.pair_counts(pr)
-        known = [s for s in SET_ORDER if s in counts and s != S.LOOK_ALT]
-        return known + sorted(s for s in counts if s not in SET_ORDER and s != S.LOOK_ALT)
-
     def realism_ready(self) -> list:
         if self.opts.ab_phase == "render":
             return []
         return [pr for pr in self.ab_runs if pr.ab_active and self.status_of(pr, "ab_pairs") in ("ok", "reused")]
-
-    def later_glm_estimate(self, seqs: int) -> float:
-        """GLM start + GLM non-look_alt realism + GLM check (the look_alt rule of §2.3)."""
-        if "glm" not in self.opts.check_models:
-            return 0.0
-        calls = sum(2 * sum(n for s, n in self.pair_counts(pr).items() if s != S.LOOK_ALT)
-                    for pr in self.realism_ready())
-        calls += sum(self.check_calls(pr) for pr in self.runs if pr.active)
-        return S.est_server("glm") + S.est_calls(calls, seqs)
 
     def answers_incomplete(self, path: Path) -> bool:
         data = read_json(path)
@@ -1470,14 +1817,12 @@ class Orchestrator:
             return
         try:
             with cm as url:
-                seqs = self.seqs()
+                seqs = self.seqs(key)
                 for pr in checks:
                     if pr.active:
                         self.check_part(pr, key, url, seqs)
                 for pr in ab:
                     self.realism_part(pr, key, url, seqs)
-                for pr in ab:
-                    self.look_alt_part(pr, key, url, seqs)
         except SV.ServerError as exc:
             self.out(f"phase {n}: {exc}")
             status = "incomplete" if exc.reason == "deadline" else "failed"
@@ -1517,44 +1862,24 @@ class Orchestrator:
         self.finish(pr, "check", status, note, merge=True, outputs=out)
 
     def realism_part(self, pr: ProjectRun, key: str, url: str, seqs: int) -> None:
-        sets = self.main_sets(pr)
-        if not sets:
-            self.finish(pr, "ab_realism", "failed", "no pair in ab/pairs.json", merge=True, outputs=[])
+        """Every pair set of ``ab/pairs_v2.json`` (realism v2, M7 §8.2): 8 calls per pair, ``null_identical`` one
+        call at a time. Deadline cuts are read from ``answers_realism2_<slug>.json``."""
+        counts = self.pair_counts(pr)
+        if not counts:
+            self.finish(pr, "ab_realism", "failed", "no pair in ab/pairs_v2.json", merge=True, outputs=[])
             return
-        calls = 2 * sum(self.pair_counts(pr).get(s, 0) for s in sets)
-        if not self.can_start(S.est_calls(calls, seqs)):
+        if not self.can_start(S.est_realism2(sum(counts.values()), counts.get(S.NULL_IDENTICAL, 0), seqs)):
             self.finish(pr, "ab_realism", "incomplete", f"deadline: realism ({key}) not started", merge=True,
                         outputs=[])
             return
-        rc = self.run_step(pr, "ab_realism", f"realism {key}", S.realism(self.tools, pr.ref, key, url, seqs, sets))
-        answers = pr.out / "check" / "realism" / f"answers_{self.tools.model_slug(key)}.json"
+        rc = self.run_step(pr, "ab_realism", f"realism2 {key}", S.realism2(self.tools, pr.ref, key, url, seqs))
+        answers = pr.out / "check" / "realism" / f"answers_realism2_{self.tools.model_slug(key)}.json"
         if rc == TIMEOUT_RC or self.answers_incomplete(answers):
             self.finish(pr, "ab_realism", "incomplete", f"deadline: realism ({key}) cut", merge=True, outputs=[])
         elif rc != 0:
-            self.finish(pr, "ab_realism", "failed", f"realism {key} exit {rc}", merge=True, outputs=[])
+            self.finish(pr, "ab_realism", "failed", f"realism2 {key} exit {rc}", merge=True, outputs=[])
         else:
             self.finish(pr, "ab_realism", "ok", merge=True, outputs=[])
-
-    def look_alt_part(self, pr: ProjectRun, key: str, url: str, seqs: int) -> None:
-        n = self.pair_counts(pr).get(S.LOOK_ALT, 0)
-        if not n:
-            return
-        est = S.est_calls(2 * n, seqs)
-        if key == "qwen":
-            est += self.later_glm_estimate(seqs)
-        if not self.can_start(est):
-            self.finish(pr, "ab_look_alt", "incomplete", f"deadline: look_alt ({key}) not asked", merge=True,
-                        outputs=[])
-            return
-        rc = self.run_step(pr, "ab_look_alt", f"look_alt {key}",
-                           S.realism(self.tools, pr.ref, key, url, seqs, [S.LOOK_ALT]))
-        answers = pr.out / "check" / "realism" / f"answers_{self.tools.model_slug(key)}.json"
-        if rc == TIMEOUT_RC or self.answers_incomplete(answers):
-            self.finish(pr, "ab_look_alt", "incomplete", f"deadline: look_alt ({key}) cut", merge=True, outputs=[])
-        elif rc != 0:
-            self.finish(pr, "ab_look_alt", "failed", f"look_alt {key} exit {rc}", merge=True, outputs=[])
-        else:
-            self.finish(pr, "ab_look_alt", "ok", merge=True, outputs=[])
 
     # ----- phase 10: CPU, always -----------------------------------------
 
@@ -1569,19 +1894,19 @@ class Orchestrator:
             for pr in self.ab_runs:
                 if not pr.ab_active or "ab_realism" not in pr.records:
                     continue
-                if not any((pr.out / "check" / "realism").glob("answers_*.json")):
+                if not any((pr.out / "check" / "realism").glob("answers_realism2_*.json")):
                     continue
-                rec = self.simple_stage(pr, "ab_combine", [("realism-combine", S.realism_combine(self.tools, pr.ref),
-                                                            None)], late=True)
+                rec = self.simple_stage(pr, "ab_combine", [("realism2-combine",
+                                                            S.realism2_combine(self.tools, pr.ref), None)], late=True)
                 if rec.status == "ok":
                     combined.append(pr)
-            if combined:
+            if any(pr.look_alt for pr in combined):
                 self.realism_summary(combined)
         for pr in self.runs:
             self.stage_report(pr)
 
     def stage_report(self, pr: ProjectRun) -> None:
-        """Stage 17, for every project. A project that already ended ``incomplete`` or ``failed`` before its first
+        """Stage report, for every project. A project that already ended ``incomplete`` or ``failed`` before its first
         render has nothing to report (the report exits 1, ``stages.render: not_run``): a ``warning``, so the
         deadline cut stays ``incomplete`` (resumed with the same command) instead of turning into ``failed``."""
         before = pr.terminal
@@ -1610,25 +1935,28 @@ class Orchestrator:
         return isinstance(stages, dict) and stages.get("render") == "not_run"
 
     def realism_summary(self, combined: list) -> None:
+        """``realism2-summary`` over the combined look_alt projects, with the control project's output folder when
+        its combine ended ok (else no control table: the summary reports no signal)."""
         controls = self.controls_run()
+        controls_out = controls.out if controls is not None and controls in combined else None
         out_dir = self.results / "realism"
-        cmd = S.realism_summary(self.tools, [pr.ref for pr in combined], controls.name if controls else "", out_dir)
-        if controls is None:
-            cmd = cmd[:cmd.index("--controls-project")] + cmd[cmd.index("--controls-project") + 2:]
+        cmd = S.realism2_summary(self.tools, [pr.ref for pr in combined if pr.look_alt], controls_out, out_dir)
         log = self.results / "logs" / "realism_summary.log"
         rc, seconds = self.exec(log, cmd, late=True)
         status = "ok" if rc == 0 else ("incomplete" if rc == TIMEOUT_RC else "failed")
+        note = None if rc == 0 else f"exit {rc}"
+        if rc == 0 and controls_out is None:
+            note = "no control project combined: the summary has no control table"
         self.job_records["realism_summary"] = {"stage": "realism_summary", "status": status, "rc": rc,
-                                               "seconds": round(seconds, 1),
-                                               "note": None if rc == 0 else f"exit {rc}"}
+                                               "seconds": round(seconds, 1), "note": note}
         self.out(f"realism_summary {status} {seconds:.1f}s")
 
     # ----- phase 11: GPU tests and the run manifest -----------------------------
 
     @staticmethod
     def project_state(pr: ProjectRun) -> str:
-        """The project's state from its project stages 0-17 only: the A/B stages of a project that is also in
-        ``--ab`` count in the exit code on their own (``look_alt`` never), not in the project's state."""
+        """The project's state from its project stages only: the A/B stages of a project that is also in ``--ab``
+        count in the exit code on their own, not in the project's state."""
         return ST.project_state(rec for stage, rec in pr.records.items() if stage in S.PROJECT_STAGES)
 
     def test_lists(self) -> dict:
@@ -1644,14 +1972,19 @@ class Orchestrator:
                   and pr.gate_decision in ("ok", "flagged")]
         gate = [pr for pr in public_full if self.status_of(pr, "gate") not in (None, "skipped")
                 and any(s["name"] == "calibrate" for s in pr.parts.get("gate", []))]
-        ab = [pr for pr in self.ab_runs if pr.ab_active and self.status_of(pr, "ab_realism") == "ok"
-              and self.status_of(pr, "ab_combine") == "ok"]
+        detect = [pr for pr in ok if self.status_of(pr, "detect") in ("ok", "warning")
+                  and any(s["name"] == "detect" for s in pr.parts.get("detect", []))]
+        done = [pr for pr in self.ab_runs if pr.ab_active and self.status_of(pr, "ab_realism") == "ok"
+                and self.status_of(pr, "ab_combine") == "ok"]
+        control = self.controls_run()
         selftest = any(pr.name == SELFTEST_ALIAS for pr in self.runs) and self.opts.private_selftest
         return {"RUN_TEST_PROJECTS": names(ok),
                 "NEEDS_REVIEW_TEST_PROJECTS": names(pr for pr in public_full if state[pr.name] == "needs_review"),
                 "RENDER_TEST_PROJECTS": names(ok), "FURNISH_TEST_PROJECTS": names(furnish),
                 "CHECK_TEST_PROJECTS": names(ok), "POLISH_TEST_PROJECTS": names(polish),
-                "GATE_TEST_PROJECTS": names(gate), "AB_TEST_PROJECTS": names(ab),
+                "GATE_TEST_PROJECTS": names(gate), "DETECT_TEST_PROJECTS": names(detect),
+                "AB_TEST_PROJECTS": names(pr for pr in done if pr.look_alt),
+                "AB_CONTROL_PROJECT": control.name if control is not None and control in done else "",
                 "SELFTEST_TEST_ALIAS": SELFTEST_ALIAS if selftest else ""}
 
     def ai_rooms(self, pr: ProjectRun) -> int:
@@ -1665,6 +1998,8 @@ class Orchestrator:
         env.update(WENART_OUTPUTS=str(self.outputs_root), WENART_RESULTS=str(self.results),
                    WENART_PRIVATE_RESULTS=str(self.opts.private_results),
                    CHECK_MODELS=" ".join(self.opts.check_models))
+        if (self.repo_root / DETECT_CALIBRATION).is_file():
+            env["DETECT_CALIBRATION"] = str(self.repo_root / DETECT_CALIBRATION)
         return env
 
     def phase11(self) -> dict:
@@ -1705,6 +2040,10 @@ class Orchestrator:
             junit = self.results / f"junit-{group}.xml"
             cmd = [getattr(self.tools, attr), "-m", "pytest", "-m", "gpu"] + chosen + [
                 "-v", "-ra", f"--junitxml={junit}"]
+            if "tests/gpu/test_detect.py" in chosen and "DETECT_CALIBRATION" not in env:
+                # The calibration is the prep pod's (committed as results/detect/, M7 §9.2), never this job's.
+                cmd += ["--deselect", "tests/gpu/test_detect.py::test_calibration_recorded"]
+                entry["note"] = f"no committed {DETECT_CALIBRATION.as_posix()}: test_calibration_recorded deselected"
             rc, seconds = self.exec(self.results / "logs" / f"pytest-{group}.log", cmd, env, late=True)
             entry.update(rc=rc, status="passed" if rc == 0 else "failed", junit=junit.name,
                          seconds=round(seconds, 1))
@@ -1735,7 +2074,8 @@ class Orchestrator:
         return entry
 
     def ab_entry(self, pr: ProjectRun) -> dict:
-        entry = {"name": pr.name, "controls": pr.name == self.ab_controls, "dropped": pr.ab_dropped,
+        entry = {"name": pr.name, "controls": pr.name == self.ab_controls, "look_alt": pr.look_alt,
+                 "controls_rendered": pr.controls_needed, "dropped": pr.ab_dropped,
                  "stages": [pr.records[s].brief() for s in S.AB_STAGES + ("pipeline", "style", "assets")
                             if s in pr.records and (s in S.AB_STAGES or not pr.full)]}
         if pr.archived and not pr.full:
@@ -1759,8 +2099,18 @@ class Orchestrator:
                         ab=[self.ab_entry(pr) for pr in self.ab_runs],
                         realism_summary=self.job_records.get("realism_summary"),
                         phases=list(self.phases), servers=list(self.servers), tests=list(self.tests),
-                        test_lists=lists, force=sorted(self.opts.force))
+                        test_lists=lists, force=sorted(self.opts.force), gpu=self.gpu_entry())
         return data
+
+    def gpu_entry(self) -> Optional[dict]:
+        """The GPU the estimates were scaled for (None when no deadline or server needed it)."""
+        if self._gpu is None and self._speed is None:
+            return None
+        entry = {"name": (self._gpu or {}).get("name"), "memory_mib": (self._gpu or {}).get("memory_mib")}
+        if self._speed is not None:
+            entry.update(speed=self._speed["speed"], speed_of=self._speed.get("matched"))
+        entry["seqs"] = dict(self._seqs)
+        return entry
 
     def write_manifests(self, lists: dict, final: bool) -> None:
         ST.write_json(self.results / "run_manifest.json", self.manifest(lists, private=False, final=final))

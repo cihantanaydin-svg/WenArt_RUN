@@ -214,7 +214,8 @@ def test_setup_parts_follow_the_phases(tmp_path):
     models = load_config()["models"]
     plan = _setup_plan(tmp_path, POLISH_MODE="final", POLISH_PHASES="look polish check report tests")
     assert "PLAN venv=1 models=1 check=1" in plan
-    assert "PLAN RECOG_SETUP_PARTS=vllm models" in plan
+    # M7 §5.1/§9.5: the check part also builds (or reuses) LibreDWG 0.14 for the DWG projects.
+    assert "PLAN RECOG_SETUP_PARTS=vllm libredwg models" in plan
     want = f"{models['qwen']['id']}@{models['qwen']['revision']} {models['glm']['id']}@{models['glm']['revision']}"
     assert f"PLAN BAKEOFF_MODELS={want}" in plan
     plan = _setup_plan(tmp_path, POLISH_MODE="sweep", POLISH_PHASES="check report tests", CHECK_MODELS="glm")
@@ -222,6 +223,8 @@ def test_setup_parts_follow_the_phases(tmp_path):
     # (CUDA OOM retry of the review fix G1), so a tests pod downloads them too.
     assert "PLAN venv=1 models=1 check=1" in plan
     assert f"PLAN BAKEOFF_MODELS={models['glm']['id']}@{models['glm']['revision']}\n" in plan
+    plan = _setup_plan(tmp_path, POLISH_MODE="final", POLISH_PHASES="check", POLISH_RECOG_PARTS="vllm models")
+    assert "PLAN RECOG_SETUP_PARTS=vllm models\n" in plan
     plan = _setup_plan(tmp_path, POLISH_MODE="sweep", POLISH_PHASES="look controls gate report")
     assert "PLAN venv=1 models=1 check=0" in plan and "BAKEOFF_MODELS" not in plan
     plan = _setup_plan(tmp_path, POLISH_MODE="smoke", POLISH_PHASES="look")
@@ -244,6 +247,8 @@ def test_setup_installs_with_the_image_constraints_and_stamps_after_the_gpu_chec
                 "--system-site-packages", "--no-deps"):
         assert pin in text, pin
     assert "grep -viE '^huggingface[-_]hub'" in text       # pod_requirements.txt without its hub pin
+    assert 'RECOG_PARTS="${POLISH_RECOG_PARTS:-vllm libredwg models}"' in text
+    assert 'RECOG_SETUP_PARTS="$RECOG_PARTS" BAKEOFF_MODELS="$entries"' in text
     check = re.search(r"^POLISH_CHECK=\$\(cat <<'PY'\n(.*?)^PY\n\)", text, re.S | re.M)
     assert check, "POLISH_CHECK snippet not found"
     snippet = check.group(1)
@@ -251,7 +256,8 @@ def test_setup_installs_with_the_image_constraints_and_stamps_after_the_gpu_chec
     for needle in ("torch.bfloat16", '"sm_120" not in arch', "(1, 30, 8320, 128",
                    "sdpa_kernel([SDPBackend.FLASH_ATTENTION, SDPBackend.EFFICIENT_ATTENTION])",
                    "nms(", "ZImageControlNetPipeline", "ZImageControlNetModel", "Sam2Model", "Sam2Processor",
-                   "AutoModelForDepthEstimation", "AutoModel,", "wenart.polish", "wenart.gate", "iter_modules"):
+                   "AutoModelForDepthEstimation", "AutoModel,", "Owlv2ForObjectDetection", "Owlv2Processor",
+                   "wenart.polish", "wenart.gate", "iter_modules"):
         assert needle in snippet, needle
     # The stamp is written only after the check passed.
     assert text.index('-c "$POLISH_CHECK"') < text.index('touch "$stamp"')
@@ -260,6 +266,33 @@ def test_setup_installs_with_the_image_constraints_and_stamps_after_the_gpu_chec
     assert '"polish" / "polish.yaml"' in text and '"gate" / "models.yaml"' in text
     for key in ("MemTotal", "MemAvailable", "nproc", "disk_free_gib_before", "versions", "setup_polish.json"):
         assert key in text, key
+
+
+SESSION_PINS = {"numpy": "2.4.6", "pillow": "12.3.0", "opencv-python-headless": "5.0.0.93", "matplotlib": "3.11.2"}
+
+
+def test_pod_requirements_pin_the_session_versions_and_venv_polish_drops_the_pins(tmp_path):
+    """M7 §9.1: /workspace/venv gets the session's matplotlib, opencv, pillow and numpy (the pipeline's crops must
+    hash as in the session; scripts/cloud-setup.sh pins the same); venv-polish keeps its own opencv pin and the
+    unpinned rest (the versions its M5/M6 gate validation ran with)."""
+    reqs = [ln.strip() for ln in (ROOT / "scripts" / "pod_requirements.txt").read_text().splitlines()
+            if ln.strip() and not ln.lstrip().startswith("#")]
+    pins = dict(ln.split("==", 1) for ln in reqs if "==" in ln)
+    for name, version in SESSION_PINS.items():
+        assert pins.get(name) == version, name
+        assert f"{name}=={version}" in _text(ROOT / "scripts" / "cloud-setup.sh"), name
+    snippet = next(ln.strip() for ln in _text(SETUP).splitlines() if "grep -viE '^huggingface[-_]hub'" in ln)
+    cont = _text(SETUP).split(snippet, 1)[1].splitlines()[1].strip()          # the continued sed line
+    requirements = str(ROOT / "scripts" / "pod_requirements.txt")
+    command = (snippet.rstrip("\\").strip() + " " + cont).replace('"$REPO_DIR/scripts/pod_requirements.txt"',
+                                                                  requirements)
+    command = command.replace('> "$reqs" || true', "")
+    out = subprocess.run(["bash", "-c", "set -o pipefail; " + command], capture_output=True, text=True, check=True)
+    lines = [ln for ln in out.stdout.splitlines() if ln.strip() and not ln.startswith("#")]
+    assert not [ln for ln in lines if ln.lower().startswith(("opencv", "huggingface"))]
+    for name in ("numpy", "pillow", "matplotlib"):
+        assert name in lines, name                                          # unpinned in venv-polish
+    assert "ezdxf==1.4.4" in lines and "pytest==9.1.1" in lines
 
 
 FAKE_HUB = '''
@@ -309,10 +342,15 @@ def test_setup_downloads_exactly_the_pinned_models(tmp_path):
 
     want = [(m["repo"], m["revision"], m["allow_patterns"]) for m in load_config()["models"].values()]
     want += [(m["repo"], m["revision"], m["allow_patterns"]) for m in load_models_config()["models"].values()]
+    det = load_models_config()["detect"]           # the OWLv2 detector (M7 §8.1), outside the gate's models
+    want.append((det["repo"], det["revision"], det["allow_patterns"]))
     calls = json.loads((tmp_path / "hub.json").read_text())
     assert [(c["repo"], c["revision"], c["allow_patterns"]) for c in calls] == want
+    assert det["repo"] == "google/owlv2-base-patch16-ensemble"
+    assert det["revision"] == "cfd3195ba4ea9592eec887ded089f4c08eff231d"
     records = json.loads(out.read_text())["models"]
-    assert [r["role"] for r in records] == ["base", "controlnet", "depth", "sam", "dino"]
+    assert [r["role"] for r in records] == ["base", "controlnet", "depth", "sam", "dino", "detect"]
+    assert records[-1]["group"] == "gate" and records[-1]["licence"] == "Apache-2.0"
     assert all(r["ok"] and r["bytes"] > 0 and r["licence"] and r["seconds"] is not None for r in records)
     assert "download polish/controlnet alibaba-pai/Z-Image-Turbo-Fun-Controlnet-Union-2.1@5155fc56d178: ok" in proc.stdout
     # A snapshot without the ControlNet file is a failed download (exit 1, error recorded).

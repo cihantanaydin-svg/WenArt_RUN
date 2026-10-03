@@ -1,4 +1,4 @@
-"""The stage table of a full project run (docs/milestone6.md §2.2) and the A/B stages (§6.3).
+"""The stage table of a full project run (docs/milestone6.md §2.2, docs/milestone7.md §9.1) and the A/B stages.
 
 What: per stage its number, the GPU holder it needs (``cpu``, ``vlm``,
 ``blender``, ``gate``, ``diffusion``), its reuse rule, the status a failed
@@ -19,7 +19,18 @@ because every CLI runs with cwd = repo root (§1.1). Reuse rules:
   answer of both check.yaml model ids for every current photo (§2.2 row 2);
 - ``always``: deterministic and cheap, always run;
 - ``own``: always invoked, the CLI reuses its own work (build ``--reuse``,
-  render ``render_key``, polish ``attempt_key``, check answers by call key).
+  render ``render_key``, polish ``attempt_key``, check answers by call key,
+  recognize answers by key and input hash, detect by detection key).
+
+Milestone 7 (§9.1): ``recognize`` (the two VLM passes over the pipeline's
+recognition questions, GLM in phase 2 and Qwen in phase 3, seeded from the
+committed ``results/recognition/<p>/``), ``pipeline_final`` (the pipeline
+again with ``--answers``; ``--no-ai`` when an answer is missing, so it never
+exits 4) and ``detect`` (OWLv2 on the Cycles and the polished images, phase
+6). The A/B uses the realism v2 commands (``realism2-*``, M7 §8.2): the
+control sets from the control project's M6 ``ab/`` renders (rendered again
+only when they are missing), ``look_alt`` from the main renders of the A/B
+projects, rendered with ``--alt-look None`` (``ALT_LOOK``).
 """
 from __future__ import annotations
 
@@ -31,20 +42,28 @@ from wenart.run.projects import PRIVATE_ROOT, ProjectRef
 
 M5_LOOK_COMMIT = "a2adcef58ede7e4f9e92dd6a847e1e4692075131"
 CATALOG = "wenart/furniture/catalog.json"
+# The Objaverse library (docs/milestone7.md §6.6, §7): merged by catalog.load() after catalog.json; committed
+# between the prep pod and the full runs (absent until then: a missing input hashes to None).
+CATALOG_OBJAVERSE = "wenart/furniture/catalog_objaverse.json"
 CHECK_YAML = "wenart/vision_check/check.yaml"
+RECOGNITION_DIR = "recognition"            # <out>/recognition: requests.json, answers_<slug>.json, crops/
+RECOGNITION_SEEDS = "results/recognition"  # committed answers of earlier runs (--seed-answers <seeds>/<p>/)
 STYLE_TEST_PHOTO = "tests/fixtures/style_photo_synthetic-03_salon.jpg"
 RENDER_RES = "1920x1080"
 SMOKE_RES = "480x270"
 SMOKE_SAMPLES = 16
-SMOKE_CONTROL_VIEWS = 2          # control renders of stage 11 in the smoke profile
+SMOKE_CONTROL_VIEWS = 2          # control renders of the controls stage in the smoke profile
 SMOKE_AB_CAMERAS = 2             # A/B cameras in the smoke profile (§2.5: "AB on synthetic-01 (2 cameras)")
 PREVIEW_SAMPLES = 32
 SMOKE_PREVIEW_SAMPLES = 4        # the builds' top-down previews on the CPU (§2.5; 32 samples took 55 of 66 s)
-ALT_LOOK = "AgX - Punchy"
+ALT_LOOK = "None"                # M7 §6.1: the default look is AgX - Punchy, the A/B alternative is look None
 PREVIEW_QUALITY = 85             # the committed M5 previews (§5 row 11)
 CONTROL_VIEWS = 8                # §6.2
 LOOK_ALT = "look_alt"
-REALISM_SETS_FLAG = "--sets"     # realism CLI: the pair sets to ask (contract request to area V)
+REALISM_SETS_FLAG = "--sets"     # realism2 CLI: the pair sets to ask
+REALISM2_CALLS_PER_PAIR = 8      # 4 aspects x 2 orders (M7 §8.2)
+NULL_IDENTICAL = "null_identical"   # asked with one call at a time (check.yaml realism2.null_identical_workers)
+CHECK_KINDS = "cycles,polished,controls"   # M7 §8.1: the insertion controls are asked in every full run
 CUDA_ALLOC = {"PYTORCH_CUDA_ALLOC_CONF": "expandable_segments:True"}
 # §6.2 control renders: set -> (own scene folder under ab/ or None for ab/scene, extra render flags).
 CONTROL_RENDERS = {
@@ -62,10 +81,18 @@ LOWSPP_SAMPLES = 4
 # function-level imports included (tests/test_run_stages.py computes it with ast), plus the data files it
 # reads; the package __init__.py files of every listed module count too (state.code_hash).
 BLENDER_CODE = ("wenart/blender/**", "wenart/canonical.py", "wenart/views.py")
-FIT_CODE = ("wenart/furniture/fit.py", "wenart/furniture/catalog.py", CATALOG, "wenart/blender/parametric.py",
-            "wenart/blender/proxies.py", "wenart/blender/geom2d.py", "wenart/blender/common.py", "wenart/assets/**",
-            "wenart/style/**", "wenart/building.py", "wenart/geometry.py", "wenart/schema/**")
-VISION_CODE = ("wenart/vision_check/**", "wenart/views.py", "wenart/recognition/vlm_client.py")
+# catalog*.json: catalog.json and, once committed, catalog_objaverse.json (catalog.load merges it).
+FIT_CODE = ("wenart/furniture/fit.py", "wenart/furniture/catalog.py", CATALOG, "wenart/furniture/catalog*.json",
+            "wenart/blender/parametric.py", "wenart/blender/proxies.py", "wenart/blender/geom2d.py",
+            "wenart/blender/common.py", "wenart/assets/**", "wenart/style/**", "wenart/building.py", "wenart/units.py",
+            "wenart/geometry.py", "wenart/schema/**")
+# The pipeline (and pipeline_final): the vector, DXF/DWG and generic cores, the recognition questions and answers
+# (crops, size table, the two-pass rule, check.yaml's model ids and slugs) and the room-type table.
+PIPELINE_CODE = ("wenart/ingest/**", "wenart/synthetic/**", "wenart/building.py", "wenart/units.py",
+                 "wenart/geometry.py", "wenart/schema/**", "wenart/recognition/**", "wenart/furniture/__init__.py",
+                 "wenart/furniture/schemas.py", CHECK_YAML)
+VISION_CODE = ("wenart/vision_check/**", "wenart/views.py", "wenart/recognition/vlm_client.py",
+               "wenart/gate/detect.py")
 # gate calibrate (polish venv) + validate: the gate package (thresholds.yaml, models.yaml, validation.yaml
 # included) and what it imports for the views, the expected objects and the scene geometry.
 GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.py", "wenart/canonical.py",
@@ -77,7 +104,7 @@ GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.
 
 @dataclass(frozen=True)
 class Stage:
-    number: Optional[int]           # 0..17 for project stages (§2.2), None for A/B stages
+    number: Optional[int]           # 0..20 for project stages (M7 §9.1), None for A/B stages
     name: str
     holder: str                     # cpu | vlm | blender | gate | diffusion
     reuse: str                      # fingerprint | photos | always | own
@@ -91,41 +118,45 @@ class Stage:
 STAGE_LIST = (
     Stage(0, "intake", "cpu", "fingerprint", "failed", ("wenart/intake.py", "wenart/run/projects.py"),
           ("input/{name}", "intake_manifest.json")),
-    Stage(1, "pipeline", "cpu", "fingerprint", "failed",
-          ("wenart/ingest/**", "wenart/synthetic/**", "wenart/building.py", "wenart/geometry.py", "wenart/schema/**"),
-          ("building.json", "report.md")),
-    Stage(2, "photos", "vlm", "photos", "warning",
+    Stage(1, "pipeline", "cpu", "fingerprint", "failed", PIPELINE_CODE, ("building.json", "report.md")),
+    Stage(2, "recognize", "vlm", "own", "warning", ("wenart/recognition/**", CHECK_YAML), (), heavy=True),
+    Stage(3, "pipeline_final", "cpu", "fingerprint", "failed", PIPELINE_CODE, ("building.json", "report.md")),
+    Stage(4, "photos", "vlm", "photos", "warning",
           ("wenart/style/photos.py", "wenart/style/vocabulary.py", "wenart/recognition/vlm_client.py"),
           ("style_photos/passes.json", "style_photos/terms.json"), heavy=True),
-    Stage(3, "style", "cpu", "always", "failed", ("wenart/style/**", "wenart/brief.py", "wenart/defaults.yaml"),
+    Stage(5, "style", "cpu", "always", "failed", ("wenart/style/**", "wenart/brief.py", "wenart/defaults.yaml"),
           ("style.json",)),
-    Stage(4, "assets", "cpu", "always", "warning", ("wenart/assets/**",)),
-    Stage(5, "fit", "cpu", "fingerprint", "failed", FIT_CODE, ("building_fitted.json",)),
-    Stage(6, "layout", "vlm", "fingerprint", "failed",
+    Stage(6, "assets", "cpu", "always", "warning", ("wenart/assets/**",)),
+    Stage(7, "fit", "cpu", "fingerprint", "failed", FIT_CODE, ("building_fitted.json",)),
+    Stage(8, "layout", "vlm", "fingerprint", "failed",
           ("wenart/furniture/layout.py", "wenart/furniture/placer.py", "wenart/furniture/prompts.py",
            "wenart/furniture/schemas.py", "wenart/recognition/**", "wenart/style/**", "wenart/building.py",
-           "wenart/geometry.py", "wenart/synthetic/blocks.py", "wenart/schema/**"),
+           "wenart/units.py", "wenart/geometry.py", "wenart/synthetic/blocks.py", "wenart/schema/**"),
           ("building_furnished.json", "layout.json"), heavy=True),
-    Stage(7, "decor", "cpu", "fingerprint", "failed",
+    Stage(9, "decor", "cpu", "fingerprint", "failed",
           ("wenart/furniture/decor.py", "wenart/furniture/placer.py", "wenart/furniture/schemas.py",
-           "wenart/synthetic/**", "wenart/building.py", "wenart/geometry.py", "wenart/schema/**"),
+           "wenart/synthetic/**", "wenart/building.py", "wenart/units.py", "wenart/geometry.py", "wenart/schema/**"),
           ("building_decor.json",)),
-    Stage(8, "refit", "cpu", "fingerprint", "failed", FIT_CODE, ("building_final.json",)),
-    Stage(9, "build", "blender", "own", "failed", BLENDER_CODE, ("scene/scene.blend", "scene/scene_manifest.json"),
+    Stage(10, "refit", "cpu", "fingerprint", "failed", FIT_CODE, ("building_final.json",)),
+    Stage(11, "build", "blender", "own", "failed", BLENDER_CODE, ("scene/scene.blend", "scene/scene_manifest.json"),
           heavy=True),
-    Stage(10, "render", "blender", "own", "failed", BLENDER_CODE, ("renders/render_manifest.json",), heavy=True),
-    Stage(11, "controls", "blender", "own", "warning", BLENDER_CODE + VISION_CODE, ("check/controls.json",),
+    Stage(12, "render", "blender", "own", "failed", BLENDER_CODE, ("renders/render_manifest.json",), heavy=True),
+    Stage(13, "controls", "blender", "own", "warning", BLENDER_CODE + VISION_CODE, ("check/controls.json",),
           heavy=True),
-    Stage(12, "gate", "gate", "own", "warning", GATE_CODE,
+    Stage(14, "gate", "gate", "own", "warning", GATE_CODE,
           ("gate/gate_calibration.json", "gate/gate_validation.json"), heavy=True),
-    Stage(13, "polish", "diffusion", "own", "warning", ("wenart/polish/**",), ("polish/polish_manifest.json",),
+    Stage(15, "polish", "diffusion", "own", "warning", ("wenart/polish/**",), ("polish/polish_manifest.json",),
           heavy=True),
-    Stage(14, "expected", "cpu", "always", "failed", VISION_CODE, ("check/expected_views.json",)),
-    Stage(15, "check", "vlm", "own", "failed", VISION_CODE, (), heavy=True),
-    Stage(16, "combine", "cpu", "always", "failed", VISION_CODE, ("check/check_manifest.json",)),
-    Stage(17, "report", "cpu", "always", "failed", ("wenart/report/**",),
+    Stage(16, "detect", "gate", "own", "warning", GATE_CODE + ("wenart/schema/building.schema.json",),
+          ("detect/detect_manifest.json",), heavy=True),
+    Stage(17, "expected", "cpu", "always", "failed", VISION_CODE, ("check/expected_views.json",)),
+    Stage(18, "check", "vlm", "own", "failed", VISION_CODE, (), heavy=True),
+    Stage(19, "combine", "cpu", "always", "failed", VISION_CODE, ("check/check_manifest.json",)),
+    Stage(20, "report", "cpu", "always", "failed", ("wenart/report/**",),
           ("final/final_report.md", "final/final_manifest.json")),
-    # A/B stages of §6.3 (records under out/run/ab_*.json; they count for the exit code, look_alt excepted).
+    # A/B stages (M6 §6.3, realism v2 of M7 §8.2; records under out/run/ab_*.json; they count for the exit code).
+    # ab_prepare, ab_m5, ab_render and ab_controls run only for the control project whose control renders are
+    # missing on the volume (they are the M6 control renders otherwise).
     Stage(None, "ab_prepare", "cpu", "always", "failed"),
     Stage(None, "ab_m5", "cpu", "always", "failed", ("wenart/run/ab.py",),
           ("ab/m5/building_final.json", "ab/m5/scene_manifest.json", "ab/m5/render_manifest.json",
@@ -133,17 +164,17 @@ STAGE_LIST = (
     Stage(None, "ab_render", "blender", "own", "failed", BLENDER_CODE,
           ("ab/renders/render_manifest.json", "ab/cameras_check.json"), heavy=True),
     Stage(None, "ab_controls", "blender", "own", "failed", BLENDER_CODE, (), heavy=True),
-    Stage(None, "ab_pairs", "cpu", "always", "failed", VISION_CODE, ("ab/pairs.json",)),
+    Stage(None, "ab_pairs", "cpu", "always", "failed", VISION_CODE, ("ab/pairs_v2.json",)),
     Stage(None, "ab_realism", "vlm", "own", "failed", VISION_CODE, (), heavy=True),
-    Stage(None, "ab_look_alt", "vlm", "own", "failed", VISION_CODE, (), heavy=True),
-    Stage(None, "ab_combine", "cpu", "always", "failed", VISION_CODE, ("check/realism/realism_ab.json",)),
+    Stage(None, "ab_combine", "cpu", "always", "failed", VISION_CODE, ("check/realism/realism2_ab.json",)),
 )
 STAGES = {s.name: s for s in STAGE_LIST}
 PROJECT_STAGES = tuple(s.name for s in STAGE_LIST if s.number is not None)
 AB_STAGES = tuple(s.name for s in STAGE_LIST if s.number is None)
 STAGE_VERSION = {s.name: s.version for s in STAGE_LIST}
-# A/B stages that never count for the exit code (§2.1: look_alt excluded).
-AB_NOT_COUNTED = ("ab_look_alt",)
+# A/B stages that never count for the exit code: none in M7 (look_alt is the decided set of realism v2, §8.2; in
+# M6 the ab_look_alt stage was not counted).
+AB_NOT_COUNTED: tuple = ()
 # Stages that download the fitted models (``fit --assets``): a failed download is a parametric fallback with
 # exit 0, recorded as a warning and never reused (§2.2 rows 5 and 8).
 DOWNLOAD_STAGES = ("fit", "refit")
@@ -196,7 +227,38 @@ def intake(tools: Tools, ref: ProjectRef) -> list[str]:
 
 
 def pipeline(tools: Tools, ref: ProjectRef) -> list[str]:
+    """The first pipeline run: exit 0 ok, 1 needs_review, 4 recognition questions written (M7 §1.4)."""
     return [tools.py, "-m", "wenart.ingest.pipeline", t(ref.project_dir), "--out", _out(ref)]
+
+
+def pipeline_final(tools: Tools, ref: ProjectRef, answers: bool = True, no_ai: bool = False) -> list[str]:
+    """The pipeline again with the answers of ``<out>/recognition`` (M7 §9.1); ``no_ai`` when an answer is missing
+    (the unanswered pieces stay unknown/unverified, so it never exits 4). The smoke profile passes no answers and
+    ``--no-ai`` (the fake server's answers would agree)."""
+    cmd = [tools.py, "-m", "wenart.ingest.pipeline", t(ref.project_dir), "--out", _out(ref)]
+    if answers:
+        cmd += ["--answers", _out(ref, RECOGNITION_DIR)]
+    return cmd + (["--no-ai"] if no_ai else [])
+
+
+def recognition_seeds(ref: ProjectRef, repo_root: Optional[Path] = None) -> Optional[Path]:
+    """``results/recognition/<p>/`` (the committed answers of earlier runs) of a public project; None for a
+    private one (its answers are never committed)."""
+    if ref.private:
+        return None
+    from wenart.run.projects import REPO_ROOT
+    return Path(repo_root or REPO_ROOT) / RECOGNITION_SEEDS / ref.name
+
+
+def recognize(tools: Tools, ref: ProjectRef, key: str, url: Optional[str] = None, seqs: Optional[int] = None,
+              seeds: Optional[Path] = None) -> list[str]:
+    """``wenart.recognition.answers ask`` for one model (M7 §1.4). Without ``url`` the command only copies the
+    stored answers of ``seeds`` (it asks no server when they complete the set: exit 0); the deadline comes from
+    ``WENART_DEADLINE`` in the environment."""
+    cmd = [tools.py, "-m", "wenart.recognition.answers", "ask", _out(ref, RECOGNITION_DIR), "--model-key", key]
+    if url is not None:
+        cmd += ["--server", url, "--workers", str(int(seqs or 1))]
+    return cmd + (["--seed-answers", t(seeds)] if seeds is not None else [])
 
 
 def photos_read(tools: Tools, ref: ProjectRef, key: str, url: str, photos: Sequence[Path]) -> list[str]:
@@ -238,8 +300,11 @@ def decor(tools: Tools, ref: ProjectRef, furnished: bool) -> list[str]:
 
 
 def refit(tools: Tools, ref: ProjectRef) -> list[str]:
+    """The fit after layout and decor, with the project's final style (``--style``: the library style filter,
+    M7 §6.3; ``fit`` stays style-free)."""
     return [tools.py, "-m", "wenart.furniture.fit", _out(ref, "building_decor.json"), "--catalog", CATALOG,
-            "--out", _out(ref, "building_final.json"), "--assets", t(tools.assets)]
+            "--out", _out(ref, "building_final.json"), "--assets", t(tools.assets), "--style",
+            _out(ref, "style.json")]
 
 
 def preview_samples(tools: Tools) -> str:
@@ -261,10 +326,14 @@ def render_quality(tools: Tools, samples: Optional[int] = None) -> list[str]:
     return ["--samples", str(samples if samples is not None else tools.render_samples), "--res", RENDER_RES]
 
 
-def render(tools: Tools, ref: ProjectRef, force: bool = False) -> list[str]:
+def render(tools: Tools, ref: ProjectRef, force: bool = False, alt_look: bool = False) -> list[str]:
+    """``alt_look``: a project of the realism A/B also saves ``<cam>_alt_preview.jpg`` with ``ALT_LOOK`` from the
+    same render result (the look_alt pairs of M7 §8.2)."""
     cmd = [tools.py, "-m", "wenart.blender.cli", "render", "--scene", _out(ref, "scene/scene.blend"), "--out",
            _out(ref, "renders"), "--cameras", "all"] + render_quality(tools)[:4] + [
            "--exposure", "auto", "--white-balance", "auto"] + render_quality(tools)[4:]
+    if alt_look:
+        cmd += ["--alt-look", ALT_LOOK]
     return cmd + (["--force"] if force else [])
 
 
@@ -273,7 +342,7 @@ def select_controls(tools: Tools, ref: ProjectRef) -> list[str]:
 
 
 def control_render(tools: Tools, ref: ProjectRef, hide_sets: str) -> list[str]:
-    """The hidden renders of stage 11 (polish.sh: same --hide-sets string, the normal renders' look)."""
+    """The hidden renders of the controls stage (polish.sh: same --hide-sets string, the normal renders' look)."""
     return [tools.py, "-m", "wenart.blender.cli", "render", "--scene", _out(ref, "scene/scene.blend"), "--out",
             _out(ref, "controls"), "--hide-sets", hide_sets, "--look-from",
             _out(ref, "renders/render_manifest.json")] + render_quality(tools)
@@ -298,6 +367,14 @@ def polish(tools: Tools, ref: ProjectRef, force: bool = False) -> list[str]:
     return cmd + (["--force"] if force else [])
 
 
+def detect(tools: Tools, ref: ProjectRef, force: bool = False) -> list[str]:
+    """OWLv2 boxes of the Cycles and the chosen polished image of every polished view and of the control renders
+    (``wenart.gate detect``, M7 §8.1; venv-polish; the deadline from ``WENART_DEADLINE``)."""
+    cmd = [tools.polish_py, "-m", "wenart.gate", "detect", _out(ref), "--manifest",
+           _out(ref, "polish/polish_manifest.json"), "--out", _out(ref, "detect")]
+    return cmd + (["--force"] if force else [])
+
+
 def expected(tools: Tools, ref: ProjectRef) -> list[str]:
     return [tools.py, "-m", "wenart.vision_check", "expected", "--project-out", _out(ref)]
 
@@ -308,7 +385,7 @@ def plan_crops(tools: Tools, ref: ProjectRef) -> list[str]:
 
 def check_run(tools: Tools, ref: ProjectRef, key: str, url: str, seqs: int) -> list[str]:
     return [tools.py, "-m", "wenart.vision_check", "run", "--project-out", _out(ref), "--model-key", key,
-            "--server", url, "--kinds", "cycles,polished", "--workers", str(seqs)]
+            "--server", url, "--kinds", CHECK_KINDS, "--workers", str(seqs)]
 
 
 def preference(tools: Tools, ref: ProjectRef, key: str, url: str, seqs: int) -> list[str]:
@@ -373,45 +450,77 @@ def ab_control_render(tools: Tools, ref: ProjectRef, set_name: str, cameras: Seq
                str(PREVIEW_QUALITY)] + list(extra))
 
 
-def realism_pairs(tools: Tools, ref: ProjectRef, controls: bool = False) -> list[str]:
-    cmd = [tools.py, "-m", "wenart.vision_check", "realism-pairs", "--project-out", _out(ref)]
-    return cmd + (["--controls"] if controls else [])
+def realism2_pairs(tools: Tools, ref: ProjectRef, controls: bool = False,
+                   ab_outs: Sequence[Path] = ()) -> list[str]:
+    """``ab/pairs_v2.json`` (M7 §8.2): ``--controls`` for the control project (its M6 ``ab/`` renders);
+    ``--project-outs`` = the outputs of every look_alt project of the run (the same list for every project, so
+    each takes its share of the same 32-camera selection)."""
+    cmd = [tools.py, "-m", "wenart.vision_check", "realism2-pairs", "--project-out", _out(ref)]
+    if controls:
+        cmd.append("--controls")
+    if ab_outs:
+        cmd += ["--project-outs"] + [t(o) for o in ab_outs]
+    return cmd
 
 
-def realism(tools: Tools, ref: ProjectRef, key: str, url: str, seqs: int,
-            sets: Optional[Sequence[str]] = None) -> list[str]:
-    cmd = [tools.py, "-m", "wenart.vision_check", "realism", "--project-out", _out(ref), "--model-key", key,
+def realism2(tools: Tools, ref: ProjectRef, key: str, url: str, seqs: int,
+             sets: Optional[Sequence[str]] = None) -> list[str]:
+    """Every pair of ``ab/pairs_v2.json`` (or ``sets``), 8 calls per pair, into
+    ``check/realism/answers_realism2_<slug>.json``."""
+    cmd = [tools.py, "-m", "wenart.vision_check", "realism2", "--project-out", _out(ref), "--model-key", key,
            "--server", url, "--workers", str(seqs)]
     if sets is not None:
         cmd += [REALISM_SETS_FLAG, ",".join(sets)]
     return cmd
 
 
-def realism_combine(tools: Tools, ref: ProjectRef) -> list[str]:
-    return [tools.py, "-m", "wenart.vision_check", "realism-combine", "--project-out", _out(ref)]
+def realism2_combine(tools: Tools, ref: ProjectRef) -> list[str]:
+    return [tools.py, "-m", "wenart.vision_check", "realism2-combine", "--project-out", _out(ref)]
 
 
-def realism_summary(tools: Tools, refs: Sequence[ProjectRef], controls_project: str, out_dir: Path) -> list[str]:
-    return ([tools.py, "-m", "wenart.vision_check", "realism-summary", "--project-outs"]
-            + [_out(r) for r in refs] + ["--controls-project", controls_project, "--out", t(out_dir)])
+def realism2_summary(tools: Tools, refs: Sequence[ProjectRef], controls_out: Optional[Path],
+                     out_dir: Path) -> list[str]:
+    """``$RESULTS/realism/realism2_summary.json``: the look_alt decision over ``refs`` with the control project's
+    output folder (None: no control project, the summary has no signal)."""
+    cmd = ([tools.py, "-m", "wenart.vision_check", "realism2-summary", "--project-outs"]
+           + [_out(r) for r in refs])
+    if controls_out is not None:
+        cmd += ["--controls-project", t(controls_out)]
+    return cmd + ["--out", t(out_dir)]
 
 
 # --------------------------------------------------------------------------
-# Deadline estimates (§2.3, measured in M5 on the RTX PRO 4500)
+# Deadline estimates (§2.3, measured in M5 on the RTX PRO 4500; the scheduler divides every estimate by the pod's
+# GPU speed, wenart.run.plan.GPU_SPEED, M7 §9.3)
 # --------------------------------------------------------------------------
 
 EST_BUILD_S = 60.0
 EST_RENDER_PER_VIEW_S = 8.0
+EST_WINDOW_PULL_PER_VIEW_S = 1.0      # M7 §9.3: the window pull of each view (+ its alt look)
 EST_RENDER_FIXED_S = 60.0
 EST_CONTROL_PER_VIEW_S = 8.0
 EST_GATE_S = 150.0
 EST_POLISH_PER_VIEW_S = 20.0
+# The detector (M7 §8.1) is not timed by the prep pod: model load plus about two images per view, generous.
+EST_DETECT_FIXED_S = 60.0
+EST_DETECT_PER_VIEW_S = 3.0
 EST_SERVER_START_S = {"qwen": 300.0, "glm": 150.0}
 EST_VLM_CALL_S = 4.4                 # per call, divided by the server's sequences
 
 
 def est_render(views: int) -> float:
-    return EST_RENDER_PER_VIEW_S * max(0, views) + EST_RENDER_FIXED_S
+    return (EST_RENDER_PER_VIEW_S + EST_WINDOW_PULL_PER_VIEW_S) * max(0, views) + EST_RENDER_FIXED_S
+
+
+def est_detect(views: int) -> float:
+    return EST_DETECT_FIXED_S + EST_DETECT_PER_VIEW_S * max(0, views)
+
+
+def est_realism2(pairs: int, null_pairs: int, seqs: int) -> float:
+    """8 calls per pair at ``seqs`` calls at once; the ``null_identical`` pairs one call at a time (M7 §9.1)."""
+    other = max(0, pairs - null_pairs)
+    return (est_calls(REALISM2_CALLS_PER_PAIR * other, seqs)
+            + est_calls(REALISM2_CALLS_PER_PAIR * max(0, null_pairs), 1))
 
 
 def est_controls(views: int) -> float:

@@ -1,10 +1,12 @@
 """End-to-end vector path (wenart/ingest/pipeline.py) on the synthetic projects.
 
 The four vector projects (synthetic-01, -03, -04, -05) must reproduce their
-truth element by element; synthetic-02 (scan and photo only) stops at
-``needs_review``. synthetic-04 draws one level twice (DXF + vector PDF, both
-with furniture); synthetic-05 takes its furniture from a furniture-plan DXF
-(docs/milestone6.md §3).
+truth element by element (synthetic-01's scan of level 1 is an evidence-only
+raster page); synthetic-02 (scan and photo only) is built from its scan by the
+raster path, the photo being evidence only (docs/milestone7.md §4.4; its
+targets are in tests/test_raster.py). synthetic-04 draws one level twice (DXF +
+vector PDF, both with furniture); synthetic-05 takes its furniture from a
+furniture-plan DXF (docs/milestone6.md §3).
 """
 import shutil
 from pathlib import Path
@@ -94,7 +96,7 @@ def test_matches_truth(built, name):
     assert conflict_keys(building["conflicts"]) == conflict_keys(truth["conflicts"])
     assert building["unverified"] == truth["unverified"]
     assert building["project"].get("brief") == truth["project"].get("brief")
-    # Every warning the truth expects is reported (synthetic-01 also reports its skipped scan page).
+    # Every warning the truth expects is reported (synthetic-01 also reports its evidence-only scan page).
     assert [w for w in truth["warnings"] if w not in building["warnings"]] == []
     # Element ids, wall links and swing sides follow the same conventions as the truth.
     assert {w["id"] for w in building["walls"]} == {w["id"] for w in truth["walls"]}
@@ -212,8 +214,11 @@ def test_documents_and_outputs(built):
     assert pdf_page["scale"]["method"] == "pdf_scale_text" and pdf_page["level_id"] == "L1"
     assert pdf_page["transform_to_building"] == pytest.approx(
         next(p for p in load_truth("synthetic-01")["documents"] if p["file"] == "1_kat.pdf")["pages"][0]["transform_to_building"])
+    # Milestone 7 (§4.4): the scan is read by the raster adapter and used as evidence for the PDF's level 1.
     scan_page = docs["1_kat_scan.png"]["pages"][0]
-    assert scan_page["kind"] == "scan" and scan_page["class"] == "other" and scan_page["skip_reason"]
+    assert scan_page["kind"] == "scan" and scan_page["class"] == "floor_plan" and scan_page["skip_reason"] is None
+    assert scan_page["level_id"] == "L1" and scan_page["scale"]["method"] == "dimension_text"
+    assert scan_page["rectified_image"] == "rectified/1_kat_scan_png_p1.png"
     for doc in building["documents"]:
         for page in doc["pages"]:
             assert page["debug_image"] and (out_dir / page["debug_image"]).is_file()
@@ -260,17 +265,24 @@ def test_debug_items_cover_every_element(built):
     assert all(len(item.polygon) == 4 for item in items if item.method == "vector")
 
 
-def test_raster_only_project_needs_review(built):
+def test_raster_only_project_is_built_from_its_scan(built):
+    """Milestone 7 (§4.4): synthetic-02 was ``needs_review`` until the raster adapter existed; now its scan is the
+    level's page (a scan ranks above a photo) and the photo is evidence only."""
     building, out_dir = built["synthetic-02"]
-    assert building["status"] == "needs_review"
+    assert building["status"] == "ok"
     B.validate(building)
-    assert building["levels"] == [] and building["walls"] == [] and "brief" not in building["project"]
+    assert [lv["id"] for lv in building["levels"]] == ["L0"] and len(building["walls"]) >= 7
+    assert "brief" not in building["project"]
     assert [d["file"] for d in building["documents"]] == ["plan_photo.jpg", "plan_scan.png"]
     kinds = {d["file"]: d["pages"][0]["kind"] for d in building["documents"]}
     assert kinds == {"plan_photo.jpg": "photo", "plan_scan.png": "scan"}
-    assert all(d["pages"][0]["skip_reason"] for d in building["documents"])
-    assert any("needs review" in w for w in building["warnings"])
-    assert "Status: **needs_review**" in (out_dir / "report.md").read_text(encoding="utf-8")
+    assert all(d["pages"][0]["skip_reason"] is None and d["pages"][0]["class"] == "floor_plan"
+               for d in building["documents"])
+    assert {e["file"] for w in building["walls"] for e in w["evidence"]} >= {"plan_scan.png"}
+    assert any("plan_photo.jpg (photo) is evidence only for plan_scan.png" in w for w in building["warnings"])
+    # Without answers the room labels are Tesseract's alone: rooms unverified (§3.4).
+    assert len(building["rooms"]) == 5 and all(r["status"] == "unverified" for r in building["rooms"])
+    assert "Status: **ok**" in (out_dir / "report.md").read_text(encoding="utf-8")
 
 
 def test_project_without_scale_source_needs_review(tmp_path):
@@ -355,7 +367,8 @@ def test_detached_wall_rectangle_does_not_crash_outline_check(tmp_path):
 def test_cli(tmp_path):
     assert main([str(PROJECTS / "synthetic-01"), "--out", str(tmp_path / "o")]) == 0
     assert (tmp_path / "o" / "building.json").is_file() and (tmp_path / "o" / "report.md").is_file()
-    assert main([str(PROJECTS / "synthetic-02"), "--out", str(tmp_path / "o2")]) == 1
+    # synthetic-02 is built from its scan since Milestone 7; its label and furniture questions have no answers: 4.
+    assert main([str(PROJECTS / "synthetic-02"), "--out", str(tmp_path / "o2")]) == 4
 
 
 def test_outline_mismatch_is_a_conflict(tmp_path):

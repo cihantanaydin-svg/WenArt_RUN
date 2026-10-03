@@ -82,6 +82,37 @@ Milestone 6 (docs/milestone6.md §7.4):
   call means the report finished (exit 1 is then ``not_rendered``, not a crash);
 - every repo-relative path (the scene manifest's ``building``) is resolved with
   ``wenart.views._resolve_repo_path``.
+
+Milestone 7 (docs/milestone7.md §9.4), all read from the building JSON, the
+scene manifest and the check manifest (nothing is recomputed):
+
+- ``units``: the project's unit system (``project.unit_system``) and every
+  document's; lengths of an imperial project are written in feet and inches
+  with metres in brackets (``length_text``), metric ones in metres;
+- side-by-side sheets ``contact_sbs_<room>.jpg`` (<= 300 KB; named like the
+  contact sheets so the results copy takes them) for every project with the
+  polish on (brief ``polish`` true and a polish manifest of this run): per view
+  of the room the Cycles render on the left and the polish candidate (the
+  chosen attempt, else the last attempt the gate saw) on the right, labelled
+  with the gate decision, both check verdicts, the detector and the final
+  decision (``side_by_side``);
+- ``recognition``: the AI-typed furniture pieces with both passes' answers
+  (``type_candidates``), the composites the core could not split ("possible
+  group of N pieces"), the raster pages and, per room of a raster page, how
+  its label was accepted (two passes agree, one pass equal to Tesseract,
+  Tesseract only or not accepted; from the evidence the pipeline recorded);
+- ``site`` (plot walls, exterior areas, site decor; recorded, not built),
+  ``separators`` (virtual openings), ``assumed`` (brief defaults, assumed
+  level titles, ceiling heights, opening heights and sills, stair direction,
+  turn and void, the scene manifest's assumed values grouped);
+- ``attribution``: the credit line of every CC BY / CC0 Objaverse model of
+  the building (``furniture[].asset.attribution``) and the ODC-By 1.0 notice;
+- ``detector``: the OWLv2 added-object detector of the check manifest (status,
+  thresholds, model, views where it confirmed an added object:
+  ``added_by_polish``); ``CHECK_VIEW_KEYS`` knows its per-view keys;
+- ``NEEDS_REVIEW_HINTS`` for DWG (LibreDWG 0.14), raster pages (no page
+  quadrilateral, no dimension readable, photo aspect unknown), text drawn as
+  geometry, untitled plan pages and an uncorroborated scale.
 """
 from __future__ import annotations
 
@@ -121,25 +152,54 @@ OTHER_INTAKE_NOTE = "other note (its text is in intake_manifest.json on the volu
 # Brief warnings of a private project: the user's value after "got <type>" is left out (wenart/brief.py texts).
 _BRIEF_LIST_VALUE = re.compile(r"(: expected a list of file names), got .*(; default )", re.S)
 _BRIEF_GOT_VALUE = re.compile(r"(: expected [^,;]+, got \w+) .*(; default )", re.S)
+# (lower-case text in a reason, hint): every hint whose text occurs in a reason is shown once; no hint is invented.
+DWG_HINT = "DWG is read with LibreDWG 0.14 (beta); if it fails, export DXF"        # = wenart.intake.DWG_NOTE (§5.1)
 NEEDS_REVIEW_HINTS = (
     ("not uploaded", "upload the project folder (docs/intake.md, step 5) and run again"),
     ("collision", "rename one of the files that map to the same name (see intake_manifest.json)"),
     ("cap", "split or shrink the file(s) over the size limit"),
-    ("dwg", "export DXF (or a vector PDF) from the CAD program; DWG is not read"),
-    ("no vector floor plan", "add a DXF or vector PDF floor plan; scans and photos need the recognition path"),
+    ("dwg", DWG_HINT),
+    ("no vector floor plan", "add a floor plan the pipeline can read: DXF/DWG, a vector PDF, or a sharp scan or photo "
+                             "with readable dimension texts"),
     ("no scale", "add a scale (ÖLÇEK 1/50, 1/100 or DXF $INSUNITS) to the plan"),
+    ("scale not corroborated", "check the plan's dimension texts and room-size labels (two dimensions need two room "
+                               "sizes that agree within 5 %), or add more dimensions or a scale note"),
     ("level title", "add the level title (e.g. ZEMİN KAT PLANI) to the floor plan"),
+    ("untitled plan pages", "add a level title to every plan page (e.g. GROUND FLOOR PLAN, FIRST FLOOR PLAN)"),
     ("closed loop", "close the outer walls of the level in the drawing"),
     ("do not close", "close the walls around every labelled room in the drawing"),
     ("no document", "upload at least one plan (.dxf, .pdf or an image)"),
+    # Raster pages (docs/milestone7.md §4, §9.4).
+    ("no page quadrilateral", "photograph the whole sheet with its four corners visible (flat, on a darker "
+                              "background), or upload a scan or the CAD file"),
+    ("no dimension readable", "a scan or photo needs dimension texts that OCR can read: upload a sharper scan "
+                              "(300 dpi), or the CAD file or a vector PDF"),
+    ("photo aspect unknown", "photograph the sheet straight on with all four corners in view (its sheet size could "
+                             "not be told), or upload a scan or the CAD file"),
+    ("text drawn as geometry", "export the PDF with real text (or upload the DWG/DXF): the texts of this page are "
+                               "drawn as lines"),
 )
 MISMATCH_RESULTS = ("missing", "changed", "missing_or_changed")
 NON_DECOR_CLASSES = ("door", "window", "furniture", "fixture")
 CROSSCHECK_KEYS = ("in_json_not_rendered", "rendered_not_in_json", "misplaced")
-# Keys of a check-manifest camera entry that are not image kinds (§5.7).
+# Keys of a check-manifest camera entry that are not image kinds (§5.7; M7 §8.1: the detector's per-view record and
+# its added_by_polish flag).
 CHECK_VIEW_KEYS = {"room_id", "json_crosscheck", "polished_rejected", "polished_reason", "polished_reasons",
-                   "needs_review", "needs_review_reasons", "preference"}
+                   "needs_review", "needs_review_reasons", "preference", "added_by_polish", "detector"}
 ADDED_BY_AI_NOTE = "added_by_ai: render/polish issue, not a document conflict"
+# Milestone 7 (§9.4).
+SBS_PREFIX = "contact_sbs_"          # side-by-side sheets (the copy rule takes contact_*.jpg up to 300 KB)
+SBS_LABEL_HEIGHT = 44                # two label lines under each tile
+COMPOSITE_NOTE = "possible group of"  # wenart.ingest.generic.symbols: a cluster that could not be split
+RASTER_KINDS = ("scan", "photo")
+# The room-label evidence confidences of wenart.recognition.room_labels (AGREE_CONFIDENCE, TESSERACT_CONFIDENCE),
+# which record how a raster room label was accepted (§3.4). Mirrored: the report imports no recognition code
+# (tests/test_report.py pins them equal).
+LABEL_TWO_PASS_CONFIDENCE = 0.85
+LABEL_TESSERACT_CONFIDENCE = 0.8
+LABEL_PATHS = {"two_pass": "two passes agree", "tesseract": "one pass equals the Tesseract text",
+               "tesseract_only": "Tesseract only (not confirmed by the passes)",
+               "not_accepted": "not accepted (the passes disagree)", "none": "no label read"}
 
 NUM = {"type": ["number", "null"]}
 STR = {"type": ["string", "null"]}
@@ -190,6 +250,18 @@ FINAL_MANIFEST = {
         "models": {"type": "array"},
         "contact_sheets": {"type": "object", "additionalProperties": {"type": "string"}},
         "warnings": {"type": "array", "items": {"type": "string"}},
+        # Milestone 7 (§9.4)
+        "units": {"type": ["object", "null"], "properties": {"system": {"enum": ["metric", "imperial"]}}},
+        "side_by_side": {"type": "object", "required": ["sheets"],
+                         "properties": {"sheets": {"type": "object", "additionalProperties": {"type": "string"}}}},
+        "recognition": {"type": ["object", "null"]},
+        "site": {"type": ["object", "null"]},
+        "separators": {"type": "array"},
+        "assumed": {"type": ["object", "null"]},
+        "attribution": {"type": ["object", "null"],
+                        "properties": {"credits": {"type": "array", "items": {"type": "object",
+                                                                              "required": ["asset_id", "credit"]}}}},
+        "detector": {"type": ["object", "null"]},
     },
 }
 
@@ -263,6 +335,8 @@ class Inputs:
     intake: Optional[dict] = None                        # intake_manifest.json (private projects)
     cameras: dict = field(default_factory=dict)          # camera name -> scene-manifest camera plan
     gate: Optional[dict] = None                          # gate_validation_summary (effective decision)
+    side_by_side: dict = field(default_factory=dict)     # room id -> side-by-side sheet (M7 §9.4)
+    side_by_side_note: Optional[str] = None              # why there is none
 
     @property
     def render_dir(self) -> Path:
@@ -954,8 +1028,21 @@ def build_views(inp: Inputs) -> list[dict]:
             "mismatches": items,
             "final_mismatches": len(confirmed_items(final_items)),
             "needs_review": needs_review,
+            "added_by_polish": bool((cview or {}).get("added_by_polish")),
+            "detector": detector_view((cview or {}).get("detector")),
         })
     return out
+
+
+def detector_view(d: Optional[dict]) -> Optional[dict]:
+    """``{status, computed, added, unmatched, boxes}`` of a check-manifest camera's detector record (M7 §8.1)."""
+    if not isinstance(d, dict):
+        return None
+    added = [c for c in d.get("added") or [] if isinstance(c, dict)]
+    return {"status": d.get("status"), "computed": bool(d.get("computed")), "added": len(added),
+            "unmatched": len(d.get("unmatched") or []),
+            "boxes": [{"class": c.get("class"), "group": c.get("group"), "box_px": c.get("box_px"),
+                       "score": c.get("score"), "confirmed_by": list(c.get("confirmed_by") or [])} for c in added]}
 
 
 # --------------------------------------------------------------------------
@@ -1028,6 +1115,122 @@ def contact_sheet(tiles: list, columns: int = CONTACT_COLUMNS, tile_width: int =
     return sheet
 
 
+def _polish_tile_source(inp: Inputs, view: dict) -> tuple[Optional[Path], Optional[dict]]:
+    """The polished image of a side-by-side row and its attempt record: the view's candidate (the chosen attempt,
+    also when the check rejected it), else the last attempt the gate saw (a view no attempt passed); the PNG, else
+    its preview JPEG (results copies). ``(None, None)`` when the polish made no image for the view."""
+    pv = inp.polish_views.get(view["camera"]) or {}
+    attempts = [a for a in pv.get("attempts") or [] if isinstance(a, dict) and a.get("png")]
+    k = (view.get("attempt") or {}).get("k")
+    rec = next((a for a in attempts if a.get("k") == k), None) if k is not None else None
+    if rec is None and attempts:
+        rec = attempts[-1]
+    if rec is None:
+        return None, None
+    candidates = [inp.polish_dir / rec["png"]]
+    if rec.get("preview"):
+        candidates.append(inp.polish_dir / rec["preview"])
+    candidates.append(inp.polish_dir / f"{view['camera']}_a{rec.get('k')}_preview.jpg")
+    return next((c for c in candidates if c.is_file()), None), rec
+
+
+def _cycles_tile_source(inp: Inputs, camera: str) -> Optional[Path]:
+    entry = inp.entries.get(camera) or {}
+    candidates = [inp.render_dir / entry[k] for k in ("png", "preview") if entry.get(k)]
+    return next((c for c in candidates if c.is_file()), None)
+
+
+def side_by_side_labels(view: dict, rec: Optional[dict]) -> tuple[list[str], list[str]]:
+    """The two label lines under the Cycles tile and under the polished tile of one view."""
+    vc = view.get("vision_check")
+    final = "polished" if view["final"] == "polished" else f"Cycles ({view['reason']})"
+    left = [f"{view['camera']}  Cycles", f"check {_verdict(vc, 'cycles')}"]
+    if rec is None:
+        right = ["no polished image", f"final {final}"]
+    else:
+        detector = "  added_by_polish" if view.get("added_by_polish") else ""
+        right = [f"a{rec.get('k')}  gate {_short_gate(gate_summary(rec))}{detector}",
+                 f"check {_verdict(vc, 'polished')}  ->  final {final}"]
+    return left, right
+
+
+def side_by_side_sheet(rows: list, tile_width: int = TILE_WIDTH):
+    """One image of ``(cycles image | None, left lines, polished image | None, right lines)`` rows: Cycles left,
+    polished right, ``tile_width`` px per tile, two label lines under each; a missing image is a grey tile."""
+    from PIL import Image, ImageDraw
+
+    def fit(img):
+        return img.resize((tile_width, max(1, round(img.height * tile_width / img.width))),
+                          Image.Resampling.LANCZOS)
+
+    sized = [(fit(a) if a is not None else None, la, fit(b) if b is not None else None, lb) for a, la, b, lb in rows]
+    heights = [t.height for r in sized for t in (r[0], r[2]) if t is not None]
+    tile_h = max(heights) if heights else round(tile_width * 9 / 16)
+    gap = 4
+    cell_h = tile_h + SBS_LABEL_HEIGHT
+    sheet = Image.new("RGB", (2 * tile_width + 3 * gap, len(sized) * cell_h + (len(sized) + 1) * gap), (32, 32, 32))
+    draw = ImageDraw.Draw(sheet)
+    font = _font(15)
+    for i, row in enumerate(sized):
+        y = gap + i * (cell_h + gap)
+        for col, (img, lines) in enumerate(((row[0], row[1]), (row[2], row[3]))):
+            x = gap + col * (tile_width + gap)
+            if img is None:
+                draw.rectangle([x, y, x + tile_width - 1, y + tile_h - 1], fill=(90, 90, 90))
+                draw.text((x + 8, y + tile_h // 2 - 8), "no image", fill=(230, 230, 230), font=font)
+            else:
+                sheet.paste(img, (x, y))
+            draw.rectangle([x, y + tile_h, x + tile_width - 1, y + cell_h - 1], fill=(0, 0, 0))
+            for n, text in enumerate(lines[:2]):
+                draw.text((x + 6, y + tile_h + 3 + 20 * n), text, fill=(255, 255, 255), font=font)
+    return sheet
+
+
+def polish_on(inp: Inputs) -> tuple[bool, Optional[str]]:
+    """Whether the project has its polish on (side-by-side sheets, §9.4) and, if not, why."""
+    if not polish_allowed(inp.brief):
+        return False, "brief polish: false"
+    if inp.gate is not None and inp.gate["decision"] in NO_POLISH_DECISIONS:
+        return False, f"gate validation {inp.gate['decision']}: no polish for this project"
+    if inp.polish is None:
+        return False, "the polish did not run in this run"
+    return True, None
+
+
+def write_side_by_side(inp: Inputs, views: list[dict]) -> dict:
+    """``contact_sbs_<room>.jpg`` per room with rendered views when the polish is on (§9.4); ``{room: name}``."""
+    on, why = polish_on(inp)
+    if not on:
+        inp.side_by_side_note = why
+        return {}
+    by_room: dict[str, list] = {}
+    for view in views:
+        by_room.setdefault(view["room_id"] or "-", []).append(view)
+    sheets = {}
+    for room, room_views in sorted(by_room.items()):
+        rows = []
+        for view in room_views:
+            pol_src, rec = _polish_tile_source(inp, view)
+            left, right = side_by_side_labels(view, rec)
+            cyc = _load_rgb(_cycles_tile_source(inp, view["camera"]))
+            pol = _load_rgb(pol_src)
+            if rec is not None and pol is None:
+                inp.warnings.append(f"{view['camera']}: polish attempt a{rec.get('k')} image not found for the "
+                                    f"side-by-side sheet")
+            rows.append((_pil(cyc), left, _pil(pol), right))
+        name = f"{SBS_PREFIX}{re.sub(r'[^A-Za-z0-9_.-]+', '_', room)}.jpg"
+        C.save_jpeg_under(side_by_side_sheet(rows), inp.out_dir / name)
+        sheets[room] = name
+    return sheets
+
+
+def _pil(rgb):
+    if rgb is None:
+        return None
+    from PIL import Image
+    return Image.fromarray(rgb)
+
+
 def write_images(inp: Inputs, views: list[dict]) -> dict:
     """Final previews, plan copies and contact sheets into ``inp.out_dir``; returns ``{level: sheet name}``."""
     from PIL import Image
@@ -1068,8 +1271,10 @@ def write_images(inp: Inputs, views: list[dict]) -> dict:
         name = f"contact_{level}.jpg"
         C.save_jpeg_under(contact_sheet(tiles[level]), out / name)
         sheets[level] = name
+    inp.side_by_side = write_side_by_side(inp, views)
     # Files of an earlier run that this run did not write are listed, not deleted.
-    written = {v["preview"] for v in views} | {v["plan"] for v in views} | set(sheets.values())
+    written = ({v["preview"] for v in views} | {v["plan"] for v in views} | set(sheets.values())
+               | set(inp.side_by_side.values()))
     for pattern in ("*_final_preview.jpg", "*_plan.jpg", "contact_*.jpg"):
         for f in sorted(out.glob(pattern)):
             if f.name not in written:
@@ -1197,6 +1402,10 @@ def model_rows(inp: Inputs) -> list[dict]:
         rows.append({"role": f"check {key}", "repo": m.get("id") or m.get("repo"), "revision": m.get("revision"),
                      "licence": m.get("licence") or (cfg_models.get(key) or {}).get("licence"),
                      "source": "check_manifest.json"})
+    det_model = ((inp.check or {}).get("detector") or {}).get("model")
+    if isinstance(det_model, dict) and det_model.get("repo"):
+        rows.append({"role": "detector", "repo": det_model.get("repo"), "revision": det_model.get("revision"),
+                     "licence": det_model.get("licence"), "source": "check_manifest.json"})
     return rows
 
 
@@ -1264,6 +1473,258 @@ def advisory_flags(inp: Inputs, views: list[dict]) -> list[str]:
 
 
 # --------------------------------------------------------------------------
+# Milestone 7 summaries (§9.4): units, recognition, site, separators, assumed values, attribution, detector
+# --------------------------------------------------------------------------
+
+def unit_system(building: Optional[dict]) -> str:
+    """``project.unit_system`` of the building (``metric`` when not recorded: every pre-M7 building is metric)."""
+    system = (((building or {}).get("project") or {}) if isinstance(building, dict) else {}).get("unit_system")
+    return system if system in ("metric", "imperial") else "metric"
+
+
+def length_text(metres: Any, system: str) -> str:
+    """A length in the project's system: imperial ``11' 3" (3.43 m)``, metric ``3,43 m`` (``wenart.units``)."""
+    if not isinstance(metres, (int, float)) or isinstance(metres, bool):
+        return "-"
+    from wenart import units as U
+    if system == "imperial":
+        return f"{U.format_length(float(metres), 'imperial')} ({float(metres):.2f} m)"
+    return U.format_length(float(metres), "metric")
+
+
+def _doc_name(file: Any, index: int, private: bool) -> Any:
+    """A document's file name, or ``document <n>`` for a private project (file names stay on the volume)."""
+    return f"document {index}" if private else file
+
+
+def units_summary(building: Optional[dict], private: bool = False) -> Optional[dict]:
+    """``{system, recorded, documents: [{file, unit_system, source_kind}]}`` of the building (None without one; a
+    private project's documents are numbered, never named)."""
+    if not isinstance(building, dict):
+        return None
+    docs = [{"file": _doc_name(d.get("file"), i, private), "unit_system": d.get("unit_system"),
+             "source_kind": d.get("source_kind")}
+            for i, d in enumerate((d for d in building.get("documents") or [] if isinstance(d, dict)), start=1)]
+    return {"system": unit_system(building), "recorded": bool((building.get("project") or {}).get("unit_system")),
+            "documents": docs}
+
+
+def _evidence_list(el: dict) -> list[dict]:
+    ev = el.get("evidence")
+    if isinstance(ev, dict):
+        return [ev]
+    return [e for e in ev or [] if isinstance(e, dict)]
+
+
+def raster_files(building: Optional[dict]) -> set:
+    """Files with a scan or photo page (docs/milestone7.md §4)."""
+    return {d.get("file") for d in (building or {}).get("documents") or [] if isinstance(d, dict)
+            for pg in d.get("pages") or [] if isinstance(pg, dict) and pg.get("kind") in RASTER_KINDS}
+
+
+def label_path(room: dict) -> str:
+    """How a raster room label was accepted (§3.4), from the evidence the pipeline recorded: the passes' ``ai``
+    evidence (``entity recognition:<key>``) carries the acceptance path as its confidence (room_labels:
+    0.85 two passes agree, 0.8 one pass equals Tesseract, 0.3 not accepted); ``ocr`` evidence alone = Tesseract
+    only (no answers, or ``--no-ai``)."""
+    ev = _evidence_list(room)
+    ai = [e for e in ev if e.get("method") == "ai" and str(e.get("entity") or "").startswith("recognition:")]
+    confs = {round(float(e["confidence"]), 3) for e in ai if isinstance(e.get("confidence"), (int, float))}
+    if LABEL_TWO_PASS_CONFIDENCE in confs:
+        return "two_pass"
+    if LABEL_TESSERACT_CONFIDENCE in confs:
+        return "tesseract"
+    if ai:
+        return "not_accepted"
+    if any(e.get("method") == "ocr" for e in ev):
+        return "tesseract_only"
+    return "none"
+
+
+def recognition_summary(inp: Inputs) -> Optional[dict]:
+    """The AI typing and the raster labels of the building (§3, §4, §9.4): type methods, AI-typed pieces with both
+    passes' answers, composites, raster pages and, per room labelled from a raster page, its acceptance path."""
+    b = inp.building
+    if not isinstance(b, dict):
+        return None
+    furniture = [f for f in b.get("furniture") or [] if isinstance(f, dict)]
+    methods: dict[str, int] = {}
+    ai, composites = [], []
+    for f in furniture:
+        if f.get("type_method"):
+            methods[str(f["type_method"])] = methods.get(str(f["type_method"]), 0) + 1
+        cands = sorted((c for c in f.get("type_candidates") or [] if isinstance(c, dict)),
+                       key=lambda c: (str(c.get("pass") or ""), str(c.get("model") or "")))
+        if f.get("type_method") == "ai_two_pass" or cands:
+            ai.append({"id": f.get("id"), "room_id": f.get("room_id"), "type": f.get("type"),
+                       "type_method": f.get("type_method"), "status": f.get("status"),
+                       "build": f.get("build", True) is not False, "agreed": f.get("type_method") == "ai_two_pass",
+                       "answers": [{"pass": c.get("pass"), "model": c.get("model") or c.get("model_key"),
+                                    "type": c.get("type"), "front": c.get("front"), "confidence": c.get("confidence"),
+                                    "reason": c.get("reason")} for c in cands]})
+        notes = [str(e.get("note")) for e in _evidence_list(f) if str(e.get("note") or "").startswith(COMPOSITE_NOTE)]
+        if notes:
+            composites.append({"id": f.get("id"), "room_id": f.get("room_id"), "type": f.get("type"),
+                               "status": f.get("status"), "size": (f.get("footprint") or {}).get("size"),
+                               "note": notes[0]})
+    files = raster_files(b)
+    docs = [d for d in b.get("documents") or [] if isinstance(d, dict)]
+    names = {d.get("file"): _doc_name(d.get("file"), i, inp.private) for i, d in enumerate(docs, start=1)}
+    pages = [{"file": names.get(d.get("file")), "page": pg.get("page"), "kind": pg.get("kind"),
+              "class": pg.get("class"), "level_id": pg.get("level_id"), "classifier": pg.get("classifier"),
+              "source_kind": d.get("source_kind"),
+              "rectified_image": None if inp.private else pg.get("rectified_image"),
+              "skip_reason": None if inp.private else pg.get("skip_reason")}
+             for d in docs for pg in d.get("pages") or [] if isinstance(pg, dict) and pg.get("kind") in RASTER_KINDS]
+    rooms = []
+    for r in b.get("rooms") or []:
+        if not isinstance(r, dict):
+            continue
+        primary = next((e for e in _evidence_list(r) if e.get("method") != "derived"), None)
+        if primary is None or primary.get("file") not in files:
+            continue
+        rooms.append({"id": r.get("id"), "label": r.get("label"), "label_raw": r.get("label_raw"),
+                      "room_type": r.get("room_type"), "status": r.get("status"), "path": label_path(r),
+                      "file": names.get(primary.get("file")), "page": primary.get("page")})
+    requests = C.read_json(inp.project_out / "recognition" / "requests.json")
+    folder = inp.project_out / "recognition"
+    return {"type_methods": dict(sorted(methods.items())), "ai_typed": ai, "composites": composites,
+            "raster_pages": pages, "raster_rooms": rooms,
+            "questions": len(requests.get("items") or []) if isinstance(requests, dict) else None,
+            "answer_files": sorted(p.name for p in folder.glob("answers_*.json")) if folder.is_dir() else []}
+
+
+def site_summary(building: Optional[dict]) -> Optional[dict]:
+    """The site of the building (§2.5): plot and other boundary walls, exterior areas, decor, openings; recorded,
+    never built. None when the building has no site block."""
+    site = (building or {}).get("site") if isinstance(building, dict) else None
+    if not isinstance(site, dict) or not any(site.get(k) for k in ("boundary_walls", "areas", "decor", "openings")):
+        return None
+    from wenart import geometry as G
+
+    walls = [{"id": w.get("id"), "kind": w.get("kind"), "level_id": w.get("level_id"),
+              "length_m": round(G.distance(w["start"], w["end"]), 3) if w.get("start") and w.get("end") else None,
+              "thickness_m": w.get("thickness")} for w in site.get("boundary_walls") or [] if isinstance(w, dict)]
+    areas = []
+    for a in site.get("areas") or []:
+        if not isinstance(a, dict):
+            continue
+        ls = a.get("label_size") if isinstance(a.get("label_size"), dict) else {}
+        areas.append({"id": a.get("id"), "label": a.get("label"), "label_size": ls.get("text"),
+                      "measured": ls.get("measured"), "status": ls.get("status"),
+                      "closed": a.get("polygon") is not None})
+    decor: dict[str, int] = {}
+    for d in site.get("decor") or []:
+        if isinstance(d, dict):
+            decor[str(d.get("kind") or "other")] = decor.get(str(d.get("kind") or "other"), 0) + 1
+    openings = [{"id": o.get("id"), "type": o.get("type"), "width_m": o.get("width"),
+                 "boundary_wall_id": o.get("boundary_wall_id")}
+                for o in site.get("openings") or [] if isinstance(o, dict)]
+    return {"boundary_walls": walls, "areas": areas, "decor": dict(sorted(decor.items())), "openings": openings}
+
+
+def separators_summary(building: Optional[dict]) -> list[dict]:
+    """The virtual separators of the building (§2.7.1): openings with ``virtual`` true (no geometry is built)."""
+    from wenart import geometry as G
+
+    out = []
+    for o in (building or {}).get("openings") or []:
+        if not isinstance(o, dict) or not o.get("virtual"):
+            continue
+        line = o.get("line")
+        notes = [str(e.get("note")) for e in _evidence_list(o) if e.get("note")]
+        out.append({"id": o.get("id"), "level_id": o.get("level_id"), "status": o.get("status"),
+                    "length_m": round(G.distance(line[0], line[1]), 3) if line and len(line) == 2 else o.get("width"),
+                    "note": notes[0] if notes else None})
+    return out
+
+
+def assumed_summary(inp: Inputs) -> dict:
+    """Every assumed value the report can see (§2.9, §6.4, §9.4): brief defaults, assumed level titles, ceiling
+    heights, opening heights and sills, stair direction/turn/void, and the scene manifest's assumed values grouped by
+    field and reason."""
+    b = inp.building if isinstance(inp.building, dict) else {}
+    system = unit_system(b)
+    values = (inp.brief or {}).get("values") or {}
+    brief = [{"key": k, "value": values.get(k)} for k in (inp.brief or {}).get("assumed") or []]
+    building: list[str] = []
+    for lv in b.get("levels") or []:
+        if not isinstance(lv, dict):
+            continue
+        if lv.get("label_source") == "assumed":
+            building.append(f"{lv.get('id')}: level '{lv.get('label')}' assumed (no level title on the page)")
+        if lv.get("ceiling_height_source") == "assumed_default":   # (else measured: section, elevation_drawing)
+            building.append(f"{lv.get('id')}: ceiling height {length_text(lv.get('ceiling_height'), system)} "
+                            f"({lv.get('ceiling_height_source')})")
+    groups: dict[tuple, list] = {}
+    for o in b.get("openings") or []:
+        if not isinstance(o, dict):
+            continue
+        for key in o.get("assumed") or []:
+            groups.setdefault((str(o.get("type")), str(key), o.get(key)), []).append(str(o.get("id")))
+    for (otype, key, value), ids in sorted(groups.items(), key=lambda kv: (kv[0][0], kv[0][1], str(kv[0][2]))):
+        building.append(f"{otype} {key.replace('_', ' ')} {length_text(value, system)}: {len(ids)} opening(s) "
+                        f"({', '.join(ids[:6])}{' ...' if len(ids) > 6 else ''})")
+    for f in b.get("furniture") or []:
+        stair = f.get("stair") if isinstance(f, dict) else None
+        if not isinstance(stair, dict):
+            continue
+        what = [k[:-len("_assumed")] for k in ("direction_assumed", "turn_assumed", "void_assumed") if stair.get(k)]
+        if what:
+            building.append(f"{f.get('id')} (stair): {', '.join(what)} assumed"
+                            + (f" ({stair['reason']})" if stair.get("reason") else ""))
+        if stair.get("riser_source"):
+            building.append(f"{f.get('id')} (stair): riser {length_text(stair.get('riser_m'), system)} "
+                            f"({stair['riser_source']})")
+    scene: dict[tuple, list] = {}
+    for a in (inp.scene or {}).get("assumed") or []:
+        if isinstance(a, dict):
+            scene.setdefault((str(a.get("field")), str(a.get("reason") or "-")), []).append(str(a.get("object")))
+    scene_rows = [{"field": f, "reason": r, "count": len(objs), "examples": objs[:3]}
+                  for (f, r), objs in sorted(scene.items())]
+    return {"brief": brief, "building": building, "scene": scene_rows}
+
+
+def attribution_summary(building: Optional[dict]) -> dict:
+    """Credits of the Objaverse models of the building (§7.3): one entry per model with its §7.3 line
+    (``asset.attribution``) and the pieces that use it, plus the ODC-By 1.0 notice when there is any."""
+    found: dict[str, dict] = {}
+    b = building if isinstance(building, dict) else {}
+    for piece in list(b.get("furniture") or []) + list(b.get("decor") or []):
+        asset = piece.get("asset") if isinstance(piece, dict) else None
+        if not isinstance(asset, dict) or asset.get("library") != "objaverse" or asset.get("method") == "parametric":
+            continue
+        key = str(asset.get("asset_id") or asset.get("uid") or "?")
+        entry = found.setdefault(key, {"asset_id": key, "licence": asset.get("licence"),
+                                       "credit": asset.get("attribution") or None, "pieces": []})
+        entry["pieces"].append(str(piece.get("id") or "?"))
+    notice = None
+    if found:
+        from wenart.assets import objaverse as OBJ   # stdlib-only at import; the yaml is read here
+        try:
+            cfg = OBJ.load_config()
+        except Exception:  # noqa: BLE001 - the notice has built-in defaults (allenai/objaverse @ 21e4e14)
+            cfg = None
+        notice = OBJ.odc_by_notice(cfg)
+    return {"credits": [found[k] for k in sorted(found)], "notice": notice,
+            "missing": sorted(k for k, e in found.items() if not e["credit"])}
+
+
+def detector_summary(inp: Inputs, views: list[dict]) -> Optional[dict]:
+    """The added-object detector of the check manifest (§8.1); None when the check did not run."""
+    if inp.check is None:
+        return None
+    det = inp.check.get("detector")
+    if not isinstance(det, dict):
+        return {"status": "not_recorded", "advisory": True, "thresholds": None, "model": None, "not_computed": [],
+                "views_added": []}
+    return {"status": det.get("status") or "not_run", "advisory": bool(det.get("advisory", True)),
+            "reason": det.get("reason"), "thresholds": det.get("thresholds"), "model": det.get("model"),
+            "not_computed": list(det.get("not_computed") or []),
+            "views_added": [v["camera"] for v in views if v.get("added_by_polish")]}
+
+
+# --------------------------------------------------------------------------
 # Manifest and report
 # --------------------------------------------------------------------------
 
@@ -1275,6 +1736,10 @@ def build_manifest(inp: Inputs, views: list[dict], sheets: dict) -> dict:
     rooms = rooms_summary(inp, views)
     b = inp.building or {}
     flags = advisory_flags(inp, views)
+    recognition = recognition_summary(inp)
+    attribution = attribution_summary(inp.building)
+    detector = detector_summary(inp, views)
+    flags.extend(m7_flags(recognition, attribution, detector))
     stages = {
         "render": "run" if inp.render_manifest is not None else "not_run",
         "polish": ("not_run" if inp.polish is None else "incomplete" if inp.polish.get("incomplete") else "run"),
@@ -1341,8 +1806,47 @@ def build_manifest(inp: Inputs, views: list[dict], sheets: dict) -> dict:
                      "conflicts": list(b.get("conflicts") or [])},
         "intake": intake_summary(inp.intake),
         "kept_on_volume": kept_on_volume(views) if inp.private else [],
+        # Milestone 7 (§9.4)
+        "units": units_summary(inp.building, inp.private),
+        "side_by_side": {"sheets": dict(inp.side_by_side), "note": inp.side_by_side_note},
+        "recognition": recognition,
+        "site": site_summary(inp.building),
+        "separators": separators_summary(inp.building),
+        "assumed": assumed_summary(inp),
+        "attribution": attribution,
+        "detector": detector,
         "warnings": list(inp.warnings),
     }
+
+
+def m7_flags(recognition: Optional[dict], attribution: dict, detector: Optional[dict]) -> list[str]:
+    """Open items of Milestone 7: AI typing left open, raster labels not confirmed, CC BY models without a credit
+    line, an advisory or uncomputed detector, views the detector rejected."""
+    flags = []
+    rec = recognition or {}
+    open_types = [p["id"] for p in rec.get("ai_typed") or [] if not p["agreed"] and p["build"]]
+    if open_types:
+        flags.append(f"{len(open_types)} drawn piece(s) not typed: the two AI passes disagree or did not answer "
+                     f"(unknown, unverified; footprint kept): {', '.join(str(x) for x in open_types[:8])}")
+    if rec.get("composites"):
+        flags.append(f"{len(rec['composites'])} drawn group(s) not split into pieces (unknown, unverified): "
+                     + ", ".join(str(c["id"]) for c in rec["composites"][:8]))
+    unconfirmed = [r["id"] for r in rec.get("raster_rooms") or [] if r["path"] not in ("two_pass", "tesseract")]
+    if unconfirmed:
+        flags.append(f"{len(unconfirmed)} raster room label(s) not confirmed (§3.4): "
+                     + ", ".join(str(x) for x in unconfirmed[:8]))
+    if attribution.get("missing"):
+        flags.append("Objaverse model(s) without a credit line (check the catalogue entry before sharing images): "
+                     + ", ".join(attribution["missing"]))
+    det = detector or {}
+    if det.get("status") == "advisory":
+        flags.append("added-object detector advisory (not calibrated): it lists boxes and never rejects a polish")
+    if det.get("not_computed"):
+        flags.append(f"added-object detector: no current detection for {', '.join(det['not_computed'])} "
+                     f"(those polished images stay Cycles)")
+    if det.get("views_added"):
+        flags.append(f"the polish added an object in {', '.join(det['views_added'])}: the Cycles render is final")
+    return flags
 
 
 def views_per_room(rooms: dict) -> dict:
@@ -1561,6 +2065,171 @@ def intake_lines(intake: Optional[dict]) -> list[str]:
     return lines
 
 
+def side_by_side_lines(manifest: dict) -> list[str]:
+    """The "Side-by-side sheets" section (§9.4): per room the sheet and the decisions of each view."""
+    sbs = manifest.get("side_by_side") or {}
+    sheets = sbs.get("sheets") or {}
+    lines = ["", "## Side-by-side sheets (Cycles | polished)", ""]
+    if not sheets:
+        lines.append(f"None: {sbs.get('note') or 'no rendered view'}.")
+        return lines
+    lines.append("Per room: the Cycles render (left) and the polish candidate (right; the chosen attempt, else the "
+                 "last attempt the gate saw) with the gate decision, both check verdicts and the final decision.")
+    by_room: dict = {}
+    for v in manifest["views"]:
+        by_room.setdefault(v["room_id"] or "-", []).append(v)
+    rows = []
+    for room, name in sheets.items():
+        lines += ["", f"- {room}: [{name}]({name})"]
+        for v in by_room.get(room, []):
+            det = "added_by_polish" if v.get("added_by_polish") else (
+                (v.get("detector") or {}).get("status") or "-")
+            rows.append([room, v["camera"], _attempt_text(v["attempt"]), _short_gate(v["gate"]),
+                         _verdict(v["vision_check"], "cycles"), _verdict(v["vision_check"], "polished"), det,
+                         v["final"] + (f" ({v['reason']})" if v["reason"] else "")])
+    lines += [""] + C.table(["room", "view", "polish attempt", "gate", "check Cycles", "check polished", "detector",
+                             "final"], rows)
+    return lines
+
+
+def _answer_text(a: dict) -> str:
+    conf = f" {float(a['confidence']):.2f}" if isinstance(a.get("confidence"), (int, float)) else ""
+    front = f", front {a['front']}" if a.get("front") not in (None, "none") else ""
+    return f"pass {a.get('pass')} {a.get('model') or '?'}: {a.get('type')}{front}{conf}"
+
+
+def m7_building_lines(manifest: dict) -> list[str]:
+    """Units, recognition, site, separators and assumed values (§9.4)."""
+    units = manifest.get("units")
+    system = (units or {}).get("system") or "metric"
+    lines = ["", "## Units", ""]
+    if units is None:
+        lines.append("No building JSON: unknown.")
+    else:
+        imperial = " (lengths in feet and inches, metres in brackets)" if system == "imperial" else ""
+        lines.append(f"Project unit system: **{system}**{imperial}"
+                     + ("" if units.get("recorded") else " (not recorded in the building JSON: metric)") + ".")
+        if units.get("documents"):
+            lines += [""] + C.table(["document", "unit system", "source kind"],
+                                    [[d["file"], d.get("unit_system"), d.get("source_kind")]
+                                     for d in units["documents"]])
+    rec = manifest.get("recognition")
+    lines += ["", "## Recognition (AI typing and raster labels)", ""]
+    if rec is None:
+        lines.append("No building JSON.")
+    else:
+        methods = ", ".join(f"{k} {n}" for k, n in (rec.get("type_methods") or {}).items()) or "-"
+        q = rec.get("questions")
+        lines.append(f"Furniture type methods: {methods}. Recognition questions: "
+                     f"{'-' if q is None else q}; answer files: {', '.join(rec.get('answer_files') or []) or 'none'}. "
+                     "A type counts only when both passes agree and the drawn footprint fits the type's size range; "
+                     "otherwise the piece stays `unknown` and `unverified` with both answers.")
+        if rec.get("ai_typed"):
+            lines += ["", "AI-typed pieces:", ""]
+            lines += C.table(["piece", "room", "type", "agreed", "status", "built", "answers"],
+                             [[p["id"], p["room_id"], p["type"], "yes" if p["agreed"] else "no", p["status"],
+                               "yes" if p["build"] else "no (drawn symbol, not built)",
+                               "; ".join(_answer_text(a) for a in p["answers"]) or "no answer"]
+                              for p in rec["ai_typed"]])
+        if rec.get("composites"):
+            lines += ["", "Drawn groups not split into pieces:", ""]
+            lines += C.table(["piece", "room", "size", "status", "note"],
+                             [[c["id"], c["room_id"], " x ".join(length_text(x, system) for x in c.get("size") or [])
+                               or "-", c["status"], c["note"]] for c in rec["composites"]])
+        if rec.get("raster_pages"):
+            lines += ["", "Raster pages (scans and photos):", ""]
+            lines += C.table(["file", "page", "kind", "class", "level", "rectified image", "skip reason"],
+                             [[pg["file"], pg["page"], pg["kind"], pg["class"], pg["level_id"],
+                               pg.get("rectified_image"), pg.get("skip_reason")] for pg in rec["raster_pages"]])
+            if rec.get("raster_rooms"):
+                lines += ["", "Room labels of the raster pages and how they were accepted (§3.4):", ""]
+                lines += C.table(["room", "label", "as read", "type", "status", "accepted by"],
+                                 [[r["id"], r["label"], r["label_raw"] or "—", r["room_type"], r["status"],
+                                   LABEL_PATHS.get(r["path"], r["path"])] for r in rec["raster_rooms"]])
+    site = manifest.get("site")
+    lines += ["", "## Site", "", "Recorded, not built."]
+    if site:
+        rows = [[w["id"], f"boundary wall ({w['kind']})", f"{length_text(w['length_m'], system)} long, "
+                 f"{length_text(w['thickness_m'], system)} thick"] for w in site["boundary_walls"]]
+        for a in site["areas"]:
+            measured = " x ".join(length_text(x, system) for x in a.get("measured") or []) or "-"
+            rows.append([a["id"], f"area '{a['label']}'", f"label size {a.get('label_size') or '-'}, measured "
+                         f"{measured} ({a.get('status') or '-'})" + ("" if a["closed"] else ", no closed outline")])
+        rows += [[o["id"], f"{o['type']} in {o.get('boundary_wall_id') or '-'}", f"{length_text(o['width_m'], system)} "
+                  "wide"] for o in site["openings"]]
+        if site["decor"]:
+            rows.append(["-", "decor", ", ".join(f"{k} x {n}" for k, n in site["decor"].items())])
+        lines += [""] + C.table(["id", "what", "detail"], rows)
+    else:
+        lines += ["", "None."]
+    seps = manifest.get("separators") or []
+    lines += ["", "## Separators", ""]
+    if seps:
+        lines.append("Virtual lines that split an open-plan face where two room names share it (no geometry is "
+                     "built; the pipeline's report.md lists the candidates it dropped):")
+        lines += [""] + C.table(["id", "level", "length", "status", "reason"],
+                                [[s["id"], s["level_id"], length_text(s["length_m"], system), s["status"], s["note"]]
+                                 for s in seps])
+    else:
+        lines.append("None.")
+    assumed = manifest.get("assumed") or {}
+    lines += ["", "## Assumed values", ""]
+    items = [f"brief {a['key']}: {a['value']} (default, not in brief.yaml)" for a in assumed.get("brief") or []]
+    items += list(assumed.get("building") or [])
+    lines += C.bullets(items)
+    if assumed.get("scene"):
+        lines += ["", "Scene (build) assumptions:", ""]
+        lines += C.table(["field", "objects", "reason", "e.g."],
+                         [[s["field"], s["count"], s["reason"], ", ".join(s["examples"])] for s in assumed["scene"]])
+    return lines
+
+
+def m7_model_lines(manifest: dict) -> list[str]:
+    """Attribution (§7.3) and the added-object detector (§8.1)."""
+    att = manifest.get("attribution") or {}
+    lines = ["", "## Attribution", ""]
+    if att.get("credits"):
+        lines.append("3D models from Objaverse 1.0 used in these images (§7.3):")
+        lines += [""] + [f"- {c['credit'] or c['asset_id'] + ': no attribution recorded (check the catalogue entry)'}"
+                         f" (used for {', '.join(c['pieces'])})" for c in att["credits"]]
+        if att.get("notice"):
+            lines += ["", att["notice"]]
+    else:
+        lines.append("No CC BY or Objaverse model in this project (Poly Haven CC0 models and parametric meshes need "
+                     "no credit).")
+    det = manifest.get("detector")
+    lines += ["", "## Added-object detector", ""]
+    if det is None:
+        lines.append("Not run: the vision check did not run.")
+        return lines
+    status = det.get("status")
+    if status in ("not_run", "not_recorded"):
+        lines.append("Not run for this project (no `detect/` results in the check manifest).")
+        return lines
+    th = det.get("thresholds") or {}
+    if det.get("advisory"):
+        lines.append(f"Advisory ({det.get('reason') or 'no thresholds'}): unmatched polished boxes are listed in the "
+                     "check report, nothing is rejected.")
+    else:
+        lines.append(f"Calibrated: t_det {th.get('t_det')}, t_strong {th.get('t_strong')}; a confirmed added non-decor "
+                     "object rejects the polished image (the Cycles render is final).")
+    model = det.get("model") or {}
+    if model:
+        lines.append(f"Model: {model.get('repo')} @ {str(model.get('revision') or '-')[:12]} ({model.get('licence')}).")
+    rows = []
+    for v in manifest["views"]:
+        d = v.get("detector")
+        if not d:
+            continue
+        boxes = "; ".join(f"{b.get('class')} {b.get('box_px')} ({', '.join(b.get('confirmed_by') or [])})"
+                          for b in d.get("boxes") or [])
+        rows.append([v["camera"], d.get("status"), "yes" if d.get("computed") else "no",
+                     "yes" if v.get("added_by_polish") else "no", boxes or "-"])
+    if rows:
+        lines += [""] + C.table(["view", "detector", "computed", "added_by_polish", "confirmed boxes"], rows)
+    return lines
+
+
 def report_markdown(manifest: dict) -> str:
     """``final_report.md`` from the final manifest (links only to files in ``final/``)."""
     s = manifest["summary"]
@@ -1619,6 +2288,8 @@ def report_markdown(manifest: dict) -> str:
         ["seconds: polish / gate / check", " / ".join(C.seconds_text(sec[k]) for k in ("polish", "gate", "check"))],
         ["brief polish", ("yes" if manifest["polish_allowed"] else "no")
          + (" (default, not in brief.yaml)" if "polish" in manifest.get("brief_assumed", []) else "")],
+        ["unit system", (manifest.get("units") or {}).get("system") or "-"],
+        ["side-by-side sheets", len((manifest.get("side_by_side") or {}).get("sheets") or {})],
     ]
     lines += C.table(["item", "value"], rows)
     lines += ["", "## Advisory flags and open items", ""]
@@ -1630,6 +2301,7 @@ def report_markdown(manifest: dict) -> str:
         lines.append("Tiles: camera, `P` polished / `C` Cycles, `U<n>` unverified pieces in view.")
         for level, name in manifest["contact_sheets"].items():
             lines += ["", f"Level {level}: [{name}]({name})"]
+    lines += side_by_side_lines(manifest)
     lines += ["", "## Views", ""]
     rows = []
     for v in views:
@@ -1707,6 +2379,7 @@ def report_markdown(manifest: dict) -> str:
                           for c in b["conflicts"]])
     else:
         lines.append("None.")
+    lines += m7_building_lines(manifest)
     lines += ["", "## Rooms mixing polished and Cycles views", ""]
     mixed = [(rid, r) for rid, r in manifest["rooms"].items() if r["mixed"]]
     if mixed:
@@ -1733,6 +2406,7 @@ def report_markdown(manifest: dict) -> str:
         lines += ["", "Assets: textures " + (", ".join(f"{k} x {n}" for k, n in assets["textures"].items()) or "-")
                   + "; furniture/decor models " + (", ".join(f"{k} x {n}" for k, n in assets["models"].items()) or "-")
                   + " (parametric meshes need no licence)."]
+    lines += m7_model_lines(manifest)
     lines += stage_table_lines(manifest["run_stages"], manifest.get("earlier_run_stages"), manifest.get("run_id"))
     if manifest["private"]:
         lines += intake_lines(manifest.get("intake"))

@@ -738,9 +738,19 @@ def test_documents_in_truth(generated):
     assert pdf_page["evidence"][0]["text"] == "1. KAT PLANI"
     scan_page = docs["1_kat_scan.png"]["pages"][0]
     assert scan_page["kind"] == "scan" and scan_page["scale"]["evidence"]["method"] == "ocr"
+    assert scan_page["scale"]["method"] == "dimension_text"           # Milestone 7: scale from dimensions (§4.3)
     b2 = truth(generated, "synthetic-02")
     photo = next(d for d in b2["documents"] if d["file"] == "plan_photo.jpg")["pages"][0]
     assert photo["kind"] == "photo" and photo["scale"] is None and photo["transform_to_building"] is None
+    # Milestone 7 (§4.4): raster evidence is method "raster" for geometry, "ai" for the furniture types, and the
+    # scan's scale comes from a dimension text read by OCR.
+    scan2 = next(d for d in b2["documents"] if d["file"] == "plan_scan.png")["pages"][0]
+    assert scan2["scale"]["method"] == "dimension_text" and scan2["scale"]["evidence"]["method"] == "ocr"
+    for key in ("walls", "openings", "furniture"):
+        assert {e["method"] for el in b2[key] for e in el["evidence"]} == ({"raster", "ai"} if key == "furniture"
+                                                                            else {"raster"}), key
+    assert all(any(e["method"] == "ai" and e["text"] == f"type: {f['type']}" for e in f["evidence"])
+               for f in b2["furniture"])
 
 
 def test_previews_are_small(generated):

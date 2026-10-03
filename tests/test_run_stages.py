@@ -1,4 +1,5 @@
-"""The stage table of the full run: golden command lines and the table's columns (docs/milestone6.md §2.2)."""
+"""The stage table of the full run: golden command lines and the table's columns (docs/milestone6.md §2.2;
+docs/milestone7.md §9.1: recognize, pipeline_final and detect, the contiguous numbers 0..20, realism v2)."""
 from __future__ import annotations
 
 import ast
@@ -22,25 +23,35 @@ URL = "http://127.0.0.1:8001/v1"
 
 
 def test_the_table_columns():
-    assert [s.number for s in S.STAGE_LIST if s.number is not None] == list(range(18))
-    assert S.PROJECT_STAGES == ("intake", "pipeline", "photos", "style", "assets", "fit", "layout", "decor", "refit",
-                                "build", "render", "controls", "gate", "polish", "expected", "check", "combine",
-                                "report")
+    assert [s.number for s in S.STAGE_LIST if s.number is not None] == list(range(21))
+    assert S.PROJECT_STAGES == ("intake", "pipeline", "recognize", "pipeline_final", "photos", "style", "assets",
+                                "fit", "layout", "decor", "refit", "build", "render", "controls", "gate", "polish",
+                                "detect", "expected", "check", "combine", "report")
     fail = {s.name: s.on_failure for s in S.STAGE_LIST if s.number is not None}
-    assert {n for n, v in fail.items() if v == "warning"} == {"photos", "assets", "controls", "gate", "polish"}
+    assert {n for n, v in fail.items() if v == "warning"} == {"recognize", "photos", "assets", "controls", "gate",
+                                                             "polish", "detect"}
     reuse = {s.name: s.reuse for s in S.STAGE_LIST if s.number is not None}
-    assert {n for n, v in reuse.items() if v == "fingerprint"} == {"intake", "pipeline", "fit", "layout", "decor",
-                                                                  "refit"}
-    assert {n for n, v in reuse.items() if v == "own"} == {"build", "render", "controls", "gate", "polish", "check"}
+    assert {n for n, v in reuse.items() if v == "fingerprint"} == {"intake", "pipeline", "pipeline_final", "fit",
+                                                                  "layout", "decor", "refit"}
+    assert {n for n, v in reuse.items() if v == "own"} == {"recognize", "build", "render", "controls", "gate",
+                                                          "polish", "detect", "check"}
     assert reuse["photos"] == "photos"
     holders = {s.name: s.holder for s in S.STAGE_LIST}
-    assert {n for n, h in holders.items() if h == "vlm"} == {"photos", "layout", "check", "ab_realism", "ab_look_alt"}
+    assert {n for n, h in holders.items() if h == "vlm"} == {"recognize", "photos", "layout", "check", "ab_realism"}
     assert {n for n, h in holders.items() if h == "blender"} == {"build", "render", "controls", "ab_render",
                                                                  "ab_controls"}
-    assert holders["gate"] == "gate" and holders["polish"] == "diffusion"
+    assert {n for n, h in holders.items() if h == "gate"} == {"gate", "detect"} and holders["polish"] == "diffusion"
+    assert holders["pipeline_final"] == "cpu"
     heavy = {s.name for s in S.STAGE_LIST if s.heavy and s.number is not None}
-    assert heavy == {"photos", "layout", "build", "render", "controls", "gate", "polish", "check"}
-    assert S.AB_NOT_COUNTED == ("ab_look_alt",) and set(S.STAGE_VERSION) == set(S.STAGES)
+    assert heavy == {"recognize", "photos", "layout", "build", "render", "controls", "gate", "polish", "detect",
+                     "check"}
+    assert S.AB_STAGES == ("ab_prepare", "ab_m5", "ab_render", "ab_controls", "ab_pairs", "ab_realism", "ab_combine")
+    assert S.AB_NOT_COUNTED == () and set(S.STAGE_VERSION) == set(S.STAGES)
+    assert S.STAGES["pipeline_final"].code == S.STAGES["pipeline"].code == S.PIPELINE_CODE
+    assert S.outputs_of("pipeline_final", "p") == ["building.json", "report.md"]
+    assert S.outputs_of("detect", "p") == ["detect/detect_manifest.json"]
+    assert S.outputs_of("ab_pairs", "p") == ["ab/pairs_v2.json"]
+    assert S.outputs_of("ab_combine", "p") == ["check/realism/realism2_ab.json"]
 
 
 def test_code_patterns_match_files():
@@ -115,10 +126,11 @@ def test_code_lists_cover_the_import_closure():
     """R2: a code fix in any module a fingerprinted stage imports must change the stage's fingerprint (else a
     resumed pod reuses outputs made with the old code). The gate's code hash keys the calibration reuse."""
     private = private_project("real-01", repo_root=REPO_ROOT)
-    commands = {"intake": S.intake(TOOLS, private), "pipeline": S.pipeline(TOOLS, REF), "fit": S.fit(TOOLS, REF),
+    commands = {"intake": S.intake(TOOLS, private), "pipeline": S.pipeline(TOOLS, REF),
+                "pipeline_final": S.pipeline_final(TOOLS, REF), "fit": S.fit(TOOLS, REF),
                 "layout": S.layout(TOOLS, REF, URL), "decor": S.decor(TOOLS, REF, True), "refit": S.refit(TOOLS, REF),
-                "gate": S.gate_calibrate(TOOLS, REF)}
-    assert set(commands) == {s.name for s in S.STAGE_LIST if s.reuse == "fingerprint"} | {"gate"}
+                "gate": S.gate_calibrate(TOOLS, REF), "detect": S.detect(TOOLS, REF)}
+    assert set(commands) == {s.name for s in S.STAGE_LIST if s.reuse == "fingerprint"} | {"gate", "detect"}
     for stage, cmd in commands.items():
         assert cmd[1] == "-m", stage
         covered = {p.relative_to(REPO_ROOT).as_posix() for p in ST._code_files(S.STAGES[stage].code, REPO_ROOT)}
@@ -127,7 +139,13 @@ def test_code_lists_cover_the_import_closure():
     # The data files the stages read are listed too.
     for stage in ("fit", "refit"):
         assert S.CATALOG in S.STAGES[stage].code and "wenart/schema/**" in S.STAGES[stage].code
-    assert "wenart/schema/**" in S.STAGES["pipeline"].code
+        # catalog_objaverse.json (once committed) through the catalog*.json pattern (catalog.load merges it).
+        assert "wenart/furniture/catalog*.json" in S.STAGES[stage].code
+    for stage in ("pipeline", "pipeline_final"):
+        code = S.STAGES[stage].code
+        assert "wenart/schema/**" in code and S.CHECK_YAML in code       # model ids and slugs of the answers
+        covered = {p.relative_to(REPO_ROOT).as_posix() for p in ST._code_files(code, REPO_ROOT)}
+        assert "wenart/recognition/size_table.yaml" in covered
 
 
 def test_outputs_of():
@@ -147,9 +165,11 @@ def test_golden_commands_cpu_stages():
     assert S.decor(TOOLS, REF, True) == ["PY", "-m", "wenart.furniture.decor", f"{O}/building_furnished.json",
                                          "--out", f"{O}/building_decor.json"]
     assert S.decor(TOOLS, REF, False)[3] == f"{O}/building_fitted.json"
+    # refit: the library style filter of the final style (M7 §6.3); fit stays style-free.
     assert S.refit(TOOLS, REF) == ["PY", "-m", "wenart.furniture.fit", f"{O}/building_decor.json", "--catalog",
                                    "wenart/furniture/catalog.json", "--out", f"{O}/building_final.json",
-                                   "--assets", "/workspace/assets"]
+                                   "--assets", "/workspace/assets", "--style", f"{O}/style.json"]
+    assert "--style" not in S.fit(TOOLS, REF)
     assert S.expected(TOOLS, REF) == ["PY", "-m", "wenart.vision_check", "expected", "--project-out", O]
     assert S.plan_crops(TOOLS, REF) == ["PY", "-m", "wenart.vision_check", "plan-crops", "--project-out", O]
     assert S.combine(TOOLS, REF) == ["PY", "-m", "wenart.vision_check", "combine", "--project-out", O]
@@ -182,9 +202,10 @@ def test_golden_commands_vlm_stages():
         "PY", "-m", "wenart.furniture.layout", f"{O}/building_fitted.json", "--style", f"{O}/style.json", "--server",
         URL, "--model", "Qwen/Qwen3-VL-8B-Instruct", "--out", f"{O}/building_furnished.json", "--debug",
         f"{O}/layout_debug", "--passes", "2"]
+    # M7 §8.1: the insertion controls are asked in every full run.
     assert S.check_run(TOOLS, REF, "qwen", URL, 2) == [
         "PY", "-m", "wenart.vision_check", "run", "--project-out", O, "--model-key", "qwen", "--server", URL,
-        "--kinds", "cycles,polished", "--workers", "2"]
+        "--kinds", "cycles,polished,controls", "--workers", "2"]
     assert S.preference(TOOLS, REF, "glm", URL, 4) == [
         "PY", "-m", "wenart.vision_check", "preference", "--project-out", O, "--model-key", "glm", "--server", URL,
         "--kinds", "polished", "--workers", "4"]
@@ -238,10 +259,12 @@ def test_golden_commands_ab():
     assert S.ab_build(TOOLS, REF, "ctl_flat")[-4:] == ["--camera-policy", "m5", "--no-textures", "--reuse"]
     assert S.ab_build(TOOLS, REF, "ctl_proxy")[11] == f"{O}/ab/ctl_proxy/scene"
     assert S.ab_build(TOOLS, REF, "ctl_proxy")[-2] == "--proxies"
+    # M7 §6.1: the default look is AgX - Punchy, the alternative look None (stages.ALT_LOOK).
+    assert S.ALT_LOOK == "None"
     assert S.ab_render(TOOLS, REF) == [
         "PY", "-m", "wenart.blender.cli", "render", "--scene", f"{O}/ab/scene/scene.blend", "--out", f"{O}/ab/renders",
         "--cameras", "all", "--samples", "128", "--res", "1920x1080", "--exposure", "auto", "--white-balance", "auto",
-        "--alt-look", "AgX - Punchy", "--preview-quality", "85"]
+        "--alt-look", "None", "--preview-quality", "85"]
     assert S.ab_render(SMOKE, REF, ["c1", "c2"])[8:10] == ["--cameras", "c1,c2"]
     cams = ["c1", "c2"]
     base = ["PY", "-m", "wenart.blender.cli", "render"]
@@ -256,23 +279,56 @@ def test_golden_commands_ab():
     assert S.ab_control_render(TOOLS, REF, "nuisance_ev", cams)[-2:] == ["--ev-offset", "0.3"]
     assert S.ab_control_render(SMOKE, REF, "ctl_proxy", cams)[10:16] == ["--samples", "16", "--res", "480x270",
                                                                          "--device", "cpu"]
-    assert S.realism_pairs(TOOLS, REF) == ["PY", "-m", "wenart.vision_check", "realism-pairs", "--project-out", O]
-    assert S.realism_pairs(TOOLS, REF, True)[-1] == "--controls"
-    assert S.realism(TOOLS, REF, "glm", URL, 2) == [
-        "PY", "-m", "wenart.vision_check", "realism", "--project-out", O, "--model-key", "glm", "--server", URL,
-        "--workers", "2"]
-    assert S.realism(TOOLS, REF, "glm", URL, 2, ["ctl_flat", "m5_vs_m6"])[-2:] == ["--sets", "ctl_flat,m5_vs_m6"]
-    assert S.realism_combine(TOOLS, REF) == ["PY", "-m", "wenart.vision_check", "realism-combine", "--project-out", O]
+    # Realism v2 (M7 §8.2; the CLIs of wenart.vision_check).
+    assert S.realism2_pairs(TOOLS, REF) == ["PY", "-m", "wenart.vision_check", "realism2-pairs", "--project-out", O]
     ref1 = public_project("synthetic-01", Path("/r"), REPO_ROOT)
-    assert S.realism_summary(TOOLS, [ref1, REF], "synthetic-01", Path("/workspace/jobs/j/results/realism")) == [
-        "PY", "-m", "wenart.vision_check", "realism-summary", "--project-outs", "outputs/synthetic-01", O,
-        "--controls-project", "synthetic-01", "--out", "/workspace/jobs/j/results/realism"]
+    ref3 = public_project("synthetic-03", Path("/r"), REPO_ROOT)
+    assert S.realism2_pairs(TOOLS, ref1, True, [ref3.out_dir, REF.out_dir]) == [
+        "PY", "-m", "wenart.vision_check", "realism2-pairs", "--project-out", "outputs/synthetic-01", "--controls",
+        "--project-outs", "outputs/synthetic-03", O]
+    assert S.realism2(TOOLS, REF, "glm", URL, 8) == [
+        "PY", "-m", "wenart.vision_check", "realism2", "--project-out", O, "--model-key", "glm", "--server", URL,
+        "--workers", "8"]
+    assert S.realism2(TOOLS, REF, "glm", URL, 2, ["ctl_flat", "look_alt"])[-2:] == ["--sets", "ctl_flat,look_alt"]
+    assert S.realism2_combine(TOOLS, REF) == ["PY", "-m", "wenart.vision_check", "realism2-combine",
+                                              "--project-out", O]
+    assert S.realism2_summary(TOOLS, [ref3, REF], ref1.out_dir, Path("/workspace/jobs/j/results/realism")) == [
+        "PY", "-m", "wenart.vision_check", "realism2-summary", "--project-outs", "outputs/synthetic-03", O,
+        "--controls-project", "outputs/synthetic-01", "--out", "/workspace/jobs/j/results/realism"]
+    assert "--controls-project" not in S.realism2_summary(TOOLS, [REF], None, Path("/r"))
 
 
 @pytest.mark.parametrize("fn, args, want", [
-    (S.est_render, (30,), 300.0), (S.est_controls, (5,), 40.0), (S.est_polish, (10,), 200.0),
+    (S.est_render, (30,), 330.0), (S.est_controls, (5,), 40.0), (S.est_polish, (10,), 200.0),
+    (S.est_detect, (10,), 90.0), (S.est_realism2, (35, 8, 8), 4.4 * (8 * 27 / 8 + 8 * 8)),
     (S.est_calls, (10, 2), 22.0), (S.est_calls, (10, 4), 11.0), (S.est_server, ("qwen",), 300.0),
     (S.est_server, ("glm",), 150.0)])
 def test_estimates(fn, args, want):
     assert fn(*args) == pytest.approx(want)
     assert S.EST_BUILD_S == 60.0 and S.EST_GATE_S == 150.0
+
+
+def test_golden_commands_milestone_7():
+    """M7 §9.1: the pipeline again with the answers, the recognition passes, the alt look of an A/B project's
+    render, the detector."""
+    assert S.pipeline_final(TOOLS, REF) == ["PY", "-m", "wenart.ingest.pipeline", "projects/synthetic-04", "--out", O,
+                                            "--answers", f"{O}/recognition"]
+    assert S.pipeline_final(TOOLS, REF, no_ai=True)[-3:] == ["--answers", f"{O}/recognition", "--no-ai"]
+    assert S.pipeline_final(TOOLS, REF, answers=False, no_ai=True)[-1] == "--no-ai"     # the smoke profile
+    assert "--answers" not in S.pipeline_final(TOOLS, REF, answers=False, no_ai=True)
+    seeds = S.recognition_seeds(REF)
+    assert seeds == REPO_ROOT / "results" / "recognition" / "synthetic-04"
+    assert S.recognize(TOOLS, REF, "glm", URL, 8, seeds) == [
+        "PY", "-m", "wenart.recognition.answers", "ask", f"{O}/recognition", "--model-key", "glm", "--server", URL,
+        "--workers", "8", "--seed-answers", "results/recognition/synthetic-04"]
+    assert S.recognize(TOOLS, REF, "qwen", None, None, seeds) == [
+        "PY", "-m", "wenart.recognition.answers", "ask", f"{O}/recognition", "--model-key", "qwen",
+        "--seed-answers", "results/recognition/synthetic-04"]
+    private = private_project("real-01", repo_root=REPO_ROOT)
+    assert S.recognition_seeds(private) is None
+    assert S.render(TOOLS, REF, alt_look=True)[-2:] == ["--alt-look", "None"]
+    assert S.render(TOOLS, REF, force=True, alt_look=True)[-3:] == ["--alt-look", "None", "--force"]
+    assert "--alt-look" not in S.render(TOOLS, REF)
+    assert S.detect(TOOLS, REF) == ["POLISH_PY", "-m", "wenart.gate", "detect", O, "--manifest",
+                                    f"{O}/polish/polish_manifest.json", "--out", f"{O}/detect"]
+    assert S.detect(TOOLS, REF, force=True)[-1] == "--force"

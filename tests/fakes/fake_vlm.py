@@ -11,8 +11,12 @@ false, array -> ``minItems`` copies, object -> its required keys. The answer
 is deterministic (the same request gives the same answer).
 
 Why: the orchestrator's smoke run (``python -m wenart.run pod --profile
-smoke --vlm-url URL``) drives every VLM stage (style photos, layout, vision
-check, realism) through the real clients without a GPU or a model.
+smoke --vlm-url URL``) drives every VLM stage (recognition questions, style
+photos, layout, vision check, realism v2) through the real clients without a
+GPU or a model. Its answers are the first enum value of every field, so the
+two recognition passes always agree: the smoke profile runs
+``pipeline_final`` with ``--no-ai`` (docs/milestone7.md §9.1), so these
+answers never type a piece.
 
 How: ``with FakeVLM() as url: ...`` in a test, or ``python
 tests/fakes/fake_vlm.py [--port N]`` (prints ``FAKE_VLM_URL <url>``, serves

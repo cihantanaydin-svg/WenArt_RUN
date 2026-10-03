@@ -11,8 +11,13 @@ document bytes (checked in tests/test_synthetic.py).
 Truth assembly rules (what the pipeline is expected to reproduce):
 - Elements get one evidence entry per page that shows them. Vector pages give
   ``method: vector`` with the DXF handle or PDF path/char index; raster pages
-  give a ``pixel_box`` with ``method: ai`` (geometry, symbols) or ``ocr``
-  (texts), because that is how a pipeline would read a scan or photo.
+  give a ``pixel_box`` with ``method: raster`` (walls, openings, furniture
+  footprints: deterministic image processing, docs/milestone7.md §0) or ``ocr``
+  (texts), because that is how the raster adapter reads a scan or photo. On a
+  level drawn only by raster pages (synthetic-02) the furniture *types* come
+  from the two VLM passes: one more entry ``method: ai`` per piece. The scale of
+  a scan is ``dimension_text`` from the OCR'd dimension texts (a scan carries no
+  verified pixel size, so its ``ÖLÇEK 1/100`` note does not count, §0).
 - Heights, sill heights and furniture heights are ``null``: the documents do
   not show them. Ceiling height is the assumed default with a warning.
 - Furniture from unknown blocks (``BLOK_A``) is ``unknown`` + ``unverified``
@@ -161,7 +166,7 @@ def _evidence_for(rec: PageRecord, element_id: str, kind: str, block: Optional[s
         return B.evidence(rec.file, "vector", 1.0, layer=_LAYER_FOR_KIND[kind], entity=entity, block=block, text=text)
     if rec.kind == "vector":
         return B.evidence(rec.file, "vector", 1.0, page=rec.page, entity=entity, text=text)
-    method = "ocr" if kind == "text" else "ai"
+    method = "ocr" if kind == "text" else "raster"
     return B.evidence(rec.file, method, 1.0, pixel_box=rec.boxes[element_id], dpi=rec.dpi, text=text)
 
 
@@ -183,9 +188,13 @@ def _scale_block(rec: PageRecord, level: Level) -> Optional[dict]:
     scale_text = next(t for t in rec.texts if t["role"] == "scale")
     if rec.kind == "vector":
         ev = B.evidence(rec.file, "vector", 1.0, page=rec.page, entity=rec.scale_entity, text=level.scale_text)
-    else:
-        ev = B.evidence(rec.file, "ocr", 1.0, pixel_box=scale_text["box"], dpi=rec.dpi, text=level.scale_text)
-    return {"metres_per_unit": rec.scale_metres_per_unit, "method": "pdf_scale_text", "confidence": 1.0, "evidence": ev}
+        return {"metres_per_unit": rec.scale_metres_per_unit, "method": "pdf_scale_text", "confidence": 1.0,
+                "evidence": ev}
+    # A scan has no verified pixel size: its scale comes from the dimension texts (>= 3 agreeing -> 0.9, §2.3/§4.3).
+    dim = next(t for t in rec.texts if t["role"] == "dimension")
+    ev = B.evidence(rec.file, "ocr", 1.0, pixel_box=dim["box"], dpi=rec.dpi, text=dim["text"])
+    return {"metres_per_unit": rec.scale_metres_per_unit, "method": "dimension_text", "confidence": 0.9,
+            "evidence": ev}
 
 
 def _document_format(file: str) -> str:
@@ -263,14 +272,21 @@ def build_truth(project: Project, pages: list[tuple[object, PageRecord]]) -> dic
                 "has_documented_furniture": furnished, "style_override": None,
                 "status": "verified", "evidence": evidence,
             })
+        raster_only = all(r.kind != "vector" for _, r in visible if r.level_id == level.id)
         for piece in level.furniture:
+            evidence = evidence_list(piece.id, "furniture", block=piece.block)
+            if raster_only:
+                # No block name on a raster page: the type is what the two VLM passes agree on (docs/milestone7.md §3).
+                first = next(r for _, r in visible if r.level_id == level.id and piece.id in r.entities)
+                evidence.append(B.evidence(first.file, "ai", 1.0, pixel_box=first.boxes[piece.id],
+                                           text=f"type: {piece.type}"))
             building["furniture"].append({
                 "id": piece.id, "level_id": level.id, "room_id": piece.room_id, "type": piece.type,
                 "type_raw": piece.block, "source": "from_documents",
                 "footprint": {"center": list(piece.center), "size": list(piece.size), "rotation_deg": piece.rotation_deg},
                 "front_deg": piece.front_deg() if piece.status == "verified" else None,
                 "height": None, "asset": None, "status": piece.status,
-                "evidence": evidence_list(piece.id, "furniture", block=piece.block),
+                "evidence": evidence,
             })
             if piece.status == "unverified":
                 building["unverified"].append(piece.id)

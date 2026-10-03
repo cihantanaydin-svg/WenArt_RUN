@@ -36,6 +36,7 @@ description alone (no files). ``no_ai`` only changes the report: unanswered cand
 """
 from __future__ import annotations
 
+import dataclasses
 import math
 import re
 from pathlib import Path
@@ -268,29 +269,43 @@ def _apply_decision(item: FurnitureItem, result: dict) -> None:
 
 
 def _ask_and_apply(ex: LevelExtraction, page: GenericPage, cands: list[dict], wall_polys: list, others: list, answers,
-                   no_ai: bool, rec_dir: Optional[Path], level_id: str) -> None:
-    """Crops and questions for every candidate; the two-pass rule where answers exist (§3.3)."""
+                   no_ai: bool, rec_dir: Optional[Path], level_id: str, raster=None,
+                   evidence_only: bool = False) -> None:
+    """Crops and questions for every candidate; the two-pass rule where answers exist (§3.3). Raster candidates are
+    pixel crops of the rectified page (``raster.image``, context ``{image, to_px}``, §3.1); an evidence-only raster
+    page asks nothing (§0)."""
     if not cands:
         ex.report["questions"], ex.report["pending"] = [], []
         return
-    if page.source_kind.startswith("raster"):
-        # Raster candidates are pixel crops of the rectified page (area S, wave 2): no questions yet.
-        ex.warnings.append(f"{page.file} p{page.page}: {len(cands)} raster furniture candidates not asked (raster "
-                           f"crops need the rectified page image); they stay unknown, unverified")
+    is_raster = page.source_kind.startswith("raster")
+    if is_raster and (raster is None or evidence_only):
+        why = "evidence-only raster page: no AI questions (§0)" if evidence_only else \
+            "no rectified page image to crop from"
+        ex.notes.append(f"{page.file} p{page.page}: {len(cands)} raster furniture candidates not asked ({why}); "
+                        f"they stay unknown, unverified")
         ex.report["questions"], ex.report["pending"] = [], []
         return
     from wenart.recognition import answers as A
     from wenart.recognition import crops as CR
     from wenart.recognition import symbols as RS
 
+    raster_context = None
+    if is_raster:
+        s = float(ex.report["units_to_m"])
+        raster_context = {"image": raster.image, "to_px": [1.0 / s, 0.0, 0.0, 0.0, -1.0 / s, float(page.size[1])]}
     items = []
     for cand in cands:
         crop_cand = {"key": cand["key"], "footprint": cand["footprint"], "strokes": cand["strokes"],
                      "bbox": cand["bbox"], "_ids": cand["_ids"]}
-        context = _crop_context(crop_cand, wall_polys, others)
+        context = raster_context if raster_context is not None else _crop_context(crop_cand, wall_polys, others)
         crop_cand.pop("_ids")
         if rec_dir is not None:
             crops = CR.render_pair(crop_cand, context, Path(rec_dir) / A.CROPS_DIR, cand["key"])
+        elif raster_context is not None:
+            desc = CR.raster_crops(crop_cand, context)[0]
+            names = CR.crop_names(cand["key"])
+            crops = {"ctx_png": names[0], "iso_png": names[1], "input_sha256": CR.canonical_sha256(desc),
+                     "crop": {k: desc[k] for k in ("object_box", "ctx_box", "iso_box")}}
         else:
             desc = CR.vector_description(crop_cand, context)
             names = CR.crop_names(cand["key"])
@@ -330,6 +345,176 @@ def _ask_and_apply(ex: LevelExtraction, page: GenericPage, cands: list[dict], wa
 
 
 # --------------------------------------------------------------------------
+# Raster pages (area S, §3.4, §4)
+# --------------------------------------------------------------------------
+
+def _face_px(poly, s: float, height: float) -> list[tuple[float, float]]:
+    """A face polygon in page metres -> rectified image pixels (pixel-corner coordinates, y down)."""
+    return [(x / s, height - y / s) for x, y in list(poly.exterior.coords)[:-1]]
+
+
+def _box_m_from_px(box_px, s: float, height: float) -> tuple[float, float, float, float]:
+    x0, y0, x1, y1 = box_px
+    return (x0 * s, (height - y1) * s, x1 * s, (height - y0) * s)
+
+
+def _ai_block(label: str, decision: dict, key: str, poly, s: float, height: float, page: GenericPage) -> "LB.LabelBlock":
+    """A label block for a room name the two passes agree on but Tesseract did not read (§3.4)."""
+    box_px = decision.get("box")
+    if box_px:
+        box = _box_m_from_px(box_px, s, height)
+        anchor = ((box[0] + box[2]) / 2.0, (box[1] + box[3]) / 2.0)
+        if not poly.contains(Point(anchor)):
+            pt = poly.representative_point()
+            anchor = (pt.x, pt.y)
+    else:
+        pt = poly.representative_point()
+        anchor = (pt.x, pt.y)
+        box = (anchor[0] - 0.3, anchor[1] - 0.1, anchor[0] + 0.3, anchor[1] + 0.1)
+    ev = [e for e in decision.get("evidence") or [] if e.get("method") == "ai"]
+    run = TextRun(id=f"ai:{key}", text=label, box=box, height=max(box[3] - box[1], 1e-6), source="ai",
+                  evidence=[dict(e) for e in ev])
+    area, aspect = _face_aspect(poly)
+    room_type, exterior = LB.room_type_for(label, area, aspect)
+    size_text = decision.get("size_text")
+    area_text = decision.get("area_text")
+    size = U.parse_size_pair(size_text) if size_text else None
+    parsed_area = U.parse_area(area_text) if area_text else None
+    return LB.LabelBlock(name=label, name_runs=[run], size_text=size_text, area_text=area_text, anchor=anchor,
+                         room_type=room_type, exterior=exterior, evidence=[dict(e) for e in ev], size=size,
+                         area_m2=parsed_area[0] if parsed_area else None, box=box, runs=[run])
+
+
+def _raster_labels(ex: LevelExtraction, page: GenericPage, raster, rows: list[dict], blocks: list, s: float,
+                   level_id: str, answers, no_ai: bool, rec_dir: Optional[Path], evidence_only: bool):
+    """§3.4 on a raster page: one ``room_label`` question per room face (crop of the rectified page grown by 0.5 m),
+    decided by ``room_labels.decide`` (two passes agree, or one pass equals a Tesseract text read inside the face).
+
+    Returns ``(blocks, scale_blocks, items, pending, report)``: the label blocks after the decisions (an accepted
+    label replaces the other names Tesseract read in its face; a label both passes agree on that Tesseract did not
+    read becomes an ``ai`` block), the blocks whose printed size may corroborate the scale (only sizes accepted by the
+    same rule, §3.4), the request items, the keys still waiting for answers and one report row per face. Without
+    answers (or with ``--no-ai``) every Tesseract name stays, unconfirmed: the pipeline marks such rooms
+    ``unverified``. Evidence-only pages ask nothing (§0)."""
+    import tempfile
+
+    from wenart.recognition import answers as A
+    from wenart.recognition import room_labels as RL
+
+    height = float(page.size[1])
+    ocr_items = [it for it in (getattr(raster, "texts", None) or []) if float(it.get("confidence") or 0) >= 0.6]
+    image = raster.image
+    loaded: dict = {}
+    items, pending, report = [], [], []
+    faces = []
+    for k, row in enumerate(rows):
+        if row["exterior"]:
+            continue
+        poly_px = _face_px(row["polygon"], s, height)
+        tess = RL.items_inside(ocr_items, poly_px)
+        faces.append((k, row, poly_px, tess, f"lbl_{level_id}_{len(faces) + 1}"))
+    if not evidence_only:
+        with tempfile.TemporaryDirectory() as tmp:
+            crop_dir = Path(rec_dir) / A.CROPS_DIR if rec_dir is not None else Path(tmp)
+            built = []
+            for k, row, poly_px, tess, key in faces:
+                xs = [p[0] for p in poly_px]
+                ys = [p[1] for p in poly_px]
+                crop = RL.render_crop(image, [min(xs), min(ys), max(xs), max(ys)], 1.0 / s, crop_dir, key)
+                face = {"key": key, "file": page.file, "page": _evidence_page(page), "level": level_id,
+                        "room_id": None, "crop": crop}
+                items.append(RL.question(face))
+                built.append(face)
+        if isinstance(answers, (str, Path)):
+            loaded = A.load(Path(answers), items)
+        elif isinstance(answers, dict):
+            loaded = answers
+        face_dicts = {f["key"]: f for f in built}
+    else:
+        face_dicts = {}
+    new_blocks = [b for b in blocks if not any(b in row["names"] for _, row, _, _, _ in faces)]
+    scale_blocks = list(new_blocks)
+    for k, row, poly_px, tess, key in faces:
+        got = loaded.get(key) or {}
+        if items and not all(got.get(m) is not None for m in A.MODEL_KEYS):
+            pending.append(key)
+        face = face_dicts.get(key) or {"key": key, "file": page.file, "page": _evidence_page(page),
+                                       "level": level_id, "room_id": None}
+        decision = RL.decide(face, got, tesseract=tess) if not evidence_only else None
+        label = decision["label"] if decision else None
+        path = decision["fields"]["label"]["path"] if decision else None
+        entry = {"key": key, "face": k, "tesseract": [t["text"] for t in tess], "label": label, "path": path,
+                 "status": "verified" if label else "unverified",
+                 "names": [b.name for b in row["names"]],
+                 "candidates": decision["fields"]["label"]["candidates"] if decision else [],
+                 "evidence": decision["evidence"] if decision else [],
+                 "size_text": decision.get("size_text") if decision else None}
+        if label:
+            keep = next((b for b in row["names"] if RL.norm_value(b.name) == RL.norm_value(label)), None)
+            if keep is None:
+                keep = _ai_block(label, decision, key, row["polygon"], s, height, page)
+            else:
+                keep.evidence = list(keep.evidence) + [dict(e) for e in decision["evidence"]
+                                                        if e.get("method") == "ai"]
+            entry["dropped"] = [b.name for b in row["names"] if b is not keep]
+            accepted_size = decision["fields"]["size_text"]["path"] is not None
+            parsed = U.parse_size_pair(decision["size_text"]) if accepted_size and decision.get("size_text") else None
+            if parsed is not None and keep.size_text != decision["size_text"]:
+                # The accepted printed size replaces what Tesseract read (or missed) under the name.
+                keep = dataclasses.replace(keep, size_text=decision["size_text"], size=parsed)
+            new_blocks.append(keep)
+            scale_blocks.append(keep if accepted_size else dataclasses.replace(keep, size=None))
+            pt = Point(keep.anchor)
+            entry["anchor"] = [round(pt.x / s, 2), round(pt.y / s, 2)]
+        else:
+            for b in row["names"]:
+                new_blocks.append(b)
+                # Tesseract alone never confirms a printed size for the scale (§3.4).
+                scale_blocks.append(dataclasses.replace(b, size=None))
+            entry["anchor"] = [round(b.anchor[0] / s, 2) for b in row["names"][:1]] + \
+                [round(b.anchor[1] / s, 2) for b in row["names"][:1]]
+        report.append(entry)
+    return new_blocks, scale_blocks, items, pending, report
+
+
+def _raster_box(page: GenericPage, box) -> list[float]:
+    """A page-unit box (y up) -> the box of its corners in the original image (pixel-corner coordinates)."""
+    h = page.to_original
+    x0, y0, x1, y1 = box
+    pts = []
+    for x, y in ((x0, y0), (x1, y0), (x1, y1), (x0, y1)):
+        w = h[2][0] * x + h[2][1] * y + h[2][2]
+        pts.append(((h[0][0] * x + h[0][1] * y + h[0][2]) / w + 0.5, (h[1][0] * x + h[1][1] * y + h[1][2]) / w + 0.5))
+    return [round(min(p[0] for p in pts), 1), round(min(p[1] for p in pts), 1), round(max(p[0] for p in pts), 1),
+            round(max(p[1] for p in pts), 1)]
+
+
+def _raster_evidence_boxes(ex: LevelExtraction, page: GenericPage) -> None:
+    """Raster geometry evidence carries its box in page units (``walls``/``openings``/``symbols``); the building
+    JSON points at the original image instead (§4.1: every ``pixel_box`` is checkable in the file as given)."""
+    if not page.to_original:
+        return
+    seen: set[int] = set()
+
+    def fix(ev) -> None:
+        if not isinstance(ev, dict) or id(ev) in seen:
+            return
+        seen.add(id(ev))
+        if ev.get("method") == "raster" and ev.get("pixel_box") and not ev.get("_original"):
+            ev["pixel_box"] = _raster_box(page, ev["pixel_box"])
+
+    for item in list(ex.walls) + list(ex.openings) + list(ex.separators) + list(ex.furniture):
+        fix(item.evidence)
+        for e in getattr(item, "extra_evidence", []) or []:
+            fix(e)
+    site = ex.site or {}
+    for key in ("boundary_walls", "areas", "decor", "openings"):
+        for el in site.get(key, []):
+            for e in el.get("evidence", []) if isinstance(el.get("evidence"), list) else [el.get("evidence")]:
+                fix(e)
+
+
+# --------------------------------------------------------------------------
 # Report data
 # --------------------------------------------------------------------------
 
@@ -361,14 +546,25 @@ def _size_label_rows(rows: list[dict]) -> list[dict]:
 # --------------------------------------------------------------------------
 
 def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai: bool = False,
-            rec_dir: Optional[str | Path] = None) -> LevelExtraction:
-    """One generic page -> ``LevelExtraction`` in the building frame (see the module docstring)."""
+            rec_dir: Optional[str | Path] = None, raster=None, evidence_only: bool = False) -> LevelExtraction:
+    """One generic page -> ``LevelExtraction`` in the building frame (see the module docstring).
+
+    Raster pages (area S): ``raster`` is the adapter's ``raster.RasterPage`` (rectified image, OCR items, review
+    reasons); the AI candidates get pixel crops of the rectified page, every room face a ``room_label`` question
+    (§3.4), and every raster ``pixel_box`` is mapped to the original image. ``evidence_only`` (a raster page of a
+    level that has a better page) asks nothing."""
     ex = LevelExtraction(file=file_rel, page=page.page, level_id=level_id, units=page.units,
                          page_size=[float(page.size[0]), float(page.size[1])], source_kind=page.source_kind)
     ex.report = {}
     where = f"{file_rel} p{page.page}" if page.source_kind != "dxf" else file_rel
     ex.warnings.extend(page.warnings)
     page_no = _evidence_page(page)
+    is_raster = page.source_kind.startswith("raster")
+    if is_raster:
+        ex.report["raster"] = {"evidence_only": evidence_only, "labels": []}
+        if raster is not None:
+            ex.review.extend(f"{where}: {r}" for r in raster.review)
+            ex.notes.extend(f"{where}: {n}" for n in raster.notes)
 
     # 1. Texts and the unit system.
     ex.units_system = LB.page_unit_system(page.texts)
@@ -386,6 +582,9 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
     if sc is None:
         ex.texts = _text_items(page, dim_text_ids, set())
         ex.warnings.append(f"{where}: no scale source ({reasons[-1] if reasons else 'no scale note, no dimensions'})")
+        if is_raster:
+            # §4.3: a raster scale needs dimension texts OCR can read; VLM texts never make one.
+            ex.review.append(f"{where}: no dimension readable on the raster page")
         return ex
     s = float(sc["metres_per_unit"])
     strokes_m, texts_m = to_metres(page, s)
@@ -442,9 +641,41 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
     ex.report["size_labels"] = _size_label_rows(rows)
     ex.report["owned"] = sorted(owned)
 
+    # Raster pages: room labels by §3.4 (two passes, or one pass + Tesseract); only accepted printed sizes may
+    # corroborate the scale.
+    scale_blocks = blocks
+    label_items, label_pending = [], []
+    if is_raster:
+        face_polys = [r["polygon"] for r in rows]
+        blocks, scale_blocks, label_items, label_pending, label_report = _raster_labels(
+            ex, page, raster, rows, blocks, s, level_id, answers, no_ai,
+            Path(rec_dir) if rec_dir is not None else None, evidence_only)
+        ex.report["raster"]["labels"] = label_report
+        rows = face_table(face_polys, blocks, bwalls, b_openings, stairs)
+        ai_runs = [r for b in blocks for r in b.runs if r.source == "ai"]
+        if ai_runs:
+            # Accepted VLM label boxes are blanked before the final clustering (§3.4): glyph strokes in them are
+            # no furniture.
+            pieces, cands, decor = SY.furniture(non_wall, owned, bwalls, b_openings, texts_m + ai_runs, dims, outline,
+                                                [], wall_strokes=wall_strokes, site_walls=site["boundary_walls"],
+                                                level_id=level_id, file_rel=file_rel, page_no=page_no,
+                                                units_to_m=s, notes=ex.notes)
+            site["decor"] = decor
+            SY.apply_room_checks(pieces, cands, [{"polygon": r["polygon"], "room_type": r["room_type"],
+                                                  "label": r["label"]} for r in rows], ex.notes)
+        for cand in cands:
+            pt = Point(cand["footprint"]["center"])
+            row = next((r for r in rows if r["polygon"].contains(pt)), None)
+            cand["room_type"] = row["room_type"] if row else None
+            cand["_ids"] = _expand_ids(cand["item"].evidence.get("entity"))
+        ex.report["size_labels"] = _size_label_rows(rows)
+        scale_rows = face_table(face_polys, scale_blocks, bwalls, b_openings, stairs)
+    else:
+        scale_rows = rows
+
     # 6. Confirm the scale with the room-size labels.
-    faces_m = [(r["polygon"], r["names"][0] if r["names"] else None) for r in rows]
-    confirmed, scale_conflicts, scale_warnings = SC.confirm_scale(sc, dims, blocks, faces_m)
+    faces_m = [(r["polygon"], r["names"][0] if r["names"] else None) for r in scale_rows]
+    confirmed, scale_conflicts, scale_warnings = SC.confirm_scale(sc, dims, scale_blocks, faces_m)
     ex.report["scale_reasons"].extend(scale_warnings)
     if confirmed is None:
         reason = next((w for w in reversed(scale_warnings) if w.startswith("scale not corroborated")),
@@ -452,6 +683,12 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
         ex.review.append(f"{where}: {reason}")
         ex.warnings.append(f"{where}: {reason}")
         ex.texts = _text_items(page, dim_text_ids, {r.id for b in blocks for r in b.runs})
+        if label_items:
+            # The printed room sizes that could corroborate the scale wait for their label answers (§3.4): the
+            # questions are written now; the run with the answers decides.
+            ex.report["questions"] = list(label_items)
+            ex.report["pending"] = [] if no_ai else list(label_pending)
+            ex.report["review_awaits_answers"] = bool(label_pending) and not no_ai
         return ex
     ex.scale = confirmed
     for w in scale_warnings:
@@ -476,7 +713,14 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
         ys = [p[1] for p in st.pts]
         others.append(({st.id}, (min(xs), min(ys), max(xs), max(ys)), st.pts))
     _ask_and_apply(ex, page, cands, wall_polys, others, answers, no_ai, Path(rec_dir) if rec_dir is not None else None,
-                   level_id)
+                   level_id, raster=raster, evidence_only=evidence_only)
+    if label_items:
+        ex.report["questions"] = list(ex.report.get("questions") or []) + label_items
+        if not no_ai:
+            ex.report["pending"] = list(ex.report.get("pending") or []) + label_pending
+        if label_pending:
+            ex.notes.append(f"{len(label_pending)} of {len(label_items)} raster room faces have no complete pair of "
+                            f"label answers" + (" (--no-ai: Tesseract names stay unconfirmed)" if no_ai else ""))
 
     # 8. The building frame.
     if bwalls:
@@ -505,6 +749,8 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
     # The candidates as asked (page metres, the crop and hash inputs); their FurnitureItems are in ex.furniture.
     ex.candidates = [{k: v for k, v in c.items() if k not in ("item", "_ids")} for c in cands]
     ex.report["origin_m"] = [ox, oy]
+    if is_raster:
+        _raster_evidence_boxes(ex, page)
 
     # Texts, labels and dimensions (page units; the pipeline maps them with transform_to_building).
     label_run_ids = {r.id for b in blocks for r in b.runs}

@@ -55,6 +55,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable, Optional
 
+import numpy as np
 import yaml
 from shapely.geometry import Polygon
 
@@ -79,12 +80,21 @@ AREA_TOL = 0.03                 # label vs computed area: conflict beyond, unver
 DIMENSION_TOL = 0.01            # printed vs measured dimension
 PRINT_EPS = 0.0051              # texts show two decimals: smaller differences are rounding
 OUTLINE_TOL = 0.005             # metres, Hausdorff distance of exterior rings across levels
-SOURCE_RANK = {"dwg": 0, "dxf": 0, "pdf": 1}
+SOURCE_RANK = {"dwg": 0, "dxf": 0, "pdf": 1, "scan": 2, "photo": 3}   # DWG/DXF > vector PDF > scan > photo
 CLASS_RANK = {"floor_plan": 0, "furniture_plan": 1}
 CONFLICT_ORDER = ["area_label_vs_computed", "dimension_vs_measured", "count_mismatch", "outline_mismatch",
                   "scale_disagreement", "type_disagreement", "label_size_mismatch", "symbol_type_disagreement",
                   "raster_count_mismatch", "other"]
-SOURCE_NAME = {"dwg": "DWG", "dxf": "DXF", "pdf": "vector PDF"}
+SOURCE_NAME = {"dwg": "DWG", "dxf": "DXF", "pdf": "vector PDF", "scan": "scan", "photo": "photo"}
+RASTER_KINDS = ("scan", "photo")
+RECTIFIED_DIR = "rectified"
+NO_PLAN_REASON = "no floor plan page could be used"
+# Evidence-only raster pages (docs/milestone7.md §0, §4.4): matching tolerances against the master and the count rule.
+RASTER_WALL_TOL = 0.10          # metres, wall centre line
+RASTER_THICKNESS_TOL = 0.05
+RASTER_OPENING_TOL = 0.20       # metres, opening centre (same kind)
+RASTER_FURNITURE_TOL = 0.15     # metres, footprint centre and sides
+RASTER_COUNT_TOL = 1            # door / window / labelled-room counts may differ by one
 GENERIC_PDF_DPI = 150           # debug image of generic pages (docs/milestone7.md §2.9)
 EXIT_OK, EXIT_REVIEW, EXIT_QUESTIONS = 0, 1, 4
 RECOGNITION_DIR = "recognition"
@@ -99,12 +109,24 @@ class PageWork:
 
     @property
     def rank(self) -> tuple:
-        return (SOURCE_RANK.get(self.record.format, 9), CLASS_RANK.get(self.record.page_class, 9),
-                self.record.file, self.record.page)
+        return page_rank(self.record)
 
     @property
     def where(self) -> str:
         return self.record.file if self.record.format != "pdf" else f"{self.record.file} p{self.record.page}"
+
+
+def source_key(record: PageRecord) -> str:
+    """The source kind that ranks a page: dwg/dxf by format, vector PDF, scan or photo by kind."""
+    if record.format in ("dwg", "dxf"):
+        return record.format
+    return record.kind if record.kind in RASTER_KINDS else record.format
+
+
+def page_rank(record: PageRecord) -> tuple:
+    """Master order of a level's pages: DWG/DXF > vector PDF > scan > photo (CLAUDE.md), floor plan before furniture
+    plan, then file order."""
+    return (SOURCE_RANK.get(source_key(record), 9), CLASS_RANK.get(record.page_class, 9), record.file, record.page)
 
 
 def pipeline_commit() -> str:
@@ -140,6 +162,10 @@ class ProjectBuild:
         self.questions: list[dict] = []
         self.pending: list[str] = []
         self.generic: list[PageWork] = []
+        # Raster pages that stopped before a building but asked questions whose answers may let them go on (a
+        # provisional scale waiting for the room-size labels, §3.4), and the review reasons those answers decide.
+        self.question_only: list[LevelExtraction] = []
+        self.review_after_answers: list[str] = []
 
     def warn(self, text: str) -> None:
         if text not in self.building["warnings"]:
@@ -372,6 +398,8 @@ def _assemble_level(build: ProjectBuild, level_id: str, works: list[PageWork]) -
             room = R.room_containing(rooms, _to_building(ex, text.start))
             if room is not None and room["label_raw"] is not None:
                 text.element_id = room["id"]
+    if (ex.source_kind or "").startswith("raster"):
+        _raster_room_labels(build, level_id, ex, rooms, master.where)
     bld["rooms"].extend(rooms)
 
     openings = []
@@ -398,11 +426,112 @@ def _assemble_level(build: ProjectBuild, level_id: str, works: list[PageWork]) -
         _add_site(build, level_id, ex)
 
     for work in works[1:]:
-        _merge_secondary(build, level_id, level["label"], master, work, walls, openings, furniture, rooms)
+        if work.record.kind in RASTER_KINDS:
+            _merge_raster_evidence(build, level_id, level["label"], master, work, walls, openings, furniture, rooms)
+        else:
+            _merge_secondary(build, level_id, level["label"], master, work, walls, openings, furniture, rooms)
 
     for work in works:
-        _check_dimensions(build, work, walls)
+        _check_dimensions(build, work, walls, evidence_only=work is not master and work.record.kind in RASTER_KINDS)
     _check_areas(build, rooms, master)
+
+
+def _raster_room_labels(build: ProjectBuild, level_id: str, ex: LevelExtraction, rooms: list[dict], where: str) -> None:
+    """Rooms of a raster master page (§3.4): a name accepted by the two passes (or one pass equal to Tesseract)
+    keeps the room's status and adds the passes' evidence; a name Tesseract read but no pass confirmed leaves the
+    room ``unverified`` (and says so)."""
+    to_building = ex.transform_to_building
+    for entry in (ex.report.get("raster") or {}).get("labels") or []:
+        anchor = entry.get("anchor")
+        if not anchor or len(anchor) < 2:
+            continue
+        room = R.room_containing(rooms, G.apply_affine(to_building, anchor))
+        if room is None:
+            continue
+        for e in entry.get("evidence") or []:
+            if e not in room["evidence"]:
+                room["evidence"].insert(len([x for x in room["evidence"] if x["method"] != "derived"]), dict(e))
+        if entry.get("label"):
+            continue
+        if room["label_raw"] is not None:
+            room["status"] = "unverified"
+            build.warn(f"{room['id']}: room label '{room['label_raw']}' read by Tesseract only on {where}; not "
+                       f"confirmed by the two VLM passes (§3.4), room unverified")
+
+
+def _merge_raster_evidence(build: ProjectBuild, level_id: str, level_label: str, master: PageWork, work: PageWork,
+                           walls: list[dict], openings: list[dict], furniture: list[dict], rooms: list[dict]) -> None:
+    """A raster page of a level that has a better page is evidence only (docs/milestone7.md §0, §4.4): what it shows
+    at the master's place (walls: centre line <= 0.10 m, thickness <= 0.05 m; doors and windows: same kind, centre
+    <= 0.20 m; furniture: centre and sides <= 0.15 m; room names equal to the master's) adds its evidence to the
+    master's element; nothing is added, moved or re-typed. Door, window and labelled-room counts are compared and a
+    difference of more than one is a ``raster_count_mismatch`` conflict."""
+    ex = work.extraction
+    master_name = SOURCE_NAME.get(source_key(master.record), "document")
+    sec_name = SOURCE_NAME.get(source_key(work.record), "document")
+
+    def wall_hit(item: WallItem) -> Optional[dict]:
+        mid = ((item.start[0] + item.end[0]) / 2.0, (item.start[1] + item.end[1]) / 2.0)
+        best, best_d = None, RASTER_WALL_TOL
+        for wall in walls:
+            if G.angle_difference_deg(G.segment_angle_deg(wall["start"], wall["end"]) % 180.0,
+                                      G.segment_angle_deg(item.start, item.end) % 180.0) > 3.0 and \
+                    G.angle_difference_deg(G.segment_angle_deg(wall["start"], wall["end"]) % 180.0,
+                                           (G.segment_angle_deg(item.start, item.end) + 180.0) % 180.0) > 3.0:
+                continue
+            if abs(wall["thickness"] - item.thickness) > RASTER_THICKNESS_TOL:
+                continue
+            d = G.point_segment_distance(mid, wall["start"], wall["end"])
+            if d <= best_d:
+                best, best_d = wall, d
+        return best
+
+    matched = {"walls": 0, "openings": 0, "furniture": 0, "labels": 0}
+    for item in ex.walls:
+        wall = wall_hit(item)
+        if wall is not None:
+            wall["evidence"].append(item.evidence)
+            matched["walls"] += 1
+    for item in ex.openings:
+        hit = min((o for o in openings if o["type"] == item.kind),
+                  key=lambda o: G.distance(item.center, o["center"]), default=None)
+        if hit is not None and G.distance(item.center, hit["center"]) <= RASTER_OPENING_TOL:
+            hit["evidence"].append(item.evidence)
+            matched["openings"] += 1
+    for item in ex.furniture:
+        hit = min(furniture, key=lambda f: G.distance(item.center, f["footprint"]["center"]), default=None)
+        if hit is None or G.distance(item.center, hit["footprint"]["center"]) > RASTER_FURNITURE_TOL:
+            continue
+        size = sorted(hit["footprint"]["size"])
+        if all(abs(a - b) <= RASTER_FURNITURE_TOL for a, b in zip(sorted(item.size), size)):
+            hit["evidence"].append(item.evidence)
+            matched["furniture"] += 1
+    labelled = 0
+    for text in ex.labels:
+        if text.block is not None and text.block.exterior:
+            continue
+        labelled += 1
+        label, _, _ = B.normalise_room_label(text.text, turkish=text.turkish)
+        room = R.room_containing(rooms, _to_building(ex, text.start))
+        if room is not None and room["label"] == label:
+            room["evidence"].insert(len([e for e in room["evidence"] if e["method"] != "derived"]), text.evidence)
+            matched["labels"] += 1
+    level_rooms = [r for r in rooms if r["label_raw"] is not None]
+    counts = [("doors", len(ex.doors()), sum(1 for o in openings if o["type"] == "door")),
+              ("windows", len(ex.windows()), sum(1 for o in openings if o["type"] == "window")),
+              ("labelled rooms", labelled, len(level_rooms))]
+    for what, theirs, mine in counts:
+        if abs(theirs - mine) > RASTER_COUNT_TOL:
+            ids = [o["id"] for o in openings if (what == "doors" and o["type"] == "door")
+                   or (what == "windows" and o["type"] == "window")] if what != "labelled rooms" else \
+                [r["id"] for r in level_rooms]
+            build.conflict("raster_count_mismatch", ids or [level_id],
+                           f"{level_label}: {master.where} has {mine} {what}, the {sec_name} {work.where} shows {theirs} "
+                           f"(more than {RASTER_COUNT_TOL} apart)",
+                           f"{master_name} wins; the {sec_name} is evidence only")
+    build.warn(f"{level_label}: {work.where} ({sec_name}) is evidence only for {master.where}: "
+               f"{matched['walls']} walls, {matched['openings']} openings, {matched['furniture']} furniture pieces and "
+               f"{matched['labels']} room names confirmed")
 
 
 def _add_site(build: ProjectBuild, level_id: str, ex: LevelExtraction) -> None:
@@ -473,7 +602,8 @@ def _footprint_disagreement(item: FurnitureItem, piece: dict, master_where: str,
 def _merge_secondary(build: ProjectBuild, level_id: str, level_label: str, master: PageWork, work: PageWork,
                      walls: list[dict], openings: list[dict], furniture: list[dict], rooms: list[dict]) -> None:
     ex = work.extraction
-    master_name, sec_name = SOURCE_NAME.get(master.record.format, "document"), SOURCE_NAME.get(work.record.format, "document")
+    master_name = SOURCE_NAME.get(source_key(master.record), "document")
+    sec_name = SOURCE_NAME.get(source_key(work.record), "document")
 
     def wall_match(item: WallItem, wall: dict) -> bool:
         return (G.distance(item.start, wall["start"]) <= WALL_TOL and G.distance(item.end, wall["end"]) <= WALL_TOL
@@ -606,9 +736,11 @@ def _link_dimension_walls(dim: DimensionItem, walls: list[dict]) -> list[str]:
     return [wall_id for offset, wall_id in hits if offset - nearest <= WALL_TOL]
 
 
-def _check_dimensions(build: ProjectBuild, work: PageWork, walls: list[dict]) -> None:
+def _check_dimensions(build: ProjectBuild, work: PageWork, walls: list[dict], evidence_only: bool = False) -> None:
+    """Dimension text vs measured length. On an evidence-only raster page (§0) the dimensions measure that page's
+    own raster geometry (the master's geometry is kept), so a difference is reported as a warning, not a conflict."""
     ex = work.extraction
-    source = SOURCE_NAME.get(work.record.format, "document")
+    source = SOURCE_NAME.get(source_key(work.record), "document")
     for dim in ex.dimensions:
         dim.wall_ids = _link_dimension_walls(dim, walls)
         if dim.printed_value is None or dim.measured <= 0:
@@ -617,6 +749,10 @@ def _check_dimensions(build: ProjectBuild, work: PageWork, walls: list[dict]) ->
         if diff <= PRINT_EPS or diff / dim.measured <= DIMENSION_TOL:
             continue
         pct = diff / dim.measured * 100.0
+        if evidence_only:
+            build.warn(f"{work.where} (evidence only): dimension text {dim.printed} vs {dim.measured:.2f} m measured on "
+                       f"the raster ({pct:.1f}%)")
+            continue
         entry = build.conflict("dimension_vs_measured", dim.wall_ids or [work.extraction.level_id],
                                f"{work.where}: dimension text {dim.printed} vs measured {dim.measured:.2f} m ({pct:.1f}%)",
                                f"kept measured geometry ({source})")
@@ -682,6 +818,8 @@ def _source_kind(record: PageRecord, work: Optional[PageWork]) -> Optional[str]:
         return "dxf"
     if record.format == "pdf" and record.kind == "vector":
         return "cad_pdf"
+    if record.kind in RASTER_KINDS and record.extractor == "raster":
+        return "raster_scan" if record.kind == "scan" else "raster_photo"
     return None
 
 
@@ -698,6 +836,9 @@ def _documents(records: list[PageRecord], works: dict, out_dir: Path, project_di
             entry["scale"] = work.extraction.scale
             entry["transform_to_building"] = work.extraction.transform_to_building
             doc["unit_system"] = work.extraction.units_system or "metric"
+            if work.extraction.report.get("rectified_image"):
+                entry["rectified_image"] = work.extraction.report["rectified_image"]
+                entry["to_original"] = work.extraction.report["to_original"]
         kind = _source_kind(record, work)
         if kind is not None and "source_kind" not in doc:
             doc["source_kind"] = kind
@@ -707,9 +848,95 @@ def _documents(records: list[PageRecord], works: dict, out_dir: Path, project_di
     return list(docs.values())
 
 
+def _raster_debug_images(record: PageRecord, work: PageWork, out_path: Path, build: ProjectBuild) -> Optional[Path]:
+    """Raster pages (§4.1): the overlays drawn on the **original** image through ``to_original`` (walls, openings,
+    rooms, furniture, labels as on generic pages, coloured by method and confidence; the wall mask warped onto it;
+    the page quad of a photo) and the same overlays on the rectified image (``<name>_rectified.png``)."""
+    import cv2
+    from PIL import Image
+
+    ex = work.extraction
+    rp = ex.report.get("raster_page")
+    if rp is None or rp.original is None:
+        return None
+    h_page = np.asarray(ex.report["to_original"], dtype=np.float64)
+    original = np.asarray(rp.original, dtype=np.uint8)
+    factor = min(1.0, DI.IMAGE_MAX_WIDTH / float(original.shape[1]))
+
+    def to_orig(p):
+        x, y = p[0], p[1]
+        w = h_page[2, 0] * x + h_page[2, 1] * y + h_page[2, 2]
+        return (((h_page[0, 0] * x + h_page[0, 1] * y + h_page[0, 2]) / w + 0.5) * factor,
+                ((h_page[1, 0] * x + h_page[1, 1] * y + h_page[1, 2]) / w + 0.5) * factor)
+
+    items = _generic_debug_items(work, build.building)
+    note = (f"{record.file} p{record.page}: {record.page_class} / {record.kind}"
+            + (" (evidence only)" if (ex.report.get("raster") or {}).get("evidence_only") else ""))
+    rect = rp.rect
+    page_h = rp.image.shape[0]
+    mask = ex.report.get("mask")
+    s = ex.report.get("units_to_m") or 1.0
+
+    def mask_page_px() -> Optional[np.ndarray]:
+        """The core's wall mask (page metres) resampled onto the rectified image's pixels."""
+        if mask is None or not np.asarray(mask.mask).any():
+            return None
+        x0, y1 = mask.origin
+        px = mask.px / s                                   # page units per mask pixel
+        # Rectified pixel (c, r) centre = page (c + 0.5, H - r - 0.5) -> mask (col, row).
+        a = np.array([[1.0 / px, 0.0, (0.5 - x0 / s) / px - 0.5],
+                      [0.0, 1.0 / px, (y1 / s - page_h + 0.5) / px - 0.5]], np.float64)
+        return cv2.warpAffine(np.asarray(mask.mask).astype(np.uint8), a, (rp.image.shape[1], page_h),
+                              flags=cv2.INTER_NEAREST | cv2.WARP_INVERSE_MAP, borderValue=0)
+
+    def tinted(base: np.ndarray, m: Optional[np.ndarray]) -> Image.Image:
+        img = Image.fromarray(base).convert("RGB")
+        if m is not None and m.any():
+            tint = Image.new("RGBA", img.size, DI.MASK_COLOUR + (0,))
+            tint.putalpha(Image.fromarray((m > 0).astype(np.uint8) * DI.MASK_ALPHA))
+            img = Image.alpha_composite(img.convert("RGBA"), tint).convert("RGB")
+        return img
+
+    m_rect = mask_page_px()
+    # On the original: warp the mask with the rectified -> original homography, then scale for display.
+    m_orig = None
+    if m_rect is not None:
+        m_orig = cv2.warpPerspective(m_rect, np.asarray(rect.to_original, np.float64),
+                                     (original.shape[1], original.shape[0]), flags=cv2.INTER_NEAREST, borderValue=0)
+    base = original if factor == 1.0 else cv2.resize(original, None, fx=factor, fy=factor,
+                                                      interpolation=cv2.INTER_AREA)
+    if m_orig is not None and factor != 1.0:
+        m_orig = cv2.resize(m_orig, (base.shape[1], base.shape[0]), interpolation=cv2.INTER_NEAREST)
+    orig_items = list(items)
+    if rect.quad:
+        quad = [(p[0] + 0.5, p[1] + 0.5) for p in rect.quad]
+        # The page quad is in original pixels already: give it in page units by mapping back.
+        inv = np.linalg.inv(h_page)
+        quad_page = []
+        for x, y in quad:
+            v = inv @ np.array([x - 0.5, y - 0.5, 1.0])
+            quad_page.append((v[0] / v[2], v[1] / v[2]))
+        orig_items.append(DI.DebugItem(quad_page, "raster", 1.0, label="page quad", colour=(0, 160, 160), width=2))
+    raster = DI.PageRaster(image=tinted(base, m_orig), to_pixels=to_orig)
+    DI.write_debug_image(raster, orig_items, out_path,
+                         note=DI.legend_note(note + " | drawn on the original image", generic=True))
+    rect_raster = DI.PageRaster(image=tinted(rp.image, m_rect), to_pixels=lambda p: (p[0], page_h - p[1]))
+    DI.write_debug_image(rect_raster, items, out_path.with_name(out_path.stem + "_rectified.png"),
+                         note=DI.legend_note(note + " | rectified page", generic=True))
+    return out_path
+
+
 def _debug_image(record: PageRecord, work: Optional[PageWork], out_dir: Path, project_dir: Path,
                  build: ProjectBuild) -> Optional[Path]:
     out_path = out_dir / "debug" / f"{B.slugify(record.file)}_p{record.page}.png"
+    if work is not None and work.record.kind in RASTER_KINDS and work.extraction.report.get("raster_page"):
+        try:
+            done = _raster_debug_images(record, work, out_path, build)
+        except Exception as exc:  # noqa: BLE001 - a failed debug image must not stop the pipeline
+            build.warn(f"{record.file} p{record.page}: debug image not rendered ({exc})")
+            done = None
+        if done is not None:
+            return done
     source = Path(record.source_path) if record.source_path else project_dir / record.file
     generic = work is not None and work.extraction.source_kind is not None
     try:
@@ -1078,6 +1305,45 @@ def _extract_generic(record: PageRecord, out_dir: Path, answers, no_ai: bool) ->
                         rec_dir=out_dir / RECOGNITION_DIR)
 
 
+def _evidence_only_pages(records: list[PageRecord]) -> set[tuple]:
+    """(file, page) of the raster pages that are evidence only: a level's best page (``page_rank``: DWG/DXF > vector
+    PDF > scan > photo) is its master; every other raster page of that level only adds evidence (§0, §4.4)."""
+    by_level: dict[str, list[PageRecord]] = {}
+    for r in records:
+        if r.is_extractable() and r.level_id is not None and not r.level_problem:
+            by_level.setdefault(r.level_id, []).append(r)
+    out = set()
+    for recs in by_level.values():
+        recs = sorted(recs, key=page_rank)
+        for r in recs[1:]:
+            if r.kind in RASTER_KINDS:
+                out.add((r.file, r.page))
+    return out
+
+
+def _extract_raster(record: PageRecord, out_dir: Path, answers, no_ai: bool, evidence_only: bool) -> LevelExtraction:
+    """A raster page: the adapter's page (read while classifying, else now) -> the generic core. The rectified image
+    goes to ``<out>/rectified/<file>_p<n>.png`` (§4.1). An evidence-only page asks no questions and waits for no
+    answers."""
+    import cv2
+
+    from wenart.ingest import raster as RA
+    from wenart.ingest.generic import core
+
+    rp = record.raster_page or RA.read_page(record.source_path, record.page, record.file, record.kind)
+    record.raster_page = None
+    rect_path = out_dir / RECTIFIED_DIR / f"{B.slugify(record.file)}_p{record.page}.png"
+    rect_path.parent.mkdir(parents=True, exist_ok=True)
+    cv2.imwrite(str(rect_path), rp.image, [cv2.IMWRITE_PNG_COMPRESSION, 9])
+    ex = core.extract(rp.page, record.level_id, record.file, answers=None if evidence_only else answers,
+                      no_ai=no_ai or evidence_only, rec_dir=None if evidence_only else out_dir / RECOGNITION_DIR,
+                      raster=rp, evidence_only=evidence_only)
+    ex.report["raster_page"] = rp
+    ex.report["rectified_image"] = rect_path.relative_to(out_dir).as_posix()
+    ex.report["to_original"] = [[round(v, 9) for v in row] for row in rp.page.to_original]
+    return ex
+
+
 def _mark_unverified(ex: LevelExtraction) -> None:
     for item in list(ex.walls) + list(ex.openings) + list(ex.separators) + list(ex.furniture):
         item.status = "unverified"
@@ -1089,9 +1355,9 @@ def _write_questions(build: ProjectBuild, out_dir: Path) -> None:
     from wenart.recognition import answers as A
 
     items, pending = [], []
-    for work in build.furniture_works:
-        items.extend(work.extraction.report.get("questions") or [])
-        pending.extend(work.extraction.report.get("pending") or [])
+    for ex in [w.extraction for w in build.furniture_works] + build.question_only:
+        items.extend(ex.report.get("questions") or [])
+        pending.extend(ex.report.get("pending") or [])
     build.questions, build.pending = items, pending
     rec_dir = out_dir / RECOGNITION_DIR
     if items or (rec_dir / A.REQUESTS_NAME).is_file():
@@ -1114,6 +1380,7 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
     build = ProjectBuild(building)
 
     records = classify_pages(project_dir, work_dir=out_dir / "converted", ocr=ocr)
+    evidence_only = _evidence_only_pages(records)
     works: dict[tuple, PageWork] = {}
     by_level: dict[str, list[PageWork]] = {}
     for record in records:
@@ -1123,7 +1390,16 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
             else:
                 build.review(f"{record.file}: {record.skip_reason}")
             continue
-        if record.kind != "vector":
+        if record.kind in RASTER_KINDS and record.extractor == "raster" and not record.is_extractable():
+            reason = f"{record.file} p{record.page}: {record.kind} page skipped ({record.skip_reason})"
+            # A photo without a page quadrilateral needs review unless another page draws the project (§4.1).
+            if record.kind == "photo" and record.skip_reason and "quadrilateral" in record.skip_reason \
+                    and not any(r.is_extractable() for r in records):
+                build.review(reason)
+            else:
+                build.warn(reason)
+            continue
+        if record.kind != "vector" and record.extractor != "raster":
             build.warn(f"{record.file} p{record.page}: {record.kind} page skipped ({record.skip_reason})")
             continue
         if record.skip_reason == SHX_TEXT_REASON:
@@ -1142,7 +1418,11 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
             continue
         if record.label_source == "assumed":
             build.warn(f"level title missing: assumed {record.level_id} {record.level_label}")
-        if record.extractor == "generic":
+        secondary = (record.file, record.page) in evidence_only
+        if record.extractor == "raster":
+            extraction = _extract_raster(record, out_dir, answers, no_ai, secondary)
+            extraction.level_assumed = record.label_source == "assumed"
+        elif record.extractor == "generic":
             extraction = _extract_generic(record, out_dir, answers, no_ai)
             extraction.level_assumed = record.label_source == "assumed"
         elif record.format in ("dxf", "dwg"):
@@ -1155,9 +1435,27 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
             build.warn(f"{record.file}: the converted DXF has {audit['errors']} audit errors; its elements are "
                        f"unverified")
         for text in extraction.warnings:
-            build.warn(text)
-        for reason in extraction.review:
-            build.review(reason)
+            build.warn(f"{text} (evidence-only page)" if secondary else text)
+        if secondary:
+            # An evidence-only raster page never stops the project and adds no conflicts of its own: what it cannot
+            # show, or disagrees with, is a warning (§0); its counts are compared with the master's later.
+            for reason in extraction.review:
+                build.warn(f"evidence-only page not used: {reason}")
+            for conflict in extraction.conflicts:
+                build.warn(f"{conflict['description']} (evidence-only page, {conflict['kind']}: not a conflict of "
+                           f"the building)")
+            extraction.conflicts = []
+            if extraction.scale is None or extraction.transform_to_building is None:
+                build.warn(f"{record.file} p{record.page}: evidence-only raster page has no scale; not used")
+                continue
+        else:
+            for reason in extraction.review:
+                build.review(reason)
+            if extraction.report.get("questions") and (extraction.scale is None or
+                                                        extraction.transform_to_building is None):
+                build.question_only.append(extraction)
+                if extraction.report.get("review_awaits_answers"):
+                    build.review_after_answers.extend(extraction.review)
         for conflict in extraction.conflicts:
             build.conflict(conflict["kind"], conflict["element_ids"], conflict["description"], conflict["resolution"])
         if extraction.scale is None or extraction.transform_to_building is None:
@@ -1171,7 +1469,7 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
             build.generic.append(work)
 
     if not by_level:
-        build.review("no vector floor plan page could be used (raster pages need the recognition path)")
+        build.review(NO_PLAN_REASON)
 
     def level_order(level_id: str) -> int:
         rec = by_level[level_id][0].record
@@ -1183,8 +1481,9 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
         for work in by_level[level_id]:
             work.rooms = level_rooms
     _check_outlines(build)
-    if build.generic:
-        masters = [sorted(ws, key=lambda w: w.rank)[0] for ws in by_level.values()]
+    masters = [sorted(ws, key=lambda w: w.rank)[0] for ws in by_level.values()]
+    if any(w.extraction.source_kind is not None for w in masters):
+        # The generic core's unit system; an evidence-only raster page beside a DXF/PDF level does not count.
         systems = [w.extraction.units_system or "metric" for w in masters]
         building["project"]["unit_system"] = "imperial" if systems.count("imperial") > systems.count("metric") \
             else "metric"
@@ -1222,6 +1521,12 @@ def exit_code(building: dict, build: ProjectBuild, no_ai: bool = False) -> int:
     ``needs_review`` wins over pending questions: a project that stops for review gets no GPU time for its
     furniture questions (AI typing never causes a review)."""
     if building["status"] != "ok":
+        # A raster page whose scale waits for its room-size label answers (§3.4) is not finished yet: when every
+        # review reason is of that kind, the questions go to the GPU stage first.
+        after = list(getattr(build, "review_after_answers", None) or [])
+        waiting = build.pending and not no_ai and after
+        if waiting and all(r in after or r == NO_PLAN_REASON for r in getattr(build, "review_reasons", [])):
+            return EXIT_QUESTIONS
         return EXIT_REVIEW
     return EXIT_QUESTIONS if build.pending and not no_ai else EXIT_OK
 

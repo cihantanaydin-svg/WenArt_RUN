@@ -89,6 +89,10 @@ def test_serve_command_from_check_yaml():
     assert SV.serve_command("VLLM", g["id"], g["revision"], g["server_flags"], 4)[13:] == [
         "--reasoning-parser", "glm45", "--max-model-len", "16384", "--max-num-seqs", "4"]
     assert "--revision" not in SV.serve_command("VLLM", "m", "", "", 2)
+    assert SV.serve_command("VLLM", g["id"], g["revision"], g["server_flags"], 8, mem_mib=97887)[13:] == [
+        "--reasoning-parser", "glm45", "--max-model-len", "32768", "--max-num-seqs", "8"]
+    server = SV.VLMServer("glm", seqs=8, mem_mib=97887, vllm="VLLM")
+    assert server.command()[-4:] == ["--max-model-len", "32768", "--max-num-seqs", "8"]
     assert SV.check_field("glm", "server_flags") == "--reasoning-parser glm45"
     assert SV.check_field("qwen", "id") == q["id"] and SV.check_field("qwen", "nope") == ""
     with pytest.raises(KeyError):
@@ -97,11 +101,28 @@ def test_serve_command_from_check_yaml():
 
 def test_sequences_follow_the_vram():
     assert SV.server_seqs(32607) == 2 and SV.server_seqs(24564) == 2 and SV.server_seqs(None) == 2
-    assert SV.server_seqs(40000) == 4 and SV.server_seqs(97887) == 4
+    # M7 §9.1: the >= 80 GB tier (RTX PRO 6000) takes 8 sequences at 32k context, capped per model by
+    # check.yaml models.<k>.max_seqs (the prep pod's probe); no runtime fallback.
+    assert SV.server_seqs(40000) == 4 and SV.server_seqs(79999) == 4 and SV.server_seqs(80000) == 8
+    assert SV.server_seqs(97887) == 8 and SV.server_seqs(97887, 4) == 4 and SV.server_seqs(97887, 16) == 8
+    assert SV.server_seqs(32607, 8) == 2 and SV.server_seqs(97887, None) == 8 and SV.server_seqs(97887, "x") == 8
     assert SV.server_args(2) == ["--quantization", "fp8", "--max-model-len", "8192", "--max-num-seqs", "2"]
     assert SV.server_args(4) == ["--max-model-len", "16384", "--max-num-seqs", "4"]
+    assert SV.server_args(8) == ["--max-model-len", "32768", "--max-num-seqs", "8"]
+    # A large GPU whose model is capped at 2 sequences keeps full precision.
+    assert SV.server_args(2, 97887) == ["--max-model-len", "16384", "--max-num-seqs", "2"]
+    assert SV.max_seqs_of({"qwen": {"max_seqs": 8}, "glm": {}}, "qwen") == 8
+    assert SV.max_seqs_of({"qwen": {"max_seqs": 8}, "glm": {}}, "glm") is None
+    assert SV.max_seqs_of({"qwen": {"max_seqs": 0}}, "qwen") is None
+
+
+def test_nvidia_smi_name_and_memory():
+    assert SV.NVIDIA_SMI_QUERY == ["nvidia-smi", "--query-gpu=name,memory.total", "--format=csv,noheader,nounits"]
+    assert SV.gpu_from_text("NVIDIA RTX PRO 6000 Blackwell Server Edition, 97887\n") == \
+        ("NVIDIA RTX PRO 6000 Blackwell Server Edition", 97887)
+    assert SV.gpu_from_text("32607\n") == (None, 32607) and SV.gpu_from_text("no gpu\n") == (None, 0)
+    assert SV.gpu_mem_from_text("NVIDIA GeForce RTX 4090, 24564\nNVIDIA GeForce RTX 4090, 24564") == 24564
     assert SV.gpu_mem_from_text("[wenart.run] x\n32607\n") == 32607 and SV.gpu_mem_from_text("") == 0
-    assert SV.NVIDIA_SMI_QUERY == ["nvidia-smi", "--query-gpu=memory.total", "--format=csv,noheader,nounits"]
 
 
 def test_ready_pid_file_env_and_stop(tmp_path):

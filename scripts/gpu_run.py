@@ -12,7 +12,7 @@ Usage:
   gpu_run.py status                      pods, volumes, today's spend
   gpu_run.py gpus [--dc EU-RO-1]         live prices and availability of the allowed GPUs
   gpu_run.py volume-create [--size 120]  create the Network Volume (asks first)
-  gpu_run.py run --job scripts/jobs/smoke.sh [--gpu "RTX PRO 4500"] [--max-minutes 120] [--no-volume]
+  gpu_run.py run --job scripts/jobs/smoke.sh [--gpu "RTX PRO 6000"] [--max-minutes 120] [--no-volume]
   gpu_run.py logs POD_ID | stop POD_ID | terminate POD_ID | sweep [--yes]
 Only stdlib; works in the cloud session (HTTPS proxy) and on the Mac.
 
@@ -447,8 +447,10 @@ def collect_all(status_url: str, run_dir: Path, workers: int = COLLECT_WORKERS) 
     still fails after ``COLLECT_LISTING_TRIES`` tries, tried once quietly); the private aliases inside
     it are symlinks the status server follows.
 
-    Returns ``{"files", "bytes", "capped", "failed", "ok", "job_log", "job_listed", "trees": {tree:
-    {"listed", "files"}}}``; ``ok`` (a successful collection, after which the runner may stop the pod)
+    Returns ``{"files", "bytes", "capped", "failed", "too_big", "ok", "job_log", "job_listed", "trees": {tree:
+    {"listed", "files"}}}``; ``too_big`` lists the files left out for their size (printed, and written to
+    ``<run_dir>/collect_too_big.txt``, so a result the prep or full job wrote is never missed silently);
+    ``ok`` (a successful collection, after which the runner may stop the pod)
     = job.log fetched, the job folder listed (without it the runner cannot know whether
     results-private/ exists), every tree that exists listed completely and no listed file failed to
     download (``failed``: fetch gave None; a file left out for its size is not a failure). The size
@@ -507,7 +509,7 @@ def collect_all(status_url: str, run_dir: Path, workers: int = COLLECT_WORKERS) 
         trees[tree] = {"listed": listed, "files": len(todo) - n_before}
 
     lock = threading.Lock()
-    state = {"n": 0, "total": 0, "capped": False, "failed": []}
+    state = {"n": 0, "total": 0, "capped": False, "failed": [], "too_big": []}
 
     def get(item: tuple[str, str]) -> None:
         tree, rel_name = item
@@ -521,7 +523,9 @@ def collect_all(status_url: str, run_dir: Path, workers: int = COLLECT_WORKERS) 
                 state["failed"].append(f"{tree}/{rel_name}")
             return
         if len(raw) >= COLLECT_MAX_FILE:
-            return                                     # left out for its size: deliberate, not a failure
+            with lock:                                 # left out for its size: deliberate, not a failure
+                state["too_big"].append(f"{tree}/{rel_name} ({len(raw) / 1e6:.1f} MB)")
+            return
         with lock:
             if state["total"] > COLLECT_MAX_TOTAL:
                 state["capped"] = True
@@ -537,13 +541,19 @@ def collect_all(status_url: str, run_dir: Path, workers: int = COLLECT_WORKERS) 
     failed = sorted(state["failed"])
     if failed:
         print(f"warning: {len(failed)} result file(s) failed to download, e.g. {', '.join(failed[:3])}")
+    too_big = sorted(state["too_big"])
+    if too_big:
+        print(f"warning: {len(too_big)} result file(s) of {COLLECT_MAX_FILE / 1e6:.0f} MB or more left out: "
+              f"{', '.join(too_big[:5])}" + (" ..." if len(too_big) > 5 else ""))
+        (run_dir / "collect_too_big.txt").write_text("\n".join(too_big) + "\n")
     private = trees.get("results-private", {}).get("files", 0)
     print(f"collected {state['n']} result files ({state['total'] / 1e6:.1f} MB)"
           + (f", {private} of them listed under results-private/" if "results-private" in trees else ""))
     ok = (got["job.log"] and job_listing is not None and "results" in trees
           and all(t["listed"] for t in trees.values()) and not failed)
     return {"files": state["n"], "bytes": state["total"], "capped": state["capped"], "failed": len(failed),
-            "ok": bool(ok), "job_log": got["job.log"], "job_listed": job_listing is not None, "trees": trees}
+            "too_big": too_big, "ok": bool(ok), "job_log": got["job.log"], "job_listed": job_listing is not None,
+            "trees": trees}
 
 
 def collect(status_url: str, run_dir: Path, workers: int = COLLECT_WORKERS) -> int:

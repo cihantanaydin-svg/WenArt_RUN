@@ -1,4 +1,5 @@
-"""Stage records, fingerprints and project states of a full run (docs/milestone6.md §1.2).
+"""Stage records, fingerprints and project states of a full run (docs/milestone6.md §1.2, docs/milestone7.md
+§9.1).
 
 What: one JSON record per project and stage, ``<out_dir>/run/<stage>.json``::
 
@@ -6,7 +7,7 @@ What: one JSON record per project and stage, ``<out_dir>/run/<stage>.json``::
      "rc": 0, "status": "ok", "seconds": 91.2, "fingerprint": "<sha256>",
      "inputs": {"<path>": "<canonical sha256>"}, "outputs": ["building_furnished.json"],
      "started_utc": "...", "git_commit": "...", "log": "logs/layout.log", "note": null,
-     "run_id": "...", "steps": [{"name": "layout", "rc": 0, "seconds": 91.2}]}
+     "run_id": "...", "steps": [{"name": "layout", "rc": 0, "seconds": 91.2}], "written": {}}
 
 ``run_id`` names the run that wrote the record (an older run's record of a
 stage this run did not reach stays on the volume, and the run manifest lists
@@ -18,6 +19,20 @@ whose inputs, arguments and code did not change is then skipped (status
 ``reused``) instead of being run again. The hash of a JSON input ignores the
 volatile keys (``created_utc``, ``seconds``, ...), so a re-run pipeline that
 only wrote a new time stamp does not re-run every later stage.
+
+``written`` (docs/milestone7.md §9.1): the canonical sha256 of an output a
+stage wrote that a later stage may overwrite, keyed by its path relative to
+the out folder (``pipeline_final`` records ``building.json`` and is reused
+only while that file still has this hash; never an absolute path, so a
+private record names nothing of the upload).
+
+``pending`` (§1.4, §9.1): the pipeline exited 4 (recognition questions
+written, answers missing; the building is in its pre-answer state). It goes
+on (``GOING_ON``), is reusable and counts like ``ok``; a resume reuses it
+(status ``pending`` again) instead of overwriting the building that
+``pipeline_final`` wrote. A project whose pipeline is ``pending`` and that
+has no ``pipeline_final`` record of this run ending ok, warning or reused is
+``incomplete``.
 
 How:
 - ``canonical_sha256`` (re-exported from ``wenart.canonical``) hashes inputs;
@@ -31,11 +46,13 @@ How:
 - ``reusable(previous, fingerprint, out_dir)``: the stored fingerprint
   equals the new one, the stored status is ``ok`` or ``warning`` (or
   ``reused``, which carries over the status of the run that made the
-  outputs) and every listed output exists;
-- ``project_state(records)``: ``needs_review`` when stage 0 or 1 says so,
-  ``failed`` when any stage failed, ``incomplete`` when any stage was cut,
-  else ``ok`` (the scheduler passes the project stages 0-17 only: the A/B
-  stages of a project that is also in ``--ab`` count separately).
+  outputs, or ``pending``) and every listed output exists;
+- ``project_state(records)``: ``needs_review`` when intake, pipeline or
+  pipeline_final says so, ``failed`` when any stage failed, ``incomplete``
+  when any stage was cut or a ``pending`` pipeline has no finished
+  ``pipeline_final``, else ``ok`` (the scheduler passes the project stages
+  only: the A/B stages of a project that is also in ``--ab`` count
+  separately).
 
 Stdlib only (the orchestrator imports it before any heavy package).
 """
@@ -53,26 +70,32 @@ from typing import Iterable, Optional, Union
 from wenart.canonical import VOLATILE_KEYS, canonical_json_bytes, canonical_sha256, strip_volatile  # noqa: F401
 
 __all__ = ["VOLATILE_KEYS", "canonical_json_bytes", "canonical_sha256", "strip_volatile", "STATUSES", "GOING_ON",
-           "TERMINAL", "REUSABLE", "SKIP_REASONS", "PROJECT_STATES", "StageRecord", "record_path", "log_path",
+           "TERMINAL", "REUSABLE", "SKIP_REASONS", "PROJECT_STATES", "REVIEW_STAGES", "FINAL_DONE",
+           "StageRecord", "record_path", "log_path",
            "read_record", "write_record", "write_json", "private_record", "file_hashes", "listing_sha256",
            "code_hash", "fingerprint", "reusable", "project_state", "git_commit", "utc_now", "worst"]
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCHEMA_VERSION = "0.1"
 
-STATUSES = ("ok", "reused", "warning", "skipped", "failed", "needs_review", "incomplete")
-# A project goes on after these; it stops at the others (its first terminal state).
-GOING_ON = ("ok", "reused", "warning", "skipped")
+STATUSES = ("ok", "reused", "warning", "skipped", "pending", "failed", "needs_review", "incomplete")
+# A project goes on after these; it stops at the others (its first terminal state). ``pending``: the pipeline
+# wrote recognition questions (exit 4, docs/milestone7.md §1.4); recognize and pipeline_final follow.
+GOING_ON = ("ok", "reused", "warning", "skipped", "pending")
 TERMINAL = ("failed", "needs_review", "incomplete")
 # A stored record can be reused when it ended ok or warning; a "reused" record carries over the status of the
-# run that made the outputs, so it can be reused again (a third run of an unchanged project).
-REUSABLE = ("ok", "warning", "reused")
+# run that made the outputs, so it can be reused again (a third run of an unchanged project). A "pending"
+# pipeline is reused as "pending" (its questions still need pipeline_final; §9.1).
+REUSABLE = ("ok", "warning", "reused", "pending")
 SKIP_REASONS = ("private only", "no style photos", "polish off", "no empty room", "smoke profile",
-                "gate not validated", "not in this phase")
+                "gate not validated", "not in this phase", "no questions")
 PROJECT_STATES = ("ok", "needs_review", "failed", "incomplete")
-# Stages whose own needs_review makes the whole project needs_review (§1.2).
-REVIEW_STAGES = ("intake", "pipeline")
-# How bad a status is, when several parts of one stage (two model sessions) are merged.
-SEVERITY = {"skipped": 0, "reused": 1, "ok": 2, "warning": 3, "incomplete": 4, "failed": 5, "needs_review": 6}
+# Stages whose own needs_review makes the whole project needs_review (§1.2; pipeline_final: M7 §9.1).
+REVIEW_STAGES = ("intake", "pipeline", "pipeline_final")
+# How bad a status is, when several parts of one stage (two model sessions) are merged; pending counts as ok.
+SEVERITY = {"skipped": 0, "reused": 1, "ok": 2, "pending": 2, "warning": 3, "incomplete": 4, "failed": 5,
+            "needs_review": 6}
+# A pending pipeline needs one of these pipeline_final statuses of the same run (else the project is incomplete).
+FINAL_DONE = ("ok", "reused", "warning")
 
 
 def utc_now() -> str:
@@ -105,6 +128,7 @@ class StageRecord:
     note: Optional[str] = None
     run_id: Optional[str] = None
     steps: list = field(default_factory=list)
+    written: dict = field(default_factory=dict)     # {output relative to out_dir: canonical sha256}
 
     def __post_init__(self) -> None:
         if self.status not in STATUSES:
@@ -115,7 +139,8 @@ class StageRecord:
                 "stage": self.stage, "rc": self.rc, "status": self.status, "seconds": round(float(self.seconds), 2),
                 "fingerprint": self.fingerprint, "inputs": dict(self.inputs), "outputs": list(self.outputs),
                 "started_utc": self.started_utc, "git_commit": self.git_commit, "log": self.log,
-                "note": self.note, "run_id": self.run_id, "steps": [dict(s) for s in self.steps]}
+                "note": self.note, "run_id": self.run_id, "steps": [dict(s) for s in self.steps],
+                "written": dict(self.written)}
 
     @classmethod
     def from_dict(cls, data: dict) -> "StageRecord":
@@ -125,7 +150,7 @@ class StageRecord:
                    inputs=dict(data.get("inputs") or {}), outputs=list(data.get("outputs") or []),
                    started_utc=str(data.get("started_utc") or ""), git_commit=data.get("git_commit"),
                    log=data.get("log"), note=data.get("note"), run_id=data.get("run_id"),
-                   steps=list(data.get("steps") or []))
+                   steps=list(data.get("steps") or []), written=dict(data.get("written") or {}))
 
     def brief(self) -> dict:
         """``{stage, status, seconds, note}`` (the run manifest's stage list)."""
@@ -271,7 +296,8 @@ def fingerprint(stage: str, version: str, args: list, inputs: dict, code: str) -
 
 
 def reusable(previous: Optional[StageRecord], fp: str, out_dir: Union[str, Path]) -> bool:
-    """True when ``previous`` has this fingerprint, ended ok, warning or reused and all its outputs exist."""
+    """True when ``previous`` has this fingerprint, ended ok, warning, reused or pending and all its outputs
+    exist."""
     if previous is None or not fp or previous.fingerprint != fp or previous.status not in REUSABLE:
         return False
     out = Path(out_dir)
@@ -291,6 +317,9 @@ def project_state(records: Iterable[StageRecord]) -> str:
         return "failed"
     if any(r.status == "incomplete" for r in records):
         return "incomplete"
+    if any(r.stage == "pipeline" and r.status == "pending" for r in records) and \
+            not any(r.stage == "pipeline_final" and r.status in FINAL_DONE for r in records):
+        return "incomplete"           # questions written, the final building never made in this run (§9.1)
     return "ok"
 
 

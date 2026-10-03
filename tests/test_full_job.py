@@ -3,7 +3,8 @@
 - Static: shebang, ``set -Eeuo pipefail``, ERR trap (line + command), TERM -> 143, logs under
   /workspace/logs (tee), the exports of polish.sh, the cgroup thread budget, the setup with every part
   before ``HF_HUB_OFFLINE=1``, the flock copy loop, the EXIT trap that kills the vLLM pid, the
-  documented run command (RTX PRO 4500, never L4).
+  documented run command (M7 §9.5: RTX PRO 6000, --disk 150, never L4), the recognition setup parts with
+  LibreDWG (M7 §5.1).
 - Sandbox: full.sh runs with fake interpreters (WENART_WS / WENART_FAST point into tmp_path) that record
   every call: the orchestrator's arguments and environment, the setup's parts, the copy loop with
   ``--since`` and the full copy from the EXIT trap, a vLLM process the "orchestrator" left behind is
@@ -88,6 +89,7 @@ def test_setup_then_offline_then_orchestrator():
     pod = text.index('"$PY" -m wenart.run pod "${POD_ARGS[@]}"')
     assert setup < offline < pod
     assert 'POLISH_MODE=final POLISH_PHASES="look controls polish gate check report tests" bash scripts/pod_setup_polish.sh' in text
+    assert 'POLISH_RECOG_PARTS="vllm libredwg models" POLISH_MODE=final' in text      # M7 §5.1: DWG projects
     assert text.index("copy_loop &") < setup
 
 
@@ -114,8 +116,8 @@ def test_documented_run_command_and_runner():
     lines = _text().splitlines()
     i = next(n for n, ln in enumerate(lines) if "gpu_run.py run" in ln)
     command = " ".join(lines[i:i + 2])
-    assert "--job scripts/jobs/full.sh" in command and "--gpu 'RTX PRO 4500'" in command
-    assert "--disk 130" in command and "--max-minutes 115" in command and "--env RUN_PROJECTS=" in command
+    assert "--job scripts/jobs/full.sh" in command and "--gpu 'RTX PRO 6000'" in command   # M7 §9.5
+    assert "--disk 150" in command and "--max-minutes 115" in command and "--env RUN_PROJECTS=" in command
     grace = re.search(r"--grace (\d+)", command)
     assert grace and int(grace.group(1)) < 900
     assert "L4" not in command and "never L4" in _text()
@@ -123,6 +125,7 @@ def test_documented_run_command_and_runner():
     gpu_run = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(gpu_run)
     assert gpu_run.JOB_RE.match("scripts/jobs/full.sh")
+    assert gpu_run.GPU_PRIORITY[0] == "RTX PRO 6000"            # the documented GPU is the runner's first choice
 
 
 def test_env_knobs_reach_the_orchestrator_arguments():
@@ -172,7 +175,7 @@ if argv[:3] == ["-m", "wenart.run", "copy"]:
 '''
 
 FAKE_SETUP = """#!/usr/bin/env bash
-echo "SETUP POLISH_MODE=${POLISH_MODE:-} POLISH_PHASES=${POLISH_PHASES:-} HF_HUB_OFFLINE=${HF_HUB_OFFLINE:-unset} CHECK_MODELS=$CHECK_MODELS OMP=${OMP_NUM_THREADS:-}" >> "$FAKE_SETUP_LOG"
+echo "SETUP POLISH_MODE=${POLISH_MODE:-} POLISH_PHASES=${POLISH_PHASES:-} HF_HUB_OFFLINE=${HF_HUB_OFFLINE:-unset} CHECK_MODELS=$CHECK_MODELS OMP=${OMP_NUM_THREADS:-} RECOG=${POLISH_RECOG_PARTS:-}" >> "$FAKE_SETUP_LOG"
 exit "${FAKE_SETUP_RC:-0}"
 """
 
@@ -256,6 +259,7 @@ def test_sandbox_public_run(tmp_path):
     setup = box.setup_log.read_text()
     assert ("POLISH_MODE=final POLISH_PHASES=look controls polish gate check report tests HF_HUB_OFFLINE=unset"
             in setup)
+    assert "RECOG=vllm libredwg models" in setup
     # The copy loop (with --since) ran during the orchestrator; the EXIT trap made one full copy at the end.
     copies = [c for c in calls if c["argv"][:3] == ["-m", "wenart.run", "copy"]]
     assert any("--since" in c["argv"] for c in copies), copies

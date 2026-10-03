@@ -39,14 +39,24 @@ the raster area builds later; until then they are skipped with
 ``skip_reason "text drawn as geometry ..."`` and the pipeline reports
 ``needs_review``.
 
-Raster pages have no text layer here. When an ``ocr`` callable is given
-(the Milestone 2 bake-off supplies one later) its texts are classified with
-confidence 0.5; otherwise the page is ``other`` with a ``skip_reason``.
-Nothing is guessed from the file name.
+Raster pages (docs/milestone7.md §2.1, §4): images (``.png``, ``.jpg``,
+``.tif``, ...) and PDF pages with no paths and an image covering >= 50 % of
+the page (rendered at 200 dpi) are read by the raster adapter
+(``wenart.ingest.raster``: rectification, Tesseract at 0° and 90°, strokes,
+wall mask) while they are classified; the ``RasterPage`` is kept on the record
+(``raster_page``) for the pipeline. Their texts classify them: a title gives
+the class and the level (``classifier "ocr"``, confidence = the title's OCR
+confidence, at most 0.9); an untitled page is a floor plan (confidence 0.5,
+``classifier "generic_labels"``) when OCR reads >= 2 room names or the adapter
+found >= 2 dimension texts with their lines; otherwise ``other``. A photo
+without a page quadrilateral is ``other`` with that reason. An ``ocr``
+callable (tests, the Milestone 2 bake-off) replaces Tesseract for the
+classification texts. Nothing is guessed from the file name.
 """
 from __future__ import annotations
 
 import math
+import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable, Optional
@@ -69,7 +79,9 @@ from wenart.ingest.pdf_extract import LW_TOLERANCE, LW_WALL, read_page_objects
 
 IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp", ".webp"}
 SKIP_DIRS = {"truth", "outputs", "debug"}
-RASTER_SKIP_REASON = "no text layer: raster pages need OCR/VLM recognition (Milestone 2 bake-off), not run here"
+RASTER_SKIP_REASON = "raster page: no plan title, no room names and no dimension texts readable by OCR"
+RASTER_GENERIC_CONFIDENCE = 0.5
+RASTER_TITLE_MAX_CONFIDENCE = 0.9
 NO_TITLE_REASON = "no plan title found (KAT PLANI, MOBİLYA PLANI, KESİT, GÖRÜNÜŞ, VAZİYET, FLOOR PLAN)"
 SAME_STEM_REASON = "DXF of the same name is used"
 SHX_TEXT_REASON = ("text drawn as geometry (no text layer, e.g. AutoCAD SHX fonts): such pages need OCR of the "
@@ -120,9 +132,11 @@ class PageRecord:
     wall_test: Optional[str] = None            # what passed the cheap wall test
     conversion: Optional[dict] = None          # DWG: dwg.Conversion.to_json()
     generic_page: Optional[GenericPage] = None  # the page as read for the generic test (reused by the pipeline)
+    raster_page: Optional[object] = None       # raster pages: raster.RasterPage read while classifying (pipeline)
 
     def is_extractable(self) -> bool:
-        return self.kind == "vector" and self.page_class in ("floor_plan", "furniture_plan") and self.skip_reason is None
+        readable = self.kind == "vector" or (self.kind in ("scan", "photo") and self.extractor == "raster")
+        return readable and self.page_class in ("floor_plan", "furniture_plan") and self.skip_reason is None
 
     def to_json(self) -> dict:
         return {
@@ -436,10 +450,9 @@ def _classify_pdf(file_rel: str, path: Path, ocr: Optional[Callable]) -> list[Pa
                 record = PageRecord(file=file_rel, page=number, format="pdf", kind="vector", page_class="other",
                                     source_path=str(path), skip_reason=SHX_TEXT_REASON)
             else:
-                # No text layer: an embedded scan (or an empty page). OCR of PDF
-                # pages would need rendering first; the raster path does that.
+                # No text layer: an embedded scan (or an empty page), read by the raster adapter at 200 dpi.
                 record = PageRecord(file=file_rel, page=number, format="pdf", kind="scan", source_path=str(path))
-                _classify_raster_record(record, None, ocr)
+                _classify_raster_record(record, path, ocr)
             records.append(record)
     return records
 
@@ -485,32 +498,82 @@ def raster_kind(path: Path) -> tuple[str, str]:
     return "scan", "paper outline fills the image"
 
 
+def _raster_text_items(rp) -> list[TextItem]:
+    """The adapter's OCR runs as ``TextItem``s (page units of the rectified page, y up)."""
+    out = []
+    for run in rp.page.texts:
+        ev = dict(run.evidence[0]) if run.evidence else None
+        out.append(TextItem(text=run.text, start=(run.box[0], run.box[1]), box=list(run.box),
+                            rotation_deg=run.rotation_deg, entity=run.id, height=run.height,
+                            role=text_role(run.text), evidence=ev))
+    return out
+
+
 def _classify_raster_record(record: PageRecord, path: Optional[Path], ocr: Optional[Callable]) -> None:
-    if ocr is None or path is None:
-        record.page_class = "other"
-        record.confidence = 0.0
-        record.skip_reason = RASTER_SKIP_REASON
-        return
-    texts = []
-    for item in ocr(path):
-        texts.append(TextItem(text=item["text"], start=(item["box"][0], item["box"][1]), box=list(item["box"]),
-                              rotation_deg=0.0, entity="pixel_box", height=item["box"][3] - item["box"][1],
-                              role=text_role(item["text"])))
-    page_class, title, _ = classify_texts(texts)
+    """A raster page (image or raster-only PDF page): class, level and evidence from its OCR texts (module
+    docstring). The ``RasterPage`` is kept on the record for the pipeline."""
+    from wenart.ingest import raster as raster_mod
+
+    record.extractor = "raster"
+    rp = None
+    if ocr is not None:
+        texts = []
+        for item in ocr(path):
+            texts.append(TextItem(text=item["text"], start=(item["box"][0], item["box"][1]), box=list(item["box"]),
+                                  rotation_deg=0.0, entity="pixel_box", height=item["box"][3] - item["box"][1],
+                                  role=text_role(item["text"]),
+                                  evidence=B.evidence(record.file, "ocr", 0.5, pixel_box=list(item["box"]),
+                                                      text=item["text"])))
+    else:
+        try:
+            rp = raster_mod.read_page(path, record.page, record.file, record.kind)
+        except (OSError, ValueError, subprocess.SubprocessError, cv2.error) as exc:
+            record.page_class, record.confidence = "other", 0.0
+            record.skip_reason = f"raster page not readable: {exc}"
+            return
+        record.raster_page = rp
+        if rp.review and rp.rect.review:
+            record.page_class, record.confidence = "other", 0.0
+            record.skip_reason = f"{record.kind} page: {rp.rect.review}"
+            return
+        texts = _raster_text_items(rp)
     record.texts = texts
-    record.page_class = page_class if page_class != "other" else "floor_plan"
-    record.confidence = 0.5
-    apply_level(record, title)
+    page_class, title, _ = classify_texts(texts)
     if title is not None:
-        record.evidence.append(B.evidence(record.file, "ocr", 0.5, pixel_box=title.box, text=title.text))
-    record.skip_reason = "raster page: geometry needs the recognition path (not in the vector pipeline)"
+        record.page_class = page_class
+        title_conf = float((title.evidence or {}).get("confidence", 0.5))
+        record.confidence = round(min(RASTER_TITLE_MAX_CONFIDENCE, title_conf), 2)
+        apply_level(record, title)
+        record.classifier = "ocr"
+        record.evidence.append(dict(title.evidence) if title.evidence else
+                               B.evidence(record.file, "ocr", 0.5, pixel_box=title.box, text=title.text))
+        record.skip_reason = None
+        return
+    runs = [TextRun(id=t.entity, text=t.text, box=tuple(t.box), height=t.height, rotation_deg=t.rotation_deg,
+                    source="ocr", evidence=[t.evidence] if t.evidence else []) for t in texts]
+    names = generic_labels.room_name_runs(runs)
+    dims = (rp.info.get("dims") or []) if rp is not None else []
+    if len(names) >= 2 or len(dims) >= 2:
+        record.page_class = "floor_plan"
+        record.confidence = RASTER_GENERIC_CONFIDENCE
+        record.classifier = "generic_labels"
+        record.skip_reason = None
+        for run in names:
+            record.evidence.append(dict(run.evidence[0]) if run.evidence else
+                                   B.evidence(record.file, "ocr", 0.5, text=run.text))
+        if not names:
+            record.evidence.append(B.evidence(record.file, "ocr", 0.5, text=f"{len(dims)} dimension texts with lines"))
+        return
+    record.page_class, record.confidence = "other", 0.0
+    record.skip_reason = RASTER_SKIP_REASON
 
 
 def _classify_image(file_rel: str, path: Path, ocr: Optional[Callable]) -> PageRecord:
     kind, reason = raster_kind(path)
     record = PageRecord(file=file_rel, page=1, format="image", kind=kind, source_path=str(path))
     _classify_raster_record(record, path, ocr)
-    record.evidence.append(B.evidence(file_rel, "ai", 0.8 if kind == "photo" else 0.9, text=f"kind: {reason}"))
+    # The scan/photo decision is image processing (EXIF tags, the paper outline), not an AI answer.
+    record.evidence.append(B.evidence(file_rel, "raster", 0.8 if kind == "photo" else 0.9, text=f"kind: {reason}"))
     return record
 
 
@@ -522,8 +585,7 @@ def assign_untitled_levels(records: list[PageRecord]) -> None:
     """Level of untitled plan pages (§2.1): a project whose only plan page has no level title gets ``L0`` "Ground
     floor" as an assumed value (``label_source "assumed"``); several untitled plan pages, or an untitled page next
     to titled ones, cannot be ordered (``level_problem``)."""
-    plans = [r for r in records if r.kind == "vector" and r.page_class in ("floor_plan", "furniture_plan")
-             and r.skip_reason is None]
+    plans = [r for r in records if r.is_extractable()]
     untitled = [r for r in plans if r.level_id is None]
     if not untitled:
         return

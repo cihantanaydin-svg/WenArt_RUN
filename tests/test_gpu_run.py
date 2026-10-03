@@ -330,6 +330,38 @@ def test_collect_caps_are_shared_by_both_trees(status_server, tmp_path, monkeypa
     assert col["ok"] and col["files"] == 5                     # the four 2-byte {} files and the 1-byte "x"
 
 
+# The layout of the prep job's $RESULTS (docs/milestone7.md §9.2; wenart/run/prep.py): every file within
+# COLLECT_MAX_DEPTH folders of results/.
+PREP_RESULTS = ("prep_manifest.json", "setup_polish.json", "timing/gpu_speed.json",
+                "detect/detector_calibration.json", "detect/detect_pairs.json",
+                "library/catalog_objaverse.json", "library/library_report.md", "library/ATTRIBUTION.md",
+                "library/judge/answers_qwen3-vl-8b.json", "library/judge/sheets/u1.jpg", "library/thumbs/sofa/u1.jpg",
+                "library/thumbs/NOTICE.md", "recognition/real01/answers_glm-4.6v-flash.json",
+                "recognition/real01/requests.json", "recognition/real01/crops/sym_L0_1_ctx.png",
+                "furniture/real01-scan/debug/real01-scan_p1.png", "furniture/real01/building.json",
+                "tests/pytest-recognition.log", "logs/vllm-qwen.log")
+
+
+def test_collect_takes_the_whole_prep_results_tree_and_names_files_left_out_for_size(
+        status_server, tmp_path, monkeypatch):
+    job = tmp_path / "jobs" / "prep"
+    (job / "results").mkdir(parents=True)
+    (job / "status.json").write_text(json.dumps({"job_id": "prep", "state": "done", "exit_code": 0}))
+    (job / "job.log").write_text("prep ok\n")
+    for rel in PREP_RESULTS:
+        write_file(job / "results" / rel, "{}")
+    write_file(job / "results" / "library" / "survey.json", "x" * 64)          # over the (patched) size limit
+    status_server["link"](job)
+    monkeypatch.setattr(gpu_run, "COLLECT_MAX_FILE", 32)
+    run_dir = new_dir(tmp_path / "runs" / "prep")
+    col = gpu_run.collect_all(PROXY_URL, run_dir, workers=4)
+    assert col["ok"] and set(col["trees"]) == {"results"} and col["files"] == len(PREP_RESULTS)
+    assert files_under(run_dir / "results") == sorted(PREP_RESULTS)
+    assert col["too_big"] == ["results/library/survey.json (0.0 MB)"]
+    assert (run_dir / "collect_too_big.txt").read_text() == "results/library/survey.json (0.0 MB)\n"
+    assert max(rel.count("/") for rel in PREP_RESULTS) <= gpu_run.COLLECT_MAX_DEPTH
+
+
 def test_collect_is_not_ok_without_job_log_or_results(status_server, tmp_path):
     status_server["link"](make_job_dir(status_server["root"], job_log=False))
     assert gpu_run.collect_all(PROXY_URL, new_dir(tmp_path / "r"))["ok"] is False

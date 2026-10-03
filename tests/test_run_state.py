@@ -1,4 +1,5 @@
-"""Stage records, fingerprints, reuse and project states (docs/milestone6.md §1.2)."""
+"""Stage records, fingerprints, reuse and project states (docs/milestone6.md §1.2; docs/milestone7.md §9.1: the
+``pending`` status, ``written``, pipeline_final)."""
 from __future__ import annotations
 
 import json
@@ -24,7 +25,8 @@ def test_canonical_hash_is_re_exported():
 def test_record_round_trip_and_status_check(tmp_path):
     r = rec("layout", "ok", rc=0, seconds=91.234, fingerprint="f" * 64, inputs={"a.json": "1"},
             outputs=["building_furnished.json"], started_utc="2026-10-02T10:00:00Z", git_commit="abc",
-            log="logs/layout.log", run_id="job-1", steps=[{"name": "layout", "rc": 0, "seconds": 91.2}])
+            log="logs/layout.log", run_id="job-1", steps=[{"name": "layout", "rc": 0, "seconds": 91.2}],
+            written={"building_furnished.json": "a" * 64})
     path = ST.write_record(tmp_path, r)
     assert path == tmp_path / "run" / "layout.json"
     data = json.loads(path.read_text())
@@ -146,6 +148,8 @@ def test_reusable_rules(tmp_path):
     assert ST.reusable(ok, fp, tmp_path)
     assert ST.reusable(rec("fit", "warning", fingerprint=fp, outputs=["building_fitted.json"]), fp, tmp_path)
     assert ST.reusable(rec("fit", "reused", fingerprint=fp, outputs=["building_fitted.json"]), fp, tmp_path)
+    # M7 §9.1: a pending pipeline (questions written) is reused, so a resume never overwrites the final building.
+    assert ST.reusable(rec("fit", "pending", fingerprint=fp, outputs=["building_fitted.json"]), fp, tmp_path)
     assert not ST.reusable(ok, "e" * 64, tmp_path)                                    # inputs changed
     assert not ST.reusable(rec("fit", "failed", fingerprint=fp, outputs=[]), fp, tmp_path)
     assert not ST.reusable(rec("fit", "incomplete", fingerprint=fp, outputs=[]), fp, tmp_path)
@@ -164,12 +168,25 @@ def test_project_states():
     # needs_review of a later stage is not the building's review: a failure.
     assert ST.project_state([rec("pipeline", "ok"), rec("build", "needs_review")]) == "failed"
     assert ST.project_state([]) == "ok"
+    # M7 §9.1: pipeline_final's needs_review is the building's review; a pending pipeline needs a finished
+    # pipeline_final of the same run, else the project is incomplete.
+    assert ST.project_state([rec("pipeline", "pending"), rec("pipeline_final", "needs_review")]) == "needs_review"
+    assert ST.project_state([rec("pipeline", "pending"), rec("recognize", "ok")]) == "incomplete"
+    assert ST.project_state([rec("pipeline", "pending"), rec("pipeline_final", "skipped")]) == "incomplete"
+    for status in ("ok", "reused", "warning"):
+        assert ST.project_state([rec("pipeline", "pending"), rec("recognize", "warning"),
+                                 rec("pipeline_final", status)]) == "ok"
+    assert ST.project_state([rec("pipeline", "pending"), rec("recognize", "incomplete")]) == "incomplete"
+    assert ST.REVIEW_STAGES == ("intake", "pipeline", "pipeline_final")
 
 
 def test_status_vocabulary():
-    assert ST.STATUSES == ("ok", "reused", "warning", "skipped", "failed", "needs_review", "incomplete")
+    assert ST.STATUSES == ("ok", "reused", "warning", "skipped", "pending", "failed", "needs_review", "incomplete")
+    assert ST.GOING_ON == ("ok", "reused", "warning", "skipped", "pending")
+    assert ST.REUSABLE == ("ok", "warning", "reused", "pending")
+    assert ST.SEVERITY["pending"] == ST.SEVERITY["ok"]                  # "severity ok" (M7 §9.1)
     assert set(ST.SKIP_REASONS) == {"private only", "no style photos", "polish off", "no empty room",
-                                    "smoke profile", "gate not validated", "not in this phase"}
+                                    "smoke profile", "gate not validated", "not in this phase", "no questions"}
     assert ST.worst(["ok", "incomplete", "warning"]) == "incomplete"
     assert ST.worst(["ok", "failed", "incomplete"]) == "failed" and ST.worst([]) is None
 

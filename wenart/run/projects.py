@@ -1,7 +1,11 @@
 """Where a project's inputs, outputs and results live (docs/milestone6.md §1.1).
 
 Public projects are committed under ``projects/<p>`` and write ``outputs/<p>``
-and the committed results layout ``$RESULTS/<area>/<p>/``. Private projects
+and the committed results layout ``$RESULTS/<area>/<p>/``. The committed test
+projects under ``tests/fixtures/projects/<p>`` (``review-01``, the
+``needs_review`` project of the smoke run and the private self-test source,
+docs/milestone7.md §9.1) run the same way; ``projects/<p>`` wins a name
+both have. Private projects
 (the repo is public) are uploaded by the user to the network volume under
 ``/workspace/projects-private/<alias>``; they are staged with NFC names into
 ``/workspace/outputs-private/<alias>/input/<alias>`` (``wenart.intake``; the
@@ -24,9 +28,12 @@ NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$")
 # are neutral by construction: real-01 ... real-999, plus the synthetic self-test.
 ALIAS_RE = re.compile(r"^real-[0-9]{2,3}$")
 RESERVED_ALIASES = ("selftest-02",)
+# Committed test projects (a public name that is not under projects/ is looked up here).
+FIXTURE_PROJECTS = Path("tests") / "fixtures" / "projects"
 # Result areas in the committed layout ($RESULTS/<area>/<p>/ for public projects,
-# results-private/<alias>/<area>/ for private ones).
-RESULT_AREAS = ("renders", "furniture", "polish", "gate", "check", "final", "run", "realism")
+# results-private/<alias>/<area>/ for private ones). recognition: the questions and answers of the pipeline's
+# AI typing (docs/milestone7.md §1.4; results/recognition/<p>/ seeds the next run's answers).
+RESULT_AREAS = ("renders", "furniture", "polish", "gate", "check", "final", "run", "realism", "recognition")
 
 
 class ProjectError(ValueError):
@@ -67,10 +74,19 @@ def check_alias(alias: str) -> str:
     return alias
 
 
-def public_project(name: str, results: Path, repo_root: Path = REPO_ROOT) -> ProjectRef:
-    """A committed project ``projects/<name>``."""
+def project_folder(name: str, repo_root: Path = REPO_ROOT) -> Path:
+    """``projects/<name>``, else the committed test project ``tests/fixtures/projects/<name>`` when only that one
+    exists (``projects/<name>`` also when neither does: the caller reports the missing folder)."""
     check_name(name)
-    project_dir = Path(repo_root) / "projects" / name
+    main = Path(repo_root) / "projects" / name
+    fixture = Path(repo_root) / FIXTURE_PROJECTS / name
+    return fixture if not main.is_dir() and fixture.is_dir() else main
+
+
+def public_project(name: str, results: Path, repo_root: Path = REPO_ROOT) -> ProjectRef:
+    """A committed project ``projects/<name>`` (or a committed test project, ``project_folder``)."""
+    check_name(name)
+    project_dir = project_folder(name, repo_root)
     return ProjectRef(name=name, private=False, project_dir=project_dir,
                       out_dir=Path(repo_root) / "outputs" / name, results_dir=Path(results))
 

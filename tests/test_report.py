@@ -1134,8 +1134,9 @@ def test_intake_needs_review_ignores_an_older_building(tmp_path):
 
 
 def test_review_hints_only_from_known_reasons():
+    # M7 §5.1: DWG files are read with LibreDWG 0.14 (the hint was "DWG is not read" before Milestone 7).
     assert F.review_hints(["a.dwg: DWG conversion failed: no converter", "L0: outer walls do not form a closed loop"]) \
-        == ["export DXF (or a vector PDF) from the CAD program; DWG is not read",
+        == ["DWG is read with LibreDWG 0.14 (beta); if it fails, export DXF",
             "close the outer walls of the level in the drawing"]
     assert F.review_hints(["something unexpected"]) == []
 
@@ -1329,3 +1330,328 @@ def test_brief_warnings_reach_the_report(tmp_path):
     assert "Gizli" not in md and "Gizli" not in json.dumps(manifest)
     # A public project keeps the whole warning.
     assert any("'Gizli secret'" in w for w in F.write_final(out2)["warnings"])
+
+
+# --------------------------------------------------------------------------
+# Milestone 7 (docs/milestone7.md §9.4): hints, detector keys, side-by-side sheets, units, recognition, site,
+# separators, assumed values, attribution, detector
+# --------------------------------------------------------------------------
+
+def test_m7_review_hints():
+    from wenart import intake as I
+    assert F.DWG_HINT == I.DWG_NOTE == "DWG is read with LibreDWG 0.14 (beta); if it fails, export DXF"
+    reasons = ["plan_photo.jpg p1: photo page: no page quadrilateral found",
+               "plan_scan.png p1: no dimension readable on the raster page",
+               "plan_photo.jpg p1: photo aspect unknown (not within 4 % of a sheet ratio)",
+               "plan.pdf p1: text drawn as geometry (no text layer, e.g. AutoCAD SHX fonts)",
+               "cannot order untitled plan pages (a.pdf p1, a.pdf p2)",
+               "real01.pdf p1: scale not corroborated: 1 dimension, 0 room sizes"]
+    hints = F.review_hints(reasons)
+    assert len(hints) == 6
+    assert hints[0].startswith("photograph the whole sheet with its four corners visible")
+    assert hints[1].startswith("a scan or photo needs dimension texts that OCR can read")
+    assert hints[2].startswith("photograph the sheet straight on")
+    assert hints[3].startswith("export the PDF with real text")
+    assert hints[4].startswith("add a level title to every plan page")
+    assert hints[5].startswith("check the plan's dimension texts and room-size labels")
+    # Every hint once, whatever the number of reasons it matches.
+    assert F.review_hints(reasons + reasons) == hints
+
+
+def test_label_path_confidences_mirror_room_labels():
+    from wenart.recognition import room_labels as RL
+    assert F.LABEL_TWO_PASS_CONFIDENCE == RL.AGREE_CONFIDENCE
+    assert F.LABEL_TESSERACT_CONFIDENCE == RL.TESSERACT_CONFIDENCE
+    assert RL.UNACCEPTED_CONFIDENCE not in (F.LABEL_TWO_PASS_CONFIDENCE, F.LABEL_TESSERACT_CONFIDENCE)
+
+
+def test_detector_keys_of_a_check_camera_are_not_image_kinds():
+    cview = {"cycles": OK_ENTRY, "polished": OK_ENTRY, "added_by_polish": True,
+             "detector": {"status": "calibrated", "computed": True, "file": "detect/cam.json", "added": []}}
+    assert set(F.image_entries(cview)) == {"cycles", "polished"}
+    assert {"added_by_polish", "detector"} <= F.CHECK_VIEW_KEYS
+
+
+def test_side_by_side_sheets_per_room(tmp_path):
+    out = make_project(tmp_path)
+    manifest = F.write_final(out)
+    assert F.validate_final_manifest(manifest) == []
+    sheets = manifest["side_by_side"]["sheets"]
+    assert sheets == {"r_L0_hol": "contact_sbs_r_L0_hol.jpg", "r_L0_salon": "contact_sbs_r_L0_salon.jpg",
+                      "r_L1_yatak": "contact_sbs_r_L1_yatak.jpg"}
+    final = out / "final"
+    for name in sheets.values():
+        assert (final / name).stat().st_size <= 300_000
+    tile_h = round(H * 480 / W)                                   # 270 px
+    with Image.open(final / "contact_sbs_r_L0_salon.jpg") as im:
+        assert im.size == (2 * 480 + 3 * 4, 2 * (tile_h + F.SBS_LABEL_HEIGHT) + 3 * 4)
+        rgb = np.asarray(im.convert("RGB"))
+    left, right = rgb[4 + tile_h // 2, 4 + 240], rgb[4 + tile_h // 2, 8 + 480 + 240]
+    assert abs(int(left[0]) - 0) <= 12 and abs(int(left[1]) - 120) <= 12      # cam_salon_1's render (R 0, G 120)
+    assert min(right) >= 185                                                    # its polished image (grey 200)
+    # A view no attempt passed (gate) still shows the last attempt the gate saw; the labels carry the decisions.
+    left_lines, right_lines = F.side_by_side_labels(by_cam(manifest)["cam_hol_1"],
+                                                    {"k": 3, "gate": gate("reject", ["depth"])})
+    assert left_lines == ["cam_hol_1  Cycles", "check mismatch (2)"]
+    assert right_lines == ["a3  gate reject (depth)", "check -  ->  final Cycles (gate)"]
+    salon_2 = F.side_by_side_labels(by_cam(manifest)["cam_salon_2"], {"k": 2, "gate": gate("accept")})
+    assert salon_2[1] == ["a2  gate accept", "check mismatch (1)  ->  final Cycles (vision_check)"]
+    md = (final / "final_report.md").read_text(encoding="utf-8")
+    assert "## Side-by-side sheets (Cycles | polished)" in md
+    assert "- r_L0_salon: [contact_sbs_r_L0_salon.jpg](contact_sbs_r_L0_salon.jpg)" in md
+    assert "| r_L0_hol | cam_hol_1 | - | - | mismatch (2) | - | - | cycles (gate) |" in md
+    assert links(md) and all("/" not in link and (final / link).is_file() for link in links(md))
+    # A second run writes the same sheets and lists none of them as stale.
+    again = F.write_final(out)
+    assert not [w for w in again["warnings"] if "contact_sbs_" in w]
+
+
+@pytest.mark.parametrize("change, note", [
+    ({"brief": "style: x\npolish: false\n"}, "brief polish: false"),
+    ({"polish": False}, "the polish did not run in this run"),
+])
+def test_no_side_by_side_sheets_without_the_polish(tmp_path, change, note):
+    out = make_project(tmp_path, **change)
+    manifest = F.write_final(out)
+    assert manifest["side_by_side"] == {"sheets": {}, "note": note}
+    assert not list((out / "final").glob("contact_sbs_*.jpg"))
+    md = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    assert f"None: {note}." in md.split("## Side-by-side sheets (Cycles | polished)")[1]
+
+
+def test_side_by_side_when_the_gate_switches_the_polish_off(tmp_path):
+    out = make_project(tmp_path)
+    gate_validation(out, "polish_disabled")
+    manifest = F.write_final(out)
+    assert manifest["side_by_side"]["sheets"] == {}
+    assert manifest["side_by_side"]["note"].startswith("gate validation polish_disabled")
+
+
+def m7_building(project_dir: Path) -> dict:
+    """The toy building with the Milestone 7 fields: imperial units, a raster page, AI-typed pieces, a composite,
+    a site, a separator, assumed values and an Objaverse model."""
+    b = building(project_dir)
+    b["project"]["unit_system"] = "imperial"
+    b["documents"] = [
+        {"file": "real01.pdf", "format": "pdf", "unit_system": "imperial", "source_kind": "cad_pdf",
+         "pages": [{"page": 1, "class": "floor_plan", "kind": "vector", "level_id": "L0", "confidence": 0.6,
+                    "classifier": "generic_labels"}]},
+        {"file": "plan_scan.png", "format": "image", "unit_system": "imperial", "source_kind": "raster_scan",
+         "pages": [{"page": 1, "class": "floor_plan", "kind": "scan", "level_id": "L1", "confidence": 0.8,
+                    "rectified_image": "rectified/plan_scan_png_p1.png", "skip_reason": None}]}]
+    b["levels"][0].update(label="Ground floor", label_source="assumed", ceiling_height=2.7,
+                          ceiling_height_source="assumed_default")
+    b["levels"][1].update(label="First Floor", label_source="title", ceiling_height=2.9,
+                          ceiling_height_source="section")
+
+    def ai_ev(conf, p):
+        return {"file": "plan_scan.png", "page": 1, "method": "ai", "confidence": conf, "entity": "recognition:lbl_L1_1",
+                "model": f"m{p}", "pass": p}
+
+    ocr = {"file": "plan_scan.png", "page": 1, "method": "ocr", "confidence": 0.91, "text": "BED ROOM"}
+    b["rooms"] = [
+        {"id": "r_L0_salon", "level_id": "L0", "room_type": "living", "status": "verified", "label": "Drawing Room",
+         "label_raw": "DRAWING ROOM", "evidence": [{"file": "real01.pdf", "page": 1, "method": "vector",
+                                                   "confidence": 1.0}]},
+        {"id": "r_L0_hol", "level_id": "L0", "room_type": "hall", "status": "unverified", "label": "Room",
+         "label_raw": None, "evidence": [{"file": "real01.pdf", "method": "derived", "confidence": 0.5}]},
+        {"id": "r_L1_yatak", "level_id": "L1", "room_type": "bedroom", "status": "verified", "label": "Bed Room",
+         "label_raw": "BED ROOM", "evidence": [ocr, ai_ev(0.85, 1), ai_ev(0.85, 2)]},
+        {"id": "r_L1_b", "level_id": "L1", "room_type": "kitchen", "status": "verified", "label": "Kitchen",
+         "label_raw": "KITCHEN", "evidence": [ocr, ai_ev(0.8, 1), ai_ev(0.3, 2)]},
+        {"id": "r_L1_c", "level_id": "L1", "room_type": "bathroom", "status": "unverified", "label": "Bath",
+         "label_raw": "BATH", "evidence": [ocr, ai_ev(0.3, 1), ai_ev(0.3, 2)]},
+        {"id": "r_L1_d", "level_id": "L1", "room_type": "storage", "status": "unverified", "label": "Store",
+         "label_raw": "STORE", "evidence": [ocr]},
+    ]
+    cands = [{"type": "bed_double", "model": "Qwen/Qwen3-VL-8B-Instruct", "model_key": "qwen", "pass": 1,
+              "confidence": 0.9, "front": "top", "reason": "pillows"},
+             {"type": "bed_double", "model": "zai-org/GLM-4.6V-Flash", "model_key": "glm", "pass": 2,
+              "confidence": 0.8, "front": "top", "reason": "a bed"}]
+    b["furniture"][2].update(type_method="ai_two_pass", type_candidates=cands)          # f_3, agreed
+    b["furniture"][3].update(type_method="none", type_candidates=[                     # f_9, disagreed
+        dict(cands[0], type="table_dining"), dict(cands[1], type="sofa")])
+    b["furniture"].append({"id": "f_10", "type": "unknown", "level_id": "L1", "room_id": "r_L1_yatak",
+                           "source": "from_documents", "status": "unverified", "type_method": "none",
+                           "footprint": {"center": [1, 1], "size": [2.77, 0.6], "rotation_deg": 0},
+                           "evidence": [{"file": "plan_scan.png", "method": "raster", "confidence": 0.7,
+                                         "note": "possible group of 3 pieces"}]})
+    b["furniture"].append({"id": "f_11", "type": "stair", "level_id": "L0", "room_id": "r_L0_hol",
+                           "source": "from_documents", "status": "verified", "type_method": "rule",
+                           "stair": {"flights": [], "direction_assumed": True, "turn_assumed": True,
+                                     "void_assumed": True, "reason": "no UP arrow drawn", "riser_m": 0.178,
+                                     "riser_source": "derived from assumed ceiling and slab"},
+                           "evidence": ev("real01.pdf", entity="path:1-40")})
+    b["furniture"][0]["asset"] = {"method": "library", "library": "objaverse", "asset_id": "objaverse_u1",
+                                  "licence": "CC-BY-4.0", "attribution": '"Sofa" by A (https://x/u1), CC BY 4.0 '
+                                                                         "(https://creativecommons.org/licenses/by/4.0/)"}
+    b["decor"][0]["asset"] = {"method": "library", "library": "objaverse", "asset_id": "objaverse_u2",
+                              "licence": "CC-BY-4.0"}
+    b["openings"] += [
+        {"id": "d_L0_009", "type": "door", "level_id": "L0", "wall_id": "w_1", "width": 0.9, "height": 2.1,
+         "assumed": ["height"], "status": "verified", "evidence": ev("real01.pdf")},
+        {"id": "o_L0_001", "type": "opening", "level_id": "L0", "wall_id": None, "virtual": True,
+         "line": [[0.0, 0.0], [0.0, 1.2954]], "width": 1.2954, "height": 2.1, "assumed": ["height"],
+         "status": "verified", "evidence": [{"file": "real01.pdf", "method": "derived", "confidence": 0.8,
+                                             "note": "two room names share one face"}]}]
+    b["site"] = {"boundary_walls": [{"id": "sw_L0_001", "level_id": "L0", "start": [0, 0], "end": [15.24, 0],
+                                     "thickness": 0.1524, "kind": "plot", "evidence": ev("real01.pdf")}],
+                 "areas": [{"id": "sa_L0_parking", "level_id": "L0", "label": "Parking", "label_raw": "PARKING",
+                            "label_size": {"text": "15'3\" x 11'3\"", "measured": [4.572, 3.429],
+                                           "status": "unchecked"}, "polygon": None, "evidence": ev("real01.pdf")}],
+                 "decor": [{"id": "sd_L0_001", "level_id": "L0", "kind": "plant", "center": [1, 1], "size": [0.5, 0.5],
+                            "evidence": ev("real01.pdf")}] * 2,
+                 "openings": []}
+    return b
+
+
+def make_m7_project(tmp_path) -> Path:
+    out = make_project(tmp_path)
+    b = m7_building(tmp_path / "projects" / "toy")
+    write_json(out / "building_final.json", b)
+    sc = json.loads((out / "scene" / "scene_manifest.json").read_text(encoding="utf-8"))
+    sc["assumed"] = [{"object": f"d_{i}", "field": "height", "value": 2.1,
+                      "reason": "door height not in the JSON; default"} for i in range(3)]
+    write_json(out / "scene" / "scene_manifest.json", sc)
+    write_json(out / "recognition" / "requests.json", {"items": [{"key": "sym_L0_1"}, {"key": "lbl_L1_1"}]})
+    write_json(out / "recognition" / "answers_qwen3-vl-8b.json", {"answers": {}})
+    return out
+
+
+def test_m7_sections_units_recognition_site_separators_assumed(tmp_path):
+    out = make_m7_project(tmp_path)
+    m = F.write_final(out)
+    assert F.validate_final_manifest(m) == []
+    assert m["units"]["system"] == "imperial" and m["units"]["recorded"] is True
+    assert [d["source_kind"] for d in m["units"]["documents"]] == ["cad_pdf", "raster_scan"]
+    rec = m["recognition"]
+    assert rec["type_methods"] == {"ai_two_pass": 1, "none": 2, "rule": 1}
+    assert rec["questions"] == 2 and rec["answer_files"] == ["answers_qwen3-vl-8b.json"]
+    ai = {p["id"]: p for p in rec["ai_typed"]}
+    assert set(ai) == {"f_3", "f_9"} and ai["f_3"]["agreed"] and not ai["f_9"]["agreed"]
+    assert [a["type"] for a in ai["f_9"]["answers"]] == ["table_dining", "sofa"]
+    assert rec["composites"] == [{"id": "f_10", "room_id": "r_L1_yatak", "type": "unknown", "status": "unverified",
+                                  "size": [2.77, 0.6], "note": "possible group of 3 pieces"}]
+    assert [pg["file"] for pg in rec["raster_pages"]] == ["plan_scan.png"]
+    assert {r["id"]: r["path"] for r in rec["raster_rooms"]} == {
+        "r_L1_yatak": "two_pass", "r_L1_b": "tesseract", "r_L1_c": "not_accepted", "r_L1_d": "tesseract_only"}
+    site = m["site"]
+    assert site["boundary_walls"][0]["length_m"] == pytest.approx(15.24) and site["decor"] == {"plant": 2}
+    assert site["areas"][0]["closed"] is False
+    assert m["separators"] == [{"id": "o_L0_001", "level_id": "L0", "status": "verified", "length_m": 1.295,
+                                "note": "two room names share one face"}]
+    assumed = m["assumed"]
+    # The toy brief sets the style only: every other brief value is a default.
+    assert {"key": "polish", "value": True} in assumed["brief"]
+    assert "style" not in {a["key"] for a in assumed["brief"]}
+    text = "\n".join(assumed["building"])
+    assert "L0: level 'Ground floor' assumed (no level title on the page)" in text
+    assert "L0: ceiling height 8' 10\" (2.70 m) (assumed_default)" in text and "L1: ceiling" not in text
+    assert "door height 6' 11\" (2.10 m): 1 opening(s) (d_L0_009)" in text
+    assert "opening height 6' 11\" (2.10 m): 1 opening(s) (o_L0_001)" in text
+    assert "f_11 (stair): direction, turn, void assumed (no UP arrow drawn)" in text
+    assert "f_11 (stair): riser 0' 7\" (0.18 m) (derived from assumed ceiling and slab)" in text
+    assert assumed["scene"] == [{"field": "height", "reason": "door height not in the JSON; default", "count": 3,
+                                 "examples": ["d_0", "d_1", "d_2"]}]
+    flags = m["advisory_flags"]
+    assert any(f.startswith("1 drawn piece(s) not typed") and "f_9" in f for f in flags)
+    assert any(f.startswith("1 drawn group(s) not split") and "f_10" in f for f in flags)
+    assert any(f.startswith("2 raster room label(s) not confirmed") and "r_L1_c" in f and "r_L1_d" in f
+               for f in flags)
+    md = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    for heading in ("## Units", "## Recognition (AI typing and raster labels)", "## Site", "## Separators",
+                    "## Assumed values", "## Attribution", "## Added-object detector"):
+        assert heading in md, heading
+    assert "Project unit system: **imperial** (lengths in feet and inches, metres in brackets)." in md
+    assert "| sw_L0_001 | boundary wall (plot) | 50' 0\" (15.24 m) long, 0' 6\" (0.15 m) thick |" in md
+    assert "| o_L0_001 | L0 | 4' 3\" (1.29 m) | verified | two room names share one face |" in md
+    assert "| f_9 | r_L0_hol | unknown | no | unverified | yes |" in md
+    assert "pass 1 Qwen/Qwen3-VL-8B-Instruct: table_dining, front top 0.90" in md
+    assert "| r_L1_b | Kitchen | KITCHEN | kitchen | verified | one pass equals the Tesseract text |" in md
+    assert "| r_L1_d | Store | STORE | storage | unverified | Tesseract only (not confirmed by the passes) |" in md
+    assert "| f_10 | r_L1_yatak | 9' 1\" (2.77 m) x 2' 0\" (0.60 m) | unverified | possible group of 3 pieces |" in md
+    assert "| unit system | imperial |" in md
+
+
+def test_metric_project_lengths_and_missing_m7_fields(tmp_path):
+    out = make_project(tmp_path)
+    m = F.write_final(out)
+    assert m["units"] == {"system": "metric", "recorded": False, "documents": []}
+    assert m["site"] is None and m["separators"] == [] and m["recognition"]["ai_typed"] == []
+    assert m["attribution"] == {"credits": [], "notice": None, "missing": []}
+    assert F.length_text(3.43, "metric") == "3,43 m" and F.length_text(3.43, "imperial") == "11' 3\" (3.43 m)"
+    assert F.length_text(None, "metric") == "-"
+    md = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    assert "(not recorded in the building JSON: metric)" in md
+    assert "No CC BY or Objaverse model in this project" in md
+
+
+def test_attribution_section_names_every_objaverse_model(tmp_path):
+    out = make_m7_project(tmp_path)
+    m = F.write_final(out)
+    att = m["attribution"]
+    assert [c["asset_id"] for c in att["credits"]] == ["objaverse_u1", "objaverse_u2"]
+    assert att["credits"][0]["pieces"] == ["f_1"] and att["credits"][1]["credit"] is None
+    assert att["missing"] == ["objaverse_u2"] and "ODC-By 1.0" in att["notice"]
+    assert any(f.startswith("Objaverse model(s) without a credit line") and "objaverse_u2" in f
+               for f in m["advisory_flags"])
+    md = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    section = md.split("## Attribution")[1].split("## Added-object detector")[0]
+    assert '- "Sofa" by A (https://x/u1), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) (used for f_1)' \
+        in section
+    assert "- objaverse_u2: no attribution recorded (check the catalogue entry) (used for dec_1)" in section
+    assert "ODC Attribution License" in section
+
+
+def test_detector_section_model_row_and_added_by_polish(tmp_path):
+    out = make_project(tmp_path)
+    cm = json.loads((out / "check" / "check_manifest.json").read_text(encoding="utf-8"))
+    cm["detector"] = {"status": "calibrated", "advisory": False, "reason": None,
+                      "thresholds": {"t_det": 0.3, "t_strong": 0.6},
+                      "model": {"repo": "google/owlv2-base-patch16-ensemble",
+                                "revision": "cfd3195ba4ea9592eec887ded089f4c08eff231d", "licence": "Apache-2.0"},
+                      "views": ["cam_salon_1"], "not_computed": []}
+    box = {"class": "furniture", "group": "armchair", "box_px": [10, 10, 40, 40], "score": 0.7,
+           "confirmed_by": ["strong"]}
+    view = cm["views"]["cam_salon_1"]
+    view.update(polished_rejected=True, polished_reason="vision_check", added_by_polish=True,
+                polished_reasons=[{"reason": "vision_check", "what": "added_by_polish", "source": "detector",
+                                   "class": "furniture", "box_px": [10, 10, 40, 40], "score": 0.7}],
+                detector={"status": "calibrated", "computed": True, "file": "detect/cam_salon_1.json",
+                          "added": [box], "candidates": [box]})
+    write_json(out / "check" / "check_manifest.json", cm)
+    m = F.write_final(out)
+    v = by_cam(m)["cam_salon_1"]
+    assert (v["final"], v["reason"]) == ("cycles", "vision_check") and "added_by_polish furniture" in v["detail"]
+    assert v["added_by_polish"] is True and v["detector"]["added"] == 1 and v["detector"]["computed"]
+    assert set(F.image_entries(cm["views"]["cam_salon_1"])) == {"cycles", "polished"}   # not a 'detector' image
+    assert m["detector"]["status"] == "calibrated" and m["detector"]["views_added"] == ["cam_salon_1"]
+    roles = {r["role"]: r for r in m["models"]}
+    assert roles["detector"]["repo"] == "google/owlv2-base-patch16-ensemble"
+    assert any(f.startswith("the polish added an object in cam_salon_1") for f in m["advisory_flags"])
+    md = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    section = md.split("## Added-object detector")[1]
+    assert "Calibrated: t_det 0.3, t_strong 0.6" in section
+    assert "| cam_salon_1 | calibrated | yes | yes | furniture [10, 10, 40, 40] (strong) |" in section
+    # An advisory detector is a flag; a check manifest without a detector block says not run.
+    cm["detector"].update(status="advisory", advisory=True, reason="no detector: block in check.yaml")
+    write_json(out / "check" / "check_manifest.json", cm)
+    assert any(f.startswith("added-object detector advisory") for f in F.write_final(out)["advisory_flags"])
+    del cm["detector"]
+    write_json(out / "check" / "check_manifest.json", cm)
+    m = F.write_final(out)
+    assert m["detector"]["status"] == "not_recorded"
+    assert "Not run for this project" in (out / "final" / "final_report.md").read_text(encoding="utf-8")
+
+
+def test_m7_sections_of_a_private_project_name_no_file(tmp_path):
+    out = make_m7_project(tmp_path)
+    m = F.write_final(out, private=True)
+    assert [d["file"] for d in m["units"]["documents"]] == ["document 1", "document 2"]
+    assert m["recognition"]["raster_pages"][0]["file"] == "document 2"
+    assert m["recognition"]["raster_pages"][0]["rectified_image"] is None
+    assert {r["file"] for r in m["recognition"]["raster_rooms"]} == {"document 2"}
+    md = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    section = md.split("## Units")[1].split("## Rooms mixing")[0]
+    assert "real01.pdf" not in section and "plan_scan" not in section
+    assert json.dumps(m["units"]).count("real01") == 0 and "plan_scan" not in json.dumps(m["recognition"])

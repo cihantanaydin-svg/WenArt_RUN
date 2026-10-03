@@ -122,20 +122,20 @@
      "level_label_raw": "1. KAT PLANI",
      "scale": {
       "metres_per_unit": 0.016933333333333335,
-      "method": "pdf_scale_text",
-      "confidence": 1.0,
+      "method": "dimension_text",
+      "confidence": 0.9,
       "evidence": {
        "file": "1_kat_scan.png",
        "method": "ocr",
        "confidence": 1.0,
        "pixel_box": [
-        1187.7,
-        585.0,
-        1310.2,
-        603.9
+        1103.6,
+        1114.1,
+        1140.7,
+        1130.8
        ],
        "dpi": 150,
-       "text": "ÖLÇEK 1/100"
+       "text": "4,30"
       }
      },
      "transform_to_building": [
@@ -444,7 +444,7 @@
     },
     {
      "file": "1_kat_scan.png",
-     "method": "ai",
+     "method": "raster",
      "confidence": 1.0,
      "pixel_box": [
       995.2,
@@ -481,7 +481,7 @@
     },
     {
      "file": "1_kat_scan.png",
-     "method": "ai",
+     "method": "raster",
      "confidence": 1.0,
      "pixel_box": [
       1547.0,
@@ -518,7 +518,7 @@
     },
     {
      "file": "1_kat_scan.png",
-     "method": "ai",
+     "method": "raster",
      "confidence": 1.0,
      "pixel_box": [
       994.8,
@@ -555,7 +555,7 @@
     },
     {
      "file": "1_kat_scan.png",
-     "method": "ai",
+     "method": "raster",
      "confidence": 1.0,
      "pixel_box": [
       994.8,
@@ -592,7 +592,7 @@
     },
     {
      "file": "1_kat_scan.png",
-     "method": "ai",
+     "method": "raster",
      "confidence": 1.0,
      "pixel_box": [
       1245.8,
@@ -629,7 +629,7 @@
     },
     {
      "file": "1_kat_scan.png",
-     "method": "ai",
+     "method": "raster",
      "confidence": 1.0,
      "pixel_box": [
       1346.2,
@@ -666,7 +666,7 @@
     },
     {
      "file": "1_kat_scan.png",
-     "method": "ai",
+     "method": "raster",
      "confidence": 1.0,
      "pixel_box": [
       1009.7,
@@ -703,7 +703,7 @@
     },
     {
      "file": "1_kat_scan.png",
-     "method": "ai",
+     "method": "raster",
      "confidence": 1.0,
      "pixel_box": [
       1352.3,
@@ -1016,7 +1016,7 @@
     },
     {
      "file": "1_kat_scan.png",
-     "method": "ai",
+     "method": "raster",
      "confidence": 1.0,
      "pixel_box": [
       1195.9,
@@ -1052,7 +1052,7 @@
     },
     {
      "file": "1_kat_scan.png",
-     "method": "ai",
+     "method": "raster",
      "confidence": 1.0,
      "pixel_box": [
       1201.6,
@@ -1088,7 +1088,7 @@
     },
     {
      "file": "1_kat_scan.png",
-     "method": "ai",
+     "method": "raster",
      "confidence": 1.0,
      "pixel_box": [
       1349.4,
@@ -1124,7 +1124,7 @@
     },
     {
      "file": "1_kat_scan.png",
-     "method": "ai",
+     "method": "raster",
      "confidence": 1.0,
      "pixel_box": [
       1349.2,
@@ -1160,7 +1160,7 @@
     },
     {
      "file": "1_kat_scan.png",
-     "method": "ai",
+     "method": "raster",
      "confidence": 1.0,
      "pixel_box": [
       1074.9,
@@ -1196,7 +1196,7 @@
     },
     {
      "file": "1_kat_scan.png",
-     "method": "ai",
+     "method": "raster",
      "confidence": 1.0,
      "pixel_box": [
       1396.8,
@@ -1232,7 +1232,7 @@
     },
     {
      "file": "1_kat_scan.png",
-     "method": "ai",
+     "method": "raster",
      "confidence": 1.0,
      "pixel_box": [
       999.5,
@@ -1268,7 +1268,7 @@
     },
     {
      "file": "1_kat_scan.png",
-     "method": "ai",
+     "method": "raster",
      "confidence": 1.0,
      "pixel_box": [
       1092.3,
@@ -1304,7 +1304,7 @@
     },
     {
      "file": "1_kat_scan.png",
-     "method": "ai",
+     "method": "raster",
      "confidence": 1.0,
      "pixel_box": [
       1281.2,
@@ -1340,7 +1340,7 @@
     },
     {
      "file": "1_kat_scan.png",
-     "method": "ai",
+     "method": "raster",
      "confidence": 1.0,
      "pixel_box": [
       1431.8,
