@@ -66,9 +66,11 @@ Milestone 7 (docs/milestone7.md §6.3, §6.6, user decision 7):
   ``sha256_glb``, ``uid``, ``title``, ``author``, ``source_url``,
   ``licence_url``, ``via`` and ``attribution`` (all required for CC BY).
   Their boxes are metres: the raw GLB box times the optional ``unit_scale``
-  (one of ``UNIT_SCALES``, the prep pod's unit guess; 1.0 when absent),
-  which the fit carries into the asset and the scene builder applies to the
-  imported mesh before ``fit_scale``.
+  (the prep pod's unit guess, 1.0 when absent: one of ``UNIT_SCALES``, or
+  any positive finite factor with a ``unit_note`` when the model's units are
+  unknown and it was normalised by type), which the fit carries into the
+  asset and the scene builder applies to the imported mesh before
+  ``fit_scale``.
 """
 from __future__ import annotations
 
@@ -87,8 +89,9 @@ SOURCES = ("polyhaven", "objaverse")
 SOURCE_LICENCES: dict[str, tuple[str, ...]] = {"polyhaven": (LICENCE,), "objaverse": (LICENCE, CC_BY)}
 # Fields a CC BY entry needs for its credit line (CC BY 4.0 §3(a)(1)).
 CC_BY_FIELDS = ("title", "author", "source_url", "licence_url", "via", "attribution")
-# The unit factors of the prep pod's unit guess (docs/milestone7.md §7.2; wenart/assets/objaverse.yaml units):
-# an Objaverse entry's optional ``unit_scale`` must be one of them.
+# The unit factors of the prep pod's unit guess (docs/milestone7.md §7.2; wenart/assets/objaverse.yaml units).
+# An Objaverse entry's optional ``unit_scale`` is one of them, or any positive finite factor with a ``unit_note``
+# saying where it comes from (a model of unknown units normalised by type, wenart.assets.objaverse.normalise_unit).
 UNIT_SCALES = (1.0, 0.01, 0.0254, 0.001)
 AXES = ("-Y", "+Y", "-X", "+X")
 NEUTRAL = "neutral"
@@ -289,11 +292,15 @@ def _validate_model(e: dict, seen_ids: set, furniture: bool) -> None:
             raise CatalogError(f"{e['id']}: sha256_glb must be 64 hex digits")
         if not str(e["glb"]).endswith(".glb"):
             raise CatalogError(f"{e['id']}: glb {e['glb']!r} is not a .glb path")
+        if "unit_note" in e and not (isinstance(e["unit_note"], str) and e["unit_note"].strip()):
+            raise CatalogError(f"{e['id']}: unit_note must say where unit_scale comes from")
         if "unit_scale" in e:
             u = e["unit_scale"]
-            if isinstance(u, bool) or not isinstance(u, (int, float)) \
-                    or not any(abs(float(u) - f) < 1e-12 for f in UNIT_SCALES):
-                raise CatalogError(f"{e['id']}: unit_scale {u!r} is not one of {UNIT_SCALES}")
+            if isinstance(u, bool) or not isinstance(u, (int, float)) or not math.isfinite(u) or u <= 0:
+                raise CatalogError(f"{e['id']}: unit_scale {u!r} is not a positive finite number")
+            if not any(abs(float(u) - f) < 1e-12 for f in UNIT_SCALES) and "unit_note" not in e:
+                raise CatalogError(f"{e['id']}: unit_scale {u!r} is not one of {UNIT_SCALES} and has no unit_note "
+                                   "(a model normalised by type says so there)")
 
 
 def styles_match(entry: dict, family: Optional[str]) -> bool:

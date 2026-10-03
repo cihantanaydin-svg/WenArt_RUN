@@ -14,8 +14,10 @@ integrator commits ``catalog_objaverse.json`` into ``wenart/furniture/`` before 
    like the scene builder does (``wenart.blender.furniture.import_gltf_geometry``), measures it in the Z-up Blender
    frame and renders four views framed on its box, one from each side (camera on the -Y, +X, +Y, -X side, 30
    degrees above), so a judge's ``front_view`` names one model axis; then, outside Blender, the unit guess (x1,
-   0.01, 0.0254, 0.001: the one factor that puts the box in the type's size range and height range; none or
-   several -> refused), the bed split (single / double by width, then <= 8 per type), the geometric front (the
+   0.01, 0.0254, 0.001: the one factor that puts the box in the type's size range and height range; several ->
+   refused; none -> the units are unknown and the box is normalised by type, scaled to the type's typical
+   footprint, refused only when its proportions are outside the type's ranges), the bed split (single / double
+   by width, by the proportions when normalised, then <= 8 per type), the geometric front (the
    Poly Haven rule: taller side = back for seating and beds, door/drawer side = front for cabinets, panel side =
    back for open shelves) and the 2 x 2 judging sheet -> ``thumbnails.json``, ``judge/sheets/<uid>.jpg`` (512 px),
    ``thumbs/<type>/<uid>.jpg`` (256 px) and ``thumbs/NOTICE.md``. ``--work`` holds the views and measurements
@@ -239,6 +241,21 @@ def load_size_table(path: Optional[Path] = None) -> tuple[dict, float]:
         w, d = spec["width"], spec["depth"]
         table[name] = ((float(w[0]), float(w[1])), (float(d[0]), float(d[1])))
     return table, float(data.get("tolerance", 0.15))
+
+
+_LVIS_STOP = {"of", "the", "and", "a", "for", "furniture"}
+
+
+def lvis_near_names(category: str, lvis: dict, limit: int = 20) -> list[str]:
+    """LVIS category names of the annotation file that share a word stem (first 5 letters of a word of >= 4) with a
+    missing ``category``: evidence for choosing an alternate name on the next survey, never a mapping by itself."""
+    words = {w[:5] for w in re.split(r"[^a-z]+", category.casefold()) if len(w) >= 4 and w not in _LVIS_STOP}
+    out = []
+    for name in sorted(lvis):
+        tokens = {w[:5] for w in re.split(r"[^a-z]+", str(name).casefold()) if len(w) >= 4 and w not in _LVIS_STOP}
+        if name != category and words & tokens:
+            out.append(name)
+    return out[:limit]
 
 
 def group_key(types) -> str:
@@ -498,8 +515,10 @@ def survey(hub, out: Path, cfg: Optional[dict] = None, download: bool = True, wo
         raise ValueError("lvis-annotations / object-paths are not JSON objects (format changed?)")
     found = {c: len(lvis.get(c) or []) for c in categories if c in lvis}
     missing_cats = sorted(c for c in categories if c not in lvis)
+    near = {c: lvis_near_names(c, lvis) for c in missing_cats}
     for c in missing_cats:
-        log(f"objaverse survey: LVIS category {c!r} not in {ds['lvis_file']}: its types stay parametric")
+        log(f"objaverse survey: LVIS category {c!r} not in {ds['lvis_file']}: its types stay parametric (a "
+            f"warning, not a failure); names in the file that share a word: {near[c] or 'none'}")
 
     uid_cats: dict[str, list[str]] = {}
     for cat in categories:
@@ -633,7 +652,7 @@ def survey(hub, out: Path, cfg: Optional[dict] = None, download: bool = True, wo
         "dataset": {k: ds[k] for k in ("repo", "revision", "licence", "licence_url", "page") if k in ds},
         "hub": hub.describe() if hasattr(hub, "describe") else str(hub), "downloaded": bool(download),
         "config_sha256": config_sha256(cfg), "licences_verified": bool(cfg["licences"].get("verified")),
-        "lvis": {"found": found, "missing": missing_cats},
+        "lvis": {"found": found, "missing": missing_cats, "categories_in_file": len(lvis), "near_missing": near},
         "licence_values": dict(sorted(licence_values.items(), key=lambda kv: (-kv[1], kv[0]))),
         "metadata_keys": sorted(metadata_keys), "missing_fields": dict(sorted(missing_fields.items())),
         "counts": counts, "refused_counts": dict(sorted(refused_counts.items())),
@@ -1327,8 +1346,9 @@ def clean_judgement(data):
     return dict(data, styles=styles)
 
 
-def judge_prompt(ftype: str, dims_m, has_front: bool) -> str:
-    """The question for one object: the same text for both models (temperature 0, structured output)."""
+def judge_prompt(ftype: str, dims_m, has_front: bool, normalised: bool = False) -> str:
+    """The question for one object: the same text for both models (temperature 0, structured output). A model of
+    unknown units (``normalised``) is not given a measured size: it is scaled to a typical piece of the type."""
     name, what = TYPE_WORDS[ftype]
     tiles = ", ".join(f"{i} ({place}) from the model's {side} side"
                       for i, (place, side) in enumerate(zip(VIEW_PLACES, VIEW_SIDES)))
@@ -1338,11 +1358,15 @@ def judge_prompt(ftype: str, dims_m, has_front: bool) -> str:
                 else "null (this is not a bed)")
     front = (f"the number of the tile that looks straight at the front of the piece ({FRONT_WORDS}); null when you "
              "cannot tell" if has_front else "null (this type has no front)")
+    size = (f"The tiles are framed on the model, so they do not show its size, and the model file gives no usable "
+            f"unit: scaled to a typical {name} it would measure about {_fmt_dims(dims_m)} m (x, y, height)."
+            if normalised else
+            f"The tiles are framed on the model, so they do not show its size: it measures about "
+            f"{_fmt_dims(dims_m)} m (x, y, height).")
     return "\n\n".join([
         "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey "
         "background. Each tile shows the model from one side, 30 degrees from above, and carries its number: "
-        f"{tiles}. The tiles are framed on the model, so they do not show its size: it measures about "
-        f"{_fmt_dims(dims_m)} m (x, y, height).",
+        f"{tiles}. {size}",
         f"It is offered as a {name} ({what}) for photoreal renders of furnished rooms.",
         "Fields of the answer:\n"
         "- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, "
@@ -1362,7 +1386,7 @@ def request_item(rec: dict, out: Path, cfg: dict) -> dict:
     """One judging request (``judge/requests.json`` item) for a ``ready`` object of ``thumbnails.json``."""
     ftype = rec["type"]
     has_front = cfg["types"][ftype]["front"] != FRONTLESS_RULE
-    prompt = judge_prompt(ftype, rec["unit"]["dims_m"], has_front)
+    prompt = judge_prompt(ftype, rec["unit"]["dims_m"], has_front, bool(rec["unit"].get("normalised")))
     image = f"{SHEETS_DIR}/{rec['uid']}.jpg"
     pixels = pixels_sha256(Path(out) / JUDGE_DIR / image)
     description = {"version": JUDGE_VERSION, "task": TASK, "system": SYSTEM_PROMPT, "prompt": prompt,
@@ -1900,6 +1924,8 @@ def report(out: Path, cfg: Optional[dict] = None, models: Optional[dict] = None,
     total = {k: sum(c.get(k, 0) for c in counts.values()) for k in ("lvis", "licence_ok", "prefilter_ok",
                                                                     "candidates")}
     ready = sum(1 for o in objects.values() if o.get("status") == "ready")
+    normalised = sum(1 for o in objects.values()
+                     if o.get("status") == "ready" and (o.get("unit") or {}).get("normalised"))
     rendered = sum(1 for o in objects.values() if "measure" in o)
     lines += ["## Steps", ""]
     lines += _table(["Step", "Objects"], [
@@ -1909,6 +1935,7 @@ def report(out: Path, cfg: Optional[dict] = None, models: Optional[dict] = None,
         ["Candidates (downloaded; textured or vertex-coloured)", total["candidates"]],
         ["Rendered (thumbnails)", rendered if thumbs else "not run"],
         ["Ready for judging (unit and type resolved)", ready if thumbs else "not run"],
+        [f"of which {NORMALISED_NOTE}", normalised if thumbs else "not run"],
         ["Judged by both models", both if judged else "not run"],
         ["Accepted", len(acc["accepted"]) if acc else "not run"],
         ["In catalog_objaverse.json", len(cat["entries"]) if cat else "not written"],
@@ -1958,8 +1985,13 @@ def report(out: Path, cfg: Optional[dict] = None, models: Optional[dict] = None,
     lv = surv["lvis"]
     lines += ["", "## LVIS categories", "",
               "Found: " + (", ".join(f"`{c}` {n}" for c, n in sorted(lv["found"].items())) or "none") + ".",
-              "Missing (their types stay parametric): " + (", ".join(f"`{c}`" for c in lv["missing"]) or "none")
-              + ".", ""]
+              "Missing (a warning: their types stay parametric): "
+              + (", ".join(f"`{c}`" for c in lv["missing"]) or "none") + ".", ""]
+    for c, names in sorted((lv.get("near_missing") or {}).items()):
+        lines += [f"- `{c}`: names in the file sharing a word: " + (", ".join(f"`{n}`" for n in names) or "none")
+                  + " (an alternate needs a reason in objaverse.yaml)."]
+    if lv.get("near_missing"):
+        lines += [""]
     if surv.get("missing_fields"):
         lines += ["Metadata fields missing: " + ", ".join(f"{k} {v}" for k, v in surv["missing_fields"].items())
                   + ".", ""]

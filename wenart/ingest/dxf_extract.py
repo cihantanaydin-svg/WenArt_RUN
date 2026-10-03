@@ -26,6 +26,7 @@ origin is the minimum corner of all wall rectangles, so the transform is
 from __future__ import annotations
 
 import math
+import re
 from pathlib import Path
 from typing import Optional
 
@@ -51,15 +52,82 @@ def read_dxf(path: str | Path):
 
 
 SYNTHETIC_LAYERS = (blocks.LAYER_WALLS, blocks.LAYER_DOORS, blocks.LAYER_WINDOWS, blocks.LAYER_FURNITURE)
+_SYNTHETIC_OPENING_RE = re.compile(r"^(KAPI|PENCERE)_\d+$")
+WALL_RECT_ASPECT = 0.5             # a wall rectangle's short side is at most half its long side ...
+WALL_RECT_THICKNESS_M = (0.03, 1.0)  # ... and, with known units, a plausible wall thickness
+RECT_TOL = 0.01                    # opposite sides and diagonals equal within 1 %
+
+
+def _wall_rectangle(entity, mpu: Optional[float]) -> bool:
+    """A closed 4-corner LWPOLYLINE drawn as one wall: a rectangle whose short side is at most half its long side and,
+    when the units are known, 0.03-1.0 m (a room or building outline is no wall rectangle)."""
+    if entity.dxftype() != "LWPOLYLINE":
+        return False
+    pts = [(float(p[0]), float(p[1])) for p in entity.get_points("xy")]
+    if len(pts) == 5 and G.distance(pts[0], pts[-1]) < 1e-9:
+        pts = pts[:4]
+    elif not entity.closed:
+        return False
+    if len(pts) != 4:
+        return False
+    sides = [G.distance(pts[k], pts[(k + 1) % 4]) for k in range(4)]
+    diagonals = (G.distance(pts[0], pts[2]), G.distance(pts[1], pts[3]))
+    long_side, short_side = max(sides), min(sides)
+    if short_side <= 0 or abs(sides[0] - sides[2]) > RECT_TOL * long_side or \
+            abs(sides[1] - sides[3]) > RECT_TOL * long_side or abs(diagonals[0] - diagonals[1]) > RECT_TOL * long_side:
+        return False
+    if short_side > WALL_RECT_ASPECT * long_side:
+        return False
+    if mpu is not None and not WALL_RECT_THICKNESS_M[0] <= short_side * mpu <= WALL_RECT_THICKNESS_M[1]:
+        return False
+    return True
+
+
+def synthetic_convention(doc) -> tuple[bool, Optional[str]]:
+    """Whether this module (the synthetic convention, docs/milestone2.md) reads the file, and why.
+
+    The layer names ``DUVAR``, ``KAPI``, ``PENCERE`` and ``MOBILYA`` are the standard layers of real Turkish CAD
+    drawings too, so a layer name alone decides nothing (review2 dwgblender-4): the convention is present when
+    ``DUVAR`` holds wall rectangles (closed 4-corner LWPOLYLINEs, see ``_wall_rectangle``) and either nothing else
+    (no hatch, no loose lines) or the file inserts the synthetic blocks (``KAPI_<cm>``/``PENCERE_<cm>`` on their
+    layers, table names on ``MOBILYA``). Every other DXF/DWG goes to the generic adapter ``wenart.ingest.dxf_generic``
+    (docs/milestone7.md §5.2). Entities count, not layer-table rows: templates often define layers nobody draws on.
+    Returns ``(synthetic, reason)``; the reason is None for a file that uses none of the four layers."""
+    mpu = metres_per_unit_from_insunits(doc.header.get("$INSUNITS", 0))
+    rects = other = named = 0
+    used: set = set()
+    known_furniture = set(blocks.BLOCKS) | set(blocks.UNKNOWN_BLOCKS)
+    for entity in doc.modelspace():
+        layer = (entity.dxf.get("layer") or "").upper()
+        if layer not in SYNTHETIC_LAYERS:
+            continue
+        used.add(layer)
+        if layer == blocks.LAYER_WALLS:
+            if _wall_rectangle(entity, mpu):
+                rects += 1
+            else:
+                other += 1
+        elif entity.dxftype() == "INSERT":
+            name = (entity.dxf.get("name") or "").upper()
+            if (layer in (blocks.LAYER_DOORS, blocks.LAYER_WINDOWS) and _SYNTHETIC_OPENING_RE.match(name)) or \
+                    (layer == blocks.LAYER_FURNITURE and name in known_furniture):
+                named += 1
+    if not used:
+        return False, None
+    layers = ", ".join(sorted(used))
+    if rects and (not other or named):
+        return True, (f"synthetic DXF convention: {rects} wall rectangles on {blocks.LAYER_WALLS}"
+                      + (f", {named} synthetic block inserts" if named else "")
+                      + (f", {other} other {blocks.LAYER_WALLS} entities ignored" if other else ""))
+    why = (f"no wall rectangles on {blocks.LAYER_WALLS}" if not rects else
+           f"{other} other entities on {blocks.LAYER_WALLS} (hatch, lines, outlines) and no synthetic block inserts")
+    return False, f"layers {layers} used without the synthetic DXF convention ({why}): read by the generic adapter"
 
 
 def has_synthetic_layers(doc) -> bool:
-    """True when a model-space entity lies on one of the synthetic-convention layers (``DUVAR``, ``KAPI``,
-    ``PENCERE``, ``MOBILYA``, any letter case): this module reads such a file; any other DXF/DWG goes to the
-    generic adapter ``wenart.ingest.dxf_generic`` (docs/milestone7.md §5.2). Entities count, not layer-table rows:
-    templates often define layers nobody draws on."""
-    wanted = set(SYNTHETIC_LAYERS)
-    return any((entity.dxf.get("layer") or "").upper() in wanted for entity in doc.modelspace())
+    """True when the file follows the synthetic DXF convention (``synthetic_convention``): this module reads it; any
+    other DXF/DWG goes to the generic adapter ``wenart.ingest.dxf_generic`` (docs/milestone7.md §5.2)."""
+    return synthetic_convention(doc)[0]
 
 
 def metres_per_unit_from_insunits(insunits: int) -> Optional[float]:

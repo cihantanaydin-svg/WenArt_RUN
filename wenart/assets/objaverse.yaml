@@ -11,8 +11,12 @@
 # NOT verified here (LFS downloads are blocked in the session; marked `to verify on the pod`): the exact licence
 # strings and metadata field names inside the shards, and the LVIS category names inside lvis-annotations.json.gz.
 # The survey records every licence value, every metadata key and every missing LVIS category it meets
-# (survey.json, library_report.md), and tests/gpu/test_library.py fails when a name below is not found, so a wrong
-# guess here can only refuse objects, never accept a wrong licence.
+# (survey.json, library_report.md). tests/gpu/test_library.py fails when no accepted licence spelling occurs and
+# warns (no failure) for a missing LVIS category: its types stay parametric. A wrong guess here can only refuse
+# objects, never accept a wrong licence.
+# Checked on the M7 prep pod (87xpy12z302wrz, 3 Oct 2026, runs/20261003-173020-prep/results/library/survey.json):
+# licence values by 1369, by-sa 77, by-nc 35, by-nc-sa 16, cc0 1 (so `by` and `cc0` occur); LVIS categories
+# `chest_of_drawers_(furniture)` and `nightstand` are not in lvis-annotations.json.gz (every other one is).
 
 dataset:
   repo: allenai/objaverse
@@ -42,11 +46,11 @@ metadata_fields:
 
 # Licence values of the metadata field `license` (compared case-insensitively, spaces collapsed).
 # `accept` maps our catalogue licence to the strings that mean exactly that licence; the Sketchfab slugs `cc0` and
-# `by` are what the Objaverse 1.0 metadata is expected to hold (to verify on the pod); the long forms are the
-# README's names of the same licences. Everything in `refuse` and every value not listed is refused (NC, ND, SA,
+# `by` are what the Objaverse 1.0 metadata holds (seen on the 3 Oct 2026 prep pod: by 1369, cc0 1); the long forms
+# are the README's names of the same licences. Everything in `refuse` and every value not listed is refused (NC, ND, SA,
 # Sketchfab Standard / Free Standard / Editorial, unknown): docs/milestone7.md §7.1 step 3.
 licences:
-  verified: false                              # to verify on the pod: set true once survey.json shows the values
+  verified: true                               # the prep pod's survey.json (3 Oct 2026) shows `by` and `cc0`
   accept:
     CC0: [cc0, "cc0 1.0", "cc0-1.0"]
     CC-BY-4.0: [by, "cc-by 4.0", "cc by 4.0", "cc-by-4.0"]
@@ -68,8 +72,10 @@ prefilter:
   max_downloads_per_type: 16                   # downloads tried in rank order until per_type_limit pass the file checks
   rank: [likes, views]                         # descending; ties by uid
 
-# LVIS category -> furniture type(s) (§7.1 step 2). Category names to verify on the pod against the downloaded
-# lvis-annotations.json.gz (the survey lists missing ones). `chair` is not in the §7.1 list; it is added because
+# LVIS category -> furniture type(s) (§7.1 step 2). Checked on the 3 Oct 2026 prep pod against
+# lvis-annotations.json.gz: all found except `nightstand` and `chest_of_drawers_(furniture)` (kept: a missing name
+# only leaves its type parametric, with a warning; no alternate is added without a name seen in the file, which the
+# next survey lists under lvis.near_missing). `chair` is not in the §7.1 list; it is added because
 # the dining chair is the most repeated drawn piece (real01 has 6) and LVIS has the category (spec_deviations).
 # No category for tv_unit, kitchen_counter, kitchen_island, sink_kitchen, shower, washing_machine, side_table,
 # stair: those stay parametric.
@@ -96,7 +102,10 @@ categories:
   flowerpot: {types: [potted_plant]}
 
 # Unit guess (§7.2): the factors tried on the GLB's measured box; the one that puts the box in the type's size
-# range is taken; none -> refused, more than one -> refused (never guessed).
+# range is taken; more than one -> refused (never guessed). None (the model's units are unknown: 86 of 127
+# candidates on the 3 Oct 2026 prep pod) -> normalised by type: scaled to the type's typical footprint (size table
+# centre), unit_note "normalised by type (model units unknown)"; refused only when its proportions (footprint
+# width / depth, height / width) are outside the type's ranges (objaverse.normalise_unit).
 units: [1.0, 0.01, 0.0254, 0.001]
 # Bed type by the width (the shorter side of the box): <= 1.275 m single, above it double (midway between the
 # size table's single maximum 1.20 and double minimum 1.35, both inside the +15 % tolerance bands).

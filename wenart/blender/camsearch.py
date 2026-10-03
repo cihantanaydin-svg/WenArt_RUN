@@ -22,6 +22,13 @@ How:
   room's furniture boxes (``parametric.piece_bbox`` turned by the footprint
   rotation, standing on the floor; decor is ignored, and so are pieces with
   ``build: false``: drawn symbols the scene does not build, ``shown_pieces``).
+  A stair (fixed equipment, ``parametric.SHELL_TYPES``) is not its box but
+  the convex parts ``shell.build_stairs`` builds (``shell.plan_stairs`` /
+  ``parametric.stair_parts``: step prisms on the sloped waist, riser plates,
+  landing slab, rails), so the space under the upper flight and the landing
+  is open as in the scene (review dwgblender-2: the 3.17 m box hid the
+  walls behind the flights and the search picked hall views without the
+  stair). The ceiling opening over the stair stays closed in the model.
   Pure numpy, no Blender, no shapely: build.py runs it inside Blender's
   Python.
 - Rays: a 64 x 36 grid over the 1920 x 1080 frame of a 24 mm lens on a
@@ -61,7 +68,9 @@ How:
   penalties, blocked, yaw_deg, shares}`` (the terms as they enter the total;
   ``shares`` are the model's ray shares), ``placement`` = the same as text,
   ``visible_openings``/``visible_furniture`` = the room's openings and
-  pieces whose centre is inside the shifted frustum (as the M5 lists),
+  pieces whose centre is inside the shifted frustum (as the M5 lists); a
+  piece the view's model rays see is listed too (a long piece seen from the
+  side can have its centre outside the frame),
   ``search_seconds`` = the wall time of the level's search (the same value
   on every plan of the level; ``level_search_seconds`` collects it).
 
