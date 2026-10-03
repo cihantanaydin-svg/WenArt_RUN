@@ -511,7 +511,8 @@ def _autocad_style(doc, dim, arrow: float = 2.5) -> None:
             continue
         a, b = e.dxf.start, e.dxf.end
         u = (b - a).normalize()
-        if abs(((a + u * (d - a).dot(u)) - d).magnitude) < 1e-9 and abs(u.dot((ent.dxf.defpoint2 - d).normalize())) < 0.5:
+        through_defpoint = ((a + u * (d - a).dot(u)) - d).magnitude < 1e-9
+        if through_defpoint and abs(u.dot((ent.dxf.defpoint2 - d).normalize())) < 0.5:
             e.dxf.start, e.dxf.end = a + u * arrow, b - u * arrow
 
 

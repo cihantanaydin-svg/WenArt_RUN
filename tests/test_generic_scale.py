@@ -544,3 +544,74 @@ def test_a_label_corroborates_once():
     scale, _ = S.provisional_scale(page(), [at(9.60), at(4.30)])
     final, _, warnings = S.confirm_scale(scale, [], [], faces + faces)
     assert final is None and "1 of 1 room-size labels" in warnings[-1]
+
+
+# --------------------------------------------------------------------------
+# Bare integer dimension texts on metric pages (review2 ingest-7)
+# --------------------------------------------------------------------------
+
+def _bare_page(printed_units, h=H, size=(842.0, 595.0), labels=()):
+    """Horizontal ticked dimension lines, one per (printed text, measured page units), text above the line."""
+    strokes, texts = [], []
+    for i, (printed, units_long) in enumerate(printed_units):
+        y = 60.0 * i
+        strokes += [line(f"l{i}", (0, y), (units_long, y)), tick(f"a{i}", (0, y)), tick(f"b{i}", (units_long, y))]
+        texts.append(text(f"t{i}", printed, (units_long / 2, y + 7), h=h))
+    return page(strokes=strokes, texts=texts + list(labels), size=size)
+
+
+def _bare_faces(size_texts):
+    """Rooms 4 x 3 m (page metres) whose size labels are written as given."""
+    faces = []
+    for i, size_text in enumerate(size_texts):
+        runs = [TextRun(id=f"n{i}", text="Bed Room", box=(10 * i, 1.0, 10 * i + 1.5, 1.2), height=0.2),
+                TextRun(id=f"s{i}", text=size_text, box=(10 * i, 0.75, 10 * i + 1.5, 0.95), height=0.2)]
+        block = L.merge_label_blocks(runs)[0]
+        faces.append((box(10 * i - 1.0, -1.0, 10 * i + 3.0, 2.0), block))
+    return faces
+
+
+@pytest.mark.parametrize("unit, factor", [("mm", 1000), ("cm", 100)])
+def test_bare_integer_dimensions_are_read_in_the_one_plausible_unit(unit, factor):
+    """'9600' / '4300' (or '960' / '430') on a 1:100 metric page: read as metres the drawing would be kilometres wide
+    with 350 m (or 35 m) tall text; only mm (or cm) gives a plausible page, so that unit is taken, as assumed."""
+    pg = _bare_page([(f"{round(9.6 * factor)}", 9.6 / MPU), (f"{round(4.3 * factor)}", 4.3 / MPU)])
+    dims = S.find_dimensions(pg)
+    assert [d.text for d in dims] == [f"{round(9.6 * factor)}", f"{round(4.3 * factor)}"]
+    assert [d.unit_assumed for d in dims] == [unit, unit]
+    assert [d.length.metres for d in dims] == pytest.approx([9.6, 4.3])
+    assert all(f"read as {unit} (assumed" in d.unit_note for d in dims)
+    scale, reasons = S.provisional_scale(pg, dims)
+    assert scale["provisional"] == "two_dimensions" and scale["metres_per_unit"] == pytest.approx(MPU, rel=1e-3)
+    assert scale["unit_assumed"] == unit and "assumed" in scale["evidence"]["note"]
+    assert f"read as {unit} (assumed" in reasons[0]
+    # The size labels (in metres, or bare integers in the same unit) corroborate it.
+    for labels in (["4,00 x 3,00"] * 2, [f"{4 * factor} x {3 * factor}"] * 2):
+        faces = _bare_faces(labels)
+        final, conflicts, warnings = S.confirm_scale(scale, dims, [b for _, b in faces], faces)
+        assert final is not None and final["unit_assumed"] == unit and conflicts == []
+        assert any(f"bare integers read in {unit} (assumed unit" in w for w in warnings)
+        assert faces[0][1].size[0].metres == pytest.approx(4.0)
+
+
+def test_bare_integer_dimensions_with_an_unclear_unit_name_the_problem():
+    # 5 m per page unit as metres: 50 m tall text and a 4.8 km drawing; as cm 0.5 m / 48 m, as mm 0.05 m / 4.8 m:
+    # both fit, the unit cannot be told, the metres stay and the reasons say why.
+    pg = _bare_page([("4800", 960.0), ("2400", 480.0)], size=(1200.0, 800.0))
+    dims = S.find_dimensions(pg)
+    assert [d.unit_assumed for d in dims] == [None, None]
+    assert all("likely a unit problem" in d.unit_note and "cm or mm would fit" in d.unit_note for d in dims)
+    scale, reasons = S.provisional_scale(pg, dims)
+    assert scale["metres_per_unit"] == pytest.approx(5.0) and "unit_assumed" not in scale
+    assert "likely a unit problem" in reasons[0]
+    final, _, warnings = S.confirm_scale(scale, dims, [], [])
+    assert final is None and warnings[-1].startswith("scale not corroborated")
+    assert "likely a unit problem" in warnings[-1]
+    # A metre reading that fits the page is kept without a note ('12' on a 1:100 page: 0.35 m text).
+    plain = _bare_page([("12", 12 / MPU), ("6", 6 / MPU)])
+    dims = S.find_dimensions(plain)
+    assert [(d.unit_assumed, d.unit_note) for d in dims] == [(None, None), (None, None)]
+    assert [d.length.metres for d in dims] == [12.0, 6.0]
+    # Dimension texts with a unit or a decimal are never re-read.
+    explicit = _bare_page([("9600 mm", 9.6 / MPU), ("4,30", 4.3 / MPU)])
+    assert [d.unit_assumed for d in S.find_dimensions(explicit)] == [None, None]

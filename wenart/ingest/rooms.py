@@ -23,7 +23,8 @@ Generic core pages (docs/milestone7.md §2.7) pass more: ``union`` is the
 ready wall union with every opening and virtual separator bridged (the
 loose-end test is not needed then: gaps are bridged by their openings),
 ``separators`` adds separator lines to the plain wall union otherwise (pass
-them with a ready ``union`` too), and labels that carry a ``block`` (``generic.labels.LabelBlock``) are named,
+them with a ready ``union`` too: the faces are snapped onto them), and
+labels that carry a ``block`` (``generic.labels.LabelBlock``) are named,
 typed and size-checked from it: Turkish or plain casing by the page
 language, the room type from the name and the face (``hall`` alone becomes
 ``living`` in a large, compact face), the printed size against the face's

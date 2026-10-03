@@ -336,7 +336,10 @@ def _generic_rooms(build: ProjectBuild, level_id: str, ex: LevelExtraction) -> R
 
     anchors = [_to_building(ex, t.start) for t in ex.labels]
     fallbacks = [_to_building(ex, G.box_center(t.box)) for t in ex.labels]
+    # The separators go with the ready union so the faces they split are snapped back onto the separator line:
+    # neighbouring rooms share it exactly (no 4 mm slit between their floors and ceilings, review dwgblender-1).
     result = R.derive_rooms(level_id, ex.walls, ex.labels, anchors, fallbacks, ex.file, build.ids, union=union,
+                            separators=ex.separators,
                             unlabelled_label=ex.report.get("unlabelled_label", R.UNLABELLED_LABEL),
                             face_type=face_type)
     system = ex.units_system

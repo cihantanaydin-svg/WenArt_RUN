@@ -245,6 +245,22 @@ def test_doorless_openings_and_the_separator(run):
     assert [e["kept"] for e in log] == [True] and log[0]["reason"] == "two room names shared one face"
 
 
+def test_the_rooms_split_by_the_separator_share_its_line_exactly(run):
+    """Review dwgblender-1: the separator splits the drawing room and the dining as a 4 mm strip; the pipeline
+    passes the separators to derive_rooms, so both faces are snapped back onto the separator line (no slit between
+    their floors and ceilings: Blender's rays went through it)."""
+    sep = next(o for o in run["building"]["openings"] if o.get("virtual"))
+    (x0, y0), (x1, y1) = sep["line"]
+    assert abs(y0 - y1) <= 1e-9
+    rooms = {r["label"]: r for r in run["building"]["rooms"]}
+    for label in ("Drawing Room", "Dining"):
+        poly = rooms[label]["polygon"]
+        on = [p for p in poly if abs(p[1] - y0) <= 0.01]
+        assert all(abs(p[1] - y0) <= 1e-6 for p in on), (label, on)
+        xs = sorted(p[0] for p in on)
+        assert xs[0] <= min(x0, x1) + 1e-6 and xs[-1] >= max(x0, x1) - 1e-6, (label, on)
+
+
 # --------------------------------------------------------------------------
 # Walls
 # --------------------------------------------------------------------------

@@ -228,3 +228,22 @@ def test_majority_system():
     assert U.majority_system(["50'", "4,30"], []) == "metric"                # tie everywhere -> metric
     assert U.majority_system(["345", "120"], ["11' x 10'", "Bed Room"]) == "imperial"
     assert U.majority_system([], []) == "metric"
+
+
+def test_bare_integers_can_be_re_read_in_millimetres_or_centimetres():
+    """review2 ingest-7: the parser reads '15240' as metres; the scale finder may re-read a bare metric integer in
+    mm or cm (``read_as``), and only that."""
+    assert U.parse_length("15240").metres == 15240.0                     # the parser itself never guesses
+    assert U.is_bare_integer("15240") and U.is_bare_integer(" 345 ")
+    for text in ("4,50", "3.45", "345 cm", "50'", "", None, "12a"):
+        assert not U.is_bare_integer(text), text
+    mm = U.read_as(U.parse_length("15240"), "mm")
+    assert (mm.metres, mm.system, mm.text, mm.precision_m) == pytest.approx((15.24, "metric", "15240", 0.0005))
+    cm = U.read_as(U.parse_length("345"), "cm")
+    assert cm.metres == pytest.approx(3.45) and cm.precision_m == pytest.approx(0.005)
+    assert U.read_as(U.parse_length("12"), "m").metres == 12.0
+    for bad in ("4,50", "345 cm", "50'"):
+        with pytest.raises(ValueError):
+            U.read_as(U.parse_length(bad), "mm")
+    with pytest.raises(ValueError):
+        U.read_as(U.parse_length("12"), "km")
