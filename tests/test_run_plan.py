@@ -15,6 +15,7 @@ from wenart.run.projects import REPO_ROOT, project_folder
 GOLDEN = ["synthetic-01", "synthetic-03", "synthetic-04", "synthetic-05", "synthetic-06", "real01", "review-01"]
 PRESENT = [p for p in GOLDEN if project_folder(p, REPO_ROOT).is_dir()]
 GPU = "RTX PRO 6000"
+SPEED = 1.634                                                         # measured by the M7 prep pod
 
 
 def square(side, **kw):
@@ -56,7 +57,9 @@ def test_gpu_speed_table_and_default_gpu(tmp_path, monkeypatch):
     fake.write_text("import urllib.request\nGPU_PRIORITY = ['RTX 4090', 'L40S']\nraise SystemExit(1)\n")
     assert P.default_gpu(fake) == "RTX 4090"                          # read with ast, never run
     assert P.default_gpu(tmp_path / "missing.py") == "RTX PRO 4500"
-    assert P.gpu_speed("RTX PRO 6000") == {"name": "RTX PRO 6000", "speed": 1.0, "matched": None}
+    # The RTX PRO 6000's factor was measured by the M7 prep pod (results/timing/gpu_speed.json).
+    assert P.GPU_SPEED["RTX PRO 6000"] == 1.634
+    assert P.gpu_speed("RTX PRO 6000") == {"name": "RTX PRO 6000", "speed": 1.634, "matched": "RTX PRO 6000"}
     monkeypatch.setitem(P.GPU_SPEED, "RTX PRO 6000", 1.9)
     assert P.gpu_speed("NVIDIA RTX PRO 6000 Blackwell Server Edition")["speed"] == 1.9
     assert P.gpu_speed("rtx pro 6000 wk")["matched"] == "RTX PRO 6000"
@@ -100,14 +103,16 @@ def test_golden_plan_of_the_committed_projects(golden):
     assert plan["gpu"]["name"] == GPU and plan["gpu"]["memory_mib"] == 96 * 1024
     s1, s3 = by["synthetic-01"], by["synthetic-03"]
     assert (s1["status"], s1["levels"], s1["rooms"], s1["empty_rooms"], s1["views"]) == ("ok", 2, 10, 7, 29)
-    assert s1["minutes"] == P.project_minutes(29, 7) == 23.92 and s1["server_starts"] == 3 and s1["photos"] == 0
+    assert P.project_minutes(29, 7) == 23.92                          # the PRO 4500 time, divided by the speed
+    assert s1["minutes"] == P.project_minutes(29, 7, speed=SPEED) == 14.64
+    assert s1["server_starts"] == 3 and s1["photos"] == 0
     # §6.2: rooms that stay without furniture (a bath, a hall) get one view before the layout too.
     assert (s3["status"], s3["levels"], s3["rooms"], s3["empty_rooms"], s3["views"]) == ("ok", 3, 19, 11, 44)
-    assert s3["minutes"] == P.project_minutes(44, 11) and s3["server_starts"] == 3
+    assert s3["minutes"] == P.project_minutes(44, 11, speed=SPEED) and s3["server_starts"] == 3
     if "synthetic-04" in by:
         s4 = by["synthetic-04"]
         assert (s4["status"], s4["views"], s4["empty_rooms"]) == ("ok", 14, 2)
-        assert s4["minutes"] == P.project_minutes(14, 2) and s4["server_starts"] == 3
+        assert s4["minutes"] == P.project_minutes(14, 2, speed=SPEED) and s4["server_starts"] == 3
     if "synthetic-05" in by:
         s5 = by["synthetic-05"]
         assert (s5["status"], s5["views"], s5["empty_rooms"], s5["photos"]) == ("ok", 25, 3, 1)
@@ -123,7 +128,7 @@ def test_golden_plan_of_the_committed_projects(golden):
     assert (r1["status"], r1["stage_status"], r1["levels"], r1["rooms"]) == ("pending", "pending", 1, 9)
     assert (r1["questions"], r1["recognition_calls"], r1["server_starts"], r1["verified"]) == (17, 34, 4, False)
     calls = P.recognition_minutes({"qwen": 17, "glm": 17}, plan["gpu"]["seqs"])
-    assert r1["minutes"] == P.project_minutes(r1["views"], r1["empty_rooms"], calls)
+    assert r1["minutes"] == P.project_minutes(r1["views"], r1["empty_rooms"], calls, speed=SPEED)
     assert r1["views"] == 20 and r1["pod"] is not None
     rv = by["review-01"]
     assert rv["status"] == "needs_review" and rv["views"] is None and rv["minutes"] == 0.0 and rv["pod"] is None
@@ -133,8 +138,9 @@ def test_golden_plan_of_the_committed_projects(golden):
     assert pod_of_real01["verified"] is False and pod_of_real01["server_starts"] == 4
     assert all(pod["fits"] for pod in plan["pods"])
     if PRESENT == GOLDEN and by["synthetic-06"]["status"] == "ok":
-        assert [pod["projects"] for pod in plan["pods"]] == [["synthetic-01", "synthetic-03", "synthetic-04"],
-                                                             ["synthetic-05", "synthetic-06", "real01"]]
+        # At the measured RTX PRO 6000 speed (1.634) five synthetic projects fit one pod (first fit).
+        assert [pod["projects"] for pod in plan["pods"]] == [["synthetic-01", "synthetic-03", "synthetic-04",
+                                                              "synthetic-05", "synthetic-06"], ["real01"]]
 
 
 def test_plan_reuses_stage_1_and_writes_records(golden):
@@ -180,9 +186,9 @@ def test_plan_cli(golden, tmp_path, capsys):
                    str(tmp_path / "run_plan.json")])
     assert rc == 0
     text = capsys.readouterr().out
-    assert "| synthetic-01 | ok | 2 | 10 | 7 | 29 | - | - | 23.92 | 3 | 1 |" in text
+    assert "| synthetic-01 | ok | 2 | 10 | 7 | 29 | - | - | 14.64 | 3 | 1 |" in text
     assert "- review-01: needs_review, no pod time" in text
-    assert any(line.startswith("GPU: RTX PRO 6000 (speed 1 (not measured") for line in text.splitlines())
+    assert any(line.startswith("GPU: RTX PRO 6000 (speed 1.634;") for line in text.splitlines())
     data = json.loads((tmp_path / "run_plan.json").read_text())
     assert data["kind"] == "run_plan" and data["schema_version"] == "0.1" and data["gpu"]["name"] == GPU
     assert run_main(["plan", "--projects", "../etc"]) == 2

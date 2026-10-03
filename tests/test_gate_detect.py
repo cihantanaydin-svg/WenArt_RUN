@@ -32,6 +32,13 @@ from wenart.vision_check import schemas as S
 from wenart.vision_check.cli import main as check_main
 from wenart.vision_check.project import Project
 
+ROOT = Path(__file__).resolve().parents[1]
+# The check.yaml detector block before calibration (advisory: listed, never rejected). The committed block is
+# calibrated since the M7 prep pod, so the advisory tests pass this one explicitly.
+ADVISORY = {"advisory": True, "t_det": None, "t_strong": None, "match_iou": 0.3, "cover_frac": 0.5,
+            "confirm_iou": 0.3, "calibration": None}
+ADVISORY_BLOCK_CFG = {"detector": ADVISORY}
+
 CAM = T.CAMERA["name"]
 REV = "cfd3195ba4ea9592eec887ded089f4c08eff231d"
 
@@ -257,11 +264,23 @@ def test_target_hit_needs_half_of_the_target_box():
     assert D.target_hit(cands, [600, 100, 800, 300]) is None
 
 
-def test_detector_block_without_thresholds_is_advisory():
+def test_committed_detector_block_equals_the_calibration():
+    """The integrator copies ``check_yaml_block`` of the prep pod's calibration into check.yaml (M7 §8.1); the
+    committed block must equal the committed calibration, so the thresholds are measured, never typed in."""
+    import json
     from wenart.vision_check.config import load_config
-    cfg = load_config()
-    assert cfg["detector"]["advisory"] is True and cfg["detector"]["t_det"] is None
-    assert D.detector_cfg(cfg) is None and D.detector_cfg({}) is None and D.detector_cfg({"detector": None}) is None
+    cfg = load_config()["detector"]
+    calib = json.loads((ROOT / "results" / "detect" / "detector_calibration.json").read_text(encoding="utf-8"))
+    assert calib["usable"] is True and calib["targets_met"] is True
+    assert cfg["advisory"] is False and cfg["t_det"] == calib["t_det"] and cfg["t_strong"] == calib["t_strong"]
+    for key, value in cfg["calibration"].items():
+        if key in calib["rates"]:
+            assert value == calib["rates"][key]
+
+
+def test_detector_block_without_thresholds_is_advisory():
+    assert D.detector_cfg(ADVISORY_BLOCK_CFG) is None
+    assert D.detector_cfg({}) is None and D.detector_cfg({"detector": None}) is None
     assert D.detector_cfg({"detector": {"t_det": None, "t_strong": None}}) is None
     assert D.detector_cfg({"detector": {"t_det": 0.2, "t_strong": 0.4, "advisory": True}}) is None
     got = D.detector_cfg({"detector": {"t_det": 0.2, "t_strong": 0.4, "calibration": {"x": 1}}})
@@ -516,8 +535,8 @@ def test_combine_rejects_a_confirmed_added_object_and_records_the_insertion_cont
     from wenart.vision_check.report import check_report
     text = check_report(m, cal)
     assert "## Added-object detector" in text and "Calibrated: t_det 0.3" in text and "detector: lamp" in text
-    # Advisory (the committed check.yaml): listed, never rejected.
-    m = check_flow(out)
+    # Advisory (the pre-calibration check.yaml block): listed, never rejected.
+    m = check_flow(out, cfg_detector=ADVISORY)
     view = m["views"][CAM]
     assert not view["polished_rejected"] and not view["added_by_polish"]
     assert view["detector"]["status"] == "advisory" and view["detector"]["unmatched"][0]["group"] == "lamp"
@@ -547,7 +566,7 @@ def test_a_weak_box_needs_a_vlm_extra_and_a_single_pass_extra_needs_a_box(tmp_pa
     reasons = [r for r in view["polished_reasons"] if r.get("what") == "added_by_polish"]
     assert len(reasons) == 1 and reasons[0].get("detector")                 # one object, one reason (VLM + box)
     # Advisory: the single-pass extra stays unconfirmed.
-    m = check_flow(out, extras={"glm": {f"polish/{CAM}_a1.png": [extra]}})
+    m = check_flow(out, extras={"glm": {f"polish/{CAM}_a1.png": [extra]}}, cfg_detector=ADVISORY)
     x = next(x for x in m["views"][CAM]["polished"]["extras"] if x["passes"] == ["glm"])
     assert not x["confirmed"] and not m["views"][CAM]["polished_rejected"]
 
@@ -589,7 +608,7 @@ def test_a_calibrated_detector_without_a_current_detection_is_check_incomplete(t
     assert any("made from another image" in w for w in m["warnings"])
     # Advisory and never run: no detector record at all.
     out2 = toy(tmp_path / "none")
-    m = check_flow(out2)
+    m = check_flow(out2, cfg_detector=ADVISORY)
     assert "detector" not in m["views"][CAM] and m["detector"]["status"] == "not_run"
     assert not m["views"][CAM]["polished_rejected"]
 
