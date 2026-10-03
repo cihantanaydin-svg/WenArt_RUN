@@ -186,8 +186,10 @@ pipeline should produce. Rules used by the generator:
 - Elements get one evidence entry per page that shows them. DXF: `layer` +
   `entity` (`LWPOLYLINE:<handle>`, `INSERT:<handle>`, `TEXT:<handle>`,
   `DIMENSION:<handle>`). PDF: `page` + `entity` (`path:<n>` or `char:<n>`). Rasters:
-  `pixel_box` (+ `dpi` for scans) with `method: ai` for geometry/symbols and
-  `method: ocr` for texts, confidence 1.0. Rooms get a second entry
+  `pixel_box` (+ `dpi` for scans) with `method: raster` for walls, openings and furniture
+  footprints (deterministic image processing, Milestone 7; it was `ai` before), `method: ai` for furniture
+  types and `method: ocr` for texts. The scan's scale is `dimension_text` from OCR-read dimension texts (the
+  PNGs carry no dpi, so the `ÖLÇEK 1/100` note alone cannot give metres per pixel). Rooms get a second entry
   `method: derived`, `entity: derived-from:<wall ids>`.
 - IDs follow docs/milestone2.md: `L-1`, `L0`, `L1`; `w_L0_001`; `d_L0_001`;
   `win_L0_001`; `r_L0_salon`, `r_L0_yatak_odasi`, `r_L-1_kiler_2`; `f_L0_001`; `c_001`.
@@ -219,6 +221,11 @@ walls, dimensions}`. Boxes are `[x0, y0, x1, y1]` in page units. `texts` carry
   in building.json); use `H_building_to_pixels` from pages.json.
 - Scans are ~1.4 MB each (noise does not compress well); the whole set is ~3.8 MB
   (synthetic-04 and -05 together ~0.5 MB, most of it the 78 KB style photo and the DXFs).
+- real01 raster fixtures (Milestone 7 §4.4): `tests/fixtures/real01_raster/{real01-scan,real01-photo}/` are
+  one-page projects made from the user's `projects/real01/real01.pdf` with
+  `python -m wenart.synthetic.raster fixtures --pdf projects/real01/real01.pdf --page 1 --out
+  tests/fixtures/real01_raster --name real01` (seeds 7101 scan, 7102 photo); `truth/raster.json` holds the
+  PDF-points-to-pixels transform used to compare against the vector result.
 - Previews: `results/synthetic/<project>_<file stem>_p<page>.jpg`, ≤ 1200 px wide,
   ≤ 300 KB (14 files for the six projects; synthetic-06's is rendered from its source DXF). The DXF previews are rendered from the
   written file with ezdxf's matplotlib backend. The names derive from the file stem,
