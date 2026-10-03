@@ -24,14 +24,18 @@ How:
 - ``fingerprint(stage, version, args, inputs, code)`` =
   sha256 of ``json([stage, version, args, sorted(inputs.items()), code])``;
 - ``code_hash(patterns)`` = sha256 of the source files of the stage (globs
-  relative to the repo root, ``**`` for a folder);
+  relative to the repo root, ``**`` for a folder; the package ``__init__.py``
+  files of every listed module count too);
+- ``listing_sha256(folder)`` = sha256 of a folder's listing (path, type, size,
+  mtime), never of its content: the fingerprint of a private upload;
 - ``reusable(previous, fingerprint, out_dir)``: the stored fingerprint
   equals the new one, the stored status is ``ok`` or ``warning`` (or
   ``reused``, which carries over the status of the run that made the
   outputs) and every listed output exists;
 - ``project_state(records)``: ``needs_review`` when stage 0 or 1 says so,
   ``failed`` when any stage failed, ``incomplete`` when any stage was cut,
-  else ``ok``.
+  else ``ok`` (the scheduler passes the project stages 0-17 only: the A/B
+  stages of a project that is also in ``--ab`` count separately).
 
 Stdlib only (the orchestrator imports it before any heavy package).
 """
@@ -40,6 +44,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import stat
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -49,8 +54,8 @@ from wenart.canonical import VOLATILE_KEYS, canonical_json_bytes, canonical_sha2
 
 __all__ = ["VOLATILE_KEYS", "canonical_json_bytes", "canonical_sha256", "strip_volatile", "STATUSES", "GOING_ON",
            "TERMINAL", "REUSABLE", "SKIP_REASONS", "PROJECT_STATES", "StageRecord", "record_path", "log_path",
-           "read_record", "write_record", "write_json", "private_record", "file_hashes", "code_hash", "fingerprint",
-           "reusable", "project_state", "git_commit", "utc_now", "worst"]
+           "read_record", "write_record", "write_json", "private_record", "file_hashes", "listing_sha256",
+           "code_hash", "fingerprint", "reusable", "project_state", "git_commit", "utc_now", "worst"]
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCHEMA_VERSION = "0.1"
 
@@ -184,8 +189,52 @@ def file_hashes(paths: Iterable[Union[str, Path]]) -> dict[str, Optional[str]]:
     return {_text(p): canonical_sha256(p) for p in paths}
 
 
+def listing_sha256(path: Union[str, Path]) -> Optional[str]:
+    """sha256 of a folder's listing, never of its content: sorted ``(relative path, type, size, mtime_ns)`` of
+    every file (``os.walk`` without following links; a link is listed with its target text, never followed;
+    a subfolder by its name). None when ``path`` does not exist.
+
+    Why: the fingerprint of a private upload (stage 0). Users upload whole project folders (renders, videos,
+    archives the intake skips); reading and hashing every byte on every pod run costs billed minutes. The
+    intake's own sha256 of the files it keeps drives the reuse of every later stage.
+    """
+    p = Path(path)
+    if not (p.exists() or p.is_symlink()):
+        return None
+    h = hashlib.sha256()
+
+    def add(rel: str, full: Path) -> None:
+        try:
+            st = full.lstat()
+        except OSError:
+            h.update(os.fsencode(rel) + b"\0?\n")
+            return
+        link = stat.S_ISLNK(st.st_mode)
+        if stat.S_ISDIR(st.st_mode) and not link:
+            text = "d"                          # a folder's own size and mtime follow its entries
+        else:
+            text = f"{'l' if link else 'f'}:{st.st_size}:{st.st_mtime_ns}"
+        h.update(os.fsencode(rel) + b"\0" + text.encode("ascii")
+                 + (b"->" + os.fsencode(os.readlink(full)) if link else b"") + b"\n")
+
+    if p.is_symlink() or not p.is_dir():
+        add(".", p)
+        return h.hexdigest()
+    entries = []
+    for dirpath, dirnames, filenames in os.walk(p, followlinks=False):
+        for name in dirnames + filenames:
+            full = Path(dirpath) / name
+            entries.append((os.fsencode(os.path.relpath(full, p)), full))
+    for rel, full in sorted(entries, key=lambda e: e[0]):
+        add(os.fsdecode(rel), full)
+    return h.hexdigest()
+
+
 def _code_files(patterns: Iterable[str], repo_root: Path) -> list[Path]:
+    """The files matched by ``patterns``, plus the package ``__init__.py`` of every matched module (Python runs
+    them whenever it imports the module: ``wenart/__init__.py``, ``wenart/furniture/__init__.py``, ...)."""
     files: set[Path] = set()
+    root = repo_root.resolve()
     for pattern in patterns:
         if pattern.endswith("/**"):                 # a whole folder
             matches = (repo_root / pattern[:-3]).rglob("*")
@@ -197,6 +246,11 @@ def _code_files(patterns: Iterable[str], repo_root: Path) -> list[Path]:
         for m in matches:
             if m.is_file() and "__pycache__" not in m.parts and m.suffix != ".pyc":
                 files.add(m)
+                if m.suffix == ".py":
+                    parent = m.parent
+                    while parent.resolve() != root and (parent / "__init__.py").is_file():
+                        files.add(parent / "__init__.py")
+                        parent = parent.parent
     return sorted(files)
 
 

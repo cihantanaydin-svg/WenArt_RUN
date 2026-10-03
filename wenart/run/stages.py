@@ -57,11 +57,22 @@ CONTROL_RENDERS = {
 CONTROL_BUILD_FLAGS = {"ctl_flat": "--no-textures", "ctl_proxy": "--proxies"}
 LOWSPP_SAMPLES = 4
 
+# Code lists (§1.2): the files whose hash goes into a stage's fingerprint. For a stage that is reused by its
+# fingerprint (and the gate calibration) the list covers the whole wenart import closure of the stage's CLI,
+# function-level imports included (tests/test_run_stages.py computes it with ast), plus the data files it
+# reads; the package __init__.py files of every listed module count too (state.code_hash).
 BLENDER_CODE = ("wenart/blender/**", "wenart/canonical.py", "wenart/views.py")
 FIT_CODE = ("wenart/furniture/fit.py", "wenart/furniture/catalog.py", CATALOG, "wenart/blender/parametric.py",
-            "wenart/assets/models.py", "wenart/assets/fetch.py", "wenart/assets/web.py", "wenart/building.py",
-            "wenart/geometry.py", "wenart/schema/**")
+            "wenart/blender/proxies.py", "wenart/blender/geom2d.py", "wenart/blender/common.py", "wenart/assets/**",
+            "wenart/style/**", "wenart/building.py", "wenart/geometry.py", "wenart/schema/**")
 VISION_CODE = ("wenart/vision_check/**", "wenart/views.py", "wenart/recognition/vlm_client.py")
+# gate calibrate (polish venv) + validate: the gate package (thresholds.yaml, models.yaml, validation.yaml
+# included) and what it imports for the views, the expected objects and the scene geometry.
+GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.py", "wenart/canonical.py",
+             "wenart/hfcache.py", "wenart/brief.py", "wenart/geometry.py", "wenart/style/**",
+             "wenart/blender/cameras.py", "wenart/blender/camsearch.py", "wenart/blender/common.py",
+             "wenart/blender/geom2d.py", "wenart/blender/parametric.py", "wenart/blender/proxies.py",
+             "wenart/blender/shell.py")
 
 
 @dataclass(frozen=True)
@@ -81,7 +92,7 @@ STAGE_LIST = (
     Stage(0, "intake", "cpu", "fingerprint", "failed", ("wenart/intake.py", "wenart/run/projects.py"),
           ("input/{name}", "intake_manifest.json")),
     Stage(1, "pipeline", "cpu", "fingerprint", "failed",
-          ("wenart/ingest/**", "wenart/building.py", "wenart/geometry.py", "wenart/schema/**"),
+          ("wenart/ingest/**", "wenart/synthetic/**", "wenart/building.py", "wenart/geometry.py", "wenart/schema/**"),
           ("building.json", "report.md")),
     Stage(2, "photos", "vlm", "photos", "warning",
           ("wenart/style/photos.py", "wenart/style/vocabulary.py", "wenart/recognition/vlm_client.py"),
@@ -92,19 +103,20 @@ STAGE_LIST = (
     Stage(5, "fit", "cpu", "fingerprint", "failed", FIT_CODE, ("building_fitted.json",)),
     Stage(6, "layout", "vlm", "fingerprint", "failed",
           ("wenart/furniture/layout.py", "wenart/furniture/placer.py", "wenart/furniture/prompts.py",
-           "wenart/furniture/schemas.py", "wenart/recognition/vlm_client.py", "wenart/building.py",
-           "wenart/geometry.py", "wenart/synthetic/blocks.py"),
+           "wenart/furniture/schemas.py", "wenart/recognition/**", "wenart/style/**", "wenart/building.py",
+           "wenart/geometry.py", "wenart/synthetic/blocks.py", "wenart/schema/**"),
           ("building_furnished.json", "layout.json"), heavy=True),
     Stage(7, "decor", "cpu", "fingerprint", "failed",
           ("wenart/furniture/decor.py", "wenart/furniture/placer.py", "wenart/furniture/schemas.py",
-           "wenart/building.py", "wenart/geometry.py"), ("building_decor.json",)),
+           "wenart/synthetic/**", "wenart/building.py", "wenart/geometry.py", "wenart/schema/**"),
+          ("building_decor.json",)),
     Stage(8, "refit", "cpu", "fingerprint", "failed", FIT_CODE, ("building_final.json",)),
     Stage(9, "build", "blender", "own", "failed", BLENDER_CODE, ("scene/scene.blend", "scene/scene_manifest.json"),
           heavy=True),
     Stage(10, "render", "blender", "own", "failed", BLENDER_CODE, ("renders/render_manifest.json",), heavy=True),
     Stage(11, "controls", "blender", "own", "warning", BLENDER_CODE + VISION_CODE, ("check/controls.json",),
           heavy=True),
-    Stage(12, "gate", "gate", "own", "warning", ("wenart/gate/**",),
+    Stage(12, "gate", "gate", "own", "warning", GATE_CODE,
           ("gate/gate_calibration.json", "gate/gate_validation.json"), heavy=True),
     Stage(13, "polish", "diffusion", "own", "warning", ("wenart/polish/**",), ("polish/polish_manifest.json",),
           heavy=True),
@@ -132,6 +144,10 @@ AB_STAGES = tuple(s.name for s in STAGE_LIST if s.number is None)
 STAGE_VERSION = {s.name: s.version for s in STAGE_LIST}
 # A/B stages that never count for the exit code (§2.1: look_alt excluded).
 AB_NOT_COUNTED = ("ab_look_alt",)
+# Stages that download the fitted models (``fit --assets``): a failed download is a parametric fallback with
+# exit 0, recorded as a warning and never reused (§2.2 rows 5 and 8).
+DOWNLOAD_STAGES = ("fit", "refit")
+DOWNLOAD_FALLBACK_PREFIX = "download of "     # wenart.furniture.fit.download_fitted's fallback_reason
 
 
 def outputs_of(stage: str, name: str) -> list[str]:

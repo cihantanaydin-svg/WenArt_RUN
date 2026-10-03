@@ -16,9 +16,12 @@ and stops a project at its first terminal state (``needs_review``,
  4. CPU: assets, decor, refit; A/B prepare part 2 (M5 files from git).
  5. Blender: build, render, controls; A/B build, render, camera check,
     control views and control renders.
- 6. Diffusion: gate calibrate -> gate validate -> polish (when the decision
-    allows it).
- 7. CPU: expected, plan crops; A/B pairs.
+ 6. Diffusion: gate calibrate (a complete calibration of the same renders,
+    controls and gate code is reused) -> gate validate -> polish (when the
+    decision allows it).
+ 7. CPU: expected, plan crops; A/B pairs (``--ab-phase judge``: the render
+    pod's complete ``ab/pairs.json`` is reused; a rebuild keeps its control
+    sets).
  8. VLM Qwen session: check run, preference, style-photo test; realism
     (``look_alt`` only when the GLM session still fits before the deadline).
  9. VLM GLM session: the same.
@@ -33,7 +36,12 @@ the project becomes ``incomplete``; subprocess timeouts are
 ``max(60, deadline - now)`` in phases 1-9 and ``max(300, deadline + 600 -
 now)`` in phases 10-11 (TERM, then KILL, status ``incomplete``); a server
 session starts only when some project needs it; ``--force`` ignores the
-fingerprints (and passes ``--force`` to render and polish).
+fingerprints (and passes ``--force`` to render and polish); a public out_dir
+without ``run/`` (an earlier job that is not ``wenart.run``) is moved to
+``$WENART_OUTPUTS_ARCHIVE`` (default ``<repo>/../outputs-archive``) before
+its project starts; ``--ab-phase judge`` without ``--ab-controls`` takes the
+one A/B project with ``ab/control_views.json``; a project's state counts its
+project stages only (the A/B stages count in the exit code on their own).
 
 Why: one GPU holder at a time (each vLLM server takes 90 % of the VRAM;
 Blender and the polish need the GPU), as few server starts as possible
@@ -194,6 +202,34 @@ def last_line(path) -> Optional[str]:
     return lines[-1][:300] if lines else None
 
 
+def download_failures(path) -> int:
+    """Furniture pieces of a fitted building JSON whose model download failed (``asset.fallback_reason``
+    ``download of <id> failed (...); parametric fallback``, ``wenart.furniture.fit.download_fitted``)."""
+    data = read_json(path)
+    if not isinstance(data, dict):
+        return 0
+    n = 0
+    for piece in data.get("furniture") or []:
+        asset = piece.get("asset") if isinstance(piece, dict) else None
+        reason = asset.get("fallback_reason") if isinstance(asset, dict) else None
+        if isinstance(reason, str) and reason.startswith(S.DOWNLOAD_FALLBACK_PREFIX):
+            n += 1
+    return n
+
+
+def render_digest(path) -> Optional[str]:
+    """sha256 of a render manifest's identity: sorted ``(camera, scene_sha256, render_key)`` of its entries and its
+    ``not_rendered`` list (None when missing). The manifest's ``deadline``, ``skipped`` and ``warnings`` change on
+    every run that reuses the renders."""
+    data = read_json(path)
+    if not isinstance(data, dict):
+        return None
+    entries = sorted([str(e.get(k) or "") for k in ("camera", "scene_sha256", "render_key")]
+                     for e in data.get("renders") or [] if isinstance(e, dict))
+    payload = [entries, sorted(str(c) for c in data.get("not_rendered") or [])]
+    return hashlib.sha256(json.dumps(payload, separators=(",", ":")).encode("utf-8")).hexdigest()
+
+
 def env_deadline() -> Optional[float]:
     text = os.environ.get("WENART_DEADLINE", "").strip()
     try:
@@ -257,6 +293,8 @@ class ProjectRun:
     gate_decision: Optional[str] = None
     views: int = 0
     polish_ran: bool = False
+    archived: Optional[str] = None      # where the out_dir of an earlier, non-wenart.run job was moved (§2.3)
+    archive_note: Optional[str] = None  # that move, for the note of the project's first stage record of this run
 
     @property
     def name(self) -> str:
@@ -309,6 +347,9 @@ class Orchestrator:
         self.servers: list[dict] = []
         self.tests: list[dict] = []
         self.job_records: dict = {}               # job-level stages (realism_summary)
+        # The A/B project with the control sets: --ab-controls, or in --ab-phase judge the one A/B project
+        # whose ab/control_views.json an earlier render pod wrote (setup).
+        self.ab_controls: Optional[str] = opts.ab_controls
         self._code_cache: dict = {}
         self._seqs: Optional[int] = None
         self.phase = 0
@@ -397,6 +438,11 @@ class Orchestrator:
                 note = f"{prev.note}; {note}"
             else:
                 note = note or prev.note
+        if pr.archive_note and status != "skipped":
+            # The earlier outputs moved aside at the start (§2.3): said once, in the first record that is not a
+            # skip (a skip's note is its reason).
+            note = f"{note}; {pr.archive_note}" if note else pr.archive_note
+            pr.archive_note = None
         rc = next((s["rc"] for s in steps if s["rc"] != 0), steps[-1]["rc"] if steps else None)
         first = prev.started_utc if prev is not None else ST.utc_now()
         rec = ST.StageRecord(project=pr.name, stage=stage, status=status, rc=rc,
@@ -428,15 +474,23 @@ class Orchestrator:
 
     def fp_stage(self, pr: ProjectRun, stage: str, cmd: list, inputs: list, args: Optional[list] = None,
                  late: bool = False) -> ST.StageRecord:
-        """A stage with ``reuse: fingerprint`` (§1.2): reused when nothing changed, else run."""
+        """A stage with ``reuse: fingerprint`` (§1.2): reused when nothing changed, else run. fit and refit: a
+        model download that failed (parametric fallback, exit 0) is a ``warning`` and never reused, so the next
+        run tries the download again."""
         ins = ST.file_hashes(inputs)
         fp = ST.fingerprint(stage, S.STAGE_VERSION[stage], list(args if args is not None else cmd[1:]), ins,
                             self.code(stage))
         prev = self.previous(pr, stage)
-        if not self.forced(stage) and ST.reusable(prev, fp, pr.out):
+        fitted = pr.out / S.outputs_of(stage, pr.name)[0] if stage in S.DOWNLOAD_STAGES else None
+        if not self.forced(stage) and ST.reusable(prev, fp, pr.out) \
+                and not (fitted is not None and download_failures(fitted)):
             return self.finish(pr, stage, "reused", fingerprint=fp, inputs=ins, outputs=prev.outputs)
         rc = self.run_step(pr, stage, stage, cmd, late=late)
         if rc == 0:
+            failed = download_failures(fitted) if fitted is not None else 0
+            if failed:
+                return self.finish(pr, stage, "warning", f"{failed} model download(s) failed: parametric fallback",
+                                   fingerprint=fp, inputs=ins)
             return self.finish(pr, stage, "ok", fingerprint=fp, inputs=ins)
         if rc == TIMEOUT_RC:
             return self.finish(pr, stage, "incomplete", "timeout", fingerprint=fp, inputs=ins)
@@ -516,10 +570,63 @@ class Orchestrator:
                 pr = ProjectRun(ref, full=False)
             pr.ab = True
             self.ab_runs.append(pr)
+        for pr in self.runs + [p for p in self.ab_runs if not p.full]:
+            self.archive_old_outputs(pr)
+        if ab_names and o.ab_phase == "judge" and not self.ab_controls:
+            self.ab_controls = self.judge_controls(ab_names)
         for pr in self.runs + self.ab_runs:
             ST.run_dir(pr.out).mkdir(parents=True, exist_ok=True)
         if aliases and self.job_dir is not None:
             self.link_private_results(aliases)
+
+    def judge_controls(self, ab_names: list) -> Optional[str]:
+        """``--ab-phase judge`` without ``--ab-controls``: the one A/B project whose ``ab/control_views.json`` the
+        render pod wrote (its control sets are judged and the summary reads them); refused when several have one."""
+        found = [n for n in ab_names if (self.outputs_root / n / "ab" / "control_views.json").is_file()]
+        if len(found) > 1:
+            raise RunError(f"--ab-phase judge: {', '.join(found)} all have control renders (ab/control_views.json): "
+                           "pass --ab-controls with the render pod's control project")
+        if found:
+            self.out(f"A/B controls: {found[0]} (its ab/control_views.json from the render pod; "
+                     "--ab-controls not given)")
+        return found[0] if found else None
+
+    def archive_root(self) -> Path:
+        """``$WENART_OUTPUTS_ARCHIVE``, else ``<repo>/../outputs-archive`` (pod: ``/workspace/outputs-archive``,
+        outside the repo, so ``git clean`` in ``pod_entry.sh`` never touches it)."""
+        env = os.environ.get("WENART_OUTPUTS_ARCHIVE", "").strip()
+        return Path(env) if env else self.repo_root.parent / "outputs-archive"
+
+    def archive_old_outputs(self, pr: ProjectRun) -> None:
+        """§2.3: a public out_dir that exists, is not empty and has no ``run/`` folder was written by an earlier job
+        that is not ``wenart.run`` (the M5 ``polish.sh`` wrote ``outputs/synthetic-01`` and ``-03``: renders of
+        cameras the search no longer makes, an old polish manifest, ...). It is renamed, never deleted, to
+        ``<archive root>/<name>-<UTC stamp>`` so none of its files is reused, reported or copied. Private out_dirs
+        are created by ``wenart.run`` and are never moved."""
+        out = pr.out
+        if pr.ref.private or out.is_symlink() or not out.is_dir() or ST.run_dir(out).exists():
+            return
+        try:
+            if not any(out.iterdir()):
+                return
+        except OSError:
+            return
+        root = self.archive_root()
+        stamp = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())
+        target, n = root / f"{pr.name}-{stamp}", 2
+        while target.exists() or target.is_symlink():
+            target, n = root / f"{pr.name}-{stamp}-{n}", n + 1
+        try:
+            root.mkdir(parents=True, exist_ok=True)
+            out.rename(target)
+        except OSError as exc:
+            pr.archive_note = (f"{S.t(out)} holds outputs of an earlier job (no run/ folder) and could not be moved "
+                               f"aside ({type(exc).__name__}): its files may show up in this run")
+            self.out(f"{pr.name}: {pr.archive_note}")
+            return
+        pr.archived = S.t(target)
+        pr.archive_note = f"earlier outputs without run records moved to {pr.archived}"
+        self.out(f"{pr.name}: {pr.archive_note}")
 
     def prepare_selftest(self) -> None:
         """``--private-selftest``: ``projects/synthetic-02`` copied once to ``<private_root>/selftest-02``."""
@@ -607,12 +714,14 @@ class Orchestrator:
         if not pr.ref.private:
             self.skip(pr, "intake", "private only")
             return
+        # A missing upload goes through the intake CLI as well: it writes a fresh needs_review manifest ("not
+        # uploaded") and removes an older staged copy, so neither an earlier ok intake_manifest.json nor its
+        # staged documents reach the report (§7.1).
         upload = upload_dir(pr.name, Path(self.opts.private_root))
-        if not upload.is_dir():
-            self.finish(pr, "intake", "needs_review", "not uploaded")
-            return
         cmd = S.intake(self.tools, pr.ref)
-        ins = ST.file_hashes([upload])
+        # The upload's listing (path, size, mtime), never its bytes: an upload may hold GBs of files the intake
+        # skips; the intake's own sha256 of the kept files drives the later stages' reuse.
+        ins = {S.t(upload): ST.listing_sha256(upload)}
         fp = ST.fingerprint("intake", S.STAGE_VERSION["intake"], cmd[1:], ins, self.code("intake"))
         prev = self.previous(pr, "intake")
         if not self.forced("intake") and ST.reusable(prev, fp, pr.out):
@@ -1058,7 +1167,7 @@ class Orchestrator:
     # ----- A/B renders (phase 5) ----------------------------------------------
 
     def controls_run(self) -> Optional[ProjectRun]:
-        name = self.opts.ab_controls
+        name = self.ab_controls
         return next((pr for pr in self.ab_runs if pr.name == name), None) if name else None
 
     def ab_cameras(self, pr: ProjectRun) -> Optional[list]:
@@ -1170,12 +1279,46 @@ class Orchestrator:
             else:
                 self.skip(pr, "polish", "gate not validated")
 
+    def gate_inputs(self, pr: ProjectRun) -> dict:
+        """What a calibration depends on besides the gate code: the renders, the control selection and its hidden
+        renders, the polish sweep. Render manifests are reduced to ``(camera, scene_sha256, render_key)`` per
+        entry (what the render's own reuse checks): their ``deadline`` and ``skipped`` change on every pod."""
+        out = pr.out
+        ins = {S.t(out / "renders" / "render_manifest.json"): render_digest(out / "renders" / "render_manifest.json")}
+        ins.update(ST.file_hashes([out / "check" / "controls.json", out / "polish" / "sweep" / "polish_manifest.json"]))
+        for m in sorted((out / "controls").glob("hide_*/render_manifest.json")):
+            ins[S.t(m)] = render_digest(m)
+        return ins
+
+    def calibration_reusable(self, pr: ProjectRun, fp: str) -> bool:
+        """The stored calibration is complete and was made from the same inputs and gate code (R4: gate calibrate
+        has no resume of its own; a resumed pod would pay ~150 s per project again)."""
+        if self.forced("gate"):
+            return False
+        prev = self.previous(pr, "gate")
+        if prev is None or prev.fingerprint != fp:
+            return False
+        if not any(s.get("name") == "calibrate" and s.get("rc") == 0 for s in prev.steps):
+            return False
+        cal = read_json(pr.out / "gate" / "gate_calibration.json")
+        return isinstance(cal, dict) and cal.get("kind") == "gate_calibration" and cal.get("incomplete") is False \
+            and isinstance(cal.get("rates"), dict)
+
     def stage_gate(self, pr: ProjectRun) -> None:
-        if not self.can_start(S.EST_GATE_S):
+        cmd = S.gate_calibrate(self.tools, pr.ref)
+        ins = self.gate_inputs(pr)
+        fp = ST.fingerprint("gate", S.STAGE_VERSION["gate"], cmd[1:], ins, self.code("gate"))
+        cal_path = pr.out / "gate" / "gate_calibration.json"
+        reused = self.calibration_reusable(pr, fp)
+        if reused:
+            # Never moved aside: the calibration is complete and nothing it depends on changed.
+            pr.parts.setdefault("gate", []).append({"name": "calibrate", "rc": 0, "seconds": 0.0, "reused": True})
+            rc = 0
+        elif not self.can_start(S.EST_GATE_S):
             self.not_started(pr, "gate", "gate calibrate")
             return
-        rc = self.run_step(pr, "gate", "calibrate", S.gate_calibrate(self.tools, pr.ref), S.CUDA_ALLOC)
-        cal_path = pr.out / "gate" / "gate_calibration.json"
+        else:
+            rc = self.run_step(pr, "gate", "calibrate", cmd, S.CUDA_ALLOC)
         calibration = read_json(cal_path)
         cut = isinstance(calibration, dict) and bool(calibration.get("incomplete"))
         if rc != 0 and not cut and cal_path.is_file():
@@ -1186,21 +1329,24 @@ class Orchestrator:
         # is missing or cut) and the report never shows an older decision.
         rc2 = self.run_step(pr, "gate", "validate", S.gate_validate(self.tools, pr.ref))
         validation = read_json(pr.out / "gate" / "gate_validation.json")
+        rec = {"fingerprint": fp, "inputs": ins}
         if rc == TIMEOUT_RC or cut:
             pr.gate_decision = None
-            self.finish(pr, "gate", "incomplete", "timeout" if rc == TIMEOUT_RC else "deadline: calibration cut")
+            self.finish(pr, "gate", "incomplete", "timeout" if rc == TIMEOUT_RC else "deadline: calibration cut",
+                        **rec)
             return
         if rc != 0:
             # No complete calibration of this run: no polish, whatever a validation file says (§0, §7.3).
             pr.gate_decision = None
-            self.finish(pr, "gate", "warning", f"gate decision not_validated (calibrate exit {rc})")
+            self.finish(pr, "gate", "warning", f"gate decision not_validated (calibrate exit {rc})", **rec)
             return
         pr.gate_decision = validation.get("decision") if isinstance(validation, dict) and rc2 == 0 else None
         decision = pr.gate_decision or "not_validated"
+        again = " (calibration reused)" if reused else ""
         if rc2 == 0:
-            self.finish(pr, "gate", "ok", f"gate decision {decision}")
+            self.finish(pr, "gate", "ok", f"gate decision {decision}{again}", **rec)
         else:
-            self.finish(pr, "gate", "warning", f"gate decision {decision} (validate exit {rc2})")
+            self.finish(pr, "gate", "warning", f"gate decision {decision} (validate exit {rc2}){again}", **rec)
 
     def stage_polish(self, pr: ProjectRun) -> None:
         if not self.can_start(S.est_polish(pr.views)):
@@ -1233,10 +1379,35 @@ class Orchestrator:
                 self.finish(pr, "ab_pairs", "failed", "no ab/cameras_check.json (A/B render missing)", outputs=[])
                 pr.ab_dropped = "no A/B render"
                 continue
-            controls = pr.name == self.opts.ab_controls
+            controls = pr.name == self.ab_controls
+            stored = read_json(pr.out / "ab" / "pairs.json")
+            stored = stored if isinstance(stored, dict) else {}
+            if self.opts.ab_phase == "judge" and self.pairs_complete(pr, stored, controls):
+                # Judge: the render pod's pairs file is kept as it is (§2.1), control sets included.
+                self.finish(pr, "ab_pairs", "reused", f"ab/pairs.json of the render pod ({len(stored['pairs'])} "
+                            f"pairs{', controls' if stored.get('controls') else ''})")
+                continue
+            # A rebuild never drops the control sets a stored pairs file has (pod B's renders stay on the volume).
+            controls = controls or bool(stored.get("controls"))
             self.simple_stage(pr, "ab_pairs", [("realism-pairs", S.realism_pairs(self.tools, pr.ref, controls), None)])
             if self.status_of(pr, "ab_pairs") != "ok":
                 pr.ab_dropped = "no pairs"
+
+    @staticmethod
+    def pairs_complete(pr: ProjectRun, stored: dict, controls: bool) -> bool:
+        """A stored ``ab/pairs.json`` that the judge phase can use as it is: a pairs file with pairs whose image
+        files all exist, with the control sets when ``pr`` is the control project."""
+        pairs = stored.get("pairs")
+        if stored.get("kind") != "realism_pairs" or not isinstance(pairs, list) or not pairs:
+            return False
+        if controls and not stored.get("controls"):
+            return False
+        for p in pairs:
+            if not isinstance(p, dict) or not p.get("a") or not p.get("b"):
+                return False
+            if not ((pr.out / str(p["a"])).is_file() and (pr.out / str(p["b"])).is_file()):
+                return False
+        return True
 
     # ----- phases 8 and 9: check and realism ---------------------------------
 
@@ -1263,7 +1434,7 @@ class Orchestrator:
     def realism_ready(self) -> list:
         if self.opts.ab_phase == "render":
             return []
-        return [pr for pr in self.ab_runs if pr.ab_active and self.status_of(pr, "ab_pairs") == "ok"]
+        return [pr for pr in self.ab_runs if pr.ab_active and self.status_of(pr, "ab_pairs") in ("ok", "reused")]
 
     def later_glm_estimate(self, seqs: int) -> float:
         """GLM start + GLM non-look_alt realism + GLM check (the look_alt rule of §2.3)."""
@@ -1321,19 +1492,25 @@ class Orchestrator:
                  (f"preference {key}", S.preference(self.tools, pr.ref, key, url, seqs))]
         if not pr.ref.private:
             steps.append((f"style-photo test {key}", S.style_photo_test(self.tools, pr.ref, key, url)))
+        slug = self.tools.model_slug(key)
+        answers = pr.out / "check" / f"answers_{slug}.json"
         status, note = "ok", None
+        cut = False
         for step, cmd in steps:
             rc = self.run_step(pr, "check", step, cmd)
+            # Deadline cuts are read from the answers files, whatever the exit code (§2.2), after every step that
+            # writes answers_<slug>.json: run and preference share it, and a preference that asks nothing (no
+            # polished view, every answer reused) rewrites it with incomplete: false.
+            if not step.startswith("style-photo"):
+                cut = cut or self.answers_incomplete(answers)
             if rc == TIMEOUT_RC:
                 status, note = "incomplete", f"timeout in {step}"
                 break
             if rc != 0:
                 status, note = "failed", f"{step} exit {rc}"
                 break
-        # Deadline cuts are read from the answers files, whatever the exit code (§2.2).
-        slug = self.tools.model_slug(key)
-        cut = [p for p in (pr.out / "check" / f"answers_{slug}.json", pr.out / "check" / "style_photo_test.json")
-               if self.answers_incomplete(p)]
+        cut = cut or self.answers_incomplete(answers) or self.answers_incomplete(
+            pr.out / "check" / "style_photo_test.json")
         if cut and status != "incomplete":
             status, note = "incomplete", f"deadline: {key} answers incomplete"
         out = [f"check/answers_{self.tools.model_slug(k)}.json" for k in self.opts.check_models]
@@ -1401,7 +1578,36 @@ class Orchestrator:
             if combined:
                 self.realism_summary(combined)
         for pr in self.runs:
-            self.simple_stage(pr, "report", [("report", S.report(self.tools, pr.ref), None)], late=True)
+            self.stage_report(pr)
+
+    def stage_report(self, pr: ProjectRun) -> None:
+        """Stage 17, for every project. A project that already ended ``incomplete`` or ``failed`` before its first
+        render has nothing to report (the report exits 1, ``stages.render: not_run``): a ``warning``, so the
+        deadline cut stays ``incomplete`` (resumed with the same command) instead of turning into ``failed``."""
+        before = pr.terminal
+        t0 = time.time()
+        rc = self.run_step(pr, "report", "report", S.report(self.tools, pr.ref), late=True)
+        if rc == 0:
+            self.finish(pr, "report", "ok")
+        elif rc == TIMEOUT_RC:
+            self.finish(pr, "report", "incomplete", "timeout in report")
+        elif rc == 1 and before in ("incomplete", "failed") and self.report_not_rendered(pr, t0):
+            self.finish(pr, "report", "warning", "no renders in this run")
+        else:
+            self.finish(pr, "report", S.STAGES["report"].on_failure, f"report exit {rc}")
+
+    @staticmethod
+    def report_not_rendered(pr: ProjectRun, since: float) -> bool:
+        """``final/final_manifest.json`` written by this report (not an older one) says nothing was rendered."""
+        path = pr.out / "final" / "final_manifest.json"
+        try:
+            if path.stat().st_mtime < since - 2.0:      # 2 s: coarse file system time stamps
+                return False
+        except OSError:
+            return False
+        manifest = read_json(path)
+        stages = manifest.get("stages") if isinstance(manifest, dict) else None
+        return isinstance(stages, dict) and stages.get("render") == "not_run"
 
     def realism_summary(self, combined: list) -> None:
         controls = self.controls_run()
@@ -1419,9 +1625,15 @@ class Orchestrator:
 
     # ----- phase 11: GPU tests and the run manifest -----------------------------
 
+    @staticmethod
+    def project_state(pr: ProjectRun) -> str:
+        """The project's state from its project stages 0-17 only: the A/B stages of a project that is also in
+        ``--ab`` count in the exit code on their own (``look_alt`` never), not in the project's state."""
+        return ST.project_state(rec for stage, rec in pr.records.items() if stage in S.PROJECT_STAGES)
+
     def test_lists(self) -> dict:
         public_full = [pr for pr in self.runs if not pr.ref.private]
-        state = {pr.name: ST.project_state(pr.records.values()) for pr in self.runs}
+        state = {pr.name: self.project_state(pr) for pr in self.runs}
         ok = [pr for pr in public_full if state[pr.name] == "ok"]
 
         def names(items):
@@ -1500,7 +1712,7 @@ class Orchestrator:
             self.tests.append(entry)
 
     def compute_exit(self) -> int:
-        states = [ST.project_state(pr.records.values()) for pr in self.runs]
+        states = [self.project_state(pr) for pr in self.runs]
         projects_ok = all(s in ("ok", "needs_review") for s in states)
         ab_ok = True
         for pr in self.ab_runs:
@@ -1513,17 +1725,22 @@ class Orchestrator:
         return 0 if projects_ok and ab_ok and tests_ok else 1
 
     def project_entry(self, pr: ProjectRun, details: bool) -> dict:
-        entry = {"name": pr.name, "private": pr.ref.private, "state": ST.project_state(pr.records.values())}
+        entry = {"name": pr.name, "private": pr.ref.private, "state": self.project_state(pr)}
         if details:
             entry.update(out_dir=S.t(pr.out),
                          stages=[pr.records[s].brief() for s in S.PROJECT_STAGES if s in pr.records],
                          gate_decision=pr.gate_decision, views=pr.views or None)
+            if pr.archived:
+                entry["archived_outputs"] = pr.archived
         return entry
 
     def ab_entry(self, pr: ProjectRun) -> dict:
-        return {"name": pr.name, "controls": pr.name == self.opts.ab_controls, "dropped": pr.ab_dropped,
-                "stages": [pr.records[s].brief() for s in S.AB_STAGES + ("pipeline", "style", "assets")
-                           if s in pr.records and (s in S.AB_STAGES or not pr.full)]}
+        entry = {"name": pr.name, "controls": pr.name == self.ab_controls, "dropped": pr.ab_dropped,
+                 "stages": [pr.records[s].brief() for s in S.AB_STAGES + ("pipeline", "style", "assets")
+                            if s in pr.records and (s in S.AB_STAGES or not pr.full)]}
+        if pr.archived and not pr.full:
+            entry["archived_outputs"] = pr.archived
+        return entry
 
     def manifest(self, lists: dict, private: bool, final: bool) -> dict:
         # Public manifest: public projects with every detail, private aliases with their state only.
@@ -1538,7 +1755,7 @@ class Orchestrator:
                 "exit_code": self.exit_code if final else None, "projects": projects,
                 "totals": {s: states.count(s) for s in ST.PROJECT_STATES}}
         if not private:
-            data.update(ab_phase=self.opts.ab_phase, ab_controls=self.opts.ab_controls,
+            data.update(ab_phase=self.opts.ab_phase, ab_controls=self.ab_controls,
                         ab=[self.ab_entry(pr) for pr in self.ab_runs],
                         realism_summary=self.job_records.get("realism_summary"),
                         phases=list(self.phases), servers=list(self.servers), tests=list(self.tests),

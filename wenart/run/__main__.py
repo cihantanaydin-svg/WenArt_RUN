@@ -22,7 +22,9 @@
 Project lists take spaces or commas. Defaults from the job's environment:
 ``WENART_OUTPUTS`` (public outputs root), ``WENART_ASSETS``,
 ``WENART_JOB_DIR``, ``WENART_DEADLINE``, ``RENDER_SAMPLES``,
-``WENART_POLISH_PY``, ``CHECK_MODELS``, ``WENART_LOGS``, ``JOB_ID``.
+``WENART_POLISH_PY``, ``CHECK_MODELS``, ``WENART_LOGS``, ``JOB_ID``,
+``WENART_OUTPUTS_ARCHIVE`` (where ``pod`` moves a public out_dir that has no
+``run/`` folder; default ``<repo>/../outputs-archive``).
 """
 from __future__ import annotations
 
@@ -65,7 +67,9 @@ def parse_args(argv) -> argparse.Namespace:
     pod.add_argument("--projects", default="", help="public projects, spaces or commas")
     _private_args(pod)
     pod.add_argument("--ab", default="", help="realism A/B projects (§6.3)")
-    pod.add_argument("--ab-controls", default=None, help="the A/B project with the control sets")
+    pod.add_argument("--ab-controls", default=None,
+                     help="the A/B project with the control sets (the same in render and judge; judge without it: "
+                          "the one A/B project with ab/control_views.json)")
     pod.add_argument("--ab-phase", default="all", choices=["all", "render", "judge"])
     pod.add_argument("--results", required=True, help="$RESULTS (the runner collects it)")
     pod.add_argument("--profile", default="full", choices=["full", "smoke"])

@@ -1,6 +1,7 @@
 """The stage table of the full run: golden command lines and the table's columns (docs/milestone6.md §2.2)."""
 from __future__ import annotations
 
+import ast
 from dataclasses import replace
 from pathlib import Path
 
@@ -46,6 +47,87 @@ def test_code_patterns_match_files():
     for stage in S.STAGE_LIST:
         for pattern in stage.code:
             assert ST._code_files([pattern], REPO_ROOT), (stage.name, pattern)
+
+
+def _module_file(name: str):
+    path = REPO_ROOT / Path(*name.split("."))
+    if (path / "__init__.py").is_file():
+        return path / "__init__.py"
+    return path.with_suffix(".py") if path.with_suffix(".py").is_file() else None
+
+
+def import_closure(entry: str) -> set:
+    """Every ``wenart`` source file that ``python -m <entry>`` may import: an ast walk over every module (imports
+    inside functions included), relative imports resolved, the package ``__init__.py`` of every module and a
+    package's ``__main__.py``."""
+    files: dict = {}
+    todo: list = []
+
+    def add(name: str) -> None:
+        parts = name.split(".")
+        for i in range(1, len(parts) + 1):
+            mod = ".".join(parts[:i])
+            f = _module_file(mod)
+            if f is not None and f not in files:
+                files[f] = mod
+                todo.append(f)
+
+    add(entry)
+    main = _module_file(entry)
+    if main is not None and main.name == "__init__.py" and (main.parent / "__main__.py").is_file():
+        files[main.parent / "__main__.py"] = entry
+        todo.append(main.parent / "__main__.py")
+    while todo:
+        f = todo.pop()
+        mod = files[f]
+        package = mod if f.name in ("__init__.py", "__main__.py") else mod.rpartition(".")[0]
+        for node in ast.walk(ast.parse(f.read_text(encoding="utf-8"))):
+            if isinstance(node, ast.Import):
+                for alias in node.names:
+                    if alias.name.split(".")[0] == "wenart":
+                        add(alias.name)
+            elif isinstance(node, ast.ImportFrom):
+                if node.level:
+                    base = package.split(".")[:len(package.split(".")) - node.level + 1]
+                    target = ".".join(base + ([node.module] if node.module else []))
+                else:
+                    target = node.module or ""
+                if target.split(".")[0] != "wenart":
+                    continue
+                add(target)
+                for alias in node.names:           # "from wenart.assets import models": a submodule
+                    if _module_file(f"{target}.{alias.name}") is not None:
+                        add(f"{target}.{alias.name}")
+    return {f.relative_to(REPO_ROOT).as_posix() for f in files}
+
+
+def test_the_import_closure_sees_function_level_and_relative_imports():
+    fit = import_closure("wenart.furniture.fit")
+    # download_fitted imports wenart.assets.models/fetch/web inside the function; parametric imports proxies.
+    assert {"wenart/assets/models.py", "wenart/assets/fetch.py", "wenart/assets/web.py", "wenart/blender/proxies.py",
+            "wenart/__init__.py", "wenart/furniture/__init__.py"} <= fit
+    assert "wenart/synthetic/blocks.py" in import_closure("wenart.ingest.pipeline")
+    assert {"wenart/gate/__main__.py", "wenart/gate/calibrate.py", "wenart/gate/validate.py"} <= \
+        import_closure("wenart.gate")
+
+
+def test_code_lists_cover_the_import_closure():
+    """R2: a code fix in any module a fingerprinted stage imports must change the stage's fingerprint (else a
+    resumed pod reuses outputs made with the old code). The gate's code hash keys the calibration reuse."""
+    private = private_project("real-01", repo_root=REPO_ROOT)
+    commands = {"intake": S.intake(TOOLS, private), "pipeline": S.pipeline(TOOLS, REF), "fit": S.fit(TOOLS, REF),
+                "layout": S.layout(TOOLS, REF, URL), "decor": S.decor(TOOLS, REF, True), "refit": S.refit(TOOLS, REF),
+                "gate": S.gate_calibrate(TOOLS, REF)}
+    assert set(commands) == {s.name for s in S.STAGE_LIST if s.reuse == "fingerprint"} | {"gate"}
+    for stage, cmd in commands.items():
+        assert cmd[1] == "-m", stage
+        covered = {p.relative_to(REPO_ROOT).as_posix() for p in ST._code_files(S.STAGES[stage].code, REPO_ROOT)}
+        missing = sorted(import_closure(cmd[2]) - covered)
+        assert not missing, (stage, missing)
+    # The data files the stages read are listed too.
+    for stage in ("fit", "refit"):
+        assert S.CATALOG in S.STAGES[stage].code and "wenart/schema/**" in S.STAGES[stage].code
+    assert "wenart/schema/**" in S.STAGES["pipeline"].code
 
 
 def test_outputs_of():
