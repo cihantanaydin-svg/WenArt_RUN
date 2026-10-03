@@ -188,6 +188,12 @@ agreement logic works (0 verified symbols, all 71 proposals `unverified`, nothin
 
 Pick: LibreDWG first, ezdwg as fallback, failures → `needs review`. ODA only as a manual rescue tool on your Mac, never in the pipeline.
 
+**Milestone 7 (3 Oct 2026):** LibreDWG **0.14** (tag commit d9468ae; there is no 0.14.1), GPL-3.0, built from source
+(static, cmake/ninja) on the pod and in the session, called as a separate program (`dwg2dxf` without `--as`, which
+empties the modelspace of other DWG versions), binaries never distributed. ezdwg is dropped (units always metres,
+inserts and dimensions exploded). A DWG with 0 modelspace entities after conversion is `needs review`; dimensions
+are measured from geometry because `dxf2dwg` loses rotated-dimension angles (docs/milestone7.md §5).
+
 ### 4.4 PDF handling
 
 | Option | Licence | Commercial | Note |
@@ -249,6 +255,15 @@ Every fit is logged (asset id, licence, scale factors).
 (`wenart/blender/parametric.py`, exact footprint). Qwen3-VL-8B (vLLM, fp8, structured output) proposes a layout
 for an empty room in ≈ 4–7 s per pass; the shapely checks and repairs run in milliseconds. Objaverse and TRELLIS.2
 were not run yet; they are the way to close the coverage gap.
+
+**Milestone 7 (3 Oct 2026):** Objaverse 1.0 (Hugging Face `allenai/objaverse` @21e4e14) is an ODC-By 1.0 database;
+only objects with licence CC0 or CC-BY 4.0 are used (NC, ND, SA, free-standard and unknown are refused). The
+per-object licences are declared by the uploaders on Sketchfab and nobody verifies them: **flag for commercial use**.
+Every CC-BY model is credited (title, author, link, licence, changes) in `ATTRIBUTION.md` next to every image that
+shows it; `catalog_objaverse.json` and `results/library/**` are ODC-By, not MIT. Library models carry style tags; a
+model is used only when it fits the project's style family (else the parametric mesh). The Poly Haven style tags
+come from the API `/info` tags and the M6 renders (3 Oct 2026; thumbnails were blocked by the proxy). TRELLIS.2 is
+**not built in M7** (generated shapes have no documented provenance) and waits for your OK.
 
 ### 4.9 Materials and HDRIs
 
@@ -418,6 +433,11 @@ Not used: Depth Anything V2 Base/Large and DA3-LARGE/GIANT (CC-BY-NC), DINOv3 (c
 
 Milestone 6: no new models. New textures from Poly Haven (CC0): `oak_veneer_01`, `walnut_veneer`, `rough_linen`;
 procedural tiles and bedding are our own code.
+
+Milestone 7 models (checked on Hugging Face, 3 Oct 2026): OWLv2 `google/owlv2-base-patch16-ensemble` @cfd3195
+(Apache-2.0) as the added-object detector. Surveyed, not used: Grounding DINO base (Apache-2.0), Florence-2-large
+(MIT). TRELLIS.2 not used (see §4.8). Data: Objaverse 1.0 (ODC-By 1.0; objects CC0 / CC-BY 4.0 only, uploader-
+declared — flagged). Tools: LibreDWG 0.14 (GPL-3.0, separate program).
 
 ## 9. Sources
 
