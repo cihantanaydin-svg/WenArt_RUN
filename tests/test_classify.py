@@ -437,3 +437,32 @@ def test_imperial_texts_scale_notes_and_numbers():
     assert parse_number("50'") is None and text_role("50'") == "dimension"
     assert text_role("14'-0\"") == "dimension" and text_role("11' x 10'") == "room_label"
     assert text_role("GROUND FLOOR") == "title"
+
+
+def test_the_dxf_extractor_choice_is_listed_when_synthetic_layers_are_used_otherwise(tmp_path):
+    """Review dwgblender-4: a DXF that draws on the synthetic layer names (DUVAR: the standard Turkish wall layer)
+    without the synthetic convention goes to the generic adapter, and the record says why (``extractor_note``, a
+    pipeline warning); a synthetic file and a file without those layers carry no note."""
+    from wenart.ingest.dxf_extract import read_dxf
+
+    doc = read_dxf(PROJECTS / "synthetic-06" / "source" / "synthetic-06.dxf")[0]
+    for entity in doc.modelspace():
+        if entity.dxf.layer == "A-WALL":
+            entity.dxf.layer = "DUVAR"
+    project = tmp_path / "duvar"
+    project.mkdir()
+    doc.saveas(project / "plan.dxf")
+    rec = C.classify_pages(project)[0]
+    assert rec.extractor == "generic"
+    assert "DUVAR used without the synthetic DXF convention" in rec.extractor_note
+    assert "read by the generic adapter" in rec.extractor_note
+    synthetic = tmp_path / "s01"
+    synthetic.mkdir()
+    shutil.copyfile(PROJECTS / "synthetic-01" / "zemin_kat.dxf", synthetic / "zemin_kat.dxf")
+    rec = C.classify_pages(synthetic)[0]
+    assert rec.extractor == "synthetic" and rec.extractor_note is None
+    plain = tmp_path / "s06"
+    plain.mkdir()
+    shutil.copyfile(PROJECTS / "synthetic-06" / "source" / "synthetic-06.dxf", plain / "plan.dxf")
+    rec = C.classify_pages(plain)[0]
+    assert rec.extractor == "generic" and rec.extractor_note is None

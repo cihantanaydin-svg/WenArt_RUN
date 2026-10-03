@@ -1553,8 +1553,12 @@ def recognition_summary(inp: Inputs) -> Optional[dict]:
         return None
     furniture = [f for f in b.get("furniture") or [] if isinstance(f, dict)]
     methods: dict[str, int] = {}
-    ai, composites = [], []
+    ai, composites, unanswered = [], [], []
     for f in furniture:
+        notes = [str(e.get("note")) for e in _evidence_list(f) if str(e.get("note") or "").startswith(COMPOSITE_NOTE)]
+        if (f.get("type_method") == "none" and not f.get("type_candidates") and f.get("build", True) is not False
+                and (f.get("type") or "unknown") == "unknown" and not notes):
+            unanswered.append(f.get("id"))      # asked (or to be asked) but no AI answer was applied (review cross-5)
         if f.get("type_method"):
             methods[str(f["type_method"])] = methods.get(str(f["type_method"]), 0) + 1
         cands = sorted((c for c in f.get("type_candidates") or [] if isinstance(c, dict)),
@@ -1566,7 +1570,6 @@ def recognition_summary(inp: Inputs) -> Optional[dict]:
                        "answers": [{"pass": c.get("pass"), "model": c.get("model") or c.get("model_key"),
                                     "type": c.get("type"), "front": c.get("front"), "confidence": c.get("confidence"),
                                     "reason": c.get("reason")} for c in cands]})
-        notes = [str(e.get("note")) for e in _evidence_list(f) if str(e.get("note") or "").startswith(COMPOSITE_NOTE)]
         if notes:
             composites.append({"id": f.get("id"), "room_id": f.get("room_id"), "type": f.get("type"),
                                "status": f.get("status"), "size": (f.get("footprint") or {}).get("size"),
@@ -1593,7 +1596,7 @@ def recognition_summary(inp: Inputs) -> Optional[dict]:
     requests = C.read_json(inp.project_out / "recognition" / "requests.json")
     folder = inp.project_out / "recognition"
     return {"type_methods": dict(sorted(methods.items())), "ai_typed": ai, "composites": composites,
-            "raster_pages": pages, "raster_rooms": rooms,
+            "no_answer": unanswered, "raster_pages": pages, "raster_rooms": rooms,
             "questions": len(requests.get("items") or []) if isinstance(requests, dict) else None,
             "answer_files": sorted(p.name for p in folder.glob("answers_*.json")) if folder.is_dir() else []}
 
@@ -1661,6 +1664,18 @@ def assumed_summary(inp: Inputs) -> dict:
         if lv.get("ceiling_height_source") == "assumed_default":   # (else measured: section, elevation_drawing)
             building.append(f"{lv.get('id')}: ceiling height {length_text(lv.get('ceiling_height'), system)} "
                             f"({lv.get('ceiling_height_source')})")
+    for doc in b.get("documents") or []:
+        for page in (doc.get("pages") or []) if isinstance(doc, dict) else []:
+            a = page.get("aspect") if isinstance(page, dict) else None
+            if isinstance(a, dict) and a.get("assumed"):
+                name = doc.get("file") if not inp.private else "a raster page"
+                building.append(f"{name} p{page.get('page')}: photo aspect assumed: snapped to the {a.get('name')} "
+                                f"sheet ratio {a.get('snapped')} (measured {a.get('measured')}, {a.get('off_pct')} % off)")
+    fronts = [str(f.get("id")) for f in b.get("furniture") or []
+              if isinstance(f, dict) and "front_deg" in (f.get("assumed") or [])]
+    if fronts:
+        building.append(f"front kept from the drawing although both AI passes answered 'none': {len(fronts)} "
+                        f"piece(s) ({', '.join(fronts[:6])}{' ...' if len(fronts) > 6 else ''})")
     groups: dict[tuple, list] = {}
     for o in b.get("openings") or []:
         if not isinstance(o, dict):
@@ -1859,6 +1874,10 @@ def m7_flags(recognition: Optional[dict], attribution: dict, detector: Optional[
     if open_types:
         flags.append(f"{len(open_types)} drawn piece(s) not typed: the two AI passes disagree or did not answer "
                      f"(unknown, unverified; footprint kept): {', '.join(str(x) for x in open_types[:8])}")
+    if rec.get("no_answer"):
+        flags.append(f"{len(rec['no_answer'])} drawn piece(s) without an AI answer (not asked, or the answers were "
+                     f"not applied; unknown, unverified; footprint kept): "
+                     + ", ".join(str(x) for x in rec["no_answer"][:8]))
     if rec.get("composites"):
         flags.append(f"{len(rec['composites'])} drawn group(s) not split into pieces (unknown, unverified): "
                      + ", ".join(str(c["id"]) for c in rec["composites"][:8]))

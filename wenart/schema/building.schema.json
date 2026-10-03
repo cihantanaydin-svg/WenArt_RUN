@@ -115,7 +115,8 @@
             "transform_to_building": {"type": ["array", "null"], "items": {"type": "number"}, "minItems": 6, "maxItems": 6, "description": "Affine [a,b,c,d,e,f] mapping page/model coords to building coords"},
             "confidence": {"type": "number"},
             "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}},
-            "debug_image": {"type": ["string", "null"]}
+            "debug_image": {"type": ["string", "null"]},
+            "aspect": {"type": ["object", "null"], "description": "Photos: the sheet aspect (width / height of the page quad): measured, method, side_ratio, snapped, name, off_pct, assumed, solved_from, factor, checked_by_dimensions (docs/milestone7.md §4.1)"}
           }
         }}
       }

@@ -1580,6 +1580,9 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
             build.warn(f"{record.file} p{record.page}: {record.level_note}")
         elif record.label_source == "assumed":
             build.warn(f"level title missing: assumed {record.level_id} {record.level_label}")
+        if record.extractor == "generic" and getattr(record, "extractor_note", None):
+            # A DXF/DWG with the synthetic layer names read by the generic adapter: the choice is listed.
+            build.warn(f"{record.file}: {record.extractor_note}")
         secondary = (record.file, record.page) in evidence_only
         if record.extractor == "raster":
             extraction = _extract_raster(record, out_dir, answers, no_ai, secondary)

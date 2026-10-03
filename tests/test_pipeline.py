@@ -854,3 +854,49 @@ def test_questions_new_in_the_answer_run_are_not_pending(tmp_path):
     A.write_requests(rec, doc["project"], items[:-1])
     building, build = P.run_project(project, out, answers=rec)
     assert build.pending == [] and P.exit_code(building, build) == P.EXIT_OK and building["status"] == "ok"
+
+
+def _separator_neighbours(building: dict) -> list[tuple[dict, list[dict]]]:
+    """(virtual separator, the rooms whose outline touches its line within 1 mm) for every separator."""
+    from shapely.geometry import LineString, Polygon
+
+    out = []
+    for sep in (o for o in building["openings"] if o.get("virtual")):
+        line = LineString(sep["line"])
+        out.append((sep, [r for r in building["rooms"] if Polygon(r["polygon"]).exterior.distance(line) <= 0.001
+                          and r["level_id"] == sep["level_id"]]))
+    return out
+
+
+def test_rooms_on_both_sides_of_a_separator_share_its_line(tmp_path):
+    """Review dwgblender-1: the pipeline passes the separators to derive_rooms, so the two rooms a virtual separator
+    splits (synthetic-06: kitchen and living room) are snapped back onto its line and meet along it exactly, a
+    LineString as long as the separator (no 4 mm slit between their floors and ceilings). Review dwgblender-4: the
+    same drawing with its walls on DUVAR (no synthetic convention) lists why the generic adapter reads it."""
+    from shapely.geometry import LineString, Polygon
+
+    from wenart.ingest.dxf_extract import read_dxf
+
+    project = tmp_path / "s06"
+    project.mkdir()
+    shutil.copyfile(PROJECTS / "synthetic-06" / "source" / "synthetic-06.dxf", project / "plan.dxf")
+    building = build_project(project, tmp_path / "out", no_ai=True)
+    pairs = _separator_neighbours(building)
+    assert pairs
+    for sep, rooms in pairs:
+        assert len(rooms) == 2, (sep["id"], [r["id"] for r in rooms])
+        shared = Polygon(rooms[0]["polygon"]).intersection(Polygon(rooms[1]["polygon"]))
+        assert isinstance(shared, LineString), (sep["id"], shared.wkt)
+        assert shared.length == pytest.approx(LineString(sep["line"]).length, abs=1e-6)
+    assert not any("synthetic DXF convention" in w for w in building["warnings"])
+
+    doc = read_dxf(project / "plan.dxf")[0]
+    for entity in doc.modelspace():
+        if entity.dxf.layer == "A-WALL":
+            entity.dxf.layer = "DUVAR"
+    duvar = tmp_path / "duvar"
+    duvar.mkdir()
+    doc.saveas(duvar / "plan.dxf")
+    building = build_project(duvar, tmp_path / "out_duvar", no_ai=True)
+    assert any(w.startswith("plan.dxf: layers DUVAR used without the synthetic DXF convention")
+               for w in building["warnings"])

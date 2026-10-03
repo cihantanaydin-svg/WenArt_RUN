@@ -601,6 +601,28 @@ def test_missing_brief_is_assumed(tmp_path):
     assert "(default, not in brief.yaml)" in (out / "final" / "final_report.md").read_text(encoding="utf-8")
 
 
+def test_unanswered_pieces_assumed_fronts_and_photo_aspect_are_reported(tmp_path):
+    """Review cross-2/cross-5/ingest-6: pieces that got no AI answer are flagged, a front kept from the drawing and an
+    assumed photo aspect are listed under 'Assumed values'."""
+    out = make_m7_project(tmp_path)
+    path = out / "building_final.json"
+    b = json.loads(path.read_text(encoding="utf-8"))
+    b["furniture"].append({"id": "f_q", "level_id": "L1", "room_id": "r_L1_yatak", "type": "unknown",
+                           "source": "from_documents", "status": "unverified", "type_method": "none",
+                           "footprint": {"center": [1, 1], "size": [0.5, 0.5], "rotation_deg": 0},
+                           "evidence": [{"file": "plan.pdf", "method": "vector", "confidence": 0.9}]})
+    b["furniture"][0]["assumed"] = ["front_deg"]
+    b["documents"][0].setdefault("pages", [{"page": 1}])[0]["aspect"] = {
+        "assumed": True, "name": "ISO", "snapped": 1.4142, "measured": 1.3762, "off_pct": 2.7}
+    path.write_text(json.dumps(b), encoding="utf-8")
+    m = F.write_final(out)
+    assert "f_q" in m["recognition"]["no_answer"]
+    assert any(f.startswith("1 drawn piece(s) without an AI answer") and "f_q" in f for f in m["advisory_flags"])
+    text = "\n".join(m["assumed"]["building"])
+    assert "photo aspect assumed: snapped to the ISO sheet ratio 1.4142 (measured 1.3762, 2.7 % off)" in text
+    assert f"front kept from the drawing although both AI passes answered 'none': 1 piece(s) ({b['furniture'][0]['id']})" in text
+
+
 def test_default_style_and_nested_brief_defaults_are_listed_as_assumed(tmp_path):
     """M7 §0/§13: a project without a brief (real01) gets the default style, and the report must say so; nested
     brief defaults are shown with their value (``render.samples: 256``), not ``None``."""

@@ -70,7 +70,7 @@ from wenart import building as B
 from wenart.ingest import cad_pdf
 from wenart.ingest import dwg as dwg_mod
 from wenart.ingest import dxf_generic
-from wenart.ingest.dxf_extract import has_synthetic_layers, metres_per_unit_from_insunits, read_dxf
+from wenart.ingest.dxf_extract import metres_per_unit_from_insunits, read_dxf, synthetic_convention
 from wenart.ingest.generic import labels as generic_labels
 from wenart.ingest.generic.model import GenericPage, TextRun
 from wenart.ingest.model import (METRES_PER_POINT, TextItem, normalise_level, page_class_for, parse_scale_text,
@@ -134,6 +134,7 @@ class PageRecord:
     generic_page: Optional[GenericPage] = None  # the page as read for the generic test (reused by the pipeline)
     raster_page: Optional[object] = None       # raster pages: raster.RasterPage read while classifying (pipeline)
     level_note: Optional[str] = None           # how an untitled raster page got its level (a pipeline warning)
+    extractor_note: Optional[str] = None       # DXF/DWG: why the generic adapter reads a file with synthetic layers
 
     def is_extractable(self) -> bool:
         readable = self.kind == "vector" or (self.kind in ("scan", "photo") and self.extractor == "raster")
@@ -362,8 +363,11 @@ def _classify_dxf(file_rel: str, path: Path, fmt: str, converter: Optional[str])
     page_class, title, confidence = classify_texts(texts)
     record = PageRecord(file=file_rel, page=1, format=fmt, kind="vector", page_class=page_class,
                         confidence=confidence, converter=converter, source_path=str(path), texts=texts)
-    synthetic = has_synthetic_layers(doc)
+    synthetic, convention = synthetic_convention(doc)
     record.extractor = "synthetic" if synthetic else "generic"
+    if not synthetic and convention:
+        # The synthetic layer names are used, but not the convention: the choice is listed (review dwgblender-4).
+        record.extractor_note = convention
     apply_level(record, title)
     if title is not None:
         record.evidence.append(B.evidence(file_rel, "vector", confidence, layer=None, entity=title.entity, text=title.text))
