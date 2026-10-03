@@ -446,8 +446,54 @@ def test_dimension_angle_from_block_needs_a_dimension_line(tmp_path):
     path = save(doc, tmp_path)
     patch_entity(path, ent.dxf.handle, 50)
     page = DG.read_page(path, "plan.dxf")
-    assert [d.id for d in page.dimensions] == [f"DIMENSION:{vertical.dimension.dxf.handle}"]
-    assert any("states no angle and its block draws no dimension line" in w for w in page.warnings)
+    # review2 dwgblender-3: no code 50 and no dimension line -> the DXF default angle 0, with a warning (it was
+    # dropped before; AutoCAD omits code 50 exactly when the angle is 0).
+    d = by_id(page.dimensions)
+    assert set(d) == {f"DIMENSION:{vertical.dimension.dxf.handle}", f"DIMENSION:{ent.dxf.handle}"}
+    assert d[f"DIMENSION:{ent.dxf.handle}"].measured_units == 80.0
+    assert any(f"DIMENSION:{ent.dxf.handle} states no angle and its block draws no dimension line; measured at "
+               "the DXF default angle 0 (assumed)" in w for w in page.warnings)
+
+
+def _autocad_style(doc, dim, arrow: float = 2.5) -> None:
+    """Shorten the dimension line of ``dim``'s block by ``arrow`` at both ends, as AutoCAD draws it (from arrow base
+    to arrow base, so it stops short of ``defpoint``)."""
+    ent = dim.dimension
+    d = ent.dxf.defpoint
+    block = doc.blocks.get(ent.dxf.geometry)
+    for e in block:
+        if e.dxftype() != "LINE":
+            continue
+        a, b = e.dxf.start, e.dxf.end
+        u = (b - a).normalize()
+        if abs(((a + u * (d - a).dot(u)) - d).magnitude) < 1e-9 and abs(u.dot((ent.dxf.defpoint2 - d).normalize())) < 0.5:
+            e.dxf.start, e.dxf.end = a + u * arrow, b - u * arrow
+
+
+def test_autocad_rotated_dimension_without_code_50_is_read(tmp_path):
+    """review2 dwgblender-3: AutoCAD writes a horizontal DIMLINEAR without group code 50 and draws its dimension
+    line from arrow base to arrow base, one arrow length short of defpoint. The collinear block line gives the
+    angle; the dimension is kept (vertical ones too)."""
+    doc = new_doc()
+    msp = doc.modelspace()
+    horizontal = msp.add_linear_dim(base=(0, 50), p1=(0, 0), p2=(80, 0), angle=0)
+    horizontal.render()
+    vertical = msp.add_linear_dim(base=(-30, 0), p1=(0, 0), p2=(0, 120), angle=90)
+    vertical.render()
+    for dim in (horizontal, vertical):
+        _autocad_style(doc, dim)
+    assert DG.dimension_angle_from_block(horizontal.dimension) == 0.0
+    assert DG.dimension_angle_from_block(vertical.dimension) == 90.0
+    path = save(doc, tmp_path)
+    for dim in (horizontal, vertical):
+        patch_entity(path, dim.dimension.dxf.handle, 50)
+    page = DG.read_page(path, "plan.dxf")
+    d = by_id(page.dimensions)
+    h = d[f"DIMENSION:{horizontal.dimension.dxf.handle}"]
+    v = d[f"DIMENSION:{vertical.dimension.dxf.handle}"]
+    assert h.measured_units == 80.0 and h.p1[1] == h.p2[1] == 50.0
+    assert v.measured_units == 120.0 and v.p1[0] == v.p2[0] == -30.0
+    assert not any("states no angle" in w for w in page.warnings)
 
 
 # --------------------------------------------------------------------------
