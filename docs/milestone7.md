@@ -505,7 +505,16 @@ reference). Used by the core (block names, rules, composite split) and the two-p
 - Prompt (both models, temperature 0, JSON schema): "Two crops of an architectural floor plan seen from above. The
   dashed box in the first image (shown alone in the second, with a 1 m bar) marks one drawn object. Which object type is
   it?" Schema `{"type": enum(furniture types ∪ {"not_furniture"}), "front": enum("top","right","bottom","left","none"),
-  "confidence": 0..1, "reason": ≤ 160 chars}`. The full type list is offered (no room hint).
+  "confidence": 0..1, "reason": ≤ 160 chars}`. *Changed after the first prep pod (3 Oct 2026: 4 of 17 real01 pieces
+  typed with the full list and no context):* the question states what the drawing shows — the drawn footprint size,
+  for vector pages the room's printed label and type, and the neighbours (how many similar objects, the larger object
+  they stand around or within 0.3 m of) — and offers only the types whose size range fits the footprint (+15 %) plus
+  `unknown` and `not_furniture`; the schema's `type` enum is narrowed the same way. It says that small symbols drawn
+  on top of an object (lamp, telephone, vase, plant, pillows, books) belong to that object, and defines the front in
+  image terms (bed: the foot end; seating: the open seat edge; cabinets and appliances: the door/drawer side; counter,
+  desk, washbasin, toilet, bathtub: where the user stands or sits; none for front-less objects). Raster crops get
+  their own image description (dark ink, text may appear and is ignored). These facts are part of `input_sha256`.
+  Raster questions carry no room label or neighbours (they can change with the same round's label answers).
 - Pass 1 = Qwen3-VL-8B, pass 2 = GLM-4.6V-Flash (`check.yaml models`, pinned revisions).
 - **Rule**: T accepted (`type_method "ai_two_pass"`, `verified`, evidence: vector footprint + two `ai` entries,
   confidence = min, capped 0.9) only when both passes say T and the footprint fits T's size range. Otherwise `unknown`,
@@ -513,6 +522,9 @@ reference). Used by the core (block names, rules, composite split) and the two-p
   `unknown`, `unverified`, `build: false` (an obstacle for the placer, not rendered; the room keeps
   `has_documented_furniture`), reported "drawn symbol, not built". A type not allowed in the room (`ALLOWED_TYPES` +
   `side_table`, `floor_lamp`, `potted_plant` everywhere, `stair` in halls) → kept, `unverified`, warning.
+- Both passes answer front `none` while the drawing gives one front (pillows, wall) → the drawn front is kept,
+  `front_assumed` with the rule named; a typed piece without a front is oriented by its type's width/depth range,
+  with a warning.
 - Rule-typed `stair`/`kitchen_counter` and block-name pieces are never asked.
 
 ### 3.4 Raster room labels (`recognition/room_labels.py`)
