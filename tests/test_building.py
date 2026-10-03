@@ -303,6 +303,14 @@ def test_room_types_pinned_for_synthetic_projects(name):
     ("ZEMİN KAT MOBİLYA PLANI", ("Zemin Kat", 0)),
     ("MOBİLYA PLANI", None),
     ("ÖLÇEK 1/100", None),
+    # English titles (docs/milestone7.md §2.1), title case like the Turkish ones.
+    ("GROUND FLOOR PLAN", ("Ground Floor", 0)),
+    ("First Floor Furniture Layout Plan", ("First Floor", 1)),
+    ("SECOND FLOOR", ("Second Floor", 2)),
+    ("3RD FLOOR PLAN", ("3rd Floor", 3)),
+    ("BASEMENT", ("Basement", -1)),
+    ("FLOOR PLAN", None),
+    ("LIVING ROOM", None),
 ])
 def test_normalise_level_label(raw, expected):
     assert B.normalise_level_label(raw) == expected

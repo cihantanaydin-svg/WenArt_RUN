@@ -254,6 +254,11 @@ def _furniture_dict(level_id: str, piece: FurnitureItem, piece_id: str, rooms: l
         out["build"] = piece.details.get("build", True) is not False
         if piece.details.get("stair"):
             out["stair"] = piece.details["stair"]
+        if piece.details.get("shape"):
+            # A round outline (§6.4: a round side table); Blender reads shape / circle_fit.
+            out["shape"] = piece.details["shape"]
+            if piece.details.get("circle_fit"):
+                out["circle_fit"] = dict(piece.details["circle_fit"])
         run = piece.details.get("counter_run")
         if run:
             index = run.get("wall_index")

@@ -247,3 +247,39 @@ def test_rotated_and_aligned_dimensions_measure_like_cad(tmp_path):
     cad = by_entity[f"DIMENSION:{cad_aligned.dimension.dxf.handle}"]
     assert cad.printed == "5,00" and cad.measured == pytest.approx(5.0, abs=1e-6)
     assert cad.p1 == pytest.approx((5.3, 0.25), abs=1e-6) and cad.p2 == pytest.approx((2.3, 4.25), abs=1e-6)
+
+
+def test_rotated_dimension_without_its_angle_is_recovered_from_the_block(tmp_path):
+    """A DWG converted by LibreDWG keeps rotated dimensions without their angle (code 50, docs/milestone7.md §0);
+    the synthetic reader recovers it from the dimension line in the *D block (D's request), so a vertical dimension
+    still measures its vertical span instead of the horizontal projection (0)."""
+    from wenart.synthetic.dxf_writer import DIMSTYLE, DIMSTYLE_ATTRIBS
+
+    doc = ezdxf.new("R2010", setup=True)
+    doc.header["$INSUNITS"] = 4
+    for layer in ("DUVAR", "OLCU"):
+        doc.layers.add(layer)
+    doc.dimstyles.new(DIMSTYLE, dxfattribs=DIMSTYLE_ATTRIBS)
+    msp = doc.modelspace()
+    msp.add_lwpolyline([(0, 0), (250, 0), (250, 4000), (0, 4000)], close=True, dxfattribs={"layer": "DUVAR"})
+    vertical = msp.add_linear_dim(base=(-600, 0), p1=(0, 0), p2=(0, 4000), angle=90, dimstyle=DIMSTYLE,
+                                  dxfattribs={"layer": "OLCU"})
+    vertical.render()
+    handle = vertical.dimension.dxf.handle
+    path = tmp_path / "lost_angle.dxf"
+    doc.saveas(path)
+    lines = path.read_text(encoding="utf-8").split("\n")
+    start = next(i for i in range(len(lines) - 1) if lines[i].strip() == "5" and lines[i + 1].strip() == handle)
+    end = start + 2
+    while end < len(lines) - 1 and lines[end].strip() != "0":
+        end += 2
+    hits = [k for k in range(start, end, 2) if lines[k].strip() == "50"]
+    assert hits
+    for k in reversed(hits):
+        del lines[k:k + 2]
+    path.write_text("\n".join(lines), encoding="utf-8")
+
+    ex = extract_dxf(path, "L0", "lost_angle.dxf")
+    dim = {d.entity: d for d in ex.dimensions}[f"DIMENSION:{handle}"]
+    assert dim.measured == pytest.approx(4.0, abs=1e-6) and dim.printed == "4,00"
+    assert dim.p1[0] == pytest.approx(dim.p2[0], abs=1e-6)               # a vertical span

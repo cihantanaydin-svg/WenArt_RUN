@@ -622,6 +622,7 @@ def test_m7_doorless_gap_separator_build_false_and_site(built_m7):
     assert not [w for w in m["warnings"] if "o_L0_002" in w]
     assert [r["id"] for r in m["furniture"]["not_built"]] == ["f_L0_024"]
     assert not [o for o in m["objects"] if o.get("element_id") == "f_L0_024"] and "f_L0_024" not in m["pass_index"]
+    assert m["camera_policy"] == "m5" and m["rooms_without_view"] == []        # m5: three cameras per room
     assert m["site"]["built"] is False and m["site"]["decor"]["count"] == 3
     assert not [o for o in m["objects"] if str(o["wenart_id"]).startswith(("sw_", "sa_", "sd_"))]
     assert not [n for n in objects if n.startswith(("sw_", "sa_", "sd_"))]
@@ -642,3 +643,40 @@ def test_m7_side_table_lamp_and_plant_are_parametric(built_m7):
     assert entries["f_L0_022"]["bbox_m"] == pytest.approx([0.4, 0.4, 1.6], abs=1e-3)
     assert entries["f_L0_023"]["bbox_m"] == pytest.approx([0.4, 0.4, 1.0], abs=1e-3)
     assert not [o for o in objects.values() if o["type"] == "LIGHT" and "f_L0_022" in o["name"]]   # no lamp light
+
+
+def test_m7_search_policy_lists_rooms_without_view(tmp_path):
+    """docs/milestone7.md §6.2 in a built scene: with the search policy an empty room gets one view, an empty
+    room below 2.5 m2 none; the scene manifest lists it under ``rooms_without_view`` with the reason (and a
+    warning), the m5 policy lists nothing."""
+    from wenart.blender import cameras, camsearch
+
+    ft = 0.3048
+    building = _m7_building()
+    rooms = building["rooms"]
+    prayer = next(r for r in rooms if r["id"] == "r_L0_pry")
+    prayer["polygon"] = [[16.752 * ft, 15.0 * ft], [24.0 * ft, 15.0 * ft], [24.0 * ft, 21.5 * ft],
+                         [16.752 * ft, 21.5 * ft]]
+    rooms.append({"id": "r_L0_sto", "level_id": "L0", "label": "Store", "room_type": "storage",
+                  "status": "verified", "evidence": prayer["evidence"],
+                  "polygon": [[16.752 * ft, 21.5 * ft], [18.5 * ft, 21.5 * ft], [18.5 * ft, 23.257 * ft],
+                              [16.752 * ft, 23.257 * ft]]})
+    path = tmp_path / "building.json"
+    path.write_text(json.dumps(building), encoding="utf-8")
+    out = tmp_path / "scene"
+    cli.run_blender(Path(cli.BUILD_SCRIPT), ["--building", str(path), "--style", str(STYLE), "--out", str(out),
+                                             "--no-textures", "--no-preview", "--no-glb", "--camera-policy", "search"])
+    m = json.loads((out / "scene_manifest.json").read_text(encoding="utf-8"))
+    schemas.validate_scene_manifest(m)
+    assert m["camera_policy"] == "search"
+    assert [r["room_id"] for r in m["rooms_without_view"]] == ["r_L0_sto"]
+    assert m["rooms_without_view"] == camsearch.rooms_without_view(building, "L0")
+    reason = m["rooms_without_view"][0]["reason"]
+    assert "2.5 m2" in reason and [w for w in m["warnings"] if w.startswith("r_L0_sto: no view (")]
+    by_room: dict = {}
+    for c in m["cameras"]:
+        by_room.setdefault(c["room_id"], []).append(c["name"])
+    assert "r_L0_sto" not in by_room and by_room["r_L0_pry"] == ["cam_r_L0_pry_1"]   # empty: one view
+    assert {"r_L0_hall", "r_L0_din"} <= set(by_room)
+    # The m5 policy (three cameras per room) lists no room.
+    assert cameras.rooms_without_view(building, "L0", policy="m5") == []

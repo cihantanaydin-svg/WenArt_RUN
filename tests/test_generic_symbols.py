@@ -15,6 +15,7 @@ from shapely.geometry import box as sbox
 import _real01_page as R
 from wenart.ingest.generic import symbols as SY
 from wenart.ingest.generic import topology as TP
+from wenart.ingest.generic.model import Stroke
 from wenart.ingest.model import OpeningItem
 
 FT = 0.3048
@@ -200,6 +201,64 @@ def test_block_names_type_dxf_pieces():
     assert by_type["bed_double"].type_raw == "PLAN/BED-DOUBLE"
     assert by_type["toilet"].status == "unverified" and "does not fit" in by_type["toilet"].evidence["note"]
     assert not cands
+
+
+def _insert(handle, chain, rect, start=0):
+    """The four lines of a rectangle drawn by a DXF INSERT as dxf_generic ids them (``INSERT:<h>/<k>``)."""
+    x0, y0, x1, y1 = rect
+    segs = (((x0, y0), (x1, y0)), ((x1, y0), (x1, y1)), ((x1, y1), (x0, y1)), ((x0, y1), (x0, y0)))
+    return [Stroke(id=f"{handle}/{start + k}", kind="line", pts=[tuple(map(float, p)) for p in seg], block=chain)
+            for k, seg in enumerate(segs)]
+
+
+def test_dxf_clusters_split_by_insert_instance():
+    """One piece per INSERT of a furniture-named block (G3's synthetic-06 finding): a WC's tank and bowl stay one
+    toilet although they are two closed contours; DINING-6 gives its table and each nested CHAIR; a PILLOW block
+    nested in a BED block stays part of the bed."""
+    tank = _insert("INSERT:A1", "WC", (0.6, 0.5, 1.05, 0.72))
+    bowl_pts = [(0.825 + 0.2 * math.cos(2 * math.pi * k / 32), 0.96 + 0.24 * math.sin(2 * math.pi * k / 32))
+                for k in range(32)]
+    bowl = [Stroke(id="INSERT:A1/4", kind="curve", pts=bowl_pts, closed=True, block="WC")]
+    table = _insert("INSERT:B2", "DINING-6", (2.5, 2.0, 4.1, 2.9))
+    chairs = (_insert("INSERT:B2/4", "DINING-6/CHAIR", (2.8, 1.5, 3.25, 1.99))
+              + _insert("INSERT:B2/5", "DINING-6/CHAIR", (3.4, 2.91, 3.85, 3.4)))
+    bed = _insert("INSERT:C3", "BED-DOUBLE", (0.6, 2.0, 2.2, 4.0))
+    pillows = (_insert("INSERT:C3/4", "BED-DOUBLE/PILLOW", (0.7, 3.5, 1.3, 3.9))
+               + _insert("INSERT:C3/5", "BED-DOUBLE/PILLOW", (1.5, 3.5, 2.1, 3.9)))
+    pieces, cands, _ = _furn(tank + bowl + table + chairs + bed + pillows)
+    assert not cands
+    got = sorted((p.type, p.type_method, p.status) for p in pieces)
+    assert got == [("bed_double", "block_name", "verified"), ("chair", "block_name", "verified"),
+                   ("chair", "block_name", "verified"), ("table_dining", "block_name", "verified"),
+                   ("toilet", "block_name", "verified")]
+    toilet = [p for p in pieces if p.type == "toilet"][0]
+    assert sorted(toilet.size) == [pytest.approx(0.45), pytest.approx(0.7)]
+    assert toilet.evidence["entity"] == "INSERT:A1/0,INSERT:A1/1,INSERT:A1/2,INSERT:A1/3,INSERT:A1/4"
+    # A block whose chain names no furniture is split by the geometry as before.
+    sofa = _insert("INSERT:D4", "LIVING-GROUP", (1.0, 2.6, 3.0, 3.5))
+    coffee = _insert("INSERT:D4", "LIVING-GROUP", (1.5, 1.9, 2.5, 2.59), start=4)
+    pieces2, cands2, _ = _furn(sofa + coffee)
+    assert not pieces2 and len(cands2) == 2
+
+
+def test_id_ranges_keep_non_numeric_ids_sorted():
+    assert SY.id_ranges(["INSERT:FF/3/1", "INSERT:FF/0", "LINE:2F", "INSERT:FF/3/0"]) == \
+        "INSERT:FF/0,INSERT:FF/3/0,INSERT:FF/3/1,LINE:2F"
+
+
+def test_round_pieces_record_their_shape():
+    """§6.4: a side table is round when a circle fits >= 90 % of its outline; a square one is not (its 4 corners
+    lie on a circle, its outline does not)."""
+    circle = R.arc((2.0, 2.0), 0.22, 0, 360, n=48)
+    square = R.stroke(R.rect(4.0, 2.0, 4.45, 2.45), closed=True)
+    pieces, cands, _ = _furn([circle, square])
+    by_x = sorted((c["item"] for c in cands), key=lambda p: p.center[0])
+    assert len(by_x) == 2
+    assert by_x[0].details["shape"] == "round"
+    assert by_x[0].details["circle_fit"]["share"] >= 0.9
+    assert by_x[0].details["circle_fit"]["radius"] == pytest.approx(0.22, abs=0.005)
+    assert "shape" not in by_x[1].details and "circle_fit" not in by_x[1].details
+    assert all("shape" not in c for c in cands)                     # the question and its hash are unchanged
 
 
 def test_front_candidates():

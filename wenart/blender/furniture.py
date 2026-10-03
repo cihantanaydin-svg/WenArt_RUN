@@ -189,7 +189,14 @@ def fit_vertices(verts: Sequence[Sequence[float]], asset: dict, footprint: dict,
     for decor), rotate by ``footprint.rotation_deg`` and move to
     ``footprint.center`` at ``floor_z``. Returns the vertices and a record
     with the measured boxes before and after the fit, the offsets applied
-    and the scale used."""
+    and the scale used.
+
+    An Objaverse asset's ``unit_scale`` (raw GLB units -> metres, the prep
+    pod's unit guess; 1.0 when absent) is applied first: its catalogue boxes,
+    and so ``fit_scale``, are in metres."""
+    u = float(asset.get("unit_scale") or 1.0)
+    if u != 1.0:
+        verts = [(v[0] * u, v[1] * u, v[2] * u) for v in verts]
     R = frame_rotation(asset.get("front_axis"), asset.get("up_axis"))
     local = [apply_rotation(R, v) for v in verts]
     x0, y0, z0, x1, y1, z1 = _bounds(local)
@@ -219,7 +226,7 @@ def fit_vertices(verts: Sequence[Sequence[float]], asset: dict, footprint: dict,
         "origin_offset_catalog": asset.get("origin_offset"),
         "origin_offset_applied": [round(v, 4) for v in offset],
         "bbox_raw_m": [round(v, 4) for v in raw_bbox], "bbox_m": [round(v, 4) for v in fitted],
-        "fit_scale": [round(v, 4) for v in scale],
+        "fit_scale": [round(v, 4) for v in scale], "unit_scale": u,
     }
     return world, info
 
@@ -674,7 +681,7 @@ def _library_object(piece, file: Path, name, status, floor_z, collection, librar
 def _parametric_object(piece, name, status, floor_z, height, collection, mats, entry):
     fp = piece["footprint"]
     w, d = float(fp["size"][0]), float(fp["size"][1])
-    parts = P.build_parts(piece["type"], w, d, height)
+    parts = P.build_parts(piece["type"], w, d, height, piece=piece)
     verts, faces, keys = P.world_mesh(parts, fp["center"], float(fp["rotation_deg"]), floor_z)
     unverified = status == "unverified"
     used_keys = sorted(set(keys), key=keys.index)

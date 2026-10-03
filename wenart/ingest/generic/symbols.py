@@ -30,7 +30,9 @@ footprint must come from the geometry and the type from a rule, a block name or 
    at 2 mm (strokes joined end to end stay together) after the seed rings are removed and join the seed whose polygon
    contains them or the piece within 20 mm; edge contact never merges two pieces. Parts that fit no type and cannot
    be split stay **one composite** (``unknown``, ``unverified``, "possible group of N pieces"), never typed as one
-   table or bed.
+   table or bed. A cluster drawn only by DXF block content splits by INSERT instance first (one piece per instance
+   of a furniture-named block: a WC's tank and bowl stay one piece, DINING-6 gives its table and each CHAIR).
+   Pieces whose outline a circle fits for >= 90 % get ``details`` ``shape "round"`` and ``circle_fit`` (§6.4).
 5. Everything else is an **AI candidate** (§3): ``unknown``, ``unverified``, ``type_method "none"`` until two passes
    agree. Clusters > 4.5 m on a side are ``unknown``/``unverified`` and never asked.
 6. **Site decor**: clusters outside the building outline: green fills or radial clusters -> ``plant``; edge and
@@ -83,6 +85,9 @@ STAIR_STEP_TOL = 0.10
 COUNTER_END_M = 0.05
 COUNTER_DEPTH_M = (0.45, 0.75)
 FRONT_WALL_M = 0.25
+ROUND_SHARE = 0.9              # §6.4: round when a circle fits >= 90 % of the outline
+ROUND_TOL_M = 0.01
+ROUND_TOL_REL = 0.03
 
 # Built-in size table, used when wenart/recognition/size_table.yaml is missing or unreadable: plausible footprint
 # (width range, depth range) in metres, either orientation, +15 % tolerance applied by ``fits``. Sources: standard
@@ -631,8 +636,48 @@ def top_contours(cl: Cluster) -> list[tuple[Polygon, list[int]]]:
     return [(t[0], t[1]) for t in tops]
 
 
+def _block_keyword(name: str) -> Optional[str]:
+    upper = name.upper()
+    return next((ftype for key, ftype in BLOCK_KEYWORDS if key in upper), None)
+
+
+def block_instance(st: Stroke) -> tuple[str, bool]:
+    """(instance key, named) of a DXF block stroke: the INSERT instance of the innermost block in its chain whose
+    name holds a furniture keyword (``INSERT:FF/3`` for a CHAIR nested in DINING-6, ``INSERT:FF`` for the table
+    lines of DINING-6 or for a pillow block inside a BED block), else the outermost instance; ``named`` tells
+    whether a keyword was found. Ids that do not follow ``dxf_generic``'s ``INSERT:<h>/<k>/...`` form group by the
+    block chain."""
+    names = (st.block or "").split("/")
+    parts = st.id.split("/")
+    keyed = [i for i, name in enumerate(names) if _block_keyword(name) is not None]
+    if len(parts) < len(names) + 1:
+        return f"{st.block}|", bool(keyed)
+    i = keyed[-1] if keyed else 0
+    return f"{'/'.join(names[:i + 1])}|{'/'.join(parts[:i + 1])}", bool(keyed)
+
+
 def split_composite(cl: Cluster, table: dict) -> list[tuple[Cluster, int]]:
-    """Pieces of a cluster: ``[(cluster, n)]`` where ``n`` > 1 marks an unsplittable composite of n parts."""
+    """Pieces of a cluster: ``[(cluster, n)]`` where ``n`` > 1 marks an unsplittable composite of n parts.
+
+    A cluster drawn entirely by DXF block content splits by block instance first (one piece per INSERT of a
+    furniture-named block: a WC's tank and bowl stay one piece, DINING-6 gives its table and each CHAIR); instances
+    whose chain names no furniture go through the geometric split."""
+    if cl.segs and all(s.stroke.block for s in cl.segs):
+        groups: dict[str, list[Seg]] = {}
+        named: dict[str, bool] = {}
+        for s in cl.segs:
+            key, has_name = block_instance(s.stroke)
+            groups.setdefault(key, []).append(s)
+            named[key] = has_name
+        out: list[tuple[Cluster, int]] = []
+        for key in sorted(groups):
+            sub = Cluster(groups[key])
+            out.extend([(sub, 1)] if named[key] else _split_geometric(sub, table))
+        return out
+    return _split_geometric(cl, table)
+
+
+def _split_geometric(cl: Cluster, table: dict) -> list[tuple[Cluster, int]]:
     tops = top_contours(cl)
     corners, _ = min_rect([p for s in cl.segs for p in s.pts])
     size = (math.dist(corners[0], corners[1]), math.dist(corners[1], corners[2]))
@@ -1041,6 +1086,44 @@ def min_rect(pts) -> tuple[list[tuple[float, float]], float]:
     return corners, math.dist(corners[0], corners[1]) * math.dist(corners[1], corners[2])
 
 
+def circle_fit(segs: list[Seg]) -> Optional[dict]:
+    """``{"share", "radius"}`` of a least-squares circle through the piece's outline: the convex hull of its stroke
+    points, sampled every ~1 cm (sampling the outline, not the vertices: a rectangle's 4 corners lie on a circle
+    too). ``share`` = the fraction of the outline within max(10 mm, 3 % r) of the circle."""
+    from shapely.geometry import MultiPoint
+
+    pts = [p for s in segs for p in s.pts]
+    if len(set(pts)) < 3:
+        return None
+    hull = MultiPoint(pts).convex_hull
+    if hull.geom_type != "Polygon" or hull.area <= 0:
+        return None
+    ring = hull.exterior
+    n = max(64, min(2000, int(ring.length / 0.01)))
+    samples = np.array([ring.interpolate(k * ring.length / n).coords[0] for k in range(n)])
+    o = samples.mean(axis=0)
+    xs, ys = samples[:, 0] - o[0], samples[:, 1] - o[1]
+    a = np.c_[2.0 * xs, 2.0 * ys, np.ones(n)]
+    sol, *_ = np.linalg.lstsq(a, xs * xs + ys * ys, rcond=None)
+    cx, cy, c = sol
+    r2 = c + cx * cx + cy * cy
+    if r2 <= 0:
+        return None
+    r = math.sqrt(r2)
+    d = np.hypot(xs - cx, ys - cy)
+    share = float(np.mean(np.abs(d - r) <= max(ROUND_TOL_M, ROUND_TOL_REL * r)))
+    return {"share": round(share, 3), "radius": round(r, 4)}
+
+
+def round_shape(segs: list[Seg]) -> dict:
+    """``{"shape": "round", "circle_fit": {...}}`` when a circle fits >= 90 % of the piece's outline
+    (docs/milestone7.md §6.4: a round side table), else ``{}``."""
+    fit = circle_fit(segs)
+    if fit is None or fit["share"] < ROUND_SHARE:
+        return {}
+    return {"shape": "round", "circle_fit": fit}
+
+
 def footprint(pts, theta: float) -> tuple[tuple[float, float], float, float, float, list]:
     """(centre, extent along u, extent along v, angle of u in deg, corners): the minimum-area rectangle, snapped to
     the plan's dominant orientation when within 3 deg of it."""
@@ -1081,7 +1164,9 @@ def size_rotation(ext_u: float, ext_v: float, angle_u: float, front_deg: Optiona
 
 
 def id_ranges(ids) -> str:
-    """``line:3,line:4,line:5,curve:9`` -> ``line:3-5,curve:9`` (segment suffixes dropped)."""
+    """``line:3,line:4,line:5,curve:9`` -> ``curve:9,line:3-5`` (segment suffixes dropped). Numeric ids are
+    grouped into ranges per prefix; other ids (``INSERT:4B/3``) follow sorted, so the text does not depend on the
+    cluster order (a DWG and its DXF give the same evidence)."""
     groups: dict[str, list[int]] = {}
     other: list[str] = []
     for sid in ids:
@@ -1102,7 +1187,7 @@ def id_ranges(ids) -> str:
             parts.append(f"{head}:{start}" if start == prev else f"{head}:{start}-{prev}")
             if n is not None:
                 start = prev = n
-    return ",".join(parts + other)
+    return ",".join(parts + sorted(other))
 
 
 def _sides(corners) -> list[tuple[tuple, tuple]]:
@@ -1342,19 +1427,24 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
         infos.append({"part": part, "n": n, "fp": fp, "size": (fp[1], fp[2]), "poly": Polygon(fp[4])})
     for info in infos:
         part, n, fp = info["part"], info["n"], info["fp"]
+        shape = round_shape(part.segs) if n == 1 else {}
         block_item = _block_item(part, fp, ctx, raster_page, table)
         if block_item is not None:
+            block_item.details.update(shape)
             pieces.append(block_item)
             continue
         types = fitting_types(table, (fp[1], fp[2]))
         if n > 1 or not types:
             reason = (f"possible group of {n} pieces" if n > 1 else "fits no size-table type")
-            pieces.append(_unknown(part, fp, ctx, raster_page, reason, {"composite": n} if n > 1 else {}))
+            pieces.append(_unknown(part, fp, ctx, raster_page, reason,
+                                   dict({"composite": n} if n > 1 else {}, **shape)))
             notes.append(f"unknown piece {fp[1]:.2f} x {fp[2]:.2f} m at ({fp[0][0]:.2f}, {fp[0][1]:.2f}): {reason}")
             continue
         others = [o for o in infos if o is not info]
         fronts = front_candidates(part.segs, fp[0], fp[4], wall_polys, others, ctx.theta, table)
-        cands.append(_candidate(part, fp, ctx, raster_page, faces, fronts, types, len(cands) + 1))
+        cand = _candidate(part, fp, ctx, raster_page, faces, fronts, types, len(cands) + 1)
+        cand["item"].details.update(shape)
+        cands.append(cand)
     if details:
         notes.append(f"{details} drawn details smaller than {DETAIL_M} m ignored")
     decor = _site_decor(outside, ctx, raster_page, notes, wall_geom)

@@ -23,8 +23,10 @@ reason), render entries' ``window_pull`` and ``alt_preview``, the exposure's
 Milestone 7 (docs/milestone7.md §6.4), optional as well: opening entries'
 ``virtual`` and ``line`` (a separator without geometry), furniture entries'
 ``stair`` record, the furniture summary's ``not_built`` (``build: false``
-pieces) and ``stairs``, and the manifest's ``site`` (what the scene leaves
-out: plot walls, exterior areas, site decor, ``built: false``).
+pieces) and ``stairs``, the manifest's ``site`` (what the scene leaves
+out: plot walls, exterior areas, site decor, ``built: false``) and
+``rooms_without_view`` (§6.2: rooms the camera search gives no view, with the
+reason).
 """
 from __future__ import annotations
 
@@ -179,6 +181,9 @@ SCENE_MANIFEST = {
         "levels": {"type": "array", "items": {"type": "object", "required": ["id", "elevation", "ceiling_height"]}},
         "objects": {"type": "array", "items": SCENE_OBJECT},
         "cameras": {"type": "array", "items": SCENE_CAMERA},
+        # Milestone 7 (§6.2): rooms the camera search gives no view, with the reason.
+        "rooms_without_view": {"type": "array", "items": {
+            "type": "object", "required": ["room_id", "level_id", "reason"]}},
         "materials": {"type": "object", "additionalProperties": {
             "type": "object", "required": ["textured", "asset", "reason"],
         }},

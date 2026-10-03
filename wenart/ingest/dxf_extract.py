@@ -14,9 +14,10 @@ What is read, by layer (names matched case-insensitively):
   A known block without any geometry gets the table size and is ``unverified``.
 - ``YAZI``: TEXT/MTEXT; roles title / scale / dimension / room label.
 - ``OLCU``: DIMENSION, linear only. A rotated dimension (dimtype 0) measures the
-  definition points projected onto its direction, as CAD prints it; an aligned
-  one (dimtype 1) measures their distance. Printed = text override or the
-  measurement formatted with the dimension style.
+  definition points projected onto its direction, as CAD prints it (a
+  direction lost by the DWG conversion is recovered from the ``*D`` block's
+  dimension line); an aligned one (dimtype 1) measures their distance.
+  Printed = text override or the measurement formatted with the dimension style.
 
 Units: ``$INSUNITS`` gives metres per drawing unit (4 = mm). The building
 origin is the minimum corner of all wall rectangles, so the transform is
@@ -212,6 +213,14 @@ def extract_dxf(path: str | Path, level_id: str, file_rel: Optional[str] = None)
             ex.warnings.append(f"{file_rel}: DIMENSION:{ent.dxf.handle} has dimtype {ent.dimtype}; only linear "
                                "dimensions are read")
             continue
+        if ent.dimtype == 0 and not ent.dxf.hasattr("angle"):
+            # A DWG converted by LibreDWG loses the angle of rotated dimensions (docs/milestone7.md §0): recover it
+            # from the dimension line drawn in the *D block (in memory only), as the generic DXF reader does.
+            from wenart.ingest.dxf_generic import dimension_angle_from_block
+
+            angle = dimension_angle_from_block(ent)
+            if angle is not None:
+                ent.dxf.angle = angle
         span_units, measured_units = _linear_dimension_span(ent)
         p1_b, p2_b = tb(span_units[0]), tb(span_units[1])
         measured = measured_units * mpu

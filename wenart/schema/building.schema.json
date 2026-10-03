@@ -201,15 +201,22 @@
         "type_method": {"enum": ["block_name", "rule", "ai_two_pass", "none"], "description": "How the type was decided (generic core, docs/milestone7.md §2.8, §3.3)"},
         "type_candidates": {"type": "array", "items": {"type": "object"}, "description": "The AI passes' answers: {type, model, pass, confidence, front, reason}"},
         "build": {"type": "boolean", "description": "false = a drawn symbol both AI passes call not_furniture: kept as an obstacle, not built (default true)"},
-        "stair": {"type": "object", "description": "Stair rule result: flights [{start, end, width, lines}], landing, direction, *_assumed, riser_m, riser_source", "properties": {
-          "flights": {"type": "array", "items": {"type": "object", "properties": {"start": {"$ref": "#/$defs/point"}, "end": {"$ref": "#/$defs/point"}, "width": {"type": "number"}, "lines": {"type": "integer"}}}},
-          "landing": {"type": ["object", "null"]},
+        "stair": {"type": "object", "description": "Stair rule result: flights [{start, end, width, lines, spacing}], landing, direction, *_assumed, riser_m, riser_source", "properties": {
+          "flights": {"type": "array", "items": {"type": "object", "properties": {"start": {"$ref": "#/$defs/point"}, "end": {"$ref": "#/$defs/point"}, "width": {"type": "number"}, "lines": {"type": "integer"}, "spacing": {"type": "number", "description": "Distance between the drawn tread lines, metres"}}}},
+          "landing": {"type": ["object", "null"], "properties": {"polygon": {"type": "array", "items": {"$ref": "#/$defs/point"}}, "depth": {"type": "number"}}},
           "direction": {"type": ["array", "null"]},
           "direction_assumed": {"type": "boolean"},
+          "turn": {"enum": ["straight", "U", "other"]},
           "turn_assumed": {"type": "boolean"},
           "void_assumed": {"type": "boolean"},
           "riser_m": {"type": ["number", "null"]},
-          "riser_source": {"type": ["string", "null"]}
+          "riser_source": {"type": ["string", "null"]},
+          "reason": {"type": "string", "description": "Why direction and turn are assumed"}
+        }},
+        "shape": {"enum": ["round"], "description": "round = a circle fits >= 90 % of the drawn outline (docs/milestone7.md §6.4: a round side table); absent = the footprint rectangle"},
+        "circle_fit": {"type": "object", "description": "The circle fitted to the drawn outline: share of the outline on it, radius in metres", "properties": {
+          "share": {"type": "number"},
+          "radius": {"type": "number"}
         }},
         "counter_run": {"type": "object", "description": "Kitchen counter rule: the wall the run stands against and its strokes", "properties": {
           "wall_id": {"type": ["string", "null"]},
@@ -244,7 +251,12 @@
         "length_m": {"type": ["number", "null"]},
         "measured": {"type": ["array", "null"], "items": {"type": "number"}},
         "status": {"enum": ["ok", "conflict", "unchecked"]},
-        "off_pct": {"type": "array", "items": {"type": "number"}}
+        "off_pct": {"type": "array", "items": {"type": "number"}},
+        "unverified": {"type": "boolean", "description": "true = the size differs enough to mark the room unverified (over 10 % per side, or the area rule)"},
+        "area_m2": {"type": "object", "description": "Faces that are not rectangular: w x l of the label vs the face area", "properties": {
+          "label": {"type": "number"},
+          "face": {"type": "number"}
+        }}
       }
     },
     "conflict": {

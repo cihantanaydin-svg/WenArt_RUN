@@ -7,6 +7,7 @@ with furniture); synthetic-05 takes its furniture from a furniture-plan DXF
 (docs/milestone6.md §3).
 """
 import shutil
+from pathlib import Path
 
 import ezdxf
 import numpy as np
@@ -632,6 +633,79 @@ def test_dxf_without_synthetic_layers_goes_through_the_generic_core(tmp_path):
     assert not (building.get("site") or {}).get("boundary_walls")
     report = (tmp_path / "out" / "report.md").read_text(encoding="utf-8")
     assert "## Units" in report and "Project unit system: **imperial**" in report
+
+
+def test_titled_generic_dxf_keeps_its_english_title(tmp_path):
+    """D's titled synthetic-06 variant: the English title names the level (``Ground Floor``, from the title, not
+    assumed) and is no room label; the plan reads like its truth (walls, openings incl. the separator, rooms)."""
+    fixture = Path(__file__).parent / "fixtures" / "synthetic-06-titled"
+    project = tmp_path / "synthetic-06-titled"
+    project.mkdir()
+    shutil.copyfile(fixture / "synthetic-06-titled.dxf", project / "synthetic-06-titled.dxf")
+    building = build_project(project, tmp_path / "out", no_ai=True)
+    truth = B.load(fixture / "truth" / "building.json")
+    B.validate(building)
+    assert building["status"] == "ok"
+    keys = ("id", "label", "order", "label_source")
+    assert [{k: lv[k] for k in keys} for lv in building["levels"]] == [{k: lv[k] for k in keys}
+                                                                       for lv in truth["levels"]]
+    page = building["documents"][0]["pages"][0]
+    assert (page["classifier"], page["level_label_raw"]) == ("title", "GROUND FLOOR PLAN")
+    assert not any("level title missing" in w for w in building["warnings"])
+    assert all("GROUND" not in (r["label_raw"] or "").upper() for r in building["rooms"])
+    assert len(building["walls"]) == len(truth["walls"])
+    assert sorted(o["type"] for o in building["openings"]) == sorted(o["type"] for o in truth["openings"])
+    assert sorted(r["label"] for r in building["rooms"]) == sorted(r["label"] for r in truth["rooms"])
+
+
+def test_dwg_conversion_record_and_audit_errors(tmp_path, monkeypatch):
+    """§5.1: documents[] records the LibreDWG version, the source $ACADVER, the entity counts and the audit; audit
+    errors make the file's elements unverified (the converter itself is faked: a copy of synthetic-06's DXF)."""
+    from wenart.ingest import dwg as dwg_mod
+
+    project = tmp_path / "p"
+    project.mkdir()
+    (project / "plan.dwg").write_bytes(b"AC1015" + b"\0" * 64)
+    converted = tmp_path / "converted.dxf"
+    shutil.copyfile(PROJECTS / "synthetic-06" / "source" / "synthetic-06.dxf", converted)
+
+    def fake_convert(path, out_dir):
+        return dwg_mod.Conversion(dxf_path=converted, converter="libredwg dwg2dxf 0.14 test; audit: 2 errors, 0 fixes",
+                                  version="0.14 test", acadver="AC1015", release="R2000",
+                                  entity_counts={"LINE": 3}, audit_errors=2, audit_messages=["bad handle"])
+
+    monkeypatch.setattr(dwg_mod, "convert", fake_convert)
+    building = build_project(project, tmp_path / "out", no_ai=True)
+    B.validate(building)
+    doc = building["documents"][0]
+    assert doc["format"] == "dwg" and doc["converter"].startswith("libredwg dwg2dxf 0.14")
+    assert doc["conversion"]["acadver"] == "AC1015" and doc["conversion"]["entity_counts"] == {"LINE": 3}
+    assert doc["conversion"]["libredwg_version"] == "0.14 test" and doc["conversion"]["audit"]["errors"] == 2
+    assert building["walls"] and all(w["status"] == "unverified" for w in building["walls"])
+    assert all(o["status"] == "unverified" for o in building["openings"])
+    assert all(f["status"] == "unverified" for f in building["furniture"])
+    assert any("plan.dwg: the converted DXF has 2 audit errors" in w for w in building["warnings"])
+
+
+def test_round_pieces_carry_their_shape_into_the_building():
+    """§6.4 / L2: a round piece's ``shape`` and ``circle_fit`` reach building.json (Blender builds a round side
+    table from them); pieces without a shape write neither key."""
+    from wenart.ingest.model import FurnitureItem
+    from wenart.ingest.pipeline import ProjectBuild, _furniture_dict
+
+    build = ProjectBuild(B.empty_building("p", "projects/p", "test"))
+    room = {"id": "r_L0_living", "polygon": [[0, 0], [5, 0], [5, 4], [0, 4]], "has_documented_furniture": False}
+    ev = B.evidence("plan.pdf", "vector", 0.9, page=1, entity="curve:7")
+    round_piece = FurnitureItem(type="side_table", type_raw=None, center=(1.0, 1.0), size=(0.44, 0.44),
+                                rotation_deg=0.0, front_deg=None, box=[0, 0, 1, 1], entity="curve:7", evidence=ev,
+                                type_method="ai_two_pass",
+                                details={"shape": "round", "circle_fit": {"share": 0.99, "radius": 0.22}})
+    out = _furniture_dict("L0", round_piece, "f_L0_001", [room], build)
+    assert out["shape"] == "round" and out["circle_fit"] == {"share": 0.99, "radius": 0.22}
+    square = FurnitureItem(type="side_table", type_raw=None, center=(2.0, 1.0), size=(0.44, 0.44), rotation_deg=0.0,
+                           front_deg=None, box=[0, 0, 1, 1], entity="line:8", evidence=ev, type_method="ai_two_pass")
+    out2 = _furniture_dict("L0", square, "f_L0_002", [room], build)
+    assert "shape" not in out2 and "circle_fit" not in out2
 
 
 def test_several_untitled_plan_pages_need_review(tmp_path):

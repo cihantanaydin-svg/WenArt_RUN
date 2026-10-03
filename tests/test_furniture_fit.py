@@ -477,6 +477,10 @@ def test_validation_of_sources_licences_styles_and_mattresses(catalog):
         broken(lambda d, f=field: d["entries"][0].update({f: ""}), complete=False, data=extra)
     broken(lambda d: d["entries"][0].update(styles=[]), complete=False, data=extra)
     broken(lambda d: d["entries"][0].update(sha256_glb="abc"), complete=False, data=extra)
+    for bad in (0.5, 0, "0.01", True, None):                               # not a unit factor of §7.2
+        broken(lambda d, u=bad: d["entries"][0].update(unit_scale=u), complete=False, data=extra)
+    for unit in C.UNIT_SCALES:
+        C.validate({"entries": [dict(extra["entries"][0], unit_scale=unit)]}, complete=False)
     broken(lambda d: d["entries"][0].pop("has_mattress"), complete=False, data=extra)
     broken(lambda d: d["entries"].append({"type": "sofa", "parametric": True, "reason": "x"}), complete=False,
            data=extra)
@@ -490,7 +494,7 @@ def test_load_merges_the_objaverse_catalogue(tmp_path, catalog):
     assert C.load(main).merged == {} and C.objaverse_path(main) == tmp_path / "catalog_objaverse.json"
     extra = {"schema_version": "0.1", "notice": "ODC-By 1.0", "entries": [
         _objaverse_entry("u1", "bed_single", 0.9, 2.0, 0.6, has_mattress=True, styles=("scandinavian",)),
-        _objaverse_entry("u2", "sofa", 2.2, 0.9, 0.8, styles=("scandinavian",)),
+        _objaverse_entry("u2", "sofa", 2.2, 0.9, 0.8, styles=("scandinavian",), unit_scale=0.01),
         _objaverse_entry("u3", "floor_lamp", 0.4, 0.4, 1.6, licence="CC0", styles=("neutral",))]}
     C.objaverse_path(main).write_text(json.dumps(extra), encoding="utf-8")
     merged = C.load(main)
@@ -508,6 +512,8 @@ def test_load_merges_the_objaverse_catalogue(tmp_path, catalog):
     assert sofa["glb"] == "models/objaverse/u2.glb" and sofa["sha256_glb"] == "ab" * 32 and "gltf" not in sofa
     assert sofa["attribution"].startswith('"Model u2" by someone') and sofa["via"].startswith("Objaverse")
     assert bed["asset_id"] == "objaverse_u1"
+    # unit_scale (raw GLB units -> metres) travels with the fit; the scene builder applies it (1.0 when absent).
+    assert sofa["unit_scale"] == 0.01 and bed["unit_scale"] == 1.0
     report = F.fit_report(fitted, style_note="family 'scandinavian'")
     assert "## Attribution (CC BY 4.0)" in report and '- objaverse_u2: "Model u2" by someone' in report
     assert "Library style filter: family 'scandinavian'" in report and "## Models not taken" in report

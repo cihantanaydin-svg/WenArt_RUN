@@ -16,7 +16,7 @@ CLI::
         [--cameras all|cam_a,cam_b] [--samples N] [--res WxH] [--force] [--device auto|cpu] \
         [--exposure auto|off|<EV>] [--exposure-target T] [--white-balance auto|off|fixed:r,g,b] \
         [--look-from <render_manifest.json>] [--hide ID[,ID] [--plug]] [--hide-sets 'cam:id;cam:id+plug'] \
-        [--alt-look "AgX - Punchy"] [--max-bounces N] [--no-denoise] [--ev-offset X] [--preview-quality Q]
+        [--alt-look None] [--max-bounces N] [--no-denoise] [--ev-offset X] [--preview-quality Q]
 
 ``build --reuse`` (docs/milestone5.md §2.7) skips Blender when
 ``scene.blend`` and ``scene_manifest.json`` exist and the manifest's
@@ -164,7 +164,8 @@ def render(scene: str, out: str, cameras: str = "all", samples: int | None = Non
     ``look_from`` copies the per-camera look of another render manifest;
     ``hide`` (ids, a list or a comma string) + ``plug`` hide objects for
     every camera; ``hide_sets`` (``'cam:id;cam:id+plug'``) renders controls.
-    ``alt_look`` (e.g. ``"AgX - Punchy"``) also saves ``<cam>_alt_preview.jpg``;
+    ``alt_look`` (e.g. ``"None"``, the alternative to Milestone 7's main look
+    ``AgX - Punchy``) also saves ``<cam>_alt_preview.jpg``;
     ``max_bounces``, ``no_denoise``, ``ev_offset`` and ``preview_quality``
     are the control flags of docs/milestone6.md §6. A render cut by
     ``WENART_DEADLINE`` raises ``BlenderFailed`` with ``returncode`` 3."""
@@ -234,7 +235,8 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--hide", help="wenart ids to hide, comma separated")
     r.add_argument("--plug", action="store_true", help="close the wall holes of hidden doors/windows")
     r.add_argument("--hide-sets", help="'cam:id;cam:id+plug;...': control renders into <out>/hide_<id>/")
-    r.add_argument("--alt-look", help="also save <cam>_alt_preview.jpg with this AgX look (e.g. 'AgX - Punchy')")
+    r.add_argument("--alt-look", help="also save <cam>_alt_preview.jpg with this AgX look (e.g. 'None'; "
+                                      "the main look is 'AgX - Punchy' since Milestone 7)")
     r.add_argument("--max-bounces", type=int,
                    help="N indirect diffuse/glossy/volume bounces (0 = direct light only; a control); window "
                         "glass still transmits (transmission and total bounces >= 2)")

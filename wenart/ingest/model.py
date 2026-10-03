@@ -44,12 +44,6 @@ CLASS_KEYWORDS = [
     ("VAZIYET", "site_plan"),
 ]
 
-# English level titles (§2.1): GROUND FLOOR, FIRST/SECOND/THIRD FLOOR, BASEMENT, <n>(st|nd|rd|th) FLOOR.
-_EN_ORDINALS = {"FIRST": 1, "SECOND": 2, "THIRD": 3}
-_EN_LEVEL_WORD_RE = re.compile(r"\b(GROUND|FIRST|SECOND|THIRD)\s+FLOOR\b")
-_EN_LEVEL_NUMBER_RE = re.compile(r"\b(\d+)\s*(ST|ND|RD|TH)\s+FLOOR\b")
-_EN_BASEMENT_RE = re.compile(r"\bBASEMENT\b")
-
 
 @dataclass
 class TextItem:
@@ -215,26 +209,14 @@ def page_class_for(text: str) -> Optional[str]:
     return None
 
 
-def english_level_label(title_raw: str) -> Optional[tuple[str, int]]:
-    """English level title -> (label, order): ``GROUND FLOOR PLAN`` -> (``Ground floor``, 0); ``FIRST FLOOR`` ->
-    (``First floor``, 1); ``3RD FLOOR`` -> (``3rd floor``, 3); ``BASEMENT`` -> (``Basement``, -1); else None."""
-    upper = B.fold_ascii(title_raw).upper()
-    if _EN_BASEMENT_RE.search(upper):
-        return "Basement", -1
-    match = _EN_LEVEL_WORD_RE.search(upper)
-    if match:
-        word = match.group(1)
-        return f"{word.capitalize()} floor", _EN_ORDINALS.get(word, 0)
-    match = _EN_LEVEL_NUMBER_RE.search(upper)
-    if match:
-        n = int(match.group(1))
-        return f"{n}{match.group(2).lower()} floor", n
-    return None
+# English level titles (§2.1) live in ``building.normalise_level_label`` (title case, like the Turkish ones).
+english_level_label = B.english_level_label
 
 
 def normalise_level(title_raw: str) -> Optional[tuple[str, int]]:
-    """Level title (Turkish, ``building.normalise_level_label``, or English) -> (label, order), or None."""
-    return B.normalise_level_label(title_raw) or english_level_label(title_raw)
+    """Level title (Turkish or English, ``building.normalise_level_label``) -> (label, order), or None:
+    ``GROUND FLOOR PLAN`` -> (``Ground Floor``, 0), ``ZEMİN KAT PLANI`` -> (``Zemin Kat``, 0)."""
+    return B.normalise_level_label(title_raw)
 
 
 def text_role(text: str) -> str:

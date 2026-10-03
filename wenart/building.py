@@ -341,6 +341,9 @@ def normalise_level_label(title_raw: str) -> Optional[tuple[str, int]]:
     ``ZEMİN KAT PLANI`` -> (``Zemin Kat``, 0); ``1. KAT PLANI`` -> (``1. Kat``, 1);
     ``BODRUM KAT PLANI`` -> (``Bodrum Kat``, -1); ``ZEMİN KAT MOBİLYA PLANI`` ->
     (``Zemin Kat``, 0). ``MOBİLYA PLANI`` alone or ``ÖLÇEK 1/100`` -> None.
+    English titles (docs/milestone7.md §2.1), title case like the Turkish ones: ``GROUND FLOOR PLAN`` ->
+    (``Ground Floor``, 0); ``FIRST FLOOR`` -> (``First Floor``, 1); ``3RD FLOOR`` -> (``3rd Floor``, 3);
+    ``BASEMENT`` -> (``Basement``, -1). (An untitled plan page gets the assumed label "Ground floor" instead.)
     """
     folded = fold_ascii(title_raw)
     upper = folded.upper()
@@ -352,6 +355,29 @@ def normalise_level_label(title_raw: str) -> Optional[tuple[str, int]]:
     if match:
         n = int(match.group(1))
         return f"{n}. Kat", n
+    return english_level_label(upper)
+
+
+_EN_LEVEL_ORDINALS = {"GROUND": 0, "FIRST": 1, "SECOND": 2, "THIRD": 3}
+_EN_LEVEL_WORD_RE = re.compile(r"\b(GROUND|FIRST|SECOND|THIRD)\s+FLOOR\b")
+_EN_LEVEL_NUMBER_RE = re.compile(r"\b(\d+)\s*(ST|ND|RD|TH)\s+FLOOR\b")
+_EN_BASEMENT_RE = re.compile(r"\bBASEMENT\b")
+
+
+def english_level_label(title_raw: str) -> Optional[tuple[str, int]]:
+    """English level title -> (label, order), or None: ``GROUND FLOOR``, ``FIRST/SECOND/THIRD FLOOR``,
+    ``<n>(st|nd|rd|th) FLOOR``, ``BASEMENT`` (case-insensitive, docs/milestone7.md §2.1)."""
+    upper = fold_ascii(title_raw).upper()
+    if _EN_BASEMENT_RE.search(upper):
+        return "Basement", -1
+    match = _EN_LEVEL_WORD_RE.search(upper)
+    if match:
+        word = match.group(1)
+        return f"{word.capitalize()} Floor", _EN_LEVEL_ORDINALS[word]
+    match = _EN_LEVEL_NUMBER_RE.search(upper)
+    if match:
+        n = int(match.group(1))
+        return f"{n}{match.group(2).lower()} Floor", n
     return None
 
 

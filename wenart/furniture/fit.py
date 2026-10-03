@@ -42,8 +42,9 @@ Milestone 7 (docs/milestone7.md §6.3, user decision 7):
 - Objaverse models (``source: objaverse``, CC0 or CC BY 4.0) are fitted like
   the Poly Haven ones; the asset dict carries ``glb``, ``sha256_glb``,
   ``uid`` and the credit fields (``title``, ``author``, ``source_url``,
-  ``licence_url``, ``via``, ``attribution``); the report lists every CC BY
-  credit line. Downloading an Objaverse model reads only the prep pod's
+  ``licence_url``, ``via``, ``attribution``) and ``unit_scale`` (raw GLB
+  units -> metres, 1.0 when the entry has none; the scene builder applies
+  it before ``fit_scale``); the report lists every CC BY credit line. Downloading an Objaverse model reads only the prep pod's
   cache (``wenart.assets.models.fetch_model``); a miss is a parametric
   fallback like any failed download.
 """
@@ -178,6 +179,9 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
             }
             if entry["source"] == "objaverse":
                 asset.update({k: entry[k] for k in OBJAVERSE_ASSET_FIELDS})
+                # Catalogue boxes are metres = raw GLB box x unit_scale (the prep pod's unit guess); the
+                # scene builder scales the imported mesh by it before fit_scale (blender/furniture.fit_vertices).
+                asset["unit_scale"] = float(entry.get("unit_scale") or 1.0)
             else:
                 asset["gltf"] = entry["gltf"]
             return asset

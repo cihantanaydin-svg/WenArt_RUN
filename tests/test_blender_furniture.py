@@ -35,7 +35,9 @@ needs_blender = pytest.mark.skipif(BLENDER is None, reason="no Blender binary (W
 # Footprints per type: the drawing block sizes of Milestone 2 plus the types
 # no block draws.
 SIZES = {t: (w, d) for _, (t, w, d) in BLOCKS.items()}
-SIZES.update({"bed": (1.4, 2.0), "kitchen_island": (1.8, 0.9)})
+SIZES.update({"bed": (1.4, 2.0), "kitchen_island": (1.8, 0.9),
+              # Milestone 7 documented-only types (docs/milestone7.md §6.4; furniture size table defaults)
+              "stair": (1.0, 3.0), "side_table": (0.45, 0.45), "floor_lamp": (0.4, 0.4), "potted_plant": (0.4, 0.4)})
 
 
 # --------------------------------------------------------------------------
@@ -86,6 +88,9 @@ def test_every_type_has_a_recognisable_parametric_mesh(ftype):
         "fridge": {"handle"}, "stove": {"ring", "handle"}, "sink_kitchen": {"basin", "tap"},
         "washbasin": {"pedestal", "basin", "tap"}, "toilet": {"back", "bowl", "seat"},
         "shower": {"tray", "front", "side"}, "bathtub": {"basin", "tap"}, "washing_machine": {"front"},
+        # Milestone 7 (docs/milestone7.md §6.4)
+        "stair": {"step", "riser", "rail"}, "side_table": {"top", "leg"}, "floor_lamp": {"base", "pole", "shade"},
+        "potted_plant": {"pot", "crown"},
     }[ftype]
     assert expected <= roles, (ftype, roles)
     if ftype == "sofa":
@@ -313,6 +318,23 @@ def test_fit_vertices_recentres_scales_and_places():
     assert info["fit_scale"] == pytest.approx([0.5, 0.5, 0.5]) and info["bbox_m"] == pytest.approx([0.4, 0.25, 0.45])
 
 
+def test_fit_vertices_applies_the_objaverse_unit_scale_first():
+    """An Objaverse model drawn in centimetres (``unit_scale`` 0.01, docs/milestone7.md §7.2): its catalogue
+    boxes and ``fit_scale`` are metres, so the imported mesh is scaled to metres before the fit."""
+    verts = [(x, y, z) for x in (0, 50.0) for y in (0, 80.0) for z in (0, 90.0)]     # 0.5 x 0.8 x 0.9 m in cm
+    asset = {"front_axis": "-Y", "up_axis": "+Z", "fit_scale": [1.2, 1.0, 1.1], "unit_scale": 0.01}
+    world, info = F.fit_vertices(verts, asset, {"center": [1.0, 2.0], "size": [0.6, 0.8], "rotation_deg": 0.0},
+                                 floor_z=0.0)
+    assert info["unit_scale"] == 0.01 and info["bbox_raw_m"] == pytest.approx([0.5, 0.8, 0.9])
+    assert info["bbox_m"] == pytest.approx([0.6, 0.8, 0.99])
+    xs, ys, zs = ([v[i] for v in world] for i in range(3))
+    assert (max(xs) - min(xs), max(ys) - min(ys), max(zs) - min(zs)) == pytest.approx((0.6, 0.8, 0.99))
+    # Poly Haven assets have no unit_scale: unchanged (metres already).
+    _world, info = F.fit_vertices(verts, {"front_axis": "-Y", "fit_scale": [1.0, 1.0, 1.0]},
+                                  {"center": [0, 0], "size": [50.0, 80.0], "rotation_deg": 0.0}, 0.0)
+    assert info["unit_scale"] == 1.0 and info["bbox_raw_m"] == pytest.approx([50.0, 80.0, 90.0])
+
+
 def test_resolve_asset_reasons(tmp_path):
     assert F.resolve_asset(None, str(tmp_path)) == (None, "no asset in the building JSON")
     assert F.resolve_asset({"library": "parametric", "method": "parametric"}, str(tmp_path))[1].startswith("fitting chose")
@@ -457,7 +479,8 @@ def _building(assets_dir: Path) -> dict:
             "has_documented_furniture": True, "evidence": ev}
     furniture = []
     x, y, row_h = 1.2, 1.4, 0.0
-    for i, ftype in enumerate(P.PARAMETRIC_TYPES):
+    # Stairs are fixed equipment built by shell.build_stairs (tests/test_blender_build.py), not furniture.py.
+    for i, ftype in enumerate(t for t in P.PARAMETRIC_TYPES if t not in P.SHELL_TYPES):
         w, d = SIZES[ftype]
         rot = 90.0 if ftype in ("bed_single", "desk", "fridge") else (30.0 if ftype == "chair" else 0.0)
         span = max(w, d) + 0.5
@@ -547,7 +570,8 @@ def test_manifest_validates_and_summarises_the_furniture(scene):
     schemas.validate_scene_manifest(m)
     s = m["furniture"]
     assert s["pieces"] == len(scene["building"]["furniture"]) and s["proxies"] == 1 and s["decor"] == 5
-    assert s["by_method"] == {"proxy": 1, "library": 2, "parametric": len(P.PARAMETRIC_TYPES) + 2}
+    assert s["by_method"] == {"proxy": 1, "library": 2,
+                              "parametric": len(P.PARAMETRIC_TYPES) - len(P.SHELL_TYPES) + 2}
     reasons = {f["id"]: f["reason"] for f in s["fallbacks"]}
     assert set(reasons) == {f["id"] for f in scene["building"]["furniture"]
                             if f["type"] != "unknown" and f["id"] not in ("f_lib", "f_lib_rot")}

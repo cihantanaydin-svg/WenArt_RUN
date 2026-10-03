@@ -69,7 +69,12 @@ Milestone 7 (docs/milestone7.md §6.4):
 - the building's ``site`` (plot walls, exterior areas, site decor) is never
   built; the manifest's ``site`` records what was left out
   (``site_summary``);
-- virtual separators and doorless openings: see shell.py.
+- virtual separators and doorless openings: see shell.py;
+- §6.2: the rooms the camera policy gives no view (``search``: empty rooms
+  below 2.5 m2, ``cameras.rooms_without_view``) are listed in the
+  manifest's ``rooms_without_view`` with the reason and in ``warnings``;
+- ``load_style`` never fills the profile's ``family`` from the default (only
+  refit's library style filter reads it).
 """
 from __future__ import annotations
 
@@ -465,6 +470,7 @@ def main(argv: list[str]) -> int:
     furniture_summary = {"pieces": 0, "by_method": {}, "fallbacks": [], "proxies": 0, "decor": 0,
                          "proxies_forced": bool(args.proxies), "not_built": [], "stairs": []}
     loose_furniture = furniture_building(building)            # stairs are built with the shell
+    rooms_without_view: list[dict] = []                       # Milestone 7 §6.2: empty rooms the cameras skip
 
     for level in levels:
         col = common.get_or_make_collection(f"level_{level['id']}")
@@ -480,6 +486,9 @@ def main(argv: list[str]) -> int:
         add_furniture_summary(furniture_summary, shell.build_stairs(building, level, col, library, style, pass_indices,
                                                                     manifest_objects, assumed, warnings, plans=stairs))
         plans = cams.plan_cameras(building, level["id"], policy=args.camera_policy)
+        no_view = cams.rooms_without_view(building, level["id"], policy=args.camera_policy)
+        rooms_without_view.extend(no_view)
+        warnings.extend(f"{r['room_id']}: no view ({r['reason']})" for r in no_view)
         for plan in plans:
             plan.setdefault("policy", args.camera_policy)
         cams.create_cameras(plans, col, manifest_objects)
@@ -552,6 +561,7 @@ def main(argv: list[str]) -> int:
         "camera_policy": args.camera_policy,
         "search_seconds": search_seconds(camera_plans, args.camera_policy),
         "cameras": camera_plans,
+        "rooms_without_view": rooms_without_view,
         "materials": library.records,
         "lighting": light_info,
         "pass_index": pass_indices,

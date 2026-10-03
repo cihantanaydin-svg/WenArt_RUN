@@ -72,7 +72,15 @@
      "type_method": "rule", "type_candidates": [], "build": true,
      "stair": {"flights": [{"start": [5.5, 0.4], "end": [5.5, 2.4], "width": 1.0, "lines": 9}], "landing": null, "direction": [0.0, 1.0],
                "direction_assumed": true, "turn_assumed": true, "void_assumed": true, "riser_m": null, "riser_source": null},
-     "evidence": [{"file": "zemin_kat.dwg", "page": null, "entity": "LINE:700-708", "method": "vector", "confidence": 0.9, "note": "stair rule: 1 flight(s), 9 tread lines"}]}
+     "evidence": [{"file": "zemin_kat.dwg", "page": null, "entity": "LINE:700-708", "method": "vector", "confidence": 0.9, "note": "stair rule: 1 flight(s), 9 tread lines"}]},
+    {"id": "f_L0_004", "level_id": "L0", "room_id": "r_L0_salon", "type": "side_table", "type_raw": null, "source": "from_documents",
+     "footprint": {"center": [1.2, 3.6], "size": [0.45, 0.45], "rotation_deg": 0}, "front_deg": null, "height": null, "asset": null, "status": "verified",
+     "type_method": "ai_two_pass", "build": true, "shape": "round", "circle_fit": {"share": 0.98, "radius": 0.225},
+     "type_candidates": [{"type": "side_table", "model": "Qwen/Qwen3-VL-8B-Instruct", "pass": 1, "confidence": 0.8, "front": "none", "reason": "small round table beside the sofa"},
+                         {"type": "side_table", "model": "zai-org/GLM-4.6V-Flash", "pass": 2, "confidence": 0.75, "front": "none", "reason": "round side table"}],
+     "evidence": [{"file": "zemin_kat.dwg", "page": null, "entity": "CIRCLE:6B0", "method": "vector", "confidence": 0.9},
+                  {"file": "zemin_kat.dwg", "page": null, "entity": "recognition:sym_L0_002", "method": "ai", "model": "Qwen/Qwen3-VL-8B-Instruct", "pass": 1, "confidence": 0.8, "text": "side_table"},
+                  {"file": "zemin_kat.dwg", "page": null, "entity": "recognition:sym_L0_002", "method": "ai", "model": "zai-org/GLM-4.6V-Flash", "pass": 2, "confidence": 0.75, "text": "side_table"}]}
   ],
   "conflicts": [
     {"id": "c_001", "kind": "area_label_vs_computed", "element_ids": ["r_L0_salon"], "description": "Label says 24,50 m², polygon gives 24,00 m² (2.0%)", "resolution": "within tolerance (3%), kept polygon from DWG"}

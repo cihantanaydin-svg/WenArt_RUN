@@ -1,14 +1,18 @@
 """Page classification (wenart/ingest/classify.py) on the synthetic projects."""
+import json
 import shutil
 from pathlib import Path
 
 import pytest
 
+from wenart import building as B
 from wenart.ingest import classify as C
 from wenart.ingest import dwg as dwg_mod
 from wenart.ingest.model import METRES_PER_POINT, page_class_for, parse_number, parse_scale_text, text_role
 
 from conftest import PROJECTS
+
+FIXTURES_06_TITLED = Path(__file__).parent / "fixtures" / "synthetic-06-titled"
 
 
 def by_page(records):
@@ -285,12 +289,15 @@ def test_untitled_dxf_without_synthetic_layers_is_generic(tmp_path):
 def test_titled_dxf_without_synthetic_layers_keeps_its_title_and_goes_generic(tmp_path):
     project = tmp_path / "p"
     project.mkdir()
-    shutil.copyfile(Path(__file__).parent / "fixtures" / "synthetic-06-titled" / "synthetic-06-titled.dxf",
-                    project / "plan.dxf")
+    shutil.copyfile(FIXTURES_06_TITLED / "synthetic-06-titled.dxf", project / "plan.dxf")
     rec = C.classify_pages(project)[0]
     assert (rec.page_class, rec.classifier, rec.extractor, rec.confidence) == ("floor_plan", "title", "generic", 1.0)
+    # English titles are title case like the Turkish ones (D's titled fixture truth: "Ground Floor"); only the
+    # assumed level of an untitled page is "Ground floor".
     assert (rec.level_id, rec.level_label, rec.label_source, rec.level_label_raw) == \
-        ("L0", "Ground floor", "title", "GROUND FLOOR PLAN")
+        ("L0", "Ground Floor", "title", "GROUND FLOOR PLAN")
+    truth = json.loads((FIXTURES_06_TITLED / "truth" / "building.json").read_text(encoding="utf-8"))
+    assert (truth["levels"][0]["label"], truth["levels"][0]["order"]) == (rec.level_label, rec.level_order)
 
 
 def test_synthetic_pages_keep_the_synthetic_extractors():
@@ -357,13 +364,14 @@ def test_same_stem_dxf_wins_without_converting_the_dwg(tmp_path, monkeypatch):
 
 def test_english_titles_and_class_words():
     from wenart.ingest.model import TextItem, english_level_label, normalise_level
-    assert english_level_label("GROUND FLOOR PLAN") == ("Ground floor", 0)
-    assert english_level_label("First Floor") == ("First floor", 1)
-    assert english_level_label("SECOND FLOOR FURNITURE LAYOUT PLAN") == ("Second floor", 2)
-    assert english_level_label("3RD FLOOR") == ("3rd floor", 3)
-    assert english_level_label("12th floor") == ("12th floor", 12)
+    assert english_level_label("GROUND FLOOR PLAN") == ("Ground Floor", 0)
+    assert english_level_label("First Floor") == ("First Floor", 1)
+    assert english_level_label("SECOND FLOOR FURNITURE LAYOUT PLAN") == ("Second Floor", 2)
+    assert english_level_label("3RD FLOOR") == ("3rd Floor", 3)
+    assert english_level_label("12th floor") == ("12th Floor", 12)
     assert english_level_label("BASEMENT") == ("Basement", -1) and english_level_label("Bed Room") is None
     assert normalise_level("ZEMİN KAT PLANI") == ("Zemin Kat", 0)
+    assert normalise_level("GROUND FLOOR PLAN") == B.normalise_level_label("GROUND FLOOR PLAN") == ("Ground Floor", 0)
     assert page_class_for("GROUND FLOOR PLAN") == "floor_plan"
     assert page_class_for("FIRST FLOOR FURNITURE PLAN") == "furniture_plan"
     assert page_class_for("FURNITURE LAYOUT PLAN") == "furniture_plan" and page_class_for("Floor") is None
@@ -373,7 +381,7 @@ def test_english_titles_and_class_words():
     assert (page_class, title.entity, confidence) == ("floor_plan", "T:2", 1.0)
     rec = C.PageRecord(file="x.pdf", page=1, format="pdf", kind="vector")
     C.apply_level(rec, title)
-    assert (rec.level_id, rec.level_label, rec.label_source, rec.classifier) == ("L1", "First floor", "title", "title")
+    assert (rec.level_id, rec.level_label, rec.label_source, rec.classifier) == ("L1", "First Floor", "title", "title")
     assert C.classify_texts(texts[:1])[0] == "other"
 
 

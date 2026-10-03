@@ -172,6 +172,8 @@ def test_load_style_records_every_filled_slot_as_assumed(tmp_path):
     fields = {a["field"] for a in assumed if a["object"] == "style"}
     assert "walls" in fields and "lighting" in fields and "floor" not in fields
     assert any("walls" in w and "assumed" in w for w in warnings)
+    # Milestone 7: a style file without ``family`` (pre-M7) keeps none; it is never guessed from the default.
+    assert "family" not in style and "family" not in fields and not [w for w in warnings if "'family'" in w]
 
 
 @pytest.fixture(scope="module")

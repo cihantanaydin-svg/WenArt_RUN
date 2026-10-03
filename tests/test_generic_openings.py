@@ -176,6 +176,29 @@ def test_empty_end_gap_is_only_a_separator_candidate():
     assert len(free) == 1 and free[0]["direction"] == [1.0, 0.0]
 
 
+def test_furniture_only_in_the_zone_keeps_an_end_gap_empty():
+    """§2.6 doorless = nothing in the band and no door arc: a square chair (4 corners fit a circle exactly), a chair
+    with rounded corners (small arcs) and a round table beside an open plan are only in the 0.35 m zone (D's
+    synthetic-06 open kitchen: a dining chair beside the stub's end gap)."""
+    walls = [R.wall((3, -2), (3, 2), 0.2), R.wall((0, 0), (1.8, 0), 0.15)]
+    square_chair = R.stroke(R.rect(2.0, 0.12, 2.45, 0.57), closed=True)
+    rounded = [R.arc(c, 0.04, a, a + 90) for c, a in
+               (((2.04, -0.20), 90), ((2.36, -0.20), 0), ((2.36, -0.52), 270), ((2.04, -0.52), 180))]
+    table = R.arc((2.45, -0.75), 0.4, 0, 360, n=72)
+    _, openings, log, _ = _run(walls, [square_chair, table] + rounded)
+    assert not openings
+    entry = [e for e in log if e["kind"] == "end"][0]
+    assert entry["class"] == "empty"
+
+
+def test_a_mis_sized_swing_arc_at_the_gap_end_is_unclassified():
+    walls = [R.wall((3, -2), (3, 2), 0.2), R.wall((0, 0), (1.8, 0), 0.15)]
+    swing = R.arc((1.82, 0.06), 0.6, 0, 90)                         # radius 0.55 g: not a door by the rule
+    _, _, log, _ = _run(walls, [swing])
+    entry = [e for e in log if e["kind"] == "end"][0]
+    assert entry["class"] == "unclassified" and entry["strokes"] == [swing.id]
+
+
 def test_run_gap_split_by_a_perpendicular_wall_end_gives_two_doors():
     run = [R.wall((0, 0), (0, 2), 0.15), R.wall((0, 3.2), (0, 5), 0.15)]
     perp = R.wall((-3, 2.6), (0.075, 2.6), 0.15)                  # ends at the far face of the run band
@@ -228,6 +251,27 @@ def test_continuous_wall_door_and_window_of_the_synthetic_convention():
     assert wi.center == pytest.approx((4.5, 0.0), abs=1e-6) and wi.width == pytest.approx(1.2)
     assert {door[0].id, door[1].id} <= owned
     assert len([e for e in log if e["kind"] == "continuous"]) == 2
+
+
+def test_continuous_wall_door_with_a_rectangle_leaf():
+    """CAD door blocks draw the leaf as a thin closed rectangle from the hinge along the open radius (D's request):
+    the end-point rule finds no line leaf, the leaf rule of the gap classifier does."""
+    w = R.wall((0, 0), (6, 0), 0.2)
+    hinge = (1.55, 0.0)
+    leaf = R.stroke(R.rect(1.55, 0.0, 1.59, 0.88), closed=True)    # 40 mm x 0.88 m, along +y
+    swing = R.arc(hinge, 0.9, 0, 90)
+    _, openings, log, owned = _run([w], [leaf, swing] + R.wall_faces(w))
+    doors = [o for o in openings if o.kind == "door"]
+    assert len(doors) == 1
+    d = doors[0]
+    assert d.center == pytest.approx((2.0, 0.0)) and d.width == pytest.approx(0.9)
+    assert d.swing_point[1] > 0
+    assert {leaf.id, swing.id} <= owned
+    assert d.evidence["entity"].split(",") == [swing.id, leaf.id]
+    # A thin rectangle that is too short for the radius is no leaf.
+    short = R.stroke(R.rect(1.55, 0.0, 1.59, 0.5), closed=True)
+    _, openings2, _, _ = _run([w], [short, R.arc(hinge, 0.9, 0, 90)] + R.wall_faces(w))
+    assert not [o for o in openings2 if o.kind == "door"]
 
 
 def test_solid_wall_faces_alone_are_not_a_window():

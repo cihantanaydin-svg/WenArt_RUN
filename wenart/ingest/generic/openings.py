@@ -16,7 +16,8 @@ wall, and its two bedroom doors share one run gap that the end of the wall betwe
   sweep 60-100 deg (or two arcs of radius g/2 hinged at both ends), with an optional leaf (a thin shape <= 60 mm
   wide starting within 0.10 m of the hinge, 0.85-1.05 r long, along the arc's start or end radius); *window* = >= 2
   straight strokes parallel to the wall inside the band spanning >= 80 % of g; *doorless* = nothing in the band and
-  no arc (``unverified`` in an exterior wall: "possible undrawn door or window"); anything else is an unverified
+  no door-like arc (hinged within the zone of a gap end, radius 0.4-1.5 g; furniture that is only in the zone does
+  not count) (``unverified`` in an exterior wall: "possible undrawn door or window"); anything else is an unverified
   ``opening`` with ``type_raw "unclassified gap content"``.
 - A run gap closes inside its run (the run becomes one ``WallItem``); an end gap holding a door or window extends
   the free-end wall to the hit face (evidence method ``derived``); an empty end gap is only logged as a separator
@@ -25,8 +26,9 @@ wall, and its two bedroom doors share one run gap that the end of the wall betwe
   the wall band (faces +- 20 mm) across it (jamb frames, window lines); ``symbols.furniture`` drops exactly those.
 - Continuous-wall symbols (the synthetic convention and raster double-line walls) keep working: an arc + leaf
   hinged inside a wall band or within 0.08 m of a face (the end-point rule of ``pdf_extract._door_from_arc``: the leaf
-  runs from the hinge to one arc end, the other arc end lies one radius from the hinge), radius 0.6-1.2 m, is a door
-  cut into that wall; >= 3 parallel strokes inside a wall band (one strictly inside it) over >= 0.4 m are a window.
+  runs from the hinge to one arc end, the other arc end lies one radius from the hinge; a leaf drawn as a thin
+  rectangle passes the classifier's leaf rule instead), radius 0.6-1.2 m, is a door cut into that wall; >= 3
+  parallel strokes inside a wall band (one strictly inside it) over >= 0.4 m are a window.
 
 Everything is in page metres (y up). Walls at other angles than the plan's dominant pair pass through untouched.
 """
@@ -53,6 +55,7 @@ GAP_MIN_M = 0.25
 GAP_MAX_M = 3.0
 GAP_IGNORE_M = 0.005
 ZONE_M = 0.35
+DOOR_LIKE_RADIUS = (0.4, 1.5)  # x gap width: an arc in the zone that keeps a gap from being doorless
 BAND_SLACK_M = 0.02
 HINGE_M = 0.08
 RADIUS_TOL = 0.12
@@ -346,6 +349,10 @@ def _arcs_in(items: list[_S]) -> list[tuple[_S, dict]]:
     for it in items:
         if it.st.kind not in ("arc", "curve", "polyline", "circle") or len(it.pts) < 4:
             continue
+        if it.st.arc is None and it.st.kind == "polyline" and len(it.pts) < 8:
+            # A few-vertex polyline the adapter did not call an arc (a square chair: 4 corners fit a circle
+            # exactly) is not an arc.
+            continue
         arc = arc_of(it.pts)
         if arc is not None and arc["sweep"] >= 30.0:
             out.append((it, arc))
@@ -412,17 +419,29 @@ def classify_gap(g: Gap, index: StrokeIndex, owned_global: set) -> None:
         g.cls = "window"
         g.found = {"lines": list({id(it): it for it, _ in parallel}.values())}
         return
-    # Doorless: nothing in the band (the jamb faces at the gap ends do not count) and no arc.
+    # Doorless: nothing in the band (the jamb faces at the gap ends do not count) and no door-like arc. Strokes
+    # that are only in the classification zone (a chair or a round table beside an open plan) do not count; an
+    # arc there counts when it could be a mis-sized door swing: hinged within the zone of a gap end, radius
+    # 0.4-1.5 g, not a full circle.
     inner = g.rect(grow_face=BAND_SLACK_M)
     shrink = 0.01
     inner = (inner[0] + shrink, inner[1], inner[2] - shrink, inner[3]) if g.axis == "h" else \
         (inner[0], inner[1] + shrink, inner[2], inner[3] - shrink)
     content = [it for it in index.query(inner) if it.st.id not in owned_global and it.geom.length > 0.005]
-    if not content and not arcs:
+    swings = [it for it, arc in arcs if _door_like(g, arc)]
+    if not content and not swings:
         g.cls = "empty"
         return
     g.cls = "unclassified"
-    g.found = {"content": content + [it for it, _ in arcs if it not in content]}
+    g.found = {"content": content + [it for it in swings if it not in content]}
+
+
+def _door_like(g: Gap, arc: dict) -> bool:
+    """An arc that may be a door swing of this gap, drawn off the door rule's tolerances."""
+    width = g.width
+    if not DOOR_LIKE_RADIUS[0] * width <= arc["radius"] <= DOOR_LIKE_RADIUS[1] * width or arc["sweep"] >= 300.0:
+        return False
+    return min(_jamb_distance(g, arc["center"], end) for end in (g.a, g.b)) <= ZONE_M
 
 
 def _arc_mid(arc: dict) -> tuple[float, float]:
@@ -954,6 +973,9 @@ def _continuous_symbols(walls: list[WallItem], index: StrokeIndex, owned: set, t
                     break
             if found:
                 break
+        leaf_ids = None
+        if not found:
+            found, leaf_ids = _shape_leaf(it, arc, index, owned)
         if not found:
             continue
         leaf, hinge_pt, tip, closed_end = found
@@ -972,7 +994,7 @@ def _continuous_symbols(walls: list[WallItem], index: StrokeIndex, owned: set, t
         corners = [_rot(p, theta) for p in (hinge_pt, closed_end,
                                             (closed_end[0] + side[0] * w, closed_end[1] + side[1] * w), tip)]
         bx = ctx.box(corners)
-        ids = [it.st.id, leaf.st.id]
+        ids = [it.st.id] + (leaf_ids or [leaf.st.id])
         owned.update(ids)
         ev = ctx.evidence("vector", CONF_DOOR_LEAF, ",".join(ids), box_units=bx)
         doors.append(OpeningItem(kind="door", width=round(w, 4), center=_r(center),
@@ -980,6 +1002,21 @@ def _continuous_symbols(walls: list[WallItem], index: StrokeIndex, owned: set, t
                                  swing_point=_r(probe), height=DOOR_HEIGHT_M, assumed=["height"]))
     windows = _continuous_windows(pieces, index, owned, theta, ctx, existing + doors)
     return doors, windows
+
+
+def _shape_leaf(it: _S, arc: dict, index: StrokeIndex, owned: set):
+    """A door leaf drawn as a thin shape (a closed rectangle, as CAD door blocks draw it) for a continuous-wall arc:
+    the gap classifier's leaf rule (<= 60 mm wide, 0.85-1.05 r long, from the hinge along the arc's start or end
+    radius). Returns ((leaf, hinge, tip, closed end), leaf ids) or (None, None)."""
+    hinge, r = arc["center"], arc["radius"]
+    reach = LEAF_LENGTH[1] * r + LEAF_START_M + LEAF_CORRIDOR_M
+    near = [x for x in index.query((hinge[0] - reach, hinge[1] - reach, hinge[0] + reach, hinge[1] + reach))
+            if x is not it and x.st.id not in owned]
+    for tip, other in ((arc["end"], arc["start"]), (arc["start"], arc["end"])):
+        leaf = _leaf({**arc, "start": tip, "end": tip}, near, {id(it)})
+        if leaf:
+            return (leaf[0], hinge, tip, other), [x.st.id for x in leaf]
+    return None, None
 
 
 def _continuous_windows(pieces: list[Piece], index: StrokeIndex, owned: set, theta: float, ctx: _Ctx,
