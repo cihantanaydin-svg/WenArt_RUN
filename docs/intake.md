@@ -3,8 +3,10 @@
 ## The easy way (use this now)
 
 1. Drop the project files into the WenArt chat in Claude (plans as DXF or PDF, a `.zip` of the
-   whole folder is fine too), or upload them on GitHub into a new folder `projects/real01/`
-   (repository page, **Add file > Upload files**).
+   whole folder is fine too). Or upload them on GitHub: put them in a folder named `real01` on your
+   computer, open the repository's `projects` folder on GitHub, click **Add file > Upload files**
+   and drag the `real01` folder in. (Do not type `projects/` again: you are already in it, and
+   the files would land in `projects/projects/real01/`. If that happens, Claude moves them.)
 2. Tell Claude: "run real01" and, if you like, the style in one sentence
    ("modern, walnut floor, white walls").
 
