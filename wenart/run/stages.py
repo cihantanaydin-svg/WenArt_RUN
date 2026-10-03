@@ -71,8 +71,8 @@ VISION_CODE = ("wenart/vision_check/**", "wenart/views.py", "wenart/recognition/
 GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.py", "wenart/canonical.py",
              "wenart/hfcache.py", "wenart/brief.py", "wenart/geometry.py", "wenart/style/**",
              "wenart/blender/cameras.py", "wenart/blender/camsearch.py", "wenart/blender/common.py",
-             "wenart/blender/geom2d.py", "wenart/blender/parametric.py", "wenart/blender/proxies.py",
-             "wenart/blender/shell.py")
+             "wenart/blender/geom2d.py", "wenart/blender/lighting.py", "wenart/blender/materials.py",
+             "wenart/blender/parametric.py", "wenart/blender/proxies.py", "wenart/blender/shell.py")
 
 
 @dataclass(frozen=True)
