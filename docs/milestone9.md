@@ -192,7 +192,11 @@ The stage is not critical (a failure is a warning: the renders and reports stand
 profile. The copy step puts the three files into `results/final/<p>/3d/`; the runner streams the `.blend` and `.glb`
 past its 20 MB small-file cap (own caps: 2 GB per file, 8 GB per run) into `runs/<job>/results/final/<p>/3d/`,
 after the small files. Git keeps only `export_manifest.json` (`.gitignore`: `results/**/*.blend`, `*.glb`); the
-files themselves are handed to the user and stay on the Network Volume (`/workspace/outputs/<p>/export/`). Private
+files themselves are handed to the user and stay on the Network Volume (`/workspace/outputs/<p>/export/`). The
+Claude app refused single uploads of 75 MB and more (HTTP 502, 4 Oct 2026) and took 24 MiB parts:
+`python -m wenart.run.pack3d --src runs/<job>/results/final/<p> --out runs/<job>/delivery` writes one zip
+(`.blend` stored, `.glb` deflated, `export_manifest.json`, `ATTRIBUTION.md`) in 24 MiB parts with its sha256 and a
+README that says how to join them. Private
 projects keep their 3D files in `/workspace/outputs-private/<alias>/export/` (the private allow-list is unchanged).
 
 ## 6. Pods
