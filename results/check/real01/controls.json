@@ -21,7 +21,7 @@
    "type": "sofa",
    "camera": "cam_r_L0_drawing_room_1",
    "room_id": "r_L0_drawing_room",
-   "area_frac": 0.12607,
+   "area_frac": 0.12504,
    "source": "from_documents",
    "plug": false,
    "dir": "controls/hide_f_L0_017"
@@ -33,7 +33,7 @@
    "type": "nightstand",
    "camera": "cam_r_L0_bed_room_2_2",
    "room_id": "r_L0_bed_room_2",
-   "area_frac": 0.03044,
+   "area_frac": 0.03796,
    "source": "from_documents",
    "plug": false,
    "dir": "controls/hide_f_L0_005"
@@ -81,7 +81,7 @@
    "type": "door",
    "camera": "cam_r_L0_drawing_room_3",
    "room_id": "r_L0_drawing_room",
-   "area_frac": 0.04589,
+   "area_frac": 0.054,
    "source": "from_documents",
    "plug": false,
    "dir": "controls/hide_d_L0_003"
@@ -94,7 +94,7 @@
    "type": "sofa",
    "camera": "cam_r_L0_drawing_room_1",
    "room_id": "r_L0_drawing_room",
-   "area_frac": 0.12607,
+   "area_frac": 0.12504,
    "source": "from_documents",
    "swap_to": "bed_double"
   }

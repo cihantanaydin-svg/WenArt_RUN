@@ -3,8 +3,8 @@
  "project": {
   "id": "real01",
   "source_folder": "projects/real01",
-  "created_utc": "2026-10-04T10:00:12Z",
-  "pipeline_commit": "714dcc50e",
+  "created_utc": "2026-10-04T14:17:26Z",
+  "pipeline_commit": "24efc0891",
   "unit_system": "imperial"
  },
  "status": "ok",
@@ -2035,16 +2035,52 @@
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
      {
+      "id": "abo_B0154VUESC",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B01M0ZVGCQ",
+      "reason": "styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B01N6AQX0A",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
       "id": "abo_B071W2SCTJ",
       "reason": "styles ['minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B072PWGSZL",
+      "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
      },
      {
       "id": "abo_B075QDMWTP",
       "reason": "styles ['modern minimal'] include neither scandinavian nor neutral"
      },
      {
+      "id": "abo_B07B4YNHSN",
+      "reason": "styles ['modern minimal'] include neither scandinavian nor neutral"
+     },
+     {
       "id": "abo_B07B4Z9Q3S",
       "reason": "styles ['modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07GFDZW5W",
+      "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07L1DDXLR",
+      "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B084ZBDPG5",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B084ZBX1YH",
+      "reason": "styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral"
      },
      {
       "id": "abo_B08FTN8KHY",
@@ -2227,6 +2263,24 @@
       "quality": 3.0
      },
      {
+      "id": "abo_B07QD6TXWS",
+      "aspect_error": 0.3219,
+      "scale": [
+       0.8673,
+       1.1967,
+       1.032
+      ],
+      "non_uniform": 1.3797,
+      "mean_scale": 1.032,
+      "accepted": false,
+      "rank": 3,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.1205,
+      "size_bucket": 2,
+      "quality": 3.0
+     },
+     {
       "id": "abo_B07VB7Q6W7",
       "aspect_error": 0.3388,
       "scale": [
@@ -2237,7 +2291,7 @@
       "non_uniform": 1.4032,
       "mean_scale": 0.9925,
       "accepted": false,
-      "rank": 3,
+      "rank": 4,
       "source": "abo",
       "units_known": true,
       "size_error": 0.1135,
@@ -2255,7 +2309,7 @@
       "non_uniform": 1.0048,
       "mean_scale": 1.1615,
       "accepted": true,
-      "rank": 4,
+      "rank": 5,
       "source": "abo",
       "units_known": true,
       "size_error": 0.1615,
@@ -2286,8 +2340,44 @@
       "reason": "styles ['rustic'] include neither scandinavian nor neutral"
      },
      {
+      "id": "abo_B074KKMQBG",
+      "reason": "styles ['modern minimal'] include neither scandinavian nor neutral"
+     },
+     {
       "id": "abo_B075X38PZ7",
       "reason": "styles ['rustic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B079VK52WZ",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B079VKDKC1",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B079VNKB6Z",
+      "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B079VNL3CG",
+      "reason": "styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07DVRLW48",
+      "reason": "styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07L1DH1PX",
+      "reason": "styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07PX3CC31",
+      "reason": "styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07QS8TBXT",
+      "reason": "styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral"
      },
      {
       "id": "abo_B084MYDTKM",
@@ -2301,8 +2391,8 @@
     "units_known": true,
     "ranking": {
      "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
-     "rank": 4,
-     "tried": 4,
+     "rank": 5,
+     "tried": 5,
      "reasons": [
       "real size: mean |scale - 1| 0.162 (step 3)",
       "quality 3",
@@ -2317,6 +2407,10 @@
       {
        "id": "abo_B07K7K7GTZ",
        "why": "outside the caps (non-uniform 25.0 %, mean scale 0.996)"
+      },
+      {
+       "id": "abo_B07QD6TXWS",
+       "why": "outside the caps (non-uniform 38.0 %, mean scale 1.032)"
       },
       {
        "id": "abo_B07VB7Q6W7",
@@ -2484,8 +2578,44 @@
       "reason": "styles ['rustic'] include neither scandinavian nor neutral"
      },
      {
+      "id": "abo_B074KKMQBG",
+      "reason": "styles ['modern minimal'] include neither scandinavian nor neutral"
+     },
+     {
       "id": "abo_B075X38PZ7",
       "reason": "styles ['rustic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B079VK52WZ",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B079VKDKC1",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B079VNKB6Z",
+      "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B079VNL3CG",
+      "reason": "styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07DVRLW48",
+      "reason": "styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07L1DH1PX",
+      "reason": "styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07PX3CC31",
+      "reason": "styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07QS8TBXT",
+      "reason": "styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral"
      },
      {
       "id": "abo_B084MYDTKM",
@@ -2665,16 +2795,52 @@
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
      {
+      "id": "abo_B0154VUESC",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B01M0ZVGCQ",
+      "reason": "styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B01N6AQX0A",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
       "id": "abo_B071W2SCTJ",
       "reason": "styles ['minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B072PWGSZL",
+      "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
      },
      {
       "id": "abo_B075QDMWTP",
       "reason": "styles ['modern minimal'] include neither scandinavian nor neutral"
      },
      {
+      "id": "abo_B07B4YNHSN",
+      "reason": "styles ['modern minimal'] include neither scandinavian nor neutral"
+     },
+     {
       "id": "abo_B07B4Z9Q3S",
       "reason": "styles ['modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07GFDZW5W",
+      "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07L1DDXLR",
+      "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B084ZBDPG5",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B084ZBX1YH",
+      "reason": "styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral"
      },
      {
       "id": "abo_B08FTN8KHY",
@@ -2857,6 +3023,24 @@
       "quality": 3.0
      },
      {
+      "id": "abo_B07QD6TXWS",
+      "aspect_error": 0.3188,
+      "scale": [
+       0.8673,
+       1.193,
+       1.0302
+      ],
+      "non_uniform": 1.3754,
+      "mean_scale": 1.0302,
+      "accepted": false,
+      "rank": 3,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.1186,
+      "size_bucket": 2,
+      "quality": 3.0
+     },
+     {
       "id": "abo_B07VB7Q6W7",
       "aspect_error": 0.3357,
       "scale": [
@@ -2867,7 +3051,7 @@
       "non_uniform": 1.3989,
       "mean_scale": 0.9907,
       "accepted": false,
-      "rank": 3,
+      "rank": 4,
       "source": "abo",
       "units_known": true,
       "size_error": 0.1129,
@@ -2885,7 +3069,7 @@
       "non_uniform": 1.0017,
       "mean_scale": 1.1597,
       "accepted": true,
-      "rank": 4,
+      "rank": 5,
       "source": "abo",
       "units_known": true,
       "size_error": 0.1597,
@@ -2916,8 +3100,44 @@
       "reason": "styles ['rustic'] include neither scandinavian nor neutral"
      },
      {
+      "id": "abo_B074KKMQBG",
+      "reason": "styles ['modern minimal'] include neither scandinavian nor neutral"
+     },
+     {
       "id": "abo_B075X38PZ7",
       "reason": "styles ['rustic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B079VK52WZ",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B079VKDKC1",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B079VNKB6Z",
+      "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B079VNL3CG",
+      "reason": "styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07DVRLW48",
+      "reason": "styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07L1DH1PX",
+      "reason": "styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07PX3CC31",
+      "reason": "styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07QS8TBXT",
+      "reason": "styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral"
      },
      {
       "id": "abo_B084MYDTKM",
@@ -2931,8 +3151,8 @@
     "units_known": true,
     "ranking": {
      "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
-     "rank": 4,
-     "tried": 4,
+     "rank": 5,
+     "tried": 5,
      "reasons": [
       "real size: mean |scale - 1| 0.160 (step 3)",
       "quality 3",
@@ -2947,6 +3167,10 @@
       {
        "id": "abo_B07K7K7GTZ",
        "why": "outside the caps (non-uniform 24.6 %, mean scale 0.9943)"
+      },
+      {
+       "id": "abo_B07QD6TXWS",
+       "why": "outside the caps (non-uniform 37.5 %, mean scale 1.0302)"
       },
       {
        "id": "abo_B07VB7Q6W7",
@@ -3114,8 +3338,44 @@
       "reason": "styles ['rustic'] include neither scandinavian nor neutral"
      },
      {
+      "id": "abo_B074KKMQBG",
+      "reason": "styles ['modern minimal'] include neither scandinavian nor neutral"
+     },
+     {
       "id": "abo_B075X38PZ7",
       "reason": "styles ['rustic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B079VK52WZ",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B079VKDKC1",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B079VNKB6Z",
+      "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B079VNL3CG",
+      "reason": "styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07DVRLW48",
+      "reason": "styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07L1DH1PX",
+      "reason": "styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07PX3CC31",
+      "reason": "styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07QS8TBXT",
+      "reason": "styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral"
      },
      {
       "id": "abo_B084MYDTKM",
@@ -3286,8 +3546,16 @@
       "reason": "styles ['rustic'] include neither scandinavian nor neutral"
      },
      {
+      "id": "abo_B075YPTG8S",
+      "reason": "styles ['modern minimal', 'modern', 'industrial'] include neither scandinavian nor neutral"
+     },
+     {
       "id": "abo_B075Z9QB7N",
       "reason": "styles ['industrial'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B076NNYB3P",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
      },
      {
       "id": "abo_B07B7BGXN9",
@@ -3411,84 +3679,48 @@
    "front_deg": 90.0,
    "height": null,
    "asset": {
-    "library": "objaverse",
-    "asset_id": "objaverse_acf6497a3d274d90ad3750510348f07a",
+    "library": "abo",
+    "asset_id": "abo_B07K7K7GKC",
     "licence": "CC-BY-4.0",
     "license": "CC-BY-4.0",
     "method": "library",
     "fit_scale": [
-     0.8399,
-     0.8789,
-     0.8594
+     0.8369,
+     0.8235,
+     0.8302
     ],
     "bbox_m": [
      0.3824,
      0.4618,
-     0.8585
+     0.7927
     ],
-    "aspect_error": 0.0455,
+    "aspect_error": 0.0162,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     -0.0359,
-     0.0378,
-     0.0
+     0.0,
+     0.0007,
+     -0.0001
     ],
     "rotation_fix_deg": 0.0,
     "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "abo_B0857JM2NC",
-      "aspect_error": 0.3048,
+      "id": "abo_B07K7K7GKC",
+      "aspect_error": 0.0162,
       "scale": [
-       0.6874,
-       0.9324,
-       0.8099
+       0.8369,
+       0.8235,
+       0.8302
       ],
-      "non_uniform": 1.3564,
-      "mean_scale": 0.8099,
-      "accepted": false,
+      "non_uniform": 1.0164,
+      "mean_scale": 0.8302,
+      "accepted": true,
       "rank": 1,
       "source": "abo",
       "units_known": true,
-      "size_error": 0.1901,
+      "size_error": 0.1698,
       "size_bucket": 3,
-      "quality": 3.0
-     },
-     {
-      "id": "abo_B07JK8CL2Z",
-      "aspect_error": 0.1887,
-      "scale": [
-       0.6709,
-       0.8102,
-       0.7405
-      ],
-      "non_uniform": 1.2076,
-      "mean_scale": 0.7405,
-      "accepted": false,
-      "rank": 2,
-      "source": "abo",
-      "units_known": true,
-      "size_error": 0.2595,
-      "size_bucket": 5,
-      "quality": 3.0
-     },
-     {
-      "id": "objaverse_acf6497a3d274d90ad3750510348f07a",
-      "aspect_error": 0.0455,
-      "scale": [
-       0.8399,
-       0.8789,
-       0.8594
-      ],
-      "non_uniform": 1.0465,
-      "mean_scale": 0.8594,
-      "accepted": true,
-      "rank": 3,
-      "source": "objaverse",
-      "units_known": false,
-      "size_error": 0.1406,
-      "size_bucket": null,
       "quality": 3.0
      }
     ],
@@ -3502,8 +3734,7 @@
      "japandi",
      "modern minimal",
      "minimal",
-     "modern",
-     "rustic"
+     "modern"
     ],
     "style_family": "scandinavian",
     "excluded": [
@@ -3528,6 +3759,10 @@
       "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
      },
      {
+      "id": "abo_B07C9W437G",
+      "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
       "id": "abo_B07DBD9WHX",
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
@@ -3544,51 +3779,63 @@
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
      {
+      "id": "abo_B084W2GNQW",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
       "id": "abo_B0857JLP6K",
       "reason": "styles ['minimal', 'industrial'] include neither scandinavian nor neutral"
      },
      {
+      "id": "objaverse_039c6026571943d6ac45c6816bcc7ff1",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_0723b35415b0462eb5c01140b6b70340",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_1625701880c54b7d9f50e77455cef39b",
+      "reason": "styles ['mediterranean'] include neither scandinavian nor neutral"
+     },
+     {
       "id": "objaverse_47a690dcecf847fca99c4f89111db85b",
       "reason": "styles ['classic', 'rustic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_cb43e2abac66494d81e1e7116eb47043",
+      "reason": "styles ['industrial', 'rustic'] include neither scandinavian nor neutral"
      }
     ],
     "quality": [
      5,
-     5
+     4
     ],
-    "units_known": false,
+    "units_known": true,
     "ranking": {
      "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
-     "rank": 3,
-     "tried": 3,
+     "rank": 1,
+     "tried": 1,
      "reasons": [
-      "units not known (normalised by type): ranked after the real-size models",
+      "real size: mean |scale - 1| 0.170 (step 3)",
       "quality 3",
-      "aspect error 0.045",
-      "source objaverse"
+      "aspect error 0.016",
+      "source abo"
      ],
-     "passed_over": [
-      {
-       "id": "abo_B0857JM2NC",
-       "why": "outside the caps (non-uniform 35.6 %, mean scale 0.8099)"
-      },
-      {
-       "id": "abo_B07JK8CL2Z",
-       "why": "outside the caps (non-uniform 20.8 %, mean scale 0.7405)"
-      }
-     ]
+     "passed_over": []
     },
-    "glb": "models/objaverse/acf6497a3d274d90ad3750510348f07a.glb",
-    "sha256_glb": "13809946b77ffc75dba30090cf6effcb42b87fa6b82a5d236d688562d92b829d",
-    "uid": "acf6497a3d274d90ad3750510348f07a",
-    "title": "chare",
-    "author": "DimaSP",
-    "source_url": "https://sketchfab.com/3d-models/acf6497a3d274d90ad3750510348f07a",
+    "glb": "models/abo/abo_B07K7K7GKC.glb",
+    "sha256_glb": "933c3f3be89408dc1d3de3e2437c8432ff027046d42518f3381efb1f2462d2c8",
+    "uid": "abo_B07K7K7GKC",
+    "title": "Amazon Brand - Alkove - Hayes - Modern Solid Wood Chairs Set of 2 with Padded Seat - Wild Oak",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07K7K7GKC",
     "licence_url": "https://creativecommons.org/licenses/by/4.0/",
-    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
-    "attribution": "\"chare\" by DimaSP (https://sketchfab.com/3d-models/acf6497a3d274d90ad3750510348f07a), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand - Alkove - Hayes - Modern Solid Wood Chairs Set of 2 with Padded Seat - Wild Oak\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
     "licence_flag": null,
-    "name": "chare",
+    "style_hint": "Modern",
+    "name": "Amazon Brand - Alkove - Hayes - Modern Solid Wood Chairs Set of 2 with Padded Seat - Wild Oak",
     "unit_scale": 1.0
    },
    "status": "verified",
@@ -3669,84 +3916,48 @@
    "front_deg": 270.0,
    "height": null,
    "asset": {
-    "library": "objaverse",
-    "asset_id": "objaverse_acf6497a3d274d90ad3750510348f07a",
+    "library": "abo",
+    "asset_id": "abo_B07K7K7GKC",
     "licence": "CC-BY-4.0",
     "license": "CC-BY-4.0",
     "method": "library",
     "fit_scale": [
-     0.8399,
-     0.8789,
-     0.8594
+     0.8369,
+     0.8235,
+     0.8302
     ],
     "bbox_m": [
      0.3824,
      0.4618,
-     0.8585
+     0.7927
     ],
-    "aspect_error": 0.0455,
+    "aspect_error": 0.0162,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     -0.0359,
-     0.0378,
-     0.0
+     0.0,
+     0.0007,
+     -0.0001
     ],
     "rotation_fix_deg": 0.0,
     "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "abo_B0857JM2NC",
-      "aspect_error": 0.3048,
+      "id": "abo_B07K7K7GKC",
+      "aspect_error": 0.0162,
       "scale": [
-       0.6874,
-       0.9324,
-       0.8099
+       0.8369,
+       0.8235,
+       0.8302
       ],
-      "non_uniform": 1.3564,
-      "mean_scale": 0.8099,
-      "accepted": false,
+      "non_uniform": 1.0164,
+      "mean_scale": 0.8302,
+      "accepted": true,
       "rank": 1,
       "source": "abo",
       "units_known": true,
-      "size_error": 0.1901,
+      "size_error": 0.1698,
       "size_bucket": 3,
-      "quality": 3.0
-     },
-     {
-      "id": "abo_B07JK8CL2Z",
-      "aspect_error": 0.1887,
-      "scale": [
-       0.6709,
-       0.8102,
-       0.7405
-      ],
-      "non_uniform": 1.2076,
-      "mean_scale": 0.7405,
-      "accepted": false,
-      "rank": 2,
-      "source": "abo",
-      "units_known": true,
-      "size_error": 0.2595,
-      "size_bucket": 5,
-      "quality": 3.0
-     },
-     {
-      "id": "objaverse_acf6497a3d274d90ad3750510348f07a",
-      "aspect_error": 0.0455,
-      "scale": [
-       0.8399,
-       0.8789,
-       0.8594
-      ],
-      "non_uniform": 1.0465,
-      "mean_scale": 0.8594,
-      "accepted": true,
-      "rank": 3,
-      "source": "objaverse",
-      "units_known": false,
-      "size_error": 0.1406,
-      "size_bucket": null,
       "quality": 3.0
      }
     ],
@@ -3760,8 +3971,7 @@
      "japandi",
      "modern minimal",
      "minimal",
-     "modern",
-     "rustic"
+     "modern"
     ],
     "style_family": "scandinavian",
     "excluded": [
@@ -3786,6 +3996,10 @@
       "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
      },
      {
+      "id": "abo_B07C9W437G",
+      "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
       "id": "abo_B07DBD9WHX",
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
@@ -3802,51 +4016,63 @@
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
      {
+      "id": "abo_B084W2GNQW",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
       "id": "abo_B0857JLP6K",
       "reason": "styles ['minimal', 'industrial'] include neither scandinavian nor neutral"
      },
      {
+      "id": "objaverse_039c6026571943d6ac45c6816bcc7ff1",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_0723b35415b0462eb5c01140b6b70340",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_1625701880c54b7d9f50e77455cef39b",
+      "reason": "styles ['mediterranean'] include neither scandinavian nor neutral"
+     },
+     {
       "id": "objaverse_47a690dcecf847fca99c4f89111db85b",
       "reason": "styles ['classic', 'rustic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_cb43e2abac66494d81e1e7116eb47043",
+      "reason": "styles ['industrial', 'rustic'] include neither scandinavian nor neutral"
      }
     ],
     "quality": [
      5,
-     5
+     4
     ],
-    "units_known": false,
+    "units_known": true,
     "ranking": {
      "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
-     "rank": 3,
-     "tried": 3,
+     "rank": 1,
+     "tried": 1,
      "reasons": [
-      "units not known (normalised by type): ranked after the real-size models",
+      "real size: mean |scale - 1| 0.170 (step 3)",
       "quality 3",
-      "aspect error 0.045",
-      "source objaverse"
+      "aspect error 0.016",
+      "source abo"
      ],
-     "passed_over": [
-      {
-       "id": "abo_B0857JM2NC",
-       "why": "outside the caps (non-uniform 35.6 %, mean scale 0.8099)"
-      },
-      {
-       "id": "abo_B07JK8CL2Z",
-       "why": "outside the caps (non-uniform 20.8 %, mean scale 0.7405)"
-      }
-     ]
+     "passed_over": []
     },
-    "glb": "models/objaverse/acf6497a3d274d90ad3750510348f07a.glb",
-    "sha256_glb": "13809946b77ffc75dba30090cf6effcb42b87fa6b82a5d236d688562d92b829d",
-    "uid": "acf6497a3d274d90ad3750510348f07a",
-    "title": "chare",
-    "author": "DimaSP",
-    "source_url": "https://sketchfab.com/3d-models/acf6497a3d274d90ad3750510348f07a",
+    "glb": "models/abo/abo_B07K7K7GKC.glb",
+    "sha256_glb": "933c3f3be89408dc1d3de3e2437c8432ff027046d42518f3381efb1f2462d2c8",
+    "uid": "abo_B07K7K7GKC",
+    "title": "Amazon Brand - Alkove - Hayes - Modern Solid Wood Chairs Set of 2 with Padded Seat - Wild Oak",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07K7K7GKC",
     "licence_url": "https://creativecommons.org/licenses/by/4.0/",
-    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
-    "attribution": "\"chare\" by DimaSP (https://sketchfab.com/3d-models/acf6497a3d274d90ad3750510348f07a), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand - Alkove - Hayes - Modern Solid Wood Chairs Set of 2 with Padded Seat - Wild Oak\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
     "licence_flag": null,
-    "name": "chare",
+    "style_hint": "Modern",
+    "name": "Amazon Brand - Alkove - Hayes - Modern Solid Wood Chairs Set of 2 with Padded Seat - Wild Oak",
     "unit_scale": 1.0
    },
    "status": "verified",
@@ -3927,84 +4153,48 @@
    "front_deg": 0.0,
    "height": null,
    "asset": {
-    "library": "objaverse",
-    "asset_id": "objaverse_acf6497a3d274d90ad3750510348f07a",
+    "library": "abo",
+    "asset_id": "abo_B07K7K7GKC",
     "licence": "CC-BY-4.0",
     "license": "CC-BY-4.0",
     "method": "library",
     "fit_scale": [
-     0.8399,
-     0.8789,
-     0.8594
+     0.8369,
+     0.8235,
+     0.8302
     ],
     "bbox_m": [
      0.3824,
      0.4618,
-     0.8585
+     0.7927
     ],
-    "aspect_error": 0.0455,
+    "aspect_error": 0.0162,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     -0.0359,
-     0.0378,
-     0.0
+     0.0,
+     0.0007,
+     -0.0001
     ],
     "rotation_fix_deg": 0.0,
     "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "abo_B0857JM2NC",
-      "aspect_error": 0.3048,
+      "id": "abo_B07K7K7GKC",
+      "aspect_error": 0.0162,
       "scale": [
-       0.6874,
-       0.9324,
-       0.8099
+       0.8369,
+       0.8235,
+       0.8302
       ],
-      "non_uniform": 1.3564,
-      "mean_scale": 0.8099,
-      "accepted": false,
+      "non_uniform": 1.0164,
+      "mean_scale": 0.8302,
+      "accepted": true,
       "rank": 1,
       "source": "abo",
       "units_known": true,
-      "size_error": 0.1901,
+      "size_error": 0.1698,
       "size_bucket": 3,
-      "quality": 3.0
-     },
-     {
-      "id": "abo_B07JK8CL2Z",
-      "aspect_error": 0.1887,
-      "scale": [
-       0.6709,
-       0.8102,
-       0.7405
-      ],
-      "non_uniform": 1.2076,
-      "mean_scale": 0.7405,
-      "accepted": false,
-      "rank": 2,
-      "source": "abo",
-      "units_known": true,
-      "size_error": 0.2595,
-      "size_bucket": 5,
-      "quality": 3.0
-     },
-     {
-      "id": "objaverse_acf6497a3d274d90ad3750510348f07a",
-      "aspect_error": 0.0455,
-      "scale": [
-       0.8399,
-       0.8789,
-       0.8594
-      ],
-      "non_uniform": 1.0465,
-      "mean_scale": 0.8594,
-      "accepted": true,
-      "rank": 3,
-      "source": "objaverse",
-      "units_known": false,
-      "size_error": 0.1406,
-      "size_bucket": null,
       "quality": 3.0
      }
     ],
@@ -4018,8 +4208,7 @@
      "japandi",
      "modern minimal",
      "minimal",
-     "modern",
-     "rustic"
+     "modern"
     ],
     "style_family": "scandinavian",
     "excluded": [
@@ -4044,6 +4233,10 @@
       "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
      },
      {
+      "id": "abo_B07C9W437G",
+      "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
       "id": "abo_B07DBD9WHX",
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
@@ -4060,51 +4253,63 @@
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
      {
+      "id": "abo_B084W2GNQW",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
       "id": "abo_B0857JLP6K",
       "reason": "styles ['minimal', 'industrial'] include neither scandinavian nor neutral"
      },
      {
+      "id": "objaverse_039c6026571943d6ac45c6816bcc7ff1",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_0723b35415b0462eb5c01140b6b70340",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_1625701880c54b7d9f50e77455cef39b",
+      "reason": "styles ['mediterranean'] include neither scandinavian nor neutral"
+     },
+     {
       "id": "objaverse_47a690dcecf847fca99c4f89111db85b",
       "reason": "styles ['classic', 'rustic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_cb43e2abac66494d81e1e7116eb47043",
+      "reason": "styles ['industrial', 'rustic'] include neither scandinavian nor neutral"
      }
     ],
     "quality": [
      5,
-     5
+     4
     ],
-    "units_known": false,
+    "units_known": true,
     "ranking": {
      "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
-     "rank": 3,
-     "tried": 3,
+     "rank": 1,
+     "tried": 1,
      "reasons": [
-      "units not known (normalised by type): ranked after the real-size models",
+      "real size: mean |scale - 1| 0.170 (step 3)",
       "quality 3",
-      "aspect error 0.045",
-      "source objaverse"
+      "aspect error 0.016",
+      "source abo"
      ],
-     "passed_over": [
-      {
-       "id": "abo_B0857JM2NC",
-       "why": "outside the caps (non-uniform 35.6 %, mean scale 0.8099)"
-      },
-      {
-       "id": "abo_B07JK8CL2Z",
-       "why": "outside the caps (non-uniform 20.8 %, mean scale 0.7405)"
-      }
-     ]
+     "passed_over": []
     },
-    "glb": "models/objaverse/acf6497a3d274d90ad3750510348f07a.glb",
-    "sha256_glb": "13809946b77ffc75dba30090cf6effcb42b87fa6b82a5d236d688562d92b829d",
-    "uid": "acf6497a3d274d90ad3750510348f07a",
-    "title": "chare",
-    "author": "DimaSP",
-    "source_url": "https://sketchfab.com/3d-models/acf6497a3d274d90ad3750510348f07a",
+    "glb": "models/abo/abo_B07K7K7GKC.glb",
+    "sha256_glb": "933c3f3be89408dc1d3de3e2437c8432ff027046d42518f3381efb1f2462d2c8",
+    "uid": "abo_B07K7K7GKC",
+    "title": "Amazon Brand - Alkove - Hayes - Modern Solid Wood Chairs Set of 2 with Padded Seat - Wild Oak",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07K7K7GKC",
     "licence_url": "https://creativecommons.org/licenses/by/4.0/",
-    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
-    "attribution": "\"chare\" by DimaSP (https://sketchfab.com/3d-models/acf6497a3d274d90ad3750510348f07a), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand - Alkove - Hayes - Modern Solid Wood Chairs Set of 2 with Padded Seat - Wild Oak\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
     "licence_flag": null,
-    "name": "chare",
+    "style_hint": "Modern",
+    "name": "Amazon Brand - Alkove - Hayes - Modern Solid Wood Chairs Set of 2 with Padded Seat - Wild Oak",
     "unit_scale": 1.0
    },
    "status": "verified",
@@ -4185,84 +4390,48 @@
    "front_deg": 0.0,
    "height": null,
    "asset": {
-    "library": "objaverse",
-    "asset_id": "objaverse_acf6497a3d274d90ad3750510348f07a",
+    "library": "abo",
+    "asset_id": "abo_B07K7K7GKC",
     "licence": "CC-BY-4.0",
     "license": "CC-BY-4.0",
     "method": "library",
     "fit_scale": [
-     0.8333,
-     0.8789,
-     0.8561
+     0.8304,
+     0.8235,
+     0.8269
     ],
     "bbox_m": [
      0.3794,
      0.4618,
-     0.8552
+     0.7895
     ],
-    "aspect_error": 0.0533,
+    "aspect_error": 0.0084,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     -0.0359,
-     0.0378,
-     0.0
+     0.0,
+     0.0007,
+     -0.0001
     ],
     "rotation_fix_deg": 0.0,
     "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "abo_B0857JM2NC",
-      "aspect_error": 0.3127,
+      "id": "abo_B07K7K7GKC",
+      "aspect_error": 0.0084,
       "scale": [
-       0.682,
-       0.9324,
-       0.8072
+       0.8304,
+       0.8235,
+       0.8269
       ],
-      "non_uniform": 1.3671,
-      "mean_scale": 0.8072,
-      "accepted": false,
+      "non_uniform": 1.0084,
+      "mean_scale": 0.8269,
+      "accepted": true,
       "rank": 1,
       "source": "abo",
       "units_known": true,
-      "size_error": 0.1928,
+      "size_error": 0.1731,
       "size_bucket": 3,
-      "quality": 3.0
-     },
-     {
-      "id": "abo_B07JK8CL2Z",
-      "aspect_error": 0.1965,
-      "scale": [
-       0.6656,
-       0.8102,
-       0.7379
-      ],
-      "non_uniform": 1.2172,
-      "mean_scale": 0.7379,
-      "accepted": false,
-      "rank": 2,
-      "source": "abo",
-      "units_known": true,
-      "size_error": 0.2621,
-      "size_bucket": 5,
-      "quality": 3.0
-     },
-     {
-      "id": "objaverse_acf6497a3d274d90ad3750510348f07a",
-      "aspect_error": 0.0533,
-      "scale": [
-       0.8333,
-       0.8789,
-       0.8561
-      ],
-      "non_uniform": 1.0548,
-      "mean_scale": 0.8561,
-      "accepted": true,
-      "rank": 3,
-      "source": "objaverse",
-      "units_known": false,
-      "size_error": 0.1439,
-      "size_bucket": null,
       "quality": 3.0
      }
     ],
@@ -4276,8 +4445,7 @@
      "japandi",
      "modern minimal",
      "minimal",
-     "modern",
-     "rustic"
+     "modern"
     ],
     "style_family": "scandinavian",
     "excluded": [
@@ -4302,6 +4470,10 @@
       "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
      },
      {
+      "id": "abo_B07C9W437G",
+      "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
       "id": "abo_B07DBD9WHX",
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
@@ -4318,51 +4490,63 @@
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
      {
+      "id": "abo_B084W2GNQW",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
       "id": "abo_B0857JLP6K",
       "reason": "styles ['minimal', 'industrial'] include neither scandinavian nor neutral"
      },
      {
+      "id": "objaverse_039c6026571943d6ac45c6816bcc7ff1",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_0723b35415b0462eb5c01140b6b70340",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_1625701880c54b7d9f50e77455cef39b",
+      "reason": "styles ['mediterranean'] include neither scandinavian nor neutral"
+     },
+     {
       "id": "objaverse_47a690dcecf847fca99c4f89111db85b",
       "reason": "styles ['classic', 'rustic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_cb43e2abac66494d81e1e7116eb47043",
+      "reason": "styles ['industrial', 'rustic'] include neither scandinavian nor neutral"
      }
     ],
     "quality": [
      5,
-     5
+     4
     ],
-    "units_known": false,
+    "units_known": true,
     "ranking": {
      "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
-     "rank": 3,
-     "tried": 3,
+     "rank": 1,
+     "tried": 1,
      "reasons": [
-      "units not known (normalised by type): ranked after the real-size models",
+      "real size: mean |scale - 1| 0.173 (step 3)",
       "quality 3",
-      "aspect error 0.053",
-      "source objaverse"
+      "aspect error 0.008",
+      "source abo"
      ],
-     "passed_over": [
-      {
-       "id": "abo_B0857JM2NC",
-       "why": "outside the caps (non-uniform 36.7 %, mean scale 0.8072)"
-      },
-      {
-       "id": "abo_B07JK8CL2Z",
-       "why": "outside the caps (non-uniform 21.7 %, mean scale 0.7379)"
-      }
-     ]
+     "passed_over": []
     },
-    "glb": "models/objaverse/acf6497a3d274d90ad3750510348f07a.glb",
-    "sha256_glb": "13809946b77ffc75dba30090cf6effcb42b87fa6b82a5d236d688562d92b829d",
-    "uid": "acf6497a3d274d90ad3750510348f07a",
-    "title": "chare",
-    "author": "DimaSP",
-    "source_url": "https://sketchfab.com/3d-models/acf6497a3d274d90ad3750510348f07a",
+    "glb": "models/abo/abo_B07K7K7GKC.glb",
+    "sha256_glb": "933c3f3be89408dc1d3de3e2437c8432ff027046d42518f3381efb1f2462d2c8",
+    "uid": "abo_B07K7K7GKC",
+    "title": "Amazon Brand - Alkove - Hayes - Modern Solid Wood Chairs Set of 2 with Padded Seat - Wild Oak",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07K7K7GKC",
     "licence_url": "https://creativecommons.org/licenses/by/4.0/",
-    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
-    "attribution": "\"chare\" by DimaSP (https://sketchfab.com/3d-models/acf6497a3d274d90ad3750510348f07a), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand - Alkove - Hayes - Modern Solid Wood Chairs Set of 2 with Padded Seat - Wild Oak\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
     "licence_flag": null,
-    "name": "chare",
+    "style_hint": "Modern",
+    "name": "Amazon Brand - Alkove - Hayes - Modern Solid Wood Chairs Set of 2 with Padded Seat - Wild Oak",
     "unit_scale": 1.0
    },
    "status": "verified",
@@ -4443,84 +4627,48 @@
    "front_deg": 180.0,
    "height": null,
    "asset": {
-    "library": "objaverse",
-    "asset_id": "objaverse_acf6497a3d274d90ad3750510348f07a",
+    "library": "abo",
+    "asset_id": "abo_B07K7K7GKC",
     "licence": "CC-BY-4.0",
     "license": "CC-BY-4.0",
     "method": "library",
     "fit_scale": [
-     0.8399,
-     0.8845,
-     0.8622
+     0.8369,
+     0.8286,
+     0.8328
     ],
     "bbox_m": [
      0.3824,
      0.4647,
-     0.8613
+     0.7952
     ],
-    "aspect_error": 0.0517,
+    "aspect_error": 0.01,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     -0.0359,
-     0.0378,
-     0.0
+     0.0,
+     0.0007,
+     -0.0001
     ],
     "rotation_fix_deg": 0.0,
     "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "abo_B0857JM2NC",
-      "aspect_error": 0.3111,
+      "id": "abo_B07K7K7GKC",
+      "aspect_error": 0.01,
       "scale": [
-       0.6874,
-       0.9382,
-       0.8128
+       0.8369,
+       0.8286,
+       0.8328
       ],
-      "non_uniform": 1.3649,
-      "mean_scale": 0.8128,
-      "accepted": false,
+      "non_uniform": 1.01,
+      "mean_scale": 0.8328,
+      "accepted": true,
       "rank": 1,
       "source": "abo",
       "units_known": true,
-      "size_error": 0.1872,
+      "size_error": 0.1672,
       "size_bucket": 3,
-      "quality": 3.0
-     },
-     {
-      "id": "abo_B07JK8CL2Z",
-      "aspect_error": 0.1949,
-      "scale": [
-       0.6709,
-       0.8153,
-       0.7431
-      ],
-      "non_uniform": 1.2152,
-      "mean_scale": 0.7431,
-      "accepted": false,
-      "rank": 2,
-      "source": "abo",
-      "units_known": true,
-      "size_error": 0.2569,
-      "size_bucket": 5,
-      "quality": 3.0
-     },
-     {
-      "id": "objaverse_acf6497a3d274d90ad3750510348f07a",
-      "aspect_error": 0.0517,
-      "scale": [
-       0.8399,
-       0.8845,
-       0.8622
-      ],
-      "non_uniform": 1.0531,
-      "mean_scale": 0.8622,
-      "accepted": true,
-      "rank": 3,
-      "source": "objaverse",
-      "units_known": false,
-      "size_error": 0.1378,
-      "size_bucket": null,
       "quality": 3.0
      }
     ],
@@ -4534,8 +4682,7 @@
      "japandi",
      "modern minimal",
      "minimal",
-     "modern",
-     "rustic"
+     "modern"
     ],
     "style_family": "scandinavian",
     "excluded": [
@@ -4560,6 +4707,10 @@
       "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
      },
      {
+      "id": "abo_B07C9W437G",
+      "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
       "id": "abo_B07DBD9WHX",
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
@@ -4576,51 +4727,63 @@
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
      {
+      "id": "abo_B084W2GNQW",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
       "id": "abo_B0857JLP6K",
       "reason": "styles ['minimal', 'industrial'] include neither scandinavian nor neutral"
      },
      {
+      "id": "objaverse_039c6026571943d6ac45c6816bcc7ff1",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_0723b35415b0462eb5c01140b6b70340",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_1625701880c54b7d9f50e77455cef39b",
+      "reason": "styles ['mediterranean'] include neither scandinavian nor neutral"
+     },
+     {
       "id": "objaverse_47a690dcecf847fca99c4f89111db85b",
       "reason": "styles ['classic', 'rustic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_cb43e2abac66494d81e1e7116eb47043",
+      "reason": "styles ['industrial', 'rustic'] include neither scandinavian nor neutral"
      }
     ],
     "quality": [
      5,
-     5
+     4
     ],
-    "units_known": false,
+    "units_known": true,
     "ranking": {
      "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
-     "rank": 3,
-     "tried": 3,
+     "rank": 1,
+     "tried": 1,
      "reasons": [
-      "units not known (normalised by type): ranked after the real-size models",
+      "real size: mean |scale - 1| 0.167 (step 3)",
       "quality 3",
-      "aspect error 0.052",
-      "source objaverse"
+      "aspect error 0.010",
+      "source abo"
      ],
-     "passed_over": [
-      {
-       "id": "abo_B0857JM2NC",
-       "why": "outside the caps (non-uniform 36.5 %, mean scale 0.8128)"
-      },
-      {
-       "id": "abo_B07JK8CL2Z",
-       "why": "outside the caps (non-uniform 21.5 %, mean scale 0.7431)"
-      }
-     ]
+     "passed_over": []
     },
-    "glb": "models/objaverse/acf6497a3d274d90ad3750510348f07a.glb",
-    "sha256_glb": "13809946b77ffc75dba30090cf6effcb42b87fa6b82a5d236d688562d92b829d",
-    "uid": "acf6497a3d274d90ad3750510348f07a",
-    "title": "chare",
-    "author": "DimaSP",
-    "source_url": "https://sketchfab.com/3d-models/acf6497a3d274d90ad3750510348f07a",
+    "glb": "models/abo/abo_B07K7K7GKC.glb",
+    "sha256_glb": "933c3f3be89408dc1d3de3e2437c8432ff027046d42518f3381efb1f2462d2c8",
+    "uid": "abo_B07K7K7GKC",
+    "title": "Amazon Brand - Alkove - Hayes - Modern Solid Wood Chairs Set of 2 with Padded Seat - Wild Oak",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07K7K7GKC",
     "licence_url": "https://creativecommons.org/licenses/by/4.0/",
-    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
-    "attribution": "\"chare\" by DimaSP (https://sketchfab.com/3d-models/acf6497a3d274d90ad3750510348f07a), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand - Alkove - Hayes - Modern Solid Wood Chairs Set of 2 with Padded Seat - Wild Oak\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
     "licence_flag": null,
-    "name": "chare",
+    "style_hint": "Modern",
+    "name": "Amazon Brand - Alkove - Hayes - Modern Solid Wood Chairs Set of 2 with Padded Seat - Wild Oak",
     "unit_scale": 1.0
    },
    "status": "verified",
@@ -4701,84 +4864,48 @@
    "front_deg": 180.0,
    "height": null,
    "asset": {
-    "library": "objaverse",
-    "asset_id": "objaverse_acf6497a3d274d90ad3750510348f07a",
+    "library": "abo",
+    "asset_id": "abo_B07K7K7GKC",
     "licence": "CC-BY-4.0",
     "license": "CC-BY-4.0",
     "method": "library",
     "fit_scale": [
-     0.8333,
-     0.8845,
-     0.8589
+     0.8304,
+     0.8286,
+     0.8295
     ],
     "bbox_m": [
      0.3794,
      0.4647,
-     0.858
+     0.792
     ],
-    "aspect_error": 0.0596,
+    "aspect_error": 0.0021,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     -0.0359,
-     0.0378,
-     0.0
+     0.0,
+     0.0007,
+     -0.0001
     ],
     "rotation_fix_deg": 0.0,
     "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "abo_B0857JM2NC",
-      "aspect_error": 0.3189,
+      "id": "abo_B07K7K7GKC",
+      "aspect_error": 0.0021,
       "scale": [
-       0.682,
-       0.9382,
-       0.8101
+       0.8304,
+       0.8286,
+       0.8295
       ],
-      "non_uniform": 1.3757,
-      "mean_scale": 0.8101,
-      "accepted": false,
+      "non_uniform": 1.0021,
+      "mean_scale": 0.8295,
+      "accepted": true,
       "rank": 1,
       "source": "abo",
       "units_known": true,
-      "size_error": 0.1899,
+      "size_error": 0.1705,
       "size_bucket": 3,
-      "quality": 3.0
-     },
-     {
-      "id": "abo_B07JK8CL2Z",
-      "aspect_error": 0.2028,
-      "scale": [
-       0.6656,
-       0.8153,
-       0.7404
-      ],
-      "non_uniform": 1.2248,
-      "mean_scale": 0.7404,
-      "accepted": false,
-      "rank": 2,
-      "source": "abo",
-      "units_known": true,
-      "size_error": 0.2596,
-      "size_bucket": 5,
-      "quality": 3.0
-     },
-     {
-      "id": "objaverse_acf6497a3d274d90ad3750510348f07a",
-      "aspect_error": 0.0596,
-      "scale": [
-       0.8333,
-       0.8845,
-       0.8589
-      ],
-      "non_uniform": 1.0614,
-      "mean_scale": 0.8589,
-      "accepted": true,
-      "rank": 3,
-      "source": "objaverse",
-      "units_known": false,
-      "size_error": 0.1411,
-      "size_bucket": null,
       "quality": 3.0
      }
     ],
@@ -4792,8 +4919,7 @@
      "japandi",
      "modern minimal",
      "minimal",
-     "modern",
-     "rustic"
+     "modern"
     ],
     "style_family": "scandinavian",
     "excluded": [
@@ -4818,6 +4944,10 @@
       "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
      },
      {
+      "id": "abo_B07C9W437G",
+      "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
       "id": "abo_B07DBD9WHX",
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
@@ -4834,51 +4964,63 @@
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
      {
+      "id": "abo_B084W2GNQW",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
       "id": "abo_B0857JLP6K",
       "reason": "styles ['minimal', 'industrial'] include neither scandinavian nor neutral"
      },
      {
+      "id": "objaverse_039c6026571943d6ac45c6816bcc7ff1",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_0723b35415b0462eb5c01140b6b70340",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_1625701880c54b7d9f50e77455cef39b",
+      "reason": "styles ['mediterranean'] include neither scandinavian nor neutral"
+     },
+     {
       "id": "objaverse_47a690dcecf847fca99c4f89111db85b",
       "reason": "styles ['classic', 'rustic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_cb43e2abac66494d81e1e7116eb47043",
+      "reason": "styles ['industrial', 'rustic'] include neither scandinavian nor neutral"
      }
     ],
     "quality": [
      5,
-     5
+     4
     ],
-    "units_known": false,
+    "units_known": true,
     "ranking": {
      "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
-     "rank": 3,
-     "tried": 3,
+     "rank": 1,
+     "tried": 1,
      "reasons": [
-      "units not known (normalised by type): ranked after the real-size models",
+      "real size: mean |scale - 1| 0.171 (step 3)",
       "quality 3",
-      "aspect error 0.060",
-      "source objaverse"
+      "aspect error 0.002",
+      "source abo"
      ],
-     "passed_over": [
-      {
-       "id": "abo_B0857JM2NC",
-       "why": "outside the caps (non-uniform 37.6 %, mean scale 0.8101)"
-      },
-      {
-       "id": "abo_B07JK8CL2Z",
-       "why": "outside the caps (non-uniform 22.5 %, mean scale 0.7404)"
-      }
-     ]
+     "passed_over": []
     },
-    "glb": "models/objaverse/acf6497a3d274d90ad3750510348f07a.glb",
-    "sha256_glb": "13809946b77ffc75dba30090cf6effcb42b87fa6b82a5d236d688562d92b829d",
-    "uid": "acf6497a3d274d90ad3750510348f07a",
-    "title": "chare",
-    "author": "DimaSP",
-    "source_url": "https://sketchfab.com/3d-models/acf6497a3d274d90ad3750510348f07a",
+    "glb": "models/abo/abo_B07K7K7GKC.glb",
+    "sha256_glb": "933c3f3be89408dc1d3de3e2437c8432ff027046d42518f3381efb1f2462d2c8",
+    "uid": "abo_B07K7K7GKC",
+    "title": "Amazon Brand - Alkove - Hayes - Modern Solid Wood Chairs Set of 2 with Padded Seat - Wild Oak",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07K7K7GKC",
     "licence_url": "https://creativecommons.org/licenses/by/4.0/",
-    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
-    "attribution": "\"chare\" by DimaSP (https://sketchfab.com/3d-models/acf6497a3d274d90ad3750510348f07a), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand - Alkove - Hayes - Modern Solid Wood Chairs Set of 2 with Padded Seat - Wild Oak\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
     "licence_flag": null,
-    "name": "chare",
+    "style_hint": "Modern",
+    "name": "Amazon Brand - Alkove - Hayes - Modern Solid Wood Chairs Set of 2 with Padded Seat - Wild Oak",
     "unit_scale": 1.0
    },
    "status": "verified",
@@ -5032,12 +5174,24 @@
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
      {
+      "id": "abo_B071FMSSWB",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
       "id": "abo_B071J7Q3J4",
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
      {
       "id": "abo_B072555T67",
       "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07263589M",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B075X2WNRP",
+      "reason": "styles ['modern'] include neither scandinavian nor neutral"
      },
      {
       "id": "abo_B075X2X4GY",
@@ -5050,6 +5204,10 @@
      {
       "id": "abo_B07B4FW7H5",
       "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07BWJCBY2",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
      {
       "id": "abo_B07HZ5P7P9",
@@ -5066,6 +5224,10 @@
      {
       "id": "abo_B07HZ6X7ZF",
       "reason": "styles ['modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07HZ72L2H",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
      }
     ],
     "quality": [
@@ -5285,19 +5447,19 @@
    "height": null,
    "asset": {
     "library": "abo",
-    "asset_id": "abo_B075Z8WD59",
+    "asset_id": "abo_B07QFB1TLZ",
     "licence": "CC-BY-4.0",
     "license": "CC-BY-4.0",
     "method": "library",
     "fit_scale": [
-     1.1256,
-     1.1227,
-     1.1242
+     1.0243,
+     1.0216,
+     1.023
     ],
     "bbox_m": [
      1.1265,
      1.1236,
-     0.4597
+     0.4298
     ],
     "aspect_error": 0.0026,
     "front_axis": "-Y",
@@ -5311,21 +5473,21 @@
     "front_axis_confidence": "low",
     "candidates": [
      {
-      "id": "abo_B075Z8WD59",
+      "id": "abo_B07QFB1TLZ",
       "aspect_error": 0.0026,
       "scale": [
-       1.1256,
-       1.1227,
-       1.1242
+       1.0243,
+       1.0216,
+       1.023
       ],
       "non_uniform": 1.0026,
-      "mean_scale": 1.1242,
+      "mean_scale": 1.023,
       "accepted": true,
       "rank": 1,
       "source": "abo",
       "units_known": true,
-      "size_error": 0.1242,
-      "size_bucket": 2,
+      "size_error": 0.023,
+      "size_bucket": 0,
       "quality": 3.0
      }
     ],
@@ -5337,7 +5499,9 @@
     "styles": [
      "scandinavian",
      "japandi",
-     "neutral"
+     "modern minimal",
+     "minimal",
+     "modern"
     ],
     "style_family": "scandinavian",
     "excluded": [
@@ -5354,8 +5518,20 @@
       "reason": "styles ['modern'] include neither scandinavian nor neutral"
      },
      {
+      "id": "abo_B072ZK2FZ6",
+      "reason": "styles ['japandi', 'modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B074KLRCPW",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
       "id": "abo_B075ZBVZPB",
       "reason": "styles ['industrial'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07DBFQV23",
+      "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
      },
      {
       "id": "abo_B07L8DT2XT",
@@ -5366,8 +5542,24 @@
       "reason": "styles ['modern minimal', 'industrial'] include neither scandinavian nor neutral"
      },
      {
+      "id": "abo_B07SQ9P548",
+      "reason": "styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral"
+     },
+     {
       "id": "objaverse_01ff88bfc0034211b9f4996d620bc333",
       "reason": "styles ['japandi', 'modern minimal', 'minimal', 'modern', 'industrial', 'rustic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_956a47ccc1a54a40a8711f3852d54433",
+      "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_bbe1d47c0d714884a66c53d6c1e5d177",
+      "reason": "styles ['japandi', 'modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_c17577daa87849d09960669606c0ce27",
+      "reason": "styles ['japandi', 'modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
      },
      {
       "id": "objaverse_f4031bb5f7e64ebca4c37d4fa5ba6e8d",
@@ -5375,8 +5567,8 @@
      }
     ],
     "quality": [
-     4,
-     5
+     5,
+     4
     ],
     "units_known": true,
     "ranking": {
@@ -5384,25 +5576,25 @@
      "rank": 1,
      "tried": 1,
      "reasons": [
-      "real size: mean |scale - 1| 0.124 (step 2)",
+      "real size: mean |scale - 1| 0.023 (step 0)",
       "quality 3",
       "aspect error 0.003",
       "source abo"
      ],
      "passed_over": []
     },
-    "glb": "models/abo/abo_B075Z8WD59.glb",
-    "sha256_glb": "c7a861e516b1c0d79de3fbb4eb2f6ab4817c4fe9bc08887c919f859e0653d87f",
-    "uid": "abo_B075Z8WD59",
-    "title": "Amazon Brand – Rivet Hillside Antiqued Round Coffee Table, 39.4\"D, Wood and Bronze",
+    "glb": "models/abo/abo_B07QFB1TLZ.glb",
+    "sha256_glb": "eae8a22dec852f867fee9794ef53f09d965943381b85c81fdd27803a487cd6c5",
+    "uid": "abo_B07QFB1TLZ",
+    "title": "Amazon Brand – Stone & Beam Ryder Industrial Round Coffee Table, 43.3\" Diameter, Brushed Natural Antique Copper",
     "author": "Amazon.com",
-    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B075Z8WD59",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07QFB1TLZ",
     "licence_url": "https://creativecommons.org/licenses/by/4.0/",
     "via": "Amazon Berkeley Objects (CC BY 4.0)",
-    "attribution": "\"Amazon Brand – Rivet Hillside Antiqued Round Coffee Table, 39.4\"D, Wood and Bronze\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "attribution": "\"Amazon Brand – Stone & Beam Ryder Industrial Round Coffee Table, 43.3\" Diameter, Brushed Natural Antique Copper\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
     "licence_flag": null,
-    "style_hint": null,
-    "name": "Amazon Brand – Rivet Hillside Antiqued Round Coffee Table, 39.4\"D, Wood and Bronze",
+    "style_hint": "Round Coffee Table",
+    "name": "Amazon Brand – Stone & Beam Ryder Industrial Round Coffee Table, 43.3\" Diameter, Brushed Natural Antique Copper",
     "unit_scale": 1.0
    },
    "status": "verified",
@@ -5590,6 +5782,10 @@
       "reason": "styles ['industrial'] include neither scandinavian nor neutral"
      },
      {
+      "id": "abo_B073P3HHFT",
+      "reason": "styles ['industrial'] include neither scandinavian nor neutral"
+     },
+     {
       "id": "abo_B07DBHCKML",
       "reason": "styles ['modern'] include neither scandinavian nor neutral"
      },
@@ -5598,7 +5794,15 @@
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
      {
+      "id": "abo_B07HK8NDXS",
+      "reason": "styles ['modern minimal', 'industrial'] include neither scandinavian nor neutral"
+     },
+     {
       "id": "abo_B07HKF59YX",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07MBFDWY5",
       "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
      },
      {
@@ -5606,8 +5810,20 @@
       "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
      },
      {
+      "id": "objaverse_01c53767c1f84f55ad9f46eb89949cf9",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_0a34dc814a3a44cfa76388e732c05376",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
       "id": "objaverse_0eba4ad785674d3586aafc82854100fa",
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_33eb258d9873435690254cfbb0ea46ec",
+      "reason": "styles ['modern'] include neither scandinavian nor neutral"
      },
      {
       "id": "objaverse_71853da424aa4b208e14f6cf430339ae",
@@ -5765,7 +5981,39 @@
     "style_family": "scandinavian",
     "excluded": [
      {
+      "id": "gen_toilet_industrial_1_3cd5bde9",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "gen_toilet_japandi_1_42fdb46f",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "gen_toilet_japandi_3_4e49add0",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "gen_toilet_mediterranean_1_09b9f7e2",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "gen_toilet_minimal_1_3799392b",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "gen_toilet_rustic_1_c2ce66a1",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "gen_toilet_scandinavian_4_06dcb780",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
       "id": "objaverse_0b3325fad3e740b1ac86173c90b56afd",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_1bd73c9a74d14ce29e45c277570990e6",
       "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
      },
      {
@@ -5775,6 +6023,22 @@
      {
       "id": "objaverse_3446229dce1f47528fa871cc7669136c",
       "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_4398bcb5976945b08f195816340247b8",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_5b18711616054a44b025d9272b745a6a",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_bd0f8d2bfba24376bec2b827a0cbbabe",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_c901dfa120a0487a9f5c9a2d241f70ab",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
      }
     ]
    },
@@ -5783,7 +6047,7 @@
     {
      "file": "building.json",
      "method": "ai",
-     "confidence": 0.6,
+     "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
      "text": "Toilet placed against the left wall, not opposite the door."
@@ -5801,7 +6065,7 @@
     "against_wall": true,
     "proposed": {
      "center": [
-      3.0,
+      3.43,
       1.0
      ],
      "rotation_deg": 0.0,
@@ -5813,7 +6077,7 @@
     "repairs": [
      "snap"
     ],
-    "agreed_by_other_pass": false
+    "agreed_by_other_pass": true
    }
   },
   {
@@ -5826,7 +6090,7 @@
    "footprint": {
     "center": [
      3.676,
-     1.551
+     1.651
     ],
     "size": [
      0.6,
@@ -5914,11 +6178,67 @@
     "style_family": "scandinavian",
     "excluded": [
      {
+      "id": "gen_washbasin_classic_1_9bd9b8cd",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "gen_washbasin_industrial_1_6794b9a5",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "gen_washbasin_japandi_2_6d594c3b",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "gen_washbasin_japandi_3_fc4e0710",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "gen_washbasin_mediterranean_1_93c90025",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "gen_washbasin_minimal_1_9dc765fb",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "gen_washbasin_modern_1_833baa60",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "gen_washbasin_modern_minimal_1_d5536003",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "gen_washbasin_scandinavian_1_6efd9d50",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_295384601e0d4f1985a919253330d59d",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
       "id": "objaverse_3eafb89804b54c8e8cbe35e4d456e0a9",
       "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
      },
      {
+      "id": "objaverse_493b70a6177d4a1385b6b0ce041a93b0",
+      "reason": "styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_5248aa117842442980a2a2bbb5f3bfe6",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_6458ac945c14458a8e5f4a470495f042",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
       "id": "objaverse_ce1a06f7cbe1425099a145f851fc5dee",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_f76c502218884914a27148f656a9b656",
       "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
      }
     ],
@@ -5989,7 +6309,7 @@
     "against_wall": true,
     "proposed": {
      "center": [
-      3.0,
+      3.43,
       0.5
      ],
      "rotation_deg": 0.0,
@@ -6487,11 +6807,118 @@
  },
  "decor": [
   {
-   "id": "dec_L0_001",
    "kind": "decor",
    "type": "cushion",
    "level_id": "L0",
    "room_id": "r_L0_bed_room",
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B07BMT4F21",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "decor_type": "cushion",
+    "fit_scale": [
+     0.9946,
+     1.4395,
+     1.2171
+    ],
+    "bbox_m": [
+     0.5,
+     0.3,
+     0.604
+    ],
+    "aspect_error": 0.3697,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     -0.1042,
+     -0.2481
+    ],
+    "front_axis_confidence": "low",
+    "target": "size",
+    "turned_deg": 0.0,
+    "styles": [
+     "modern",
+     "neutral"
+    ],
+    "style_family": "scandinavian",
+    "quality": [
+     5,
+     4
+    ],
+    "pick": {
+     "key": "f_L0_007",
+     "index": 1,
+     "of": 6,
+     "ids": [
+      "abo_B074VLRP5T",
+      "abo_B07BMT4F21",
+      "abo_B07BMTN6GF",
+      "abo_B07BMTNH22",
+      "abo_B07BMTXHSR",
+      "abo_B07C8MT64T"
+     ],
+     "colour": "cream",
+     "colour_matches": 0,
+     "not_fitting": [
+      "abo_B079TXJNJD",
+      "abo_B079TXJV32",
+      "abo_B079V39VG5",
+      "abo_B079V3WDY9",
+      "abo_B079V3YG6X",
+      "abo_B079V6V6TF",
+      "abo_B079V9CJB5",
+      "abo_B07BMQ64HR",
+      "abo_B07C8WCWWK",
+      "abo_B07JKJSJB1",
+      "abo_B07JKJSTVJ",
+      "abo_B07M6PJ4LX"
+     ],
+     "other_style": 2
+    },
+    "glb": "models/abo/abo_B07BMT4F21.glb",
+    "sha256_glb": "d804f9be759580c9d7355efd6ac44d966792be6d4b8db36a42b3f4f864ea3015",
+    "uid": "abo_B07BMT4F21",
+    "title": "Amazon Brand – Rivet Modern Abstract Geometric Decorative Throw Pillow, 20\" x 20\", Cover Only, Purple",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07BMT4F21",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Rivet Modern Abstract Geometric Decorative Throw Pillow, 20\" x 20\", Cover Only, Purple\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Cover Only",
+    "name": "Amazon Brand – Rivet Modern Abstract Geometric Decorative Throw Pillow, 20\" x 20\", Cover Only, Purple",
+    "unit_scale": 1.0
+   },
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L0_007.cushions",
+   "colour": "cream",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Soft, neutral cushions complement linen textiles and warm daylight."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Adds softness and comfort in line with Scandinavian style."
+    }
+   ],
+   "reason": "Soft, neutral cushions complement linen textiles and warm daylight.",
+   "id": "dec_L0_001",
+   "host_id": "f_L0_007",
    "center": [
     2.193,
     0.53
@@ -6500,86 +6927,121 @@
    "size": [
     0.5,
     0.3
-   ],
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "cushion",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room",
    "asset": {
     "library": "abo",
-    "asset_id": "abo_B074VLRP5T",
+    "asset_id": "abo_B07BMT4F21",
     "licence": "CC-BY-4.0",
     "license": "CC-BY-4.0",
     "method": "library",
     "decor_type": "cushion",
     "fit_scale": [
-     1.1585,
-     1.219,
-     1.1887
+     0.9946,
+     1.4395,
+     1.2171
     ],
     "bbox_m": [
      0.5,
      0.3,
-     0.4919
+     0.604
     ],
-    "aspect_error": 0.0509,
+    "aspect_error": 0.3697,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
      0.0,
-     -0.1231,
-     -0.2069
+     -0.1042,
+     -0.2481
     ],
     "front_axis_confidence": "low",
     "target": "size",
     "turned_deg": 0.0,
     "styles": [
-     "modern minimal",
-     "minimal",
      "modern",
      "neutral"
     ],
     "style_family": "scandinavian",
     "quality": [
      5,
-     5
+     4
     ],
     "pick": {
      "key": "f_L0_007",
-     "index": 0,
-     "of": 1,
+     "index": 1,
+     "of": 6,
      "ids": [
-      "abo_B074VLRP5T"
+      "abo_B074VLRP5T",
+      "abo_B07BMT4F21",
+      "abo_B07BMTN6GF",
+      "abo_B07BMTNH22",
+      "abo_B07BMTXHSR",
+      "abo_B07C8MT64T"
      ],
+     "colour": "cream",
+     "colour_matches": 0,
      "not_fitting": [
+      "abo_B079TXJNJD",
       "abo_B079TXJV32",
       "abo_B079V39VG5",
       "abo_B079V3WDY9",
-      "abo_B079V3YG6X"
+      "abo_B079V3YG6X",
+      "abo_B079V6V6TF",
+      "abo_B079V9CJB5",
+      "abo_B07BMQ64HR",
+      "abo_B07C8WCWWK",
+      "abo_B07JKJSJB1",
+      "abo_B07JKJSTVJ",
+      "abo_B07M6PJ4LX"
      ],
-     "other_style": 0
+     "other_style": 2
     },
-    "glb": "models/abo/abo_B074VLRP5T.glb",
-    "sha256_glb": "24db48794d1f166c06fa3965c6e0a62febfce63697c6b57a939a4b53476d79d8",
-    "uid": "abo_B074VLRP5T",
-    "title": "Amazon Brand – Rivet Velvet Texture Decorative Throw Pillow, 17\" x 17\", Midnight",
+    "glb": "models/abo/abo_B07BMT4F21.glb",
+    "sha256_glb": "d804f9be759580c9d7355efd6ac44d966792be6d4b8db36a42b3f4f864ea3015",
+    "uid": "abo_B07BMT4F21",
+    "title": "Amazon Brand – Rivet Modern Abstract Geometric Decorative Throw Pillow, 20\" x 20\", Cover Only, Purple",
     "author": "Amazon.com",
-    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B074VLRP5T",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07BMT4F21",
     "licence_url": "https://creativecommons.org/licenses/by/4.0/",
     "via": "Amazon Berkeley Objects (CC BY 4.0)",
-    "attribution": "\"Amazon Brand – Rivet Velvet Texture Decorative Throw Pillow, 17\" x 17\", Midnight\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "attribution": "\"Amazon Brand – Rivet Modern Abstract Geometric Decorative Throw Pillow, 20\" x 20\", Cover Only, Purple\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
     "licence_flag": null,
-    "style_hint": null,
-    "name": "Amazon Brand – Rivet Velvet Texture Decorative Throw Pillow, 17\" x 17\", Midnight",
+    "style_hint": "Cover Only",
+    "name": "Amazon Brand – Rivet Modern Abstract Geometric Decorative Throw Pillow, 20\" x 20\", Cover Only, Purple",
     "unit_scale": 1.0
    },
-   "host_id": "f_L0_007",
    "source": "added_by_ai",
-   "method": "rule",
-   "reason": "cushion at the head of the bed"
-  },
-  {
+   "method": "ai",
+   "slot": "f_L0_007.cushions",
+   "colour": "cream",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Soft, neutral cushions complement linen textiles and warm daylight."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Adds softness and comfort in line with Scandinavian style."
+    }
+   ],
+   "reason": "Soft, neutral cushions complement linen textiles and warm daylight.",
    "id": "dec_L0_002",
-   "kind": "decor",
-   "type": "cushion",
-   "level_id": "L0",
-   "room_id": "r_L0_bed_room",
+   "host_id": "f_L0_007",
    "center": [
     1.304,
     0.53
@@ -6588,40 +7050,162 @@
    "size": [
     0.5,
     0.3
-   ],
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "table_lamp",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room",
    "asset": {
     "library": "abo",
-    "asset_id": "abo_B074VLRP5T",
+    "asset_id": "abo_B07374VCVN",
     "licence": "CC-BY-4.0",
     "license": "CC-BY-4.0",
     "method": "library",
-    "decor_type": "cushion",
+    "decor_type": "table_lamp",
     "fit_scale": [
-     1.1585,
-     1.219,
-     1.1887
+     1.0,
+     1.0,
+     1.0
     ],
     "bbox_m": [
-     0.5,
-     0.3,
-     0.4919
+     0.3005,
+     0.3005,
+     0.4314
     ],
-    "aspect_error": 0.0509,
+    "aspect_error": 0.0,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
      0.0,
-     -0.1231,
-     -0.2069
+     -0.0,
+     0.0
     ],
     "front_axis_confidence": "low",
-    "target": "size",
+    "target": "within",
     "turned_deg": 0.0,
     "styles": [
+     "scandinavian",
      "modern minimal",
      "minimal",
-     "modern",
-     "neutral"
+     "modern"
+    ],
+    "style_family": "scandinavian",
+    "quality": [
+     4,
+     4
+    ],
+    "pick": {
+     "key": "f_L0_008",
+     "index": 1,
+     "of": 9,
+     "ids": [
+      "abo_B07374P6MR",
+      "abo_B07374VCVN",
+      "abo_B075X2FW6F",
+      "abo_B075X2NLK5",
+      "abo_B07DT4GY4W",
+      "abo_B07HK3PNSK",
+      "abo_B07HKGHSR7",
+      "abo_B0825CP3NS",
+      "abo_B0825CXG81"
+     ],
+     "colour": "natural wood",
+     "colour_matches": 0,
+     "not_fitting": [],
+     "other_style": 11
+    },
+    "glb": "models/abo/abo_B07374VCVN.glb",
+    "sha256_glb": "3181d24f453948a80fa7df3156bcedf1a7c5a243aee6652cde2241f4d22bd47f",
+    "uid": "abo_B07374VCVN",
+    "title": "Amazon Brand – Rivet Copper Geometric Bedside Table Desk Lamp With Light Bulb - 16.75 Inches, Copper",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07374VCVN",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Rivet Copper Geometric Bedside Table Desk Lamp With Light Bulb - 16.75 Inches, Copper\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Copper",
+    "name": "Amazon Brand – Rivet Copper Geometric Bedside Table Desk Lamp With Light Bulb - 16.75 Inches, Copper",
+    "unit_scale": 1.0
+   },
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L0_008.centre",
+   "colour": "natural wood",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Warm-toned lamp adds cozy Scandinavian ambiance."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Warm light complements daylight and matches oak flooring."
+    }
+   ],
+   "reason": "Warm-toned lamp adds cozy Scandinavian ambiance.",
+   "id": "dec_L0_003",
+   "host_id": "f_L0_008",
+   "center": [
+    0.613,
+    0.523
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.35,
+    0.35,
+    0.6
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "plant_small",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room",
+   "asset": {
+    "library": "generated",
+    "asset_id": "gen_plant_small_scandinavian_2_20075b95",
+    "licence": "generated (TRELLIS.2-4B, MIT)",
+    "license": "generated (TRELLIS.2-4B, MIT)",
+    "method": "library",
+    "decor_type": "plant_small",
+    "fit_scale": [
+     0.8463,
+     0.8463,
+     0.8463
+    ],
+    "bbox_m": [
+     0.2246,
+     0.25,
+     0.2894
+    ],
+    "aspect_error": 0.1071,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0003,
+     0.0009,
+     -0.1713
+    ],
+    "front_axis_confidence": "low",
+    "target": "within",
+    "turned_deg": 0.0,
+    "styles": [
+     "scandinavian",
+     "modern minimal",
+     "minimal",
+     "modern"
     ],
     "style_family": "scandinavian",
     "quality": [
@@ -6629,45 +7213,195 @@
      5
     ],
     "pick": {
-     "key": "f_L0_007",
-     "index": 0,
-     "of": 1,
+     "key": "f_L0_009",
+     "index": 9,
+     "of": 10,
      "ids": [
-      "abo_B074VLRP5T"
+      "gen_plant_small_classic_1_08e9f778",
+      "gen_plant_small_industrial_1_94d74431",
+      "gen_plant_small_japandi_1_32d3b9fb",
+      "gen_plant_small_mediterranean_1_3691e399",
+      "gen_plant_small_minimal_1_6f2e772d",
+      "gen_plant_small_modern_1_e1ff6032",
+      "gen_plant_small_modern_minimal_1_7ea34d3d",
+      "gen_plant_small_rustic_1_5cdaa51b",
+      "gen_plant_small_scandinavian_1_0dcfdd60",
+      "gen_plant_small_scandinavian_2_20075b95"
      ],
-     "not_fitting": [
-      "abo_B079TXJV32",
-      "abo_B079V39VG5",
-      "abo_B079V3WDY9",
-      "abo_B079V3YG6X"
-     ],
+     "colour": "sage green",
+     "colour_matches": 0,
+     "not_fitting": [],
      "other_style": 0
     },
-    "glb": "models/abo/abo_B074VLRP5T.glb",
-    "sha256_glb": "24db48794d1f166c06fa3965c6e0a62febfce63697c6b57a939a4b53476d79d8",
-    "uid": "abo_B074VLRP5T",
-    "title": "Amazon Brand – Rivet Velvet Texture Decorative Throw Pillow, 17\" x 17\", Midnight",
-    "author": "Amazon.com",
-    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B074VLRP5T",
-    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
-    "via": "Amazon Berkeley Objects (CC BY 4.0)",
-    "attribution": "\"Amazon Brand – Rivet Velvet Texture Decorative Throw Pillow, 17\" x 17\", Midnight\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "glb": "models/generated/gen_plant_small_scandinavian_2_20075b95.glb",
+    "sha256_glb": "20075b958861e970674bf880f553ecb6bfa544908616c4ff225b246241b27d6b",
+    "uid": "gen_plant_small_scandinavian_2_20075b95",
+    "title": "Generated scandinavian plant small (2)",
+    "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+    "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+    "licence_url": "",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Generated scandinavian plant small (2)\": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit",
     "licence_flag": null,
-    "style_hint": null,
-    "name": "Amazon Brand – Rivet Velvet Texture Decorative Throw Pillow, 17\" x 17\", Midnight",
-    "unit_scale": 1.0
+    "generated": {
+     "prompt": "a single scandinavian style small indoor plant in a pot for a table or a shelf, matte white and pale grey ceramic, light oak, natural linen, simple soft forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+     "image_sha256": "c6090ba66ff8673dc0199cbefd65c789d24f9208004a427171b6172c0d12783e",
+     "model": "microsoft/TRELLIS.2-4B",
+     "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+     "seed": 238081903
+    },
+    "style_hint": "scandinavian",
+    "name": "Generated scandinavian plant small (2)",
+    "unit_scale": 0.34128119811775753
    },
-   "host_id": "f_L0_007",
    "source": "added_by_ai",
-   "method": "rule",
-   "reason": "cushion at the head of the bed"
+   "method": "ai",
+   "slot": "f_L0_009.centre",
+   "colour": "sage green",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Small plant brings life and freshness to the nightstand."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Brings life to the room with natural tones fitting the style."
+    }
+   ],
+   "reason": "Small plant brings life and freshness to the nightstand.",
+   "id": "dec_L0_004",
+   "host_id": "f_L0_009",
+   "center": [
+    2.886,
+    0.5
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.25,
+    0.25,
+    0.45
+   ]
   },
   {
-   "id": "dec_L0_003",
    "kind": "decor",
    "type": "rug",
    "level_id": "L0",
    "room_id": "r_L0_bed_room",
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B0714MMHBL",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "decor_type": "rug",
+    "fit_scale": [
+     1.4263,
+     1.5209,
+     1.0
+    ],
+    "bbox_m": [
+     2.379,
+     1.614,
+     0.0118
+    ],
+    "aspect_error": 0.0642,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0005,
+     0.0,
+     0.0
+    ],
+    "front_axis_confidence": "low",
+    "target": "rug",
+    "turned_deg": 0.0,
+    "styles": [
+     "neutral"
+    ],
+    "style_family": "scandinavian",
+    "quality": [
+     4,
+     4
+    ],
+    "pick": {
+     "key": "f_L0_007",
+     "index": 1,
+     "of": 15,
+     "ids": [
+      "abo_B0714MJKX2",
+      "abo_B0714MMHBL",
+      "abo_B0719STF79",
+      "abo_B0719STLSH",
+      "abo_B071FJZVPH",
+      "abo_B07B4SDLJM",
+      "abo_B07B4SDNQT",
+      "abo_B07B4SDVG3",
+      "abo_B07B4SF23K",
+      "abo_B07B4WGGZR",
+      "abo_B07B4WH5LV",
+      "abo_B07B4WKLZ7",
+      "abo_B07B4WKQHJ",
+      "abo_B07B515Q7D",
+      "abo_B07TS7ZCVM"
+     ],
+     "colour": "sand",
+     "colour_matches": 0,
+     "not_fitting": [
+      "abo_B0735RHGTB"
+     ],
+     "other_style": 4
+    },
+    "glb": "models/abo/abo_B0714MMHBL.glb",
+    "sha256_glb": "de746ac15c8c06169f88afa7f37eb1cd91ebbed41e53abe8bd13f1793b2f4170",
+    "uid": "abo_B0714MMHBL",
+    "title": "Rivet Woven Bordered Sisal Area Rug, 3' 6'' x 5' 6'', Natural",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B0714MMHBL",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Rivet Woven Bordered Sisal Area Rug, 3' 6'' x 5' 6'', Natural\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Transitional",
+    "name": "Rivet Woven Bordered Sisal Area Rug, 3' 6'' x 5' 6'', Natural",
+    "unit_scale": 1.0
+   },
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "r_L0_bed_room.rug1",
+   "colour": "sand",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Light rug enhances light oak floors and keeps space airy."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Softens the floor and harmonizes with light oak and white walls."
+    }
+   ],
+   "reason": "Light rug enhances light oak floors and keeps space airy.",
+   "id": "dec_L0_005",
+   "host_id": null,
    "center": [
     1.749,
     1.464
@@ -6677,6 +7411,1091 @@
     2.379,
     1.614
    ],
+   "anchor_ids": [
+    "f_L0_007"
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "mirror",
+   "level_id": "L0",
+   "room_id": "r_L0_bath_toilet",
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B07RNMMYNR",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "decor_type": "mirror",
+    "fit_scale": [
+     1.331,
+     1.331,
+     1.331
+    ],
+    "bbox_m": [
+     0.54,
+     0.054,
+     0.6771
+    ],
+    "aspect_error": 0.3008,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     -0.0203,
+     -0.2543
+    ],
+    "front_axis_confidence": "high",
+    "target": "wall_art",
+    "turned_deg": 0.0,
+    "styles": [
+     "scandinavian",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "scandinavian",
+    "quality": [
+     5,
+     4
+    ],
+    "pick": {
+     "key": "f_L0_022",
+     "index": 0,
+     "of": 1,
+     "ids": [
+      "abo_B07RNMMYNR"
+     ],
+     "colour": "white",
+     "colour_matches": 1,
+     "not_fitting": [
+      "abo_B084HV5LK3"
+     ],
+     "other_style": 5
+    },
+    "glb": "models/abo/abo_B07RNMMYNR.glb",
+    "sha256_glb": "11befedc0fd84a10b039714d9a4e8c55b32b5328962bb5f6f1190cfa808c0fd0",
+    "uid": "abo_B07RNMMYNR",
+    "title": "Amazon Basics Rectangular Wall Mirror 16\" x 20\" - Peaked Trim, White",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07RNMMYNR",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Basics Rectangular Wall Mirror 16\" x 20\" - Peaked Trim, White\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Peaked",
+    "name": "Amazon Basics Rectangular Wall Mirror 16\" x 20\" - Peaked Trim, White",
+    "unit_scale": 1.0
+   },
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L0_022.wall",
+   "colour": "white",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Matches the Scandinavian style and white walls, keeping the space bright and uncluttered."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Complements light oak floor and white walls with warm, natural tones."
+    }
+   ],
+   "reason": "Matches the Scandinavian style and white walls, keeping the space bright and uncluttered.",
+   "id": "dec_L0_006",
+   "host_id": null,
+   "center": [
+    3.45,
+    1.651
+   ],
+   "rotation_deg": 90.0,
+   "size": [
+    0.54,
+    0.04
+   ],
+   "anchor_ids": [
+    "f_L0_022"
+   ],
+   "wall_point": [
+    3.43,
+    1.651
+   ],
+   "wall_id": "w_L0_009",
+   "gap_m": 0.3,
+   "bottom_m": 1.3,
+   "max_height_m": 1.3
+  },
+  {
+   "kind": "decor",
+   "type": "cushion",
+   "level_id": "L0",
+   "room_id": "r_L0_drawing_room",
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B07M6PJ4LX",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "decor_type": "cushion",
+    "fit_scale": [
+     0.8552,
+     0.9036,
+     0.8794
+    ],
+    "bbox_m": [
+     0.45,
+     0.15,
+     0.4455
+    ],
+    "aspect_error": 0.0551,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     -0.083,
+     -0.2533
+    ],
+    "front_axis_confidence": "low",
+    "target": "size",
+    "turned_deg": 0.0,
+    "styles": [
+     "scandinavian",
+     "neutral"
+    ],
+    "style_family": "scandinavian",
+    "quality": [
+     5,
+     5
+    ],
+    "pick": {
+     "key": "f_L0_017",
+     "index": 0,
+     "of": 1,
+     "ids": [
+      "abo_B07M6PJ4LX"
+     ],
+     "colour": "cream",
+     "colour_matches": 1,
+     "not_fitting": [
+      "abo_B074VLRP5T",
+      "abo_B07JKJSTVJ"
+     ],
+     "other_style": 2
+    },
+    "glb": "models/abo/abo_B07M6PJ4LX.glb",
+    "sha256_glb": "b19c05600806bfec9b40247428a4eee1ec318fa0d30927e5f39e818d8c7c97dc",
+    "uid": "abo_B07M6PJ4LX",
+    "title": "Ravenna Home Casual Floral Throw Pillow, 20\" x 20\", Cream and Blue",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07M6PJ4LX",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Ravenna Home Casual Floral Throw Pillow, 20\" x 20\", Cream and Blue\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": null,
+    "name": "Ravenna Home Casual Floral Throw Pillow, 20\" x 20\", Cream and Blue",
+    "unit_scale": 1.0
+   },
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L0_017.cushions",
+   "colour": "cream",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Soft cream cushions complement the light oak and white walls, enhancing Scandinavian warmth."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Adds softness and warmth in line with Scandinavian style."
+    }
+   ],
+   "reason": "Soft cream cushions complement the light oak and white walls, enhancing Scandinavian warmth.",
+   "id": "dec_L0_007",
+   "host_id": "f_L0_017",
+   "center": [
+    7.0,
+    0.585
+   ],
+   "rotation_deg": 180.0,
+   "size": [
+    0.45,
+    0.15
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "cushion",
+   "level_id": "L0",
+   "room_id": "r_L0_drawing_room",
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B07M6PJ4LX",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "decor_type": "cushion",
+    "fit_scale": [
+     0.8552,
+     0.9036,
+     0.8794
+    ],
+    "bbox_m": [
+     0.45,
+     0.15,
+     0.4455
+    ],
+    "aspect_error": 0.0551,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     -0.083,
+     -0.2533
+    ],
+    "front_axis_confidence": "low",
+    "target": "size",
+    "turned_deg": 0.0,
+    "styles": [
+     "scandinavian",
+     "neutral"
+    ],
+    "style_family": "scandinavian",
+    "quality": [
+     5,
+     5
+    ],
+    "pick": {
+     "key": "f_L0_017",
+     "index": 0,
+     "of": 1,
+     "ids": [
+      "abo_B07M6PJ4LX"
+     ],
+     "colour": "cream",
+     "colour_matches": 1,
+     "not_fitting": [
+      "abo_B074VLRP5T",
+      "abo_B07JKJSTVJ"
+     ],
+     "other_style": 2
+    },
+    "glb": "models/abo/abo_B07M6PJ4LX.glb",
+    "sha256_glb": "b19c05600806bfec9b40247428a4eee1ec318fa0d30927e5f39e818d8c7c97dc",
+    "uid": "abo_B07M6PJ4LX",
+    "title": "Ravenna Home Casual Floral Throw Pillow, 20\" x 20\", Cream and Blue",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07M6PJ4LX",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Ravenna Home Casual Floral Throw Pillow, 20\" x 20\", Cream and Blue\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": null,
+    "name": "Ravenna Home Casual Floral Throw Pillow, 20\" x 20\", Cream and Blue",
+    "unit_scale": 1.0
+   },
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L0_017.cushions",
+   "colour": "cream",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Soft cream cushions complement the light oak and white walls, enhancing Scandinavian warmth."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Adds softness and warmth in line with Scandinavian style."
+    }
+   ],
+   "reason": "Soft cream cushions complement the light oak and white walls, enhancing Scandinavian warmth.",
+   "id": "dec_L0_008",
+   "host_id": "f_L0_017",
+   "center": [
+    6.053,
+    0.585
+   ],
+   "rotation_deg": 180.0,
+   "size": [
+    0.45,
+    0.15
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "rug",
+   "level_id": "L0",
+   "room_id": "r_L0_drawing_room",
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B0714MJKX2",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "decor_type": "rug",
+    "fit_scale": [
+     1.0919,
+     1.1004,
+     0.6289
+    ],
+    "bbox_m": [
+     2.194,
+     2.782,
+     0.03
+    ],
+    "aspect_error": 0.4672,
+    "front_axis": "-X",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "front_axis_confidence": "low",
+    "target": "rug",
+    "turned_deg": 90.0,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern",
+     "neutral"
+    ],
+    "style_family": "scandinavian",
+    "quality": [
+     4,
+     5
+    ],
+    "pick": {
+     "key": "f_L0_017",
+     "index": 0,
+     "of": 15,
+     "ids": [
+      "abo_B0714MJKX2",
+      "abo_B0714MMHBL",
+      "abo_B0719STF79",
+      "abo_B0719STLSH",
+      "abo_B071FJZVPH",
+      "abo_B07B4SDLJM",
+      "abo_B07B4SDNQT",
+      "abo_B07B4SDVG3",
+      "abo_B07B4SF23K",
+      "abo_B07B4WGGZR",
+      "abo_B07B4WH5LV",
+      "abo_B07B4WKLZ7",
+      "abo_B07B4WKQHJ",
+      "abo_B07B515Q7D",
+      "abo_B07TS7ZCVM"
+     ],
+     "colour": "natural wood",
+     "colour_matches": 0,
+     "not_fitting": [
+      "abo_B0735RHGTB"
+     ],
+     "other_style": 4
+    },
+    "glb": "models/abo/abo_B0714MJKX2.glb",
+    "sha256_glb": "d67f1dbe222a548e4d0f3a736f0d82a53ec407aa28cef2d789af1300ba91166d",
+    "uid": "abo_B0714MJKX2",
+    "title": "Amazon Brand – Rivet Shaggy Short Rug, 7'7\" x 9'7\", Ivory",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B0714MJKX2",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Rivet Shaggy Short Rug, 7'7\" x 9'7\", Ivory\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": null,
+    "name": "Amazon Brand – Rivet Shaggy Short Rug, 7'7\" x 9'7\", Ivory",
+    "unit_scale": 1.0
+   },
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "r_L0_drawing_room.rug1",
+   "colour": "natural wood",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "A natural wood rug anchors the sofa and coffee table, echoing the floor while adding texture."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Warm neutral tone enhances daylight and ties in with linen textiles."
+    }
+   ],
+   "reason": "A natural wood rug anchors the sofa and coffee table, echoing the floor while adding texture.",
+   "id": "dec_L0_009",
+   "host_id": null,
+   "center": [
+    6.517,
+    1.921
+   ],
+   "rotation_deg": 180.0,
+   "size": [
+    2.194,
+    2.782
+   ],
+   "anchor_ids": [
+    "f_L0_017",
+    "f_L0_019"
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "plant",
+   "level_id": "L0",
+   "room_id": "r_L0_drawing_room",
+   "asset": {
+    "library": "generated",
+    "asset_id": "gen_potted_plant_modern_1_8fbfec3c",
+    "licence": "generated (TRELLIS.2-4B, MIT)",
+    "license": "generated (TRELLIS.2-4B, MIT)",
+    "method": "library",
+    "decor_type": "plant",
+    "fit_scale": [
+     0.7147,
+     0.7629,
+     0.7388
+    ],
+    "bbox_m": [
+     0.4,
+     0.4,
+     0.7396
+    ],
+    "aspect_error": 0.0653,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0018,
+     -0.0073,
+     -0.501
+    ],
+    "front_axis_confidence": "low",
+    "target": "size",
+    "turned_deg": 0.0,
+    "styles": [
+     "neutral"
+    ],
+    "style_family": "scandinavian",
+    "quality": [
+     4,
+     5
+    ],
+    "pick": {
+     "key": "dec_L0_010",
+     "index": 6,
+     "of": 15,
+     "ids": [
+      "gen_potted_plant_industrial_2_eb3d21f5",
+      "gen_potted_plant_japandi_1_63c10a71",
+      "gen_potted_plant_japandi_2_9a3effd1",
+      "gen_potted_plant_japandi_3_36d34f2a",
+      "gen_potted_plant_mediterranean_1_38a58433",
+      "gen_potted_plant_minimal_1_5cf2e7a2",
+      "gen_potted_plant_modern_1_8fbfec3c",
+      "gen_potted_plant_modern_minimal_1_6b4ad5f1",
+      "gen_potted_plant_rustic_1_978e47a9",
+      "gen_potted_plant_scandinavian_1_04f97c4b",
+      "gen_potted_plant_scandinavian_2_98f7bbd2",
+      "gen_potted_plant_scandinavian_3_ef4f2d99",
+      "potted_plant_01",
+      "potted_plant_02",
+      "potted_plant_04"
+     ],
+     "colour": "sage green",
+     "colour_matches": 0,
+     "not_fitting": [],
+     "other_style": 6
+    },
+    "glb": "models/generated/gen_potted_plant_modern_1_8fbfec3c.glb",
+    "sha256_glb": "8fbfec3cbf1c93b22bacbf7f37e0c378a36358710636425d759bab158d4c69e7",
+    "uid": "gen_potted_plant_modern_1_8fbfec3c",
+    "title": "Generated modern potted plant (1)",
+    "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+    "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+    "licence_url": "",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Generated modern potted plant (1)\": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit",
+    "licence_flag": null,
+    "generated": {
+     "prompt": "a single modern style large indoor plant in a floor pot, walnut veneer, charcoal fabric, brushed steel details, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+     "image_sha256": "d005782fb771ef92b0859e80e6c9ba8e30c8b2587038dacdf5dffd3d1603bf93",
+     "model": "microsoft/TRELLIS.2-4B",
+     "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+     "seed": 1433942496
+    },
+    "style_hint": "modern",
+    "name": "Generated modern potted plant (1)",
+    "unit_scale": 1.0
+   },
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "r_L0_drawing_room.corner1",
+   "colour": "sage green",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "A sage green plant in the corner brings life and softness, fitting the daylight and minimalist style."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Brings life to the corner while maintaining minimalist Scandinavian aesthetic."
+    }
+   ],
+   "reason": "A sage green plant in the corner brings life and softness, fitting the daylight and minimalist style.",
+   "id": "dec_L0_010",
+   "host_id": null,
+   "center": [
+    5.356,
+    0.48
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.4,
+    0.4
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "vase",
+   "level_id": "L0",
+   "room_id": "r_L0_drawing_room",
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B07JM1K8VH",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "decor_type": "vase",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     0.1692,
+     0.1692,
+     0.2402
+    ],
+    "aspect_error": 0.0,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "front_axis_confidence": "low",
+    "target": "within",
+    "turned_deg": 0.0,
+    "styles": [
+     "scandinavian",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "scandinavian",
+    "quality": [
+     5,
+     5
+    ],
+    "pick": {
+     "key": "f_L0_019",
+     "index": 8,
+     "of": 17,
+     "ids": [
+      "abo_B075HR4ZDB",
+      "abo_B075HWDSZY",
+      "abo_B078JFFX4L",
+      "abo_B078JGHZT3",
+      "abo_B078JGRLCJ",
+      "abo_B078JGYJTG",
+      "abo_B078JJDPR2",
+      "abo_B07HSLG6WR",
+      "abo_B07JM1K8VH",
+      "abo_B07QB8L3L5",
+      "abo_B07QC8C7Y4",
+      "abo_B07QC8CB15",
+      "abo_B07QC8CFCY",
+      "abo_B07QD6ZC1P",
+      "abo_B07QD6ZV84",
+      "abo_B07QFB5MW6",
+      "abo_B07QFB5MXX"
+     ],
+     "colour": "terracotta",
+     "colour_matches": 0,
+     "not_fitting": [],
+     "other_style": 3
+    },
+    "glb": "models/abo/abo_B07JM1K8VH.glb",
+    "sha256_glb": "b8cccd722166b9d8dc0e66ecd9f5d56d0a791e6b5a01324036c671669f46b24d",
+    "uid": "abo_B07JM1K8VH",
+    "title": "Amazon Brand – Rivet Westline Modern Indoor Outdoor Hand-Painted Stoneware Flower Vase, 9.5\"H, Yellow White Blue Black",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07JM1K8VH",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Rivet Westline Modern Indoor Outdoor Hand-Painted Stoneware Flower Vase, 9.5\"H, Yellow White Blue Black\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Vase",
+    "name": "Amazon Brand – Rivet Westline Modern Indoor Outdoor Hand-Painted Stoneware Flower Vase, 9.5\"H, Yellow White Blue Black",
+    "unit_scale": 1.0
+   },
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L0_019.centre",
+   "colour": "terracotta",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "A terracotta vase adds earthy warmth to the coffee table, balancing the neutral palette."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Complements light oak floors and brings organic texture."
+    }
+   ],
+   "reason": "A terracotta vase adds earthy warmth to the coffee table, balancing the neutral palette.",
+   "id": "dec_L0_011",
+   "host_id": "f_L0_019",
+   "center": [
+    6.531,
+    2.451
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.18,
+    0.18,
+    0.4
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "cushion",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room_2",
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B07BMTNH22",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "decor_type": "cushion",
+    "fit_scale": [
+     0.9946,
+     1.4395,
+     1.2171
+    ],
+    "bbox_m": [
+     0.5,
+     0.3,
+     0.604
+    ],
+    "aspect_error": 0.3697,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     -0.1042,
+     -0.2481
+    ],
+    "front_axis_confidence": "low",
+    "target": "size",
+    "turned_deg": 0.0,
+    "styles": [
+     "modern",
+     "neutral"
+    ],
+    "style_family": "scandinavian",
+    "quality": [
+     5,
+     4
+    ],
+    "pick": {
+     "key": "f_L0_004",
+     "index": 3,
+     "of": 6,
+     "ids": [
+      "abo_B074VLRP5T",
+      "abo_B07BMT4F21",
+      "abo_B07BMTN6GF",
+      "abo_B07BMTNH22",
+      "abo_B07BMTXHSR",
+      "abo_B07C8MT64T"
+     ],
+     "colour": "cream",
+     "colour_matches": 0,
+     "not_fitting": [
+      "abo_B079TXJNJD",
+      "abo_B079TXJV32",
+      "abo_B079V39VG5",
+      "abo_B079V3WDY9",
+      "abo_B079V3YG6X",
+      "abo_B079V6V6TF",
+      "abo_B079V9CJB5",
+      "abo_B07BMQ64HR",
+      "abo_B07C8WCWWK",
+      "abo_B07JKJSJB1",
+      "abo_B07JKJSTVJ",
+      "abo_B07M6PJ4LX"
+     ],
+     "other_style": 2
+    },
+    "glb": "models/abo/abo_B07BMTNH22.glb",
+    "sha256_glb": "ae6b3792ab5984ac6f6e7bd274f11839ac50617f57bc08e6a9382e6cd6dfc784",
+    "uid": "abo_B07BMTNH22",
+    "title": "Amazon Brand – Rivet Modern Abstract Geometric Decorative Throw Pillow, 20\" x 20\", Purple",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07BMTNH22",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Rivet Modern Abstract Geometric Decorative Throw Pillow, 20\" x 20\", Purple\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Cover + Insert",
+    "name": "Amazon Brand – Rivet Modern Abstract Geometric Decorative Throw Pillow, 20\" x 20\", Purple",
+    "unit_scale": 1.0
+   },
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L0_004.cushions",
+   "colour": "cream",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Soft, neutral cushions complement linen textiles and warm daylight."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Adds softness and comfort in line with Scandinavian style."
+    }
+   ],
+   "reason": "Soft, neutral cushions complement linen textiles and warm daylight.",
+   "id": "dec_L0_012",
+   "host_id": "f_L0_004",
+   "center": [
+    1.351,
+    6.831
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.5,
+    0.3
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "cushion",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room_2",
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B07BMTNH22",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "decor_type": "cushion",
+    "fit_scale": [
+     0.9946,
+     1.4395,
+     1.2171
+    ],
+    "bbox_m": [
+     0.5,
+     0.3,
+     0.604
+    ],
+    "aspect_error": 0.3697,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     -0.1042,
+     -0.2481
+    ],
+    "front_axis_confidence": "low",
+    "target": "size",
+    "turned_deg": 0.0,
+    "styles": [
+     "modern",
+     "neutral"
+    ],
+    "style_family": "scandinavian",
+    "quality": [
+     5,
+     4
+    ],
+    "pick": {
+     "key": "f_L0_004",
+     "index": 3,
+     "of": 6,
+     "ids": [
+      "abo_B074VLRP5T",
+      "abo_B07BMT4F21",
+      "abo_B07BMTN6GF",
+      "abo_B07BMTNH22",
+      "abo_B07BMTXHSR",
+      "abo_B07C8MT64T"
+     ],
+     "colour": "cream",
+     "colour_matches": 0,
+     "not_fitting": [
+      "abo_B079TXJNJD",
+      "abo_B079TXJV32",
+      "abo_B079V39VG5",
+      "abo_B079V3WDY9",
+      "abo_B079V3YG6X",
+      "abo_B079V6V6TF",
+      "abo_B079V9CJB5",
+      "abo_B07BMQ64HR",
+      "abo_B07C8WCWWK",
+      "abo_B07JKJSJB1",
+      "abo_B07JKJSTVJ",
+      "abo_B07M6PJ4LX"
+     ],
+     "other_style": 2
+    },
+    "glb": "models/abo/abo_B07BMTNH22.glb",
+    "sha256_glb": "ae6b3792ab5984ac6f6e7bd274f11839ac50617f57bc08e6a9382e6cd6dfc784",
+    "uid": "abo_B07BMTNH22",
+    "title": "Amazon Brand – Rivet Modern Abstract Geometric Decorative Throw Pillow, 20\" x 20\", Purple",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07BMTNH22",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Rivet Modern Abstract Geometric Decorative Throw Pillow, 20\" x 20\", Purple\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Cover + Insert",
+    "name": "Amazon Brand – Rivet Modern Abstract Geometric Decorative Throw Pillow, 20\" x 20\", Purple",
+    "unit_scale": 1.0
+   },
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L0_004.cushions",
+   "colour": "cream",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Soft, neutral cushions complement linen textiles and warm daylight."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Adds softness and comfort in line with Scandinavian style."
+    }
+   ],
+   "reason": "Soft, neutral cushions complement linen textiles and warm daylight.",
+   "id": "dec_L0_013",
+   "host_id": "f_L0_004",
+   "center": [
+    2.241,
+    6.831
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.5,
+    0.3
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "table_lamp",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room_2",
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B07374VCVN",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "decor_type": "table_lamp",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     0.3005,
+     0.3005,
+     0.4314
+    ],
+    "aspect_error": 0.0,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     -0.0,
+     0.0
+    ],
+    "front_axis_confidence": "low",
+    "target": "within",
+    "turned_deg": 0.0,
+    "styles": [
+     "scandinavian",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "scandinavian",
+    "quality": [
+     4,
+     4
+    ],
+    "pick": {
+     "key": "f_L0_005",
+     "index": 1,
+     "of": 9,
+     "ids": [
+      "abo_B07374P6MR",
+      "abo_B07374VCVN",
+      "abo_B075X2FW6F",
+      "abo_B075X2NLK5",
+      "abo_B07DT4GY4W",
+      "abo_B07HK3PNSK",
+      "abo_B07HKGHSR7",
+      "abo_B0825CP3NS",
+      "abo_B0825CXG81"
+     ],
+     "colour": "natural wood",
+     "colour_matches": 0,
+     "not_fitting": [],
+     "other_style": 11
+    },
+    "glb": "models/abo/abo_B07374VCVN.glb",
+    "sha256_glb": "3181d24f453948a80fa7df3156bcedf1a7c5a243aee6652cde2241f4d22bd47f",
+    "uid": "abo_B07374VCVN",
+    "title": "Amazon Brand – Rivet Copper Geometric Bedside Table Desk Lamp With Light Bulb - 16.75 Inches, Copper",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07374VCVN",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Rivet Copper Geometric Bedside Table Desk Lamp With Light Bulb - 16.75 Inches, Copper\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Copper",
+    "name": "Amazon Brand – Rivet Copper Geometric Bedside Table Desk Lamp With Light Bulb - 16.75 Inches, Copper",
+    "unit_scale": 1.0
+   },
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L0_005.centre",
+   "colour": "natural wood",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Warm-toned lamp adds cozy Scandinavian ambiance."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Warm light complements daylight and matches light oak floors."
+    }
+   ],
+   "reason": "Warm-toned lamp adds cozy Scandinavian ambiance.",
+   "id": "dec_L0_014",
+   "host_id": "f_L0_005",
+   "center": [
+    2.933,
+    6.836
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.35,
+    0.35,
+    0.6
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "rug",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room_2",
    "asset": {
     "library": "abo",
     "asset_id": "abo_B07B4WKQHJ",
@@ -6685,16 +8504,16 @@
     "method": "library",
     "decor_type": "rug",
     "fit_scale": [
-     0.7332,
-     0.6542,
+     0.7209,
+     0.6704,
      0.6579
     ],
     "bbox_m": [
-     2.379,
-     1.614,
+     2.339,
+     1.654,
      0.03
     ],
-    "aspect_error": 0.1139,
+    "aspect_error": 0.0725,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
@@ -6717,22 +8536,32 @@
      4
     ],
     "pick": {
-     "key": "f_L0_007",
-     "index": 4,
-     "of": 7,
+     "key": "f_L0_004",
+     "index": 12,
+     "of": 15,
      "ids": [
       "abo_B0714MJKX2",
+      "abo_B0714MMHBL",
       "abo_B0719STF79",
+      "abo_B0719STLSH",
+      "abo_B071FJZVPH",
       "abo_B07B4SDLJM",
+      "abo_B07B4SDNQT",
+      "abo_B07B4SDVG3",
+      "abo_B07B4SF23K",
+      "abo_B07B4WGGZR",
       "abo_B07B4WH5LV",
+      "abo_B07B4WKLZ7",
       "abo_B07B4WKQHJ",
       "abo_B07B515Q7D",
       "abo_B07TS7ZCVM"
      ],
+     "colour": "natural wood",
+     "colour_matches": 0,
      "not_fitting": [
       "abo_B0735RHGTB"
      ],
-     "other_style": 3
+     "other_style": 4
     },
     "glb": "models/abo/abo_B07B4WKQHJ.glb",
     "sha256_glb": "83a20ef71167e28bb9595310ce56d089460b87254ae3871b21bbda0fd50f97ba",
@@ -6748,598 +8577,33 @@
     "name": "Amazon Brand – Rivet Contemporary Striated Jute Area Rug, 10' 6\" x 8', Off White",
     "unit_scale": 1.0
    },
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "r_L0_bed_room_2.rug1",
+   "colour": "natural wood",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Light oak floor paired with wood-toned rug enhances Scandinavian warmth."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Softens the floor and enhances the natural, minimalist feel."
+    }
+   ],
+   "reason": "Light oak floor paired with wood-toned rug enhances Scandinavian warmth.",
+   "id": "dec_L0_015",
    "host_id": null,
-   "anchor_ids": [
-    "f_L0_007"
-   ],
-   "source": "added_by_ai",
-   "method": "rule",
-   "reason": "rug under the lower two thirds of the double bed; cut from 2.38 x 1.95 m to stay off walls, door swings and fixed pieces"
-  },
-  {
-   "id": "dec_L0_004",
-   "kind": "decor",
-   "type": "cushion",
-   "level_id": "L0",
-   "room_id": "r_L0_drawing_room",
-   "center": [
-    7.0,
-    0.585
-   ],
-   "rotation_deg": 180.0,
-   "size": [
-    0.45,
-    0.15
-   ],
-   "asset": {
-    "library": "abo",
-    "asset_id": "abo_B079V3YG6X",
-    "licence": "CC-BY-4.0",
-    "license": "CC-BY-4.0",
-    "method": "library",
-    "decor_type": "cushion",
-    "fit_scale": [
-     0.8707,
-     0.95,
-     0.9104
-    ],
-    "bbox_m": [
-     0.45,
-     0.15,
-     0.4622
-    ],
-    "aspect_error": 0.0871,
-    "front_axis": "-Y",
-    "up_axis": "+Z",
-    "origin_offset": [
-     0.0,
-     -0.079,
-     -0.2538
-    ],
-    "front_axis_confidence": "low",
-    "target": "size",
-    "turned_deg": 0.0,
-    "styles": [
-     "scandinavian",
-     "modern minimal",
-     "minimal",
-     "modern"
-    ],
-    "style_family": "scandinavian",
-    "quality": [
-     5,
-     4
-    ],
-    "pick": {
-     "key": "f_L0_017",
-     "index": 3,
-     "of": 4,
-     "ids": [
-      "abo_B079TXJV32",
-      "abo_B079V39VG5",
-      "abo_B079V3WDY9",
-      "abo_B079V3YG6X"
-     ],
-     "not_fitting": [
-      "abo_B074VLRP5T"
-     ],
-     "other_style": 0
-    },
-    "glb": "models/abo/abo_B079V3YG6X.glb",
-    "sha256_glb": "4580a67653d2f5cf8915b2cd87673c5fe52470f9cbde6ed9ae2931d027a3314e",
-    "uid": "abo_B079V3YG6X",
-    "title": "Amazon Brand – Rivet Modern Geometric Decorative Print Pillow Cover, 20\" x 20\", Black",
-    "author": "Amazon.com",
-    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B079V3YG6X",
-    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
-    "via": "Amazon Berkeley Objects (CC BY 4.0)",
-    "attribution": "\"Amazon Brand – Rivet Modern Geometric Decorative Print Pillow Cover, 20\" x 20\", Black\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
-    "licence_flag": null,
-    "style_hint": "Cover Only",
-    "name": "Amazon Brand – Rivet Modern Geometric Decorative Print Pillow Cover, 20\" x 20\", Black",
-    "unit_scale": 1.0
-   },
-   "host_id": "f_L0_017",
-   "source": "added_by_ai",
-   "method": "rule",
-   "reason": "cushion against the sofa back"
-  },
-  {
-   "id": "dec_L0_005",
-   "kind": "decor",
-   "type": "cushion",
-   "level_id": "L0",
-   "room_id": "r_L0_drawing_room",
-   "center": [
-    6.053,
-    0.585
-   ],
-   "rotation_deg": 180.0,
-   "size": [
-    0.45,
-    0.15
-   ],
-   "asset": {
-    "library": "abo",
-    "asset_id": "abo_B079V3YG6X",
-    "licence": "CC-BY-4.0",
-    "license": "CC-BY-4.0",
-    "method": "library",
-    "decor_type": "cushion",
-    "fit_scale": [
-     0.8707,
-     0.95,
-     0.9104
-    ],
-    "bbox_m": [
-     0.45,
-     0.15,
-     0.4622
-    ],
-    "aspect_error": 0.0871,
-    "front_axis": "-Y",
-    "up_axis": "+Z",
-    "origin_offset": [
-     0.0,
-     -0.079,
-     -0.2538
-    ],
-    "front_axis_confidence": "low",
-    "target": "size",
-    "turned_deg": 0.0,
-    "styles": [
-     "scandinavian",
-     "modern minimal",
-     "minimal",
-     "modern"
-    ],
-    "style_family": "scandinavian",
-    "quality": [
-     5,
-     4
-    ],
-    "pick": {
-     "key": "f_L0_017",
-     "index": 3,
-     "of": 4,
-     "ids": [
-      "abo_B079TXJV32",
-      "abo_B079V39VG5",
-      "abo_B079V3WDY9",
-      "abo_B079V3YG6X"
-     ],
-     "not_fitting": [
-      "abo_B074VLRP5T"
-     ],
-     "other_style": 0
-    },
-    "glb": "models/abo/abo_B079V3YG6X.glb",
-    "sha256_glb": "4580a67653d2f5cf8915b2cd87673c5fe52470f9cbde6ed9ae2931d027a3314e",
-    "uid": "abo_B079V3YG6X",
-    "title": "Amazon Brand – Rivet Modern Geometric Decorative Print Pillow Cover, 20\" x 20\", Black",
-    "author": "Amazon.com",
-    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B079V3YG6X",
-    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
-    "via": "Amazon Berkeley Objects (CC BY 4.0)",
-    "attribution": "\"Amazon Brand – Rivet Modern Geometric Decorative Print Pillow Cover, 20\" x 20\", Black\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
-    "licence_flag": null,
-    "style_hint": "Cover Only",
-    "name": "Amazon Brand – Rivet Modern Geometric Decorative Print Pillow Cover, 20\" x 20\", Black",
-    "unit_scale": 1.0
-   },
-   "host_id": "f_L0_017",
-   "source": "added_by_ai",
-   "method": "rule",
-   "reason": "cushion against the sofa back"
-  },
-  {
-   "id": "dec_L0_006",
-   "kind": "decor",
-   "type": "plant",
-   "level_id": "L0",
-   "room_id": "r_L0_drawing_room",
-   "center": [
-    5.356,
-    0.48
-   ],
-   "rotation_deg": 0.0,
-   "size": [
-    0.4,
-    0.4
-   ],
-   "asset": {
-    "library": "polyhaven",
-    "asset_id": "potted_plant_04",
-    "licence": "CC0",
-    "license": "CC0",
-    "method": "library",
-    "decor_type": "plant",
-    "fit_scale": [
-     2.3824,
-     2.1645,
-     2.2734
-    ],
-    "bbox_m": [
-     0.4,
-     0.4,
-     0.6081
-    ],
-    "aspect_error": 0.0959,
-    "front_axis": "-Y",
-    "up_axis": "+Z",
-    "origin_offset": [
-     0.0,
-     -0.0084,
-     0.0004
-    ],
-    "front_axis_confidence": "low",
-    "target": "size",
-    "turned_deg": 0.0,
-    "styles": [],
-    "style_family": "scandinavian",
-    "quality": null,
-    "pick": {
-     "key": "dec_L0_006",
-     "index": 2,
-     "of": 3,
-     "ids": [
-      "potted_plant_01",
-      "potted_plant_02",
-      "potted_plant_04"
-     ],
-     "not_fitting": [],
-     "other_style": 0
-    },
-    "gltf": "models/potted_plant_04/potted_plant_04_1k.gltf"
-   },
-   "host_id": null,
-   "source": "added_by_ai",
-   "method": "rule",
-   "reason": "potted plant in a free corner"
-  },
-  {
-   "id": "dec_L0_007",
-   "kind": "decor",
-   "type": "rug",
-   "level_id": "L0",
-   "room_id": "r_L0_drawing_room",
-   "center": [
-    6.517,
-    1.921
-   ],
-   "rotation_deg": 180.0,
-   "size": [
-    2.194,
-    2.782
-   ],
-   "asset": {
-    "library": "abo",
-    "asset_id": "abo_B07B4SDLJM",
-    "licence": "CC-BY-4.0",
-    "license": "CC-BY-4.0",
-    "method": "library",
-    "decor_type": "rug",
-    "fit_scale": [
-     0.9014,
-     0.8689,
-     0.6667
-    ],
-    "bbox_m": [
-     2.194,
-     2.782,
-     0.03
-    ],
-    "aspect_error": 0.5115,
-    "front_axis": "-X",
-    "up_axis": "+Z",
-    "origin_offset": [
-     -0.0012,
-     -0.0003,
-     0.0
-    ],
-    "front_axis_confidence": "low",
-    "target": "rug",
-    "turned_deg": 90.0,
-    "styles": [
-     "scandinavian",
-     "japandi",
-     "modern minimal",
-     "minimal",
-     "modern"
-    ],
-    "style_family": "scandinavian",
-    "quality": [
-     4,
-     4
-    ],
-    "pick": {
-     "key": "f_L0_017",
-     "index": 2,
-     "of": 7,
-     "ids": [
-      "abo_B0714MJKX2",
-      "abo_B0719STF79",
-      "abo_B07B4SDLJM",
-      "abo_B07B4WH5LV",
-      "abo_B07B4WKQHJ",
-      "abo_B07B515Q7D",
-      "abo_B07TS7ZCVM"
-     ],
-     "not_fitting": [
-      "abo_B0735RHGTB"
-     ],
-     "other_style": 3
-    },
-    "glb": "models/abo/abo_B07B4SDLJM.glb",
-    "sha256_glb": "6091f97b85e4a440842ba7a71b662dab877e642a78567043888d2588311801d3",
-    "uid": "abo_B07B4SDLJM",
-    "title": "Amazon Brand – Rivet Contemporary Striated Jute Area Rug, 10' 6\" x 8', Oatmeal",
-    "author": "Amazon.com",
-    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07B4SDLJM",
-    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
-    "via": "Amazon Berkeley Objects (CC BY 4.0)",
-    "attribution": "\"Amazon Brand – Rivet Contemporary Striated Jute Area Rug, 10' 6\" x 8', Oatmeal\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
-    "licence_flag": null,
-    "style_hint": "Oatmeal",
-    "name": "Amazon Brand – Rivet Contemporary Striated Jute Area Rug, 10' 6\" x 8', Oatmeal",
-    "unit_scale": 1.0
-   },
-   "host_id": null,
-   "anchor_ids": [
-    "f_L0_017",
-    "f_L0_019"
-   ],
-   "source": "added_by_ai",
-   "method": "rule",
-   "reason": "rug under the sofa and coffee table group; cut from 2.49 x 3.20 m to stay off walls, door swings and fixed pieces"
-  },
-  {
-   "id": "dec_L0_008",
-   "kind": "decor",
-   "type": "cushion",
-   "level_id": "L0",
-   "room_id": "r_L0_bed_room_2",
-   "center": [
-    1.351,
-    6.831
-   ],
-   "rotation_deg": 0.0,
-   "size": [
-    0.5,
-    0.3
-   ],
-   "asset": {
-    "library": "abo",
-    "asset_id": "abo_B074VLRP5T",
-    "licence": "CC-BY-4.0",
-    "license": "CC-BY-4.0",
-    "method": "library",
-    "decor_type": "cushion",
-    "fit_scale": [
-     1.1585,
-     1.219,
-     1.1887
-    ],
-    "bbox_m": [
-     0.5,
-     0.3,
-     0.4919
-    ],
-    "aspect_error": 0.0509,
-    "front_axis": "-Y",
-    "up_axis": "+Z",
-    "origin_offset": [
-     0.0,
-     -0.1231,
-     -0.2069
-    ],
-    "front_axis_confidence": "low",
-    "target": "size",
-    "turned_deg": 0.0,
-    "styles": [
-     "modern minimal",
-     "minimal",
-     "modern",
-     "neutral"
-    ],
-    "style_family": "scandinavian",
-    "quality": [
-     5,
-     5
-    ],
-    "pick": {
-     "key": "f_L0_004",
-     "index": 0,
-     "of": 1,
-     "ids": [
-      "abo_B074VLRP5T"
-     ],
-     "not_fitting": [
-      "abo_B079TXJV32",
-      "abo_B079V39VG5",
-      "abo_B079V3WDY9",
-      "abo_B079V3YG6X"
-     ],
-     "other_style": 0
-    },
-    "glb": "models/abo/abo_B074VLRP5T.glb",
-    "sha256_glb": "24db48794d1f166c06fa3965c6e0a62febfce63697c6b57a939a4b53476d79d8",
-    "uid": "abo_B074VLRP5T",
-    "title": "Amazon Brand – Rivet Velvet Texture Decorative Throw Pillow, 17\" x 17\", Midnight",
-    "author": "Amazon.com",
-    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B074VLRP5T",
-    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
-    "via": "Amazon Berkeley Objects (CC BY 4.0)",
-    "attribution": "\"Amazon Brand – Rivet Velvet Texture Decorative Throw Pillow, 17\" x 17\", Midnight\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
-    "licence_flag": null,
-    "style_hint": null,
-    "name": "Amazon Brand – Rivet Velvet Texture Decorative Throw Pillow, 17\" x 17\", Midnight",
-    "unit_scale": 1.0
-   },
-   "host_id": "f_L0_004",
-   "source": "added_by_ai",
-   "method": "rule",
-   "reason": "cushion at the head of the bed"
-  },
-  {
-   "id": "dec_L0_009",
-   "kind": "decor",
-   "type": "cushion",
-   "level_id": "L0",
-   "room_id": "r_L0_bed_room_2",
-   "center": [
-    2.241,
-    6.831
-   ],
-   "rotation_deg": 0.0,
-   "size": [
-    0.5,
-    0.3
-   ],
-   "asset": {
-    "library": "abo",
-    "asset_id": "abo_B074VLRP5T",
-    "licence": "CC-BY-4.0",
-    "license": "CC-BY-4.0",
-    "method": "library",
-    "decor_type": "cushion",
-    "fit_scale": [
-     1.1585,
-     1.219,
-     1.1887
-    ],
-    "bbox_m": [
-     0.5,
-     0.3,
-     0.4919
-    ],
-    "aspect_error": 0.0509,
-    "front_axis": "-Y",
-    "up_axis": "+Z",
-    "origin_offset": [
-     0.0,
-     -0.1231,
-     -0.2069
-    ],
-    "front_axis_confidence": "low",
-    "target": "size",
-    "turned_deg": 0.0,
-    "styles": [
-     "modern minimal",
-     "minimal",
-     "modern",
-     "neutral"
-    ],
-    "style_family": "scandinavian",
-    "quality": [
-     5,
-     5
-    ],
-    "pick": {
-     "key": "f_L0_004",
-     "index": 0,
-     "of": 1,
-     "ids": [
-      "abo_B074VLRP5T"
-     ],
-     "not_fitting": [
-      "abo_B079TXJV32",
-      "abo_B079V39VG5",
-      "abo_B079V3WDY9",
-      "abo_B079V3YG6X"
-     ],
-     "other_style": 0
-    },
-    "glb": "models/abo/abo_B074VLRP5T.glb",
-    "sha256_glb": "24db48794d1f166c06fa3965c6e0a62febfce63697c6b57a939a4b53476d79d8",
-    "uid": "abo_B074VLRP5T",
-    "title": "Amazon Brand – Rivet Velvet Texture Decorative Throw Pillow, 17\" x 17\", Midnight",
-    "author": "Amazon.com",
-    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B074VLRP5T",
-    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
-    "via": "Amazon Berkeley Objects (CC BY 4.0)",
-    "attribution": "\"Amazon Brand – Rivet Velvet Texture Decorative Throw Pillow, 17\" x 17\", Midnight\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
-    "licence_flag": null,
-    "style_hint": null,
-    "name": "Amazon Brand – Rivet Velvet Texture Decorative Throw Pillow, 17\" x 17\", Midnight",
-    "unit_scale": 1.0
-   },
-   "host_id": "f_L0_004",
-   "source": "added_by_ai",
-   "method": "rule",
-   "reason": "cushion at the head of the bed"
-  },
-  {
-   "id": "dec_L0_010",
-   "kind": "decor",
-   "type": "plant",
-   "level_id": "L0",
-   "room_id": "r_L0_bed_room_2",
-   "center": [
-    0.48,
-    3.985
-   ],
-   "rotation_deg": 0.0,
-   "size": [
-    0.4,
-    0.4
-   ],
-   "asset": {
-    "library": "polyhaven",
-    "asset_id": "potted_plant_01",
-    "licence": "CC0",
-    "license": "CC0",
-    "method": "library",
-    "decor_type": "plant",
-    "fit_scale": [
-     0.681,
-     0.6313,
-     0.6561
-    ],
-    "bbox_m": [
-     0.4,
-     0.4,
-     0.8859
-    ],
-    "aspect_error": 0.0757,
-    "front_axis": "-Y",
-    "up_axis": "+Z",
-    "origin_offset": [
-     -0.0447,
-     0.0469,
-     -0.0137
-    ],
-    "front_axis_confidence": "low",
-    "target": "size",
-    "turned_deg": 0.0,
-    "styles": [],
-    "style_family": "scandinavian",
-    "quality": null,
-    "pick": {
-     "key": "dec_L0_010",
-     "index": 0,
-     "of": 3,
-     "ids": [
-      "potted_plant_01",
-      "potted_plant_02",
-      "potted_plant_04"
-     ],
-     "not_fitting": [],
-     "other_style": 0
-    },
-    "gltf": "models/potted_plant_01/potted_plant_01_1k.gltf"
-   },
-   "host_id": null,
-   "source": "added_by_ai",
-   "method": "rule",
-   "reason": "potted plant in a free corner"
-  },
-  {
-   "id": "dec_L0_011",
-   "kind": "decor",
-   "type": "rug",
-   "level_id": "L0",
-   "room_id": "r_L0_bed_room_2",
    "center": [
     1.776,
     5.877
@@ -7349,33 +8613,404 @@
     2.339,
     1.654
    ],
+   "anchor_ids": [
+    "f_L0_004"
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "plant",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room_2",
+   "asset": {
+    "library": "generated",
+    "asset_id": "gen_potted_plant_minimal_1_5cf2e7a2",
+    "licence": "generated (TRELLIS.2-4B, MIT)",
+    "license": "generated (TRELLIS.2-4B, MIT)",
+    "method": "library",
+    "decor_type": "plant",
+    "fit_scale": [
+     0.8138,
+     0.7587,
+     0.7863
+    ],
+    "bbox_m": [
+     0.4,
+     0.4,
+     0.7853
+    ],
+    "aspect_error": 0.0701,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0069,
+     0.0068,
+     -0.501
+    ],
+    "front_axis_confidence": "low",
+    "target": "size",
+    "turned_deg": 0.0,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern",
+     "neutral"
+    ],
+    "style_family": "scandinavian",
+    "quality": [
+     4,
+     5
+    ],
+    "pick": {
+     "key": "dec_L0_016",
+     "index": 5,
+     "of": 15,
+     "ids": [
+      "gen_potted_plant_industrial_2_eb3d21f5",
+      "gen_potted_plant_japandi_1_63c10a71",
+      "gen_potted_plant_japandi_2_9a3effd1",
+      "gen_potted_plant_japandi_3_36d34f2a",
+      "gen_potted_plant_mediterranean_1_38a58433",
+      "gen_potted_plant_minimal_1_5cf2e7a2",
+      "gen_potted_plant_modern_1_8fbfec3c",
+      "gen_potted_plant_modern_minimal_1_6b4ad5f1",
+      "gen_potted_plant_rustic_1_978e47a9",
+      "gen_potted_plant_scandinavian_1_04f97c4b",
+      "gen_potted_plant_scandinavian_2_98f7bbd2",
+      "gen_potted_plant_scandinavian_3_ef4f2d99",
+      "potted_plant_01",
+      "potted_plant_02",
+      "potted_plant_04"
+     ],
+     "colour": "forest green",
+     "colour_matches": 0,
+     "not_fitting": [],
+     "other_style": 6
+    },
+    "glb": "models/generated/gen_potted_plant_minimal_1_5cf2e7a2.glb",
+    "sha256_glb": "5cf2e7a22d6813f8db84e529c7f1fc0202906596ffc018e7ffd43f445ab82e9e",
+    "uid": "gen_potted_plant_minimal_1_5cf2e7a2",
+    "title": "Generated minimal potted plant (1)",
+    "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+    "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+    "licence_url": "",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Generated minimal potted plant (1)\": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit",
+    "licence_flag": null,
+    "generated": {
+     "prompt": "a single minimal style large indoor plant in a floor pot, plain matte surfaces in white, beige and grey, simple geometric forms, hidden handles, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+     "image_sha256": "ae5d6e94c549a9ac340ac008c186b5ee4dc45f1abb884f5696e6405f54f026ef",
+     "model": "microsoft/TRELLIS.2-4B",
+     "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+     "seed": 2048023385
+    },
+    "style_hint": "minimal",
+    "name": "Generated minimal potted plant (1)",
+    "unit_scale": 1.0
+   },
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "r_L0_bed_room_2.corner1",
+   "colour": "forest green",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Corner plant adds organic texture without clutter."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Brings life to the corner while keeping the space airy and fresh."
+    }
+   ],
+   "reason": "Corner plant adds organic texture without clutter.",
+   "id": "dec_L0_016",
+   "host_id": null,
+   "center": [
+    0.48,
+    3.985
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.4,
+    0.4
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "vase",
+   "level_id": "L0",
+   "room_id": "r_L0_dining",
    "asset": {
     "library": "abo",
-    "asset_id": "abo_B07B4SDLJM",
+    "asset_id": "abo_B07QC8C7Y4",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "decor_type": "vase",
+    "fit_scale": [
+     0.8911,
+     0.8911,
+     0.8911
+    ],
+    "bbox_m": [
+     0.18,
+     0.18,
+     0.2989
+    ],
+    "aspect_error": 0.0,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "front_axis_confidence": "low",
+    "target": "within",
+    "turned_deg": 0.0,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "scandinavian",
+    "quality": [
+     5,
+     5
+    ],
+    "pick": {
+     "key": "f_L0_010",
+     "index": 10,
+     "of": 17,
+     "ids": [
+      "abo_B075HR4ZDB",
+      "abo_B075HWDSZY",
+      "abo_B078JFFX4L",
+      "abo_B078JGHZT3",
+      "abo_B078JGRLCJ",
+      "abo_B078JGYJTG",
+      "abo_B078JJDPR2",
+      "abo_B07HSLG6WR",
+      "abo_B07JM1K8VH",
+      "abo_B07QB8L3L5",
+      "abo_B07QC8C7Y4",
+      "abo_B07QC8CB15",
+      "abo_B07QC8CFCY",
+      "abo_B07QD6ZC1P",
+      "abo_B07QD6ZV84",
+      "abo_B07QFB5MW6",
+      "abo_B07QFB5MXX"
+     ],
+     "colour": "natural wood",
+     "colour_matches": 0,
+     "not_fitting": [],
+     "other_style": 3
+    },
+    "glb": "models/abo/abo_B07QC8C7Y4.glb",
+    "sha256_glb": "ed0beb3dde305efeaa180097a888ec9180a358009b041a9b9a7d059cda35c2aa",
+    "uid": "abo_B07QC8C7Y4",
+    "title": "Amazon Brand – Stone & Beam Textured Modern Vase, 12.4\"H, White",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07QC8C7Y4",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Stone & Beam Textured Modern Vase, 12.4\"H, White\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": null,
+    "name": "Amazon Brand – Stone & Beam Textured Modern Vase, 12.4\"H, White",
+    "unit_scale": 1.0
+   },
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L0_010.centre",
+   "colour": "natural wood",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Adds Scandinavian warmth and complements light oak floors."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Matches light oak floor and Scandinavian style with warm, natural tones."
+    }
+   ],
+   "reason": "Adds Scandinavian warmth and complements light oak floors.",
+   "id": "dec_L0_017",
+   "host_id": "f_L0_010",
+   "center": [
+    6.497,
+    5.891
+   ],
+   "rotation_deg": 90.0,
+   "size": [
+    0.18,
+    0.18,
+    0.4
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "rug",
+   "level_id": "L0",
+   "room_id": "r_L0_dining",
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B0719STLSH",
     "licence": "CC-BY-4.0",
     "license": "CC-BY-4.0",
     "method": "library",
     "decor_type": "rug",
     "fit_scale": [
-     0.7306,
-     0.6795,
-     0.6667
+     1.1929,
+     0.9658,
+     1.0
     ],
     "bbox_m": [
-     2.339,
-     1.654,
-     0.03
+     1.818,
+     2.355,
+     0.011
     ],
-    "aspect_error": 0.0725,
-    "front_axis": "-Y",
+    "aspect_error": 0.7288,
+    "front_axis": "-X",
     "up_axis": "+Z",
     "origin_offset": [
-     -0.0012,
-     -0.0003,
-     0.0
+     0.0,
+     0.0001,
+     -0.0
     ],
     "front_axis_confidence": "low",
     "target": "rug",
+    "turned_deg": 90.0,
+    "styles": [
+     "neutral"
+    ],
+    "style_family": "scandinavian",
+    "quality": [
+     4,
+     4
+    ],
+    "pick": {
+     "key": "f_L0_010",
+     "index": 0,
+     "of": 1,
+     "ids": [
+      "abo_B0719STLSH"
+     ],
+     "colour": "cream",
+     "colour_matches": 1,
+     "not_fitting": [
+      "abo_B0735RHGTB"
+     ],
+     "other_style": 4
+    },
+    "glb": "models/abo/abo_B0719STLSH.glb",
+    "sha256_glb": "10e8a0d83a51185a6ce28c802ce50d44f7947246b1f7683cf4471398fcec777b",
+    "uid": "abo_B0719STLSH",
+    "title": "Stone & Beam MFL nuLoom Rug B0719STLSH 5'X8' Cream",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B0719STLSH",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Stone & Beam MFL nuLoom Rug B0719STLSH 5'X8' Cream\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Traditional",
+    "name": "Stone & Beam MFL nuLoom Rug B0719STLSH 5'X8' Cream",
+    "unit_scale": 1.0
+   },
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "r_L0_dining.rug1",
+   "colour": "cream",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Softens the floor and enhances the light, airy feel."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Softens the space, complements white walls and adds warmth without clutter."
+    }
+   ],
+   "reason": "Softens the floor and enhances the light, airy feel.",
+   "id": "dec_L0_018",
+   "host_id": null,
+   "center": [
+    6.587,
+    5.881
+   ],
+   "rotation_deg": 90.0,
+   "size": [
+    1.818,
+    2.355
+   ],
+   "anchor_ids": [
+    "f_L0_010"
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "plant",
+   "level_id": "L0",
+   "room_id": "r_L0_dining",
+   "asset": {
+    "library": "generated",
+    "asset_id": "gen_potted_plant_japandi_1_63c10a71",
+    "licence": "generated (TRELLIS.2-4B, MIT)",
+    "license": "generated (TRELLIS.2-4B, MIT)",
+    "method": "library",
+    "decor_type": "plant",
+    "fit_scale": [
+     0.8887,
+     0.837,
+     0.8628
+    ],
+    "bbox_m": [
+     0.4,
+     0.4,
+     0.8634
+    ],
+    "aspect_error": 0.0599,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.004,
+     -0.0086,
+     -0.501
+    ],
+    "front_axis_confidence": "low",
+    "target": "size",
     "turned_deg": 0.0,
     "styles": [
      "scandinavian",
@@ -7387,139 +9022,91 @@
     "style_family": "scandinavian",
     "quality": [
      4,
-     4
+     5
     ],
     "pick": {
-     "key": "f_L0_004",
-     "index": 2,
-     "of": 7,
-     "ids": [
-      "abo_B0714MJKX2",
-      "abo_B0719STF79",
-      "abo_B07B4SDLJM",
-      "abo_B07B4WH5LV",
-      "abo_B07B4WKQHJ",
-      "abo_B07B515Q7D",
-      "abo_B07TS7ZCVM"
-     ],
-     "not_fitting": [
-      "abo_B0735RHGTB"
-     ],
-     "other_style": 3
-    },
-    "glb": "models/abo/abo_B07B4SDLJM.glb",
-    "sha256_glb": "6091f97b85e4a440842ba7a71b662dab877e642a78567043888d2588311801d3",
-    "uid": "abo_B07B4SDLJM",
-    "title": "Amazon Brand – Rivet Contemporary Striated Jute Area Rug, 10' 6\" x 8', Oatmeal",
-    "author": "Amazon.com",
-    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07B4SDLJM",
-    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
-    "via": "Amazon Berkeley Objects (CC BY 4.0)",
-    "attribution": "\"Amazon Brand – Rivet Contemporary Striated Jute Area Rug, 10' 6\" x 8', Oatmeal\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
-    "licence_flag": null,
-    "style_hint": "Oatmeal",
-    "name": "Amazon Brand – Rivet Contemporary Striated Jute Area Rug, 10' 6\" x 8', Oatmeal",
-    "unit_scale": 1.0
-   },
-   "host_id": null,
-   "anchor_ids": [
-    "f_L0_004"
-   ],
-   "source": "added_by_ai",
-   "method": "rule",
-   "reason": "rug under the lower two thirds of the double bed; cut from 2.38 x 1.95 m to stay off walls, door swings and fixed pieces"
-  },
-  {
-   "id": "dec_L0_012",
-   "kind": "decor",
-   "type": "rug",
-   "level_id": "L0",
-   "room_id": "r_L0_dining",
-   "center": [
-    6.587,
-    5.881
-   ],
-   "rotation_deg": 90.0,
-   "size": [
-    1.818,
-    2.355
-   ],
-   "asset": {
-    "library": "abo",
-    "asset_id": "abo_B0719STF79",
-    "licence": "CC-BY-4.0",
-    "license": "CC-BY-4.0",
-    "method": "library",
-    "decor_type": "rug",
-    "fit_scale": [
-     0.7761,
-     0.7312,
-     1.0
-    ],
-    "bbox_m": [
-     1.818,
-     2.355,
-     0.0262
-    ],
-    "aspect_error": 0.5772,
-    "front_axis": "-X",
-    "up_axis": "+Z",
-    "origin_offset": [
-     -0.0003,
-     0.0008,
-     0.0
-    ],
-    "front_axis_confidence": "low",
-    "target": "rug",
-    "turned_deg": 90.0,
-    "styles": [
-     "scandinavian",
-     "neutral"
-    ],
-    "style_family": "scandinavian",
-    "quality": [
-     4,
-     4
-    ],
-    "pick": {
-     "key": "f_L0_010",
+     "key": "dec_L0_019",
      "index": 1,
-     "of": 7,
+     "of": 15,
      "ids": [
-      "abo_B0714MJKX2",
-      "abo_B0719STF79",
-      "abo_B07B4SDLJM",
-      "abo_B07B4WH5LV",
-      "abo_B07B4WKQHJ",
-      "abo_B07B515Q7D",
-      "abo_B07TS7ZCVM"
+      "gen_potted_plant_industrial_2_eb3d21f5",
+      "gen_potted_plant_japandi_1_63c10a71",
+      "gen_potted_plant_japandi_2_9a3effd1",
+      "gen_potted_plant_japandi_3_36d34f2a",
+      "gen_potted_plant_mediterranean_1_38a58433",
+      "gen_potted_plant_minimal_1_5cf2e7a2",
+      "gen_potted_plant_modern_1_8fbfec3c",
+      "gen_potted_plant_modern_minimal_1_6b4ad5f1",
+      "gen_potted_plant_rustic_1_978e47a9",
+      "gen_potted_plant_scandinavian_1_04f97c4b",
+      "gen_potted_plant_scandinavian_2_98f7bbd2",
+      "gen_potted_plant_scandinavian_3_ef4f2d99",
+      "potted_plant_01",
+      "potted_plant_02",
+      "potted_plant_04"
      ],
-     "not_fitting": [
-      "abo_B0735RHGTB"
-     ],
-     "other_style": 3
+     "colour": "sage green",
+     "colour_matches": 0,
+     "not_fitting": [],
+     "other_style": 6
     },
-    "glb": "models/abo/abo_B0719STF79.glb",
-    "sha256_glb": "205af80d556fda986fd0bced0fce74ba2e884ad5744c603d8df7c6646726b170",
-    "uid": "abo_B0719STF79",
-    "title": "Amazon Brand – Rivet Diamond Trellis Tassel Wool Rug, 7'6\" x 9'6\", Ivory",
-    "author": "Amazon.com",
-    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B0719STF79",
-    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
-    "via": "Amazon Berkeley Objects (CC BY 4.0)",
-    "attribution": "\"Amazon Brand – Rivet Diamond Trellis Tassel Wool Rug, 7'6\" x 9'6\", Ivory\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "glb": "models/generated/gen_potted_plant_japandi_1_63c10a71.glb",
+    "sha256_glb": "63c10a7100aa4765c39a4135b82360b91766b24e9d128954798107d15d518e9d",
+    "uid": "gen_potted_plant_japandi_1_63c10a71",
+    "title": "Generated japandi potted plant (1)",
+    "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+    "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+    "licence_url": "",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Generated japandi potted plant (1)\": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit",
     "licence_flag": null,
-    "style_hint": "Contemporary",
-    "name": "Amazon Brand – Rivet Diamond Trellis Tassel Wool Rug, 7'6\" x 9'6\", Ivory",
+    "generated": {
+     "prompt": "a single japandi style large indoor plant in a floor pot, light ash wood, black accents, natural linen and paper textures, low profile, calm minimal forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+     "image_sha256": "689064611ab6697f32def047f5b1c27be0353b1e661cb63e6e7e2ac0d3ccd86d",
+     "model": "microsoft/TRELLIS.2-4B",
+     "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+     "seed": 1070096842
+    },
+    "style_hint": "japandi",
+    "name": "Generated japandi potted plant (1)",
     "unit_scale": 1.0
    },
-   "host_id": null,
-   "anchor_ids": [
-    "f_L0_010"
-   ],
    "source": "added_by_ai",
-   "method": "rule",
-   "reason": "rug under the dining table (+ 0.6 m each side for the chairs); cut from 3.04 x 2.54 m to stay off walls, door swings and fixed pieces"
+   "method": "ai",
+   "slot": "r_L0_dining.corner1",
+   "colour": "sage green",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Brings life to the corner with natural tones matching the style."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Brings life to the corner with minimalism and Scandinavian greenery."
+    }
+   ],
+   "reason": "Brings life to the corner with natural tones matching the style.",
+   "id": "dec_L0_019",
+   "host_id": null,
+   "center": [
+    5.356,
+    4.902
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.4,
+    0.4
+   ]
   }
  ]
 }

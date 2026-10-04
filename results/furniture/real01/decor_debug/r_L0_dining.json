@@ -1,0 +1,173 @@
+{
+ "room_id": "r_L0_dining",
+ "label": "Dining",
+ "room_type": "dining",
+ "slots": [
+  {
+   "id": "f_L0_010.centre",
+   "kind": "top",
+   "types": [
+    "vase",
+    "bowl",
+    "plant_small"
+   ],
+   "host_id": "f_L0_010",
+   "host_type": "table_dining",
+   "note": "centre part",
+   "center": [
+    6.497,
+    5.891
+   ],
+   "max_size": [
+    0.7,
+    0.5,
+    1.818
+   ]
+  },
+  {
+   "id": "r_L0_dining.rug1",
+   "kind": "rug",
+   "types": [
+    "rug"
+   ],
+   "host_id": "f_L0_010",
+   "host_type": null,
+   "note": "f_L0_010"
+  },
+  {
+   "id": "r_L0_dining.corner1",
+   "kind": "floor",
+   "types": [
+    "plant"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "corner at 5.36, 4.90",
+   "center": [
+    5.356,
+    4.902
+   ]
+  },
+  {
+   "id": "r_L0_dining.corner2",
+   "kind": "floor",
+   "types": [
+    "plant"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "corner at 9.12, 6.84",
+   "center": [
+    9.124,
+    6.84
+   ]
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "f_L0_010.centre",
+     "type": "vase",
+     "colour": "natural wood",
+     "reason": "Adds Scandinavian warmth and complements light oak floors."
+    },
+    {
+     "slot": "r_L0_dining.rug1",
+     "type": "rug",
+     "colour": "cream",
+     "reason": "Softens the floor and enhances the light, airy feel."
+    },
+    {
+     "slot": "r_L0_dining.corner1",
+     "type": "plant",
+     "colour": "sage green",
+     "reason": "Brings life to the corner with natural tones matching the style."
+    }
+   ],
+   "error": null,
+   "latency_s": 4.839
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "f_L0_010.centre",
+     "type": "vase",
+     "colour": "natural wood",
+     "reason": "Matches light oak floor and Scandinavian style with warm, natural tones."
+    },
+    {
+     "slot": "r_L0_dining.rug1",
+     "type": "rug",
+     "colour": "cream",
+     "reason": "Softens the space, complements white walls and adds warmth without clutter."
+    },
+    {
+     "slot": "r_L0_dining.corner1",
+     "type": "plant",
+     "colour": "natural wood",
+     "reason": "Brings life to the corner with minimalism and Scandinavian greenery."
+    }
+   ],
+   "error": null,
+   "latency_s": 5.005
+  }
+ },
+ "agreed": [
+  {
+   "slot": "f_L0_010.centre",
+   "type": "vase",
+   "colour": "natural wood",
+   "colour_agreed": true,
+   "reasons": [
+    "Adds Scandinavian warmth and complements light oak floors.",
+    "Matches light oak floor and Scandinavian style with warm, natural tones."
+   ]
+  },
+  {
+   "slot": "r_L0_dining.rug1",
+   "type": "rug",
+   "colour": "cream",
+   "colour_agreed": true,
+   "reasons": [
+    "Softens the floor and enhances the light, airy feel.",
+    "Softens the space, complements white walls and adds warmth without clutter."
+   ]
+  },
+  {
+   "slot": "r_L0_dining.corner1",
+   "type": "plant",
+   "colour": "sage green",
+   "colour_agreed": false,
+   "reasons": [
+    "Brings life to the corner with natural tones matching the style.",
+    "Brings life to the corner with minimalism and Scandinavian greenery."
+   ]
+  }
+ ],
+ "not_agreed": [],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L0_017",
+   "type": "vase",
+   "method": "ai",
+   "slot": "f_L0_010.centre"
+  },
+  {
+   "id": "dec_L0_018",
+   "type": "rug",
+   "method": "ai",
+   "slot": "r_L0_dining.rug1"
+  },
+  {
+   "id": "dec_L0_019",
+   "type": "plant",
+   "method": "ai",
+   "slot": "r_L0_dining.corner1"
+  }
+ ],
+ "fallback": null,
+ "notes": []
+}

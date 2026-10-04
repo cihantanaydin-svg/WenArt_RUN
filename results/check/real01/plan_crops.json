@@ -14,7 +14,7 @@
     1430
    ],
    "scale": 1.50094,
-   "bytes": 58346
+   "bytes": 59437
   },
   "cam_r_L0_bath_toilet_2": {
    "plan": "cam_r_L0_bath_toilet_2_plan.jpg",
@@ -28,7 +28,7 @@
     1430
    ],
    "scale": 1.50094,
-   "bytes": 57527
+   "bytes": 58529
   },
   "cam_r_L0_bed_room_1": {
    "plan": "cam_r_L0_bed_room_1_plan.jpg",
@@ -42,7 +42,7 @@
     1222
    ],
    "scale": 1.07962,
-   "bytes": 85301
+   "bytes": 87251
   },
   "cam_r_L0_bed_room_2": {
    "plan": "cam_r_L0_bed_room_2_plan.jpg",
@@ -56,7 +56,7 @@
     1222
    ],
    "scale": 1.07962,
-   "bytes": 90300
+   "bytes": 90302
   },
   "cam_r_L0_bed_room_2_1": {
    "plan": "cam_r_L0_bed_room_2_1_plan.jpg",
@@ -70,7 +70,7 @@
     626
    ],
    "scale": 1.07817,
-   "bytes": 86263
+   "bytes": 86232
   },
   "cam_r_L0_bed_room_2_2": {
    "plan": "cam_r_L0_bed_room_2_2_plan.jpg",
@@ -84,7 +84,7 @@
     626
    ],
    "scale": 1.07817,
-   "bytes": 88680
+   "bytes": 88715
   },
   "cam_r_L0_bed_room_2_3": {
    "plan": "cam_r_L0_bed_room_2_3_plan.jpg",
@@ -98,7 +98,7 @@
     626
    ],
    "scale": 1.07817,
-   "bytes": 88342
+   "bytes": 88330
   },
   "cam_r_L0_bed_room_3": {
    "plan": "cam_r_L0_bed_room_3_plan.jpg",
@@ -112,7 +112,7 @@
     1222
    ],
    "scale": 1.07962,
-   "bytes": 89776
+   "bytes": 89760
   },
   "cam_r_L0_dining_1": {
    "plan": "cam_r_L0_dining_1_plan.jpg",
@@ -126,7 +126,7 @@
     626
    ],
    "scale": 1.0,
-   "bytes": 77969
+   "bytes": 77982
   },
   "cam_r_L0_dining_2": {
    "plan": "cam_r_L0_dining_2_plan.jpg",
@@ -140,7 +140,7 @@
     626
    ],
    "scale": 1.0,
-   "bytes": 80982
+   "bytes": 83958
   },
   "cam_r_L0_dining_3": {
    "plan": "cam_r_L0_dining_3_plan.jpg",
@@ -154,7 +154,7 @@
     626
    ],
    "scale": 1.0,
-   "bytes": 70789
+   "bytes": 83587
   },
   "cam_r_L0_drawing_room_1": {
    "plan": "cam_r_L0_drawing_room_1_plan.jpg",
@@ -168,7 +168,7 @@
     1054
    ],
    "scale": 1.0,
-   "bytes": 110967
+   "bytes": 110933
   },
   "cam_r_L0_drawing_room_2": {
    "plan": "cam_r_L0_drawing_room_2_plan.jpg",
@@ -182,7 +182,7 @@
     1054
    ],
    "scale": 1.0,
-   "bytes": 110767
+   "bytes": 110772
   },
   "cam_r_L0_drawing_room_3": {
    "plan": "cam_r_L0_drawing_room_3_plan.jpg",
@@ -196,7 +196,7 @@
     1054
    ],
    "scale": 1.0,
-   "bytes": 109878
+   "bytes": 111812
   },
   "cam_r_L0_kitchen_1": {
    "plan": "cam_r_L0_kitchen_1_plan.jpg",

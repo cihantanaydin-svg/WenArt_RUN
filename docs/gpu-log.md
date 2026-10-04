@@ -44,6 +44,6 @@ runner could not write it). Costs are estimates from the on-demand price at star
 | 2026-10-04 10:48 | 39ac41e4w6wvgt | NVIDIA RTX PRO 6000 Blackwell Server Edition | 56 | 1.94 | M8 pod F1: full re-run real01, synthetic-01, -04 (product-model library, generated gaps, bed frames, rugs and wall art, 18/16 mm lenses) | exit 1, stopped by runner after collect (watchdog and job-end stop armed) |
 | 2026-10-04 12:25 | m3d6pc7kof1xcd | NVIDIA RTX PRO 6000 Blackwell Server Edition | 55 | 1.93 | M9 L1: wider ABO survey (40/type, table lamps, vases, mirrors), Objaverse fixtures, thumbnails, two-model judging, accept 20/type, catalogue | exit 1, stopped by runner after collect (watchdog and job-end stop armed) |
 | 2026-10-04 14:08 | o9a0wzqnb6u3xz | NVIDIA RTX PRO 6000 Blackwell Server Edition | 97 | 3.39 | M9 L2: TRELLIS.2 generation to 20 per type (two shards, 30 min reserve), thumbnails, two-model judging, accept, catalogue | exit 1, stopped by runner after collect (watchdog and job-end stop armed) |
-| 2026-10-04 14:11 | pending:20261004-141151-full | RTX PRO 6000 WK | 110 | 4.01 | M9 F1: full run of real01 (20-per-type library, AI decor in the rooms with drawn furniture, 3D files .blend/.glb) | creating (provisional, worst case) |
+| 2026-10-04 14:35 | wz2540gyxmqyln | NVIDIA RTX PRO 6000 Blackwell Workstation Edition | 24 | 0.87 | M9 F1: full run of real01 (20-per-type library, AI decor in the rooms with drawn furniture, 3D files .blend/.glb) | ok, stopped by runner after collect (watchdog and job-end stop armed) |
 
-**Total spent so far: $34.60** (budget: $100; limits: $5.00/GPU-hour, $30/day, 2 h/run)
+**Total spent so far: $31.46** (budget: $100; limits: $5.00/GPU-hour, $30/day, 2 h/run)

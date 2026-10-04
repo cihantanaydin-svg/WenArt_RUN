@@ -5,8 +5,8 @@
  "stage": "pipeline_final",
  "rc": 0,
  "status": "ok",
- "seconds": 15.61,
- "fingerprint": "0fa4913181e2eb0073d77412123d546f85312ce2c5e79c989db5e9597a2457ec",
+ "seconds": 13.87,
+ "fingerprint": "021bb273de4847236398649631e9b76b0149479ce0ce70d3eddb2d503acd7dff",
  "inputs": {
   "projects/real01": "4ca78573cac183908272879f1d88b4c0938f087eb5c5e268c6705a4a11863c5c",
   "outputs/real01/recognition/answers_qwen3-vl-8b.json": "f301d578c8b91fc21e04709cbe957a289c15e9bf3f635dd7b60d897825e0a7da",
@@ -17,19 +17,19 @@
   "building.json",
   "report.md"
  ],
- "started_utc": "2026-10-04T10:00:21Z",
- "git_commit": "714dcc50e1a342a6b723451c219e22291d3d333f",
+ "started_utc": "2026-10-04T14:17:35Z",
+ "git_commit": "24efc0891eb062d1d275ea933f47536f714f1b54",
  "log": "logs/pipeline_final.log",
  "note": "answers applied",
- "run_id": "20261004-095244-full-20261004T095809Z",
+ "run_id": "20261004-141151-full-20261004T141656Z",
  "steps": [
   {
    "name": "pipeline_final",
    "rc": 0,
-   "seconds": 15.61
+   "seconds": 13.87
   }
  ],
  "written": {
-  "building.json": "316471f762d3ccddd32443d9709fdb0a1769d5e8ca4437c866688b7137c4f256"
+  "building.json": "c8fd81b9e8cea258787610516aabec87a24be2b8a860640e58fe403cc0708786"
  }
 }

@@ -3,8 +3,8 @@
  "project": {
   "id": "real01",
   "source_folder": "projects/real01",
-  "created_utc": "2026-10-04T10:00:12Z",
-  "pipeline_commit": "714dcc50e",
+  "created_utc": "2026-10-04T14:17:26Z",
+  "pipeline_commit": "24efc0891",
   "unit_system": "imperial"
  },
  "status": "ok",

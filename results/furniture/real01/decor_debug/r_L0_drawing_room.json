@@ -1,0 +1,206 @@
+{
+ "room_id": "r_L0_drawing_room",
+ "label": "Drawing Room",
+ "room_type": "living",
+ "slots": [
+  {
+   "id": "f_L0_017.cushions",
+   "kind": "soft",
+   "types": [
+    "cushion"
+   ],
+   "host_id": "f_L0_017",
+   "host_type": "sofa",
+   "note": ""
+  },
+  {
+   "id": "f_L0_019.centre",
+   "kind": "top",
+   "types": [
+    "vase",
+    "bowl",
+    "plant_small",
+    "book_set"
+   ],
+   "host_id": "f_L0_019",
+   "host_type": "table_coffee",
+   "note": "centre part",
+   "center": [
+    6.531,
+    2.451
+   ],
+   "max_size": [
+    1.067,
+    1.064,
+    2.17
+   ]
+  },
+  {
+   "id": "r_L0_drawing_room.rug1",
+   "kind": "rug",
+   "types": [
+    "rug"
+   ],
+   "host_id": "f_L0_017",
+   "host_type": null,
+   "note": "f_L0_017 + f_L0_019"
+  },
+  {
+   "id": "r_L0_drawing_room.corner1",
+   "kind": "floor",
+   "types": [
+    "plant"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "corner at 5.36, 0.48",
+   "center": [
+    5.356,
+    0.48
+   ]
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "f_L0_017.cushions",
+     "type": "cushion",
+     "colour": "cream",
+     "reason": "Soft cream cushions complement the light oak and white walls, enhancing Scandinavian warmth."
+    },
+    {
+     "slot": "r_L0_drawing_room.rug1",
+     "type": "rug",
+     "colour": "natural wood",
+     "reason": "A natural wood rug anchors the sofa and coffee table, echoing the floor while adding texture."
+    },
+    {
+     "slot": "r_L0_drawing_room.corner1",
+     "type": "plant",
+     "colour": "sage green",
+     "reason": "A sage green plant in the corner brings life and softness, fitting the daylight and minimalist style."
+    },
+    {
+     "slot": "f_L0_019.centre",
+     "type": "vase",
+     "colour": "terracotta",
+     "reason": "A terracotta vase adds earthy warmth to the coffee table, balancing the neutral palette."
+    }
+   ],
+   "error": null,
+   "latency_s": 7.083
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "f_L0_017.cushions",
+     "type": "cushion",
+     "colour": "cream",
+     "reason": "Adds softness and warmth in line with Scandinavian style."
+    },
+    {
+     "slot": "f_L0_019.centre",
+     "type": "vase",
+     "colour": "natural wood",
+     "reason": "Complements light oak floors and brings organic texture."
+    },
+    {
+     "slot": "r_L0_drawing_room.rug1",
+     "type": "rug",
+     "colour": "sand",
+     "reason": "Warm neutral tone enhances daylight and ties in with linen textiles."
+    },
+    {
+     "slot": "r_L0_drawing_room.corner1",
+     "type": "plant",
+     "colour": "natural wood",
+     "reason": "Brings life to the corner while maintaining minimalist Scandinavian aesthetic."
+    }
+   ],
+   "error": null,
+   "latency_s": 6.219
+  }
+ },
+ "agreed": [
+  {
+   "slot": "f_L0_017.cushions",
+   "type": "cushion",
+   "colour": "cream",
+   "colour_agreed": true,
+   "reasons": [
+    "Soft cream cushions complement the light oak and white walls, enhancing Scandinavian warmth.",
+    "Adds softness and warmth in line with Scandinavian style."
+   ]
+  },
+  {
+   "slot": "r_L0_drawing_room.rug1",
+   "type": "rug",
+   "colour": "natural wood",
+   "colour_agreed": false,
+   "reasons": [
+    "A natural wood rug anchors the sofa and coffee table, echoing the floor while adding texture.",
+    "Warm neutral tone enhances daylight and ties in with linen textiles."
+   ]
+  },
+  {
+   "slot": "r_L0_drawing_room.corner1",
+   "type": "plant",
+   "colour": "sage green",
+   "colour_agreed": false,
+   "reasons": [
+    "A sage green plant in the corner brings life and softness, fitting the daylight and minimalist style.",
+    "Brings life to the corner while maintaining minimalist Scandinavian aesthetic."
+   ]
+  },
+  {
+   "slot": "f_L0_019.centre",
+   "type": "vase",
+   "colour": "terracotta",
+   "colour_agreed": false,
+   "reasons": [
+    "A terracotta vase adds earthy warmth to the coffee table, balancing the neutral palette.",
+    "Complements light oak floors and brings organic texture."
+   ]
+  }
+ ],
+ "not_agreed": [],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L0_007",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L0_017.cushions"
+  },
+  {
+   "id": "dec_L0_008",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L0_017.cushions"
+  },
+  {
+   "id": "dec_L0_009",
+   "type": "rug",
+   "method": "ai",
+   "slot": "r_L0_drawing_room.rug1"
+  },
+  {
+   "id": "dec_L0_010",
+   "type": "plant",
+   "method": "ai",
+   "slot": "r_L0_drawing_room.corner1"
+  },
+  {
+   "id": "dec_L0_011",
+   "type": "vase",
+   "method": "ai",
+   "slot": "f_L0_019.centre"
+  }
+ ],
+ "fallback": null,
+ "notes": [
+  "f_L0_017 wall: wall_art: above f_L0_017: window win_L0_002 on the wall behind it leave 0.00 m for the picture (min 0.4 m)"
+ ]
+}

@@ -1,7 +1,7 @@
 {
  "schema_version": "0.1",
  "scene": "../../scene/scene.blend",
- "scene_sha256": "33d1897e9d521774b4b623ee36a12977ba1253fcb1a6d3c5038e993628820314",
+ "scene_sha256": "83f5f73c45858b75be2ea52c8552f1f0fd7acf166baff7db8e998e6c971add63",
  "device": "OPTIX",
  "device_requested": "auto",
  "blender_version": "5.2.2 LTS",
@@ -69,13 +69,15 @@
   "f_L0_020": 33,
   "f_L0_021": 34,
   "f_L0_022": 35,
-  "dec_L0_003": 36,
+  "dec_L0_005": 36,
   "dec_L0_006": 37,
-  "dec_L0_007": 38,
+  "dec_L0_009": 38,
   "dec_L0_010": 39,
-  "dec_L0_011": 40,
-  "dec_L0_012": 41,
-  "f_L0_003": 42
+  "dec_L0_015": 40,
+  "dec_L0_016": 41,
+  "dec_L0_018": 42,
+  "dec_L0_019": 43,
+  "f_L0_003": 44
  },
  "renders": [
   {
@@ -95,8 +97,8 @@
     "normal": "cam_r_L0_kitchen_1_normal.png",
     "depth": "cam_r_L0_kitchen_1_depth.png"
    },
-   "preview_bytes": 98290,
-   "seconds": 2.99,
+   "preview_bytes": 98244,
+   "seconds": 5.13,
    "samples": 128,
    "resolution": [
     1920,
@@ -143,8 +145,8 @@
     }
    },
    "skipped": false,
-   "scene_sha256": "33d1897e9d521774b4b623ee36a12977ba1253fcb1a6d3c5038e993628820314",
-   "render_key": "a5d6cb6b47c6a1b6",
+   "scene_sha256": "83f5f73c45858b75be2ea52c8552f1f0fd7acf166baff7db8e998e6c971add63",
+   "render_key": "8a34285a0922b92f",
    "exposure": {
     "mode": "from",
     "ev": 4.333333,
@@ -154,13 +156,13 @@
     "limits": null,
     "incident_p50": null,
     "whitepoint": [
-     0.931142,
-     1.007101,
-     1.132422
+     0.930484,
+     1.007281,
+     1.132568
     ],
     "wb_mode": "from",
-    "wb_temperature": 7425.4,
-    "wb_tint": 10.28,
+    "wb_temperature": 7429.0,
+    "wb_tint": 10.37,
     "residual": null,
     "window_clip_frac": 0.0,
     "meter_seconds": 0.0,
@@ -184,7 +186,7 @@
     "clip_after": 0.0,
     "pane_px": 49030,
     "pane_median": 0.8802,
-    "wall_median": 0.5473,
+    "wall_median": 0.5485,
     "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
     "tried": [
      {
@@ -194,7 +196,7 @@
      }
     ],
     "pane_median_after": 0.8051,
-    "seconds": 0.293
+    "seconds": 0.31
    },
    "alt_preview": null,
    "alt_preview_bytes": null
@@ -203,6 +205,6 @@
  "dropped_stale": [],
  "incomplete": false,
  "not_rendered": [],
- "deadline": 1791113620.0,
+ "deadline": 1791128884.0,
  "warnings": []
 }

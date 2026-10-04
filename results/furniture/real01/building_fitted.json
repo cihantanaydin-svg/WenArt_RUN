@@ -3,8 +3,8 @@
  "project": {
   "id": "real01",
   "source_folder": "projects/real01",
-  "created_utc": "2026-10-04T10:00:12Z",
-  "pipeline_commit": "714dcc50e",
+  "created_utc": "2026-10-04T14:17:26Z",
+  "pipeline_commit": "24efc0891",
   "unit_system": "imperial"
  },
  "status": "ok",
@@ -1972,25 +1972,25 @@
    "height": null,
    "asset": {
     "library": "abo",
-    "asset_id": "abo_B08FTN8KHY",
+    "asset_id": "abo_B0154VUESC",
     "licence": "CC-BY-4.0",
     "license": "CC-BY-4.0",
     "method": "library",
     "fit_scale": [
-     0.9465,
-     0.9949,
-     0.9707
+     1.0346,
+     0.9852,
+     1.0099
     ],
     "bbox_m": [
      1.7795,
      2.0295,
-     0.9125
+     0.8079
     ],
-    "aspect_error": 0.0498,
+    "aspect_error": 0.0489,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     0.0013,
+     0.0,
      0.0,
      0.0
     ],
@@ -1998,20 +1998,20 @@
     "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "abo_B08FTN8KHY",
-      "aspect_error": 0.0498,
+      "id": "abo_B0154VUESC",
+      "aspect_error": 0.0489,
       "scale": [
-       0.9465,
-       0.9949,
-       0.9707
+       1.0346,
+       0.9852,
+       1.0099
       ],
-      "non_uniform": 1.051,
-      "mean_scale": 0.9707,
+      "non_uniform": 1.0501,
+      "mean_scale": 1.0099,
       "accepted": true,
       "rank": 1,
       "source": "abo",
       "units_known": true,
-      "size_error": 0.0293,
+      "size_error": 0.0198,
       "size_bucket": 0,
       "quality": 3.0
      }
@@ -2023,7 +2023,8 @@
     ],
     "styles": [
      "modern minimal",
-     "industrial"
+     "minimal",
+     "modern"
     ],
     "style_family": null,
     "excluded": [],
@@ -2037,25 +2038,25 @@
      "rank": 1,
      "tried": 1,
      "reasons": [
-      "real size: mean |scale - 1| 0.029 (step 0)",
+      "real size: mean |scale - 1| 0.020 (step 0)",
       "quality 3",
-      "aspect error 0.050",
+      "aspect error 0.049",
       "source abo"
      ],
      "passed_over": []
     },
-    "glb": "models/abo/abo_B08FTN8KHY.glb",
-    "sha256_glb": "607d9d70257447c3b5f8dac6b35f36e567c9060a28bf81ad16ce10ba414d6f58",
-    "uid": "abo_B08FTN8KHY",
-    "title": "Amazon Brand - Solimo Senna Metal Glossy King Bed (Black)",
+    "glb": "models/abo/abo_B0154VUESC.glb",
+    "sha256_glb": "7c3cc7453ef16aa728e5714de312a0bc4d3c25b05792cfe56ea33f256c5de936",
+    "uid": "abo_B0154VUESC",
+    "title": "Amazon Brand - Movian Loue Bed Frame with Headboard, 160 x 200cm, White/Light Brown Oak-Effect",
     "author": "Amazon.com",
-    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B08FTN8KHY",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B0154VUESC",
     "licence_url": "https://creativecommons.org/licenses/by/4.0/",
     "via": "Amazon Berkeley Objects (CC BY 4.0)",
-    "attribution": "\"Amazon Brand - Solimo Senna Metal Glossy King Bed (Black)\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "attribution": "\"Amazon Brand - Movian Loue Bed Frame with Headboard, 160 x 200cm, White/Light Brown Oak-Effect\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
     "licence_flag": null,
-    "style_hint": "Contemporary",
-    "name": "Amazon Brand - Solimo Senna Metal Glossy King Bed (Black)",
+    "style_hint": "Bed",
+    "name": "Amazon Brand - Movian Loue Bed Frame with Headboard, 160 x 200cm, White/Light Brown Oak-Effect",
     "unit_scale": 1.0
    },
    "status": "verified",
@@ -2285,47 +2286,47 @@
    "front_deg": 180.0,
    "height": null,
    "asset": {
-    "library": "polyhaven",
-    "asset_id": "painted_wooden_nightstand",
-    "licence": "CC0",
-    "license": "CC0",
+    "library": "abo",
+    "asset_id": "abo_B07L1DH1PX",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
     "method": "library",
     "fit_scale": [
-     0.8831,
-     0.9742,
-     0.9287
+     1.114,
+     1.0751,
+     1.0945
     ],
     "bbox_m": [
      0.4456,
      0.4956,
-     0.5716
+     0.5035
     ],
-    "aspect_error": 0.0983,
+    "aspect_error": 0.0356,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     -0.0011,
-     -0.0052,
-     -0.0
+     0.0,
+     -0.0078,
+     0.0
     ],
     "rotation_fix_deg": 0.0,
     "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "painted_wooden_nightstand",
-      "aspect_error": 0.0983,
+      "id": "abo_B07L1DH1PX",
+      "aspect_error": 0.0356,
       "scale": [
-       0.8831,
-       0.9742,
-       0.9287
+       1.114,
+       1.0751,
+       1.0945
       ],
-      "non_uniform": 1.1032,
-      "mean_scale": 0.9287,
+      "non_uniform": 1.0362,
+      "mean_scale": 1.0945,
       "accepted": true,
       "rank": 1,
-      "source": "polyhaven",
+      "source": "abo",
       "units_known": true,
-      "size_error": 0.0713,
+      "size_error": 0.0945,
       "size_bucket": 1,
       "quality": 3.0
      }
@@ -2336,25 +2337,41 @@
      1.3
     ],
     "styles": [
-     "rustic"
+     "modern minimal",
+     "minimal"
     ],
     "style_family": null,
     "excluded": [],
-    "quality": null,
+    "quality": [
+     5,
+     4
+    ],
     "units_known": true,
     "ranking": {
      "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
      "rank": 1,
      "tried": 1,
      "reasons": [
-      "real size: mean |scale - 1| 0.071 (step 1)",
+      "real size: mean |scale - 1| 0.095 (step 1)",
       "quality 3",
-      "aspect error 0.098",
-      "source polyhaven"
+      "aspect error 0.036",
+      "source abo"
      ],
      "passed_over": []
     },
-    "gltf": "models/painted_wooden_nightstand/painted_wooden_nightstand_1k.gltf"
+    "glb": "models/abo/abo_B07L1DH1PX.glb",
+    "sha256_glb": "8705477ff5fb365c79bcb7daec4cae0563aedc84d1e3a4bec286cca79fbd452e",
+    "uid": "abo_B07L1DH1PX",
+    "title": "Amazon Brand - Solimo Aquilla Engineered Wood Bedside Table with Drawer (Wenge Finish)",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07L1DH1PX",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand - Solimo Aquilla Engineered Wood Bedside Table with Drawer (Wenge Finish)\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Contemporary",
+    "name": "Amazon Brand - Solimo Aquilla Engineered Wood Bedside Table with Drawer (Wenge Finish)",
+    "unit_scale": 1.0
    },
    "status": "verified",
    "evidence": [
@@ -2435,25 +2452,25 @@
    "height": null,
    "asset": {
     "library": "abo",
-    "asset_id": "abo_B08FTN8KHY",
+    "asset_id": "abo_B0154VUESC",
     "licence": "CC-BY-4.0",
     "license": "CC-BY-4.0",
     "method": "library",
     "fit_scale": [
-     0.9465,
-     0.9949,
-     0.9707
+     1.0346,
+     0.9852,
+     1.0099
     ],
     "bbox_m": [
      1.7795,
      2.0295,
-     0.9125
+     0.8079
     ],
-    "aspect_error": 0.0498,
+    "aspect_error": 0.0489,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     0.0013,
+     0.0,
      0.0,
      0.0
     ],
@@ -2461,20 +2478,20 @@
     "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "abo_B08FTN8KHY",
-      "aspect_error": 0.0498,
+      "id": "abo_B0154VUESC",
+      "aspect_error": 0.0489,
       "scale": [
-       0.9465,
-       0.9949,
-       0.9707
+       1.0346,
+       0.9852,
+       1.0099
       ],
-      "non_uniform": 1.051,
-      "mean_scale": 0.9707,
+      "non_uniform": 1.0501,
+      "mean_scale": 1.0099,
       "accepted": true,
       "rank": 1,
       "source": "abo",
       "units_known": true,
-      "size_error": 0.0293,
+      "size_error": 0.0198,
       "size_bucket": 0,
       "quality": 3.0
      }
@@ -2486,7 +2503,8 @@
     ],
     "styles": [
      "modern minimal",
-     "industrial"
+     "minimal",
+     "modern"
     ],
     "style_family": null,
     "excluded": [],
@@ -2500,25 +2518,25 @@
      "rank": 1,
      "tried": 1,
      "reasons": [
-      "real size: mean |scale - 1| 0.029 (step 0)",
+      "real size: mean |scale - 1| 0.020 (step 0)",
       "quality 3",
-      "aspect error 0.050",
+      "aspect error 0.049",
       "source abo"
      ],
      "passed_over": []
     },
-    "glb": "models/abo/abo_B08FTN8KHY.glb",
-    "sha256_glb": "607d9d70257447c3b5f8dac6b35f36e567c9060a28bf81ad16ce10ba414d6f58",
-    "uid": "abo_B08FTN8KHY",
-    "title": "Amazon Brand - Solimo Senna Metal Glossy King Bed (Black)",
+    "glb": "models/abo/abo_B0154VUESC.glb",
+    "sha256_glb": "7c3cc7453ef16aa728e5714de312a0bc4d3c25b05792cfe56ea33f256c5de936",
+    "uid": "abo_B0154VUESC",
+    "title": "Amazon Brand - Movian Loue Bed Frame with Headboard, 160 x 200cm, White/Light Brown Oak-Effect",
     "author": "Amazon.com",
-    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B08FTN8KHY",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B0154VUESC",
     "licence_url": "https://creativecommons.org/licenses/by/4.0/",
     "via": "Amazon Berkeley Objects (CC BY 4.0)",
-    "attribution": "\"Amazon Brand - Solimo Senna Metal Glossy King Bed (Black)\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "attribution": "\"Amazon Brand - Movian Loue Bed Frame with Headboard, 160 x 200cm, White/Light Brown Oak-Effect\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
     "licence_flag": null,
-    "style_hint": "Contemporary",
-    "name": "Amazon Brand - Solimo Senna Metal Glossy King Bed (Black)",
+    "style_hint": "Bed",
+    "name": "Amazon Brand - Movian Loue Bed Frame with Headboard, 160 x 200cm, White/Light Brown Oak-Effect",
     "unit_scale": 1.0
    },
    "status": "verified",
@@ -3906,46 +3924,46 @@
    "height": null,
    "asset": {
     "library": "abo",
-    "asset_id": "abo_B0857JLP6K",
+    "asset_id": "abo_B07K7K7GKC",
     "licence": "CC-BY-4.0",
     "license": "CC-BY-4.0",
     "method": "library",
     "fit_scale": [
-     0.8439,
-     0.8513,
-     0.8476
+     0.8304,
+     0.8286,
+     0.8295
     ],
     "bbox_m": [
      0.3794,
      0.4647,
-     0.8398
+     0.792
     ],
-    "aspect_error": 0.0087,
+    "aspect_error": 0.0021,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     -0.0001,
-     0.0386,
-     0.0
+     0.0,
+     0.0007,
+     -0.0001
     ],
     "rotation_fix_deg": 0.0,
     "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "abo_B0857JLP6K",
-      "aspect_error": 0.0087,
+      "id": "abo_B07K7K7GKC",
+      "aspect_error": 0.0021,
       "scale": [
-       0.8439,
-       0.8513,
-       0.8476
+       0.8304,
+       0.8286,
+       0.8295
       ],
-      "non_uniform": 1.0088,
-      "mean_scale": 0.8476,
+      "non_uniform": 1.0021,
+      "mean_scale": 0.8295,
       "accepted": true,
       "rank": 1,
       "source": "abo",
       "units_known": true,
-      "size_error": 0.1524,
+      "size_error": 0.1705,
       "size_bucket": 3,
       "quality": 3.0
      }
@@ -3956,14 +3974,17 @@
      1.3
     ],
     "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
      "minimal",
-     "industrial"
+     "modern"
     ],
     "style_family": null,
     "excluded": [],
     "quality": [
-     4,
-     5
+     5,
+     4
     ],
     "units_known": true,
     "ranking": {
@@ -3971,25 +3992,25 @@
      "rank": 1,
      "tried": 1,
      "reasons": [
-      "real size: mean |scale - 1| 0.152 (step 3)",
+      "real size: mean |scale - 1| 0.171 (step 3)",
       "quality 3",
-      "aspect error 0.009",
+      "aspect error 0.002",
       "source abo"
      ],
      "passed_over": []
     },
-    "glb": "models/abo/abo_B0857JLP6K.glb",
-    "sha256_glb": "84a1b59b64332354d1cc5690e1a9259590fc79d43c80f0e0ee2aece6527ef31f",
-    "uid": "abo_B0857JLP6K",
-    "title": "Amazon Brand – Stone & Beam Modern Farmhouse Birch Dining Chair, 17.5\"W, Dark Gray",
+    "glb": "models/abo/abo_B07K7K7GKC.glb",
+    "sha256_glb": "933c3f3be89408dc1d3de3e2437c8432ff027046d42518f3381efb1f2462d2c8",
+    "uid": "abo_B07K7K7GKC",
+    "title": "Amazon Brand - Alkove - Hayes - Modern Solid Wood Chairs Set of 2 with Padded Seat - Wild Oak",
     "author": "Amazon.com",
-    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B0857JLP6K",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07K7K7GKC",
     "licence_url": "https://creativecommons.org/licenses/by/4.0/",
     "via": "Amazon Berkeley Objects (CC BY 4.0)",
-    "attribution": "\"Amazon Brand – Stone & Beam Modern Farmhouse Birch Dining Chair, 17.5\"W, Dark Gray\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "attribution": "\"Amazon Brand - Alkove - Hayes - Modern Solid Wood Chairs Set of 2 with Padded Seat - Wild Oak\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
     "licence_flag": null,
-    "style_hint": "Classic",
-    "name": "Amazon Brand – Stone & Beam Modern Farmhouse Birch Dining Chair, 17.5\"W, Dark Gray",
+    "style_hint": "Modern",
+    "name": "Amazon Brand - Alkove - Hayes - Modern Solid Wood Chairs Set of 2 with Padded Seat - Wild Oak",
     "unit_scale": 1.0
    },
    "status": "verified",
@@ -4342,48 +4363,48 @@
    "front_deg": null,
    "height": null,
    "asset": {
-    "library": "polyhaven",
-    "asset_id": "modern_coffee_table_02",
-    "licence": "CC0",
-    "license": "CC0",
+    "library": "abo",
+    "asset_id": "abo_B07QFB1TLZ",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
     "method": "library",
     "fit_scale": [
-     0.9395,
-     0.9366,
-     0.938
+     1.0243,
+     1.0216,
+     1.023
     ],
     "bbox_m": [
      1.1265,
      1.1236,
-     0.3463
+     0.4298
     ],
-    "aspect_error": 0.0031,
+    "aspect_error": 0.0026,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     0.001,
-     -0.0025,
-     -0.0002
+     0.0,
+     0.0,
+     0.0
     ],
     "rotation_fix_deg": 0.0,
     "front_axis_confidence": "low",
     "candidates": [
      {
-      "id": "modern_coffee_table_02",
-      "aspect_error": 0.0031,
+      "id": "abo_B07QFB1TLZ",
+      "aspect_error": 0.0026,
       "scale": [
-       0.9395,
-       0.9366,
-       0.938
+       1.0243,
+       1.0216,
+       1.023
       ],
-      "non_uniform": 1.0031,
-      "mean_scale": 0.938,
+      "non_uniform": 1.0026,
+      "mean_scale": 1.023,
       "accepted": true,
       "rank": 1,
-      "source": "polyhaven",
+      "source": "abo",
       "units_known": true,
-      "size_error": 0.062,
-      "size_bucket": 1,
+      "size_error": 0.023,
+      "size_bucket": 0,
       "quality": 3.0
      }
     ],
@@ -4393,25 +4414,44 @@
      1.3
     ],
     "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
      "modern"
     ],
     "style_family": null,
     "excluded": [],
-    "quality": null,
+    "quality": [
+     5,
+     4
+    ],
     "units_known": true,
     "ranking": {
      "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
      "rank": 1,
      "tried": 1,
      "reasons": [
-      "real size: mean |scale - 1| 0.062 (step 1)",
+      "real size: mean |scale - 1| 0.023 (step 0)",
       "quality 3",
       "aspect error 0.003",
-      "source polyhaven"
+      "source abo"
      ],
      "passed_over": []
     },
-    "gltf": "models/modern_coffee_table_02/modern_coffee_table_02_1k.gltf"
+    "glb": "models/abo/abo_B07QFB1TLZ.glb",
+    "sha256_glb": "eae8a22dec852f867fee9794ef53f09d965943381b85c81fdd27803a487cd6c5",
+    "uid": "abo_B07QFB1TLZ",
+    "title": "Amazon Brand – Stone & Beam Ryder Industrial Round Coffee Table, 43.3\" Diameter, Brushed Natural Antique Copper",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07QFB1TLZ",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Stone & Beam Ryder Industrial Round Coffee Table, 43.3\" Diameter, Brushed Natural Antique Copper\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Round Coffee Table",
+    "name": "Amazon Brand – Stone & Beam Ryder Industrial Round Coffee Table, 43.3\" Diameter, Brushed Natural Antique Copper",
+    "unit_scale": 1.0
    },
    "status": "verified",
    "evidence": [

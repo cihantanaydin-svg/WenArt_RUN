@@ -21,7 +21,7 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 3.521,
+     "latency_s": 7.293,
      "error": null,
      "pieces_proposed": 3,
      "pieces_placed": 2,
@@ -34,7 +34,7 @@
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 2.782,
+     "latency_s": 6.627,
      "error": null,
      "pieces_proposed": 3,
      "pieces_placed": 2,
@@ -46,13 +46,13 @@
     }
    ],
    "chosen_pass": 1,
-   "latency_s": 6.303,
+   "latency_s": 13.92,
    "skipped": null,
    "pieces": [
     {
      "id": "f_L0_021",
      "type": "toilet",
-     "confidence": 0.6,
+     "confidence": 0.9,
      "checks": {
       "inside_room": true,
       "no_overlap": true,
@@ -79,5 +79,5 @@
   }
  ],
  "pieces_added": 2,
- "latency_s": 6.303
+ "latency_s": 13.92
 }

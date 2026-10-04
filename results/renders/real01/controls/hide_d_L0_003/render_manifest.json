@@ -1,7 +1,7 @@
 {
  "schema_version": "0.1",
  "scene": "../../scene/scene.blend",
- "scene_sha256": "33d1897e9d521774b4b623ee36a12977ba1253fcb1a6d3c5038e993628820314",
+ "scene_sha256": "83f5f73c45858b75be2ea52c8552f1f0fd7acf166baff7db8e998e6c971add63",
  "device": "OPTIX",
  "device_requested": "auto",
  "blender_version": "5.2.2 LTS",
@@ -67,13 +67,15 @@
   "f_L0_020": 33,
   "f_L0_021": 34,
   "f_L0_022": 35,
-  "dec_L0_003": 36,
+  "dec_L0_005": 36,
   "dec_L0_006": 37,
-  "dec_L0_007": 38,
+  "dec_L0_009": 38,
   "dec_L0_010": 39,
-  "dec_L0_011": 40,
-  "dec_L0_012": 41,
-  "f_L0_003": 42
+  "dec_L0_015": 40,
+  "dec_L0_016": 41,
+  "dec_L0_018": 42,
+  "dec_L0_019": 43,
+  "f_L0_003": 44
  },
  "renders": [
   {
@@ -93,22 +95,24 @@
     "normal": "cam_r_L0_drawing_room_3_normal.png",
     "depth": "cam_r_L0_drawing_room_3_depth.png"
    },
-   "preview_bytes": 237471,
-   "seconds": 2.68,
+   "preview_bytes": 222995,
+   "seconds": 4.89,
    "samples": 128,
    "resolution": [
     1920,
     1080
    ],
    "depth": {
-    "min": 1.037128210067749,
-    "max": 4.422751426696777,
-    "mean": 2.290395498275757,
-    "coverage": 0.9590977044753086
+    "min": 0.8447480201721191,
+    "max": 6.412566184997559,
+    "mean": 2.673116445541382,
+    "coverage": 0.9519849537037037
    },
    "index_values": [
     2,
+    6,
     15,
+    17,
     31,
     32,
     33,
@@ -116,79 +120,97 @@
    ],
    "index_stats": {
     "2": {
-     "pixels": 301681,
+     "pixels": 146464,
      "box": [
-      1185,
+      1644,
       0,
-      1795,
-      551
+      1920,
+      561
+     ]
+    },
+    "6": {
+     "pixels": 19910,
+     "box": [
+      0,
+      198,
+      99,
+      410
      ]
     },
     "15": {
-     "pixels": 349336,
+     "pixels": 359263,
+     "box": [
+      169,
+      507,
+      1072,
+      936
+     ]
+    },
+    "17": {
+     "pixels": 27081,
      "box": [
       0,
-      507,
-      791,
-      1063
+      400,
+      158,
+      597
      ]
     },
     "31": {
-     "pixels": 410337,
+     "pixels": 252602,
      "box": [
-      985,
-      494,
+      1286,
+      560,
       1920,
       1080
      ]
     },
     "32": {
-     "pixels": 64630,
+     "pixels": 127764,
      "box": [
       0,
-      958,
-      758,
+      878,
+      802,
       1080
      ]
     },
     "33": {
-     "pixels": 40318,
+     "pixels": 45772,
      "box": [
-      824,
-      439,
-      1010,
-      842
+      1165,
+      450,
+      1360,
+      898
      ]
     },
     "38": {
-     "pixels": 89908,
+     "pixels": 80840,
      "box": [
-      585,
-      846,
-      1273,
+      718,
+      936,
+      1378,
       1080
      ]
     }
    },
    "skipped": false,
-   "scene_sha256": "33d1897e9d521774b4b623ee36a12977ba1253fcb1a6d3c5038e993628820314",
-   "render_key": "88028075eeaad835",
+   "scene_sha256": "83f5f73c45858b75be2ea52c8552f1f0fd7acf166baff7db8e998e6c971add63",
+   "render_key": "fed57591ecc9b87f",
    "exposure": {
     "mode": "from",
-    "ev": 2.666667,
+    "ev": 2.5,
     "ev_raw": null,
     "at_limit": false,
     "target": null,
     "limits": null,
     "incident_p50": null,
     "whitepoint": [
-     1.22342,
-     0.955127,
-     0.786625
+     1.210227,
+     0.958475,
+     0.792303
     ],
     "wb_mode": "from",
-    "wb_temperature": 5035.6,
-    "wb_tint": -3.88,
+    "wb_temperature": 5089.8,
+    "wb_tint": -2.5,
     "residual": null,
     "window_clip_frac": 0.0,
     "meter_seconds": 0.0,
@@ -205,22 +227,22 @@
    "window_pull": {
     "ev": -1.0,
     "k": 1,
-    "pane_ev": 1.666667,
+    "pane_ev": 1.5,
     "clip_before": 0.0,
     "clip_after": 0.0,
-    "pane_px": 263330,
-    "pane_median": 0.8905,
-    "wall_median": 0.6582,
+    "pane_px": 138406,
+    "pane_median": 0.8768,
+    "wall_median": 0.6365,
     "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
     "tried": [
      {
       "k": 1,
       "clip": 0.0,
-      "median": 0.8177
+      "median": 0.8012
      }
     ],
-    "pane_median_after": 0.8188,
-    "seconds": 0.348
+    "pane_median_after": 0.8014,
+    "seconds": 0.392
    },
    "alt_preview": null,
    "alt_preview_bytes": null
@@ -229,6 +251,6 @@
  "dropped_stale": [],
  "incomplete": false,
  "not_rendered": [],
- "deadline": 1791113620.0,
+ "deadline": 1791128884.0,
  "warnings": []
 }

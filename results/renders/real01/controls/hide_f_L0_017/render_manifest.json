@@ -1,7 +1,7 @@
 {
  "schema_version": "0.1",
  "scene": "../../scene/scene.blend",
- "scene_sha256": "33d1897e9d521774b4b623ee36a12977ba1253fcb1a6d3c5038e993628820314",
+ "scene_sha256": "83f5f73c45858b75be2ea52c8552f1f0fd7acf166baff7db8e998e6c971add63",
  "device": "OPTIX",
  "device_requested": "auto",
  "blender_version": "5.2.2 LTS",
@@ -67,13 +67,15 @@
   "f_L0_020": 33,
   "f_L0_021": 34,
   "f_L0_022": 35,
-  "dec_L0_003": 36,
+  "dec_L0_005": 36,
   "dec_L0_006": 37,
-  "dec_L0_007": 38,
+  "dec_L0_009": 38,
   "dec_L0_010": 39,
-  "dec_L0_011": 40,
-  "dec_L0_012": 41,
-  "f_L0_003": 42
+  "dec_L0_015": 40,
+  "dec_L0_016": 41,
+  "dec_L0_018": 42,
+  "dec_L0_019": 43,
+  "f_L0_003": 44
  },
  "renders": [
   {
@@ -93,8 +95,8 @@
     "normal": "cam_r_L0_drawing_room_1_normal.png",
     "depth": "cam_r_L0_drawing_room_1_depth.png"
    },
-   "preview_bytes": 222088,
-   "seconds": 2.97,
+   "preview_bytes": 204337,
+   "seconds": 5.42,
    "samples": 128,
    "resolution": [
     1920,
@@ -103,7 +105,7 @@
    "depth": {
     "min": 0.5905675888061523,
     "max": 3.111999988555908,
-    "mean": 2.415135145187378,
+    "mean": 2.419790029525757,
     "coverage": 1.0
    },
    "index_values": [
@@ -112,8 +114,8 @@
     15,
     32,
     33,
-    37,
-    38
+    38,
+    39
    ],
    "index_stats": {
     "2": {
@@ -144,11 +146,11 @@
      ]
     },
     "32": {
-     "pixels": 98585,
+     "pixels": 83461,
      "box": [
-      1034,
-      919,
-      1920,
+      1045,
+      936,
+      1900,
       1080
      ]
     },
@@ -161,44 +163,44 @@
       876
      ]
     },
-    "37": {
-     "pixels": 24661,
-     "box": [
-      1487,
-      565,
-      1659,
-      806
-     ]
-    },
     "38": {
-     "pixels": 201263,
+     "pixels": 222853,
      "box": [
-      661,
-      787,
+      659,
+      785,
       1920,
       1080
+     ]
+    },
+    "39": {
+     "pixels": 19655,
+     "box": [
+      1495,
+      525,
+      1673,
+      802
      ]
     }
    },
    "skipped": false,
-   "scene_sha256": "33d1897e9d521774b4b623ee36a12977ba1253fcb1a6d3c5038e993628820314",
-   "render_key": "4d21c7740764ac5b",
+   "scene_sha256": "83f5f73c45858b75be2ea52c8552f1f0fd7acf166baff7db8e998e6c971add63",
+   "render_key": "5349ea23ea799786",
    "exposure": {
     "mode": "from",
-    "ev": 3.0,
+    "ev": 2.833333,
     "ev_raw": null,
     "at_limit": false,
     "target": null,
     "limits": null,
     "incident_p50": null,
     "whitepoint": [
-     1.230754,
-     0.953716,
-     0.779002
+     1.227203,
+     0.955098,
+     0.775769
     ],
     "wb_mode": "from",
-    "wb_temperature": 4993.8,
-    "wb_tint": -4.18,
+    "wb_temperature": 4995.6,
+    "wb_tint": -3.35,
     "residual": null,
     "window_clip_frac": 0.0,
     "meter_seconds": 0.0,
@@ -215,22 +217,22 @@
    "window_pull": {
     "ev": -1.0,
     "k": 1,
-    "pane_ev": 2.0,
+    "pane_ev": 1.833333,
     "clip_before": 0.0,
     "clip_after": 0.0,
     "pane_px": 148044,
-    "pane_median": 0.8863,
-    "wall_median": 0.6464,
+    "pane_median": 0.8757,
+    "wall_median": 0.6388,
     "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
     "tried": [
      {
       "k": 1,
       "clip": 0.0,
-      "median": 0.813
+      "median": 0.799
      }
     ],
-    "pane_median_after": 0.8133,
-    "seconds": 0.348
+    "pane_median_after": 0.7992,
+    "seconds": 0.346
    },
    "alt_preview": null,
    "alt_preview_bytes": null
@@ -386,7 +388,7 @@
  "dropped_stale": [],
  "incomplete": false,
  "not_rendered": [],
- "deadline": 1791113620.0,
+ "deadline": 1791128884.0,
  "warnings": [
   "cam_r_L0_drawing_room_2: rendered from another scene build and not asked for in this run"
  ]

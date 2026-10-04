@@ -1,0 +1,326 @@
+{
+ "kind": "decor_ai_answers",
+ "version": "m9.1",
+ "answers": {
+  "8473f4ec245dc1ca54e71acd915767fe35da4e15f55b6e74f56b93bdd8111759": {
+   "room_id": "r_L0_bed_room",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_007.cushions",
+      "type": "cushion",
+      "colour": "cream",
+      "reason": "Soft, neutral cushions complement linen textiles and warm daylight."
+     },
+     {
+      "slot": "f_L0_008.centre",
+      "type": "table_lamp",
+      "colour": "natural wood",
+      "reason": "Warm-toned lamp adds cozy Scandinavian ambiance."
+     },
+     {
+      "slot": "f_L0_009.centre",
+      "type": "plant_small",
+      "colour": "sage green",
+      "reason": "Small plant brings life and freshness to the nightstand."
+     },
+     {
+      "slot": "r_L0_bed_room.rug1",
+      "type": "rug",
+      "colour": "sand",
+      "reason": "Light rug enhances light oak floors and keeps space airy."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_007.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"cream\",\n      \"reason\": \"Soft, neutral cushions complement linen textiles and warm daylight.\"\n    },\n    {\n      \"slot\": \"f_L0_008.centre\",\n      \"type\": \"table_lamp\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Warm-toned lamp adds cozy Scandinavian ambiance.\"\n    },\n    {\n      \"slot\": \"f_L0_009.centre\",\n      \"type\": \"plant_small\",\n      \"colour\": \"sage green\",\n      \"reason\": \"Small plant brings life and freshness to the nightstand.\"\n    },\n    {\n      \"slot\": \"r_L0_bed_room.rug1\",\n      \"type\": \"rug\",\n      \"colour\": \"sand\",\n      \"reason\": \"Light rug enhances light oak floors and keeps space airy.\"\n    }\n  ]\n}",
+   "latency_s": 6.156
+  },
+  "198c4b3175aa52a6b09ec7614cc41a859436c921c6e900646200866e2416b2df": {
+   "room_id": "r_L0_bed_room",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_007.cushions",
+      "type": "cushion",
+      "colour": "cream",
+      "reason": "Adds softness and comfort in line with Scandinavian style."
+     },
+     {
+      "slot": "f_L0_008.centre",
+      "type": "table_lamp",
+      "colour": "natural wood",
+      "reason": "Warm light complements daylight and matches oak flooring."
+     },
+     {
+      "slot": "f_L0_009.centre",
+      "type": "plant_small",
+      "colour": "sage green",
+      "reason": "Brings life to the room with natural tones fitting the style."
+     },
+     {
+      "slot": "r_L0_bed_room.rug1",
+      "type": "rug",
+      "colour": "sand",
+      "reason": "Softens the floor and harmonizes with light oak and white walls."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_007.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"cream\",\n      \"reason\": \"Adds softness and comfort in line with Scandinavian style.\"\n    },\n    {\n      \"slot\": \"f_L0_008.centre\",\n      \"type\": \"table_lamp\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Warm light complements daylight and matches oak flooring.\"\n    },\n    {\n      \"slot\": \"f_L0_009.centre\",\n      \"type\": \"plant_small\",\n      \"colour\": \"sage green\",\n      \"reason\": \"Brings life to the room with natural tones fitting the style.\"\n    },\n    {\n      \"slot\": \"r_L0_bed_room.rug1\",\n      \"type\": \"rug\",\n      \"colour\": \"sand\",\n      \"reason\": \"Softens the floor and harmonizes with light oak and white walls.\"\n    }\n  ]\n}",
+   "latency_s": 6.248
+  },
+  "9f119eda76cd1909ecced6960f59cc37e4fd3ab318085c69c618469958ddd657": {
+   "room_id": "r_L0_bath_toilet",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_022.wall",
+      "type": "mirror",
+      "colour": "white",
+      "reason": "Matches the Scandinavian style and white walls, keeping the space bright and uncluttered."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_022.wall\",\n      \"type\": \"mirror\",\n      \"colour\": \"white\",\n      \"reason\": \"Matches the Scandinavian style and white walls, keeping the space bright and uncluttered.\"\n    }\n  ]\n}",
+   "latency_s": 1.904
+  },
+  "d9fe37b6477057a8e5c82291e5ee0d56e3ce491d22b0f45c845013d23402d75d": {
+   "room_id": "r_L0_bath_toilet",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_022.wall",
+      "type": "mirror",
+      "colour": "natural wood",
+      "reason": "Complements light oak floor and white walls with warm, natural tones."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_022.wall\",\n      \"type\": \"mirror\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Complements light oak floor and white walls with warm, natural tones.\"\n    }\n  ]\n}",
+   "latency_s": 1.824
+  },
+  "5fd9fa8b7c1a9f63293e94f85bb2afd8bc1dddcf4a8e6766f2ce70489e336fa3": {
+   "room_id": "r_L0_drawing_room",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_017.cushions",
+      "type": "cushion",
+      "colour": "cream",
+      "reason": "Soft cream cushions complement the light oak and white walls, enhancing Scandinavian warmth."
+     },
+     {
+      "slot": "r_L0_drawing_room.rug1",
+      "type": "rug",
+      "colour": "natural wood",
+      "reason": "A natural wood rug anchors the sofa and coffee table, echoing the floor while adding texture."
+     },
+     {
+      "slot": "r_L0_drawing_room.corner1",
+      "type": "plant",
+      "colour": "sage green",
+      "reason": "A sage green plant in the corner brings life and softness, fitting the daylight and minimalist style."
+     },
+     {
+      "slot": "f_L0_019.centre",
+      "type": "vase",
+      "colour": "terracotta",
+      "reason": "A terracotta vase adds earthy warmth to the coffee table, balancing the neutral palette."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_017.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"cream\",\n      \"reason\": \"Soft cream cushions complement the light oak and white walls, enhancing Scandinavian warmth.\"\n    },\n    {\n      \"slot\": \"r_L0_drawing_room.rug1\",\n      \"type\": \"rug\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"A natural wood rug anchors the sofa and coffee table, echoing the floor while adding texture.\"\n    },\n    {\n      \"slot\": \"r_L0_drawing_room.corner1\",\n      \"type\": \"plant\",\n      \"colour\": \"sage green\",\n      \"reason\": \"A sage green plant in the corner brings life and softness, fitting the daylight and minimalist style.\"\n    },\n    {\n      \"slot\": \"f_L0_019.centre\",\n      \"type\": \"vase\",\n      \"colour\": \"terracotta\",\n      \"reason\": \"A terracotta vase adds earthy warmth to the coffee table, balancing the neutral palette.\"\n    }\n  ]\n}",
+   "latency_s": 7.083
+  },
+  "f9d419b9675472b4e8a8e37c8f9aff9cf70242f4a37b479a36e2e6cd77769e95": {
+   "room_id": "r_L0_drawing_room",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_017.cushions",
+      "type": "cushion",
+      "colour": "cream",
+      "reason": "Adds softness and warmth in line with Scandinavian style."
+     },
+     {
+      "slot": "f_L0_019.centre",
+      "type": "vase",
+      "colour": "natural wood",
+      "reason": "Complements light oak floors and brings organic texture."
+     },
+     {
+      "slot": "r_L0_drawing_room.rug1",
+      "type": "rug",
+      "colour": "sand",
+      "reason": "Warm neutral tone enhances daylight and ties in with linen textiles."
+     },
+     {
+      "slot": "r_L0_drawing_room.corner1",
+      "type": "plant",
+      "colour": "natural wood",
+      "reason": "Brings life to the corner while maintaining minimalist Scandinavian aesthetic."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_017.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"cream\",\n      \"reason\": \"Adds softness and warmth in line with Scandinavian style.\"\n    },\n    {\n      \"slot\": \"f_L0_019.centre\",\n      \"type\": \"vase\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Complements light oak floors and brings organic texture.\"\n    },\n    {\n      \"slot\": \"r_L0_drawing_room.rug1\",\n      \"type\": \"rug\",\n      \"colour\": \"sand\",\n      \"reason\": \"Warm neutral tone enhances daylight and ties in with linen textiles.\"\n    },\n    {\n      \"slot\": \"r_L0_drawing_room.corner1\",\n      \"type\": \"plant\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Brings life to the corner while maintaining minimalist Scandinavian aesthetic.\"\n    }\n  ]\n}",
+   "latency_s": 6.219
+  },
+  "10c0ab5f8b24f20a31b1b72b5854eaf714d2c11f2c872fa9b9c69850066540ba": {
+   "room_id": "r_L0_bed_room_2",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_004.cushions",
+      "type": "cushion",
+      "colour": "cream",
+      "reason": "Soft, neutral cushions complement linen textiles and warm daylight."
+     },
+     {
+      "slot": "f_L0_005.centre",
+      "type": "table_lamp",
+      "colour": "natural wood",
+      "reason": "Warm-toned lamp adds cozy Scandinavian ambiance."
+     },
+     {
+      "slot": "f_L0_006.centre",
+      "type": "plant_small",
+      "colour": "sage green",
+      "reason": "Small plant brings life and freshness to the nightstand."
+     },
+     {
+      "slot": "r_L0_bed_room_2.rug1",
+      "type": "rug",
+      "colour": "natural wood",
+      "reason": "Light oak floor paired with wood-toned rug enhances Scandinavian warmth."
+     },
+     {
+      "slot": "r_L0_bed_room_2.corner1",
+      "type": "plant",
+      "colour": "forest green",
+      "reason": "Corner plant adds organic texture without clutter."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_004.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"cream\",\n      \"reason\": \"Soft, neutral cushions complement linen textiles and warm daylight.\"\n    },\n    {\n      \"slot\": \"f_L0_005.centre\",\n      \"type\": \"table_lamp\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Warm-toned lamp adds cozy Scandinavian ambiance.\"\n    },\n    {\n      \"slot\": \"f_L0_006.centre\",\n      \"type\": \"plant_small\",\n      \"colour\": \"sage green\",\n      \"reason\": \"Small plant brings life and freshness to the nightstand.\"\n    },\n    {\n      \"slot\": \"r_L0_bed_room_2.rug1\",\n      \"type\": \"rug\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Light oak floor paired with wood-toned rug enhances Scandinavian warmth.\"\n    },\n    {\n      \"slot\": \"r_L0_bed_room_2.corner1\",\n      \"type\": \"plant\",\n      \"colour\": \"forest green\",\n      \"reason\": \"Corner plant adds organic texture without clutter.\"\n    }\n  ]\n}",
+   "latency_s": 7.792
+  },
+  "f468a0292f6e594402a3adb3ec0b20e30b111b6ba491bf5038e0249de08fdb3f": {
+   "room_id": "r_L0_bed_room_2",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_004.cushions",
+      "type": "cushion",
+      "colour": "cream",
+      "reason": "Adds softness and comfort in line with Scandinavian style."
+     },
+     {
+      "slot": "f_L0_005.centre",
+      "type": "table_lamp",
+      "colour": "natural wood",
+      "reason": "Warm light complements daylight and matches light oak floors."
+     },
+     {
+      "slot": "r_L0_bed_room_2.rug1",
+      "type": "rug",
+      "colour": "sand",
+      "reason": "Softens the floor and enhances the natural, minimalist feel."
+     },
+     {
+      "slot": "r_L0_bed_room_2.corner1",
+      "type": "plant",
+      "colour": "natural wood",
+      "reason": "Brings life to the corner while keeping the space airy and fresh."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_004.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"cream\",\n      \"reason\": \"Adds softness and comfort in line with Scandinavian style.\"\n    },\n    {\n      \"slot\": \"f_L0_005.centre\",\n      \"type\": \"table_lamp\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Warm light complements daylight and matches light oak floors.\"\n    },\n    {\n      \"slot\": \"r_L0_bed_room_2.rug1\",\n      \"type\": \"rug\",\n      \"colour\": \"sand\",\n      \"reason\": \"Softens the floor and enhances the natural, minimalist feel.\"\n    },\n    {\n      \"slot\": \"r_L0_bed_room_2.corner1\",\n      \"type\": \"plant\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Brings life to the corner while keeping the space airy and fresh.\"\n    }\n  ]\n}",
+   "latency_s": 6.458
+  },
+  "c773abcbfa7fd28ff7f44dedfb0b60bc38869112d81d116d39eda3b4fa192de2": {
+   "room_id": "r_L0_dining",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_010.centre",
+      "type": "vase",
+      "colour": "natural wood",
+      "reason": "Adds Scandinavian warmth and complements light oak floors."
+     },
+     {
+      "slot": "r_L0_dining.rug1",
+      "type": "rug",
+      "colour": "cream",
+      "reason": "Softens the floor and enhances the light, airy feel."
+     },
+     {
+      "slot": "r_L0_dining.corner1",
+      "type": "plant",
+      "colour": "sage green",
+      "reason": "Brings life to the corner with natural tones matching the style."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_010.centre\",\n      \"type\": \"vase\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Adds Scandinavian warmth and complements light oak floors.\"\n    },\n    {\n      \"slot\": \"r_L0_dining.rug1\",\n      \"type\": \"rug\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the floor and enhances the light, airy feel.\"\n    },\n    {\n      \"slot\": \"r_L0_dining.corner1\",\n      \"type\": \"plant\",\n      \"colour\": \"sage green\",\n      \"reason\": \"Brings life to the corner with natural tones matching the style.\"\n    }\n  ]\n}",
+   "latency_s": 4.839
+  },
+  "903c8dc0574b3dea51fac9f8dcbd6e984a1cdbb7d7ab9f0f123fa210ad1dd72d": {
+   "room_id": "r_L0_dining",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_010.centre",
+      "type": "vase",
+      "colour": "natural wood",
+      "reason": "Matches light oak floor and Scandinavian style with warm, natural tones."
+     },
+     {
+      "slot": "r_L0_dining.rug1",
+      "type": "rug",
+      "colour": "cream",
+      "reason": "Softens the space, complements white walls and adds warmth without clutter."
+     },
+     {
+      "slot": "r_L0_dining.corner1",
+      "type": "plant",
+      "colour": "natural wood",
+      "reason": "Brings life to the corner with minimalism and Scandinavian greenery."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_010.centre\",\n      \"type\": \"vase\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Matches light oak floor and Scandinavian style with warm, natural tones.\"\n    },\n    {\n      \"slot\": \"r_L0_dining.rug1\",\n      \"type\": \"rug\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the space, complements white walls and adds warmth without clutter.\"\n    },\n    {\n      \"slot\": \"r_L0_dining.corner1\",\n      \"type\": \"plant\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Brings life to the corner with minimalism and Scandinavian greenery.\"\n    }\n  ]\n}",
+   "latency_s": 5.005
+  }
+ },
+ "model": "Qwen/Qwen3-VL-8B-Instruct",
+ "generated_utc": "2026-10-04T14:21:37Z"
+}

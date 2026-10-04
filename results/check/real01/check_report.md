@@ -6,7 +6,7 @@
 |---|---|
 | model qwen | Qwen/Qwen3-VL-8B-Instruct @ 0c351dd01ed8 (Apache-2.0) |
 | model glm | zai-org/GLM-4.6V-Flash @ 411bb4d77144 (MIT) |
-| Cycles verdicts | 5 info, 15 ok |
+| Cycles verdicts | 7 info, 13 ok |
 | polished images checked | 0 |
 | polished rejected | none |
 | views needing review | 0 |
@@ -19,10 +19,10 @@
 | cam_r_L0_bath_toilet_2 | r_L0_bath_toilet | info | - | - | - | no | - |
 | cam_r_L0_bed_room_1 | r_L0_bed_room | info | - | - | - | no | - |
 | cam_r_L0_bed_room_2 | r_L0_bed_room | ok | - | - | - | no | - |
-| cam_r_L0_bed_room_2_1 | r_L0_bed_room_2 | ok | - | - | - | no | - |
+| cam_r_L0_bed_room_2_1 | r_L0_bed_room_2 | info | - | - | - | no | - |
 | cam_r_L0_bed_room_2_2 | r_L0_bed_room_2 | ok | - | - | - | no | - |
 | cam_r_L0_bed_room_2_3 | r_L0_bed_room_2 | ok | - | - | - | no | - |
-| cam_r_L0_bed_room_3 | r_L0_bed_room | ok | - | - | - | no | - |
+| cam_r_L0_bed_room_3 | r_L0_bed_room | info | - | - | - | no | - |
 | cam_r_L0_dining_1 | r_L0_dining | ok | - | - | - | no | - |
 | cam_r_L0_dining_2 | r_L0_dining | ok | - | - | - | no | - |
 | cam_r_L0_dining_3 | r_L0_dining | ok | - | - | - | no | - |
@@ -38,8 +38,8 @@
 
 ## Mismatches on the Cycles renders
 
-- cam_r_L0_bath_toilet_1: f_L0_022 (washbasin, added_by_ai, optional; evidence building.json ai): disputed (not confirmed)
-- cam_r_L0_bath_toilet_2: f_L0_022 (washbasin, added_by_ai, optional; evidence building.json ai): missing (confirmed) (added_by_ai: render/polish issue, not a document conflict)
+- cam_r_L0_bath_toilet_2: f_L0_022 (washbasin, added_by_ai, optional; evidence building.json ai): disputed (not confirmed)
+- cam_r_L0_bed_room_2_1: dec_L0_015 (rug, added_by_ai, optional; evidence building.json ai): disputed (not confirmed)
 
 ## JSON cross-check (building JSON projected with a depth test)
 

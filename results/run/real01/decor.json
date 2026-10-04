@@ -5,24 +5,26 @@
  "stage": "decor",
  "rc": 0,
  "status": "ok",
- "seconds": 1.63,
- "fingerprint": "3be2efaee5d6825e5305e441547ca93624bd263ec4622b65d0785a222664f7b2",
+ "seconds": 6.02,
+ "fingerprint": "8875707a9ca4bbb4be338e203e2b9810a400d8761f5f526582fc107a0e39eb84",
  "inputs": {
-  "outputs/real01/building_furnished.json": "938cf8583bb7ff6bd6d1072885636311ee8454756ae94efb6395c3003eff2263"
+  "outputs/real01/building_furnished.json": "4ad78c2aa8360df2578a2bca131710b7795899d593ae9041a010636c5c40e0ea",
+  "outputs/real01/style.json": "9e88465132c2a42d1a2c305c72792e6355c3720f5e7b8fcc1245c3c6dd721faa",
+  "outputs/real01/decor_ai_answers.json": "8c9469be9b873b0b3c6ef60d5bfd815dfea3e2c7ab94a0646bcf55e9bbdf316a"
  },
  "outputs": [
   "building_decor.json"
  ],
- "started_utc": "2026-10-04T10:04:39Z",
- "git_commit": "714dcc50e1a342a6b723451c219e22291d3d333f",
+ "started_utc": "2026-10-04T14:21:46Z",
+ "git_commit": "24efc0891eb062d1d275ea933f47536f714f1b54",
  "log": "logs/decor.log",
  "note": null,
- "run_id": "20261004-095244-full-20261004T095809Z",
+ "run_id": "20261004-141151-full-20261004T141656Z",
  "steps": [
   {
    "name": "decor",
    "rc": 0,
-   "seconds": 1.63
+   "seconds": 6.02
   }
  ],
  "written": {}

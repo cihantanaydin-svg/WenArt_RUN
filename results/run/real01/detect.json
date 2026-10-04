@@ -9,11 +9,11 @@
  "fingerprint": null,
  "inputs": {},
  "outputs": [],
- "started_utc": "2026-10-04T10:21:25Z",
- "git_commit": "714dcc50e1a342a6b723451c219e22291d3d333f",
+ "started_utc": "2026-10-04T14:28:31Z",
+ "git_commit": "24efc0891eb062d1d275ea933f47536f714f1b54",
  "log": "logs/detect.log",
  "note": "gate not validated",
- "run_id": "20261004-095244-full-20261004T095809Z",
+ "run_id": "20261004-141151-full-20261004T141656Z",
  "steps": [],
  "written": {}
 }

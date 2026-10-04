@@ -1,0 +1,244 @@
+{
+ "room_id": "r_L0_bed_room_2",
+ "label": "Bed Room",
+ "room_type": "bedroom",
+ "slots": [
+  {
+   "id": "f_L0_004.cushions",
+   "kind": "soft",
+   "types": [
+    "cushion"
+   ],
+   "host_id": "f_L0_004",
+   "host_type": "bed_double",
+   "note": ""
+  },
+  {
+   "id": "f_L0_005.centre",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "vase",
+    "plant_small",
+    "book_set"
+   ],
+   "host_id": "f_L0_005",
+   "host_type": "nightstand",
+   "note": "centre part",
+   "center": [
+    2.933,
+    6.836
+   ],
+   "max_size": [
+    0.436,
+    0.427,
+    2.003
+   ]
+  },
+  {
+   "id": "f_L0_006.centre",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "vase",
+    "plant_small",
+    "book_set"
+   ],
+   "host_id": "f_L0_006",
+   "host_type": "nightstand",
+   "note": "centre part",
+   "center": [
+    0.66,
+    6.862
+   ],
+   "max_size": [
+    0.386,
+    0.436,
+    2.097
+   ]
+  },
+  {
+   "id": "r_L0_bed_room_2.rug1",
+   "kind": "rug",
+   "types": [
+    "rug"
+   ],
+   "host_id": "f_L0_004",
+   "host_type": null,
+   "note": "f_L0_004"
+  },
+  {
+   "id": "r_L0_bed_room_2.corner1",
+   "kind": "floor",
+   "types": [
+    "plant"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "corner at 0.48, 3.98",
+   "center": [
+    0.48,
+    3.985
+   ]
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "f_L0_004.cushions",
+     "type": "cushion",
+     "colour": "cream",
+     "reason": "Soft, neutral cushions complement linen textiles and warm daylight."
+    },
+    {
+     "slot": "f_L0_005.centre",
+     "type": "table_lamp",
+     "colour": "natural wood",
+     "reason": "Warm-toned lamp adds cozy Scandinavian ambiance."
+    },
+    {
+     "slot": "f_L0_006.centre",
+     "type": "plant_small",
+     "colour": "sage green",
+     "reason": "Small plant brings life and freshness to the nightstand."
+    },
+    {
+     "slot": "r_L0_bed_room_2.rug1",
+     "type": "rug",
+     "colour": "natural wood",
+     "reason": "Light oak floor paired with wood-toned rug enhances Scandinavian warmth."
+    },
+    {
+     "slot": "r_L0_bed_room_2.corner1",
+     "type": "plant",
+     "colour": "forest green",
+     "reason": "Corner plant adds organic texture without clutter."
+    }
+   ],
+   "error": null,
+   "latency_s": 7.792
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "f_L0_004.cushions",
+     "type": "cushion",
+     "colour": "cream",
+     "reason": "Adds softness and comfort in line with Scandinavian style."
+    },
+    {
+     "slot": "f_L0_005.centre",
+     "type": "table_lamp",
+     "colour": "natural wood",
+     "reason": "Warm light complements daylight and matches light oak floors."
+    },
+    {
+     "slot": "r_L0_bed_room_2.rug1",
+     "type": "rug",
+     "colour": "sand",
+     "reason": "Softens the floor and enhances the natural, minimalist feel."
+    },
+    {
+     "slot": "r_L0_bed_room_2.corner1",
+     "type": "plant",
+     "colour": "natural wood",
+     "reason": "Brings life to the corner while keeping the space airy and fresh."
+    }
+   ],
+   "error": null,
+   "latency_s": 6.458
+  }
+ },
+ "agreed": [
+  {
+   "slot": "f_L0_004.cushions",
+   "type": "cushion",
+   "colour": "cream",
+   "colour_agreed": true,
+   "reasons": [
+    "Soft, neutral cushions complement linen textiles and warm daylight.",
+    "Adds softness and comfort in line with Scandinavian style."
+   ]
+  },
+  {
+   "slot": "f_L0_005.centre",
+   "type": "table_lamp",
+   "colour": "natural wood",
+   "colour_agreed": true,
+   "reasons": [
+    "Warm-toned lamp adds cozy Scandinavian ambiance.",
+    "Warm light complements daylight and matches light oak floors."
+   ]
+  },
+  {
+   "slot": "r_L0_bed_room_2.rug1",
+   "type": "rug",
+   "colour": "natural wood",
+   "colour_agreed": false,
+   "reasons": [
+    "Light oak floor paired with wood-toned rug enhances Scandinavian warmth.",
+    "Softens the floor and enhances the natural, minimalist feel."
+   ]
+  },
+  {
+   "slot": "r_L0_bed_room_2.corner1",
+   "type": "plant",
+   "colour": "forest green",
+   "colour_agreed": false,
+   "reasons": [
+    "Corner plant adds organic texture without clutter.",
+    "Brings life to the corner while keeping the space airy and fresh."
+   ]
+  }
+ ],
+ "not_agreed": [
+  {
+   "slot": "f_L0_006.centre",
+   "type": "plant_small",
+   "colour": "sage green",
+   "reason": "Small plant brings life and freshness to the nightstand.",
+   "passes": [
+    1
+   ]
+  }
+ ],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L0_012",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L0_004.cushions"
+  },
+  {
+   "id": "dec_L0_013",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L0_004.cushions"
+  },
+  {
+   "id": "dec_L0_014",
+   "type": "table_lamp",
+   "method": "ai",
+   "slot": "f_L0_005.centre"
+  },
+  {
+   "id": "dec_L0_015",
+   "type": "rug",
+   "method": "ai",
+   "slot": "r_L0_bed_room_2.rug1"
+  },
+  {
+   "id": "dec_L0_016",
+   "type": "plant",
+   "method": "ai",
+   "slot": "r_L0_bed_room_2.corner1"
+  }
+ ],
+ "fallback": null,
+ "notes": [
+  "f_L0_004 wall: wall_art: above f_L0_004: window win_L0_004 on the wall behind it leave 0.00 m for the picture (min 0.4 m)"
+ ]
+}

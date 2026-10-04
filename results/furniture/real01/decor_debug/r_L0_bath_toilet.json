@@ -1,0 +1,68 @@
+{
+ "room_id": "r_L0_bath_toilet",
+ "label": "Bath+ Toilet",
+ "room_type": "bathroom",
+ "slots": [
+  {
+   "id": "f_L0_022.wall",
+   "kind": "wall",
+   "types": [
+    "mirror"
+   ],
+   "host_id": "f_L0_022",
+   "host_type": "washbasin",
+   "note": ""
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "f_L0_022.wall",
+     "type": "mirror",
+     "colour": "white",
+     "reason": "Matches the Scandinavian style and white walls, keeping the space bright and uncluttered."
+    }
+   ],
+   "error": null,
+   "latency_s": 1.904
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "f_L0_022.wall",
+     "type": "mirror",
+     "colour": "natural wood",
+     "reason": "Complements light oak floor and white walls with warm, natural tones."
+    }
+   ],
+   "error": null,
+   "latency_s": 1.824
+  }
+ },
+ "agreed": [
+  {
+   "slot": "f_L0_022.wall",
+   "type": "mirror",
+   "colour": "white",
+   "colour_agreed": false,
+   "reasons": [
+    "Matches the Scandinavian style and white walls, keeping the space bright and uncluttered.",
+    "Complements light oak floor and white walls with warm, natural tones."
+   ]
+  }
+ ],
+ "not_agreed": [],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L0_006",
+   "type": "mirror",
+   "method": "ai",
+   "slot": "f_L0_022.wall"
+  }
+ ],
+ "fallback": null,
+ "notes": []
+}
