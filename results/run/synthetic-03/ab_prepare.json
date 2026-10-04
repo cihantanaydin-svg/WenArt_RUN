@@ -1,0 +1,18 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "synthetic-03",
+ "stage": "ab_prepare",
+ "rc": null,
+ "status": "skipped",
+ "seconds": 0.0,
+ "fingerprint": null,
+ "inputs": {},
+ "outputs": [],
+ "started_utc": "2026-10-03T05:13:11Z",
+ "git_commit": "98507eac73830cb9ad61098c9dd253bbb1012a45",
+ "log": "logs/ab_prepare.log",
+ "note": "not in this phase",
+ "run_id": "20261003-050627-full-20261003T051311Z",
+ "steps": []
+}

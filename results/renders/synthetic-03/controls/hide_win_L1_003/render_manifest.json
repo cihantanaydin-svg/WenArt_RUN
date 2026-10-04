@@ -1,7 +1,7 @@
 {
  "schema_version": "0.1",
  "scene": "../../scene/scene.blend",
- "scene_sha256": "86c0254a7e153c8127339c94955c733ad9ce8301a3610c951d3aa88bb13268c1",
+ "scene_sha256": "d328e18c4160f15a945913cce0d2fca2352ce2b290209a3900d6b95b567c596e",
  "device": "OPTIX",
  "device_requested": "auto",
  "blender_version": "5.2.2 LTS",
@@ -11,9 +11,9 @@
   1080
  ],
  "denoiser": "OPENIMAGEDENOISE",
- "render_code_version": "m6.1",
+ "render_code_version": "m7.1",
  "view_transform": "AgX",
- "look": "None",
+ "look": "AgX - Punchy",
  "exposure_mode": "from",
  "exposure_target": 0.9,
  "exposure_limits": [
@@ -125,12 +125,121 @@
   "f_L1_019": 89,
   "f_L1_020": 90,
   "f_L1_021": 91,
-  "f_L1_022": 92,
-  "dec_L1_004": 93,
-  "dec_L1_008": 94,
-  "dec_L1_011": 95
+  "dec_L1_004": 92,
+  "dec_L1_008": 93,
+  "dec_L1_012": 94
  },
  "renders": [
+  {
+   "camera": "cam_r_L1_ebeveyn_yatak_odasi_2",
+   "room_id": "r_L1_ebeveyn_yatak_odasi",
+   "level_id": "L1",
+   "png": "cam_r_L1_ebeveyn_yatak_odasi_2.png",
+   "exr": "cam_r_L1_ebeveyn_yatak_odasi_2_passes.exr",
+   "preview": "cam_r_L1_ebeveyn_yatak_odasi_2_preview.jpg",
+   "depth_png": "cam_r_L1_ebeveyn_yatak_odasi_2_depth.png",
+   "index_png": "cam_r_L1_ebeveyn_yatak_odasi_2_index.png",
+   "files": {
+    "index": "cam_r_L1_ebeveyn_yatak_odasi_2_index.png",
+    "depth_mm": "cam_r_L1_ebeveyn_yatak_odasi_2_depth_mm.png",
+    "normal": "cam_r_L1_ebeveyn_yatak_odasi_2_normal.png",
+    "depth": "cam_r_L1_ebeveyn_yatak_odasi_2_depth.png"
+   },
+   "preview_bytes": 133298,
+   "seconds": 2.71,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.421226978302002,
+    "max": 3.5,
+    "mean": 2.915113687515259,
+    "coverage": 1.0
+   },
+   "index_values": [
+    71,
+    72,
+    73,
+    74
+   ],
+   "index_stats": {
+    "71": {
+     "pixels": 455749,
+     "box": [
+      903,
+      190,
+      1920,
+      1080
+     ]
+    },
+    "72": {
+     "pixels": 25157,
+     "box": [
+      960,
+      626,
+      1168,
+      756
+     ]
+    },
+    "73": {
+     "pixels": 10365,
+     "box": [
+      1517,
+      632,
+      1667,
+      726
+     ]
+    },
+    "74": {
+     "pixels": 464119,
+     "box": [
+      118,
+      0,
+      669,
+      897
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "d328e18c4160f15a945913cce0d2fca2352ce2b290209a3900d6b95b567c596e",
+   "render_key": "609ced73986b3ccd",
+   "exposure": {
+    "mode": "from",
+    "ev": 4.333333,
+    "ev_raw": null,
+    "at_limit": false,
+    "target": null,
+    "limits": null,
+    "incident_p50": null,
+    "whitepoint": [
+     1.008368,
+     0.996799,
+     1.007067
+    ],
+    "wb_mode": "from",
+    "wb_temperature": 6504.3,
+    "wb_tint": 7.88,
+    "residual": null,
+    "window_clip_frac": null,
+    "meter_seconds": 0.0,
+    "meter": null,
+    "mood": "cool daylight",
+    "source": "../../renders/render_manifest.json",
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "hidden": [
+    "win_L1_003"
+   ],
+   "plugged": [
+    "win_L1_003"
+   ],
+   "window_pull": null,
+   "alt_preview": null,
+   "alt_preview_bytes": null
+  },
   {
    "camera": "cam_r_L1_ebeveyn_yatak_odasi_3",
    "room_id": "r_L1_ebeveyn_yatak_odasi",
@@ -294,6 +403,8 @@
  "dropped_stale": [],
  "incomplete": false,
  "not_rendered": [],
- "deadline": 1790998008.0,
- "warnings": []
+ "deadline": 1791083963.0,
+ "warnings": [
+  "cam_r_L1_ebeveyn_yatak_odasi_3: rendered from another scene build and not asked for in this run"
+ ]
 }

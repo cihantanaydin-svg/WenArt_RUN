@@ -5,25 +5,26 @@
  "stage": "ab_realism",
  "rc": 0,
  "status": "ok",
- "seconds": 13.0,
+ "seconds": 187.85,
  "fingerprint": null,
  "inputs": {},
  "outputs": [],
- "started_utc": "2026-10-03T05:18:20Z",
- "git_commit": "98507eac73830cb9ad61098c9dd253bbb1012a45",
+ "started_utc": "2026-10-04T02:22:32Z",
+ "git_commit": "0a41bee4ea72a8713da1941efc8951188b952670",
  "log": "logs/ab_realism.log",
  "note": null,
- "run_id": "20261003-050627-full-20261003T051311Z",
+ "run_id": "20261004-013837-full-20261004T014240Z",
  "steps": [
   {
-   "name": "realism qwen",
+   "name": "realism2 qwen",
    "rc": 0,
-   "seconds": 7.46
+   "seconds": 93.55
   },
   {
-   "name": "realism glm",
+   "name": "realism2 glm",
    "rc": 0,
-   "seconds": 5.54
+   "seconds": 94.3
   }
- ]
+ ],
+ "written": {}
 }

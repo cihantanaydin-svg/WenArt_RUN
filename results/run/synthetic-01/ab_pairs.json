@@ -3,18 +3,25 @@
  "kind": "stage_record",
  "project": "synthetic-01",
  "stage": "ab_pairs",
- "rc": null,
- "status": "reused",
- "seconds": 0.0,
+ "rc": 0,
+ "status": "ok",
+ "seconds": 5.74,
  "fingerprint": null,
  "inputs": {},
  "outputs": [
-  "ab/pairs.json"
+  "ab/pairs_v2.json"
  ],
- "started_utc": "2026-10-03T05:13:11Z",
- "git_commit": "98507eac73830cb9ad61098c9dd253bbb1012a45",
+ "started_utc": "2026-10-04T02:18:01Z",
+ "git_commit": "0a41bee4ea72a8713da1941efc8951188b952670",
  "log": "logs/ab_pairs.log",
- "note": "ab/pairs.json of the render pod (116 pairs, controls)",
- "run_id": "20261003-050627-full-20261003T051311Z",
- "steps": []
+ "note": null,
+ "run_id": "20261004-013837-full-20261004T014240Z",
+ "steps": [
+  {
+   "name": "realism2-pairs",
+   "rc": 0,
+   "seconds": 5.74
+  }
+ ],
+ "written": {}
 }

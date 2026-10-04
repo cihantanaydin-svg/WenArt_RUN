@@ -1,0 +1,778 @@
+{
+ "schema_version": "0.1",
+ "kind": "realism2_summary",
+ "projects": [
+  {
+   "project": "synthetic-03",
+   "project_out": "outputs/synthetic-03",
+   "found": true,
+   "pairs": 32,
+   "dropped": 0
+  }
+ ],
+ "controls_project": "synthetic-01",
+ "models": {
+  "qwen": {
+   "id": "Qwen/Qwen3-VL-8B-Instruct",
+   "slug": "qwen3-vl-8b",
+   "answered_by": [
+    "Qwen/Qwen3-VL-8B-Instruct"
+   ]
+  },
+  "glm": {
+   "id": "zai-org/GLM-4.6V-Flash",
+   "slug": "glm-4.6v-flash",
+   "answered_by": [
+    "zai-org/GLM-4.6V-Flash"
+   ]
+  }
+ },
+ "controls": {
+  "sets": {
+   "ctl_flat": {
+    "kind": "known_direction",
+    "text": "A = build --no-textures, B = normal",
+    "target_aspect": "materials",
+    "expected": "b",
+    "pairs": 8,
+    "models": {
+     "qwen": {
+      "n": 8,
+      "correct": 8,
+      "wrong": 0,
+      "tie": 0,
+      "nc": 0,
+      "correct_rate": 1.0,
+      "wrong_rate": 0.0,
+      "pass": true
+     },
+     "glm": {
+      "n": 8,
+      "correct": 8,
+      "wrong": 0,
+      "tie": 0,
+      "nc": 0,
+      "correct_rate": 1.0,
+      "wrong_rate": 0.0,
+      "pass": true
+     }
+    },
+    "consensus": {
+     "n": 8,
+     "correct": 8,
+     "wrong": 0,
+     "tie": 0,
+     "nc": 0,
+     "correct_rate": 1.0,
+     "wrong_rate": 0.0,
+     "pass": true
+    }
+   },
+   "ctl_proxy": {
+    "kind": "known_direction",
+    "text": "A = build --proxies, B = normal",
+    "target_aspect": "furniture",
+    "expected": "b",
+    "pairs": 8,
+    "models": {
+     "qwen": {
+      "n": 8,
+      "correct": 7,
+      "wrong": 0,
+      "tie": 1,
+      "nc": 0,
+      "correct_rate": 0.875,
+      "wrong_rate": 0.0,
+      "pass": true
+     },
+     "glm": {
+      "n": 8,
+      "correct": 7,
+      "wrong": 0,
+      "tie": 1,
+      "nc": 0,
+      "correct_rate": 0.875,
+      "wrong_rate": 0.0,
+      "pass": true
+     }
+    },
+    "consensus": {
+     "n": 8,
+     "correct": 6,
+     "wrong": 0,
+     "tie": 2,
+     "nc": 0,
+     "correct_rate": 0.75,
+     "wrong_rate": 0.0,
+     "pass": true
+    }
+   },
+   "ctl_direct": {
+    "kind": "known_direction",
+    "text": "A = render --max-bounces 0, B = normal",
+    "target_aspect": "lighting",
+    "expected": "b",
+    "pairs": 8,
+    "models": {
+     "qwen": {
+      "n": 8,
+      "correct": 6,
+      "wrong": 0,
+      "tie": 2,
+      "nc": 0,
+      "correct_rate": 0.75,
+      "wrong_rate": 0.0,
+      "pass": true
+     },
+     "glm": {
+      "n": 8,
+      "correct": 2,
+      "wrong": 0,
+      "tie": 6,
+      "nc": 0,
+      "correct_rate": 0.25,
+      "wrong_rate": 0.0,
+      "pass": false
+     }
+    },
+    "consensus": {
+     "n": 8,
+     "correct": 1,
+     "wrong": 0,
+     "tie": 7,
+     "nc": 0,
+     "correct_rate": 0.125,
+     "wrong_rate": 0.0,
+     "pass": false
+    }
+   },
+   "ctl_lowspp": {
+    "kind": "known_direction",
+    "text": "A = render --samples 4 --no-denoise, B = normal",
+    "target_aspect": "photo",
+    "expected": "b",
+    "pairs": 8,
+    "models": {
+     "qwen": {
+      "n": 8,
+      "correct": 7,
+      "wrong": 0,
+      "tie": 1,
+      "nc": 0,
+      "correct_rate": 0.875,
+      "wrong_rate": 0.0,
+      "pass": true
+     },
+     "glm": {
+      "n": 8,
+      "correct": 5,
+      "wrong": 1,
+      "tie": 2,
+      "nc": 0,
+      "correct_rate": 0.625,
+      "wrong_rate": 0.125,
+      "pass": false
+     }
+    },
+    "consensus": {
+     "n": 8,
+     "correct": 4,
+     "wrong": 0,
+     "tie": 4,
+     "nc": 0,
+     "correct_rate": 0.5,
+     "wrong_rate": 0.0,
+     "pass": false
+    }
+   },
+   "null_identical": {
+    "kind": "null",
+    "text": "A and B = the same file",
+    "pairs": 8,
+    "models": {
+     "qwen": {
+      "n": 32,
+      "tie": 32,
+      "tie_rate": 1.0,
+      "flips": [],
+      "pass": true
+     },
+     "glm": {
+      "n": 32,
+      "tie": 32,
+      "tie_rate": 1.0,
+      "flips": [],
+      "pass": true
+     }
+    }
+   },
+   "null_reencode": {
+    "kind": "null",
+    "text": "A = the normal preview re-encoded as JPEG q70 (PIL), B = normal",
+    "pairs": 8,
+    "models": {
+     "qwen": {
+      "n": 32,
+      "win": 22,
+      "loss": 0,
+      "tie": 10,
+      "win_rate": 0.6875,
+      "pass": false
+     },
+     "glm": {
+      "n": 32,
+      "win": 0,
+      "loss": 0,
+      "tie": 32,
+      "win_rate": 0.0,
+      "pass": true
+     }
+    }
+   },
+   "nuisance_ev": {
+    "kind": "nuisance",
+    "text": "A = normal, B = render --ev-offset 0.3",
+    "pairs": 8,
+    "models": {
+     "qwen": {
+      "n": 32,
+      "brighter_wins": 10,
+      "share": 0.3125,
+      "flag": true
+     },
+     "glm": {
+      "n": 32,
+      "brighter_wins": 0,
+      "share": 0.0,
+      "flag": false
+     }
+    },
+    "mean_delta_ev": 0.117,
+    "flag": true
+   }
+  },
+  "halo": {
+   "qwen": {
+    "n": 84,
+    "follow": 75,
+    "share": 0.8929,
+    "note": "ask one aspect per call (M7)"
+   },
+   "glm": {
+    "n": 69,
+    "follow": 50,
+    "share": 0.7246,
+    "note": null
+   }
+  },
+  "signal": {
+   "qwen": false,
+   "glm": false
+  },
+  "no_signal": [
+   "qwen",
+   "glm"
+  ],
+  "failed_sets": {
+   "qwen": [
+    "null_reencode"
+   ],
+   "glm": [
+    "ctl_direct",
+    "ctl_lowspp"
+   ]
+  },
+  "notes": [
+   "no signal from Qwen (fails null_reencode)",
+   "no signal from GLM (fails ctl_direct, ctl_lowspp)",
+   "halo Qwen 0.89 > 0.80: ask one aspect per call (M7)",
+   "nuisance_ev: the brighter image wins more than 30% for Qwen: A/B pairs with |dEV| > 0.3 are flagged"
+  ],
+  "targets": {
+   "correct_min": 0.7,
+   "wrong_max": 0.05,
+   "consensus_correct_min": 0.6,
+   "null_identical_tie_min": 0.9,
+   "null_reencode_win_max": 0.1,
+   "nuisance_brighter_max": 0.3,
+   "delta_ev_flag": 0.3,
+   "halo_max": 0.8
+  }
+ },
+ "signal": {
+  "qwen": false,
+  "glm": false
+ },
+ "measurable": false,
+ "single_model": false,
+ "consensus_models": [
+  "qwen",
+  "glm"
+ ],
+ "sets": {
+  "look_alt": {
+   "pairs": 32,
+   "rooms": 18,
+   "consensus_models": [
+    "qwen",
+    "glm"
+   ],
+   "aspects": {
+    "materials": {
+     "models": {
+      "qwen": {
+       "W": 7,
+       "L": 0,
+       "T": 25,
+       "NC": 0,
+       "consistency": 0.2188,
+       "mean_graded": 0.438
+      },
+      "glm": {
+       "W": 0,
+       "L": 0,
+       "T": 32,
+       "NC": 0,
+       "consistency": 0.0,
+       "mean_graded": 0.0
+      }
+     },
+     "consensus": {
+      "W": 0,
+      "L": 0,
+      "T": 32,
+      "NC": 0
+     },
+     "n": 32,
+     "decisive": 0,
+     "decisive_rooms": 0,
+     "win_rate": 0.0,
+     "loss_rate": 0.0,
+     "net_win": 0.0,
+     "sign_p": 1.0,
+     "rooms": {
+      "W": 0,
+      "L": 0,
+      "T": 18,
+      "NC": 0
+     },
+     "rooms_sign_p": 1.0,
+     "net_win_ci95": [
+      0.0,
+      0.0
+     ],
+     "decision": "not_measurable"
+    },
+    "lighting": {
+     "models": {
+      "qwen": {
+       "W": 21,
+       "L": 0,
+       "T": 11,
+       "NC": 0,
+       "consistency": 0.6562,
+       "mean_graded": 1.312
+      },
+      "glm": {
+       "W": 0,
+       "L": 0,
+       "T": 32,
+       "NC": 0,
+       "consistency": 0.0,
+       "mean_graded": 0.0
+      }
+     },
+     "consensus": {
+      "W": 0,
+      "L": 0,
+      "T": 32,
+      "NC": 0
+     },
+     "n": 32,
+     "decisive": 0,
+     "decisive_rooms": 0,
+     "win_rate": 0.0,
+     "loss_rate": 0.0,
+     "net_win": 0.0,
+     "sign_p": 1.0,
+     "rooms": {
+      "W": 0,
+      "L": 0,
+      "T": 18,
+      "NC": 0
+     },
+     "rooms_sign_p": 1.0,
+     "net_win_ci95": [
+      0.0,
+      0.0
+     ],
+     "decision": "not_measurable"
+    },
+    "furniture": {
+     "models": {
+      "qwen": {
+       "W": 9,
+       "L": 0,
+       "T": 23,
+       "NC": 0,
+       "consistency": 0.2812,
+       "mean_graded": 0.562
+      },
+      "glm": {
+       "W": 0,
+       "L": 0,
+       "T": 32,
+       "NC": 0,
+       "consistency": 0.0,
+       "mean_graded": 0.0
+      }
+     },
+     "consensus": {
+      "W": 0,
+      "L": 0,
+      "T": 32,
+      "NC": 0
+     },
+     "n": 32,
+     "decisive": 0,
+     "decisive_rooms": 0,
+     "win_rate": 0.0,
+     "loss_rate": 0.0,
+     "net_win": 0.0,
+     "sign_p": 1.0,
+     "rooms": {
+      "W": 0,
+      "L": 0,
+      "T": 18,
+      "NC": 0
+     },
+     "rooms_sign_p": 1.0,
+     "net_win_ci95": [
+      0.0,
+      0.0
+     ],
+     "decision": "not_measurable"
+    },
+    "photo": {
+     "models": {
+      "qwen": {
+       "W": 21,
+       "L": 0,
+       "T": 11,
+       "NC": 0,
+       "consistency": 0.6562,
+       "mean_graded": 1.312
+      },
+      "glm": {
+       "W": 1,
+       "L": 0,
+       "T": 31,
+       "NC": 0,
+       "consistency": 0.0312,
+       "mean_graded": 0.062
+      }
+     },
+     "consensus": {
+      "W": 1,
+      "L": 0,
+      "T": 31,
+      "NC": 0
+     },
+     "n": 32,
+     "decisive": 1,
+     "decisive_rooms": 1,
+     "win_rate": 0.0312,
+     "loss_rate": 0.0,
+     "net_win": 0.0312,
+     "sign_p": 1.0,
+     "rooms": {
+      "W": 1,
+      "L": 0,
+      "T": 17,
+      "NC": 0
+     },
+     "rooms_sign_p": 1.0,
+     "net_win_ci95": [
+      0.0,
+      0.1034
+     ],
+     "decision": "not_measurable"
+    }
+   },
+   "position_bias": {
+    "qwen": {
+     "image_1": 190,
+     "picks": 256,
+     "index": 0.7422
+    },
+    "glm": {
+     "image_1": 1,
+     "picks": 256,
+     "index": 0.0039
+    }
+   },
+   "top_cues": {
+    "materials": {
+     "W": [],
+     "L": []
+    },
+    "lighting": {
+     "W": [],
+     "L": []
+    },
+    "furniture": {
+     "W": [],
+     "L": []
+    },
+    "photo": {
+     "W": [],
+     "L": []
+    }
+   },
+   "decision": "not_measurable",
+   "single_model": false,
+   "projects": [
+    "synthetic-03"
+   ]
+  }
+ },
+ "position_bias": {
+  "qwen": {
+   "image_1": 190,
+   "picks": 256,
+   "index": 0.7422
+  },
+  "glm": {
+   "image_1": 1,
+   "picks": 256,
+   "index": 0.0039
+  }
+ },
+ "ev_flags": {
+  "active": true,
+  "threshold": 0.3,
+  "pairs": [
+   {
+    "project": "synthetic-03",
+    "pair_id": "look_alt:cam_r_L1_cocuk_odasi_3",
+    "delta_ev": 0.351
+   },
+   {
+    "project": "synthetic-03",
+    "pair_id": "look_alt:cam_r_L1_ebeveyn_yatak_odasi_3",
+    "delta_ev": 0.353
+   },
+   {
+    "project": "synthetic-03",
+    "pair_id": "look_alt:cam_r_L0_mutfak_1",
+    "delta_ev": 0.342
+   },
+   {
+    "project": "synthetic-03",
+    "pair_id": "look_alt:cam_r_L1_ebeveyn_yatak_odasi_2",
+    "delta_ev": 0.354
+   },
+   {
+    "project": "synthetic-03",
+    "pair_id": "look_alt:cam_r_L-1_banyo_2",
+    "delta_ev": 0.461
+   },
+   {
+    "project": "synthetic-03",
+    "pair_id": "look_alt:cam_r_L0_mutfak_2",
+    "delta_ev": 0.325
+   },
+   {
+    "project": "synthetic-03",
+    "pair_id": "look_alt:cam_r_L0_yatak_odasi_2",
+    "delta_ev": 0.394
+   },
+   {
+    "project": "synthetic-03",
+    "pair_id": "look_alt:cam_r_L1_cocuk_odasi_1",
+    "delta_ev": 0.333
+   },
+   {
+    "project": "synthetic-03",
+    "pair_id": "look_alt:cam_r_L0_salon_1",
+    "delta_ev": 0.386
+   },
+   {
+    "project": "synthetic-03",
+    "pair_id": "look_alt:cam_r_L1_banyo_3",
+    "delta_ev": 0.363
+   },
+   {
+    "project": "synthetic-03",
+    "pair_id": "look_alt:cam_r_L1_banyo_2",
+    "delta_ev": 0.412
+   },
+   {
+    "project": "synthetic-03",
+    "pair_id": "look_alt:cam_r_L-1_yatak_odasi_1",
+    "delta_ev": 0.484
+   },
+   {
+    "project": "synthetic-03",
+    "pair_id": "look_alt:cam_r_L0_yatak_odasi_3",
+    "delta_ev": 0.322
+   },
+   {
+    "project": "synthetic-03",
+    "pair_id": "look_alt:cam_r_L-1_banyo_1",
+    "delta_ev": 0.446
+   },
+   {
+    "project": "synthetic-03",
+    "pair_id": "look_alt:cam_r_L1_yatak_odasi_1",
+    "delta_ev": 0.48
+   },
+   {
+    "project": "synthetic-03",
+    "pair_id": "look_alt:cam_r_L1_yatak_odasi_3",
+    "delta_ev": 0.456
+   },
+   {
+    "project": "synthetic-03",
+    "pair_id": "look_alt:cam_r_L0_salon_3",
+    "delta_ev": 0.445
+   },
+   {
+    "project": "synthetic-03",
+    "pair_id": "look_alt:cam_r_L-1_yatak_odasi_2",
+    "delta_ev": 0.481
+   },
+   {
+    "project": "synthetic-03",
+    "pair_id": "look_alt:cam_r_L0_hol_1",
+    "delta_ev": 0.481
+   },
+   {
+    "project": "synthetic-03",
+    "pair_id": "look_alt:cam_r_L0_antre_2",
+    "delta_ev": 0.46
+   },
+   {
+    "project": "synthetic-03",
+    "pair_id": "look_alt:cam_r_L-1_wc_1",
+    "delta_ev": 0.424
+   },
+   {
+    "project": "synthetic-03",
+    "pair_id": "look_alt:cam_r_L0_antre_1",
+    "delta_ev": 0.472
+   },
+   {
+    "project": "synthetic-03",
+    "pair_id": "look_alt:cam_r_L-1_wc_2",
+    "delta_ev": 0.421
+   },
+   {
+    "project": "synthetic-03",
+    "pair_id": "look_alt:cam_r_L0_kiler_1",
+    "delta_ev": 0.309
+   },
+   {
+    "project": "synthetic-03",
+    "pair_id": "look_alt:cam_r_L1_hol_1",
+    "delta_ev": 0.498
+   },
+   {
+    "project": "synthetic-03",
+    "pair_id": "look_alt:cam_r_L-1_hol_1",
+    "delta_ev": 0.493
+   },
+   {
+    "project": "synthetic-03",
+    "pair_id": "look_alt:cam_r_L0_hol_2",
+    "delta_ev": 0.446
+   },
+   {
+    "project": "synthetic-03",
+    "pair_id": "look_alt:cam_r_L1_hol_2",
+    "delta_ev": 0.503
+   },
+   {
+    "project": "synthetic-03",
+    "pair_id": "look_alt:cam_r_L0_wc_1",
+    "delta_ev": 0.407
+   },
+   {
+    "project": "synthetic-03",
+    "pair_id": "look_alt:cam_r_L-1_hol_2",
+    "delta_ev": 0.52
+   },
+   {
+    "project": "synthetic-03",
+    "pair_id": "look_alt:cam_r_L-1_kiler_1",
+    "delta_ev": 0.602
+   },
+   {
+    "project": "synthetic-03",
+    "pair_id": "look_alt:cam_r_L-1_kiler_2_1",
+    "delta_ev": 0.583
+   }
+  ]
+ },
+ "top_cues": {
+  "look_alt": {
+   "materials": {
+    "W": [],
+    "L": []
+   },
+   "lighting": {
+    "W": [],
+    "L": []
+   },
+   "furniture": {
+    "W": [],
+    "L": []
+   },
+   "photo": {
+    "W": [],
+    "L": []
+   }
+  }
+ },
+ "calls": [
+  {
+   "project": "synthetic-03",
+   "set": "look_alt",
+   "model": "qwen",
+   "expected": 256,
+   "answered": 256,
+   "failed": 0,
+   "stale": 0,
+   "missing": 0,
+   "answered_rate": 1.0,
+   "status": "complete"
+  },
+  {
+   "project": "synthetic-03",
+   "set": "look_alt",
+   "model": "glm",
+   "expected": 256,
+   "answered": 256,
+   "failed": 0,
+   "stale": 0,
+   "missing": 0,
+   "answered_rate": 1.0,
+   "status": "complete"
+  }
+ ],
+ "config": {
+  "min_decisive": 30,
+  "min_rooms": 10,
+  "alpha": 0.05,
+  "bootstrap_resamples": 2000,
+  "bootstrap_seed": 0
+ },
+ "notes": [
+  "no signal from Qwen (fails null_reencode)",
+  "no signal from GLM (fails ctl_direct, ctl_lowspp)",
+  "halo Qwen 0.89 > 0.80: ask one aspect per call (M7)",
+  "nuisance_ev: the brighter image wins more than 30% for Qwen: A/B pairs with |dEV| > 0.3 are flagged",
+  "not measurable: the controls fail for every model"
+ ],
+ "warnings": []
+}

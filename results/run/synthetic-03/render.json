@@ -5,22 +5,23 @@
  "stage": "render",
  "rc": 0,
  "status": "ok",
- "seconds": 352.65,
+ "seconds": 240.62,
  "fingerprint": null,
  "inputs": {},
  "outputs": [
   "renders/render_manifest.json"
  ],
- "started_utc": "2026-10-03T02:13:11Z",
- "git_commit": "76bd17dd1e154762b62fd2306df2255aa3e87604",
+ "started_utc": "2026-10-04T01:54:16Z",
+ "git_commit": "0a41bee4ea72a8713da1941efc8951188b952670",
  "log": "logs/render.log",
  "note": null,
- "run_id": "20261003-014522-full-20261003T015157Z",
+ "run_id": "20261004-013837-full-20261004T014240Z",
  "steps": [
   {
    "name": "render",
    "rc": 0,
-   "seconds": 352.65
+   "seconds": 240.62
   }
- ]
+ ],
+ "written": {}
 }

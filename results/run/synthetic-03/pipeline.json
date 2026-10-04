@@ -5,25 +5,27 @@
  "stage": "pipeline",
  "rc": 0,
  "status": "ok",
- "seconds": 10.61,
- "fingerprint": "5a453f369aff30f0834df724a42f779747a3eed88b2d5061b8638baf355f8406",
+ "seconds": 9.64,
+ "fingerprint": "27e5aecd163a51183a86b4234d3870e6e8b67c4e280d09f190be616a385c43b3",
  "inputs": {
-  "projects/synthetic-03": "b2c4c2fbb11283626846065cffabc169c521b062363796e7e690806f4bf0214a"
+  "projects/synthetic-03": "b2c4c2fbb11283626846065cffabc169c521b062363796e7e690806f4bf0214a",
+  "<LibreDWG VERSION>": "0.14 d9468ae"
  },
  "outputs": [
   "building.json",
   "report.md"
  ],
- "started_utc": "2026-10-03T01:52:32Z",
- "git_commit": "76bd17dd1e154762b62fd2306df2255aa3e87604",
+ "started_utc": "2026-10-04T01:42:54Z",
+ "git_commit": "0a41bee4ea72a8713da1941efc8951188b952670",
  "log": "logs/pipeline.log",
- "note": "earlier outputs without run records moved to /workspace/outputs-archive/synthetic-03-20261003T015157Z",
- "run_id": "20261003-014522-full-20261003T015157Z",
+ "note": null,
+ "run_id": "20261004-013837-full-20261004T014240Z",
  "steps": [
   {
    "name": "pipeline",
    "rc": 0,
-   "seconds": 10.61
+   "seconds": 9.64
   }
- ]
+ ],
+ "written": {}
 }

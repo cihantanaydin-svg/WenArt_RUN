@@ -5,23 +5,24 @@
  "stage": "report",
  "rc": 0,
  "status": "ok",
- "seconds": 13.97,
+ "seconds": 13.7,
  "fingerprint": null,
  "inputs": {},
  "outputs": [
   "final/final_report.md",
   "final/final_manifest.json"
  ],
- "started_utc": "2026-10-03T03:03:00Z",
- "git_commit": "76bd17dd1e154762b62fd2306df2255aa3e87604",
+ "started_utc": "2026-10-04T02:29:01Z",
+ "git_commit": "0a41bee4ea72a8713da1941efc8951188b952670",
  "log": "logs/report.log",
  "note": null,
- "run_id": "20261003-014522-full-20261003T015157Z",
+ "run_id": "20261004-013837-full-20261004T014240Z",
  "steps": [
   {
    "name": "report",
    "rc": 0,
-   "seconds": 13.97
+   "seconds": 13.7
   }
- ]
+ ],
+ "written": {}
 }

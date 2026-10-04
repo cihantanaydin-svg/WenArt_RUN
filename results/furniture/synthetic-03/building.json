@@ -3,8 +3,8 @@
  "project": {
   "id": "synthetic-03",
   "source_folder": "projects/synthetic-03",
-  "created_utc": "2026-10-03T01:52:27Z",
-  "pipeline_commit": "76bd17dd",
+  "created_utc": "2026-10-04T01:42:49Z",
+  "pipeline_commit": "0a41bee4",
   "brief": {
    "styles": [
     "Modern minimal, polished concrete floor, charcoal and white, brass details, cool daylight",
@@ -27,6 +27,7 @@
      "kind": "vector",
      "level_id": "L-1",
      "level_label_raw": "BODRUM KAT PLANI",
+     "classifier": "title",
      "scale": {
       "metres_per_unit": 0.035277777777777776,
       "method": "pdf_scale_text",
@@ -68,6 +69,7 @@
      "kind": "vector",
      "level_id": "L0",
      "level_label_raw": "ZEMİN KAT PLANI",
+     "classifier": "title",
      "scale": {
       "metres_per_unit": 0.035277777777777776,
       "method": "pdf_scale_text",
@@ -109,6 +111,7 @@
      "kind": "vector",
      "level_id": "L1",
      "level_label_raw": "1. KAT PLANI",
+     "classifier": "title",
      "scale": {
       "metres_per_unit": 0.035277777777777776,
       "method": "pdf_scale_text",
@@ -143,7 +146,9 @@
      ],
      "debug_image": "debug/kat_planlari_pdf_p3.png"
     }
-   ]
+   ],
+   "unit_system": "metric",
+   "source_kind": "cad_pdf"
   },
   {
    "id": "doc_mobilya_plani_dxf",
@@ -158,6 +163,7 @@
      "kind": "vector",
      "level_id": "L0",
      "level_label_raw": "ZEMİN KAT MOBİLYA PLANI",
+     "classifier": "title",
      "scale": {
       "metres_per_unit": 0.001,
       "method": "dxf_insunits",
@@ -189,7 +195,9 @@
      ],
      "debug_image": "debug/mobilya_plani_dxf_p1.png"
     }
-   ]
+   ],
+   "unit_system": "metric",
+   "source_kind": "dxf"
   }
  ],
  "levels": [
@@ -209,7 +217,8 @@
      "entity": "char:29",
      "text": "BODRUM KAT PLANI"
     }
-   ]
+   ],
+   "label_source": "title"
   },
   {
    "id": "L0",
@@ -234,7 +243,8 @@
      "entity": "char:29",
      "text": "ZEMİN KAT PLANI"
     }
-   ]
+   ],
+   "label_source": "title"
   },
   {
    "id": "L1",
@@ -252,7 +262,8 @@
      "entity": "char:29",
      "text": "1. KAT PLANI"
     }
-   ]
+   ],
+   "label_source": "title"
   }
  ],
  "walls": [

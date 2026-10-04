@@ -1,7 +1,7 @@
 # Ingest report: synthetic-03
 
 Status: **ok**
-Source: `projects/synthetic-03`, pipeline commit `76bd17dd`, created 2026-10-03T01:52:27Z
+Source: `projects/synthetic-03`, pipeline commit `0a41bee4`, created 2026-10-04T01:42:49Z
 
 ## Documents
 
@@ -22,27 +22,27 @@ Source: `projects/synthetic-03`, pipeline commit `76bd17dd`, created 2026-10-03T
 
 ## Rooms
 
-| Room | Level | Label | Type | Area computed | Area label | Furniture in documents | Status |
-|---|---|---|---|---|---|---|---|
-| r_L-1_kiler | L-1 | Kiler | storage | 14,00 | - | no | verified |
-| r_L-1_hol | L-1 | Hol | hall | 11,68 | - | no | verified |
-| r_L-1_yatak_odasi | L-1 | Yatak Odası | bedroom | 20,28 | - | no | verified |
-| r_L-1_kiler_2 | L-1 | Kiler | storage | 14,80 | - | no | verified |
-| r_L-1_wc | L-1 | WC | wc | 3,80 | - | no | verified |
-| r_L-1_banyo | L-1 | Banyo | bathroom | 3,80 | - | no | verified |
-| r_L0_salon | L0 | Salon | living | 23,50 | 24,00 | yes | verified |
-| r_L0_hol | L0 | Hol | hall | 11,68 | - | no | verified |
-| r_L0_yatak_odasi | L0 | Yatak Odası | bedroom | 15,08 | - | yes | verified |
-| r_L0_mutfak | L0 | Mutfak | kitchen | 8,25 | - | yes | verified |
-| r_L0_antre | L0 | Antre | hall | 4,00 | - | no | verified |
-| r_L0_wc | L0 | WC | wc | 2,80 | - | yes | verified |
-| r_L0_kiler | L0 | Kiler | storage | 2,80 | - | yes | verified |
-| r_L1_ebeveyn_yatak_odasi | L1 | Ebeveyn Yatak Odası | bedroom | 15,60 | - | no | verified |
-| r_L1_hol | L1 | Hol | hall | 11,68 | - | no | verified |
-| r_L1_yatak_odasi | L1 | Yatak Odası | bedroom | 15,21 | - | no | verified |
-| r_L1_cocuk_odasi | L1 | Çocuk Odası | bedroom | 13,20 | - | no | verified |
-| r_L1_banyo | L1 | Banyo | bathroom | 6,27 | - | no | verified |
-| r_L1_balkon | L1 | Balkon | balcony | 6,27 | - | no | verified |
+| Room | Level | Label | As drawn | Type | Area computed | Area label | Furniture in documents | Status |
+|---|---|---|---|---|---|---|---|---|
+| r_L-1_kiler | L-1 | Kiler | KİLER | storage | 14,00 | - | no | verified |
+| r_L-1_hol | L-1 | Hol | HOL | hall | 11,68 | - | no | verified |
+| r_L-1_yatak_odasi | L-1 | Yatak Odası | YATAK ODASI | bedroom | 20,28 | - | no | verified |
+| r_L-1_kiler_2 | L-1 | Kiler | KİLER | storage | 14,80 | - | no | verified |
+| r_L-1_wc | L-1 | WC | WC | wc | 3,80 | - | no | verified |
+| r_L-1_banyo | L-1 | Banyo | BANYO | bathroom | 3,80 | - | no | verified |
+| r_L0_salon | L0 | Salon | SALON 24,00 m² | living | 23,50 | 24,00 | yes | verified |
+| r_L0_hol | L0 | Hol | HOL | hall | 11,68 | - | no | verified |
+| r_L0_yatak_odasi | L0 | Yatak Odası | YATAK ODASI | bedroom | 15,08 | - | yes | verified |
+| r_L0_mutfak | L0 | Mutfak | MUTFAK | kitchen | 8,25 | - | yes | verified |
+| r_L0_antre | L0 | Antre | ANTRE | hall | 4,00 | - | no | verified |
+| r_L0_wc | L0 | WC | WC | wc | 2,80 | - | yes | verified |
+| r_L0_kiler | L0 | Kiler | KİLER | storage | 2,80 | - | yes | verified |
+| r_L1_ebeveyn_yatak_odasi | L1 | Ebeveyn Yatak Odası | EBEVEYN YATAK ODASI | bedroom | 15,60 | - | no | verified |
+| r_L1_hol | L1 | Hol | HOL | hall | 11,68 | - | no | verified |
+| r_L1_yatak_odasi | L1 | Yatak Odası | YATAK ODASI | bedroom | 15,21 | - | no | verified |
+| r_L1_cocuk_odasi | L1 | Çocuk Odası | ÇOCUK ODASI | bedroom | 13,20 | - | no | verified |
+| r_L1_banyo | L1 | Banyo | BANYO | bathroom | 6,27 | - | no | verified |
+| r_L1_balkon | L1 | Balkon | BALKON | balcony | 6,27 | - | no | verified |
 
 ## Furniture
 

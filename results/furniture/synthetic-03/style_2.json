@@ -1,5 +1,6 @@
 {
   "source_text": "Warm Mediterranean, terracotta floor, cream plaster walls, rattan and linen, golden evening light",
+  "family": "mediterranean",
   "floor": {
     "material": "terracotta",
     "asset": "patio_tiles"
