@@ -202,7 +202,7 @@ projects keep their 3D files in `/workspace/outputs-private/<alias>/export/` (th
 | L1 | ABO survey (40 per type, new decor rules), Objaverse survey (fixtures), thumbnails, judging (2 models), accept (20 per type), catalogue | 60–70 | $2.1–2.5 |
 | L2 | TRELLIS.2 setup (cached wheels), accept over every source, generation plan `--target 20`, generation (two shards) until 30 min before the deadline (`WENART_GENERATE_RESERVE_MIN`), thumbnails, judging, catalogue | 120 | $4.2 |
 | L3 | the rest of the generation plan (if L2 is cut), judging, catalogue | ≤ 110 | ≤ $3.9 |
-| F1 | full runs real01, synthetic-01, synthetic-04 with the new library and AI decor | 60–75 | $2.1–2.6 |
+| F1 | full run of real01 only (user, 4 Oct 2026) with the new library, AI decor and the 3D files | 40–50 | $1.4–1.8 |
 
 All on the RTX PRO 6000 ($2.09/h; worst case per pod $4.18 < $5); one pod at a time; the $30/day limit holds.
 
@@ -227,8 +227,8 @@ with every rendered camera and its exposure).
 
 CPU suite green; L1, L2 (L3) and F1 exit 0 or every failure explained; `catalog_library.json` with ≥ 20 models for
 every type whose sources allow it (the report lists any type below 20 with the reason); ≥ 20 models per decor type
-where the sources allow it; every furnished room of the three projects decorated by AI (or the rule fallback with the
-reason); the 3D files of the three projects written, packed and handed to the user; renders and reports committed; `docs/progress.md`, `docs/plan.md` (sources, licences), `docs/gpu-log.md`
+where the sources allow it; every furnished room of real01 decorated by AI (or the rule fallback with the
+reason); the 3D files of real01 written, packed and handed to the user; renders and reports committed; `docs/progress.md`, `docs/plan.md` (sources, licences), `docs/gpu-log.md`
 updated; no pod running.
 
 ## 9. As built
