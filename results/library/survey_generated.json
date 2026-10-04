@@ -1,0 +1,4090 @@
+{
+ "schema_version": "0.1",
+ "kind": "generated_survey",
+ "generated_utc": "2026-10-04T08:34:24Z",
+ "source": "generated",
+ "rules": "docs/milestone8.md §3",
+ "models": {
+  "zimage": {
+   "repo": "Tongyi-MAI/Z-Image-Turbo",
+   "revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+   "licence": "Apache-2.0"
+  },
+  "trellis": {
+   "repo": "microsoft/TRELLIS.2-4B",
+   "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+   "licence": "MIT"
+  },
+  "ss_decoder": {
+   "repo": "microsoft/TRELLIS-image-large",
+   "revision": "25e0d31ffbebe4b5a97464dd851910efc3002d96",
+   "licence": "MIT"
+  },
+  "dinov3": {
+   "repo": "facebook/dinov3-vitl16-pretrain-lvd1689m",
+   "revision": "ea8dc2863c51be0a264bab82070e3e8836b02d51",
+   "licence": "DINOv3 License (custom, gated)"
+  },
+  "rembg": {
+   "repo": "ZhengPeng7/BiRefNet",
+   "revision": "e2bf8e4460fc8fa32bba5ea4d94b3233d367b0e4",
+   "licence": "MIT"
+  }
+ },
+ "trellis_code": {
+  "repo": "https://github.com/microsoft/TRELLIS.2",
+  "commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd"
+ },
+ "plan": {
+  "path": "/workspace/prep/library/generate/plan.json",
+  "sha256": "f5ce77392b56814e63880f95d2fc011a7c17737fe488f9613588a5ce7bdba1a1",
+  "pairs": 25,
+  "families": [
+   "scandinavian",
+   "modern minimal",
+   "japandi",
+   "modern"
+  ]
+ },
+ "images_per_pair": 2,
+ "config_sha256": "d008a01e428586af72fd3bf398e4924112f88bd9c9a9ff38623fbef2f519eef3",
+ "complete": true,
+ "cut_by_deadline": false,
+ "errors": [],
+ "counts": {
+  "sofa": {
+   "pairs": 1,
+   "items": 2,
+   "images": 2,
+   "models": 2,
+   "failed": 0,
+   "not_generated": 0
+  },
+  "fridge": {
+   "pairs": 2,
+   "items": 4,
+   "images": 4,
+   "models": 4,
+   "failed": 0,
+   "not_generated": 0
+  },
+  "sink_kitchen": {
+   "pairs": 4,
+   "items": 8,
+   "images": 8,
+   "models": 8,
+   "failed": 0,
+   "not_generated": 0
+  },
+  "washbasin": {
+   "pairs": 1,
+   "items": 2,
+   "images": 2,
+   "models": 2,
+   "failed": 0,
+   "not_generated": 0
+  },
+  "toilet": {
+   "pairs": 2,
+   "items": 4,
+   "images": 4,
+   "models": 4,
+   "failed": 0,
+   "not_generated": 0
+  },
+  "shower": {
+   "pairs": 4,
+   "items": 8,
+   "images": 8,
+   "models": 8,
+   "failed": 0,
+   "not_generated": 0
+  },
+  "bathtub": {
+   "pairs": 4,
+   "items": 8,
+   "images": 8,
+   "models": 8,
+   "failed": 0,
+   "not_generated": 0
+  },
+  "washing_machine": {
+   "pairs": 4,
+   "items": 8,
+   "images": 8,
+   "models": 8,
+   "failed": 0,
+   "not_generated": 0
+  },
+  "floor_lamp": {
+   "pairs": 1,
+   "items": 2,
+   "images": 2,
+   "models": 2,
+   "failed": 0,
+   "not_generated": 0
+  },
+  "potted_plant": {
+   "pairs": 2,
+   "items": 4,
+   "images": 4,
+   "models": 4,
+   "failed": 0,
+   "not_generated": 0
+  }
+ },
+ "refused_counts": {},
+ "candidates": [
+  {
+   "uid": "gen_bathtub_scandinavian_1_230fe403",
+   "group": "bathtub",
+   "types": [
+    "bathtub"
+   ],
+   "categories": [],
+   "title": "Generated scandinavian bathtub (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 198685,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/bathtub__scandinavian/model_1.glb",
+   "rank": 1,
+   "glb": "/workspace/prep/library/generate/bathtub__scandinavian/model_1.glb",
+   "glb_sha256": "230fe4032737aaa521869e2c2bffa11e744237cd57e5d38d00b65614e260e65c",
+   "glb_bytes": 10824824,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "scandinavian",
+   "generated": {
+    "prompt": "a single scandinavian style freestanding bathtub, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "052d0582bea4fc710d1b0e2fc39a402629fe27959b972c9774622a92ca92bcfd",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 905751746
+   },
+   "generation": {
+    "pair": "bathtub__scandinavian",
+    "index": 1,
+    "image": "generate/bathtub__scandinavian/img_1.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 48.15,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_bathtub_scandinavian_2_6fde34a5",
+   "group": "bathtub",
+   "types": [
+    "bathtub"
+   ],
+   "categories": [],
+   "title": "Generated scandinavian bathtub (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 188799,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/bathtub__scandinavian/model_2.glb",
+   "rank": 2,
+   "glb": "/workspace/prep/library/generate/bathtub__scandinavian/model_2.glb",
+   "glb_sha256": "6fde34a5158b16383aa362edc6a6a0db2b885c992a004b72eaa16ab23e3414e0",
+   "glb_bytes": 11223932,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "scandinavian",
+   "generated": {
+    "prompt": "a single scandinavian style freestanding bathtub, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "3099d2ba427d4ea0cf87621727b387bb0b2c0af205adf03ae2f95e151f4dddf9",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 1109758153
+   },
+   "generation": {
+    "pair": "bathtub__scandinavian",
+    "index": 2,
+    "image": "generate/bathtub__scandinavian/img_2.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 45.0,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_bathtub_modern_minimal_1_1a44f6ff",
+   "group": "bathtub",
+   "types": [
+    "bathtub"
+   ],
+   "categories": [],
+   "title": "Generated modern minimal bathtub (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 189270,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/bathtub__modern_minimal/model_1.glb",
+   "rank": 3,
+   "glb": "/workspace/prep/library/generate/bathtub__modern_minimal/model_1.glb",
+   "glb_sha256": "1a44f6ff44878fe19c2c20f858b02b42fa0aac2f39d7237f55d410b330bb643d",
+   "glb_bytes": 12066520,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "modern minimal",
+   "generated": {
+    "prompt": "a single modern minimal style freestanding bathtub, matte white surfaces, flush handleless fronts, thin black fittings, crisp rectangular forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "9668f5ed09666fe647a0a85287d8da229dd3afa0a32946f50f390afaa972fe78",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 28734134
+   },
+   "generation": {
+    "pair": "bathtub__modern_minimal",
+    "index": 1,
+    "image": "generate/bathtub__modern_minimal/img_1.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 48.98,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_bathtub_modern_minimal_2_927c5b3c",
+   "group": "bathtub",
+   "types": [
+    "bathtub"
+   ],
+   "categories": [],
+   "title": "Generated modern minimal bathtub (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 189402,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/bathtub__modern_minimal/model_2.glb",
+   "rank": 4,
+   "glb": "/workspace/prep/library/generate/bathtub__modern_minimal/model_2.glb",
+   "glb_sha256": "927c5b3ca646476b8bb4b8f35880778b45c3fdca0d132bf260f18f185cd3ff8d",
+   "glb_bytes": 11378072,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "modern minimal",
+   "generated": {
+    "prompt": "a single modern minimal style freestanding bathtub, matte white surfaces, flush handleless fronts, thin black fittings, crisp rectangular forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "56f9c1ba2d25c7f237109fc24ce380bfe888ae08adf39e94116957bbe73b1514",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 637992188
+   },
+   "generation": {
+    "pair": "bathtub__modern_minimal",
+    "index": 2,
+    "image": "generate/bathtub__modern_minimal/img_2.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 55.95,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_bathtub_japandi_1_17df0622",
+   "group": "bathtub",
+   "types": [
+    "bathtub"
+   ],
+   "categories": [],
+   "title": "Generated japandi bathtub (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 184598,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/bathtub__japandi/model_1.glb",
+   "rank": 5,
+   "glb": "/workspace/prep/library/generate/bathtub__japandi/model_1.glb",
+   "glb_sha256": "17df0622bf421462d1900ecac01dfc70adf73302edf5ecbe7584bf68dc0f922a",
+   "glb_bytes": 9873736,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "japandi",
+   "generated": {
+    "prompt": "a single japandi style freestanding bathtub, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "8e68cdcb73e282a2ef4c74d30e6eef4bf4597cadc6afbc5a51739468b1b0c465",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 157243159
+   },
+   "generation": {
+    "pair": "bathtub__japandi",
+    "index": 1,
+    "image": "generate/bathtub__japandi/img_1.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 58.68,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_bathtub_japandi_2_c40f5efc",
+   "group": "bathtub",
+   "types": [
+    "bathtub"
+   ],
+   "categories": [],
+   "title": "Generated japandi bathtub (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 198389,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/bathtub__japandi/model_2.glb",
+   "rank": 6,
+   "glb": "/workspace/prep/library/generate/bathtub__japandi/model_2.glb",
+   "glb_sha256": "c40f5efcb3ac31b9bfe0be334f0db9ed08e6e55e4e9e24431ef069bcaea2cc08",
+   "glb_bytes": 11995844,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "japandi",
+   "generated": {
+    "prompt": "a single japandi style freestanding bathtub, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "684e88316124a5cc1f5ccb43a1c927de40c646fe3457c3059ea6df61725951d4",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 1197198061
+   },
+   "generation": {
+    "pair": "bathtub__japandi",
+    "index": 2,
+    "image": "generate/bathtub__japandi/img_2.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 51.33,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_bathtub_modern_1_009871cf",
+   "group": "bathtub",
+   "types": [
+    "bathtub"
+   ],
+   "categories": [],
+   "title": "Generated modern bathtub (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 189725,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/bathtub__modern/model_1.glb",
+   "rank": 7,
+   "glb": "/workspace/prep/library/generate/bathtub__modern/model_1.glb",
+   "glb_sha256": "009871cf1f29dc10fb1412265be6a3e1f2683af65df437c5ba6d82205594d28c",
+   "glb_bytes": 11153748,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "modern",
+   "generated": {
+    "prompt": "a single modern style freestanding bathtub, glossy white ceramic, stainless steel and chrome fittings, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "20bfbb55f369de0019538c2d693c7133f8c8cbbbe4c33b9661c9021e091fb078",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 63257188
+   },
+   "generation": {
+    "pair": "bathtub__modern",
+    "index": 1,
+    "image": "generate/bathtub__modern/img_1.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 73.48,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_bathtub_modern_2_a081b40d",
+   "group": "bathtub",
+   "types": [
+    "bathtub"
+   ],
+   "categories": [],
+   "title": "Generated modern bathtub (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 194341,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/bathtub__modern/model_2.glb",
+   "rank": 8,
+   "glb": "/workspace/prep/library/generate/bathtub__modern/model_2.glb",
+   "glb_sha256": "a081b40d3ff6f4cd9fffcf97149d50c1da99d2e87442962157d34072ee38ba46",
+   "glb_bytes": 10540996,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "modern",
+   "generated": {
+    "prompt": "a single modern style freestanding bathtub, glossy white ceramic, stainless steel and chrome fittings, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "a0693d14c3048a8d63e20daddd93fe65d3ab3e552164d21afcb8d5a2fa4cab40",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 1423604195
+   },
+   "generation": {
+    "pair": "bathtub__modern",
+    "index": 2,
+    "image": "generate/bathtub__modern/img_2.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 60.84,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_floor_lamp_japandi_1_4be1c62d",
+   "group": "floor_lamp",
+   "types": [
+    "floor_lamp"
+   ],
+   "categories": [],
+   "title": "Generated japandi floor lamp (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 189153,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/floor_lamp__japandi/model_1.glb",
+   "rank": 1,
+   "glb": "/workspace/prep/library/generate/floor_lamp__japandi/model_1.glb",
+   "glb_sha256": "4be1c62d252c639aefa74e53f88b923a9d56f0acd1416c16b20c4d333fdcbc48",
+   "glb_bytes": 16934332,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "japandi",
+   "generated": {
+    "prompt": "a single japandi style floor lamp with a fabric shade, light ash wood, black accents, natural linen and paper textures, low profile, calm minimal forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "8fb67071f61e0ade602048342d3165bf4ef3444d32135feac9b76be650f2d3b6",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 948228751
+   },
+   "generation": {
+    "pair": "floor_lamp__japandi",
+    "index": 1,
+    "image": "generate/floor_lamp__japandi/img_1.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 44.06,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_floor_lamp_japandi_2_ef5fd39d",
+   "group": "floor_lamp",
+   "types": [
+    "floor_lamp"
+   ],
+   "categories": [],
+   "title": "Generated japandi floor lamp (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 186181,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/floor_lamp__japandi/model_2.glb",
+   "rank": 2,
+   "glb": "/workspace/prep/library/generate/floor_lamp__japandi/model_2.glb",
+   "glb_sha256": "ef5fd39d3462d5dea3a6041448062330aba99691fbb3329b49dfc0c79aaa59e1",
+   "glb_bytes": 15024804,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "japandi",
+   "generated": {
+    "prompt": "a single japandi style floor lamp with a fabric shade, light ash wood, black accents, natural linen and paper textures, low profile, calm minimal forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "2b6ac40a2eaa1bc039a8dcef96015a5eb5d58f358e793967d57a9ce2198892dd",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 1825554670
+   },
+   "generation": {
+    "pair": "floor_lamp__japandi",
+    "index": 2,
+    "image": "generate/floor_lamp__japandi/img_2.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 30.73,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_fridge_scandinavian_1_315b4d87",
+   "group": "fridge",
+   "types": [
+    "fridge"
+   ],
+   "categories": [],
+   "title": "Generated scandinavian fridge (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 195646,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/fridge__scandinavian/model_1.glb",
+   "rank": 1,
+   "glb": "/workspace/prep/library/generate/fridge__scandinavian/model_1.glb",
+   "glb_sha256": "315b4d871e63594300d6d5549f9954b0f43fb06163c2389279ec9ba4eb224ab8",
+   "glb_bytes": 12363028,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "scandinavian",
+   "generated": {
+    "prompt": "a single scandinavian style freestanding refrigerator, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "3af8d66c92ccbd8cbab7b14fa632572808c16f365f4265bd5298bde0961b7477",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 808569671
+   },
+   "generation": {
+    "pair": "fridge__scandinavian",
+    "index": 1,
+    "image": "generate/fridge__scandinavian/img_1.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 129.49,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_fridge_scandinavian_2_5eb44a0e",
+   "group": "fridge",
+   "types": [
+    "fridge"
+   ],
+   "categories": [],
+   "title": "Generated scandinavian fridge (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 199210,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/fridge__scandinavian/model_2.glb",
+   "rank": 2,
+   "glb": "/workspace/prep/library/generate/fridge__scandinavian/model_2.glb",
+   "glb_sha256": "5eb44a0e6723167277234b8ac6be2506175aff9f031a2843696a2720f5e48b10",
+   "glb_bytes": 11827528,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "scandinavian",
+   "generated": {
+    "prompt": "a single scandinavian style freestanding refrigerator, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "3b93aaccc4653e1476b76d16f15826ff151c7cbb5ae8ee08d968f6c699e83185",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 370444313
+   },
+   "generation": {
+    "pair": "fridge__scandinavian",
+    "index": 2,
+    "image": "generate/fridge__scandinavian/img_2.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 61.99,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_fridge_japandi_1_4c9cd582",
+   "group": "fridge",
+   "types": [
+    "fridge"
+   ],
+   "categories": [],
+   "title": "Generated japandi fridge (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 189054,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/fridge__japandi/model_1.glb",
+   "rank": 3,
+   "glb": "/workspace/prep/library/generate/fridge__japandi/model_1.glb",
+   "glb_sha256": "4c9cd582a1ac842bfab46114abe9417e69a471d09ca5081b3c7d9aa511758311",
+   "glb_bytes": 13931196,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "japandi",
+   "generated": {
+    "prompt": "a single japandi style freestanding refrigerator, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "03763272765ba15655e8180f236f49883b09ae420da98b0eb40e802d37adc437",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 164433243
+   },
+   "generation": {
+    "pair": "fridge__japandi",
+    "index": 1,
+    "image": "generate/fridge__japandi/img_1.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 63.22,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_fridge_japandi_2_4c7dbc82",
+   "group": "fridge",
+   "types": [
+    "fridge"
+   ],
+   "categories": [],
+   "title": "Generated japandi fridge (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 195626,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/fridge__japandi/model_2.glb",
+   "rank": 4,
+   "glb": "/workspace/prep/library/generate/fridge__japandi/model_2.glb",
+   "glb_sha256": "4c7dbc82227de21ff9c259039a7d61daa4f1eef9930ccd8079291cb0a98a17c1",
+   "glb_bytes": 12862752,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "japandi",
+   "generated": {
+    "prompt": "a single japandi style freestanding refrigerator, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "f7bb286da8d36878d48ab231f148ab696878a2337c6815c6280fed02eb5373a3",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 1519058159
+   },
+   "generation": {
+    "pair": "fridge__japandi",
+    "index": 2,
+    "image": "generate/fridge__japandi/img_2.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 75.35,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_potted_plant_scandinavian_1_04f97c4b",
+   "group": "potted_plant",
+   "types": [
+    "potted_plant"
+   ],
+   "categories": [],
+   "title": "Generated scandinavian potted plant (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 189902,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/potted_plant__scandinavian/model_1.glb",
+   "rank": 1,
+   "glb": "/workspace/prep/library/generate/potted_plant__scandinavian/model_1.glb",
+   "glb_sha256": "04f97c4b90c1a6521eb764b8acac46dffa3ce83d3742c3abe472513f83c66d2c",
+   "glb_bytes": 16974668,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "scandinavian",
+   "generated": {
+    "prompt": "a single scandinavian style large indoor plant in a floor pot, light oak wood, white and soft grey, natural linen upholstery, slim tapered legs, simple clean lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "a87782bd37dba2f3d77bb644d86acfc18f7ec44dceaa7837b879464e6042b6af",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 670989627
+   },
+   "generation": {
+    "pair": "potted_plant__scandinavian",
+    "index": 1,
+    "image": "generate/potted_plant__scandinavian/img_1.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 49.89,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_potted_plant_scandinavian_2_98f7bbd2",
+   "group": "potted_plant",
+   "types": [
+    "potted_plant"
+   ],
+   "categories": [],
+   "title": "Generated scandinavian potted plant (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 192012,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/potted_plant__scandinavian/model_2.glb",
+   "rank": 2,
+   "glb": "/workspace/prep/library/generate/potted_plant__scandinavian/model_2.glb",
+   "glb_sha256": "98f7bbd2822ae20ed017c75bc7d11c6b952c95b4ef2d9cb4bf69fb5aa38d1963",
+   "glb_bytes": 16144372,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "scandinavian",
+   "generated": {
+    "prompt": "a single scandinavian style large indoor plant in a floor pot, light oak wood, white and soft grey, natural linen upholstery, slim tapered legs, simple clean lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "d310d3374d658e69f2a879e8c768648b4fbf1e194549f0160109ae5809ffd756",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 550685039
+   },
+   "generation": {
+    "pair": "potted_plant__scandinavian",
+    "index": 2,
+    "image": "generate/potted_plant__scandinavian/img_2.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 45.25,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_potted_plant_japandi_1_63c10a71",
+   "group": "potted_plant",
+   "types": [
+    "potted_plant"
+   ],
+   "categories": [],
+   "title": "Generated japandi potted plant (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 187695,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/potted_plant__japandi/model_1.glb",
+   "rank": 3,
+   "glb": "/workspace/prep/library/generate/potted_plant__japandi/model_1.glb",
+   "glb_sha256": "63c10a7100aa4765c39a4135b82360b91766b24e9d128954798107d15d518e9d",
+   "glb_bytes": 18569052,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "japandi",
+   "generated": {
+    "prompt": "a single japandi style large indoor plant in a floor pot, light ash wood, black accents, natural linen and paper textures, low profile, calm minimal forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "689064611ab6697f32def047f5b1c27be0353b1e661cb63e6e7e2ac0d3ccd86d",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 1070096842
+   },
+   "generation": {
+    "pair": "potted_plant__japandi",
+    "index": 1,
+    "image": "generate/potted_plant__japandi/img_1.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 54.05,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_potted_plant_japandi_2_9a3effd1",
+   "group": "potted_plant",
+   "types": [
+    "potted_plant"
+   ],
+   "categories": [],
+   "title": "Generated japandi potted plant (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 191153,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/potted_plant__japandi/model_2.glb",
+   "rank": 4,
+   "glb": "/workspace/prep/library/generate/potted_plant__japandi/model_2.glb",
+   "glb_sha256": "9a3effd13d8d03fa68b81c37a682319010870a687b4b59bd55c6f545d0cfb1a3",
+   "glb_bytes": 16147408,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "japandi",
+   "generated": {
+    "prompt": "a single japandi style large indoor plant in a floor pot, light ash wood, black accents, natural linen and paper textures, low profile, calm minimal forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "f838db8c2c54d881698f9a33ccc5d0a28e15473e2ff7aa9dc96ac2bc8f1b299b",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 1292760884
+   },
+   "generation": {
+    "pair": "potted_plant__japandi",
+    "index": 2,
+    "image": "generate/potted_plant__japandi/img_2.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 34.42,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_shower_scandinavian_1_0ae4a37a",
+   "group": "shower",
+   "types": [
+    "shower"
+   ],
+   "categories": [],
+   "title": "Generated scandinavian shower (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 185591,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/shower__scandinavian/model_1.glb",
+   "rank": 1,
+   "glb": "/workspace/prep/library/generate/shower__scandinavian/model_1.glb",
+   "glb_sha256": "0ae4a37a57bc8b8003a68a59c291546251ee28f6725ffdfdcdeac9b4e7997a12",
+   "glb_bytes": 12683636,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "scandinavian",
+   "generated": {
+    "prompt": "a single scandinavian style square glass shower enclosure with a shower tray, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "62c45017f49ae33660d326244e6de315c497b483cd8c9f8243320eb657addf00",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 1674076823
+   },
+   "generation": {
+    "pair": "shower__scandinavian",
+    "index": 1,
+    "image": "generate/shower__scandinavian/img_1.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 56.3,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_shower_scandinavian_2_88469e91",
+   "group": "shower",
+   "types": [
+    "shower"
+   ],
+   "categories": [],
+   "title": "Generated scandinavian shower (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 191035,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/shower__scandinavian/model_2.glb",
+   "rank": 2,
+   "glb": "/workspace/prep/library/generate/shower__scandinavian/model_2.glb",
+   "glb_sha256": "88469e91d5d7881039fff49eb86dc7c3250893fcaecf42f37a62e57dd472457d",
+   "glb_bytes": 13037800,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "scandinavian",
+   "generated": {
+    "prompt": "a single scandinavian style square glass shower enclosure with a shower tray, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "ff49237611b4c14ef01fb7d93b76d30533351d2dac7189d0588d7cc9d488f418",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 1771359389
+   },
+   "generation": {
+    "pair": "shower__scandinavian",
+    "index": 2,
+    "image": "generate/shower__scandinavian/img_2.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 73.36,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_shower_modern_minimal_1_d787862a",
+   "group": "shower",
+   "types": [
+    "shower"
+   ],
+   "categories": [],
+   "title": "Generated modern minimal shower (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 188044,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/shower__modern_minimal/model_1.glb",
+   "rank": 3,
+   "glb": "/workspace/prep/library/generate/shower__modern_minimal/model_1.glb",
+   "glb_sha256": "d787862a389f0023ebb1d974b2d5bc5598d957aa1d52d50342517c1695e8c226",
+   "glb_bytes": 12679948,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "modern minimal",
+   "generated": {
+    "prompt": "a single modern minimal style square glass shower enclosure with a shower tray, matte white surfaces, flush handleless fronts, thin black fittings, crisp rectangular forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "e8b80ff1df716c330f553f0228cf3da6f3c96ddcff47e38449cd4ef4b8259c20",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 1121063307
+   },
+   "generation": {
+    "pair": "shower__modern_minimal",
+    "index": 1,
+    "image": "generate/shower__modern_minimal/img_1.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 70.21,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_shower_modern_minimal_2_dab54bc3",
+   "group": "shower",
+   "types": [
+    "shower"
+   ],
+   "categories": [],
+   "title": "Generated modern minimal shower (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 192153,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/shower__modern_minimal/model_2.glb",
+   "rank": 4,
+   "glb": "/workspace/prep/library/generate/shower__modern_minimal/model_2.glb",
+   "glb_sha256": "dab54bc3dafb81044ce21b2eba34154da497d855456a3ca732a3bcfc07fafca5",
+   "glb_bytes": 11417600,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "modern minimal",
+   "generated": {
+    "prompt": "a single modern minimal style square glass shower enclosure with a shower tray, matte white surfaces, flush handleless fronts, thin black fittings, crisp rectangular forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "90f4fa04dbc5afe44e10b75c5631fa02ff475c0045a64f7af2497ab1f1333b55",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 1385970729
+   },
+   "generation": {
+    "pair": "shower__modern_minimal",
+    "index": 2,
+    "image": "generate/shower__modern_minimal/img_2.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 56.97,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_shower_japandi_1_dcdcd4dc",
+   "group": "shower",
+   "types": [
+    "shower"
+   ],
+   "categories": [],
+   "title": "Generated japandi shower (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 198764,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/shower__japandi/model_1.glb",
+   "rank": 5,
+   "glb": "/workspace/prep/library/generate/shower__japandi/model_1.glb",
+   "glb_sha256": "dcdcd4dc0f961210d2fbed4732ce9d6e80353c77de58b56bd04918aab20691cc",
+   "glb_bytes": 15762692,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "japandi",
+   "generated": {
+    "prompt": "a single japandi style square glass shower enclosure with a shower tray, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "583c7043a17dc6a0ec771ad4802a6c5f9f73ba3037865d29922217fac0db142f",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 939201746
+   },
+   "generation": {
+    "pair": "shower__japandi",
+    "index": 1,
+    "image": "generate/shower__japandi/img_1.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 86.53,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_shower_japandi_2_b6c31e9a",
+   "group": "shower",
+   "types": [
+    "shower"
+   ],
+   "categories": [],
+   "title": "Generated japandi shower (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 188960,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/shower__japandi/model_2.glb",
+   "rank": 6,
+   "glb": "/workspace/prep/library/generate/shower__japandi/model_2.glb",
+   "glb_sha256": "b6c31e9a7831af8597edcf7b3205e9aa734cbf48c7c44d16944d58c39b1a4d6e",
+   "glb_bytes": 15167580,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "japandi",
+   "generated": {
+    "prompt": "a single japandi style square glass shower enclosure with a shower tray, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "bd5fe0e7e0b411c87f5470926c3541de3699570b067bda5d6cc1ce19f6b32e7c",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 426030452
+   },
+   "generation": {
+    "pair": "shower__japandi",
+    "index": 2,
+    "image": "generate/shower__japandi/img_2.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 32.77,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_shower_modern_1_1cb8199a",
+   "group": "shower",
+   "types": [
+    "shower"
+   ],
+   "categories": [],
+   "title": "Generated modern shower (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 199041,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/shower__modern/model_1.glb",
+   "rank": 7,
+   "glb": "/workspace/prep/library/generate/shower__modern/model_1.glb",
+   "glb_sha256": "1cb8199a6c780c7d7b98db4c5bd2945eb462444cb3b3464b57b305f3d98c3245",
+   "glb_bytes": 14349700,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "modern",
+   "generated": {
+    "prompt": "a single modern style square glass shower enclosure with a shower tray, glossy white ceramic, stainless steel and chrome fittings, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "f4029c5c879bf6a9c1f441332a46bcfaa2ca434c5ea20bf9c385d7833c2f34da",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 454414153
+   },
+   "generation": {
+    "pair": "shower__modern",
+    "index": 1,
+    "image": "generate/shower__modern/img_1.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 26.15,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_shower_modern_2_707d4703",
+   "group": "shower",
+   "types": [
+    "shower"
+   ],
+   "categories": [],
+   "title": "Generated modern shower (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 198334,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/shower__modern/model_2.glb",
+   "rank": 8,
+   "glb": "/workspace/prep/library/generate/shower__modern/model_2.glb",
+   "glb_sha256": "707d47031b306a45f468a890e16d7c760b48ee5ef6296cbbf8f80d5e2701e012",
+   "glb_bytes": 13203964,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "modern",
+   "generated": {
+    "prompt": "a single modern style square glass shower enclosure with a shower tray, glossy white ceramic, stainless steel and chrome fittings, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "03aeb1f164fd7be99ffe6f3173f1471439094a863c8c54119aab03b6366a0749",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 1864829116
+   },
+   "generation": {
+    "pair": "shower__modern",
+    "index": 2,
+    "image": "generate/shower__modern/img_2.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 53.97,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_sink_kitchen_scandinavian_1_dbad65c6",
+   "group": "sink_kitchen",
+   "types": [
+    "sink_kitchen"
+   ],
+   "categories": [],
+   "title": "Generated scandinavian sink kitchen (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 191979,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/sink_kitchen__scandinavian/model_1.glb",
+   "rank": 1,
+   "glb": "/workspace/prep/library/generate/sink_kitchen__scandinavian/model_1.glb",
+   "glb_sha256": "dbad65c6451080d8488de2426db1df7fb950f7b864f46534e1f227eba0d4d1f6",
+   "glb_bytes": 13200536,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "scandinavian",
+   "generated": {
+    "prompt": "a single scandinavian style kitchen sink base cabinet with a worktop and an inset sink, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "ee18121c2eeece71257ec4c6b3999beec1a1e55677994aec14b3d48ecad103ab",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 8822649
+   },
+   "generation": {
+    "pair": "sink_kitchen__scandinavian",
+    "index": 1,
+    "image": "generate/sink_kitchen__scandinavian/img_1.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 79.61,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_sink_kitchen_scandinavian_2_470fa047",
+   "group": "sink_kitchen",
+   "types": [
+    "sink_kitchen"
+   ],
+   "categories": [],
+   "title": "Generated scandinavian sink kitchen (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 197763,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/sink_kitchen__scandinavian/model_2.glb",
+   "rank": 2,
+   "glb": "/workspace/prep/library/generate/sink_kitchen__scandinavian/model_2.glb",
+   "glb_sha256": "470fa047a82308f7fa8bceefa23ebd273e131d4fc17eca9660d1e93492a63b16",
+   "glb_bytes": 12491088,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "scandinavian",
+   "generated": {
+    "prompt": "a single scandinavian style kitchen sink base cabinet with a worktop and an inset sink, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "2e6aee94d712c8d1a99174f36e6524963712ce19576ff9a072a28b03c3fa35f7",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 815159649
+   },
+   "generation": {
+    "pair": "sink_kitchen__scandinavian",
+    "index": 2,
+    "image": "generate/sink_kitchen__scandinavian/img_2.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 98.58,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_sink_kitchen_modern_minimal_1_6cf9adeb",
+   "group": "sink_kitchen",
+   "types": [
+    "sink_kitchen"
+   ],
+   "categories": [],
+   "title": "Generated modern minimal sink kitchen (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 198777,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/sink_kitchen__modern_minimal/model_1.glb",
+   "rank": 3,
+   "glb": "/workspace/prep/library/generate/sink_kitchen__modern_minimal/model_1.glb",
+   "glb_sha256": "6cf9adebb13864df82da0a15c8a181809ec5584e15bb83afa8e97643e1f9ce0b",
+   "glb_bytes": 10527376,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "modern minimal",
+   "generated": {
+    "prompt": "a single modern minimal style kitchen sink base cabinet with a worktop and an inset sink, matte white surfaces, flush handleless fronts, thin black fittings, crisp rectangular forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "fa2f5beeea4c85b192cb8f39fbc2723dc605f02036711a1290c2ec316c717d7b",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 1000835940
+   },
+   "generation": {
+    "pair": "sink_kitchen__modern_minimal",
+    "index": 1,
+    "image": "generate/sink_kitchen__modern_minimal/img_1.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 75.45,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_sink_kitchen_modern_minimal_2_d36a47fa",
+   "group": "sink_kitchen",
+   "types": [
+    "sink_kitchen"
+   ],
+   "categories": [],
+   "title": "Generated modern minimal sink kitchen (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 192249,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/sink_kitchen__modern_minimal/model_2.glb",
+   "rank": 4,
+   "glb": "/workspace/prep/library/generate/sink_kitchen__modern_minimal/model_2.glb",
+   "glb_sha256": "d36a47fa4b8172254657d35df7d8a0f354986144daf9ef2b42eecf69edb908a8",
+   "glb_bytes": 10285740,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "modern minimal",
+   "generated": {
+    "prompt": "a single modern minimal style kitchen sink base cabinet with a worktop and an inset sink, matte white surfaces, flush handleless fronts, thin black fittings, crisp rectangular forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "062d37330c0944550e5ebdf30c648e7049997cf273940113bdb3e9a2604295d7",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 1809389486
+   },
+   "generation": {
+    "pair": "sink_kitchen__modern_minimal",
+    "index": 2,
+    "image": "generate/sink_kitchen__modern_minimal/img_2.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 104.86,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_sink_kitchen_japandi_1_a61d924d",
+   "group": "sink_kitchen",
+   "types": [
+    "sink_kitchen"
+   ],
+   "categories": [],
+   "title": "Generated japandi sink kitchen (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 192177,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/sink_kitchen__japandi/model_1.glb",
+   "rank": 5,
+   "glb": "/workspace/prep/library/generate/sink_kitchen__japandi/model_1.glb",
+   "glb_sha256": "a61d924df50ef8077ff8c721a7e2c9705bd83cc291d995931dd50d30791e458c",
+   "glb_bytes": 15126496,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "japandi",
+   "generated": {
+    "prompt": "a single japandi style kitchen sink base cabinet with a worktop and an inset sink, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "76485df3c471b5399500d8ebc74e752f5215d3dc6e547c5dbe681dd8a461a126",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 1751330216
+   },
+   "generation": {
+    "pair": "sink_kitchen__japandi",
+    "index": 1,
+    "image": "generate/sink_kitchen__japandi/img_1.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 77.08,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_sink_kitchen_japandi_2_d6ae0419",
+   "group": "sink_kitchen",
+   "types": [
+    "sink_kitchen"
+   ],
+   "categories": [],
+   "title": "Generated japandi sink kitchen (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 191014,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/sink_kitchen__japandi/model_2.glb",
+   "rank": 6,
+   "glb": "/workspace/prep/library/generate/sink_kitchen__japandi/model_2.glb",
+   "glb_sha256": "d6ae041968c2f007647aed8d8a187db6d9500c1890d4661898220d2b9a712a7b",
+   "glb_bytes": 12177200,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "japandi",
+   "generated": {
+    "prompt": "a single japandi style kitchen sink base cabinet with a worktop and an inset sink, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "4f35e3f5d0cdaad26ec5fe2778d7b5406cb7039211653215697883aa4614252e",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 1403510016
+   },
+   "generation": {
+    "pair": "sink_kitchen__japandi",
+    "index": 2,
+    "image": "generate/sink_kitchen__japandi/img_2.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 120.02,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_sink_kitchen_modern_1_5b97156d",
+   "group": "sink_kitchen",
+   "types": [
+    "sink_kitchen"
+   ],
+   "categories": [],
+   "title": "Generated modern sink kitchen (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 194825,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/sink_kitchen__modern/model_1.glb",
+   "rank": 7,
+   "glb": "/workspace/prep/library/generate/sink_kitchen__modern/model_1.glb",
+   "glb_sha256": "5b97156d1e7af64f4f5a5dbef2f010a6dec7de3fdea7f44cf01ee2ee6b93fcef",
+   "glb_bytes": 10746468,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "modern",
+   "generated": {
+    "prompt": "a single modern style kitchen sink base cabinet with a worktop and an inset sink, glossy white ceramic, stainless steel and chrome fittings, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "8df16c2cbb50032d070cc30ada9f889be9015cfe88a152bd722b448780b42837",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 385914400
+   },
+   "generation": {
+    "pair": "sink_kitchen__modern",
+    "index": 1,
+    "image": "generate/sink_kitchen__modern/img_1.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 170.49,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_sink_kitchen_modern_2_b348b4dc",
+   "group": "sink_kitchen",
+   "types": [
+    "sink_kitchen"
+   ],
+   "categories": [],
+   "title": "Generated modern sink kitchen (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 187636,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/sink_kitchen__modern/model_2.glb",
+   "rank": 8,
+   "glb": "/workspace/prep/library/generate/sink_kitchen__modern/model_2.glb",
+   "glb_sha256": "b348b4dc2ca4af634ddcaa453a5e6dbd91fbd122f9fa7aaa30ce6dfa1f6ea286",
+   "glb_bytes": 11928088,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "modern",
+   "generated": {
+    "prompt": "a single modern style kitchen sink base cabinet with a worktop and an inset sink, glossy white ceramic, stainless steel and chrome fittings, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "c4043a24f945094710ef1eb32b3e1dafa5b727a68c46b305726a5bc35be80cd6",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 251737293
+   },
+   "generation": {
+    "pair": "sink_kitchen__modern",
+    "index": 2,
+    "image": "generate/sink_kitchen__modern/img_2.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 97.59,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_sofa_japandi_1_246e1bd6",
+   "group": "sofa",
+   "types": [
+    "sofa"
+   ],
+   "categories": [],
+   "title": "Generated japandi sofa (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 199175,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/sofa__japandi/model_1.glb",
+   "rank": 1,
+   "glb": "/workspace/prep/library/generate/sofa__japandi/model_1.glb",
+   "glb_sha256": "246e1bd667a39d61db9e0d8bdbf366666bb7ecbf5d6096a51fa96608eb58195f",
+   "glb_bytes": 14258688,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "japandi",
+   "generated": {
+    "prompt": "a single japandi style three-seat sofa, light ash wood, black accents, natural linen and paper textures, low profile, calm minimal forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "3360c2e5b5fbe1aa99184ee0519fdbf53c8ff76bdcaf7e9f7e946c3ff1333b0a",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 1101781235
+   },
+   "generation": {
+    "pair": "sofa__japandi",
+    "index": 1,
+    "image": "generate/sofa__japandi/img_1.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 126.43,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_sofa_japandi_2_98a7a89b",
+   "group": "sofa",
+   "types": [
+    "sofa"
+   ],
+   "categories": [],
+   "title": "Generated japandi sofa (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 194604,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/sofa__japandi/model_2.glb",
+   "rank": 2,
+   "glb": "/workspace/prep/library/generate/sofa__japandi/model_2.glb",
+   "glb_sha256": "98a7a89b74c2f60392bf0d7b16c64f2e2e8bb81926bb6d5908d961cac0243e60",
+   "glb_bytes": 15119112,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "japandi",
+   "generated": {
+    "prompt": "a single japandi style three-seat sofa, light ash wood, black accents, natural linen and paper textures, low profile, calm minimal forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "793acd9b09379d71d20337190e98c1b4d7583c8d4f2a61f9acaec5c0871ca0f0",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 489689934
+   },
+   "generation": {
+    "pair": "sofa__japandi",
+    "index": 2,
+    "image": "generate/sofa__japandi/img_2.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 55.86,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_toilet_scandinavian_1_f4f34056",
+   "group": "toilet",
+   "types": [
+    "toilet"
+   ],
+   "categories": [],
+   "title": "Generated scandinavian toilet (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 188300,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/toilet__scandinavian/model_1.glb",
+   "rank": 1,
+   "glb": "/workspace/prep/library/generate/toilet__scandinavian/model_1.glb",
+   "glb_sha256": "f4f340564d46c26617714bfbd6580f4535b6000ff66ef6a764f534a2c9b5bceb",
+   "glb_bytes": 11208440,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "scandinavian",
+   "generated": {
+    "prompt": "a single scandinavian style floor-standing toilet with a cistern, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "3a149aee10e079899767bfbc6f9d31ea0487c252e36eb69ed8b5fc32bcf6dc7b",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 545344929
+   },
+   "generation": {
+    "pair": "toilet__scandinavian",
+    "index": 1,
+    "image": "generate/toilet__scandinavian/img_1.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 79.58,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_toilet_scandinavian_2_21c43147",
+   "group": "toilet",
+   "types": [
+    "toilet"
+   ],
+   "categories": [],
+   "title": "Generated scandinavian toilet (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 195512,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/toilet__scandinavian/model_2.glb",
+   "rank": 2,
+   "glb": "/workspace/prep/library/generate/toilet__scandinavian/model_2.glb",
+   "glb_sha256": "21c4314741e2a780d1187a0533472db9ece903eacc708ea794272f885aadfac8",
+   "glb_bytes": 10752772,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "scandinavian",
+   "generated": {
+    "prompt": "a single scandinavian style floor-standing toilet with a cistern, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "c7ed55e4169125724143dbc14b3592ddc3b0b72ba0c6f27e21cad89bf647df03",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 1685320567
+   },
+   "generation": {
+    "pair": "toilet__scandinavian",
+    "index": 2,
+    "image": "generate/toilet__scandinavian/img_2.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 65.58,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_toilet_japandi_1_42fdb46f",
+   "group": "toilet",
+   "types": [
+    "toilet"
+   ],
+   "categories": [],
+   "title": "Generated japandi toilet (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 190630,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/toilet__japandi/model_1.glb",
+   "rank": 3,
+   "glb": "/workspace/prep/library/generate/toilet__japandi/model_1.glb",
+   "glb_sha256": "42fdb46fc0f62ec4145aa8db81860fdc5a5d59df3ec04f14c66f795f11f4e1d9",
+   "glb_bytes": 11311276,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "japandi",
+   "generated": {
+    "prompt": "a single japandi style floor-standing toilet with a cistern, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "762775f73e9aad60357387dbe4fa179f7414e51e5244403991048fddb90caf04",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 1139436299
+   },
+   "generation": {
+    "pair": "toilet__japandi",
+    "index": 1,
+    "image": "generate/toilet__japandi/img_1.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 77.29,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_toilet_japandi_2_0697e750",
+   "group": "toilet",
+   "types": [
+    "toilet"
+   ],
+   "categories": [],
+   "title": "Generated japandi toilet (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 192835,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/toilet__japandi/model_2.glb",
+   "rank": 4,
+   "glb": "/workspace/prep/library/generate/toilet__japandi/model_2.glb",
+   "glb_sha256": "0697e7502675eab9225d7c68c839b7324a97fac507fb55b788a87912cfb77f57",
+   "glb_bytes": 12545324,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "japandi",
+   "generated": {
+    "prompt": "a single japandi style floor-standing toilet with a cistern, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "abf62ef0251b8a0a607b44049297af4b745d31627713eb4f286f91b58c8efc62",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 955629872
+   },
+   "generation": {
+    "pair": "toilet__japandi",
+    "index": 2,
+    "image": "generate/toilet__japandi/img_2.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 77.41,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_washbasin_japandi_1_299a0eb2",
+   "group": "washbasin",
+   "types": [
+    "washbasin"
+   ],
+   "categories": [],
+   "title": "Generated japandi washbasin (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 199149,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/washbasin__japandi/model_1.glb",
+   "rank": 1,
+   "glb": "/workspace/prep/library/generate/washbasin__japandi/model_1.glb",
+   "glb_sha256": "299a0eb25e732fb3c6a4c3f93617fd62e08d5aabcb8fde5a21fcb9fd6138c5e2",
+   "glb_bytes": 13977984,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "japandi",
+   "generated": {
+    "prompt": "a single japandi style bathroom washbasin on a vanity unit, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "d2c2bec58b1c9822270d1cfad07632c84bd55f2215ba259a999a7a26847eeb14",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 642631595
+   },
+   "generation": {
+    "pair": "washbasin__japandi",
+    "index": 1,
+    "image": "generate/washbasin__japandi/img_1.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 92.78,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_washbasin_japandi_2_6d594c3b",
+   "group": "washbasin",
+   "types": [
+    "washbasin"
+   ],
+   "categories": [],
+   "title": "Generated japandi washbasin (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 198453,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/washbasin__japandi/model_2.glb",
+   "rank": 2,
+   "glb": "/workspace/prep/library/generate/washbasin__japandi/model_2.glb",
+   "glb_sha256": "6d594c3b83c14146eefb5751ab093ebc7b3cbd27c3c57d70b9ac4dab5c45b5f3",
+   "glb_bytes": 14142320,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "japandi",
+   "generated": {
+    "prompt": "a single japandi style bathroom washbasin on a vanity unit, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "978a6825c07fb1ccc615a93c6ee90ef0159527494ff30eaa0459396acf52429c",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 999623353
+   },
+   "generation": {
+    "pair": "washbasin__japandi",
+    "index": 2,
+    "image": "generate/washbasin__japandi/img_2.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 93.19,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_washing_machine_scandinavian_1_0a5054b6",
+   "group": "washing_machine",
+   "types": [
+    "washing_machine"
+   ],
+   "categories": [],
+   "title": "Generated scandinavian washing machine (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 189039,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/washing_machine__scandinavian/model_1.glb",
+   "rank": 1,
+   "glb": "/workspace/prep/library/generate/washing_machine__scandinavian/model_1.glb",
+   "glb_sha256": "0a5054b657a9b9dd54d73dbb1c108788ab7a489de18b662903d90903769565c4",
+   "glb_bytes": 17172932,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "scandinavian",
+   "generated": {
+    "prompt": "a single scandinavian style front-loading washing machine, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "2c467ac8b00ff77dd2d71cf6d08b0536015c948922cb2f19e39761b2f703e771",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 192962696
+   },
+   "generation": {
+    "pair": "washing_machine__scandinavian",
+    "index": 1,
+    "image": "generate/washing_machine__scandinavian/img_1.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 131.8,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_washing_machine_scandinavian_2_67f28c86",
+   "group": "washing_machine",
+   "types": [
+    "washing_machine"
+   ],
+   "categories": [],
+   "title": "Generated scandinavian washing machine (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 195641,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/washing_machine__scandinavian/model_2.glb",
+   "rank": 2,
+   "glb": "/workspace/prep/library/generate/washing_machine__scandinavian/model_2.glb",
+   "glb_sha256": "67f28c86a3374c3e94334b83db6966bc985535fa76c22a822dc55c2d38f7635a",
+   "glb_bytes": 16629520,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "scandinavian",
+   "generated": {
+    "prompt": "a single scandinavian style front-loading washing machine, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "1245a96b8d7d7b8facd5bdeac7170b05a5f336a2ebcdf9a5fe82804a3a2825cf",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 778133070
+   },
+   "generation": {
+    "pair": "washing_machine__scandinavian",
+    "index": 2,
+    "image": "generate/washing_machine__scandinavian/img_2.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 150.69,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_washing_machine_modern_minimal_1_07b2b182",
+   "group": "washing_machine",
+   "types": [
+    "washing_machine"
+   ],
+   "categories": [],
+   "title": "Generated modern minimal washing machine (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 190271,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/washing_machine__modern_minimal/model_1.glb",
+   "rank": 3,
+   "glb": "/workspace/prep/library/generate/washing_machine__modern_minimal/model_1.glb",
+   "glb_sha256": "07b2b1824092bfda93a8128a25257dbd60c27ed2cc998a9cd101bdfc0996d073",
+   "glb_bytes": 17692556,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "modern minimal",
+   "generated": {
+    "prompt": "a single modern minimal style front-loading washing machine, matte white surfaces, flush handleless fronts, thin black fittings, crisp rectangular forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "ddc8e3593f07fe11836cac532fc7225e31f8e71b987112bfa23eec43e68820fa",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 1023396053
+   },
+   "generation": {
+    "pair": "washing_machine__modern_minimal",
+    "index": 1,
+    "image": "generate/washing_machine__modern_minimal/img_1.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 115.65,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_washing_machine_modern_minimal_2_94b29e08",
+   "group": "washing_machine",
+   "types": [
+    "washing_machine"
+   ],
+   "categories": [],
+   "title": "Generated modern minimal washing machine (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 188312,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/washing_machine__modern_minimal/model_2.glb",
+   "rank": 4,
+   "glb": "/workspace/prep/library/generate/washing_machine__modern_minimal/model_2.glb",
+   "glb_sha256": "94b29e0804fd562e30d7cdf01bfdad8b3cd27bd74149ea2becb2d6da823ca43f",
+   "glb_bytes": 16204752,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "modern minimal",
+   "generated": {
+    "prompt": "a single modern minimal style front-loading washing machine, matte white surfaces, flush handleless fronts, thin black fittings, crisp rectangular forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "cfc84b2baa9d9acad1f8b8ec817806615d5e41aacdc9194c848df155bab7441d",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 2081489533
+   },
+   "generation": {
+    "pair": "washing_machine__modern_minimal",
+    "index": 2,
+    "image": "generate/washing_machine__modern_minimal/img_2.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 154.04,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_washing_machine_japandi_1_f1f4def2",
+   "group": "washing_machine",
+   "types": [
+    "washing_machine"
+   ],
+   "categories": [],
+   "title": "Generated japandi washing machine (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 192547,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/washing_machine__japandi/model_1.glb",
+   "rank": 5,
+   "glb": "/workspace/prep/library/generate/washing_machine__japandi/model_1.glb",
+   "glb_sha256": "f1f4def2f1734702a09fcdbbf49e2215a46896038a1b66a5b29b9e243cd370e3",
+   "glb_bytes": 14936044,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "japandi",
+   "generated": {
+    "prompt": "a single japandi style front-loading washing machine, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "e4a3ab304b2b24fed6df1e041aba713392d9321e766aa41be69b6ac5921579ea",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 696633628
+   },
+   "generation": {
+    "pair": "washing_machine__japandi",
+    "index": 1,
+    "image": "generate/washing_machine__japandi/img_1.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 113.47,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_washing_machine_japandi_2_d8b8ac48",
+   "group": "washing_machine",
+   "types": [
+    "washing_machine"
+   ],
+   "categories": [],
+   "title": "Generated japandi washing machine (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 186468,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/washing_machine__japandi/model_2.glb",
+   "rank": 6,
+   "glb": "/workspace/prep/library/generate/washing_machine__japandi/model_2.glb",
+   "glb_sha256": "d8b8ac480a41f9e79bd46e2bb2962c0c956f5b9847231d183241cbf5a8c1f639",
+   "glb_bytes": 14147880,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "japandi",
+   "generated": {
+    "prompt": "a single japandi style front-loading washing machine, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "5cf89fd7c97d329fd89d10613db1d2ae4a6c0dab53e17c84f85d86b509619afa",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 315156467
+   },
+   "generation": {
+    "pair": "washing_machine__japandi",
+    "index": 2,
+    "image": "generate/washing_machine__japandi/img_2.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 87.25,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_washing_machine_modern_1_f4bdd46e",
+   "group": "washing_machine",
+   "types": [
+    "washing_machine"
+   ],
+   "categories": [],
+   "title": "Generated modern washing machine (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 192520,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/washing_machine__modern/model_1.glb",
+   "rank": 7,
+   "glb": "/workspace/prep/library/generate/washing_machine__modern/model_1.glb",
+   "glb_sha256": "f4bdd46e78c478c47472dfd6f7d5a56bd1d9f2b2933a65318735205891a0327d",
+   "glb_bytes": 15921716,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "modern",
+   "generated": {
+    "prompt": "a single modern style front-loading washing machine, glossy white ceramic, stainless steel and chrome fittings, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "bef184c328910bee6096a9c1cdb68347158db33b67355bf495406e4a359ce12c",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 150880875
+   },
+   "generation": {
+    "pair": "washing_machine__modern",
+    "index": 1,
+    "image": "generate/washing_machine__modern/img_1.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 123.26,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  },
+  {
+   "uid": "gen_washing_machine_modern_2_379d2585",
+   "group": "washing_machine",
+   "types": [
+    "washing_machine"
+   ],
+   "categories": [],
+   "title": "Generated modern washing machine (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_raw": "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)",
+   "face_count": 190802,
+   "glb_size_meta": null,
+   "texture_count": 2,
+   "likes": 0,
+   "views": 0,
+   "prefer_hit": false,
+   "object_path": "generate/washing_machine__modern/model_2.glb",
+   "rank": 8,
+   "glb": "/workspace/prep/library/generate/washing_machine__modern/model_2.glb",
+   "glb_sha256": "379d2585755c9b64a2927d9810afb773613c589f9b4691690e99d3c663fbb1f0",
+   "glb_bytes": 17286092,
+   "glb_info": {
+    "images": 2,
+    "textures": 2,
+    "materials": 1,
+    "meshes": 1,
+    "primitives": 1,
+    "textured": true,
+    "vertex_colours": false,
+    "extensions_used": [],
+    "extensions_required": []
+   },
+   "source": "generated",
+   "licence_flag": null,
+   "units_known": false,
+   "kind": "furniture",
+   "style_hint": "modern",
+   "generated": {
+    "prompt": "a single modern style front-loading washing machine, glossy white ceramic, stainless steel and chrome fittings, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "c0a74ab6a6918850023ac81bf7819791b59df8050f0c1912d1edf36411bd9ae0",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 2146683294
+   },
+   "generation": {
+    "pair": "washing_machine__modern",
+    "index": 2,
+    "image": "generate/washing_machine__modern/img_2.png",
+    "image_model": "Tongyi-MAI/Z-Image-Turbo",
+    "image_revision": "f332072aa78be7aecdf3ee76d5c247082da564a6",
+    "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "settings": {
+     "pipeline_type": "1024_cascade",
+     "simplify": 16777216,
+     "decimation_target": 200000,
+     "texture_size": 2048,
+     "remesh": true,
+     "remesh_band": 1,
+     "remesh_project": 0
+    },
+    "image_settings": {
+     "size": 1024,
+     "steps": 8,
+     "guidance_scale": 0.0
+    },
+    "seconds": 129.92,
+    "versions": {
+     "torch": "2.9.1+cu128",
+     "cuda": "12.8",
+     "transformers": "5.18.0",
+     "device": "NVIDIA RTX PRO 4500 Blackwell",
+     "attn_backend": "flash_attn",
+     "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+     "resident": false
+    }
+   }
+  }
+ ],
+ "refused": []
+}

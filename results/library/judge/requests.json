@@ -14810,6 +14810,993 @@
     "kind": "furniture"
    },
    "input_sha256": "aba730199f88ad923efe679eefb8a512d5dd42422cd907fbfa1c4558d35e73ec"
+  },
+  {
+   "key": "lib_gen_bathtub_japandi_2_c40f5efc",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_bathtub_japandi_2_c40f5efc.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size, and the model file gives no usable unit: scaled to a typical bathtub it would measure about 0.986 x 1.3 x 0.761 m (x, y, height).\n\nIt is offered as a bathtub (a bath tub) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a bathtub.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: the number of the tile that looks straight at the front of the piece (the seat side of a sofa or chair, the foot end of a bed, the doors or drawers of a cabinet, the open side of a shelf, the user side of a desk, toilet, washbasin, bath, stove or fridge); null when you cannot tell.\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_bathtub_japandi_2_c40f5efc",
+    "type": "bathtub",
+    "dims_m": [
+     0.9863,
+     1.2966,
+     0.7615
+    ],
+    "title": "Generated japandi bathtub (2)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "b065088858a230f333955e38af3a756ac7340e19aa473ae635e895fa29466b04"
+  },
+  {
+   "key": "lib_gen_bathtub_modern_1_009871cf",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_bathtub_modern_1_009871cf.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size, and the model file gives no usable unit: scaled to a typical bathtub it would measure about 1.33 x 0.801 x 0.8 m (x, y, height).\n\nIt is offered as a bathtub (a bath tub) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a bathtub.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: the number of the tile that looks straight at the front of the piece (the seat side of a sofa or chair, the foot end of a bed, the doors or drawers of a cabinet, the open side of a shelf, the user side of a desk, toilet, washbasin, bath, stove or fridge); null when you cannot tell.\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_bathtub_modern_1_009871cf",
+    "type": "bathtub",
+    "dims_m": [
+     1.3283,
+     0.8012,
+     0.8
+    ],
+    "title": "Generated modern bathtub (1)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "fbe8a240f74df30187174ce01b2cf53aad057785f5e8c235abb8cfa5867819cc"
+  },
+  {
+   "key": "lib_gen_bathtub_modern_minimal_1_1a44f6ff",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_bathtub_modern_minimal_1_1a44f6ff.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size, and the model file gives no usable unit: scaled to a typical bathtub it would measure about 1.34 x 0.812 x 0.8 m (x, y, height).\n\nIt is offered as a bathtub (a bath tub) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a bathtub.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: the number of the tile that looks straight at the front of the piece (the seat side of a sofa or chair, the foot end of a bed, the doors or drawers of a cabinet, the open side of a shelf, the user side of a desk, toilet, washbasin, bath, stove or fridge); null when you cannot tell.\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_bathtub_modern_minimal_1_1a44f6ff",
+    "type": "bathtub",
+    "dims_m": [
+     1.3355,
+     0.8121,
+     0.8
+    ],
+    "title": "Generated modern minimal bathtub (1)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "0a27f3bada0efaeb32270dda7335692a2ec377b1c73e5911340d2dd83a71e7ab"
+  },
+  {
+   "key": "lib_gen_bathtub_modern_minimal_2_927c5b3c",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_bathtub_modern_minimal_2_927c5b3c.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size, and the model file gives no usable unit: scaled to a typical bathtub it would measure about 1.31 x 0.717 x 0.8 m (x, y, height).\n\nIt is offered as a bathtub (a bath tub) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a bathtub.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: the number of the tile that looks straight at the front of the piece (the seat side of a sofa or chair, the foot end of a bed, the doors or drawers of a cabinet, the open side of a shelf, the user side of a desk, toilet, washbasin, bath, stove or fridge); null when you cannot tell.\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_bathtub_modern_minimal_2_927c5b3c",
+    "type": "bathtub",
+    "dims_m": [
+     1.307,
+     0.7173,
+     0.8
+    ],
+    "title": "Generated modern minimal bathtub (2)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "86350e68138310d674d6c1ed35f3c561ca7b7e2662a418317b62e8d90f7fd32c"
+  },
+  {
+   "key": "lib_gen_bathtub_scandinavian_1_230fe403",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_bathtub_scandinavian_1_230fe403.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size, and the model file gives no usable unit: scaled to a typical bathtub it would measure about 1.26 x 0.777 x 0.8 m (x, y, height).\n\nIt is offered as a bathtub (a bath tub) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a bathtub.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: the number of the tile that looks straight at the front of the piece (the seat side of a sofa or chair, the foot end of a bed, the doors or drawers of a cabinet, the open side of a shelf, the user side of a desk, toilet, washbasin, bath, stove or fridge); null when you cannot tell.\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_bathtub_scandinavian_1_230fe403",
+    "type": "bathtub",
+    "dims_m": [
+     1.2613,
+     0.7771,
+     0.8
+    ],
+    "title": "Generated scandinavian bathtub (1)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "81ad5c44acc8e0e143435d956eb3ab44e5047fde186589e22fdd976e3cd8051a"
+  },
+  {
+   "key": "lib_gen_bathtub_scandinavian_2_6fde34a5",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_bathtub_scandinavian_2_6fde34a5.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size, and the model file gives no usable unit: scaled to a typical bathtub it would measure about 1.39 x 0.802 x 0.8 m (x, y, height).\n\nIt is offered as a bathtub (a bath tub) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a bathtub.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: the number of the tile that looks straight at the front of the piece (the seat side of a sofa or chair, the foot end of a bed, the doors or drawers of a cabinet, the open side of a shelf, the user side of a desk, toilet, washbasin, bath, stove or fridge); null when you cannot tell.\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_bathtub_scandinavian_2_6fde34a5",
+    "type": "bathtub",
+    "dims_m": [
+     1.3935,
+     0.8023,
+     0.8
+    ],
+    "title": "Generated scandinavian bathtub (2)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "83905c074115a7bcd2f860c2d1b5fb21c5320d981ec40cb45665de344b845d4b"
+  },
+  {
+   "key": "lib_gen_floor_lamp_japandi_1_4be1c62d",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_floor_lamp_japandi_1_4be1c62d.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size, and the model file gives no usable unit: scaled to a typical floor lamp it would measure about 0.455 x 0.455 x 1.2 m (x, y, height).\n\nIt is offered as a floor lamp (a standing lamp on the floor, about 1.4 to 1.9 m tall) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a floor lamp.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: null (this type has no front).\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_floor_lamp_japandi_1_4be1c62d",
+    "type": "floor_lamp",
+    "dims_m": [
+     0.4549,
+     0.4548,
+     1.2
+    ],
+    "title": "Generated japandi floor lamp (1)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "ec140bb72becc0e6254fe3f77ec2a40bfec7060730bfd9b9039ff1496338ee1e"
+  },
+  {
+   "key": "lib_gen_floor_lamp_japandi_2_ef5fd39d",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_floor_lamp_japandi_2_ef5fd39d.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size, and the model file gives no usable unit: scaled to a typical floor lamp it would measure about 0.568 x 0.565 x 1.2 m (x, y, height).\n\nIt is offered as a floor lamp (a standing lamp on the floor, about 1.4 to 1.9 m tall) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a floor lamp.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: null (this type has no front).\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_floor_lamp_japandi_2_ef5fd39d",
+    "type": "floor_lamp",
+    "dims_m": [
+     0.5682,
+     0.5651,
+     1.2
+    ],
+    "title": "Generated japandi floor lamp (2)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "1b24274f85569cd6e9d488383ec544e6eee9b3a2c4676ec142893490c250eb49"
+  },
+  {
+   "key": "lib_gen_fridge_japandi_1_4c9cd582",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_fridge_japandi_1_4c9cd582.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size, and the model file gives no usable unit: scaled to a typical refrigerator it would measure about 0.749 x 0.676 x 1.68 m (x, y, height).\n\nIt is offered as a refrigerator (a free-standing fridge or fridge-freezer) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a refrigerator.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: the number of the tile that looks straight at the front of the piece (the seat side of a sofa or chair, the foot end of a bed, the doors or drawers of a cabinet, the open side of a shelf, the user side of a desk, toilet, washbasin, bath, stove or fridge); null when you cannot tell.\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_fridge_japandi_1_4c9cd582",
+    "type": "fridge",
+    "dims_m": [
+     0.7489,
+     0.676,
+     1.6816
+    ],
+    "title": "Generated japandi fridge (1)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "2e879d67c8b6f6ac38334abe8e0b03a71761f6b3c825601b7cfb68555741270e"
+  },
+  {
+   "key": "lib_gen_fridge_japandi_2_4c7dbc82",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_fridge_japandi_2_4c7dbc82.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size, and the model file gives no usable unit: scaled to a typical refrigerator it would measure about 0.682 x 0.742 x 1.51 m (x, y, height).\n\nIt is offered as a refrigerator (a free-standing fridge or fridge-freezer) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a refrigerator.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: the number of the tile that looks straight at the front of the piece (the seat side of a sofa or chair, the foot end of a bed, the doors or drawers of a cabinet, the open side of a shelf, the user side of a desk, toilet, washbasin, bath, stove or fridge); null when you cannot tell.\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_fridge_japandi_2_4c7dbc82",
+    "type": "fridge",
+    "dims_m": [
+     0.6819,
+     0.7424,
+     1.5138
+    ],
+    "title": "Generated japandi fridge (2)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "a7f1ab588ed65693954f689cd03db9bfa76748e40d460feaf8e1ef88e03ae622"
+  },
+  {
+   "key": "lib_gen_fridge_scandinavian_1_315b4d87",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_fridge_scandinavian_1_315b4d87.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size, and the model file gives no usable unit: scaled to a typical refrigerator it would measure about 0.626 x 0.809 x 1.37 m (x, y, height).\n\nIt is offered as a refrigerator (a free-standing fridge or fridge-freezer) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a refrigerator.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: the number of the tile that looks straight at the front of the piece (the seat side of a sofa or chair, the foot end of a bed, the doors or drawers of a cabinet, the open side of a shelf, the user side of a desk, toilet, washbasin, bath, stove or fridge); null when you cannot tell.\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_fridge_scandinavian_1_315b4d87",
+    "type": "fridge",
+    "dims_m": [
+     0.6256,
+     0.8092,
+     1.3726
+    ],
+    "title": "Generated scandinavian fridge (1)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "644ce479d0d4da03a97e2524dc2c81849f4d1bbfa1054b7da1ce4c5627f692aa"
+  },
+  {
+   "key": "lib_gen_fridge_scandinavian_2_5eb44a0e",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_fridge_scandinavian_2_5eb44a0e.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size, and the model file gives no usable unit: scaled to a typical refrigerator it would measure about 0.702 x 0.721 x 1.55 m (x, y, height).\n\nIt is offered as a refrigerator (a free-standing fridge or fridge-freezer) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a refrigerator.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: the number of the tile that looks straight at the front of the piece (the seat side of a sofa or chair, the foot end of a bed, the doors or drawers of a cabinet, the open side of a shelf, the user side of a desk, toilet, washbasin, bath, stove or fridge); null when you cannot tell.\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_fridge_scandinavian_2_5eb44a0e",
+    "type": "fridge",
+    "dims_m": [
+     0.7021,
+     0.721,
+     1.5478
+    ],
+    "title": "Generated scandinavian fridge (2)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "5066f3d8d9922e1a420e6d085709a391353f69b499c018cd5a0f17641585bf12"
+  },
+  {
+   "key": "lib_gen_potted_plant_japandi_1_63c10a71",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_potted_plant_japandi_1_63c10a71.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size: it measures about 0.45 x 0.478 x 1 m (x, y, height).\n\nIt is offered as a potted plant (an indoor plant in a pot) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a potted plant.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: null (this type has no front).\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_potted_plant_japandi_1_63c10a71",
+    "type": "potted_plant",
+    "dims_m": [
+     0.4501,
+     0.4779,
+     1.0006
+    ],
+    "title": "Generated japandi potted plant (1)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "727021015d5c0cd5f863540e49a0d6d2933344c4b28f60080e380f0a85e1de42"
+  },
+  {
+   "key": "lib_gen_potted_plant_japandi_2_9a3effd1",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_potted_plant_japandi_2_9a3effd1.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size: it measures about 0.51 x 0.436 x 0.994 m (x, y, height).\n\nIt is offered as a potted plant (an indoor plant in a pot) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a potted plant.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: null (this type has no front).\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_potted_plant_japandi_2_9a3effd1",
+    "type": "potted_plant",
+    "dims_m": [
+     0.5099,
+     0.4365,
+     0.9943
+    ],
+    "title": "Generated japandi potted plant (2)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "dbcd76ab8e1cf0038028759ba1aa3e80484ddc133f971b6b429d6ee82581028b"
+  },
+  {
+   "key": "lib_gen_potted_plant_scandinavian_1_04f97c4b",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_potted_plant_scandinavian_1_04f97c4b.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size: it measures about 0.573 x 0.556 x 1 m (x, y, height).\n\nIt is offered as a potted plant (an indoor plant in a pot) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a potted plant.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: null (this type has no front).\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_potted_plant_scandinavian_1_04f97c4b",
+    "type": "potted_plant",
+    "dims_m": [
+     0.5733,
+     0.5558,
+     0.9997
+    ],
+    "title": "Generated scandinavian potted plant (1)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "63bfe06a2fc1f4317ade053673d564e7da99ffb59f632426d7d0b1bbb4882a54"
+  },
+  {
+   "key": "lib_gen_potted_plant_scandinavian_2_98f7bbd2",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_potted_plant_scandinavian_2_98f7bbd2.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size: it measures about 0.488 x 0.448 x 1 m (x, y, height).\n\nIt is offered as a potted plant (an indoor plant in a pot) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a potted plant.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: null (this type has no front).\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_potted_plant_scandinavian_2_98f7bbd2",
+    "type": "potted_plant",
+    "dims_m": [
+     0.488,
+     0.4476,
+     1.001
+    ],
+    "title": "Generated scandinavian potted plant (2)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "aa670841e0e97cd4458817e9192e32dc5c0474408df70de5d7ca9a7c585f31c4"
+  },
+  {
+   "key": "lib_gen_shower_japandi_1_dcdcd4dc",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_shower_japandi_1_dcdcd4dc.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size, and the model file gives no usable unit: scaled to a typical shower enclosure it would measure about 1.22 x 0.898 x 2.03 m (x, y, height).\n\nIt is offered as a shower enclosure (a walk-in or framed shower enclosure on its tray) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a shower enclosure.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: null (this type has no front).\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_shower_japandi_1_dcdcd4dc",
+    "type": "shower",
+    "dims_m": [
+     1.217,
+     0.8977,
+     2.0312
+    ],
+    "title": "Generated japandi shower (1)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "fc10dae2cd72c52a81178cd47ac560b4e85a5c4b5c50f36b01d56af114600044"
+  },
+  {
+   "key": "lib_gen_shower_japandi_2_b6c31e9a",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_shower_japandi_2_b6c31e9a.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size, and the model file gives no usable unit: scaled to a typical shower enclosure it would measure about 1.23 x 0.888 x 2 m (x, y, height).\n\nIt is offered as a shower enclosure (a walk-in or framed shower enclosure on its tray) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a shower enclosure.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: null (this type has no front).\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_shower_japandi_2_b6c31e9a",
+    "type": "shower",
+    "dims_m": [
+     1.2298,
+     0.8884,
+     2.005
+    ],
+    "title": "Generated japandi shower (2)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "098ded37ae67c55a9c93949c01250129ac51b3e01953635621109f64693416ec"
+  },
+  {
+   "key": "lib_gen_shower_modern_1_1cb8199a",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_shower_modern_1_1cb8199a.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size, and the model file gives no usable unit: scaled to a typical shower enclosure it would measure about 1.26 x 0.866 x 2.09 m (x, y, height).\n\nIt is offered as a shower enclosure (a walk-in or framed shower enclosure on its tray) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a shower enclosure.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: null (this type has no front).\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_shower_modern_1_1cb8199a",
+    "type": "shower",
+    "dims_m": [
+     1.2612,
+     0.8662,
+     2.0932
+    ],
+    "title": "Generated modern shower (1)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "1b3728bfc77b9043d26563e4d9555fa1eb45dcfa8df0db41ed350685f0d1ff2d"
+  },
+  {
+   "key": "lib_gen_shower_modern_2_707d4703",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_shower_modern_2_707d4703.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size, and the model file gives no usable unit: scaled to a typical shower enclosure it would measure about 1.18 x 0.926 x 2.05 m (x, y, height).\n\nIt is offered as a shower enclosure (a walk-in or framed shower enclosure on its tray) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a shower enclosure.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: null (this type has no front).\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_shower_modern_2_707d4703",
+    "type": "shower",
+    "dims_m": [
+     1.1801,
+     0.9257,
+     2.049
+    ],
+    "title": "Generated modern shower (2)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "0d7f786e4d8da1b9353fde81649e4f97d64ac9e06354abd660e4842b5a57514a"
+  },
+  {
+   "key": "lib_gen_shower_modern_minimal_1_d787862a",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_shower_modern_minimal_1_d787862a.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size, and the model file gives no usable unit: scaled to a typical shower enclosure it would measure about 1.03 x 1.18 x 1.8 m (x, y, height).\n\nIt is offered as a shower enclosure (a walk-in or framed shower enclosure on its tray) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a shower enclosure.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: null (this type has no front).\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_shower_modern_minimal_1_d787862a",
+    "type": "shower",
+    "dims_m": [
+     1.032,
+     1.1833,
+     1.8
+    ],
+    "title": "Generated modern minimal shower (1)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "dd0a68d42900868dafefdeb17028ab47169a93e3cfbc078c03e8df5d2dcecc3c"
+  },
+  {
+   "key": "lib_gen_shower_modern_minimal_2_dab54bc3",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_shower_modern_minimal_2_dab54bc3.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size, and the model file gives no usable unit: scaled to a typical shower enclosure it would measure about 1.28 x 0.854 x 1.99 m (x, y, height).\n\nIt is offered as a shower enclosure (a walk-in or framed shower enclosure on its tray) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a shower enclosure.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: null (this type has no front).\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_shower_modern_minimal_2_dab54bc3",
+    "type": "shower",
+    "dims_m": [
+     1.2798,
+     0.8536,
+     1.9925
+    ],
+    "title": "Generated modern minimal shower (2)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "30c19c8d927b5ac73e2246eed3d4838a742453f2ff6ef38c2c520df3faeae513"
+  },
+  {
+   "key": "lib_gen_shower_scandinavian_1_0ae4a37a",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_shower_scandinavian_1_0ae4a37a.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size, and the model file gives no usable unit: scaled to a typical shower enclosure it would measure about 0.984 x 1.11 x 1.94 m (x, y, height).\n\nIt is offered as a shower enclosure (a walk-in or framed shower enclosure on its tray) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a shower enclosure.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: null (this type has no front).\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_shower_scandinavian_1_0ae4a37a",
+    "type": "shower",
+    "dims_m": [
+     0.984,
+     1.1103,
+     1.9416
+    ],
+    "title": "Generated scandinavian shower (1)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "178fa4f4f9b714c3f41bf46c449dff5118aef70d7b2c94dd9913eb686d61fd1b"
+  },
+  {
+   "key": "lib_gen_shower_scandinavian_2_88469e91",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_shower_scandinavian_2_88469e91.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size, and the model file gives no usable unit: scaled to a typical shower enclosure it would measure about 1.28 x 1 x 1.8 m (x, y, height).\n\nIt is offered as a shower enclosure (a walk-in or framed shower enclosure on its tray) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a shower enclosure.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: null (this type has no front).\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_shower_scandinavian_2_88469e91",
+    "type": "shower",
+    "dims_m": [
+     1.2833,
+     1.0002,
+     1.8
+    ],
+    "title": "Generated scandinavian shower (2)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "b684774ffe4237d86bb5158a0e5ee6d2f3e6559bcfe355074b652b9079570d18"
+  },
+  {
+   "key": "lib_gen_sink_kitchen_japandi_1_a61d924d",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_sink_kitchen_japandi_1_a61d924d.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size, and the model file gives no usable unit: scaled to a typical kitchen sink unit it would measure about 1.06 x 0.494 x 0.8 m (x, y, height).\n\nIt is offered as a kitchen sink unit (a kitchen base cabinet with a sink and a tap) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a kitchen sink unit.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: the number of the tile that looks straight at the front of the piece (the seat side of a sofa or chair, the foot end of a bed, the doors or drawers of a cabinet, the open side of a shelf, the user side of a desk, toilet, washbasin, bath, stove or fridge); null when you cannot tell.\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_sink_kitchen_japandi_1_a61d924d",
+    "type": "sink_kitchen",
+    "dims_m": [
+     1.056,
+     0.4938,
+     0.8
+    ],
+    "title": "Generated japandi sink kitchen (1)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "a444c84c53c602eb19e2f3d39d970e2a1f8b7fad3ff81b0cbaefe5c0d7c2e48e"
+  },
+  {
+   "key": "lib_gen_sink_kitchen_japandi_2_d6ae0419",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_sink_kitchen_japandi_2_d6ae0419.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size: it measures about 1 x 0.56 x 0.882 m (x, y, height).\n\nIt is offered as a kitchen sink unit (a kitchen base cabinet with a sink and a tap) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a kitchen sink unit.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: the number of the tile that looks straight at the front of the piece (the seat side of a sofa or chair, the foot end of a bed, the doors or drawers of a cabinet, the open side of a shelf, the user side of a desk, toilet, washbasin, bath, stove or fridge); null when you cannot tell.\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_sink_kitchen_japandi_2_d6ae0419",
+    "type": "sink_kitchen",
+    "dims_m": [
+     1.002,
+     0.5601,
+     0.8824
+    ],
+    "title": "Generated japandi sink kitchen (2)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "9f5bff81521dce15405da493b4df27a2b660e4c8e41f3d331f2809057bc3d5ac"
+  },
+  {
+   "key": "lib_gen_sink_kitchen_modern_1_5b97156d",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_sink_kitchen_modern_1_5b97156d.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size: it measures about 0.928 x 0.611 x 1 m (x, y, height).\n\nIt is offered as a kitchen sink unit (a kitchen base cabinet with a sink and a tap) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a kitchen sink unit.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: the number of the tile that looks straight at the front of the piece (the seat side of a sofa or chair, the foot end of a bed, the doors or drawers of a cabinet, the open side of a shelf, the user side of a desk, toilet, washbasin, bath, stove or fridge); null when you cannot tell.\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_sink_kitchen_modern_1_5b97156d",
+    "type": "sink_kitchen",
+    "dims_m": [
+     0.9281,
+     0.6112,
+     1.0017
+    ],
+    "title": "Generated modern sink kitchen (1)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "aeb138fe0d2fb462626e5317d03cad4df803f30bf16a54705bb3884f90698a44"
+  },
+  {
+   "key": "lib_gen_sink_kitchen_modern_2_b348b4dc",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_sink_kitchen_modern_2_b348b4dc.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size: it measures about 1 x 0.47 x 0.811 m (x, y, height).\n\nIt is offered as a kitchen sink unit (a kitchen base cabinet with a sink and a tap) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a kitchen sink unit.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: the number of the tile that looks straight at the front of the piece (the seat side of a sofa or chair, the foot end of a bed, the doors or drawers of a cabinet, the open side of a shelf, the user side of a desk, toilet, washbasin, bath, stove or fridge); null when you cannot tell.\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_sink_kitchen_modern_2_b348b4dc",
+    "type": "sink_kitchen",
+    "dims_m": [
+     1.002,
+     0.47,
+     0.8109
+    ],
+    "title": "Generated modern sink kitchen (2)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "7bbfe1e2fafa00b5af8caa042bbe272f5fc88e581f61fb8539d6fbbb5653998d"
+  },
+  {
+   "key": "lib_gen_sink_kitchen_modern_minimal_2_d36a47fa",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_sink_kitchen_modern_minimal_2_d36a47fa.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size, and the model file gives no usable unit: scaled to a typical kitchen sink unit it would measure about 1.34 x 0.653 x 0.8 m (x, y, height).\n\nIt is offered as a kitchen sink unit (a kitchen base cabinet with a sink and a tap) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a kitchen sink unit.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: the number of the tile that looks straight at the front of the piece (the seat side of a sofa or chair, the foot end of a bed, the doors or drawers of a cabinet, the open side of a shelf, the user side of a desk, toilet, washbasin, bath, stove or fridge); null when you cannot tell.\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_sink_kitchen_modern_minimal_2_d36a47fa",
+    "type": "sink_kitchen",
+    "dims_m": [
+     1.3437,
+     0.6527,
+     0.8
+    ],
+    "title": "Generated modern minimal sink kitchen (2)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "bc9a5dc2312dab109b6ff4737d9bac321ba90eaadcc22b674da932c6fb7c8f9c"
+  },
+  {
+   "key": "lib_gen_sink_kitchen_scandinavian_1_dbad65c6",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_sink_kitchen_scandinavian_1_dbad65c6.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size: it measures about 0.598 x 0.83 x 1 m (x, y, height).\n\nIt is offered as a kitchen sink unit (a kitchen base cabinet with a sink and a tap) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a kitchen sink unit.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: the number of the tile that looks straight at the front of the piece (the seat side of a sofa or chair, the foot end of a bed, the doors or drawers of a cabinet, the open side of a shelf, the user side of a desk, toilet, washbasin, bath, stove or fridge); null when you cannot tell.\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_sink_kitchen_scandinavian_1_dbad65c6",
+    "type": "sink_kitchen",
+    "dims_m": [
+     0.5976,
+     0.8298,
+     1.0018
+    ],
+    "title": "Generated scandinavian sink kitchen (1)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "7924ea7eec26a1f9a6121b1171e58c46d6fe5b3d9c020a0cdb02e87756a24b95"
+  },
+  {
+   "key": "lib_gen_sink_kitchen_scandinavian_2_470fa047",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_sink_kitchen_scandinavian_2_470fa047.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size: it measures about 0.859 x 0.598 x 1 m (x, y, height).\n\nIt is offered as a kitchen sink unit (a kitchen base cabinet with a sink and a tap) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a kitchen sink unit.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: the number of the tile that looks straight at the front of the piece (the seat side of a sofa or chair, the foot end of a bed, the doors or drawers of a cabinet, the open side of a shelf, the user side of a desk, toilet, washbasin, bath, stove or fridge); null when you cannot tell.\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_sink_kitchen_scandinavian_2_470fa047",
+    "type": "sink_kitchen",
+    "dims_m": [
+     0.8588,
+     0.5982,
+     1.0019
+    ],
+    "title": "Generated scandinavian sink kitchen (2)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "63a76b57c8cd7d628e0d0e8cd5c65e36cdf459323f44c0344b4be4434bf89975"
+  },
+  {
+   "key": "lib_gen_sofa_japandi_1_246e1bd6",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_sofa_japandi_1_246e1bd6.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size, and the model file gives no usable unit: scaled to a typical sofa it would measure about 2.14 x 0.884 x 0.844 m (x, y, height).\n\nIt is offered as a sofa (a couch for two or more people) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a sofa.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: the number of the tile that looks straight at the front of the piece (the seat side of a sofa or chair, the foot end of a bed, the doors or drawers of a cabinet, the open side of a shelf, the user side of a desk, toilet, washbasin, bath, stove or fridge); null when you cannot tell.\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_sofa_japandi_1_246e1bd6",
+    "type": "sofa",
+    "dims_m": [
+     2.1369,
+     0.8845,
+     0.8439
+    ],
+    "title": "Generated japandi sofa (1)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "6cd1332d410bbc0ef88391f091e12e40e32f096b7e14fcd39a845cc0a40e72f4"
+  },
+  {
+   "key": "lib_gen_sofa_japandi_2_98a7a89b",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_sofa_japandi_2_98a7a89b.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size, and the model file gives no usable unit: scaled to a typical sofa it would measure about 2.11 x 0.897 x 0.915 m (x, y, height).\n\nIt is offered as a sofa (a couch for two or more people) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a sofa.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: the number of the tile that looks straight at the front of the piece (the seat side of a sofa or chair, the foot end of a bed, the doors or drawers of a cabinet, the open side of a shelf, the user side of a desk, toilet, washbasin, bath, stove or fridge); null when you cannot tell.\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_sofa_japandi_2_98a7a89b",
+    "type": "sofa",
+    "dims_m": [
+     2.1063,
+     0.8973,
+     0.9153
+    ],
+    "title": "Generated japandi sofa (2)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "4034ee39c858fc450de087959acc155e53948cb41172b1bc512fd5cbb1cfe321"
+  },
+  {
+   "key": "lib_gen_toilet_japandi_1_42fdb46f",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_toilet_japandi_1_42fdb46f.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size, and the model file gives no usable unit: scaled to a typical toilet it would measure about 0.415 x 0.692 x 0.724 m (x, y, height).\n\nIt is offered as a toilet (a toilet pan, with or without its cistern) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a toilet.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: the number of the tile that looks straight at the front of the piece (the seat side of a sofa or chair, the foot end of a bed, the doors or drawers of a cabinet, the open side of a shelf, the user side of a desk, toilet, washbasin, bath, stove or fridge); null when you cannot tell.\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_toilet_japandi_1_42fdb46f",
+    "type": "toilet",
+    "dims_m": [
+     0.4148,
+     0.6915,
+     0.7241
+    ],
+    "title": "Generated japandi toilet (1)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "c5cad33af3040d486a40da35ecbe6371ff3baed02d2c26c51e94b04d79d016ff"
+  },
+  {
+   "key": "lib_gen_toilet_japandi_2_0697e750",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_toilet_japandi_2_0697e750.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size, and the model file gives no usable unit: scaled to a typical toilet it would measure about 0.393 x 0.729 x 0.758 m (x, y, height).\n\nIt is offered as a toilet (a toilet pan, with or without its cistern) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a toilet.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: the number of the tile that looks straight at the front of the piece (the seat side of a sofa or chair, the foot end of a bed, the doors or drawers of a cabinet, the open side of a shelf, the user side of a desk, toilet, washbasin, bath, stove or fridge); null when you cannot tell.\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_toilet_japandi_2_0697e750",
+    "type": "toilet",
+    "dims_m": [
+     0.3934,
+     0.7293,
+     0.7579
+    ],
+    "title": "Generated japandi toilet (2)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "37dd1a5d2e629866dab1d956c01992efe0b5d199585e689aa33336d827ad71a6"
+  },
+  {
+   "key": "lib_gen_toilet_scandinavian_1_f4f34056",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_toilet_scandinavian_1_f4f34056.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size: it measures about 0.509 x 0.873 x 1 m (x, y, height).\n\nIt is offered as a toilet (a toilet pan, with or without its cistern) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a toilet.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: the number of the tile that looks straight at the front of the piece (the seat side of a sofa or chair, the foot end of a bed, the doors or drawers of a cabinet, the open side of a shelf, the user side of a desk, toilet, washbasin, bath, stove or fridge); null when you cannot tell.\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_toilet_scandinavian_1_f4f34056",
+    "type": "toilet",
+    "dims_m": [
+     0.5093,
+     0.8729,
+     1.001
+    ],
+    "title": "Generated scandinavian toilet (1)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "67feaa9d293ea7d032284e8880f75f2bb9dc4c85cb7890f6700fec115aefa9c7"
+  },
+  {
+   "key": "lib_gen_toilet_scandinavian_2_21c43147",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_toilet_scandinavian_2_21c43147.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size, and the model file gives no usable unit: scaled to a typical toilet it would measure about 0.388 x 0.74 x 0.801 m (x, y, height).\n\nIt is offered as a toilet (a toilet pan, with or without its cistern) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a toilet.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: the number of the tile that looks straight at the front of the piece (the seat side of a sofa or chair, the foot end of a bed, the doors or drawers of a cabinet, the open side of a shelf, the user side of a desk, toilet, washbasin, bath, stove or fridge); null when you cannot tell.\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_toilet_scandinavian_2_21c43147",
+    "type": "toilet",
+    "dims_m": [
+     0.3877,
+     0.74,
+     0.8009
+    ],
+    "title": "Generated scandinavian toilet (2)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "3c7504b687d8b7ca2ab1d538f037e50bd46598bcb560afffb2847b0f2271ac77"
+  },
+  {
+   "key": "lib_gen_washbasin_japandi_1_299a0eb2",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_washbasin_japandi_1_299a0eb2.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size, and the model file gives no usable unit: scaled to a typical washbasin it would measure about 0.633 x 0.487 x 0.64 m (x, y, height).\n\nIt is offered as a washbasin (a bathroom wash basin, on a pedestal, wall-hung or on a vanity unit) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a washbasin.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: the number of the tile that looks straight at the front of the piece (the seat side of a sofa or chair, the foot end of a bed, the doors or drawers of a cabinet, the open side of a shelf, the user side of a desk, toilet, washbasin, bath, stove or fridge); null when you cannot tell.\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_washbasin_japandi_1_299a0eb2",
+    "type": "washbasin",
+    "dims_m": [
+     0.6334,
+     0.4874,
+     0.6405
+    ],
+    "title": "Generated japandi washbasin (1)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "552b8eb854d360fb652ddecca45387bf51a07f16efbbe3c327c76b81f6483103"
+  },
+  {
+   "key": "lib_gen_washbasin_japandi_2_6d594c3b",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_washbasin_japandi_2_6d594c3b.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size, and the model file gives no usable unit: scaled to a typical washbasin it would measure about 0.607 x 0.509 x 0.373 m (x, y, height).\n\nIt is offered as a washbasin (a bathroom wash basin, on a pedestal, wall-hung or on a vanity unit) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a washbasin.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: the number of the tile that looks straight at the front of the piece (the seat side of a sofa or chair, the foot end of a bed, the doors or drawers of a cabinet, the open side of a shelf, the user side of a desk, toilet, washbasin, bath, stove or fridge); null when you cannot tell.\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_washbasin_japandi_2_6d594c3b",
+    "type": "washbasin",
+    "dims_m": [
+     0.607,
+     0.5086,
+     0.3734
+    ],
+    "title": "Generated japandi washbasin (2)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "04d9a4226ddd72b9fd4d424b9e22147fc36b36b2f7dc4159f537b2258158e73b"
+  },
+  {
+   "key": "lib_gen_washing_machine_japandi_1_f1f4def2",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_washing_machine_japandi_1_f1f4def2.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size, and the model file gives no usable unit: scaled to a typical washing machine it would measure about 0.623 x 0.627 x 0.854 m (x, y, height).\n\nIt is offered as a washing machine (a front-loading washing machine or washer-dryer) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a washing machine.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: the number of the tile that looks straight at the front of the piece (the seat side of a sofa or chair, the foot end of a bed, the doors or drawers of a cabinet, the open side of a shelf, the user side of a desk, toilet, washbasin, bath, stove or fridge); null when you cannot tell.\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_washing_machine_japandi_1_f1f4def2",
+    "type": "washing_machine",
+    "dims_m": [
+     0.623,
+     0.627,
+     0.8537
+    ],
+    "title": "Generated japandi washing machine (1)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "05515b7cbf674637129ab78a972c76a79b9f1b0e0ac5b5747fd7a5064f4801de"
+  },
+  {
+   "key": "lib_gen_washing_machine_japandi_2_d8b8ac48",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_washing_machine_japandi_2_d8b8ac48.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size, and the model file gives no usable unit: scaled to a typical washing machine it would measure about 0.635 x 0.615 x 0.88 m (x, y, height).\n\nIt is offered as a washing machine (a front-loading washing machine or washer-dryer) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a washing machine.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: the number of the tile that looks straight at the front of the piece (the seat side of a sofa or chair, the foot end of a bed, the doors or drawers of a cabinet, the open side of a shelf, the user side of a desk, toilet, washbasin, bath, stove or fridge); null when you cannot tell.\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_washing_machine_japandi_2_d8b8ac48",
+    "type": "washing_machine",
+    "dims_m": [
+     0.6351,
+     0.6151,
+     0.8804
+    ],
+    "title": "Generated japandi washing machine (2)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "d24d9296b142f739c61388b05e3d10b93bf499e82bf0f7e61825806f2aadbbf6"
+  },
+  {
+   "key": "lib_gen_washing_machine_modern_1_f4bdd46e",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_washing_machine_modern_1_f4bdd46e.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size, and the model file gives no usable unit: scaled to a typical washing machine it would measure about 0.601 x 0.65 x 0.843 m (x, y, height).\n\nIt is offered as a washing machine (a front-loading washing machine or washer-dryer) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a washing machine.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: the number of the tile that looks straight at the front of the piece (the seat side of a sofa or chair, the foot end of a bed, the doors or drawers of a cabinet, the open side of a shelf, the user side of a desk, toilet, washbasin, bath, stove or fridge); null when you cannot tell.\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_washing_machine_modern_1_f4bdd46e",
+    "type": "washing_machine",
+    "dims_m": [
+     0.6007,
+     0.6503,
+     0.8426
+    ],
+    "title": "Generated modern washing machine (1)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "ad075a4982f193fa294eb6d2cd20c65fac33151df988a547f9650ff95d5fec39"
+  },
+  {
+   "key": "lib_gen_washing_machine_modern_2_379d2585",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_washing_machine_modern_2_379d2585.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size, and the model file gives no usable unit: scaled to a typical washing machine it would measure about 0.617 x 0.633 x 0.855 m (x, y, height).\n\nIt is offered as a washing machine (a front-loading washing machine or washer-dryer) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a washing machine.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: the number of the tile that looks straight at the front of the piece (the seat side of a sofa or chair, the foot end of a bed, the doors or drawers of a cabinet, the open side of a shelf, the user side of a desk, toilet, washbasin, bath, stove or fridge); null when you cannot tell.\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_washing_machine_modern_2_379d2585",
+    "type": "washing_machine",
+    "dims_m": [
+     0.6173,
+     0.6328,
+     0.8547
+    ],
+    "title": "Generated modern washing machine (2)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "5bb56ac12ba719c51a9fe78a52bde0c06913e0d833d030c392819a48f4ed79bc"
+  },
+  {
+   "key": "lib_gen_washing_machine_modern_minimal_1_07b2b182",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_washing_machine_modern_minimal_1_07b2b182.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size, and the model file gives no usable unit: scaled to a typical washing machine it would measure about 0.619 x 0.631 x 0.901 m (x, y, height).\n\nIt is offered as a washing machine (a front-loading washing machine or washer-dryer) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a washing machine.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: the number of the tile that looks straight at the front of the piece (the seat side of a sofa or chair, the foot end of a bed, the doors or drawers of a cabinet, the open side of a shelf, the user side of a desk, toilet, washbasin, bath, stove or fridge); null when you cannot tell.\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_washing_machine_modern_minimal_1_07b2b182",
+    "type": "washing_machine",
+    "dims_m": [
+     0.6186,
+     0.6315,
+     0.9012
+    ],
+    "title": "Generated modern minimal washing machine (1)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "f26102ae0a50ff31cfd59bc526da0342af5a711b61f561093f0eb94d774fb523"
+  },
+  {
+   "key": "lib_gen_washing_machine_modern_minimal_2_94b29e08",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_washing_machine_modern_minimal_2_94b29e08.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size, and the model file gives no usable unit: scaled to a typical washing machine it would measure about 0.639 x 0.611 x 0.876 m (x, y, height).\n\nIt is offered as a washing machine (a front-loading washing machine or washer-dryer) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a washing machine.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: the number of the tile that looks straight at the front of the piece (the seat side of a sofa or chair, the foot end of a bed, the doors or drawers of a cabinet, the open side of a shelf, the user side of a desk, toilet, washbasin, bath, stove or fridge); null when you cannot tell.\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_washing_machine_modern_minimal_2_94b29e08",
+    "type": "washing_machine",
+    "dims_m": [
+     0.6389,
+     0.6114,
+     0.8756
+    ],
+    "title": "Generated modern minimal washing machine (2)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "90a8b4816229c182542c88614126f41ddb87c1021e534dcc520213e7139a3ade"
+  },
+  {
+   "key": "lib_gen_washing_machine_scandinavian_1_0a5054b6",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_washing_machine_scandinavian_1_0a5054b6.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size, and the model file gives no usable unit: scaled to a typical washing machine it would measure about 0.602 x 0.649 x 0.857 m (x, y, height).\n\nIt is offered as a washing machine (a front-loading washing machine or washer-dryer) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a washing machine.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: the number of the tile that looks straight at the front of the piece (the seat side of a sofa or chair, the foot end of a bed, the doors or drawers of a cabinet, the open side of a shelf, the user side of a desk, toilet, washbasin, bath, stove or fridge); null when you cannot tell.\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_washing_machine_scandinavian_1_0a5054b6",
+    "type": "washing_machine",
+    "dims_m": [
+     0.6015,
+     0.6494,
+     0.8573
+    ],
+    "title": "Generated scandinavian washing machine (1)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "2dce166e98e462211f60b2c787b9dd181217d5684896a1cb1a984a873b2c09c1"
+  },
+  {
+   "key": "lib_gen_washing_machine_scandinavian_2_67f28c86",
+   "task": "library_judge",
+   "images": [
+    "sheets/gen_washing_machine_scandinavian_2_67f28c86.jpg"
+   ],
+   "prompt": "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey background. Each tile shows the model from one side, 30 degrees from above, and carries its number: 0 (top left) from the model's -Y side, 1 (top right) from the model's +X side, 2 (bottom left) from the model's +Y side, 3 (bottom right) from the model's -X side. The tiles are framed on the model, so they do not show its size, and the model file gives no usable unit: scaled to a typical washing machine it would measure about 0.627 x 0.623 x 0.837 m (x, y, height).\n\nIt is offered as a washing machine (a front-loading washing machine or washer-dryer) for photoreal renders of furnished rooms.\n\nFields of the answer:\n- is_single_object: true when the tiles show exactly one piece and nothing else (no second piece, room, floor, rug, wall, person or text).\n- matches_type: true when the piece is a washing machine.\n- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n- has_mattress: null (this is not a bed).\n- styles: the interior styles the piece fits, from: scandinavian (light wood, white, simple and cosy); japandi (low, natural wood, calm and minimal); modern minimal (plain flat surfaces, no ornament); minimal (plain flat surfaces, no ornament); modern (clean contemporary lines); industrial (metal, raw wood, dark tones); mediterranean (terracotta, rattan, whitewashed wood); classic (traditional, carved, tufted or turned details); rustic (rough natural wood, farmhouse); neutral (plain enough to fit any style). List only styles that clearly fit; an empty list when none does.\n- front_view: the number of the tile that looks straight at the front of the piece (the seat side of a sofa or chair, the foot end of a bed, the doors or drawers of a cabinet, the open side of a shelf, the user side of a desk, toilet, washbasin, bath, stove or fridge); null when you cannot tell.\n\nAnswer only with JSON.",
+   "context": {
+    "uid": "gen_washing_machine_scandinavian_2_67f28c86",
+    "type": "washing_machine",
+    "dims_m": [
+     0.6272,
+     0.6228,
+     0.8369
+    ],
+    "title": "Generated scandinavian washing machine (2)",
+    "source": "generated",
+    "kind": "furniture"
+   },
+   "input_sha256": "73ac00a70f061adf490776f0f05d2d4a656581c1915b25104afe127dfa335778"
   }
  ]
 }

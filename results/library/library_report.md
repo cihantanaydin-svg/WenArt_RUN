@@ -4,6 +4,8 @@ Contains information from Objaverse 1.0 (https://huggingface.co/datasets/allenai
 
 Contains 3D models and product data from Amazon Berkeley Objects (https://amazon-berkeley-objects.s3.amazonaws.com/index.html), (c) Amazon.com, licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Credit for the data, including all images and 3D models: Amazon.com; for building the dataset: Matthieu Guillaumin, Thomas Dideriksen, Kenan Deng, Himanshu Arora (Amazon.com), Jasmine Collins and Jitendra Malik (UC Berkeley). Changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched.
 
+Generated models (docs/milestone8.md §3): made by TRELLIS.2-4B (microsoft/TRELLIS.2-4B, MIT) from Z-Image-Turbo product images; marked `generated`, no third-party credit.
+
 Objaverse: [allenai/objaverse](https://huggingface.co/datasets/allenai/objaverse) @ `21e4e14` (ODC-By-1.0). Licence strings and metadata field names of objaverse.yaml verified on the pod: yes. Every licence is taken (docs/milestone8.md §2); not CC0 / CC BY 4.0 -> licence_flag.
 
 ## Sources
@@ -12,6 +14,7 @@ Objaverse: [allenai/objaverse](https://huggingface.co/datasets/allenai/objaverse
 |---|---|---|---|---|---|---|---|
 | abo | survey_abo.json | 436 | 436 | 436 | 436 | 148 | 148 |
 | objaverse | survey.json | 303 | 303 | 256 | 256 | 38 | 38 |
+| generated | survey_generated.json | 50 | 50 | 47 | 47 | 18 | 18 |
 
 ## Steps
 
@@ -21,13 +24,13 @@ Objaverse: [allenai/objaverse](https://huggingface.co/datasets/allenai/objaverse
 | Objaverse: licence CC0 or CC BY 4.0 (metadata) | 1370 |
 | Objaverse: other licences (taken, flagged) | 128 |
 | Objaverse: past the metadata prefilter (credit, faces, size) | 924 |
-| Candidates of every source (downloaded; textured or vertex-coloured) | 739 |
-| Rendered (thumbnails) | 739 |
-| Ready for judging (unit and type resolved) | 692 |
-| of which normalised by type (model units unknown) | 153 |
-| Judged by both models | 692 |
-| Accepted | 186 |
-| In catalog_library.json | 186 |
+| Candidates of every source (downloaded; textured or vertex-coloured) | 789 |
+| Rendered (thumbnails) | 789 |
+| Ready for judging (unit and type resolved) | 739 |
+| of which normalised by type (model units unknown) | 190 |
+| Judged by both models | 739 |
+| Accepted | 204 |
+| In catalog_library.json | 204 |
 
 ## Per type (Objaverse bed candidates are split into bed_single / bed_double after the unit guess)
 
@@ -36,6 +39,7 @@ Objaverse: [allenai/objaverse](https://huggingface.co/datasets/allenai/objaverse
 | armchair | abo | – | 24 | 24 | 10 | 10 |
 | armchair | objaverse | 97 | 24 | 21 | 2 | 2 |
 | bathtub | objaverse | 30 | 14 | 8 | 0 | 0 |
+| bathtub | generated | – | 8 | 6 | 3 | 3 |
 | bed_double | abo | – | 24 | 24 | 8 | 8 |
 | bed_double | objaverse | – | 0 | 11 | 1 | 1 |
 | bed_double|bed_single | objaverse | 53 | 22 | 0 | 0 | 0 |
@@ -51,25 +55,34 @@ Objaverse: [allenai/objaverse](https://huggingface.co/datasets/allenai/objaverse
 | dresser | abo | – | 24 | 24 | 10 | 10 |
 | floor_lamp | abo | – | 24 | 24 | 9 | 9 |
 | floor_lamp | objaverse | 79 | 21 | 15 | 3 | 3 |
+| floor_lamp | generated | – | 2 | 2 | 0 | 0 |
 | fridge | objaverse | 55 | 15 | 13 | 3 | 3 |
+| fridge | generated | – | 4 | 4 | 1 | 1 |
 | nightstand | abo | – | 24 | 24 | 5 | 5 |
 | plant | abo | – | 24 | 24 | 0 | 0 |
 | potted_plant | objaverse | 81 | 24 | 23 | 6 | 6 |
+| potted_plant | generated | – | 4 | 4 | 4 | 4 |
 | rug | abo | – | 24 | 24 | 11 | 11 |
+| shower | generated | – | 8 | 8 | 2 | 2 |
 | side_table | abo | – | 24 | 24 | 12 | 12 |
+| sink_kitchen | generated | – | 8 | 7 | 3 | 3 |
 | sofa | abo | – | 24 | 24 | 11 | 11 |
 | sofa | objaverse | 81 | 24 | 18 | 1 | 1 |
+| sofa | generated | – | 2 | 2 | 0 | 0 |
 | stove | objaverse | 35 | 12 | 9 | 1 | 1 |
 | table_coffee | abo | – | 24 | 24 | 7 | 7 |
 | table_coffee | objaverse | 51 | 18 | 16 | 2 | 2 |
 | table_dining | abo | – | 24 | 24 | 9 | 9 |
 | table_dining | objaverse | 70 | 16 | 10 | 1 | 1 |
 | toilet | objaverse | 111 | 13 | 13 | 3 | 3 |
+| toilet | generated | – | 4 | 4 | 0 | 0 |
 | tv_unit | abo | – | 24 | 24 | 9 | 9 |
 | wall_art | abo | – | 24 | 24 | 8 | 8 |
 | wardrobe | abo | – | 16 | 16 | 4 | 4 |
 | wardrobe | objaverse | 97 | 24 | 23 | 3 | 3 |
 | washbasin | objaverse | 26 | 4 | 4 | 3 | 3 |
+| washbasin | generated | – | 2 | 2 | 1 | 1 |
+| washing_machine | generated | – | 8 | 8 | 4 | 4 |
 
 ## Refusals by reason (first failed rule per object)
 
@@ -80,14 +93,14 @@ Objaverse: [allenai/objaverse](https://huggingface.co/datasets/allenai/objaverse
 | survey | size_range | box outside the resolved type's size range (units known: never normalised) | 520 | abo 520 |
 | survey | untextured | no image texture and no vertex colours | 204 | objaverse 204 |
 | survey | not_selected | below the candidates per type (rank, or the pick order) | 4342 |  |
-| thumbnails | unit_none | no unit factor fits and the box proportions (footprint, height / width) are outside the type's ranges | 47 | objaverse 47 |
-| accept | front_not_agreed | front not agreed (judges and geometry or the documented front) | 62 | abo 4, objaverse 58 |
+| thumbnails | unit_none | no unit factor fits and the box proportions (footprint, height / width) are outside the type's ranges | 50 | objaverse 47, generated 3 |
+| accept | front_not_agreed | front not agreed (judges and geometry or the documented front) | 66 | abo 4, objaverse 58, generated 4 |
 | accept | no_common_style | no style both judges name | 20 | abo 15, objaverse 5 |
 | accept | not_decor_type | not the decor type (a judge; a planter must hold a plant) | 24 | abo 24 |
 | accept | not_single | not a single object (a judge) | 2 | objaverse 2 |
-| accept | over_style_limit | every style family it fits already has 3 models of its type | 234 | abo 179, objaverse 55 |
-| accept | over_type_limit | over the per-type limit of the catalogue | 40 | abo 13, objaverse 27 |
-| accept | quality | photoreal quality below 4 (a judge) | 111 | abo 49, objaverse 62 |
+| accept | over_style_limit | every style family it fits already has 3 models of its type | 247 | abo 179, objaverse 55, generated 13 |
+| accept | over_type_limit | over the per-type limit of the catalogue | 44 | abo 13, objaverse 27, generated 4 |
+| accept | quality | photoreal quality below 4 (a judge) | 119 | abo 49, objaverse 62, generated 8 |
 | accept | type_mismatch | not the furniture type (a judge) | 13 | abo 4, objaverse 9 |
 
 ## Licence values seen (Objaverse metadata field `license`)
@@ -142,6 +155,7 @@ Product types with a 3D model left unmapped: HOME_FURNITURE_AND_DECOR 389, STOOL
 | CC-BY-4.0 | – | 183 |
 | CC-BY-NC-4.0 | non_commercial | 2 |
 | CC-BY-SA-4.0 | share_alike | 1 |
+| generated (TRELLIS.2-4B, MIT) | – | 18 |
 
 ## Style coverage
 
@@ -158,20 +172,20 @@ Models per type and style family: library + Poly Haven (`neutral` counts for eve
 | desk | 6+0 | 5+0 | 6+0 | 3+0 | 6+0 | 3+2 | – | – | 1+1 |
 | chair | 4+0 | 3+0 | 4+0 | 4+0 | 6+1 | 2+0 | – | 4+1 | 2+2 |
 | wardrobe | 4+0 | 1+0 | 4+0 | 4+0 | 4+0 | 1+0 | 1+0 | 4+0 | 2+0 |
-| fridge | – | – | 3+0 | 2+0 | 3+0 | – | – | – | – |
+| fridge | – | – | 4+0 | 3+0 | 4+0 | – | – | – | – |
 | stove | 0+1 | 0+1 | 0+1 | 0+1 | 0+1 | 1+1 | 0+1 | 0+1 | 0+1 |
-| washbasin | 1+0 | – | 3+0 | 3+0 | 3+0 | – | – | – | – |
+| washbasin | 2+0 | – | 4+0 | 4+0 | 4+0 | – | – | – | – |
 | toilet | – | – | 3+0 | 3+0 | 3+0 | – | – | – | – |
-| bathtub | – | – | – | – | – | – | – | – | – |
+| bathtub | – | – | 3+0 | 3+0 | 3+0 | – | – | – | – |
 | tv_unit | 3+0 | 8+0 | 5+1 | 4+1 | 4+1 | 1+1 | – | 1+0 | 3+1 |
 | bookshelf | 6+1 | 3+1 | 8+1 | 6+1 | 6+1 | 4+0 | 1+0 | 3+0 | 1+2 |
 | nightstand | 3+1 | 4+1 | 4+1 | 4+1 | 3+1 | – | – | 0+1 | 2+1 |
 | dresser | 5+0 | 4+0 | 7+0 | 5+0 | 7+0 | 3+0 | 2+0 | 3+2 | 3+0 |
 | side_table | 4+0 | 5+0 | 6+0 | 5+0 | 4+0 | 7+0 | 2+0 | 3+0 | 5+0 |
 | floor_lamp | 3+0 | – | 5+0 | 6+0 | 8+0 | 3+0 | – | 3+0 | – |
-| potted_plant | – | – | 2+0 | 3+0 | 1+0 | – | 2+0 | – | 2+0 |
+| potted_plant | 4+0 | 2+0 | 6+0 | 7+0 | 5+0 | 1+0 | 3+0 | 1+0 | 3+0 |
 
-Parametric: 47 of 189 type/family pairs.
+Parametric: 40 of 189 type/family pairs (bed_single/mediterranean, bed_single/classic, bed_single/rustic, bed_double/mediterranean, sofa/japandi, sofa/industrial, sofa/mediterranean, sofa/rustic, desk/mediterranean, desk/classic, chair/mediterranean, fridge/scandinavian, fridge/japandi, fridge/industrial, fridge/mediterranean, fridge/classic, fridge/rustic, washbasin/japandi, washbasin/industrial, washbasin/mediterranean, washbasin/classic, washbasin/rustic, toilet/scandinavian, toilet/japandi, toilet/industrial, toilet/mediterranean, toilet/classic, toilet/rustic, bathtub/scandinavian, bathtub/japandi, bathtub/industrial, bathtub/mediterranean, bathtub/classic, bathtub/rustic, tv_unit/mediterranean, nightstand/industrial, nightstand/mediterranean, floor_lamp/japandi, floor_lamp/mediterranean, floor_lamp/rustic).
 
 ## Beds
 
@@ -286,16 +300,26 @@ Parametric: 47 of 189 type/family pairs.
 | wardrobe | objaverse | `objaverse_05a035c3347645b8a7ceb6d65f825ac3` | Dikkies Closet | klaxoneer | CC-BY-4.0 | – | classic | -Y (high) | 5/4 | 1.14 x 0.624 x 1.76 | x1 |
 | wardrobe | objaverse | `objaverse_094697a23146463cb5564ac8bf89e5c4` | Traditional Mennonite corner cabinet | vinigor | CC-BY-NC-4.0 | non_commercial | classic | -Y (high) | 4/4 | 1.45 x 0.786 x 2.6 | x0.000995894 |
 | wardrobe | objaverse | `objaverse_b3a99e956be64ab6958f7f5e1895f031` | Warn Wardrobe | seenoise | CC-BY-4.0 | – | classic, rustic | -Y (high) | 4/4 | 1.29 x 0.564 x 2.31 | x1 |
+| fridge | generated | `gen_fridge_scandinavian_1_315b4d87` | Generated scandinavian fridge (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.626 x 0.809 x 1.37 | x1.36995 |
 | fridge | objaverse | `objaverse_2071bda681b642218b6829b82e4fd93b` | Refrigerator - Grey Polished Metal | Glowbox 3D | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.766 x 0.661 x 1.54 | x0.193519 |
 | fridge | objaverse | `objaverse_68d69bbf7a454a09a2536ac0762532f3` | Old Fridge | golddog | CC-BY-4.0 | – | modern minimal, minimal, modern | +X (high) | 4/4 | 0.725 x 0.698 x 1.09 | x0.419674 |
 | fridge | objaverse | `objaverse_c9c4e705bf794cb88d5d8726095f4917` | Haier Refrigerator | cgwings | CC-BY-NC-4.0 | non_commercial | modern minimal, modern | +Y (high) | 4/4 | 0.833 x 0.918 x 1.8 | x1 |
 | stove | objaverse | `objaverse_7c5c9dec5c2e4ff998c386410b0e3686` | Stove | Daniyal Malik | CC-BY-4.0 | – | industrial | -X (high) | 4/4 | 0.592 x 0.71 x 0.867 | x0.00228858 |
+| sink_kitchen | generated | `gen_sink_kitchen_japandi_1_a61d924d` | Generated japandi sink kitchen (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 5/4 | 1.06 x 0.494 x 0.8 | x1.05391 |
+| sink_kitchen | generated | `gen_sink_kitchen_scandinavian_1_dbad65c6` | Generated scandinavian sink kitchen (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, modern minimal, minimal, modern | -Y (high) | 5/4 | 0.598 x 0.83 x 1 | x1 |
+| sink_kitchen | generated | `gen_sink_kitchen_scandinavian_2_470fa047` | Generated scandinavian sink kitchen (2) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, modern minimal, minimal, modern | -Y (high) | 5/4 | 0.859 x 0.598 x 1 | x1 |
+| washbasin | generated | `gen_washbasin_japandi_1_299a0eb2` | Generated japandi washbasin (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, modern minimal, minimal, modern | -Y (high) | 5/5 | 0.633 x 0.487 x 0.64 | x0.639279 |
 | washbasin | objaverse | `objaverse_3eafb89804b54c8e8cbe35e4d456e0a9` | Bathroom | Thunder | CC-BY-SA-4.0 | share_alike | modern minimal, minimal, modern | +X (high) | 4/4 | 0.949 x 0.325 x 0.516 | x0.00323813 |
 | washbasin | objaverse | `objaverse_8580c4545d1649efb3503c6c2a012641` | Ingstav147 PULT ZRK V1 | KRONZI | CC-BY-4.0 | – | scandinavian, modern minimal, minimal, modern | +X (high) | 5/4 | 0.838 x 0.368 x 1.01 | x0.00698632 |
 | washbasin | objaverse | `objaverse_ce1a06f7cbe1425099a145f851fc5dee` | Sink | Shining Salt | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.649 x 0.476 x 0.55 | x0.324323 |
 | toilet | objaverse | `objaverse_0b3325fad3e740b1ac86173c90b56afd` | Toilettes | Lightningx | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.462 x 0.621 x 0.839 | x0.0146675 |
 | toilet | objaverse | `objaverse_24d1b493899d407780140688abae19bc` | Toilet | Xill | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.453 x 0.633 x 0.801 | x0.744926 |
 | toilet | objaverse | `objaverse_3446229dce1f47528fa871cc7669136c` | Toilet | Ali107_YT | CC-BY-4.0 | – | modern minimal, minimal, modern | +X (high) | 4/4 | 0.453 x 0.634 x 0.761 | x0.0015794 |
+| shower | generated | `gen_shower_japandi_1_dcdcd4dc` | Generated japandi shower (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (low) | 4/4 | 1.22 x 0.898 x 2.03 | x2.02709 |
+| shower | generated | `gen_shower_scandinavian_1_0ae4a37a` | Generated scandinavian shower (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (low) | 4/4 | 0.984 x 1.11 x 1.94 | x1.93769 |
+| bathtub | generated | `gen_bathtub_modern_minimal_1_1a44f6ff` | Generated modern minimal bathtub (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 1.34 x 0.812 x 0.8 | x1.33302 |
+| bathtub | generated | `gen_bathtub_scandinavian_1_230fe403` | Generated scandinavian bathtub (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 1.26 x 0.777 x 0.8 | x1.25936 |
+| bathtub | generated | `gen_bathtub_scandinavian_2_6fde34a5` | Generated scandinavian bathtub (2) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 1.39 x 0.802 x 0.8 | x1.39271 |
 | tv_unit | abo | `abo_B00OGP5S98` | Home Corona 2 unità da 1 TV a schermo Piatto, supporto/ripostigli | Amazon.com | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (high) | 5/5 | 1.2 x 0.4 x 0.51 | x1 |
 | tv_unit | abo | `abo_B072ZNMKGM` | Amazon Brand – Rivet King Street Industrial Cabinet Media Console Table With Functional Storage, Walnut, Black Metal, Glass | Amazon.com | CC-BY-4.0 | – | japandi, modern minimal, minimal | -Y (high) | 5/4 | 1.2 x 0.399 x 0.8 | x1 |
 | tv_unit | abo | `abo_B075Z8KX9N` | Amazon Brand – Stone & Beam Ferndale Rustic Reclaimed Pine Media TV Console Stand, 71"W, Sandstone | Amazon.com | CC-BY-4.0 | – | japandi, rustic | -Y (high) | 4/5 | 1.8 x 0.453 x 0.573 | x1 |
@@ -331,6 +355,10 @@ Parametric: 47 of 189 type/family pairs.
 | dresser | abo | `abo_B07B4VXZZC` | Amazon Brand – Stone & Beam Gould Contemporary Wood Bedroom Dresser Chest, 18", Washed Navy and Gold | Amazon.com | CC-BY-4.0 | – | classic | -Y (high) | 4/4 | 1.05 x 0.463 x 0.986 | x1 |
 | dresser | abo | `abo_B07FFWSBBF` | Artum Hill BE6-802 Laurel Dresser, 5-Drawer, Modern Gray | Amazon.com | CC-BY-4.0 | – | scandinavian, modern minimal, minimal, modern | -Y (high) | 5/4 | 1.02 x 0.457 x 1.22 | x1 |
 | dresser | abo | `abo_B07HSH4WFB` | Amazon Brand – Rivet Modern Chest of Drawers with Diamond Pattern, 17.7 Inch Width, Natural | Amazon.com | CC-BY-4.0 | – | modern, industrial | -Y (high) | 5/4 | 0.923 x 0.453 x 0.801 | x1 |
+| washing_machine | generated | `gen_washing_machine_modern_1_f4bdd46e` | Generated modern washing machine (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, modern | -Y (high) | 5/4 | 0.601 x 0.65 x 0.843 | x0.84142 |
+| washing_machine | generated | `gen_washing_machine_modern_minimal_1_07b2b182` | Generated modern minimal washing machine (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.619 x 0.631 x 0.901 | x0.89986 |
+| washing_machine | generated | `gen_washing_machine_scandinavian_1_0a5054b6` | Generated scandinavian washing machine (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.602 x 0.649 x 0.857 | x0.856454 |
+| washing_machine | generated | `gen_washing_machine_scandinavian_2_67f28c86` | Generated scandinavian washing machine (2) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.627 x 0.623 x 0.837 | x0.837225 |
 | side_table | abo | `abo_B072ZKPK7J` | Amazon Brand – Rivet Mid-Century Modern Round Black Wood Nesting Side End Table, 15.7" W, Dark Oak | Amazon.com | CC-BY-4.0 | – | modern minimal | -Y (low) | 5/5 | 0.399 x 0.399 x 0.46 | x1 |
 | side_table | abo | `abo_B075Z8627Z` | Amazon Brand – Stone & Beam Larson Industrial Wood & Metal Side End Table, 27"W, Walnut | Amazon.com | CC-BY-4.0 | – | industrial, rustic | -Y (low) | 5/5 | 0.678 x 0.524 x 0.613 | x1 |
 | side_table | abo | `abo_B075Z8KX91` | Amazon Brand – Stone & Beam Ferndale Rustic Reclaimed Pine Side End Table, 24"W, Sandstone | Amazon.com | CC-BY-4.0 | – | scandinavian, japandi, rustic | -Y (low) | 5/5 | 0.61 x 0.61 x 0.457 | x1 |
@@ -355,6 +383,10 @@ Parametric: 47 of 189 type/family pairs.
 | floor_lamp | objaverse | `objaverse_0eba4ad785674d3586aafc82854100fa` | lamp | anish_ | CC-BY-4.0 | – | classic | -Y (low) | 4/5 | 0.585 x 0.61 x 1.2 | x0.0434402 |
 | floor_lamp | objaverse | `objaverse_53409613b45b42b98b979f12ab8faa12` | low poly Lamp 3d model | mohamedvfx | CC-BY-4.0 | – | scandinavian, modern minimal, minimal, modern | -Y (low) | 4/4 | 0.518 x 0.518 x 1.2 | x0.00427403 |
 | floor_lamp | objaverse | `objaverse_71853da424aa4b208e14f6cf430339ae` | Street lights | U-like | CC-BY-4.0 | – | industrial, classic | -Y (low) | 5/4 | 0.349 x 0.349 x 2.1 | x1.74412 |
+| potted_plant | generated | `gen_potted_plant_japandi_1_63c10a71` | Generated japandi potted plant (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (low) | 4/5 | 0.45 x 0.478 x 1 | x1 |
+| potted_plant | generated | `gen_potted_plant_japandi_2_9a3effd1` | Generated japandi potted plant (2) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, japandi, modern minimal, minimal, modern, neutral | -Y (low) | 4/5 | 0.51 x 0.436 x 0.994 | x1 |
+| potted_plant | generated | `gen_potted_plant_scandinavian_1_04f97c4b` | Generated scandinavian potted plant (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, modern minimal, minimal, modern | -Y (low) | 4/5 | 0.573 x 0.556 x 1 | x1 |
+| potted_plant | generated | `gen_potted_plant_scandinavian_2_98f7bbd2` | Generated scandinavian potted plant (2) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, modern minimal, minimal, modern | -Y (low) | 4/5 | 0.488 x 0.448 x 1 | x1 |
 | potted_plant | objaverse | `objaverse_41e58efcf647494483f9860df99acf60` | Empty Flower Pot | dumerlot | CC-BY-4.0 | – | mediterranean, rustic | -Y (low) | 4/5 | 0.598 x 0.602 x 0.487 | x2.0673 |
 | potted_plant | objaverse | `objaverse_57972124483145b4a4bbf4fd4caca6e7` | succulent | Elif Smbl | CC-BY-4.0 | – | modern minimal, minimal | -Y (low) | 4/4 | 0.617 x 0.583 x 0.612 | x0.240114 |
 | potted_plant | objaverse | `objaverse_71b53eaee72e4a829a9256a7bcfb7dab` | Cacti pot | Spacyy | CC-BY-4.0 | – | rustic | -Y (low) | 4/4 | 0.222 x 0.234 x 0.305 | x0.0254 |
@@ -391,6 +423,8 @@ Parametric: 47 of 189 type/family pairs.
 Contains information from Objaverse 1.0 (https://huggingface.co/datasets/allenai/objaverse, revision 21e4e14), which is made available under the ODC Attribution License (ODC-By 1.0, https://opendatacommons.org/licenses/by/1-0/). Every object keeps its own licence, as declared by its uploader and not verified by WenArt_RUN (CC0 1.0 and CC BY 4.0 unflagged, every other licence flagged: docs/milestone8.md §2): check it before commercial use. This file is licensed ODC-By 1.0, not MIT.
 
 Contains 3D models and product data from Amazon Berkeley Objects (https://amazon-berkeley-objects.s3.amazonaws.com/index.html), (c) Amazon.com, licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Credit for the data, including all images and 3D models: Amazon.com; for building the dataset: Matthieu Guillaumin, Thomas Dideriksen, Kenan Deng, Himanshu Arora (Amazon.com), Jasmine Collins and Jitendra Malik (UC Berkeley). Changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched.
+
+Generated models (docs/milestone8.md §3): made by TRELLIS.2-4B (microsoft/TRELLIS.2-4B, MIT) from Z-Image-Turbo product images; marked `generated`, no third-party credit.
 
 - "Amazon Brand - Movian Aveyron Single Bed Frame, 195 x 100 x 80cm, Pink" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "AmazonBasics Foldable, 14" Metal Platform Bed Frame with Tool-Free Assembly, No Box Spring Needed - Twin" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
@@ -479,16 +513,26 @@ Contains 3D models and product data from Amazon Berkeley Objects (https://amazon
 - "Dikkies Closet" by klaxoneer (https://sketchfab.com/3d-models/05a035c3347645b8a7ceb6d65f825ac3), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Traditional Mennonite corner cabinet" by vinigor (https://sketchfab.com/3d-models/094697a23146463cb5564ac8bf89e5c4), CC BY-NC 4.0 (https://creativecommons.org/licenses/by-nc/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched (licence flag: non_commercial)
 - "Warn Wardrobe" by seenoise (https://sketchfab.com/3d-models/b3a99e956be64ab6958f7f5e1895f031), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Generated scandinavian fridge (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Refrigerator - Grey Polished Metal" by Glowbox 3D (https://sketchfab.com/3d-models/2071bda681b642218b6829b82e4fd93b), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Old Fridge" by golddog (https://sketchfab.com/3d-models/68d69bbf7a454a09a2536ac0762532f3), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Haier Refrigerator" by cgwings (https://sketchfab.com/3d-models/c9c4e705bf794cb88d5d8726095f4917), CC BY-NC 4.0 (https://creativecommons.org/licenses/by-nc/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched (licence flag: non_commercial)
 - "Stove" by Daniyal Malik (https://sketchfab.com/3d-models/7c5c9dec5c2e4ff998c386410b0e3686), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Generated japandi sink kitchen (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian sink kitchen (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian sink kitchen (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi washbasin (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Bathroom" by Thunder (https://sketchfab.com/3d-models/3eafb89804b54c8e8cbe35e4d456e0a9), CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched (licence flag: share_alike)
 - "Ingstav147 PULT ZRK V1" by KRONZI (https://sketchfab.com/3d-models/8580c4545d1649efb3503c6c2a012641), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Sink" by Shining Salt (https://sketchfab.com/3d-models/ce1a06f7cbe1425099a145f851fc5dee), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Toilettes" by Lightningx (https://sketchfab.com/3d-models/0b3325fad3e740b1ac86173c90b56afd), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Toilet" by Xill (https://sketchfab.com/3d-models/24d1b493899d407780140688abae19bc), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Toilet" by Ali107_YT (https://sketchfab.com/3d-models/3446229dce1f47528fa871cc7669136c), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Generated japandi shower (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian shower (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern minimal bathtub (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian bathtub (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian bathtub (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Home Corona 2 unità da 1 TV a schermo Piatto, supporto/ripostigli" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Amazon Brand – Rivet King Street Industrial Cabinet Media Console Table With Functional Storage, Walnut, Black Metal, Glass" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Amazon Brand – Stone & Beam Ferndale Rustic Reclaimed Pine Media TV Console Stand, 71"W, Sandstone" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
@@ -524,6 +568,10 @@ Contains 3D models and product data from Amazon Berkeley Objects (https://amazon
 - "Amazon Brand – Stone & Beam Gould Contemporary Wood Bedroom Dresser Chest, 18", Washed Navy and Gold" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Artum Hill BE6-802 Laurel Dresser, 5-Drawer, Modern Gray" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Amazon Brand – Rivet Modern Chest of Drawers with Diamond Pattern, 17.7 Inch Width, Natural" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Generated modern washing machine (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern minimal washing machine (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian washing machine (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian washing machine (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Amazon Brand – Rivet Mid-Century Modern Round Black Wood Nesting Side End Table, 15.7" W, Dark Oak" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Amazon Brand – Stone & Beam Larson Industrial Wood & Metal Side End Table, 27"W, Walnut" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Amazon Brand – Stone & Beam Ferndale Rustic Reclaimed Pine Side End Table, 24"W, Sandstone" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
@@ -548,6 +596,10 @@ Contains 3D models and product data from Amazon Berkeley Objects (https://amazon
 - "lamp" by anish_ (https://sketchfab.com/3d-models/0eba4ad785674d3586aafc82854100fa), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "low poly Lamp 3d model" by mohamedvfx (https://sketchfab.com/3d-models/53409613b45b42b98b979f12ab8faa12), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Street lights" by U-like (https://sketchfab.com/3d-models/71853da424aa4b208e14f6cf430339ae), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Generated japandi potted plant (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi potted plant (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian potted plant (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian potted plant (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Empty Flower Pot" by dumerlot (https://sketchfab.com/3d-models/41e58efcf647494483f9860df99acf60), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "succulent" by Elif Smbl (https://sketchfab.com/3d-models/57972124483145b4a4bbf4fd4caca6e7), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Cacti pot" by Spacyy (https://sketchfab.com/3d-models/71b53eaee72e4a829a9256a7bcfb7dab), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
@@ -587,7 +639,7 @@ Contains 3D models and product data from Amazon Berkeley Objects (https://amazon
 | 01b79647e6e442989fda47ff20cabdc9 | objaverse | armchair | over the per-type limit of the catalogue: rank 34 of 36 accepted armchair models (keep 12) |
 | 01c53767c1f84f55ad9f46eb89949cf9 | objaverse | floor_lamp | every style family it fits already has 3 models of its type: rank 26: floor_lamp already has 3 models of each of its styles (classic) |
 | 039c6026571943d6ac45c6816bcc7ff1 | objaverse | chair | every style family it fits already has 3 models of its type: rank 8: chair already has 3 models of each of its styles (classic) |
-| 03cba69a2c3140f7abc013d42d455fba | objaverse | sofa | over the per-type limit of the catalogue: rank 35 of 36 accepted sofa models (keep 12) |
+| 03cba69a2c3140f7abc013d42d455fba | objaverse | sofa | over the per-type limit of the catalogue: rank 35 of 38 accepted sofa models (keep 12) |
 | 03f16302c1a54c46b438dac78e9d7048 | objaverse | chair | over the per-type limit of the catalogue: rank 31 of 38 accepted chair models (keep 12) |
 | 03febdfb56cf419d89fe2d4eaa0bdb5e | objaverse | table_coffee | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | 04bef8e589524b8c9d7a3bb206b206a8 | objaverse | potted_plant | photoreal quality below 4 (a judge): qwen 3, glm 4 |
@@ -595,7 +647,7 @@ Contains 3D models and product data from Amazon Berkeley Objects (https://amazon
 | 0648e61d41504518a79b027332e67540 | objaverse | toilet | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | 06a5cfec9b87416b8b01a2e1239e62a1 | objaverse | toilet | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | 0723b35415b0462eb5c01140b6b70340 | objaverse | chair | every style family it fits already has 3 models of its type: rank 7: chair already has 3 models of each of its styles (classic) |
-| 072d0468bb97447ab1ca7e3edea25f1f | objaverse | sofa | over the per-type limit of the catalogue: rank 29 of 36 accepted sofa models (keep 12) |
+| 072d0468bb97447ab1ca7e3edea25f1f | objaverse | sofa | over the per-type limit of the catalogue: rank 29 of 38 accepted sofa models (keep 12) |
 | 08a3baeb2e0847939d53027824de5a49 | objaverse | wardrobe | every style family it fits already has 3 models of its type: rank 14: wardrobe already has 3 models of each of its styles (scandinavian, modern minimal, minimal, modern) |
 | 08d73e1168504bf2b8706cd838ad16ef | objaverse | bookshelf | every style family it fits already has 3 models of its type: rank 23: bookshelf already has 3 models of each of its styles (modern) |
 | 08f7f65edfea417b8ed9ca748381e507 | objaverse | bed_double | every style family it fits already has 3 models of its type: rank 8: bed_double already has 3 models of each of its styles (scandinavian, japandi, modern minimal, minimal, modern) |
@@ -643,9 +695,9 @@ Contains 3D models and product data from Amazon Berkeley Objects (https://amazon
 | 3ee00f7e14674461af4241f5ef7ed039 | objaverse | desk | photoreal quality below 4 (a judge): qwen 4, glm 3 |
 | 4112e07e262842c6b7070aa1505505c3 | objaverse | wardrobe | front not agreed (judges and geometry or the documented front): judges: view 0 (-Y); geometry +Y |
 | 426c14adba6a45638752986c2f7d16b2 | objaverse | bed_double | photoreal quality below 4 (a judge): qwen 3, glm 4 |
-| 42da0122f2134a189767d0911b401c1c | objaverse | sofa | over the per-type limit of the catalogue: rank 32 of 36 accepted sofa models (keep 12) |
+| 42da0122f2134a189767d0911b401c1c | objaverse | sofa | over the per-type limit of the catalogue: rank 32 of 38 accepted sofa models (keep 12) |
 | 4825d2d251b648f583db7147a7fd8d63 | objaverse | potted_plant | photoreal quality below 4 (a judge): qwen 3, glm 4 |
-| 482c5168f1694911b597c81f3d0c73b1 | objaverse | sofa | over the per-type limit of the catalogue: rank 36 of 36 accepted sofa models (keep 12) |
+| 482c5168f1694911b597c81f3d0c73b1 | objaverse | sofa | over the per-type limit of the catalogue: rank 36 of 38 accepted sofa models (keep 12) |
 | 4a056ba4d1ec48e9b4d7f30646f71052 | objaverse | toilet | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | 4a0f306ba95144fda533b329818d0680 | objaverse | floor_lamp | not the furniture type (a judge): qwen False, glm False |
 | 4ae706aa53c043fa8261ebf40f580303 | objaverse | potted_plant | photoreal quality below 4 (a judge): qwen 3, glm 3 |
@@ -680,7 +732,7 @@ Contains 3D models and product data from Amazon Berkeley Objects (https://amazon
 | 70b7b418af714050aa83e99deb2253b7 | objaverse | wardrobe | front not agreed (judges and geometry or the documented front): judges: view 0 (-Y); geometry +Y |
 | 71af93b1d15f4f48ad836d36110626f7 | objaverse | bookshelf | no style both judges name: qwen ['modern minimal', 'minimal', 'japandi', 'scandinavian'], glm ['modern', 'neutral'] |
 | 724d93a7f3644f96909e8c55909c6418 | objaverse | table_dining | every style family it fits already has 3 models of its type: rank 24: table_dining already has 3 models of each of its styles (scandinavian, rustic) |
-| 736e3ea67480426da4013dbca5fb8d20 | objaverse | sofa | over the per-type limit of the catalogue: rank 34 of 36 accepted sofa models (keep 12) |
+| 736e3ea67480426da4013dbca5fb8d20 | objaverse | sofa | over the per-type limit of the catalogue: rank 34 of 38 accepted sofa models (keep 12) |
 | 757961eb75a64dc689f2047ae8cdbd3b | objaverse | wardrobe | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | 75a7a3a8146849dea698cfd04f73482b | objaverse | fridge | every style family it fits already has 3 models of its type: rank 4: fridge already has 3 models of each of its styles (modern minimal, modern) |
 | 75aa9519195647d99cf1e2d4863dbe87 | objaverse | bookshelf | front not agreed (judges and geometry or the documented front): judges: view 0 (-Y); geometry undecided (open_side: panel fractions {'-x': 0.8648, '+x': 0.8528, '-y': 0.0033, '+y': 0.0} give 0 axes with one closed side) |
@@ -696,7 +748,7 @@ Contains 3D models and product data from Amazon Berkeley Objects (https://amazon
 | 7f92080d86484d81b8dd30317bb28586 | objaverse | desk | every style family it fits already has 3 models of its type: rank 25: desk already has 3 models of each of its styles (modern minimal, minimal, modern) |
 | 800d3c5569b94abfa2da7976504d589d | objaverse | bathtub | front not agreed (judges and geometry or the documented front): judges: view 0 (-Y); geometry +Y |
 | 804fa46335874949938b6dfb55d17820 | objaverse | bathtub | front not agreed (judges and geometry or the documented front): judges: view 0 (-Y); geometry +Y |
-| 8096984ae8734db9bfa5dedf89c175a7 | objaverse | sofa | over the per-type limit of the catalogue: rank 28 of 36 accepted sofa models (keep 12) |
+| 8096984ae8734db9bfa5dedf89c175a7 | objaverse | sofa | over the per-type limit of the catalogue: rank 28 of 38 accepted sofa models (keep 12) |
 | 813f5aeef3f3430d947f3879c6941719 | objaverse | floor_lamp | no style both judges name: qwen ['classic'], glm ['neutral'] |
 | 815bd9cee3644f3f8996b4a6d123c7c3 | objaverse | desk | front not agreed (judges and geometry or the documented front): judges: qwen 2, glm 0 |
 | 8170cf1409924abc9c3fc8becccdd36e | objaverse | floor_lamp | every style family it fits already has 3 models of its type: rank 28: floor_lamp already has 3 models of each of its styles (modern) |
@@ -721,8 +773,8 @@ Contains 3D models and product data from Amazon Berkeley Objects (https://amazon
 | 978be96600a0434e853c938e93b9c893 | objaverse | armchair | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | 98b39c575de547a483f8fbaec2c0242f | objaverse | potted_plant | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | 9a2c5ed79d634a61b1166836a8a5530f | objaverse | sofa | photoreal quality below 4 (a judge): qwen 3, glm 4 |
-| 9b1e09abe5e34d6397937ebf59901898 | objaverse | sofa | over the per-type limit of the catalogue: rank 30 of 36 accepted sofa models (keep 12) |
-| 9c242421a7c1447f941f72b57e7473e5 | objaverse | sofa | over the per-type limit of the catalogue: rank 31 of 36 accepted sofa models (keep 12) |
+| 9b1e09abe5e34d6397937ebf59901898 | objaverse | sofa | over the per-type limit of the catalogue: rank 30 of 38 accepted sofa models (keep 12) |
+| 9c242421a7c1447f941f72b57e7473e5 | objaverse | sofa | over the per-type limit of the catalogue: rank 31 of 38 accepted sofa models (keep 12) |
 | 9c4935439367490b8039a3cad9c46243 | objaverse | sofa | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | 9db7f69324c748e6bfbed697c5afaa1e | objaverse | toilet | front not agreed (judges and geometry or the documented front): judges: view 3 (-X); geometry -Y |
 | a07501cd7f6c40fc9cf4cf438e41bac1 | objaverse | armchair | every style family it fits already has 3 models of its type: rank 11: armchair already has 3 models of each of its styles (classic) |
@@ -982,7 +1034,7 @@ Contains 3D models and product data from Amazon Berkeley Objects (https://amazon
 | abo_B07QTD914H | abo | chair | over the per-type limit of the catalogue: rank 27 of 38 accepted chair models (keep 12) |
 | abo_B07QTKCKVB | abo | desk | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | abo_B07QV37J6B | abo | desk | every style family it fits already has 3 models of its type: rank 16: desk already has 3 models of each of its styles (modern minimal, industrial) |
-| abo_B07R3TWDTM | abo | sofa | over the per-type limit of the catalogue: rank 26 of 36 accepted sofa models (keep 12) |
+| abo_B07R3TWDTM | abo | sofa | over the per-type limit of the catalogue: rank 26 of 38 accepted sofa models (keep 12) |
 | abo_B07R6TND49 | abo | bed_single | front not agreed (judges and geometry or the documented front): judges: view 2 (+Y); documented front -Y (ABO convention (3dmodels/README.md): glTF +Z points to the product's natural front = -Y in the importer's Z-up frame) |
 | abo_B07R7XFD22 | abo | bed_double | photoreal quality below 4 (a judge): qwen 4, glm 3 |
 | abo_B07R8WD99Z | abo | table_coffee | every style family it fits already has 3 models of its type: rank 23: table_coffee already has 3 models of each of its styles (modern minimal, minimal) |
@@ -1027,7 +1079,7 @@ Contains 3D models and product data from Amazon Berkeley Objects (https://amazon
 | aedb9509ef9347a5b055e02deeadeff7 | objaverse | armchair | every style family it fits already has 3 models of its type: rank 22: armchair already has 3 models of each of its styles (classic) |
 | b05862a2023f4c02988b3bb3004f6ff6 | objaverse | desk | every style family it fits already has 3 models of its type: rank 13: desk already has 3 models of each of its styles (modern minimal, minimal, modern) |
 | b0c0c9c65d06443c87391134a62e2287 | objaverse | table_coffee | every style family it fits already has 3 models of its type: rank 30: table_coffee already has 3 models of each of its styles (japandi, modern minimal, minimal, modern) |
-| b1155b5ebd7c478bb0d35747c2211e5f | objaverse | sofa | over the per-type limit of the catalogue: rank 33 of 36 accepted sofa models (keep 12) |
+| b1155b5ebd7c478bb0d35747c2211e5f | objaverse | sofa | over the per-type limit of the catalogue: rank 33 of 38 accepted sofa models (keep 12) |
 | b2fefa6f7af04c18966655d68a458974 | objaverse | armchair | over the per-type limit of the catalogue: rank 36 of 36 accepted armchair models (keep 12) |
 | b46803ba0bc64e12b31f832fb761c4e0 | objaverse | wardrobe | every style family it fits already has 3 models of its type: rank 13: wardrobe already has 3 models of each of its styles (scandinavian, modern minimal, minimal, modern) |
 | b547d81073b64d3e97200fd3ae9a74af | objaverse | bed_single | every style family it fits already has 3 models of its type: rank 9: bed_single already has 3 models of each of its styles (scandinavian, japandi, modern minimal, minimal, modern) |
@@ -1079,13 +1131,42 @@ Contains 3D models and product data from Amazon Berkeley Objects (https://amazon
 | eb8faa54b7684e18abe6af39e1526b7b | objaverse | wardrobe | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | ebed0a3af94242a6be6bf0f8ed6cd49d | objaverse | armchair | over the per-type limit of the catalogue: rank 32 of 36 accepted armchair models (keep 12) |
 | ed62e8ab9bd241038609d48a26388b16 | objaverse | desk | not a single object (a judge): qwen False, glm True |
-| ef3832963ab24d129ec88fd4cac4818f | objaverse | sofa | over the per-type limit of the catalogue: rank 27 of 36 accepted sofa models (keep 12) |
+| ef3832963ab24d129ec88fd4cac4818f | objaverse | sofa | over the per-type limit of the catalogue: rank 27 of 38 accepted sofa models (keep 12) |
 | f04d12dd1e5444109f860c78679fafc0 | objaverse | armchair | no style both judges name: qwen ['classic'], glm ['neutral'] |
 | f0ff385edd4f4a9ebac56d755c2f6634 | objaverse | sofa | front not agreed (judges and geometry or the documented front): judges: qwen 1, glm 3 |
 | f1b05ddf1b634481903e353d41b6a654 | objaverse | bathtub | front not agreed (judges and geometry or the documented front): judges: view 1 (+X); geometry -X |
 | f2b3a71f48d040069fb144f76a1180d9 | objaverse | bed_double | not the furniture type (a judge): qwen False, glm True |
-| f4a50b61cf154b01a184c117a27ec348 | objaverse | floor_lamp | over the per-type limit of the catalogue: rank 31 of 31 accepted floor_lamp models (keep 12) |
+| f4a50b61cf154b01a184c117a27ec348 | objaverse | floor_lamp | over the per-type limit of the catalogue: rank 31 of 33 accepted floor_lamp models (keep 12) |
 | f57bb579c5da4b9c95f1cb874ec558f7 | objaverse | fridge | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | f7f99449b896488fa6d468e70518b21d | objaverse | armchair | over the per-type limit of the catalogue: rank 31 of 36 accepted armchair models (keep 12) |
 | fd612e2ea8e94d80ac3b8097eb2e5bbe | objaverse | bathtub | front not agreed (judges and geometry or the documented front): judges: qwen 2, glm 3 |
 | fe4339a62a544ec081d23f85e1a8c7f7 | objaverse | stove | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| gen_bathtub_japandi_2_c40f5efc | generated | bathtub | front not agreed (judges and geometry or the documented front): judges: qwen None, glm 3 |
+| gen_bathtub_modern_1_009871cf | generated | bathtub | every style family it fits already has 3 models of its type: rank 5: bathtub already has 3 models of each of its styles (modern minimal, minimal, modern) |
+| gen_bathtub_modern_minimal_2_927c5b3c | generated | bathtub | every style family it fits already has 3 models of its type: rank 4: bathtub already has 3 models of each of its styles (modern minimal, minimal, modern) |
+| gen_floor_lamp_japandi_1_4be1c62d | generated | floor_lamp | over the per-type limit of the catalogue: rank 32 of 33 accepted floor_lamp models (keep 12) |
+| gen_floor_lamp_japandi_2_ef5fd39d | generated | floor_lamp | over the per-type limit of the catalogue: rank 33 of 33 accepted floor_lamp models (keep 12) |
+| gen_fridge_japandi_1_4c9cd582 | generated | fridge | every style family it fits already has 3 models of its type: rank 7: fridge already has 3 models of each of its styles (modern minimal, minimal, modern) |
+| gen_fridge_japandi_2_4c7dbc82 | generated | fridge | every style family it fits already has 3 models of its type: rank 8: fridge already has 3 models of each of its styles (modern minimal, modern) |
+| gen_fridge_scandinavian_2_5eb44a0e | generated | fridge | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| gen_shower_japandi_2_b6c31e9a | generated | shower | photoreal quality below 4 (a judge): qwen 4, glm 3 |
+| gen_shower_modern_1_1cb8199a | generated | shower | photoreal quality below 4 (a judge): qwen 4, glm 3 |
+| gen_shower_modern_2_707d4703 | generated | shower | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| gen_shower_modern_minimal_1_d787862a | generated | shower | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| gen_shower_modern_minimal_2_dab54bc3 | generated | shower | photoreal quality below 4 (a judge): qwen 4, glm 3 |
+| gen_shower_scandinavian_2_88469e91 | generated | shower | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| gen_sink_kitchen_japandi_2_d6ae0419 | generated | sink_kitchen | every style family it fits already has 3 models of its type: rank 4: sink_kitchen already has 3 models of each of its styles (modern minimal, minimal) |
+| gen_sink_kitchen_modern_1_5b97156d | generated | sink_kitchen | every style family it fits already has 3 models of its type: rank 5: sink_kitchen already has 3 models of each of its styles (modern minimal, minimal, modern) |
+| gen_sink_kitchen_modern_2_b348b4dc | generated | sink_kitchen | every style family it fits already has 3 models of its type: rank 6: sink_kitchen already has 3 models of each of its styles (modern minimal, minimal, modern) |
+| gen_sink_kitchen_modern_minimal_2_d36a47fa | generated | sink_kitchen | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| gen_sofa_japandi_1_246e1bd6 | generated | sofa | over the per-type limit of the catalogue: rank 38 of 38 accepted sofa models (keep 12) |
+| gen_sofa_japandi_2_98a7a89b | generated | sofa | over the per-type limit of the catalogue: rank 37 of 38 accepted sofa models (keep 12) |
+| gen_toilet_japandi_1_42fdb46f | generated | toilet | every style family it fits already has 3 models of its type: rank 5: toilet already has 3 models of each of its styles (modern minimal, minimal, modern) |
+| gen_toilet_japandi_2_0697e750 | generated | toilet | front not agreed (judges and geometry or the documented front): judges: qwen 3, glm 0 |
+| gen_toilet_scandinavian_1_f4f34056 | generated | toilet | front not agreed (judges and geometry or the documented front): judges: qwen 3, glm 0 |
+| gen_toilet_scandinavian_2_21c43147 | generated | toilet | front not agreed (judges and geometry or the documented front): judges: qwen 3, glm 0 |
+| gen_washbasin_japandi_2_6d594c3b | generated | washbasin | every style family it fits already has 3 models of its type: rank 5: washbasin already has 3 models of each of its styles (modern minimal, minimal, modern) |
+| gen_washing_machine_japandi_1_f1f4def2 | generated | washing_machine | every style family it fits already has 3 models of its type: rank 6: washing_machine already has 3 models of each of its styles (modern minimal, minimal, modern) |
+| gen_washing_machine_japandi_2_d8b8ac48 | generated | washing_machine | every style family it fits already has 3 models of its type: rank 7: washing_machine already has 3 models of each of its styles (modern minimal, minimal, modern) |
+| gen_washing_machine_modern_2_379d2585 | generated | washing_machine | every style family it fits already has 3 models of its type: rank 8: washing_machine already has 3 models of each of its styles (modern minimal, minimal, modern) |
+| gen_washing_machine_modern_minimal_2_94b29e08 | generated | washing_machine | every style family it fits already has 3 models of its type: rank 5: washing_machine already has 3 models of each of its styles (modern minimal, minimal, modern) |

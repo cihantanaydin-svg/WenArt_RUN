@@ -3,18 +3,20 @@
  "kind": "library_catalog",
  "sources": [
   "abo",
-  "objaverse"
+  "objaverse",
+  "generated"
  ],
- "generated_utc": "2026-10-04T06:55:55Z",
+ "generated_utc": "2026-10-04T09:44:16Z",
  "file_licence": "ODC-By-1.0",
  "file_licences": [
   "ODC-By-1.0",
   "CC-BY-4.0"
  ],
- "notice": "Contains information from Objaverse 1.0 (https://huggingface.co/datasets/allenai/objaverse, revision 21e4e14), which is made available under the ODC Attribution License (ODC-By 1.0, https://opendatacommons.org/licenses/by/1-0/). Every object keeps its own licence, as declared by its uploader and not verified by WenArt_RUN (CC0 1.0 and CC BY 4.0 unflagged, every other licence flagged: docs/milestone8.md §2): check it before commercial use. This file is licensed ODC-By 1.0, not MIT.\n\nContains 3D models and product data from Amazon Berkeley Objects (https://amazon-berkeley-objects.s3.amazonaws.com/index.html), (c) Amazon.com, licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Credit for the data, including all images and 3D models: Amazon.com; for building the dataset: Matthieu Guillaumin, Thomas Dideriksen, Kenan Deng, Himanshu Arora (Amazon.com), Jasmine Collins and Jitendra Malik (UC Berkeley). Changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched.",
+ "notice": "Contains information from Objaverse 1.0 (https://huggingface.co/datasets/allenai/objaverse, revision 21e4e14), which is made available under the ODC Attribution License (ODC-By 1.0, https://opendatacommons.org/licenses/by/1-0/). Every object keeps its own licence, as declared by its uploader and not verified by WenArt_RUN (CC0 1.0 and CC BY 4.0 unflagged, every other licence flagged: docs/milestone8.md §2): check it before commercial use. This file is licensed ODC-By 1.0, not MIT.\n\nContains 3D models and product data from Amazon Berkeley Objects (https://amazon-berkeley-objects.s3.amazonaws.com/index.html), (c) Amazon.com, licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Credit for the data, including all images and 3D models: Amazon.com; for building the dataset: Matthieu Guillaumin, Thomas Dideriksen, Kenan Deng, Himanshu Arora (Amazon.com), Jasmine Collins and Jitendra Malik (UC Berkeley). Changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched.\n\nGenerated models (docs/milestone8.md §3): made by TRELLIS.2-4B (microsoft/TRELLIS.2-4B, MIT) from Z-Image-Turbo product images; marked `generated`, no third-party credit.",
  "notices": [
   "Contains information from Objaverse 1.0 (https://huggingface.co/datasets/allenai/objaverse, revision 21e4e14), which is made available under the ODC Attribution License (ODC-By 1.0, https://opendatacommons.org/licenses/by/1-0/). Every object keeps its own licence, as declared by its uploader and not verified by WenArt_RUN (CC0 1.0 and CC BY 4.0 unflagged, every other licence flagged: docs/milestone8.md §2): check it before commercial use. This file is licensed ODC-By 1.0, not MIT.",
-  "Contains 3D models and product data from Amazon Berkeley Objects (https://amazon-berkeley-objects.s3.amazonaws.com/index.html), (c) Amazon.com, licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Credit for the data, including all images and 3D models: Amazon.com; for building the dataset: Matthieu Guillaumin, Thomas Dideriksen, Kenan Deng, Himanshu Arora (Amazon.com), Jasmine Collins and Jitendra Malik (UC Berkeley). Changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched."
+  "Contains 3D models and product data from Amazon Berkeley Objects (https://amazon-berkeley-objects.s3.amazonaws.com/index.html), (c) Amazon.com, licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Credit for the data, including all images and 3D models: Amazon.com; for building the dataset: Matthieu Guillaumin, Thomas Dideriksen, Kenan Deng, Himanshu Arora (Amazon.com), Jasmine Collins and Jitendra Malik (UC Berkeley). Changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched.",
+  "Generated models (docs/milestone8.md §3): made by TRELLIS.2-4B (microsoft/TRELLIS.2-4B, MIT) from Z-Image-Turbo product images; marked `generated`, no third-party credit."
  ],
  "datasets": {
   "abo": {
@@ -31,20 +33,26 @@
    "licence": "ODC-By-1.0",
    "licence_url": "https://opendatacommons.org/licenses/by/1-0/",
    "page": "https://huggingface.co/datasets/allenai/objaverse"
+  },
+  "generated": {
+   "name": "generated (TRELLIS.2-4B)",
+   "licence": "MIT (model); output marked generated"
   }
  },
  "licences_verified": true,
  "counts": {
-  "entries": 162,
+  "entries": 180,
   "decor": 24,
   "by_source": {
    "abo": 148,
-   "objaverse": 38
+   "objaverse": 38,
+   "generated": 18
   },
   "licences": {
    "CC-BY-4.0": 183,
    "CC-BY-NC-4.0": 2,
-   "CC-BY-SA-4.0": 1
+   "CC-BY-SA-4.0": 1,
+   "generated (TRELLIS.2-4B, MIT)": 18
   },
   "licence_flags": {
    "non_commercial": 2,
@@ -8681,6 +8689,106 @@
    "views": 3263
   },
   {
+   "id": "gen_fridge_scandinavian_1_315b4d87",
+   "type": "fridge",
+   "source": "generated",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_flag": null,
+   "licence_url": "",
+   "name": "Generated scandinavian fridge (1)",
+   "bbox_m": [
+    0.6256,
+    0.8092,
+    1.3726
+   ],
+   "bbox_model_m": [
+    0.6256,
+    0.8092,
+    1.3726
+   ],
+   "bbox_min_m": [
+    -0.3119,
+    -0.4017,
+    -0.6863
+   ],
+   "bbox_max_m": [
+    0.3138,
+    0.4075,
+    0.6863
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.001,
+    0.0029,
+    -0.6863
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 4551 vs 892 vertices in the y slabs: front +Y (generated model: the judges decide; the geometry rule is for scanned products)",
+   "unit_scale": 1.3699458743440704,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.457 x 0.591 x 1 (raw); x1.36995 scales the raw footprint to the typical fridge footprint (size table centre 0.75 x 0.675 m): 0.626 x 0.809 x 1.37 m; its proportions are in the fridge range",
+   "units_known": false,
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "kind": "furniture",
+   "glb": "models/generated/gen_fridge_scandinavian_1_315b4d87.glb",
+   "sha256_glb": "315b4d871e63594300d6d5549f9954b0f43fb06163c2389279ec9ba4eb224ab8",
+   "uid": "gen_fridge_scandinavian_1_315b4d87",
+   "title": "Generated scandinavian fridge (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Generated scandinavian fridge (1)\": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit",
+   "polycount": 195645,
+   "vertices": 142736,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    }
+   },
+   "thumbnail": "thumbs/fridge/gen_fridge_scandinavian_1_315b4d87.jpg",
+   "has_mattress": null,
+   "generated": {
+    "prompt": "a single scandinavian style freestanding refrigerator, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "3af8d66c92ccbd8cbab7b14fa632572808c16f365f4265bd5298bde0961b7477",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 808569671
+   },
+   "style_hint": "scandinavian"
+  },
+  {
    "id": "objaverse_2071bda681b642218b6829b82e4fd93b",
    "type": "fridge",
    "source": "objaverse",
@@ -9068,6 +9176,418 @@
    "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
    "likes": 92,
    "views": 1303
+  },
+  {
+   "id": "gen_sink_kitchen_japandi_1_a61d924d",
+   "type": "sink_kitchen",
+   "source": "generated",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_flag": null,
+   "licence_url": "",
+   "name": "Generated japandi sink kitchen (1)",
+   "bbox_m": [
+    1.056,
+    0.4938,
+    0.8
+   ],
+   "bbox_model_m": [
+    1.056,
+    0.4938,
+    0.8
+   ],
+   "bbox_min_m": [
+    -0.528,
+    -0.258,
+    -0.4015
+   ],
+   "bbox_max_m": [
+    0.528,
+    0.2358,
+    0.3985
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    -0.0111,
+    -0.4015
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: x ratio 1.17 and y ratio 1.40 do not single out one axis (generated model: the judges decide; the geometry rule is for scanned products)",
+   "unit_scale": 1.0539096897825153,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 1 x 0.469 x 0.759 (raw); x1.05391 scales the raw footprint to the typical sink_kitchen footprint (size table centre 0.825 x 0.5 m), moved from x0.937357 to keep the box in the sink_kitchen range: 1.06 x 0.494 x 0.8 m; its proportions are in the sink_kitchen range",
+   "units_known": false,
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "kind": "furniture",
+   "glb": "models/generated/gen_sink_kitchen_japandi_1_a61d924d.glb",
+   "sha256_glb": "a61d924df50ef8077ff8c721a7e2c9705bd83cc291d995931dd50d30791e458c",
+   "uid": "gen_sink_kitchen_japandi_1_a61d924d",
+   "title": "Generated japandi sink kitchen (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Generated japandi sink kitchen (1)\": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit",
+   "polycount": 192176,
+   "vertices": 153475,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    5,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 5,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    }
+   },
+   "thumbnail": "thumbs/sink_kitchen/gen_sink_kitchen_japandi_1_a61d924d.jpg",
+   "has_mattress": null,
+   "generated": {
+    "prompt": "a single japandi style kitchen sink base cabinet with a worktop and an inset sink, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "76485df3c471b5399500d8ebc74e752f5215d3dc6e547c5dbe681dd8a461a126",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 1751330216
+   },
+   "style_hint": "japandi"
+  },
+  {
+   "id": "gen_sink_kitchen_scandinavian_1_dbad65c6",
+   "type": "sink_kitchen",
+   "source": "generated",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_flag": null,
+   "licence_url": "",
+   "name": "Generated scandinavian sink kitchen (1)",
+   "bbox_m": [
+    0.5976,
+    0.8298,
+    1.0018
+   ],
+   "bbox_model_m": [
+    0.5976,
+    0.8298,
+    1.0018
+   ],
+   "bbox_min_m": [
+    -0.2989,
+    -0.4149,
+    -0.501
+   ],
+   "bbox_max_m": [
+    0.2988,
+    0.4149,
+    0.5008
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    -0.0,
+    0.0,
+    -0.501
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 4817 vs 2714 vertices in the x slabs: front -X (generated model: the judges decide; the geometry rule is for scanned products)",
+   "unit_scale": 1.0,
+   "unit_note": "x1: 0.598 x 0.83 x 1 (raw) -> 0.598 x 0.83 x 1 m in the sink_kitchen range",
+   "units_known": false,
+   "styles": [
+    "scandinavian",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern'], glm ['scandinavian', 'modern minimal', 'minimal', 'modern']",
+   "kind": "furniture",
+   "glb": "models/generated/gen_sink_kitchen_scandinavian_1_dbad65c6.glb",
+   "sha256_glb": "dbad65c6451080d8488de2426db1df7fb950f7b864f46534e1f227eba0d4d1f6",
+   "uid": "gen_sink_kitchen_scandinavian_1_dbad65c6",
+   "title": "Generated scandinavian sink kitchen (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Generated scandinavian sink kitchen (1)\": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit",
+   "polycount": 191979,
+   "vertices": 116439,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    5,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 5,
+     "has_mattress": null,
+     "styles": [
+      "scandinavian",
+      "japandi",
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "scandinavian",
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    }
+   },
+   "thumbnail": "thumbs/sink_kitchen/gen_sink_kitchen_scandinavian_1_dbad65c6.jpg",
+   "has_mattress": null,
+   "generated": {
+    "prompt": "a single scandinavian style kitchen sink base cabinet with a worktop and an inset sink, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "ee18121c2eeece71257ec4c6b3999beec1a1e55677994aec14b3d48ecad103ab",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 8822649
+   },
+   "style_hint": "scandinavian"
+  },
+  {
+   "id": "gen_sink_kitchen_scandinavian_2_470fa047",
+   "type": "sink_kitchen",
+   "source": "generated",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_flag": null,
+   "licence_url": "",
+   "name": "Generated scandinavian sink kitchen (2)",
+   "bbox_m": [
+    0.8588,
+    0.5982,
+    1.0019
+   ],
+   "bbox_model_m": [
+    0.8588,
+    0.5982,
+    1.0019
+   ],
+   "bbox_min_m": [
+    -0.4294,
+    -0.2992,
+    -0.501
+   ],
+   "bbox_max_m": [
+    0.4294,
+    0.299,
+    0.5009
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    -0.0001,
+    -0.501
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 10876 vs 5120 vertices in the y slabs: front +Y (generated model: the judges decide; the geometry rule is for scanned products)",
+   "unit_scale": 1.0,
+   "unit_note": "x1: 0.859 x 0.598 x 1 (raw) -> 0.859 x 0.598 x 1 m in the sink_kitchen range",
+   "units_known": false,
+   "styles": [
+    "scandinavian",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern'], glm ['scandinavian', 'modern minimal', 'minimal', 'modern']",
+   "kind": "furniture",
+   "glb": "models/generated/gen_sink_kitchen_scandinavian_2_470fa047.glb",
+   "sha256_glb": "470fa047a82308f7fa8bceefa23ebd273e131d4fc17eca9660d1e93492a63b16",
+   "uid": "gen_sink_kitchen_scandinavian_2_470fa047",
+   "title": "Generated scandinavian sink kitchen (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Generated scandinavian sink kitchen (2)\": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit",
+   "polycount": 197763,
+   "vertices": 123085,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    5,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 5,
+     "has_mattress": null,
+     "styles": [
+      "scandinavian",
+      "japandi",
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "scandinavian",
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    }
+   },
+   "thumbnail": "thumbs/sink_kitchen/gen_sink_kitchen_scandinavian_2_470fa047.jpg",
+   "has_mattress": null,
+   "generated": {
+    "prompt": "a single scandinavian style kitchen sink base cabinet with a worktop and an inset sink, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "2e6aee94d712c8d1a99174f36e6524963712ce19576ff9a072a28b03c3fa35f7",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 815159649
+   },
+   "style_hint": "scandinavian"
+  },
+  {
+   "id": "gen_washbasin_japandi_1_299a0eb2",
+   "type": "washbasin",
+   "source": "generated",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_flag": null,
+   "licence_url": "",
+   "name": "Generated japandi washbasin (1)",
+   "bbox_m": [
+    0.6334,
+    0.4874,
+    0.6405
+   ],
+   "bbox_model_m": [
+    0.6334,
+    0.4874,
+    0.6405
+   ],
+   "bbox_min_m": [
+    -0.3167,
+    -0.243,
+    -0.3202
+   ],
+   "bbox_max_m": [
+    0.3167,
+    0.2444,
+    0.3203
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    0.0007,
+    -0.3202
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.161 of the extent): front -Y",
+   "unit_scale": 0.6392787467403352,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.991 x 0.762 x 1 (raw); x0.639279 scales the raw footprint to the typical washbasin footprint (size table centre 0.65 x 0.475 m): 0.633 x 0.487 x 0.64 m; its proportions are in the washbasin range",
+   "units_known": false,
+   "styles": [
+    "scandinavian",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern'], glm ['scandinavian', 'modern minimal', 'minimal', 'modern']",
+   "kind": "furniture",
+   "glb": "models/generated/gen_washbasin_japandi_1_299a0eb2.glb",
+   "sha256_glb": "299a0eb25e732fb3c6a4c3f93617fd62e08d5aabcb8fde5a21fcb9fd6138c5e2",
+   "uid": "gen_washbasin_japandi_1_299a0eb2",
+   "title": "Generated japandi washbasin (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Generated japandi washbasin (1)\": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit",
+   "polycount": 199149,
+   "vertices": 134412,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    5,
+    5
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 5,
+     "has_mattress": null,
+     "styles": [
+      "scandinavian",
+      "japandi",
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 5,
+     "has_mattress": null,
+     "styles": [
+      "scandinavian",
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    }
+   },
+   "thumbnail": "thumbs/washbasin/gen_washbasin_japandi_1_299a0eb2.jpg",
+   "has_mattress": null,
+   "generated": {
+    "prompt": "a single japandi style bathroom washbasin on a vanity unit, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "d2c2bec58b1c9822270d1cfad07632c84bd55f2215ba259a999a7a26847eeb14",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 642631595
+   },
+   "style_hint": "japandi"
   },
   {
    "id": "objaverse_3eafb89804b54c8e8cbe35e4d456e0a9",
@@ -9668,6 +10188,506 @@
    "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
    "likes": 4,
    "views": 288
+  },
+  {
+   "id": "gen_shower_japandi_1_dcdcd4dc",
+   "type": "shower",
+   "source": "generated",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_flag": null,
+   "licence_url": "",
+   "name": "Generated japandi shower (1)",
+   "bbox_m": [
+    1.217,
+    0.8977,
+    2.0312
+   ],
+   "bbox_model_m": [
+    1.217,
+    0.8977,
+    2.0312
+   ],
+   "bbox_min_m": [
+    -0.6086,
+    -0.4467,
+    -1.0155
+   ],
+   "bbox_max_m": [
+    0.6084,
+    0.451,
+    1.0156
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    -0.0001,
+    0.0022,
+    -1.0155
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "shower has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "unit_scale": 2.027094086283482,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.6 x 0.443 x 1 (raw); x2.02709 scales the raw footprint to the typical shower footprint (size table centre 1.15 x 0.95 m): 1.22 x 0.898 x 2.03 m; its proportions are in the shower range",
+   "units_known": false,
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "kind": "furniture",
+   "glb": "models/generated/gen_shower_japandi_1_dcdcd4dc.glb",
+   "sha256_glb": "dcdcd4dc0f961210d2fbed4732ce9d6e80353c77de58b56bd04918aab20691cc",
+   "uid": "gen_shower_japandi_1_dcdcd4dc",
+   "title": "Generated japandi shower (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Generated japandi shower (1)\": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit",
+   "polycount": 198762,
+   "vertices": 141490,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": null
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": null
+    }
+   },
+   "thumbnail": "thumbs/shower/gen_shower_japandi_1_dcdcd4dc.jpg",
+   "has_mattress": null,
+   "generated": {
+    "prompt": "a single japandi style square glass shower enclosure with a shower tray, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "583c7043a17dc6a0ec771ad4802a6c5f9f73ba3037865d29922217fac0db142f",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 939201746
+   },
+   "style_hint": "japandi"
+  },
+  {
+   "id": "gen_shower_scandinavian_1_0ae4a37a",
+   "type": "shower",
+   "source": "generated",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_flag": null,
+   "licence_url": "",
+   "name": "Generated scandinavian shower (1)",
+   "bbox_m": [
+    0.984,
+    1.1103,
+    1.9416
+   ],
+   "bbox_model_m": [
+    0.984,
+    1.1103,
+    1.9416
+   ],
+   "bbox_min_m": [
+    -0.4921,
+    -0.5561,
+    -0.9707
+   ],
+   "bbox_max_m": [
+    0.4919,
+    0.5542,
+    0.9708
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    -0.0001,
+    -0.001,
+    -0.9707
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "shower has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "unit_scale": 1.9376850385376776,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.508 x 0.573 x 1 (raw); x1.93769 scales the raw footprint to the typical shower footprint (size table centre 1.15 x 0.95 m): 0.984 x 1.11 x 1.94 m; its proportions are in the shower range",
+   "units_known": false,
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "kind": "furniture",
+   "glb": "models/generated/gen_shower_scandinavian_1_0ae4a37a.glb",
+   "sha256_glb": "0ae4a37a57bc8b8003a68a59c291546251ee28f6725ffdfdcdeac9b4e7997a12",
+   "uid": "gen_shower_scandinavian_1_0ae4a37a",
+   "title": "Generated scandinavian shower (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Generated scandinavian shower (1)\": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit",
+   "polycount": 185591,
+   "vertices": 120866,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": null
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": null
+    }
+   },
+   "thumbnail": "thumbs/shower/gen_shower_scandinavian_1_0ae4a37a.jpg",
+   "has_mattress": null,
+   "generated": {
+    "prompt": "a single scandinavian style square glass shower enclosure with a shower tray, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "62c45017f49ae33660d326244e6de315c497b483cd8c9f8243320eb657addf00",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 1674076823
+   },
+   "style_hint": "scandinavian"
+  },
+  {
+   "id": "gen_bathtub_modern_minimal_1_1a44f6ff",
+   "type": "bathtub",
+   "source": "generated",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_flag": null,
+   "licence_url": "",
+   "name": "Generated modern minimal bathtub (1)",
+   "bbox_m": [
+    1.3355,
+    0.8121,
+    0.8
+   ],
+   "bbox_model_m": [
+    1.3355,
+    0.8121,
+    0.8
+   ],
+   "bbox_min_m": [
+    -0.6677,
+    -0.4063,
+    -0.4008
+   ],
+   "bbox_max_m": [
+    0.6677,
+    0.4058,
+    0.3992
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0,
+    -0.0003,
+    -0.4008
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: vertex counts {'-x': 3953, '+x': 3824, '-y': 6102, '+y': 5459} give no side with 1.3x more detail (generated model: the judges decide; the geometry rule is for scanned products)",
+   "unit_scale": 1.33301698588338,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 1 x 0.609 x 0.6 (raw); x1.33302 scales the raw footprint to the typical bathtub footprint (size table centre 1.65 x 0.775 m), moved from x1.44745 to keep the box in the bathtub range: 1.34 x 0.812 x 0.8 m; its proportions are in the bathtub range",
+   "units_known": false,
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "kind": "furniture",
+   "glb": "models/generated/gen_bathtub_modern_minimal_1_1a44f6ff.glb",
+   "sha256_glb": "1a44f6ff44878fe19c2c20f858b02b42fa0aac2f39d7237f55d410b330bb643d",
+   "uid": "gen_bathtub_modern_minimal_1_1a44f6ff",
+   "title": "Generated modern minimal bathtub (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Generated modern minimal bathtub (1)\": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit",
+   "polycount": 189270,
+   "vertices": 121878,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    }
+   },
+   "thumbnail": "thumbs/bathtub/gen_bathtub_modern_minimal_1_1a44f6ff.jpg",
+   "has_mattress": null,
+   "generated": {
+    "prompt": "a single modern minimal style freestanding bathtub, matte white surfaces, flush handleless fronts, thin black fittings, crisp rectangular forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "9668f5ed09666fe647a0a85287d8da229dd3afa0a32946f50f390afaa972fe78",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 28734134
+   },
+   "style_hint": "modern minimal"
+  },
+  {
+   "id": "gen_bathtub_scandinavian_1_230fe403",
+   "type": "bathtub",
+   "source": "generated",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_flag": null,
+   "licence_url": "",
+   "name": "Generated scandinavian bathtub (1)",
+   "bbox_m": [
+    1.2613,
+    0.7771,
+    0.8
+   ],
+   "bbox_model_m": [
+    1.2613,
+    0.7771,
+    0.8
+   ],
+   "bbox_min_m": [
+    -0.6307,
+    -0.3811,
+    -0.3999
+   ],
+   "bbox_max_m": [
+    0.6306,
+    0.396,
+    0.4001
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    -0.0,
+    0.0075,
+    -0.3999
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 12212 vs 8554 vertices in the y slabs: front +Y (generated model: the judges decide; the geometry rule is for scanned products)",
+   "unit_scale": 1.2593556888151125,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 1 x 0.617 x 0.635 (raw); x1.25936 scales the raw footprint to the typical bathtub footprint (size table centre 1.65 x 0.775 m), moved from x1.43843 to keep the box in the bathtub range: 1.26 x 0.777 x 0.8 m; its proportions are in the bathtub range",
+   "units_known": false,
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "kind": "furniture",
+   "glb": "models/generated/gen_bathtub_scandinavian_1_230fe403.glb",
+   "sha256_glb": "230fe4032737aaa521869e2c2bffa11e744237cd57e5d38d00b65614e260e65c",
+   "uid": "gen_bathtub_scandinavian_1_230fe403",
+   "title": "Generated scandinavian bathtub (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Generated scandinavian bathtub (1)\": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit",
+   "polycount": 198685,
+   "vertices": 116528,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    }
+   },
+   "thumbnail": "thumbs/bathtub/gen_bathtub_scandinavian_1_230fe403.jpg",
+   "has_mattress": null,
+   "generated": {
+    "prompt": "a single scandinavian style freestanding bathtub, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "052d0582bea4fc710d1b0e2fc39a402629fe27959b972c9774622a92ca92bcfd",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 905751746
+   },
+   "style_hint": "scandinavian"
+  },
+  {
+   "id": "gen_bathtub_scandinavian_2_6fde34a5",
+   "type": "bathtub",
+   "source": "generated",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_flag": null,
+   "licence_url": "",
+   "name": "Generated scandinavian bathtub (2)",
+   "bbox_m": [
+    1.3935,
+    0.8023,
+    0.8
+   ],
+   "bbox_model_m": [
+    1.3935,
+    0.8023,
+    0.8
+   ],
+   "bbox_min_m": [
+    -0.6969,
+    -0.4008,
+    -0.3999
+   ],
+   "bbox_max_m": [
+    0.6966,
+    0.4015,
+    0.4001
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    -0.0001,
+    0.0004,
+    -0.3999
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 8980 vs 5035 vertices in the y slabs: front +Y (generated model: the judges decide; the geometry rule is for scanned products)",
+   "unit_scale": 1.3927138505234573,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 1 x 0.576 x 0.574 (raw); x1.39271 scales the raw footprint to the typical bathtub footprint (size table centre 1.65 x 0.775 m), moved from x1.48942 to keep the box in the bathtub range: 1.39 x 0.802 x 0.8 m; its proportions are in the bathtub range",
+   "units_known": false,
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "kind": "furniture",
+   "glb": "models/generated/gen_bathtub_scandinavian_2_6fde34a5.glb",
+   "sha256_glb": "6fde34a5158b16383aa362edc6a6a0db2b885c992a004b72eaa16ab23e3414e0",
+   "uid": "gen_bathtub_scandinavian_2_6fde34a5",
+   "title": "Generated scandinavian bathtub (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Generated scandinavian bathtub (2)\": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit",
+   "polycount": 188799,
+   "vertices": 121174,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    }
+   },
+   "thumbnail": "thumbs/bathtub/gen_bathtub_scandinavian_2_6fde34a5.jpg",
+   "has_mattress": null,
+   "generated": {
+    "prompt": "a single scandinavian style freestanding bathtub, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "3099d2ba427d4ea0cf87621727b387bb0b2c0af205adf03ae2f95e151f4dddf9",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 1109758153
+   },
+   "style_hint": "scandinavian"
   },
   {
    "id": "abo_B00OGP5S98",
@@ -13176,6 +14196,404 @@
    "style_hint": "Modern"
   },
   {
+   "id": "gen_washing_machine_modern_1_f4bdd46e",
+   "type": "washing_machine",
+   "source": "generated",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_flag": null,
+   "licence_url": "",
+   "name": "Generated modern washing machine (1)",
+   "bbox_m": [
+    0.6007,
+    0.6503,
+    0.8426
+   ],
+   "bbox_model_m": [
+    0.6007,
+    0.6503,
+    0.8426
+   ],
+   "bbox_min_m": [
+    -0.2989,
+    -0.3111,
+    -0.4214
+   ],
+   "bbox_max_m": [
+    0.3018,
+    0.3392,
+    0.4211
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0015,
+    0.0141,
+    -0.4214
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 13797 vs 8327 vertices in the y slabs: front +Y (generated model: the judges decide; the geometry rule is for scanned products)",
+   "unit_scale": 0.8414204557764507,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.714 x 0.773 x 1 (raw); x0.84142 scales the raw footprint to the typical washing_machine footprint (size table centre 0.625 x 0.625 m): 0.601 x 0.65 x 0.843 m; its proportions are in the washing_machine range",
+   "units_known": false,
+   "styles": [
+    "modern minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'modern']",
+   "kind": "furniture",
+   "glb": "models/generated/gen_washing_machine_modern_1_f4bdd46e.glb",
+   "sha256_glb": "f4bdd46e78c478c47472dfd6f7d5a56bd1d9f2b2933a65318735205891a0327d",
+   "uid": "gen_washing_machine_modern_1_f4bdd46e",
+   "title": "Generated modern washing machine (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Generated modern washing machine (1)\": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit",
+   "polycount": 192520,
+   "vertices": 173237,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    5,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 5,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "modern"
+     ],
+     "front_view": 0
+    }
+   },
+   "thumbnail": "thumbs/washing_machine/gen_washing_machine_modern_1_f4bdd46e.jpg",
+   "has_mattress": null,
+   "generated": {
+    "prompt": "a single modern style front-loading washing machine, glossy white ceramic, stainless steel and chrome fittings, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "bef184c328910bee6096a9c1cdb68347158db33b67355bf495406e4a359ce12c",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 150880875
+   },
+   "style_hint": "modern"
+  },
+  {
+   "id": "gen_washing_machine_modern_minimal_1_07b2b182",
+   "type": "washing_machine",
+   "source": "generated",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_flag": null,
+   "licence_url": "",
+   "name": "Generated modern minimal washing machine (1)",
+   "bbox_m": [
+    0.6186,
+    0.6315,
+    0.9012
+   ],
+   "bbox_model_m": [
+    0.6186,
+    0.6315,
+    0.9012
+   ],
+   "bbox_min_m": [
+    -0.3086,
+    -0.3147,
+    -0.4505
+   ],
+   "bbox_max_m": [
+    0.31,
+    0.3168,
+    0.4507
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0007,
+    0.0011,
+    -0.4505
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 31153 vs 2054 vertices in the y slabs: front -Y",
+   "unit_scale": 0.8998598205868842,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.687 x 0.702 x 1 (raw); x0.89986 scales the raw footprint to the typical washing_machine footprint (size table centre 0.625 x 0.625 m): 0.619 x 0.631 x 0.901 m; its proportions are in the washing_machine range",
+   "units_known": false,
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "kind": "furniture",
+   "glb": "models/generated/gen_washing_machine_modern_minimal_1_07b2b182.glb",
+   "sha256_glb": "07b2b1824092bfda93a8128a25257dbd60c27ed2cc998a9cd101bdfc0996d073",
+   "uid": "gen_washing_machine_modern_minimal_1_07b2b182",
+   "title": "Generated modern minimal washing machine (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Generated modern minimal washing machine (1)\": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit",
+   "polycount": 190271,
+   "vertices": 213179,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    }
+   },
+   "thumbnail": "thumbs/washing_machine/gen_washing_machine_modern_minimal_1_07b2b182.jpg",
+   "has_mattress": null,
+   "generated": {
+    "prompt": "a single modern minimal style front-loading washing machine, matte white surfaces, flush handleless fronts, thin black fittings, crisp rectangular forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "ddc8e3593f07fe11836cac532fc7225e31f8e71b987112bfa23eec43e68820fa",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 1023396053
+   },
+   "style_hint": "modern minimal"
+  },
+  {
+   "id": "gen_washing_machine_scandinavian_1_0a5054b6",
+   "type": "washing_machine",
+   "source": "generated",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_flag": null,
+   "licence_url": "",
+   "name": "Generated scandinavian washing machine (1)",
+   "bbox_m": [
+    0.6015,
+    0.6494,
+    0.8573
+   ],
+   "bbox_model_m": [
+    0.6015,
+    0.6494,
+    0.8573
+   ],
+   "bbox_min_m": [
+    -0.2998,
+    -0.3233,
+    -0.4286
+   ],
+   "bbox_max_m": [
+    0.3017,
+    0.3261,
+    0.4286
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.001,
+    0.0014,
+    -0.4286
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 17168 vs 2379 vertices in the y slabs: front +Y (generated model: the judges decide; the geometry rule is for scanned products)",
+   "unit_scale": 0.8564544539620703,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.702 x 0.758 x 1 (raw); x0.856454 scales the raw footprint to the typical washing_machine footprint (size table centre 0.625 x 0.625 m): 0.602 x 0.649 x 0.857 m; its proportions are in the washing_machine range",
+   "units_known": false,
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "kind": "furniture",
+   "glb": "models/generated/gen_washing_machine_scandinavian_1_0a5054b6.glb",
+   "sha256_glb": "0a5054b657a9b9dd54d73dbb1c108788ab7a489de18b662903d90903769565c4",
+   "uid": "gen_washing_machine_scandinavian_1_0a5054b6",
+   "title": "Generated scandinavian washing machine (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Generated scandinavian washing machine (1)\": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit",
+   "polycount": 189037,
+   "vertices": 175752,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    }
+   },
+   "thumbnail": "thumbs/washing_machine/gen_washing_machine_scandinavian_1_0a5054b6.jpg",
+   "has_mattress": null,
+   "generated": {
+    "prompt": "a single scandinavian style front-loading washing machine, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "2c467ac8b00ff77dd2d71cf6d08b0536015c948922cb2f19e39761b2f703e771",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 192962696
+   },
+   "style_hint": "scandinavian"
+  },
+  {
+   "id": "gen_washing_machine_scandinavian_2_67f28c86",
+   "type": "washing_machine",
+   "source": "generated",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_flag": null,
+   "licence_url": "",
+   "name": "Generated scandinavian washing machine (2)",
+   "bbox_m": [
+    0.6272,
+    0.6228,
+    0.8369
+   ],
+   "bbox_model_m": [
+    0.6272,
+    0.6228,
+    0.8369
+   ],
+   "bbox_min_m": [
+    -0.3143,
+    -0.3116,
+    -0.4178
+   ],
+   "bbox_max_m": [
+    0.3129,
+    0.3112,
+    0.419
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    -0.0007,
+    -0.0002,
+    -0.4178
+   ],
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 5697 vs 2095 vertices in the y slabs: front +Y (generated model: the judges decide; the geometry rule is for scanned products)",
+   "unit_scale": 0.8372252309131745,
+   "unit_note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.749 x 0.744 x 1 (raw); x0.837225 scales the raw footprint to the typical washing_machine footprint (size table centre 0.625 x 0.625 m): 0.627 x 0.623 x 0.837 m; its proportions are in the washing_machine range",
+   "units_known": false,
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "kind": "furniture",
+   "glb": "models/generated/gen_washing_machine_scandinavian_2_67f28c86.glb",
+   "sha256_glb": "67f28c86a3374c3e94334b83db6966bc985535fa76c22a822dc55c2d38f7635a",
+   "uid": "gen_washing_machine_scandinavian_2_67f28c86",
+   "title": "Generated scandinavian washing machine (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Generated scandinavian washing machine (2)\": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit",
+   "polycount": 195638,
+   "vertices": 194913,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    4
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": 0
+    }
+   },
+   "thumbnail": "thumbs/washing_machine/gen_washing_machine_scandinavian_2_67f28c86.jpg",
+   "has_mattress": null,
+   "generated": {
+    "prompt": "a single scandinavian style front-loading washing machine, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "1245a96b8d7d7b8facd5bdeac7170b05a5f336a2ebcdf9a5fe82804a3a2825cf",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 778133070
+   },
+   "style_hint": "scandinavian"
+  },
+  {
    "id": "abo_B072ZKPK7J",
    "type": "side_table",
    "source": "abo",
@@ -15539,6 +16957,430 @@
    "dataset_revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
    "likes": 77,
    "views": 1942
+  },
+  {
+   "id": "gen_potted_plant_japandi_1_63c10a71",
+   "type": "potted_plant",
+   "source": "generated",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_flag": null,
+   "licence_url": "",
+   "name": "Generated japandi potted plant (1)",
+   "bbox_m": [
+    0.4501,
+    0.4779,
+    1.0006
+   ],
+   "bbox_model_m": [
+    0.4501,
+    0.4779,
+    1.0006
+   ],
+   "bbox_min_m": [
+    -0.2291,
+    -0.2476,
+    -0.501
+   ],
+   "bbox_max_m": [
+    0.221,
+    0.2303,
+    0.4996
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    -0.004,
+    -0.0086,
+    -0.501
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "potted_plant has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "unit_scale": 1.0,
+   "unit_note": "x1: 0.45 x 0.478 x 1 (raw) -> 0.45 x 0.478 x 1 m in the potted_plant range",
+   "units_known": false,
+   "styles": [
+    "scandinavian",
+    "japandi",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern', 'neutral'], glm ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern']",
+   "kind": "furniture",
+   "glb": "models/generated/gen_potted_plant_japandi_1_63c10a71.glb",
+   "sha256_glb": "63c10a7100aa4765c39a4135b82360b91766b24e9d128954798107d15d518e9d",
+   "uid": "gen_potted_plant_japandi_1_63c10a71",
+   "title": "Generated japandi potted plant (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Generated japandi potted plant (1)\": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit",
+   "polycount": 187695,
+   "vertices": 204758,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    5
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "scandinavian",
+      "japandi",
+      "modern minimal",
+      "minimal",
+      "modern",
+      "neutral"
+     ],
+     "front_view": null
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 5,
+     "has_mattress": null,
+     "styles": [
+      "scandinavian",
+      "japandi",
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": null
+    }
+   },
+   "thumbnail": "thumbs/potted_plant/gen_potted_plant_japandi_1_63c10a71.jpg",
+   "has_mattress": null,
+   "generated": {
+    "prompt": "a single japandi style large indoor plant in a floor pot, light ash wood, black accents, natural linen and paper textures, low profile, calm minimal forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "689064611ab6697f32def047f5b1c27be0353b1e661cb63e6e7e2ac0d3ccd86d",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 1070096842
+   },
+   "style_hint": "japandi"
+  },
+  {
+   "id": "gen_potted_plant_japandi_2_9a3effd1",
+   "type": "potted_plant",
+   "source": "generated",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_flag": null,
+   "licence_url": "",
+   "name": "Generated japandi potted plant (2)",
+   "bbox_m": [
+    0.5099,
+    0.4365,
+    0.9943
+   ],
+   "bbox_model_m": [
+    0.5099,
+    0.4365,
+    0.9943
+   ],
+   "bbox_min_m": [
+    -0.2543,
+    -0.2186,
+    -0.501
+   ],
+   "bbox_max_m": [
+    0.2556,
+    0.2179,
+    0.4933
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0006,
+    -0.0003,
+    -0.501
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "potted_plant has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "unit_scale": 1.0,
+   "unit_note": "x1: 0.51 x 0.437 x 0.994 (raw) -> 0.51 x 0.436 x 0.994 m in the potted_plant range",
+   "units_known": false,
+   "styles": [
+    "scandinavian",
+    "japandi",
+    "modern minimal",
+    "minimal",
+    "modern",
+    "neutral"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern', 'neutral'], glm ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern', 'neutral']",
+   "kind": "furniture",
+   "glb": "models/generated/gen_potted_plant_japandi_2_9a3effd1.glb",
+   "sha256_glb": "9a3effd13d8d03fa68b81c37a682319010870a687b4b59bd55c6f545d0cfb1a3",
+   "uid": "gen_potted_plant_japandi_2_9a3effd1",
+   "title": "Generated japandi potted plant (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Generated japandi potted plant (2)\": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit",
+   "polycount": 191153,
+   "vertices": 152580,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    5
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "scandinavian",
+      "japandi",
+      "modern minimal",
+      "minimal",
+      "modern",
+      "neutral"
+     ],
+     "front_view": null
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 5,
+     "has_mattress": null,
+     "styles": [
+      "scandinavian",
+      "japandi",
+      "modern minimal",
+      "minimal",
+      "modern",
+      "neutral"
+     ],
+     "front_view": null
+    }
+   },
+   "thumbnail": "thumbs/potted_plant/gen_potted_plant_japandi_2_9a3effd1.jpg",
+   "has_mattress": null,
+   "generated": {
+    "prompt": "a single japandi style large indoor plant in a floor pot, light ash wood, black accents, natural linen and paper textures, low profile, calm minimal forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "f838db8c2c54d881698f9a33ccc5d0a28e15473e2ff7aa9dc96ac2bc8f1b299b",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 1292760884
+   },
+   "style_hint": "japandi"
+  },
+  {
+   "id": "gen_potted_plant_scandinavian_1_04f97c4b",
+   "type": "potted_plant",
+   "source": "generated",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_flag": null,
+   "licence_url": "",
+   "name": "Generated scandinavian potted plant (1)",
+   "bbox_m": [
+    0.5733,
+    0.5558,
+    0.9997
+   ],
+   "bbox_model_m": [
+    0.5733,
+    0.5558,
+    0.9997
+   ],
+   "bbox_min_m": [
+    -0.286,
+    -0.278,
+    -0.5004
+   ],
+   "bbox_max_m": [
+    0.2872,
+    0.2778,
+    0.4993
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    0.0006,
+    -0.0001,
+    -0.5004
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "potted_plant has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "unit_scale": 1.0,
+   "unit_note": "x1: 0.573 x 0.556 x 1 (raw) -> 0.573 x 0.556 x 1 m in the potted_plant range",
+   "units_known": false,
+   "styles": [
+    "scandinavian",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern'], glm ['scandinavian', 'modern minimal', 'minimal', 'modern']",
+   "kind": "furniture",
+   "glb": "models/generated/gen_potted_plant_scandinavian_1_04f97c4b.glb",
+   "sha256_glb": "04f97c4b90c1a6521eb764b8acac46dffa3ce83d3742c3abe472513f83c66d2c",
+   "uid": "gen_potted_plant_scandinavian_1_04f97c4b",
+   "title": "Generated scandinavian potted plant (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Generated scandinavian potted plant (1)\": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit",
+   "polycount": 189902,
+   "vertices": 164842,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    5
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "scandinavian",
+      "japandi",
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": null
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 5,
+     "has_mattress": null,
+     "styles": [
+      "scandinavian",
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": null
+    }
+   },
+   "thumbnail": "thumbs/potted_plant/gen_potted_plant_scandinavian_1_04f97c4b.jpg",
+   "has_mattress": null,
+   "generated": {
+    "prompt": "a single scandinavian style large indoor plant in a floor pot, light oak wood, white and soft grey, natural linen upholstery, slim tapered legs, simple clean lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "a87782bd37dba2f3d77bb644d86acfc18f7ec44dceaa7837b879464e6042b6af",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 670989627
+   },
+   "style_hint": "scandinavian"
+  },
+  {
+   "id": "gen_potted_plant_scandinavian_2_98f7bbd2",
+   "type": "potted_plant",
+   "source": "generated",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "licence_flag": null,
+   "licence_url": "",
+   "name": "Generated scandinavian potted plant (2)",
+   "bbox_m": [
+    0.488,
+    0.4476,
+    1.001
+   ],
+   "bbox_model_m": [
+    0.488,
+    0.4476,
+    1.001
+   ],
+   "bbox_min_m": [
+    -0.2476,
+    -0.218,
+    -0.5009
+   ],
+   "bbox_max_m": [
+    0.2404,
+    0.2297,
+    0.5002
+   ],
+   "front_axis": "-Y",
+   "up_axis": "+Z",
+   "origin_offset": [
+    -0.0036,
+    0.0058,
+    -0.5009
+   ],
+   "front_axis_confidence": "low",
+   "front_axis_note": "potted_plant has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "unit_scale": 1.0,
+   "unit_note": "x1: 0.488 x 0.448 x 1 (raw) -> 0.488 x 0.448 x 1 m in the potted_plant range",
+   "units_known": false,
+   "styles": [
+    "scandinavian",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern'], glm ['scandinavian', 'modern minimal', 'minimal', 'modern']",
+   "kind": "furniture",
+   "glb": "models/generated/gen_potted_plant_scandinavian_2_98f7bbd2.glb",
+   "sha256_glb": "98f7bbd2822ae20ed017c75bc7d11c6b952c95b4ef2d9cb4bf69fb5aa38d1963",
+   "uid": "gen_potted_plant_scandinavian_2_98f7bbd2",
+   "title": "Generated scandinavian potted plant (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+   "attribution": "\"Generated scandinavian potted plant (2)\": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit",
+   "polycount": 192012,
+   "vertices": 167630,
+   "textured": true,
+   "vertex_colours": false,
+   "quality": [
+    4,
+    5
+   ],
+   "judged": {
+    "qwen": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 4,
+     "has_mattress": null,
+     "styles": [
+      "scandinavian",
+      "japandi",
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": null
+    },
+    "glm": {
+     "is_single_object": true,
+     "matches_type": true,
+     "photoreal_quality": 5,
+     "has_mattress": null,
+     "styles": [
+      "scandinavian",
+      "modern minimal",
+      "minimal",
+      "modern"
+     ],
+     "front_view": null
+    }
+   },
+   "thumbnail": "thumbs/potted_plant/gen_potted_plant_scandinavian_2_98f7bbd2.jpg",
+   "has_mattress": null,
+   "generated": {
+    "prompt": "a single scandinavian style large indoor plant in a floor pot, light oak wood, white and soft grey, natural linen upholstery, slim tapered legs, simple clean lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+    "image_sha256": "d310d3374d658e69f2a879e8c768648b4fbf1e194549f0160109ae5809ffd756",
+    "model": "microsoft/TRELLIS.2-4B",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "seed": 550685039
+   },
+   "style_hint": "scandinavian"
   },
   {
    "id": "objaverse_41e58efcf647494483f9860df99acf60",

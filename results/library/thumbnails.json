@@ -1,16 +1,17 @@
 {
  "schema_version": "0.1",
  "kind": "objaverse_thumbnails",
- "generated_utc": "2026-10-04T06:47:42Z",
+ "generated_utc": "2026-10-04T09:34:47Z",
  "sources": [
   "abo",
+  "generated",
   "objaverse"
  ],
  "device": "OPTIX",
  "blender": "5.2.2 LTS",
  "blender_exit": 0,
- "rendered_now": 612,
- "decks_now": 58,
+ "rendered_now": 0,
+ "decks_now": 0,
  "settings": {
   "resolution": 256,
   "samples": 16,
@@ -38,8 +39,8 @@
   "deck_ray_offset": 0.2
  },
  "counts": {
-  "ready": 692,
-  "unit_none": 47
+  "ready": 739,
+  "unit_none": 50
  },
  "objects": {
   "09ee59423b4b428f94f01fc5beccd227": {
@@ -66379,6 +66380,4356 @@
    },
    "sheet": "judge/sheets/abo_B07GFWW3S8.jpg",
    "thumb": "thumbs/wardrobe/abo_B07GFWW3S8.jpg"
+  },
+  "gen_bathtub_scandinavian_1_230fe403": {
+   "uid": "gen_bathtub_scandinavian_1_230fe403",
+   "group": "bathtub",
+   "types": [
+    "bathtub"
+   ],
+   "title": "Generated scandinavian bathtub (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 116528,
+    "triangles": 198685,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 9.13,
+    "bbox_min_raw": [
+     -0.5007980465888977,
+     -0.30260592699050903,
+     -0.31756117939949036
+    ],
+    "bbox_max_raw": [
+     0.5007426738739014,
+     0.31446924805641174,
+     0.3176842927932739
+    ],
+    "extents_raw": [
+     1.001540720462799,
+     0.6170751750469208,
+     0.6352454721927643
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     -0.015,
+     0.3789
+    ],
+    "side_counts": {
+     "-x": 4129,
+     "+x": 4133,
+     "-y": 8554,
+     "+y": 12212
+    },
+    "panel_fraction": {
+     "-x": 0.1593,
+     "+x": 0.1602,
+     "-y": 0.3101,
+     "+y": 0.0291
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 1.2593556888151125,
+    "type": "bathtub",
+    "dims_m": [
+     1.2613,
+     0.7771,
+     0.8
+    ],
+    "fits": [],
+    "normalised": true,
+    "note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 1 x 0.617 x 0.635 (raw); x1.25936 scales the raw footprint to the typical bathtub footprint (size table centre 1.65 x 0.775 m), moved from x1.43843 to keep the box in the bathtub range: 1.26 x 0.777 x 0.8 m; its proportions are in the bathtub range"
+   },
+   "status": "ready",
+   "type": "bathtub",
+   "front_rule": "detail_side",
+   "geometric_front": "+Y",
+   "geometric_note": "detail_side: 12212 vs 8554 vertices in the y slabs: front +Y",
+   "rank": 1,
+   "sheet_pixels": {
+    "sha256": "655a98a8c4304c15ab38baeb83296037ede0a2d363723143013de6d1940a018d",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_bathtub_scandinavian_1_230fe403.jpg",
+   "thumb": "thumbs/bathtub/gen_bathtub_scandinavian_1_230fe403.jpg"
+  },
+  "gen_bathtub_scandinavian_2_6fde34a5": {
+   "uid": "gen_bathtub_scandinavian_2_6fde34a5",
+   "group": "bathtub",
+   "types": [
+    "bathtub"
+   ],
+   "title": "Generated scandinavian bathtub (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 121174,
+    "triangles": 188799,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 4.84,
+    "bbox_min_raw": [
+     -0.5003809928894043,
+     -0.28779715299606323,
+     -0.2871556878089905
+    ],
+    "bbox_max_raw": [
+     0.5002040863037109,
+     0.2883058786392212,
+     0.2872623801231384
+    ],
+    "extents_raw": [
+     1.0005850791931152,
+     0.5761030316352844,
+     0.5744180679321289
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     0.0117,
+     0.416
+    ],
+    "side_counts": {
+     "-x": 3291,
+     "+x": 3198,
+     "-y": 5035,
+     "+y": 8980
+    },
+    "panel_fraction": {
+     "-x": 0.1565,
+     "+x": 0.1567,
+     "-y": 0.1934,
+     "+y": 0.0679
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 1.3927138505234573,
+    "type": "bathtub",
+    "dims_m": [
+     1.3935,
+     0.8023,
+     0.8
+    ],
+    "fits": [],
+    "normalised": true,
+    "note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 1 x 0.576 x 0.574 (raw); x1.39271 scales the raw footprint to the typical bathtub footprint (size table centre 1.65 x 0.775 m), moved from x1.48942 to keep the box in the bathtub range: 1.39 x 0.802 x 0.8 m; its proportions are in the bathtub range"
+   },
+   "status": "ready",
+   "type": "bathtub",
+   "front_rule": "detail_side",
+   "geometric_front": "+Y",
+   "geometric_note": "detail_side: 8980 vs 5035 vertices in the y slabs: front +Y",
+   "rank": 2,
+   "sheet_pixels": {
+    "sha256": "e9a3f596e8a0d119e89f398269710d2642be10973db3761b3d46313291a531e3",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_bathtub_scandinavian_2_6fde34a5.jpg",
+   "thumb": "thumbs/bathtub/gen_bathtub_scandinavian_2_6fde34a5.jpg"
+  },
+  "gen_bathtub_modern_minimal_1_1a44f6ff": {
+   "uid": "gen_bathtub_modern_minimal_1_1a44f6ff",
+   "group": "bathtub",
+   "types": [
+    "bathtub"
+   ],
+   "title": "Generated modern minimal bathtub (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 121878,
+    "triangles": 189270,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 4.71,
+    "bbox_min_raw": [
+     -0.5009236335754395,
+     -0.30477458238601685,
+     -0.30068984627723694
+    ],
+    "bbox_max_raw": [
+     0.5009177327156067,
+     0.30445408821105957,
+     0.299452543258667
+    ],
+    "extents_raw": [
+     1.0018413662910461,
+     0.6092286705970764,
+     0.6001423895359039
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     0.025,
+     0.3691
+    ],
+    "side_counts": {
+     "-x": 3953,
+     "+x": 3824,
+     "-y": 6102,
+     "+y": 5459
+    },
+    "panel_fraction": {
+     "-x": 0.1875,
+     "+x": 0.1877,
+     "-y": 0.1773,
+     "+y": 0.2233
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 1.33301698588338,
+    "type": "bathtub",
+    "dims_m": [
+     1.3355,
+     0.8121,
+     0.8
+    ],
+    "fits": [],
+    "normalised": true,
+    "note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 1 x 0.609 x 0.6 (raw); x1.33302 scales the raw footprint to the typical bathtub footprint (size table centre 1.65 x 0.775 m), moved from x1.44745 to keep the box in the bathtub range: 1.34 x 0.812 x 0.8 m; its proportions are in the bathtub range"
+   },
+   "status": "ready",
+   "type": "bathtub",
+   "front_rule": "detail_side",
+   "geometric_front": null,
+   "geometric_note": "detail_side: vertex counts {'-x': 3953, '+x': 3824, '-y': 6102, '+y': 5459} give no side with 1.3x more detail",
+   "rank": 3,
+   "sheet_pixels": {
+    "sha256": "2d53bbb459749a38f216df487220e781b7d86293a18d921dfdb0aaaee0a17089",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_bathtub_modern_minimal_1_1a44f6ff.jpg",
+   "thumb": "thumbs/bathtub/gen_bathtub_modern_minimal_1_1a44f6ff.jpg"
+  },
+  "gen_bathtub_modern_minimal_2_927c5b3c": {
+   "uid": "gen_bathtub_modern_minimal_2_927c5b3c",
+   "group": "bathtub",
+   "types": [
+    "bathtub"
+   ],
+   "title": "Generated modern minimal bathtub (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 111664,
+    "triangles": 189402,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 4.77,
+    "bbox_min_raw": [
+     -0.5008958578109741,
+     -0.27484917640686035,
+     -0.30756866931915283
+    ],
+    "bbox_max_raw": [
+     0.5008869767189026,
+     0.27492132782936096,
+     0.3056248426437378
+    ],
+    "extents_raw": [
+     1.0017828345298767,
+     0.5497705042362213,
+     0.6131935119628906
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     -0.004,
+     0.331
+    ],
+    "side_counts": {
+     "-x": 4211,
+     "+x": 4026,
+     "-y": 7507,
+     "+y": 9880
+    },
+    "panel_fraction": {
+     "-x": 0.1428,
+     "+x": 0.143,
+     "-y": 0.2352,
+     "+y": 0.241
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 1.3046452442706449,
+    "type": "bathtub",
+    "dims_m": [
+     1.307,
+     0.7173,
+     0.8
+    ],
+    "fits": [],
+    "normalised": true,
+    "note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 1 x 0.55 x 0.613 (raw); x1.30465 scales the raw footprint to the typical bathtub footprint (size table centre 1.65 x 0.775 m), moved from x1.52376 to keep the box in the bathtub range: 1.31 x 0.717 x 0.8 m; its proportions are in the bathtub range"
+   },
+   "status": "ready",
+   "type": "bathtub",
+   "front_rule": "detail_side",
+   "geometric_front": "+Y",
+   "geometric_note": "detail_side: 9880 vs 7507 vertices in the y slabs: front +Y",
+   "rank": 4,
+   "sheet_pixels": {
+    "sha256": "74730cadc7c556cc38638dc6aaa4861536605dc2e004eab1b3a4a36990e25c41",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_bathtub_modern_minimal_2_927c5b3c.jpg",
+   "thumb": "thumbs/bathtub/gen_bathtub_modern_minimal_2_927c5b3c.jpg"
+  },
+  "gen_bathtub_japandi_1_17df0622": {
+   "uid": "gen_bathtub_japandi_1_17df0622",
+   "group": "bathtub",
+   "types": [
+    "bathtub"
+   ],
+   "title": "Generated japandi bathtub (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 110186,
+    "triangles": 184598,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 4.6,
+    "bbox_min_raw": [
+     -0.5006465911865234,
+     -0.5007154941558838,
+     -0.30073282122612
+    ],
+    "bbox_max_raw": [
+     0.5006356239318848,
+     0.5007666349411011,
+     0.3007524013519287
+    ],
+    "extents_raw": [
+     1.0012822151184082,
+     1.0014821290969849,
+     0.6014852225780487
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     0.0034,
+     0.4332
+    ],
+    "side_counts": {
+     "-x": 6245,
+     "+x": 5543,
+     "-y": 5835,
+     "+y": 12038
+    },
+    "panel_fraction": {
+     "-x": 0.179,
+     "+x": 0.1789,
+     "-y": 0.177,
+     "+y": 0.1927
+    }
+   },
+   "unit": {
+    "ok": false,
+    "code": "unit_none",
+    "fits": [],
+    "detail": "no factor (x1, x0.01, x0.0254, x0.001) puts 1 x 1 x 0.601 (raw) in the bathtub range, and its proportions (footprint, height / width) are outside it at any scale"
+   },
+   "status": "refused",
+   "code": "unit_none",
+   "detail": "no factor (x1, x0.01, x0.0254, x0.001) puts 1 x 1 x 0.601 (raw) in the bathtub range, and its proportions (footprint, height / width) are outside it at any scale"
+  },
+  "gen_bathtub_japandi_2_c40f5efc": {
+   "uid": "gen_bathtub_japandi_2_c40f5efc",
+   "group": "bathtub",
+   "types": [
+    "bathtub"
+   ],
+   "title": "Generated japandi bathtub (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 122001,
+    "triangles": 198389,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 4.95,
+    "bbox_min_raw": [
+     -0.3810219168663025,
+     -0.5008991956710815,
+     -0.29543644189834595
+    ],
+    "bbox_max_raw": [
+     0.38095957040786743,
+     0.500819206237793,
+     0.29292815923690796
+    ],
+    "extents_raw": [
+     0.7619814872741699,
+     1.0017184019088745,
+     0.5883646011352539
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     -0.0179,
+     0.2261
+    ],
+    "side_counts": {
+     "-x": 6494,
+     "+x": 6160,
+     "-y": 5271,
+     "+y": 5792
+    },
+    "panel_fraction": {
+     "-x": 0.2516,
+     "+x": 0.2519,
+     "-y": 0.2355,
+     "+y": 0.2362
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 1.2943382553569316,
+    "type": "bathtub",
+    "dims_m": [
+     0.9863,
+     1.2966,
+     0.7615
+    ],
+    "fits": [],
+    "normalised": true,
+    "note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.762 x 1 x 0.588 (raw); x1.29434 scales the raw footprint to the typical bathtub footprint (size table centre 1.65 x 0.775 m): 0.986 x 1.3 x 0.761 m; its proportions are in the bathtub range"
+   },
+   "status": "ready",
+   "type": "bathtub",
+   "front_rule": "detail_side",
+   "geometric_front": null,
+   "geometric_note": "detail_side: vertex counts {'-x': 6494, '+x': 6160, '-y': 5271, '+y': 5792} give no side with 1.3x more detail",
+   "rank": 6,
+   "sheet_pixels": {
+    "sha256": "5477dbd26b1f603cf62960cc97c9ac35343c633afd3f3ad25b06ee47ede73e1a",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_bathtub_japandi_2_c40f5efc.jpg",
+   "thumb": "thumbs/bathtub/gen_bathtub_japandi_2_c40f5efc.jpg"
+  },
+  "gen_bathtub_modern_1_009871cf": {
+   "uid": "gen_bathtub_modern_1_009871cf",
+   "group": "bathtub",
+   "types": [
+    "bathtub"
+   ],
+   "title": "Generated modern bathtub (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 116004,
+    "triangles": 189724,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 4.77,
+    "bbox_min_raw": [
+     -0.5009201765060425,
+     -0.2978324294090271,
+     -0.30203118920326233
+    ],
+    "bbox_max_raw": [
+     0.5008275508880615,
+     0.3064335286617279,
+     0.3013138771057129
+    ],
+    "extents_raw": [
+     1.001747727394104,
+     0.604265958070755,
+     0.6033450663089752
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     0.0024,
+     0.3973
+    ],
+    "side_counts": {
+     "-x": 5634,
+     "+x": 5389,
+     "-y": 6560,
+     "+y": 8287
+    },
+    "panel_fraction": {
+     "-x": 0.2127,
+     "+x": 0.2149,
+     "-y": 0.3021,
+     "+y": 0.2123
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 1.3259410640317013,
+    "type": "bathtub",
+    "dims_m": [
+     1.3283,
+     0.8012,
+     0.8
+    ],
+    "fits": [],
+    "normalised": true,
+    "note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 1 x 0.604 x 0.603 (raw); x1.32594 scales the raw footprint to the typical bathtub footprint (size table centre 1.65 x 0.775 m), moved from x1.45345 to keep the box in the bathtub range: 1.33 x 0.801 x 0.8 m; its proportions are in the bathtub range"
+   },
+   "status": "ready",
+   "type": "bathtub",
+   "front_rule": "detail_side",
+   "geometric_front": null,
+   "geometric_note": "detail_side: vertex counts {'-x': 5634, '+x': 5389, '-y': 6560, '+y': 8287} give no side with 1.3x more detail",
+   "rank": 7,
+   "sheet_pixels": {
+    "sha256": "a53912e9b95b94ecbd7578052934bf3b010a52cf1ec23ae09e152c5c202ab99e",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_bathtub_modern_1_009871cf.jpg",
+   "thumb": "thumbs/bathtub/gen_bathtub_modern_1_009871cf.jpg"
+  },
+  "gen_bathtub_modern_2_a081b40d": {
+   "uid": "gen_bathtub_modern_2_a081b40d",
+   "group": "bathtub",
+   "types": [
+    "bathtub"
+   ],
+   "title": "Generated modern bathtub (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 119134,
+    "triangles": 194341,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 4.87,
+    "bbox_min_raw": [
+     -0.500780463218689,
+     -0.30022305250167847,
+     -0.32918405532836914
+    ],
+    "bbox_max_raw": [
+     0.5007524490356445,
+     0.29928502440452576,
+     0.33103126287460327
+    ],
+    "extents_raw": [
+     1.0015329122543335,
+     0.5995080769062042,
+     0.6602153182029724
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     -0.262,
+     -0.3236
+    ],
+    "side_counts": {
+     "-x": 5874,
+     "+x": 5067,
+     "-y": 10230,
+     "+y": 6257
+    },
+    "panel_fraction": {
+     "-x": 0.2582,
+     "+x": 0.2586,
+     "-y": 0.388,
+     "+y": 0.2318
+    }
+   },
+   "unit": {
+    "ok": false,
+    "code": "unit_none",
+    "fits": [],
+    "detail": "no factor (x1, x0.01, x0.0254, x0.001) puts 1 x 0.6 x 0.66 (raw) in the bathtub range, and its proportions (footprint, height / width) are outside it at any scale"
+   },
+   "status": "refused",
+   "code": "unit_none",
+   "detail": "no factor (x1, x0.01, x0.0254, x0.001) puts 1 x 0.6 x 0.66 (raw) in the bathtub range, and its proportions (footprint, height / width) are outside it at any scale"
+  },
+  "gen_floor_lamp_japandi_1_4be1c62d": {
+   "uid": "gen_floor_lamp_japandi_1_4be1c62d",
+   "group": "floor_lamp",
+   "types": [
+    "floor_lamp"
+   ],
+   "title": "Generated japandi floor lamp (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 243328,
+    "triangles": 189153,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 5.29,
+    "bbox_min_raw": [
+     -0.1898403763771057,
+     -0.18992650508880615,
+     -0.5009704828262329
+    ],
+    "bbox_max_raw": [
+     0.1900421530008316,
+     0.18988889455795288,
+     0.5010861158370972
+    ],
+    "extents_raw": [
+     0.3798825293779373,
+     0.37981539964675903,
+     1.00205659866333
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     -0.0016,
+     0.0021
+    ],
+    "side_counts": {
+     "-x": 5734,
+     "+x": 5070,
+     "-y": 6897,
+     "+y": 6437
+    },
+    "panel_fraction": {
+     "-x": 0.0683,
+     "+x": 0.0661,
+     "-y": 0.0737,
+     "+y": 0.0728
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 1.197537147902336,
+    "type": "floor_lamp",
+    "dims_m": [
+     0.4549,
+     0.4548,
+     1.2
+    ],
+    "fits": [],
+    "normalised": true,
+    "note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.38 x 0.38 x 1 (raw); x1.19754 scales the raw footprint to the typical floor_lamp footprint (size table centre 0.425 x 0.425 m), moved from x1.11887 to keep the box in the floor_lamp range: 0.455 x 0.455 x 1.2 m; its proportions are in the floor_lamp range"
+   },
+   "status": "ready",
+   "type": "floor_lamp",
+   "front_rule": "none",
+   "geometric_front": null,
+   "geometric_note": "type without a front",
+   "rank": 1,
+   "sheet_pixels": {
+    "sha256": "965c9fe7b8746af1f261f14b5a1e5937af4953627a33614cad90535f5d644515",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_floor_lamp_japandi_1_4be1c62d.jpg",
+   "thumb": "thumbs/floor_lamp/gen_floor_lamp_japandi_1_4be1c62d.jpg"
+  },
+  "gen_floor_lamp_japandi_2_ef5fd39d": {
+   "uid": "gen_floor_lamp_japandi_2_ef5fd39d",
+   "group": "floor_lamp",
+   "types": [
+    "floor_lamp"
+   ],
+   "title": "Generated japandi floor lamp (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 147219,
+    "triangles": 186180,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 4.91,
+    "bbox_min_raw": [
+     -0.23717543482780457,
+     -0.23590423166751862,
+     -0.5006805658340454
+    ],
+    "bbox_max_raw": [
+     0.23718038201332092,
+     0.2358175814151764,
+     0.5010526180267334
+    ],
+    "extents_raw": [
+     0.4743558168411255,
+     0.471721813082695,
+     1.0017331838607788
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     0.0023,
+     -0.0028
+    ],
+    "side_counts": {
+     "-x": 4387,
+     "+x": 4526,
+     "-y": 4987,
+     "+y": 4786
+    },
+    "panel_fraction": {
+     "-x": 0.1403,
+     "+x": 0.1403,
+     "-y": 0.1519,
+     "+y": 0.1532
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 1.1979237790397252,
+    "type": "floor_lamp",
+    "dims_m": [
+     0.5682,
+     0.5651,
+     1.2
+    ],
+    "fits": [],
+    "normalised": true,
+    "note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.474 x 0.472 x 1 (raw); x1.19792 scales the raw footprint to the typical floor_lamp footprint (size table centre 0.425 x 0.425 m), moved from x0.89845 to keep the box in the floor_lamp range: 0.568 x 0.565 x 1.2 m; its proportions are in the floor_lamp range"
+   },
+   "status": "ready",
+   "type": "floor_lamp",
+   "front_rule": "none",
+   "geometric_front": null,
+   "geometric_note": "type without a front",
+   "rank": 2,
+   "sheet_pixels": {
+    "sha256": "328099d699670780d1aea649d434930fa2630d1b623fca542037f3153cbc61f0",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_floor_lamp_japandi_2_ef5fd39d.jpg",
+   "thumb": "thumbs/floor_lamp/gen_floor_lamp_japandi_2_ef5fd39d.jpg"
+  },
+  "gen_fridge_scandinavian_1_315b4d87": {
+   "uid": "gen_fridge_scandinavian_1_315b4d87",
+   "group": "fridge",
+   "types": [
+    "fridge"
+   ],
+   "title": "Generated scandinavian fridge (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 142736,
+    "triangles": 195645,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 4.94,
+    "bbox_min_raw": [
+     -0.22764000296592712,
+     -0.29320651292800903,
+     -0.5009588599205017
+    ],
+    "bbox_max_raw": [
+     0.22903408110141754,
+     0.29747292399406433,
+     0.5009837746620178
+    ],
+    "extents_raw": [
+     0.45667408406734467,
+     0.5906794369220734,
+     1.0019426345825195
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     0.0153,
+     0.0328
+    ],
+    "side_counts": {
+     "-x": 13550,
+     "+x": 11892,
+     "-y": 892,
+     "+y": 4551
+    },
+    "panel_fraction": {
+     "-x": 1.3476,
+     "+x": 0.759,
+     "-y": 0.0115,
+     "+y": 0.0424
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 1.3699458743440704,
+    "type": "fridge",
+    "dims_m": [
+     0.6256,
+     0.8092,
+     1.3726
+    ],
+    "fits": [],
+    "normalised": true,
+    "note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.457 x 0.591 x 1 (raw); x1.36995 scales the raw footprint to the typical fridge footprint (size table centre 0.75 x 0.675 m): 0.626 x 0.809 x 1.37 m; its proportions are in the fridge range"
+   },
+   "status": "ready",
+   "type": "fridge",
+   "front_rule": "detail_side",
+   "geometric_front": "+Y",
+   "geometric_note": "detail_side: 4551 vs 892 vertices in the y slabs: front +Y",
+   "rank": 1,
+   "sheet_pixels": {
+    "sha256": "a915d6cf5314599b6eef9946ef601b5188b633cad5a668293634da93d80f3d07",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_fridge_scandinavian_1_315b4d87.jpg",
+   "thumb": "thumbs/fridge/gen_fridge_scandinavian_1_315b4d87.jpg"
+  },
+  "gen_fridge_scandinavian_2_5eb44a0e": {
+   "uid": "gen_fridge_scandinavian_2_5eb44a0e",
+   "group": "fridge",
+   "types": [
+    "fridge"
+   ],
+   "title": "Generated scandinavian fridge (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 134115,
+    "triangles": 199209,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 4.92,
+    "bbox_min_raw": [
+     -0.22908084094524384,
+     -0.23180708289146423,
+     -0.500752329826355
+    ],
+    "bbox_max_raw": [
+     0.22534939646720886,
+     0.23485225439071655,
+     0.5009839534759521
+    ],
+    "extents_raw": [
+     0.4544302374124527,
+     0.4666593372821808,
+     1.0017362833023071
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     -0.0009,
+     -0.1301
+    ],
+    "side_counts": {
+     "-x": 21003,
+     "+x": 19367,
+     "-y": 2998,
+     "+y": 15701
+    },
+    "panel_fraction": {
+     "-x": 0.8528,
+     "+x": 0.8483,
+     "-y": 0.032,
+     "+y": 0.9198
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 1.5450727302083689,
+    "type": "fridge",
+    "dims_m": [
+     0.7021,
+     0.721,
+     1.5478
+    ],
+    "fits": [],
+    "normalised": true,
+    "note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.454 x 0.467 x 1 (raw); x1.54507 scales the raw footprint to the typical fridge footprint (size table centre 0.75 x 0.675 m): 0.702 x 0.721 x 1.55 m; its proportions are in the fridge range"
+   },
+   "status": "ready",
+   "type": "fridge",
+   "front_rule": "detail_side",
+   "geometric_front": "+Y",
+   "geometric_note": "detail_side: 15701 vs 2998 vertices in the y slabs: front +Y",
+   "rank": 2,
+   "sheet_pixels": {
+    "sha256": "95c758287517a6e41f24a3e6ab7be2c8ae41097e237f27496995f49879ee4aa8",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_fridge_scandinavian_2_5eb44a0e.jpg",
+   "thumb": "thumbs/fridge/gen_fridge_scandinavian_2_5eb44a0e.jpg"
+  },
+  "gen_fridge_japandi_1_4c9cd582": {
+   "uid": "gen_fridge_japandi_1_4c9cd582",
+   "group": "fridge",
+   "types": [
+    "fridge"
+   ],
+   "title": "Generated japandi fridge (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 157152,
+    "triangles": 189052,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 4.9,
+    "bbox_min_raw": [
+     -0.22306077182292938,
+     -0.20205004513263702,
+     -0.5009716749191284
+    ],
+    "bbox_max_raw": [
+     0.2231857031583786,
+     0.2007267326116562,
+     0.5009993314743042
+    ],
+    "extents_raw": [
+     0.446246474981308,
+     0.4027767777442932,
+     1.0019710063934326
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     -0.013,
+     0.0059
+    ],
+    "side_counts": {
+     "-x": 20054,
+     "+x": 17621,
+     "-y": 17227,
+     "+y": 54900
+    },
+    "panel_fraction": {
+     "-x": 0.8829,
+     "+x": 0.8811,
+     "-y": 0.9334,
+     "+y": 0.922
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 1.6782741575426217,
+    "type": "fridge",
+    "dims_m": [
+     0.7489,
+     0.676,
+     1.6816
+    ],
+    "fits": [],
+    "normalised": true,
+    "note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.446 x 0.403 x 1 (raw); x1.67827 scales the raw footprint to the typical fridge footprint (size table centre 0.75 x 0.675 m): 0.749 x 0.676 x 1.68 m; its proportions are in the fridge range"
+   },
+   "status": "ready",
+   "type": "fridge",
+   "front_rule": "detail_side",
+   "geometric_front": "+Y",
+   "geometric_note": "detail_side: 54900 vs 17227 vertices in the y slabs: front +Y",
+   "rank": 3,
+   "sheet_pixels": {
+    "sha256": "513c6f9c03c590ac85cf149739a054c3ca9913285487af0b21db4ece8d7af27c",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_fridge_japandi_1_4c9cd582.jpg",
+   "thumb": "thumbs/fridge/gen_fridge_japandi_1_4c9cd582.jpg"
+  },
+  "gen_fridge_japandi_2_4c7dbc82": {
+   "uid": "gen_fridge_japandi_2_4c7dbc82",
+   "group": "fridge",
+   "types": [
+    "fridge"
+   ],
+   "title": "Generated japandi fridge (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 134278,
+    "triangles": 195625,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 4.91,
+    "bbox_min_raw": [
+     -0.2258579283952713,
+     -0.24508699774742126,
+     -0.5009450912475586
+    ],
+    "bbox_max_raw": [
+     0.22545172274112701,
+     0.24626919627189636,
+     0.5009638667106628
+    ],
+    "extents_raw": [
+     0.4513096511363983,
+     0.4913561940193176,
+     1.0019089579582214
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     -0.0243,
+     -0.1212
+    ],
+    "side_counts": {
+     "-x": 21170,
+     "+x": 18405,
+     "-y": 1005,
+     "+y": 14317
+    },
+    "panel_fraction": {
+     "-x": 1.5133,
+     "+x": 1.51,
+     "-y": 0.0256,
+     "+y": 1.7716
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 1.5109392047581485,
+    "type": "fridge",
+    "dims_m": [
+     0.6819,
+     0.7424,
+     1.5138
+    ],
+    "fits": [],
+    "normalised": true,
+    "note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.451 x 0.491 x 1 (raw); x1.51094 scales the raw footprint to the typical fridge footprint (size table centre 0.75 x 0.675 m): 0.682 x 0.742 x 1.51 m; its proportions are in the fridge range"
+   },
+   "status": "ready",
+   "type": "fridge",
+   "front_rule": "detail_side",
+   "geometric_front": "+Y",
+   "geometric_note": "detail_side: 14317 vs 1005 vertices in the y slabs: front +Y",
+   "rank": 4,
+   "sheet_pixels": {
+    "sha256": "7fba27bec7a993faca4ec160e66ac816aa8a04932474973063a6a373b2df7096",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_fridge_japandi_2_4c7dbc82.jpg",
+   "thumb": "thumbs/fridge/gen_fridge_japandi_2_4c7dbc82.jpg"
+  },
+  "gen_potted_plant_scandinavian_1_04f97c4b": {
+   "uid": "gen_potted_plant_scandinavian_1_04f97c4b",
+   "group": "potted_plant",
+   "types": [
+    "potted_plant"
+   ],
+   "title": "Generated scandinavian potted plant (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 164842,
+    "triangles": 189902,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 5.02,
+    "bbox_min_raw": [
+     -0.28602710366249084,
+     -0.27796703577041626,
+     -0.5003751516342163
+    ],
+    "bbox_max_raw": [
+     0.28723180294036865,
+     0.2777844965457916,
+     0.4993235468864441
+    ],
+    "extents_raw": [
+     0.5732589066028595,
+     0.5557515323162079,
+     0.9996986985206604
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     -0.0084,
+     0.0136
+    ],
+    "side_counts": {
+     "-x": 345,
+     "+x": 265,
+     "-y": 214,
+     "+y": 173
+    },
+    "panel_fraction": {
+     "-x": 0.0002,
+     "+x": 0.0001,
+     "-y": 0.0002,
+     "+y": 0.0001
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 1.0,
+    "type": "potted_plant",
+    "dims_m": [
+     0.5733,
+     0.5558,
+     0.9997
+    ],
+    "fits": [
+     {
+      "scale": 1.0,
+      "types": [
+       "potted_plant"
+      ],
+      "dims_m": [
+       0.5733,
+       0.5558,
+       0.9997
+      ]
+     }
+    ],
+    "note": "x1: 0.573 x 0.556 x 1 (raw) -> 0.573 x 0.556 x 1 m in the potted_plant range"
+   },
+   "status": "ready",
+   "type": "potted_plant",
+   "front_rule": "none",
+   "geometric_front": null,
+   "geometric_note": "type without a front",
+   "rank": 1,
+   "sheet_pixels": {
+    "sha256": "8533d060abe071087f4fd65bfac5744268a6d2091150699efee70ae19f3e4afa",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_potted_plant_scandinavian_1_04f97c4b.jpg",
+   "thumb": "thumbs/potted_plant/gen_potted_plant_scandinavian_1_04f97c4b.jpg"
+  },
+  "gen_potted_plant_scandinavian_2_98f7bbd2": {
+   "uid": "gen_potted_plant_scandinavian_2_98f7bbd2",
+   "group": "potted_plant",
+   "types": [
+    "potted_plant"
+   ],
+   "title": "Generated scandinavian potted plant (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 167630,
+    "triangles": 192012,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 5.04,
+    "bbox_min_raw": [
+     -0.2475796788930893,
+     -0.2179608941078186,
+     -0.5008590221405029
+    ],
+    "bbox_max_raw": [
+     0.2404242753982544,
+     0.22967135906219482,
+     0.5001813173294067
+    ],
+    "extents_raw": [
+     0.4880039542913437,
+     0.4476322531700134,
+     1.0010403394699097
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     0.0527,
+     -0.0011
+    ],
+    "side_counts": {
+     "-x": 102,
+     "+x": 109,
+     "-y": 224,
+     "+y": 300
+    },
+    "panel_fraction": {
+     "-x": 0.0001,
+     "+x": 0.0,
+     "-y": 0.0001,
+     "+y": 0.0002
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 1.0,
+    "type": "potted_plant",
+    "dims_m": [
+     0.488,
+     0.4476,
+     1.001
+    ],
+    "fits": [
+     {
+      "scale": 1.0,
+      "types": [
+       "potted_plant"
+      ],
+      "dims_m": [
+       0.488,
+       0.4476,
+       1.001
+      ]
+     }
+    ],
+    "note": "x1: 0.488 x 0.448 x 1 (raw) -> 0.488 x 0.448 x 1 m in the potted_plant range"
+   },
+   "status": "ready",
+   "type": "potted_plant",
+   "front_rule": "none",
+   "geometric_front": null,
+   "geometric_note": "type without a front",
+   "rank": 2,
+   "sheet_pixels": {
+    "sha256": "22c6c08fb2c57794b179d26408270971516ed04f26abafc92292fdef0d903d79",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_potted_plant_scandinavian_2_98f7bbd2.jpg",
+   "thumb": "thumbs/potted_plant/gen_potted_plant_scandinavian_2_98f7bbd2.jpg"
+  },
+  "gen_potted_plant_japandi_1_63c10a71": {
+   "uid": "gen_potted_plant_japandi_1_63c10a71",
+   "group": "potted_plant",
+   "types": [
+    "potted_plant"
+   ],
+   "title": "Generated japandi potted plant (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 204758,
+    "triangles": 187695,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 5.22,
+    "bbox_min_raw": [
+     -0.22909539937973022,
+     -0.247602641582489,
+     -0.5009764432907104
+    ],
+    "bbox_max_raw": [
+     0.22100844979286194,
+     0.2303360104560852,
+     0.499620258808136
+    ],
+    "extents_raw": [
+     0.45010384917259216,
+     0.4779386520385742,
+     1.0005967020988464
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     0.0269,
+     -0.0035
+    ],
+    "side_counts": {
+     "-x": 76,
+     "+x": 434,
+     "-y": 413,
+     "+y": 382
+    },
+    "panel_fraction": {
+     "-x": 0.0,
+     "+x": 0.0001,
+     "-y": 0.0,
+     "+y": 0.0001
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 1.0,
+    "type": "potted_plant",
+    "dims_m": [
+     0.4501,
+     0.4779,
+     1.0006
+    ],
+    "fits": [
+     {
+      "scale": 1.0,
+      "types": [
+       "potted_plant"
+      ],
+      "dims_m": [
+       0.4501,
+       0.4779,
+       1.0006
+      ]
+     }
+    ],
+    "note": "x1: 0.45 x 0.478 x 1 (raw) -> 0.45 x 0.478 x 1 m in the potted_plant range"
+   },
+   "status": "ready",
+   "type": "potted_plant",
+   "front_rule": "none",
+   "geometric_front": null,
+   "geometric_note": "type without a front",
+   "rank": 3,
+   "sheet_pixels": {
+    "sha256": "e26396d8263694e924fb1faf2da68a82938771ac41789bd5602ce4e8a06d3c71",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_potted_plant_japandi_1_63c10a71.jpg",
+   "thumb": "thumbs/potted_plant/gen_potted_plant_japandi_1_63c10a71.jpg"
+  },
+  "gen_potted_plant_japandi_2_9a3effd1": {
+   "uid": "gen_potted_plant_japandi_2_9a3effd1",
+   "group": "potted_plant",
+   "types": [
+    "potted_plant"
+   ],
+   "title": "Generated japandi potted plant (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 152580,
+    "triangles": 191153,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 5.07,
+    "bbox_min_raw": [
+     -0.2543257474899292,
+     -0.2185853272676468,
+     -0.5009744167327881
+    ],
+    "bbox_max_raw": [
+     0.2555712163448334,
+     0.217945396900177,
+     0.49327659606933594
+    ],
+    "extents_raw": [
+     0.5098969638347626,
+     0.4365307241678238,
+     0.994251012802124
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     0.0139,
+     -0.0071
+    ],
+    "side_counts": {
+     "-x": 260,
+     "+x": 195,
+     "-y": 239,
+     "+y": 218
+    },
+    "panel_fraction": {
+     "-x": 0.0001,
+     "+x": 0.0001,
+     "-y": 0.0001,
+     "+y": 0.0001
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 1.0,
+    "type": "potted_plant",
+    "dims_m": [
+     0.5099,
+     0.4365,
+     0.9943
+    ],
+    "fits": [
+     {
+      "scale": 1.0,
+      "types": [
+       "potted_plant"
+      ],
+      "dims_m": [
+       0.5099,
+       0.4365,
+       0.9943
+      ]
+     }
+    ],
+    "note": "x1: 0.51 x 0.437 x 0.994 (raw) -> 0.51 x 0.436 x 0.994 m in the potted_plant range"
+   },
+   "status": "ready",
+   "type": "potted_plant",
+   "front_rule": "none",
+   "geometric_front": null,
+   "geometric_note": "type without a front",
+   "rank": 4,
+   "sheet_pixels": {
+    "sha256": "9cf8f6888ad7b08316d4e44420e3045bb87feaab51ac89f682adda0a74aab463",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_potted_plant_japandi_2_9a3effd1.jpg",
+   "thumb": "thumbs/potted_plant/gen_potted_plant_japandi_2_9a3effd1.jpg"
+  },
+  "gen_shower_scandinavian_1_0ae4a37a": {
+   "uid": "gen_shower_scandinavian_1_0ae4a37a",
+   "group": "shower",
+   "types": [
+    "shower"
+   ],
+   "title": "Generated scandinavian shower (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 120866,
+    "triangles": 185591,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 4.88,
+    "bbox_min_raw": [
+     -0.25394195318222046,
+     -0.2869880795478821,
+     -0.5009725093841553
+    ],
+    "bbox_max_raw": [
+     0.2538825273513794,
+     0.2859945297241211,
+     0.5010227560997009
+    ],
+    "extents_raw": [
+     0.5078244805335999,
+     0.5729826092720032,
+     1.0019952654838562
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     -0.013,
+     0.1466
+    ],
+    "side_counts": {
+     "-x": 14045,
+     "+x": 12796,
+     "-y": 7309,
+     "+y": 34735
+    },
+    "panel_fraction": {
+     "-x": 0.5243,
+     "+x": 0.5253,
+     "-y": 0.023,
+     "+y": 2.5485
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 1.9376850385376776,
+    "type": "shower",
+    "dims_m": [
+     0.984,
+     1.1103,
+     1.9416
+    ],
+    "fits": [],
+    "normalised": true,
+    "note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.508 x 0.573 x 1 (raw); x1.93769 scales the raw footprint to the typical shower footprint (size table centre 1.15 x 0.95 m): 0.984 x 1.11 x 1.94 m; its proportions are in the shower range"
+   },
+   "status": "ready",
+   "type": "shower",
+   "front_rule": "none",
+   "geometric_front": null,
+   "geometric_note": "type without a front",
+   "rank": 1,
+   "sheet_pixels": {
+    "sha256": "88d6074674a4624282decdde56dcb2c448c7c59d39cd6d434fc444cd6a391dec",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_shower_scandinavian_1_0ae4a37a.jpg",
+   "thumb": "thumbs/shower/gen_shower_scandinavian_1_0ae4a37a.jpg"
+  },
+  "gen_shower_scandinavian_2_88469e91": {
+   "uid": "gen_shower_scandinavian_2_88469e91",
+   "group": "shower",
+   "types": [
+    "shower"
+   ],
+   "title": "Generated scandinavian shower (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 132320,
+    "triangles": 191034,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 4.86,
+    "bbox_min_raw": [
+     -0.3570031225681305,
+     -0.2785611152648926,
+     -0.5009725689888
+    ],
+    "bbox_max_raw": [
+     0.35705071687698364,
+     0.2779706120491028,
+     0.5005866289138794
+    ],
+    "extents_raw": [
+     0.7140538394451141,
+     0.5565317273139954,
+     1.0015591979026794
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     0.0093,
+     0.0202
+    ],
+    "side_counts": {
+     "-x": 9511,
+     "+x": 11372,
+     "-y": 17841,
+     "+y": 17376
+    },
+    "panel_fraction": {
+     "-x": 0.2135,
+     "+x": 0.3808,
+     "-y": 0.4831,
+     "+y": 0.7687
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 1.7971978147365628,
+    "type": "shower",
+    "dims_m": [
+     1.2833,
+     1.0002,
+     1.8
+    ],
+    "fits": [],
+    "normalised": true,
+    "note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.714 x 0.557 x 1 (raw); x1.7972 scales the raw footprint to the typical shower footprint (size table centre 1.15 x 0.95 m), moved from x1.65806 to keep the box in the shower range: 1.28 x 1 x 1.8 m; its proportions are in the shower range"
+   },
+   "status": "ready",
+   "type": "shower",
+   "front_rule": "none",
+   "geometric_front": null,
+   "geometric_note": "type without a front",
+   "rank": 2,
+   "sheet_pixels": {
+    "sha256": "21b094e3258e362c41c8a2a44f17c614de1461d6d71435cf0ac28fac0b007b94",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_shower_scandinavian_2_88469e91.jpg",
+   "thumb": "thumbs/shower/gen_shower_scandinavian_2_88469e91.jpg"
+  },
+  "gen_shower_modern_minimal_1_d787862a": {
+   "uid": "gen_shower_modern_minimal_1_d787862a",
+   "group": "shower",
+   "types": [
+    "shower"
+   ],
+   "title": "Generated modern minimal shower (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 153748,
+    "triangles": 188039,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 4.98,
+    "bbox_min_raw": [
+     -0.2878465950489044,
+     -0.3333047330379486,
+     -0.5009483098983765
+    ],
+    "bbox_max_raw": [
+     0.28665339946746826,
+     0.3254380226135254,
+     0.5010899305343628
+    ],
+    "extents_raw": [
+     0.5744999945163727,
+     0.658742755651474,
+     1.0020382404327393
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     -0.0015,
+     -0.0245
+    ],
+    "side_counts": {
+     "-x": 9291,
+     "+x": 23619,
+     "-y": 4719,
+     "+y": 18036
+    },
+    "panel_fraction": {
+     "-x": 0.1932,
+     "+x": 0.8205,
+     "-y": 0.1038,
+     "+y": 0.7245
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 1.7963386317698355,
+    "type": "shower",
+    "dims_m": [
+     1.032,
+     1.1833,
+     1.8
+    ],
+    "fits": [],
+    "normalised": true,
+    "note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.574 x 0.659 x 1 (raw); x1.79634 scales the raw footprint to the typical shower footprint (size table centre 1.15 x 0.95 m), moved from x1.69906 to keep the box in the shower range: 1.03 x 1.18 x 1.8 m; its proportions are in the shower range"
+   },
+   "status": "ready",
+   "type": "shower",
+   "front_rule": "none",
+   "geometric_front": null,
+   "geometric_note": "type without a front",
+   "rank": 3,
+   "sheet_pixels": {
+    "sha256": "0b9dedffcfc1d840e6e71f369084aa83d4861c673a0013564a63f5b35dbe39d5",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_shower_modern_minimal_1_d787862a.jpg",
+   "thumb": "thumbs/shower/gen_shower_modern_minimal_1_d787862a.jpg"
+  },
+  "gen_shower_modern_minimal_2_dab54bc3": {
+   "uid": "gen_shower_modern_minimal_2_dab54bc3",
+   "group": "shower",
+   "types": [
+    "shower"
+   ],
+   "title": "Generated modern minimal shower (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 130841,
+    "triangles": 192153,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 4.81,
+    "bbox_min_raw": [
+     -0.3217930793762207,
+     -0.21447159349918365,
+     -0.500976026058197
+    ],
+    "bbox_max_raw": [
+     0.3218061327934265,
+     0.2148166000843048,
+     0.5010505318641663
+    ],
+    "extents_raw": [
+     0.6435992121696472,
+     0.42928819358348846,
+     1.0020265579223633
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     -0.0124,
+     0.0111
+    ],
+    "side_counts": {
+     "-x": 26341,
+     "+x": 24622,
+     "-y": 29814,
+     "+y": 33040
+    },
+    "panel_fraction": {
+     "-x": 1.7524,
+     "+x": 1.745,
+     "-y": 0.977,
+     "+y": 0.9543
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 1.9885132934679615,
+    "type": "shower",
+    "dims_m": [
+     1.2798,
+     0.8536,
+     1.9925
+    ],
+    "fits": [],
+    "normalised": true,
+    "note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.644 x 0.429 x 1 (raw); x1.98851 scales the raw footprint to the typical shower footprint (size table centre 1.15 x 0.95 m): 1.28 x 0.854 x 1.99 m; its proportions are in the shower range"
+   },
+   "status": "ready",
+   "type": "shower",
+   "front_rule": "none",
+   "geometric_front": null,
+   "geometric_note": "type without a front",
+   "rank": 4,
+   "sheet_pixels": {
+    "sha256": "0bd28ad71cf7820f3b5e205387064c13918f74cb23bd4077e96ea8d8eda900a8",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_shower_modern_minimal_2_dab54bc3.jpg",
+   "thumb": "thumbs/shower/gen_shower_modern_minimal_2_dab54bc3.jpg"
+  },
+  "gen_shower_japandi_1_dcdcd4dc": {
+   "uid": "gen_shower_japandi_1_dcdcd4dc",
+   "group": "shower",
+   "types": [
+    "shower"
+   ],
+   "title": "Generated japandi shower (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 141490,
+    "triangles": 198762,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 4.96,
+    "bbox_min_raw": [
+     -0.3002142310142517,
+     -0.22035430371761322,
+     -0.5009880065917969
+    ],
+    "bbox_max_raw": [
+     0.30015864968299866,
+     0.2224915325641632,
+     0.5010242462158203
+    ],
+    "extents_raw": [
+     0.6003728806972504,
+     0.44284583628177643,
+     1.0020122528076172
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     0.0439,
+     -0.3089
+    ],
+    "side_counts": {
+     "-x": 22203,
+     "+x": 29271,
+     "-y": 38404,
+     "+y": 14595
+    },
+    "panel_fraction": {
+     "-x": 0.0525,
+     "+x": 0.0738,
+     "-y": 0.0804,
+     "+y": 0.0359
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 2.027094086283482,
+    "type": "shower",
+    "dims_m": [
+     1.217,
+     0.8977,
+     2.0312
+    ],
+    "fits": [],
+    "normalised": true,
+    "note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.6 x 0.443 x 1 (raw); x2.02709 scales the raw footprint to the typical shower footprint (size table centre 1.15 x 0.95 m): 1.22 x 0.898 x 2.03 m; its proportions are in the shower range"
+   },
+   "status": "ready",
+   "type": "shower",
+   "front_rule": "none",
+   "geometric_front": null,
+   "geometric_note": "type without a front",
+   "rank": 5,
+   "sheet_pixels": {
+    "sha256": "dcace31133dff7823a8a2bf74ef9e24bcfbe85c1d41df74cebdec33203e42b37",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_shower_japandi_1_dcdcd4dc.jpg",
+   "thumb": "thumbs/shower/gen_shower_japandi_1_dcdcd4dc.jpg"
+  },
+  "gen_shower_japandi_2_b6c31e9a": {
+   "uid": "gen_shower_japandi_2_b6c31e9a",
+   "group": "shower",
+   "types": [
+    "shower"
+   ],
+   "title": "Generated japandi shower (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 131764,
+    "triangles": 188960,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 4.98,
+    "bbox_min_raw": [
+     -0.30723807215690613,
+     -0.22183862328529358,
+     -0.500971257686615
+    ],
+    "bbox_max_raw": [
+     0.3073056936264038,
+     0.2221110463142395,
+     0.5009663105010986
+    ],
+    "extents_raw": [
+     0.6145437657833099,
+     0.4439496695995331,
+     1.0019375681877136
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     0.0383,
+     0.0223
+    ],
+    "side_counts": {
+     "-x": 25551,
+     "+x": 27182,
+     "-y": 35872,
+     "+y": 19238
+    },
+    "panel_fraction": {
+     "-x": 0.1168,
+     "+x": 0.1186,
+     "-y": 0.1577,
+     "+y": 0.1977
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 2.0010937963224054,
+    "type": "shower",
+    "dims_m": [
+     1.2298,
+     0.8884,
+     2.005
+    ],
+    "fits": [],
+    "normalised": true,
+    "note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.615 x 0.444 x 1 (raw); x2.00109 scales the raw footprint to the typical shower footprint (size table centre 1.15 x 0.95 m): 1.23 x 0.888 x 2 m; its proportions are in the shower range"
+   },
+   "status": "ready",
+   "type": "shower",
+   "front_rule": "none",
+   "geometric_front": null,
+   "geometric_note": "type without a front",
+   "rank": 6,
+   "sheet_pixels": {
+    "sha256": "2d8ea21afb1325d1a45c8a3583b074878a45a8c7e7cf733ae43b93e790a47521",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_shower_japandi_2_b6c31e9a.jpg",
+   "thumb": "thumbs/shower/gen_shower_japandi_2_b6c31e9a.jpg"
+  },
+  "gen_shower_modern_1_1cb8199a": {
+   "uid": "gen_shower_modern_1_1cb8199a",
+   "group": "shower",
+   "types": [
+    "shower"
+   ],
+   "title": "Generated modern shower (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 136073,
+    "triangles": 199041,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 4.96,
+    "bbox_min_raw": [
+     -0.3004229962825775,
+     -0.20632246136665344,
+     -0.5010096430778503
+    ],
+    "bbox_max_raw": [
+     0.30326423048973083,
+     0.20831455290317535,
+     0.500905454158783
+    ],
+    "extents_raw": [
+     0.6036872267723083,
+     0.4146370142698288,
+     1.0019150972366333
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     -0.0213,
+     -0.0464
+    ],
+    "side_counts": {
+     "-x": 28623,
+     "+x": 30216,
+     "-y": 39328,
+     "+y": 52393
+    },
+    "panel_fraction": {
+     "-x": 0.1516,
+     "+x": 0.1438,
+     "-y": 0.1864,
+     "+y": 0.168
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 2.089155156191683,
+    "type": "shower",
+    "dims_m": [
+     1.2612,
+     0.8662,
+     2.0932
+    ],
+    "fits": [],
+    "normalised": true,
+    "note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.604 x 0.415 x 1 (raw); x2.08916 scales the raw footprint to the typical shower footprint (size table centre 1.15 x 0.95 m): 1.26 x 0.866 x 2.09 m; its proportions are in the shower range"
+   },
+   "status": "ready",
+   "type": "shower",
+   "front_rule": "none",
+   "geometric_front": null,
+   "geometric_note": "type without a front",
+   "rank": 7,
+   "sheet_pixels": {
+    "sha256": "a0ff23c03e1dddf8c4b8ebd659002ad180c5cb9eb2083fbf370284c5bec92761",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_shower_modern_1_1cb8199a.jpg",
+   "thumb": "thumbs/shower/gen_shower_modern_1_1cb8199a.jpg"
+  },
+  "gen_shower_modern_2_707d4703": {
+   "uid": "gen_shower_modern_2_707d4703",
+   "group": "shower",
+   "types": [
+    "shower"
+   ],
+   "title": "Generated modern shower (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 137919,
+    "triangles": 198331,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 4.98,
+    "bbox_min_raw": [
+     -0.2876375615596771,
+     -0.2262699455022812,
+     -0.5009774565696716
+    ],
+    "bbox_max_raw": [
+     0.2894379496574402,
+     0.22641512751579285,
+     0.5009487271308899
+    ],
+    "extents_raw": [
+     0.5770755112171173,
+     0.45268507301807404,
+     1.0019261837005615
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     0.0987,
+     0.1181
+    ],
+    "side_counts": {
+     "-x": 10008,
+     "+x": 28412,
+     "-y": 14236,
+     "+y": 19863
+    },
+    "panel_fraction": {
+     "-x": 0.035,
+     "+x": 0.1053,
+     "-y": 0.0401,
+     "+y": 0.0577
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 2.0450141306814023,
+    "type": "shower",
+    "dims_m": [
+     1.1801,
+     0.9257,
+     2.049
+    ],
+    "fits": [],
+    "normalised": true,
+    "note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.577 x 0.453 x 1 (raw); x2.04501 scales the raw footprint to the typical shower footprint (size table centre 1.15 x 0.95 m): 1.18 x 0.926 x 2.05 m; its proportions are in the shower range"
+   },
+   "status": "ready",
+   "type": "shower",
+   "front_rule": "none",
+   "geometric_front": null,
+   "geometric_note": "type without a front",
+   "rank": 8,
+   "sheet_pixels": {
+    "sha256": "60865b8635ec62d5c0e8b8920c1c99a3896c637443e3ff0e1e10a1bf50f9ca47",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_shower_modern_2_707d4703.jpg",
+   "thumb": "thumbs/shower/gen_shower_modern_2_707d4703.jpg"
+  },
+  "gen_sink_kitchen_scandinavian_1_dbad65c6": {
+   "uid": "gen_sink_kitchen_scandinavian_1_dbad65c6",
+   "group": "sink_kitchen",
+   "types": [
+    "sink_kitchen"
+   ],
+   "title": "Generated scandinavian sink kitchen (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 116439,
+    "triangles": 191979,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 4.89,
+    "bbox_min_raw": [
+     -0.29886436462402344,
+     -0.41491714119911194,
+     -0.500990092754364
+    ],
+    "bbox_max_raw": [
+     0.29875412583351135,
+     0.41486093401908875,
+     0.500786542892456
+    ],
+    "extents_raw": [
+     0.5976184904575348,
+     0.8297780752182007,
+     1.00177663564682
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     0.2186,
+     -0.0071
+    ],
+    "side_counts": {
+     "-x": 4817,
+     "+x": 2714,
+     "-y": 15445,
+     "+y": 16382
+    },
+    "panel_fraction": {
+     "-x": 0.1649,
+     "+x": 0.0552,
+     "-y": 1.1356,
+     "+y": 1.1368
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 1.0,
+    "type": "sink_kitchen",
+    "dims_m": [
+     0.5976,
+     0.8298,
+     1.0018
+    ],
+    "fits": [
+     {
+      "scale": 1.0,
+      "types": [
+       "sink_kitchen"
+      ],
+      "dims_m": [
+       0.5976,
+       0.8298,
+       1.0018
+      ]
+     }
+    ],
+    "note": "x1: 0.598 x 0.83 x 1 (raw) -> 0.598 x 0.83 x 1 m in the sink_kitchen range"
+   },
+   "status": "ready",
+   "type": "sink_kitchen",
+   "front_rule": "detail_side",
+   "geometric_front": "-X",
+   "geometric_note": "detail_side: 4817 vs 2714 vertices in the x slabs: front -X",
+   "rank": 1,
+   "sheet_pixels": {
+    "sha256": "2514398263cf9787265f12d1d82a8e1d70975012128048618ddf1ac11e27c079",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_sink_kitchen_scandinavian_1_dbad65c6.jpg",
+   "thumb": "thumbs/sink_kitchen/gen_sink_kitchen_scandinavian_1_dbad65c6.jpg"
+  },
+  "gen_sink_kitchen_scandinavian_2_470fa047": {
+   "uid": "gen_sink_kitchen_scandinavian_2_470fa047",
+   "group": "sink_kitchen",
+   "types": [
+    "sink_kitchen"
+   ],
+   "title": "Generated scandinavian sink kitchen (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 123085,
+    "triangles": 197763,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 4.92,
+    "bbox_min_raw": [
+     -0.42944520711898804,
+     -0.2991918921470642,
+     -0.5009689927101135
+    ],
+    "bbox_max_raw": [
+     0.42939287424087524,
+     0.2990356683731079,
+     0.5009016990661621
+    ],
+    "extents_raw": [
+     0.8588380813598633,
+     0.5982275605201721,
+     1.0018706917762756
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     -0.0027,
+     0.1211
+    ],
+    "side_counts": {
+     "-x": 14463,
+     "+x": 13822,
+     "-y": 5120,
+     "+y": 10876
+    },
+    "panel_fraction": {
+     "-x": 1.1377,
+     "+x": 1.1353,
+     "-y": 0.1674,
+     "+y": 0.6156
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 1.0,
+    "type": "sink_kitchen",
+    "dims_m": [
+     0.8588,
+     0.5982,
+     1.0019
+    ],
+    "fits": [
+     {
+      "scale": 1.0,
+      "types": [
+       "sink_kitchen"
+      ],
+      "dims_m": [
+       0.8588,
+       0.5982,
+       1.0019
+      ]
+     }
+    ],
+    "note": "x1: 0.859 x 0.598 x 1 (raw) -> 0.859 x 0.598 x 1 m in the sink_kitchen range"
+   },
+   "status": "ready",
+   "type": "sink_kitchen",
+   "front_rule": "detail_side",
+   "geometric_front": "+Y",
+   "geometric_note": "detail_side: 10876 vs 5120 vertices in the y slabs: front +Y",
+   "rank": 2,
+   "sheet_pixels": {
+    "sha256": "4f5e97f50b16fc1987c4e7655f680265ffc2db4cb1ec8a2eedad813f3faecf18",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_sink_kitchen_scandinavian_2_470fa047.jpg",
+   "thumb": "thumbs/sink_kitchen/gen_sink_kitchen_scandinavian_2_470fa047.jpg"
+  },
+  "gen_sink_kitchen_modern_minimal_1_6cf9adeb": {
+   "uid": "gen_sink_kitchen_modern_minimal_1_6cf9adeb",
+   "group": "sink_kitchen",
+   "types": [
+    "sink_kitchen"
+   ],
+   "title": "Generated modern minimal sink kitchen (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 122132,
+    "triangles": 198777,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 4.77,
+    "bbox_min_raw": [
+     -0.5009620189666748,
+     -0.21218998730182648,
+     -0.2866819500923157
+    ],
+    "bbox_max_raw": [
+     0.5009700059890747,
+     0.21224144101142883,
+     0.28690004348754883
+    ],
+    "extents_raw": [
+     1.0019320249557495,
+     0.4244314283132553,
+     0.5735819935798645
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     0.0048,
+     -0.0621
+    ],
+    "side_counts": {
+     "-x": 12283,
+     "+x": 13358,
+     "-y": 25746,
+     "+y": 29420
+    },
+    "panel_fraction": {
+     "-x": 1.8851,
+     "+x": 1.917,
+     "-y": 1.6738,
+     "+y": 1.8871
+    }
+   },
+   "unit": {
+    "ok": false,
+    "code": "unit_none",
+    "fits": [],
+    "detail": "no factor (x1, x0.01, x0.0254, x0.001) puts 1 x 0.424 x 0.574 (raw) in the sink_kitchen range, and its proportions (footprint, height / width) are outside it at any scale"
+   },
+   "status": "refused",
+   "code": "unit_none",
+   "detail": "no factor (x1, x0.01, x0.0254, x0.001) puts 1 x 0.424 x 0.574 (raw) in the sink_kitchen range, and its proportions (footprint, height / width) are outside it at any scale"
+  },
+  "gen_sink_kitchen_modern_minimal_2_d36a47fa": {
+   "uid": "gen_sink_kitchen_modern_minimal_2_d36a47fa",
+   "group": "sink_kitchen",
+   "types": [
+    "sink_kitchen"
+   ],
+   "title": "Generated modern minimal sink kitchen (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 122064,
+    "triangles": 192249,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 4.89,
+    "bbox_min_raw": [
+     -0.5009504556655884,
+     -0.2433134913444519,
+     -0.298240065574646
+    ],
+    "bbox_max_raw": [
+     0.5009967088699341,
+     0.24336086213588715,
+     0.2982853651046753
+    ],
+    "extents_raw": [
+     1.0019471645355225,
+     0.48667435348033905,
+     0.5965254306793213
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     -0.0034,
+     -0.0162
+    ],
+    "side_counts": {
+     "-x": 11624,
+     "+x": 11917,
+     "-y": 17082,
+     "+y": 18126
+    },
+    "panel_fraction": {
+     "-x": 1.8309,
+     "+x": 1.9902,
+     "-y": 1.5327,
+     "+y": 1.9104
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 1.3410995737247322,
+    "type": "sink_kitchen",
+    "dims_m": [
+     1.3437,
+     0.6527,
+     0.8
+    ],
+    "fits": [],
+    "normalised": true,
+    "note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 1 x 0.487 x 0.597 (raw); x1.3411 scales the raw footprint to the typical sink_kitchen footprint (size table centre 0.825 x 0.5 m), moved from x0.919751 to keep the box in the sink_kitchen range: 1.34 x 0.653 x 0.8 m; its proportions are in the sink_kitchen range"
+   },
+   "status": "ready",
+   "type": "sink_kitchen",
+   "front_rule": "detail_side",
+   "geometric_front": null,
+   "geometric_note": "detail_side: vertex counts {'-x': 11624, '+x': 11917, '-y': 17082, '+y': 18126} give no side with 1.3x more detail",
+   "rank": 4,
+   "sheet_pixels": {
+    "sha256": "37b9ef21e3e401aa9c72208abadeed26c90937346af566fe3cc5b732fa5d86b4",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_sink_kitchen_modern_minimal_2_d36a47fa.jpg",
+   "thumb": "thumbs/sink_kitchen/gen_sink_kitchen_modern_minimal_2_d36a47fa.jpg"
+  },
+  "gen_sink_kitchen_japandi_1_a61d924d": {
+   "uid": "gen_sink_kitchen_japandi_1_a61d924d",
+   "group": "sink_kitchen",
+   "types": [
+    "sink_kitchen"
+   ],
+   "title": "Generated japandi sink kitchen (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 153475,
+    "triangles": 192176,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 4.88,
+    "bbox_min_raw": [
+     -0.5009802579879761,
+     -0.2448211908340454,
+     -0.3809957504272461
+    ],
+    "bbox_max_raw": [
+     0.5009884238243103,
+     0.2237333357334137,
+     0.3780825734138489
+    ],
+    "extents_raw": [
+     1.0019686818122864,
+     0.4685545265674591,
+     0.759078323841095
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     0.029,
+     0.0291
+    ],
+    "side_counts": {
+     "-x": 8629,
+     "+x": 7344,
+     "-y": 11829,
+     "+y": 8446
+    },
+    "panel_fraction": {
+     "-x": 1.5505,
+     "+x": 1.0928,
+     "-y": 0.5226,
+     "+y": 0.5561
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 1.0539096897825153,
+    "type": "sink_kitchen",
+    "dims_m": [
+     1.056,
+     0.4938,
+     0.8
+    ],
+    "fits": [],
+    "normalised": true,
+    "note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 1 x 0.469 x 0.759 (raw); x1.05391 scales the raw footprint to the typical sink_kitchen footprint (size table centre 0.825 x 0.5 m), moved from x0.937357 to keep the box in the sink_kitchen range: 1.06 x 0.494 x 0.8 m; its proportions are in the sink_kitchen range"
+   },
+   "status": "ready",
+   "type": "sink_kitchen",
+   "front_rule": "detail_side",
+   "geometric_front": null,
+   "geometric_note": "detail_side: x ratio 1.17 and y ratio 1.40 do not single out one axis",
+   "rank": 5,
+   "sheet_pixels": {
+    "sha256": "7257e971b073d9a03ad0d9edc2f9c7510a446644c5e026701acfdd0a2e251505",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_sink_kitchen_japandi_1_a61d924d.jpg",
+   "thumb": "thumbs/sink_kitchen/gen_sink_kitchen_japandi_1_a61d924d.jpg"
+  },
+  "gen_sink_kitchen_japandi_2_d6ae0419": {
+   "uid": "gen_sink_kitchen_japandi_2_d6ae0419",
+   "group": "sink_kitchen",
+   "types": [
+    "sink_kitchen"
+   ],
+   "title": "Generated japandi sink kitchen (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 117374,
+    "triangles": 191013,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 4.82,
+    "bbox_min_raw": [
+     -0.5009785890579224,
+     -0.28011611104011536,
+     -0.4414457082748413
+    ],
+    "bbox_max_raw": [
+     0.5009838342666626,
+     0.2799900770187378,
+     0.44092002511024475
+    ],
+    "extents_raw": [
+     1.001962423324585,
+     0.5601061880588531,
+     0.8823657333850861
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     0.0353,
+     0.1998
+    ],
+    "side_counts": {
+     "-x": 14030,
+     "+x": 13623,
+     "-y": 12902,
+     "+y": 3143
+    },
+    "panel_fraction": {
+     "-x": 1.5699,
+     "+x": 1.5702,
+     "-y": 0.92,
+     "+y": 0.0421
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 1.0,
+    "type": "sink_kitchen",
+    "dims_m": [
+     1.002,
+     0.5601,
+     0.8824
+    ],
+    "fits": [
+     {
+      "scale": 1.0,
+      "types": [
+       "sink_kitchen"
+      ],
+      "dims_m": [
+       1.002,
+       0.5601,
+       0.8824
+      ]
+     }
+    ],
+    "note": "x1: 1 x 0.56 x 0.882 (raw) -> 1 x 0.56 x 0.882 m in the sink_kitchen range"
+   },
+   "status": "ready",
+   "type": "sink_kitchen",
+   "front_rule": "detail_side",
+   "geometric_front": "-Y",
+   "geometric_note": "detail_side: 12902 vs 3143 vertices in the y slabs: front -Y",
+   "rank": 6,
+   "sheet_pixels": {
+    "sha256": "cc605f889f08edf0afc25fbe0062c699dd39162331c818e25adfe2af37bf46da",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_sink_kitchen_japandi_2_d6ae0419.jpg",
+   "thumb": "thumbs/sink_kitchen/gen_sink_kitchen_japandi_2_d6ae0419.jpg"
+  },
+  "gen_sink_kitchen_modern_1_5b97156d": {
+   "uid": "gen_sink_kitchen_modern_1_5b97156d",
+   "group": "sink_kitchen",
+   "types": [
+    "sink_kitchen"
+   ],
+   "title": "Generated modern sink kitchen (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 124717,
+    "triangles": 194825,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 4.75,
+    "bbox_min_raw": [
+     -0.4640504717826843,
+     -0.30546677112579346,
+     -0.5009843707084656
+    ],
+    "bbox_max_raw": [
+     0.46407070755958557,
+     0.3056930899620056,
+     0.5006877183914185
+    ],
+    "extents_raw": [
+     0.9281211793422699,
+     0.6111598610877991,
+     1.001672089099884
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     0.0019,
+     0.0951
+    ],
+    "side_counts": {
+     "-x": 11175,
+     "+x": 11750,
+     "-y": 3305,
+     "+y": 13938
+    },
+    "panel_fraction": {
+     "-x": 1.236,
+     "+x": 1.2347,
+     "-y": 0.1414,
+     "+y": 1.1816
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 1.0,
+    "type": "sink_kitchen",
+    "dims_m": [
+     0.9281,
+     0.6112,
+     1.0017
+    ],
+    "fits": [
+     {
+      "scale": 1.0,
+      "types": [
+       "sink_kitchen"
+      ],
+      "dims_m": [
+       0.9281,
+       0.6112,
+       1.0017
+      ]
+     }
+    ],
+    "note": "x1: 0.928 x 0.611 x 1 (raw) -> 0.928 x 0.611 x 1 m in the sink_kitchen range"
+   },
+   "status": "ready",
+   "type": "sink_kitchen",
+   "front_rule": "detail_side",
+   "geometric_front": "+Y",
+   "geometric_note": "detail_side: 13938 vs 3305 vertices in the y slabs: front +Y",
+   "rank": 7,
+   "sheet_pixels": {
+    "sha256": "63b87ffe8c0a2ec4f475693ac64d6e9674fae9aac8b04a5bc058209ba048c8ea",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_sink_kitchen_modern_1_5b97156d.jpg",
+   "thumb": "thumbs/sink_kitchen/gen_sink_kitchen_modern_1_5b97156d.jpg"
+  },
+  "gen_sink_kitchen_modern_2_b348b4dc": {
+   "uid": "gen_sink_kitchen_modern_2_b348b4dc",
+   "group": "sink_kitchen",
+   "types": [
+    "sink_kitchen"
+   ],
+   "title": "Generated modern sink kitchen (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 150560,
+    "triangles": 187636,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 4.77,
+    "bbox_min_raw": [
+     -0.5009654760360718,
+     -0.23507879674434662,
+     -0.4063023328781128
+    ],
+    "bbox_max_raw": [
+     0.5009866952896118,
+     0.23492169380187988,
+     0.40460145473480225
+    ],
+    "extents_raw": [
+     1.0019521713256836,
+     0.4700004905462265,
+     0.810903787612915
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     0.0034,
+     0.0804
+    ],
+    "side_counts": {
+     "-x": 8260,
+     "+x": 8025,
+     "-y": 16649,
+     "+y": 9769
+    },
+    "panel_fraction": {
+     "-x": 1.3842,
+     "+x": 1.3827,
+     "-y": 1.8744,
+     "+y": 1.3437
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 1.0,
+    "type": "sink_kitchen",
+    "dims_m": [
+     1.002,
+     0.47,
+     0.8109
+    ],
+    "fits": [
+     {
+      "scale": 1.0,
+      "types": [
+       "sink_kitchen"
+      ],
+      "dims_m": [
+       1.002,
+       0.47,
+       0.8109
+      ]
+     }
+    ],
+    "note": "x1: 1 x 0.47 x 0.811 (raw) -> 1 x 0.47 x 0.811 m in the sink_kitchen range"
+   },
+   "status": "ready",
+   "type": "sink_kitchen",
+   "front_rule": "detail_side",
+   "geometric_front": "-Y",
+   "geometric_note": "detail_side: 16649 vs 9769 vertices in the y slabs: front -Y",
+   "rank": 8,
+   "sheet_pixels": {
+    "sha256": "21a970aaaa9308e82e369a043b7ae287ec6546ce8edc013815e5374e2cd5ece4",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_sink_kitchen_modern_2_b348b4dc.jpg",
+   "thumb": "thumbs/sink_kitchen/gen_sink_kitchen_modern_2_b348b4dc.jpg"
+  },
+  "gen_sofa_japandi_1_246e1bd6": {
+   "uid": "gen_sofa_japandi_1_246e1bd6",
+   "group": "sofa",
+   "types": [
+    "sofa"
+   ],
+   "title": "Generated japandi sofa (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 128376,
+    "triangles": 199175,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 4.78,
+    "bbox_min_raw": [
+     -0.5009723901748657,
+     -0.1998814344406128,
+     -0.19854363799095154
+    ],
+    "bbox_max_raw": [
+     0.5009802579879761,
+     0.21482110023498535,
+     0.19713091850280762
+    ],
+    "extents_raw": [
+     1.0019526481628418,
+     0.41470253467559814,
+     0.39567455649375916
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     0.0101,
+     0.2783
+    ],
+    "side_counts": {
+     "-x": 16704,
+     "+x": 16373,
+     "-y": 5370,
+     "+y": 6099
+    },
+    "panel_fraction": {
+     "-x": 1.1495,
+     "+x": 1.0926,
+     "-y": 0.1755,
+     "+y": 0.5992
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 2.132745127645194,
+    "type": "sofa",
+    "dims_m": [
+     2.1369,
+     0.8845,
+     0.8439
+    ],
+    "fits": [],
+    "normalised": true,
+    "note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 1 x 0.415 x 0.396 (raw); x2.13275 scales the raw footprint to the typical sofa footprint (size table centre 2.1 x 0.9 m): 2.14 x 0.884 x 0.844 m; its proportions are in the sofa range"
+   },
+   "status": "ready",
+   "type": "sofa",
+   "front_rule": "back_taller",
+   "geometric_front": "-Y",
+   "geometric_note": "back_taller: the top 30 % of the vertices sit toward +Y (+0.278 of the extent): front -Y",
+   "rank": 1,
+   "sheet_pixels": {
+    "sha256": "2c3405f905927aed8dc2f42db4ee48ec3c65e5fbe829e6a7889b9704faaf28b9",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_sofa_japandi_1_246e1bd6.jpg",
+   "thumb": "thumbs/sofa/gen_sofa_japandi_1_246e1bd6.jpg"
+  },
+  "gen_sofa_japandi_2_98a7a89b": {
+   "uid": "gen_sofa_japandi_2_98a7a89b",
+   "group": "sofa",
+   "types": [
+    "sofa"
+   ],
+   "title": "Generated japandi sofa (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 121262,
+    "triangles": 194604,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 4.78,
+    "bbox_min_raw": [
+     -0.5008825063705444,
+     -0.21318326890468597,
+     -0.21758931875228882
+    ],
+    "bbox_max_raw": [
+     0.5009516477584839,
+     0.21359416842460632,
+     0.21777129173278809
+    ],
+    "extents_raw": [
+     1.0018341541290283,
+     0.4267774373292923,
+     0.4353606104850769
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     0.0002,
+     0.2576
+    ],
+    "side_counts": {
+     "-x": 11989,
+     "+x": 11957,
+     "-y": 3749,
+     "+y": 3721
+    },
+    "panel_fraction": {
+     "-x": 0.971,
+     "+x": 0.9818,
+     "-y": 0.1496,
+     "+y": 0.189
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 2.102481871177818,
+    "type": "sofa",
+    "dims_m": [
+     2.1063,
+     0.8973,
+     0.9153
+    ],
+    "fits": [],
+    "normalised": true,
+    "note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 1 x 0.427 x 0.435 (raw); x2.10248 scales the raw footprint to the typical sofa footprint (size table centre 2.1 x 0.9 m): 2.11 x 0.897 x 0.915 m; its proportions are in the sofa range"
+   },
+   "status": "ready",
+   "type": "sofa",
+   "front_rule": "back_taller",
+   "geometric_front": "-Y",
+   "geometric_note": "back_taller: the top 30 % of the vertices sit toward +Y (+0.258 of the extent): front -Y",
+   "rank": 2,
+   "sheet_pixels": {
+    "sha256": "a667ae38f2b0e1c5f83a3668d65e8311c3bb601a5adb367ae8234ad85941d7b8",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_sofa_japandi_2_98a7a89b.jpg",
+   "thumb": "thumbs/sofa/gen_sofa_japandi_2_98a7a89b.jpg"
+  },
+  "gen_toilet_scandinavian_1_f4f34056": {
+   "uid": "gen_toilet_scandinavian_1_f4f34056",
+   "group": "toilet",
+   "types": [
+    "toilet"
+   ],
+   "title": "Generated scandinavian toilet (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 127919,
+    "triangles": 188300,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 4.77,
+    "bbox_min_raw": [
+     -0.2545415163040161,
+     -0.4357944130897522,
+     -0.5009592771530151
+    ],
+    "bbox_max_raw": [
+     0.2547125220298767,
+     0.43713220953941345,
+     0.5000361204147339
+    ],
+    "extents_raw": [
+     0.5092540383338928,
+     0.8729266226291656,
+     1.000995397567749
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     -0.0046,
+     0.3609
+    ],
+    "side_counts": {
+     "-x": 7696,
+     "+x": 7272,
+     "-y": 6885,
+     "+y": 9393
+    },
+    "panel_fraction": {
+     "-x": 0.2883,
+     "+x": 0.2883,
+     "-y": 0.0781,
+     "+y": 0.963
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 1.0,
+    "type": "toilet",
+    "dims_m": [
+     0.5093,
+     0.8729,
+     1.001
+    ],
+    "fits": [
+     {
+      "scale": 1.0,
+      "types": [
+       "toilet"
+      ],
+      "dims_m": [
+       0.5093,
+       0.8729,
+       1.001
+      ]
+     }
+    ],
+    "note": "x1: 0.509 x 0.873 x 1 (raw) -> 0.509 x 0.873 x 1 m in the toilet range"
+   },
+   "status": "ready",
+   "type": "toilet",
+   "front_rule": "back_taller",
+   "geometric_front": "-Y",
+   "geometric_note": "back_taller: the top 30 % of the vertices sit toward +Y (+0.361 of the extent): front -Y",
+   "rank": 1,
+   "sheet_pixels": {
+    "sha256": "d6423c6cb8d7d615fcb90fdcf849ce161eb6bd224aefa7370aa46ba6aa25c69f",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_toilet_scandinavian_1_f4f34056.jpg",
+   "thumb": "thumbs/toilet/gen_toilet_scandinavian_1_f4f34056.jpg"
+  },
+  "gen_toilet_scandinavian_2_21c43147": {
+   "uid": "gen_toilet_scandinavian_2_21c43147",
+   "group": "toilet",
+   "types": [
+    "toilet"
+   ],
+   "title": "Generated scandinavian toilet (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 131799,
+    "triangles": 195512,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 4.74,
+    "bbox_min_raw": [
+     -0.24231041967868805,
+     -0.46202176809310913,
+     -0.5009723901748657
+    ],
+    "bbox_max_raw": [
+     0.24226729571819305,
+     0.4629596471786499,
+     0.5001810193061829
+    ],
+    "extents_raw": [
+     0.4845777153968811,
+     0.924981415271759,
+     1.0011534094810486
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     -0.0017,
+     0.3816
+    ],
+    "side_counts": {
+     "-x": 10961,
+     "+x": 10304,
+     "-y": 4843,
+     "+y": 13778
+    },
+    "panel_fraction": {
+     "-x": 0.319,
+     "+x": 0.3201,
+     "-y": 0.115,
+     "+y": 0.8996
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 0.8000149981203296,
+    "type": "toilet",
+    "dims_m": [
+     0.3877,
+     0.74,
+     0.8009
+    ],
+    "fits": [],
+    "normalised": true,
+    "note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.485 x 0.925 x 1 (raw); x0.800015 scales the raw footprint to the typical toilet footprint (size table centre 0.425 x 0.675 m): 0.388 x 0.74 x 0.801 m; its proportions are in the toilet range"
+   },
+   "status": "ready",
+   "type": "toilet",
+   "front_rule": "back_taller",
+   "geometric_front": "-Y",
+   "geometric_note": "back_taller: the top 30 % of the vertices sit toward +Y (+0.382 of the extent): front -Y",
+   "rank": 2,
+   "sheet_pixels": {
+    "sha256": "781135e3ffc5fee36f2cba9d05a71da1e76bebb9836f33302660ca1b4d5aa9b7",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_toilet_scandinavian_2_21c43147.jpg",
+   "thumb": "thumbs/toilet/gen_toilet_scandinavian_2_21c43147.jpg"
+  },
+  "gen_toilet_japandi_1_42fdb46f": {
+   "uid": "gen_toilet_japandi_1_42fdb46f",
+   "group": "toilet",
+   "types": [
+    "toilet"
+   ],
+   "title": "Generated japandi toilet (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 116989,
+    "triangles": 190629,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 4.73,
+    "bbox_min_raw": [
+     -0.28690674901008606,
+     -0.4783192574977875,
+     -0.5009651184082031
+    ],
+    "bbox_max_raw": [
+     0.2869831323623657,
+     0.4783218801021576,
+     0.5007787942886353
+    ],
+    "extents_raw": [
+     0.5738898813724518,
+     0.9566411375999451,
+     1.0017439126968384
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     0.001,
+     0.3829
+    ],
+    "side_counts": {
+     "-x": 7909,
+     "+x": 7369,
+     "-y": 2842,
+     "+y": 11420
+    },
+    "panel_fraction": {
+     "-x": 0.2828,
+     "+x": 0.2808,
+     "-y": 0.0805,
+     "+y": 0.8854
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 0.7228655726489677,
+    "type": "toilet",
+    "dims_m": [
+     0.4148,
+     0.6915,
+     0.7241
+    ],
+    "fits": [],
+    "normalised": true,
+    "note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.574 x 0.957 x 1 (raw); x0.722866 scales the raw footprint to the typical toilet footprint (size table centre 0.425 x 0.675 m): 0.415 x 0.692 x 0.724 m; its proportions are in the toilet range"
+   },
+   "status": "ready",
+   "type": "toilet",
+   "front_rule": "back_taller",
+   "geometric_front": "-Y",
+   "geometric_note": "back_taller: the top 30 % of the vertices sit toward +Y (+0.383 of the extent): front -Y",
+   "rank": 3,
+   "sheet_pixels": {
+    "sha256": "569694c6896490555bbec9e46a8afd866ea7f9c3b25ec3f984b82cb23d024e30",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_toilet_japandi_1_42fdb46f.jpg",
+   "thumb": "thumbs/toilet/gen_toilet_japandi_1_42fdb46f.jpg"
+  },
+  "gen_toilet_japandi_2_0697e750": {
+   "uid": "gen_toilet_japandi_2_0697e750",
+   "group": "toilet",
+   "types": [
+    "toilet"
+   ],
+   "title": "Generated japandi toilet (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 122940,
+    "triangles": 192835,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 4.74,
+    "bbox_min_raw": [
+     -0.26011815667152405,
+     -0.48268401622772217,
+     -0.5007173418998718
+    ],
+    "bbox_max_raw": [
+     0.25969409942626953,
+     0.4810304641723633,
+     0.5008679032325745
+    ],
+    "extents_raw": [
+     0.5198122560977936,
+     0.9637144804000854,
+     1.0015852451324463
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     0.0008,
+     0.3686
+    ],
+    "side_counts": {
+     "-x": 10779,
+     "+x": 10524,
+     "-y": 4315,
+     "+y": 11864
+    },
+    "panel_fraction": {
+     "-x": 0.3271,
+     "+x": 0.328,
+     "-y": 0.1195,
+     "+y": 0.9156
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 0.7567438525505663,
+    "type": "toilet",
+    "dims_m": [
+     0.3934,
+     0.7293,
+     0.7579
+    ],
+    "fits": [],
+    "normalised": true,
+    "note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.52 x 0.964 x 1 (raw); x0.756744 scales the raw footprint to the typical toilet footprint (size table centre 0.425 x 0.675 m): 0.393 x 0.729 x 0.758 m; its proportions are in the toilet range"
+   },
+   "status": "ready",
+   "type": "toilet",
+   "front_rule": "back_taller",
+   "geometric_front": "-Y",
+   "geometric_note": "back_taller: the top 30 % of the vertices sit toward +Y (+0.369 of the extent): front -Y",
+   "rank": 4,
+   "sheet_pixels": {
+    "sha256": "fc7f5bbbf7829b240776bc86942759ab05e98a70494be27caac004057ca824c6",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_toilet_japandi_2_0697e750.jpg",
+   "thumb": "thumbs/toilet/gen_toilet_japandi_2_0697e750.jpg"
+  },
+  "gen_washbasin_japandi_1_299a0eb2": {
+   "uid": "gen_washbasin_japandi_1_299a0eb2",
+   "group": "washbasin",
+   "types": [
+    "washbasin"
+   ],
+   "title": "Generated japandi washbasin (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 134412,
+    "triangles": 199149,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 4.83,
+    "bbox_min_raw": [
+     -0.4954652190208435,
+     -0.3800806403160095,
+     -0.50092613697052
+    ],
+    "bbox_max_raw": [
+     0.4954010844230652,
+     0.38236936926841736,
+     0.5009948015213013
+    ],
+    "extents_raw": [
+     0.9908663034439087,
+     0.7624500095844269,
+     1.0019209384918213
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     0.0012,
+     0.1612
+    ],
+    "side_counts": {
+     "-x": 3605,
+     "+x": 3559,
+     "-y": 13104,
+     "+y": 11415
+    },
+    "panel_fraction": {
+     "-x": 0.1894,
+     "+x": 0.191,
+     "-y": 0.2591,
+     "+y": 0.4628
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 0.6392787467403352,
+    "type": "washbasin",
+    "dims_m": [
+     0.6334,
+     0.4874,
+     0.6405
+    ],
+    "fits": [],
+    "normalised": true,
+    "note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.991 x 0.762 x 1 (raw); x0.639279 scales the raw footprint to the typical washbasin footprint (size table centre 0.65 x 0.475 m): 0.633 x 0.487 x 0.64 m; its proportions are in the washbasin range"
+   },
+   "status": "ready",
+   "type": "washbasin",
+   "front_rule": "back_taller",
+   "geometric_front": "-Y",
+   "geometric_note": "back_taller: the top 30 % of the vertices sit toward +Y (+0.161 of the extent): front -Y",
+   "rank": 1,
+   "sheet_pixels": {
+    "sha256": "f3b512210c3d800cf707353d2d09efb7f10eccaf4535ec0988cdd5dbf1e89809",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_washbasin_japandi_1_299a0eb2.jpg",
+   "thumb": "thumbs/washbasin/gen_washbasin_japandi_1_299a0eb2.jpg"
+  },
+  "gen_washbasin_japandi_2_6d594c3b": {
+   "uid": "gen_washbasin_japandi_2_6d594c3b",
+   "group": "washbasin",
+   "types": [
+    "washbasin"
+   ],
+   "title": "Generated japandi washbasin (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 125532,
+    "triangles": 198453,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 4.81,
+    "bbox_min_raw": [
+     -0.5008740425109863,
+     -0.4187736213207245,
+     -0.3093913197517395
+    ],
+    "bbox_max_raw": [
+     0.5008612871170044,
+     0.4206238090991974,
+     0.30680543184280396
+    ],
+    "extents_raw": [
+     1.0017353296279907,
+     0.8393974304199219,
+     0.6161967515945435
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     0.0007,
+     0.2568
+    ],
+    "side_counts": {
+     "-x": 5396,
+     "+x": 5340,
+     "-y": 6368,
+     "+y": 7346
+    },
+    "panel_fraction": {
+     "-x": 0.4846,
+     "+x": 0.4863,
+     "-y": 0.5457,
+     "+y": 0.5349
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 0.6059589019889672,
+    "type": "washbasin",
+    "dims_m": [
+     0.607,
+     0.5086,
+     0.3734
+    ],
+    "fits": [],
+    "normalised": true,
+    "note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 1 x 0.839 x 0.616 (raw); x0.605959 scales the raw footprint to the typical washbasin footprint (size table centre 0.65 x 0.475 m): 0.607 x 0.509 x 0.373 m; its proportions are in the washbasin range"
+   },
+   "status": "ready",
+   "type": "washbasin",
+   "front_rule": "back_taller",
+   "geometric_front": "-Y",
+   "geometric_note": "back_taller: the top 30 % of the vertices sit toward +Y (+0.257 of the extent): front -Y",
+   "rank": 2,
+   "sheet_pixels": {
+    "sha256": "58ae551fc74dd689c40fb6043a29b8dfee43b700d2e0a883554eddbe558614c2",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_washbasin_japandi_2_6d594c3b.jpg",
+   "thumb": "thumbs/washbasin/gen_washbasin_japandi_2_6d594c3b.jpg"
+  },
+  "gen_washing_machine_scandinavian_1_0a5054b6": {
+   "uid": "gen_washing_machine_scandinavian_1_0a5054b6",
+   "group": "washing_machine",
+   "types": [
+    "washing_machine"
+   ],
+   "title": "Generated scandinavian washing machine (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 175752,
+    "triangles": 189037,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 4.99,
+    "bbox_min_raw": [
+     -0.35005927085876465,
+     -0.3774458169937134,
+     -0.5004810094833374
+    ],
+    "bbox_max_raw": [
+     0.3522765040397644,
+     0.3807941973209381,
+     0.5004816055297852
+    ],
+    "extents_raw": [
+     0.702335774898529,
+     0.7582400143146515,
+     1.0009626150131226
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     -0.0181,
+     -0.0105
+    ],
+    "side_counts": {
+     "-x": 8583,
+     "+x": 7778,
+     "-y": 2379,
+     "+y": 17168
+    },
+    "panel_fraction": {
+     "-x": 0.8439,
+     "+x": 0.8406,
+     "-y": 0.0465,
+     "+y": 0.9788
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 0.8564544539620703,
+    "type": "washing_machine",
+    "dims_m": [
+     0.6015,
+     0.6494,
+     0.8573
+    ],
+    "fits": [],
+    "normalised": true,
+    "note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.702 x 0.758 x 1 (raw); x0.856454 scales the raw footprint to the typical washing_machine footprint (size table centre 0.625 x 0.625 m): 0.602 x 0.649 x 0.857 m; its proportions are in the washing_machine range"
+   },
+   "status": "ready",
+   "type": "washing_machine",
+   "front_rule": "detail_side",
+   "geometric_front": "+Y",
+   "geometric_note": "detail_side: 17168 vs 2379 vertices in the y slabs: front +Y",
+   "rank": 1,
+   "sheet_pixels": {
+    "sha256": "6d03d5aab9f0472179f6ffdacbd70940a4c622fe119da3780a463f27ad676876",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_washing_machine_scandinavian_1_0a5054b6.jpg",
+   "thumb": "thumbs/washing_machine/gen_washing_machine_scandinavian_1_0a5054b6.jpg"
+  },
+  "gen_washing_machine_scandinavian_2_67f28c86": {
+   "uid": "gen_washing_machine_scandinavian_2_67f28c86",
+   "group": "washing_machine",
+   "types": [
+    "washing_machine"
+   ],
+   "title": "Generated scandinavian washing machine (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 194913,
+    "triangles": 195638,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 5.09,
+    "bbox_min_raw": [
+     -0.3754082918167114,
+     -0.37212392687797546,
+     -0.49906396865844727
+    ],
+    "bbox_max_raw": [
+     0.3737742304801941,
+     0.3717302083969116,
+     0.500511646270752
+    ],
+    "extents_raw": [
+     0.7491825222969055,
+     0.7438541352748871,
+     0.9995756149291992
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     -0.0175,
+     -0.0428
+    ],
+    "side_counts": {
+     "-x": 7200,
+     "+x": 7489,
+     "-y": 2095,
+     "+y": 5697
+    },
+    "panel_fraction": {
+     "-x": 0.8428,
+     "+x": 0.8006,
+     "-y": 0.1063,
+     "+y": 0.1021
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 0.8372252309131745,
+    "type": "washing_machine",
+    "dims_m": [
+     0.6272,
+     0.6228,
+     0.8369
+    ],
+    "fits": [],
+    "normalised": true,
+    "note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.749 x 0.744 x 1 (raw); x0.837225 scales the raw footprint to the typical washing_machine footprint (size table centre 0.625 x 0.625 m): 0.627 x 0.623 x 0.837 m; its proportions are in the washing_machine range"
+   },
+   "status": "ready",
+   "type": "washing_machine",
+   "front_rule": "detail_side",
+   "geometric_front": "+Y",
+   "geometric_note": "detail_side: 5697 vs 2095 vertices in the y slabs: front +Y",
+   "rank": 2,
+   "sheet_pixels": {
+    "sha256": "b1edc6c77d12bb40da1186ccab8092d2651d23612736d2d54b9f953e1b1477a4",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_washing_machine_scandinavian_2_67f28c86.jpg",
+   "thumb": "thumbs/washing_machine/gen_washing_machine_scandinavian_2_67f28c86.jpg"
+  },
+  "gen_washing_machine_modern_minimal_1_07b2b182": {
+   "uid": "gen_washing_machine_modern_minimal_1_07b2b182",
+   "group": "washing_machine",
+   "types": [
+    "washing_machine"
+   ],
+   "title": "Generated modern minimal washing machine (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 213179,
+    "triangles": 190271,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 5.16,
+    "bbox_min_raw": [
+     -0.3429088890552521,
+     -0.34967583417892456,
+     -0.500659167766571
+    ],
+    "bbox_max_raw": [
+     0.34453386068344116,
+     0.3520601987838745,
+     0.5008111000061035
+    ],
+    "extents_raw": [
+     0.6874427497386932,
+     0.7017360329627991,
+     1.0014702677726746
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     0.0083,
+     -0.0607
+    ],
+    "side_counts": {
+     "-x": 10856,
+     "+x": 8232,
+     "-y": 31153,
+     "+y": 2054
+    },
+    "panel_fraction": {
+     "-x": 0.7494,
+     "+x": 0.776,
+     "-y": 0.0921,
+     "+y": 0.0252
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 0.8998598205868842,
+    "type": "washing_machine",
+    "dims_m": [
+     0.6186,
+     0.6315,
+     0.9012
+    ],
+    "fits": [],
+    "normalised": true,
+    "note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.687 x 0.702 x 1 (raw); x0.89986 scales the raw footprint to the typical washing_machine footprint (size table centre 0.625 x 0.625 m): 0.619 x 0.631 x 0.901 m; its proportions are in the washing_machine range"
+   },
+   "status": "ready",
+   "type": "washing_machine",
+   "front_rule": "detail_side",
+   "geometric_front": "-Y",
+   "geometric_note": "detail_side: 31153 vs 2054 vertices in the y slabs: front -Y",
+   "rank": 3,
+   "sheet_pixels": {
+    "sha256": "d93a32253f9f9048f1db7d99ad7f11998fec9c84503e89a855fcecf11f7259a1",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_washing_machine_modern_minimal_1_07b2b182.jpg",
+   "thumb": "thumbs/washing_machine/gen_washing_machine_modern_minimal_1_07b2b182.jpg"
+  },
+  "gen_washing_machine_modern_minimal_2_94b29e08": {
+   "uid": "gen_washing_machine_modern_minimal_2_94b29e08",
+   "group": "washing_machine",
+   "types": [
+    "washing_machine"
+   ],
+   "title": "Generated modern minimal washing machine (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 191408,
+    "triangles": 188311,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 5.03,
+    "bbox_min_raw": [
+     -0.36552000045776367,
+     -0.352356880903244,
+     -0.5009934306144714
+    ],
+    "bbox_max_raw": [
+     0.3654979467391968,
+     0.3472219705581665,
+     0.5008977651596069
+    ],
+    "extents_raw": [
+     0.7310179471969604,
+     0.6995788514614105,
+     1.0018911957740784
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     0.0003,
+     -0.0692
+    ],
+    "side_counts": {
+     "-x": 7834,
+     "+x": 9061,
+     "-y": 16376,
+     "+y": 23589
+    },
+    "panel_fraction": {
+     "-x": 1.0218,
+     "+x": 1.154,
+     "-y": 0.0677,
+     "+y": 1.9384
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 0.873972286726635,
+    "type": "washing_machine",
+    "dims_m": [
+     0.6389,
+     0.6114,
+     0.8756
+    ],
+    "fits": [],
+    "normalised": true,
+    "note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.731 x 0.7 x 1 (raw); x0.873972 scales the raw footprint to the typical washing_machine footprint (size table centre 0.625 x 0.625 m): 0.639 x 0.611 x 0.876 m; its proportions are in the washing_machine range"
+   },
+   "status": "ready",
+   "type": "washing_machine",
+   "front_rule": "detail_side",
+   "geometric_front": "+Y",
+   "geometric_note": "detail_side: 23589 vs 16376 vertices in the y slabs: front +Y",
+   "rank": 4,
+   "sheet_pixels": {
+    "sha256": "508d76119e5a12ec23efc819976f789ac7b7dfe4b34c1bb49b2cae862fc443cf",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_washing_machine_modern_minimal_2_94b29e08.jpg",
+   "thumb": "thumbs/washing_machine/gen_washing_machine_modern_minimal_2_94b29e08.jpg"
+  },
+  "gen_washing_machine_japandi_1_f1f4def2": {
+   "uid": "gen_washing_machine_japandi_1_f1f4def2",
+   "group": "washing_machine",
+   "types": [
+    "washing_machine"
+   ],
+   "title": "Generated japandi washing machine (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 158392,
+    "triangles": 192547,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 4.87,
+    "bbox_min_raw": [
+     -0.3654705584049225,
+     -0.38368791341781616,
+     -0.5009971857070923
+    ],
+    "bbox_max_raw": [
+     0.3656877875328064,
+     0.35209420323371887,
+     0.5009145140647888
+    ],
+    "extents_raw": [
+     0.7311583459377289,
+     0.735782116651535,
+     1.001911699771881
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     -0.0249,
+     -0.0573
+    ],
+    "side_counts": {
+     "-x": 13890,
+     "+x": 11402,
+     "-y": 2570,
+     "+y": 10904
+    },
+    "panel_fraction": {
+     "-x": 0.841,
+     "+x": 0.8422,
+     "-y": 0.1241,
+     "+y": 0.9187
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 0.8521178884186525,
+    "type": "washing_machine",
+    "dims_m": [
+     0.623,
+     0.627,
+     0.8537
+    ],
+    "fits": [],
+    "normalised": true,
+    "note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.731 x 0.736 x 1 (raw); x0.852118 scales the raw footprint to the typical washing_machine footprint (size table centre 0.625 x 0.625 m): 0.623 x 0.627 x 0.854 m; its proportions are in the washing_machine range"
+   },
+   "status": "ready",
+   "type": "washing_machine",
+   "front_rule": "detail_side",
+   "geometric_front": "+Y",
+   "geometric_note": "detail_side: 10904 vs 2570 vertices in the y slabs: front +Y",
+   "rank": 5,
+   "sheet_pixels": {
+    "sha256": "ee70d88d00c68c7d0af133b4fae55dd1127af74281f720abb7fb48015397f89b",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_washing_machine_japandi_1_f1f4def2.jpg",
+   "thumb": "thumbs/washing_machine/gen_washing_machine_japandi_1_f1f4def2.jpg"
+  },
+  "gen_washing_machine_japandi_2_d8b8ac48": {
+   "uid": "gen_washing_machine_japandi_2_d8b8ac48",
+   "group": "washing_machine",
+   "types": [
+    "washing_machine"
+   ],
+   "title": "Generated japandi washing machine (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 168327,
+    "triangles": 186468,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 4.95,
+    "bbox_min_raw": [
+     -0.36131542921066284,
+     -0.35128921270370483,
+     -0.5008983016014099
+    ],
+    "bbox_max_raw": [
+     0.36129677295684814,
+     0.3486233353614807,
+     0.5009013414382935
+    ],
+    "extents_raw": [
+     0.722612202167511,
+     0.6999125480651855,
+     1.0017996430397034
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     0.0244,
+     -0.1627
+    ],
+    "side_counts": {
+     "-x": 12826,
+     "+x": 13272,
+     "-y": 11123,
+     "+y": 7803
+    },
+    "panel_fraction": {
+     "-x": 0.888,
+     "+x": 0.8863,
+     "-y": 0.4986,
+     "+y": 0.9207
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 0.878831231114646,
+    "type": "washing_machine",
+    "dims_m": [
+     0.6351,
+     0.6151,
+     0.8804
+    ],
+    "fits": [],
+    "normalised": true,
+    "note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.723 x 0.7 x 1 (raw); x0.878831 scales the raw footprint to the typical washing_machine footprint (size table centre 0.625 x 0.625 m): 0.635 x 0.615 x 0.88 m; its proportions are in the washing_machine range"
+   },
+   "status": "ready",
+   "type": "washing_machine",
+   "front_rule": "detail_side",
+   "geometric_front": "-Y",
+   "geometric_note": "detail_side: 11123 vs 7803 vertices in the y slabs: front -Y",
+   "rank": 6,
+   "sheet_pixels": {
+    "sha256": "36a4085bd02d141d1e6926c3feaec3261800f9495c86d2bb8802f1a25d987daa",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_washing_machine_japandi_2_d8b8ac48.jpg",
+   "thumb": "thumbs/washing_machine/gen_washing_machine_japandi_2_d8b8ac48.jpg"
+  },
+  "gen_washing_machine_modern_1_f4bdd46e": {
+   "uid": "gen_washing_machine_modern_1_f4bdd46e",
+   "group": "washing_machine",
+   "types": [
+    "washing_machine"
+   ],
+   "title": "Generated modern washing machine (1)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 173237,
+    "triangles": 192520,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 4.99,
+    "bbox_min_raw": [
+     -0.3551909923553467,
+     -0.3697217106819153,
+     -0.5008262395858765
+    ],
+    "bbox_max_raw": [
+     0.3586823046207428,
+     0.4031595289707184,
+     0.500516951084137
+    ],
+    "extents_raw": [
+     0.7138732969760895,
+     0.7728812396526337,
+     1.0013431906700134
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     -0.0054,
+     -0.0356
+    ],
+    "side_counts": {
+     "-x": 11534,
+     "+x": 12830,
+     "-y": 8327,
+     "+y": 13797
+    },
+    "panel_fraction": {
+     "-x": 0.8344,
+     "+x": 0.8414,
+     "-y": 0.613,
+     "+y": 0.6281
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 0.8414204557764507,
+    "type": "washing_machine",
+    "dims_m": [
+     0.6007,
+     0.6503,
+     0.8426
+    ],
+    "fits": [],
+    "normalised": true,
+    "note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.714 x 0.773 x 1 (raw); x0.84142 scales the raw footprint to the typical washing_machine footprint (size table centre 0.625 x 0.625 m): 0.601 x 0.65 x 0.843 m; its proportions are in the washing_machine range"
+   },
+   "status": "ready",
+   "type": "washing_machine",
+   "front_rule": "detail_side",
+   "geometric_front": "+Y",
+   "geometric_note": "detail_side: 13797 vs 8327 vertices in the y slabs: front +Y",
+   "rank": 7,
+   "sheet_pixels": {
+    "sha256": "6aeade278109d392cbcdc7a7261c742c9856a8f04581f1c9a01ead25b661312d",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_washing_machine_modern_1_f4bdd46e.jpg",
+   "thumb": "thumbs/washing_machine/gen_washing_machine_modern_1_f4bdd46e.jpg"
+  },
+  "gen_washing_machine_modern_2_379d2585": {
+   "uid": "gen_washing_machine_modern_2_379d2585",
+   "group": "washing_machine",
+   "types": [
+    "washing_machine"
+   ],
+   "title": "Generated modern washing machine (2)",
+   "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+   "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "source": "generated",
+   "licence_flag": null,
+   "kind": "furniture",
+   "decor_type": null,
+   "units_known": false,
+   "measure": {
+    "vertices": 207036,
+    "triangles": 190802,
+    "mesh_objects": 1,
+    "images": 2,
+    "colour_attributes": 0,
+    "seconds": 5.18,
+    "bbox_min_raw": [
+     -0.36043107509613037,
+     -0.3706241250038147,
+     -0.500504732131958
+    ],
+    "bbox_max_raw": [
+     0.362870991230011,
+     0.3708231449127197,
+     0.5009746551513672
+    ],
+    "extents_raw": [
+     0.7233020663261414,
+     0.7414472699165344,
+     1.0014793872833252
+    ]
+   },
+   "stats": {
+    "top_centroid_n": [
+     -0.0009,
+     -0.1585
+    ],
+    "side_counts": {
+     "-x": 5519,
+     "+x": 7291,
+     "-y": 4718,
+     "+y": 15924
+    },
+    "panel_fraction": {
+     "-x": 0.8674,
+     "+x": 0.8699,
+     "-y": 0.554,
+     "+y": 0.9384
+    }
+   },
+   "unit": {
+    "ok": true,
+    "scale": 0.8534538251861026,
+    "type": "washing_machine",
+    "dims_m": [
+     0.6173,
+     0.6328,
+     0.8547
+    ],
+    "fits": [],
+    "normalised": true,
+    "note": "normalised by type (model units unknown): no factor (x1, x0.01, x0.0254, x0.001) fits 0.723 x 0.741 x 1 (raw); x0.853454 scales the raw footprint to the typical washing_machine footprint (size table centre 0.625 x 0.625 m): 0.617 x 0.633 x 0.855 m; its proportions are in the washing_machine range"
+   },
+   "status": "ready",
+   "type": "washing_machine",
+   "front_rule": "detail_side",
+   "geometric_front": "+Y",
+   "geometric_note": "detail_side: 15924 vs 4718 vertices in the y slabs: front +Y",
+   "rank": 8,
+   "sheet_pixels": {
+    "sha256": "aab7895c7ab0a290a7306be8196f6119f3c6604a639af52fb715a9fee6715b98",
+    "shape": [
+     512,
+     512,
+     3
+    ]
+   },
+   "sheet": "judge/sheets/gen_washing_machine_modern_2_379d2585.jpg",
+   "thumb": "thumbs/washing_machine/gen_washing_machine_modern_2_379d2585.jpg"
   }
  }
 }

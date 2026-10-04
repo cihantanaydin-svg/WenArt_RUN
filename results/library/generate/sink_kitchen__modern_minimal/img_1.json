@@ -1,0 +1,24 @@
+{
+ "key": "9121648917063b4038735214a12110d21b3f1d20cc897916ddbbb6b878ba1187",
+ "pair": "sink_kitchen__modern_minimal",
+ "type": "sink_kitchen",
+ "family": "modern minimal",
+ "index": 1,
+ "prompt": "a single modern minimal style kitchen sink base cabinet with a worktop and an inset sink, matte white surfaces, flush handleless fronts, thin black fittings, crisp rectangular forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1000835940,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "fa2f5beeea4c85b192cb8f39fbc2723dc605f02036711a1290c2ec316c717d7b",
+ "seconds": 4.86,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 4500 Blackwell"
+ },
+ "generated_utc": "2026-10-04T07:22:44Z"
+}

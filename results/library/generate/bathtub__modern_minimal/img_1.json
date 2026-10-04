@@ -1,0 +1,24 @@
+{
+ "key": "bdc59f1cfb717e13a6dab8efdd281f870a9c26c9c758eb44429bbd5ff1e21d68",
+ "pair": "bathtub__modern_minimal",
+ "type": "bathtub",
+ "family": "modern minimal",
+ "index": 1,
+ "prompt": "a single modern minimal style freestanding bathtub, matte white surfaces, flush handleless fronts, thin black fittings, crisp rectangular forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 28734134,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "9668f5ed09666fe647a0a85287d8da229dd3afa0a32946f50f390afaa972fe78",
+ "seconds": 4.97,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 4500 Blackwell"
+ },
+ "generated_utc": "2026-10-04T07:23:40Z"
+}

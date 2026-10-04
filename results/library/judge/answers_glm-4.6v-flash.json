@@ -17154,6 +17154,1194 @@
    "error": null,
    "attempts": 1,
    "latency_s": 0.969
+  },
+  "lib_gen_bathtub_japandi_2_c40f5efc": {
+   "task": "library_judge",
+   "input_sha256": "b065088858a230f333955e38af3a756ac7340e19aa473ae635e895fa29466b04",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_bathtub_japandi_2_c40f5efc.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 3
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 4,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\"\n    ],\n    \"front_view\": 3\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.651
+  },
+  "lib_gen_bathtub_modern_1_009871cf": {
+   "task": "library_judge",
+   "input_sha256": "fbe8a240f74df30187174ce01b2cf53aad057785f5e8c235abb8cfa5867819cc",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_bathtub_modern_1_009871cf.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 4,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\"\n    ],\n    \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.654
+  },
+  "lib_gen_bathtub_modern_minimal_1_1a44f6ff": {
+   "task": "library_judge",
+   "input_sha256": "0a27f3bada0efaeb32270dda7335692a2ec377b1c73e5911340d2dd83a71e7ab",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_bathtub_modern_minimal_1_1a44f6ff.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 4,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\"\n    ],\n    \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.083
+  },
+  "lib_gen_bathtub_modern_minimal_2_927c5b3c": {
+   "task": "library_judge",
+   "input_sha256": "86350e68138310d674d6c1ed35f3c561ca7b7e2662a418317b62e8d90f7fd32c",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_bathtub_modern_minimal_2_927c5b3c.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 4,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\"\n    ],\n    \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.091
+  },
+  "lib_gen_bathtub_scandinavian_1_230fe403": {
+   "task": "library_judge",
+   "input_sha256": "81ad5c44acc8e0e143435d956eb3ab44e5047fde186589e22fdd976e3cd8051a",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_bathtub_scandinavian_1_230fe403.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 4,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\"\n    ],\n    \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.09
+  },
+  "lib_gen_bathtub_scandinavian_2_6fde34a5": {
+   "task": "library_judge",
+   "input_sha256": "83905c074115a7bcd2f860c2d1b5fb21c5320d981ec40cb45665de344b845d4b",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_bathtub_scandinavian_2_6fde34a5.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 4,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\"\n    ],\n    \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.078
+  },
+  "lib_gen_floor_lamp_japandi_1_4be1c62d": {
+   "task": "library_judge",
+   "input_sha256": "ec140bb72becc0e6254fe3f77ec2a40bfec7060730bfd9b9039ff1496338ee1e",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_floor_lamp_japandi_1_4be1c62d.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 5,
+    "has_mattress": null,
+    "styles": [
+     "scandinavian",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 5,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"scandinavian\",\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\"\n    ],\n    \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.166
+  },
+  "lib_gen_floor_lamp_japandi_2_ef5fd39d": {
+   "task": "library_judge",
+   "input_sha256": "1b24274f85569cd6e9d488383ec544e6eee9b3a2c4676ec142893490c250eb49",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_floor_lamp_japandi_2_ef5fd39d.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 5,
+    "has_mattress": null,
+    "styles": [
+     "scandinavian",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 5,\n    \"has_mattress\": null,\n    \"styles\": [\"scandinavian\", \"modern minimal\", \"minimal\", \"modern\"],\n    \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.067
+  },
+  "lib_gen_fridge_japandi_1_4c9cd582": {
+   "task": "library_judge",
+   "input_sha256": "2e879d67c8b6f6ac38334abe8e0b03a71761f6b3c825601b7cfb68555741270e",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_fridge_japandi_1_4c9cd582.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 4,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\"\n    ],\n    \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.099
+  },
+  "lib_gen_fridge_japandi_2_4c7dbc82": {
+   "task": "library_judge",
+   "input_sha256": "a7f1ab588ed65693954f689cd03db9bfa76748e40d460feaf8e1ef88e03ae622",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_fridge_japandi_2_4c7dbc82.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 4,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"modern minimal\",\n        \"modern\"\n    ],\n    \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.019
+  },
+  "lib_gen_fridge_scandinavian_1_315b4d87": {
+   "task": "library_judge",
+   "input_sha256": "644ce479d0d4da03a97e2524dc2c81849f4d1bbfa1054b7da1ce4c5627f692aa",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_fridge_scandinavian_1_315b4d87.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 4,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\"\n    ],\n    \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.098
+  },
+  "lib_gen_fridge_scandinavian_2_5eb44a0e": {
+   "task": "library_judge",
+   "input_sha256": "5066f3d8d9922e1a420e6d085709a391353f69b499c018cd5a0f17641585bf12",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_fridge_scandinavian_2_5eb44a0e.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 4,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\"\n    ],\n    \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.105
+  },
+  "lib_gen_potted_plant_japandi_1_63c10a71": {
+   "task": "library_judge",
+   "input_sha256": "727021015d5c0cd5f863540e49a0d6d2933344c4b28f60080e380f0a85e1de42",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_potted_plant_japandi_1_63c10a71.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 5,
+    "has_mattress": null,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 5,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"scandinavian\",\n        \"japandi\",\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\"\n    ],\n    \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.253
+  },
+  "lib_gen_potted_plant_japandi_2_9a3effd1": {
+   "task": "library_judge",
+   "input_sha256": "dbcd76ab8e1cf0038028759ba1aa3e80484ddc133f971b6b429d6ee82581028b",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_potted_plant_japandi_2_9a3effd1.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 5,
+    "has_mattress": null,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern",
+     "neutral"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 5,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"scandinavian\",\n        \"japandi\",\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\",\n        \"neutral\"\n    ],\n    \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.298
+  },
+  "lib_gen_potted_plant_scandinavian_1_04f97c4b": {
+   "task": "library_judge",
+   "input_sha256": "63bfe06a2fc1f4317ade053673d564e7da99ffb59f632426d7d0b1bbb4882a54",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_potted_plant_scandinavian_1_04f97c4b.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 5,
+    "has_mattress": null,
+    "styles": [
+     "scandinavian",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 5,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"scandinavian\",\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\"\n    ],\n    \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.168
+  },
+  "lib_gen_potted_plant_scandinavian_2_98f7bbd2": {
+   "task": "library_judge",
+   "input_sha256": "aa670841e0e97cd4458817e9192e32dc5c0474408df70de5d7ca9a7c585f31c4",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_potted_plant_scandinavian_2_98f7bbd2.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 5,
+    "has_mattress": null,
+    "styles": [
+     "scandinavian",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 5,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"scandinavian\",\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\"\n    ],\n    \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.131
+  },
+  "lib_gen_shower_japandi_1_dcdcd4dc": {
+   "task": "library_judge",
+   "input_sha256": "fc10dae2cd72c52a81178cd47ac560b4e85a5c4b5c50f36b01d56af114600044",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_shower_japandi_1_dcdcd4dc.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 4,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\"\n    ],\n    \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.686
+  },
+  "lib_gen_shower_japandi_2_b6c31e9a": {
+   "task": "library_judge",
+   "input_sha256": "098ded37ae67c55a9c93949c01250129ac51b3e01953635621109f64693416ec",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_shower_japandi_2_b6c31e9a.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 3,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 3,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\"\n    ],\n    \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.684
+  },
+  "lib_gen_shower_modern_1_1cb8199a": {
+   "task": "library_judge",
+   "input_sha256": "1b3728bfc77b9043d26563e4d9555fa1eb45dcfa8df0db41ed350685f0d1ff2d",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_shower_modern_1_1cb8199a.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 3,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 3,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\"\n    ],\n    \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.056
+  },
+  "lib_gen_shower_modern_2_707d4703": {
+   "task": "library_judge",
+   "input_sha256": "0d7f786e4d8da1b9353fde81649e4f97d64ac9e06354abd660e4842b5a57514a",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_shower_modern_2_707d4703.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 3,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 3,\n    \"has_mattress\": null,\n    \"styles\": [\"modern minimal\", \"minimal\", \"modern\"],\n    \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.958
+  },
+  "lib_gen_shower_modern_minimal_1_d787862a": {
+   "task": "library_judge",
+   "input_sha256": "dd0a68d42900868dafefdeb17028ab47169a93e3cfbc078c03e8df5d2dcecc3c",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_shower_modern_minimal_1_d787862a.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 4,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\"\n    ],\n    \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.052
+  },
+  "lib_gen_shower_modern_minimal_2_dab54bc3": {
+   "task": "library_judge",
+   "input_sha256": "30c19c8d927b5ac73e2246eed3d4838a742453f2ff6ef38c2c520df3faeae513",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_shower_modern_minimal_2_dab54bc3.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 3,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 3,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"modern minimal\",\n        \"minimal\"\n    ],\n    \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.949
+  },
+  "lib_gen_shower_scandinavian_1_0ae4a37a": {
+   "task": "library_judge",
+   "input_sha256": "178fa4f4f9b714c3f41bf46c449dff5118aef70d7b2c94dd9913eb686d61fd1b",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_shower_scandinavian_1_0ae4a37a.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 4,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\"\n    ],\n    \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.074
+  },
+  "lib_gen_shower_scandinavian_2_88469e91": {
+   "task": "library_judge",
+   "input_sha256": "b684774ffe4237d86bb5158a0e5ee6d2f3e6559bcfe355074b652b9079570d18",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_shower_scandinavian_2_88469e91.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 4,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\"\n    ],\n    \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.093
+  },
+  "lib_gen_sink_kitchen_japandi_1_a61d924d": {
+   "task": "library_judge",
+   "input_sha256": "a444c84c53c602eb19e2f3d39d970e2a1f8b7fad3ff81b0cbaefe5c0d7c2e48e",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_sink_kitchen_japandi_1_a61d924d.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 4,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\"\n    ],\n    \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.106
+  },
+  "lib_gen_sink_kitchen_japandi_2_d6ae0419": {
+   "task": "library_judge",
+   "input_sha256": "9f5bff81521dce15405da493b4df27a2b660e4c8e41f3d331f2809057bc3d5ac",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_sink_kitchen_japandi_2_d6ae0419.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 4,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\"\n    ],\n    \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.093
+  },
+  "lib_gen_sink_kitchen_modern_1_5b97156d": {
+   "task": "library_judge",
+   "input_sha256": "aeb138fe0d2fb462626e5317d03cad4df803f30bf16a54705bb3884f90698a44",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_sink_kitchen_modern_1_5b97156d.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 4,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\"\n    ],\n    \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.105
+  },
+  "lib_gen_sink_kitchen_modern_2_b348b4dc": {
+   "task": "library_judge",
+   "input_sha256": "7bbfe1e2fafa00b5af8caa042bbe272f5fc88e581f61fb8539d6fbbb5653998d",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_sink_kitchen_modern_2_b348b4dc.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 4,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\"\n    ],\n    \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.091
+  },
+  "lib_gen_sink_kitchen_modern_minimal_2_d36a47fa": {
+   "task": "library_judge",
+   "input_sha256": "bc9a5dc2312dab109b6ff4737d9bac321ba90eaadcc22b674da932c6fb7c8f9c",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_sink_kitchen_modern_minimal_2_d36a47fa.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 4,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\"\n    ],\n    \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.084
+  },
+  "lib_gen_sink_kitchen_scandinavian_1_dbad65c6": {
+   "task": "library_judge",
+   "input_sha256": "7924ea7eec26a1f9a6121b1171e58c46d6fe5b3d9c020a0cdb02e87756a24b95",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_sink_kitchen_scandinavian_1_dbad65c6.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "scandinavian",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 4,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"scandinavian\",\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\"\n    ],\n    \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.159
+  },
+  "lib_gen_sink_kitchen_scandinavian_2_470fa047": {
+   "task": "library_judge",
+   "input_sha256": "63a76b57c8cd7d628e0d0e8cd5c65e36cdf459323f44c0344b4be4434bf89975",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_sink_kitchen_scandinavian_2_470fa047.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "scandinavian",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 4,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"scandinavian\",\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\"\n    ],\n    \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.19
+  },
+  "lib_gen_sofa_japandi_1_246e1bd6": {
+   "task": "library_judge",
+   "input_sha256": "6cd1332d410bbc0ef88391f091e12e40e32f096b7e14fcd39a845cc0a40e72f4",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_sofa_japandi_1_246e1bd6.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 4,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"scandinavian\",\n        \"japandi\",\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\"\n    ],\n    \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.272
+  },
+  "lib_gen_sofa_japandi_2_98a7a89b": {
+   "task": "library_judge",
+   "input_sha256": "4034ee39c858fc450de087959acc155e53948cb41172b1bc512fd5cbb1cfe321",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_sofa_japandi_2_98a7a89b.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 5,
+    "has_mattress": null,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 5,\n    \"has_mattress\": null,\n    \"styles\": [\"scandinavian\", \"japandi\", \"modern minimal\", \"minimal\", \"modern\"],\n    \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.118
+  },
+  "lib_gen_toilet_japandi_1_42fdb46f": {
+   "task": "library_judge",
+   "input_sha256": "c5cad33af3040d486a40da35ecbe6371ff3baed02d2c26c51e94b04d79d016ff",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_toilet_japandi_1_42fdb46f.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 5,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 5,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\"\n    ],\n    \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.111
+  },
+  "lib_gen_toilet_japandi_2_0697e750": {
+   "task": "library_judge",
+   "input_sha256": "37dd1a5d2e629866dab1d956c01992efe0b5d199585e689aa33336d827ad71a6",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_toilet_japandi_2_0697e750.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 5,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 5,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\"\n    ],\n    \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.032
+  },
+  "lib_gen_toilet_scandinavian_1_f4f34056": {
+   "task": "library_judge",
+   "input_sha256": "67feaa9d293ea7d032284e8880f75f2bb9dc4c85cb7890f6700fec115aefa9c7",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_toilet_scandinavian_1_f4f34056.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 4,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\"\n    ],\n    \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.104
+  },
+  "lib_gen_toilet_scandinavian_2_21c43147": {
+   "task": "library_judge",
+   "input_sha256": "3c7504b687d8b7ca2ab1d538f037e50bd46598bcb560afffb2847b0f2271ac77",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_toilet_scandinavian_2_21c43147.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 5,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 5,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\"\n    ],\n    \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.099
+  },
+  "lib_gen_washbasin_japandi_1_299a0eb2": {
+   "task": "library_judge",
+   "input_sha256": "552b8eb854d360fb652ddecca45387bf51a07f16efbbe3c327c76b81f6483103",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_washbasin_japandi_1_299a0eb2.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 5,
+    "has_mattress": null,
+    "styles": [
+     "scandinavian",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 5,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"scandinavian\",\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\"\n    ],\n    \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.159
+  },
+  "lib_gen_washbasin_japandi_2_6d594c3b": {
+   "task": "library_judge",
+   "input_sha256": "04d9a4226ddd72b9fd4d424b9e22147fc36b36b2f7dc4159f537b2258158e73b",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_washbasin_japandi_2_6d594c3b.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 4,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\"\n    ],\n    \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.07
+  },
+  "lib_gen_washing_machine_japandi_1_f1f4def2": {
+   "task": "library_judge",
+   "input_sha256": "05515b7cbf674637129ab78a972c76a79b9f1b0e0ac5b5747fd7a5064f4801de",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_washing_machine_japandi_1_f1f4def2.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 4,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\"\n    ],\n    \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.044
+  },
+  "lib_gen_washing_machine_japandi_2_d8b8ac48": {
+   "task": "library_judge",
+   "input_sha256": "d24d9296b142f739c61388b05e3d10b93bf499e82bf0f7e61825806f2aadbbf6",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_washing_machine_japandi_2_d8b8ac48.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 4,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\"\n    ],\n    \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.089
+  },
+  "lib_gen_washing_machine_modern_1_f4bdd46e": {
+   "task": "library_judge",
+   "input_sha256": "ad075a4982f193fa294eb6d2cd20c65fac33151df988a547f9650ff95d5fec39",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_washing_machine_modern_1_f4bdd46e.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 4,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"modern minimal\",\n        \"modern\"\n    ],\n    \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.997
+  },
+  "lib_gen_washing_machine_modern_2_379d2585": {
+   "task": "library_judge",
+   "input_sha256": "5bb56ac12ba719c51a9fe78a52bde0c06913e0d833d030c392819a48f4ed79bc",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_washing_machine_modern_2_379d2585.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 4,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\"\n    ],\n    \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.08
+  },
+  "lib_gen_washing_machine_modern_minimal_1_07b2b182": {
+   "task": "library_judge",
+   "input_sha256": "f26102ae0a50ff31cfd59bc526da0342af5a711b61f561093f0eb94d774fb523",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_washing_machine_modern_minimal_1_07b2b182.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 4,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\"\n    ],\n    \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.072
+  },
+  "lib_gen_washing_machine_modern_minimal_2_94b29e08": {
+   "task": "library_judge",
+   "input_sha256": "90a8b4816229c182542c88614126f41ddb87c1021e534dcc520213e7139a3ade",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_washing_machine_modern_minimal_2_94b29e08.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 4,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\"\n    ],\n    \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.085
+  },
+  "lib_gen_washing_machine_scandinavian_1_0a5054b6": {
+   "task": "library_judge",
+   "input_sha256": "2dce166e98e462211f60b2c787b9dd181217d5684896a1cb1a984a873b2c09c1",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_washing_machine_scandinavian_1_0a5054b6.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 4,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\"\n    ],\n    \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.089
+  },
+  "lib_gen_washing_machine_scandinavian_2_67f28c86": {
+   "task": "library_judge",
+   "input_sha256": "73ac00a70f061adf490776f0f05d2d4a656581c1915b25104afe127dfa335778",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "sheets/gen_washing_machine_scandinavian_2_67f28c86.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n    \"is_single_object\": true,\n    \"matches_type\": true,\n    \"photoreal_quality\": 4,\n    \"has_mattress\": null,\n    \"styles\": [\n        \"modern minimal\",\n        \"minimal\",\n        \"modern\"\n    ],\n    \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.018
   }
  }
 }

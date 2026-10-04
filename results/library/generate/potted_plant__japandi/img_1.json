@@ -1,0 +1,24 @@
+{
+ "key": "d2739dd1746c56374dd95e04a63f1b8d4cad83e4ecbca27016f00428a8203959",
+ "pair": "potted_plant__japandi",
+ "type": "potted_plant",
+ "family": "japandi",
+ "index": 1,
+ "prompt": "a single japandi style large indoor plant in a floor pot, light ash wood, black accents, natural linen and paper textures, low profile, calm minimal forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1070096842,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "689064611ab6697f32def047f5b1c27be0353b1e661cb63e6e7e2ac0d3ccd86d",
+ "seconds": 4.97,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 4500 Blackwell"
+ },
+ "generated_utc": "2026-10-04T07:24:25Z"
+}

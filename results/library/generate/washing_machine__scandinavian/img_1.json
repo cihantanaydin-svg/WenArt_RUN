@@ -1,0 +1,24 @@
+{
+ "key": "3da6ebe7f59eea05b140c4d757418f57a393ab017e83e1db65849231db0da4b8",
+ "pair": "washing_machine__scandinavian",
+ "type": "washing_machine",
+ "family": "scandinavian",
+ "index": 1,
+ "prompt": "a single scandinavian style front-loading washing machine, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 192962696,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "2c467ac8b00ff77dd2d71cf6d08b0536015c948922cb2f19e39761b2f703e771",
+ "seconds": 5.01,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 4500 Blackwell"
+ },
+ "generated_utc": "2026-10-04T07:23:55Z"
+}

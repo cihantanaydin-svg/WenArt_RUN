@@ -1,0 +1,24 @@
+{
+ "key": "6bd9da40793b20c0de45bcfcccf11988ead03d408091844e0f97af54701a71d9",
+ "pair": "sink_kitchen__japandi",
+ "type": "sink_kitchen",
+ "family": "japandi",
+ "index": 1,
+ "prompt": "a single japandi style kitchen sink base cabinet with a worktop and an inset sink, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1751330216,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "76485df3c471b5399500d8ebc74e752f5215d3dc6e547c5dbe681dd8a461a126",
+ "seconds": 4.9,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 4500 Blackwell"
+ },
+ "generated_utc": "2026-10-04T07:22:49Z"
+}
