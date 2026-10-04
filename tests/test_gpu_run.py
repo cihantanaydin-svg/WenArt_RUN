@@ -543,3 +543,43 @@ def test_run_result_wording():
     assert gpu_run.run_result({"state": "timeout", "exit_code": 124}, None, False, "x") == \
         "timeout (watchdog), stopped by runner"
     assert gpu_run.run_result(None, None, False, "runner timeout") == "runner timeout"
+
+
+class FakeAttachPod(FakeRunPod):
+    """A running pod that an earlier runner created (its env holds the job id and the status token)."""
+
+    def api(self, method, path, body=None, timeout=60, retries=3):
+        out = super().api(method, path, body, timeout, retries)
+        if method == "GET" and path == f"/v2/pods/{POD_ID}":
+            out = dict(out, name="wenart-job1", createdAt="2026-10-04T07:07:06.667Z",
+                       env={"JOB_ID": "job1", "JOB_TOKEN": TOKEN, "MAX_RUNTIME_S": "7200", "GRACE_S": "600",
+                            "HF_TOKEN": "{{ RUNPOD_SECRET_hf_token }}"})
+        return out
+
+
+def test_attach_collects_stops_logs_and_terminates_a_pod_whose_runner_died(status_server, tmp_path, monkeypatch,
+                                                                            capsys):
+    log = tmp_path / "gpu-log.md"
+    log.write_text(LOG_FIXTURE)
+    monkeypatch.setattr(gpu_run, "GPU_LOG", log)
+    monkeypatch.setattr(gpu_run, "RUNS_DIR", tmp_path / "runs")
+    monkeypatch.setattr(gpu_run, "pod_logs", lambda *a, **k: "")
+    monkeypatch.setattr(gpu_run, "POLL_S", 0)
+    created = gpu_run.pod_created({"createdAt": "2026-10-04T07:07:06.667Z"})
+    monkeypatch.setattr(gpu_run.time, "time", lambda: created + 3600.0)          # one hour after the start
+    fake = FakeAttachPod()
+    monkeypatch.setattr(gpu_run, "api", fake.api)
+    status_server["link"](make_job_dir(status_server["root"]))
+    rc = gpu_run.cmd_attach(argparse.Namespace(pod_id=POD_ID, purpose="M8 pod L2 (re-attached)"))
+    assert rc == 0
+    assert (tmp_path / "runs" / "job1" / "results" / "final" / "synthetic-04" / "final_report.md").is_file()
+    assert fake.calls.count(("POST", f"/v2/pods/{POD_ID}/action")) == 1 and fake.terminated
+    rows = [r for r in gpu_run.gpu_log_rows(log.read_text()) if r[1] == POD_ID]
+    assert len(rows) == 1 and rows[0][3] == "60" and "re-attached" in rows[0][6]
+    assert TOKEN not in capsys.readouterr().out                                  # the status token is never printed
+
+
+def test_attach_leaves_a_foreign_pod_alone(monkeypatch):
+    fake = FakeRunPod()
+    monkeypatch.setattr(gpu_run, "api", lambda m, p, *a, **k: {"id": POD_ID, "name": "someone-else", "status": "RUNNING"})
+    assert gpu_run.cmd_attach(argparse.Namespace(pod_id=POD_ID, purpose="x")) == 1

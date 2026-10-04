@@ -14,6 +14,7 @@ Usage:
   gpu_run.py volume-create [--size 120]  create the Network Volume (asks first)
   gpu_run.py run --job scripts/jobs/smoke.sh [--gpu "RTX PRO 6000"] [--max-minutes 120] [--no-volume]
   gpu_run.py logs POD_ID | stop POD_ID | terminate POD_ID | sweep [--yes]
+  gpu_run.py attach POD_ID [--purpose TEXT]  re-attach after the runner died: wait, collect, stop, log
 Only stdlib; works in the cloud session (HTTPS proxy) and on the Mac.
 
 Safety notes:
@@ -809,6 +810,84 @@ def cmd_terminate(a: argparse.Namespace) -> int:
     terminate(a.pod_id); return 0
 
 
+def pod_created(p: dict) -> float:
+    """Epoch seconds of a pod's ``createdAt`` (REST v2: ISO 8601 with ``Z``)."""
+    text = str(p.get("createdAt") or "")
+    try:
+        return dt.datetime.fromisoformat(text.replace("Z", "+00:00")).timestamp()
+    except ValueError:
+        return time.time()
+
+
+def cmd_attach(a: argparse.Namespace) -> int:
+    """Re-attach to a running wenart pod whose runner died (the session's container restarted): read the job id
+    and the status token from the pod's environment (never printed), wait for the job, collect, stop, correct
+    the docs/gpu-log.md row of the pod and terminate it, as ``run`` would have done."""
+    pod_id = a.pod_id
+    p = api("GET", f"/v2/pods/{pod_id}")
+    if not str(p.get("name") or "").startswith("wenart-"):
+        print(f"pod {pod_id} ({p.get('name')}) is not a wenart pod: left alone"); return 1
+    env = p.get("env") or {}
+    job_id, token = env.get("JOB_ID"), env.get("JOB_TOKEN")
+    if not job_id or not token:
+        print(f"pod {pod_id} has no JOB_ID/JOB_TOKEN in its environment"); return 1
+    t0 = pod_created(p)
+    price = p.get("cost") or 0.0
+    gpu_name = (p.get("gpu") or {}).get("id", "?")
+    status_url = f"https://{pod_id}-8000.proxy.runpod.net/{token}/"
+    run_dir = RUNS_DIR / job_id
+    run_dir.mkdir(parents=True, exist_ok=True)
+    max_s = float(env.get("MAX_RUNTIME_S") or 7200) + float(env.get("GRACE_S") or 600) + 600
+    print(f"attached to {pod_id}: job {job_id}, running {int((time.time() - t0) / 60)} min, ${price}/h")
+    final_status, stopped_by, collected_ok, collect_tries, last_state = None, None, False, 0, None
+    self_stopped, result = False, "re-attached; no final status"
+    pod_status = p["status"]
+    while time.time() < t0 + max_s:
+        try:
+            p = api("GET", f"/v2/pods/{pod_id}")
+        except ApiError as e:
+            print(f"poll failed: {e}"); time.sleep(POLL_S); continue
+        pod_status = p["status"]
+        st = None
+        raw = fetch(status_url + "status.json") if pod_status == "RUNNING" else None
+        if raw:
+            try:
+                st = json.loads(raw)
+            except json.JSONDecodeError:
+                st = None
+        state = f"{pod_status}/{st['state'] if st else '-'}"
+        if state != last_state:
+            print(f"[{int(time.time() - t0):5d}s] {state}  ${price}/h")
+            last_state = state
+        if st and st.get("state") in ("done", "timeout") and final_status is None:
+            final_status = st
+            print(f"job {st['state']}, exit code {st['exit_code']}; collecting results")
+        if final_status is not None and not collected_ok and pod_status == "RUNNING" and collect_tries < COLLECT_TRIES:
+            collect_tries += 1
+            collected_ok = collect_all(status_url, run_dir)["ok"]
+            if collected_ok:
+                stopped_by = stop_after_collect(pod_id)
+                if stopped_by is not None:
+                    break
+        if pod_status in ("EXITED", "TERMINATED"):
+            self_stopped = final_status is not None
+            break
+        if pod_status == "ERROR":
+            result = "pod ERROR"; break
+        time.sleep(POLL_S)
+    p = api("GET", f"/v2/pods/{pod_id}")
+    if p["status"] not in ("EXITED", "TERMINATED"):
+        print(f"pod still {p['status']} -> stopping it from here")
+        if stop(pod_id):
+            wait_stopped(pod_id)
+    minutes_used = (time.time() - t0) / 60
+    result = run_result(final_status, stopped_by, self_stopped, result) + " (runner re-attached)"
+    log_run(pod_id, gpu_name, minutes_used, price * minutes_used / 60, a.purpose, result, key=pod_id)
+    terminate(pod_id)
+    print(f"result: {result}; {minutes_used:.1f} min, ~${price * minutes_used / 60:.2f}; files in runs/{job_id}/")
+    return 0 if final_status and final_status["exit_code"] == 0 else 1
+
+
 def cmd_sweep(a: argparse.Namespace) -> int:
     pods = all_pods()
     ours = our_pods(pods)
@@ -857,6 +936,10 @@ def main(argv: list[str] | None = None) -> int:
     r.set_defaults(fn=cmd_run)
     for name, fn in (("logs", cmd_logs), ("stop", cmd_stop), ("terminate", cmd_terminate)):
         s = sub.add_parser(name); s.add_argument("pod_id"); s.set_defaults(fn=fn)
+    at = sub.add_parser("attach", help="re-attach to a running wenart pod whose runner died: wait, collect, "
+                                       "stop, log, terminate")
+    at.add_argument("pod_id"); at.add_argument("--purpose", default="re-attached run")
+    at.set_defaults(fn=cmd_attach)
     sw = sub.add_parser("sweep", help="stop and terminate every wenart-* pod (asks first)")
     sw.add_argument("--yes", action="store_true"); sw.set_defaults(fn=cmd_sweep)
     a = ap.parse_args(argv)
