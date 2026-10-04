@@ -941,3 +941,14 @@ Apache-2.0 @cfd3195; Grounding DINO / Florence-2 surveyed, not used; TRELLIS.2 n
 - CC BY 4.0 §3(a)(1); ODC-By 1.0 §4.2–4.3.
 - RunPod `/v2/catalog/gpus` via `scripts/gpu_run.py gpus` (3 Oct 2026 06:40 UTC): RTX PRO 6000 96 GB $2.09/h HIGH.
 - real01 and synthetic-02 measurements: pdfplumber 0.11.10, opencv 5.0.0, tesseract in the session; reviewer scratch.
+
+## 15. Changes while running (3–4 Oct 2026)
+
+| Found on | Change | Where |
+|---|---|---|
+| prep pod 1 | judge schema without `uniqueItems`; models of unknown units normalised by type (noted); LVIS names fixed; the symbol question gives the drawn size and room (question facts); one question round only | §3.3, §7.2, `wenart/assets/objaverse.py`, `wenart/recognition/` |
+| prep pod 2 | real01-photo missed the bath and store doors: a short frame nub is not a wall end, a door leaf fused to a wall face joins its run when a swing explains it (P7) | §2.6, `generic/openings.py` |
+| pod B | a unique drawn front outranks AI fronts; the disagreement is a `symbol_front_disagreement` conflict (real01's south bed was built reversed) | §2.8, `recognition/symbols.py` |
+| pod B | the camera model builds pieces with a back (beds, chairs, sofas, armchairs, toilets) from the builder's parts (low part + back slab), not one full-height box | §6.2, `blender/camsearch.py` |
+| pod B | the M5 e2e combines with the detector advisory (it has no detect stage); tests follow the committed real01 seeds | tests |
+| pod C2 | an A/B project must be rendered in the same pod (or with the alternate look): synthetic-05 had no pairs | §10 (open) |

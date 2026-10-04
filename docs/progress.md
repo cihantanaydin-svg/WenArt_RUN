@@ -429,3 +429,125 @@ Next step: see "Decisions of 3 Oct 2026" below.
 
 Next step (when you are ready): Milestone 7 with your real project `projects/real01/` (your upload, moved there from
 `projects/projects/real01/`), plus items 3, 5, 6, 7, 8 and 9 above.
+
+## Milestone 7 – real projects in (CAD PDF in feet, DWG, scans, photos), style-true furniture, AgX Punchy, better checks (done, 4 Oct 2026)
+
+What works (`docs/milestone7.md` is the spec):
+- **Your project `real01`** (AutoCAD PDF, feet and inches, no title, no brief) runs end to end with the same
+  command as the synthetic projects. The new generic plan core reads it:
+  - scale from the two overall dimensions (50', 30'), confirmed by the 8 room-size labels (12.435 pt/ft);
+  - 13 walls from the hatched wall bands (0.150 m and 0.229 m thick);
+  - 5 doors, 9 windows, 3 doorless openings, and 1 virtual separator where Drawing Room and Dining share one
+    floor area;
+  - 9 rooms, including Pooja (prayer room: never furnished by AI), Store and the stair hall;
+  - the plot wall, parking and garden recorded under `site` (not built);
+  - 20 furniture pieces: the stair (2 flights, built as real steps) and the L-shaped kitchen counter by
+    rule, and 16 pieces typed by two AI passes (Qwen3-VL-8B and GLM-4.6V-Flash). 16 of 17 asked pieces are
+    right against the reference, with no wrong verified type. The second sofa stays `unknown`: the two
+    passes disagreed, so it is kept unverified and drawn with red stripes.
+  - Fronts come from the drawing: beds, chairs, sofas and counters all match the reference.
+- **AI typing of drawn symbols** (§3): crops at a readable scale, two passes that must agree, a size-table veto,
+  `not_furniture` kept but not built. The answers are committed as seeds (`results/recognition/<p>/`), so a re-run
+  needs no vision model for them.
+- **Scans and phone photos** (§4): rectify and deskew, OCR scale at 0° and 90°, wall mask, openings, rooms, room
+  labels from two AI passes (or one pass equal to Tesseract). `synthetic-02` (scan + photo) is now `ok`
+  (it was `needs_review`). With real AI answers (pod C0), real01 scan and real01 photo both get 8/8 room labels, and synthetic-02 gets 5/5.
+- **DWG** (§5): LibreDWG 0.14 is built on the pod (GPL, run as a separate program) and feeds a generic DXF
+  adapter. `synthetic-06` (a DWG drawn the way CAD offices draw) runs end to end.
+- **Look** (decisions 6 and 8): `AgX - Punchy` is the default. A room with no furniture gets one view
+  (none below 2.5 m²).
+- **Library** (decision 7):
+  - refit takes a library model only when its style tags include the project's style family or `neutral`,
+    else the parametric mesh;
+  - beds without a mattress are gone;
+  - 50 new Objaverse models (CC BY 4.0, 16 types), each judged by both AI models on rendered thumbnails,
+    with the front agreed. Credits are in every `ATTRIBUTION.md`, with the ODC-By notice (`results/library/`).
+- **Added-object detector** (decision 3, §8.1): OWLv2 compares the Cycles and polished images. Calibrated on
+  29 insertions and 260 harmless pairs: insertions confirmed 79 %, false confirmations 2.7 %. In the runs it
+  rejected 3 polished views that the edge/depth gate had accepted (synthetic-04 living room: a fridge-like unit
+  added in the far kitchen; synthetic-06 master bedroom; synthetic-03 balcony). The vision check stays advisory for absolute flags,
+  as you decided.
+- **Realism A/B v2** (decision 5, §8.2): one aspect per question, image order balanced inside the question and the
+  answer. Result on synthetic-03 (Punchy vs look None, 32 pairs, 512 calls per model): **not measurable** by the
+  rule fixed before the run. Qwen now passes all four known-direction controls (in M6 it missed the lighting one),
+  but it fails the null re-encode control and picks the first image 74 % of the time; GLM misses two controls and
+  always ties. Qwen alone prefers look None on lighting and photo (21 : 0), but the None renders are 0.3–0.5 EV
+  brighter in nearly every pair, so that is not evidence. These judges cannot certify a look; a human rating can.
+- **Orchestrator**: new stages (recognize, pipeline_final, detect), a `pending` state for projects waiting for
+  AI answers, an 8-sequence tier for 96 GB GPUs, a prep job (`scripts/jobs/prep.sh`) for library, detector and
+  recognition work. The RTX PRO 6000 measured 1.63× the PRO 4500.
+
+Pod runs (RTX PRO 6000, $2.09/h; `docs/gpu-log.md`; M7 total **$10.43**):
+
+| Pod | Content | Minutes | Cost | Result |
+|---|---|---|---|---|
+| prep 1 | recognition answers, Objaverse survey, detector calibration, GPU timing | 45 | $1.57 | exit 1: 5 problems found (fixed, see below) |
+| prep 2 | the same after the fixes | 21 | $0.74 | ok except real01-photo labels 6/8 (P7, fixed later) |
+| B | full run real01, synthetic-01, -04, -02, -06, -05 | 64 | $2.24 | 6 × ok; 4 GPU tests failed (found the camera problem below; the reversed bed was found in the images) |
+| C1 | same six projects again after the fixes | 97 | $3.38 | 6 × ok; GPU tests 200 passed, 0 failed (22 not applicable) |
+| C2 | synthetic-03 + realism A/B v2 | 55 | $1.93 | exit 1: synthetic-03 ok; 1 of 48 GPU tests failed (one view, open item); synthetic-05 A/B pairs missing (my setup: it was rendered in C1 without the alternate look) |
+| C0 | raster fixtures (real01 scan and photo) with real AI answers; recognition, library and detector GPU tests | 16 | $0.57 | ok; GPU tests 16/16 |
+
+Results per project (pod C1/C2; P = polished final, C = Cycles final):
+
+| Project | Input | End state | Views | P / C | Gate validation | Detector rejects | Views with a final mismatch |
+|---|---|---|---|---|---|---|---|
+| real01 | CAD PDF (feet) | ok | 20 | 10 / 10 | flagged (0.946 / 0.90+) | 0 | 0 |
+| synthetic-01 | DXF + vector PDF + scan | ok | 29 | 19 / 10 | ok | 0 | 1 |
+| synthetic-02 | scan + photo | ok | 11 | 0 / 11 | polish disabled (negatives 0.83) | – | 1 |
+| synthetic-03 | DXF, 3 levels | ok | 44 | 27 / 17 | ok | 1 | 0 |
+| synthetic-04 | DXF + vector PDF | ok | 14 | 7 / 7 | ok | 1 | 1 |
+| synthetic-05 | DXF + photo, polish off | ok | 23 | 0 / 23 | – (brief: no polish) | – | 1 |
+| synthetic-06 | DWG | ok | 17 | 16 / 1 | ok | 1 | 0 |
+
+Found and fixed on the way (each with a test):
+- Prep 1:
+  - the judge schema used `uniqueItems`, which vLLM rejects;
+  - models of unknown units were dropped (now normalised by type, noted);
+  - Objaverse category names did not match;
+  - the AI typed weakly without the drawn facts (the question now gives the drawn size and the room);
+  - a second question round ended in exit 4.
+- Pod B:
+  - **real01's south bed was built reversed.** Both AI models named one fixed side for every bed, and the old
+    rule then dropped the drawn front. Drawn fronts now outrank AI fronts (CLAUDE.md trust order), and the
+    disagreement is listed as a conflict.
+  - **The camera search saw beds, chairs and toilets as full-height boxes**, and picked views of a bare wall
+    "showing" a bed. Pieces with a back now have a height profile (low part + back), taken from the builder's
+    parts.
+  - real01-photo missed the bath and store doors (P7): a door frame nub and a door leaf fused to a wall in the
+    photo's wall mask. Both are now recognised (scan and photo: 5/5 doors; 8/8 labels with real answers).
+- Code review before the pods: 32 confirmed findings fixed, each with a test that failed first. One remainder is open:
+  at a 30° rotation a nightstand's head line is taken by a window gap.
+
+Needs your OK or action:
+1. **real01 style**: no brief, so the defaults apply (Scandinavian, …), listed as assumed. Add
+   `projects/real01/brief.yaml` with your style and the next pod re-runs style → refit → build → render → polish →
+   check.
+2. **Polish on real01** (decision 4): the gate passed with a flag. It also rejects some harmless edits (accepted
+   94.6 %, target 95 %), so 10 views stay Cycles. Side-by-side sheets: `results/final/real01/contact_sbs_*.jpg`.
+   Please look at them and decide again whether polish stays on.
+3. **TRELLIS.2 was not built** (image-to-3D, decision 7). Generated shapes have no documented source. The
+   parametric meshes cover the types the library lacks. Keep it out?
+4. **Objaverse licences** are declared by the uploaders, not verified. They are fine for this PoC; check them
+   before commercial use (flagged in `docs/plan.md` §4.8).
+5. **Warm white walls with Punchy**: synthetic-01's white walls averaged R/B 1.104 with pod B's cameras (M5 limit
+   1.10) and pass with C1's cameras. Bright wall areas are as neutral as in M6; shaded areas near the wooden floor
+   pick up more warm bounce. Accept, or tone the look down?
+
+Open items:
+- Furniture from scans and photos: footprint recall 0.63 (synthetic-02 scan) and 0.30 / 0.20 (real01 scan /
+  photo), targets 0.8 / 0.7. Touching pieces stay one cluster (unknown, unverified; nothing invented).
+- The vision check (two VLMs) still rarely confirms removals and insertions (targets missed, advisory). The
+  OWLv2 detector now covers insertions.
+- Nightstand fronts come from the AI only (the drawing gives no unique front); 2 of 4 differ from the reference.
+- synthetic-02's gate rejects only 83 % of geometry changes, so it keeps Cycles images.
+- One GPU test is red on one view: synthetic-03 `cam_r_L0_mutfak_3`. The camera stands 0.45 m from an Objaverse
+  vintage fridge with a rounded top. Its fitted box reaches the frame corner (2.7 % in the camera model), but the
+  real rounded corner does not (0 % in the render). The box model cannot know a library mesh's shape. A fix
+  would move cameras again and re-render every project, so I left it for the next look pass.
+- The A/B for synthetic-05 did not run: its renders came from pod C1, which was not told to render the
+  alternate look. It would not change the verdict, which fails on the judges' controls.
+
+GPU cost so far: $19.17 of $100 (`docs/gpu-log.md`). No pod is running.
+
+Next step: your answers to the five points above. Then Milestone 8 (to be planned with you).
