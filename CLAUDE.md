@@ -44,12 +44,14 @@ Plan: `docs/plan.md`. Status: `docs/progress.md`. GPU spending: `docs/gpu-log.md
 - Batch GPU work: several tests per pod session, not one pod per small check.
 
 ## Furniture rules
-- Furniture and fixed equipment drawn in the documents are treated like walls:
-  same type, position, orientation and footprint size as drawn. Style changes only
-  the look (materials, colors, design details).
+- The place of furniture and fixed equipment drawn in the documents is locked like
+  a wall: same position, orientation and footprint size as drawn, and the same type
+  (a bed stays a bed). The piece itself is not locked: AI may pick, swap or generate
+  any model, design, materials and colors that fit the style and the footprint.
 - Footprint clear but type unclear → keep the footprint, mark `unverified`, show it
   in debug images. Never guess silently.
-- Rooms that have furniture in the documents: never add, remove or move furniture.
+- Rooms that have furniture in the documents: never add, remove or move furniture
+  (swapping a piece for another model of the same type in the same place is allowed).
   Small decor (cushions, plants, books) only if the brief allows it (default: yes).
 - Rooms with no furniture in the documents: furnish with AI in the project style
   (default), with real clearances; never block doors or windows.

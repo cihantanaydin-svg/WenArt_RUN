@@ -11,8 +11,8 @@ web models, and the cameras show more of each room. User decisions of 4 Oct 2026
 | 5 | Warm white walls with AgX Punchy | accepted |
 | 6 | Cameras | use wider lenses |
 
-The furniture and no-hallucination rules of `CLAUDE.md` stay: a drawn piece keeps its type, position, orientation and
-footprint; only its look changes. Licences are recorded for every model (and flagged when not CC0 / CC BY), even
+The furniture and no-hallucination rules of `CLAUDE.md` stay: a drawn piece keeps its place (position, orientation,
+footprint) and type; the piece itself (model, design, materials) is free to change. Licences are recorded for every model (and flagged when not CC0 / CC BY), even
 though the user allows any licence for now.
 
 Research (4 Oct 2026, from the session):
