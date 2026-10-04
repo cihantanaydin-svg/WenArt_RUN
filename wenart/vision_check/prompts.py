@@ -63,6 +63,8 @@ HINTS: dict[str, str] = {
     "cushion": "cushion or pillow",
     "book_set": "row of books",
     "plant": "potted plant",
+    "rug": "rug or carpet lying on the floor",
+    "wall_art": "framed picture, print or painting hanging on a wall",
     "lamp": "floor, table, wall or ceiling lamp",
     "textile": "curtain or rug",
     "other_furniture": "any other piece of furniture",

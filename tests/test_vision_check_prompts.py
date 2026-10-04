@@ -28,7 +28,8 @@ def test_categories_are_generated_from_the_enums():
     assert S.CATEGORIES == ("door", "window") + S.FURNITURE_TYPES + tuple(DECOR_TYPES) + (
         "lamp", "textile", "other_furniture", "other_object")
     assert S.SEEN_AS == S.CATEGORIES + ("nothing",) and len(set(S.CATEGORIES)) == len(S.CATEGORIES)
-    assert set(DECOR_TYPES) == {"plant", "cushion", "book_set"}
+    # Milestone 8 (docs/milestone8.md §4): the decor stage adds rugs and wall art.
+    assert set(DECOR_TYPES) == {"plant", "cushion", "book_set", "rug", "wall_art"}
 
 
 def test_every_category_has_a_hint():
@@ -217,8 +218,9 @@ def test_new_furniture_types_have_photo_hints_and_plant_stays_decor():
     assert "plant" in S.DECOR_CATEGORIES and S.category_class("plant") == "decor"
     assert S.element_category("furniture", "potted_plant") == "potted_plant"
     # Both ways round (review vision-2): the decor plant seen as potted_plant is the same object too.
+    # Milestone 8: the decor rug may be seen as a "textile" (its hint: "curtain or rug").
     assert S.EQUIVALENT == {"potted_plant": ("plant",), "plant": ("potted_plant",), "floor_lamp": ("lamp",),
-                            "lamp": ("floor_lamp",)}
+                            "lamp": ("floor_lamp",), "rug": ("textile",), "textile": ("rug",)}
     line = P.element_line({"label": "E1", "type": "stair", "box_1000": [1, 2, 3, 4]})
     assert line == "- E1: stair (staircase with steps); expected inside box [1, 2, 3, 4]"
 

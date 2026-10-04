@@ -321,13 +321,16 @@ def furniture_building(building: dict) -> dict:
 
 def add_furniture_summary(total: dict, summary: dict) -> None:
     """Add one level's furniture (or stair) summary to the build total (pure):
-    counts, methods, fallbacks, ``not_built`` and the stair ids."""
+    counts, methods, fallbacks, ``not_built``, the stair ids and (Milestone 8)
+    ``decor_skipped`` (wall art without a library model, or with no room to hang)."""
     for key in ("pieces", "proxies", "decor"):
         total[key] += summary.get(key, 0)
     for method, count in (summary.get("by_method") or {}).items():
         total["by_method"][method] = total["by_method"].get(method, 0) + count
     total["fallbacks"].extend(summary.get("fallbacks") or [])
     total["not_built"].extend(summary.get("not_built") or [])
+    if summary.get("decor_skipped"):
+        total.setdefault("decor_skipped", []).extend(summary["decor_skipped"])
     if summary.get("ids"):                                  # shell.build_stairs: parametric fixed equipment
         total["by_method"]["parametric"] = total["by_method"].get("parametric", 0) + len(summary["ids"])
         total["stairs"].extend(summary["ids"])
@@ -492,7 +495,7 @@ def main(argv: list[str]) -> int:
     checks: dict = {"door_rays": []}
     level_collections = {}
     furniture_summary = {"pieces": 0, "by_method": {}, "fallbacks": [], "proxies": 0, "decor": 0,
-                         "proxies_forced": bool(args.proxies), "not_built": [], "stairs": []}
+                         "proxies_forced": bool(args.proxies), "not_built": [], "stairs": [], "decor_skipped": []}
     loose_furniture = furniture_building(building)            # stairs are built with the shell
     rooms_without_view: list[dict] = []                       # Milestone 7 §6.2: empty rooms the cameras skip
 

@@ -26,6 +26,7 @@
     "openings": {"type": "array", "items": {"$ref": "#/$defs/opening"}},
     "rooms": {"type": "array", "items": {"$ref": "#/$defs/room"}},
     "furniture": {"type": "array", "items": {"$ref": "#/$defs/furniture"}},
+    "decor": {"type": "array", "items": {"$ref": "#/$defs/decor"}, "description": "Rule-based decor inside the building (wenart/furniture/decor.py): always added_by_ai, never furniture; absent before the decor stage"},
     "conflicts": {"type": "array", "items": {"$ref": "#/$defs/conflict"}},
     "unverified": {"type": "array", "items": {"type": "string"}, "description": "IDs of elements with status=unverified (copied here for the report)"},
     "warnings": {"type": "array", "items": {"type": "string"}},
@@ -189,6 +190,37 @@
         "status": {"enum": ["verified", "unverified"]},
         "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/evidence"}}
       }
+    },
+    "decor": {
+      "type": "object",
+      "description": "One decor item (docs/milestone4.md §4, docs/milestone8.md §4): added_by_ai by rule, labelled decor (not furniture). Cushions and book sets sit on their host piece (host_id); plants, rugs and wall art have no host (host_id null) and are their own decor element in the scene; rugs and wall art name the pieces they belong to in anchor_ids.",
+      "required": ["id", "kind", "type", "level_id", "room_id", "center", "size", "source"],
+      "properties": {
+        "id": {"type": "string", "description": "dec_<level>_<n>"},
+        "kind": {"const": "decor"},
+        "type": {"enum": ["cushion", "book_set", "plant", "rug", "wall_art"]},
+        "level_id": {"type": "string"},
+        "room_id": {"type": ["string", "null"]},
+        "center": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 3, "description": "[x, y] in building coordinates (an optional third value is the rest height above the floor). Wall art: half its nominal depth in front of wall_point"},
+        "rotation_deg": {"type": "number", "description": "Rotation about +Z; the item's front is its local -Y (wall art faces the room)"},
+        "size": {"type": "array", "items": {"type": "number", "exclusiveMinimum": 0}, "minItems": 2, "maxItems": 3, "description": "[width, depth] (+ height) in metres in the item's frame; at most 0.6 m except rugs and wall art"},
+        "asset": {"type": ["object", "null"], "description": "Library decor model chosen by the fit (wenart/furniture/fit.py fit_decor_item), or null: parametric decor (wall art: not built)"},
+        "host_id": {"type": ["string", "null"], "description": "The furniture piece a cushion or book set sits on; null for plants, rugs and wall art"},
+        "anchor_ids": {"type": "array", "items": {"type": "string"}, "minItems": 1, "description": "Rug: the pieces of its group (sofa + coffee table, the double bed, the dining table). Wall art: the piece it hangs over"},
+        "source": {"const": "added_by_ai"},
+        "method": {"type": "string", "description": "rule"},
+        "reason": {"type": "string"},
+        "status": {"enum": ["verified", "unverified", "assumed"]},
+        "wall_point": {"$ref": "#/$defs/point", "description": "Wall art: the centre of its back on the wall face"},
+        "wall_id": {"type": ["string", "null"], "description": "Wall art: the building wall it hangs on (nearest wall to wall_point), null when none is near"},
+        "gap_m": {"type": "number", "minimum": 0, "description": "Wall art: bottom edge above the top of the piece it hangs over"},
+        "bottom_m": {"type": "number", "minimum": 0, "description": "Wall art: bottom edge above the floor from the piece's box at decor time (the scene builder re-hangs it over the built top)"},
+        "max_height_m": {"type": "number", "exclusiveMinimum": 0, "description": "Wall art: the most height it may take up to 0.1 m under the ceiling"}
+      },
+      "allOf": [
+        {"if": {"properties": {"type": {"const": "rug"}}}, "then": {"required": ["anchor_ids", "rotation_deg"], "properties": {"host_id": {"type": "null"}}}},
+        {"if": {"properties": {"type": {"const": "wall_art"}}}, "then": {"required": ["anchor_ids", "rotation_deg", "wall_point", "bottom_m", "max_height_m"], "properties": {"host_id": {"type": "null"}}}}
+      ]
     },
     "furniture": {
       "type": "object",

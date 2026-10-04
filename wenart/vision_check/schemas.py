@@ -21,6 +21,12 @@ both ways round (``EQUIVALENT``): a drawn ``potted_plant`` seen as ``plant``,
 or the decor ``plant`` seen as ``potted_plant``, counts as present instead of
 "different" in ``normalise_answer``.
 
+Milestone 8 (docs/milestone8.md §4): the decor stage's new types ``rug`` and
+``wall_art`` are decor categories (class ``decor``: an added rug or picture
+never rejects a polish, an expected one is never required, never asked as
+furniture), and ``rug``/``textile`` are equivalent (the ``textile`` hint
+says "curtain or rug").
+
 Categories are generated from the enums the rest of the pipeline uses, so
 prompt, schema and building JSON cannot drift: ``door``/``window`` (building
 schema opening types without the plain ``opening``), the building schema's
@@ -72,7 +78,8 @@ LAMP_FIXTURE_MAX_Y1 = 400
 DECOR_FURNITURE_TYPES: tuple[str, ...] = ("potted_plant",)
 # Categories that name the same object in a photo, both ways round (review vision-2: the decor floor plant,
 # expected "plant", is often seen as the M7 "potted_plant" with its hint "large potted plant standing on the floor").
-EQUIVALENT_PAIRS: tuple[tuple[str, str], ...] = (("potted_plant", "plant"), ("floor_lamp", "lamp"))
+# Milestone 8: the decor rug may be named "textile" (the extra category whose hint says "curtain or rug").
+EQUIVALENT_PAIRS: tuple[tuple[str, str], ...] = (("potted_plant", "plant"), ("floor_lamp", "lamp"), ("rug", "textile"))
 # The expected category -> what it may also be seen as (symmetric, built from ``EQUIVALENT_PAIRS``).
 EQUIVALENT: dict[str, tuple[str, ...]] = {}
 for _a, _b in EQUIVALENT_PAIRS:

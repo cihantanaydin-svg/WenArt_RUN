@@ -67,6 +67,21 @@ Milestone 7 (docs/milestone7.md §6.4), four documented-only types:
 
 ``build_parts`` takes the piece for the two types that read it (``stair``,
 ``side_table``); the others ignore it.
+
+Milestone 8 (docs/milestone8.md §4):
+
+- ``frame_bedding``: the soft bedding of the parametric bed (superellipsoid
+  mattress, draped duvet, turn-down band, pillows leaning back) for a
+  library bed frame (``bed_frame: true``): sized to the frame's inner box
+  (the footprint minus ``FRAME_INSET`` = 4 % per side, centred), the
+  mattress from the fitted deck height up ``FRAME_MATTRESS_M`` (0.20 m), the
+  pillows at the back (+Y) end, the duvet from the foot (-Y) end; in the
+  piece frame like every part here. ``frame_bedding_info`` is its record
+  (deck, mattress top, bedding top, inner box) for the fit and the manifest.
+- Decor ``rug``: a flat parametric rug (``RUG_THICKNESS_M``, fabric key)
+  at the size the decor rule gives (rugs and wall art are exempt from the
+  0.6 m decor cap: ``LARGE_DECOR_TYPES``). ``wall_art`` has no parametric
+  shape (``decor_parts`` raises): without a library model it is not built.
 """
 from __future__ import annotations
 
@@ -90,7 +105,9 @@ PARAMETRIC_TYPES: tuple[str, ...] = (
 )
 # Built by shell.build_stairs with the walls (fixed equipment), never by furniture.create_furniture.
 SHELL_TYPES: tuple[str, ...] = ("stair",)
-DECOR_TYPES: tuple[str, ...] = ("cushion", "book_set", "plant")
+DECOR_TYPES: tuple[str, ...] = ("cushion", "book_set", "plant", "rug")   # parametric decor builders (M8: rug)
+# Decor without the 0.6 m cap (Milestone 8): a rug under a group of pieces, a picture over a sofa.
+LARGE_DECOR_TYPES: tuple[str, ...] = ("rug", "wall_art")
 MATERIAL_KEYS: tuple[str, ...] = ("wood", "fabric", "bedding", "ceramic", "steel", "painted", "worktop", "dark",
                                   "glass", "green", "terracotta", "duvet")
 BED_TYPES: tuple[str, ...] = ("bed", "bed_single", "bed_double")
@@ -123,7 +140,11 @@ BEVEL_BY_KEY: dict[str, float] = {"ceramic": 0.012}
 PROUD = 0.008
 # Largest decor dimension (docs/milestone4.md, Conventions: never larger than 0.6 m).
 DECOR_MAX_M = 0.6
-DECOR_DEFAULT_HEIGHT = {"cushion": 0.12, "book_set": 0.22, "plant": 0.6}
+DECOR_DEFAULT_HEIGHT = {"cushion": 0.12, "book_set": 0.22, "plant": 0.6, "rug": 0.012, "wall_art": 0.6}
+RUG_THICKNESS_M = 0.012
+# Bed frames (Milestone 8): the mattress on the deck and the inner box the bedding fills.
+FRAME_MATTRESS_M = 0.20
+FRAME_INSET = 0.04
 SHELF_PITCH = 0.35
 
 
@@ -274,6 +295,56 @@ def bedding_top(w: float, d: float, h: float) -> float:
     """Height of the highest bedding point of a parametric bed (pillows, duvet, band)."""
     return max(v[2] for p in _bed(float(w), float(d), float(h)) if p["key"] in ("bedding", "duvet")
                for v in p["verts"])
+
+
+def frame_inner_box(w: float, d: float, inset: float = FRAME_INSET) -> tuple[float, float]:
+    """``(width, depth)`` of a bed frame's inner box: the footprint minus ``inset`` (a share) per side."""
+    return (float(w) * (1.0 - 2.0 * inset), float(d) * (1.0 - 2.0 * inset))
+
+
+def frame_bedding(w: float, d: float, deck_z: float, mattress_h: float = FRAME_MATTRESS_M,
+                  inset: float = FRAME_INSET) -> list[Part]:
+    """The parametric bedding on a library bed frame of footprint ``w x d`` (docs/milestone8.md §4), in the
+    piece frame (origin at the footprint centre on the floor, foot = -Y, head = +Y): the ``_bed`` mattress,
+    duvet, turn-down band and pillows with the same shapes, keys and roles, but the mattress fills the
+    frame's inner box (``frame_inner_box``, centred) from ``deck_z`` up ``mattress_h`` (its top at
+    ``deck_z + mattress_h``), the duvet drapes 2.5 cm past the mattress sides (never past the footprint)
+    over its foot 72 %, the pillows lean at the head end of the inner box."""
+    iw, idp = frame_inner_box(w, d, inset)
+    deck_z, mattress_h = float(deck_z), float(mattress_h)
+    top = deck_z + mattress_h
+    parts = [_superellipsoid(0.0, 0.0, deck_z, iw, idp, mattress_h, 0.12, 0.08, "bedding", "mattress")]
+    duvet_w = min(float(w), iw + 0.05)
+    duvet_d = idp * 0.72
+    duvet_y = -idp / 2.0 + 0.005 + duvet_d / 2.0
+    drape = min(0.18, mattress_h * 0.9)
+    parts.append(_superellipsoid(0.0, duvet_y, top - drape, duvet_w, duvet_d, drape + 0.05, 0.18, 0.06, "duvet",
+                                 "duvet", n_eta=14, n_om=48, wrinkle=0.012, seed=1.7))
+    parts.append(_superellipsoid(0.0, duvet_y + duvet_d / 2.0 - 0.13, top + 0.02, duvet_w - 0.02, 0.26, 0.05, 0.35,
+                                 0.1, "bedding", "turndown", n_om=40))
+    n = 2 if float(w) >= 1.3 else 1
+    pw = (iw - 0.1) / n - 0.05
+    pd = min(0.45, idp * 0.22)
+    py = idp / 2.0 - 0.05 - pd / 2.0
+    for i in range(n):
+        px = 0.0 if n == 1 else (-1 if i == 0 else 1) * (pw / 2.0 + 0.025)
+        parts.append(_superellipsoid(px, py, top - 0.01, pw, pd, 0.16, 0.55, 0.25, "bedding", "pillow",
+                                     tilt_deg=PILLOW_TILT_DEG))
+    return parts
+
+
+def frame_bedding_info(w: float, d: float, deck_z: float, mattress_h: float = FRAME_MATTRESS_M,
+                       inset: float = FRAME_INSET) -> dict:
+    """The record of ``frame_bedding`` (the fit's ``asset.bedding``, the manifest's ``bedding``): deck and
+    mattress top above the floor, the highest bedding point (pillows), the inner box and the rule."""
+    parts = frame_bedding(w, d, deck_z, mattress_h, inset)
+    iw, idp = frame_inner_box(w, d, inset)
+    mattress = next(p for p in parts if p["role"] == "mattress")
+    return {"deck_z_m": round(float(deck_z), 4), "mattress_m": float(mattress_h),
+            "mattress_top_m": round(max(v[2] for v in mattress["verts"]), 4),
+            "top_m": round(max(v[2] for p in parts for v in p["verts"]), 4),
+            "inner_box_m": [round(iw, 4), round(idp, 4)], "inset": inset,
+            "pillows": sum(1 for p in parts if p["role"] == "pillow")}
 
 
 def _sofa(w: float, d: float, h: float, cushions: int | None = None) -> list[Part]:
@@ -1082,9 +1153,12 @@ def build_parts(ftype: str, w: float, d: float, h: float, piece: dict | None = N
 
 def decor_size(dtype: str, size) -> tuple[float, float, float]:
     """``(w, d, h)`` of a decor item from its ``size`` (2 or 3 values),
-    the type default height, every dimension capped at ``DECOR_MAX_M``."""
+    the type default height, every dimension capped at ``DECOR_MAX_M``
+    (rugs and wall art, ``LARGE_DECOR_TYPES``, are not capped)."""
     w, d = float(size[0]), float(size[1])
     h = float(size[2]) if len(size) > 2 and size[2] else DECOR_DEFAULT_HEIGHT.get(dtype, 0.2)
+    if dtype in LARGE_DECOR_TYPES:
+        return tuple(max(0.005, v) for v in (w, d, h))
     return tuple(min(DECOR_MAX_M, max(0.02, v)) for v in (w, d, h))
 
 
@@ -1109,6 +1183,8 @@ def decor_parts(dtype: str, w: float, d: float, h: float) -> list[Part]:
             _cylinder_z(0.0, 0.0, pot_h, 0.012, 0.012, h - pot_h, "wood", "stem", n=8),
             _cylinder_z(0.0, 0.0, pot_h + (h - pot_h) * 0.35, r, r, (h - pot_h) * 0.65, "green", "crown", n=10),
         ]
+    if dtype == "rug":                             # Milestone 8: a flat fabric rug at the rule's size
+        return [_box(0.0, 0.0, 0.0, w, d, h, "fabric", "rug")]
     raise KeyError(f"no decor builder for {dtype!r}")
 
 

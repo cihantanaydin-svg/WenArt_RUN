@@ -189,7 +189,9 @@ def test_cap_moves_to_the_next_candidate_or_parametric(small_catalog):
     assert fit["library"] == "parametric" and fit["licence"] == "n/a" and fit["fit_scale"] == [1.0, 1.0, 1.0]
     assert fit["bbox_m"] == F.parametric_box(_piece("sofa", 1.0, 0.48))     # the box Blender builds
     assert "no sofa candidate within 15 %" in fit["fallback_reason"]
-    assert [c["id"] for c in fit["candidates"]] == ["sofa_wide", "sofa_deep", "sofa_odd"]
+    # Milestone 8 (fit v2): tried in real-size order, not aspect order: mean |scale - 1| sofa_odd 0.35,
+    # sofa_deep 0.45, sofa_wide 0.45 (5 % steps 7, 8, 9).
+    assert [c["id"] for c in fit["candidates"]] == ["sofa_odd", "sofa_deep", "sofa_wide"]
     assert not any(c["accepted"] for c in fit["candidates"])
     # 2.0 x 0.9 (aspect 2.22): sofa_wide first (2.5): 1.0 / 1.125 -> 12.5 % ok
     fit = F.fit_piece(_piece("sofa", 2.0, 0.9), small_catalog)

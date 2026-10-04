@@ -49,6 +49,9 @@ CLI does not import the vision check): furniture types are
 ``furniture``; ``potted_plant``, picture frame, rug, vase, cushion, mirror and
 television are ``decor`` (never a rejection, as the VLM's plant, textile and
 other_object today); a lamp is a ``fixture`` or ``furniture`` by its box.
+Milestone 8: the decor ``rug`` and ``wall_art`` of the building are
+compatible with the rug and picture frame groups (a box on them is covered,
+not added; decor either way, never a rejection).
 Images go to the model at 960 px on the long side (``IMAGE_LONG_SIDE``; the
 OWLv2 processor pads to a square and works at 960 x 960). Per box and group
 the score is the sigmoid of the group's best query logit; boxes below
@@ -169,8 +172,9 @@ def _groups() -> tuple[Group, ...]:
         Group("door", ("door",), "door", ("door",)),
         Group("window", ("window",), "window", ("window",)),
         Group("lamp", ("lamp",), LAMP, ("floor_lamp",)),
-        Group("picture_frame", ("picture frame",), "decor", ()),
-        Group("rug", ("rug",), "decor", ()),
+        # Milestone 8: a picture frame / rug box lying on the decor wall art / rug of the building is not added.
+        Group("picture_frame", ("picture frame",), "decor", ("wall_art",)),
+        Group("rug", ("rug",), "decor", ("rug",)),
         Group("vase", ("vase",), "decor", ()),
         Group("cushion", ("cushion",), "decor", ("cushion", "sofa", "armchair", "bed_single", "bed_double")),
         Group("mirror", ("mirror",), "decor", ()),

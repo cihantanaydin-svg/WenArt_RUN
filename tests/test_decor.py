@@ -32,7 +32,8 @@ def test_decor_list_shape_and_sizes(decorated):
     for d in out["decor"]:
         assert d["type"] in D.DECOR_TYPES and d["kind"] == "decor" and d["asset"] is None
         assert d["source"] == "added_by_ai" and d["method"] == "rule" and d["reason"]
-        assert max(d["size"]) <= D.MAX_DECOR_M
+        # Milestone 8: rugs and wall art are larger by design (tests/test_decor_m8.py checks their rules)
+        assert max(d["size"]) <= D.MAX_DECOR_M or d["type"] in D.LARGE_DECOR_TYPES
         assert d["id"].startswith(f"dec_{d['level_id']}_")
         room = next(r for r in out["rooms"] if r["id"] == d["room_id"])
         assert Polygon(room["polygon"]).contains(Point(d["center"]))

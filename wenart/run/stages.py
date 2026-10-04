@@ -100,8 +100,9 @@ FIT_CODE = ("wenart/furniture/fit.py", "wenart/furniture/catalog.py", CATALOG, "
 PIPELINE_CODE = ("wenart/ingest/**", "wenart/synthetic/**", "wenart/building.py", "wenart/units.py",
                  "wenart/geometry.py", "wenart/schema/**", "wenart/recognition/**", "wenart/furniture/__init__.py",
                  "wenart/furniture/schemas.py", CHECK_YAML)
+# wenart/furniture/decor.py: its DECOR_TYPES are the vision check's decor categories (Milestone 8: rug, wall_art).
 VISION_CODE = ("wenart/vision_check/**", "wenart/views.py", "wenart/recognition/vlm_client.py",
-               "wenart/gate/detect.py")
+               "wenart/gate/detect.py", "wenart/furniture/decor.py")
 # gate calibrate (polish venv) + validate: the gate package (thresholds.yaml, models.yaml, validation.yaml
 # included) and what it imports for the views, the expected objects and the scene geometry.
 GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.py", "wenart/canonical.py",
@@ -144,7 +145,10 @@ STAGE_LIST = (
           ("building_furnished.json", "layout.json"), heavy=True),
     Stage(9, "decor", "cpu", "fingerprint", "failed",
           ("wenart/furniture/decor.py", "wenart/furniture/placer.py", "wenart/furniture/schemas.py",
-           "wenart/synthetic/**", "wenart/building.py", "wenart/units.py", "wenart/geometry.py", "wenart/schema/**"),
+           "wenart/synthetic/**", "wenart/building.py", "wenart/units.py", "wenart/geometry.py", "wenart/schema/**",
+           # Milestone 8: the wall art height reads parametric.piece_bbox
+           "wenart/blender/parametric.py", "wenart/blender/proxies.py", "wenart/blender/geom2d.py",
+           "wenart/blender/common.py"),
           ("building_decor.json",)),
     Stage(10, "refit", "cpu", "fingerprint", "failed", FIT_CODE, ("building_final.json",)),
     Stage(11, "build", "blender", "own", "failed", BLENDER_CODE, ("scene/scene.blend", "scene/scene_manifest.json"),
