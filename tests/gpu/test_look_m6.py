@@ -10,8 +10,8 @@ to old outputs on the volume). They read ``$WENART_OUTPUTS/<p>/scene`` and
 - views of rooms with an unverified piece have no colour cast from the
   stripes: |white-balance tint| <= 40 (Milestone 5: -92 to -97);
 - parametric kitchen counters are not black: the mean display luminance of
-  their index pixels is >= 0.15 (their fronts were coplanar with the
-  carcass);
+  their index pixels is >= 0.15 in the views of their own room (their fronts
+  were coplanar with the carcass);
 - window pull: ``clip_after`` <= 0.05 in >= 90 % of the views with panes;
 - dim rooms (window/floor < 0.08, an assumed half-power ceiling light) are
   metered below +6 EV (Milestone 5: +8, at the limit, noisy); synthetic-03's
@@ -94,12 +94,18 @@ def test_kitchen_counter_fronts_are_lit(project):
     name, scene, render = project
     counters = {o["pass_index"]: o["wenart_id"] for o in _furniture(scene)
                 if o.get("type") in COUNTER_TYPES and str(o.get("method", "")).startswith("parametric")}
+    rooms = {o["pass_index"]: o.get("room_id") for o in _furniture(scene) if o["pass_index"] in counters}
     if not counters:
         pytest.skip(f"{name}: no parametric kitchen counter")
-    checked, dark = 0, []
+    checked, dark, other_room = 0, [], 0
     for r in render["renders"]:
         idx = [int(i) for i, st in (r.get("index_stats") or {}).items()
                if int(i) in counters and st["pixels"] >= COUNTER_MIN_PIXELS]
+        # The views of the counter's own room (M8 F1: real01's counter seen through a door from another room, metered
+        # for that room, was darker; the coplanar-front fault shows in the kitchen's own views).
+        own = [i for i in idx if not (rooms.get(i) and r.get("room_id") and r["room_id"] != rooms[i])]
+        other_room += len(idx) - len(own)
+        idx = own
         if not idx:
             continue
         rgb = V.read_rgb(OUTPUTS / name / "renders" / r["png"]).astype(np.float64) / 255.0
@@ -112,7 +118,7 @@ def test_kitchen_counter_fronts_are_lit(project):
                 dark.append((r["camera"], counters[i], round(mean, 3)))
     if not checked:
         pytest.skip(f"{name}: no view shows a parametric counter with {COUNTER_MIN_PIXELS}+ pixels")
-    print(f"{name}: {checked} counter views checked")
+    print(f"{name}: {checked} counter views checked ({other_room} seen from another room left out)")
     assert not dark, f"{name}: counters darker than {COUNTER_MIN_LUMINANCE} mean display luminance: {dark}"
 
 

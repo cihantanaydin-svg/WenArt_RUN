@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import copy
 import json
+from pathlib import Path
 
 import jsonschema
 import pytest
@@ -18,6 +19,7 @@ from wenart.blender import furniture as F
 from wenart.blender import parametric as P
 from wenart.furniture import decor as D
 from wenart.furniture import decor_ai as DA
+from wenart.recognition.schemas import grammar_problems
 
 from fakes.fake_vlm import unsupported_keys
 from test_decor_m8 import RID, room_building
@@ -107,11 +109,26 @@ def test_room_types_limit_the_decor():
 # Question, schema, answers
 # --------------------------------------------------------------------------
 
+@pytest.mark.parametrize("project", ["real01", "synthetic-01", "synthetic-04"])
+def test_the_committed_projects_questions(project):
+    """The rooms of the M8 F1 projects the AI decor asks about: every schema passes the grammar backend's keyword
+    check (recognition/schemas.py, found on the prep pod) and validates an empty answer."""
+    root = Path(__file__).resolve().parents[1] / "results" / "furniture" / project
+    if not (root / "building_furnished.json").is_file():
+        pytest.skip("committed building not present")
+    b = json.loads((root / "building_furnished.json").read_text(encoding="utf-8"))
+    qs = DA.room_questions(b, STYLE)
+    assert qs, project
+    for q in qs:
+        assert grammar_problems(q.schema) == [], q.room["id"]
+        assert DA.schema_errors({"items": []}, q.schema) == []
+        assert all(s.types for s in q.slots), q.room["id"]
+
 def test_question_and_schema_name_only_the_rooms_slots():
     b = living()
     q = DA.room_questions(b, STYLE)[0]
     schema = q.schema
-    assert unsupported_keys(schema) == []
+    assert unsupported_keys(schema) == [] and grammar_problems(schema) == []
     item = schema["properties"]["items"]["items"]
     assert item["properties"]["slot"]["enum"] == [s.id for s in q.slots]
     assert set(item["properties"]["type"]["enum"]) == {t for s in q.slots for t in s.types}

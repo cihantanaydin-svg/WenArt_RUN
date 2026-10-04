@@ -33,6 +33,9 @@ pytestmark = pytest.mark.gpu
 OUTPUTS = Path(os.environ.get("WENART_OUTPUTS", "/workspace/repo/outputs"))
 PROJECTS = [p for p in os.environ.get("CHECK_TEST_PROJECTS", "synthetic-01 synthetic-03").split() if p]
 MODEL_KEYS = [k for k in os.environ.get("CHECK_MODELS", "qwen glm").split() if k]
+# The projects whose detect stage ran in this run (the orchestrator's list); None when run by hand (every project).
+DETECT_RAN = (None if "DETECT_TEST_PROJECTS" not in os.environ
+              else set(os.environ["DETECT_TEST_PROJECTS"].split()))
 
 MIN_ANSWER_RATE = 0.95
 STYLE_PHOTO_EXPECTED = {"walls": "plaster_charcoal", "floor": "concrete_polished"}
@@ -185,8 +188,11 @@ def test_insertion_measured(project, cfg):
     single = bool(cal.get("single_pass")) or len(MODEL_KEYS) < 2
     assert (cal["metrics"]["insertion"] is None) is single, f"{project}: insertion rate {cal['metrics']['insertion']}"
     det = cal["metrics"].get("detector_insertion") or {}
-    detected = any(json.loads(f.read_text(encoding="utf-8")).get("controls")
-                   for f in (OUTPUTS / project / "detect").glob("*.json") if f.name != "detect_manifest.json")
+    # M8 F1: real01's gate disabled the polish, so its detect stage did not run; the detect/*.json files of an earlier
+    # run (M7) are on the volume and must not count.
+    ran = DETECT_RAN is None or project in DETECT_RAN
+    detected = ran and any(json.loads(f.read_text(encoding="utf-8")).get("controls")
+                           for f in (OUTPUTS / project / "detect").glob("*.json") if f.name != "detect_manifest.json")
     if detected:
         assert det.get("n", 0) > 0, f"{project}: control renders were detected but no detector insertion recorded"
     print(f"{project}: insertion VLM {cal['metrics']['insertion']} ({ins['n']} controls); detector found "
