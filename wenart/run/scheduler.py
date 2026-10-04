@@ -113,9 +113,9 @@ PROFILES = ("full", "smoke")
 PHASE_NAMES = {
     1: "cpu: intake, pipeline, fit, style",
     2: "vlm glm: recognition, style photos",
-    3: "vlm qwen: recognition, pipeline_final, fit, style photos, layout",
+    3: "vlm qwen: recognition, pipeline_final, fit, style photos, layout, decor questions",
     4: "cpu: assets, decor, refit, A/B prepare",
-    5: "blender: build, render, controls, A/B control renders",
+    5: "blender: build, render, 3D export, controls, A/B control renders",
     6: "diffusion: gate, polish, detect",
     7: "cpu: expected, plan crops, A/B pairs",
     8: "vlm qwen: check, realism",
@@ -138,7 +138,8 @@ GPU_TEST_GROUPS = (
                     ("tests/gpu/test_look_m6.py", ("RENDER_TEST_PROJECTS",)),
                     ("tests/gpu/test_furnish.py", ("FURNISH_TEST_PROJECTS",)),
                     ("tests/gpu/test_check.py", ("CHECK_TEST_PROJECTS",)),
-                    ("tests/gpu/test_realism.py", ("AB_TEST_PROJECTS",))]),
+                    ("tests/gpu/test_realism.py", ("AB_TEST_PROJECTS",)),
+                    ("tests/gpu/test_m9.py", ("RENDER_TEST_PROJECTS",))]),          # Milestone 9: AI decor, 3D files
     ("polish", "polish_py", [("tests/gpu/test_polish.py", ("POLISH_TEST_PROJECTS", "GATE_TEST_PROJECTS")),
                              ("tests/gpu/test_polish_backend.py", ("POLISH_TEST_PROJECTS", "GATE_TEST_PROJECTS")),
                              ("tests/gpu/test_detect.py", ("DETECT_TEST_PROJECTS",))]),
@@ -338,6 +339,7 @@ class ProjectRun:
     new_photo_answers: bool = False
     terms_applied: bool = False
     layout_rooms: int = 0
+    decor_rooms: Optional[int] = None    # Milestone 9: rooms the AI decor asks about (None: not counted yet)
     gate_decision: Optional[str] = None
     views: int = 0
     polish_ran: bool = False
@@ -1336,14 +1338,20 @@ class Orchestrator:
         need_photos = [pr for pr in self.runs if pr.active and pr.photos and "qwen" in self.opts.check_models
                        and self.photo_missing(pr, "qwen")]
         need_layout = [pr for pr in self.runs if pr.active and pr.layout_rooms and not self.layout_reusable(pr)]
-        if not need_photos and not need_layout and not need_recog:
-            self.out("phase 3: no project needs Qwen recognition answers, a layout or a Qwen photo answer: no server")
+        # Milestone 9: the AI decor asks after the layout, in the same session (a reused layout keeps its building).
+        need_decor = [pr for pr in self.runs if pr.active and not (pr.pending and not pr.finalized)
+                      and pr not in need_layout and self.decor_wanted(pr)]
+        if not need_photos and not need_layout and not need_recog and not need_decor:
+            self.out("phase 3: no project needs Qwen recognition answers, a layout, a Qwen photo answer or decor "
+                     "answers: no server")
             for pr in self.runs:
                 if pr.active and pr.layout_rooms:
                     self.stage_layout(pr, None)
+                if pr.active:
+                    self.stage_decor_ask(pr, None)
                 self.photos_finish(pr)
             return
-        need = need_recog + [pr for pr in need_photos + need_layout if pr not in need_recog]
+        need = need_recog + [pr for pr in need_photos + need_layout + need_decor if pr not in need_recog]
 
         def fail(pr, status, note):
             if pr in need_recog and not pr.finalized:
@@ -1353,6 +1361,8 @@ class Orchestrator:
                 self.finish(pr, "layout", status, note)
             elif status == "incomplete" and pr in need_photos:
                 self.finish(pr, "photos", "incomplete", note, merge=True)
+            if pr in need_decor and "decor_ask" not in pr.records:
+                self.finish(pr, "decor_ask", "warning", f"{note}: rule decor")
 
         cm = self.start_session("qwen", need, fail)
         if cm is not None:
@@ -1374,6 +1384,8 @@ class Orchestrator:
                     for pr in self.runs:
                         if pr.active and pr.layout_rooms:
                             self.stage_layout(pr, url)
+                        if pr.active and not (pr.pending and not pr.finalized):
+                            self.stage_decor_ask(pr, url)
             except SV.ServerError as exc:
                 self.out(f"phase 3: {exc}")
                 status = "incomplete" if exc.reason == "deadline" else "failed"
@@ -1384,6 +1396,9 @@ class Orchestrator:
                 for pr in need_layout:
                     if pr.active and "layout" not in pr.records:
                         self.finish(pr, "layout", status, f"server qwen: {exc.reason}")
+                for pr in need_decor:
+                    if pr.active and "decor_ask" not in pr.records:
+                        self.finish(pr, "decor_ask", "warning", f"server qwen: {exc.reason}: rule decor")
         for pr in self.runs:
             # Questions without a Qwen session (a server error): the final building with the answers there are.
             if pr.active and pr.pending and not pr.finalized:
@@ -1392,7 +1407,14 @@ class Orchestrator:
                     self.layout_prepare(pr)
             if pr.active and pr.layout_rooms and "layout" not in pr.records:
                 self.stage_layout(pr, None)
+            if pr.active and not (pr.pending and not pr.finalized) and "decor_ask" not in pr.records:
+                self.stage_decor_ask(pr, None)
             self.photos_finish(pr)
+
+    def decor_wanted(self, pr: ProjectRun) -> bool:
+        """The AI decor needs the server: rooms to ask about and no reusable answers (the layout runs first)."""
+        self.decor_prepare(pr)
+        return bool(pr.decor_rooms) and "decor_ask" not in pr.records and not self.decor_ask_reusable(pr)
 
     def layout_prepare(self, pr: ProjectRun) -> None:
         """The rooms the layout furnishes, or the layout skipped (``no empty room``); once per project."""
@@ -1401,6 +1423,80 @@ class Orchestrator:
         pr.layout_rooms = self.layout_needed(pr)
         if not pr.layout_rooms:
             self.skip(pr, "layout", "no empty room")
+
+    # ----- Milestone 9: the AI decor's questions (docs/milestone9.md §4) ---------------------------------------
+
+    def decor_source(self, pr: ProjectRun) -> Path:
+        """The building the decor reads: the layout's when it furnished rooms in this run (or reused one), else the
+        fitted one (as the decor stage of phase 4)."""
+        furnished = self.status_of(pr, "layout") in ("ok", "reused") or (
+            pr.layout_rooms and (pr.out / "building_furnished.json").is_file() and self.layout_reusable(pr))
+        return pr.out / ("building_furnished.json" if furnished else "building_fitted.json")
+
+    def decor_rooms_needed(self, pr: ProjectRun) -> int:
+        """Rooms the AI decor asks about (0: brief decor off or rules, no furnished room with a slot)."""
+        building = read_json(self.decor_source(pr))
+        if not isinstance(building, dict):
+            return 0
+        from wenart.furniture import decor_ai as DA
+        if DA.decor_mode(building) != "ai":
+            return 0
+        style = read_json(pr.out / "style.json")
+        try:
+            return len(DA.room_questions(building, DA.style_text_of(style, building)))
+        except Exception as exc:  # noqa: BLE001 - a broken building: the decor stage says why
+            self.out(f"{pr.name} decor questions not counted: {type(exc).__name__}: {exc}")
+            return 0
+
+    def decor_ask_fp(self, pr: ProjectRun) -> tuple[str, dict, list]:
+        src = self.decor_source(pr)
+        cmd = S.decor_ask(self.tools, pr.ref, src.name == "building_furnished.json", "<server>")
+        args = list(cmd[1:])
+        args[args.index("<server>")] = f"{self.tools.model_id('qwen')}@{self.tools.model_revision('qwen')}"
+        ins = ST.file_hashes([src, pr.out / "style.json"])
+        return ST.fingerprint("decor_ask", S.STAGE_VERSION["decor_ask"], args, ins, self.code("decor_ask")), ins, args
+
+    def decor_ask_reusable(self, pr: ProjectRun) -> bool:
+        fp, _ins, _args = self.decor_ask_fp(pr)
+        return not self.forced("decor_ask") and ST.reusable(self.previous(pr, "decor_ask"), fp, pr.out)
+
+    def decor_prepare(self, pr: ProjectRun) -> None:
+        """Count the rooms the AI decor asks about; skipped (``no decor questions``) when there is none."""
+        if "decor_ask" in pr.records or pr.decor_rooms is not None:
+            return
+        pr.decor_rooms = self.decor_rooms_needed(pr)
+        if not pr.decor_rooms:
+            self.skip(pr, "decor_ask", "no decor questions")
+
+    def stage_decor_ask(self, pr: ProjectRun, url: Optional[str]) -> None:
+        """The AI decor's two passes per room (``decor_ai ask``); without a server the stage is a warning and the
+        decor stage falls back to the rules for the rooms without answers (never silently)."""
+        self.decor_prepare(pr)
+        if not pr.decor_rooms or "decor_ask" in pr.records:
+            return
+        fp, ins, _args = self.decor_ask_fp(pr)
+        prev = self.previous(pr, "decor_ask")
+        if not self.forced("decor_ask") and ST.reusable(prev, fp, pr.out):
+            self.finish(pr, "decor_ask", "reused", fingerprint=fp, inputs=ins, outputs=prev.outputs)
+            return
+        if url is None:
+            self.finish(pr, "decor_ask", "warning", "server qwen not available: rule decor", inputs=ins)
+            return
+        if not self.can_start(S.est_calls(2 * pr.decor_rooms, 1)):
+            self.not_started(pr, "decor_ask")
+            return
+        src = self.decor_source(pr)
+        rc = self.run_step(pr, "decor_ask", "decor_ask",
+                           S.decor_ask(self.tools, pr.ref, src.name == "building_furnished.json", url))
+        if rc == 0:
+            self.finish(pr, "decor_ask", "ok", fingerprint=fp, inputs=ins)
+        elif rc == TIMEOUT_RC:
+            self.finish(pr, "decor_ask", "incomplete", "timeout", fingerprint=fp, inputs=ins)
+        elif rc == 3:
+            self.finish(pr, "decor_ask", "warning", "exit 3: some calls did not reach the server: rule decor there",
+                        inputs=ins)
+        else:
+            self.finish(pr, "decor_ask", "warning", f"exit {rc}: rule decor", inputs=ins)
 
     # ----- phase 4: CPU ----------------------------------------------------
 
@@ -1411,7 +1507,9 @@ class Orchestrator:
             self.simple_stage(pr, "assets", [("assets", S.assets(self.tools, pr.ref), None)])
             furnished = self.status_of(pr, "layout") in ("ok", "reused")
             src = pr.out / ("building_furnished.json" if furnished else "building_fitted.json")
-            self.fp_stage(pr, "decor", S.decor(self.tools, pr.ref, furnished), [src])
+            # Milestone 9: the AI decor's answers (the rules per room without them) and the style text it asked with.
+            self.fp_stage(pr, "decor", S.decor(self.tools, pr.ref, furnished),
+                          [src, pr.out / "style.json", pr.out / S.DECOR_ANSWERS])
             if not pr.active:
                 continue
             self.fp_stage(pr, "refit", S.refit(self.tools, pr.ref),
@@ -1447,6 +1545,8 @@ class Orchestrator:
             self.stage_build(pr)
             if pr.active:
                 self.stage_render(pr)
+            if pr.active:
+                self.stage_export(pr)
             if pr.active:
                 self.stage_controls(pr)
         if self.opts.ab_phase == "judge":
@@ -1495,6 +1595,23 @@ class Orchestrator:
         rc = self.run_step(pr, "render", "render", cmd)
         status, note = self.render_status(rc, pr.out / "renders" / "render_manifest.json")
         self.finish(pr, "render", status, note)
+
+    def stage_export(self, pr: ProjectRun) -> None:
+        """Milestone 9 (user request of 4 Oct 2026): ``<p>.blend`` (packed) and ``<p>.glb`` of the final scene in
+        ``<out>/export``; a failure is a warning (the renders stand)."""
+        if self.opts.smoke:
+            self.skip(pr, "export", "smoke profile")
+            return
+        if not self.can_start(S.EST_EXPORT_S):
+            self.not_started(pr, "export")
+            return
+        rc = self.run_step(pr, "export", "export", S.export(self.tools, pr.ref))
+        if rc == 0:
+            self.finish(pr, "export", "ok")
+        elif rc == TIMEOUT_RC:
+            self.finish(pr, "export", "incomplete", "timeout")
+        else:
+            self.finish(pr, "export", "warning", f"exit {rc}: no 3D files")
 
     def stage_controls(self, pr: ProjectRun) -> None:
         rc = self.run_step(pr, "controls", "select-controls", S.select_controls(self.tools, pr.ref))

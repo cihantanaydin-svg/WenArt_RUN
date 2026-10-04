@@ -1331,14 +1331,19 @@ def test_m9_generation_targets_every_type_over_every_source(tmp_path):
     assert w.prep(l2=True, generate_target=20).run_all() == 0, w.lines
     lib = w.prep_root / "library"
     labels = w.labels()
-    assert labels[:6] == ["abo survey", "objaverse survey", "bash scripts/pod_setup_trellis.sh", "objaverse accept",
-                          "generate plan", "generate run"]
+    # Two workers share the 96 GB GPU (every second item each), then one survey of the whole plan.
+    assert labels[:8] == ["abo survey", "objaverse survey", "bash scripts/pod_setup_trellis.sh", "objaverse accept",
+                          "generate plan", "generate run", "generate run", "generate survey"]
     assert w.calls[3]["cmd"] == ["/venv/python", "-m", "wenart.assets.objaverse", "accept", "--out", str(lib)]
     py = str(w.trellis_py)
     assert w.call("generate plan")["cmd"] == [py, "-m", "wenart.assets.generate", "plan", "--catalog",
                                               str(lib / "accepted.json"), "--families", "all", "--out", str(lib),
                                               "--target", "20"]
-    assert w.steps()["generate"]["families"] == ["all"]
+    shards = sorted(c["cmd"][-1] for c in w.calls if c["label"] == "generate run")
+    assert shards == ["0/2", "1/2"]
+    assert w.call("generate survey")["cmd"] == [py, "-m", "wenart.assets.generate", "survey", "--out", str(lib),
+                                                "--plan", str(lib / "generate" / "plan.json")]
+    assert w.steps()["generate"]["families"] == ["all"] and w.steps()["generate"]["workers"] == 2
     assert P._generate_target(None) is None and P._generate_target(5) == 5
     with pytest.raises(ValueError):
         P._generate_target(0)

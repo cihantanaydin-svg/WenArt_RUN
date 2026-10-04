@@ -115,6 +115,8 @@ FURNITURE_MATERIALS: dict[str, dict] = {
     "stone_worktop": {"kind": "hard",    "flat": [0.24, 0.24, 0.25], "roughness": 0.3},
     "lacquer_dark":  {"kind": "painted", "flat": [0.04, 0.04, 0.045], "roughness": 0.4},
     "plant_green":   {"kind": "organic", "flat": [0.10, 0.28, 0.09], "roughness": 0.8},
+    # Milestone 9: the glass of the parametric wall mirror (decor; docs/milestone9.md §5).
+    "mirror":        {"kind": "metal",   "flat": [0.90, 0.90, 0.90], "roughness": 0.03, "metallic": 1.0},
     "wood_veneer_oak":    {"kind": "wood", "flat": [0.62, 0.47, 0.30], "roughness": 0.45, "source": "polyhaven",
                            "asset": "oak_veneer_01", "size_m": [1.83, 1.83], "albedo_mode": "texture"},
     "wood_veneer_walnut": {"kind": "wood", "flat": [0.25, 0.14, 0.08], "roughness": 0.4, "source": "polyhaven",

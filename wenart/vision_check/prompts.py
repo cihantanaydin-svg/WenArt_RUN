@@ -65,6 +65,12 @@ HINTS: dict[str, str] = {
     "plant": "potted plant",
     "rug": "rug or carpet lying on the floor",
     "wall_art": "framed picture, print or painting hanging on a wall",
+    # Milestone 9 decor (docs/milestone9.md §3)
+    "vase": "vase standing on a table, a sideboard or a shelf",
+    "bowl": "decorative bowl or tray on a table",
+    "plant_small": "small potted plant on a table or a shelf",
+    "table_lamp": "lamp standing on a table, a desk or a nightstand",
+    "mirror": "mirror hanging on a wall",
     "lamp": "floor, table, wall or ceiling lamp",
     "textile": "curtain or rug",
     "other_furniture": "any other piece of furniture",

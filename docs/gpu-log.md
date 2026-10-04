@@ -42,5 +42,6 @@ runner could not write it). Costs are estimates from the on-demand price at star
 | 2026-10-04 09:24 | ieoqvr6cog3t37 | NVIDIA RTX PRO 4500 Blackwell | 15 | 0.18 | M8 pod L3: library re-accept after the fixes (generated heights, ranking, fronts), judging of the newly ready generated models | exit 1, stopped by runner after collect (watchdog and job-end stop armed) |
 | 2026-10-04 09:50 | z50zfcbwz804jx | NVIDIA RTX PRO 4500 Blackwell | 25 | 0.30 | M8 pod L3b: judging of the generated washing machines, kitchen sinks, showers; library re-accept | ok, stopped by runner after collect (watchdog and job-end stop armed) |
 | 2026-10-04 10:48 | 39ac41e4w6wvgt | NVIDIA RTX PRO 6000 Blackwell Server Edition | 56 | 1.94 | M8 pod F1: full re-run real01, synthetic-01, -04 (product-model library, generated gaps, bed frames, rugs and wall art, 18/16 mm lenses) | exit 1, stopped by runner after collect (watchdog and job-end stop armed) |
+| 2026-10-04 11:29 | pending:20261004-112959-prep | RTX PRO 6000 | 100 | 3.48 | M9 L1: wider ABO survey (40/type, table lamps, vases, mirrors), Objaverse fixtures, thumbnails, two-model judging, accept 20/type, catalogue | creating (provisional, worst case) |
 
-**Total spent so far: $25.27** (budget: $100; limits: $5.00/GPU-hour, $30/day, 2 h/run)
+**Total spent so far: $28.75** (budget: $100; limits: $5.00/GPU-hour, $30/day, 2 h/run)

@@ -112,6 +112,17 @@ GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.
              "wenart/blender/parametric.py", "wenart/blender/proxies.py", "wenart/blender/shell.py")
 
 
+# The decor stages (Milestone 9): the rules and the AI decorator (its slots read the placer, the wall art height
+# parametric.piece_bbox, its question the layout's style text).
+DECOR_CODE = ("wenart/furniture/decor.py", "wenart/furniture/decor_ai.py", "wenart/furniture/placer.py",
+              "wenart/furniture/schemas.py", "wenart/furniture/layout.py", "wenart/furniture/prompts.py",
+              "wenart/synthetic/**", "wenart/building.py", "wenart/units.py", "wenart/geometry.py",
+              "wenart/schema/**", "wenart/style/**", "wenart/recognition/**",
+              "wenart/blender/parametric.py", "wenart/blender/proxies.py", "wenart/blender/geom2d.py",
+              "wenart/blender/common.py")
+DECOR_ANSWERS = "decor_ai_answers.json"
+
+
 @dataclass(frozen=True)
 class Stage:
     number: Optional[int]           # 0..20 for project stages (M7 §9.1), None for A/B stages
@@ -143,29 +154,30 @@ STAGE_LIST = (
            "wenart/furniture/schemas.py", "wenart/recognition/**", "wenart/style/**", "wenart/building.py",
            "wenart/units.py", "wenart/geometry.py", "wenart/synthetic/blocks.py", "wenart/schema/**"),
           ("building_furnished.json", "layout.json"), heavy=True),
-    Stage(9, "decor", "cpu", "fingerprint", "failed",
-          ("wenart/furniture/decor.py", "wenart/furniture/placer.py", "wenart/furniture/schemas.py",
-           "wenart/synthetic/**", "wenart/building.py", "wenart/units.py", "wenart/geometry.py", "wenart/schema/**",
-           # Milestone 8: the wall art height reads parametric.piece_bbox
-           "wenart/blender/parametric.py", "wenart/blender/proxies.py", "wenart/blender/geom2d.py",
-           "wenart/blender/common.py"),
-          ("building_decor.json",)),
-    Stage(10, "refit", "cpu", "fingerprint", "failed", FIT_CODE, ("building_final.json",)),
-    Stage(11, "build", "blender", "own", "failed", BLENDER_CODE, ("scene/scene.blend", "scene/scene_manifest.json"),
+    # Milestone 9 (docs/milestone9.md §4): the AI decor's two passes per room, asked in the layout's Qwen session
+    # (answers stored by key in decor_ai_answers.json); a failure is a warning: the decor stage then falls back to
+    # the rules for the rooms without both answers.
+    Stage(9, "decor_ask", "vlm", "fingerprint", "warning", DECOR_CODE + ("wenart/recognition/vlm_client.py",),
+          ("decor_ai_answers.json",), heavy=True),
+    Stage(10, "decor", "cpu", "fingerprint", "failed", DECOR_CODE, ("building_decor.json",)),
+    Stage(11, "refit", "cpu", "fingerprint", "failed", FIT_CODE, ("building_final.json",)),
+    Stage(12, "build", "blender", "own", "failed", BLENDER_CODE, ("scene/scene.blend", "scene/scene_manifest.json"),
           heavy=True),
-    Stage(12, "render", "blender", "own", "failed", BLENDER_CODE, ("renders/render_manifest.json",), heavy=True),
-    Stage(13, "controls", "blender", "own", "warning", BLENDER_CODE + VISION_CODE, ("check/controls.json",),
+    Stage(13, "render", "blender", "own", "failed", BLENDER_CODE, ("renders/render_manifest.json",), heavy=True),
+    # Milestone 9 (user request of 4 Oct 2026): the 3D files that open in Blender (a packed .blend and a .glb).
+    Stage(14, "export", "blender", "own", "warning", BLENDER_CODE, ("export/export_manifest.json",), heavy=True),
+    Stage(15, "controls", "blender", "own", "warning", BLENDER_CODE + VISION_CODE, ("check/controls.json",),
           heavy=True),
-    Stage(14, "gate", "gate", "own", "warning", GATE_CODE,
+    Stage(16, "gate", "gate", "own", "warning", GATE_CODE,
           ("gate/gate_calibration.json", "gate/gate_validation.json"), heavy=True),
-    Stage(15, "polish", "diffusion", "own", "warning", ("wenart/polish/**",), ("polish/polish_manifest.json",),
+    Stage(17, "polish", "diffusion", "own", "warning", ("wenart/polish/**",), ("polish/polish_manifest.json",),
           heavy=True),
-    Stage(16, "detect", "gate", "own", "warning", GATE_CODE + ("wenart/schema/building.schema.json",),
+    Stage(18, "detect", "gate", "own", "warning", GATE_CODE + ("wenart/schema/building.schema.json",),
           ("detect/detect_manifest.json",), heavy=True),
-    Stage(17, "expected", "cpu", "always", "failed", VISION_CODE, ("check/expected_views.json",)),
-    Stage(18, "check", "vlm", "own", "failed", VISION_CODE, (), heavy=True),
-    Stage(19, "combine", "cpu", "always", "failed", VISION_CODE, ("check/check_manifest.json",)),
-    Stage(20, "report", "cpu", "always", "failed", ("wenart/report/**",),
+    Stage(19, "expected", "cpu", "always", "failed", VISION_CODE, ("check/expected_views.json",)),
+    Stage(20, "check", "vlm", "own", "failed", VISION_CODE, (), heavy=True),
+    Stage(21, "combine", "cpu", "always", "failed", VISION_CODE, ("check/check_manifest.json",)),
+    Stage(22, "report", "cpu", "always", "failed", ("wenart/report/**",),
           ("final/final_report.md", "final/final_manifest.json")),
     # A/B stages (M6 §6.3, realism v2 of M7 §8.2; records under out/run/ab_*.json; they count for the exit code).
     # ab_prepare, ab_m5, ab_render and ab_controls run only for the control project whose control renders are
@@ -307,9 +319,20 @@ def layout(tools: Tools, ref: ProjectRef, url: str) -> list[str]:
             _out(ref, "building_furnished.json"), "--debug", _out(ref, "layout_debug"), "--passes", "2"]
 
 
-def decor(tools: Tools, ref: ProjectRef, furnished: bool) -> list[str]:
+def decor_ask(tools: Tools, ref: ProjectRef, furnished: bool, url: str) -> list[str]:
+    """The AI decor's two passes per room (Milestone 9, docs/milestone9.md §4), stored by key in the answers file."""
     src = "building_furnished.json" if furnished else "building_fitted.json"
-    return [tools.py, "-m", "wenart.furniture.decor", _out(ref, src), "--out", _out(ref, "building_decor.json")]
+    return [tools.py, "-m", "wenart.furniture.decor_ai", "ask", _out(ref, src), "--style", _out(ref, "style.json"),
+            "--server", url, "--model", tools.model_id("qwen"), "--answers", _out(ref, DECOR_ANSWERS)]
+
+
+def decor(tools: Tools, ref: ProjectRef, furnished: bool) -> list[str]:
+    """Milestone 9: the AI decor's agreement and checks (``decor_ai apply``), the rules per room where it does not
+    apply (no answers: no server, ``brief.decor: rules``)."""
+    src = "building_furnished.json" if furnished else "building_fitted.json"
+    return [tools.py, "-m", "wenart.furniture.decor_ai", "apply", _out(ref, src), "--style", _out(ref, "style.json"),
+            "--answers", _out(ref, DECOR_ANSWERS), "--out", _out(ref, "building_decor.json"), "--debug",
+            _out(ref, "decor_debug")]
 
 
 def refit(tools: Tools, ref: ProjectRef) -> list[str]:
@@ -352,6 +375,13 @@ def render(tools: Tools, ref: ProjectRef, force: bool = False, alt_look: bool = 
     if alt_look:
         cmd += ["--alt-look", ALT_LOOK]
     return cmd + (["--force"] if force else [])
+
+
+def export(tools: Tools, ref: ProjectRef) -> list[str]:
+    """The 3D files of the final scene (Milestone 9): ``<p>.blend`` (textures packed, cameras with their metered
+    exposure) and ``<p>.glb`` in ``<out>/export``."""
+    return [tools.py, "-m", "wenart.blender.cli", "export", "--scene", _out(ref, "scene/scene.blend"), "--renders",
+            _out(ref, "renders/render_manifest.json"), "--out", _out(ref, "export"), "--name", ref.name]
 
 
 def select_controls(tools: Tools, ref: ProjectRef) -> list[str]:
@@ -512,6 +542,7 @@ def realism2_summary(tools: Tools, refs: Sequence[ProjectRef], controls_out: Opt
 # --------------------------------------------------------------------------
 
 EST_BUILD_S = 60.0
+EST_EXPORT_S = 120.0                  # Milestone 9: open the scene, pack the textures, save the .blend, write the .glb
 EST_RENDER_PER_VIEW_S = 8.0
 EST_WINDOW_PULL_PER_VIEW_S = 1.0      # M7 §9.3: the window pull of each view (+ its alt look)
 EST_RENDER_FIXED_S = 60.0

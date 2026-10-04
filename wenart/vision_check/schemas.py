@@ -79,7 +79,9 @@ DECOR_FURNITURE_TYPES: tuple[str, ...] = ("potted_plant",)
 # Categories that name the same object in a photo, both ways round (review vision-2: the decor floor plant,
 # expected "plant", is often seen as the M7 "potted_plant" with its hint "large potted plant standing on the floor").
 # Milestone 8: the decor rug may be named "textile" (the extra category whose hint says "curtain or rug").
-EQUIVALENT_PAIRS: tuple[tuple[str, str], ...] = (("potted_plant", "plant"), ("floor_lamp", "lamp"), ("rug", "textile"))
+# Milestone 9: a table lamp may be named "lamp", a small potted plant "plant".
+EQUIVALENT_PAIRS: tuple[tuple[str, str], ...] = (("potted_plant", "plant"), ("floor_lamp", "lamp"), ("rug", "textile"),
+                                                 ("table_lamp", "lamp"), ("plant_small", "plant"))
 # The expected category -> what it may also be seen as (symmetric, built from ``EQUIVALENT_PAIRS``).
 EQUIVALENT: dict[str, tuple[str, ...]] = {}
 for _a, _b in EQUIVALENT_PAIRS:

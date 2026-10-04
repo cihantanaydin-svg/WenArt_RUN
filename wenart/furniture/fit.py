@@ -459,9 +459,14 @@ def fit_decor_item(item: dict, catalog, style_family: Optional[str] = None) -> O
     fits = [(e, f) for e in styled for f in [_decor_fit(e, item, dtype)] if f is not None]
     if not fits:
         return None
+    # Milestone 9: an AI decor item names a colour; models whose name holds it come first (the pick stays
+    # deterministic by the host id inside the chosen group).
+    colour = str(item.get("colour") or "").strip().casefold()
+    coloured = [(e, f) for e, f in fits if colour and colour in str(e.get("name") or e.get("title") or "").casefold()]
+    pool = coloured or fits
     key = decor_pick_key(item)
-    i = pick_index(key, len(fits))
-    entry, f = fits[i]
+    i = pick_index(key, len(pool))
+    entry, f = pool[i]
     width, depth = (float(v) for v in item["size"][:2])
     asset = {
         "library": entry.get("source") or "polyhaven", "asset_id": entry["id"], "licence": entry.get("licence"),
@@ -472,7 +477,8 @@ def fit_decor_item(item: dict, catalog, style_family: Optional[str] = None) -> O
         "front_axis_confidence": entry.get("front_axis_confidence"), "target": f["target"],
         "turned_deg": f["turned_deg"], "styles": list(entry.get("styles") or []), "style_family": style_family,
         "quality": entry.get("quality"),
-        "pick": {"key": key, "index": i, "of": len(fits), "ids": [e["id"] for e, _f in fits],
+        "pick": {"key": key, "index": i, "of": len(pool), "ids": [e["id"] for e, _f in pool],
+                 "colour": colour or None, "colour_matches": len(coloured),
                  "not_fitting": [e["id"] for e in styled if e["id"] not in {x["id"] for x, _f in fits}],
                  "other_style": len(decor_entries(catalog, dtype)) - len(styled)},
     }

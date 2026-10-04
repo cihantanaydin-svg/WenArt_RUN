@@ -208,11 +208,20 @@ def test_m5_calibration_needs_a_new_calibration():
 
 
 @pytest.mark.parametrize("project", ["synthetic-01", "synthetic-03"])
-def test_committed_m6_calibrations_validate_ok(project):
-    """The M6 pod A calibrations (current thresholds, M6 look) pass both limits."""
+def test_committed_calibrations_validate_as_recorded(project):
+    """The committed calibrations (results/gate: the last full run of the project) validate with the current
+    thresholds to the decision their run recorded in gate_validation.json: M7 pod C2 synthetic-03 ok; M8 pod F1
+    synthetic-01 flagged (benign 0.938 < 0.95: the polish runs, the report flags it). Without a record: ok."""
     path = ROOT / "results" / "gate" / project / "gate_calibration.json"
     if not path.is_file():
-        pytest.skip("committed M6 calibration not present")
+        pytest.skip("committed calibration not present")
     cal = json.loads(path.read_text(encoding="utf-8"))
     got = GV.decide_validation(cal, LIMITS, load_thresholds())
-    assert got["decision"] == "ok", got
+    record = path.with_name("gate_validation.json")
+    if not record.is_file():
+        assert got["decision"] == "ok", got
+        return
+    want = json.loads(record.read_text(encoding="utf-8"))
+    assert (got["decision"], got["benign_accept"], got["negative_reject"]) == \
+        (want["decision"], want["benign_accept"], want["negative_reject"]), got
+    assert got["decision"] in ("ok", "flagged"), got

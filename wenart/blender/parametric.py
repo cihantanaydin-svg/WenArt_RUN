@@ -105,11 +105,29 @@ PARAMETRIC_TYPES: tuple[str, ...] = (
 )
 # Built by shell.build_stairs with the walls (fixed equipment), never by furniture.create_furniture.
 SHELL_TYPES: tuple[str, ...] = ("stair",)
-DECOR_TYPES: tuple[str, ...] = ("cushion", "book_set", "plant", "rug")   # parametric decor builders (M8: rug)
-# Decor without the 0.6 m cap (Milestone 8): a rug under a group of pieces, a picture over a sofa.
-LARGE_DECOR_TYPES: tuple[str, ...] = ("rug", "wall_art")
+DECOR_TYPES: tuple[str, ...] = ("cushion", "book_set", "plant", "rug",   # parametric decor builders (M8: rug)
+                                 # Milestone 9 (docs/milestone9.md §3): tabletop decor and the framed wall mirror
+                                 "vase", "bowl", "plant_small", "table_lamp", "mirror")
+# Decor without the 0.6 m cap (Milestone 8): a rug under a group of pieces, a picture over a sofa; M9: a mirror.
+LARGE_DECOR_TYPES: tuple[str, ...] = ("rug", "wall_art", "mirror")
+# Decor that rests on its host's built top (Milestone 9: the builder casts a ray down onto the host mesh).
+SURFACE_DECOR_TYPES: tuple[str, ...] = ("vase", "bowl", "plant_small", "table_lamp")
 MATERIAL_KEYS: tuple[str, ...] = ("wood", "fabric", "bedding", "ceramic", "steel", "painted", "worktop", "dark",
-                                  "glass", "green", "terracotta", "duvet")
+                                  "glass", "green", "terracotta", "duvet", "mirror")
+# Parts whose key starts with this take the item's colour (Milestone 9 AI decor: ``decor.colour``) as a tint of
+# the key's material: ``accent_ceramic`` = the ceramic material tinted.
+ACCENT_PREFIX = "accent_"
+# The colours the AI decor names (docs/milestone9.md §4), linear RGB; a tint of the white ceramic or fabric.
+DECOR_COLOURS: dict[str, tuple[float, float, float]] = {
+    "white": (0.80, 0.80, 0.78), "cream": (0.74, 0.68, 0.55), "beige": (0.60, 0.52, 0.40),
+    "sand": (0.55, 0.45, 0.30), "light grey": (0.50, 0.50, 0.50), "grey": (0.25, 0.25, 0.25),
+    "charcoal": (0.06, 0.06, 0.065), "black": (0.02, 0.02, 0.02), "natural wood": (0.42, 0.26, 0.13),
+    "terracotta": (0.45, 0.14, 0.06), "rust": (0.35, 0.09, 0.03), "mustard": (0.60, 0.40, 0.04),
+    "olive": (0.18, 0.20, 0.06), "sage green": (0.30, 0.38, 0.27), "forest green": (0.04, 0.12, 0.05),
+    "navy": (0.02, 0.04, 0.13), "dusty blue": (0.25, 0.33, 0.45), "teal": (0.02, 0.20, 0.20),
+    "blush": (0.70, 0.42, 0.38), "burgundy": (0.18, 0.02, 0.04), "brass": (0.55, 0.40, 0.12),
+    "copper": (0.55, 0.25, 0.12),
+}
 BED_TYPES: tuple[str, ...] = ("bed", "bed_single", "bed_double")
 COUNTER_TYPES: tuple[str, ...] = ("kitchen_counter", "kitchen_island")
 # Kitchen fronts: this gap between the carcass front face and the back of a front.
@@ -140,7 +158,10 @@ BEVEL_BY_KEY: dict[str, float] = {"ceramic": 0.012}
 PROUD = 0.008
 # Largest decor dimension (docs/milestone4.md, Conventions: never larger than 0.6 m).
 DECOR_MAX_M = 0.6
-DECOR_DEFAULT_HEIGHT = {"cushion": 0.12, "book_set": 0.22, "plant": 0.6, "rug": 0.012, "wall_art": 0.6}
+DECOR_DEFAULT_HEIGHT = {"cushion": 0.12, "book_set": 0.22, "plant": 0.6, "rug": 0.012, "wall_art": 0.6,
+                        # Milestone 9
+                        "vase": 0.30, "bowl": 0.10, "plant_small": 0.35, "table_lamp": 0.50, "mirror": 0.80}
+MIRROR_FRAME_M = 0.03            # the parametric mirror: frame width and depth; the glass sits on its front
 RUG_THICKNESS_M = 0.012
 # Bed frames (Milestone 8): the mattress on the deck and the inner box the bedding fills.
 FRAME_MATTRESS_M = 0.20
@@ -1185,6 +1206,28 @@ def decor_parts(dtype: str, w: float, d: float, h: float) -> list[Part]:
         ]
     if dtype == "rug":                             # Milestone 8: a flat fabric rug at the rule's size
         return [_box(0.0, 0.0, 0.0, w, d, h, "fabric", "rug")]
+    r = min(w, d) / 2.0                            # Milestone 9 (docs/milestone9.md §3)
+    if dtype == "vase":
+        return [_cylinder_z(0.0, 0.0, 0.0, r * 0.9, r * 0.9, h * 0.72, "accent_ceramic", "body", n=20),
+                _cylinder_z(0.0, 0.0, h * 0.72, r * 0.5, r * 0.5, h * 0.28, "accent_ceramic", "neck", n=20)]
+    if dtype == "bowl":
+        return [_cylinder_z(0.0, 0.0, 0.0, r * 0.55, r * 0.55, h * 0.3, "accent_ceramic", "base", n=24),
+                _cylinder_z(0.0, 0.0, h * 0.3, r, r, h * 0.7, "accent_ceramic", "body", n=24)]
+    if dtype == "plant_small":
+        pot_h = h * 0.4
+        return [_cylinder_z(0.0, 0.0, 0.0, r * 0.7, r * 0.7, pot_h, "accent_ceramic", "pot", n=16),
+                _cylinder_z(0.0, 0.0, pot_h - 0.01, r * 0.62, r * 0.62, 0.01, "dark", "soil", n=16),
+                _cylinder_z(0.0, 0.0, pot_h, r, r, h - pot_h, "green", "crown", n=10)]
+    if dtype == "table_lamp":
+        return [_cylinder_z(0.0, 0.0, 0.0, r * 0.45, r * 0.45, h * 0.06, "accent_ceramic", "base", n=20),
+                _cylinder_z(0.0, 0.0, h * 0.06, 0.012, 0.012, h * 0.52, "steel", "pole", n=8),
+                _cylinder_z(0.0, 0.0, h * 0.55, r, r, h * 0.45, "fabric", "shade", n=24)]
+    if dtype == "mirror":                          # a framed mirror: the glass on the front (local -Y) of the frame
+        f = min(MIRROR_FRAME_M, w / 6.0, h / 6.0)
+        g = min(0.004, d / 4.0)                    # the glass: the front 4 mm of the box, the frame behind it
+        return [_box(0.0, g / 2.0, 0.0, w, d - g, h, "accent_wood", "frame"),
+                _box(0.0, -d / 2.0 + g / 2.0, f, max(0.01, w - 2 * f), g, max(0.01, h - 2 * f), "mirror",
+                     "glass")]
     raise KeyError(f"no decor builder for {dtype!r}")
 
 
@@ -1196,7 +1239,7 @@ def decor_rest_height(host_type: str | None, host_height: float, dtype: str,
     item rests on the bedding top (``bedding_top``: the soft pillows rise
     above the type height, docs/milestone6.md §5 row 8); without
     ``host_size`` (a library bed, a proxy) on the type height as before."""
-    if dtype == "plant" or not host_type:
+    if dtype in ("plant", "mirror") or not host_type:
         return 0.0
     if host_type in ("sofa", "armchair"):
         return sofa_seat_height(host_height) if dtype == "cushion" else host_height

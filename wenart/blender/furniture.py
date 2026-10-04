@@ -115,6 +115,9 @@ OBJAVERSE_CACHE = "models/objaverse"          # <assets>/models/objaverse/<uid>.
 WALL_ART_CEILING_M = 0.10                     # wall art top at least this far below the ceiling
 WALL_ART_WALL_GAP_M = 0.005                   # back of a picture this far off the wall face (no z-fighting)
 WALL_ART_MIN_WIDTH_M = 0.3                    # scaled down for the ceiling below this: not built
+WALL_DECOR_TYPES = ("wall_art", "mirror")     # Milestone 9: hung by wall_art_placement over their anchor piece
+SURFACE_RAY_STEPS = 4                          # Milestone 9: a missed ray tries 4 points towards the host centre
+MIRROR_ASPECT = 1.25                           # the parametric mirror's height / width (portrait)
 NOT_BUILT_REASON = "build false: a drawn symbol both recognition passes call not_furniture; kept as an obstacle, not built"
 # A fitted box may differ from the footprint by this much before a warning.
 FIT_TOLERANCE_M = 0.01
@@ -331,6 +334,7 @@ def style_material_keys(style: dict) -> tuple[dict, list[dict]]:
         "steel": ("steel_brushed", None, None), "worktop": ("stone_worktop", None, None),
         "dark": ("lacquer_dark", None, None), "green": ("plant_green", None, None),
         "terracotta": ("terracotta", None, None), "glass": ("glass", None, None),
+        "mirror": ("mirror", None, None),                     # Milestone 9: the parametric mirror's glass
     }
     return keys, assumed
 
@@ -593,13 +597,21 @@ class _Materials:
         assumed.extend(extra)
         self._cache: dict = {}
 
-    def get(self, key: str, unverified: bool = False):
-        ck = (key, unverified)
+    def get(self, key: str, unverified: bool = False, accent=None):
+        """The material of a parametric key; an ``accent_<key>`` part (Milestone 9 decor) takes ``accent`` (an RGB
+        tint, the item's colour) on the ``<key>`` material, or the plain ``<key>`` material without one."""
+        if key.startswith(P.ACCENT_PREFIX):
+            key = key[len(P.ACCENT_PREFIX):]
+        else:
+            accent = None
+        ck = (key, unverified, tuple(accent) if accent else None)
         if ck in self._cache:
             return self._cache[ck]
         slug, asset, tint = self.keys[key]
         if asset and self.library.texture_set(asset)[0] is None:
             asset = None  # no usable texture: share the flat material of the same slug
+        if accent:
+            tint = tuple(float(v) for v in accent)
         if slug == "glass":
             mat = self.library.thin_glass()  # shower panels: the index pass must see the piece behind
         else:
@@ -608,7 +620,7 @@ class _Materials:
         return mat
 
     def slug(self, key: str) -> str:
-        return self.keys[key][0]
+        return self.keys[key[len(P.ACCENT_PREFIX):] if key.startswith(P.ACCENT_PREFIX) else key][0]
 
 
 def create_furniture(building: dict, level: dict, collection, library, style: dict, assets_dir: str | None,
@@ -671,14 +683,14 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
             host_entry = entries.get(host["id"]) or manifest_by_id.get(f"proxy:{host['id']}")
             if host_entry is None:
                 continue
-        if item.get("type") == "wall_art":
+        if item.get("type") in WALL_DECOR_TYPES:
             built = dict({k[len("proxy:"):]: v for k, v in manifest_by_id.items() if k.startswith("proxy:")},
                          **entries)                      # the built boxes: pieces, and proxies behind --proxies
             entry = _create_wall_art(item, n, level, floor_z, collection, library, assets_dir, pass_indices,
-                                     built, on_level, warnings, geo_cache, summary["decor_skipped"])
+                                     built, on_level, warnings, geo_cache, summary["decor_skipped"], mats=mats)
         else:
             entry = _create_decor(item, host, n, level, floor_z, collection, library, mats, assets_dir, pass_indices,
-                                  host_entry, warnings, geo_cache)
+                                  host_entry, warnings, geo_cache, skipped=summary["decor_skipped"])
         if entry is None:
             continue
         manifest_objects.append(entry)
@@ -902,8 +914,44 @@ def add_bevel(ob, parts: list[dict]) -> dict | None:
             "max_radius_m": round(max(radii, default=0.0), 4)}
 
 
+def on_surface(item: dict, host: dict | None) -> bool:
+    """Milestone 9: decor that rests on its host's built top (found by a ray down onto the host mesh): the
+    tabletop types, and books an AI decor slot put on a top (the M4 books keep the shelf or type height)."""
+    if host is None:
+        return False
+    if item.get("type") in P.SURFACE_DECOR_TYPES:
+        return True
+    return item.get("type") == "book_set" and item.get("method") == "ai" and host.get("type") != "bookshelf"
+
+
+def surface_points(center, host_center, steps: int = SURFACE_RAY_STEPS) -> list[tuple[float, float]]:
+    """The points a surface item tries, in order: its centre, then towards the host centre (pure)."""
+    cx, cy = float(center[0]), float(center[1])
+    hx, hy = float(host_center[0]), float(host_center[1])
+    return [(cx + (hx - cx) * k / steps, cy + (hy - cy) * k / steps) for k in range(steps + 1)]
+
+
+def _surface_hit(host_entry: dict | None, center, host_center, floor_z: float, above: float):
+    """``(z of the topmost host surface, the point used)`` for a surface item: a ray straight down from ``above`` m
+    over the floor at the item centre (then towards the host centre) onto the host's built mesh; None when it
+    never hits."""
+    import bpy
+    from mathutils import Vector
+
+    ob = bpy.data.objects.get((host_entry or {}).get("name") or "")
+    if ob is None or ob.type != "MESH":
+        return None
+    inv = ob.matrix_world.inverted()
+    down = (inv.to_3x3() @ Vector((0.0, 0.0, -1.0))).normalized()
+    for x, y in surface_points(center, host_center):
+        hit, loc, _normal, _index = ob.ray_cast(inv @ Vector((x, y, floor_z + above)), down)
+        if hit:
+            return (ob.matrix_world @ loc).z, (x, y)
+    return None
+
+
 def _create_decor(item, host, n, level, floor_z, collection, library, mats, assets_dir, pass_indices, host_entry,
-                  warnings, geo_cache) -> dict | None:
+                  warnings, geo_cache, skipped: list | None = None) -> dict | None:
     dtype = item.get("type")
     where = f"on {host['id']}" if host is not None else f"{item.get('id')} (no host)"
     if dtype not in P.DECOR_TYPES:
@@ -921,6 +969,21 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
     if z_how != "center[2]" and host_entry is not None and host_entry.get("bedding"):
         # Milestone 8: on a library bed frame the item rests on the bedding the builder added.
         z_above, z_how = host_entry["bedding"]["top_m"], f"on the bedding of bed frame {host['id']}"
+    if z_how != "center[2]" and on_surface(item, host):
+        # Milestone 9: on the host's built top (library or parametric), found by a ray down onto its mesh.
+        box = (host_entry or {}).get("bbox_m") or (host_entry or {}).get("size") or [0.0, 0.0, z_above]
+        hit = _surface_hit(host_entry, center, host["footprint"]["center"], floor_z, float(box[2]) + 0.5)
+        if hit is None:
+            reason = f"{dtype} on {host['id']}: no ray down onto the built top hit the piece"
+            warnings.append(f"decor {reason}; not built")
+            if skipped is not None:
+                skipped.append({"id": item.get("id"), "type": dtype, "room_id": item.get("room_id"), "reason": reason})
+            return None
+        z_above = round(hit[0] - floor_z, 4)
+        moved = (abs(hit[1][0] - float(center[0])) > 1e-6 or abs(hit[1][1] - float(center[1])) > 1e-6)
+        center = [hit[1][0], hit[1][1]]
+        z_how = f"on the built top of {host['type']} {host['id']} (ray" + (", moved towards its centre)" if moved
+                                                                             else ")")
     if host is not None:
         owner_id, room_id = host["id"], host.get("room_id")
         name = f"decor_{host['id']}_{n}"
@@ -936,11 +999,15 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
     if status not in ("verified", "unverified", "assumed"):
         status = "assumed"
     footprint = {"center": [float(center[0]), float(center[1])], "size": [w, d], "rotation_deg": rot}
+    method = "ai" if item.get("method") == "ai" else "rule"
+    evidence = ([dict(e) for e in item.get("evidence") or []] if method == "ai" else [])
     entry = {
         "name": name, "wenart_id": owner_id, "kind": "decor", "status": status, "level_id": level["id"],
         "element_id": owner_id, "host_id": host["id"] if host is not None else None, "room_id": room_id,
-        "type": dtype, "source": "added_by_ai",
-        "evidence": [{"file": "decor", "method": "rule", "confidence": 1.0, "text": text}],
+        "type": dtype, "source": "added_by_ai", "decor_method": method, "slot": item.get("slot"),
+        "colour": item.get("colour"),
+        "evidence": evidence or [{"file": "decor", "method": method, "confidence": float(item.get("confidence") or 1.0),
+                                  "text": text}],
         "pass_index": index, "assumed": {"rest_height": z_above} if z_how != "center[2]" else {},
         "center": [footprint["center"][0], footprint["center"][1], floor_z + z_above + h / 2.0],
         "size": [w, d, h], "rotation_deg": rot, "asset": item.get("asset"), "method": None, "bbox_m": None,
@@ -957,6 +1024,8 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
             if (item["asset"].get("target") == "rug" and item["asset"].get("bbox_m")
                     and len(item["asset"]["bbox_m"]) > 2):
                 target = [w, d, float(item["asset"]["bbox_m"][2])]   # flat: the rug size, the model's thickness
+            if item["asset"].get("target") == "within" and len(item["asset"].get("bbox_m") or []) > 2:
+                target = [float(v) for v in item["asset"]["bbox_m"][:3]]   # Milestone 9: the model's own size
             verts, info = fit_vertices(geo["verts"], item["asset"], footprint, floor_z + z_above,
                                        target_size=target)
             fallback = library.proxy("proxy")
@@ -968,6 +1037,8 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
                           "material": ob.data.materials[0].name if ob.data.materials else None,
                           "textured": any(_material_is_textured(m) for m in geo["materials"])})
             entry["size"] = [w, d, info["bbox_m"][2]]
+            if item["asset"].get("target") == "within":
+                entry["size"] = list(info["bbox_m"])
             entry["center"][2] = floor_z + z_above + info["bbox_m"][2] / 2.0
         except Exception as exc:  # noqa: BLE001
             reason = f"import of {file} failed: {type(exc).__name__}: {exc}"
@@ -977,7 +1048,8 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
         parts = P.decor_parts(dtype, w, d, h)
         verts, faces, keys = P.world_mesh(parts, footprint["center"], rot, floor_z + z_above)
         used_keys = sorted(set(keys), key=keys.index)
-        slots = [mats.get(k) for k in used_keys]
+        accent = P.DECOR_COLOURS.get(str(item.get("colour") or ""))       # Milestone 9: the AI decor's colour
+        slots = [mats.get(k, accent=accent) for k in used_keys]
         ob = _mesh_object(name, verts, faces, slots, [used_keys.index(k) for k in keys], collection, owner_id,
                           "decor", status)
         x0, y0, z0, x1, y1, z1 = P.parts_bbox(parts)
@@ -997,27 +1069,42 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
     return entry
 
 
+def mirror_box(item: dict) -> list[float]:
+    """The box of a parametric mirror (pure): the item's width, a portrait height (``MIRROR_ASPECT``, at most the
+    item's ``max_height_m``), the frame depth."""
+    w = float(item["size"][0])
+    h = w * MIRROR_ASPECT
+    max_h = item.get("max_height_m")
+    if isinstance(max_h, (int, float)) and max_h > 0:
+        h = min(h, float(max_h))
+    return [w, P.MIRROR_FRAME_M, h]
+
+
 def _create_wall_art(item, n, level, floor_z, collection, library, assets_dir, pass_indices, entries, on_level,
-                     warnings, geo_cache, skipped: list) -> dict | None:
-    """One wall art piece (Milestone 8): hostless decor with its own ``wenart_id`` (the decor id) and pass
-    index, built only from its fitted library model (``asset.bbox_m``) and hung by ``wall_art_placement``
-    over the built top of ``anchor_ids[0]``. Without a model, or when it cannot hang, it is skipped and
-    ``skipped`` (the summary's ``decor_skipped``) says why."""
+                     warnings, geo_cache, skipped: list, mats=None) -> dict | None:
+    """One wall art piece (Milestone 8) or mirror (Milestone 9): hostless decor with its own ``wenart_id`` (the
+    decor id) and pass index, built from its fitted library model (``asset.bbox_m``) and hung by
+    ``wall_art_placement`` over the built top of ``anchor_ids[0]``. Wall art without a model is skipped; a mirror
+    without one is the parametric framed mirror (``mirror_box``, ``parametric.decor_parts``). When it cannot hang
+    it is skipped and ``skipped`` (the summary's ``decor_skipped``) says why."""
+    dtype = item.get("type") or "wall_art"
+    label = dtype.replace("_", " ")
     owner_id = str(item.get("id") or f"decor_{n}")
     room_id = item.get("room_id")
     anchors = [str(a) for a in item.get("anchor_ids") or []]
     asset = item.get("asset") or None
     file, reason = resolve_asset(asset, assets_dir)
-    if file is None:
+    parametric = file is None and dtype == "mirror" and mats is not None
+    if file is None and not parametric:
         if asset and asset.get("method") == "library":
-            warnings.append(f"decor wall_art {owner_id}: {reason}; not built (wall art has no parametric shape)")
-        skipped.append({"id": owner_id, "type": "wall_art", "room_id": room_id,
-                        "reason": f"no library wall art model ({reason}); wall art has no parametric shape"})
+            warnings.append(f"decor {dtype} {owner_id}: {reason}; not built ({label} has no parametric shape)")
+        skipped.append({"id": owner_id, "type": dtype, "room_id": room_id,
+                        "reason": f"no library {label} model ({reason}); {label} has no parametric shape"})
         return None
-    box = asset.get("bbox_m")
+    box = mirror_box(item) if parametric else asset.get("bbox_m")
     if not box or len(box) < 3:
-        skipped.append({"id": owner_id, "type": "wall_art", "room_id": room_id,
-                        "reason": "the fitted wall art asset has no 3D box"})
+        skipped.append({"id": owner_id, "type": dtype, "room_id": room_id,
+                        "reason": f"the fitted {label} asset has no 3D box"})
         return None
     host_entry = entries.get(anchors[0]) if anchors else None
     host_top = None
@@ -1025,49 +1112,71 @@ def _create_wall_art(item, n, level, floor_z, collection, library, assets_dir, p
         # the built box above the floor (library or parametric piece; a proxy box behind --proxies)
         host_top = float((host_entry.get("bbox_m") or host_entry["size"])[2])
     elif anchors and any(p["id"] == anchors[0] for p in on_level):
-        warnings.append(f"decor wall_art {owner_id}: piece {anchors[0]} is not built; hung at the item's bottom_m")
+        warnings.append(f"decor {dtype} {owner_id}: piece {anchors[0]} is not built; hung at the item's bottom_m")
     footprint, mount = wall_art_placement(item, box, host_top, float(level.get("ceiling_height") or 2.7))
     if footprint is None:
-        skipped.append({"id": owner_id, "type": "wall_art", "room_id": room_id, "reason": mount["reason"]})
+        skipped.append({"id": owner_id, "type": dtype, "room_id": room_id, "reason": mount["reason"]})
         return None
     index = pass_indices.get(owner_id) or len(pass_indices) + 1
     pass_indices[owner_id] = index
     name = f"decor_{owner_id}"
     w, dp, h = mount["box_m"]
-    try:
-        geo = _cached_geometry(file, collection, geo_cache)
-        if not geo["faces"]:
-            raise ValueError("file has no mesh faces")
-        verts, info = fit_vertices(geo["verts"], asset, footprint, floor_z + mount["bottom_m"], target_size=[w, dp, h])
-    except Exception as exc:  # noqa: BLE001 - a broken file: no wall art, loudly
-        warnings.append(f"decor wall_art {owner_id}: import of {file} failed: {type(exc).__name__}: {exc}; not built")
-        skipped.append({"id": owner_id, "type": "wall_art", "room_id": room_id,
-                        "reason": f"import of {file} failed: {type(exc).__name__}"})
-        pass_indices.pop(owner_id, None)
-        return None
     status = item.get("status") if item.get("status") in ("verified", "unverified", "assumed") else "assumed"
-    ob = _mesh_object(name, verts, geo["faces"], geo["materials"], geo["face_materials"], collection, owner_id,
-                      "decor", status, uvs=geo["uvs"], uv_name=geo["uv_name"], fallback_material=library.proxy("proxy"))
+    if parametric:
+        parts = P.decor_parts("mirror", w, dp, h)
+        verts, faces, keys = P.world_mesh(parts, footprint["center"], footprint["rotation_deg"],
+                                          floor_z + mount["bottom_m"])
+        used = sorted(set(keys), key=keys.index)
+        slots = [mats.get(k, accent=P.DECOR_COLOURS.get(str(item.get("colour") or ""))) for k in used]
+        ob = _mesh_object(name, verts, faces, slots, [used.index(k) for k in keys], collection, owner_id, "decor",
+                          status)
+        x0, y0, z0, x1, y1, z1 = P.parts_bbox(parts)
+        bbox = [round(x1 - x0, 4), round(y1 - y0, 4), round(z1 - z0, 4)]
+        info = {"bbox_m": bbox, "fit_scale": [1.0, 1.0, 1.0]}
+        materials, textured = [m.name for m in slots], any(mats.library.textured(m) for m in slots)
+        method = f"parametric (fallback: {reason})"
+    else:
+        try:
+            geo = _cached_geometry(file, collection, geo_cache)
+            if not geo["faces"]:
+                raise ValueError("file has no mesh faces")
+            verts, info = fit_vertices(geo["verts"], asset, footprint, floor_z + mount["bottom_m"],
+                                       target_size=[w, dp, h])
+        except Exception as exc:  # noqa: BLE001 - a broken file: no wall decor, loudly
+            warnings.append(f"decor {dtype} {owner_id}: import of {file} failed: {type(exc).__name__}: {exc}; "
+                            "not built")
+            skipped.append({"id": owner_id, "type": dtype, "room_id": room_id,
+                            "reason": f"import of {file} failed: {type(exc).__name__}"})
+            pass_indices.pop(owner_id, None)
+            return None
+        ob = _mesh_object(name, verts, geo["faces"], geo["materials"], geo["face_materials"], collection, owner_id,
+                          "decor", status, uvs=geo["uvs"], uv_name=geo["uv_name"],
+                          fallback_material=library.proxy("proxy"))
+        materials = [m.name for m in ob.data.materials if m is not None]
+        textured = any(_material_is_textured(m) for m in geo["materials"])
+        method = "library"
     host_text = f"over {anchors[0]}" if anchors else "on its wall"
+    decor_method = "ai" if item.get("method") == "ai" else "rule"
+    evidence = [dict(e) for e in item.get("evidence") or []] if decor_method == "ai" else []
     entry = {
         "name": name, "wenart_id": owner_id, "kind": "decor", "status": status, "level_id": level["id"],
-        "element_id": owner_id, "host_id": None, "room_id": room_id, "type": "wall_art", "source": "added_by_ai",
-        "evidence": [{"file": "decor", "method": "rule", "confidence": 1.0,
-                      "text": f"wall art {host_text} ({mount['gap_m']:g} m above its top)"}],
+        "element_id": owner_id, "host_id": None, "room_id": room_id, "type": dtype, "source": "added_by_ai",
+        "decor_method": decor_method, "slot": item.get("slot"), "colour": item.get("colour"),
+        "evidence": evidence or [{"file": "decor", "method": decor_method, "confidence": 1.0,
+                                  "text": f"{label} {host_text} ({mount['gap_m']:g} m above its top)"}],
         "pass_index": index, "assumed": {"mount_height": mount["bottom_m"]},
         "center": [footprint["center"][0], footprint["center"][1], floor_z + mount["bottom_m"] + info["bbox_m"][2] / 2.0],
         "size": [info["bbox_m"][0], info["bbox_m"][1], info["bbox_m"][2]], "rotation_deg": footprint["rotation_deg"],
-        "asset": asset, "method": "library", "bbox_m": info["bbox_m"], "fit_scale": info["fit_scale"], "fit": info,
-        "file": str(file), "materials": [m.name for m in ob.data.materials if m is not None],
-        "material": ob.data.materials[0].name if ob.data.materials and ob.data.materials[0] else None,
-        "textured": any(_material_is_textured(m) for m in geo["materials"]), "fallback_reason": None,
-        "mount": mount, "anchor_ids": anchors,
+        "asset": asset if not parametric else None, "method": method, "bbox_m": info["bbox_m"],
+        "fit_scale": info["fit_scale"], "fit": info, "file": str(file) if file else None, "materials": materials,
+        "material": materials[0] if materials else None, "textured": textured,
+        "fallback_reason": reason if parametric else None, "mount": mount, "anchor_ids": anchors,
     }
-    ob["wenart_type"] = "wall_art"
+    ob["wenart_type"] = dtype
     ob["wenart_room"] = room_id or ""
     ob["wenart_source"] = "added_by_ai"
     ob["wenart_host"] = ""
     ob["wenart_anchor"] = ",".join(anchors)
-    ob["wenart_asset"] = asset.get("asset_id")
+    ob["wenart_asset"] = asset.get("asset_id") if (asset and not parametric) else "parametric"
     ob.pass_index = index
     return entry

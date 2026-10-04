@@ -54,6 +54,7 @@ HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parents[1]
 BUILD_SCRIPT = HERE / "build.py"
 RENDER_SCRIPT = HERE / "render.py"
+EXPORT_SCRIPT = HERE / "export.py"           # Milestone 9: the 3D files of the results (.blend packed, .glb)
 CANDIDATES = ("/workspace/tools/blender/blender", "/opt/wenart/blender/blender")
 
 
@@ -210,6 +211,22 @@ def render(scene: str, out: str, cameras: str = "all", samples: int | None = Non
     return Path(out) if hide_sets else Path(out) / "render_manifest.json"
 
 
+def export(scene: str, out: str, name: str, renders: str | None = None, max_texture: int | None = None,
+           no_glb: bool = False, timeout: int = 1800) -> Path:
+    """``<out>/<name>.blend`` (textures packed, scaled to ``max_texture`` px) and ``<out>/<name>.glb`` of a built
+    scene (Milestone 9, ``wenart/blender/export.py``); returns the path of ``export_manifest.json``."""
+    args = ["--out", str(out), "--name", str(name)]
+    if renders:
+        args += ["--renders", str(renders)]
+    if max_texture is not None:
+        args += ["--max-texture", str(int(max_texture))]
+    if no_glb:
+        args.append("--no-glb")
+    Path(out).mkdir(parents=True, exist_ok=True)
+    run_blender(EXPORT_SCRIPT, args, blend=str(scene), log_path=Path(out) / "export.log", timeout=timeout)
+    return Path(out) / "export_manifest.json"
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="wenart.blender.cli", description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -252,6 +269,13 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--no-denoise", action="store_true", help="no denoiser (a control)")
     r.add_argument("--ev-offset", type=float, help="stops added to the auto, fixed or --look-from EV")
     r.add_argument("--preview-quality", type=int, help="fixed JPEG quality of the previews, no size step-down")
+    e = sub.add_parser("export", help="the 3D files of a built scene: <name>.blend (packed) and <name>.glb")
+    e.add_argument("--scene", required=True)
+    e.add_argument("--out", required=True)
+    e.add_argument("--name", required=True)
+    e.add_argument("--renders", help="render_manifest.json: the cameras' metered exposure and white point")
+    e.add_argument("--max-texture", type=int, help="scale textures down to this many px (default 1024; 0 = none)")
+    e.add_argument("--no-glb", action="store_true")
     sub.add_parser("which", help="print the Blender binary that would be used")
     ns = parser.parse_args(argv)
     try:
@@ -262,6 +286,8 @@ def main(argv: list[str] | None = None) -> int:
         if ns.command == "build":
             path = build(ns.building, ns.out, ns.style, ns.assets, ns.level, ns.no_textures, ns.preview_samples,
                          proxies=ns.proxies, reuse=ns.reuse, camera_policy=ns.camera_policy, lens_mm=ns.lens_mm)
+        elif ns.command == "export":
+            path = export(ns.scene, ns.out, ns.name, ns.renders, ns.max_texture, ns.no_glb)
         else:
             path = render(ns.scene, ns.out, ns.cameras, ns.samples, ns.res, ns.force, ns.device, hide=ns.hide,
                           plug=ns.plug, hide_sets=ns.hide_sets, look_from=ns.look_from, exposure=ns.exposure,

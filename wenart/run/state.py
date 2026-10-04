@@ -87,7 +87,8 @@ TERMINAL = ("failed", "needs_review", "incomplete")
 # pipeline is reused as "pending" (its questions still need pipeline_final; §9.1).
 REUSABLE = ("ok", "warning", "reused", "pending")
 SKIP_REASONS = ("private only", "no style photos", "polish off", "no empty room", "smoke profile",
-                "gate not validated", "not in this phase", "no questions")
+                "gate not validated", "not in this phase", "no questions",
+                "no decor questions")                     # Milestone 9: no room for the AI decor to ask about
 PROJECT_STATES = ("ok", "needs_review", "failed", "incomplete")
 # Stages whose own needs_review makes the whole project needs_review (§1.2; pipeline_final: M7 §9.1).
 REVIEW_STAGES = ("intake", "pipeline", "pipeline_final")

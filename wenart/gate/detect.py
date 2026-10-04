@@ -171,13 +171,13 @@ def _groups() -> tuple[Group, ...]:
     groups += [
         Group("door", ("door",), "door", ("door",)),
         Group("window", ("window",), "window", ("window",)),
-        Group("lamp", ("lamp",), LAMP, ("floor_lamp",)),
+        Group("lamp", ("lamp",), LAMP, ("floor_lamp", "table_lamp")),       # Milestone 9: the decor table lamp
         # Milestone 8: a picture frame / rug box lying on the decor wall art / rug of the building is not added.
         Group("picture_frame", ("picture frame",), "decor", ("wall_art",)),
         Group("rug", ("rug",), "decor", ("rug",)),
-        Group("vase", ("vase",), "decor", ()),
+        Group("vase", ("vase",), "decor", ("vase",)),                       # Milestone 9: the decor vase
         Group("cushion", ("cushion",), "decor", ("cushion", "sofa", "armchair", "bed_single", "bed_double")),
-        Group("mirror", ("mirror",), "decor", ()),
+        Group("mirror", ("mirror",), "decor", ("mirror",)),                 # Milestone 9: the decor mirror
         Group("television", ("television",), "decor", ("tv_unit",)),
     ]
     return tuple(groups)

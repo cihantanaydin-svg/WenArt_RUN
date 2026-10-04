@@ -751,8 +751,23 @@ class Prep:
         entry["pairs"] = len(pairs) if isinstance(pairs, list) else None
         if target and isinstance(plan, dict):
             entry["plan_counts"] = plan.get("counts")
-        rc_run = self.run(self.generate_cmd("run", "--out", lib, "--plan", lib / "generate" / "plan.json"),
-                          what="run")
+        plan_path = lib / "generate" / "plan.json"
+        workers = self.generate_workers()
+        if workers > 1:
+            # Milestone 9: several workers share the GPU (each every n-th item of the plan), then one survey.
+            from concurrent.futures import ThreadPoolExecutor
+            with ThreadPoolExecutor(max_workers=workers) as pool:
+                futures = [pool.submit(self.run, self.generate_cmd("run", "--out", lib, "--plan", plan_path,
+                                                                    "--shard", f"{k}/{workers}"),
+                                       what=f"run shard {k}/{workers}") for k in range(workers)]
+                rcs = [f.result() for f in futures]
+            entry["workers"] = workers
+            rc_run = 3 if 3 in rcs else next((rc for rc in rcs if rc != 0), 0)
+            rc_survey = self.run(self.generate_cmd("survey", "--out", lib, "--plan", plan_path), what="survey")
+            if rc_survey != 0 and rc_run == 0:
+                rc_run = rc_survey
+        else:
+            rc_run = self.run(self.generate_cmd("run", "--out", lib, "--plan", plan_path), what="run")
         surv = read_json(lib / "survey_generated.json")
         n = len(surv.get("candidates") or []) if isinstance(surv, dict) else 0
         entry["candidates"] = n
@@ -766,6 +781,18 @@ class Prep:
             return "warning", (note + f"; {real - judged} of {real} real model(s) were not judged by both models "
                                "before the plan (their pairs may be generated needlessly)")
         return "ok", note
+
+    def generate_workers(self) -> int:
+        """Generation workers on the pod's GPU (Milestone 9): ``$WENART_GENERATE_WORKERS`` (default 2 with a target
+        plan on a GPU of at least 80 GiB, else 1)."""
+        text = os.environ.get("WENART_GENERATE_WORKERS", "").strip()
+        if text:
+            try:
+                return max(1, int(text))
+            except ValueError:
+                return 1
+        mem = float((self.gpu_info() or {}).get("memory_mib") or 0)
+        return 2 if self.opts.generate_target and mem >= 80 * 1024 else 1
 
     def missing_input(self, name: str) -> str:
         """The note of a selected step whose input is not in the library work folder (status ``failed``)."""

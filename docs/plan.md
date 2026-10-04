@@ -456,6 +456,15 @@ Milestone 7 models (checked on Hugging Face, 3 Oct 2026): OWLv2 `google/owlv2-ba
 (MIT). TRELLIS.2 not used (see §4.8). Data: Objaverse 1.0 (ODC-By 1.0; objects CC0 / CC-BY 4.0 only, uploader-
 declared — flagged). Tools: LibreDWG 0.14 (GPL-3.0, separate program).
 
+Milestone 9 (docs/milestone9.md, 4 Oct 2026): no new model. The library keeps up to 20 models per furniture and
+decor type (M8: 12 / 16). New decor sources: Amazon Berkeley Objects table lamps (LAMP below 0.95 m), vases (VASE)
+and wall mirrors (HOME_MIRROR), all CC BY 4.0 with the M8 credit line; Objaverse sanitary and kitchen objects with
+flat material colours (uploader licences, flagged as in M8); generated vases, bowls and small plants (TRELLIS.2's
+`512` pipeline of the pinned code, 1024 px textures; `generated (TRELLIS.2-4B, MIT)` as in M8). The AI decor
+(`wenart/furniture/decor_ai.py`) uses the layout's Qwen3-VL-8B (Apache-2.0) through the same vLLM server. The 3D
+files of the results (`<p>.blend`, `<p>.glb`) carry the models' credits in the results' `ATTRIBUTION.md`; the
+Objaverse ODC-By notice and the CC BY credits apply to them as to the images.
+
 Milestone 8 generation (checked 4 Oct 2026, table in §4.8): TRELLIS.2-4B, TRELLIS-image-large decoder, BiRefNet,
 CuMesh, FlexGEMM (MIT), Z-Image-Turbo (Apache-2.0), flash-attn / xformers (BSD-3). **Flagged:** DINOv3 ViT-L/16
 (custom DINOv3 License: commercial use allowed, trade-control clauses; gated, the HF account of the pod's token

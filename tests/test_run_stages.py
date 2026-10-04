@@ -23,28 +23,32 @@ URL = "http://127.0.0.1:8001/v1"
 
 
 def test_the_table_columns():
-    assert [s.number for s in S.STAGE_LIST if s.number is not None] == list(range(21))
+    assert [s.number for s in S.STAGE_LIST if s.number is not None] == list(range(23))
+    # Milestone 9: decor_ask (the AI decor's two passes, in the layout's Qwen session) and export (the 3D files).
     assert S.PROJECT_STAGES == ("intake", "pipeline", "recognize", "pipeline_final", "photos", "style", "assets",
-                                "fit", "layout", "decor", "refit", "build", "render", "controls", "gate", "polish",
-                                "detect", "expected", "check", "combine", "report")
+                                "fit", "layout", "decor_ask", "decor", "refit", "build", "render", "export",
+                                "controls", "gate", "polish", "detect", "expected", "check", "combine", "report")
     fail = {s.name: s.on_failure for s in S.STAGE_LIST if s.number is not None}
-    assert {n for n, v in fail.items() if v == "warning"} == {"recognize", "photos", "assets", "controls", "gate",
-                                                             "polish", "detect"}
+    assert {n for n, v in fail.items() if v == "warning"} == {"recognize", "photos", "assets", "decor_ask", "export",
+                                                             "controls", "gate", "polish", "detect"}
     reuse = {s.name: s.reuse for s in S.STAGE_LIST if s.number is not None}
     assert {n for n, v in reuse.items() if v == "fingerprint"} == {"intake", "pipeline", "pipeline_final", "fit",
-                                                                  "layout", "decor", "refit"}
-    assert {n for n, v in reuse.items() if v == "own"} == {"recognize", "build", "render", "controls", "gate",
-                                                          "polish", "detect", "check"}
+                                                                  "layout", "decor_ask", "decor", "refit"}
+    assert {n for n, v in reuse.items() if v == "own"} == {"recognize", "build", "render", "export", "controls",
+                                                          "gate", "polish", "detect", "check"}
     assert reuse["photos"] == "photos"
     holders = {s.name: s.holder for s in S.STAGE_LIST}
-    assert {n for n, h in holders.items() if h == "vlm"} == {"recognize", "photos", "layout", "check", "ab_realism"}
-    assert {n for n, h in holders.items() if h == "blender"} == {"build", "render", "controls", "ab_render",
+    assert {n for n, h in holders.items() if h == "vlm"} == {"recognize", "photos", "layout", "decor_ask", "check",
+                                                             "ab_realism"}
+    assert {n for n, h in holders.items() if h == "blender"} == {"build", "render", "export", "controls", "ab_render",
                                                                  "ab_controls"}
     assert {n for n, h in holders.items() if h == "gate"} == {"gate", "detect"} and holders["polish"] == "diffusion"
     assert holders["pipeline_final"] == "cpu"
     heavy = {s.name for s in S.STAGE_LIST if s.heavy and s.number is not None}
-    assert heavy == {"recognize", "photos", "layout", "build", "render", "controls", "gate", "polish", "detect",
-                     "check"}
+    assert heavy == {"recognize", "photos", "layout", "decor_ask", "build", "render", "export", "controls", "gate",
+                     "polish", "detect", "check"}
+    assert S.outputs_of("decor_ask", "p") == ["decor_ai_answers.json"]
+    assert S.outputs_of("export", "p") == ["export/export_manifest.json"]
     assert S.AB_STAGES == ("ab_prepare", "ab_m5", "ab_render", "ab_controls", "ab_pairs", "ab_realism", "ab_combine")
     assert S.AB_NOT_COUNTED == () and set(S.STAGE_VERSION) == set(S.STAGES)
     assert S.STAGES["pipeline_final"].code == S.STAGES["pipeline"].code == S.PIPELINE_CODE
@@ -128,7 +132,8 @@ def test_code_lists_cover_the_import_closure():
     private = private_project("real-01", repo_root=REPO_ROOT)
     commands = {"intake": S.intake(TOOLS, private), "pipeline": S.pipeline(TOOLS, REF),
                 "pipeline_final": S.pipeline_final(TOOLS, REF), "fit": S.fit(TOOLS, REF),
-                "layout": S.layout(TOOLS, REF, URL), "decor": S.decor(TOOLS, REF, True), "refit": S.refit(TOOLS, REF),
+                "layout": S.layout(TOOLS, REF, URL), "decor": S.decor(TOOLS, REF, True),
+                "decor_ask": S.decor_ask(TOOLS, REF, True, URL), "refit": S.refit(TOOLS, REF),
                 "gate": S.gate_calibrate(TOOLS, REF), "detect": S.detect(TOOLS, REF)}
     assert set(commands) == {s.name for s in S.STAGE_LIST if s.reuse == "fingerprint"} | {"gate", "detect"}
     for stage, cmd in commands.items():
@@ -162,9 +167,19 @@ def test_golden_commands_cpu_stages():
     assert S.fit(TOOLS, REF) == ["PY", "-m", "wenart.furniture.fit", f"{O}/building.json", "--catalog",
                                  "wenart/furniture/catalog.json", "--out", f"{O}/building_fitted.json", "--assets",
                                  "/workspace/assets"]
-    assert S.decor(TOOLS, REF, True) == ["PY", "-m", "wenart.furniture.decor", f"{O}/building_furnished.json",
-                                         "--out", f"{O}/building_decor.json"]
-    assert S.decor(TOOLS, REF, False)[3] == f"{O}/building_fitted.json"
+    # Milestone 9: the AI decor's agreement and checks, the rules per room without answers.
+    assert S.decor(TOOLS, REF, True) == ["PY", "-m", "wenart.furniture.decor_ai", "apply",
+                                         f"{O}/building_furnished.json", "--style", f"{O}/style.json", "--answers",
+                                         f"{O}/decor_ai_answers.json", "--out", f"{O}/building_decor.json",
+                                         "--debug", f"{O}/decor_debug"]
+    assert S.decor(TOOLS, REF, False)[4] == f"{O}/building_fitted.json"
+    assert S.decor_ask(TOOLS, REF, True, URL) == ["PY", "-m", "wenart.furniture.decor_ai", "ask",
+                                                  f"{O}/building_furnished.json", "--style", f"{O}/style.json",
+                                                  "--server", URL, "--model", TOOLS.model_id("qwen"), "--answers",
+                                                  f"{O}/decor_ai_answers.json"]
+    assert S.export(TOOLS, REF) == ["PY", "-m", "wenart.blender.cli", "export", "--scene", f"{O}/scene/scene.blend",
+                                    "--renders", f"{O}/renders/render_manifest.json", "--out", f"{O}/export",
+                                    "--name", "synthetic-04"]
     # refit: the library style filter of the final style (M7 §6.3); fit stays style-free.
     assert S.refit(TOOLS, REF) == ["PY", "-m", "wenart.furniture.fit", f"{O}/building_decor.json", "--catalog",
                                    "wenart/furniture/catalog.json", "--out", f"{O}/building_final.json",

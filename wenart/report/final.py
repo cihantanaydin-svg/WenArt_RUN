@@ -262,6 +262,9 @@ FINAL_MANIFEST = {
                         "properties": {"credits": {"type": "array", "items": {"type": "object",
                                                                               "required": ["asset_id", "credit"]}}}},
         "detector": {"type": ["object", "null"]},
+        # Milestone 9 (docs/milestone9.md §4, user request of 4 Oct 2026)
+        "decor_ai": {"type": ["object", "null"]},
+        "files_3d": {"type": ["object", "null"]},
     },
 }
 
@@ -1861,8 +1864,61 @@ def build_manifest(inp: Inputs, views: list[dict], sheets: dict) -> dict:
         "assumed": assumed_summary(inp),
         "attribution": attribution,
         "detector": detector,
+        # Milestone 9
+        "decor_ai": decor_ai_summary(inp.project_out),
+        "files_3d": None if inp.private else files_3d_summary(inp.project_out),
         "warnings": list(inp.warnings),
     }
+
+
+def decor_ai_summary(project_out: Path) -> Optional[dict]:
+    """The AI decor of ``decor_ai.json`` (Milestone 9): items by method, the rooms with AI decor and the rooms that
+    fell back to the rules with the reason; None without the file."""
+    doc = C.read_json(Path(project_out) / "decor_ai.json")
+    if not isinstance(doc, dict):
+        return None
+    return {"model": doc.get("model"), "items_ai": doc.get("items_ai", 0), "items_rule": doc.get("items_rule", 0),
+            "rooms_ai": doc.get("rooms_ai", 0),
+            "fallbacks": [{"room_id": r.get("room_id"), "reason": r.get("fallback")} for r in doc.get("rooms") or []
+                          if r.get("fallback")]}
+
+
+def files_3d_summary(project_out: Path) -> Optional[dict]:
+    """The 3D files of ``export/export_manifest.json`` (Milestone 9): name and size per file; the results copy them
+    to ``final/<p>/3d/``."""
+    doc = C.read_json(Path(project_out) / "export" / "export_manifest.json")
+    if not isinstance(doc, dict):
+        return None
+    files = {k: {"file": v.get("file"), "bytes": v.get("bytes")} for k, v in (doc.get("files") or {}).items()
+             if isinstance(v, dict) and not v.get("missing")}
+    return {"files": files, "max_texture": doc.get("max_texture"), "images_scaled": doc.get("images_scaled"),
+            "cameras": len(doc.get("cameras") or {}), "warnings": list(doc.get("warnings") or [])}
+
+
+def m9_lines(manifest: dict) -> list[str]:
+    """The report's Milestone 9 sections: the 3D files, the AI decor."""
+    lines = []
+    files = manifest.get("files_3d")
+    if files and files.get("files"):
+        lines += ["", "## 3D files", "",
+                  "Open in Blender: the `.blend` directly (textures packed, cameras with their metered exposure in "
+                  "the custom property `wenart_exposure_ev`, render settings as these images); the `.glb` with "
+                  "File > Import > glTF 2.0 (also other 3D tools). In the results: `final/<project>/3d/`.", ""]
+        lines += C.table(["file", "size"], [[f"[{f['file']}](3d/{f['file']})",
+                                             f"{(f.get('bytes') or 0) / 2 ** 20:.1f} MB"]
+                                            for f in files["files"].values()])
+        lines.append("")
+        lines.append(f"{files['cameras']} cameras; textures scaled to at most {files.get('max_texture')} px "
+                     f"({files.get('images_scaled') or 0} scaled) for the download.")
+    decor = manifest.get("decor_ai")
+    if decor:
+        lines += ["", "## AI decor", "",
+                  f"{decor['items_ai']} decor items chosen by the AI ({decor.get('model') or '-'}; both passes "
+                  f"agreeing) in {decor['rooms_ai']} rooms; {decor['items_rule']} items by the rules. No furniture "
+                  "was moved, added or removed (`furniture/<project>/decor_report.md` has every room)."]
+        if decor["fallbacks"]:
+            lines += [""] + C.bullets([f"{f['room_id']}: rules ({f['reason']})" for f in decor["fallbacks"]])
+    return lines
 
 
 def m7_flags(recognition: Optional[dict], attribution: dict, detector: Optional[dict]) -> list[str]:
@@ -2343,6 +2399,7 @@ def report_markdown(manifest: dict) -> str:
         ["side-by-side sheets", len((manifest.get("side_by_side") or {}).get("sheets") or {})],
     ]
     lines += C.table(["item", "value"], rows)
+    lines += m9_lines(manifest)
     lines += ["", "## Advisory flags and open items", ""]
     lines += C.bullets(manifest["advisory_flags"])
     lines += gate_validation_lines(manifest["gate_validation"], manifest["polish_allowed"],

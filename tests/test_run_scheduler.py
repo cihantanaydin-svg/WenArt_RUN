@@ -117,9 +117,13 @@ class FakeCLI:
             return "layout"
         if mod == "wenart.furniture.decor":
             return "decor"
+        if mod == "wenart.furniture.decor_ai":                  # Milestone 9: ask (VLM) and apply (the decor stage)
+            return "decor" if sub == "apply" else "decor_ask"
         if mod == "wenart.blender.cli":
             if sub == "build":
                 return "build"
+            if sub == "export":                                 # Milestone 9: the 3D files
+                return "export"
             return "control renders" if "--hide-sets" in cmd else "render"
         if mod == "wenart.gate":
             return f"gate {sub}"
@@ -154,11 +158,13 @@ class FakeCLI:
         if mod == "wenart.blender.cli":
             path = Path(opt(cmd, "--out"))
             while path.name in ("scene", "renders", "controls", "ab", "ctl_flat", "ctl_proxy", "ctl_direct",
-                                "ctl_lowspp", "nuisance_ev"):
+                                "ctl_lowspp", "nuisance_ev", "export"):
                 path = path.parent
             return path.name
         if mod in ("wenart.furniture.fit", "wenart.furniture.layout", "wenart.furniture.decor"):
             return Path(cmd[3]).parent.name
+        if mod == "wenart.furniture.decor_ai":
+            return Path(cmd[4]).parent.name
         if mod in ("wenart.style", "wenart.assets", "wenart.style.photos"):
             return Path(opt(cmd, "--out") or opt(cmd, "--style")).parent.name.replace("style_photos", "") or \
                 Path(opt(cmd, "--out")).parent.parent.name
@@ -315,7 +321,14 @@ class FakeCLI:
     h_refit = h_fit
 
     def h_decor(self, cmd, project, log):
-        write(opt(cmd, "--out"), json.loads(Path(cmd[3]).read_text()))
+        src = cmd[4] if cmd[2] == "wenart.furniture.decor_ai" else cmd[3]
+        write(opt(cmd, "--out"), json.loads(Path(src).read_text()))
+
+    def h_decor_ask(self, cmd, project, log):
+        write(opt(cmd, "--answers"), {"kind": "decor_ai_answers", "answers": {}})
+
+    def h_export(self, cmd, project, log):
+        write(Path(opt(cmd, "--out")) / "export_manifest.json", {"files": {}})
 
     def h_layout(self, cmd, project, log):
         b = json.loads(Path(cmd[3]).read_text())
@@ -609,7 +622,47 @@ def test_four_starts_with_uncached_photos_and_two_without_empty_rooms(tmp_path):
     assert r2.record("p1", "layout")["status"] == "skipped" and r2.record("p1", "layout")["note"] == "no empty room"
     assert r2.record("p1", "photos")["note"] == "no style photos"
     assert opt(r2.cli.find("decor")[0]["cmd"], "--out").endswith("building_decor.json")
-    assert r2.cli.find("decor")[0]["cmd"][3].endswith("building_fitted.json")
+    assert r2.cli.find("decor")[0]["cmd"][4].endswith("building_fitted.json")       # decor_ai apply <building>
+
+
+def test_m9_decor_questions_in_the_qwen_session_and_the_3d_export(tmp_path, monkeypatch):
+    """docs/milestone9.md §4, §5: the AI decor asks in the layout's Qwen session, after the layout (no extra server
+    start); the decor stage applies the answers; a resumed pod reuses them without a server; the 3D files follow
+    the render; a server that fails leaves a warning and the rule decor (never silently)."""
+    monkeypatch.setattr(SC.Orchestrator, "decor_rooms_needed", lambda self, pr: 3)
+    r = Run(tmp_path, {"p1": {}}, projects=["p1"])
+    assert r.run() == 0
+    names = r.cli.names()
+    assert names.index("layout") < names.index("decor_ask") < names.index("assets") < names.index("decor")
+    assert first(names, "render") < first(names, "export") < first(names, "select-controls")
+    assert r.servers.starts == ["qwen", "qwen", "glm"]                       # the layout's session, no extra one
+    ask = r.cli.find("decor_ask")[0]["cmd"]
+    assert opt(ask, "--server").startswith("http://fake-") and opt(ask, "--answers").endswith("decor_ai_answers.json")
+    assert ask[4].endswith("building_furnished.json")                         # the layout's building
+    assert r.record("p1", "decor_ask")["status"] == "ok" and r.record("p1", "export")["status"] == "ok"
+    assert "decor_ai_answers.json" in {Path(k).name for k in r.record("p1", "decor")["inputs"]}
+    export = r.cli.find("export")[0]["cmd"]
+    assert opt(export, "--name") == "p1" and opt(export, "--out").endswith("p1/export")
+    # Resumed: layout and answers reused, so phase 3 starts no server.
+    r2 = Run(tmp_path, projects=["p1"])
+    assert r2.run() == 0
+    assert r2.servers.starts == ["qwen", "glm"] and not r2.cli.find("decor_ask")
+    assert r2.record("p1", "decor_ask")["status"] == "reused"
+    # A failed Qwen start: the layout fails as before; the decor questions are a warning (rule decor).
+    tmp3 = tmp_path / "third"
+    tmp3.mkdir()
+    r3 = Run(tmp3, {"p1": {}}, buildings={"p1": {"rooms": [room("r1", "living", 20.0, True)]}}, projects=["p1"],
+             fail={"qwen": "early_exit"})
+    r3.run()
+    rec = r3.record("p1", "decor_ask")
+    assert rec["status"] == "warning" and "rule decor" in rec["note"]
+
+
+def test_m9_no_decor_questions_skip_the_stage_and_smoke_skips_the_export(tmp_path):
+    r = Run(tmp_path, {"p1": {}}, projects=["p1"])
+    assert r.run() == 0
+    assert r.record("p1", "decor_ask")["status"] == "skipped"
+    assert r.record("p1", "decor_ask")["note"] == "no decor questions"
 
 
 def test_photo_terms_reused_on_resume_without_a_server(tmp_path):
@@ -1212,7 +1265,7 @@ def test_orchestrator_traceback_goes_to_the_private_log(tmp_path):
     write(tmp_path / "pp" / "real-01" / "a.dxf", "x")
 
     def broken(cmd, env, cwd, timeout, log_path):
-        if "wenart.furniture.decor" in cmd:
+        if "wenart.furniture.decor_ai" in cmd:
             raise KeyError("/workspace/outputs-private/real-01/Yilmaz villa.dxf")
         return r.cli(cmd, env, cwd, timeout, log_path)
 
@@ -1817,7 +1870,9 @@ def test_check_asks_the_controls_and_refit_gets_the_style(tmp_path):
 
     r2.cli.h_style = industrial
     r2.run()
-    assert r2.record("p1", "refit")["status"] == "ok" and r2.record("p1", "decor")["status"] == "reused"
+    # Milestone 9: the decor reads the style too (the AI decor asks with the style text), so it runs again.
+    assert r2.record("p1", "refit")["status"] == "ok" and r2.record("p1", "decor")["status"] == "ok"
+    assert "style.json" in {Path(k).name for k in r2.record("p1", "decor")["inputs"]}
 
 
 def test_vllm_tiers_follow_the_vram_and_max_seqs(tmp_path):

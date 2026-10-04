@@ -20,6 +20,8 @@ What: ``python -m wenart.run copy --projects ... [--private ...] [--ab ...]
 | ``recognition/requests.json``, ``recognition/answers_*.json`` | ``recognition/<p>/`` |
 | ``recognition/crops/*.png`` (the first 200 by name) | ``recognition/<p>/crops/`` |
 | ``detect/*.json`` | ``check/<p>/detect/`` |
+| ``decor_debug/*.png`` (<= 3 MB), ``decor_debug/*.json`` (Milestone 9) | ``furniture/<p>/decor_debug/`` |
+| ``export/<p>.blend``, ``export/<p>.glb``, ``export/export_manifest.json`` (Milestone 9) | ``final/<p>/3d/`` |
 
 Public filter (as ``polish.sh copy_files``): ``*.json`` and ``*.md`` below
 8 MB; ``*_preview.jpg``, ``*_alt_preview.jpg``, ``*_gate.jpg``,
@@ -138,6 +140,11 @@ PUBLIC_RULES = (
     Rule("recognition", "recognition", "", "recognition"),
     Rule("recognition/crops", "recognition", "crops", "crops"),
     Rule("detect", "check", "detect", "json"),
+    # Milestone 9: the AI decor's debug images and records; the 3D files of the final scene (user request of
+    # 4 Oct 2026: a packed .blend and a .glb that open in Blender) with their manifest.
+    Rule("decor_debug", "furniture", "decor_debug", "png"),
+    Rule("decor_debug", "furniture", "decor_debug", "json"),
+    Rule("export", "final", "3d", "export"),
 )
 PRIVATE_RULES = (
     Rule("final", "final", "", "private_final"),
@@ -186,6 +193,11 @@ def wanted(rule: Rule, path: Path) -> Optional[str]:
         return "copy" if small_jpg and _match(name, ("*_final_preview.jpg", "contact_*.jpg")) else None
     if kind == "private_run":
         return "record" if name.endswith(".json") and size <= MAX_TEXT_BYTES else None
+    if kind == "export":                      # Milestone 9: the 3D files (no size limit: they are the deliverable)
+        if name.endswith((".blend", ".glb")):
+            return "copy"
+        return "copy" if name == "export_manifest.json" and size <= MAX_TEXT_BYTES else (
+            "tail" if name.endswith(".log") else None)
     raise ValueError(f"unknown copy rule kind {kind!r}")
 
 

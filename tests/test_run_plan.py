@@ -139,7 +139,12 @@ def test_golden_plan_of_the_committed_projects(golden):
     assert rv["report"].endswith("review-01/report.md") and (out / "review-01" / "report.md").is_file()
     assert "cannot order untitled plan pages" in (out / "review-01" / "report.md").read_text()
     pod_of_real01 = next(pod for pod in plan["pods"] if "real01" in pod["projects"])
-    assert pod_of_real01["verified"] is False and pod_of_real01["server_starts"] == (3 if seeded else 4)
+    # A pod starts the servers of its most demanding project: without LibreDWG (synthetic-06 needs review) real01
+    # joins the first pod, with the style photo of synthetic-05 (4 starts).
+    assert pod_of_real01["verified"] is False
+    assert pod_of_real01["server_starts"] == max(by[p]["server_starts"] for p in pod_of_real01["projects"])
+    if pod_of_real01["projects"] == ["real01"]:
+        assert pod_of_real01["server_starts"] == (3 if seeded else 4)
     assert all(pod["fits"] for pod in plan["pods"])
     if PRESENT == GOLDEN and by["synthetic-06"]["status"] == "ok":
         # At the measured RTX PRO 6000 speed (1.634) five synthetic projects fit one pod (first fit).

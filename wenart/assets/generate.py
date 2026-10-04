@@ -720,15 +720,36 @@ class _Timer:
         return sum(vals) / len(vals) if vals else float(self.est.get(kind, 60))
 
 
+def parse_shard(text: Optional[str]) -> tuple[int, int]:
+    """``"I/N"`` -> ``(I, N)`` with 0 <= I < N (Milestone 9: N workers share one GPU, each takes every N-th item of
+    the plan order); None -> ``(0, 1)``."""
+    if text is None or str(text).strip() == "":
+        return 0, 1
+    try:
+        i, n = (int(v) for v in str(text).split("/"))
+    except ValueError:
+        raise UsageError(f"--shard {text!r} is not I/N") from None
+    if n < 1 or not 0 <= i < n:
+        raise UsageError(f"--shard {text!r}: need 0 <= I < N")
+    return i, n
+
+
 def run(out: Path, plan_path: Path, *, images_per_pair: Optional[int] = None, deadline: Optional[float] = None,
         cfg: Optional[dict] = None, retry_failed: bool = False, image_backend: Optional[Callable] = None,
         mesh_backend: Optional[Callable] = None, clock: Callable[[], float] = time.time,
-        log: Callable = log_print) -> int:
-    """Phase A (images), phase B (models), then the survey; see the module docstring. Returns the exit code."""
+        log: Callable = log_print, shard: tuple[int, int] = (0, 1)) -> int:
+    """Phase A (images), phase B (models), then the survey; see the module docstring. Returns the exit code.
+    ``shard`` (Milestone 9): ``(i, n)`` takes every n-th item of the plan order from the i-th on, so n workers
+    share the GPU; each writes the survey of the whole plan at its end (the prep job writes it once more after
+    all of them)."""
     cfg = cfg or load_config()
     out = Path(out)
     plan = read_plan(plan_path)
     items = plan_items(plan, cfg, images_per_pair)
+    shard_k, shard_n = shard
+    if shard_n > 1:
+        items = [it for j, it in enumerate(items) if j % shard_n == shard_k]
+        log(f"generate run: shard {shard_k}/{shard_n}: {len(items)} items")
     image_backend = image_backend or ZImageText2Image
     mesh_backend = mesh_backend or TrellisImageTo3D
     timer = _Timer(cfg)
@@ -787,10 +808,20 @@ def run(out: Path, plan_path: Path, *, images_per_pair: Optional[int] = None, de
             finally:
                 backend.close()
 
-    survey = build_survey(out, plan, cfg, images_per_pair, plan_path, cut=cut, errors=errors)
-    n_cand = len(survey["candidates"])
-    log(f"generate run: {n_cand} generated candidates -> {out / SURVEY_NAME}"
-        + (" (cut by the deadline)" if cut else "") + (f"; errors: {errors}" if errors else ""))
+    if shard_n > 1:
+        # A shard leaves the survey to the prep job (one write after every worker; never two writers at once).
+        n_cand = 0
+        for item in items:
+            sha = image_state(out, item, cfg)
+            if sha is not None and mesh_state(out, item, sha, cfg)[0] == "done":
+                n_cand += 1
+        log(f"generate run: shard {shard_k}/{shard_n}: {n_cand} of {len(items)} models done"
+            + (" (cut by the deadline)" if cut else "") + (f"; errors: {errors}" if errors else ""))
+    else:
+        survey = build_survey(out, plan, cfg, images_per_pair, plan_path, cut=cut, errors=errors)
+        n_cand = len(survey["candidates"])
+        log(f"generate run: {n_cand} generated candidates -> {out / SURVEY_NAME}"
+            + (" (cut by the deadline)" if cut else "") + (f"; errors: {errors}" if errors else ""))
     if cut:
         return EXIT_DEADLINE
     if items and (load_failed or n_cand == 0):
@@ -1171,6 +1202,7 @@ def parse_args(argv) -> argparse.Namespace:
     r.add_argument("--images-per-pair", type=int, default=None)
     r.add_argument("--deadline", type=float, default=None, help="epoch seconds (default: WENART_DEADLINE)")
     r.add_argument("--retry-failed", action="store_true", help="retry models that failed with the same key")
+    r.add_argument("--shard", default=None, help="I/N: this worker's share of the plan (N workers on one GPU)")
     s = sub.add_parser("survey", help="rewrite survey_generated.json from the item files (CPU)")
     s.add_argument("--out", required=True)
     s.add_argument("--plan", required=True)
@@ -1199,7 +1231,7 @@ def main(argv=None, image_backend=None, mesh_backend=None) -> int:
         if args.command == "run":
             return run(Path(args.out), Path(args.plan), images_per_pair=args.images_per_pair,
                        deadline=deadline_of(args.deadline), cfg=cfg, retry_failed=args.retry_failed,
-                       image_backend=image_backend, mesh_backend=mesh_backend)
+                       image_backend=image_backend, mesh_backend=mesh_backend, shard=parse_shard(args.shard))
         plan = read_plan(Path(args.plan))
         doc = build_survey(Path(args.out), plan, cfg, args.images_per_pair, Path(args.plan))
         log_print(f"generate survey: {len(doc['candidates'])} candidates -> {Path(args.out) / SURVEY_NAME}")

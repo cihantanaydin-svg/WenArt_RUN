@@ -808,3 +808,23 @@ def test_target_plan_cli(tmp_path):
     assert doc["mode"] == "target" and set(doc["per_type"]) == {"sofa", "vase"}
     assert G.main(["plan", "--catalog", str(acc), "--families", "japandi", "--out", str(out), "--types", "vase",
                    "--no-polyhaven"]) == G.EXIT_USAGE                  # decor types only in target plans
+
+
+def test_shards_split_the_plan_and_leave_the_survey_to_the_prep_job(tmp_path):
+    """Milestone 9: two workers share the GPU: shard k/n takes every n-th item of the plan order; a shard never
+    writes the survey (the prep job runs ``generate survey`` once after all of them)."""
+    plan = small_plan(tmp_path, families=("japandi",), types=("sofa", "chair"))
+    items = G.plan_items(G.read_plan(plan), CFG)
+    calls0, calls1 = [], []
+    assert run(tmp_path, plan, FakeImages(calls0), FakeMeshes(calls0), shard=(0, 2)) == 0
+    assert run(tmp_path, plan, FakeImages(calls1), FakeMeshes(calls1), shard=(1, 2)) == 0
+    seeds0 = [c[2] for c in calls0 if c[0] == "image"]
+    seeds1 = [c[2] for c in calls1 if c[0] == "image"]
+    assert seeds0 == [it["seed"] for it in items[0::2]] and seeds1 == [it["seed"] for it in items[1::2]]
+    assert not (tmp_path / "lib" / G.SURVEY_NAME).exists()
+    assert G.main(["survey", "--out", str(tmp_path / "lib"), "--plan", str(plan)]) == G.EXIT_OK
+    assert len(survey(tmp_path)["candidates"]) == len(items)
+    assert G.parse_shard(None) == (0, 1) and G.parse_shard("1/2") == (1, 2)
+    for bad in ("2/2", "x", "1/0"):
+        with pytest.raises(G.UsageError):
+            G.parse_shard(bad)
