@@ -46,7 +46,7 @@ def test_pick_gpu_prefers_priority_order_and_stock():
 
 def test_price_limits_of_3_oct_2026():
     """User decision of 3 Oct 2026: $5 per GPU-hour; CLAUDE.md still asks before any action over $5."""
-    assert gpu_run.MAX_PRICE_PER_H == 5.00 and gpu_run.MAX_ACTION_USD == 5.00 and gpu_run.MAX_PER_DAY == 10.00
+    assert gpu_run.MAX_PRICE_PER_H == 5.00 and gpu_run.MAX_ACTION_USD == 5.00 and gpu_run.MAX_PER_DAY == 20.00
     assert gpu_run.action_price_limit(115) == pytest.approx(5.0 * 60 / 115)          # $2.61/h
     assert gpu_run.action_price_limit(60) == 5.0 and gpu_run.action_price_limit(30) == 5.0
     assert gpu_run.action_price_limit(115, over_5_ok=True) == 5.0
@@ -100,8 +100,9 @@ def test_check_limits():
         gpu_run.check_limits(5.01, 10, 0.0)
     with pytest.raises(RuntimeError):
         gpu_run.check_limits(0.5, 121, 0.0)
+    gpu_run.check_limits(0.9, 120, 9.0)                      # $10.80 a day: allowed since 4 Oct 2026 ($20/day)
     with pytest.raises(RuntimeError, match="day"):
-        gpu_run.check_limits(0.9, 120, 9.0)
+        gpu_run.check_limits(0.9, 120, 19.0)
 
 
 def test_append_gpu_log_keeps_table_and_total():

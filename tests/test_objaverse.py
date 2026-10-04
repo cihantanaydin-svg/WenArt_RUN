@@ -133,7 +133,7 @@ def test_config_tables_follow_the_spec():
         assert name not in mapped
     frontless = {t for t, spec in CFG["types"].items() if spec["front"] == "none"}
     assert frontless == {"table_dining", "table_coffee", "floor_lamp", "potted_plant", "side_table", "rug",
-                         "cushion", "plant"}
+                         "cushion", "plant", "shower"}       # shower: added after pod L2 (generated gaps)
     # Decor (docs/milestone8.md §4): a size range, a height range, a question each; wall art only by a documented front.
     full, _ = OV.library_size_table(CFG)
     for d in C.DECOR_TYPES:
@@ -849,6 +849,22 @@ def test_accept_front_and_styles_of_an_accepted_object():
     assert [c for c, _ in many["failed"]] == ["not_single", "quality", "front_not_agreed"]
 
 
+def test_generated_models_take_the_front_both_judges_agree_on():
+    """M8 pod L2: the vertex-count rule read the generator's mesh as "+Y" on fridges and bathtubs that both judges
+    saw facing -Y; for a generated model the agreeing judges decide (the geometry is recorded), for a scanned one
+    the geometry still has to agree."""
+    gen = dict(obj("fridge", geo="+Y"), source="generated")
+    dec = OV.decide(gen, {"qwen": answer(front=0), "glm": answer(front=0)}, CFG)
+    assert dec["accepted"] and dec["front_axis"] == "-Y" and dec["front_view"] == 0
+    assert "judges decide" in dec["front_axis_note"]
+    undecided = OV.decide(dict(gen, geometric_front=None), {"qwen": answer(front=0), "glm": answer(front=0)}, CFG)
+    assert undecided["accepted"] and undecided["front_axis"] == "-Y"
+    split = OV.decide(gen, {"qwen": answer(front=0), "glm": answer(front=2)}, CFG)
+    assert split["code"] == "front_not_agreed"                             # the judges still have to agree
+    scanned = OV.decide(dict(gen, source="objaverse"), {"qwen": answer(front=0), "glm": answer(front=0)}, CFG)
+    assert scanned["code"] == "front_not_agreed"
+
+
 def _canned_accept(tmp_path, monkeypatch, specs):
     """``accept`` over canned objects: specs = [(uid, source, kind, type, styles, quality, likes)]."""
     out = tmp_path / "lib"
@@ -902,7 +918,7 @@ def test_accept_keeps_12_per_type_and_3_per_style_family(tmp_path, monkeypatch):
     assert [(d["uid"], d["code"]) for d in doc["refused"]] == [("b1", "over_style_limit")]
 
 
-def test_accept_ranks_by_mean_quality_then_source_order_and_limits_decor_to_16(tmp_path, monkeypatch):
+def test_accept_ranks_real_before_generated_then_by_quality_and_source_and_limits_decor_to_16(tmp_path, monkeypatch):
     specs = [("gen_sofa", "generated", "furniture", "sofa", ["modern"], 5, 0),
              ("obj_sofa", "objaverse", "furniture", "sofa", ["modern"], 5, 99),
              ("abo_sofa", "abo", "furniture", "sofa", ["modern"], 5, 0),
@@ -911,11 +927,14 @@ def test_accept_ranks_by_mean_quality_then_source_order_and_limits_decor_to_16(t
     out = _canned_accept(tmp_path, monkeypatch, specs)
     doc = OV.accept(out, CFG)
     sofas = [d["uid"] for d in doc["accepted"] if d["type"] == "sofa"]
-    assert sofas == ["abo_sofa", "obj_sofa", "gen_sofa"]  # mean quality, then abo, objaverse, generated
-    assert next(d for d in doc["refused"] if d["uid"] == "abo_low")["code"] == "over_style_limit"
+    # Real models first (M8 pod L2: two generated Japandi sofas pushed real ones out), then mean quality, then abo,
+    # objaverse: the generated sofa only gets a slot that no real model needs (this assertion was ["abo_sofa",
+    # "obj_sofa", "gen_sofa"] with abo_low refused before; changed on purpose).
+    assert sofas == ["abo_sofa", "obj_sofa", "abo_low"]
+    assert next(d for d in doc["refused"] if d["uid"] == "gen_sofa")["code"] == "over_style_limit"
     rugs = [d for d in doc["accepted"] if d["type"] == "rug"]
     assert len(rugs) == 16 and all(d["kind"] == "decor" and d["decor_type"] == "rug" for d in rugs)
-    assert doc["accepted_by_source"] == {"abo": 17, "generated": 1, "objaverse": 1}
+    assert doc["accepted_by_source"] == {"abo": 18, "objaverse": 1}
     assert doc["limits"] == {"per_type_max": 12, "decor_per_type_max": 16, "per_family_max": 3}
     # --sources: the real sources only (the prep job's first accept before the generation).
     real = OV.accept(out, CFG, sources=["abo", "objaverse"])

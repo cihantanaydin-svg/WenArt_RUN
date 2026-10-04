@@ -172,6 +172,10 @@ types:
   potted_plant: {height: [0.30, 2.20], front: none}
   side_table:   {height: [0.35, 0.85], front: none}
   tv_unit:      {height: [0.30, 1.00], front: detail_side}
+  # M8 pod L2: the generator fills these; without a height range every candidate was refused unit_none.
+  washing_machine: {height: [0.80, 0.95], front: detail_side}
+  sink_kitchen: {height: [0.80, 1.30], front: detail_side}   # base unit with the sink, tap included
+  shower:       {height: [1.80, 2.40], front: none}          # enclosure on its tray; the drawn footprint orients it
   # decor (kind decor; the catalogue's `decor` section, type decor_<name>)
   rug:          {height: [0.002, 0.08], front: none}
   wall_art:     {height: [0.15, 1.80], front: documented}

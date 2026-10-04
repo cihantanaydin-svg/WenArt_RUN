@@ -109,11 +109,20 @@ def test_abo_candidates_are_cc_by_with_known_units_and_the_documented_front(surv
         assert c["licence"] == C.CC_BY and c["licence_flag"] is None and c["author"] == "Amazon.com", c["uid"]
         assert c["attribution"] == ABO.attribution(c["title"], acfg), c["uid"]
         assert c["units_known"] is True and c["front_documented"] == "-Y", c["uid"]
-        assert Path(c["glb"]).is_file() and c["glb_bytes"] <= acfg["survey"]["max_glb_mb"] * 1024 * 1024, c["uid"]
+        # The survey's GLB lives in this pod's container cache; a later pod that did not survey again (M8 pod
+        # L2) only has the accepted models' copies in the assets cache (checked below).
+        assert c["glb_bytes"] <= acfg["survey"]["max_glb_mb"] * 1024 * 1024, c["uid"]
         assert c["glb_info"]["textured"] or c["glb_info"]["vertex_colours"], c["uid"]
         assert c["kind"] == ("decor" if c["group"] in C.DECOR_TYPES else "furniture"), c["uid"]
         per_type[c["group"]] = per_type.get(c["group"], 0) + 1
     assert all(n <= acfg["survey"]["per_type_limit"] for n in per_type.values()), per_type
+    surveyed_here = any(Path(c["glb"]).is_file() for c in surv["candidates"])
+    accepted = {a["uid"] for a in (OV.read_json(LIBRARY / "accepted.json") or {}).get("accepted", [])}
+    for c in surv["candidates"]:
+        if surveyed_here:
+            assert Path(c["glb"]).is_file(), c["uid"]
+        elif c["uid"] in accepted:
+            assert OV.glb_source(c, ASSETS) is not None, f"{c['uid']}: accepted, but no GLB in {ASSETS}"
 
 
 def test_thumbnails_were_rendered_on_the_gpu_with_decks_for_beds(surveys):

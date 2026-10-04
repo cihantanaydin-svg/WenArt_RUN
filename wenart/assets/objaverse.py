@@ -2099,8 +2099,14 @@ def decide(obj: dict, answers: dict, cfg: dict) -> dict:
         va, vb = a["front_view"], b["front_view"]
         geo = obj.get("geometric_front")
         front, view, confidence = None, None, "high"
+        generated = (obj.get("source") or SOURCE) == "generated"
         if va is None or vb is None or va != vb:
             fail.append(("front_not_agreed", f"judges: {both('front_view')}"))
+        elif generated and geo != VIEW_SIDES[va]:
+            # A generated model (TRELLIS.2) has no maker's detail on its back: the vertex-count rule reads the
+            # generator's mesh, not a product's back (M8 pod L2: fridges and bathtubs "+Y" against both judges'
+            # -Y). Both judges agreeing decide; the geometry is recorded.
+            front, view = VIEW_SIDES[va], va
         elif geo is None:
             fail.append(("front_not_agreed", f"judges: view {va} ({VIEW_SIDES[va]}); geometry undecided "
                                              f"({obj.get('geometric_note', '')})"))
@@ -2110,6 +2116,8 @@ def decide(obj: dict, answers: dict, cfg: dict) -> dict:
             front, view = geo, va
         front_note = (f"both judges: view {va} (camera on the {VIEW_SIDES[va]} side) shows the front; geometry: "
                       f"{obj.get('geometric_note', '')}" if front else "")
+        if front and generated and geo != front:
+            front_note += " (generated model: the judges decide; the geometry rule is for scanned products)"
 
     order = list(style_values())
     styles = [s for s in order if s in (a.get("styles") or []) and s in (b.get("styles") or [])]
@@ -2132,12 +2140,14 @@ def decide(obj: dict, answers: dict, cfg: dict) -> dict:
 
 
 def _rank_key(dec: dict, cand: dict, cfg: Optional[dict] = None) -> tuple:
-    """Mean quality, then the source order (abo, polyhaven, objaverse, generated), then the lower quality, likes,
-    views, the survey rank and the uid (docs/milestone8.md §2)."""
+    """Real models before generated ones, then mean quality, then the source order (abo, polyhaven, objaverse,
+    generated), then the lower quality, likes, views, the survey rank and the uid (docs/milestone8.md §2)."""
     q = dec["quality"]
     order = list(((cfg or {}).get("accept") or {}).get("source_order") or SOURCE_ORDER)
     source = dec.get("source") or SOURCE
-    return (-sum(q) / len(q), order.index(source) if source in order else len(order), -min(q),
+    # Generated models fill gaps only (docs/milestone8.md §1): they rank after every real model, so the type and
+    # style limits never drop a real product for a generated one (M8 pod L2: two Japandi sofas did).
+    return (source == "generated", -sum(q) / len(q), order.index(source) if source in order else len(order), -min(q),
             -(cand.get("likes") or 0), -(cand.get("views") or 0), cand.get("rank") or 0, dec["uid"])
 
 

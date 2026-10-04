@@ -31,7 +31,7 @@ Plan: `docs/plan.md`. Status: `docs/progress.md`. GPU spending: `docs/gpu-log.md
   a key into the chat. `.env` is git-ignored.
 
 ## GPU limits (hard rules)
-- Max $5.00 per GPU-hour (raised from $1.00 on 3 Oct 2026), max $10 per day, max 2 hours per pod run, one pod at a time.
+- Max $5.00 per GPU-hour (raised from $1.00 on 3 Oct 2026), max $20 per day (raised from $10 on 4 Oct 2026), max 2 hours per pod run, one pod at a time.
 - Ask the user before: going over any limit, creating or deleting a Network Volume,
   deleting any data, or any single action costing more than $5.
 - Every pod must shut itself down when its job ends or at the max runtime
