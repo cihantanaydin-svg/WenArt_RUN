@@ -1,0 +1,171 @@
+# Generated furniture (docs/milestone8.md §3): Z-Image-Turbo text-to-image, then TRELLIS.2-4B image-to-3D.
+# Model ids, revisions, files and licences live only here; scripts/pod_setup_trellis.sh downloads exactly these
+# (snapshot_download with the revision and allow_patterns below) and wenart/assets/generate.py loads the same local
+# snapshots (wenart.hfcache.local_snapshot, so HF_HUB_OFFLINE=1 works). Checked on Hugging Face / GitHub, 4 Oct 2026.
+
+models:
+  # Text-to-image (the polish model, wenart/polish/polish.yaml; same revision and files).
+  zimage:
+    repo: Tongyi-MAI/Z-Image-Turbo
+    revision: f332072aa78be7aecdf3ee76d5c247082da564a6
+    licence: Apache-2.0
+    allow_patterns: [model_index.json, "scheduler/*", "text_encoder/*", "tokenizer/*", "transformer/*", "vae/*"]
+    size_gb: 32.85
+  # Image-to-3D. pipeline.json of this revision names every part below (sparse structure decoder from TRELLIS v1,
+  # DINOv3 as image condition, a BiRefNet background remover); the encoders (shape_enc, tex_enc) are not loaded by
+  # Trellis2ImageTo3DPipeline and are not downloaded.
+  trellis:
+    repo: microsoft/TRELLIS.2-4B
+    revision: af44b45f2e35a493886929c6d786e563ec68364d
+    licence: MIT
+    allow_patterns: [pipeline.json, "ckpts/ss_flow_img_dit_1_3B_64_bf16.*", "ckpts/slat_flow_*",
+                     "ckpts/shape_dec_next_dc_f16c32_fp16.*", "ckpts/tex_dec_next_dc_f16c32_fp16.*"]
+    size_gb: 14.8
+  # pipeline.json: "sparse_structure_decoder": "microsoft/TRELLIS-image-large/ckpts/ss_dec_conv3d_16l8_fp16"
+  # (fetched from the hub without a revision by the upstream loader; pinned here and linked locally).
+  ss_decoder:
+    repo: microsoft/TRELLIS-image-large
+    revision: 25e0d31ffbebe4b5a97464dd851910efc3002d96
+    licence: MIT
+    allow_patterns: ["ckpts/ss_dec_conv3d_16l8_fp16.json", "ckpts/ss_dec_conv3d_16l8_fp16.safetensors"]
+    files: ["ckpts/ss_dec_conv3d_16l8_fp16.json", "ckpts/ss_dec_conv3d_16l8_fp16.safetensors"]
+    size_gb: 0.15
+  # pipeline.json: image_cond_model DinoV3FeatureExtractor("facebook/dinov3-vitl16-pretrain-lvd1689m").
+  # GATED with manual approval (DINOv3 License: commercial use allowed, custom terms, trade-control clauses):
+  # the Hugging Face account of the RunPod secret hf_token must have been granted access on the model page.
+  dinov3:
+    repo: facebook/dinov3-vitl16-pretrain-lvd1689m
+    revision: ea8dc2863c51be0a264bab82070e3e8836b02d51
+    licence: DINOv3 License (custom, gated)
+    gated: manual
+    allow_patterns: [config.json, model.safetensors, preprocessor_config.json, LICENSE.md]
+    files: [config.json, model.safetensors]
+    size_gb: 1.21
+  # pipeline.json names briaai/RMBG-2.0 (gated, licence bria-rmbg-2.0: non-commercial). It is replaced by the
+  # BiRefNet general model it is built on (same architecture and loader class, MIT, not gated). Our input images
+  # have a plain white background; the mask only needs to separate the object from it.
+  rembg:
+    repo: ZhengPeng7/BiRefNet
+    revision: e2bf8e4460fc8fa32bba5ea4d94b3233d367b0e4
+    licence: MIT
+    replaces: briaai/RMBG-2.0
+    allow_patterns: [config.json, BiRefNet_config.py, birefnet.py, model.safetensors]
+    files: [config.json, BiRefNet_config.py, birefnet.py, model.safetensors]
+    size_gb: 0.44
+
+# The TRELLIS.2 code (MIT) that scripts/pod_setup_trellis.sh checks out (its TRELLIS_COMMIT must be this one;
+# tests/test_generate.py checks it). main @ 5 Jun 2026; the code is unchanged since 10 Jan 2026 (CI files only).
+trellis_code:
+  repo: https://github.com/microsoft/TRELLIS.2
+  commit: 75fbf0183001ed9876c8dbb35de6b68552ee08bd
+
+# Z-Image-Turbo text-to-image (diffusers 0.40.0 ZImagePipeline). Its default sigmas are linspace(1, 1/n, n), so
+# 8 steps are the 8 DiT forwards of the model card (whose num_inference_steps=9 is for the older pipeline that
+# spent one step at sigma 0); guidance 0 for the Turbo model (model card). The noise comes from a CPU generator
+# seeded per image (the same image on every GPU).
+image:
+  size: 1024
+  steps: 8
+  guidance_scale: 0.0
+
+# TRELLIS.2: Trellis2ImageTo3DPipeline.run(image, seed=seed, pipeline_type=...) at the default resolution of
+# pipeline.json (1024_cascade); mesh.simplify(16777216) as in example.py; o_voxel.postprocess.to_glb with the
+# remesh settings of example.py / app.py, decimation to about 200k faces and 2048 px PBR textures (PNG, no WebP
+# extension, so every glTF importer reads them).
+trellis:
+  pipeline_type: 1024_cascade
+  simplify: 16777216
+  decimation_target: 200000
+  texture_size: 2048
+  remesh: true
+  remesh_band: 1
+  remesh_project: 0
+  # Keep every TRELLIS.2 model on the GPU (no CPU <-> GPU moves per stage) when the card has at least this much
+  # memory; below it the upstream low-VRAM mode (models moved per stage) is used. Z-Image-Turbo is freed before
+  # TRELLIS.2 loads, so the two never share the GPU.
+  resident_min_vram_gib: 40
+
+images_per_pair: 2
+seed_base: 0          # image n of a pair: seed_base + sha256("<type>|<family>|<n>") mod 2^31 (stable, order-free)
+
+# Fixed equipment never generated (docs/milestone8.md §3): stays parametric (or library) as drawn.
+exclude_types: [stair, kitchen_counter, kitchen_island, unknown]
+
+# Types whose look comes from ceramics, enamel and metal, not from furniture woods and fabrics: they take the
+# family's "fixtures" hint.
+fixture_types: [fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, washing_machine]
+
+prompt_template: >-
+  a single {family} style {type_words}, {hints}, studio product photo, three-quarter front view from the left,
+  full object in frame, plain white background, soft even light, no people, no text
+
+# One specific object per type (the judge later checks that the model is this type).
+type_words:
+  bed_single: single bed with a headboard, a mattress and plain bedding
+  bed_double: double bed with a headboard, a mattress and plain bedding
+  sofa: three-seat sofa
+  armchair: upholstered armchair
+  table_dining: rectangular dining table for six
+  table_coffee: low coffee table
+  desk: writing desk with a drawer
+  chair: dining chair
+  wardrobe: tall two-door wardrobe
+  fridge: freestanding refrigerator
+  stove: freestanding cooker with an oven and a four-burner hob
+  sink_kitchen: kitchen sink base cabinet with a worktop and an inset sink
+  washbasin: bathroom washbasin on a vanity unit
+  toilet: floor-standing toilet with a cistern
+  shower: square glass shower enclosure with a shower tray
+  bathtub: freestanding bathtub
+  tv_unit: low TV media console
+  bookshelf: tall open bookshelf with empty shelves
+  nightstand: bedside nightstand with one drawer
+  dresser: chest of drawers
+  washing_machine: front-loading washing machine
+  side_table: small round side table
+  floor_lamp: floor lamp with a fabric shade
+  potted_plant: large indoor plant in a floor pot
+
+# Material and form hints per style family (wenart.style.vocabulary.STYLE_FAMILIES).
+family_hints:
+  scandinavian:
+    furniture: light oak wood, white and soft grey, natural linen upholstery, slim tapered legs, simple clean lines
+    fixtures: matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms
+  japandi:
+    furniture: light ash wood, black accents, natural linen and paper textures, low profile, calm minimal forms
+    fixtures: matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms
+  modern minimal:
+    furniture: matte white and warm grey surfaces, flush panels, thin black metal details, no ornament
+    fixtures: matte white surfaces, flush handleless fronts, thin black fittings, crisp rectangular forms
+  minimal:
+    furniture: plain matte surfaces in white, beige and grey, simple geometric forms, hidden handles
+    fixtures: plain white ceramic and enamel, hidden fittings, simple geometric forms
+  modern:
+    furniture: walnut veneer, charcoal fabric, brushed steel details, crisp geometric lines
+    fixtures: glossy white ceramic, stainless steel and chrome fittings, crisp geometric lines
+  industrial:
+    furniture: black powder-coated steel frame, reclaimed dark wood, cognac leather, exposed bolts
+    fixtures: black steel and brushed stainless steel, concrete grey surfaces, exposed black fittings
+  mediterranean:
+    furniture: whitewashed wood, terracotta and sand tones, woven rattan, soft rounded forms
+    fixtures: white glazed ceramic, warm terracotta and sand accents, aged brass fittings, soft rounded forms
+  classic:
+    furniture: carved dark walnut wood, tufted cream upholstery, turned legs, polished brass details
+    fixtures: white porcelain, polished brass or chrome fittings, moulded classic details
+  rustic:
+    furniture: rough-sawn oak with visible grain, wrought iron, natural linen, sturdy chunky forms
+    fixtures: cream enamel and stone, aged copper and wrought iron fittings, sturdy simple forms
+
+# A record's fixed fields (survey_generated.json; docs/milestone8.md §2, §3).
+record:
+  licence: "generated (TRELLIS.2-4B, MIT)"
+  licence_raw: "MIT (microsoft/TRELLIS.2-4B); input image from Tongyi-MAI/Z-Image-Turbo (Apache-2.0)"
+  author: "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image"
+  source_url: https://huggingface.co/microsoft/TRELLIS.2-4B
+
+# Seconds per item until the run has measured its own (deadline planning only).
+estimate_seconds:
+  image_load: 90
+  image: 10
+  mesh_load: 120
+  mesh: 90

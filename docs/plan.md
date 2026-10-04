@@ -265,6 +265,23 @@ model is used only when it fits the project's style family (else the parametric 
 come from the API `/info` tags and the M6 renders (3 Oct 2026; thumbnails were blocked by the proxy). TRELLIS.2 is
 **not built in M7** (generated shapes have no documented provenance) and waits for your OK.
 
+**Milestone 8 (4 Oct 2026, your OK of 4 Oct):** every (type, style family) pair still without an accepted model gets
+generated candidates (`wenart/assets/generate.py`, pins in `generate.yaml`, setup `scripts/pod_setup_trellis.sh`):
+a Z-Image-Turbo product photo on white, then TRELLIS.2 image → textured GLB (~200k faces, 2048 px PBR textures),
+labelled `source: generated` and judged like any library model. Checked on Hugging Face / GitHub:
+
+| Model / code | Revision | Licence | What for |
+|---|---|---|---|
+| `Tongyi-MAI/Z-Image-Turbo` | `f332072aa78be7aecdf3ee76d5c247082da564a6` | Apache-2.0 | text-to-image input photo (1024², 8 steps, guidance 0) |
+| `microsoft/TRELLIS.2-4B` | `af44b45f2e35a493886929c6d786e563ec68364d` | MIT | image → 3D (flow models, shape/texture decoders) |
+| `microsoft/TRELLIS-image-large` (`ckpts/ss_dec_conv3d_16l8_fp16` only) | `25e0d31ffbebe4b5a97464dd851910efc3002d96` | MIT | sparse-structure decoder named by TRELLIS.2's `pipeline.json` |
+| `facebook/dinov3-vitl16-pretrain-lvd1689m` | `ea8dc2863c51be0a264bab82070e3e8836b02d51` | DINOv3 License (custom, **gated: manual approval**) | TRELLIS.2's image condition (no alternative) |
+| `ZhengPeng7/BiRefNet` | `e2bf8e4460fc8fa32bba5ea4d94b3233d367b0e4` | MIT | background removal; replaces `briaai/RMBG-2.0` of `pipeline.json` (gated, non-commercial) |
+| TRELLIS.2 code (incl. o-voxel) | `75fbf0183001ed9876c8dbb35de6b68552ee08bd` | MIT | pipeline, GLB export |
+| CuMesh / FlexGEMM | `12289e10` / `6dd94a85` | MIT | mesh clean-up, UV unwrap / sparse convolution |
+| nvdiffrast v0.4.0 / nvdiffrec renderutils | `253ac4fc` / `b296927c` | NVIDIA Source Code License (**non-commercial**) | UV-space texture baking in `to_glb` / previews only (optional) |
+| flash-attn 2.8.3, else xformers 0.0.33.post2 | release wheels | BSD-3-Clause | attention backend (TRELLIS.2's sparse attention has no SDPA path) |
+
 ### 4.9 Materials and HDRIs
 
 | Option | Licence | Commercial | Note |
@@ -438,6 +455,14 @@ Milestone 7 models (checked on Hugging Face, 3 Oct 2026): OWLv2 `google/owlv2-ba
 (Apache-2.0) as the added-object detector. Surveyed, not used: Grounding DINO base (Apache-2.0), Florence-2-large
 (MIT). TRELLIS.2 not used (see §4.8). Data: Objaverse 1.0 (ODC-By 1.0; objects CC0 / CC-BY 4.0 only, uploader-
 declared — flagged). Tools: LibreDWG 0.14 (GPL-3.0, separate program).
+
+Milestone 8 generation (checked 4 Oct 2026, table in §4.8): TRELLIS.2-4B, TRELLIS-image-large decoder, BiRefNet,
+CuMesh, FlexGEMM (MIT), Z-Image-Turbo (Apache-2.0), flash-attn / xformers (BSD-3). **Flagged:** DINOv3 ViT-L/16
+(custom DINOv3 License: commercial use allowed, trade-control clauses; gated, the HF account of the pod's token
+needs Meta's manual approval; M5 had avoided it, TRELLIS.2 cannot run without it); nvdiffrast and nvdiffrec (NVIDIA
+Source Code License, research/evaluation only: fine for this PoC, nvdiffrast's UV rasterizer must be replaced before
+commercial use). RMBG-2.0 (named by TRELLIS.2, non-commercial) is not used. Generated models are recorded as
+`generated (TRELLIS.2-4B, MIT)` with prompt, seed and image hash.
 
 ## 9. Sources
 
