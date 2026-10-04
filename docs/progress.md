@@ -561,6 +561,7 @@ Next step: your answers to the five points above. Then Milestone 8 (to be planne
 | 3, 4 | Furniture | better furniture is a must; do whatever is needed; licences may be ignored for now | Milestone 8 (`docs/milestone8.md`): Amazon Berkeley Objects product models (CC BY 4.0), Objaverse of any licence (flagged), TRELLIS.2 generated models for the gaps, bed frames with real bedding, rugs and wall art |
 | 5 | Warm white walls with Punchy | accepted | the GPU test limit becomes R/B ≤ 1.12 |
 | 6 | Cameras | wider lenses | 18 mm (90° view), 16 mm in rooms narrower than 2.2 m |
+| 7 | Drawn furniture | the place is locked, not the piece itself | position, orientation, footprint and type stay as drawn; AI may pick, swap or generate any model, design and materials (`CLAUDE.md`, `docs/plan.md`) |
 
 AI polish cost (pods C1/C2, RTX PRO 6000 at $2.09/h; gate check + polish + added-object detector + half of the vision
 check, which checks the polished images):
