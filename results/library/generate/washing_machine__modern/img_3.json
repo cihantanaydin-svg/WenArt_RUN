@@ -1,0 +1,24 @@
+{
+ "key": "3e85d75ac3781326759577d47af92c3739d7a22d3afae79102ada7575d407133",
+ "pair": "washing_machine__modern",
+ "type": "washing_machine",
+ "family": "modern",
+ "index": 3,
+ "prompt": "a single modern style front-loading washing machine, glossy white ceramic, stainless steel and chrome fittings, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1349489077,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "ae499af7920fdbba91b3547d3a02da2b502c6e5a14c8ffa90f3a4972d03571dc",
+ "seconds": 3.94,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:42:36Z"
+}

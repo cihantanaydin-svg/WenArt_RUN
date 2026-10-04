@@ -1,0 +1,63 @@
+{
+ "key": "09a12c22e979d60ecdac6c031269daa694066282ec03a7e5974f9565d054959e",
+ "pair": "toilet__minimal",
+ "type": "toilet",
+ "family": "minimal",
+ "index": 1,
+ "seed": 298828181,
+ "prompt": "a single minimal style floor-standing toilet with a cistern, plain white ceramic and enamel, hidden fittings, simple geometric forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "image_sha256": "58da29ab4702edefdb9f2c0917ef10fae01e38cb49a928a26e67063d0479de65",
+ "models": {
+  "trellis": "microsoft/TRELLIS.2-4B@af44b45f2e35a493886929c6d786e563ec68364d",
+  "ss_decoder": "microsoft/TRELLIS-image-large@25e0d31ffbebe4b5a97464dd851910efc3002d96",
+  "dinov3": "facebook/dinov3-vitl16-pretrain-lvd1689m@ea8dc2863c51be0a264bab82070e3e8836b02d51",
+  "rembg": "ZhengPeng7/BiRefNet@e2bf8e4460fc8fa32bba5ea4d94b3233d367b0e4"
+ },
+ "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+ "settings": {
+  "pipeline_type": "1024_cascade",
+  "simplify": 16777216,
+  "decimation_target": 200000,
+  "texture_size": 2048,
+  "remesh": true,
+  "remesh_band": 1,
+  "remesh_project": 0
+ },
+ "generated_utc": "2026-10-04T13:33:01Z",
+ "status": "ok",
+ "code": null,
+ "error": null,
+ "glb": "model_1.glb",
+ "glb_sha256": "3799392b0e2ac7350bb527d30769de340506362b7bf77641a99783c05a3c4fb2",
+ "glb_bytes": 10815288,
+ "face_count": 188334,
+ "glb_info": {
+  "images": 2,
+  "textures": 2,
+  "materials": 1,
+  "meshes": 1,
+  "primitives": 1,
+  "textured": true,
+  "vertex_colours": false,
+  "extensions_used": [],
+  "extensions_required": []
+ },
+ "seconds": 62.95,
+ "backend": {
+  "seconds_generate": 45.46,
+  "seconds_export": 17.15,
+  "raw_faces": 15784218,
+  "pipeline_type": "1024_cascade",
+  "peak_vram_gib": 27.8,
+  "resident": true
+ },
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "cuda": "12.8",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+  "attn_backend": "flash_attn",
+  "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+  "resident": true
+ }
+}

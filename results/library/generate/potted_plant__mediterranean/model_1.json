@@ -1,0 +1,63 @@
+{
+ "key": "a7c3963c3120c9e12d859460159a864a3cf7b1b115e5fd87cb1fb054eaf78446",
+ "pair": "potted_plant__mediterranean",
+ "type": "potted_plant",
+ "family": "mediterranean",
+ "index": 1,
+ "seed": 357641359,
+ "prompt": "a single mediterranean style large indoor plant in a floor pot, whitewashed wood, terracotta and sand tones, woven rattan, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "image_sha256": "9cddf737b5f946ab7c6ed3412ae28e8147270571e41cc5279f572f417e281978",
+ "models": {
+  "trellis": "microsoft/TRELLIS.2-4B@af44b45f2e35a493886929c6d786e563ec68364d",
+  "ss_decoder": "microsoft/TRELLIS-image-large@25e0d31ffbebe4b5a97464dd851910efc3002d96",
+  "dinov3": "facebook/dinov3-vitl16-pretrain-lvd1689m@ea8dc2863c51be0a264bab82070e3e8836b02d51",
+  "rembg": "ZhengPeng7/BiRefNet@e2bf8e4460fc8fa32bba5ea4d94b3233d367b0e4"
+ },
+ "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+ "settings": {
+  "pipeline_type": "1024_cascade",
+  "simplify": 16777216,
+  "decimation_target": 200000,
+  "texture_size": 2048,
+  "remesh": true,
+  "remesh_band": 1,
+  "remesh_project": 0
+ },
+ "generated_utc": "2026-10-04T13:12:20Z",
+ "status": "ok",
+ "code": null,
+ "error": null,
+ "glb": "model_1.glb",
+ "glb_sha256": "38a584339bbcfd9e60c7fb2eb38c81a012d7282a12d86cfa0d560e97df4b8bc5",
+ "glb_bytes": 17543864,
+ "face_count": 199339,
+ "glb_info": {
+  "images": 2,
+  "textures": 2,
+  "materials": 1,
+  "meshes": 1,
+  "primitives": 1,
+  "textured": true,
+  "vertex_colours": false,
+  "extensions_used": [],
+  "extensions_required": []
+ },
+ "seconds": 62.97,
+ "backend": {
+  "seconds_generate": 45.69,
+  "seconds_export": 16.98,
+  "raw_faces": 3866158,
+  "pipeline_type": "1024_cascade",
+  "peak_vram_gib": 18.76,
+  "resident": true
+ },
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "cuda": "12.8",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+  "attn_backend": "flash_attn",
+  "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+  "resident": true
+ }
+}

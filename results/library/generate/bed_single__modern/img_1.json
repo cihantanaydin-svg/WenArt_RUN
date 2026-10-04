@@ -1,0 +1,24 @@
+{
+ "key": "6745c558804325511dbb6d20423810a18540b850ded45f7a98f22379c86c1340",
+ "pair": "bed_single__modern",
+ "type": "bed_single",
+ "family": "modern",
+ "index": 1,
+ "prompt": "a single modern style single bed with a headboard, a mattress and plain bedding, walnut veneer, charcoal fabric, brushed steel details, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 2108317211,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "4d6dbd74951e5701551a2951d72d6e700f69d7fc64e69ae7f6a46d7e64affe24",
+ "seconds": 4.04,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:41:52Z"
+}

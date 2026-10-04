@@ -1,0 +1,24 @@
+{
+ "key": "7c1f6652953a3f1a17ad6b8005db008bfbf169b62f322f2bf72cbeaee28c45cd",
+ "pair": "washbasin__classic",
+ "type": "washbasin",
+ "family": "classic",
+ "index": 1,
+ "prompt": "a single classic style bathroom washbasin on a vanity unit, white porcelain, polished brass or chrome fittings, moulded classic details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 136361665,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "189fd0ef493508eb0c69d2b111b8b964e0c50bedf04fbb587b288af2717fdffc",
+ "seconds": 4.23,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:40:33Z"
+}

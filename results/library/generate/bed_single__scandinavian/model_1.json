@@ -1,0 +1,63 @@
+{
+ "key": "e5b4f63614168390f769260a5ab2486d38538cba599659c40682a850787c1057",
+ "pair": "bed_single__scandinavian",
+ "type": "bed_single",
+ "family": "scandinavian",
+ "index": 1,
+ "seed": 1186540915,
+ "prompt": "a single scandinavian style single bed with a headboard, a mattress and plain bedding, light oak wood, white and soft grey, natural linen upholstery, slim tapered legs, simple clean lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "image_sha256": "89985b6ec6cc25ab5aaa5e8f03dcfa696324b93c6605e2b1db25acca6b20849b",
+ "models": {
+  "trellis": "microsoft/TRELLIS.2-4B@af44b45f2e35a493886929c6d786e563ec68364d",
+  "ss_decoder": "microsoft/TRELLIS-image-large@25e0d31ffbebe4b5a97464dd851910efc3002d96",
+  "dinov3": "facebook/dinov3-vitl16-pretrain-lvd1689m@ea8dc2863c51be0a264bab82070e3e8836b02d51",
+  "rembg": "ZhengPeng7/BiRefNet@e2bf8e4460fc8fa32bba5ea4d94b3233d367b0e4"
+ },
+ "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+ "settings": {
+  "pipeline_type": "1024_cascade",
+  "simplify": 16777216,
+  "decimation_target": 200000,
+  "texture_size": 2048,
+  "remesh": true,
+  "remesh_band": 1,
+  "remesh_project": 0
+ },
+ "generated_utc": "2026-10-04T13:20:37Z",
+ "status": "ok",
+ "code": null,
+ "error": null,
+ "glb": "model_1.glb",
+ "glb_sha256": "8060783a6dfaa28cb9abb46b636b848972a1b7d43023298e6968cbef8ffca954",
+ "glb_bytes": 14671584,
+ "face_count": 198770,
+ "glb_info": {
+  "images": 2,
+  "textures": 2,
+  "materials": 1,
+  "meshes": 1,
+  "primitives": 1,
+  "textured": true,
+  "vertex_colours": false,
+  "extensions_used": [],
+  "extensions_required": []
+ },
+ "seconds": 50.69,
+ "backend": {
+  "seconds_generate": 33.38,
+  "seconds_export": 16.98,
+  "raw_faces": 13444246,
+  "pipeline_type": "1024_cascade",
+  "peak_vram_gib": 26.04,
+  "resident": true
+ },
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "cuda": "12.8",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+  "attn_backend": "flash_attn",
+  "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+  "resident": true
+ }
+}

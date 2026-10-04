@@ -1,0 +1,24 @@
+{
+ "key": "136887371336dd7a9c6f39c5c715760eb9ee8b67239ad11d5357735e93c2417f",
+ "pair": "bed_single__japandi",
+ "type": "bed_single",
+ "family": "japandi",
+ "index": 1,
+ "prompt": "a single japandi style single bed with a headboard, a mattress and plain bedding, light ash wood, black accents, natural linen and paper textures, low profile, calm minimal forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 396005333,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "e01b93015a0168f930b1b9bce8167ba784dee5e1f9f7bbc6df929b6868a32324",
+ "seconds": 4.05,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:40:58Z"
+}

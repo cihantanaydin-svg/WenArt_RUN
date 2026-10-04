@@ -1,0 +1,24 @@
+{
+ "key": "5a82a5a20af3ed408ef7a1a151880ec4592b19f94bd590a6bff085226f7bd61b",
+ "pair": "stove__classic",
+ "type": "stove",
+ "family": "classic",
+ "index": 3,
+ "prompt": "a single classic style freestanding cooker with an oven and a four-burner hob, white porcelain, polished brass or chrome fittings, moulded classic details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 481183811,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "ea4d763661445d9e7244d9f9fcf5acac014c1d56a8d05cb270fc0e571317e0ee",
+ "seconds": 4.04,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:46:52Z"
+}

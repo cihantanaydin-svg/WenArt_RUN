@@ -1,0 +1,24 @@
+{
+ "key": "710a8653916c172ad4e824d6b8080edceac866e4a6b35bf37618c23fcfd8b681",
+ "pair": "sink_kitchen__mediterranean",
+ "type": "sink_kitchen",
+ "family": "mediterranean",
+ "index": 2,
+ "prompt": "a single mediterranean style kitchen sink base cabinet with a worktop and an inset sink, white glazed ceramic, warm terracotta and sand accents, aged brass fittings, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1896651023,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "cb0b3ccb43d53140005dfc7511ac81295037685fd7edae5a660ab471785d705c",
+ "seconds": 4.08,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:43:47Z"
+}

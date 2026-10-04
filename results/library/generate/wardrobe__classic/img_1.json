@@ -1,0 +1,24 @@
+{
+ "key": "a19e3719b5127505ad983c85387ec8b716423ae6def6aecd0df20e3ba9e484ad",
+ "pair": "wardrobe__classic",
+ "type": "wardrobe",
+ "family": "classic",
+ "index": 1,
+ "prompt": "a single classic style tall two-door wardrobe, carved dark walnut wood, tufted cream upholstery, turned legs, polished brass details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1841525799,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "6efb1ce942512656933e3aacdf3944f009dce59522c72b7d204e0e26c0b5ce7c",
+ "seconds": 4.14,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:41:06Z"
+}

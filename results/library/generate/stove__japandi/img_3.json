@@ -1,0 +1,24 @@
+{
+ "key": "e9e1b134808f22d1fdf8f41c7ebd873e1d4548d3bfedcd8e8865f2de5620eeaf",
+ "pair": "stove__japandi",
+ "type": "stove",
+ "family": "japandi",
+ "index": 3,
+ "prompt": "a single japandi style freestanding cooker with an oven and a four-burner hob, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 704492064,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "c6a5d1006ff6c6dd9d7cafd0c27e717a14ddb9c8c48b6743a8ed548eca9062f4",
+ "seconds": 4.06,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:46:24Z"
+}

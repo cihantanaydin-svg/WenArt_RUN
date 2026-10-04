@@ -1,0 +1,24 @@
+{
+ "key": "31e94153a230b7ceb346059088c51e6e9cb9d81d8781e4a00903d4e5ef5f3e73",
+ "pair": "washing_machine__modern_minimal",
+ "type": "washing_machine",
+ "family": "modern minimal",
+ "index": 3,
+ "prompt": "a single modern minimal style front-loading washing machine, matte white surfaces, flush handleless fronts, thin black fittings, crisp rectangular forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1075311353,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "e039e35c8c0b6e99cef25b720d47a2a51883ff89bd5caf2415b37344cac4fc72",
+ "seconds": 4.08,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:42:12Z"
+}

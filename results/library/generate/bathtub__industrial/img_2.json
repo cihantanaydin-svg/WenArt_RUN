@@ -1,0 +1,24 @@
+{
+ "key": "7852f217e0317b4f28caf9643a2e366ac355f2f73e28b192f4da1ab2bf904abc",
+ "pair": "bathtub__industrial",
+ "type": "bathtub",
+ "family": "industrial",
+ "index": 2,
+ "prompt": "a single industrial style freestanding bathtub, black steel and brushed stainless steel, concrete grey surfaces, exposed black fittings, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1463189532,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "b434f8c75f63b91597244ae825e024fb7e1a6a9c834bbc16f41289c797308309",
+ "seconds": 3.99,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:43:45Z"
+}

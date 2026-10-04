@@ -1,0 +1,24 @@
+{
+ "key": "37c0735512e09eb47143a01a6959754aa0fb44354b752cc646c42fa37c60f7b0",
+ "pair": "potted_plant__mediterranean",
+ "type": "potted_plant",
+ "family": "mediterranean",
+ "index": 2,
+ "prompt": "a single mediterranean style large indoor plant in a floor pot, whitewashed wood, terracotta and sand tones, woven rattan, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 2096952531,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "0edf591fe4fea21db8d4d9f9c21b0324388d5972e7f42e8c259b0acac90ec8d9",
+ "seconds": 4.15,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:44:22Z"
+}

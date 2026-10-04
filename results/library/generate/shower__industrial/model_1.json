@@ -1,0 +1,63 @@
+{
+ "key": "5d9fe8c7e36fa0a7387b418216da9e6be4a14c820e8405fe37282c1a36c141a1",
+ "pair": "shower__industrial",
+ "type": "shower",
+ "family": "industrial",
+ "index": 1,
+ "seed": 404427700,
+ "prompt": "a single industrial style square glass shower enclosure with a shower tray, black steel and brushed stainless steel, concrete grey surfaces, exposed black fittings, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "image_sha256": "54fd017be728b3c36d1f9a66091b09a6e0c51904dfd99f28205c8636249c1b32",
+ "models": {
+  "trellis": "microsoft/TRELLIS.2-4B@af44b45f2e35a493886929c6d786e563ec68364d",
+  "ss_decoder": "microsoft/TRELLIS-image-large@25e0d31ffbebe4b5a97464dd851910efc3002d96",
+  "dinov3": "facebook/dinov3-vitl16-pretrain-lvd1689m@ea8dc2863c51be0a264bab82070e3e8836b02d51",
+  "rembg": "ZhengPeng7/BiRefNet@e2bf8e4460fc8fa32bba5ea4d94b3233d367b0e4"
+ },
+ "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+ "settings": {
+  "pipeline_type": "1024_cascade",
+  "simplify": 16777216,
+  "decimation_target": 200000,
+  "texture_size": 2048,
+  "remesh": true,
+  "remesh_band": 1,
+  "remesh_project": 0
+ },
+ "generated_utc": "2026-10-04T13:02:19Z",
+ "status": "ok",
+ "code": null,
+ "error": null,
+ "glb": "model_1.glb",
+ "glb_sha256": "d2ef1a9fd1a3e396ede04f596b34437c0042545922447641d59bd710ec2527ce",
+ "glb_bytes": 16212300,
+ "face_count": 197938,
+ "glb_info": {
+  "images": 2,
+  "textures": 2,
+  "materials": 1,
+  "meshes": 1,
+  "primitives": 1,
+  "textured": true,
+  "vertex_colours": false,
+  "extensions_used": [],
+  "extensions_required": []
+ },
+ "seconds": 36.69,
+ "backend": {
+  "seconds_generate": 17.61,
+  "seconds_export": 18.78,
+  "raw_faces": 10572056,
+  "pipeline_type": "1024_cascade",
+  "peak_vram_gib": 23.53,
+  "resident": true
+ },
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "cuda": "12.8",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+  "attn_backend": "flash_attn",
+  "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+  "resident": true
+ }
+}

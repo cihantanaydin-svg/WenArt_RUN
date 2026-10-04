@@ -1,0 +1,24 @@
+{
+ "key": "65f4ed69778e1b847c6f6bef5b6903239c9ed608ccad13a39d5b10ddedb58e45",
+ "pair": "bowl__minimal",
+ "type": "bowl",
+ "family": "minimal",
+ "index": 1,
+ "prompt": "a single minimal style shallow decorative bowl for a coffee table, plain matte ceramic in white, beige and grey, simple geometric forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1585871517,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "3038835f120dfe76abe541ad4337cfd7af28a4033b1edaa9ad568dae7d32a50b",
+ "seconds": 4.15,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:40:11Z"
+}

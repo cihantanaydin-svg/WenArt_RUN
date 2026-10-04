@@ -1,0 +1,24 @@
+{
+ "key": "76a7602519b6b032c374cd64a3dd93b26fd93c68a42ed595765661bd098720e8",
+ "pair": "shower__modern",
+ "type": "shower",
+ "family": "modern",
+ "index": 3,
+ "prompt": "a single modern style square glass shower enclosure with a shower tray, glossy white ceramic, stainless steel and chrome fittings, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 736058235,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "d62392ac9fba939fca1ec0fdcb05a55c1ca4a8827d7333663e021c9cc6f3c9de",
+ "seconds": 4.12,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:42:29Z"
+}

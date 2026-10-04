@@ -1,0 +1,24 @@
+{
+ "key": "4df607da7081090b73fa1e203799c5452bf80516000f3146e31004bc972ccf6e",
+ "pair": "stove__scandinavian",
+ "type": "stove",
+ "family": "scandinavian",
+ "index": 2,
+ "prompt": "a single scandinavian style freestanding cooker with an oven and a four-burner hob, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1349026082,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "d44d9fecff643db9c58e5c465bff21d2b8087a3e81c44f5a73a0621c6b37928f",
+ "seconds": 4.01,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:42:52Z"
+}

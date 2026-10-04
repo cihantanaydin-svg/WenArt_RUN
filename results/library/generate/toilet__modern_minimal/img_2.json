@@ -1,0 +1,24 @@
+{
+ "key": "e29bfe5f743a0f70119622101135cde41a11444db3ee67424032eca14df67d1d",
+ "pair": "toilet__modern_minimal",
+ "type": "toilet",
+ "family": "modern minimal",
+ "index": 2,
+ "prompt": "a single modern minimal style floor-standing toilet with a cistern, matte white surfaces, flush handleless fronts, thin black fittings, crisp rectangular forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 169936424,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "0cc001a5ce54e5bdb59859a1a156615754dcfcdd348cd423db886934e21e9b2f",
+ "seconds": 4.09,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:45:31Z"
+}

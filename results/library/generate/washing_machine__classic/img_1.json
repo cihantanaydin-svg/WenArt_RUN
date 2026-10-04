@@ -1,0 +1,24 @@
+{
+ "key": "9d0300fea2a4055e7e2a9f550544a54064a8389a0d8c925e8c1d169dbfe30749",
+ "pair": "washing_machine__classic",
+ "type": "washing_machine",
+ "family": "classic",
+ "index": 1,
+ "prompt": "a single classic style front-loading washing machine, white porcelain, polished brass or chrome fittings, moulded classic details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 35850005,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "a9e606d26a8591c231541badc79bf66b9b09d563757a80f3d96de1d103f2b5e1",
+ "seconds": 4.04,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:40:53Z"
+}

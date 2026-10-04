@@ -1,0 +1,24 @@
+{
+ "key": "9d1baaa90c6078f82825033cc8b38096d5e62c19cf88dfd795b74d44c98e1575",
+ "pair": "plant_small__classic",
+ "type": "plant_small",
+ "family": "classic",
+ "index": 3,
+ "prompt": "a single classic style small indoor plant in a pot for a table or a shelf, white porcelain with gold rims, polished brass, moulded classic details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 182776457,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "719ffbcddbdaffecb73635ad88145c725e317a170c1d9e854647171afff1009c",
+ "seconds": 4.02,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:47:09Z"
+}

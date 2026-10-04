@@ -14,7 +14,7 @@ Objaverse: [allenai/objaverse](https://huggingface.co/datasets/allenai/objaverse
 |---|---|---|---|---|---|---|---|
 | abo | survey_abo.json | 828 | 828 | 508 | 508 | 345 | 345 |
 | objaverse | survey.json | 396 | 396 | 316 | 316 | 77 | 77 |
-| generated | survey_generated.json | 50 | 50 | 47 | 47 | 35 | 35 |
+| generated | survey_generated.json | 176 | 176 | 172 | 172 | 130 | 130 |
 
 ## Steps
 
@@ -24,13 +24,13 @@ Objaverse: [allenai/objaverse](https://huggingface.co/datasets/allenai/objaverse
 | Objaverse: licence CC0 or CC BY 4.0 (metadata) | 1370 |
 | Objaverse: other licences (taken, flagged) | 128 |
 | Objaverse: past the metadata prefilter (credit, faces, size) | 984 |
-| Candidates of every source (downloaded; textured or vertex-coloured) | 1274 |
-| Rendered (thumbnails) | 1274 |
-| Ready for judging (unit and type resolved) | 871 |
-| of which normalised by type (model units unknown) | 228 |
-| Judged by both models | 871 |
-| Accepted | 457 |
-| In catalog_library.json | 457 |
+| Candidates of every source (downloaded; textured or vertex-coloured) | 1400 |
+| Rendered (thumbnails) | 1400 |
+| Ready for judging (unit and type resolved) | 996 |
+| of which normalised by type (model units unknown) | 323 |
+| Judged by both models | 996 |
+| Accepted | 552 |
+| In catalog_library.json | 552 |
 
 ## Per type (Objaverse bed candidates are split into bed_single / bed_double after the unit guess)
 
@@ -39,14 +39,16 @@ Objaverse: [allenai/objaverse](https://huggingface.co/datasets/allenai/objaverse
 | armchair | abo | – | 40 | 24 | 14 | 14 |
 | armchair | objaverse | 97 | 24 | 21 | 6 | 6 |
 | bathtub | objaverse | 30 | 26 | 17 | 1 | 1 |
-| bathtub | generated | – | 8 | 6 | 5 | 5 |
+| bathtub | generated | – | 18 | 16 | 12 | 12 |
 | bed_double | abo | – | 40 | 24 | 18 | 18 |
 | bed_double | objaverse | – | 0 | 11 | 2 | 2 |
 | bed_double|bed_single | objaverse | 53 | 22 | 0 | 0 | 0 |
 | bed_single | abo | – | 12 | 12 | 7 | 7 |
 | bed_single | objaverse | – | 0 | 11 | 2 | 2 |
+| bed_single | generated | – | 10 | 10 | 10 | 10 |
 | bookshelf | abo | – | 40 | 24 | 13 | 13 |
 | bookshelf | objaverse | 103 | 24 | 20 | 7 | 7 |
+| bowl | generated | – | 10 | 10 | 9 | 9 |
 | chair | abo | – | 40 | 24 | 13 | 13 |
 | chair | objaverse | 453 | 24 | 21 | 7 | 7 |
 | cushion | abo | – | 40 | 24 | 20 | 20 |
@@ -57,35 +59,38 @@ Objaverse: [allenai/objaverse](https://huggingface.co/datasets/allenai/objaverse
 | floor_lamp | objaverse | 79 | 21 | 15 | 6 | 6 |
 | floor_lamp | generated | – | 2 | 2 | 2 | 2 |
 | fridge | objaverse | 55 | 33 | 24 | 5 | 5 |
-| fridge | generated | – | 4 | 4 | 3 | 3 |
+| fridge | generated | – | 14 | 14 | 8 | 8 |
 | mirror | abo | – | 40 | 24 | 17 | 17 |
 | nightstand | abo | – | 40 | 24 | 18 | 18 |
 | plant | abo | – | 40 | 24 | 0 | 0 |
+| plant_small | generated | – | 10 | 10 | 10 | 10 |
 | potted_plant | objaverse | 81 | 24 | 23 | 6 | 6 |
-| potted_plant | generated | – | 4 | 4 | 4 | 4 |
+| potted_plant | generated | – | 14 | 14 | 12 | 12 |
 | rug | abo | – | 40 | 24 | 20 | 20 |
-| shower | generated | – | 8 | 8 | 2 | 2 |
+| shower | generated | – | 18 | 18 | 6 | 6 |
 | side_table | abo | – | 40 | 24 | 20 | 20 |
-| sink_kitchen | generated | – | 8 | 7 | 6 | 6 |
+| sink_kitchen | generated | – | 18 | 17 | 11 | 11 |
 | sofa | abo | – | 40 | 24 | 17 | 17 |
 | sofa | objaverse | 81 | 24 | 18 | 1 | 1 |
 | sofa | generated | – | 2 | 2 | 2 | 2 |
 | stove | objaverse | 35 | 29 | 20 | 3 | 3 |
+| stove | generated | – | 10 | 9 | 8 | 8 |
 | table_coffee | abo | – | 40 | 24 | 15 | 15 |
 | table_coffee | objaverse | 51 | 18 | 16 | 5 | 5 |
 | table_dining | abo | – | 40 | 24 | 18 | 18 |
 | table_dining | objaverse | 70 | 16 | 10 | 2 | 2 |
 | table_lamp | abo | – | 40 | 24 | 20 | 20 |
 | toilet | objaverse | 111 | 40 | 24 | 8 | 8 |
-| toilet | generated | – | 4 | 4 | 1 | 1 |
+| toilet | generated | – | 14 | 14 | 7 | 7 |
 | tv_unit | abo | – | 40 | 24 | 20 | 20 |
 | vase | abo | – | 40 | 24 | 20 | 20 |
 | wall_art | abo | – | 40 | 24 | 17 | 17 |
 | wardrobe | abo | – | 16 | 16 | 10 | 10 |
 | wardrobe | objaverse | 97 | 24 | 23 | 6 | 6 |
+| wardrobe | generated | – | 6 | 6 | 4 | 4 |
 | washbasin | objaverse | 26 | 23 | 22 | 8 | 8 |
-| washbasin | generated | – | 2 | 2 | 2 | 2 |
-| washing_machine | generated | – | 8 | 8 | 8 | 8 |
+| washbasin | generated | – | 12 | 12 | 11 | 11 |
+| washing_machine | generated | – | 18 | 18 | 18 | 18 |
 
 ## Refusals by reason (first failed rule per object)
 
@@ -93,17 +98,18 @@ Objaverse: [allenai/objaverse](https://huggingface.co/datasets/allenai/objaverse
 |---|---|---|---|---|
 | survey | face_count | face count outside 2k-150k (fixture categories: 800-400k, docs/milestone9.md §2.2) | 483 | objaverse 483 |
 | survey | glb_size | GLB larger than the source's limit (Objaverse 40 MB, ABO 60 MB) | 73 | abo 42, objaverse 31 |
+| survey | not_generated | not_generated | 125 | generated 125 |
 | survey | size_range | box outside the resolved type's size range (units known: never normalised) | 528 | abo 528 |
 | survey | untextured | no image texture and no vertex colours | 61 | objaverse 61 |
 | survey | not_selected | below the candidates per type (rank, or the pick order) | 4463 |  |
 | thumbnails | over_candidate_limit | over the candidates of its source and type after the bed split | 342 | abo 320, objaverse 22 |
-| thumbnails | unit_none | no unit factor fits and the box proportions (footprint, height / width) are outside the type's ranges | 61 | objaverse 58, generated 3 |
-| accept | front_not_agreed | front not agreed (judges and geometry or the documented front) | 81 | abo 4, objaverse 73, generated 4 |
-| accept | no_common_style | no style both judges name | 24 | abo 19, objaverse 5 |
+| thumbnails | unit_none | no unit factor fits and the box proportions (footprint, height / width) are outside the type's ranges | 62 | objaverse 58, generated 4 |
+| accept | front_not_agreed | front not agreed (judges and geometry or the documented front) | 89 | abo 4, objaverse 73, generated 12 |
+| accept | no_common_style | no style both judges name | 30 | abo 19, objaverse 5, generated 6 |
 | accept | not_decor_type | not the decor type (a judge; a planter must hold a plant) | 26 | abo 26 |
 | accept | not_single | not a single object (a judge) | 5 | objaverse 5 |
-| accept | over_type_limit | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1) | 111 | abo 56, objaverse 55 |
-| accept | quality | photoreal quality below 4 (a judge) | 154 | abo 54, objaverse 92, generated 8 |
+| accept | over_type_limit | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1) | 113 | abo 56, objaverse 55, generated 2 |
+| accept | quality | photoreal quality below 4 (a judge) | 168 | abo 54, objaverse 92, generated 22 |
 | accept | type_mismatch | not the furniture type (a judge) | 13 | abo 4, objaverse 9 |
 
 ## Licence values seen (Objaverse metadata field `license`)
@@ -161,7 +167,7 @@ Product types with a 3D model left unmapped: HOME_FURNITURE_AND_DECOR 387, STOOL
 | CC-BY-4.0 | – | 415 |
 | CC-BY-NC-4.0 | non_commercial | 4 |
 | CC-BY-SA-4.0 | share_alike | 3 |
-| generated (TRELLIS.2-4B, MIT) | – | 35 |
+| generated (TRELLIS.2-4B, MIT) | – | 130 |
 
 ## Style coverage
 
@@ -169,7 +175,7 @@ Models per type and style family: library + Poly Haven (`neutral` counts for eve
 
 | Type | scandinavian | japandi | modern minimal | minimal | modern | industrial | mediterranean | classic | rustic |
 |---|---|---|---|---|---|---|---|---|---|
-| bed_single | 5+0 | 4+0 | 9+0 | 7+0 | 6+0 | 1+0 | – | – | – |
+| bed_single | 11+0 | 10+0 | 18+0 | 14+0 | 13+0 | 2+0 | – | 1+0 | – |
 | bed_double | 6+0 | 4+0 | 16+0 | 11+0 | 12+0 | 2+0 | – | 0+1 | 1+0 |
 | sofa | 5+0 | 2+0 | 11+0 | 8+0 | 15+0 | – | – | 5+3 | – |
 | armchair | 5+0 | 2+0 | 9+1 | 7+1 | 12+2 | 2+0 | 2+0 | 10+1 | 2+0 |
@@ -177,21 +183,21 @@ Models per type and style family: library + Poly Haven (`neutral` counts for eve
 | table_coffee | 8+0 | 13+0 | 18+0 | 15+0 | 16+2 | 5+0 | 1+0 | 2+1 | 3+1 |
 | desk | 11+0 | 6+0 | 18+0 | 8+0 | 13+0 | 8+2 | – | – | 1+1 |
 | chair | 6+0 | 5+0 | 8+0 | 7+0 | 10+1 | 3+0 | 1+0 | 6+1 | 3+2 |
-| wardrobe | 10+0 | 1+0 | 13+0 | 13+0 | 11+0 | 1+0 | 1+0 | 4+0 | 2+0 |
-| fridge | – | – | 8+0 | 5+0 | 8+0 | – | – | – | – |
-| stove | 0+1 | 0+1 | 1+1 | 0+1 | 2+1 | 1+1 | 0+1 | 0+1 | 0+1 |
-| washbasin | 2+0 | – | 10+0 | 10+0 | 9+0 | – | – | – | – |
-| toilet | – | – | 9+0 | 9+0 | 9+0 | – | – | – | – |
-| bathtub | – | – | 6+0 | 6+0 | 6+0 | – | – | – | – |
+| wardrobe | 12+0 | 2+0 | 15+0 | 15+0 | 13+0 | 3+0 | 2+0 | 6+0 | 3+0 |
+| fridge | – | – | 12+0 | 8+0 | 11+0 | 1+0 | – | 1+0 | – |
+| stove | 1+1 | 0+1 | 5+1 | 4+1 | 8+1 | 2+1 | 0+1 | 2+1 | 0+1 |
+| washbasin | 3+0 | 1+0 | 19+0 | 19+0 | 18+0 | – | – | – | – |
+| toilet | – | – | 15+0 | 15+0 | 15+0 | – | – | – | – |
+| bathtub | – | – | 13+0 | 13+0 | 13+0 | – | – | – | – |
 | tv_unit | 5+0 | 14+0 | 12+1 | 10+1 | 10+1 | 1+1 | – | 1+0 | 3+1 |
 | bookshelf | 7+1 | 3+1 | 16+1 | 13+1 | 12+1 | 5+0 | 1+0 | 3+0 | 1+2 |
 | nightstand | 7+1 | 5+1 | 17+1 | 15+1 | 10+1 | – | – | 0+1 | 2+1 |
 | dresser | 7+0 | 5+0 | 14+0 | 11+0 | 13+0 | 3+0 | 2+0 | 3+2 | 4+0 |
 | side_table | 7+0 | 7+0 | 12+0 | 12+0 | 11+0 | 7+0 | 2+0 | 3+0 | 5+0 |
 | floor_lamp | 5+0 | – | 9+0 | 9+0 | 12+0 | 5+0 | – | 5+0 | – |
-| potted_plant | 4+0 | 2+0 | 6+0 | 7+0 | 5+0 | 1+0 | 3+0 | 1+0 | 3+0 |
+| potted_plant | 12+0 | 9+0 | 14+0 | 15+0 | 13+0 | 6+0 | 8+0 | 6+0 | 8+0 |
 
-Parametric: 38 of 189 type/family pairs (bed_single/mediterranean, bed_single/classic, bed_single/rustic, bed_double/mediterranean, sofa/industrial, sofa/mediterranean, sofa/rustic, desk/mediterranean, desk/classic, fridge/scandinavian, fridge/japandi, fridge/industrial, fridge/mediterranean, fridge/classic, fridge/rustic, washbasin/japandi, washbasin/industrial, washbasin/mediterranean, washbasin/classic, washbasin/rustic, toilet/scandinavian, toilet/japandi, toilet/industrial, toilet/mediterranean, toilet/classic, toilet/rustic, bathtub/scandinavian, bathtub/japandi, bathtub/industrial, bathtub/mediterranean, bathtub/classic, bathtub/rustic, tv_unit/mediterranean, nightstand/industrial, nightstand/mediterranean, floor_lamp/japandi, floor_lamp/mediterranean, floor_lamp/rustic).
+Parametric: 34 of 189 type/family pairs (bed_single/mediterranean, bed_single/rustic, bed_double/mediterranean, sofa/industrial, sofa/mediterranean, sofa/rustic, desk/mediterranean, desk/classic, fridge/scandinavian, fridge/japandi, fridge/mediterranean, fridge/rustic, washbasin/industrial, washbasin/mediterranean, washbasin/classic, washbasin/rustic, toilet/scandinavian, toilet/japandi, toilet/industrial, toilet/mediterranean, toilet/classic, toilet/rustic, bathtub/scandinavian, bathtub/japandi, bathtub/industrial, bathtub/mediterranean, bathtub/classic, bathtub/rustic, tv_unit/mediterranean, nightstand/industrial, nightstand/mediterranean, floor_lamp/japandi, floor_lamp/mediterranean, floor_lamp/rustic).
 
 ## Beds
 
@@ -204,6 +210,16 @@ Parametric: 38 of 189 type/family pairs (bed_single/mediterranean, bed_single/cl
 | `abo_B07H8V7MQS` | bed_single | abo | True | False | – |
 | `abo_B0856FL9HR` | bed_single | abo | True | False | – |
 | `abo_B086TFXK75` | bed_single | abo | True | False | – |
+| `gen_bed_single_classic_1_dbac0f10` | bed_single | generated | True | False | – |
+| `gen_bed_single_industrial_1_9f087076` | bed_single | generated | True | False | – |
+| `gen_bed_single_japandi_1_35dff430` | bed_single | generated | True | False | – |
+| `gen_bed_single_mediterranean_1_c9d313b4` | bed_single | generated | True | False | – |
+| `gen_bed_single_mediterranean_2_8f745c9f` | bed_single | generated | True | False | – |
+| `gen_bed_single_minimal_1_738c07ed` | bed_single | generated | True | False | – |
+| `gen_bed_single_modern_1_cb4f07bd` | bed_single | generated | True | False | – |
+| `gen_bed_single_modern_minimal_1_5c05505b` | bed_single | generated | True | False | – |
+| `gen_bed_single_rustic_1_db9b30c6` | bed_single | generated | True | False | – |
+| `gen_bed_single_scandinavian_1_8060783a` | bed_single | generated | True | False | – |
 | `objaverse_6eb4212e70b941a3bd2db196a47828b9` | bed_single | objaverse | True | False | – |
 | `objaverse_b547d81073b64d3e97200fd3ae9a74af` | bed_single | objaverse | True | False | – |
 | `abo_B0154VUESC` | bed_double | abo | True | False | – |
@@ -238,6 +254,16 @@ Parametric: 38 of 189 type/family pairs (bed_single/mediterranean, bed_single/cl
 | bed_single | abo | `abo_B07H8V7MQS` | Movian Moselle. | Amazon.com | CC-BY-4.0 | – | scandinavian, modern minimal, minimal, modern | -Y (high) | 4/4 | 0.99 x 2.14 x 0.92 | x1 |
 | bed_single | abo | `abo_B0856FL9HR` | Amazon Brand – Rivet Modern Solid Pine Wood Platform Bed, Twin, 38.39"W, Antique Espresso | Amazon.com | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (high) | 4/4 | 0.961 x 1.9 x 0.616 | x1 |
 | bed_single | abo | `abo_B086TFXK75` | AmazonBasics Metal Bed with Modern Industrial Design Headboard - 14 Inch Height for Under-Bed Storage - Wood Slats - Easy Assemble, Twin | Amazon.com | CC-BY-4.0 | – | modern minimal, industrial | -Y (high) | 4/4 | 0.991 x 1.93 x 0.967 | x1 |
+| bed_single | generated | `gen_bed_single_classic_1_dbac0f10` | Generated classic bed single (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | classic | -Y (high) | 5/5 | 1.19 x 1.68 x 1.08 | x1.67513 |
+| bed_single | generated | `gen_bed_single_industrial_1_9f087076` | Generated industrial bed single (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, industrial | -Y (high) | 4/4 | 1.1 x 1.82 x 0.984 | x1.81967 |
+| bed_single | generated | `gen_bed_single_japandi_1_35dff430` | Generated japandi bed single (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (high) | 5/4 | 1.26 x 1.59 x 0.671 | x1.58327 |
+| bed_single | generated | `gen_bed_single_mediterranean_1_c9d313b4` | Generated mediterranean bed single (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (high) | 4/4 | 1.21 x 1.65 x 0.857 | x1.64619 |
+| bed_single | generated | `gen_bed_single_mediterranean_2_8f745c9f` | Generated mediterranean bed single (2) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (high) | 4/4 | 1.08 x 1.85 x 0.953 | x1.84679 |
+| bed_single | generated | `gen_bed_single_minimal_1_738c07ed` | Generated minimal bed single (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, modern minimal, minimal, modern | -Y (high) | 4/4 | 1.05 x 1.9 x 0.876 | x1.8999 |
+| bed_single | generated | `gen_bed_single_modern_1_cb4f07bd` | Generated modern bed single (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | japandi, modern minimal, modern | -Y (high) | 4/4 | 1.17 x 1.71 x 0.81 | x1.70748 |
+| bed_single | generated | `gen_bed_single_modern_minimal_1_5c05505b` | Generated modern minimal bed single (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal | -Y (high) | 4/4 | 1.29 x 1.57 x 0.751 | x1.56216 |
+| bed_single | generated | `gen_bed_single_rustic_1_db9b30c6` | Generated rustic bed single (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, japandi, modern minimal, minimal, modern | -X (high) | 5/4 | 1.17 x 1.71 x 0.876 | x1.70677 |
+| bed_single | generated | `gen_bed_single_scandinavian_1_8060783a` | Generated scandinavian bed single (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (high) | 5/4 | 1.24 x 1.62 x 0.715 | x1.61485 |
 | bed_single | objaverse | `objaverse_6eb4212e70b941a3bd2db196a47828b9` | Lowpoly Bed | Mohamed199 | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern | -X (high) | 4/4 | 1.11 x 1.8 x 0.691 | x0.00535266 |
 | bed_single | objaverse | `objaverse_b547d81073b64d3e97200fd3ae9a74af` | Bed - Sample | Mifu Saja | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (high) | 4/4 | 1 x 2.11 x 0.918 | x0.01 |
 | bed_double | abo | `abo_B0154VUESC` | Amazon Brand - Movian Loue Bed Frame with Headboard, 160 x 200cm, White/Light Brown Oak-Effect | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 1.72 x 2.06 x 0.8 | x1 |
@@ -390,31 +416,62 @@ Parametric: 38 of 189 type/family pairs (bed_single/mediterranean, bed_single/cl
 | wardrobe | abo | `abo_B07H8PS4FZ` | Amazon Brand - Movian Cinca 5-Door Wardrobe with Mirrors and Internal Storage Compartments, 226 x 216 x 62cm, White/Oak-Colour Accents | Amazon.com | CC-BY-4.0 | – | scandinavian, modern minimal, minimal, modern | -Y (high) | 4/4 | 2.16 x 0.59 x 2.26 | x1 |
 | wardrobe | abo | `abo_B07H8V7P3H` | Amazon Brand - Movian Moselle 2-Door Wardrobe, 100 x 60 x 196 cm, Light Brown Oak-Effect/White | Amazon.com | CC-BY-4.0 | – | scandinavian, modern minimal, minimal, modern | -Y (high) | 4/4 | 1 x 0.6 x 1.96 | x1 |
 | wardrobe | abo | `abo_B07JGPKZYT` | Amazon Brand - Movian Mira 4-Door Wardrobe with Mirrors, 181 x 207 x 58cm, Light Brown Oak-Effect | Amazon.com | CC-BY-4.0 | – | scandinavian, modern minimal, minimal, modern | -Y (high) | 5/4 | 1.81 x 0.58 x 2.07 | x1 |
+| wardrobe | generated | `gen_wardrobe_classic_1_2bc1a548` | Generated classic wardrobe (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | classic | -Y (high) | 5/4 | 1.44 x 0.79 x 2.45 | x2.4431 |
+| wardrobe | generated | `gen_wardrobe_industrial_1_79cac0b4` | Generated industrial wardrobe (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | industrial | -Y (high) | 5/4 | 1.36 x 0.798 x 2.6 | x2.5954 |
+| wardrobe | generated | `gen_wardrobe_rustic_1_97c119f6` | Generated rustic wardrobe (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, rustic, neutral | -Y (high) | 5/5 | 1.25 x 0.805 x 2.43 | x2.42303 |
+| wardrobe | generated | `gen_wardrobe_scandinavian_1_d0aa2dad` | Generated scandinavian wardrobe (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, modern minimal, minimal, modern | -Y (high) | 5/4 | 1.42 x 0.801 x 2.59 | x2.58499 |
 | wardrobe | objaverse | `objaverse_05a035c3347645b8a7ceb6d65f825ac3` | Dikkies Closet | klaxoneer | CC-BY-4.0 | – | classic | -Y (high) | 5/4 | 1.14 x 0.624 x 1.76 | x1 |
 | wardrobe | objaverse | `objaverse_08a3baeb2e0847939d53027824de5a49` | Wardrobe | Kevin98 | CC-BY-4.0 | – | scandinavian, modern minimal, minimal, modern | +X (high) | 4/4 | 1.66 x 0.688 x 2.11 | x0.20234 |
 | wardrobe | objaverse | `objaverse_094697a23146463cb5564ac8bf89e5c4` | Traditional Mennonite corner cabinet | vinigor | CC-BY-NC-4.0 | non_commercial | classic | -Y (high) | 4/4 | 1.45 x 0.786 x 2.6 | x0.000995894 |
 | wardrobe | objaverse | `objaverse_6d443f619ecd404a81769c70f447ba86` | Cabinet | trijoko.maryadi | CC-BY-4.0 | – | scandinavian, modern minimal, minimal, modern | -Y (high) | 4/4 | 1.35 x 0.731 x 2.6 | x2.22526 |
 | wardrobe | objaverse | `objaverse_b3a99e956be64ab6958f7f5e1895f031` | Warn Wardrobe | seenoise | CC-BY-4.0 | – | classic, rustic | -Y (high) | 4/4 | 1.29 x 0.564 x 2.31 | x1 |
 | wardrobe | objaverse | `objaverse_b46803ba0bc64e12b31f832fb761c4e0` | Simple Tall Shelf | Blender3D | CC-BY-4.0 | – | scandinavian, modern minimal, minimal, modern | -Y (high) | 4/4 | 1.05 x 0.563 x 2.6 | x0.118158 |
+| fridge | generated | `gen_fridge_industrial_1_03996e16` | Generated industrial fridge (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, industrial | -Y (high) | 4/4 | 0.637 x 0.795 x 1.41 | x1.40306 |
 | fridge | generated | `gen_fridge_japandi_1_4c9cd582` | Generated japandi fridge (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.749 x 0.676 x 1.68 | x1.67827 |
 | fridge | generated | `gen_fridge_japandi_2_4c7dbc82` | Generated japandi fridge (2) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, modern | -Y (high) | 4/4 | 0.682 x 0.742 x 1.51 | x1.51094 |
+| fridge | generated | `gen_fridge_japandi_3_38a9d0f8` | Generated japandi fridge (3) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.732 x 0.691 x 1.49 | x1.48328 |
+| fridge | generated | `gen_fridge_mediterranean_1_1460e264` | Generated mediterranean fridge (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.653 x 0.775 x 1.48 | x1.47878 |
+| fridge | generated | `gen_fridge_modern_minimal_1_c27ed7d7` | Generated modern minimal fridge (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.656 x 0.772 x 1.67 | x1.67019 |
+| fridge | generated | `gen_fridge_rustic_1_06be6df4` | Generated rustic fridge (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | classic | -Y (high) | 4/4 | 0.631 x 0.802 x 1.37 | x1.3639 |
 | fridge | generated | `gen_fridge_scandinavian_1_315b4d87` | Generated scandinavian fridge (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.626 x 0.809 x 1.37 | x1.36995 |
 | fridge | objaverse | `objaverse_2071bda681b642218b6829b82e4fd93b` | Refrigerator - Grey Polished Metal | Glowbox 3D | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.766 x 0.661 x 1.54 | x0.193519 |
 | fridge | objaverse | `objaverse_66878d980a364b2db1a5cc44c67bb45d` | Fridge | Yaseen Ali | CC-BY-4.0 | – | modern minimal, modern | -Y (high) | 4/4 | 0.726 x 0.499 x 1.33 | x0.0254 |
 | fridge | objaverse | `objaverse_68d69bbf7a454a09a2536ac0762532f3` | Old Fridge | golddog | CC-BY-4.0 | – | modern minimal, minimal, modern | +X (high) | 4/4 | 0.725 x 0.698 x 1.09 | x0.419674 |
 | fridge | objaverse | `objaverse_c9c4e705bf794cb88d5d8726095f4917` | Haier Refrigerator | cgwings | CC-BY-NC-4.0 | non_commercial | modern minimal, modern | +Y (high) | 4/4 | 0.833 x 0.918 x 1.8 | x1 |
 | fridge | objaverse | `objaverse_f32ec9229a8749d1b79245813fbd6c31` | Stylized Fridge | sauti | CC-BY-4.0 | – | modern minimal, minimal, modern | +X (high) | 4/4 | 0.745 x 0.679 x 1.53 | x0.347346 |
+| stove | generated | `gen_stove_classic_1_4cdc3ba9` | Generated classic stove (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | classic | -Y (high) | 5/4 | 1 x 0.629 x 0.859 | x1 |
+| stove | generated | `gen_stove_industrial_1_59fd0342` | Generated industrial stove (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern, industrial | -Y (high) | 5/4 | 1 x 0.686 x 0.879 | x1 |
+| stove | generated | `gen_stove_japandi_1_2c35be6c` | Generated japandi stove (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, modern minimal, minimal, modern | -Y (high) | 4/4 | 0.872 x 0.73 x 0.8 | x0.870564 |
+| stove | generated | `gen_stove_modern_1_d7aca74d` | Generated modern stove (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 1 x 0.643 x 0.83 | x1 |
+| stove | generated | `gen_stove_modern_minimal_1_18c4c83a` | Generated modern minimal stove (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.938 x 0.771 x 0.8 | x0.935904 |
+| stove | generated | `gen_stove_rustic_1_f05488ba` | Generated rustic stove (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | classic | -Y (high) | 5/4 | 1 x 0.679 x 0.845 | x1 |
+| stove | generated | `gen_stove_scandinavian_1_acd46212` | Generated scandinavian stove (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern | -Y (high) | 5/4 | 0.897 x 0.724 x 0.8 | x0.895985 |
+| stove | generated | `gen_stove_scandinavian_2_4aebb9bc` | Generated scandinavian stove (2) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 5/4 | 1 x 0.8 x 0.8 | x1.00038 |
 | stove | objaverse | `objaverse_68e164f1a9414c29820ac2eaf6d8ac04` | Stove from Poly by Google | IronEqual | CC-BY-4.0 | – | modern minimal, modern | -Y (high) | 4/4 | 0.67 x 0.6 x 0.819 | x0.0254 |
 | stove | objaverse | `objaverse_7c5c9dec5c2e4ff998c386410b0e3686` | Stove | Daniyal Malik | CC-BY-4.0 | – | industrial | -X (high) | 4/4 | 0.592 x 0.71 x 0.867 | x0.00228858 |
 | stove | objaverse | `objaverse_934716ccd00d4f6ba9555d1cea788488` | R RETRO FIRIN | Motto Teknoloji | CC-BY-4.0 | – | modern | -Y (high) | 4/4 | 0.51 x 0.547 x 1.2 | x0.854944 |
 | sink_kitchen | generated | `gen_sink_kitchen_japandi_1_a61d924d` | Generated japandi sink kitchen (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 5/4 | 1.06 x 0.494 x 0.8 | x1.05391 |
 | sink_kitchen | generated | `gen_sink_kitchen_japandi_2_d6ae0419` | Generated japandi sink kitchen (2) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal | -Y (high) | 4/4 | 1 x 0.56 x 0.882 | x1 |
+| sink_kitchen | generated | `gen_sink_kitchen_japandi_3_1462384d` | Generated japandi sink kitchen (3) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 1 x 0.567 x 0.895 | x1 |
+| sink_kitchen | generated | `gen_sink_kitchen_japandi_4_329115ec` | Generated japandi sink kitchen (4) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 1 x 0.565 x 0.863 | x1 |
+| sink_kitchen | generated | `gen_sink_kitchen_mediterranean_1_ae36322f` | Generated mediterranean sink kitchen (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | minimal, modern | -Y (high) | 4/4 | 0.811 x 0.675 x 1 | x1 |
 | sink_kitchen | generated | `gen_sink_kitchen_modern_1_5b97156d` | Generated modern sink kitchen (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.928 x 0.611 x 1 | x1 |
 | sink_kitchen | generated | `gen_sink_kitchen_modern_2_b348b4dc` | Generated modern sink kitchen (2) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 1 x 0.47 x 0.811 | x1 |
+| sink_kitchen | generated | `gen_sink_kitchen_rustic_1_3b005a69` | Generated rustic sink kitchen (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, modern | -Y (high) | 5/4 | 0.689 x 0.545 x 1 | x1 |
 | sink_kitchen | generated | `gen_sink_kitchen_scandinavian_1_dbad65c6` | Generated scandinavian sink kitchen (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, modern minimal, minimal, modern | -Y (high) | 5/4 | 0.598 x 0.83 x 1 | x1 |
 | sink_kitchen | generated | `gen_sink_kitchen_scandinavian_2_470fa047` | Generated scandinavian sink kitchen (2) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, modern minimal, minimal, modern | -Y (high) | 5/4 | 0.859 x 0.598 x 1 | x1 |
+| sink_kitchen | generated | `gen_sink_kitchen_scandinavian_3_3e309f4c` | Generated scandinavian sink kitchen (3) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.884 x 0.644 x 1 | x1 |
+| washbasin | generated | `gen_washbasin_classic_1_9bd9b8cd` | Generated classic washbasin (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.606 x 0.509 x 0.623 | x0.623132 |
+| washbasin | generated | `gen_washbasin_industrial_1_6794b9a5` | Generated industrial washbasin (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 5/4 | 0.847 x 0.646 x 1 | x1 |
 | washbasin | generated | `gen_washbasin_japandi_1_299a0eb2` | Generated japandi washbasin (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, modern minimal, minimal, modern | -Y (high) | 5/5 | 0.633 x 0.487 x 0.64 | x0.639279 |
 | washbasin | generated | `gen_washbasin_japandi_2_6d594c3b` | Generated japandi washbasin (2) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 5/4 | 0.607 x 0.509 x 0.373 | x0.605959 |
+| washbasin | generated | `gen_washbasin_japandi_3_fc4e0710` | Generated japandi washbasin (3) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 5/4 | 0.576 x 0.536 x 0.673 | x0.672191 |
+| washbasin | generated | `gen_washbasin_mediterranean_1_93c90025` | Generated mediterranean washbasin (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 5/4 | 0.543 x 0.569 x 0.691 | x0.689927 |
+| washbasin | generated | `gen_washbasin_minimal_1_9dc765fb` | Generated minimal washbasin (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.592 x 0.521 x 0.321 | x0.591307 |
+| washbasin | generated | `gen_washbasin_modern_1_833baa60` | Generated modern washbasin (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.616 x 0.501 x 0.652 | x0.650885 |
+| washbasin | generated | `gen_washbasin_modern_minimal_1_d5536003` | Generated modern minimal washbasin (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 5/4 | 0.64 x 0.483 x 0.636 | x0.638448 |
+| washbasin | generated | `gen_washbasin_rustic_1_2d54af97` | Generated rustic washbasin (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (high) | 5/4 | 0.611 x 0.505 x 0.723 | x0.721793 |
+| washbasin | generated | `gen_washbasin_scandinavian_1_6efd9d50` | Generated scandinavian washbasin (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 5/4 | 0.575 x 0.537 x 0.34 | x0.574398 |
 | washbasin | objaverse | `objaverse_295384601e0d4f1985a919253330d59d` | Combo CEG-50BF | Stala | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.574 x 0.538 x 0.474 | x0.312352 |
 | washbasin | objaverse | `objaverse_3eafb89804b54c8e8cbe35e4d456e0a9` | Bathroom | Thunder | CC-BY-SA-4.0 | share_alike | modern minimal, minimal, modern | +X (high) | 4/4 | 0.949 x 0.325 x 0.516 | x0.00323813 |
 | washbasin | objaverse | `objaverse_493b70a6177d4a1385b6b0ce041a93b0` | same sink but less sanitary | GroundZer0 | CC-BY-4.0 | – | modern minimal, minimal | -Y (high) | 4/4 | 0.698 x 0.443 x 0.974 | x0.486948 |
@@ -423,7 +480,13 @@ Parametric: 38 of 189 type/family pairs (bed_single/mediterranean, bed_single/cl
 | washbasin | objaverse | `objaverse_8580c4545d1649efb3503c6c2a012641` | Ingstav147 PULT ZRK V1 | KRONZI | CC-BY-4.0 | – | scandinavian, modern minimal, minimal, modern | +X (high) | 5/4 | 0.838 x 0.368 x 1.01 | x0.00698632 |
 | washbasin | objaverse | `objaverse_ce1a06f7cbe1425099a145f851fc5dee` | Sink | Shining Salt | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.649 x 0.476 x 0.55 | x0.324323 |
 | washbasin | objaverse | `objaverse_f76c502218884914a27148f656a9b656` | Bathroom1 | neutralize | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.663 x 0.501 x 0.598 | x0.0254 |
+| toilet | generated | `gen_toilet_industrial_1_3cd5bde9` | Generated industrial toilet (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 5/4 | 0.53 x 0.865 x 1 | x1 |
 | toilet | generated | `gen_toilet_japandi_1_42fdb46f` | Generated japandi toilet (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 5/5 | 0.415 x 0.692 x 0.724 | x0.722866 |
+| toilet | generated | `gen_toilet_japandi_3_4e49add0` | Generated japandi toilet (3) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 5/4 | 0.405 x 0.709 x 0.717 | x0.716107 |
+| toilet | generated | `gen_toilet_mediterranean_1_09b9f7e2` | Generated mediterranean toilet (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -X (high) | 5/4 | 0.756 x 0.38 x 0.807 | x0.805317 |
+| toilet | generated | `gen_toilet_minimal_1_3799392b` | Generated minimal toilet (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.729 x 0.393 x 0.78 | x0.778891 |
+| toilet | generated | `gen_toilet_rustic_1_c2ce66a1` | Generated rustic toilet (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 5/5 | 0.54 x 0.864 x 1 | x1 |
+| toilet | generated | `gen_toilet_scandinavian_4_06dcb780` | Generated scandinavian toilet (4) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.527 x 0.865 x 1 | x1 |
 | toilet | objaverse | `objaverse_0b3325fad3e740b1ac86173c90b56afd` | Toilettes | Lightningx | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.462 x 0.621 x 0.839 | x0.0146675 |
 | toilet | objaverse | `objaverse_1bd73c9a74d14ce29e45c277570990e6` | Zenit Close Coupled Push Button Flush Toilet | Yaiyeondurising | CC-BY-SA-4.0 | share_alike | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.425 x 0.782 x 0.983 | x1 |
 | toilet | objaverse | `objaverse_24d1b493899d407780140688abae19bc` | Toilet | Xill | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.453 x 0.633 x 0.801 | x0.744926 |
@@ -432,13 +495,24 @@ Parametric: 38 of 189 type/family pairs (bed_single/mediterranean, bed_single/cl
 | toilet | objaverse | `objaverse_5b18711616054a44b025d9272b745a6a` | Qualitas Bathrooms toilet low poly | Yaiyeondurising | CC-BY-4.0 | – | modern minimal, minimal, modern | +X (high) | 4/4 | 0.48 x 0.679 x 0.78 | x0.01 |
 | toilet | objaverse | `objaverse_bd0f8d2bfba24376bec2b827a0cbbabe` | CWLCCST1-6DT01 Ld | trendforward | CC-BY-NC-4.0 | non_commercial | modern minimal, minimal, modern | +X (high) | 4/4 | 0.417 x 0.669 x 0.793 | x0.01 |
 | toilet | objaverse | `objaverse_c901dfa120a0487a9f5c9a2d241f70ab` | Animated low poly toilet | Gamedirection | CC-BY-4.0 | – | modern minimal, minimal, modern | +X (high) | 4/4 | 0.406 x 0.706 x 0.831 | x0.00233133 |
+| shower | generated | `gen_shower_industrial_1_d2ef1a9f` | Generated industrial shower (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal | -Y (low) | 5/4 | 1.16 x 0.941 x 1.93 | x1.93001 |
 | shower | generated | `gen_shower_japandi_1_dcdcd4dc` | Generated japandi shower (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (low) | 4/4 | 1.22 x 0.898 x 2.03 | x2.02709 |
+| shower | generated | `gen_shower_mediterranean_1_4cc815f7` | Generated mediterranean shower (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (low) | 4/4 | 1.15 x 0.948 x 2.06 | x2.05331 |
+| shower | generated | `gen_shower_minimal_1_25eeb7e2` | Generated minimal shower (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (low) | 4/4 | 1.25 x 0.874 x 2.16 | x2.1596 |
+| shower | generated | `gen_shower_rustic_1_26a99f3f` | Generated rustic shower (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (low) | 4/4 | 1.12 x 0.976 x 1.94 | x1.9317 |
 | shower | generated | `gen_shower_scandinavian_1_0ae4a37a` | Generated scandinavian shower (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (low) | 4/4 | 0.984 x 1.11 x 1.94 | x1.93769 |
+| bathtub | generated | `gen_bathtub_industrial_1_46aaa4c2` | Generated industrial bathtub (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 1.47 x 0.76 x 0.8 | x1.46692 |
+| bathtub | generated | `gen_bathtub_japandi_3_83eb18c0` | Generated japandi bathtub (3) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | +Y (high) | 5/4 | 1.45 x 0.844 x 0.8 | x1.44512 |
+| bathtub | generated | `gen_bathtub_mediterranean_1_11d9dbc8` | Generated mediterranean bathtub (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/5 | 1.32 x 0.779 x 0.8 | x1.32114 |
+| bathtub | generated | `gen_bathtub_minimal_1_fe9cee36` | Generated minimal bathtub (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 5/4 | 1.5 x 0.852 x 0.56 | x1.49802 |
 | bathtub | generated | `gen_bathtub_modern_1_009871cf` | Generated modern bathtub (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 1.33 x 0.801 x 0.8 | x1.32594 |
+| bathtub | generated | `gen_bathtub_modern_3_0f116dc4` | Generated modern bathtub (3) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 5/4 | 1.48 x 0.867 x 0.794 | x1.47303 |
 | bathtub | generated | `gen_bathtub_modern_minimal_1_1a44f6ff` | Generated modern minimal bathtub (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 1.34 x 0.812 x 0.8 | x1.33302 |
 | bathtub | generated | `gen_bathtub_modern_minimal_2_927c5b3c` | Generated modern minimal bathtub (2) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 1.31 x 0.717 x 0.8 | x1.30465 |
+| bathtub | generated | `gen_bathtub_modern_minimal_3_5f405b34` | Generated modern minimal bathtub (3) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 1.35 x 0.847 x 0.8 | x1.35043 |
 | bathtub | generated | `gen_bathtub_scandinavian_1_230fe403` | Generated scandinavian bathtub (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 1.26 x 0.777 x 0.8 | x1.25936 |
 | bathtub | generated | `gen_bathtub_scandinavian_2_6fde34a5` | Generated scandinavian bathtub (2) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 1.39 x 0.802 x 0.8 | x1.39271 |
+| bathtub | generated | `gen_bathtub_scandinavian_4_a6fdd251` | Generated scandinavian bathtub (4) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 1.32 x 0.737 x 0.8 | x1.32156 |
 | bathtub | objaverse | `objaverse_84d5cdc68a674e12958f41500e988502` | CARBAWH1-6DT01 | trendforward | CC-BY-NC-4.0 | non_commercial | modern minimal, minimal, modern | +Y (high) | 5/4 | 1.24 x 1.03 x 0.459 | x2.34595 |
 | tv_unit | abo | `abo_B00OGP5S98` | Home Corona 2 unità da 1 TV a schermo Piatto, supporto/ripostigli | Amazon.com | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (high) | 5/5 | 1.2 x 0.4 x 0.51 | x1 |
 | tv_unit | abo | `abo_B01DA8QJYO` | Amazon Brand - Movian Corona TV Cabinet, Flat Screen Stand Unit, Solid Pine Wood | Amazon.com | CC-BY-4.0 | – | japandi | -Y (high) | 4/5 | 1.08 x 0.44 x 0.55 | x1 |
@@ -516,14 +590,24 @@ Parametric: 38 of 189 type/family pairs (bed_single/mediterranean, bed_single/cl
 | dresser | abo | `abo_B07HSH4WFB` | Amazon Brand – Rivet Modern Chest of Drawers with Diamond Pattern, 17.7 Inch Width, Natural | Amazon.com | CC-BY-4.0 | – | modern, industrial | -Y (high) | 5/4 | 0.923 x 0.453 x 0.801 | x1 |
 | dresser | abo | `abo_B07PVBJ7X8` | Ameriwood Home Classic 6 Drawer Dresser, Espresso | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 1.36 x 0.401 x 0.755 | x1 |
 | dresser | abo | `abo_B07PYKPBY9` | Ameriwood Home Classic 5 Drawer Dresser, Espresso | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.704 x 0.418 x 1.25 | x1 |
+| washing_machine | generated | `gen_washing_machine_classic_1_dffff7e0` | Generated classic washing machine (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.642 x 0.608 x 0.89 | x0.888386 |
+| washing_machine | generated | `gen_washing_machine_industrial_1_b7c9d275` | Generated industrial washing machine (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, modern | -Y (high) | 4/5 | 0.591 x 0.661 x 0.896 | x0.893922 |
 | washing_machine | generated | `gen_washing_machine_japandi_1_f1f4def2` | Generated japandi washing machine (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.623 x 0.627 x 0.854 | x0.852118 |
 | washing_machine | generated | `gen_washing_machine_japandi_2_d8b8ac48` | Generated japandi washing machine (2) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.635 x 0.615 x 0.88 | x0.878831 |
+| washing_machine | generated | `gen_washing_machine_japandi_3_3e2ddcc7` | Generated japandi washing machine (3) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.585 x 0.668 x 0.84 | x0.837891 |
+| washing_machine | generated | `gen_washing_machine_mediterranean_1_bffe5bde` | Generated mediterranean washing machine (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.606 x 0.645 x 0.828 | x0.833306 |
+| washing_machine | generated | `gen_washing_machine_minimal_1_9ec6e746` | Generated minimal washing machine (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.614 x 0.636 x 0.855 | x0.853547 |
 | washing_machine | generated | `gen_washing_machine_modern_1_f4bdd46e` | Generated modern washing machine (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, modern | -Y (high) | 5/4 | 0.601 x 0.65 x 0.843 | x0.84142 |
 | washing_machine | generated | `gen_washing_machine_modern_2_379d2585` | Generated modern washing machine (2) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.617 x 0.633 x 0.855 | x0.853454 |
+| washing_machine | generated | `gen_washing_machine_modern_3_50bfae6f` | Generated modern washing machine (3) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.604 x 0.646 x 0.833 | x0.831489 |
 | washing_machine | generated | `gen_washing_machine_modern_minimal_1_07b2b182` | Generated modern minimal washing machine (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.619 x 0.631 x 0.901 | x0.89986 |
 | washing_machine | generated | `gen_washing_machine_modern_minimal_2_94b29e08` | Generated modern minimal washing machine (2) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.639 x 0.611 x 0.876 | x0.873972 |
+| washing_machine | generated | `gen_washing_machine_modern_minimal_3_ff74255c` | Generated modern minimal washing machine (3) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.684 x 0.552 x 0.95 | x0.948281 |
+| washing_machine | generated | `gen_washing_machine_rustic_1_c7990bb9` | Generated rustic washing machine (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.632 x 0.618 x 0.881 | x0.878838 |
 | washing_machine | generated | `gen_washing_machine_scandinavian_1_0a5054b6` | Generated scandinavian washing machine (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.602 x 0.649 x 0.857 | x0.856454 |
 | washing_machine | generated | `gen_washing_machine_scandinavian_2_67f28c86` | Generated scandinavian washing machine (2) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.627 x 0.623 x 0.837 | x0.837225 |
+| washing_machine | generated | `gen_washing_machine_scandinavian_3_292e2d11` | Generated scandinavian washing machine (3) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.574 x 0.709 x 0.8 | x0.798718 |
+| washing_machine | generated | `gen_washing_machine_scandinavian_4_d66cae6a` | Generated scandinavian washing machine (4) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern | -Y (high) | 4/4 | 0.584 x 0.669 x 0.812 | x0.811091 |
 | side_table | abo | `abo_B01N3MBCKT` | Ameriwood Home Carver End Table, Gray/Sonoma Oak | Amazon.com | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (low) | 5/4 | 0.506 x 0.504 x 0.587 | x1 |
 | side_table | abo | `abo_B072ZKPK7J` | Amazon Brand – Rivet Mid-Century Modern Round Black Wood Nesting Side End Table, 15.7" W, Dark Oak | Amazon.com | CC-BY-4.0 | – | modern minimal | -Y (low) | 5/5 | 0.399 x 0.399 x 0.46 | x1 |
 | side_table | abo | `abo_B075Z8627Z` | Amazon Brand – Stone & Beam Larson Industrial Wood & Metal Side End Table, 27"W, Walnut | Amazon.com | CC-BY-4.0 | – | industrial, rustic | -Y (low) | 5/5 | 0.678 x 0.524 x 0.613 | x1 |
@@ -564,10 +648,18 @@ Parametric: 38 of 189 type/family pairs (bed_single/mediterranean, bed_single/cl
 | floor_lamp | objaverse | `objaverse_33eb258d9873435690254cfbb0ea46ec` | Floor Lamp | bilgehan.korkmaz | CC-BY-4.0 | – | modern | -Y (low) | 4/5 | 0.517 x 0.517 x 2 | x1 |
 | floor_lamp | objaverse | `objaverse_53409613b45b42b98b979f12ab8faa12` | low poly Lamp 3d model | mohamedvfx | CC-BY-4.0 | – | scandinavian, modern minimal, minimal, modern | -Y (low) | 4/4 | 0.518 x 0.518 x 1.2 | x0.00427403 |
 | floor_lamp | objaverse | `objaverse_71853da424aa4b208e14f6cf430339ae` | Street lights | U-like | CC-BY-4.0 | – | industrial, classic | -Y (low) | 5/4 | 0.349 x 0.349 x 2.1 | x1.74412 |
+| potted_plant | generated | `gen_potted_plant_industrial_2_eb3d21f5` | Generated industrial potted plant (2) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (low) | 4/5 | 0.489 x 0.488 x 1 | x1 |
 | potted_plant | generated | `gen_potted_plant_japandi_1_63c10a71` | Generated japandi potted plant (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (low) | 4/5 | 0.45 x 0.478 x 1 | x1 |
 | potted_plant | generated | `gen_potted_plant_japandi_2_9a3effd1` | Generated japandi potted plant (2) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, japandi, modern minimal, minimal, modern, neutral | -Y (low) | 4/5 | 0.51 x 0.436 x 0.994 | x1 |
+| potted_plant | generated | `gen_potted_plant_japandi_3_36d34f2a` | Generated japandi potted plant (3) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, japandi, modern minimal, minimal, modern, neutral | -Y (low) | 4/5 | 0.521 x 0.526 x 1 | x1 |
+| potted_plant | generated | `gen_potted_plant_mediterranean_1_38a58433` | Generated mediterranean potted plant (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, japandi, modern minimal, minimal, modern, mediterranean, neutral | -Y (low) | 4/5 | 0.497 x 0.449 x 1 | x1 |
+| potted_plant | generated | `gen_potted_plant_minimal_1_5cf2e7a2` | Generated minimal potted plant (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, modern, neutral | -Y (low) | 4/5 | 0.491 x 0.527 x 0.999 | x1 |
+| potted_plant | generated | `gen_potted_plant_modern_1_8fbfec3c` | Generated modern potted plant (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | neutral | -Y (low) | 4/5 | 0.56 x 0.524 x 1 | x1 |
+| potted_plant | generated | `gen_potted_plant_modern_minimal_1_6b4ad5f1` | Generated modern minimal potted plant (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, modern minimal, minimal, modern | -Y (low) | 4/5 | 0.509 x 0.512 x 0.995 | x1 |
+| potted_plant | generated | `gen_potted_plant_rustic_1_978e47a9` | Generated rustic potted plant (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, japandi, modern minimal, minimal, modern, neutral | -Y (low) | 4/5 | 0.531 x 0.531 x 1 | x1 |
 | potted_plant | generated | `gen_potted_plant_scandinavian_1_04f97c4b` | Generated scandinavian potted plant (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, modern minimal, minimal, modern | -Y (low) | 4/5 | 0.573 x 0.556 x 1 | x1 |
 | potted_plant | generated | `gen_potted_plant_scandinavian_2_98f7bbd2` | Generated scandinavian potted plant (2) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, modern minimal, minimal, modern | -Y (low) | 4/5 | 0.488 x 0.448 x 1 | x1 |
+| potted_plant | generated | `gen_potted_plant_scandinavian_3_ef4f2d99` | Generated scandinavian potted plant (3) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (low) | 4/5 | 0.504 x 0.557 x 1 | x1 |
 | potted_plant | objaverse | `objaverse_41e58efcf647494483f9860df99acf60` | Empty Flower Pot | dumerlot | CC-BY-4.0 | – | mediterranean, rustic | -Y (low) | 4/5 | 0.598 x 0.602 x 0.487 | x2.0673 |
 | potted_plant | objaverse | `objaverse_57972124483145b4a4bbf4fd4caca6e7` | succulent | Elif Smbl | CC-BY-4.0 | – | modern minimal, minimal | -Y (low) | 4/4 | 0.617 x 0.583 x 0.612 | x0.240114 |
 | potted_plant | objaverse | `objaverse_71b53eaee72e4a829a9256a7bcfb7dab` | Cacti pot | Spacyy | CC-BY-4.0 | – | rustic | -Y (low) | 4/4 | 0.222 x 0.234 x 0.305 | x0.0254 |
@@ -651,6 +743,25 @@ Parametric: 38 of 189 type/family pairs (bed_single/mediterranean, bed_single/cl
 | vase | abo | `abo_B07QD6ZV84` | Amazon Brand – Stone & Beam Mid-Century Rustic Vase, 8.66"H, Neutral | Amazon.com | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (low) | 5/5 | 0.172 x 0.172 x 0.27 | x1 |
 | vase | abo | `abo_B07QFB5MW6` | Amazon Brand – Stone & Beam Textured Modern Vase, 9.05"H, Gray | Amazon.com | CC-BY-4.0 | – | scandinavian, modern minimal, minimal, modern, neutral | -Y (low) | 5/5 | 0.297 x 0.297 x 0.499 | x1 |
 | vase | abo | `abo_B07QFB5MXX` | Amazon Brand – Rivet Mid-Century Metallic Stoneware Vase, 11.8"H, Gold | Amazon.com | CC-BY-4.0 | – | japandi, neutral | -Y (low) | 5/5 | 0.061 x 0.0612 x 0.143 | x1 |
+| bowl | generated | `gen_bowl_industrial_1_8fc4b9a1` | Generated industrial bowl (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal, industrial, neutral | -Y (low) | 5/5 | 0.35 x 0.35 x 0.174 | x0.348778 |
+| bowl | generated | `gen_bowl_japandi_1_6596ba4b` | Generated japandi bowl (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (low) | 5/5 | 0.35 x 0.35 x 0.107 | x0.348813 |
+| bowl | generated | `gen_bowl_mediterranean_1_80ad0595` | Generated mediterranean bowl (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, japandi, minimal, modern, neutral | -Y (low) | 5/5 | 0.35 x 0.35 x 0.111 | x0.349839 |
+| bowl | generated | `gen_bowl_minimal_1_58d9a7aa` | Generated minimal bowl (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, modern minimal, minimal, modern | -Y (low) | 5/5 | 0.35 x 0.35 x 0.125 | x0.348845 |
+| bowl | generated | `gen_bowl_modern_1_c5302d78` | Generated modern bowl (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern | -Y (low) | 5/5 | 0.351 x 0.349 x 0.127 | x0.349432 |
+| bowl | generated | `gen_bowl_modern_minimal_1_8e554715` | Generated modern minimal bowl (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | modern minimal, minimal | -Y (low) | 5/4 | 0.35 x 0.35 x 0.1 | x0.348926 |
+| bowl | generated | `gen_bowl_rustic_1_4d403b64` | Generated rustic bowl (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | industrial, rustic | -Y (low) | 4/5 | 0.35 x 0.35 x 0.0965 | x0.349347 |
+| bowl | generated | `gen_bowl_scandinavian_1_ca5c9c50` | Generated scandinavian bowl (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, modern minimal, minimal, modern | -Y (low) | 5/5 | 0.35 x 0.35 x 0.0976 | x0.348841 |
+| bowl | generated | `gen_bowl_scandinavian_2_10f5db00` | Generated scandinavian bowl (2) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, modern minimal, minimal, modern | -Y (low) | 5/5 | 0.35 x 0.35 x 0.109 | x0.348887 |
+| plant_small | generated | `gen_plant_small_classic_1_08e9f778` | Generated classic plant small (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, japandi, modern minimal, minimal, modern, neutral | -Y (low) | 5/5 | 0.297 x 0.264 x 0.365 | x0.364209 |
+| plant_small | generated | `gen_plant_small_industrial_1_94d74431` | Generated industrial plant small (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, japandi, modern minimal, minimal, modern, neutral | -Y (low) | 5/5 | 0.257 x 0.305 x 0.368 | x0.367121 |
+| plant_small | generated | `gen_plant_small_japandi_1_32d3b9fb` | Generated japandi plant small (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (low) | 5/5 | 0.285 x 0.276 x 0.356 | x0.355152 |
+| plant_small | generated | `gen_plant_small_mediterranean_1_3691e399` | Generated mediterranean plant small (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, japandi, modern minimal, minimal, modern, mediterranean, neutral | -Y (low) | 5/5 | 0.273 x 0.287 x 0.323 | x0.321704 |
+| plant_small | generated | `gen_plant_small_minimal_1_6f2e772d` | Generated minimal plant small (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, modern minimal, minimal, modern | -Y (low) | 5/5 | 0.284 x 0.276 x 0.37 | x0.368961 |
+| plant_small | generated | `gen_plant_small_modern_1_e1ff6032` | Generated modern plant small (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, japandi, modern minimal, minimal, modern, neutral | -Y (low) | 5/5 | 0.291 x 0.269 x 0.335 | x0.333959 |
+| plant_small | generated | `gen_plant_small_modern_minimal_1_7ea34d3d` | Generated modern minimal plant small (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, japandi, modern minimal, minimal, modern, neutral | -Y (low) | 5/5 | 0.273 x 0.287 x 0.33 | x0.328613 |
+| plant_small | generated | `gen_plant_small_rustic_1_5cdaa51b` | Generated rustic plant small (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, japandi, modern minimal, minimal, modern, neutral | -Y (low) | 5/5 | 0.292 x 0.268 x 0.4 | x0.399113 |
+| plant_small | generated | `gen_plant_small_scandinavian_1_0dcfdd60` | Generated scandinavian plant small (1) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, modern minimal, minimal, modern | -Y (low) | 5/5 | 0.274 x 0.286 x 0.345 | x0.343999 |
+| plant_small | generated | `gen_plant_small_scandinavian_2_20075b95` | Generated scandinavian plant small (2) | generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image | generated (TRELLIS.2-4B, MIT) | – | scandinavian, modern minimal, minimal, modern | -Y (low) | 5/5 | 0.265 x 0.295 x 0.342 | x0.341281 |
 | table_lamp | abo | `abo_B07374P6MR` | Amazon Brand – Stone & Beam Modern Bedroom Table Desk Lamp With Light Bulb - 8 x 8 x 20.5 Inches, Wood Grain | Amazon.com | CC-BY-4.0 | – | scandinavian, japandi, modern minimal, minimal, modern | -Y (low) | 5/5 | 0.244 x 0.244 x 0.536 | x1 |
 | table_lamp | abo | `abo_B07374QFJ3` | Amazon Brand – Stone & Beam Glass Column Living Room Table Desk Lamp With Light Bulb and Linen Shade, 23"H, Black | Amazon.com | CC-BY-4.0 | – | modern minimal, minimal, modern | -Y (low) | 4/4 | 0.211 x 0.211 x 0.509 | x1 |
 | table_lamp | abo | `abo_B07374VCVN` | Amazon Brand – Rivet Copper Geometric Bedside Table Desk Lamp With Light Bulb - 16.75 Inches, Copper | Amazon.com | CC-BY-4.0 | – | scandinavian, modern minimal, minimal, modern | -Y (low) | 4/4 | 0.3 x 0.3 x 0.431 | x1 |
@@ -704,6 +815,16 @@ Generated models (docs/milestone8.md §3): made by TRELLIS.2-4B (microsoft/TRELL
 - "Movian Moselle." by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Amazon Brand – Rivet Modern Solid Pine Wood Platform Bed, Twin, 38.39"W, Antique Espresso" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "AmazonBasics Metal Bed with Modern Industrial Design Headboard - 14 Inch Height for Under-Bed Storage - Wood Slats - Easy Assemble, Twin" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Generated classic bed single (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated industrial bed single (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi bed single (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated mediterranean bed single (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated mediterranean bed single (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated minimal bed single (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern bed single (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern minimal bed single (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated rustic bed single (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian bed single (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Lowpoly Bed" by Mohamed199 (https://sketchfab.com/3d-models/6eb4212e70b941a3bd2db196a47828b9), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Bed - Sample" by Mifu Saja (https://sketchfab.com/3d-models/b547d81073b64d3e97200fd3ae9a74af), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Amazon Brand - Movian Loue Bed Frame with Headboard, 160 x 200cm, White/Light Brown Oak-Effect" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
@@ -856,31 +977,62 @@ Generated models (docs/milestone8.md §3): made by TRELLIS.2-4B (microsoft/TRELL
 - "Amazon Brand - Movian Cinca 5-Door Wardrobe with Mirrors and Internal Storage Compartments, 226 x 216 x 62cm, White/Oak-Colour Accents" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Amazon Brand - Movian Moselle 2-Door Wardrobe, 100 x 60 x 196 cm, Light Brown Oak-Effect/White" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Amazon Brand - Movian Mira 4-Door Wardrobe with Mirrors, 181 x 207 x 58cm, Light Brown Oak-Effect" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Generated classic wardrobe (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated industrial wardrobe (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated rustic wardrobe (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian wardrobe (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Dikkies Closet" by klaxoneer (https://sketchfab.com/3d-models/05a035c3347645b8a7ceb6d65f825ac3), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Wardrobe" by Kevin98 (https://sketchfab.com/3d-models/08a3baeb2e0847939d53027824de5a49), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Traditional Mennonite corner cabinet" by vinigor (https://sketchfab.com/3d-models/094697a23146463cb5564ac8bf89e5c4), CC BY-NC 4.0 (https://creativecommons.org/licenses/by-nc/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched (licence flag: non_commercial)
 - "Cabinet" by trijoko.maryadi (https://sketchfab.com/3d-models/6d443f619ecd404a81769c70f447ba86), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Warn Wardrobe" by seenoise (https://sketchfab.com/3d-models/b3a99e956be64ab6958f7f5e1895f031), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Simple Tall Shelf" by Blender3D (https://sketchfab.com/3d-models/b46803ba0bc64e12b31f832fb761c4e0), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Generated industrial fridge (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi fridge (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi fridge (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi fridge (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated mediterranean fridge (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern minimal fridge (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated rustic fridge (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated scandinavian fridge (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Refrigerator - Grey Polished Metal" by Glowbox 3D (https://sketchfab.com/3d-models/2071bda681b642218b6829b82e4fd93b), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Fridge" by Yaseen Ali (https://sketchfab.com/3d-models/66878d980a364b2db1a5cc44c67bb45d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Old Fridge" by golddog (https://sketchfab.com/3d-models/68d69bbf7a454a09a2536ac0762532f3), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Haier Refrigerator" by cgwings (https://sketchfab.com/3d-models/c9c4e705bf794cb88d5d8726095f4917), CC BY-NC 4.0 (https://creativecommons.org/licenses/by-nc/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched (licence flag: non_commercial)
 - "Stylized Fridge" by sauti (https://sketchfab.com/3d-models/f32ec9229a8749d1b79245813fbd6c31), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Generated classic stove (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated industrial stove (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi stove (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern stove (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern minimal stove (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated rustic stove (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian stove (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian stove (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Stove from Poly by Google" by IronEqual (https://sketchfab.com/3d-models/68e164f1a9414c29820ac2eaf6d8ac04), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Stove" by Daniyal Malik (https://sketchfab.com/3d-models/7c5c9dec5c2e4ff998c386410b0e3686), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "R RETRO FIRIN" by Motto Teknoloji (https://sketchfab.com/3d-models/934716ccd00d4f6ba9555d1cea788488), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Generated japandi sink kitchen (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi sink kitchen (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi sink kitchen (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi sink kitchen (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated mediterranean sink kitchen (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated modern sink kitchen (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated modern sink kitchen (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated rustic sink kitchen (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated scandinavian sink kitchen (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated scandinavian sink kitchen (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian sink kitchen (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated classic washbasin (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated industrial washbasin (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi washbasin (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi washbasin (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi washbasin (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated mediterranean washbasin (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated minimal washbasin (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern washbasin (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern minimal washbasin (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated rustic washbasin (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian washbasin (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Combo CEG-50BF" by Stala (https://sketchfab.com/3d-models/295384601e0d4f1985a919253330d59d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Bathroom" by Thunder (https://sketchfab.com/3d-models/3eafb89804b54c8e8cbe35e4d456e0a9), CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched (licence flag: share_alike)
 - "same sink but less sanitary" by GroundZer0 (https://sketchfab.com/3d-models/493b70a6177d4a1385b6b0ce041a93b0), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
@@ -889,7 +1041,13 @@ Generated models (docs/milestone8.md §3): made by TRELLIS.2-4B (microsoft/TRELL
 - "Ingstav147 PULT ZRK V1" by KRONZI (https://sketchfab.com/3d-models/8580c4545d1649efb3503c6c2a012641), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Sink" by Shining Salt (https://sketchfab.com/3d-models/ce1a06f7cbe1425099a145f851fc5dee), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Bathroom1" by neutralize (https://sketchfab.com/3d-models/f76c502218884914a27148f656a9b656), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Generated industrial toilet (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi toilet (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi toilet (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated mediterranean toilet (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated minimal toilet (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated rustic toilet (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian toilet (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Toilettes" by Lightningx (https://sketchfab.com/3d-models/0b3325fad3e740b1ac86173c90b56afd), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Zenit Close Coupled Push Button Flush Toilet" by Yaiyeondurising (https://sketchfab.com/3d-models/1bd73c9a74d14ce29e45c277570990e6), CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched (licence flag: share_alike)
 - "Toilet" by Xill (https://sketchfab.com/3d-models/24d1b493899d407780140688abae19bc), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
@@ -898,13 +1056,24 @@ Generated models (docs/milestone8.md §3): made by TRELLIS.2-4B (microsoft/TRELL
 - "Qualitas Bathrooms toilet low poly" by Yaiyeondurising (https://sketchfab.com/3d-models/5b18711616054a44b025d9272b745a6a), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "CWLCCST1-6DT01 Ld" by trendforward (https://sketchfab.com/3d-models/bd0f8d2bfba24376bec2b827a0cbbabe), CC BY-NC 4.0 (https://creativecommons.org/licenses/by-nc/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched (licence flag: non_commercial)
 - "Animated low poly toilet" by Gamedirection (https://sketchfab.com/3d-models/c901dfa120a0487a9f5c9a2d241f70ab), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Generated industrial shower (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi shower (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated mediterranean shower (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated minimal shower (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated rustic shower (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated scandinavian shower (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated industrial bathtub (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi bathtub (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated mediterranean bathtub (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated minimal bathtub (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated modern bathtub (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern bathtub (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated modern minimal bathtub (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated modern minimal bathtub (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern minimal bathtub (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated scandinavian bathtub (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated scandinavian bathtub (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian bathtub (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "CARBAWH1-6DT01" by trendforward (https://sketchfab.com/3d-models/84d5cdc68a674e12958f41500e988502), CC BY-NC 4.0 (https://creativecommons.org/licenses/by-nc/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched (licence flag: non_commercial)
 - "Home Corona 2 unità da 1 TV a schermo Piatto, supporto/ripostigli" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Amazon Brand - Movian Corona TV Cabinet, Flat Screen Stand Unit, Solid Pine Wood" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
@@ -982,14 +1151,24 @@ Generated models (docs/milestone8.md §3): made by TRELLIS.2-4B (microsoft/TRELL
 - "Amazon Brand – Rivet Modern Chest of Drawers with Diamond Pattern, 17.7 Inch Width, Natural" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Ameriwood Home Classic 6 Drawer Dresser, Espresso" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Ameriwood Home Classic 5 Drawer Dresser, Espresso" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Generated classic washing machine (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated industrial washing machine (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi washing machine (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi washing machine (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi washing machine (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated mediterranean washing machine (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated minimal washing machine (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated modern washing machine (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated modern washing machine (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern washing machine (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated modern minimal washing machine (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated modern minimal washing machine (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern minimal washing machine (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated rustic washing machine (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated scandinavian washing machine (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated scandinavian washing machine (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian washing machine (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian washing machine (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Ameriwood Home Carver End Table, Gray/Sonoma Oak" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Amazon Brand – Rivet Mid-Century Modern Round Black Wood Nesting Side End Table, 15.7" W, Dark Oak" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Amazon Brand – Stone & Beam Larson Industrial Wood & Metal Side End Table, 27"W, Walnut" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
@@ -1030,10 +1209,18 @@ Generated models (docs/milestone8.md §3): made by TRELLIS.2-4B (microsoft/TRELL
 - "Floor Lamp" by bilgehan.korkmaz (https://sketchfab.com/3d-models/33eb258d9873435690254cfbb0ea46ec), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "low poly Lamp 3d model" by mohamedvfx (https://sketchfab.com/3d-models/53409613b45b42b98b979f12ab8faa12), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Street lights" by U-like (https://sketchfab.com/3d-models/71853da424aa4b208e14f6cf430339ae), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Generated industrial potted plant (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi potted plant (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi potted plant (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi potted plant (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated mediterranean potted plant (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated minimal potted plant (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern potted plant (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern minimal potted plant (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated rustic potted plant (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated scandinavian potted plant (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated scandinavian potted plant (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian potted plant (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Empty Flower Pot" by dumerlot (https://sketchfab.com/3d-models/41e58efcf647494483f9860df99acf60), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "succulent" by Elif Smbl (https://sketchfab.com/3d-models/57972124483145b4a4bbf4fd4caca6e7), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Cacti pot" by Spacyy (https://sketchfab.com/3d-models/71b53eaee72e4a829a9256a7bcfb7dab), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
@@ -1117,6 +1304,25 @@ Generated models (docs/milestone8.md §3): made by TRELLIS.2-4B (microsoft/TRELL
 - "Amazon Brand – Stone & Beam Mid-Century Rustic Vase, 8.66"H, Neutral" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Amazon Brand – Stone & Beam Textured Modern Vase, 9.05"H, Gray" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Amazon Brand – Rivet Mid-Century Metallic Stoneware Vase, 11.8"H, Gold" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Generated industrial bowl (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi bowl (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated mediterranean bowl (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated minimal bowl (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern bowl (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern minimal bowl (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated rustic bowl (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian bowl (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian bowl (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated classic plant small (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated industrial plant small (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi plant small (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated mediterranean plant small (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated minimal plant small (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern plant small (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern minimal plant small (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated rustic plant small (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian plant small (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian plant small (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Amazon Brand – Stone & Beam Modern Bedroom Table Desk Lamp With Light Bulb - 8 x 8 x 20.5 Inches, Wood Grain" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Amazon Brand – Stone & Beam Glass Column Living Room Table Desk Lamp With Light Bulb and Linen Shade, 23"H, Black" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Amazon Brand – Rivet Copper Geometric Bedside Table Desk Lamp With Light Bulb - 16.75 Inches, Copper" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
@@ -1560,16 +1766,46 @@ Generated models (docs/milestone8.md §3): made by TRELLIS.2-4B (microsoft/TRELL
 | fd612e2ea8e94d80ac3b8097eb2e5bbe | objaverse | bathtub | front not agreed (judges and geometry or the documented front): judges: qwen 2, glm 3 |
 | fe4339a62a544ec081d23f85e1a8c7f7 | objaverse | stove | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | fe63d70a5f5145788cb9b1e3c47ac3c2 | objaverse | washbasin | front not agreed (judges and geometry or the documented front): judges: qwen 2, glm 0 |
+| gen_bathtub_classic_1_32213a1e | generated | bathtub | no style both judges name: qwen ['classic'], glm ['modern', 'minimal'] |
 | gen_bathtub_japandi_2_c40f5efc | generated | bathtub | front not agreed (judges and geometry or the documented front): judges: qwen None, glm 3 |
+| gen_bathtub_rustic_1_b85f8cca | generated | bathtub | front not agreed (judges and geometry or the documented front): judges: qwen 2, glm 0 |
+| gen_bathtub_scandinavian_3_057a7982 | generated | bathtub | photoreal quality below 4 (a judge): qwen 4, glm 3 |
+| gen_bowl_classic_1_9ed1c80b | generated | bowl | no style both judges name: qwen ['modern minimal', 'minimal', 'scandinavian', 'japandi'], glm ['classic', 'neutral'] |
+| gen_fridge_classic_1_24a6ed0f | generated | fridge | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| gen_fridge_minimal_1_131f791b | generated | fridge | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| gen_fridge_modern_1_0f715b05 | generated | fridge | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | gen_fridge_scandinavian_2_5eb44a0e | generated | fridge | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| gen_fridge_scandinavian_3_4b9294cb | generated | fridge | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| gen_fridge_scandinavian_4_4b9bb6e4 | generated | fridge | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| gen_potted_plant_classic_1_a5ff1adf | generated | potted_plant | no style both judges name: qwen ['modern minimal', 'minimal', 'modern'], glm ['japandi', 'neutral'] |
+| gen_potted_plant_industrial_1_fb22f191 | generated | potted_plant | no style both judges name: qwen ['modern minimal', 'minimal', 'modern', 'scandinavian', 'japandi'], glm ['neutral'] |
+| gen_shower_classic_1_e26e5e0a | generated | shower | photoreal quality below 4 (a judge): qwen 4, glm 3 |
 | gen_shower_japandi_2_b6c31e9a | generated | shower | photoreal quality below 4 (a judge): qwen 4, glm 3 |
+| gen_shower_japandi_3_2c7b7e7d | generated | shower | photoreal quality below 4 (a judge): qwen 4, glm 3 |
 | gen_shower_modern_1_1cb8199a | generated | shower | photoreal quality below 4 (a judge): qwen 4, glm 3 |
 | gen_shower_modern_2_707d4703 | generated | shower | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| gen_shower_modern_3_37941d2f | generated | shower | photoreal quality below 4 (a judge): qwen 3, glm 3 |
 | gen_shower_modern_minimal_1_d787862a | generated | shower | photoreal quality below 4 (a judge): qwen 3, glm 4 |
 | gen_shower_modern_minimal_2_dab54bc3 | generated | shower | photoreal quality below 4 (a judge): qwen 4, glm 3 |
+| gen_shower_modern_minimal_3_5108e5ad | generated | shower | photoreal quality below 4 (a judge): qwen 4, glm 3 |
 | gen_shower_scandinavian_2_88469e91 | generated | shower | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| gen_shower_scandinavian_3_2d3b69d4 | generated | shower | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| gen_shower_scandinavian_4_31320d88 | generated | shower | photoreal quality below 4 (a judge): qwen 3, glm 3 |
+| gen_sink_kitchen_classic_1_f7bbb88f | generated | sink_kitchen | no style both judges name: qwen ['classic'], glm ['modern minimal', 'minimal', 'modern'] |
+| gen_sink_kitchen_industrial_1_15bcc635 | generated | sink_kitchen | front not agreed (judges and geometry or the documented front): judges: qwen 2, glm 0 |
+| gen_sink_kitchen_minimal_1_2e90ac4a | generated | sink_kitchen | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| gen_sink_kitchen_modern_3_eb304e4d | generated | sink_kitchen | front not agreed (judges and geometry or the documented front): judges: qwen 0, glm 2 |
 | gen_sink_kitchen_modern_minimal_2_d36a47fa | generated | sink_kitchen | photoreal quality below 4 (a judge): qwen 3, glm 4 |
+| gen_sink_kitchen_modern_minimal_3_e95e2f4d | generated | sink_kitchen | photoreal quality below 4 (a judge): qwen 4, glm 3 |
+| gen_stove_mediterranean_1_f0595767 | generated | stove | no style both judges name: qwen ['classic'], glm ['modern', 'neutral'] |
+| gen_toilet_classic_1_f4cb8d97 | generated | toilet | front not agreed (judges and geometry or the documented front): judges: qwen 1, glm 0 |
 | gen_toilet_japandi_2_0697e750 | generated | toilet | front not agreed (judges and geometry or the documented front): judges: qwen 3, glm 0 |
+| gen_toilet_modern_1_3cae74e3 | generated | toilet | front not agreed (judges and geometry or the documented front): judges: qwen 1, glm 0 |
+| gen_toilet_modern_minimal_1_c0ee88fc | generated | toilet | front not agreed (judges and geometry or the documented front): judges: qwen 3, glm 0 |
 | gen_toilet_scandinavian_1_f4f34056 | generated | toilet | front not agreed (judges and geometry or the documented front): judges: qwen 3, glm 0 |
 | gen_toilet_scandinavian_2_21c43147 | generated | toilet | front not agreed (judges and geometry or the documented front): judges: qwen 3, glm 0 |
+| gen_toilet_scandinavian_3_c526dae1 | generated | toilet | front not agreed (judges and geometry or the documented front): judges: qwen 3, glm 0 |
+| gen_wardrobe_japandi_1_c9a57dbb | generated | wardrobe | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 19 of 22 accepted wardrobe models (keep 20; its styles scandinavian, modern minimal, minimal, modern had 5 each in the first pass) |
+| gen_wardrobe_mediterranean_1_dce90b0a | generated | wardrobe | over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1): rank 22 of 22 accepted wardrobe models (keep 20; its styles scandinavian, modern minimal, minimal, modern had 5 each in the first pass) |
+| gen_washbasin_japandi_4_576e4361 | generated | washbasin | front not agreed (judges and geometry or the documented front): judges: qwen 0, glm 1 |
 | ikcAlbZ2YXxyKWW3r4iOMRW9qR2 | objaverse | bathtub | photoreal quality below 4 (a judge): qwen 3, glm 4 |

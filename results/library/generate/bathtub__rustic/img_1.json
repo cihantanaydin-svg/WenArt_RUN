@@ -1,0 +1,24 @@
+{
+ "key": "e8c1763446bf87f1c664a6790cc993749ab93bd8637843a7258931310b532e33",
+ "pair": "bathtub__rustic",
+ "type": "bathtub",
+ "family": "rustic",
+ "index": 1,
+ "prompt": "a single rustic style freestanding bathtub, cream enamel and stone, aged copper and wrought iron fittings, sturdy simple forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 697922127,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "b890ea47c433c6ff67dc7914d0bff127b835ecfb3220f1b467b88fae758f43e1",
+ "seconds": 4.07,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:41:18Z"
+}

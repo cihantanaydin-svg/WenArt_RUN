@@ -1,0 +1,24 @@
+{
+ "key": "27ef2496dbc2cd635846254275bc52c08f187c951406526e5696369af3366e1e",
+ "pair": "potted_plant__modern_minimal",
+ "type": "potted_plant",
+ "family": "modern minimal",
+ "index": 1,
+ "prompt": "a single modern minimal style large indoor plant in a floor pot, matte white and warm grey surfaces, flush panels, thin black metal details, no ornament, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1189468089,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "97f92722294f33d10c7e21236f20dd9570c8ca0b3ba1febbcdb1295737db99bf",
+ "seconds": 4.09,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:42:20Z"
+}

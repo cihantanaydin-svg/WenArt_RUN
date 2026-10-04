@@ -1,0 +1,24 @@
+{
+ "key": "0a3cd2675880e345acb49979cde1b06c09f96fc31681f853f55f6ddcacc191bf",
+ "pair": "washbasin__minimal",
+ "type": "washbasin",
+ "family": "minimal",
+ "index": 1,
+ "prompt": "a single minimal style bathroom washbasin on a vanity unit, plain white ceramic and enamel, hidden fittings, simple geometric forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 367564169,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "c46097da463275a9c28c70aecfb5fe8f0677787912557de1facc695e3ff823bb",
+ "seconds": 4.02,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:42:45Z"
+}

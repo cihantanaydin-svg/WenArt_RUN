@@ -1,0 +1,24 @@
+{
+ "key": "f6a7b7796c11caa69cc38f249b79592b951cc886af8bb3d3be173bef0c9b36de",
+ "pair": "bed_single__modern_minimal",
+ "type": "bed_single",
+ "family": "modern minimal",
+ "index": 1,
+ "prompt": "a single modern minimal style single bed with a headboard, a mattress and plain bedding, matte white and warm grey surfaces, flush panels, thin black metal details, no ornament, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 89230727,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "7b7a853445487c823cc9d3001b9bdc074969cfd6bb2f29009307c6f6d5371c2d",
+ "seconds": 4.07,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:42:41Z"
+}

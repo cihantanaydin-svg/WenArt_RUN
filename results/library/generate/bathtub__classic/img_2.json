@@ -1,0 +1,24 @@
+{
+ "key": "5524b25ee1ca94f07ebe59950cd733eeeaafdad1f74704ce79feb75523f7b135",
+ "pair": "bathtub__classic",
+ "type": "bathtub",
+ "family": "classic",
+ "index": 2,
+ "prompt": "a single classic style freestanding bathtub, white porcelain, polished brass or chrome fittings, moulded classic details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1404879873,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "bffc22aac5753a37499f424ae42b9e2f3643512e927a2e3ba1d3af82163a4e35",
+ "seconds": 4.0,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:44:34Z"
+}

@@ -1,0 +1,24 @@
+{
+ "key": "f6c164b95b183ed32bc8903b7cd99ac5ea29bb5cbb418864d83cc67be678ff0a",
+ "pair": "plant_small__modern_minimal",
+ "type": "plant_small",
+ "family": "modern minimal",
+ "index": 1,
+ "prompt": "a single modern minimal style small indoor plant in a pot for a table or a shelf, matte white and warm grey ceramic, thin black metal, crisp simple forms, no ornament, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1823392727,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "ae915d8ca074aed77ae42ad446b56328791a25a9137d6733ff261d0f476941ed",
+ "seconds": 4.3,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:39:46Z"
+}

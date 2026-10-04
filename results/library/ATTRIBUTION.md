@@ -347,41 +347,136 @@ The thumbnails and models of this library show 3D models from the furniture libr
 - "AmazonBasics Solid Platform Bed - Rustic Finish - No Box Spring Needed - Strong Wood Slat Support, Queen" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "AmazonBasics 40" Multipurpose Foldable Computer Study Desk - Natural" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Amazon Brand - Solimo Senna Metal Glossy King Bed (Black)" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- "Generated industrial bathtub (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi bathtub (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated mediterranean bathtub (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated minimal bathtub (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated modern bathtub (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern bathtub (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated modern minimal bathtub (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated modern minimal bathtub (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern minimal bathtub (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated scandinavian bathtub (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated scandinavian bathtub (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian bathtub (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated classic bed single (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated industrial bed single (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi bed single (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated mediterranean bed single (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated mediterranean bed single (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated minimal bed single (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern bed single (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern minimal bed single (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated rustic bed single (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian bed single (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated industrial bowl (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi bowl (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated mediterranean bowl (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated minimal bowl (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern bowl (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern minimal bowl (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated rustic bowl (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian bowl (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian bowl (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi floor lamp (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi floor lamp (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated industrial fridge (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi fridge (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi fridge (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi fridge (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated mediterranean fridge (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern minimal fridge (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated rustic fridge (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated scandinavian fridge (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated classic plant small (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated industrial plant small (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi plant small (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated mediterranean plant small (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated minimal plant small (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern plant small (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern minimal plant small (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated rustic plant small (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian plant small (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian plant small (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated industrial potted plant (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi potted plant (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi potted plant (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi potted plant (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated mediterranean potted plant (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated minimal potted plant (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern potted plant (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern minimal potted plant (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated rustic potted plant (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated scandinavian potted plant (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated scandinavian potted plant (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian potted plant (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated industrial shower (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi shower (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated mediterranean shower (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated minimal shower (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated rustic shower (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated scandinavian shower (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi sink kitchen (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi sink kitchen (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi sink kitchen (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi sink kitchen (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated mediterranean sink kitchen (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated modern sink kitchen (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated modern sink kitchen (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated rustic sink kitchen (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated scandinavian sink kitchen (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated scandinavian sink kitchen (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian sink kitchen (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi sofa (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi sofa (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated classic stove (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated industrial stove (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi stove (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern stove (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern minimal stove (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated rustic stove (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian stove (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian stove (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated industrial toilet (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi toilet (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi toilet (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated mediterranean toilet (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated minimal toilet (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated rustic toilet (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian toilet (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated classic wardrobe (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated industrial wardrobe (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated rustic wardrobe (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian wardrobe (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated classic washbasin (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated industrial washbasin (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi washbasin (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi washbasin (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi washbasin (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated mediterranean washbasin (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated minimal washbasin (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern washbasin (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern minimal washbasin (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated rustic washbasin (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian washbasin (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated classic washing machine (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated industrial washing machine (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi washing machine (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated japandi washing machine (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated japandi washing machine (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated mediterranean washing machine (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated minimal washing machine (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated modern washing machine (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated modern washing machine (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern washing machine (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated modern minimal washing machine (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated modern minimal washing machine (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated modern minimal washing machine (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated rustic washing machine (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated scandinavian washing machine (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Generated scandinavian washing machine (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian washing machine (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- "Generated scandinavian washing machine (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - "Street Lamp" by emelyarules (https://sketchfab.com/3d-models/01c53767c1f84f55ad9f46eb89949cf9), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Palette Table" by Javier.Cantero (https://sketchfab.com/3d-models/01ff88bfc0034211b9f4996d620bc333), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - "Rocking Chair" by Christian (https://sketchfab.com/3d-models/039c6026571943d6ac45c6816bcc7ff1), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched

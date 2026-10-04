@@ -1,0 +1,24 @@
+{
+ "key": "3f4b085de9775724aa2d97fbe42d80221c225958b4528ec7b1c7f1a4dc6351b8",
+ "pair": "washing_machine__industrial",
+ "type": "washing_machine",
+ "family": "industrial",
+ "index": 2,
+ "prompt": "a single industrial style front-loading washing machine, black steel and brushed stainless steel, concrete grey surfaces, exposed black fittings, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1647007684,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "d7c77c5671f6915ca6960d50b8e6f5ff2acfc19588d71eeec52634846a1832ad",
+ "seconds": 4.05,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:43:50Z"
+}

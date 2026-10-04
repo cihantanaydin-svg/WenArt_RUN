@@ -1,0 +1,63 @@
+{
+ "key": "2aaafaf74b86a2b3e13ca0149a07f6f4a6263f9b9e48f3b5e5f6b9f3f52834fe",
+ "pair": "potted_plant__modern",
+ "type": "potted_plant",
+ "family": "modern",
+ "index": 1,
+ "seed": 1433942496,
+ "prompt": "a single modern style large indoor plant in a floor pot, walnut veneer, charcoal fabric, brushed steel details, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "image_sha256": "d005782fb771ef92b0859e80e6c9ba8e30c8b2587038dacdf5dffd3d1603bf93",
+ "models": {
+  "trellis": "microsoft/TRELLIS.2-4B@af44b45f2e35a493886929c6d786e563ec68364d",
+  "ss_decoder": "microsoft/TRELLIS-image-large@25e0d31ffbebe4b5a97464dd851910efc3002d96",
+  "dinov3": "facebook/dinov3-vitl16-pretrain-lvd1689m@ea8dc2863c51be0a264bab82070e3e8836b02d51",
+  "rembg": "ZhengPeng7/BiRefNet@e2bf8e4460fc8fa32bba5ea4d94b3233d367b0e4"
+ },
+ "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+ "settings": {
+  "pipeline_type": "1024_cascade",
+  "simplify": 16777216,
+  "decimation_target": 200000,
+  "texture_size": 2048,
+  "remesh": true,
+  "remesh_band": 1,
+  "remesh_project": 0
+ },
+ "generated_utc": "2026-10-04T13:28:14Z",
+ "status": "ok",
+ "code": null,
+ "error": null,
+ "glb": "model_1.glb",
+ "glb_sha256": "8fbfec3cbf1c93b22bacbf7f37e0c378a36358710636425d759bab158d4c69e7",
+ "glb_bytes": 18316020,
+ "face_count": 191344,
+ "glb_info": {
+  "images": 2,
+  "textures": 2,
+  "materials": 1,
+  "meshes": 1,
+  "primitives": 1,
+  "textured": true,
+  "vertex_colours": false,
+  "extensions_used": [],
+  "extensions_required": []
+ },
+ "seconds": 44.21,
+ "backend": {
+  "seconds_generate": 15.57,
+  "seconds_export": 28.37,
+  "raw_faces": 4641382,
+  "pipeline_type": "1024_cascade",
+  "peak_vram_gib": 19.72,
+  "resident": true
+ },
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "cuda": "12.8",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+  "attn_backend": "flash_attn",
+  "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+  "resident": true
+ }
+}

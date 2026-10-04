@@ -1,0 +1,24 @@
+{
+ "key": "97d5b9e47e834175ea5a4662890010139e9f28ca00c182540e4f31e26f2e79ef",
+ "pair": "bed_single__industrial",
+ "type": "bed_single",
+ "family": "industrial",
+ "index": 2,
+ "prompt": "a single industrial style single bed with a headboard, a mattress and plain bedding, black powder-coated steel frame, reclaimed dark wood, cognac leather, exposed bolts, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1904424971,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "cb916f33ec3097198fa9768bebea262f41fbd26c748df6c085a711769940840a",
+ "seconds": 3.99,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:44:20Z"
+}

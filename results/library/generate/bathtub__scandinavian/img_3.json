@@ -1,0 +1,24 @@
+{
+ "key": "19dead3442058062bb114a2c95998540a4560c54d61203b6e416b408dba7f4e9",
+ "pair": "bathtub__scandinavian",
+ "type": "bathtub",
+ "family": "scandinavian",
+ "index": 3,
+ "prompt": "a single scandinavian style freestanding bathtub, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1201784185,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "ee6e5e69d868e890e4a9e3223c3784a9f5d6c0108a52cdf6ae8eefb14d1279ee",
+ "seconds": 4.23,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:38:59Z"
+}

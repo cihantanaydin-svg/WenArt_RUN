@@ -1,0 +1,24 @@
+{
+ "key": "ddc7488f74b3aaf4f0720f2c466780df2246a60e926daad8c0bb71afa1e47f80",
+ "pair": "stove__mediterranean",
+ "type": "stove",
+ "family": "mediterranean",
+ "index": 1,
+ "prompt": "a single mediterranean style freestanding cooker with an oven and a four-burner hob, white glazed ceramic, warm terracotta and sand accents, aged brass fittings, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1234218911,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "ead4434673738bcb4c689a216deb29d3014f6ec53189d6339bcf1648182b57dc",
+ "seconds": 4.2,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:40:20Z"
+}

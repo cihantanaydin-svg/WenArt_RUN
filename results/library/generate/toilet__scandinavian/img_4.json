@@ -1,0 +1,24 @@
+{
+ "key": "c6d93d5aa01a56c995fa2a9288b720428bb3f800c8e2451ee0e71b6ef34eb49b",
+ "pair": "toilet__scandinavian",
+ "type": "toilet",
+ "family": "scandinavian",
+ "index": 4,
+ "prompt": "a single scandinavian style floor-standing toilet with a cistern, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 902731000,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "c9b4b8d3ba4a56ff6af93e92c5f89ad5942f48e581ee4037f910a336f40a0552",
+ "seconds": 4.18,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:43:05Z"
+}

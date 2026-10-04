@@ -1,0 +1,24 @@
+{
+ "key": "2219bfe5d2c1fbdc86d683cf1a97891e0f0623ca8cd3e05ad51a3a185fa90d8a",
+ "pair": "washbasin__japandi",
+ "type": "washbasin",
+ "family": "japandi",
+ "index": 4,
+ "prompt": "a single japandi style bathroom washbasin on a vanity unit, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1295832561,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "27e7717feee68a0908b832f0be3a86cfdce8da261954380b3417d811e5b32dff",
+ "seconds": 4.09,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:43:10Z"
+}

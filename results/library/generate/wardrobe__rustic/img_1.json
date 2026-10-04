@@ -1,0 +1,24 @@
+{
+ "key": "bc0f6719c8f189830d7da33ea5eaa3cd290c4e74e4292fba1cfe340c3a21d865",
+ "pair": "wardrobe__rustic",
+ "type": "wardrobe",
+ "family": "rustic",
+ "index": 1,
+ "prompt": "a single rustic style tall two-door wardrobe, rough-sawn oak with visible grain, wrought iron, natural linen, sturdy chunky forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1853830852,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "227cb29e0ed8a1ca349848d8e5c38bf284dfb9e035f2491326b2c63b99be08ee",
+ "seconds": 4.24,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:40:37Z"
+}

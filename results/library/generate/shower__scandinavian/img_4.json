@@ -1,0 +1,24 @@
+{
+ "key": "3cfd8237e67f1234f275810e7242ccc84de355524126a369fbb5981fe5158325",
+ "pair": "shower__scandinavian",
+ "type": "shower",
+ "family": "scandinavian",
+ "index": 4,
+ "prompt": "a single scandinavian style square glass shower enclosure with a shower tray, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1994001463,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "d6b041420fc26f73cf47f636b331a13f774c763459b4dd6c475557de3b7f8bcf",
+ "seconds": 4.14,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:42:54Z"
+}

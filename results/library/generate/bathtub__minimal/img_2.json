@@ -1,0 +1,24 @@
+{
+ "key": "f32a82d3b659a10e94e8921980a2a4322abbdbd354e6e9feba971a9e74fa6aeb",
+ "pair": "bathtub__minimal",
+ "type": "bathtub",
+ "family": "minimal",
+ "index": 2,
+ "prompt": "a single minimal style freestanding bathtub, plain white ceramic and enamel, hidden fittings, simple geometric forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1479809130,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "2ace8e8dc7b34bbdb7adccf67b00d8eb67f9469e717bd4b5ae8b3201b5867e9f",
+ "seconds": 4.05,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:45:43Z"
+}

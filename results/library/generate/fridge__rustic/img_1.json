@@ -1,0 +1,24 @@
+{
+ "key": "087388976aaa5b4d779ac715b6f6c88f59391bd4182a221514d505a04f7c8d9c",
+ "pair": "fridge__rustic",
+ "type": "fridge",
+ "family": "rustic",
+ "index": 1,
+ "prompt": "a single rustic style freestanding refrigerator, cream enamel and stone, aged copper and wrought iron fittings, sturdy simple forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1059036472,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "313c33b343af504c9d1bde3dee876efe04447d68d3fefdbc17d6a2dc3fb24aef",
+ "seconds": 4.05,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:41:18Z"
+}

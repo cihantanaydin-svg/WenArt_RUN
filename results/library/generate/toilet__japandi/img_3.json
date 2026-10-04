@@ -1,0 +1,24 @@
+{
+ "key": "07ad1b2597dcb883df9ee1a251ee718269a5b48ce73e11d8d5767c48ed50fef0",
+ "pair": "toilet__japandi",
+ "type": "toilet",
+ "family": "japandi",
+ "index": 3,
+ "prompt": "a single japandi style floor-standing toilet with a cistern, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1962290432,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "c5b77b819e8108505014b9e7d7a820179641ae2b0688fdd118de3e7b78ed4b57",
+ "seconds": 4.23,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:39:37Z"
+}

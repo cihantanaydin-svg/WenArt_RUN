@@ -1,0 +1,24 @@
+{
+ "key": "9c171b8ace4ec1d54a4234c98b6d911e8edeaebaea8b8d7beeb3cb8b0138d4f5",
+ "pair": "plant_small__scandinavian",
+ "type": "plant_small",
+ "family": "scandinavian",
+ "index": 3,
+ "prompt": "a single scandinavian style small indoor plant in a pot for a table or a shelf, matte white and pale grey ceramic, light oak, natural linen, simple soft forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1181489117,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "4c3ccb2edd0b4285b182ba7e77f98c7f43528b65e71a58a47fbe370806e6c265",
+ "seconds": 4.06,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:46:08Z"
+}

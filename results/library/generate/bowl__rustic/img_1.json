@@ -1,0 +1,24 @@
+{
+ "key": "51467e23fb33d2bfc43e9b686a2ed3ec5437154e015358e702b1ba275a74501e",
+ "pair": "bowl__rustic",
+ "type": "bowl",
+ "family": "rustic",
+ "index": 1,
+ "prompt": "a single rustic style shallow decorative bowl for a coffee table, rough stoneware, aged wood and wrought iron, earthy colours, sturdy simple forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 198987726,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "b1b10cb1bcd784a4466906a9f1deb6e7dd37adf522c920ef100bab541add3361",
+ "seconds": 4.06,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:42:25Z"
+}

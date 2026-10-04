@@ -1,0 +1,24 @@
+{
+ "key": "9461c5cfdd4a494e0b7e9514e27efe49d8652d99c026a24e47621ba2b535fafd",
+ "pair": "washbasin__industrial",
+ "type": "washbasin",
+ "family": "industrial",
+ "index": 1,
+ "prompt": "a single industrial style bathroom washbasin on a vanity unit, black steel and brushed stainless steel, concrete grey surfaces, exposed black fittings, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1989925242,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "dec906db2c8bf29c5a60185aea540b553597ee3e57a835ca96093ad6dfa7b9c3",
+ "seconds": 4.26,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:39:37Z"
+}

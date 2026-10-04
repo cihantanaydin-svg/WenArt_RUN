@@ -1,0 +1,24 @@
+{
+ "key": "1b1ca12dcf54b551091a8cf7a08e161983b5354c99bded8d8295ed7292ba88a7",
+ "pair": "bowl__japandi",
+ "type": "bowl",
+ "family": "japandi",
+ "index": 3,
+ "prompt": "a single japandi style shallow decorative bowl for a coffee table, handmade matte stoneware in stone grey and charcoal, light ash wood, calm minimal forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1594706651,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "f69875ab2e5d46d987836806bfe18a4828ca74070b110c1638e37a0bf2887b35",
+ "seconds": 4.09,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:46:23Z"
+}

@@ -1,0 +1,24 @@
+{
+ "key": "47eb290734e05739e803830e0340098ed8fa6513ba7ab9f5eb9e32fd11d4d58e",
+ "pair": "fridge__modern",
+ "type": "fridge",
+ "family": "modern",
+ "index": 2,
+ "prompt": "a single modern style freestanding refrigerator, glossy white ceramic, stainless steel and chrome fittings, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 725735722,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "a5e5e21c6f98787cbd9fac9175e73a177e72c248e49bb81edd57816cb215e759",
+ "seconds": 4.06,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:46:07Z"
+}

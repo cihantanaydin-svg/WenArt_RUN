@@ -1,0 +1,24 @@
+{
+ "key": "1cfda546efa389e8e4e27457077101ae064b1671c59c0f58e5f602bbf2f03b9c",
+ "pair": "bathtub__japandi",
+ "type": "bathtub",
+ "family": "japandi",
+ "index": 4,
+ "prompt": "a single japandi style freestanding bathtub, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 673113932,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "ec695c7f268bdf3a77543c2d300fd660b45cab6cc501b3168776be084eb81ebc",
+ "seconds": 4.03,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:43:21Z"
+}

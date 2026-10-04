@@ -1,0 +1,24 @@
+{
+ "key": "ab1c7c8ab2597c6a5fd0bf8415006a5d04b4f43ed26f0b6d14bcc9e64d408f56",
+ "pair": "shower__japandi",
+ "type": "shower",
+ "family": "japandi",
+ "index": 4,
+ "prompt": "a single japandi style square glass shower enclosure with a shower tray, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1665679228,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "7f650febc8ab60255849990bf4973bdb80f5f41e3797eef165ba9d906bcef09e",
+ "seconds": 4.07,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:43:18Z"
+}

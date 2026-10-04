@@ -1,0 +1,63 @@
+{
+ "key": "a26c865eeb8ca7597cf388866bc19f2cec2c3ad636b626b2cdcd6bf548e5e1f2",
+ "pair": "bathtub__industrial",
+ "type": "bathtub",
+ "family": "industrial",
+ "index": 1,
+ "seed": 1785974087,
+ "prompt": "a single industrial style freestanding bathtub, black steel and brushed stainless steel, concrete grey surfaces, exposed black fittings, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "image_sha256": "32fb2f3ca415b3e0a8c94a8cf21d94bfe751f0338e93c41b8bda373ba0b1cc43",
+ "models": {
+  "trellis": "microsoft/TRELLIS.2-4B@af44b45f2e35a493886929c6d786e563ec68364d",
+  "ss_decoder": "microsoft/TRELLIS-image-large@25e0d31ffbebe4b5a97464dd851910efc3002d96",
+  "dinov3": "facebook/dinov3-vitl16-pretrain-lvd1689m@ea8dc2863c51be0a264bab82070e3e8836b02d51",
+  "rembg": "ZhengPeng7/BiRefNet@e2bf8e4460fc8fa32bba5ea4d94b3233d367b0e4"
+ },
+ "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+ "settings": {
+  "pipeline_type": "1024_cascade",
+  "simplify": 16777216,
+  "decimation_target": 200000,
+  "texture_size": 2048,
+  "remesh": true,
+  "remesh_band": 1,
+  "remesh_project": 0
+ },
+ "generated_utc": "2026-10-04T13:02:53Z",
+ "status": "ok",
+ "code": null,
+ "error": null,
+ "glb": "model_1.glb",
+ "glb_sha256": "46aaa4c2b35752042dbc379509bca44922ec6568369fcfa96acc31764e26b44f",
+ "glb_bytes": 15136724,
+ "face_count": 187097,
+ "glb_info": {
+  "images": 2,
+  "textures": 2,
+  "materials": 1,
+  "meshes": 1,
+  "primitives": 1,
+  "textured": true,
+  "vertex_colours": false,
+  "extensions_used": [],
+  "extensions_required": []
+ },
+ "seconds": 55.96,
+ "backend": {
+  "seconds_generate": 22.01,
+  "seconds_export": 33.67,
+  "raw_faces": 6264376,
+  "pipeline_type": "1024_cascade",
+  "peak_vram_gib": 20.64,
+  "resident": true
+ },
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "cuda": "12.8",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+  "attn_backend": "flash_attn",
+  "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+  "resident": true
+ }
+}

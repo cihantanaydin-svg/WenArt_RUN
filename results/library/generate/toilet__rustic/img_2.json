@@ -1,0 +1,24 @@
+{
+ "key": "eb63a99db07efad0713f405cc4aa3fcca584e819e595dcea070a593306639e47",
+ "pair": "toilet__rustic",
+ "type": "toilet",
+ "family": "rustic",
+ "index": 2,
+ "prompt": "a single rustic style floor-standing toilet with a cistern, cream enamel and stone, aged copper and wrought iron fittings, sturdy simple forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 977898879,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "2fccc524c333f099465a9c22384af398e8414ddc34cb50e60cdad1aa21c02f5f",
+ "seconds": 3.98,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:45:07Z"
+}

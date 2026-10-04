@@ -1,0 +1,24 @@
+{
+ "key": "d7ad53a613497cabf7f2d495ee7c788e6d72e8a21ab3c91ab33631e9df41c55c",
+ "pair": "bathtub__mediterranean",
+ "type": "bathtub",
+ "family": "mediterranean",
+ "index": 2,
+ "prompt": "a single mediterranean style freestanding bathtub, white glazed ceramic, warm terracotta and sand accents, aged brass fittings, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 321225614,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "bba2f1011b8c1b0d99d2e381becc8a4815a39d8ea3523c760a74df3c2a356ecb",
+ "seconds": 3.98,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:44:10Z"
+}

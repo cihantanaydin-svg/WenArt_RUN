@@ -1,0 +1,24 @@
+{
+ "key": "37e25a8fb1dbaf0f42c1087b07eeb847a0bf6bfc118f92d57829f60044f0741b",
+ "pair": "potted_plant__scandinavian",
+ "type": "potted_plant",
+ "family": "scandinavian",
+ "index": 4,
+ "prompt": "a single scandinavian style large indoor plant in a floor pot, light oak wood, white and soft grey, natural linen upholstery, slim tapered legs, simple clean lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 382667847,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "ece1b15820a916ff6eb6cdec3b6ef7a2838672644bdf3c0f52972dfcf08f27ce",
+ "seconds": 4.06,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:45:11Z"
+}

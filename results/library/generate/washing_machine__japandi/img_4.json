@@ -1,0 +1,24 @@
+{
+ "key": "bbcbf27dc35018b84b64406649c6b9093ddd567d122ddc972bc62d5cc0a40884",
+ "pair": "washing_machine__japandi",
+ "type": "washing_machine",
+ "family": "japandi",
+ "index": 4,
+ "prompt": "a single japandi style front-loading washing machine, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1635563975,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "0f9830be0008ac152c6c5331be5e03782daa76ff5ee69c9ea2db874b1c41c962",
+ "seconds": 4.04,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:43:25Z"
+}

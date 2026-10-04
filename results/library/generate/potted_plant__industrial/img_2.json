@@ -1,0 +1,24 @@
+{
+ "key": "d6a90bd3c5ceb5d38ee39152f228522a29f9ecea6639fe51a5473164bcf5f24c",
+ "pair": "potted_plant__industrial",
+ "type": "potted_plant",
+ "family": "industrial",
+ "index": 2,
+ "prompt": "a single industrial style large indoor plant in a floor pot, black powder-coated steel frame, reclaimed dark wood, cognac leather, exposed bolts, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 610558464,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "40c7ad41be7eaebaf0f7dda3f04fd3f0ec2fe9d06292e2c4a72a76715ee6b91b",
+ "seconds": 4.03,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:43:09Z"
+}

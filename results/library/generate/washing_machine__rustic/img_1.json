@@ -1,0 +1,24 @@
+{
+ "key": "873ec3cd824dacb2cc451ca51886536a2aa119239fdc3fbbfb880d87a7d16bc7",
+ "pair": "washing_machine__rustic",
+ "type": "washing_machine",
+ "family": "rustic",
+ "index": 1,
+ "prompt": "a single rustic style front-loading washing machine, cream enamel and stone, aged copper and wrought iron fittings, sturdy simple forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 145757182,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "46f84eed01db4d6c6b770482e76c010d0b5660a0a22ac97caddea98dd2cd02d6",
+ "seconds": 4.08,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:41:23Z"
+}

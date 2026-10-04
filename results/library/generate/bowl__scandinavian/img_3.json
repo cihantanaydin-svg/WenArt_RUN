@@ -1,0 +1,24 @@
+{
+ "key": "4318be986e6160c6d29b9944af91577b2ad4fe6966b13963cd88b3d5ea7caee5",
+ "pair": "bowl__scandinavian",
+ "type": "bowl",
+ "family": "scandinavian",
+ "index": 3,
+ "prompt": "a single scandinavian style shallow decorative bowl for a coffee table, matte white and pale grey ceramic, light oak, natural linen, simple soft forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 187034482,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "37f43c0be541c3f6f8a4d0ad4fd498d626ca25d057c45ea0111560727f54ed0e",
+ "seconds": 4.11,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:46:11Z"
+}

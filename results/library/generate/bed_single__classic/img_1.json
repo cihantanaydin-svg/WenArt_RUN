@@ -1,0 +1,24 @@
+{
+ "key": "a9c2fcd20045c239c42c4362e83a429b9989eb65ae8b543d79128ff01d0d6582",
+ "pair": "bed_single__classic",
+ "type": "bed_single",
+ "family": "classic",
+ "index": 1,
+ "prompt": "a single classic style single bed with a headboard, a mattress and plain bedding, carved dark walnut wood, tufted cream upholstery, turned legs, polished brass details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1883086399,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "c3a870d4ba04272ede2b7dcc9210005ce1e36e029e23f1ae120da8cc324288ab",
+ "seconds": 4.19,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:39:33Z"
+}

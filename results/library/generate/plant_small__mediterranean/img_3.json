@@ -1,0 +1,24 @@
+{
+ "key": "2ab670f68c27ded70705abdceb1fd0d53e7c3f8705dfddc0fd118adf73016809",
+ "pair": "plant_small__mediterranean",
+ "type": "plant_small",
+ "family": "mediterranean",
+ "index": 3,
+ "prompt": "a single mediterranean style small indoor plant in a pot for a table or a shelf, terracotta and white glazed ceramic, woven rattan, warm sand tones, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1254574610,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "2a494f424d58c0db078f1dbe48c06f1fc097d8d7e5899d8b6d5dd4c0ea0ecd04",
+ "seconds": 4.04,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:47:09Z"
+}

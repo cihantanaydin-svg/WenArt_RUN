@@ -1,0 +1,24 @@
+{
+ "key": "fb4b99513d8f036a9cc38f5597f0e326fe10c38981900fd490bd6be9e74fb7fd",
+ "pair": "sink_kitchen__modern",
+ "type": "sink_kitchen",
+ "family": "modern",
+ "index": 4,
+ "prompt": "a single modern style kitchen sink base cabinet with a worktop and an inset sink, glossy white ceramic, stainless steel and chrome fittings, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1711298490,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "d0e432a2c4fafdce50eb446abd62986c5827a4a7f4f62f68d688d21a38d1e886",
+ "seconds": 4.11,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:45:26Z"
+}

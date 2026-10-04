@@ -1,0 +1,24 @@
+{
+ "key": "83d4b0eb8cf1ec1e8b9f1c3dbbc34acb0c7e88c33a218eb6a21589f7a2e08910",
+ "pair": "stove__industrial",
+ "type": "stove",
+ "family": "industrial",
+ "index": 2,
+ "prompt": "a single industrial style freestanding cooker with an oven and a four-burner hob, black steel and brushed stainless steel, concrete grey surfaces, exposed black fittings, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 131728962,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "9103a52e206674c7f5427cac1d415572e3299d759b4808c241e3e1ec2d079b23",
+ "seconds": 4.02,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:45:39Z"
+}

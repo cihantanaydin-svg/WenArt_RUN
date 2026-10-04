@@ -1,0 +1,24 @@
+{
+ "key": "75d56120049918a4d71975b92498d527e1d2cd7fd5bd6b4e8827f3eb29bc715d",
+ "pair": "potted_plant__classic",
+ "type": "potted_plant",
+ "family": "classic",
+ "index": 2,
+ "prompt": "a single classic style large indoor plant in a floor pot, carved dark walnut wood, tufted cream upholstery, turned legs, polished brass details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1637030310,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "0589c56fd70cf1f58bb95fcce032850755054bdbd68133066a10127f525aaf7b",
+ "seconds": 4.12,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:43:33Z"
+}

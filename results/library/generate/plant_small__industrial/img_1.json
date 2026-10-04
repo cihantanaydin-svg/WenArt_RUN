@@ -1,0 +1,24 @@
+{
+ "key": "696e5eb26d7e10529b9fde09b83393fa0e5e693d844b03cb4c21cbbe32e232f5",
+ "pair": "plant_small__industrial",
+ "type": "plant_small",
+ "family": "industrial",
+ "index": 1,
+ "prompt": "a single industrial style small indoor plant in a pot for a table or a shelf, raw concrete, black steel and dark glazed ceramic, rough textures, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1584856133,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "6741f8b9caf732d0c6db0ed00011ed7e573648d16762d94e89e93669f3d36db7",
+ "seconds": 4.03,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:41:10Z"
+}

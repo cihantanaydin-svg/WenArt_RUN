@@ -1,0 +1,24 @@
+{
+ "key": "6445619ef74bd34e0c16244ecd469db642a0a4202f39967aec5524176d729e4e",
+ "pair": "washbasin__modern",
+ "type": "washbasin",
+ "family": "modern",
+ "index": 1,
+ "prompt": "a single modern style bathroom washbasin on a vanity unit, glossy white ceramic, stainless steel and chrome fittings, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1917145665,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "3bee211dbef78d3ddd3334ce972af48536e4ba8ae12a9e15e70947361f41a44f",
+ "seconds": 4.11,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:41:56Z"
+}

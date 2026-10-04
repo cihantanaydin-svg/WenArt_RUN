@@ -1,7 +1,7 @@
 {
  "schema_version": "0.1",
  "kind": "objaverse_accepted",
- "generated_utc": "2026-10-04T12:19:20Z",
+ "generated_utc": "2026-10-04T13:59:45Z",
  "rules": "docs/milestone7.md §7.2, docs/milestone8.md §2",
  "sources": "all",
  "limits": {
@@ -11,21 +11,296 @@
   "style_fill": true
  },
  "counts": {
-  "accepted": 457,
-  "front_not_agreed": 81,
-  "quality": 154,
+  "accepted": 552,
+  "front_not_agreed": 89,
+  "quality": 168,
   "not_single": 5,
   "type_mismatch": 13,
-  "no_common_style": 24,
+  "no_common_style": 30,
   "not_decor_type": 26,
-  "over_type_limit": 111
+  "over_type_limit": 113
  },
  "accepted_by_source": {
   "abo": 345,
-  "generated": 35,
+  "generated": 130,
   "objaverse": 77
  },
  "accepted": [
+  {
+   "uid": "gen_bowl_scandinavian_1_ca5c9c50",
+   "type": "bowl",
+   "source": "generated",
+   "kind": "decor",
+   "decor_type": "bowl",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "bowl has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "scandinavian",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern'], glm ['scandinavian', 'modern minimal', 'minimal', 'modern', 'neutral']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    5
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_bowl_scandinavian_2_10f5db00",
+   "type": "bowl",
+   "source": "generated",
+   "kind": "decor",
+   "decor_type": "bowl",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "bowl has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "scandinavian",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern'], glm ['scandinavian', 'modern minimal', 'minimal', 'modern', 'neutral']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    5
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_bowl_japandi_1_6596ba4b",
+   "type": "bowl",
+   "source": "generated",
+   "kind": "decor",
+   "decor_type": "bowl",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "bowl has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "scandinavian",
+    "japandi",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern'], glm ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern', 'neutral']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    5
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_bowl_minimal_1_58d9a7aa",
+   "type": "bowl",
+   "source": "generated",
+   "kind": "decor",
+   "decor_type": "bowl",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "bowl has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "scandinavian",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern'], glm ['scandinavian', 'modern minimal', 'minimal', 'modern', 'neutral']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    5
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_bowl_modern_1_c5302d78",
+   "type": "bowl",
+   "source": "generated",
+   "kind": "decor",
+   "decor_type": "bowl",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "bowl has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern', 'industrial'], glm ['modern', 'neutral']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    5
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_bowl_industrial_1_8fc4b9a1",
+   "type": "bowl",
+   "source": "generated",
+   "kind": "decor",
+   "decor_type": "bowl",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "bowl has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "industrial",
+    "neutral"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'industrial', 'neutral'], glm ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern', 'industrial', 'neutral']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    5
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_bowl_mediterranean_1_80ad0595",
+   "type": "bowl",
+   "source": "generated",
+   "kind": "decor",
+   "decor_type": "bowl",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "bowl has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "scandinavian",
+    "japandi",
+    "minimal",
+    "modern",
+    "neutral"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern', 'mediterranean', 'rustic', 'neutral'], glm ['scandinavian', 'japandi', 'minimal', 'modern', 'neutral']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    5
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_bowl_modern_minimal_1_8e554715",
+   "type": "bowl",
+   "source": "generated",
+   "kind": "decor",
+   "decor_type": "bowl",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "bowl has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "modern minimal",
+    "minimal"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'scandinavian', 'japandi'], glm ['modern minimal', 'minimal', 'modern']; kept by the fill pass (bowl had 5 models of each of its styles: modern minimal, minimal)",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    4
+   ],
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
+   "uid": "gen_bowl_rustic_1_4d403b64",
+   "type": "bowl",
+   "source": "generated",
+   "kind": "decor",
+   "decor_type": "bowl",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "bowl has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "industrial",
+    "rustic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['industrial', 'rustic'], glm ['industrial', 'rustic']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    5
+   ],
+   "licence_flag": null
+  },
   {
    "uid": "abo_B074VLRP5T",
    "type": "cushion",
@@ -1152,6 +1427,331 @@
     4
    ],
    "licence_flag": null
+  },
+  {
+   "uid": "gen_plant_small_scandinavian_1_0dcfdd60",
+   "type": "plant_small",
+   "source": "generated",
+   "kind": "decor",
+   "decor_type": "plant_small",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "plant_small has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "scandinavian",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern'], glm ['scandinavian', 'modern minimal', 'minimal', 'modern', 'neutral']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    5
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_plant_small_scandinavian_2_20075b95",
+   "type": "plant_small",
+   "source": "generated",
+   "kind": "decor",
+   "decor_type": "plant_small",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "plant_small has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "scandinavian",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern'], glm ['scandinavian', 'modern minimal', 'minimal', 'modern', 'neutral']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    5
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_plant_small_japandi_1_32d3b9fb",
+   "type": "plant_small",
+   "source": "generated",
+   "kind": "decor",
+   "decor_type": "plant_small",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "plant_small has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "scandinavian",
+    "japandi",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern'], glm ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern', 'neutral']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    5
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_plant_small_modern_minimal_1_7ea34d3d",
+   "type": "plant_small",
+   "source": "generated",
+   "kind": "decor",
+   "decor_type": "plant_small",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "plant_small has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "scandinavian",
+    "japandi",
+    "modern minimal",
+    "minimal",
+    "modern",
+    "neutral"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern', 'neutral'], glm ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern', 'neutral']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    5
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_plant_small_minimal_1_6f2e772d",
+   "type": "plant_small",
+   "source": "generated",
+   "kind": "decor",
+   "decor_type": "plant_small",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "plant_small has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "scandinavian",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern'], glm ['scandinavian', 'modern minimal', 'minimal', 'modern', 'neutral']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    5
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_plant_small_modern_1_e1ff6032",
+   "type": "plant_small",
+   "source": "generated",
+   "kind": "decor",
+   "decor_type": "plant_small",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "plant_small has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "scandinavian",
+    "japandi",
+    "modern minimal",
+    "minimal",
+    "modern",
+    "neutral"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern', 'neutral'], glm ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern', 'neutral']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    5
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_plant_small_industrial_1_94d74431",
+   "type": "plant_small",
+   "source": "generated",
+   "kind": "decor",
+   "decor_type": "plant_small",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "plant_small has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "scandinavian",
+    "japandi",
+    "modern minimal",
+    "minimal",
+    "modern",
+    "neutral"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern', 'industrial', 'neutral'], glm ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern', 'neutral']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    5
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_plant_small_mediterranean_1_3691e399",
+   "type": "plant_small",
+   "source": "generated",
+   "kind": "decor",
+   "decor_type": "plant_small",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "plant_small has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "scandinavian",
+    "japandi",
+    "modern minimal",
+    "minimal",
+    "modern",
+    "mediterranean",
+    "neutral"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern', 'mediterranean', 'neutral'], glm ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern', 'mediterranean', 'neutral']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    5
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_plant_small_classic_1_08e9f778",
+   "type": "plant_small",
+   "source": "generated",
+   "kind": "decor",
+   "decor_type": "plant_small",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "plant_small has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "scandinavian",
+    "japandi",
+    "modern minimal",
+    "minimal",
+    "modern",
+    "neutral"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern', 'neutral'], glm ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern', 'neutral']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    5
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_plant_small_rustic_1_5cdaa51b",
+   "type": "plant_small",
+   "source": "generated",
+   "kind": "decor",
+   "decor_type": "plant_small",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "plant_small has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "scandinavian",
+    "japandi",
+    "modern minimal",
+    "minimal",
+    "modern",
+    "neutral"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern', 'industrial', 'mediterranean', 'neutral'], glm ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern', 'neutral']; kept by the fill pass (plant_small had 5 models of each of its styles: scandinavian, japandi, modern minimal, minimal, modern, neutral)",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    5
+   ],
+   "licence_flag": null,
+   "style_fill": true
   },
   {
    "uid": "abo_B07HSF7LWP",
@@ -4101,6 +4701,126 @@
    "licence_flag": "non_commercial"
   },
   {
+   "uid": "gen_bathtub_japandi_3_83eb18c0",
+   "type": "bathtub",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "+Y",
+   "front_view": 2,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 2 (camera on the +Y side) shows the front; geometry: detail_side: 6293 vs 3144 vertices in the y slabs: front +Y",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    4
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_bathtub_minimal_1_fe9cee36",
+   "type": "bathtub",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: vertex counts {'-x': 4246, '+x': 3662, '-y': 7498, '+y': 8315} give no side with 1.3x more detail (generated model: the judges decide; the geometry rule is for scanned products)",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    4
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_bathtub_modern_3_0f116dc4",
+   "type": "bathtub",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: vertex counts {'-x': 3781, '+x': 3259, '-y': 6539, '+y': 5610} give no side with 1.3x more detail (generated model: the judges decide; the geometry rule is for scanned products)",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    4
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_bathtub_mediterranean_1_11d9dbc8",
+   "type": "bathtub",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 7645 vs 3803 vertices in the y slabs: front +Y (generated model: the judges decide; the geometry rule is for scanned products)",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    5
+   ],
+   "licence_flag": null
+  },
+  {
    "uid": "gen_bathtub_scandinavian_1_230fe403",
    "type": "bathtub",
    "source": "generated",
@@ -4119,7 +4839,7 @@
     "minimal",
     "modern"
    ],
-   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']; kept by the fill pass (bathtub had 5 models of each of its styles: modern minimal, minimal, modern)",
    "has_mattress": null,
    "bed_frame": null,
    "deck_height_m": null,
@@ -4128,7 +4848,8 @@
     4,
     4
    ],
-   "licence_flag": null
+   "licence_flag": null,
+   "style_fill": true
   },
   {
    "uid": "gen_bathtub_scandinavian_2_6fde34a5",
@@ -4149,7 +4870,7 @@
     "minimal",
     "modern"
    ],
-   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']; kept by the fill pass (bathtub had 5 models of each of its styles: modern minimal, minimal, modern)",
    "has_mattress": null,
    "bed_frame": null,
    "deck_height_m": null,
@@ -4158,7 +4879,39 @@
     4,
     4
    ],
-   "licence_flag": null
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
+   "uid": "gen_bathtub_scandinavian_4_a6fdd251",
+   "type": "bathtub",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 13009 vs 7134 vertices in the y slabs: front +Y (generated model: the judges decide; the geometry rule is for scanned products)",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']; kept by the fill pass (bathtub had 5 models of each of its styles: modern minimal, minimal, modern)",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    4
+   ],
+   "licence_flag": null,
+   "style_fill": true
   },
   {
    "uid": "gen_bathtub_modern_minimal_1_1a44f6ff",
@@ -4179,7 +4932,7 @@
     "minimal",
     "modern"
    ],
-   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']; kept by the fill pass (bathtub had 5 models of each of its styles: modern minimal, minimal, modern)",
    "has_mattress": null,
    "bed_frame": null,
    "deck_height_m": null,
@@ -4188,7 +4941,8 @@
     4,
     4
    ],
-   "licence_flag": null
+   "licence_flag": null,
+   "style_fill": true
   },
   {
    "uid": "gen_bathtub_modern_minimal_2_927c5b3c",
@@ -4209,7 +4963,7 @@
     "minimal",
     "modern"
    ],
-   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']; kept by the fill pass (bathtub had 5 models of each of its styles: modern minimal, minimal, modern)",
    "has_mattress": null,
    "bed_frame": null,
    "deck_height_m": null,
@@ -4218,7 +4972,39 @@
     4,
     4
    ],
-   "licence_flag": null
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
+   "uid": "gen_bathtub_modern_minimal_3_5f405b34",
+   "type": "bathtub",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: vertex counts {'-x': 4883, '+x': 4827, '-y': 7616, '+y': 7035} give no side with 1.3x more detail (generated model: the judges decide; the geometry rule is for scanned products)",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']; kept by the fill pass (bathtub had 5 models of each of its styles: modern minimal, minimal, modern)",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    4
+   ],
+   "licence_flag": null,
+   "style_fill": true
   },
   {
    "uid": "gen_bathtub_modern_1_009871cf",
@@ -4234,6 +5020,37 @@
    "front_view": 0,
    "front_axis_confidence": "high",
    "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: vertex counts {'-x': 5634, '+x': 5389, '-y': 6560, '+y': 8287} give no side with 1.3x more detail (generated model: the judges decide; the geometry rule is for scanned products)",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']; kept by the fill pass (bathtub had 5 models of each of its styles: modern minimal, minimal, modern)",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    4
+   ],
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
+   "uid": "gen_bathtub_industrial_1_46aaa4c2",
+   "type": "bathtub",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 11311 vs 4254 vertices in the y slabs: front +Y (generated model: the judges decide; the geometry rule is for scanned products)",
    "styles": [
     "modern minimal",
     "minimal",
@@ -5125,6 +5942,320 @@
     4
    ],
    "licence_flag": null
+  },
+  {
+   "uid": "gen_bed_single_classic_1_dbac0f10",
+   "type": "bed_single",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.477 of the extent): front -Y",
+   "styles": [
+    "classic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['classic'], glm ['classic']",
+   "has_mattress": true,
+   "bed_frame": false,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    5
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_bed_single_scandinavian_1_8060783a",
+   "type": "bed_single",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.440 of the extent): front -Y",
+   "styles": [
+    "scandinavian",
+    "japandi",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern'], glm ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern']",
+   "has_mattress": true,
+   "bed_frame": false,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    4
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_bed_single_japandi_1_35dff430",
+   "type": "bed_single",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.467 of the extent): front -Y",
+   "styles": [
+    "scandinavian",
+    "japandi",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern'], glm ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern']; kept by the fill pass (bed_single had 5 models of each of its styles: scandinavian, japandi, modern minimal, minimal, modern)",
+   "has_mattress": true,
+   "bed_frame": false,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    4
+   ],
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
+   "uid": "gen_bed_single_rustic_1_db9b30c6",
+   "type": "bed_single",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-X",
+   "front_view": 3,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 3 (camera on the -X side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +X (+0.464 of the extent): front -X",
+   "styles": [
+    "scandinavian",
+    "japandi",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern'], glm ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern', 'rustic']; kept by the fill pass (bed_single had 5 models of each of its styles: scandinavian, japandi, modern minimal, minimal, modern)",
+   "has_mattress": true,
+   "bed_frame": false,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    4
+   ],
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
+   "uid": "gen_bed_single_modern_minimal_1_5c05505b",
+   "type": "bed_single",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.491 of the extent): front -Y",
+   "styles": [
+    "modern minimal",
+    "minimal"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'scandinavian'], glm ['modern minimal', 'minimal', 'modern']; kept by the fill pass (bed_single had 5 models of each of its styles: modern minimal, minimal)",
+   "has_mattress": true,
+   "bed_frame": false,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    4
+   ],
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
+   "uid": "gen_bed_single_minimal_1_738c07ed",
+   "type": "bed_single",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.490 of the extent): front -Y",
+   "styles": [
+    "scandinavian",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern'], glm ['scandinavian', 'modern minimal', 'minimal', 'modern']; kept by the fill pass (bed_single had 5 models of each of its styles: scandinavian, modern minimal, minimal, modern)",
+   "has_mattress": true,
+   "bed_frame": false,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    4
+   ],
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
+   "uid": "gen_bed_single_modern_1_cb4f07bd",
+   "type": "bed_single",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.488 of the extent): front -Y",
+   "styles": [
+    "japandi",
+    "modern minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern'], glm ['japandi', 'modern minimal', 'modern']; kept by the fill pass (bed_single had 5 models of each of its styles: japandi, modern minimal, modern)",
+   "has_mattress": true,
+   "bed_frame": false,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    4
+   ],
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
+   "uid": "gen_bed_single_industrial_1_9f087076",
+   "type": "bed_single",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.481 of the extent): front -Y",
+   "styles": [
+    "modern minimal",
+    "industrial"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['industrial', 'modern minimal', 'minimal'], glm ['modern minimal', 'industrial']",
+   "has_mattress": true,
+   "bed_frame": false,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    4
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_bed_single_mediterranean_1_c9d313b4",
+   "type": "bed_single",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.479 of the extent): front -Y",
+   "styles": [
+    "scandinavian",
+    "japandi",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern'], glm ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern']; kept by the fill pass (bed_single had 5 models of each of its styles: scandinavian, japandi, modern minimal, minimal, modern)",
+   "has_mattress": true,
+   "bed_frame": false,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    4
+   ],
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
+   "uid": "gen_bed_single_mediterranean_2_8f745c9f",
+   "type": "bed_single",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.482 of the extent): front -Y",
+   "styles": [
+    "scandinavian",
+    "japandi",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern'], glm ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern']; kept by the fill pass (bed_single had 5 models of each of its styles: scandinavian, japandi, modern minimal, minimal, modern)",
+   "has_mattress": true,
+   "bed_frame": false,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    4
+   ],
+   "licence_flag": null,
+   "style_fill": true
   },
   {
    "uid": "abo_B07JGY5LNV",
@@ -8295,6 +9426,156 @@
    "style_fill": true
   },
   {
+   "uid": "gen_fridge_japandi_3_38a9d0f8",
+   "type": "fridge",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 12785 vs 7696 vertices in the y slabs: front -Y",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']; kept by the fill pass (fridge had 5 models of each of its styles: modern minimal, minimal, modern)",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    4
+   ],
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
+   "uid": "gen_fridge_modern_minimal_1_c27ed7d7",
+   "type": "fridge",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 10086 vs 6146 vertices in the y slabs: front +Y (generated model: the judges decide; the geometry rule is for scanned products)",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']; kept by the fill pass (fridge had 5 models of each of its styles: modern minimal, minimal, modern)",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    4
+   ],
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
+   "uid": "gen_fridge_industrial_1_03996e16",
+   "type": "fridge",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 43815 vs 376 vertices in the y slabs: front +Y (generated model: the judges decide; the geometry rule is for scanned products)",
+   "styles": [
+    "modern minimal",
+    "industrial"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'industrial'], glm ['modern minimal', 'modern', 'industrial']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    4
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_fridge_mediterranean_1_1460e264",
+   "type": "fridge",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 5402 vs 529 vertices in the y slabs: front +Y (generated model: the judges decide; the geometry rule is for scanned products)",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']; kept by the fill pass (fridge had 5 models of each of its styles: modern minimal, minimal, modern)",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    4
+   ],
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
+   "uid": "gen_fridge_rustic_1_06be6df4",
+   "type": "fridge",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 10709 vs 1280 vertices in the y slabs: front +Y (generated model: the judges decide; the geometry rule is for scanned products)",
+   "styles": [
+    "classic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['classic'], glm ['classic', 'neutral']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    4
+   ],
+   "licence_flag": null
+  },
+  {
    "uid": "abo_B075X38PZ7",
    "type": "nightstand",
    "source": "abo",
@@ -9081,6 +10362,38 @@
    "licence_flag": null
   },
   {
+   "uid": "gen_potted_plant_scandinavian_3_ef4f2d99",
+   "type": "potted_plant",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "potted_plant has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "scandinavian",
+    "japandi",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern'], glm ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    5
+   ],
+   "licence_flag": null
+  },
+  {
    "uid": "gen_potted_plant_japandi_1_63c10a71",
    "type": "potted_plant",
    "source": "generated",
@@ -9146,6 +10459,258 @@
    "licence_flag": null
   },
   {
+   "uid": "gen_potted_plant_japandi_3_36d34f2a",
+   "type": "potted_plant",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "potted_plant has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "scandinavian",
+    "japandi",
+    "modern minimal",
+    "minimal",
+    "modern",
+    "neutral"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern', 'neutral'], glm ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern', 'neutral']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    5
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_potted_plant_modern_minimal_1_6b4ad5f1",
+   "type": "potted_plant",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "potted_plant has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "scandinavian",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern', 'neutral'], glm ['scandinavian', 'modern minimal', 'minimal', 'modern']; kept by the fill pass (potted_plant had 5 models of each of its styles: scandinavian, modern minimal, minimal, modern)",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    5
+   ],
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
+   "uid": "gen_potted_plant_minimal_1_5cf2e7a2",
+   "type": "potted_plant",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "potted_plant has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern",
+    "neutral"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern', 'neutral'], glm ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern', 'neutral']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    5
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_potted_plant_modern_1_8fbfec3c",
+   "type": "potted_plant",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "potted_plant has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "neutral"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern', 'industrial', 'neutral'], glm ['neutral']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    5
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_potted_plant_industrial_2_eb3d21f5",
+   "type": "potted_plant",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "potted_plant has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "scandinavian",
+    "japandi",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern', 'japandi', 'scandinavian'], glm ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern', 'mediterranean', 'neutral']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    5
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_potted_plant_mediterranean_1_38a58433",
+   "type": "potted_plant",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "potted_plant has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "scandinavian",
+    "japandi",
+    "modern minimal",
+    "minimal",
+    "modern",
+    "mediterranean",
+    "neutral"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern', 'mediterranean', 'neutral'], glm ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern', 'mediterranean', 'neutral']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    5
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_potted_plant_rustic_1_978e47a9",
+   "type": "potted_plant",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "potted_plant has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "scandinavian",
+    "japandi",
+    "modern minimal",
+    "minimal",
+    "modern",
+    "neutral"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern', 'mediterranean', 'neutral'], glm ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern', 'neutral']; kept by the fill pass (potted_plant had 5 models of each of its styles: scandinavian, japandi, modern minimal, minimal, modern, neutral)",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    5
+   ],
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
+   "uid": "gen_shower_industrial_1_d2ef1a9f",
+   "type": "shower",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "shower has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "modern minimal"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'industrial'], glm ['modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    4
+   ],
+   "licence_flag": null
+  },
+  {
    "uid": "gen_shower_scandinavian_1_0ae4a37a",
    "type": "shower",
    "source": "generated",
@@ -9177,6 +10742,96 @@
   },
   {
    "uid": "gen_shower_japandi_1_dcdcd4dc",
+   "type": "shower",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "shower has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    4
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_shower_minimal_1_25eeb7e2",
+   "type": "shower",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "shower has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    4
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_shower_mediterranean_1_4cc815f7",
+   "type": "shower",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "shower has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    4
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_shower_rustic_1_26a99f3f",
    "type": "shower",
    "source": "generated",
    "kind": "furniture",
@@ -9903,6 +11558,65 @@
    "licence_flag": null
   },
   {
+   "uid": "gen_sink_kitchen_rustic_1_3b005a69",
+   "type": "sink_kitchen",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: vertex counts {'-x': 8328, '+x': 8342, '-y': 4545, '+y': 5411} give no side with 1.3x more detail (generated model: the judges decide; the geometry rule is for scanned products)",
+   "styles": [
+    "modern minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['neutral', 'modern minimal', 'modern']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    4
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_sink_kitchen_scandinavian_3_3e309f4c",
+   "type": "sink_kitchen",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 11439 vs 5272 vertices in the y slabs: front +Y (generated model: the judges decide; the geometry rule is for scanned products)",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    4
+   ],
+   "licence_flag": null
+  },
+  {
    "uid": "gen_sink_kitchen_japandi_2_d6ae0419",
    "type": "sink_kitchen",
    "source": "generated",
@@ -9932,6 +11646,68 @@
    "licence_flag": null
   },
   {
+   "uid": "gen_sink_kitchen_japandi_3_1462384d",
+   "type": "sink_kitchen",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 18662 vs 13298 vertices in the y slabs: front +Y (generated model: the judges decide; the geometry rule is for scanned products)",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']; kept by the fill pass (sink_kitchen had 5 models of each of its styles: modern minimal, minimal, modern)",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    4
+   ],
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
+   "uid": "gen_sink_kitchen_japandi_4_329115ec",
+   "type": "sink_kitchen",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 29339 vs 16011 vertices in the y slabs: front -Y",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']; kept by the fill pass (sink_kitchen had 5 models of each of its styles: modern minimal, minimal, modern)",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    4
+   ],
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
    "uid": "gen_sink_kitchen_modern_1_5b97156d",
    "type": "sink_kitchen",
    "source": "generated",
@@ -9950,7 +11726,7 @@
     "minimal",
     "modern"
    ],
-   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']; kept by the fill pass (sink_kitchen had 5 models of each of its styles: modern minimal, minimal, modern)",
    "has_mattress": null,
    "bed_frame": null,
    "deck_height_m": null,
@@ -9959,7 +11735,8 @@
     4,
     4
    ],
-   "licence_flag": null
+   "licence_flag": null,
+   "style_fill": true
   },
   {
    "uid": "gen_sink_kitchen_modern_2_b348b4dc",
@@ -9980,7 +11757,7 @@
     "minimal",
     "modern"
    ],
-   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']; kept by the fill pass (sink_kitchen had 5 models of each of its styles: modern minimal, minimal, modern)",
    "has_mattress": null,
    "bed_frame": null,
    "deck_height_m": null,
@@ -9989,7 +11766,38 @@
     4,
     4
    ],
-   "licence_flag": null
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
+   "uid": "gen_sink_kitchen_mediterranean_1_ae36322f",
+   "type": "sink_kitchen",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 2944 vs 1415 vertices in the y slabs: front -Y",
+   "styles": [
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern', 'minimal']; kept by the fill pass (sink_kitchen had 5 models of each of its styles: minimal, modern)",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    4
+   ],
+   "licence_flag": null,
+   "style_fill": true
   },
   {
    "uid": "abo_B071J7Q3J4",
@@ -10652,6 +12460,240 @@
     "modern"
    ],
    "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern', 'modern minimal'], glm ['modern', 'minimal']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    4
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_stove_scandinavian_1_acd46212",
+   "type": "stove",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 7832 vs 2466 vertices in the y slabs: front +Y (generated model: the judges decide; the geometry rule is for scanned products)",
+   "styles": [
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern', 'classic'], glm ['modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    4
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_stove_scandinavian_2_4aebb9bc",
+   "type": "stove",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 6311 vs 3565 vertices in the y slabs: front +Y (generated model: the judges decide; the geometry rule is for scanned products)",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    4
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_stove_industrial_1_59fd0342",
+   "type": "stove",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 9290 vs 2796 vertices in the y slabs: front +Y (generated model: the judges decide; the geometry rule is for scanned products)",
+   "styles": [
+    "modern",
+    "industrial"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern', 'industrial'], glm ['modern', 'industrial']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    4
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_stove_classic_1_4cdc3ba9",
+   "type": "stove",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 9263 vs 6010 vertices in the y slabs: front +Y (generated model: the judges decide; the geometry rule is for scanned products)",
+   "styles": [
+    "classic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['classic'], glm ['classic', 'neutral']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    4
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_stove_rustic_1_f05488ba",
+   "type": "stove",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 13826 vs 1577 vertices in the y slabs: front +Y (generated model: the judges decide; the geometry rule is for scanned products)",
+   "styles": [
+    "classic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['classic'], glm ['classic', 'neutral']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    4
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_stove_japandi_1_2c35be6c",
+   "type": "stove",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 4480 vs 2113 vertices in the y slabs: front +Y (generated model: the judges decide; the geometry rule is for scanned products)",
+   "styles": [
+    "scandinavian",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern'], glm ['scandinavian', 'modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    4
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_stove_modern_minimal_1_18c4c83a",
+   "type": "stove",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 12929 vs 1277 vertices in the y slabs: front +Y (generated model: the judges decide; the geometry rule is for scanned products)",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    4
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_stove_modern_1_d7aca74d",
+   "type": "stove",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 11732 vs 4306 vertices in the y slabs: front +Y (generated model: the judges decide; the geometry rule is for scanned products)",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
    "has_mattress": null,
    "bed_frame": null,
    "deck_height_m": null,
@@ -12175,6 +14217,192 @@
    "style_fill": true
   },
   {
+   "uid": "gen_toilet_rustic_1_c2ce66a1",
+   "type": "toilet",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.350 of the extent): front -Y",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']; kept by the fill pass (toilet had 5 models of each of its styles: modern minimal, minimal, modern)",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    5
+   ],
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
+   "uid": "gen_toilet_japandi_3_4e49add0",
+   "type": "toilet",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.387 of the extent): front -Y",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']; kept by the fill pass (toilet had 5 models of each of its styles: modern minimal, minimal, modern)",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    4
+   ],
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
+   "uid": "gen_toilet_industrial_1_3cd5bde9",
+   "type": "toilet",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.350 of the extent): front -Y",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']; kept by the fill pass (toilet had 5 models of each of its styles: modern minimal, minimal, modern)",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    4
+   ],
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
+   "uid": "gen_toilet_mediterranean_1_09b9f7e2",
+   "type": "toilet",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-X",
+   "front_view": 3,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 3 (camera on the -X side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.362 of the extent): front -Y (generated model: the judges decide; the geometry rule is for scanned products)",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']; kept by the fill pass (toilet had 5 models of each of its styles: modern minimal, minimal, modern)",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    4
+   ],
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
+   "uid": "gen_toilet_scandinavian_4_06dcb780",
+   "type": "toilet",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.389 of the extent): front -Y",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']; kept by the fill pass (toilet had 5 models of each of its styles: modern minimal, minimal, modern)",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    4
+   ],
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
+   "uid": "gen_toilet_minimal_1_3799392b",
+   "type": "toilet",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.359 of the extent): front +X (generated model: the judges decide; the geometry rule is for scanned products)",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']; kept by the fill pass (toilet had 5 models of each of its styles: modern minimal, minimal, modern)",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    4
+   ],
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
    "uid": "abo_B00OGP5S98",
    "type": "tv_unit",
    "source": "abo",
@@ -13266,6 +15494,124 @@
    "style_fill": true
   },
   {
+   "uid": "gen_wardrobe_rustic_1_97c119f6",
+   "type": "wardrobe",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 6839 vs 792 vertices in the y slabs: front +Y (generated model: the judges decide; the geometry rule is for scanned products)",
+   "styles": [
+    "scandinavian",
+    "rustic",
+    "neutral"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern', 'rustic', 'neutral'], glm ['scandinavian', 'rustic', 'neutral']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    5
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_wardrobe_scandinavian_1_d0aa2dad",
+   "type": "wardrobe",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: vertex counts {'-x': 16033, '+x': 15699, '-y': 21365, '+y': 23101} give no side with 1.3x more detail (generated model: the judges decide; the geometry rule is for scanned products)",
+   "styles": [
+    "scandinavian",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern'], glm ['scandinavian', 'modern minimal', 'minimal', 'modern']; kept by the fill pass (wardrobe had 5 models of each of its styles: scandinavian, modern minimal, minimal, modern)",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    4
+   ],
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
+   "uid": "gen_wardrobe_industrial_1_79cac0b4",
+   "type": "wardrobe",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 10983 vs 5874 vertices in the y slabs: front -Y",
+   "styles": [
+    "industrial"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['industrial'], glm ['industrial', 'modern']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    4
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_wardrobe_classic_1_2bc1a548",
+   "type": "wardrobe",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 15222 vs 7244 vertices in the y slabs: front +Y (generated model: the judges decide; the geometry rule is for scanned products)",
+   "styles": [
+    "classic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['classic'], glm ['classic']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    4
+   ],
+   "licence_flag": null
+  },
+  {
    "uid": "8580c4545d1649efb3503c6c2a012641",
    "type": "washbasin",
    "source": "objaverse",
@@ -13539,6 +15885,37 @@
    "licence_flag": null
   },
   {
+   "uid": "gen_washbasin_scandinavian_1_6efd9d50",
+   "type": "washbasin",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.265 of the extent): front -Y",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']; kept by the fill pass (washbasin had 5 models of each of its styles: modern minimal, minimal, modern)",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    4
+   ],
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
    "uid": "gen_washbasin_japandi_2_6d594c3b",
    "type": "washbasin",
    "source": "generated",
@@ -13570,6 +15947,255 @@
    "style_fill": true
   },
   {
+   "uid": "gen_washbasin_japandi_3_fc4e0710",
+   "type": "washbasin",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.159 of the extent): front -Y",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']; kept by the fill pass (washbasin had 5 models of each of its styles: modern minimal, minimal, modern)",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    4
+   ],
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
+   "uid": "gen_washbasin_modern_minimal_1_d5536003",
+   "type": "washbasin",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.127 of the extent): front -Y",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']; kept by the fill pass (washbasin had 5 models of each of its styles: modern minimal, minimal, modern)",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    4
+   ],
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
+   "uid": "gen_washbasin_industrial_1_6794b9a5",
+   "type": "washbasin",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.144 of the extent): front -Y",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']; kept by the fill pass (washbasin had 5 models of each of its styles: modern minimal, minimal, modern)",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    4
+   ],
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
+   "uid": "gen_washbasin_mediterranean_1_93c90025",
+   "type": "washbasin",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.138 of the extent): front -Y",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']; kept by the fill pass (washbasin had 5 models of each of its styles: modern minimal, minimal, modern)",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    4
+   ],
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
+   "uid": "gen_washbasin_rustic_1_2d54af97",
+   "type": "washbasin",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.142 of the extent): front -Y",
+   "styles": [
+    "scandinavian",
+    "japandi",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern', 'rustic'], glm ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    4
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_washbasin_minimal_1_9dc765fb",
+   "type": "washbasin",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.240 of the extent): front -Y",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']; kept by the fill pass (washbasin had 5 models of each of its styles: modern minimal, minimal, modern)",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    4
+   ],
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
+   "uid": "gen_washbasin_modern_1_833baa60",
+   "type": "washbasin",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.121 of the extent): front -Y",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']; kept by the fill pass (washbasin had 5 models of each of its styles: modern minimal, minimal, modern)",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    4
+   ],
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
+   "uid": "gen_washbasin_classic_1_9bd9b8cd",
+   "type": "washbasin",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: top centroid offset +0.077 of the extent on y is below 0.08: no taller side (generated model: the judges decide; the geometry rule is for scanned products)",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']; kept by the fill pass (washbasin had 5 models of each of its styles: modern minimal, minimal, modern)",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    4
+   ],
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
    "uid": "gen_washing_machine_modern_1_f4bdd46e",
    "type": "washing_machine",
    "source": "generated",
@@ -13595,6 +16221,35 @@
    "quality": [
     5,
     4
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_washing_machine_industrial_1_b7c9d275",
+   "type": "washing_machine",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 11482 vs 7414 vertices in the y slabs: front +Y (generated model: the judges decide; the geometry rule is for scanned products)",
+   "styles": [
+    "modern minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'modern', 'neutral']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    5
    ],
    "licence_flag": null
   },
@@ -13659,7 +16314,7 @@
    "licence_flag": null
   },
   {
-   "uid": "gen_washing_machine_modern_minimal_1_07b2b182",
+   "uid": "gen_washing_machine_scandinavian_3_292e2d11",
    "type": "washing_machine",
    "source": "generated",
    "kind": "furniture",
@@ -13671,7 +16326,7 @@
    "front_axis": "-Y",
    "front_view": 0,
    "front_axis_confidence": "high",
-   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 31153 vs 2054 vertices in the y slabs: front -Y",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 1787 vs 665 vertices in the y slabs: front -Y",
    "styles": [
     "modern minimal",
     "minimal",
@@ -13689,7 +16344,7 @@
    "licence_flag": null
   },
   {
-   "uid": "gen_washing_machine_modern_minimal_2_94b29e08",
+   "uid": "gen_washing_machine_scandinavian_4_d66cae6a",
    "type": "washing_machine",
    "source": "generated",
    "kind": "furniture",
@@ -13701,7 +16356,7 @@
    "front_axis": "-Y",
    "front_view": 0,
    "front_axis_confidence": "high",
-   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 23589 vs 16376 vertices in the y slabs: front +Y (generated model: the judges decide; the geometry rule is for scanned products)",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 13410 vs 3308 vertices in the y slabs: front +Y (generated model: the judges decide; the geometry rule is for scanned products)",
    "styles": [
     "modern minimal",
     "minimal",
@@ -13780,6 +16435,161 @@
    "style_fill": true
   },
   {
+   "uid": "gen_washing_machine_japandi_3_3e2ddcc7",
+   "type": "washing_machine",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 10002 vs 6379 vertices in the y slabs: front +Y (generated model: the judges decide; the geometry rule is for scanned products)",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']; kept by the fill pass (washing_machine had 5 models of each of its styles: modern minimal, minimal, modern)",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    4
+   ],
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
+   "uid": "gen_washing_machine_modern_minimal_1_07b2b182",
+   "type": "washing_machine",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 31153 vs 2054 vertices in the y slabs: front -Y",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']; kept by the fill pass (washing_machine had 5 models of each of its styles: modern minimal, minimal, modern)",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    4
+   ],
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
+   "uid": "gen_washing_machine_modern_minimal_2_94b29e08",
+   "type": "washing_machine",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 23589 vs 16376 vertices in the y slabs: front +Y (generated model: the judges decide; the geometry rule is for scanned products)",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']; kept by the fill pass (washing_machine had 5 models of each of its styles: modern minimal, minimal, modern)",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    4
+   ],
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
+   "uid": "gen_washing_machine_modern_minimal_3_ff74255c",
+   "type": "washing_machine",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 6594 vs 3478 vertices in the y slabs: front +Y (generated model: the judges decide; the geometry rule is for scanned products)",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']; kept by the fill pass (washing_machine had 5 models of each of its styles: modern minimal, minimal, modern)",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    4
+   ],
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
+   "uid": "gen_washing_machine_minimal_1_9ec6e746",
+   "type": "washing_machine",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 8609 vs 6260 vertices in the y slabs: front -Y",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']; kept by the fill pass (washing_machine had 5 models of each of its styles: modern minimal, minimal, modern)",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    4
+   ],
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
    "uid": "gen_washing_machine_modern_2_379d2585",
    "type": "washing_machine",
    "source": "generated",
@@ -13793,6 +16603,130 @@
    "front_view": 0,
    "front_axis_confidence": "high",
    "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 15924 vs 4718 vertices in the y slabs: front +Y (generated model: the judges decide; the geometry rule is for scanned products)",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']; kept by the fill pass (washing_machine had 5 models of each of its styles: modern minimal, minimal, modern)",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    4
+   ],
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
+   "uid": "gen_washing_machine_modern_3_50bfae6f",
+   "type": "washing_machine",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 13720 vs 4199 vertices in the y slabs: front -Y",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']; kept by the fill pass (washing_machine had 5 models of each of its styles: modern minimal, minimal, modern)",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    4
+   ],
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
+   "uid": "gen_washing_machine_mediterranean_1_bffe5bde",
+   "type": "washing_machine",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 7542 vs 3380 vertices in the y slabs: front +Y (generated model: the judges decide; the geometry rule is for scanned products)",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']; kept by the fill pass (washing_machine had 5 models of each of its styles: modern minimal, minimal, modern)",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    4
+   ],
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
+   "uid": "gen_washing_machine_classic_1_dffff7e0",
+   "type": "washing_machine",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 26102 vs 2737 vertices in the y slabs: front +Y (generated model: the judges decide; the geometry rule is for scanned products)",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']; kept by the fill pass (washing_machine had 5 models of each of its styles: modern minimal, minimal, modern)",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    4
+   ],
+   "licence_flag": null,
+   "style_fill": true
+  },
+  {
+   "uid": "gen_washing_machine_rustic_1_c7990bb9",
+   "type": "washing_machine",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 10730 vs 2528 vertices in the y slabs: front +Y (generated model: the judges decide; the geometry rule is for scanned products)",
    "styles": [
     "modern minimal",
     "minimal",
@@ -22678,6 +25612,22 @@
    "detail": "judges: qwen 2, glm 0"
   },
   {
+   "uid": "gen_bathtub_classic_1_32213a1e",
+   "type": "bathtub",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": false,
+   "failed": [
+    [
+     "no_common_style",
+     "qwen ['classic'], glm ['modern', 'minimal']"
+    ]
+   ],
+   "code": "no_common_style",
+   "detail": "qwen ['classic'], glm ['modern', 'minimal']"
+  },
+  {
    "uid": "gen_bathtub_japandi_2_c40f5efc",
    "type": "bathtub",
    "source": "generated",
@@ -22692,6 +25642,106 @@
    ],
    "code": "front_not_agreed",
    "detail": "judges: qwen None, glm 3"
+  },
+  {
+   "uid": "gen_bathtub_rustic_1_b85f8cca",
+   "type": "bathtub",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: qwen 2, glm 0"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: qwen 2, glm 0"
+  },
+  {
+   "uid": "gen_bathtub_scandinavian_3_057a7982",
+   "type": "bathtub",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": false,
+   "failed": [
+    [
+     "quality",
+     "qwen 4, glm 3"
+    ]
+   ],
+   "code": "quality",
+   "detail": "qwen 4, glm 3"
+  },
+  {
+   "uid": "gen_bowl_classic_1_9ed1c80b",
+   "type": "bowl",
+   "source": "generated",
+   "kind": "decor",
+   "decor_type": "bowl",
+   "accepted": false,
+   "failed": [
+    [
+     "no_common_style",
+     "qwen ['modern minimal', 'minimal', 'scandinavian', 'japandi'], glm ['classic', 'neutral']"
+    ]
+   ],
+   "code": "no_common_style",
+   "detail": "qwen ['modern minimal', 'minimal', 'scandinavian', 'japandi'], glm ['classic', 'neutral']"
+  },
+  {
+   "uid": "gen_fridge_classic_1_24a6ed0f",
+   "type": "fridge",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": false,
+   "failed": [
+    [
+     "quality",
+     "qwen 3, glm 4"
+    ],
+    [
+     "front_not_agreed",
+     "judges: qwen 2, glm 0"
+    ]
+   ],
+   "code": "quality",
+   "detail": "qwen 3, glm 4"
+  },
+  {
+   "uid": "gen_fridge_minimal_1_131f791b",
+   "type": "fridge",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": false,
+   "failed": [
+    [
+     "quality",
+     "qwen 3, glm 4"
+    ]
+   ],
+   "code": "quality",
+   "detail": "qwen 3, glm 4"
+  },
+  {
+   "uid": "gen_fridge_modern_1_0f715b05",
+   "type": "fridge",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": false,
+   "failed": [
+    [
+     "quality",
+     "qwen 3, glm 4"
+    ]
+   ],
+   "code": "quality",
+   "detail": "qwen 3, glm 4"
   },
   {
    "uid": "gen_fridge_scandinavian_2_5eb44a0e",
@@ -22710,7 +25760,103 @@
    "detail": "qwen 3, glm 4"
   },
   {
+   "uid": "gen_fridge_scandinavian_3_4b9294cb",
+   "type": "fridge",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": false,
+   "failed": [
+    [
+     "quality",
+     "qwen 3, glm 4"
+    ]
+   ],
+   "code": "quality",
+   "detail": "qwen 3, glm 4"
+  },
+  {
+   "uid": "gen_fridge_scandinavian_4_4b9bb6e4",
+   "type": "fridge",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": false,
+   "failed": [
+    [
+     "quality",
+     "qwen 3, glm 4"
+    ]
+   ],
+   "code": "quality",
+   "detail": "qwen 3, glm 4"
+  },
+  {
+   "uid": "gen_potted_plant_classic_1_a5ff1adf",
+   "type": "potted_plant",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": false,
+   "failed": [
+    [
+     "no_common_style",
+     "qwen ['modern minimal', 'minimal', 'modern'], glm ['japandi', 'neutral']"
+    ]
+   ],
+   "code": "no_common_style",
+   "detail": "qwen ['modern minimal', 'minimal', 'modern'], glm ['japandi', 'neutral']"
+  },
+  {
+   "uid": "gen_potted_plant_industrial_1_fb22f191",
+   "type": "potted_plant",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": false,
+   "failed": [
+    [
+     "no_common_style",
+     "qwen ['modern minimal', 'minimal', 'modern', 'scandinavian', 'japandi'], glm ['neutral']"
+    ]
+   ],
+   "code": "no_common_style",
+   "detail": "qwen ['modern minimal', 'minimal', 'modern', 'scandinavian', 'japandi'], glm ['neutral']"
+  },
+  {
+   "uid": "gen_shower_classic_1_e26e5e0a",
+   "type": "shower",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": false,
+   "failed": [
+    [
+     "quality",
+     "qwen 4, glm 3"
+    ]
+   ],
+   "code": "quality",
+   "detail": "qwen 4, glm 3"
+  },
+  {
    "uid": "gen_shower_japandi_2_b6c31e9a",
+   "type": "shower",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": false,
+   "failed": [
+    [
+     "quality",
+     "qwen 4, glm 3"
+    ]
+   ],
+   "code": "quality",
+   "detail": "qwen 4, glm 3"
+  },
+  {
+   "uid": "gen_shower_japandi_3_2c7b7e7d",
    "type": "shower",
    "source": "generated",
    "kind": "furniture",
@@ -22758,6 +25904,22 @@
    "detail": "qwen 3, glm 3"
   },
   {
+   "uid": "gen_shower_modern_3_37941d2f",
+   "type": "shower",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": false,
+   "failed": [
+    [
+     "quality",
+     "qwen 3, glm 3"
+    ]
+   ],
+   "code": "quality",
+   "detail": "qwen 3, glm 3"
+  },
+  {
    "uid": "gen_shower_modern_minimal_1_d787862a",
    "type": "shower",
    "source": "generated",
@@ -22790,6 +25952,22 @@
    "detail": "qwen 4, glm 3"
   },
   {
+   "uid": "gen_shower_modern_minimal_3_5108e5ad",
+   "type": "shower",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": false,
+   "failed": [
+    [
+     "quality",
+     "qwen 4, glm 3"
+    ]
+   ],
+   "code": "quality",
+   "detail": "qwen 4, glm 3"
+  },
+  {
    "uid": "gen_shower_scandinavian_2_88469e91",
    "type": "shower",
    "source": "generated",
@@ -22804,6 +25982,102 @@
    ],
    "code": "quality",
    "detail": "qwen 3, glm 4"
+  },
+  {
+   "uid": "gen_shower_scandinavian_3_2d3b69d4",
+   "type": "shower",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": false,
+   "failed": [
+    [
+     "quality",
+     "qwen 3, glm 4"
+    ]
+   ],
+   "code": "quality",
+   "detail": "qwen 3, glm 4"
+  },
+  {
+   "uid": "gen_shower_scandinavian_4_31320d88",
+   "type": "shower",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": false,
+   "failed": [
+    [
+     "quality",
+     "qwen 3, glm 3"
+    ]
+   ],
+   "code": "quality",
+   "detail": "qwen 3, glm 3"
+  },
+  {
+   "uid": "gen_sink_kitchen_classic_1_f7bbb88f",
+   "type": "sink_kitchen",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": false,
+   "failed": [
+    [
+     "no_common_style",
+     "qwen ['classic'], glm ['modern minimal', 'minimal', 'modern']"
+    ]
+   ],
+   "code": "no_common_style",
+   "detail": "qwen ['classic'], glm ['modern minimal', 'minimal', 'modern']"
+  },
+  {
+   "uid": "gen_sink_kitchen_industrial_1_15bcc635",
+   "type": "sink_kitchen",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: qwen 2, glm 0"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: qwen 2, glm 0"
+  },
+  {
+   "uid": "gen_sink_kitchen_minimal_1_2e90ac4a",
+   "type": "sink_kitchen",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": false,
+   "failed": [
+    [
+     "quality",
+     "qwen 3, glm 4"
+    ]
+   ],
+   "code": "quality",
+   "detail": "qwen 3, glm 4"
+  },
+  {
+   "uid": "gen_sink_kitchen_modern_3_eb304e4d",
+   "type": "sink_kitchen",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: qwen 0, glm 2"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: qwen 0, glm 2"
   },
   {
    "uid": "gen_sink_kitchen_modern_minimal_2_d36a47fa",
@@ -22822,7 +26096,87 @@
    "detail": "qwen 3, glm 4"
   },
   {
+   "uid": "gen_sink_kitchen_modern_minimal_3_e95e2f4d",
+   "type": "sink_kitchen",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": false,
+   "failed": [
+    [
+     "quality",
+     "qwen 4, glm 3"
+    ]
+   ],
+   "code": "quality",
+   "detail": "qwen 4, glm 3"
+  },
+  {
+   "uid": "gen_stove_mediterranean_1_f0595767",
+   "type": "stove",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": false,
+   "failed": [
+    [
+     "no_common_style",
+     "qwen ['classic'], glm ['modern', 'neutral']"
+    ]
+   ],
+   "code": "no_common_style",
+   "detail": "qwen ['classic'], glm ['modern', 'neutral']"
+  },
+  {
+   "uid": "gen_toilet_classic_1_f4cb8d97",
+   "type": "toilet",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: qwen 1, glm 0"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: qwen 1, glm 0"
+  },
+  {
    "uid": "gen_toilet_japandi_2_0697e750",
+   "type": "toilet",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: qwen 3, glm 0"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: qwen 3, glm 0"
+  },
+  {
+   "uid": "gen_toilet_modern_1_3cae74e3",
+   "type": "toilet",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: qwen 1, glm 0"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: qwen 1, glm 0"
+  },
+  {
+   "uid": "gen_toilet_modern_minimal_1_c0ee88fc",
    "type": "toilet",
    "source": "generated",
    "kind": "furniture",
@@ -22868,6 +26222,110 @@
    ],
    "code": "front_not_agreed",
    "detail": "judges: qwen 3, glm 0"
+  },
+  {
+   "uid": "gen_toilet_scandinavian_3_c526dae1",
+   "type": "toilet",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: qwen 3, glm 0"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: qwen 3, glm 0"
+  },
+  {
+   "uid": "gen_wardrobe_japandi_1_c9a57dbb",
+   "type": "wardrobe",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": false,
+   "failed": [
+    [
+     "over_type_limit",
+     "keep 20"
+    ]
+   ],
+   "code": "over_type_limit",
+   "detail": "rank 19 of 22 accepted wardrobe models (keep 20; its styles scandinavian, modern minimal, minimal, modern had 5 each in the first pass)",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: vertex counts {'-x': 17276, '+x': 16016, '-y': 26780, '+y': 32583} give no side with 1.3x more detail (generated model: the judges decide; the geometry rule is for scanned products)",
+   "styles": [
+    "scandinavian",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern'], glm ['scandinavian', 'modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    5,
+    4
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_wardrobe_mediterranean_1_dce90b0a",
+   "type": "wardrobe",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": false,
+   "failed": [
+    [
+     "over_type_limit",
+     "keep 20"
+    ]
+   ],
+   "code": "over_type_limit",
+   "detail": "rank 22 of 22 accepted wardrobe models (keep 20; its styles scandinavian, modern minimal, minimal, modern had 5 each in the first pass)",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 28399 vs 436 vertices in the y slabs: front +Y (generated model: the judges decide; the geometry rule is for scanned products)",
+   "styles": [
+    "scandinavian",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern'], glm ['scandinavian', 'modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "bed_frame": null,
+   "deck_height_m": null,
+   "deck_note": null,
+   "quality": [
+    4,
+    4
+   ],
+   "licence_flag": null
+  },
+  {
+   "uid": "gen_washbasin_japandi_4_576e4361",
+   "type": "washbasin",
+   "source": "generated",
+   "kind": "furniture",
+   "decor_type": null,
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: qwen 0, glm 1"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: qwen 0, glm 1"
   },
   {
    "uid": "ikcAlbZ2YXxyKWW3r4iOMRW9qR2",

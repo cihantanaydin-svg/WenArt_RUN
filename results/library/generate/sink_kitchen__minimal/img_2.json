@@ -1,0 +1,24 @@
+{
+ "key": "3655ec17937220d175480158bdfd7badf79ddb4eb4c69f4dcdce3d8dc3539069",
+ "pair": "sink_kitchen__minimal",
+ "type": "sink_kitchen",
+ "family": "minimal",
+ "index": 2,
+ "prompt": "a single minimal style kitchen sink base cabinet with a worktop and an inset sink, plain white ceramic and enamel, hidden fittings, simple geometric forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 2062809690,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "4ee9ed01ec2bbe77e626e6845c522141831f631a1f5126fb8187902bfdffd233",
+ "seconds": 4.08,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:46:03Z"
+}

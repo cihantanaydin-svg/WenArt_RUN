@@ -1,0 +1,24 @@
+{
+ "key": "87b64f5b5717cff9689904ac7e6ede4a37b2947fe24ee138c15c9dfd3679b584",
+ "pair": "fridge__classic",
+ "type": "fridge",
+ "family": "classic",
+ "index": 1,
+ "prompt": "a single classic style freestanding refrigerator, white porcelain, polished brass or chrome fittings, moulded classic details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 2132299460,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "919513edb599fb14a6e95e634f7a6e7f177789f142be5f23f6c4a4b460fa944b",
+ "seconds": 4.08,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:40:54Z"
+}

@@ -1,0 +1,24 @@
+{
+ "key": "2fd10185662ffd5fc4362c8f25ea3d2e710ae50630d052a37b1045c842100227",
+ "pair": "washbasin__mediterranean",
+ "type": "washbasin",
+ "family": "mediterranean",
+ "index": 2,
+ "prompt": "a single mediterranean style bathroom washbasin on a vanity unit, white glazed ceramic, warm terracotta and sand accents, aged brass fittings, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 554574144,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "be6725aee0c281ceb57d404fd0970cb1a52a7d7e00f5bcb70ddcb125f4507156",
+ "seconds": 4.12,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:43:59Z"
+}

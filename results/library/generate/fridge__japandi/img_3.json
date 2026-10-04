@@ -1,0 +1,24 @@
+{
+ "key": "9010b3613b1c1a2d6d6c5498742845f184405f13ba6265c9cbee32c292e5a747",
+ "pair": "fridge__japandi",
+ "type": "fridge",
+ "family": "japandi",
+ "index": 3,
+ "prompt": "a single japandi style freestanding refrigerator, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1172951065,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "cb841b6d54128bf5724a2473cca18e6b077df4b8e9fa332df9526c7d12dc8885",
+ "seconds": 4.18,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:39:29Z"
+}

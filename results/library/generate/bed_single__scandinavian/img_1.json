@@ -1,0 +1,24 @@
+{
+ "key": "2878dbae549b307a59377f3605d0d6c5160bbfe95962f019ade3289f2ff04a28",
+ "pair": "bed_single__scandinavian",
+ "type": "bed_single",
+ "family": "scandinavian",
+ "index": 1,
+ "prompt": "a single scandinavian style single bed with a headboard, a mattress and plain bedding, light oak wood, white and soft grey, natural linen upholstery, slim tapered legs, simple clean lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1186540915,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "89985b6ec6cc25ab5aaa5e8f03dcfa696324b93c6605e2b1db25acca6b20849b",
+ "seconds": 4.1,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:41:22Z"
+}

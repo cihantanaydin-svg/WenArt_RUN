@@ -1,0 +1,24 @@
+{
+ "key": "be43e7b3d60a64ec5395737cf6176735711d7c5200079e38a71b5fab0a2458b8",
+ "pair": "plant_small__japandi",
+ "type": "plant_small",
+ "family": "japandi",
+ "index": 2,
+ "prompt": "a single japandi style small indoor plant in a pot for a table or a shelf, handmade matte stoneware in stone grey and charcoal, light ash wood, calm minimal forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 626548279,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "ad0e9f166902b640975094bd7c18138f1976358fee8e3f98906c589b29aa273c",
+ "seconds": 4.04,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:43:13Z"
+}

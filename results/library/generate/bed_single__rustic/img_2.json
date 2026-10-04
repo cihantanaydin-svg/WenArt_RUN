@@ -1,0 +1,24 @@
+{
+ "key": "ebd43421a827ec59255089f88062ee9501e3ee21e9adf63fbea66cb9eb9eaba2",
+ "pair": "bed_single__rustic",
+ "type": "bed_single",
+ "family": "rustic",
+ "index": 2,
+ "prompt": "a single rustic style single bed with a headboard, a mattress and plain bedding, rough-sawn oak with visible grain, wrought iron, natural linen, sturdy chunky forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 79096055,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "3e366a90645314fc4bd5c4d2d592c30f82612fb50573bb16995039c2839eba7a",
+ "seconds": 4.12,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:43:55Z"
+}

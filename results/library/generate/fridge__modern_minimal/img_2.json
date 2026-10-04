@@ -1,0 +1,24 @@
+{
+ "key": "feb836286b0ca60613e3945de82c521d3a0eee43064833ecd9b2fe35b69b80d2",
+ "pair": "fridge__modern_minimal",
+ "type": "fridge",
+ "family": "modern minimal",
+ "index": 2,
+ "prompt": "a single modern minimal style freestanding refrigerator, matte white surfaces, flush handleless fronts, thin black fittings, crisp rectangular forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 967429204,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "70cfe07c78eaa6c95aa46a64ff3c065f838c53c519732478492e5cd792c7b3bd",
+ "seconds": 4.05,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:45:50Z"
+}

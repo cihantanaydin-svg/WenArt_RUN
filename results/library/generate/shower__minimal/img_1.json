@@ -1,0 +1,24 @@
+{
+ "key": "259aac4fae423df7547a6e431f7ff09c9019c9ff001c538acf3c3a6460178db6",
+ "pair": "shower__minimal",
+ "type": "shower",
+ "family": "minimal",
+ "index": 1,
+ "prompt": "a single minimal style square glass shower enclosure with a shower tray, plain white ceramic and enamel, hidden fittings, simple geometric forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1564559402,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "576cd07dd7c4aa6d167d6894682b4bda1e99d51fa13a5f1b69e98c739c63816c",
+ "seconds": 4.2,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:42:04Z"
+}

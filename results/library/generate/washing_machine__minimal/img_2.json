@@ -1,0 +1,24 @@
+{
+ "key": "1ba80a3e46eb0be6e0279bc8a2f0d6c48e7fbd1bf9b39e97514f1712ef0db27e",
+ "pair": "washing_machine__minimal",
+ "type": "washing_machine",
+ "family": "minimal",
+ "index": 2,
+ "prompt": "a single minimal style front-loading washing machine, plain white ceramic and enamel, hidden fittings, simple geometric forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 232946761,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "dae9fac9483e1a3fd715d0e19b311ffdd6f2666bb74e4b99a4f0d5dac248e419",
+ "seconds": 3.99,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:45:27Z"
+}

@@ -1,0 +1,24 @@
+{
+ "key": "12837eb64aeb0831d101a63201f4f25ae68b3db14e0376dece6755067519625c",
+ "pair": "bed_single__mediterranean",
+ "type": "bed_single",
+ "family": "mediterranean",
+ "index": 2,
+ "prompt": "a single mediterranean style single bed with a headboard, a mattress and plain bedding, whitewashed wood, terracotta and sand tones, woven rattan, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1428044225,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "f54c5ddb4b1fcf5f772bf2f41ca4e2462bad5f4ae4cd7f2a2b650ee783f4ec68",
+ "seconds": 4.07,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:43:06Z"
+}

@@ -1,0 +1,24 @@
+{
+ "key": "3e1237caca684452331020a410bc9ca63e19ced9dc05f76a9bffcf3ef120ecfd",
+ "pair": "plant_small__modern",
+ "type": "plant_small",
+ "family": "modern",
+ "index": 3,
+ "prompt": "a single modern style small indoor plant in a pot for a table or a shelf, glossy ceramic and smoked glass, brushed brass and walnut accents, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 202522844,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "e5f6e04195c1c969f3118056e1167d068b664474f66f5177bebbe69ff15d92ec",
+ "seconds": 4.01,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:46:48Z"
+}

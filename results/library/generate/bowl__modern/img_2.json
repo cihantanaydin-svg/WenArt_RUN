@@ -1,0 +1,24 @@
+{
+ "key": "2c7cb56b6d6b898062f9c4218ddb17233b05a9265b5217f2d1199c03926bef8c",
+ "pair": "bowl__modern",
+ "type": "bowl",
+ "family": "modern",
+ "index": 2,
+ "prompt": "a single modern style shallow decorative bowl for a coffee table, glossy ceramic and smoked glass, brushed brass and walnut accents, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1025243257,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "6345ddfda804bfa1e5b66c3021e8bfcccf887a68cb7ca04a7347270462c4e5d9",
+ "seconds": 4.06,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+ },
+ "generated_utc": "2026-10-04T12:44:28Z"
+}
