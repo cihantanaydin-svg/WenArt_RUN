@@ -278,7 +278,15 @@ def status_server(tmp_path, monkeypatch):
         assert url.startswith(PROXY_HOST), url
         return real_fetch(base + url[len(PROXY_HOST):], timeout=timeout)
 
+    real_fetch_to = gpu_run.fetch_to
+
+    def routed_fetch_to(url, path, timeout=900, max_bytes=0):
+        requests.append(url)
+        assert url.startswith(PROXY_HOST), url
+        return real_fetch_to(base + url[len(PROXY_HOST):], path, timeout=timeout, max_bytes=max_bytes)
+
     monkeypatch.setattr(gpu_run, "fetch", routed_fetch)
+    monkeypatch.setattr(gpu_run, "fetch_to", routed_fetch_to)
     monkeypatch.setattr(gpu_run.time, "sleep", lambda s: None)
 
     def link(job_dir: Path) -> None:
@@ -361,6 +369,43 @@ def test_collect_takes_the_whole_prep_results_tree_and_names_files_left_out_for_
     assert col["too_big"] == ["results/library/survey.json (0.0 MB)"]
     assert (run_dir / "collect_too_big.txt").read_text() == "results/library/survey.json (0.0 MB)\n"
     assert max(rel.count("/") for rel in PREP_RESULTS) <= gpu_run.COLLECT_MAX_DEPTH
+
+
+def test_collect_streams_the_3d_files_past_the_small_file_caps(status_server, tmp_path, monkeypatch):
+    """Milestone 9: results/final/<p>/3d/<p>.blend and .glb (the export stage) are collected whatever
+    COLLECT_MAX_FILE and COLLECT_MAX_TOTAL say, after the small files, and not again when already complete."""
+    job = make_job_dir(status_server["root"], private=False)
+    blend, glb = b"B" * 5000, b"G" * 3000
+    (job / "results" / "final" / "synthetic-04" / "3d").mkdir(parents=True)
+    (job / "results" / "final" / "synthetic-04" / "3d" / "synthetic-04.blend").write_bytes(blend)
+    (job / "results" / "final" / "synthetic-04" / "3d" / "synthetic-04.glb").write_bytes(glb)
+    write_file(job / "results" / "final" / "synthetic-04" / "3d" / "export_manifest.json", "{}")
+    status_server["link"](job)
+    monkeypatch.setattr(gpu_run, "COLLECT_MAX_FILE", 100)
+    monkeypatch.setattr(gpu_run, "COLLECT_MAX_TOTAL", 1000)
+    run_dir = new_dir(tmp_path / "runs" / "export")
+    col = gpu_run.collect_all(PROXY_URL, run_dir, workers=1)
+    assert col["ok"] and not col["capped"] and not col["too_big"] and col["files"] == 6
+    assert (col["big_files"], col["big_bytes"]) == (2, 8000)
+    got = run_dir / "results" / "final" / "synthetic-04" / "3d"
+    assert (got / "synthetic-04.blend").read_bytes() == blend and (got / "synthetic-04.glb").read_bytes() == glb
+    assert (got / "export_manifest.json").read_text() == "{}" and not list(got.glob("*.part"))
+    fetched = [u for u in status_server["requests"] if not u.endswith("/")]
+    assert all(u.endswith((".blend", ".glb")) for u in fetched[-2:])       # after every small file
+    # A second collection keeps the complete local copies; a file over the big-file cap is named, not fetched.
+    (got / "synthetic-04.blend").write_bytes(b"x" * 5000)                   # same size: kept as it is
+    monkeypatch.setattr(gpu_run, "COLLECT_BIG_MAX_FILE", 4000)
+    col = gpu_run.collect_all(PROXY_URL, run_dir, workers=2)
+    assert (got / "synthetic-04.blend").read_bytes() == b"x" * 5000
+    assert col["too_big"] == ["results/final/synthetic-04/3d/synthetic-04.blend (over 0 MB)"]
+    assert col["ok"] and col["big_files"] == 1
+
+
+def test_big_results_are_only_the_3d_files():
+    assert gpu_run.is_big_result("final/synthetic-04/3d/synthetic-04.blend")
+    assert gpu_run.is_big_result("real-01/final/3d/real-01.glb")                # private layout
+    assert not gpu_run.is_big_result("final/synthetic-04/3d/export_manifest.json")
+    assert not gpu_run.is_big_result("library/models/abo/x.glb") and not gpu_run.is_big_result("x.blend")
 
 
 def test_collect_is_not_ok_without_job_log_or_results(status_server, tmp_path):

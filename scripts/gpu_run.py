@@ -123,6 +123,38 @@ def fetch(url: str, timeout: int = 20) -> bytes | None:
         return None
 
 
+def fetch_to(url: str, path: Path, timeout: int = 900, max_bytes: int = 0) -> tuple[int | None, str]:
+    """GET ``url`` into ``path`` in 1 MB chunks (through ``<path>.part``, renamed when complete): ``(bytes, "")``,
+    or ``(None, "too big")`` when the file is larger than ``max_bytes`` (0: no limit), or ``(None, "failed")``. A
+    local file of the announced size is kept, so a repeated collection does not download it again."""
+    tmp = path.with_name(path.name + ".part")
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": UA})
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            size = int(r.headers.get("Content-Length") or -1)
+            if max_bytes and size > max_bytes:
+                return None, "too big"
+            if size >= 0 and path.is_file() and path.stat().st_size == size:
+                return size, ""
+            n = 0
+            with tmp.open("wb") as fh:
+                for chunk in iter(lambda: r.read(1 << 20), b""):
+                    n += len(chunk)
+                    if max_bytes and n > max_bytes:
+                        raise ValueError("too big")
+                    fh.write(chunk)
+        if size >= 0 and n != size:
+            raise OSError(f"short read: {n} of {size} bytes")
+        tmp.replace(path)
+        return n, ""
+    except ValueError:
+        tmp.unlink(missing_ok=True)
+        return None, "too big"
+    except (urllib.error.URLError, urllib.error.HTTPError, socket.timeout, OSError, http.client.HTTPException):
+        tmp.unlink(missing_ok=True)
+        return None, "failed"
+
+
 def utc_now() -> dt.datetime:
     return dt.datetime.now(dt.timezone.utc)
 
@@ -420,7 +452,21 @@ COLLECT_LISTING_TRIES = 5     # tries of the job folder listing and of each tree
 # Private results first: a small allow-listed set (docs/milestone6.md §2.1) that exists nowhere else
 # in the session; both trees share the caps.
 COLLECT_TREES = ("results-private", "results")
+# Milestone 9: the 3D files of a project (results/final/<p>/3d/<p>.blend and .glb, written by the export stage) are
+# the deliverable and larger than COLLECT_MAX_FILE: they are streamed to disk after every small file, under their own
+# caps (not counted in COLLECT_MAX_TOTAL).
+COLLECT_BIG_SUFFIXES = (".blend", ".glb")
+COLLECT_BIG_MAX_FILE = 2_000_000_000
+COLLECT_BIG_MAX_TOTAL = 8_000_000_000
+COLLECT_BIG_TIMEOUT = 900
 RUNNER_STOP_RESULT = "stopped by runner after collect (watchdog and job-end stop armed)"
+
+
+def is_big_result(rel_name: str) -> bool:
+    """A 3D file of the export stage: ``.../3d/<name>.blend`` or ``.glb`` (public ``final/<p>/3d/``, private
+    ``<alias>/final/3d/``)."""
+    parts = rel_name.split("/")
+    return len(parts) >= 2 and parts[-2] == "3d" and parts[-1].endswith(COLLECT_BIG_SUFFIXES)
 
 
 def parse_listing(html: str) -> tuple[list[str], list[str]]:
@@ -438,7 +484,8 @@ def collect_all(status_url: str, run_dir: Path, workers: int = COLLECT_WORKERS) 
     """Download status.json, job.log, results/ and (when the job wrote it) results-private/ from the
     pod into ``run_dir``, recursively (depth <= COLLECT_MAX_DEPTH). Small files only: a file of
     COLLECT_MAX_FILE bytes or more is left out, and the downloads stop at COLLECT_MAX_TOTAL bytes
-    over both trees.
+    over both trees. The exception are the 3D files of the export stage (``is_big_result``, Milestone 9):
+    streamed to disk after the small files, under COLLECT_BIG_MAX_FILE and COLLECT_BIG_MAX_TOTAL.
 
     The folders are listed first, then the files are fetched with ``workers`` parallel requests:
     one at a time took 0.81 s per file through the pod proxy (M5 runs 0 and 0b), so the 500-1000
@@ -510,10 +557,29 @@ def collect_all(status_url: str, run_dir: Path, workers: int = COLLECT_WORKERS) 
         trees[tree] = {"listed": listed, "files": len(todo) - n_before}
 
     lock = threading.Lock()
-    state = {"n": 0, "total": 0, "capped": False, "failed": [], "too_big": []}
+    state = {"n": 0, "total": 0, "capped": False, "failed": [], "too_big": [], "big": 0, "big_bytes": 0}
+
+    def get_big(tree: str, rel_name: str) -> None:
+        with lock:
+            if state["big_bytes"] > COLLECT_BIG_MAX_TOTAL:
+                state["capped"] = True
+                return
+        n, why = fetch_to(status_url + urllib.parse.quote(f"{tree}/{rel_name}"), run_dir / tree / rel_name,
+                          timeout=COLLECT_BIG_TIMEOUT, max_bytes=COLLECT_BIG_MAX_FILE)
+        with lock:
+            if n is None and why == "too big":
+                state["too_big"].append(f"{tree}/{rel_name} (over {COLLECT_BIG_MAX_FILE / 1e6:.0f} MB)")
+            elif n is None:
+                state["failed"].append(f"{tree}/{rel_name}")
+            else:
+                state["big"] += 1
+                state["big_bytes"] += n
 
     def get(item: tuple[str, str]) -> None:
         tree, rel_name = item
+        if is_big_result(rel_name):
+            get_big(tree, rel_name)
+            return
         with lock:
             if state["total"] > COLLECT_MAX_TOTAL:
                 state["capped"] = True
@@ -535,6 +601,7 @@ def collect_all(status_url: str, run_dir: Path, workers: int = COLLECT_WORKERS) 
             state["total"] += len(raw)
         (run_dir / tree / rel_name).write_bytes(raw)
 
+    todo.sort(key=lambda item: is_big_result(item[1]))          # the small files first (stable order otherwise)
     with ThreadPoolExecutor(max_workers=max(1, workers)) as pool:
         list(pool.map(get, todo))
     if state["capped"]:
@@ -549,10 +616,12 @@ def collect_all(status_url: str, run_dir: Path, workers: int = COLLECT_WORKERS) 
         (run_dir / "collect_too_big.txt").write_text("\n".join(too_big) + "\n")
     private = trees.get("results-private", {}).get("files", 0)
     print(f"collected {state['n']} result files ({state['total'] / 1e6:.1f} MB)"
-          + (f", {private} of them listed under results-private/" if "results-private" in trees else ""))
+          + (f", {private} of them listed under results-private/" if "results-private" in trees else "")
+          + (f"; {state['big']} 3D file(s) ({state['big_bytes'] / 1e6:.1f} MB)" if state["big"] else ""))
     ok = (got["job.log"] and job_listing is not None and "results" in trees
           and all(t["listed"] for t in trees.values()) and not failed)
-    return {"files": state["n"], "bytes": state["total"], "capped": state["capped"], "failed": len(failed),
+    return {"files": state["n"], "bytes": state["total"], "big_files": state["big"], "big_bytes": state["big_bytes"],
+            "capped": state["capped"], "failed": len(failed),
             "too_big": too_big, "ok": bool(ok), "job_log": got["job.log"], "job_listed": job_listing is not None,
             "trees": trees}
 

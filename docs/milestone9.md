@@ -1,13 +1,15 @@
 # Milestone 9 – a larger library (20 models per type, more decor) and AI decor in rooms with drawn furniture
 
 Goal (user, 4 Oct 2026): "increase the number of furniture items, increase it to 20 per type, also increase the
-decorative items; in the pipeline let AI decorate rooms where the furniture location comes from the plans".
+decorative items; in the pipeline let AI decorate rooms where the furniture location comes from the plans", and
+"include also: final results to give 3d files that can be opened in blender".
 
 | # | Item | What it means |
 |---|---|---|
 | 1 | 20 models per furniture type | `catalog_library.json` keeps up to 20 accepted models per furniture type (M8: 12), for all 24 library types; types the real sources cannot fill get generated models (TRELLIS.2), as in M8 |
 | 2 | More decor | up to 20 models per decor type (M8: 16), five new decor types (vase, bowl, small plant, table lamp, mirror) |
 | 3 | AI decor | a vision-language model decorates every furnished room, the rooms whose furniture comes from the documents included; it chooses from checked places ("slots"), never moves, adds or removes furniture |
+| 4 | 3D files | every finished project also gives `<project>.blend` (opens in Blender: packed textures, the render cameras with their metered exposure) and `<project>.glb` (glTF binary for Blender and other 3D tools), §5a |
 
 The furniture and no-hallucination rules of `CLAUDE.md` stay: drawn furniture keeps type, position, orientation and
 footprint; decor is creative AI where the documents are silent, labelled `added_by_ai`, two passes at temperature 0,
@@ -170,6 +172,29 @@ The building schema gets the new decor types, `method` `ai` | `rule`, `slot`, `c
   manifest; surface items share their host's pass index, wall and floor items have their own (M8).
 - The vision check's decor categories follow the decor types (`table_lamp` ≙ `lamp`, `plant_small` ≙ `plant`).
 
+## 5a. 3D files (`wenart/blender/export.py`, stage `export`)
+
+After the renders (phase 5, Blender), `python -m wenart.blender.cli export` opens `scene/scene.blend` and writes
+`outputs/<p>/export/`:
+
+- `<p>.blend`: compressed, every image packed (no path on the pod remains); textures above 1024 px scaled down,
+  opaque 8-bit textures packed as JPEG (quality 90; Blender would pack a changed image as PNG, 5–10 times larger),
+  textures with alpha and float images as they are; the render settings of the delivered images (Cycles, AgX,
+  "AgX - Punchy", 1920 x 1080); every rendered camera carries its metered exposure (`wenart_exposure_ev`) and white
+  point (`wenart_whitepoint`) as custom properties, the scene takes the first camera's; a text block
+  `WENART_README` explains the file (the window pull of the delivered images is a post step, so windows render
+  brighter in Blender); the objects keep their `wenart_*` properties (element id, room, type, source, asset).
+- `<p>.glb`: glTF binary (modifiers applied, JPEG textures where no alpha is needed, cameras, lights).
+- `export_manifest.json`: bytes and sha256 per file, the images (scaled, packed, format), the cameras and their
+  exposure, the Blender version, warnings.
+
+The stage is not critical (a failure is a warning: the renders and reports stand) and is skipped by the smoke
+profile. The copy step puts the three files into `results/final/<p>/3d/`; the runner streams the `.blend` and `.glb`
+past its 20 MB small-file cap (own caps: 2 GB per file, 8 GB per run) into `runs/<job>/results/final/<p>/3d/`,
+after the small files. Git keeps only `export_manifest.json` (`.gitignore`: `results/**/*.blend`, `*.glb`); the
+files themselves are handed to the user and stay on the Network Volume (`/workspace/outputs/<p>/export/`). Private
+projects keep their 3D files in `/workspace/outputs-private/<alias>/export/` (the private allow-list is unchanged).
+
 ## 6. Pods
 
 | Pod | Steps | Est. minutes | Est. cost |
@@ -192,16 +217,18 @@ checks (scaled down to the slot, wall overlap, floor placer checks); the rule fa
 fake client; the scheduler (decor in the Qwen session after the layout; rule decor without a server); builder rest
 heights on a top (ray hit, moved, refused) and the mirror (Blender tests skip without Blender); vision-check
 categories.
-GPU: `test_library.py` (counts per type, the new decor types present, attribution complete), `test_render.py`
-(AI decor items in the index pass as decor of their host), `test_furnish.py` (decor of a room with drawn furniture is
-`method: ai` with both passes recorded).
+3D files: the export helpers (scaled sizes, camera exposures from the render manifest, JPEG candidates, README,
+manifest with sha256), the stage and its skip in the smoke profile, the copy rule, the runner's streamed 3D files.
+GPU: `test_library.py` (counts per type, the new decor types present, attribution complete), `test_m9.py` (AI decor
+recorded per room with both passes and built, surface decor resting on its host, the 3D files packed and complete
+with every rendered camera and its exposure).
 
 ## 8. Done criteria
 
 CPU suite green; L1, L2 (L3) and F1 exit 0 or every failure explained; `catalog_library.json` with ≥ 20 models for
 every type whose sources allow it (the report lists any type below 20 with the reason); ≥ 20 models per decor type
 where the sources allow it; every furnished room of the three projects decorated by AI (or the rule fallback with the
-reason); renders and reports committed; `docs/progress.md`, `docs/plan.md` (sources, licences), `docs/gpu-log.md`
+reason); the 3D files of the three projects written, packed and handed to the user; renders and reports committed; `docs/progress.md`, `docs/plan.md` (sources, licences), `docs/gpu-log.md`
 updated; no pod running.
 
 ## 9. As built

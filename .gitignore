@@ -25,6 +25,10 @@ outputs/
 *.bin
 projects/*/outputs/
 results/**/*.png
+# Milestone 9 3D files (results/final/<p>/3d/): the runner collects them into runs/<job>/, the full files stay on
+# the Network Volume (outputs/<p>/export/); only export_manifest.json is committed
+results/**/*.blend
+results/**/*.glb
 !results/**/*.jpg
 !results/**/*.jpeg
 
