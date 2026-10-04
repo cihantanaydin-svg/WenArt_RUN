@@ -1,0 +1,24 @@
+{
+ "key": "0efb69017d32493e18db18a7e931ae855e6fab2832b50a73a726f7abddad6291",
+ "pair": "potted_plant__industrial",
+ "type": "potted_plant",
+ "family": "industrial",
+ "index": 3,
+ "prompt": "a single industrial style large indoor plant in a floor pot, black powder-coated steel frame, reclaimed dark wood, cognac leather, exposed bolts, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 217147725,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "a9e16bf4d6b48ea124f193202e7d9fd8489956ea33cf7b3911e45a792d0eebdc",
+ "seconds": 2.84,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:45:29Z"
+}

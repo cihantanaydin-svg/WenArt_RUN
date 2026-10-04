@@ -1,0 +1,63 @@
+{
+ "key": "485641b419cdae50e43169e9fe82e0ba710315d6b6dd219ec1e7403fc6ed47a7",
+ "pair": "shower__classic",
+ "type": "shower",
+ "family": "classic",
+ "index": 4,
+ "seed": 1242009447,
+ "prompt": "a single classic style square glass shower enclosure with a shower tray, white porcelain, polished brass or chrome fittings, moulded classic details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "image_sha256": "457d58c05d8dec61cb91f25ce3b30be6cbc00808ff5366613284a46890f089a1",
+ "models": {
+  "trellis": "microsoft/TRELLIS.2-4B@af44b45f2e35a493886929c6d786e563ec68364d",
+  "ss_decoder": "microsoft/TRELLIS-image-large@25e0d31ffbebe4b5a97464dd851910efc3002d96",
+  "dinov3": "facebook/dinov3-vitl16-pretrain-lvd1689m@ea8dc2863c51be0a264bab82070e3e8836b02d51",
+  "rembg": "ZhengPeng7/BiRefNet@e2bf8e4460fc8fa32bba5ea4d94b3233d367b0e4"
+ },
+ "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+ "settings": {
+  "pipeline_type": "1024_cascade",
+  "simplify": 16777216,
+  "decimation_target": 200000,
+  "texture_size": 2048,
+  "remesh": true,
+  "remesh_band": 1,
+  "remesh_project": 0
+ },
+ "generated_utc": "2026-10-04T15:22:14Z",
+ "status": "ok",
+ "code": null,
+ "error": null,
+ "glb": "model_4.glb",
+ "glb_sha256": "ebe7e0090e28e767b285d0aac43bea870083226da0c8ab6a5679f761ca00eb18",
+ "glb_bytes": 12754056,
+ "face_count": 196078,
+ "glb_info": {
+  "images": 2,
+  "textures": 2,
+  "materials": 1,
+  "meshes": 1,
+  "primitives": 1,
+  "textured": true,
+  "vertex_colours": false,
+  "extensions_used": [],
+  "extensions_required": []
+ },
+ "seconds": 32.25,
+ "backend": {
+  "seconds_generate": 19.6,
+  "seconds_export": 12.4,
+  "raw_faces": 9645174,
+  "pipeline_type": "1024_cascade",
+  "peak_vram_gib": 6.82,
+  "resident": false
+ },
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "cuda": "12.8",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090",
+  "attn_backend": "flash_attn",
+  "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+  "resident": false
+ }
+}

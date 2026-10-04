@@ -1,0 +1,63 @@
+{
+ "key": "a397b9d05a774725fecad1424244385da2bb94d69e6b415bdb4d823e71223c7b",
+ "pair": "stove__japandi",
+ "type": "stove",
+ "family": "japandi",
+ "index": 5,
+ "seed": 31989486,
+ "prompt": "a single japandi style freestanding cooker with an oven and a four-burner hob, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "image_sha256": "d1f58374be34ee3d599fbc3e4e8251765f647775afc49c09362f5b9c346b5dd3",
+ "models": {
+  "trellis": "microsoft/TRELLIS.2-4B@af44b45f2e35a493886929c6d786e563ec68364d",
+  "ss_decoder": "microsoft/TRELLIS-image-large@25e0d31ffbebe4b5a97464dd851910efc3002d96",
+  "dinov3": "facebook/dinov3-vitl16-pretrain-lvd1689m@ea8dc2863c51be0a264bab82070e3e8836b02d51",
+  "rembg": "ZhengPeng7/BiRefNet@e2bf8e4460fc8fa32bba5ea4d94b3233d367b0e4"
+ },
+ "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+ "settings": {
+  "pipeline_type": "1024_cascade",
+  "simplify": 16777216,
+  "decimation_target": 200000,
+  "texture_size": 2048,
+  "remesh": true,
+  "remesh_band": 1,
+  "remesh_project": 0
+ },
+ "generated_utc": "2026-10-04T15:51:38Z",
+ "status": "ok",
+ "code": null,
+ "error": null,
+ "glb": "model_5.glb",
+ "glb_sha256": "6f5e00ea545897221205000d4efe68c8c1c1619618cd1c3adea097bfdb277ada",
+ "glb_bytes": 15652436,
+ "face_count": 199378,
+ "glb_info": {
+  "images": 2,
+  "textures": 2,
+  "materials": 1,
+  "meshes": 1,
+  "primitives": 1,
+  "textured": true,
+  "vertex_colours": false,
+  "extensions_used": [],
+  "extensions_required": []
+ },
+ "seconds": 71.92,
+ "backend": {
+  "seconds_generate": 55.17,
+  "seconds_export": 16.45,
+  "raw_faces": 19471298,
+  "pipeline_type": "1024_cascade",
+  "peak_vram_gib": 12.27,
+  "resident": false
+ },
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "cuda": "12.8",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090",
+  "attn_backend": "flash_attn",
+  "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+  "resident": false
+ }
+}

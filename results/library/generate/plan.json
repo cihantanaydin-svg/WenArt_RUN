@@ -2,7 +2,7 @@
  "schema_version": "0.1",
  "kind": "generate_plan",
  "mode": "target",
- "generated_utc": "2026-10-04T12:38:28Z",
+ "generated_utc": "2026-10-04T14:44:45Z",
  "rules": "docs/milestone9.md §2.3",
  "families": [
   "scandinavian",
@@ -57,9 +57,9 @@
   {
    "path": "/workspace/prep/library/accepted.json",
    "format": "accepted",
-   "sha256": "49fb735a02de432b4da26b9ba2a866c8c339ab1fa54e77309dd3cc951e207cd2",
-   "records": 457,
-   "usable": 363,
+   "sha256": "3e39153c0ee02c77805984863ffd9e4093945d40dbfe4573f134dc1f53bb7616",
+   "records": 552,
+   "usable": 458,
    "skipped": {}
   },
   {
@@ -76,37 +76,23 @@
  "per_type": {
   "bed_single": {
    "type": "bed_single",
-   "accepted": 9,
-   "deficit": 11,
-   "new": 16,
+   "accepted": 19,
+   "deficit": 1,
+   "new": 2,
    "fitting_by_family": {
-    "scandinavian": 5,
-    "japandi": 4,
-    "modern minimal": 9,
-    "minimal": 7,
-    "modern": 6,
-    "industrial": 1,
+    "scandinavian": 11,
+    "japandi": 10,
+    "modern minimal": 18,
+    "minimal": 14,
+    "modern": 13,
+    "industrial": 2,
     "mediterranean": 0,
-    "classic": 0,
+    "classic": 1,
     "rustic": 0
    },
    "families": [
     "mediterranean",
-    "classic",
-    "rustic",
-    "industrial",
-    "japandi",
-    "scandinavian",
-    "modern",
-    "minimal",
-    "modern minimal",
-    "mediterranean",
-    "classic",
-    "rustic",
-    "industrial",
-    "japandi",
-    "scandinavian",
-    "modern"
+    "rustic"
    ]
   },
   "bed_double": {
@@ -230,158 +216,92 @@
   },
   "wardrobe": {
    "type": "wardrobe",
-   "accepted": 16,
-   "deficit": 4,
-   "new": 6,
+   "accepted": 20,
+   "deficit": 0,
+   "new": 0,
    "fitting_by_family": {
-    "scandinavian": 10,
-    "japandi": 1,
-    "modern minimal": 13,
-    "minimal": 13,
-    "modern": 11,
-    "industrial": 1,
-    "mediterranean": 1,
-    "classic": 4,
-    "rustic": 2
-   },
-   "families": [
-    "japandi",
-    "industrial",
-    "mediterranean",
-    "rustic",
-    "classic",
-    "scandinavian"
-   ]
+    "scandinavian": 12,
+    "japandi": 2,
+    "modern minimal": 15,
+    "minimal": 15,
+    "modern": 13,
+    "industrial": 3,
+    "mediterranean": 2,
+    "classic": 6,
+    "rustic": 3
+   }
   },
   "fridge": {
    "type": "fridge",
-   "accepted": 8,
-   "deficit": 12,
-   "new": 18,
+   "accepted": 13,
+   "deficit": 7,
+   "new": 10,
    "fitting_by_family": {
     "scandinavian": 0,
     "japandi": 0,
-    "modern minimal": 8,
-    "minimal": 5,
-    "modern": 8,
-    "industrial": 0,
+    "modern minimal": 12,
+    "minimal": 8,
+    "modern": 11,
+    "industrial": 1,
     "mediterranean": 0,
-    "classic": 0,
+    "classic": 1,
     "rustic": 0
    },
    "families": [
     "scandinavian",
     "japandi",
-    "industrial",
     "mediterranean",
-    "classic",
     "rustic",
+    "industrial",
+    "classic",
     "minimal",
-    "modern minimal",
     "modern",
-    "scandinavian",
-    "japandi",
-    "industrial",
-    "mediterranean",
-    "classic",
-    "rustic",
-    "minimal",
     "modern minimal",
-    "modern"
+    "scandinavian"
    ]
   },
   "stove": {
    "type": "stove",
-   "accepted": 4,
-   "deficit": 16,
-   "new": 23,
+   "accepted": 12,
+   "deficit": 8,
+   "new": 12,
    "fitting_by_family": {
-    "scandinavian": 1,
+    "scandinavian": 2,
     "japandi": 1,
-    "modern minimal": 2,
-    "minimal": 1,
-    "modern": 3,
-    "industrial": 2,
+    "modern minimal": 6,
+    "minimal": 5,
+    "modern": 9,
+    "industrial": 3,
     "mediterranean": 1,
-    "classic": 1,
+    "classic": 3,
     "rustic": 1
    },
    "families": [
-    "scandinavian",
     "japandi",
-    "minimal",
     "mediterranean",
-    "classic",
     "rustic",
-    "modern minimal",
-    "industrial",
-    "modern",
     "scandinavian",
-    "japandi",
-    "minimal",
-    "mediterranean",
+    "industrial",
     "classic",
-    "rustic",
-    "modern minimal",
-    "industrial",
-    "modern",
-    "scandinavian",
-    "japandi",
     "minimal",
+    "modern minimal",
+    "modern",
+    "japandi",
     "mediterranean",
-    "classic"
+    "rustic"
    ]
   },
   "sink_kitchen": {
    "type": "sink_kitchen",
-   "accepted": 6,
-   "deficit": 14,
-   "new": 20,
-   "fitting_by_family": {
-    "scandinavian": 2,
-    "japandi": 0,
-    "modern minimal": 6,
-    "minimal": 6,
-    "modern": 5,
-    "industrial": 0,
-    "mediterranean": 0,
-    "classic": 0,
-    "rustic": 0
-   },
-   "families": [
-    "japandi",
-    "industrial",
-    "mediterranean",
-    "classic",
-    "rustic",
-    "scandinavian",
-    "modern",
-    "modern minimal",
-    "minimal",
-    "japandi",
-    "industrial",
-    "mediterranean",
-    "classic",
-    "rustic",
-    "scandinavian",
-    "modern",
-    "modern minimal",
-    "minimal",
-    "japandi",
-    "industrial"
-   ]
-  },
-  "washbasin": {
-   "type": "washbasin",
-   "accepted": 10,
-   "deficit": 10,
-   "new": 15,
+   "accepted": 11,
+   "deficit": 9,
+   "new": 13,
    "fitting_by_family": {
     "scandinavian": 2,
     "japandi": 0,
     "modern minimal": 10,
     "minimal": 10,
-    "modern": 9,
+    "modern": 10,
     "industrial": 0,
     "mediterranean": 0,
     "classic": 0,
@@ -394,87 +314,53 @@
     "classic",
     "rustic",
     "scandinavian",
-    "modern",
     "modern minimal",
     "minimal",
+    "modern",
     "japandi",
     "industrial",
     "mediterranean",
-    "classic",
-    "rustic",
-    "scandinavian"
+    "classic"
+   ]
+  },
+  "washbasin": {
+   "type": "washbasin",
+   "accepted": 19,
+   "deficit": 1,
+   "new": 2,
+   "fitting_by_family": {
+    "scandinavian": 3,
+    "japandi": 1,
+    "modern minimal": 19,
+    "minimal": 19,
+    "modern": 18,
+    "industrial": 0,
+    "mediterranean": 0,
+    "classic": 0,
+    "rustic": 0
+   },
+   "families": [
+    "industrial",
+    "mediterranean"
    ]
   },
   "toilet": {
    "type": "toilet",
-   "accepted": 9,
-   "deficit": 11,
-   "new": 16,
+   "accepted": 15,
+   "deficit": 5,
+   "new": 8,
    "fitting_by_family": {
     "scandinavian": 0,
     "japandi": 0,
-    "modern minimal": 9,
-    "minimal": 9,
-    "modern": 9,
+    "modern minimal": 15,
+    "minimal": 15,
+    "modern": 15,
     "industrial": 0,
     "mediterranean": 0,
     "classic": 0,
     "rustic": 0
    },
    "families": [
-    "scandinavian",
-    "japandi",
-    "industrial",
-    "mediterranean",
-    "classic",
-    "rustic",
-    "modern minimal",
-    "minimal",
-    "modern",
-    "scandinavian",
-    "japandi",
-    "industrial",
-    "mediterranean",
-    "classic",
-    "rustic",
-    "modern minimal"
-   ]
-  },
-  "shower": {
-   "type": "shower",
-   "accepted": 2,
-   "deficit": 18,
-   "new": 26,
-   "fitting_by_family": {
-    "scandinavian": 0,
-    "japandi": 0,
-    "modern minimal": 2,
-    "minimal": 2,
-    "modern": 2,
-    "industrial": 0,
-    "mediterranean": 0,
-    "classic": 0,
-    "rustic": 0
-   },
-   "families": [
-    "scandinavian",
-    "japandi",
-    "industrial",
-    "mediterranean",
-    "classic",
-    "rustic",
-    "modern minimal",
-    "minimal",
-    "modern",
-    "scandinavian",
-    "japandi",
-    "industrial",
-    "mediterranean",
-    "classic",
-    "rustic",
-    "modern minimal",
-    "minimal",
-    "modern",
     "scandinavian",
     "japandi",
     "industrial",
@@ -485,8 +371,8 @@
     "minimal"
    ]
   },
-  "bathtub": {
-   "type": "bathtub",
+  "shower": {
+   "type": "shower",
    "accepted": 6,
    "deficit": 14,
    "new": 20,
@@ -494,8 +380,47 @@
     "scandinavian": 0,
     "japandi": 0,
     "modern minimal": 6,
-    "minimal": 6,
-    "modern": 6,
+    "minimal": 5,
+    "modern": 5,
+    "industrial": 0,
+    "mediterranean": 0,
+    "classic": 0,
+    "rustic": 0
+   },
+   "families": [
+    "scandinavian",
+    "japandi",
+    "industrial",
+    "mediterranean",
+    "classic",
+    "rustic",
+    "minimal",
+    "modern",
+    "modern minimal",
+    "scandinavian",
+    "japandi",
+    "industrial",
+    "mediterranean",
+    "classic",
+    "rustic",
+    "minimal",
+    "modern",
+    "modern minimal",
+    "scandinavian",
+    "japandi"
+   ]
+  },
+  "bathtub": {
+   "type": "bathtub",
+   "accepted": 13,
+   "deficit": 7,
+   "new": 10,
+   "fitting_by_family": {
+    "scandinavian": 0,
+    "japandi": 0,
+    "modern minimal": 13,
+    "minimal": 13,
+    "modern": 13,
     "industrial": 0,
     "mediterranean": 0,
     "classic": 0,
@@ -511,17 +436,7 @@
     "modern minimal",
     "minimal",
     "modern",
-    "scandinavian",
-    "japandi",
-    "industrial",
-    "mediterranean",
-    "classic",
-    "rustic",
-    "modern minimal",
-    "minimal",
-    "modern",
-    "scandinavian",
-    "japandi"
+    "scandinavian"
    ]
   },
   "tv_unit": {
@@ -594,15 +509,15 @@
   },
   "washing_machine": {
    "type": "washing_machine",
-   "accepted": 8,
-   "deficit": 12,
-   "new": 18,
+   "accepted": 18,
+   "deficit": 2,
+   "new": 3,
    "fitting_by_family": {
     "scandinavian": 0,
     "japandi": 0,
-    "modern minimal": 8,
-    "minimal": 7,
-    "modern": 8,
+    "modern minimal": 18,
+    "minimal": 16,
+    "modern": 18,
     "industrial": 0,
     "mediterranean": 0,
     "classic": 0,
@@ -611,22 +526,7 @@
    "families": [
     "scandinavian",
     "japandi",
-    "industrial",
-    "mediterranean",
-    "classic",
-    "rustic",
-    "minimal",
-    "modern minimal",
-    "modern",
-    "scandinavian",
-    "japandi",
-    "industrial",
-    "mediterranean",
-    "classic",
-    "rustic",
-    "minimal",
-    "modern minimal",
-    "modern"
+    "industrial"
    ]
   },
   "side_table": {
@@ -665,36 +565,24 @@
   },
   "potted_plant": {
    "type": "potted_plant",
-   "accepted": 10,
-   "deficit": 10,
-   "new": 15,
+   "accepted": 18,
+   "deficit": 2,
+   "new": 3,
    "fitting_by_family": {
-    "scandinavian": 4,
-    "japandi": 2,
-    "modern minimal": 6,
-    "minimal": 7,
-    "modern": 5,
-    "industrial": 1,
-    "mediterranean": 3,
-    "classic": 1,
-    "rustic": 3
+    "scandinavian": 12,
+    "japandi": 9,
+    "modern minimal": 14,
+    "minimal": 15,
+    "modern": 13,
+    "industrial": 6,
+    "mediterranean": 8,
+    "classic": 6,
+    "rustic": 8
    },
    "families": [
     "industrial",
     "classic",
-    "japandi",
-    "mediterranean",
-    "rustic",
-    "scandinavian",
-    "modern",
-    "modern minimal",
-    "minimal",
-    "industrial",
-    "classic",
-    "japandi",
-    "mediterranean",
-    "rustic",
-    "scandinavian"
+    "mediterranean"
    ]
   },
   "vase": {
@@ -716,71 +604,62 @@
   },
   "bowl": {
    "type": "bowl",
-   "accepted": 0,
-   "deficit": 20,
-   "new": 29,
+   "accepted": 9,
+   "deficit": 11,
+   "new": 16,
    "fitting_by_family": {
-    "scandinavian": 0,
-    "japandi": 0,
-    "modern minimal": 0,
-    "minimal": 0,
-    "modern": 0,
-    "industrial": 0,
-    "mediterranean": 0,
-    "classic": 0,
-    "rustic": 0
+    "scandinavian": 6,
+    "japandi": 3,
+    "modern minimal": 7,
+    "minimal": 7,
+    "modern": 7,
+    "industrial": 3,
+    "mediterranean": 2,
+    "classic": 2,
+    "rustic": 3
    },
    "families": [
-    "scandinavian",
+    "mediterranean",
+    "classic",
     "japandi",
+    "industrial",
+    "rustic",
+    "scandinavian",
     "modern minimal",
     "minimal",
     "modern",
-    "industrial",
     "mediterranean",
     "classic",
-    "rustic",
-    "scandinavian",
     "japandi",
-    "modern minimal",
-    "minimal",
-    "modern",
     "industrial",
-    "mediterranean",
-    "classic",
     "rustic",
     "scandinavian",
-    "japandi",
-    "modern minimal",
-    "minimal",
-    "modern",
-    "industrial",
-    "mediterranean",
-    "classic",
-    "rustic",
-    "scandinavian",
-    "japandi"
+    "modern minimal"
    ]
   },
   "plant_small": {
    "type": "plant_small",
-   "accepted": 0,
-   "deficit": 20,
-   "new": 29,
+   "accepted": 10,
+   "deficit": 10,
+   "new": 15,
    "fitting_by_family": {
-    "scandinavian": 0,
-    "japandi": 0,
-    "modern minimal": 0,
-    "minimal": 0,
-    "modern": 0,
-    "industrial": 0,
-    "mediterranean": 0,
-    "classic": 0,
-    "rustic": 0
+    "scandinavian": 10,
+    "japandi": 7,
+    "modern minimal": 10,
+    "minimal": 10,
+    "modern": 10,
+    "industrial": 6,
+    "mediterranean": 6,
+    "classic": 6,
+    "rustic": 6
    },
    "families": [
-    "scandinavian",
+    "industrial",
+    "mediterranean",
+    "classic",
+    "rustic",
     "japandi",
+    "scandinavian",
     "modern minimal",
     "minimal",
     "modern",
@@ -788,35 +667,17 @@
     "mediterranean",
     "classic",
     "rustic",
-    "scandinavian",
     "japandi",
-    "modern minimal",
-    "minimal",
-    "modern",
-    "industrial",
-    "mediterranean",
-    "classic",
-    "rustic",
-    "scandinavian",
-    "japandi",
-    "modern minimal",
-    "minimal",
-    "modern",
-    "industrial",
-    "mediterranean",
-    "classic",
-    "rustic",
-    "scandinavian",
-    "japandi"
+    "scandinavian"
    ]
   }
  },
  "counts": {
   "pairs": 116,
-  "new_items": 251,
-  "earlier_items": 50,
-  "types_short": 13,
-  "total_deficit": 172
+  "new_items": 114,
+  "earlier_items": 301,
+  "types_short": 12,
+  "total_deficit": 77
  },
  "pairs": [
   {
@@ -834,15 +695,21 @@
      "index": 2,
      "seed": 1404879873,
      "prompt": "a single classic style freestanding bathtub, white porcelain, polished brass or chrome fittings, moulded classic details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 3,
+     "seed": 1059813163,
+     "prompt": "a single classic style freestanding bathtub, white porcelain, polished brass or chrome fittings, moulded classic details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 1,
+   "earlier": 2,
    "seeds": [
     1765413398,
-    1404879873
+    1404879873,
+    1059813163
    ],
-   "reason": "6 accepted bathtub model(s), target 20"
+   "reason": "13 accepted bathtub model(s), target 20"
   },
   {
    "pair": "bathtub__industrial",
@@ -859,15 +726,21 @@
      "index": 2,
      "seed": 1463189532,
      "prompt": "a single industrial style freestanding bathtub, black steel and brushed stainless steel, concrete grey surfaces, exposed black fittings, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 3,
+     "seed": 1181391690,
+     "prompt": "a single industrial style freestanding bathtub, black steel and brushed stainless steel, concrete grey surfaces, exposed black fittings, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 1,
+   "earlier": 2,
    "seeds": [
     1785974087,
-    1463189532
+    1463189532,
+    1181391690
    ],
-   "reason": "6 accepted bathtub model(s), target 20"
+   "reason": "13 accepted bathtub model(s), target 20"
   },
   {
    "pair": "bathtub__japandi",
@@ -899,18 +772,24 @@
      "index": 5,
      "seed": 21624117,
      "prompt": "a single japandi style freestanding bathtub, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 6,
+     "seed": 1659784695,
+     "prompt": "a single japandi style freestanding bathtub, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 3,
-   "earlier": 2,
+   "new": 1,
+   "earlier": 5,
    "seeds": [
     157243159,
     1197198061,
     1383536301,
     673113932,
-    21624117
+    21624117,
+    1659784695
    ],
-   "reason": "6 accepted bathtub model(s), target 20"
+   "reason": "13 accepted bathtub model(s), target 20"
   },
   {
    "pair": "bathtub__mediterranean",
@@ -927,15 +806,21 @@
      "index": 2,
      "seed": 321225614,
      "prompt": "a single mediterranean style freestanding bathtub, white glazed ceramic, warm terracotta and sand accents, aged brass fittings, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 3,
+     "seed": 320176225,
+     "prompt": "a single mediterranean style freestanding bathtub, white glazed ceramic, warm terracotta and sand accents, aged brass fittings, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 1,
+   "earlier": 2,
    "seeds": [
     495265212,
-    321225614
+    321225614,
+    320176225
    ],
-   "reason": "6 accepted bathtub model(s), target 20"
+   "reason": "13 accepted bathtub model(s), target 20"
   },
   {
    "pair": "bathtub__minimal",
@@ -952,15 +837,21 @@
      "index": 2,
      "seed": 1479809130,
      "prompt": "a single minimal style freestanding bathtub, plain white ceramic and enamel, hidden fittings, simple geometric forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 3,
+     "seed": 1207075745,
+     "prompt": "a single minimal style freestanding bathtub, plain white ceramic and enamel, hidden fittings, simple geometric forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 1,
+   "earlier": 2,
    "seeds": [
     1458226310,
-    1479809130
+    1479809130,
+    1207075745
    ],
-   "reason": "6 accepted bathtub model(s), target 20"
+   "reason": "13 accepted bathtub model(s), target 20"
   },
   {
    "pair": "bathtub__modern",
@@ -987,17 +878,23 @@
      "index": 4,
      "seed": 723255133,
      "prompt": "a single modern style freestanding bathtub, glossy white ceramic, stainless steel and chrome fittings, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 5,
+     "seed": 633114723,
+     "prompt": "a single modern style freestanding bathtub, glossy white ceramic, stainless steel and chrome fittings, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 2,
+   "new": 1,
+   "earlier": 4,
    "seeds": [
     63257188,
     1423604195,
     1438635814,
-    723255133
+    723255133,
+    633114723
    ],
-   "reason": "6 accepted bathtub model(s), target 20"
+   "reason": "13 accepted bathtub model(s), target 20"
   },
   {
    "pair": "bathtub__modern_minimal",
@@ -1024,17 +921,23 @@
      "index": 4,
      "seed": 1003303957,
      "prompt": "a single modern minimal style freestanding bathtub, matte white surfaces, flush handleless fronts, thin black fittings, crisp rectangular forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 5,
+     "seed": 1117107464,
+     "prompt": "a single modern minimal style freestanding bathtub, matte white surfaces, flush handleless fronts, thin black fittings, crisp rectangular forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 2,
+   "new": 1,
+   "earlier": 4,
    "seeds": [
     28734134,
     637992188,
     402306920,
-    1003303957
+    1003303957,
+    1117107464
    ],
-   "reason": "6 accepted bathtub model(s), target 20"
+   "reason": "13 accepted bathtub model(s), target 20"
   },
   {
    "pair": "bathtub__rustic",
@@ -1051,15 +954,21 @@
      "index": 2,
      "seed": 1336941021,
      "prompt": "a single rustic style freestanding bathtub, cream enamel and stone, aged copper and wrought iron fittings, sturdy simple forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 3,
+     "seed": 1143892596,
+     "prompt": "a single rustic style freestanding bathtub, cream enamel and stone, aged copper and wrought iron fittings, sturdy simple forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 1,
+   "earlier": 2,
    "seeds": [
     697922127,
-    1336941021
+    1336941021,
+    1143892596
    ],
-   "reason": "6 accepted bathtub model(s), target 20"
+   "reason": "13 accepted bathtub model(s), target 20"
   },
   {
    "pair": "bathtub__scandinavian",
@@ -1091,18 +1000,30 @@
      "index": 5,
      "seed": 1881171104,
      "prompt": "a single scandinavian style freestanding bathtub, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 6,
+     "seed": 1169258072,
+     "prompt": "a single scandinavian style freestanding bathtub, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 7,
+     "seed": 1803628497,
+     "prompt": "a single scandinavian style freestanding bathtub, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 3,
-   "earlier": 2,
+   "new": 2,
+   "earlier": 5,
    "seeds": [
     905751746,
     1109758153,
     1201784185,
     29095070,
-    1881171104
+    1881171104,
+    1169258072,
+    1803628497
    ],
-   "reason": "6 accepted bathtub model(s), target 20"
+   "reason": "13 accepted bathtub model(s), target 20"
   },
   {
    "pair": "bed_single__classic",
@@ -1121,13 +1042,13 @@
      "prompt": "a single classic style single bed with a headboard, a mattress and plain bedding, carved dark walnut wood, tufted cream upholstery, turned legs, polished brass details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 0,
+   "earlier": 2,
    "seeds": [
     1883086399,
     1380606511
    ],
-   "reason": "9 accepted bed_single model(s), target 20"
+   "reason": "19 accepted bed_single model(s), target 20"
   },
   {
    "pair": "bed_single__industrial",
@@ -1146,13 +1067,13 @@
      "prompt": "a single industrial style single bed with a headboard, a mattress and plain bedding, black powder-coated steel frame, reclaimed dark wood, cognac leather, exposed bolts, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 0,
+   "earlier": 2,
    "seeds": [
     1294860093,
     1904424971
    ],
-   "reason": "9 accepted bed_single model(s), target 20"
+   "reason": "19 accepted bed_single model(s), target 20"
   },
   {
    "pair": "bed_single__japandi",
@@ -1171,13 +1092,13 @@
      "prompt": "a single japandi style single bed with a headboard, a mattress and plain bedding, light ash wood, black accents, natural linen and paper textures, low profile, calm minimal forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 0,
+   "earlier": 2,
    "seeds": [
     396005333,
     1802919044
    ],
-   "reason": "9 accepted bed_single model(s), target 20"
+   "reason": "19 accepted bed_single model(s), target 20"
   },
   {
    "pair": "bed_single__mediterranean",
@@ -1194,15 +1115,21 @@
      "index": 2,
      "seed": 1428044225,
      "prompt": "a single mediterranean style single bed with a headboard, a mattress and plain bedding, whitewashed wood, terracotta and sand tones, woven rattan, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 3,
+     "seed": 438959148,
+     "prompt": "a single mediterranean style single bed with a headboard, a mattress and plain bedding, whitewashed wood, terracotta and sand tones, woven rattan, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 1,
+   "earlier": 2,
    "seeds": [
     2005318373,
-    1428044225
+    1428044225,
+    438959148
    ],
-   "reason": "9 accepted bed_single model(s), target 20"
+   "reason": "19 accepted bed_single model(s), target 20"
   },
   {
    "pair": "bed_single__minimal",
@@ -1216,12 +1143,12 @@
      "prompt": "a single minimal style single bed with a headboard, a mattress and plain bedding, plain matte surfaces in white, beige and grey, simple geometric forms, hidden handles, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 1,
-   "earlier": 0,
+   "new": 0,
+   "earlier": 1,
    "seeds": [
     628196103
    ],
-   "reason": "9 accepted bed_single model(s), target 20"
+   "reason": "19 accepted bed_single model(s), target 20"
   },
   {
    "pair": "bed_single__modern",
@@ -1240,13 +1167,13 @@
      "prompt": "a single modern style single bed with a headboard, a mattress and plain bedding, walnut veneer, charcoal fabric, brushed steel details, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 0,
+   "earlier": 2,
    "seeds": [
     2108317211,
     2143352315
    ],
-   "reason": "9 accepted bed_single model(s), target 20"
+   "reason": "19 accepted bed_single model(s), target 20"
   },
   {
    "pair": "bed_single__modern_minimal",
@@ -1260,12 +1187,12 @@
      "prompt": "a single modern minimal style single bed with a headboard, a mattress and plain bedding, matte white and warm grey surfaces, flush panels, thin black metal details, no ornament, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 1,
-   "earlier": 0,
+   "new": 0,
+   "earlier": 1,
    "seeds": [
     89230727
    ],
-   "reason": "9 accepted bed_single model(s), target 20"
+   "reason": "19 accepted bed_single model(s), target 20"
   },
   {
    "pair": "bed_single__rustic",
@@ -1282,15 +1209,21 @@
      "index": 2,
      "seed": 79096055,
      "prompt": "a single rustic style single bed with a headboard, a mattress and plain bedding, rough-sawn oak with visible grain, wrought iron, natural linen, sturdy chunky forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 3,
+     "seed": 1251641429,
+     "prompt": "a single rustic style single bed with a headboard, a mattress and plain bedding, rough-sawn oak with visible grain, wrought iron, natural linen, sturdy chunky forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 1,
+   "earlier": 2,
    "seeds": [
     1129939609,
-    79096055
+    79096055,
+    1251641429
    ],
-   "reason": "9 accepted bed_single model(s), target 20"
+   "reason": "19 accepted bed_single model(s), target 20"
   },
   {
    "pair": "bed_single__scandinavian",
@@ -1309,13 +1242,13 @@
      "prompt": "a single scandinavian style single bed with a headboard, a mattress and plain bedding, light oak wood, white and soft grey, natural linen upholstery, slim tapered legs, simple clean lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 0,
+   "earlier": 2,
    "seeds": [
     1186540915,
     1547693296
    ],
-   "reason": "9 accepted bed_single model(s), target 20"
+   "reason": "19 accepted bed_single model(s), target 20"
   },
   {
    "pair": "bowl__classic",
@@ -1337,16 +1270,28 @@
      "index": 3,
      "seed": 1285039803,
      "prompt": "a single classic style shallow decorative bowl for a coffee table, white porcelain with gold rims, polished brass, moulded classic details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 4,
+     "seed": 2006696154,
+     "prompt": "a single classic style shallow decorative bowl for a coffee table, white porcelain with gold rims, polished brass, moulded classic details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 5,
+     "seed": 1284746663,
+     "prompt": "a single classic style shallow decorative bowl for a coffee table, white porcelain with gold rims, polished brass, moulded classic details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 3,
-   "earlier": 0,
+   "new": 2,
+   "earlier": 3,
    "seeds": [
     2023599810,
     253696868,
-    1285039803
+    1285039803,
+    2006696154,
+    1284746663
    ],
-   "reason": "0 accepted bowl model(s), target 20"
+   "reason": "9 accepted bowl model(s), target 20"
   },
   {
    "pair": "bowl__industrial",
@@ -1368,16 +1313,28 @@
      "index": 3,
      "seed": 1349848331,
      "prompt": "a single industrial style shallow decorative bowl for a coffee table, raw concrete, black steel and dark glazed ceramic, rough textures, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 4,
+     "seed": 562017688,
+     "prompt": "a single industrial style shallow decorative bowl for a coffee table, raw concrete, black steel and dark glazed ceramic, rough textures, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 5,
+     "seed": 1252829948,
+     "prompt": "a single industrial style shallow decorative bowl for a coffee table, raw concrete, black steel and dark glazed ceramic, rough textures, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 3,
-   "earlier": 0,
+   "new": 2,
+   "earlier": 3,
    "seeds": [
     1295887179,
     1605314885,
-    1349848331
+    1349848331,
+    562017688,
+    1252829948
    ],
-   "reason": "0 accepted bowl model(s), target 20"
+   "reason": "9 accepted bowl model(s), target 20"
   },
   {
    "pair": "bowl__japandi",
@@ -1404,17 +1361,29 @@
      "index": 4,
      "seed": 778243192,
      "prompt": "a single japandi style shallow decorative bowl for a coffee table, handmade matte stoneware in stone grey and charcoal, light ash wood, calm minimal forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 5,
+     "seed": 1342409676,
+     "prompt": "a single japandi style shallow decorative bowl for a coffee table, handmade matte stoneware in stone grey and charcoal, light ash wood, calm minimal forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 6,
+     "seed": 1786898793,
+     "prompt": "a single japandi style shallow decorative bowl for a coffee table, handmade matte stoneware in stone grey and charcoal, light ash wood, calm minimal forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 4,
-   "earlier": 0,
+   "new": 2,
+   "earlier": 4,
    "seeds": [
     1055542828,
     1914739382,
     1594706651,
-    778243192
+    778243192,
+    1342409676,
+    1786898793
    ],
-   "reason": "0 accepted bowl model(s), target 20"
+   "reason": "9 accepted bowl model(s), target 20"
   },
   {
    "pair": "bowl__mediterranean",
@@ -1436,16 +1405,28 @@
      "index": 3,
      "seed": 1649772544,
      "prompt": "a single mediterranean style shallow decorative bowl for a coffee table, terracotta and white glazed ceramic, woven rattan, warm sand tones, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 4,
+     "seed": 241814325,
+     "prompt": "a single mediterranean style shallow decorative bowl for a coffee table, terracotta and white glazed ceramic, woven rattan, warm sand tones, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 5,
+     "seed": 2147159956,
+     "prompt": "a single mediterranean style shallow decorative bowl for a coffee table, terracotta and white glazed ceramic, woven rattan, warm sand tones, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 3,
-   "earlier": 0,
+   "new": 2,
+   "earlier": 3,
    "seeds": [
     760805069,
     2136021309,
-    1649772544
+    1649772544,
+    241814325,
+    2147159956
    ],
-   "reason": "0 accepted bowl model(s), target 20"
+   "reason": "9 accepted bowl model(s), target 20"
   },
   {
    "pair": "bowl__minimal",
@@ -1467,16 +1448,22 @@
      "index": 3,
      "seed": 1996215255,
      "prompt": "a single minimal style shallow decorative bowl for a coffee table, plain matte ceramic in white, beige and grey, simple geometric forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 4,
+     "seed": 352732533,
+     "prompt": "a single minimal style shallow decorative bowl for a coffee table, plain matte ceramic in white, beige and grey, simple geometric forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 3,
-   "earlier": 0,
+   "new": 1,
+   "earlier": 3,
    "seeds": [
     1585871517,
     1507575916,
-    1996215255
+    1996215255,
+    352732533
    ],
-   "reason": "0 accepted bowl model(s), target 20"
+   "reason": "9 accepted bowl model(s), target 20"
   },
   {
    "pair": "bowl__modern",
@@ -1498,16 +1485,22 @@
      "index": 3,
      "seed": 1652106893,
      "prompt": "a single modern style shallow decorative bowl for a coffee table, glossy ceramic and smoked glass, brushed brass and walnut accents, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 4,
+     "seed": 2129490784,
+     "prompt": "a single modern style shallow decorative bowl for a coffee table, glossy ceramic and smoked glass, brushed brass and walnut accents, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 3,
-   "earlier": 0,
+   "new": 1,
+   "earlier": 3,
    "seeds": [
     595677185,
     1025243257,
-    1652106893
+    1652106893,
+    2129490784
    ],
-   "reason": "0 accepted bowl model(s), target 20"
+   "reason": "9 accepted bowl model(s), target 20"
   },
   {
    "pair": "bowl__modern_minimal",
@@ -1529,16 +1522,28 @@
      "index": 3,
      "seed": 923546306,
      "prompt": "a single modern minimal style shallow decorative bowl for a coffee table, matte white and warm grey ceramic, thin black metal, crisp simple forms, no ornament, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 4,
+     "seed": 234691079,
+     "prompt": "a single modern minimal style shallow decorative bowl for a coffee table, matte white and warm grey ceramic, thin black metal, crisp simple forms, no ornament, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 5,
+     "seed": 1389023733,
+     "prompt": "a single modern minimal style shallow decorative bowl for a coffee table, matte white and warm grey ceramic, thin black metal, crisp simple forms, no ornament, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 3,
-   "earlier": 0,
+   "new": 2,
+   "earlier": 3,
    "seeds": [
     1289480845,
     872792843,
-    923546306
+    923546306,
+    234691079,
+    1389023733
    ],
-   "reason": "0 accepted bowl model(s), target 20"
+   "reason": "9 accepted bowl model(s), target 20"
   },
   {
    "pair": "bowl__rustic",
@@ -1560,16 +1565,28 @@
      "index": 3,
      "seed": 192837576,
      "prompt": "a single rustic style shallow decorative bowl for a coffee table, rough stoneware, aged wood and wrought iron, earthy colours, sturdy simple forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 4,
+     "seed": 72737163,
+     "prompt": "a single rustic style shallow decorative bowl for a coffee table, rough stoneware, aged wood and wrought iron, earthy colours, sturdy simple forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 5,
+     "seed": 1919984213,
+     "prompt": "a single rustic style shallow decorative bowl for a coffee table, rough stoneware, aged wood and wrought iron, earthy colours, sturdy simple forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 3,
-   "earlier": 0,
+   "new": 2,
+   "earlier": 3,
    "seeds": [
     198987726,
     996801870,
-    192837576
+    192837576,
+    72737163,
+    1919984213
    ],
-   "reason": "0 accepted bowl model(s), target 20"
+   "reason": "9 accepted bowl model(s), target 20"
   },
   {
    "pair": "bowl__scandinavian",
@@ -1596,17 +1613,29 @@
      "index": 4,
      "seed": 385660556,
      "prompt": "a single scandinavian style shallow decorative bowl for a coffee table, matte white and pale grey ceramic, light oak, natural linen, simple soft forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 5,
+     "seed": 2048255340,
+     "prompt": "a single scandinavian style shallow decorative bowl for a coffee table, matte white and pale grey ceramic, light oak, natural linen, simple soft forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 6,
+     "seed": 2050901027,
+     "prompt": "a single scandinavian style shallow decorative bowl for a coffee table, matte white and pale grey ceramic, light oak, natural linen, simple soft forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 4,
-   "earlier": 0,
+   "new": 2,
+   "earlier": 4,
    "seeds": [
     874681625,
     1655974954,
     187034482,
-    385660556
+    385660556,
+    2048255340,
+    2050901027
    ],
-   "reason": "0 accepted bowl model(s), target 20"
+   "reason": "9 accepted bowl model(s), target 20"
   },
   {
    "pair": "floor_lamp__japandi",
@@ -1648,15 +1677,21 @@
      "index": 2,
      "seed": 625713051,
      "prompt": "a single classic style freestanding refrigerator, white porcelain, polished brass or chrome fittings, moulded classic details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 3,
+     "seed": 230382713,
+     "prompt": "a single classic style freestanding refrigerator, white porcelain, polished brass or chrome fittings, moulded classic details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 1,
+   "earlier": 2,
    "seeds": [
     2132299460,
-    625713051
+    625713051,
+    230382713
    ],
-   "reason": "8 accepted fridge model(s), target 20"
+   "reason": "13 accepted fridge model(s), target 20"
   },
   {
    "pair": "fridge__industrial",
@@ -1673,15 +1708,21 @@
      "index": 2,
      "seed": 1536631541,
      "prompt": "a single industrial style freestanding refrigerator, black steel and brushed stainless steel, concrete grey surfaces, exposed black fittings, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 3,
+     "seed": 2023819520,
+     "prompt": "a single industrial style freestanding refrigerator, black steel and brushed stainless steel, concrete grey surfaces, exposed black fittings, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 1,
+   "earlier": 2,
    "seeds": [
     60152070,
-    1536631541
+    1536631541,
+    2023819520
    ],
-   "reason": "8 accepted fridge model(s), target 20"
+   "reason": "13 accepted fridge model(s), target 20"
   },
   {
    "pair": "fridge__japandi",
@@ -1708,17 +1749,23 @@
      "index": 4,
      "seed": 2005051603,
      "prompt": "a single japandi style freestanding refrigerator, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 5,
+     "seed": 1002027564,
+     "prompt": "a single japandi style freestanding refrigerator, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 2,
+   "new": 1,
+   "earlier": 4,
    "seeds": [
     164433243,
     1519058159,
     1172951065,
-    2005051603
+    2005051603,
+    1002027564
    ],
-   "reason": "8 accepted fridge model(s), target 20"
+   "reason": "13 accepted fridge model(s), target 20"
   },
   {
    "pair": "fridge__mediterranean",
@@ -1735,15 +1782,21 @@
      "index": 2,
      "seed": 2063652063,
      "prompt": "a single mediterranean style freestanding refrigerator, white glazed ceramic, warm terracotta and sand accents, aged brass fittings, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 3,
+     "seed": 107486307,
+     "prompt": "a single mediterranean style freestanding refrigerator, white glazed ceramic, warm terracotta and sand accents, aged brass fittings, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 1,
+   "earlier": 2,
    "seeds": [
     845752048,
-    2063652063
+    2063652063,
+    107486307
    ],
-   "reason": "8 accepted fridge model(s), target 20"
+   "reason": "13 accepted fridge model(s), target 20"
   },
   {
    "pair": "fridge__minimal",
@@ -1760,15 +1813,21 @@
      "index": 2,
      "seed": 1476154090,
      "prompt": "a single minimal style freestanding refrigerator, plain white ceramic and enamel, hidden fittings, simple geometric forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 3,
+     "seed": 305472758,
+     "prompt": "a single minimal style freestanding refrigerator, plain white ceramic and enamel, hidden fittings, simple geometric forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 1,
+   "earlier": 2,
    "seeds": [
     396374338,
-    1476154090
+    1476154090,
+    305472758
    ],
-   "reason": "8 accepted fridge model(s), target 20"
+   "reason": "13 accepted fridge model(s), target 20"
   },
   {
    "pair": "fridge__modern",
@@ -1785,15 +1844,21 @@
      "index": 2,
      "seed": 725735722,
      "prompt": "a single modern style freestanding refrigerator, glossy white ceramic, stainless steel and chrome fittings, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 3,
+     "seed": 1331483932,
+     "prompt": "a single modern style freestanding refrigerator, glossy white ceramic, stainless steel and chrome fittings, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 1,
+   "earlier": 2,
    "seeds": [
     1700381181,
-    725735722
+    725735722,
+    1331483932
    ],
-   "reason": "8 accepted fridge model(s), target 20"
+   "reason": "13 accepted fridge model(s), target 20"
   },
   {
    "pair": "fridge__modern_minimal",
@@ -1810,15 +1875,21 @@
      "index": 2,
      "seed": 967429204,
      "prompt": "a single modern minimal style freestanding refrigerator, matte white surfaces, flush handleless fronts, thin black fittings, crisp rectangular forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 3,
+     "seed": 1771354704,
+     "prompt": "a single modern minimal style freestanding refrigerator, matte white surfaces, flush handleless fronts, thin black fittings, crisp rectangular forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 1,
+   "earlier": 2,
    "seeds": [
     1833424335,
-    967429204
+    967429204,
+    1771354704
    ],
-   "reason": "8 accepted fridge model(s), target 20"
+   "reason": "13 accepted fridge model(s), target 20"
   },
   {
    "pair": "fridge__rustic",
@@ -1835,15 +1906,21 @@
      "index": 2,
      "seed": 412936966,
      "prompt": "a single rustic style freestanding refrigerator, cream enamel and stone, aged copper and wrought iron fittings, sturdy simple forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 3,
+     "seed": 1836615607,
+     "prompt": "a single rustic style freestanding refrigerator, cream enamel and stone, aged copper and wrought iron fittings, sturdy simple forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 1,
+   "earlier": 2,
    "seeds": [
     1059036472,
-    412936966
+    412936966,
+    1836615607
    ],
-   "reason": "8 accepted fridge model(s), target 20"
+   "reason": "13 accepted fridge model(s), target 20"
   },
   {
    "pair": "fridge__scandinavian",
@@ -1870,17 +1947,29 @@
      "index": 4,
      "seed": 1646954530,
      "prompt": "a single scandinavian style freestanding refrigerator, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 5,
+     "seed": 656910973,
+     "prompt": "a single scandinavian style freestanding refrigerator, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 6,
+     "seed": 204123863,
+     "prompt": "a single scandinavian style freestanding refrigerator, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
    "new": 2,
-   "earlier": 2,
+   "earlier": 4,
    "seeds": [
     808569671,
     370444313,
     337823870,
-    1646954530
+    1646954530,
+    656910973,
+    204123863
    ],
-   "reason": "8 accepted fridge model(s), target 20"
+   "reason": "13 accepted fridge model(s), target 20"
   },
   {
    "pair": "plant_small__classic",
@@ -1902,16 +1991,28 @@
      "index": 3,
      "seed": 182776457,
      "prompt": "a single classic style small indoor plant in a pot for a table or a shelf, white porcelain with gold rims, polished brass, moulded classic details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 4,
+     "seed": 1237595771,
+     "prompt": "a single classic style small indoor plant in a pot for a table or a shelf, white porcelain with gold rims, polished brass, moulded classic details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 5,
+     "seed": 816639297,
+     "prompt": "a single classic style small indoor plant in a pot for a table or a shelf, white porcelain with gold rims, polished brass, moulded classic details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 3,
-   "earlier": 0,
+   "new": 2,
+   "earlier": 3,
    "seeds": [
     1852476219,
     490371889,
-    182776457
+    182776457,
+    1237595771,
+    816639297
    ],
-   "reason": "0 accepted plant_small model(s), target 20"
+   "reason": "10 accepted plant_small model(s), target 20"
   },
   {
    "pair": "plant_small__industrial",
@@ -1933,16 +2034,28 @@
      "index": 3,
      "seed": 1531972250,
      "prompt": "a single industrial style small indoor plant in a pot for a table or a shelf, raw concrete, black steel and dark glazed ceramic, rough textures, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 4,
+     "seed": 106719109,
+     "prompt": "a single industrial style small indoor plant in a pot for a table or a shelf, raw concrete, black steel and dark glazed ceramic, rough textures, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 5,
+     "seed": 773423623,
+     "prompt": "a single industrial style small indoor plant in a pot for a table or a shelf, raw concrete, black steel and dark glazed ceramic, rough textures, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 3,
-   "earlier": 0,
+   "new": 2,
+   "earlier": 3,
    "seeds": [
     1584856133,
     593180775,
-    1531972250
+    1531972250,
+    106719109,
+    773423623
    ],
-   "reason": "0 accepted plant_small model(s), target 20"
+   "reason": "10 accepted plant_small model(s), target 20"
   },
   {
    "pair": "plant_small__japandi",
@@ -1969,17 +2082,29 @@
      "index": 4,
      "seed": 994689158,
      "prompt": "a single japandi style small indoor plant in a pot for a table or a shelf, handmade matte stoneware in stone grey and charcoal, light ash wood, calm minimal forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 5,
+     "seed": 269863170,
+     "prompt": "a single japandi style small indoor plant in a pot for a table or a shelf, handmade matte stoneware in stone grey and charcoal, light ash wood, calm minimal forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 6,
+     "seed": 13643088,
+     "prompt": "a single japandi style small indoor plant in a pot for a table or a shelf, handmade matte stoneware in stone grey and charcoal, light ash wood, calm minimal forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 4,
-   "earlier": 0,
+   "new": 2,
+   "earlier": 4,
    "seeds": [
     872423130,
     626548279,
     1684737007,
-    994689158
+    994689158,
+    269863170,
+    13643088
    ],
-   "reason": "0 accepted plant_small model(s), target 20"
+   "reason": "10 accepted plant_small model(s), target 20"
   },
   {
    "pair": "plant_small__mediterranean",
@@ -2001,16 +2126,28 @@
      "index": 3,
      "seed": 1254574610,
      "prompt": "a single mediterranean style small indoor plant in a pot for a table or a shelf, terracotta and white glazed ceramic, woven rattan, warm sand tones, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 4,
+     "seed": 957123441,
+     "prompt": "a single mediterranean style small indoor plant in a pot for a table or a shelf, terracotta and white glazed ceramic, woven rattan, warm sand tones, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 5,
+     "seed": 2079858506,
+     "prompt": "a single mediterranean style small indoor plant in a pot for a table or a shelf, terracotta and white glazed ceramic, woven rattan, warm sand tones, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 3,
-   "earlier": 0,
+   "new": 2,
+   "earlier": 3,
    "seeds": [
     882014085,
     207715200,
-    1254574610
+    1254574610,
+    957123441,
+    2079858506
    ],
-   "reason": "0 accepted plant_small model(s), target 20"
+   "reason": "10 accepted plant_small model(s), target 20"
   },
   {
    "pair": "plant_small__minimal",
@@ -2032,16 +2169,22 @@
      "index": 3,
      "seed": 383769534,
      "prompt": "a single minimal style small indoor plant in a pot for a table or a shelf, plain matte ceramic in white, beige and grey, simple geometric forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 4,
+     "seed": 453934772,
+     "prompt": "a single minimal style small indoor plant in a pot for a table or a shelf, plain matte ceramic in white, beige and grey, simple geometric forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 3,
-   "earlier": 0,
+   "new": 1,
+   "earlier": 3,
    "seeds": [
     1116598747,
     1213782911,
-    383769534
+    383769534,
+    453934772
    ],
-   "reason": "0 accepted plant_small model(s), target 20"
+   "reason": "10 accepted plant_small model(s), target 20"
   },
   {
    "pair": "plant_small__modern",
@@ -2063,16 +2206,22 @@
      "index": 3,
      "seed": 202522844,
      "prompt": "a single modern style small indoor plant in a pot for a table or a shelf, glossy ceramic and smoked glass, brushed brass and walnut accents, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 4,
+     "seed": 2090127331,
+     "prompt": "a single modern style small indoor plant in a pot for a table or a shelf, glossy ceramic and smoked glass, brushed brass and walnut accents, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 3,
-   "earlier": 0,
+   "new": 1,
+   "earlier": 3,
    "seeds": [
     1528767813,
     568133216,
-    202522844
+    202522844,
+    2090127331
    ],
-   "reason": "0 accepted plant_small model(s), target 20"
+   "reason": "10 accepted plant_small model(s), target 20"
   },
   {
    "pair": "plant_small__modern_minimal",
@@ -2094,16 +2243,22 @@
      "index": 3,
      "seed": 298738798,
      "prompt": "a single modern minimal style small indoor plant in a pot for a table or a shelf, matte white and warm grey ceramic, thin black metal, crisp simple forms, no ornament, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 4,
+     "seed": 983713376,
+     "prompt": "a single modern minimal style small indoor plant in a pot for a table or a shelf, matte white and warm grey ceramic, thin black metal, crisp simple forms, no ornament, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 3,
-   "earlier": 0,
+   "new": 1,
+   "earlier": 3,
    "seeds": [
     1823392727,
     2056036041,
-    298738798
+    298738798,
+    983713376
    ],
-   "reason": "0 accepted plant_small model(s), target 20"
+   "reason": "10 accepted plant_small model(s), target 20"
   },
   {
    "pair": "plant_small__rustic",
@@ -2125,16 +2280,28 @@
      "index": 3,
      "seed": 1269937580,
      "prompt": "a single rustic style small indoor plant in a pot for a table or a shelf, rough stoneware, aged wood and wrought iron, earthy colours, sturdy simple forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 4,
+     "seed": 164355734,
+     "prompt": "a single rustic style small indoor plant in a pot for a table or a shelf, rough stoneware, aged wood and wrought iron, earthy colours, sturdy simple forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 5,
+     "seed": 122779979,
+     "prompt": "a single rustic style small indoor plant in a pot for a table or a shelf, rough stoneware, aged wood and wrought iron, earthy colours, sturdy simple forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 3,
-   "earlier": 0,
+   "new": 2,
+   "earlier": 3,
    "seeds": [
     2084749009,
     1936710541,
-    1269937580
+    1269937580,
+    164355734,
+    122779979
    ],
-   "reason": "0 accepted plant_small model(s), target 20"
+   "reason": "10 accepted plant_small model(s), target 20"
   },
   {
    "pair": "plant_small__scandinavian",
@@ -2161,17 +2328,29 @@
      "index": 4,
      "seed": 1700838086,
      "prompt": "a single scandinavian style small indoor plant in a pot for a table or a shelf, matte white and pale grey ceramic, light oak, natural linen, simple soft forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 5,
+     "seed": 501095608,
+     "prompt": "a single scandinavian style small indoor plant in a pot for a table or a shelf, matte white and pale grey ceramic, light oak, natural linen, simple soft forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 6,
+     "seed": 109453428,
+     "prompt": "a single scandinavian style small indoor plant in a pot for a table or a shelf, matte white and pale grey ceramic, light oak, natural linen, simple soft forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 4,
-   "earlier": 0,
+   "new": 2,
+   "earlier": 4,
    "seeds": [
     2087099674,
     238081903,
     1181489117,
-    1700838086
+    1700838086,
+    501095608,
+    109453428
    ],
-   "reason": "0 accepted plant_small model(s), target 20"
+   "reason": "10 accepted plant_small model(s), target 20"
   },
   {
    "pair": "potted_plant__classic",
@@ -2188,15 +2367,21 @@
      "index": 2,
      "seed": 1637030310,
      "prompt": "a single classic style large indoor plant in a floor pot, carved dark walnut wood, tufted cream upholstery, turned legs, polished brass details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 3,
+     "seed": 1948906444,
+     "prompt": "a single classic style large indoor plant in a floor pot, carved dark walnut wood, tufted cream upholstery, turned legs, polished brass details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 1,
+   "earlier": 2,
    "seeds": [
     426697151,
-    1637030310
+    1637030310,
+    1948906444
    ],
-   "reason": "10 accepted potted_plant model(s), target 20"
+   "reason": "18 accepted potted_plant model(s), target 20"
   },
   {
    "pair": "potted_plant__industrial",
@@ -2213,15 +2398,21 @@
      "index": 2,
      "seed": 610558464,
      "prompt": "a single industrial style large indoor plant in a floor pot, black powder-coated steel frame, reclaimed dark wood, cognac leather, exposed bolts, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 3,
+     "seed": 217147725,
+     "prompt": "a single industrial style large indoor plant in a floor pot, black powder-coated steel frame, reclaimed dark wood, cognac leather, exposed bolts, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 1,
+   "earlier": 2,
    "seeds": [
     1390892486,
-    610558464
+    610558464,
+    217147725
    ],
-   "reason": "10 accepted potted_plant model(s), target 20"
+   "reason": "18 accepted potted_plant model(s), target 20"
   },
   {
    "pair": "potted_plant__japandi",
@@ -2250,15 +2441,15 @@
      "prompt": "a single japandi style large indoor plant in a floor pot, light ash wood, black accents, natural linen and paper textures, low profile, calm minimal forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 2,
+   "new": 0,
+   "earlier": 4,
    "seeds": [
     1070096842,
     1292760884,
     1369369843,
     387575441
    ],
-   "reason": "10 accepted potted_plant model(s), target 20"
+   "reason": "18 accepted potted_plant model(s), target 20"
   },
   {
    "pair": "potted_plant__mediterranean",
@@ -2275,15 +2466,21 @@
      "index": 2,
      "seed": 2096952531,
      "prompt": "a single mediterranean style large indoor plant in a floor pot, whitewashed wood, terracotta and sand tones, woven rattan, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 3,
+     "seed": 2078673011,
+     "prompt": "a single mediterranean style large indoor plant in a floor pot, whitewashed wood, terracotta and sand tones, woven rattan, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 1,
+   "earlier": 2,
    "seeds": [
     357641359,
-    2096952531
+    2096952531,
+    2078673011
    ],
-   "reason": "10 accepted potted_plant model(s), target 20"
+   "reason": "18 accepted potted_plant model(s), target 20"
   },
   {
    "pair": "potted_plant__minimal",
@@ -2297,12 +2494,12 @@
      "prompt": "a single minimal style large indoor plant in a floor pot, plain matte surfaces in white, beige and grey, simple geometric forms, hidden handles, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 1,
-   "earlier": 0,
+   "new": 0,
+   "earlier": 1,
    "seeds": [
     2048023385
    ],
-   "reason": "10 accepted potted_plant model(s), target 20"
+   "reason": "18 accepted potted_plant model(s), target 20"
   },
   {
    "pair": "potted_plant__modern",
@@ -2316,12 +2513,12 @@
      "prompt": "a single modern style large indoor plant in a floor pot, walnut veneer, charcoal fabric, brushed steel details, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 1,
-   "earlier": 0,
+   "new": 0,
+   "earlier": 1,
    "seeds": [
     1433942496
    ],
-   "reason": "10 accepted potted_plant model(s), target 20"
+   "reason": "18 accepted potted_plant model(s), target 20"
   },
   {
    "pair": "potted_plant__modern_minimal",
@@ -2335,12 +2532,12 @@
      "prompt": "a single modern minimal style large indoor plant in a floor pot, matte white and warm grey surfaces, flush panels, thin black metal details, no ornament, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 1,
-   "earlier": 0,
+   "new": 0,
+   "earlier": 1,
    "seeds": [
     1189468089
    ],
-   "reason": "10 accepted potted_plant model(s), target 20"
+   "reason": "18 accepted potted_plant model(s), target 20"
   },
   {
    "pair": "potted_plant__rustic",
@@ -2359,13 +2556,13 @@
      "prompt": "a single rustic style large indoor plant in a floor pot, rough-sawn oak with visible grain, wrought iron, natural linen, sturdy chunky forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 0,
+   "earlier": 2,
    "seeds": [
     932818175,
     1295398170
    ],
-   "reason": "10 accepted potted_plant model(s), target 20"
+   "reason": "18 accepted potted_plant model(s), target 20"
   },
   {
    "pair": "potted_plant__scandinavian",
@@ -2394,15 +2591,15 @@
      "prompt": "a single scandinavian style large indoor plant in a floor pot, light oak wood, white and soft grey, natural linen upholstery, slim tapered legs, simple clean lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 2,
+   "new": 0,
+   "earlier": 4,
    "seeds": [
     670989627,
     550685039,
     1878465446,
     382667847
    ],
-   "reason": "10 accepted potted_plant model(s), target 20"
+   "reason": "18 accepted potted_plant model(s), target 20"
   },
   {
    "pair": "shower__classic",
@@ -2424,16 +2621,28 @@
      "index": 3,
      "seed": 288736448,
      "prompt": "a single classic style square glass shower enclosure with a shower tray, white porcelain, polished brass or chrome fittings, moulded classic details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 4,
+     "seed": 1242009447,
+     "prompt": "a single classic style square glass shower enclosure with a shower tray, white porcelain, polished brass or chrome fittings, moulded classic details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 5,
+     "seed": 693456568,
+     "prompt": "a single classic style square glass shower enclosure with a shower tray, white porcelain, polished brass or chrome fittings, moulded classic details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 3,
-   "earlier": 0,
+   "new": 2,
+   "earlier": 3,
    "seeds": [
     543033001,
     922104940,
-    288736448
+    288736448,
+    1242009447,
+    693456568
    ],
-   "reason": "2 accepted shower model(s), target 20"
+   "reason": "6 accepted shower model(s), target 20"
   },
   {
    "pair": "shower__industrial",
@@ -2455,16 +2664,28 @@
      "index": 3,
      "seed": 1412056558,
      "prompt": "a single industrial style square glass shower enclosure with a shower tray, black steel and brushed stainless steel, concrete grey surfaces, exposed black fittings, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 4,
+     "seed": 1637256619,
+     "prompt": "a single industrial style square glass shower enclosure with a shower tray, black steel and brushed stainless steel, concrete grey surfaces, exposed black fittings, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 5,
+     "seed": 256734938,
+     "prompt": "a single industrial style square glass shower enclosure with a shower tray, black steel and brushed stainless steel, concrete grey surfaces, exposed black fittings, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 3,
-   "earlier": 0,
+   "new": 2,
+   "earlier": 3,
    "seeds": [
     404427700,
     1582043500,
-    1412056558
+    1412056558,
+    1637256619,
+    256734938
    ],
-   "reason": "2 accepted shower model(s), target 20"
+   "reason": "6 accepted shower model(s), target 20"
   },
   {
    "pair": "shower__japandi",
@@ -2496,18 +2717,36 @@
      "index": 5,
      "seed": 1574882618,
      "prompt": "a single japandi style square glass shower enclosure with a shower tray, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 6,
+     "seed": 818171874,
+     "prompt": "a single japandi style square glass shower enclosure with a shower tray, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 7,
+     "seed": 1195969725,
+     "prompt": "a single japandi style square glass shower enclosure with a shower tray, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 8,
+     "seed": 950609825,
+     "prompt": "a single japandi style square glass shower enclosure with a shower tray, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
    "new": 3,
-   "earlier": 2,
+   "earlier": 5,
    "seeds": [
     939201746,
     426030452,
     917983770,
     1665679228,
-    1574882618
+    1574882618,
+    818171874,
+    1195969725,
+    950609825
    ],
-   "reason": "2 accepted shower model(s), target 20"
+   "reason": "6 accepted shower model(s), target 20"
   },
   {
    "pair": "shower__mediterranean",
@@ -2529,16 +2768,28 @@
      "index": 3,
      "seed": 1398362060,
      "prompt": "a single mediterranean style square glass shower enclosure with a shower tray, white glazed ceramic, warm terracotta and sand accents, aged brass fittings, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 4,
+     "seed": 1980228904,
+     "prompt": "a single mediterranean style square glass shower enclosure with a shower tray, white glazed ceramic, warm terracotta and sand accents, aged brass fittings, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 5,
+     "seed": 175561702,
+     "prompt": "a single mediterranean style square glass shower enclosure with a shower tray, white glazed ceramic, warm terracotta and sand accents, aged brass fittings, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 3,
-   "earlier": 0,
+   "new": 2,
+   "earlier": 3,
    "seeds": [
     656027151,
     793032144,
-    1398362060
+    1398362060,
+    1980228904,
+    175561702
    ],
-   "reason": "2 accepted shower model(s), target 20"
+   "reason": "6 accepted shower model(s), target 20"
   },
   {
    "pair": "shower__minimal",
@@ -2560,16 +2811,28 @@
      "index": 3,
      "seed": 330125556,
      "prompt": "a single minimal style square glass shower enclosure with a shower tray, plain white ceramic and enamel, hidden fittings, simple geometric forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 4,
+     "seed": 902034625,
+     "prompt": "a single minimal style square glass shower enclosure with a shower tray, plain white ceramic and enamel, hidden fittings, simple geometric forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 5,
+     "seed": 2019965398,
+     "prompt": "a single minimal style square glass shower enclosure with a shower tray, plain white ceramic and enamel, hidden fittings, simple geometric forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 3,
-   "earlier": 0,
+   "new": 2,
+   "earlier": 3,
    "seeds": [
     1564559402,
     597147897,
-    330125556
+    330125556,
+    902034625,
+    2019965398
    ],
-   "reason": "2 accepted shower model(s), target 20"
+   "reason": "6 accepted shower model(s), target 20"
   },
   {
    "pair": "shower__modern",
@@ -2596,17 +2859,29 @@
      "index": 4,
      "seed": 1226567488,
      "prompt": "a single modern style square glass shower enclosure with a shower tray, glossy white ceramic, stainless steel and chrome fittings, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 5,
+     "seed": 1959924133,
+     "prompt": "a single modern style square glass shower enclosure with a shower tray, glossy white ceramic, stainless steel and chrome fittings, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 6,
+     "seed": 490101321,
+     "prompt": "a single modern style square glass shower enclosure with a shower tray, glossy white ceramic, stainless steel and chrome fittings, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
    "new": 2,
-   "earlier": 2,
+   "earlier": 4,
    "seeds": [
     454414153,
     1864829116,
     736058235,
-    1226567488
+    1226567488,
+    1959924133,
+    490101321
    ],
-   "reason": "2 accepted shower model(s), target 20"
+   "reason": "6 accepted shower model(s), target 20"
   },
   {
    "pair": "shower__modern_minimal",
@@ -2638,18 +2913,30 @@
      "index": 5,
      "seed": 1919663039,
      "prompt": "a single modern minimal style square glass shower enclosure with a shower tray, matte white surfaces, flush handleless fronts, thin black fittings, crisp rectangular forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 6,
+     "seed": 1715513438,
+     "prompt": "a single modern minimal style square glass shower enclosure with a shower tray, matte white surfaces, flush handleless fronts, thin black fittings, crisp rectangular forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 7,
+     "seed": 1904361494,
+     "prompt": "a single modern minimal style square glass shower enclosure with a shower tray, matte white surfaces, flush handleless fronts, thin black fittings, crisp rectangular forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 3,
-   "earlier": 2,
+   "new": 2,
+   "earlier": 5,
    "seeds": [
     1121063307,
     1385970729,
     481511442,
     1656012602,
-    1919663039
+    1919663039,
+    1715513438,
+    1904361494
    ],
-   "reason": "2 accepted shower model(s), target 20"
+   "reason": "6 accepted shower model(s), target 20"
   },
   {
    "pair": "shower__rustic",
@@ -2671,16 +2958,28 @@
      "index": 3,
      "seed": 1580413332,
      "prompt": "a single rustic style square glass shower enclosure with a shower tray, cream enamel and stone, aged copper and wrought iron fittings, sturdy simple forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 4,
+     "seed": 785193753,
+     "prompt": "a single rustic style square glass shower enclosure with a shower tray, cream enamel and stone, aged copper and wrought iron fittings, sturdy simple forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 5,
+     "seed": 778283027,
+     "prompt": "a single rustic style square glass shower enclosure with a shower tray, cream enamel and stone, aged copper and wrought iron fittings, sturdy simple forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 3,
-   "earlier": 0,
+   "new": 2,
+   "earlier": 3,
    "seeds": [
     323833158,
     260736030,
-    1580413332
+    1580413332,
+    785193753,
+    778283027
    ],
-   "reason": "2 accepted shower model(s), target 20"
+   "reason": "6 accepted shower model(s), target 20"
   },
   {
    "pair": "shower__scandinavian",
@@ -2712,18 +3011,36 @@
      "index": 5,
      "seed": 757178984,
      "prompt": "a single scandinavian style square glass shower enclosure with a shower tray, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 6,
+     "seed": 1731032356,
+     "prompt": "a single scandinavian style square glass shower enclosure with a shower tray, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 7,
+     "seed": 1693878185,
+     "prompt": "a single scandinavian style square glass shower enclosure with a shower tray, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 8,
+     "seed": 231260884,
+     "prompt": "a single scandinavian style square glass shower enclosure with a shower tray, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
    "new": 3,
-   "earlier": 2,
+   "earlier": 5,
    "seeds": [
     1674076823,
     1771359389,
     781234413,
     1994001463,
-    757178984
+    757178984,
+    1731032356,
+    1693878185,
+    231260884
    ],
-   "reason": "2 accepted shower model(s), target 20"
+   "reason": "6 accepted shower model(s), target 20"
   },
   {
    "pair": "sink_kitchen__classic",
@@ -2740,15 +3057,27 @@
      "index": 2,
      "seed": 318626034,
      "prompt": "a single classic style kitchen sink base cabinet with a worktop and an inset sink, white porcelain, polished brass or chrome fittings, moulded classic details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 3,
+     "seed": 1797603847,
+     "prompt": "a single classic style kitchen sink base cabinet with a worktop and an inset sink, white porcelain, polished brass or chrome fittings, moulded classic details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 4,
+     "seed": 728186729,
+     "prompt": "a single classic style kitchen sink base cabinet with a worktop and an inset sink, white porcelain, polished brass or chrome fittings, moulded classic details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
    "new": 2,
-   "earlier": 0,
+   "earlier": 2,
    "seeds": [
     1794167933,
-    318626034
+    318626034,
+    1797603847,
+    728186729
    ],
-   "reason": "6 accepted sink_kitchen model(s), target 20"
+   "reason": "11 accepted sink_kitchen model(s), target 20"
   },
   {
    "pair": "sink_kitchen__industrial",
@@ -2770,16 +3099,28 @@
      "index": 3,
      "seed": 875832087,
      "prompt": "a single industrial style kitchen sink base cabinet with a worktop and an inset sink, black steel and brushed stainless steel, concrete grey surfaces, exposed black fittings, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 4,
+     "seed": 694085082,
+     "prompt": "a single industrial style kitchen sink base cabinet with a worktop and an inset sink, black steel and brushed stainless steel, concrete grey surfaces, exposed black fittings, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 5,
+     "seed": 1110798359,
+     "prompt": "a single industrial style kitchen sink base cabinet with a worktop and an inset sink, black steel and brushed stainless steel, concrete grey surfaces, exposed black fittings, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 3,
-   "earlier": 0,
+   "new": 2,
+   "earlier": 3,
    "seeds": [
     194502197,
     591405324,
-    875832087
+    875832087,
+    694085082,
+    1110798359
    ],
-   "reason": "6 accepted sink_kitchen model(s), target 20"
+   "reason": "11 accepted sink_kitchen model(s), target 20"
   },
   {
    "pair": "sink_kitchen__japandi",
@@ -2811,18 +3152,30 @@
      "index": 5,
      "seed": 1484396846,
      "prompt": "a single japandi style kitchen sink base cabinet with a worktop and an inset sink, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 6,
+     "seed": 1895673358,
+     "prompt": "a single japandi style kitchen sink base cabinet with a worktop and an inset sink, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 7,
+     "seed": 731350546,
+     "prompt": "a single japandi style kitchen sink base cabinet with a worktop and an inset sink, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 3,
-   "earlier": 2,
+   "new": 2,
+   "earlier": 5,
    "seeds": [
     1751330216,
     1403510016,
     844072657,
     910399846,
-    1484396846
+    1484396846,
+    1895673358,
+    731350546
    ],
-   "reason": "6 accepted sink_kitchen model(s), target 20"
+   "reason": "11 accepted sink_kitchen model(s), target 20"
   },
   {
    "pair": "sink_kitchen__mediterranean",
@@ -2839,15 +3192,27 @@
      "index": 2,
      "seed": 1896651023,
      "prompt": "a single mediterranean style kitchen sink base cabinet with a worktop and an inset sink, white glazed ceramic, warm terracotta and sand accents, aged brass fittings, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 3,
+     "seed": 1608818784,
+     "prompt": "a single mediterranean style kitchen sink base cabinet with a worktop and an inset sink, white glazed ceramic, warm terracotta and sand accents, aged brass fittings, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 4,
+     "seed": 1827312117,
+     "prompt": "a single mediterranean style kitchen sink base cabinet with a worktop and an inset sink, white glazed ceramic, warm terracotta and sand accents, aged brass fittings, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
    "new": 2,
-   "earlier": 0,
+   "earlier": 2,
    "seeds": [
     1730968517,
-    1896651023
+    1896651023,
+    1608818784,
+    1827312117
    ],
-   "reason": "6 accepted sink_kitchen model(s), target 20"
+   "reason": "11 accepted sink_kitchen model(s), target 20"
   },
   {
    "pair": "sink_kitchen__minimal",
@@ -2864,15 +3229,21 @@
      "index": 2,
      "seed": 2062809690,
      "prompt": "a single minimal style kitchen sink base cabinet with a worktop and an inset sink, plain white ceramic and enamel, hidden fittings, simple geometric forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 3,
+     "seed": 364126061,
+     "prompt": "a single minimal style kitchen sink base cabinet with a worktop and an inset sink, plain white ceramic and enamel, hidden fittings, simple geometric forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 1,
+   "earlier": 2,
    "seeds": [
     1964726809,
-    2062809690
+    2062809690,
+    364126061
    ],
-   "reason": "6 accepted sink_kitchen model(s), target 20"
+   "reason": "11 accepted sink_kitchen model(s), target 20"
   },
   {
    "pair": "sink_kitchen__modern",
@@ -2899,17 +3270,23 @@
      "index": 4,
      "seed": 1711298490,
      "prompt": "a single modern style kitchen sink base cabinet with a worktop and an inset sink, glossy white ceramic, stainless steel and chrome fittings, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 5,
+     "seed": 1922934649,
+     "prompt": "a single modern style kitchen sink base cabinet with a worktop and an inset sink, glossy white ceramic, stainless steel and chrome fittings, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 2,
+   "new": 1,
+   "earlier": 4,
    "seeds": [
     385914400,
     251737293,
     2068480660,
-    1711298490
+    1711298490,
+    1922934649
    ],
-   "reason": "6 accepted sink_kitchen model(s), target 20"
+   "reason": "11 accepted sink_kitchen model(s), target 20"
   },
   {
    "pair": "sink_kitchen__modern_minimal",
@@ -2936,17 +3313,23 @@
      "index": 4,
      "seed": 883974273,
      "prompt": "a single modern minimal style kitchen sink base cabinet with a worktop and an inset sink, matte white surfaces, flush handleless fronts, thin black fittings, crisp rectangular forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 5,
+     "seed": 844437338,
+     "prompt": "a single modern minimal style kitchen sink base cabinet with a worktop and an inset sink, matte white surfaces, flush handleless fronts, thin black fittings, crisp rectangular forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 2,
+   "new": 1,
+   "earlier": 4,
    "seeds": [
     1000835940,
     1809389486,
     694026942,
-    883974273
+    883974273,
+    844437338
    ],
-   "reason": "6 accepted sink_kitchen model(s), target 20"
+   "reason": "11 accepted sink_kitchen model(s), target 20"
   },
   {
    "pair": "sink_kitchen__rustic",
@@ -2963,15 +3346,21 @@
      "index": 2,
      "seed": 526598084,
      "prompt": "a single rustic style kitchen sink base cabinet with a worktop and an inset sink, cream enamel and stone, aged copper and wrought iron fittings, sturdy simple forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 3,
+     "seed": 300962407,
+     "prompt": "a single rustic style kitchen sink base cabinet with a worktop and an inset sink, cream enamel and stone, aged copper and wrought iron fittings, sturdy simple forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 1,
+   "earlier": 2,
    "seeds": [
     2115321915,
-    526598084
+    526598084,
+    300962407
    ],
-   "reason": "6 accepted sink_kitchen model(s), target 20"
+   "reason": "11 accepted sink_kitchen model(s), target 20"
   },
   {
    "pair": "sink_kitchen__scandinavian",
@@ -2998,17 +3387,23 @@
      "index": 4,
      "seed": 1652324569,
      "prompt": "a single scandinavian style kitchen sink base cabinet with a worktop and an inset sink, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 5,
+     "seed": 826196247,
+     "prompt": "a single scandinavian style kitchen sink base cabinet with a worktop and an inset sink, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 2,
+   "new": 1,
+   "earlier": 4,
    "seeds": [
     8822649,
     815159649,
     1997980240,
-    1652324569
+    1652324569,
+    826196247
    ],
-   "reason": "6 accepted sink_kitchen model(s), target 20"
+   "reason": "11 accepted sink_kitchen model(s), target 20"
   },
   {
    "pair": "sofa__japandi",
@@ -3055,16 +3450,22 @@
      "index": 3,
      "seed": 481183811,
      "prompt": "a single classic style freestanding cooker with an oven and a four-burner hob, white porcelain, polished brass or chrome fittings, moulded classic details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 4,
+     "seed": 631010541,
+     "prompt": "a single classic style freestanding cooker with an oven and a four-burner hob, white porcelain, polished brass or chrome fittings, moulded classic details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 3,
-   "earlier": 0,
+   "new": 1,
+   "earlier": 3,
    "seeds": [
     986379801,
     183699689,
-    481183811
+    481183811,
+    631010541
    ],
-   "reason": "4 accepted stove model(s), target 20"
+   "reason": "12 accepted stove model(s), target 20"
   },
   {
    "pair": "stove__industrial",
@@ -3081,15 +3482,21 @@
      "index": 2,
      "seed": 131728962,
      "prompt": "a single industrial style freestanding cooker with an oven and a four-burner hob, black steel and brushed stainless steel, concrete grey surfaces, exposed black fittings, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 3,
+     "seed": 68580580,
+     "prompt": "a single industrial style freestanding cooker with an oven and a four-burner hob, black steel and brushed stainless steel, concrete grey surfaces, exposed black fittings, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 1,
+   "earlier": 2,
    "seeds": [
     203494049,
-    131728962
+    131728962,
+    68580580
    ],
-   "reason": "4 accepted stove model(s), target 20"
+   "reason": "12 accepted stove model(s), target 20"
   },
   {
    "pair": "stove__japandi",
@@ -3111,16 +3518,28 @@
      "index": 3,
      "seed": 704492064,
      "prompt": "a single japandi style freestanding cooker with an oven and a four-burner hob, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 4,
+     "seed": 2054009918,
+     "prompt": "a single japandi style freestanding cooker with an oven and a four-burner hob, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 5,
+     "seed": 31989486,
+     "prompt": "a single japandi style freestanding cooker with an oven and a four-burner hob, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 3,
-   "earlier": 0,
+   "new": 2,
+   "earlier": 3,
    "seeds": [
     1883612848,
     1020431673,
-    704492064
+    704492064,
+    2054009918,
+    31989486
    ],
-   "reason": "4 accepted stove model(s), target 20"
+   "reason": "12 accepted stove model(s), target 20"
   },
   {
    "pair": "stove__mediterranean",
@@ -3142,16 +3561,28 @@
      "index": 3,
      "seed": 767099192,
      "prompt": "a single mediterranean style freestanding cooker with an oven and a four-burner hob, white glazed ceramic, warm terracotta and sand accents, aged brass fittings, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 4,
+     "seed": 1671225786,
+     "prompt": "a single mediterranean style freestanding cooker with an oven and a four-burner hob, white glazed ceramic, warm terracotta and sand accents, aged brass fittings, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 5,
+     "seed": 1383530290,
+     "prompt": "a single mediterranean style freestanding cooker with an oven and a four-burner hob, white glazed ceramic, warm terracotta and sand accents, aged brass fittings, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 3,
-   "earlier": 0,
+   "new": 2,
+   "earlier": 3,
    "seeds": [
     1234218911,
     2106557113,
-    767099192
+    767099192,
+    1671225786,
+    1383530290
    ],
-   "reason": "4 accepted stove model(s), target 20"
+   "reason": "12 accepted stove model(s), target 20"
   },
   {
    "pair": "stove__minimal",
@@ -3173,16 +3604,22 @@
      "index": 3,
      "seed": 8322669,
      "prompt": "a single minimal style freestanding cooker with an oven and a four-burner hob, plain white ceramic and enamel, hidden fittings, simple geometric forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 4,
+     "seed": 483195888,
+     "prompt": "a single minimal style freestanding cooker with an oven and a four-burner hob, plain white ceramic and enamel, hidden fittings, simple geometric forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 3,
-   "earlier": 0,
+   "new": 1,
+   "earlier": 3,
    "seeds": [
     1107003774,
     1587707889,
-    8322669
+    8322669,
+    483195888
    ],
-   "reason": "4 accepted stove model(s), target 20"
+   "reason": "12 accepted stove model(s), target 20"
   },
   {
    "pair": "stove__modern",
@@ -3199,15 +3636,21 @@
      "index": 2,
      "seed": 935858257,
      "prompt": "a single modern style freestanding cooker with an oven and a four-burner hob, glossy white ceramic, stainless steel and chrome fittings, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 3,
+     "seed": 1559308897,
+     "prompt": "a single modern style freestanding cooker with an oven and a four-burner hob, glossy white ceramic, stainless steel and chrome fittings, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 1,
+   "earlier": 2,
    "seeds": [
     836018499,
-    935858257
+    935858257,
+    1559308897
    ],
-   "reason": "4 accepted stove model(s), target 20"
+   "reason": "12 accepted stove model(s), target 20"
   },
   {
    "pair": "stove__modern_minimal",
@@ -3224,15 +3667,21 @@
      "index": 2,
      "seed": 762617463,
      "prompt": "a single modern minimal style freestanding cooker with an oven and a four-burner hob, matte white surfaces, flush handleless fronts, thin black fittings, crisp rectangular forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 3,
+     "seed": 214070263,
+     "prompt": "a single modern minimal style freestanding cooker with an oven and a four-burner hob, matte white surfaces, flush handleless fronts, thin black fittings, crisp rectangular forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 1,
+   "earlier": 2,
    "seeds": [
     643563839,
-    762617463
+    762617463,
+    214070263
    ],
-   "reason": "4 accepted stove model(s), target 20"
+   "reason": "12 accepted stove model(s), target 20"
   },
   {
    "pair": "stove__rustic",
@@ -3249,15 +3698,27 @@
      "index": 2,
      "seed": 431550830,
      "prompt": "a single rustic style freestanding cooker with an oven and a four-burner hob, cream enamel and stone, aged copper and wrought iron fittings, sturdy simple forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 3,
+     "seed": 817545811,
+     "prompt": "a single rustic style freestanding cooker with an oven and a four-burner hob, cream enamel and stone, aged copper and wrought iron fittings, sturdy simple forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 4,
+     "seed": 1317452496,
+     "prompt": "a single rustic style freestanding cooker with an oven and a four-burner hob, cream enamel and stone, aged copper and wrought iron fittings, sturdy simple forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
    "new": 2,
-   "earlier": 0,
+   "earlier": 2,
    "seeds": [
     831484525,
-    431550830
+    431550830,
+    817545811,
+    1317452496
    ],
-   "reason": "4 accepted stove model(s), target 20"
+   "reason": "12 accepted stove model(s), target 20"
   },
   {
    "pair": "stove__scandinavian",
@@ -3279,16 +3740,22 @@
      "index": 3,
      "seed": 561548901,
      "prompt": "a single scandinavian style freestanding cooker with an oven and a four-burner hob, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 4,
+     "seed": 154842564,
+     "prompt": "a single scandinavian style freestanding cooker with an oven and a four-burner hob, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 3,
-   "earlier": 0,
+   "new": 1,
+   "earlier": 3,
    "seeds": [
     1086938492,
     1349026082,
-    561548901
+    561548901,
+    154842564
    ],
-   "reason": "4 accepted stove model(s), target 20"
+   "reason": "12 accepted stove model(s), target 20"
   },
   {
    "pair": "toilet__classic",
@@ -3305,15 +3772,21 @@
      "index": 2,
      "seed": 298913782,
      "prompt": "a single classic style floor-standing toilet with a cistern, white porcelain, polished brass or chrome fittings, moulded classic details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 3,
+     "seed": 555571309,
+     "prompt": "a single classic style floor-standing toilet with a cistern, white porcelain, polished brass or chrome fittings, moulded classic details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 1,
+   "earlier": 2,
    "seeds": [
     494718752,
-    298913782
+    298913782,
+    555571309
    ],
-   "reason": "9 accepted toilet model(s), target 20"
+   "reason": "15 accepted toilet model(s), target 20"
   },
   {
    "pair": "toilet__industrial",
@@ -3330,15 +3803,21 @@
      "index": 2,
      "seed": 416277930,
      "prompt": "a single industrial style floor-standing toilet with a cistern, black steel and brushed stainless steel, concrete grey surfaces, exposed black fittings, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 3,
+     "seed": 519588239,
+     "prompt": "a single industrial style floor-standing toilet with a cistern, black steel and brushed stainless steel, concrete grey surfaces, exposed black fittings, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 1,
+   "earlier": 2,
    "seeds": [
     874447118,
-    416277930
+    416277930,
+    519588239
    ],
-   "reason": "9 accepted toilet model(s), target 20"
+   "reason": "15 accepted toilet model(s), target 20"
   },
   {
    "pair": "toilet__japandi",
@@ -3365,17 +3844,23 @@
      "index": 4,
      "seed": 2100719937,
      "prompt": "a single japandi style floor-standing toilet with a cistern, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 5,
+     "seed": 1211548924,
+     "prompt": "a single japandi style floor-standing toilet with a cistern, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 2,
+   "new": 1,
+   "earlier": 4,
    "seeds": [
     1139436299,
     955629872,
     1962290432,
-    2100719937
+    2100719937,
+    1211548924
    ],
-   "reason": "9 accepted toilet model(s), target 20"
+   "reason": "15 accepted toilet model(s), target 20"
   },
   {
    "pair": "toilet__mediterranean",
@@ -3392,15 +3877,21 @@
      "index": 2,
      "seed": 1967488891,
      "prompt": "a single mediterranean style floor-standing toilet with a cistern, white glazed ceramic, warm terracotta and sand accents, aged brass fittings, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 3,
+     "seed": 903664756,
+     "prompt": "a single mediterranean style floor-standing toilet with a cistern, white glazed ceramic, warm terracotta and sand accents, aged brass fittings, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 1,
+   "earlier": 2,
    "seeds": [
     369724681,
-    1967488891
+    1967488891,
+    903664756
    ],
-   "reason": "9 accepted toilet model(s), target 20"
+   "reason": "15 accepted toilet model(s), target 20"
   },
   {
    "pair": "toilet__minimal",
@@ -3412,14 +3903,20 @@
      "index": 1,
      "seed": 298828181,
      "prompt": "a single minimal style floor-standing toilet with a cistern, plain white ceramic and enamel, hidden fittings, simple geometric forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 2,
+     "seed": 677564226,
+     "prompt": "a single minimal style floor-standing toilet with a cistern, plain white ceramic and enamel, hidden fittings, simple geometric forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
    "new": 1,
-   "earlier": 0,
+   "earlier": 1,
    "seeds": [
-    298828181
+    298828181,
+    677564226
    ],
-   "reason": "9 accepted toilet model(s), target 20"
+   "reason": "15 accepted toilet model(s), target 20"
   },
   {
    "pair": "toilet__modern",
@@ -3433,12 +3930,12 @@
      "prompt": "a single modern style floor-standing toilet with a cistern, glossy white ceramic, stainless steel and chrome fittings, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 1,
-   "earlier": 0,
+   "new": 0,
+   "earlier": 1,
    "seeds": [
     1909388104
    ],
-   "reason": "9 accepted toilet model(s), target 20"
+   "reason": "15 accepted toilet model(s), target 20"
   },
   {
    "pair": "toilet__modern_minimal",
@@ -3455,15 +3952,21 @@
      "index": 2,
      "seed": 169936424,
      "prompt": "a single modern minimal style floor-standing toilet with a cistern, matte white surfaces, flush handleless fronts, thin black fittings, crisp rectangular forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 3,
+     "seed": 2115125483,
+     "prompt": "a single modern minimal style floor-standing toilet with a cistern, matte white surfaces, flush handleless fronts, thin black fittings, crisp rectangular forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 1,
+   "earlier": 2,
    "seeds": [
     1605079395,
-    169936424
+    169936424,
+    2115125483
    ],
-   "reason": "9 accepted toilet model(s), target 20"
+   "reason": "15 accepted toilet model(s), target 20"
   },
   {
    "pair": "toilet__rustic",
@@ -3480,15 +3983,21 @@
      "index": 2,
      "seed": 977898879,
      "prompt": "a single rustic style floor-standing toilet with a cistern, cream enamel and stone, aged copper and wrought iron fittings, sturdy simple forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 3,
+     "seed": 1149118936,
+     "prompt": "a single rustic style floor-standing toilet with a cistern, cream enamel and stone, aged copper and wrought iron fittings, sturdy simple forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 1,
+   "earlier": 2,
    "seeds": [
     625724085,
-    977898879
+    977898879,
+    1149118936
    ],
-   "reason": "9 accepted toilet model(s), target 20"
+   "reason": "15 accepted toilet model(s), target 20"
   },
   {
    "pair": "toilet__scandinavian",
@@ -3515,17 +4024,23 @@
      "index": 4,
      "seed": 902731000,
      "prompt": "a single scandinavian style floor-standing toilet with a cistern, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 5,
+     "seed": 1214447609,
+     "prompt": "a single scandinavian style floor-standing toilet with a cistern, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 2,
+   "new": 1,
+   "earlier": 4,
    "seeds": [
     545344929,
     1685320567,
     583637429,
-    902731000
+    902731000,
+    1214447609
    ],
-   "reason": "9 accepted toilet model(s), target 20"
+   "reason": "15 accepted toilet model(s), target 20"
   },
   {
    "pair": "wardrobe__classic",
@@ -3539,12 +4054,12 @@
      "prompt": "a single classic style tall two-door wardrobe, carved dark walnut wood, tufted cream upholstery, turned legs, polished brass details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 1,
-   "earlier": 0,
+   "new": 0,
+   "earlier": 1,
    "seeds": [
     1841525799
    ],
-   "reason": "16 accepted wardrobe model(s), target 20"
+   "reason": "20 accepted wardrobe model(s), target 20"
   },
   {
    "pair": "wardrobe__industrial",
@@ -3558,12 +4073,12 @@
      "prompt": "a single industrial style tall two-door wardrobe, black powder-coated steel frame, reclaimed dark wood, cognac leather, exposed bolts, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 1,
-   "earlier": 0,
+   "new": 0,
+   "earlier": 1,
    "seeds": [
     811728649
    ],
-   "reason": "16 accepted wardrobe model(s), target 20"
+   "reason": "20 accepted wardrobe model(s), target 20"
   },
   {
    "pair": "wardrobe__japandi",
@@ -3577,12 +4092,12 @@
      "prompt": "a single japandi style tall two-door wardrobe, light ash wood, black accents, natural linen and paper textures, low profile, calm minimal forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 1,
-   "earlier": 0,
+   "new": 0,
+   "earlier": 1,
    "seeds": [
     2068216724
    ],
-   "reason": "16 accepted wardrobe model(s), target 20"
+   "reason": "20 accepted wardrobe model(s), target 20"
   },
   {
    "pair": "wardrobe__mediterranean",
@@ -3596,12 +4111,12 @@
      "prompt": "a single mediterranean style tall two-door wardrobe, whitewashed wood, terracotta and sand tones, woven rattan, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 1,
-   "earlier": 0,
+   "new": 0,
+   "earlier": 1,
    "seeds": [
     1145868633
    ],
-   "reason": "16 accepted wardrobe model(s), target 20"
+   "reason": "20 accepted wardrobe model(s), target 20"
   },
   {
    "pair": "wardrobe__rustic",
@@ -3615,12 +4130,12 @@
      "prompt": "a single rustic style tall two-door wardrobe, rough-sawn oak with visible grain, wrought iron, natural linen, sturdy chunky forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 1,
-   "earlier": 0,
+   "new": 0,
+   "earlier": 1,
    "seeds": [
     1853830852
    ],
-   "reason": "16 accepted wardrobe model(s), target 20"
+   "reason": "20 accepted wardrobe model(s), target 20"
   },
   {
    "pair": "wardrobe__scandinavian",
@@ -3634,12 +4149,12 @@
      "prompt": "a single scandinavian style tall two-door wardrobe, light oak wood, white and soft grey, natural linen upholstery, slim tapered legs, simple clean lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 1,
-   "earlier": 0,
+   "new": 0,
+   "earlier": 1,
    "seeds": [
     1606550890
    ],
-   "reason": "16 accepted wardrobe model(s), target 20"
+   "reason": "20 accepted wardrobe model(s), target 20"
   },
   {
    "pair": "washbasin__classic",
@@ -3658,13 +4173,13 @@
      "prompt": "a single classic style bathroom washbasin on a vanity unit, white porcelain, polished brass or chrome fittings, moulded classic details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 0,
+   "earlier": 2,
    "seeds": [
     136361665,
     1466525833
    ],
-   "reason": "10 accepted washbasin model(s), target 20"
+   "reason": "19 accepted washbasin model(s), target 20"
   },
   {
    "pair": "washbasin__industrial",
@@ -3681,15 +4196,21 @@
      "index": 2,
      "seed": 1806354514,
      "prompt": "a single industrial style bathroom washbasin on a vanity unit, black steel and brushed stainless steel, concrete grey surfaces, exposed black fittings, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 3,
+     "seed": 351805922,
+     "prompt": "a single industrial style bathroom washbasin on a vanity unit, black steel and brushed stainless steel, concrete grey surfaces, exposed black fittings, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 1,
+   "earlier": 2,
    "seeds": [
     1989925242,
-    1806354514
+    1806354514,
+    351805922
    ],
-   "reason": "10 accepted washbasin model(s), target 20"
+   "reason": "19 accepted washbasin model(s), target 20"
   },
   {
    "pair": "washbasin__japandi",
@@ -3718,15 +4239,15 @@
      "prompt": "a single japandi style bathroom washbasin on a vanity unit, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 2,
+   "new": 0,
+   "earlier": 4,
    "seeds": [
     642631595,
     999623353,
     172594593,
     1295832561
    ],
-   "reason": "10 accepted washbasin model(s), target 20"
+   "reason": "19 accepted washbasin model(s), target 20"
   },
   {
    "pair": "washbasin__mediterranean",
@@ -3743,15 +4264,21 @@
      "index": 2,
      "seed": 554574144,
      "prompt": "a single mediterranean style bathroom washbasin on a vanity unit, white glazed ceramic, warm terracotta and sand accents, aged brass fittings, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 3,
+     "seed": 1138239150,
+     "prompt": "a single mediterranean style bathroom washbasin on a vanity unit, white glazed ceramic, warm terracotta and sand accents, aged brass fittings, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 1,
+   "earlier": 2,
    "seeds": [
     1623957766,
-    554574144
+    554574144,
+    1138239150
    ],
-   "reason": "10 accepted washbasin model(s), target 20"
+   "reason": "19 accepted washbasin model(s), target 20"
   },
   {
    "pair": "washbasin__minimal",
@@ -3765,12 +4292,12 @@
      "prompt": "a single minimal style bathroom washbasin on a vanity unit, plain white ceramic and enamel, hidden fittings, simple geometric forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 1,
-   "earlier": 0,
+   "new": 0,
+   "earlier": 1,
    "seeds": [
     367564169
    ],
-   "reason": "10 accepted washbasin model(s), target 20"
+   "reason": "19 accepted washbasin model(s), target 20"
   },
   {
    "pair": "washbasin__modern",
@@ -3784,12 +4311,12 @@
      "prompt": "a single modern style bathroom washbasin on a vanity unit, glossy white ceramic, stainless steel and chrome fittings, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 1,
-   "earlier": 0,
+   "new": 0,
+   "earlier": 1,
    "seeds": [
     1917145665
    ],
-   "reason": "10 accepted washbasin model(s), target 20"
+   "reason": "19 accepted washbasin model(s), target 20"
   },
   {
    "pair": "washbasin__modern_minimal",
@@ -3803,12 +4330,12 @@
      "prompt": "a single modern minimal style bathroom washbasin on a vanity unit, matte white surfaces, flush handleless fronts, thin black fittings, crisp rectangular forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 1,
-   "earlier": 0,
+   "new": 0,
+   "earlier": 1,
    "seeds": [
     374338374
    ],
-   "reason": "10 accepted washbasin model(s), target 20"
+   "reason": "19 accepted washbasin model(s), target 20"
   },
   {
    "pair": "washbasin__rustic",
@@ -3827,13 +4354,13 @@
      "prompt": "a single rustic style bathroom washbasin on a vanity unit, cream enamel and stone, aged copper and wrought iron fittings, sturdy simple forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 0,
+   "earlier": 2,
    "seeds": [
     709152721,
     1194354875
    ],
-   "reason": "10 accepted washbasin model(s), target 20"
+   "reason": "19 accepted washbasin model(s), target 20"
   },
   {
    "pair": "washbasin__scandinavian",
@@ -3852,13 +4379,13 @@
      "prompt": "a single scandinavian style bathroom washbasin on a vanity unit, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 0,
+   "earlier": 2,
    "seeds": [
     535104481,
     1163986540
    ],
-   "reason": "10 accepted washbasin model(s), target 20"
+   "reason": "19 accepted washbasin model(s), target 20"
   },
   {
    "pair": "washing_machine__classic",
@@ -3877,13 +4404,13 @@
      "prompt": "a single classic style front-loading washing machine, white porcelain, polished brass or chrome fittings, moulded classic details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 0,
+   "earlier": 2,
    "seeds": [
     35850005,
     1281678572
    ],
-   "reason": "8 accepted washing_machine model(s), target 20"
+   "reason": "18 accepted washing_machine model(s), target 20"
   },
   {
    "pair": "washing_machine__industrial",
@@ -3900,15 +4427,21 @@
      "index": 2,
      "seed": 1647007684,
      "prompt": "a single industrial style front-loading washing machine, black steel and brushed stainless steel, concrete grey surfaces, exposed black fittings, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 3,
+     "seed": 545895520,
+     "prompt": "a single industrial style front-loading washing machine, black steel and brushed stainless steel, concrete grey surfaces, exposed black fittings, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 1,
+   "earlier": 2,
    "seeds": [
     2036019850,
-    1647007684
+    1647007684,
+    545895520
    ],
-   "reason": "8 accepted washing_machine model(s), target 20"
+   "reason": "18 accepted washing_machine model(s), target 20"
   },
   {
    "pair": "washing_machine__japandi",
@@ -3935,17 +4468,23 @@
      "index": 4,
      "seed": 1635563975,
      "prompt": "a single japandi style front-loading washing machine, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 5,
+     "seed": 1978029397,
+     "prompt": "a single japandi style front-loading washing machine, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 2,
+   "new": 1,
+   "earlier": 4,
    "seeds": [
     696633628,
     315156467,
     862105202,
-    1635563975
+    1635563975,
+    1978029397
    ],
-   "reason": "8 accepted washing_machine model(s), target 20"
+   "reason": "18 accepted washing_machine model(s), target 20"
   },
   {
    "pair": "washing_machine__mediterranean",
@@ -3964,13 +4503,13 @@
      "prompt": "a single mediterranean style front-loading washing machine, white glazed ceramic, warm terracotta and sand accents, aged brass fittings, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 0,
+   "earlier": 2,
    "seeds": [
     1622293679,
     2120401771
    ],
-   "reason": "8 accepted washing_machine model(s), target 20"
+   "reason": "18 accepted washing_machine model(s), target 20"
   },
   {
    "pair": "washing_machine__minimal",
@@ -3989,13 +4528,13 @@
      "prompt": "a single minimal style front-loading washing machine, plain white ceramic and enamel, hidden fittings, simple geometric forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 0,
+   "earlier": 2,
    "seeds": [
     1859157270,
     232946761
    ],
-   "reason": "8 accepted washing_machine model(s), target 20"
+   "reason": "18 accepted washing_machine model(s), target 20"
   },
   {
    "pair": "washing_machine__modern",
@@ -4024,15 +4563,15 @@
      "prompt": "a single modern style front-loading washing machine, glossy white ceramic, stainless steel and chrome fittings, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 2,
+   "new": 0,
+   "earlier": 4,
    "seeds": [
     150880875,
     2146683294,
     1349489077,
     1488500966
    ],
-   "reason": "8 accepted washing_machine model(s), target 20"
+   "reason": "18 accepted washing_machine model(s), target 20"
   },
   {
    "pair": "washing_machine__modern_minimal",
@@ -4061,15 +4600,15 @@
      "prompt": "a single modern minimal style front-loading washing machine, matte white surfaces, flush handleless fronts, thin black fittings, crisp rectangular forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 2,
+   "new": 0,
+   "earlier": 4,
    "seeds": [
     1023396053,
     2081489533,
     1075311353,
     264309060
    ],
-   "reason": "8 accepted washing_machine model(s), target 20"
+   "reason": "18 accepted washing_machine model(s), target 20"
   },
   {
    "pair": "washing_machine__rustic",
@@ -4088,13 +4627,13 @@
      "prompt": "a single rustic style front-loading washing machine, cream enamel and stone, aged copper and wrought iron fittings, sturdy simple forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 0,
+   "new": 0,
+   "earlier": 2,
    "seeds": [
     145757182,
     130240241
    ],
-   "reason": "8 accepted washing_machine model(s), target 20"
+   "reason": "18 accepted washing_machine model(s), target 20"
   },
   {
    "pair": "washing_machine__scandinavian",
@@ -4121,362 +4660,628 @@
      "index": 4,
      "seed": 527497579,
      "prompt": "a single scandinavian style front-loading washing machine, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
+    },
+    {
+     "index": 5,
+     "seed": 2113960415,
+     "prompt": "a single scandinavian style front-loading washing machine, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text"
     }
    ],
-   "new": 2,
-   "earlier": 2,
+   "new": 1,
+   "earlier": 4,
    "seeds": [
     192962696,
     778133070,
     243455245,
-    527497579
+    527497579,
+    2113960415
    ],
-   "reason": "8 accepted washing_machine model(s), target 20"
+   "reason": "18 accepted washing_machine model(s), target 20"
   }
  ],
  "order": [
   [
-   "bowl__scandinavian",
-   1
-  ],
-  [
-   "plant_small__scandinavian",
-   1
-  ],
-  [
    "shower__scandinavian",
-   3
+   6
   ],
   [
-   "stove__scandinavian",
-   1
+   "bowl__mediterranean",
+   4
+  ],
+  [
+   "plant_small__industrial",
+   4
   ],
   [
    "sink_kitchen__japandi",
-   3
+   6
   ],
   [
-   "bathtub__scandinavian",
-   3
+   "stove__japandi",
+   4
   ],
   [
    "fridge__scandinavian",
-   3
+   5
+  ],
+  [
+   "bathtub__scandinavian",
+   6
+  ],
+  [
+   "toilet__scandinavian",
+   5
   ],
   [
    "washing_machine__scandinavian",
+   5
+  ],
+  [
+   "potted_plant__industrial",
    3
   ],
   [
    "bed_single__mediterranean",
-   1
-  ],
-  [
-   "toilet__scandinavian",
-   3
-  ],
-  [
-   "washbasin__japandi",
-   3
-  ],
-  [
-   "potted_plant__industrial",
-   1
-  ],
-  [
-   "wardrobe__japandi",
-   1
-  ],
-  [
-   "bowl__japandi",
-   1
-  ],
-  [
-   "plant_small__japandi",
-   1
-  ],
-  [
-   "shower__japandi",
-   3
-  ],
-  [
-   "stove__japandi",
-   1
-  ],
-  [
-   "sink_kitchen__industrial",
-   1
-  ],
-  [
-   "bathtub__japandi",
-   3
-  ],
-  [
-   "fridge__japandi",
-   3
-  ],
-  [
-   "washing_machine__japandi",
-   3
-  ],
-  [
-   "bed_single__classic",
-   1
-  ],
-  [
-   "toilet__japandi",
    3
   ],
   [
    "washbasin__industrial",
-   1
-  ],
-  [
-   "potted_plant__classic",
-   1
-  ],
-  [
-   "wardrobe__industrial",
-   1
-  ],
-  [
-   "bowl__modern_minimal",
-   1
-  ],
-  [
-   "plant_small__modern_minimal",
-   1
-  ],
-  [
-   "shower__industrial",
-   1
-  ],
-  [
-   "stove__minimal",
-   1
-  ],
-  [
-   "sink_kitchen__mediterranean",
-   1
-  ],
-  [
-   "bathtub__industrial",
-   1
-  ],
-  [
-   "fridge__industrial",
-   1
-  ],
-  [
-   "washing_machine__industrial",
-   1
-  ],
-  [
-   "bed_single__rustic",
-   1
-  ],
-  [
-   "toilet__industrial",
-   1
-  ],
-  [
-   "washbasin__mediterranean",
-   1
-  ],
-  [
-   "potted_plant__japandi",
    3
   ],
   [
-   "wardrobe__mediterranean",
-   1
+   "shower__japandi",
+   6
   ],
   [
-   "bowl__minimal",
-   1
+   "bowl__classic",
+   4
   ],
   [
-   "plant_small__minimal",
-   1
+   "plant_small__mediterranean",
+   4
   ],
   [
-   "shower__mediterranean",
-   1
+   "sink_kitchen__industrial",
+   4
   ],
   [
    "stove__mediterranean",
-   1
+   4
   ],
   [
-   "sink_kitchen__classic",
-   1
+   "fridge__japandi",
+   5
   ],
   [
-   "bathtub__mediterranean",
-   1
+   "bathtub__japandi",
+   6
+  ],
+  [
+   "toilet__japandi",
+   5
+  ],
+  [
+   "washing_machine__japandi",
+   5
+  ],
+  [
+   "potted_plant__classic",
+   3
+  ],
+  [
+   "bed_single__rustic",
+   3
+  ],
+  [
+   "washbasin__mediterranean",
+   3
+  ],
+  [
+   "shower__industrial",
+   4
+  ],
+  [
+   "bowl__japandi",
+   5
+  ],
+  [
+   "plant_small__classic",
+   4
+  ],
+  [
+   "sink_kitchen__mediterranean",
+   3
+  ],
+  [
+   "stove__rustic",
+   3
   ],
   [
    "fridge__mediterranean",
-   1
+   3
   ],
   [
-   "washing_machine__mediterranean",
-   1
+   "bathtub__industrial",
+   3
   ],
   [
-   "bed_single__industrial",
-   1
+   "toilet__industrial",
+   3
   ],
   [
-   "toilet__mediterranean",
-   1
-  ],
-  [
-   "washbasin__classic",
-   1
+   "washing_machine__industrial",
+   3
   ],
   [
    "potted_plant__mediterranean",
-   1
+   3
   ],
   [
-   "wardrobe__rustic",
-   1
+   "shower__mediterranean",
+   4
   ],
   [
-   "bowl__modern",
-   1
+   "bowl__industrial",
+   4
   ],
   [
-   "plant_small__modern",
-   1
+   "plant_small__rustic",
+   4
+  ],
+  [
+   "sink_kitchen__classic",
+   3
+  ],
+  [
+   "stove__scandinavian",
+   4
+  ],
+  [
+   "fridge__rustic",
+   3
+  ],
+  [
+   "bathtub__mediterranean",
+   3
+  ],
+  [
+   "toilet__mediterranean",
+   3
   ],
   [
    "shower__classic",
-   1
+   4
   ],
   [
-   "stove__classic",
-   1
+   "bowl__rustic",
+   4
+  ],
+  [
+   "plant_small__japandi",
+   5
   ],
   [
    "sink_kitchen__rustic",
-   1
+   3
+  ],
+  [
+   "stove__industrial",
+   3
+  ],
+  [
+   "fridge__industrial",
+   3
+  ],
+  [
+   "bathtub__classic",
+   3
+  ],
+  [
+   "toilet__classic",
+   3
+  ],
+  [
+   "shower__rustic",
+   4
+  ],
+  [
+   "bowl__scandinavian",
+   5
+  ],
+  [
+   "plant_small__scandinavian",
+   5
+  ],
+  [
+   "sink_kitchen__scandinavian",
+   5
+  ],
+  [
+   "stove__classic",
+   4
+  ],
+  [
+   "fridge__classic",
+   3
+  ],
+  [
+   "bathtub__rustic",
+   3
+  ],
+  [
+   "toilet__rustic",
+   3
+  ],
+  [
+   "shower__minimal",
+   4
+  ],
+  [
+   "bowl__modern_minimal",
+   4
+  ],
+  [
+   "plant_small__modern_minimal",
+   4
+  ],
+  [
+   "sink_kitchen__modern_minimal",
+   5
+  ],
+  [
+   "stove__minimal",
+   4
+  ],
+  [
+   "fridge__minimal",
+   3
+  ],
+  [
+   "bathtub__modern_minimal",
+   5
+  ],
+  [
+   "toilet__modern_minimal",
+   3
+  ],
+  [
+   "shower__modern",
+   5
+  ],
+  [
+   "bowl__minimal",
+   4
+  ],
+  [
+   "plant_small__minimal",
+   4
+  ],
+  [
+   "sink_kitchen__minimal",
+   3
+  ],
+  [
+   "stove__modern_minimal",
+   3
+  ],
+  [
+   "fridge__modern",
+   3
+  ],
+  [
+   "bathtub__minimal",
+   3
+  ],
+  [
+   "toilet__minimal",
+   2
+  ],
+  [
+   "shower__modern_minimal",
+   6
+  ],
+  [
+   "bowl__modern",
+   4
+  ],
+  [
+   "plant_small__modern",
+   4
+  ],
+  [
+   "sink_kitchen__modern",
+   5
+  ],
+  [
+   "stove__modern",
+   3
+  ],
+  [
+   "fridge__modern_minimal",
+   3
+  ],
+  [
+   "bathtub__modern",
+   5
+  ],
+  [
+   "shower__scandinavian",
+   7
+  ],
+  [
+   "bowl__mediterranean",
+   5
+  ],
+  [
+   "plant_small__industrial",
+   5
+  ],
+  [
+   "sink_kitchen__japandi",
+   7
+  ],
+  [
+   "stove__japandi",
+   5
+  ],
+  [
+   "fridge__scandinavian",
+   6
+  ],
+  [
+   "bathtub__scandinavian",
+   7
+  ],
+  [
+   "shower__japandi",
+   7
+  ],
+  [
+   "bowl__classic",
+   5
+  ],
+  [
+   "plant_small__mediterranean",
+   5
+  ],
+  [
+   "sink_kitchen__industrial",
+   5
+  ],
+  [
+   "stove__mediterranean",
+   5
+  ],
+  [
+   "shower__industrial",
+   5
+  ],
+  [
+   "bowl__japandi",
+   6
+  ],
+  [
+   "plant_small__classic",
+   5
+  ],
+  [
+   "sink_kitchen__mediterranean",
+   4
+  ],
+  [
+   "stove__rustic",
+   4
+  ],
+  [
+   "shower__mediterranean",
+   5
+  ],
+  [
+   "bowl__industrial",
+   5
+  ],
+  [
+   "plant_small__rustic",
+   5
+  ],
+  [
+   "sink_kitchen__classic",
+   4
+  ],
+  [
+   "shower__classic",
+   5
+  ],
+  [
+   "bowl__rustic",
+   5
+  ],
+  [
+   "plant_small__japandi",
+   6
+  ],
+  [
+   "shower__rustic",
+   5
+  ],
+  [
+   "bowl__scandinavian",
+   6
+  ],
+  [
+   "plant_small__scandinavian",
+   6
+  ],
+  [
+   "shower__minimal",
+   5
+  ],
+  [
+   "bowl__modern_minimal",
+   5
+  ],
+  [
+   "shower__modern",
+   6
+  ],
+  [
+   "shower__modern_minimal",
+   7
+  ],
+  [
+   "shower__scandinavian",
+   8
+  ],
+  [
+   "shower__japandi",
+   8
   ],
   [
    "bathtub__classic",
    1
   ],
   [
-   "fridge__classic",
+   "bathtub__classic",
+   2
+  ],
+  [
+   "bathtub__industrial",
    1
   ],
   [
-   "washing_machine__classic",
+   "bathtub__industrial",
+   2
+  ],
+  [
+   "bathtub__japandi",
    1
   ],
   [
-   "bed_single__japandi",
-   1
+   "bathtub__japandi",
+   2
   ],
   [
-   "toilet__classic",
-   1
-  ],
-  [
-   "washbasin__rustic",
-   1
-  ],
-  [
-   "potted_plant__rustic",
-   1
-  ],
-  [
-   "wardrobe__classic",
-   1
-  ],
-  [
-   "bowl__industrial",
-   1
-  ],
-  [
-   "plant_small__industrial",
-   1
-  ],
-  [
-   "shower__rustic",
-   1
-  ],
-  [
-   "stove__rustic",
-   1
-  ],
-  [
-   "sink_kitchen__scandinavian",
+   "bathtub__japandi",
    3
   ],
   [
-   "bathtub__rustic",
+   "bathtub__japandi",
+   4
+  ],
+  [
+   "bathtub__japandi",
+   5
+  ],
+  [
+   "bathtub__mediterranean",
    1
   ],
   [
-   "fridge__rustic",
+   "bathtub__mediterranean",
+   2
+  ],
+  [
+   "bathtub__minimal",
    1
   ],
   [
-   "washing_machine__rustic",
+   "bathtub__minimal",
+   2
+  ],
+  [
+   "bathtub__modern",
    1
   ],
   [
-   "bed_single__scandinavian",
-   1
+   "bathtub__modern",
+   2
   ],
   [
-   "toilet__rustic",
-   1
-  ],
-  [
-   "washbasin__scandinavian",
-   1
-  ],
-  [
-   "potted_plant__scandinavian",
+   "bathtub__modern",
    3
   ],
   [
-   "wardrobe__scandinavian",
+   "bathtub__modern",
+   4
+  ],
+  [
+   "bathtub__modern_minimal",
    1
   ],
   [
-   "bowl__mediterranean",
-   1
-  ],
-  [
-   "plant_small__mediterranean",
-   1
-  ],
-  [
-   "shower__modern_minimal",
-   3
-  ],
-  [
-   "stove__modern_minimal",
-   1
-  ],
-  [
-   "sink_kitchen__modern",
-   3
+   "bathtub__modern_minimal",
+   2
   ],
   [
    "bathtub__modern_minimal",
    3
   ],
   [
-   "fridge__minimal",
+   "bathtub__modern_minimal",
+   4
+  ],
+  [
+   "bathtub__rustic",
    1
   ],
   [
-   "washing_machine__minimal",
+   "bathtub__rustic",
+   2
+  ],
+  [
+   "bathtub__scandinavian",
+   1
+  ],
+  [
+   "bathtub__scandinavian",
+   2
+  ],
+  [
+   "bathtub__scandinavian",
+   3
+  ],
+  [
+   "bathtub__scandinavian",
+   4
+  ],
+  [
+   "bathtub__scandinavian",
+   5
+  ],
+  [
+   "bed_single__classic",
+   1
+  ],
+  [
+   "bed_single__classic",
+   2
+  ],
+  [
+   "bed_single__industrial",
+   1
+  ],
+  [
+   "bed_single__industrial",
+   2
+  ],
+  [
+   "bed_single__japandi",
+   1
+  ],
+  [
+   "bed_single__japandi",
+   2
+  ],
+  [
+   "bed_single__mediterranean",
+   1
+  ],
+  [
+   "bed_single__mediterranean",
+   2
+  ],
+  [
+   "bed_single__minimal",
    1
   ],
   [
@@ -4484,11 +5289,399 @@
    1
   ],
   [
-   "toilet__modern_minimal",
+   "bed_single__modern",
+   2
+  ],
+  [
+   "bed_single__modern_minimal",
    1
   ],
   [
-   "washbasin__modern",
+   "bed_single__rustic",
+   1
+  ],
+  [
+   "bed_single__rustic",
+   2
+  ],
+  [
+   "bed_single__scandinavian",
+   1
+  ],
+  [
+   "bed_single__scandinavian",
+   2
+  ],
+  [
+   "bowl__classic",
+   1
+  ],
+  [
+   "bowl__classic",
+   2
+  ],
+  [
+   "bowl__classic",
+   3
+  ],
+  [
+   "bowl__industrial",
+   1
+  ],
+  [
+   "bowl__industrial",
+   2
+  ],
+  [
+   "bowl__industrial",
+   3
+  ],
+  [
+   "bowl__japandi",
+   1
+  ],
+  [
+   "bowl__japandi",
+   2
+  ],
+  [
+   "bowl__japandi",
+   3
+  ],
+  [
+   "bowl__japandi",
+   4
+  ],
+  [
+   "bowl__mediterranean",
+   1
+  ],
+  [
+   "bowl__mediterranean",
+   2
+  ],
+  [
+   "bowl__mediterranean",
+   3
+  ],
+  [
+   "bowl__minimal",
+   1
+  ],
+  [
+   "bowl__minimal",
+   2
+  ],
+  [
+   "bowl__minimal",
+   3
+  ],
+  [
+   "bowl__modern",
+   1
+  ],
+  [
+   "bowl__modern",
+   2
+  ],
+  [
+   "bowl__modern",
+   3
+  ],
+  [
+   "bowl__modern_minimal",
+   1
+  ],
+  [
+   "bowl__modern_minimal",
+   2
+  ],
+  [
+   "bowl__modern_minimal",
+   3
+  ],
+  [
+   "bowl__rustic",
+   1
+  ],
+  [
+   "bowl__rustic",
+   2
+  ],
+  [
+   "bowl__rustic",
+   3
+  ],
+  [
+   "bowl__scandinavian",
+   1
+  ],
+  [
+   "bowl__scandinavian",
+   2
+  ],
+  [
+   "bowl__scandinavian",
+   3
+  ],
+  [
+   "bowl__scandinavian",
+   4
+  ],
+  [
+   "floor_lamp__japandi",
+   1
+  ],
+  [
+   "floor_lamp__japandi",
+   2
+  ],
+  [
+   "fridge__classic",
+   1
+  ],
+  [
+   "fridge__classic",
+   2
+  ],
+  [
+   "fridge__industrial",
+   1
+  ],
+  [
+   "fridge__industrial",
+   2
+  ],
+  [
+   "fridge__japandi",
+   1
+  ],
+  [
+   "fridge__japandi",
+   2
+  ],
+  [
+   "fridge__japandi",
+   3
+  ],
+  [
+   "fridge__japandi",
+   4
+  ],
+  [
+   "fridge__mediterranean",
+   1
+  ],
+  [
+   "fridge__mediterranean",
+   2
+  ],
+  [
+   "fridge__minimal",
+   1
+  ],
+  [
+   "fridge__minimal",
+   2
+  ],
+  [
+   "fridge__modern",
+   1
+  ],
+  [
+   "fridge__modern",
+   2
+  ],
+  [
+   "fridge__modern_minimal",
+   1
+  ],
+  [
+   "fridge__modern_minimal",
+   2
+  ],
+  [
+   "fridge__rustic",
+   1
+  ],
+  [
+   "fridge__rustic",
+   2
+  ],
+  [
+   "fridge__scandinavian",
+   1
+  ],
+  [
+   "fridge__scandinavian",
+   2
+  ],
+  [
+   "fridge__scandinavian",
+   3
+  ],
+  [
+   "fridge__scandinavian",
+   4
+  ],
+  [
+   "plant_small__classic",
+   1
+  ],
+  [
+   "plant_small__classic",
+   2
+  ],
+  [
+   "plant_small__classic",
+   3
+  ],
+  [
+   "plant_small__industrial",
+   1
+  ],
+  [
+   "plant_small__industrial",
+   2
+  ],
+  [
+   "plant_small__industrial",
+   3
+  ],
+  [
+   "plant_small__japandi",
+   1
+  ],
+  [
+   "plant_small__japandi",
+   2
+  ],
+  [
+   "plant_small__japandi",
+   3
+  ],
+  [
+   "plant_small__japandi",
+   4
+  ],
+  [
+   "plant_small__mediterranean",
+   1
+  ],
+  [
+   "plant_small__mediterranean",
+   2
+  ],
+  [
+   "plant_small__mediterranean",
+   3
+  ],
+  [
+   "plant_small__minimal",
+   1
+  ],
+  [
+   "plant_small__minimal",
+   2
+  ],
+  [
+   "plant_small__minimal",
+   3
+  ],
+  [
+   "plant_small__modern",
+   1
+  ],
+  [
+   "plant_small__modern",
+   2
+  ],
+  [
+   "plant_small__modern",
+   3
+  ],
+  [
+   "plant_small__modern_minimal",
+   1
+  ],
+  [
+   "plant_small__modern_minimal",
+   2
+  ],
+  [
+   "plant_small__modern_minimal",
+   3
+  ],
+  [
+   "plant_small__rustic",
+   1
+  ],
+  [
+   "plant_small__rustic",
+   2
+  ],
+  [
+   "plant_small__rustic",
+   3
+  ],
+  [
+   "plant_small__scandinavian",
+   1
+  ],
+  [
+   "plant_small__scandinavian",
+   2
+  ],
+  [
+   "plant_small__scandinavian",
+   3
+  ],
+  [
+   "plant_small__scandinavian",
+   4
+  ],
+  [
+   "potted_plant__classic",
+   1
+  ],
+  [
+   "potted_plant__classic",
+   2
+  ],
+  [
+   "potted_plant__industrial",
+   1
+  ],
+  [
+   "potted_plant__industrial",
+   2
+  ],
+  [
+   "potted_plant__japandi",
+   1
+  ],
+  [
+   "potted_plant__japandi",
+   2
+  ],
+  [
+   "potted_plant__japandi",
+   3
+  ],
+  [
+   "potted_plant__japandi",
+   4
+  ],
+  [
+   "potted_plant__mediterranean",
+   1
+  ],
+  [
+   "potted_plant__mediterranean",
+   2
+  ],
+  [
+   "potted_plant__minimal",
    1
   ],
   [
@@ -4496,63 +5689,343 @@
    1
   ],
   [
-   "bowl__classic",
+   "potted_plant__modern_minimal",
    1
   ],
   [
-   "plant_small__classic",
+   "potted_plant__rustic",
    1
+  ],
+  [
+   "potted_plant__rustic",
+   2
+  ],
+  [
+   "potted_plant__scandinavian",
+   1
+  ],
+  [
+   "potted_plant__scandinavian",
+   2
+  ],
+  [
+   "potted_plant__scandinavian",
+   3
+  ],
+  [
+   "potted_plant__scandinavian",
+   4
+  ],
+  [
+   "shower__classic",
+   1
+  ],
+  [
+   "shower__classic",
+   2
+  ],
+  [
+   "shower__classic",
+   3
+  ],
+  [
+   "shower__industrial",
+   1
+  ],
+  [
+   "shower__industrial",
+   2
+  ],
+  [
+   "shower__industrial",
+   3
+  ],
+  [
+   "shower__japandi",
+   1
+  ],
+  [
+   "shower__japandi",
+   2
+  ],
+  [
+   "shower__japandi",
+   3
+  ],
+  [
+   "shower__japandi",
+   4
+  ],
+  [
+   "shower__japandi",
+   5
+  ],
+  [
+   "shower__mediterranean",
+   1
+  ],
+  [
+   "shower__mediterranean",
+   2
+  ],
+  [
+   "shower__mediterranean",
+   3
   ],
   [
    "shower__minimal",
    1
   ],
   [
-   "stove__industrial",
+   "shower__minimal",
+   2
+  ],
+  [
+   "shower__minimal",
+   3
+  ],
+  [
+   "shower__modern",
    1
+  ],
+  [
+   "shower__modern",
+   2
+  ],
+  [
+   "shower__modern",
+   3
+  ],
+  [
+   "shower__modern",
+   4
+  ],
+  [
+   "shower__modern_minimal",
+   1
+  ],
+  [
+   "shower__modern_minimal",
+   2
+  ],
+  [
+   "shower__modern_minimal",
+   3
+  ],
+  [
+   "shower__modern_minimal",
+   4
+  ],
+  [
+   "shower__modern_minimal",
+   5
+  ],
+  [
+   "shower__rustic",
+   1
+  ],
+  [
+   "shower__rustic",
+   2
+  ],
+  [
+   "shower__rustic",
+   3
+  ],
+  [
+   "shower__scandinavian",
+   1
+  ],
+  [
+   "shower__scandinavian",
+   2
+  ],
+  [
+   "shower__scandinavian",
+   3
+  ],
+  [
+   "shower__scandinavian",
+   4
+  ],
+  [
+   "shower__scandinavian",
+   5
+  ],
+  [
+   "sink_kitchen__classic",
+   1
+  ],
+  [
+   "sink_kitchen__classic",
+   2
+  ],
+  [
+   "sink_kitchen__industrial",
+   1
+  ],
+  [
+   "sink_kitchen__industrial",
+   2
+  ],
+  [
+   "sink_kitchen__industrial",
+   3
+  ],
+  [
+   "sink_kitchen__japandi",
+   1
+  ],
+  [
+   "sink_kitchen__japandi",
+   2
+  ],
+  [
+   "sink_kitchen__japandi",
+   3
+  ],
+  [
+   "sink_kitchen__japandi",
+   4
+  ],
+  [
+   "sink_kitchen__japandi",
+   5
+  ],
+  [
+   "sink_kitchen__mediterranean",
+   1
+  ],
+  [
+   "sink_kitchen__mediterranean",
+   2
+  ],
+  [
+   "sink_kitchen__minimal",
+   1
+  ],
+  [
+   "sink_kitchen__minimal",
+   2
+  ],
+  [
+   "sink_kitchen__modern",
+   1
+  ],
+  [
+   "sink_kitchen__modern",
+   2
+  ],
+  [
+   "sink_kitchen__modern",
+   3
+  ],
+  [
+   "sink_kitchen__modern",
+   4
+  ],
+  [
+   "sink_kitchen__modern_minimal",
+   1
+  ],
+  [
+   "sink_kitchen__modern_minimal",
+   2
   ],
   [
    "sink_kitchen__modern_minimal",
    3
   ],
   [
-   "bathtub__minimal",
+   "sink_kitchen__modern_minimal",
+   4
+  ],
+  [
+   "sink_kitchen__rustic",
    1
   ],
   [
-   "fridge__modern_minimal",
+   "sink_kitchen__rustic",
+   2
+  ],
+  [
+   "sink_kitchen__scandinavian",
    1
   ],
   [
-   "washing_machine__modern_minimal",
+   "sink_kitchen__scandinavian",
+   2
+  ],
+  [
+   "sink_kitchen__scandinavian",
    3
   ],
   [
-   "bed_single__minimal",
+   "sink_kitchen__scandinavian",
+   4
+  ],
+  [
+   "sofa__japandi",
    1
   ],
   [
-   "toilet__minimal",
+   "sofa__japandi",
+   2
+  ],
+  [
+   "stove__classic",
    1
   ],
   [
-   "washbasin__modern_minimal",
+   "stove__classic",
+   2
+  ],
+  [
+   "stove__classic",
+   3
+  ],
+  [
+   "stove__industrial",
    1
   ],
   [
-   "potted_plant__modern_minimal",
+   "stove__industrial",
+   2
+  ],
+  [
+   "stove__japandi",
    1
   ],
   [
-   "bowl__rustic",
+   "stove__japandi",
+   2
+  ],
+  [
+   "stove__japandi",
+   3
+  ],
+  [
+   "stove__mediterranean",
    1
   ],
   [
-   "plant_small__rustic",
+   "stove__mediterranean",
+   2
+  ],
+  [
+   "stove__mediterranean",
+   3
+  ],
+  [
+   "stove__minimal",
    1
   ],
   [
-   "shower__modern",
+   "stove__minimal",
+   2
+  ],
+  [
+   "stove__minimal",
    3
   ],
   [
@@ -4560,23 +6033,79 @@
    1
   ],
   [
-   "sink_kitchen__minimal",
+   "stove__modern",
+   2
+  ],
+  [
+   "stove__modern_minimal",
    1
   ],
   [
-   "bathtub__modern",
-   3
+   "stove__modern_minimal",
+   2
   ],
   [
-   "fridge__modern",
+   "stove__rustic",
    1
   ],
   [
-   "washing_machine__modern",
+   "stove__rustic",
+   2
+  ],
+  [
+   "stove__scandinavian",
+   1
+  ],
+  [
+   "stove__scandinavian",
+   2
+  ],
+  [
+   "stove__scandinavian",
    3
   ],
   [
-   "bed_single__modern_minimal",
+   "toilet__classic",
+   1
+  ],
+  [
+   "toilet__classic",
+   2
+  ],
+  [
+   "toilet__industrial",
+   1
+  ],
+  [
+   "toilet__industrial",
+   2
+  ],
+  [
+   "toilet__japandi",
+   1
+  ],
+  [
+   "toilet__japandi",
+   2
+  ],
+  [
+   "toilet__japandi",
+   3
+  ],
+  [
+   "toilet__japandi",
+   4
+  ],
+  [
+   "toilet__mediterranean",
+   1
+  ],
+  [
+   "toilet__mediterranean",
+   2
+  ],
+  [
+   "toilet__minimal",
    1
   ],
   [
@@ -4584,711 +6113,19 @@
    1
   ],
   [
-   "washbasin__minimal",
+   "toilet__modern_minimal",
    1
-  ],
-  [
-   "potted_plant__minimal",
-   1
-  ],
-  [
-   "bowl__scandinavian",
-   2
-  ],
-  [
-   "plant_small__scandinavian",
-   2
-  ],
-  [
-   "shower__scandinavian",
-   4
-  ],
-  [
-   "stove__scandinavian",
-   2
-  ],
-  [
-   "sink_kitchen__japandi",
-   4
-  ],
-  [
-   "bathtub__scandinavian",
-   4
-  ],
-  [
-   "fridge__scandinavian",
-   4
-  ],
-  [
-   "washing_machine__scandinavian",
-   4
-  ],
-  [
-   "bed_single__mediterranean",
-   2
-  ],
-  [
-   "toilet__scandinavian",
-   4
-  ],
-  [
-   "washbasin__japandi",
-   4
-  ],
-  [
-   "potted_plant__industrial",
-   2
-  ],
-  [
-   "bowl__japandi",
-   2
-  ],
-  [
-   "plant_small__japandi",
-   2
-  ],
-  [
-   "shower__japandi",
-   4
-  ],
-  [
-   "stove__japandi",
-   2
-  ],
-  [
-   "sink_kitchen__industrial",
-   2
-  ],
-  [
-   "bathtub__japandi",
-   4
-  ],
-  [
-   "fridge__japandi",
-   4
-  ],
-  [
-   "washing_machine__japandi",
-   4
-  ],
-  [
-   "bed_single__classic",
-   2
-  ],
-  [
-   "toilet__japandi",
-   4
-  ],
-  [
-   "washbasin__industrial",
-   2
-  ],
-  [
-   "potted_plant__classic",
-   2
-  ],
-  [
-   "bowl__modern_minimal",
-   2
-  ],
-  [
-   "plant_small__modern_minimal",
-   2
-  ],
-  [
-   "shower__industrial",
-   2
-  ],
-  [
-   "stove__minimal",
-   2
-  ],
-  [
-   "sink_kitchen__mediterranean",
-   2
-  ],
-  [
-   "bathtub__industrial",
-   2
-  ],
-  [
-   "fridge__industrial",
-   2
-  ],
-  [
-   "washing_machine__industrial",
-   2
-  ],
-  [
-   "bed_single__rustic",
-   2
-  ],
-  [
-   "toilet__industrial",
-   2
-  ],
-  [
-   "washbasin__mediterranean",
-   2
-  ],
-  [
-   "potted_plant__japandi",
-   4
-  ],
-  [
-   "bowl__minimal",
-   2
-  ],
-  [
-   "plant_small__minimal",
-   2
-  ],
-  [
-   "shower__mediterranean",
-   2
-  ],
-  [
-   "stove__mediterranean",
-   2
-  ],
-  [
-   "sink_kitchen__classic",
-   2
-  ],
-  [
-   "bathtub__mediterranean",
-   2
-  ],
-  [
-   "fridge__mediterranean",
-   2
-  ],
-  [
-   "washing_machine__mediterranean",
-   2
-  ],
-  [
-   "bed_single__industrial",
-   2
-  ],
-  [
-   "toilet__mediterranean",
-   2
-  ],
-  [
-   "washbasin__classic",
-   2
-  ],
-  [
-   "potted_plant__mediterranean",
-   2
-  ],
-  [
-   "bowl__modern",
-   2
-  ],
-  [
-   "plant_small__modern",
-   2
-  ],
-  [
-   "shower__classic",
-   2
-  ],
-  [
-   "stove__classic",
-   2
-  ],
-  [
-   "sink_kitchen__rustic",
-   2
-  ],
-  [
-   "bathtub__classic",
-   2
-  ],
-  [
-   "fridge__classic",
-   2
-  ],
-  [
-   "washing_machine__classic",
-   2
-  ],
-  [
-   "bed_single__japandi",
-   2
-  ],
-  [
-   "toilet__classic",
-   2
-  ],
-  [
-   "washbasin__rustic",
-   2
-  ],
-  [
-   "potted_plant__rustic",
-   2
-  ],
-  [
-   "bowl__industrial",
-   2
-  ],
-  [
-   "plant_small__industrial",
-   2
-  ],
-  [
-   "shower__rustic",
-   2
-  ],
-  [
-   "stove__rustic",
-   2
-  ],
-  [
-   "sink_kitchen__scandinavian",
-   4
-  ],
-  [
-   "bathtub__rustic",
-   2
-  ],
-  [
-   "fridge__rustic",
-   2
-  ],
-  [
-   "washing_machine__rustic",
-   2
-  ],
-  [
-   "bed_single__scandinavian",
-   2
-  ],
-  [
-   "toilet__rustic",
-   2
-  ],
-  [
-   "washbasin__scandinavian",
-   2
-  ],
-  [
-   "potted_plant__scandinavian",
-   4
-  ],
-  [
-   "bowl__mediterranean",
-   2
-  ],
-  [
-   "plant_small__mediterranean",
-   2
-  ],
-  [
-   "shower__modern_minimal",
-   4
-  ],
-  [
-   "stove__modern_minimal",
-   2
-  ],
-  [
-   "sink_kitchen__modern",
-   4
-  ],
-  [
-   "bathtub__modern_minimal",
-   4
-  ],
-  [
-   "fridge__minimal",
-   2
-  ],
-  [
-   "washing_machine__minimal",
-   2
-  ],
-  [
-   "bed_single__modern",
-   2
   ],
   [
    "toilet__modern_minimal",
    2
   ],
   [
-   "bowl__classic",
-   2
-  ],
-  [
-   "plant_small__classic",
-   2
-  ],
-  [
-   "shower__minimal",
-   2
-  ],
-  [
-   "stove__industrial",
-   2
-  ],
-  [
-   "sink_kitchen__modern_minimal",
-   4
-  ],
-  [
-   "bathtub__minimal",
-   2
-  ],
-  [
-   "fridge__modern_minimal",
-   2
-  ],
-  [
-   "washing_machine__modern_minimal",
-   4
-  ],
-  [
-   "bowl__rustic",
-   2
-  ],
-  [
-   "plant_small__rustic",
-   2
-  ],
-  [
-   "shower__modern",
-   4
-  ],
-  [
-   "stove__modern",
-   2
-  ],
-  [
-   "sink_kitchen__minimal",
-   2
-  ],
-  [
-   "bathtub__modern",
-   4
-  ],
-  [
-   "fridge__modern",
-   2
-  ],
-  [
-   "washing_machine__modern",
-   4
-  ],
-  [
-   "bowl__scandinavian",
-   3
-  ],
-  [
-   "plant_small__scandinavian",
-   3
-  ],
-  [
-   "shower__scandinavian",
-   5
-  ],
-  [
-   "stove__scandinavian",
-   3
-  ],
-  [
-   "sink_kitchen__japandi",
-   5
-  ],
-  [
-   "bathtub__scandinavian",
-   5
-  ],
-  [
-   "bowl__japandi",
-   3
-  ],
-  [
-   "plant_small__japandi",
-   3
-  ],
-  [
-   "shower__japandi",
-   5
-  ],
-  [
-   "stove__japandi",
-   3
-  ],
-  [
-   "sink_kitchen__industrial",
-   3
-  ],
-  [
-   "bathtub__japandi",
-   5
-  ],
-  [
-   "bowl__modern_minimal",
-   3
-  ],
-  [
-   "plant_small__modern_minimal",
-   3
-  ],
-  [
-   "shower__industrial",
-   3
-  ],
-  [
-   "stove__minimal",
-   3
-  ],
-  [
-   "bowl__minimal",
-   3
-  ],
-  [
-   "plant_small__minimal",
-   3
-  ],
-  [
-   "shower__mediterranean",
-   3
-  ],
-  [
-   "stove__mediterranean",
-   3
-  ],
-  [
-   "bowl__modern",
-   3
-  ],
-  [
-   "plant_small__modern",
-   3
-  ],
-  [
-   "shower__classic",
-   3
-  ],
-  [
-   "stove__classic",
-   3
-  ],
-  [
-   "bowl__industrial",
-   3
-  ],
-  [
-   "plant_small__industrial",
-   3
-  ],
-  [
-   "shower__rustic",
-   3
-  ],
-  [
-   "bowl__mediterranean",
-   3
-  ],
-  [
-   "plant_small__mediterranean",
-   3
-  ],
-  [
-   "shower__modern_minimal",
-   5
-  ],
-  [
-   "bowl__classic",
-   3
-  ],
-  [
-   "plant_small__classic",
-   3
-  ],
-  [
-   "shower__minimal",
-   3
-  ],
-  [
-   "bowl__rustic",
-   3
-  ],
-  [
-   "plant_small__rustic",
-   3
-  ],
-  [
-   "bowl__scandinavian",
-   4
-  ],
-  [
-   "plant_small__scandinavian",
-   4
-  ],
-  [
-   "bowl__japandi",
-   4
-  ],
-  [
-   "plant_small__japandi",
-   4
-  ],
-  [
-   "bathtub__japandi",
+   "toilet__rustic",
    1
   ],
   [
-   "bathtub__japandi",
-   2
-  ],
-  [
-   "bathtub__modern",
-   1
-  ],
-  [
-   "bathtub__modern",
-   2
-  ],
-  [
-   "bathtub__modern_minimal",
-   1
-  ],
-  [
-   "bathtub__modern_minimal",
-   2
-  ],
-  [
-   "bathtub__scandinavian",
-   1
-  ],
-  [
-   "bathtub__scandinavian",
-   2
-  ],
-  [
-   "floor_lamp__japandi",
-   1
-  ],
-  [
-   "floor_lamp__japandi",
-   2
-  ],
-  [
-   "fridge__japandi",
-   1
-  ],
-  [
-   "fridge__japandi",
-   2
-  ],
-  [
-   "fridge__scandinavian",
-   1
-  ],
-  [
-   "fridge__scandinavian",
-   2
-  ],
-  [
-   "potted_plant__japandi",
-   1
-  ],
-  [
-   "potted_plant__japandi",
-   2
-  ],
-  [
-   "potted_plant__scandinavian",
-   1
-  ],
-  [
-   "potted_plant__scandinavian",
-   2
-  ],
-  [
-   "shower__japandi",
-   1
-  ],
-  [
-   "shower__japandi",
-   2
-  ],
-  [
-   "shower__modern",
-   1
-  ],
-  [
-   "shower__modern",
-   2
-  ],
-  [
-   "shower__modern_minimal",
-   1
-  ],
-  [
-   "shower__modern_minimal",
-   2
-  ],
-  [
-   "shower__scandinavian",
-   1
-  ],
-  [
-   "shower__scandinavian",
-   2
-  ],
-  [
-   "sink_kitchen__japandi",
-   1
-  ],
-  [
-   "sink_kitchen__japandi",
-   2
-  ],
-  [
-   "sink_kitchen__modern",
-   1
-  ],
-  [
-   "sink_kitchen__modern",
-   2
-  ],
-  [
-   "sink_kitchen__modern_minimal",
-   1
-  ],
-  [
-   "sink_kitchen__modern_minimal",
-   2
-  ],
-  [
-   "sink_kitchen__scandinavian",
-   1
-  ],
-  [
-   "sink_kitchen__scandinavian",
-   2
-  ],
-  [
-   "sofa__japandi",
-   1
-  ],
-  [
-   "sofa__japandi",
-   2
-  ],
-  [
-   "toilet__japandi",
-   1
-  ],
-  [
-   "toilet__japandi",
+   "toilet__rustic",
    2
   ],
   [
@@ -5300,11 +6137,119 @@
    2
   ],
   [
+   "toilet__scandinavian",
+   3
+  ],
+  [
+   "toilet__scandinavian",
+   4
+  ],
+  [
+   "wardrobe__classic",
+   1
+  ],
+  [
+   "wardrobe__industrial",
+   1
+  ],
+  [
+   "wardrobe__japandi",
+   1
+  ],
+  [
+   "wardrobe__mediterranean",
+   1
+  ],
+  [
+   "wardrobe__rustic",
+   1
+  ],
+  [
+   "wardrobe__scandinavian",
+   1
+  ],
+  [
+   "washbasin__classic",
+   1
+  ],
+  [
+   "washbasin__classic",
+   2
+  ],
+  [
+   "washbasin__industrial",
+   1
+  ],
+  [
+   "washbasin__industrial",
+   2
+  ],
+  [
    "washbasin__japandi",
    1
   ],
   [
    "washbasin__japandi",
+   2
+  ],
+  [
+   "washbasin__japandi",
+   3
+  ],
+  [
+   "washbasin__japandi",
+   4
+  ],
+  [
+   "washbasin__mediterranean",
+   1
+  ],
+  [
+   "washbasin__mediterranean",
+   2
+  ],
+  [
+   "washbasin__minimal",
+   1
+  ],
+  [
+   "washbasin__modern",
+   1
+  ],
+  [
+   "washbasin__modern_minimal",
+   1
+  ],
+  [
+   "washbasin__rustic",
+   1
+  ],
+  [
+   "washbasin__rustic",
+   2
+  ],
+  [
+   "washbasin__scandinavian",
+   1
+  ],
+  [
+   "washbasin__scandinavian",
+   2
+  ],
+  [
+   "washing_machine__classic",
+   1
+  ],
+  [
+   "washing_machine__classic",
+   2
+  ],
+  [
+   "washing_machine__industrial",
+   1
+  ],
+  [
+   "washing_machine__industrial",
    2
   ],
   [
@@ -5316,12 +6261,44 @@
    2
   ],
   [
+   "washing_machine__japandi",
+   3
+  ],
+  [
+   "washing_machine__japandi",
+   4
+  ],
+  [
+   "washing_machine__mediterranean",
+   1
+  ],
+  [
+   "washing_machine__mediterranean",
+   2
+  ],
+  [
+   "washing_machine__minimal",
+   1
+  ],
+  [
+   "washing_machine__minimal",
+   2
+  ],
+  [
    "washing_machine__modern",
    1
   ],
   [
    "washing_machine__modern",
    2
+  ],
+  [
+   "washing_machine__modern",
+   3
+  ],
+  [
+   "washing_machine__modern",
+   4
   ],
   [
    "washing_machine__modern_minimal",
@@ -5332,12 +6309,36 @@
    2
   ],
   [
+   "washing_machine__modern_minimal",
+   3
+  ],
+  [
+   "washing_machine__modern_minimal",
+   4
+  ],
+  [
+   "washing_machine__rustic",
+   1
+  ],
+  [
+   "washing_machine__rustic",
+   2
+  ],
+  [
    "washing_machine__scandinavian",
    1
   ],
   [
    "washing_machine__scandinavian",
    2
+  ],
+  [
+   "washing_machine__scandinavian",
+   3
+  ],
+  [
+   "washing_machine__scandinavian",
+   4
   ]
  ]
 }

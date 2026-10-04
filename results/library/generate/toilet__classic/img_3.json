@@ -1,0 +1,24 @@
+{
+ "key": "274704b01f031b0cd5cbc55ab769df1c80596908d80441f7a5c8cf96985f71a6",
+ "pair": "toilet__classic",
+ "type": "toilet",
+ "family": "classic",
+ "index": 3,
+ "prompt": "a single classic style floor-standing toilet with a cistern, white porcelain, polished brass or chrome fittings, moulded classic details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 555571309,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "32f22f084e2c6a569c970b9c95342b3b9c11818d00f296e4dad97068b33e36d0",
+ "seconds": 2.83,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:47:24Z"
+}

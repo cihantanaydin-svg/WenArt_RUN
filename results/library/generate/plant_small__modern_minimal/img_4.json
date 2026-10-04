@@ -1,0 +1,24 @@
+{
+ "key": "a4f7d10e4d82d7d2773fd69e67194b8ef51aed8d77b67bbf0e0cc744360272c8",
+ "pair": "plant_small__modern_minimal",
+ "type": "plant_small",
+ "family": "modern minimal",
+ "index": 4,
+ "prompt": "a single modern minimal style small indoor plant in a pot for a table or a shelf, matte white and warm grey ceramic, thin black metal, crisp simple forms, no ornament, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 983713376,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "f53bd789aff157c31ced7a97521da2146af3f228bc367673ea79b2c5a64078f8",
+ "seconds": 2.83,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:47:56Z"
+}

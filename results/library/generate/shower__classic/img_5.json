@@ -1,0 +1,24 @@
+{
+ "key": "da0fe044d51b2c0ed198ac0a8dd4821a66aa81a660d7630a6aedd0cfdf69f36c",
+ "pair": "shower__classic",
+ "type": "shower",
+ "family": "classic",
+ "index": 5,
+ "prompt": "a single classic style square glass shower enclosure with a shower tray, white porcelain, polished brass or chrome fittings, moulded classic details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 693456568,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "3c60975603a1583d7bd4e1d0298050591aae7fdd682575cbde90ac24c2a89284",
+ "seconds": 2.89,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:49:57Z"
+}

@@ -1,0 +1,24 @@
+{
+ "key": "62cddf17dd15278c01c97b573f336175821f5b7b8dc83a77c98180f48843d64c",
+ "pair": "sink_kitchen__scandinavian",
+ "type": "sink_kitchen",
+ "family": "scandinavian",
+ "index": 5,
+ "prompt": "a single scandinavian style kitchen sink base cabinet with a worktop and an inset sink, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 826196247,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "02a65cb8659b72acf5603caaf1bdaf7b7a17b74bf6a808886b74fe833dd134ef",
+ "seconds": 2.87,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:47:36Z"
+}

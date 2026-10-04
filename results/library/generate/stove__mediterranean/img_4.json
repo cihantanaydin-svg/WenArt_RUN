@@ -1,0 +1,24 @@
+{
+ "key": "4c77942dfd43958b892b84ae23e97b756e50d076393a0930d35236879c3c743d",
+ "pair": "stove__mediterranean",
+ "type": "stove",
+ "family": "mediterranean",
+ "index": 4,
+ "prompt": "a single mediterranean style freestanding cooker with an oven and a four-burner hob, white glazed ceramic, warm terracotta and sand accents, aged brass fittings, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1671225786,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "27179d5f673915f83b3e84b1d407bb05acff8d3870a08a5851bf739b58489964",
+ "seconds": 2.85,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:45:49Z"
+}

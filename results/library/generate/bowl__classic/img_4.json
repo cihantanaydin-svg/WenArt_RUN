@@ -1,0 +1,24 @@
+{
+ "key": "843f72dbb1b479b7662814d02a8d75e55320ad218b451e80f612f5495bfad8ba",
+ "pair": "bowl__classic",
+ "type": "bowl",
+ "family": "classic",
+ "index": 4,
+ "prompt": "a single classic style shallow decorative bowl for a coffee table, white porcelain with gold rims, polished brass, moulded classic details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 2006696154,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "9d266d147662febbe2f04fcf2b4facd465638442c409c61539af0c05f01dc746",
+ "seconds": 2.84,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:45:40Z"
+}

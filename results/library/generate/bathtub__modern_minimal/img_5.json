@@ -1,0 +1,24 @@
+{
+ "key": "d75d9a76a594718ffe864ecdf4b684739e638fe8edf7826bac8a1c5ced923c88",
+ "pair": "bathtub__modern_minimal",
+ "type": "bathtub",
+ "family": "modern minimal",
+ "index": 5,
+ "prompt": "a single modern minimal style freestanding bathtub, matte white surfaces, flush handleless fronts, thin black fittings, crisp rectangular forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1117107464,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "a2efc3b43993b2d99faac380f027b45312e07ab6ea00b457daddde8a5a9fb0f5",
+ "seconds": 2.84,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:48:08Z"
+}

@@ -1,0 +1,24 @@
+{
+ "key": "2458a733a73af53036fb393d2e3ffb5d38c162b2326f25650c308e92135f2364",
+ "pair": "potted_plant__classic",
+ "type": "potted_plant",
+ "family": "classic",
+ "index": 3,
+ "prompt": "a single classic style large indoor plant in a floor pot, carved dark walnut wood, tufted cream upholstery, turned legs, polished brass details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1948906444,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "070d5e6d17463a0dee41370110e74ae5ceb30ccd80f3bf614abdf98f4c764776",
+ "seconds": 2.86,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:46:04Z"
+}

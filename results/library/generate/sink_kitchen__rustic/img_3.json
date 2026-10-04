@@ -1,0 +1,24 @@
+{
+ "key": "a076c951d06638f049cb9ccaef4678ea2b1014f8194048b7612c62d5b929b5e6",
+ "pair": "sink_kitchen__rustic",
+ "type": "sink_kitchen",
+ "family": "rustic",
+ "index": 3,
+ "prompt": "a single rustic style kitchen sink base cabinet with a worktop and an inset sink, cream enamel and stone, aged copper and wrought iron fittings, sturdy simple forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 300962407,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "7ebd1c19eb69b872eb018c709e12f52a83efcc5dfe24f27d4473d7098b9ec95c",
+ "seconds": 2.89,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:47:13Z"
+}

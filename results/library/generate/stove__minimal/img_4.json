@@ -1,0 +1,24 @@
+{
+ "key": "36ceafdd6d004b8a1b4aeff25a44d5c5f57f963150bb148b8f7716d4e349d904",
+ "pair": "stove__minimal",
+ "type": "stove",
+ "family": "minimal",
+ "index": 4,
+ "prompt": "a single minimal style freestanding cooker with an oven and a four-burner hob, plain white ceramic and enamel, hidden fittings, simple geometric forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 483195888,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "fe81b9de47891e590f0828862b1860ed9d36d3c008672dcb27ff133fbed3fc8f",
+ "seconds": 2.84,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:48:02Z"
+}

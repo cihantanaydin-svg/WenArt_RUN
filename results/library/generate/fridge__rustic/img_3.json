@@ -1,0 +1,24 @@
+{
+ "key": "d279861ce5e62a0dc5b2c7d02ec6a9c0b2f41c0064b6e20c7ab026f09323b244",
+ "pair": "fridge__rustic",
+ "type": "fridge",
+ "family": "rustic",
+ "index": 3,
+ "prompt": "a single rustic style freestanding refrigerator, cream enamel and stone, aged copper and wrought iron fittings, sturdy simple forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1836615607,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "b58b4191fd0d8915d3dc46f5e4e1980b7d442af485c6c36859484996a93c0216",
+ "seconds": 2.85,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:46:56Z"
+}

@@ -1,0 +1,63 @@
+{
+ "key": "fce1481437f36afc95713dec3e56f4a64a4431867d7d5a57d2837caf9a78a1b3",
+ "pair": "sink_kitchen__industrial",
+ "type": "sink_kitchen",
+ "family": "industrial",
+ "index": 4,
+ "seed": 694085082,
+ "prompt": "a single industrial style kitchen sink base cabinet with a worktop and an inset sink, black steel and brushed stainless steel, concrete grey surfaces, exposed black fittings, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "image_sha256": "03564502bc7660ad0d39e794a681d517004dc5225eb0b9a26ce4c67637284cd8",
+ "models": {
+  "trellis": "microsoft/TRELLIS.2-4B@af44b45f2e35a493886929c6d786e563ec68364d",
+  "ss_decoder": "microsoft/TRELLIS-image-large@25e0d31ffbebe4b5a97464dd851910efc3002d96",
+  "dinov3": "facebook/dinov3-vitl16-pretrain-lvd1689m@ea8dc2863c51be0a264bab82070e3e8836b02d51",
+  "rembg": "ZhengPeng7/BiRefNet@e2bf8e4460fc8fa32bba5ea4d94b3233d367b0e4"
+ },
+ "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+ "settings": {
+  "pipeline_type": "1024_cascade",
+  "simplify": 16777216,
+  "decimation_target": 200000,
+  "texture_size": 2048,
+  "remesh": true,
+  "remesh_band": 1,
+  "remesh_project": 0
+ },
+ "generated_utc": "2026-10-04T15:03:25Z",
+ "status": "ok",
+ "code": null,
+ "error": null,
+ "glb": "model_4.glb",
+ "glb_sha256": "3f68e7435274ea86d918101346736aff970e77dc23ae6837f8e4fa568a369943",
+ "glb_bytes": 16651708,
+ "face_count": 199054,
+ "glb_info": {
+  "images": 2,
+  "textures": 2,
+  "materials": 1,
+  "meshes": 1,
+  "primitives": 1,
+  "textured": true,
+  "vertex_colours": false,
+  "extensions_used": [],
+  "extensions_required": []
+ },
+ "seconds": 38.3,
+ "backend": {
+  "seconds_generate": 23.44,
+  "seconds_export": 14.62,
+  "raw_faces": 10822400,
+  "pipeline_type": "1024_cascade",
+  "peak_vram_gib": 6.97,
+  "resident": false
+ },
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "cuda": "12.8",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090",
+  "attn_backend": "flash_attn",
+  "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+  "resident": false
+ }
+}

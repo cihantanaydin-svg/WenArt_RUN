@@ -1,0 +1,24 @@
+{
+ "key": "d281b7124236df4117a51aeb89902df5a1fadc4d130bb74259d40209b5b47eb9",
+ "pair": "washbasin__mediterranean",
+ "type": "washbasin",
+ "family": "mediterranean",
+ "index": 3,
+ "prompt": "a single mediterranean style bathroom washbasin on a vanity unit, white glazed ceramic, warm terracotta and sand accents, aged brass fittings, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1138239150,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "b66195c332be3a30f1d2b5813c0ee3722aa8d8d5dd3b395c6db26939140aa20d",
+ "seconds": 2.89,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:46:09Z"
+}

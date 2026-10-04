@@ -1,0 +1,24 @@
+{
+ "key": "9d0473700ca95e4f3aed435cf7d926fad60f2b2210fa1c864687e5c3c798933e",
+ "pair": "shower__modern",
+ "type": "shower",
+ "family": "modern",
+ "index": 6,
+ "prompt": "a single modern style square glass shower enclosure with a shower tray, glossy white ceramic, stainless steel and chrome fittings, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 490101321,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "8ba8f285e3fb56d90e932576f0599ffe33ee1cb2b36d6a15d7c72c622498ebd5",
+ "seconds": 2.89,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:50:21Z"
+}

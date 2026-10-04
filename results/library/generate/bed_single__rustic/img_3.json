@@ -1,0 +1,24 @@
+{
+ "key": "190ec3b4d0481076eeab2a354d5ae38108902ab3ffc5f96dac16329461739bbe",
+ "pair": "bed_single__rustic",
+ "type": "bed_single",
+ "family": "rustic",
+ "index": 3,
+ "prompt": "a single rustic style single bed with a headboard, a mattress and plain bedding, rough-sawn oak with visible grain, wrought iron, natural linen, sturdy chunky forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1251641429,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "21cd533fb3f73a193bd100309489bfad9ae94dc6621605151580621302e81a93",
+ "seconds": 2.85,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:46:06Z"
+}

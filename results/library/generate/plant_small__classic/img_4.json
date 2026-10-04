@@ -1,0 +1,24 @@
+{
+ "key": "31858af5db267fe671edf6b4fffeb0b3471687f1bd36b0652fc6975668aa6c81",
+ "pair": "plant_small__classic",
+ "type": "plant_small",
+ "family": "classic",
+ "index": 4,
+ "prompt": "a single classic style small indoor plant in a pot for a table or a shelf, white porcelain with gold rims, polished brass, moulded classic details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1237595771,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "f8645ee589215e60906cb2491170e85512a2ca78a0d352f2c44b22141044bf45",
+ "seconds": 2.85,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:46:18Z"
+}

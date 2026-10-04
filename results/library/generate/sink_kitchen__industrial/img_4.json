@@ -1,0 +1,24 @@
+{
+ "key": "0704c5e8fbf7e59cf551aab46c9756055614db8365aee08fa9c87d680ab17ac8",
+ "pair": "sink_kitchen__industrial",
+ "type": "sink_kitchen",
+ "family": "industrial",
+ "index": 4,
+ "prompt": "a single industrial style kitchen sink base cabinet with a worktop and an inset sink, black steel and brushed stainless steel, concrete grey surfaces, exposed black fittings, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 694085082,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "03564502bc7660ad0d39e794a681d517004dc5225eb0b9a26ce4c67637284cd8",
+ "seconds": 2.85,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:45:46Z"
+}

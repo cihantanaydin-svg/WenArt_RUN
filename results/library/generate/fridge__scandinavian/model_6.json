@@ -1,0 +1,63 @@
+{
+ "key": "652fc142a43696d9d5ce91675face57f74e8cd2c99281f13e52494d078d76e8e",
+ "pair": "fridge__scandinavian",
+ "type": "fridge",
+ "family": "scandinavian",
+ "index": 6,
+ "seed": 204123863,
+ "prompt": "a single scandinavian style freestanding refrigerator, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "image_sha256": "ae4735587ea2d1bac786ea0aece2abde9b8412d6d2efc11231c825a4586e01e9",
+ "models": {
+  "trellis": "microsoft/TRELLIS.2-4B@af44b45f2e35a493886929c6d786e563ec68364d",
+  "ss_decoder": "microsoft/TRELLIS-image-large@25e0d31ffbebe4b5a97464dd851910efc3002d96",
+  "dinov3": "facebook/dinov3-vitl16-pretrain-lvd1689m@ea8dc2863c51be0a264bab82070e3e8836b02d51",
+  "rembg": "ZhengPeng7/BiRefNet@e2bf8e4460fc8fa32bba5ea4d94b3233d367b0e4"
+ },
+ "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+ "settings": {
+  "pipeline_type": "1024_cascade",
+  "simplify": 16777216,
+  "decimation_target": 200000,
+  "texture_size": 2048,
+  "remesh": true,
+  "remesh_band": 1,
+  "remesh_project": 0
+ },
+ "generated_utc": "2026-10-04T15:52:50Z",
+ "status": "ok",
+ "code": null,
+ "error": null,
+ "glb": "model_6.glb",
+ "glb_sha256": "87b23e5cbd86a3882149126b83186aa14f010b63b5687bae9582b2b8cd986cb1",
+ "glb_bytes": 14769900,
+ "face_count": 198784,
+ "glb_info": {
+  "images": 2,
+  "textures": 2,
+  "materials": 1,
+  "meshes": 1,
+  "primitives": 1,
+  "textured": true,
+  "vertex_colours": false,
+  "extensions_used": [],
+  "extensions_required": []
+ },
+ "seconds": 55.83,
+ "backend": {
+  "seconds_generate": 40.6,
+  "seconds_export": 14.99,
+  "raw_faces": 15029458,
+  "pipeline_type": "1024_cascade",
+  "peak_vram_gib": 10.78,
+  "resident": false
+ },
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "cuda": "12.8",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090",
+  "attn_backend": "flash_attn",
+  "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+  "resident": false
+ }
+}

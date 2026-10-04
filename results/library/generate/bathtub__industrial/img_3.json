@@ -1,0 +1,24 @@
+{
+ "key": "259a96d05c4424e95915a5814a89c69bceb07c37fb1ef8e65ad6fc8030473715",
+ "pair": "bathtub__industrial",
+ "type": "bathtub",
+ "family": "industrial",
+ "index": 3,
+ "prompt": "a single industrial style freestanding bathtub, black steel and brushed stainless steel, concrete grey surfaces, exposed black fittings, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1181391690,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "6a9beae3ced191c20d3f5006c982490d2b64c8c5fec2af1bb677a7396b7bc5f3",
+ "seconds": 2.85,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:46:30Z"
+}

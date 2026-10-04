@@ -1,0 +1,24 @@
+{
+ "key": "acb4378ff04cfb66ee3d8c8ceb7ed5d1d5ebdce6d222d1fba99ce4a907077a0e",
+ "pair": "fridge__scandinavian",
+ "type": "fridge",
+ "family": "scandinavian",
+ "index": 6,
+ "prompt": "a single scandinavian style freestanding refrigerator, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 204123863,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "ae4735587ea2d1bac786ea0aece2abde9b8412d6d2efc11231c825a4586e01e9",
+ "seconds": 2.87,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:49:11Z"
+}

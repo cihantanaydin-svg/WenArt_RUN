@@ -1,0 +1,24 @@
+{
+ "key": "aa713c363db04538d1fc2c0146b85d9fbc07a3bac489de0f64099cef73181959",
+ "pair": "plant_small__modern",
+ "type": "plant_small",
+ "family": "modern",
+ "index": 4,
+ "prompt": "a single modern style small indoor plant in a pot for a table or a shelf, glossy ceramic and smoked glass, brushed brass and walnut accents, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 2090127331,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "8ef98fbcef5c758efcbe6a3c11aef4d883de2a45501e7e9b567588726326f604",
+ "seconds": 2.87,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:48:42Z"
+}

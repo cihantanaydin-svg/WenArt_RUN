@@ -1,0 +1,24 @@
+{
+ "key": "8572a451abd2746dcfdc42fd38e73e50d159eda767c9422cc5dda8f0dbbcb7ec",
+ "pair": "shower__rustic",
+ "type": "shower",
+ "family": "rustic",
+ "index": 4,
+ "prompt": "a single rustic style square glass shower enclosure with a shower tray, cream enamel and stone, aged copper and wrought iron fittings, sturdy simple forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 785193753,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "4231ee7280911061e8c8fbefe5589a13fd9d3feb1b8c174c24153997fbd2f3d3",
+ "seconds": 2.89,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:47:27Z"
+}

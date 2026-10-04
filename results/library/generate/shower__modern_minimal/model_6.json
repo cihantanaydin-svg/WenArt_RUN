@@ -1,0 +1,63 @@
+{
+ "key": "44311c561bcc7d09fdda072138923fc01ed0f1a358c30ee0c929bb08aabacbc1",
+ "pair": "shower__modern_minimal",
+ "type": "shower",
+ "family": "modern minimal",
+ "index": 6,
+ "seed": 1715513438,
+ "prompt": "a single modern minimal style square glass shower enclosure with a shower tray, matte white surfaces, flush handleless fronts, thin black fittings, crisp rectangular forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "image_sha256": "0ce53f6558b4296264cecfc9d8f05639cecc5acdfac56d9d5eed5212f3008aa2",
+ "models": {
+  "trellis": "microsoft/TRELLIS.2-4B@af44b45f2e35a493886929c6d786e563ec68364d",
+  "ss_decoder": "microsoft/TRELLIS-image-large@25e0d31ffbebe4b5a97464dd851910efc3002d96",
+  "dinov3": "facebook/dinov3-vitl16-pretrain-lvd1689m@ea8dc2863c51be0a264bab82070e3e8836b02d51",
+  "rembg": "ZhengPeng7/BiRefNet@e2bf8e4460fc8fa32bba5ea4d94b3233d367b0e4"
+ },
+ "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+ "settings": {
+  "pipeline_type": "1024_cascade",
+  "simplify": 16777216,
+  "decimation_target": 200000,
+  "texture_size": 2048,
+  "remesh": true,
+  "remesh_band": 1,
+  "remesh_project": 0
+ },
+ "generated_utc": "2026-10-04T15:45:07Z",
+ "status": "ok",
+ "code": null,
+ "error": null,
+ "glb": "model_6.glb",
+ "glb_sha256": "664da6f5fd6633a4df32a97b1579a103bb25089d0e672654e4a664cd163c7c5f",
+ "glb_bytes": 12118348,
+ "face_count": 189815,
+ "glb_info": {
+  "images": 2,
+  "textures": 2,
+  "materials": 1,
+  "meshes": 1,
+  "primitives": 1,
+  "textured": true,
+  "vertex_colours": false,
+  "extensions_used": [],
+  "extensions_required": []
+ },
+ "seconds": 35.76,
+ "backend": {
+  "seconds_generate": 18.44,
+  "seconds_export": 17.08,
+  "raw_faces": 10054324,
+  "pipeline_type": "1024_cascade",
+  "peak_vram_gib": 5.91,
+  "resident": false
+ },
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "cuda": "12.8",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090",
+  "attn_backend": "flash_attn",
+  "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+  "resident": false
+ }
+}

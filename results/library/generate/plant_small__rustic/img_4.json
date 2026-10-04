@@ -1,0 +1,24 @@
+{
+ "key": "5708f6e9f3380d944ca85b19bf5c2ea428c702f00ac06e519a2b4f7ec3e13901",
+ "pair": "plant_small__rustic",
+ "type": "plant_small",
+ "family": "rustic",
+ "index": 4,
+ "prompt": "a single rustic style small indoor plant in a pot for a table or a shelf, rough stoneware, aged wood and wrought iron, earthy colours, sturdy simple forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 164355734,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "0564d5cf00391c454de18c6707d49d5cb45268208b1c6046988c8c37e37f048c",
+ "seconds": 2.87,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:46:47Z"
+}

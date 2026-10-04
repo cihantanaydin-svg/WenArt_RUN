@@ -1,0 +1,24 @@
+{
+ "key": "c455132d6d0ec679c91015a08e862c5e92734a11856a504c8bf09ebb99f0234e",
+ "pair": "bathtub__minimal",
+ "type": "bathtub",
+ "family": "minimal",
+ "index": 3,
+ "prompt": "a single minimal style freestanding bathtub, plain white ceramic and enamel, hidden fittings, simple geometric forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1207075745,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "b5641f1a8c86dc4f8b36765dde7503d2580f25eff985004aeb060985ce5d187c",
+ "seconds": 2.83,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:48:31Z"
+}

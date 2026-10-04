@@ -1,0 +1,24 @@
+{
+ "key": "d62146dadbf618a68eabac35246924d1e7137dba5ebdf1a1906500fb67f7698a",
+ "pair": "bed_single__mediterranean",
+ "type": "bed_single",
+ "family": "mediterranean",
+ "index": 3,
+ "prompt": "a single mediterranean style single bed with a headboard, a mattress and plain bedding, whitewashed wood, terracotta and sand tones, woven rattan, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 438959148,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "51e7d40dc61a62eee9f723256077667b1d8bcd515901b2f03fda708399603ccd",
+ "seconds": 2.79,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:45:32Z"
+}

@@ -1,0 +1,24 @@
+{
+ "key": "ce17406f8233faf7473294f7c179a3af231dfb2e37a9006ec318dab94c5616aa",
+ "pair": "stove__japandi",
+ "type": "stove",
+ "family": "japandi",
+ "index": 5,
+ "prompt": "a single japandi style freestanding cooker with an oven and a four-burner hob, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 31989486,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "d1f58374be34ee3d599fbc3e4e8251765f647775afc49c09362f5b9c346b5dd3",
+ "seconds": 2.85,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:49:08Z"
+}

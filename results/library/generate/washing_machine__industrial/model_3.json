@@ -1,0 +1,63 @@
+{
+ "key": "2930c01717ca9969f0e4bed3b4561ea50f0e278bbeef5e65037f96e15f096f61",
+ "pair": "washing_machine__industrial",
+ "type": "washing_machine",
+ "family": "industrial",
+ "index": 3,
+ "seed": 545895520,
+ "prompt": "a single industrial style front-loading washing machine, black steel and brushed stainless steel, concrete grey surfaces, exposed black fittings, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "image_sha256": "f975febb3bd2378790c14895a6475e9b89287520b591d9c3d9dc0a586bbb9863",
+ "models": {
+  "trellis": "microsoft/TRELLIS.2-4B@af44b45f2e35a493886929c6d786e563ec68364d",
+  "ss_decoder": "microsoft/TRELLIS-image-large@25e0d31ffbebe4b5a97464dd851910efc3002d96",
+  "dinov3": "facebook/dinov3-vitl16-pretrain-lvd1689m@ea8dc2863c51be0a264bab82070e3e8836b02d51",
+  "rembg": "ZhengPeng7/BiRefNet@e2bf8e4460fc8fa32bba5ea4d94b3233d367b0e4"
+ },
+ "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+ "settings": {
+  "pipeline_type": "1024_cascade",
+  "simplify": 16777216,
+  "decimation_target": 200000,
+  "texture_size": 2048,
+  "remesh": true,
+  "remesh_band": 1,
+  "remesh_project": 0
+ },
+ "generated_utc": "2026-10-04T15:15:03Z",
+ "status": "ok",
+ "code": null,
+ "error": null,
+ "glb": "model_3.glb",
+ "glb_sha256": "0a739610cc2b9bdb3fe7d514136b6170312f40cd4827bc57b0abf658614a92c6",
+ "glb_bytes": 15613440,
+ "face_count": 196262,
+ "glb_info": {
+  "images": 2,
+  "textures": 2,
+  "materials": 1,
+  "meshes": 1,
+  "primitives": 1,
+  "textured": true,
+  "vertex_colours": false,
+  "extensions_used": [],
+  "extensions_required": []
+ },
+ "seconds": 55.65,
+ "backend": {
+  "seconds_generate": 36.27,
+  "seconds_export": 19.13,
+  "raw_faces": 12514042,
+  "pipeline_type": "1024_cascade",
+  "peak_vram_gib": 8.83,
+  "resident": false
+ },
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "cuda": "12.8",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090",
+  "attn_backend": "flash_attn",
+  "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+  "resident": false
+ }
+}

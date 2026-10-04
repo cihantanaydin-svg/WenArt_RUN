@@ -1,0 +1,63 @@
+{
+ "key": "ced41b26a29de850ccae0fbcecb5857f61c8a6b259fe16a2a69aaa31936276e3",
+ "pair": "washbasin__industrial",
+ "type": "washbasin",
+ "family": "industrial",
+ "index": 3,
+ "seed": 351805922,
+ "prompt": "a single industrial style bathroom washbasin on a vanity unit, black steel and brushed stainless steel, concrete grey surfaces, exposed black fittings, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "image_sha256": "63179795ec4fbc57d8c743c437753e9a847805a84feb0cfe95062da5aebf56a0",
+ "models": {
+  "trellis": "microsoft/TRELLIS.2-4B@af44b45f2e35a493886929c6d786e563ec68364d",
+  "ss_decoder": "microsoft/TRELLIS-image-large@25e0d31ffbebe4b5a97464dd851910efc3002d96",
+  "dinov3": "facebook/dinov3-vitl16-pretrain-lvd1689m@ea8dc2863c51be0a264bab82070e3e8836b02d51",
+  "rembg": "ZhengPeng7/BiRefNet@e2bf8e4460fc8fa32bba5ea4d94b3233d367b0e4"
+ },
+ "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+ "settings": {
+  "pipeline_type": "1024_cascade",
+  "simplify": 16777216,
+  "decimation_target": 200000,
+  "texture_size": 2048,
+  "remesh": true,
+  "remesh_band": 1,
+  "remesh_project": 0
+ },
+ "generated_utc": "2026-10-04T15:01:50Z",
+ "status": "ok",
+ "code": null,
+ "error": null,
+ "glb": "model_3.glb",
+ "glb_sha256": "077278dab522fadca8cdd456c5b81b220d07f4422ffa0b1dedba3c256f5a5099",
+ "glb_bytes": 15781588,
+ "face_count": 191946,
+ "glb_info": {
+  "images": 2,
+  "textures": 2,
+  "materials": 1,
+  "meshes": 1,
+  "primitives": 1,
+  "textured": true,
+  "vertex_colours": false,
+  "extensions_used": [],
+  "extensions_required": []
+ },
+ "seconds": 37.47,
+ "backend": {
+  "seconds_generate": 19.54,
+  "seconds_export": 17.7,
+  "raw_faces": 6326696,
+  "pipeline_type": "1024_cascade",
+  "peak_vram_gib": 5.08,
+  "resident": false
+ },
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "cuda": "12.8",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090",
+  "attn_backend": "flash_attn",
+  "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+  "resident": false
+ }
+}

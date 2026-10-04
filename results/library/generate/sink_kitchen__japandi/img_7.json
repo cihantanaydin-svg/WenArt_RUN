@@ -1,0 +1,24 @@
+{
+ "key": "f554f8051e05cc08d5f22ae879cee9d294c0a4fd9aa83193baaff76f95a3ca9e",
+ "pair": "sink_kitchen__japandi",
+ "type": "sink_kitchen",
+ "family": "japandi",
+ "index": 7,
+ "prompt": "a single japandi style kitchen sink base cabinet with a worktop and an inset sink, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 731350546,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "4ab84a4ad2d5cf5d1a15a2e57c09c31bbf807e14d78dad5ebbddecc604b56594",
+ "seconds": 2.84,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:49:05Z"
+}

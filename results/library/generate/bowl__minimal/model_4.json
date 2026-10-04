@@ -1,0 +1,63 @@
+{
+ "key": "377180cc899a57be9edbff50fe58039e9a27194e5aece1f8e709f4a30e74f3b0",
+ "pair": "bowl__minimal",
+ "type": "bowl",
+ "family": "minimal",
+ "index": 4,
+ "seed": 352732533,
+ "prompt": "a single minimal style shallow decorative bowl for a coffee table, plain matte ceramic in white, beige and grey, simple geometric forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "image_sha256": "b72d0c073aff200038ee14edca8e50ced7abbb8f3c004a5505b53453a5bc99f6",
+ "models": {
+  "trellis": "microsoft/TRELLIS.2-4B@af44b45f2e35a493886929c6d786e563ec68364d",
+  "ss_decoder": "microsoft/TRELLIS-image-large@25e0d31ffbebe4b5a97464dd851910efc3002d96",
+  "dinov3": "facebook/dinov3-vitl16-pretrain-lvd1689m@ea8dc2863c51be0a264bab82070e3e8836b02d51",
+  "rembg": "ZhengPeng7/BiRefNet@e2bf8e4460fc8fa32bba5ea4d94b3233d367b0e4"
+ },
+ "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+ "settings": {
+  "pipeline_type": "512",
+  "simplify": 16777216,
+  "decimation_target": 100000,
+  "texture_size": 1024,
+  "remesh": true,
+  "remesh_band": 1,
+  "remesh_project": 0
+ },
+ "generated_utc": "2026-10-04T15:39:45Z",
+ "status": "ok",
+ "code": null,
+ "error": null,
+ "glb": "model_4.glb",
+ "glb_sha256": "af49933c78591e8b6d80aeaa2451d400f22984c334925e339c216d8dc561c4c2",
+ "glb_bytes": 4611932,
+ "face_count": 95538,
+ "glb_info": {
+  "images": 2,
+  "textures": 2,
+  "materials": 1,
+  "meshes": 1,
+  "primitives": 1,
+  "textured": true,
+  "vertex_colours": false,
+  "extensions_used": [],
+  "extensions_required": []
+ },
+ "seconds": 12.59,
+ "backend": {
+  "seconds_generate": 6.95,
+  "seconds_export": 5.41,
+  "raw_faces": 1872602,
+  "pipeline_type": "512",
+  "peak_vram_gib": 3.12,
+  "resident": false
+ },
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "cuda": "12.8",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090",
+  "attn_backend": "flash_attn",
+  "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+  "resident": false
+ }
+}

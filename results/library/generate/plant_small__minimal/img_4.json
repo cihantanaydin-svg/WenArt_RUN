@@ -1,0 +1,24 @@
+{
+ "key": "80368643f314947f7b57b9d64372b86c0dbac80a48e75f532ab84fd35054b48d",
+ "pair": "plant_small__minimal",
+ "type": "plant_small",
+ "family": "minimal",
+ "index": 4,
+ "prompt": "a single minimal style small indoor plant in a pot for a table or a shelf, plain matte ceramic in white, beige and grey, simple geometric forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 453934772,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "2fc4d198ac2221bc34ed1263e092eabc57a914dfcfbb85f88f5a6081f526c725",
+ "seconds": 2.85,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:48:19Z"
+}

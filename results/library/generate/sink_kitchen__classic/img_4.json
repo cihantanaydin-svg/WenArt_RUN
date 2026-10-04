@@ -1,0 +1,24 @@
+{
+ "key": "62673e795ead38b886bba5dae673c72ddfede7f725820f42314835df0b9d3681",
+ "pair": "sink_kitchen__classic",
+ "type": "sink_kitchen",
+ "family": "classic",
+ "index": 4,
+ "prompt": "a single classic style kitchen sink base cabinet with a worktop and an inset sink, white porcelain, polished brass or chrome fittings, moulded classic details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 728186729,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "b7bd7c619693aeec31d8e5bfd72a58da3fc1269107b54e3d2387d73d51c12975",
+ "seconds": 2.89,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:49:55Z"
+}

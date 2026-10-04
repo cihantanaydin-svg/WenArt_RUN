@@ -1,0 +1,24 @@
+{
+ "key": "c95e72340462f64db47c90880c1ed9dffddfed310f61b66cc017d33e71e90c71",
+ "pair": "fridge__modern",
+ "type": "fridge",
+ "family": "modern",
+ "index": 3,
+ "prompt": "a single modern style freestanding refrigerator, glossy white ceramic, stainless steel and chrome fittings, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1331483932,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "a1a62c9c028d3f59cdc4f234dfaeb1ec1504ac6c352b5520d79c65f7450fb239",
+ "seconds": 2.81,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:48:28Z"
+}

@@ -1,0 +1,24 @@
+{
+ "key": "11b686c874802eefc12e681f85605fec84f8bcec87019119e20894f1cb51c703",
+ "pair": "stove__scandinavian",
+ "type": "stove",
+ "family": "scandinavian",
+ "index": 4,
+ "prompt": "a single scandinavian style freestanding cooker with an oven and a four-burner hob, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 154842564,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "deaa0db128a27d530a93cda99dbc3d27a62381baa8ba7adbd41ffebc4c345190",
+ "seconds": 2.88,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:46:53Z"
+}

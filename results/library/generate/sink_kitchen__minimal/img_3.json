@@ -1,0 +1,24 @@
+{
+ "key": "b562b660d9001e992f88b6a95432a2756bfd01591bdcee86105afcdc637b5211",
+ "pair": "sink_kitchen__minimal",
+ "type": "sink_kitchen",
+ "family": "minimal",
+ "index": 3,
+ "prompt": "a single minimal style kitchen sink base cabinet with a worktop and an inset sink, plain white ceramic and enamel, hidden fittings, simple geometric forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 364126061,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "0f7e993caa7f520536974c6668373c985b076ae3b17592b66b0119cb2d45c25a",
+ "seconds": 2.84,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:48:22Z"
+}

@@ -1,0 +1,24 @@
+{
+ "key": "e68e24bfb16b8b2df6a10e38357c3845702e309156f3e75f2edb90fd5c47e64d",
+ "pair": "sink_kitchen__modern",
+ "type": "sink_kitchen",
+ "family": "modern",
+ "index": 5,
+ "prompt": "a single modern style kitchen sink base cabinet with a worktop and an inset sink, glossy white ceramic, stainless steel and chrome fittings, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1922934649,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "d471c2baa456f73413d7b4f71fbbafa1a756af9f5b1730d06cbb9fff372b9360",
+ "seconds": 2.87,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:48:45Z"
+}

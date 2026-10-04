@@ -1,0 +1,24 @@
+{
+ "key": "64eada7084ddfa86bdf78f682726d51301ef7b7b73246386f60fdcbb49edcfa3",
+ "pair": "toilet__industrial",
+ "type": "toilet",
+ "family": "industrial",
+ "index": 3,
+ "prompt": "a single industrial style floor-standing toilet with a cistern, black steel and brushed stainless steel, concrete grey surfaces, exposed black fittings, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 519588239,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "60cb3f1545ce828f1e7a6b6652221a604872b4a500f5194c6b9cef54d401ff51",
+ "seconds": 2.83,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:46:32Z"
+}

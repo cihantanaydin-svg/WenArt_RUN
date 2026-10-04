@@ -1,0 +1,24 @@
+{
+ "key": "91311c80130c7feba86f332f99b30afd4bf5f54e4421c984a382660db1bb2bb4",
+ "pair": "bowl__mediterranean",
+ "type": "bowl",
+ "family": "mediterranean",
+ "index": 5,
+ "prompt": "a single mediterranean style shallow decorative bowl for a coffee table, terracotta and white glazed ceramic, woven rattan, warm sand tones, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 2147159956,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "90ec939503dd9abb42def5d89b39ee70962ee284715aa693a115b8764c328e31",
+ "seconds": 2.9,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:49:00Z"
+}

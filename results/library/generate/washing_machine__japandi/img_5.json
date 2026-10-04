@@ -1,0 +1,24 @@
+{
+ "key": "d20ae6bd2a4fa028d37110d56ae5b56fd13f2c835b16fd36609cdf482e2106c6",
+ "pair": "washing_machine__japandi",
+ "type": "washing_machine",
+ "family": "japandi",
+ "index": 5,
+ "prompt": "a single japandi style front-loading washing machine, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1978029397,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "1b101a162a83c7188ab74174e601843eb17a60619cef152787291b04695eb9ba",
+ "seconds": 2.83,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:46:01Z"
+}

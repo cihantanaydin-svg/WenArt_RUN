@@ -1,0 +1,24 @@
+{
+ "key": "151c7ae1d89ebf19b09fa90e20342552d219dca0720f1fefea874e12c8a4e589",
+ "pair": "plant_small__mediterranean",
+ "type": "plant_small",
+ "family": "mediterranean",
+ "index": 4,
+ "prompt": "a single mediterranean style small indoor plant in a pot for a table or a shelf, terracotta and white glazed ceramic, woven rattan, warm sand tones, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 957123441,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "9d12a4f213b2a64ad31bdfc9f382c31b3b457be25aca9ef2ced9cb8225d3b356",
+ "seconds": 2.86,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:45:43Z"
+}

@@ -1,0 +1,24 @@
+{
+ "key": "d82f7b3c678d1667d0fde59ba26cd700beecf0fba14845f558402134c4f53c14",
+ "pair": "plant_small__japandi",
+ "type": "plant_small",
+ "family": "japandi",
+ "index": 6,
+ "prompt": "a single japandi style small indoor plant in a pot for a table or a shelf, handmade matte stoneware in stone grey and charcoal, light ash wood, calm minimal forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 13643088,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "c1b3a8f7ec31c7b206f8df31bb9a6ce4a87fbd1956e5879c6920d0053d7d5bb1",
+ "seconds": 2.84,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:50:03Z"
+}

@@ -1,0 +1,24 @@
+{
+ "key": "1085447ce35d4d8b5abc9a39df3cb7af1b9aa0917822da944d432905ca528166",
+ "pair": "washing_machine__industrial",
+ "type": "washing_machine",
+ "family": "industrial",
+ "index": 3,
+ "prompt": "a single industrial style front-loading washing machine, black steel and brushed stainless steel, concrete grey surfaces, exposed black fittings, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 545895520,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "f975febb3bd2378790c14895a6475e9b89287520b591d9c3d9dc0a586bbb9863",
+ "seconds": 2.84,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:46:35Z"
+}

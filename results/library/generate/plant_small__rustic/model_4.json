@@ -1,0 +1,63 @@
+{
+ "key": "a6d0a9203318ee936faaeb978fa05f26c4a71fb6c0fd86d9d906bc4c809685bc",
+ "pair": "plant_small__rustic",
+ "type": "plant_small",
+ "family": "rustic",
+ "index": 4,
+ "seed": 164355734,
+ "prompt": "a single rustic style small indoor plant in a pot for a table or a shelf, rough stoneware, aged wood and wrought iron, earthy colours, sturdy simple forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "image_sha256": "0564d5cf00391c454de18c6707d49d5cb45268208b1c6046988c8c37e37f048c",
+ "models": {
+  "trellis": "microsoft/TRELLIS.2-4B@af44b45f2e35a493886929c6d786e563ec68364d",
+  "ss_decoder": "microsoft/TRELLIS-image-large@25e0d31ffbebe4b5a97464dd851910efc3002d96",
+  "dinov3": "facebook/dinov3-vitl16-pretrain-lvd1689m@ea8dc2863c51be0a264bab82070e3e8836b02d51",
+  "rembg": "ZhengPeng7/BiRefNet@e2bf8e4460fc8fa32bba5ea4d94b3233d367b0e4"
+ },
+ "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+ "settings": {
+  "pipeline_type": "512",
+  "simplify": 16777216,
+  "decimation_target": 100000,
+  "texture_size": 1024,
+  "remesh": true,
+  "remesh_band": 1,
+  "remesh_project": 0
+ },
+ "generated_utc": "2026-10-04T15:17:18Z",
+ "status": "ok",
+ "code": null,
+ "error": null,
+ "glb": "model_4.glb",
+ "glb_sha256": "694dfd551436bf4b0a0aaf992e687a7910dfd29a7e290d9d1b23f6eb5aa35bf0",
+ "glb_bytes": 6899464,
+ "face_count": 95854,
+ "glb_info": {
+  "images": 2,
+  "textures": 2,
+  "materials": 1,
+  "meshes": 1,
+  "primitives": 1,
+  "textured": true,
+  "vertex_colours": false,
+  "extensions_used": [],
+  "extensions_required": []
+ },
+ "seconds": 12.41,
+ "backend": {
+  "seconds_generate": 8.08,
+  "seconds_export": 4.12,
+  "raw_faces": 2571598,
+  "pipeline_type": "512",
+  "peak_vram_gib": 3.12,
+  "resident": false
+ },
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "cuda": "12.8",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090",
+  "attn_backend": "flash_attn",
+  "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+  "resident": false
+ }
+}

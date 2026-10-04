@@ -1,0 +1,24 @@
+{
+ "key": "762c589d5d0aebcdf3c038578fa44742872558c6232f383a8dfbb4a23a00f27d",
+ "pair": "sink_kitchen__mediterranean",
+ "type": "sink_kitchen",
+ "family": "mediterranean",
+ "index": 3,
+ "prompt": "a single mediterranean style kitchen sink base cabinet with a worktop and an inset sink, white glazed ceramic, warm terracotta and sand accents, aged brass fittings, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1608818784,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "e9b5486ae4987da88dad7201113d9c0c3589ceceb08a78d7de4a3b51c48d1c97",
+ "seconds": 2.89,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:46:21Z"
+}

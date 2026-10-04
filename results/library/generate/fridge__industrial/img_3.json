@@ -1,0 +1,24 @@
+{
+ "key": "dea8228da7bd0072c921ed04708b04829222ca8ce5001bf8d5162fbca5496676",
+ "pair": "fridge__industrial",
+ "type": "fridge",
+ "family": "industrial",
+ "index": 3,
+ "prompt": "a single industrial style freestanding refrigerator, black steel and brushed stainless steel, concrete grey surfaces, exposed black fittings, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 2023819520,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "d3596fce381cf205eec9af88442520752d9b028323500daae1867eb0bea5d50c",
+ "seconds": 2.81,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:47:19Z"
+}

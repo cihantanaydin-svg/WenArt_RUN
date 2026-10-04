@@ -1,0 +1,24 @@
+{
+ "key": "3ccd26af61c19772da2393d419c5fd8a37e27e5ea09f061135c8e343bd0785a9",
+ "pair": "fridge__japandi",
+ "type": "fridge",
+ "family": "japandi",
+ "index": 5,
+ "prompt": "a single japandi style freestanding refrigerator, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1002027564,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "3b8aaaa934bea71c078f7330dac782f1d53e2495e3832100534bbfdd14cca1d8",
+ "seconds": 2.8,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:45:52Z"
+}

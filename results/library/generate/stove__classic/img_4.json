@@ -1,0 +1,24 @@
+{
+ "key": "6a3e549a6a43039e9c5b22c2c5c08965ec959b6eb4b8e5fdd9a2bffed6409f84",
+ "pair": "stove__classic",
+ "type": "stove",
+ "family": "classic",
+ "index": 4,
+ "prompt": "a single classic style freestanding cooker with an oven and a four-burner hob, white porcelain, polished brass or chrome fittings, moulded classic details, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 631010541,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "ed066b6867ade02cbfe4ec0fe4d090840838df3b7e21cbb54445311dbb835d71",
+ "seconds": 2.8,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:47:39Z"
+}

@@ -1,0 +1,63 @@
+{
+ "key": "2edbc9ebe40813a67fea4ec69c58a160d2cafbbc46db3307a5ff323219e96b91",
+ "pair": "fridge__minimal",
+ "type": "fridge",
+ "family": "minimal",
+ "index": 3,
+ "seed": 305472758,
+ "prompt": "a single minimal style freestanding refrigerator, plain white ceramic and enamel, hidden fittings, simple geometric forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "image_sha256": "69c4281386f138855099078a4bc83167efefc7039558fd46ec75b0574d980132",
+ "models": {
+  "trellis": "microsoft/TRELLIS.2-4B@af44b45f2e35a493886929c6d786e563ec68364d",
+  "ss_decoder": "microsoft/TRELLIS-image-large@25e0d31ffbebe4b5a97464dd851910efc3002d96",
+  "dinov3": "facebook/dinov3-vitl16-pretrain-lvd1689m@ea8dc2863c51be0a264bab82070e3e8836b02d51",
+  "rembg": "ZhengPeng7/BiRefNet@e2bf8e4460fc8fa32bba5ea4d94b3233d367b0e4"
+ },
+ "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+ "settings": {
+  "pipeline_type": "1024_cascade",
+  "simplify": 16777216,
+  "decimation_target": 200000,
+  "texture_size": 2048,
+  "remesh": true,
+  "remesh_band": 1,
+  "remesh_project": 0
+ },
+ "generated_utc": "2026-10-04T15:37:02Z",
+ "status": "ok",
+ "code": null,
+ "error": null,
+ "glb": "model_3.glb",
+ "glb_sha256": "0a26c9a31d22704f574b90821d7d1a4b6c17de9f34f23474742e6b4a28f2e140",
+ "glb_bytes": 13255388,
+ "face_count": 197687,
+ "glb_info": {
+  "images": 2,
+  "textures": 2,
+  "materials": 1,
+  "meshes": 1,
+  "primitives": 1,
+  "textured": true,
+  "vertex_colours": false,
+  "extensions_used": [],
+  "extensions_required": []
+ },
+ "seconds": 35.36,
+ "backend": {
+  "seconds_generate": 23.44,
+  "seconds_export": 11.68,
+  "raw_faces": 9694562,
+  "pipeline_type": "1024_cascade",
+  "peak_vram_gib": 7.2,
+  "resident": false
+ },
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "cuda": "12.8",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090",
+  "attn_backend": "flash_attn",
+  "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+  "resident": false
+ }
+}

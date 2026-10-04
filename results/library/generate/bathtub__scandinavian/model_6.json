@@ -1,0 +1,63 @@
+{
+ "key": "35ee652836623b19f69c442f3db01a1bd27c7986ef0d9e29675a1d557da7f459",
+ "pair": "bathtub__scandinavian",
+ "type": "bathtub",
+ "family": "scandinavian",
+ "index": 6,
+ "seed": 1169258072,
+ "prompt": "a single scandinavian style freestanding bathtub, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "image_sha256": "9b5145fe5f443244d22c9afc7334ed12f523fc8b7821921fdf45b48798de401e",
+ "models": {
+  "trellis": "microsoft/TRELLIS.2-4B@af44b45f2e35a493886929c6d786e563ec68364d",
+  "ss_decoder": "microsoft/TRELLIS-image-large@25e0d31ffbebe4b5a97464dd851910efc3002d96",
+  "dinov3": "facebook/dinov3-vitl16-pretrain-lvd1689m@ea8dc2863c51be0a264bab82070e3e8836b02d51",
+  "rembg": "ZhengPeng7/BiRefNet@e2bf8e4460fc8fa32bba5ea4d94b3233d367b0e4"
+ },
+ "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+ "settings": {
+  "pipeline_type": "1024_cascade",
+  "simplify": 16777216,
+  "decimation_target": 200000,
+  "texture_size": 2048,
+  "remesh": true,
+  "remesh_band": 1,
+  "remesh_project": 0
+ },
+ "generated_utc": "2026-10-04T14:58:06Z",
+ "status": "ok",
+ "code": null,
+ "error": null,
+ "glb": "model_6.glb",
+ "glb_sha256": "c1f0877734e62c93429f39898404b4ec2461d5bfa09f121f2ed52d638872b8a7",
+ "glb_bytes": 9870588,
+ "face_count": 184341,
+ "glb_info": {
+  "images": 2,
+  "textures": 2,
+  "materials": 1,
+  "meshes": 1,
+  "primitives": 1,
+  "textured": true,
+  "vertex_colours": false,
+  "extensions_used": [],
+  "extensions_required": []
+ },
+ "seconds": 32.57,
+ "backend": {
+  "seconds_generate": 22.25,
+  "seconds_export": 10.09,
+  "raw_faces": 9998304,
+  "pipeline_type": "1024_cascade",
+  "peak_vram_gib": 5.3,
+  "resident": false
+ },
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "cuda": "12.8",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090",
+  "attn_backend": "flash_attn",
+  "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+  "resident": false
+ }
+}

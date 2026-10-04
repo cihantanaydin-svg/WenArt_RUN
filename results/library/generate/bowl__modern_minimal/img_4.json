@@ -1,0 +1,24 @@
+{
+ "key": "b571408e6c9b1c1e0c0b668da0a0e09cc13c8742cd7cd72fc137f3377da9a7b8",
+ "pair": "bowl__modern_minimal",
+ "type": "bowl",
+ "family": "modern minimal",
+ "index": 4,
+ "prompt": "a single modern minimal style shallow decorative bowl for a coffee table, matte white and warm grey ceramic, thin black metal, crisp simple forms, no ornament, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 234691079,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "a00c69f905d527fbbde313870b82fed83416947f71e0d8fba8c7f892ebabf5e3",
+ "seconds": 2.87,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:47:53Z"
+}

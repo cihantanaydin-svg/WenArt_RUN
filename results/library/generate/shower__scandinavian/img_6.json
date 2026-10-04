@@ -1,0 +1,24 @@
+{
+ "key": "8ba8ecade85ebc0ac363fd617efeb813a65822d45ff299959ec2225430822589",
+ "pair": "shower__scandinavian",
+ "type": "shower",
+ "family": "scandinavian",
+ "index": 6,
+ "prompt": "a single scandinavian style square glass shower enclosure with a shower tray, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1731032356,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "d6726aa168c2b2f67d7ff42cc003e69a6576b0809ee87b227610a585ba19dbda",
+ "seconds": 3.22,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:45:03Z"
+}

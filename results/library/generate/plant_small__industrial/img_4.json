@@ -1,0 +1,24 @@
+{
+ "key": "97e90d02460355d33c3db9c2516f0e8b178ff324ab02c10f293579958580472e",
+ "pair": "plant_small__industrial",
+ "type": "plant_small",
+ "family": "industrial",
+ "index": 4,
+ "prompt": "a single industrial style small indoor plant in a pot for a table or a shelf, raw concrete, black steel and dark glazed ceramic, rough textures, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 106719109,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "aa9d026ef905de8e7ae59e34091c28ea734104e100dd865efbcd3fb48f7aaa82",
+ "seconds": 2.81,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:45:09Z"
+}

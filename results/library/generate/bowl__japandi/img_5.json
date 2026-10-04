@@ -1,0 +1,24 @@
+{
+ "key": "e2578a3a7ac0e20c5f47f94f992e611333c69b222f22e6808f13267998a9ef16",
+ "pair": "bowl__japandi",
+ "type": "bowl",
+ "family": "japandi",
+ "index": 5,
+ "prompt": "a single japandi style shallow decorative bowl for a coffee table, handmade matte stoneware in stone grey and charcoal, light ash wood, calm minimal forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1342409676,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "f8d426d755f0341deb3b89cbafa0c93b8f26197cfe151589d9ac24d1c699b036",
+ "seconds": 2.87,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:46:15Z"
+}

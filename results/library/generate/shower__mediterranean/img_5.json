@@ -1,0 +1,24 @@
+{
+ "key": "bf4a80bc951ca9f731afaac4b053a3ca8f0102e1255c05bdad211cbb1e226a51",
+ "pair": "shower__mediterranean",
+ "type": "shower",
+ "family": "mediterranean",
+ "index": 5,
+ "prompt": "a single mediterranean style square glass shower enclosure with a shower tray, white glazed ceramic, warm terracotta and sand accents, aged brass fittings, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 175561702,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "5030630e20038f2ba93e488104a6ef7c358b29616af0a0d4ab0aaadc59dca90d",
+ "seconds": 2.89,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:49:46Z"
+}

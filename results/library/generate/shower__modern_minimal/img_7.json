@@ -1,0 +1,24 @@
+{
+ "key": "21d116b99098bc710a348eab2cdf484e865e73bb731dac28f710dd46b6cbb1cc",
+ "pair": "shower__modern_minimal",
+ "type": "shower",
+ "family": "modern minimal",
+ "index": 7,
+ "prompt": "a single modern minimal style square glass shower enclosure with a shower tray, matte white surfaces, flush handleless fronts, thin black fittings, crisp rectangular forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1904361494,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "7e9158ac7ba3b735e5506d87a0b1448e6818f26701aff351d87d9414ffe45a54",
+ "seconds": 2.88,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:50:24Z"
+}

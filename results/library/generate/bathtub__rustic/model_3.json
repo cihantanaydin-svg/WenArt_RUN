@@ -1,0 +1,63 @@
+{
+ "key": "4ce414f434cac565b1c8c645f806970a60d0d85737dc9498ec1b61ba63443ddd",
+ "pair": "bathtub__rustic",
+ "type": "bathtub",
+ "family": "rustic",
+ "index": 3,
+ "seed": 1143892596,
+ "prompt": "a single rustic style freestanding bathtub, cream enamel and stone, aged copper and wrought iron fittings, sturdy simple forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "image_sha256": "d0d7c7037c8ef8df7adbfd3f231a35476ae0b52379f28a216062306a3f9a0565",
+ "models": {
+  "trellis": "microsoft/TRELLIS.2-4B@af44b45f2e35a493886929c6d786e563ec68364d",
+  "ss_decoder": "microsoft/TRELLIS-image-large@25e0d31ffbebe4b5a97464dd851910efc3002d96",
+  "dinov3": "facebook/dinov3-vitl16-pretrain-lvd1689m@ea8dc2863c51be0a264bab82070e3e8836b02d51",
+  "rembg": "ZhengPeng7/BiRefNet@e2bf8e4460fc8fa32bba5ea4d94b3233d367b0e4"
+ },
+ "trellis_code": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+ "settings": {
+  "pipeline_type": "1024_cascade",
+  "simplify": 16777216,
+  "decimation_target": 200000,
+  "texture_size": 2048,
+  "remesh": true,
+  "remesh_band": 1,
+  "remesh_project": 0
+ },
+ "generated_utc": "2026-10-04T15:32:02Z",
+ "status": "ok",
+ "code": null,
+ "error": null,
+ "glb": "model_3.glb",
+ "glb_sha256": "f4787831ad46e2d8f63df33398370c99541363886be0309e46c91563faf6dd73",
+ "glb_bytes": 12711288,
+ "face_count": 191313,
+ "glb_info": {
+  "images": 2,
+  "textures": 2,
+  "materials": 1,
+  "meshes": 1,
+  "primitives": 1,
+  "textured": true,
+  "vertex_colours": false,
+  "extensions_used": [],
+  "extensions_required": []
+ },
+ "seconds": 39.61,
+ "backend": {
+  "seconds_generate": 16.44,
+  "seconds_export": 22.93,
+  "raw_faces": 5516326,
+  "pipeline_type": "1024_cascade",
+  "peak_vram_gib": 4.05,
+  "resident": false
+ },
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "cuda": "12.8",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090",
+  "attn_backend": "flash_attn",
+  "trellis_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+  "resident": false
+ }
+}

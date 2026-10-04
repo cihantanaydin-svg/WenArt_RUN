@@ -1,0 +1,24 @@
+{
+ "key": "8c66338650366e189e31e7b0cf1d22825990dc06542558db2ab20ad9d8143f7d",
+ "pair": "shower__japandi",
+ "type": "shower",
+ "family": "japandi",
+ "index": 8,
+ "prompt": "a single japandi style square glass shower enclosure with a shower tray, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 950609825,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "9aac630cd05e3cd1ac34b84be76f5d55bf02f69eff3f065f1154b525527b0262",
+ "seconds": 2.89,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:50:30Z"
+}

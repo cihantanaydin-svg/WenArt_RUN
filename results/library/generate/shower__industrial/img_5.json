@@ -1,0 +1,24 @@
+{
+ "key": "9d06456000ae1d8c186f43a801feb7f7c756702c378a1d0066c73038ee85275e",
+ "pair": "shower__industrial",
+ "type": "shower",
+ "family": "industrial",
+ "index": 5,
+ "prompt": "a single industrial style square glass shower enclosure with a shower tray, black steel and brushed stainless steel, concrete grey surfaces, exposed black fittings, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 256734938,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "40091faa9b25733a649ed19ebb19bb67bc75812155e638a022bdb5bb300edd24",
+ "seconds": 2.84,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:49:31Z"
+}

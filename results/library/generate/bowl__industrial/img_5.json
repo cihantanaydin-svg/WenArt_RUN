@@ -1,0 +1,24 @@
+{
+ "key": "60670ccaa1e4b71bc53629ce7c23dc10a86343603c6a7e44f79b5ff2be512c01",
+ "pair": "bowl__industrial",
+ "type": "bowl",
+ "family": "industrial",
+ "index": 5,
+ "prompt": "a single industrial style shallow decorative bowl for a coffee table, raw concrete, black steel and dark glazed ceramic, rough textures, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 1252829948,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "5c035bee39ffc3fe888d64000080673c8288b7a71dd3d4f60c0be2b0fb17e39b",
+ "seconds": 2.85,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:49:49Z"
+}

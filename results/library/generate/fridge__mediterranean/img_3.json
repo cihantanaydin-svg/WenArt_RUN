@@ -1,0 +1,24 @@
+{
+ "key": "1416f80d37cadacec609586202b7de149898421ceec9958b4beb2a01ff1c8ef4",
+ "pair": "fridge__mediterranean",
+ "type": "fridge",
+ "family": "mediterranean",
+ "index": 3,
+ "prompt": "a single mediterranean style freestanding refrigerator, white glazed ceramic, warm terracotta and sand accents, aged brass fittings, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 107486307,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "d527d5d03b239a62f3fb5fe04380a107f843aed81a85c1eb269fc3ca55375819",
+ "seconds": 2.84,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:46:27Z"
+}

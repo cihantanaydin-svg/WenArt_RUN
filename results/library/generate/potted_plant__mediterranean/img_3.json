@@ -1,0 +1,24 @@
+{
+ "key": "96e34940cda2f174d3640df0fba9031e67949c16b9fdf8a328bcc26f51c89de6",
+ "pair": "potted_plant__mediterranean",
+ "type": "potted_plant",
+ "family": "mediterranean",
+ "index": 3,
+ "prompt": "a single mediterranean style large indoor plant in a floor pot, whitewashed wood, terracotta and sand tones, woven rattan, soft rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 2078673011,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "3cf39ff3a253537191823f85a36114ae1e5627c7f2901731a1dd80d66223aa04",
+ "seconds": 2.85,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:46:38Z"
+}

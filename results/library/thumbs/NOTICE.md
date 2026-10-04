@@ -70,21 +70,29 @@ Each thumbnail is a render of the object (changed: re-framed, re-lit, rendered);
 - `thumbs/bathtub/f1b05ddf1b634481903e353d41b6a654.jpg`: "Bathroom" by Vladyslav Holhanov (https://sketchfab.com/3d-models/f1b05ddf1b634481903e353d41b6a654), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - `thumbs/bathtub/fd612e2ea8e94d80ac3b8097eb2e5bbe.jpg`: "Abandoned Drugslab Indoor" by seenoise (https://sketchfab.com/3d-models/fd612e2ea8e94d80ac3b8097eb2e5bbe), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - `thumbs/bathtub/gen_bathtub_classic_1_32213a1e.jpg`: "Generated classic bathtub (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/bathtub/gen_bathtub_classic_3_f7c924e0.jpg`: "Generated classic bathtub (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/bathtub/gen_bathtub_industrial_1_46aaa4c2.jpg`: "Generated industrial bathtub (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/bathtub/gen_bathtub_industrial_3_154b1fde.jpg`: "Generated industrial bathtub (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/bathtub/gen_bathtub_japandi_2_c40f5efc.jpg`: "Generated japandi bathtub (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/bathtub/gen_bathtub_japandi_3_83eb18c0.jpg`: "Generated japandi bathtub (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/bathtub/gen_bathtub_japandi_6_3eb89b0b.jpg`: "Generated japandi bathtub (6)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/bathtub/gen_bathtub_mediterranean_1_11d9dbc8.jpg`: "Generated mediterranean bathtub (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/bathtub/gen_bathtub_mediterranean_3_341a3d79.jpg`: "Generated mediterranean bathtub (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/bathtub/gen_bathtub_minimal_1_fe9cee36.jpg`: "Generated minimal bathtub (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/bathtub/gen_bathtub_minimal_3_2ed3445d.jpg`: "Generated minimal bathtub (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/bathtub/gen_bathtub_modern_1_009871cf.jpg`: "Generated modern bathtub (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/bathtub/gen_bathtub_modern_3_0f116dc4.jpg`: "Generated modern bathtub (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/bathtub/gen_bathtub_modern_5_e14ba0b4.jpg`: "Generated modern bathtub (5)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/bathtub/gen_bathtub_modern_minimal_1_1a44f6ff.jpg`: "Generated modern minimal bathtub (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/bathtub/gen_bathtub_modern_minimal_2_927c5b3c.jpg`: "Generated modern minimal bathtub (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/bathtub/gen_bathtub_modern_minimal_3_5f405b34.jpg`: "Generated modern minimal bathtub (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
-- `thumbs/bathtub/gen_bathtub_rustic_1_b85f8cca.jpg`: "Generated rustic bathtub (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/bathtub/gen_bathtub_modern_minimal_5_29a3d1b9.jpg`: "Generated modern minimal bathtub (5)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/bathtub/gen_bathtub_scandinavian_1_230fe403.jpg`: "Generated scandinavian bathtub (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/bathtub/gen_bathtub_scandinavian_2_6fde34a5.jpg`: "Generated scandinavian bathtub (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/bathtub/gen_bathtub_scandinavian_3_057a7982.jpg`: "Generated scandinavian bathtub (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/bathtub/gen_bathtub_scandinavian_4_a6fdd251.jpg`: "Generated scandinavian bathtub (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/bathtub/gen_bathtub_scandinavian_6_c1f08777.jpg`: "Generated scandinavian bathtub (6)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/bathtub/gen_bathtub_scandinavian_7_da9e6172.jpg`: "Generated scandinavian bathtub (7)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/bathtub/ikcAlbZ2YXxyKWW3r4iOMRW9qR2.jpg`: "LongPlay bathtub" by Geert Daelemans (https://sketchfab.com/3d-models/ikcAlbZ2YXxyKWW3r4iOMRW9qR2), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - `thumbs/bed_double/08f7f65edfea417b8ed9ca748381e507.jpg`: "Bed" by Ambriel (https://sketchfab.com/3d-models/08f7f65edfea417b8ed9ca748381e507), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - `thumbs/bed_double/0972c48a7e4548bca80975a47a823bab.jpg`: "bed" by anish_ (https://sketchfab.com/3d-models/0972c48a7e4548bca80975a47a823bab), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
@@ -149,10 +157,12 @@ Each thumbnail is a render of the object (changed: re-framed, re-lit, rendered);
 - `thumbs/bed_single/gen_bed_single_japandi_1_35dff430.jpg`: "Generated japandi bed single (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/bed_single/gen_bed_single_mediterranean_1_c9d313b4.jpg`: "Generated mediterranean bed single (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/bed_single/gen_bed_single_mediterranean_2_8f745c9f.jpg`: "Generated mediterranean bed single (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/bed_single/gen_bed_single_mediterranean_3_bc85bb18.jpg`: "Generated mediterranean bed single (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/bed_single/gen_bed_single_minimal_1_738c07ed.jpg`: "Generated minimal bed single (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/bed_single/gen_bed_single_modern_1_cb4f07bd.jpg`: "Generated modern bed single (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/bed_single/gen_bed_single_modern_minimal_1_5c05505b.jpg`: "Generated modern minimal bed single (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/bed_single/gen_bed_single_rustic_1_db9b30c6.jpg`: "Generated rustic bed single (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/bed_single/gen_bed_single_rustic_3_20248be5.jpg`: "Generated rustic bed single (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/bed_single/gen_bed_single_scandinavian_1_8060783a.jpg`: "Generated scandinavian bed single (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/bookshelf/08d73e1168504bf2b8706cd838ad16ef.jpg`: "Library" by RiccardoC. (https://sketchfab.com/3d-models/08d73e1168504bf2b8706cd838ad16ef), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - `thumbs/bookshelf/14791efb33314b02ac5ac74b47c36d14.jpg`: "Bookcase for study" by Juan Carlos (https://sketchfab.com/3d-models/14791efb33314b02ac5ac74b47c36d14), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
@@ -199,15 +209,25 @@ Each thumbnail is a render of the object (changed: re-framed, re-lit, rendered);
 - `thumbs/bookshelf/d48a42e91c5d4716a8c254addf8c9d99.jpg`: "High Bookcase" by 8549 (https://sketchfab.com/3d-models/d48a42e91c5d4716a8c254addf8c9d99), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - `thumbs/bookshelf/eb98251fbccf4cdd8a3737362e2378e9.jpg`: "Solo 100シェルフ WN" by classe-saga (https://sketchfab.com/3d-models/eb98251fbccf4cdd8a3737362e2378e9), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - `thumbs/bowl/gen_bowl_classic_1_9ed1c80b.jpg`: "Generated classic bowl (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/bowl/gen_bowl_classic_4_706c58db.jpg`: "Generated classic bowl (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/bowl/gen_bowl_industrial_1_8fc4b9a1.jpg`: "Generated industrial bowl (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/bowl/gen_bowl_industrial_4_0af12e89.jpg`: "Generated industrial bowl (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/bowl/gen_bowl_japandi_1_6596ba4b.jpg`: "Generated japandi bowl (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/bowl/gen_bowl_japandi_5_f9ac0f6a.jpg`: "Generated japandi bowl (5)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/bowl/gen_bowl_mediterranean_1_80ad0595.jpg`: "Generated mediterranean bowl (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/bowl/gen_bowl_mediterranean_4_014f7e0c.jpg`: "Generated mediterranean bowl (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/bowl/gen_bowl_mediterranean_5_89d14d2a.jpg`: "Generated mediterranean bowl (5)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/bowl/gen_bowl_minimal_1_58d9a7aa.jpg`: "Generated minimal bowl (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/bowl/gen_bowl_minimal_4_af49933c.jpg`: "Generated minimal bowl (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/bowl/gen_bowl_modern_1_c5302d78.jpg`: "Generated modern bowl (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/bowl/gen_bowl_modern_4_c75b3b47.jpg`: "Generated modern bowl (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/bowl/gen_bowl_modern_minimal_1_8e554715.jpg`: "Generated modern minimal bowl (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/bowl/gen_bowl_modern_minimal_4_e4ace234.jpg`: "Generated modern minimal bowl (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/bowl/gen_bowl_rustic_1_4d403b64.jpg`: "Generated rustic bowl (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/bowl/gen_bowl_rustic_4_c6b3f320.jpg`: "Generated rustic bowl (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/bowl/gen_bowl_scandinavian_1_ca5c9c50.jpg`: "Generated scandinavian bowl (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/bowl/gen_bowl_scandinavian_2_10f5db00.jpg`: "Generated scandinavian bowl (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/bowl/gen_bowl_scandinavian_5_d2b9b4a7.jpg`: "Generated scandinavian bowl (5)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/chair/0102b2c1449f448687d62ea66ae2a26a.jpg`: "Chair" by suskunbilgetr (https://sketchfab.com/3d-models/0102b2c1449f448687d62ea66ae2a26a), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - `thumbs/chair/039c6026571943d6ac45c6816bcc7ff1.jpg`: "Rocking Chair" by Christian (https://sketchfab.com/3d-models/039c6026571943d6ac45c6816bcc7ff1), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - `thumbs/chair/03f16302c1a54c46b438dac78e9d7048.jpg`: "Cartoon Chair" by ali.youssouf (https://sketchfab.com/3d-models/03f16302c1a54c46b438dac78e9d7048), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
@@ -411,19 +431,27 @@ Each thumbnail is a render of the object (changed: re-framed, re-lit, rendered);
 - `thumbs/fridge/f57bb579c5da4b9c95f1cb874ec558f7.jpg`: "Fridge / Stylized / gameready" by Myjato (https://sketchfab.com/3d-models/f57bb579c5da4b9c95f1cb874ec558f7), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - `thumbs/fridge/f83cfd9e3edf4b4abab5ca14b0b28ec5.jpg`: "Retro Fridge" by Zlat (https://sketchfab.com/3d-models/f83cfd9e3edf4b4abab5ca14b0b28ec5), CC BY-NC 4.0 (https://creativecommons.org/licenses/by-nc/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - `thumbs/fridge/gen_fridge_classic_1_24a6ed0f.jpg`: "Generated classic fridge (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/fridge/gen_fridge_classic_3_25281fe9.jpg`: "Generated classic fridge (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/fridge/gen_fridge_industrial_1_03996e16.jpg`: "Generated industrial fridge (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/fridge/gen_fridge_industrial_3_029d56da.jpg`: "Generated industrial fridge (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/fridge/gen_fridge_japandi_1_4c9cd582.jpg`: "Generated japandi fridge (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/fridge/gen_fridge_japandi_2_4c7dbc82.jpg`: "Generated japandi fridge (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/fridge/gen_fridge_japandi_3_38a9d0f8.jpg`: "Generated japandi fridge (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/fridge/gen_fridge_mediterranean_1_1460e264.jpg`: "Generated mediterranean fridge (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/fridge/gen_fridge_mediterranean_3_e70ec886.jpg`: "Generated mediterranean fridge (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/fridge/gen_fridge_minimal_1_131f791b.jpg`: "Generated minimal fridge (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/fridge/gen_fridge_minimal_3_0a26c9a3.jpg`: "Generated minimal fridge (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/fridge/gen_fridge_modern_1_0f715b05.jpg`: "Generated modern fridge (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/fridge/gen_fridge_modern_minimal_1_c27ed7d7.jpg`: "Generated modern minimal fridge (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/fridge/gen_fridge_modern_minimal_3_bcd54859.jpg`: "Generated modern minimal fridge (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/fridge/gen_fridge_rustic_1_06be6df4.jpg`: "Generated rustic fridge (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/fridge/gen_fridge_rustic_3_11025694.jpg`: "Generated rustic fridge (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/fridge/gen_fridge_scandinavian_1_315b4d87.jpg`: "Generated scandinavian fridge (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/fridge/gen_fridge_scandinavian_2_5eb44a0e.jpg`: "Generated scandinavian fridge (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/fridge/gen_fridge_scandinavian_3_4b9294cb.jpg`: "Generated scandinavian fridge (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/fridge/gen_fridge_scandinavian_4_4b9bb6e4.jpg`: "Generated scandinavian fridge (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/fridge/gen_fridge_scandinavian_5_0d796b98.jpg`: "Generated scandinavian fridge (5)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/fridge/gen_fridge_scandinavian_6_87b23e5c.jpg`: "Generated scandinavian fridge (6)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/mirror/abo_B00TOAN83I.jpg`: "3525-84 Spiegel mit Applikation GW-Adana in Weiß, 87 x 63 x 3 cm (BxHxT)" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - `thumbs/mirror/abo_B0713T6T4D.jpg`: "Amazon Brand – Stone & Beam Iron Latticework Decorative Hanging Mirror Wall Art, 39.4 Inch Height, Verdi Green" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - `thumbs/mirror/abo_B0718ZKQK8.jpg`: "Amazon Brand – Stone & Beam Rustic Wood and Rope Geo Mirror, 36" H, Natural" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
@@ -497,15 +525,25 @@ Each thumbnail is a render of the object (changed: re-framed, re-lit, rendered);
 - `thumbs/plant/abo_B083YFPZ7X.jpg`: "Amazon Brand – Stone & Beam Large Floral-Embossed Planter, 7.5"H, Arabesque Coral Pink" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - `thumbs/plant/abo_B083YFS2FR.jpg`: "Amazon Brand – Stone & Beam Medium Floral-Embossed Planter, 6"H, Cloud Dancer White" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - `thumbs/plant_small/gen_plant_small_classic_1_08e9f778.jpg`: "Generated classic plant small (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/plant_small/gen_plant_small_classic_4_53050a52.jpg`: "Generated classic plant small (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/plant_small/gen_plant_small_industrial_1_94d74431.jpg`: "Generated industrial plant small (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/plant_small/gen_plant_small_industrial_4_26598070.jpg`: "Generated industrial plant small (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/plant_small/gen_plant_small_industrial_5_effc724b.jpg`: "Generated industrial plant small (5)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/plant_small/gen_plant_small_japandi_1_32d3b9fb.jpg`: "Generated japandi plant small (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/plant_small/gen_plant_small_japandi_5_cabc98bd.jpg`: "Generated japandi plant small (5)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/plant_small/gen_plant_small_mediterranean_1_3691e399.jpg`: "Generated mediterranean plant small (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/plant_small/gen_plant_small_mediterranean_4_8292bf7a.jpg`: "Generated mediterranean plant small (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/plant_small/gen_plant_small_minimal_1_6f2e772d.jpg`: "Generated minimal plant small (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/plant_small/gen_plant_small_minimal_4_e8c7266b.jpg`: "Generated minimal plant small (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/plant_small/gen_plant_small_modern_1_e1ff6032.jpg`: "Generated modern plant small (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/plant_small/gen_plant_small_modern_4_086a8ac4.jpg`: "Generated modern plant small (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/plant_small/gen_plant_small_modern_minimal_1_7ea34d3d.jpg`: "Generated modern minimal plant small (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/plant_small/gen_plant_small_modern_minimal_4_e33af5b4.jpg`: "Generated modern minimal plant small (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/plant_small/gen_plant_small_rustic_1_5cdaa51b.jpg`: "Generated rustic plant small (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/plant_small/gen_plant_small_rustic_4_694dfd55.jpg`: "Generated rustic plant small (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/plant_small/gen_plant_small_scandinavian_1_0dcfdd60.jpg`: "Generated scandinavian plant small (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/plant_small/gen_plant_small_scandinavian_2_20075b95.jpg`: "Generated scandinavian plant small (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/plant_small/gen_plant_small_scandinavian_5_02284d1a.jpg`: "Generated scandinavian plant small (5)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/potted_plant/04bef8e589524b8c9d7a3bb206b206a8.jpg`: "Low Poly, Old-style Flower Vase" by itslerm (https://sketchfab.com/3d-models/04bef8e589524b8c9d7a3bb206b206a8), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - `thumbs/potted_plant/12f297af37e9444dae34a02e86c4d36b.jpg`: "plantina" by josefika (https://sketchfab.com/3d-models/12f297af37e9444dae34a02e86c4d36b), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - `thumbs/potted_plant/257f44c12fa948deacca9995dbb70e7b.jpg`: "Cactus" by Efface Studios (https://sketchfab.com/3d-models/257f44c12fa948deacca9995dbb70e7b), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
@@ -530,12 +568,15 @@ Each thumbnail is a render of the object (changed: re-framed, re-lit, rendered);
 - `thumbs/potted_plant/dc16ef2fe078419fa8eae914c06d2080.jpg`: "Pot" by vhakshay (https://sketchfab.com/3d-models/dc16ef2fe078419fa8eae914c06d2080), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - `thumbs/potted_plant/eadfe8fe43124205b2551635252f9e8c.jpg`: "Planta" by giannahochenfellner (https://sketchfab.com/3d-models/eadfe8fe43124205b2551635252f9e8c), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - `thumbs/potted_plant/gen_potted_plant_classic_1_a5ff1adf.jpg`: "Generated classic potted plant (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/potted_plant/gen_potted_plant_classic_3_6a0eb8d8.jpg`: "Generated classic potted plant (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/potted_plant/gen_potted_plant_industrial_1_fb22f191.jpg`: "Generated industrial potted plant (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/potted_plant/gen_potted_plant_industrial_2_eb3d21f5.jpg`: "Generated industrial potted plant (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/potted_plant/gen_potted_plant_industrial_3_23920a8f.jpg`: "Generated industrial potted plant (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/potted_plant/gen_potted_plant_japandi_1_63c10a71.jpg`: "Generated japandi potted plant (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/potted_plant/gen_potted_plant_japandi_2_9a3effd1.jpg`: "Generated japandi potted plant (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/potted_plant/gen_potted_plant_japandi_3_36d34f2a.jpg`: "Generated japandi potted plant (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/potted_plant/gen_potted_plant_mediterranean_1_38a58433.jpg`: "Generated mediterranean potted plant (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/potted_plant/gen_potted_plant_mediterranean_3_068971b6.jpg`: "Generated mediterranean potted plant (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/potted_plant/gen_potted_plant_minimal_1_5cf2e7a2.jpg`: "Generated minimal potted plant (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/potted_plant/gen_potted_plant_modern_1_8fbfec3c.jpg`: "Generated modern potted plant (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/potted_plant/gen_potted_plant_modern_minimal_1_6b4ad5f1.jpg`: "Generated modern minimal potted plant (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
@@ -567,24 +608,30 @@ Each thumbnail is a render of the object (changed: re-framed, re-lit, rendered);
 - `thumbs/rug/abo_B07HSDXLX2.jpg`: "Stone & Beam Rug, 3'11" x 5'11", Blue, Navy, Multicolor" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - `thumbs/rug/abo_B07HSF7LWP.jpg`: "Stone & Beam Polypropylene Round Rug, 5'3" x 5'3", Gray, Orange, Multicolor" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - `thumbs/rug/abo_B07TS7ZCVM.jpg`: "Amazon Basics - 4'X6' Plush Diamond Trellis Shag Rug, Grey" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
-- `thumbs/shower/gen_shower_classic_1_e26e5e0a.jpg`: "Generated classic shower (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/shower/gen_shower_industrial_1_d2ef1a9f.jpg`: "Generated industrial shower (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/shower/gen_shower_industrial_4_31d89a3d.jpg`: "Generated industrial shower (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/shower/gen_shower_japandi_1_dcdcd4dc.jpg`: "Generated japandi shower (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/shower/gen_shower_japandi_2_b6c31e9a.jpg`: "Generated japandi shower (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/shower/gen_shower_japandi_3_2c7b7e7d.jpg`: "Generated japandi shower (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/shower/gen_shower_japandi_6_bd58a347.jpg`: "Generated japandi shower (6)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/shower/gen_shower_mediterranean_1_4cc815f7.jpg`: "Generated mediterranean shower (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/shower/gen_shower_mediterranean_4_c6619e6d.jpg`: "Generated mediterranean shower (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/shower/gen_shower_minimal_1_25eeb7e2.jpg`: "Generated minimal shower (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/shower/gen_shower_minimal_4_c49783e5.jpg`: "Generated minimal shower (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/shower/gen_shower_modern_1_1cb8199a.jpg`: "Generated modern shower (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/shower/gen_shower_modern_2_707d4703.jpg`: "Generated modern shower (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/shower/gen_shower_modern_3_37941d2f.jpg`: "Generated modern shower (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/shower/gen_shower_modern_5_64ccb17a.jpg`: "Generated modern shower (5)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/shower/gen_shower_modern_minimal_1_d787862a.jpg`: "Generated modern minimal shower (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/shower/gen_shower_modern_minimal_2_dab54bc3.jpg`: "Generated modern minimal shower (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/shower/gen_shower_modern_minimal_3_5108e5ad.jpg`: "Generated modern minimal shower (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
-- `thumbs/shower/gen_shower_rustic_1_26a99f3f.jpg`: "Generated rustic shower (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/shower/gen_shower_modern_minimal_6_664da6f5.jpg`: "Generated modern minimal shower (6)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/shower/gen_shower_scandinavian_1_0ae4a37a.jpg`: "Generated scandinavian shower (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/shower/gen_shower_scandinavian_2_88469e91.jpg`: "Generated scandinavian shower (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/shower/gen_shower_scandinavian_3_2d3b69d4.jpg`: "Generated scandinavian shower (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/shower/gen_shower_scandinavian_4_31320d88.jpg`: "Generated scandinavian shower (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/shower/gen_shower_scandinavian_6_6844cd10.jpg`: "Generated scandinavian shower (6)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/shower/gen_shower_scandinavian_7_5e4c377d.jpg`: "Generated scandinavian shower (7)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/side_table/abo_B01N3MBCKT.jpg`: "Ameriwood Home Carver End Table, Gray/Sonoma Oak" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - `thumbs/side_table/abo_B072ZKPK7J.jpg`: "Amazon Brand – Rivet Mid-Century Modern Round Black Wood Nesting Side End Table, 15.7" W, Dark Oak" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - `thumbs/side_table/abo_B075Z8627Z.jpg`: "Amazon Brand – Stone & Beam Larson Industrial Wood & Metal Side End Table, 27"W, Walnut" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
@@ -611,21 +658,28 @@ Each thumbnail is a render of the object (changed: re-framed, re-lit, rendered);
 - `thumbs/side_table/abo_B082VT4GGJ.jpg`: "Amazon Brand - Ravenna Home Archer Outdoor Patio Steel Side Table with Panel Top, 20"W, Gray" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - `thumbs/sink_kitchen/gen_sink_kitchen_classic_1_f7bbb88f.jpg`: "Generated classic sink kitchen (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/sink_kitchen/gen_sink_kitchen_industrial_1_15bcc635.jpg`: "Generated industrial sink kitchen (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/sink_kitchen/gen_sink_kitchen_industrial_4_3f68e743.jpg`: "Generated industrial sink kitchen (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/sink_kitchen/gen_sink_kitchen_japandi_1_a61d924d.jpg`: "Generated japandi sink kitchen (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/sink_kitchen/gen_sink_kitchen_japandi_2_d6ae0419.jpg`: "Generated japandi sink kitchen (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/sink_kitchen/gen_sink_kitchen_japandi_3_1462384d.jpg`: "Generated japandi sink kitchen (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/sink_kitchen/gen_sink_kitchen_japandi_4_329115ec.jpg`: "Generated japandi sink kitchen (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/sink_kitchen/gen_sink_kitchen_japandi_6_2ccc7ce8.jpg`: "Generated japandi sink kitchen (6)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/sink_kitchen/gen_sink_kitchen_japandi_7_9b4253a0.jpg`: "Generated japandi sink kitchen (7)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/sink_kitchen/gen_sink_kitchen_mediterranean_1_ae36322f.jpg`: "Generated mediterranean sink kitchen (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/sink_kitchen/gen_sink_kitchen_mediterranean_3_f6d72c7b.jpg`: "Generated mediterranean sink kitchen (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/sink_kitchen/gen_sink_kitchen_minimal_1_2e90ac4a.jpg`: "Generated minimal sink kitchen (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/sink_kitchen/gen_sink_kitchen_minimal_3_58d08820.jpg`: "Generated minimal sink kitchen (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/sink_kitchen/gen_sink_kitchen_modern_1_5b97156d.jpg`: "Generated modern sink kitchen (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/sink_kitchen/gen_sink_kitchen_modern_2_b348b4dc.jpg`: "Generated modern sink kitchen (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/sink_kitchen/gen_sink_kitchen_modern_3_eb304e4d.jpg`: "Generated modern sink kitchen (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/sink_kitchen/gen_sink_kitchen_modern_5_5f86535a.jpg`: "Generated modern sink kitchen (5)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/sink_kitchen/gen_sink_kitchen_modern_minimal_2_d36a47fa.jpg`: "Generated modern minimal sink kitchen (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/sink_kitchen/gen_sink_kitchen_modern_minimal_3_e95e2f4d.jpg`: "Generated modern minimal sink kitchen (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
-- `thumbs/sink_kitchen/gen_sink_kitchen_rustic_1_3b005a69.jpg`: "Generated rustic sink kitchen (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/sink_kitchen/gen_sink_kitchen_modern_minimal_5_d5b4659d.jpg`: "Generated modern minimal sink kitchen (5)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/sink_kitchen/gen_sink_kitchen_scandinavian_1_dbad65c6.jpg`: "Generated scandinavian sink kitchen (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/sink_kitchen/gen_sink_kitchen_scandinavian_2_470fa047.jpg`: "Generated scandinavian sink kitchen (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/sink_kitchen/gen_sink_kitchen_scandinavian_3_3e309f4c.jpg`: "Generated scandinavian sink kitchen (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/sink_kitchen/gen_sink_kitchen_scandinavian_5_b50401d7.jpg`: "Generated scandinavian sink kitchen (5)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/sofa/03cba69a2c3140f7abc013d42d455fba.jpg`: "sofa" by tekaya86 (https://sketchfab.com/3d-models/03cba69a2c3140f7abc013d42d455fba), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - `thumbs/sofa/072d0468bb97447ab1ca7e3edea25f1f.jpg`: "Day 195: Street Couch Pt.9" by alexdelker (https://sketchfab.com/3d-models/072d0468bb97447ab1ca7e3edea25f1f), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - `thumbs/sofa/104ac40ef3ad4dac8079a11548c470e7.jpg`: "Sofa" by hask191919 (https://sketchfab.com/3d-models/104ac40ef3ad4dac8079a11548c470e7), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
@@ -691,14 +745,21 @@ Each thumbnail is a render of the object (changed: re-framed, re-lit, rendered);
 - `thumbs/stove/e4a1aafed0ec43a79c20f91dfcfe5670.jpg`: "Stove Asset - Home Appliances" by Alstra Infinite (https://sketchfab.com/3d-models/e4a1aafed0ec43a79c20f91dfcfe5670), CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - `thumbs/stove/fe4339a62a544ec081d23f85e1a8c7f7.jpg`: "Gas Stove" by Zian (https://sketchfab.com/3d-models/fe4339a62a544ec081d23f85e1a8c7f7), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - `thumbs/stove/gen_stove_classic_1_4cdc3ba9.jpg`: "Generated classic stove (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/stove/gen_stove_classic_4_e2fe38fa.jpg`: "Generated classic stove (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/stove/gen_stove_industrial_1_59fd0342.jpg`: "Generated industrial stove (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/stove/gen_stove_industrial_3_158d2bab.jpg`: "Generated industrial stove (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/stove/gen_stove_japandi_1_2c35be6c.jpg`: "Generated japandi stove (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/stove/gen_stove_japandi_4_c8b92b90.jpg`: "Generated japandi stove (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/stove/gen_stove_japandi_5_6f5e00ea.jpg`: "Generated japandi stove (5)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/stove/gen_stove_mediterranean_1_f0595767.jpg`: "Generated mediterranean stove (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/stove/gen_stove_modern_1_d7aca74d.jpg`: "Generated modern stove (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/stove/gen_stove_modern_3_6d806e82.jpg`: "Generated modern stove (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/stove/gen_stove_modern_minimal_1_18c4c83a.jpg`: "Generated modern minimal stove (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/stove/gen_stove_rustic_1_f05488ba.jpg`: "Generated rustic stove (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/stove/gen_stove_rustic_3_78e2f342.jpg`: "Generated rustic stove (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/stove/gen_stove_scandinavian_1_acd46212.jpg`: "Generated scandinavian stove (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/stove/gen_stove_scandinavian_2_4aebb9bc.jpg`: "Generated scandinavian stove (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/stove/gen_stove_scandinavian_4_c71c9213.jpg`: "Generated scandinavian stove (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/table_coffee/01ff88bfc0034211b9f4996d620bc333.jpg`: "Palette Table" by Javier.Cantero (https://sketchfab.com/3d-models/01ff88bfc0034211b9f4996d620bc333), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - `thumbs/table_coffee/03febdfb56cf419d89fe2d4eaa0bdb5e.jpg`: "Prop Modelling scene" by LiamS-J (https://sketchfab.com/3d-models/03febdfb56cf419d89fe2d4eaa0bdb5e), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - `thumbs/table_coffee/1d41e84fd76241e7a8929a314052269c.jpg`: "LowPoly Industrial Tools vol. 1" by SANYABEAST (https://sketchfab.com/3d-models/1d41e84fd76241e7a8929a314052269c), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
@@ -822,19 +883,27 @@ Each thumbnail is a render of the object (changed: re-framed, re-lit, rendered);
 - `thumbs/toilet/e49d29f9a6f94a8cb62ca0a8e1cc1bfe.jpg`: "Wellworth Classic Close Coupled Toilet With Seat" by Yaiyeondurising (https://sketchfab.com/3d-models/e49d29f9a6f94a8cb62ca0a8e1cc1bfe), CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - `thumbs/toilet/e9edbd0c027c4f648e1405df96670cc1.jpg`: "Hello Neighbor Alpha 1 Toilet" by Tukutimur (https://sketchfab.com/3d-models/e9edbd0c027c4f648e1405df96670cc1), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - `thumbs/toilet/gen_toilet_classic_1_f4cb8d97.jpg`: "Generated classic toilet (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/toilet/gen_toilet_classic_3_293965c2.jpg`: "Generated classic toilet (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/toilet/gen_toilet_industrial_1_3cd5bde9.jpg`: "Generated industrial toilet (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/toilet/gen_toilet_industrial_3_015d9da2.jpg`: "Generated industrial toilet (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/toilet/gen_toilet_japandi_1_42fdb46f.jpg`: "Generated japandi toilet (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/toilet/gen_toilet_japandi_2_0697e750.jpg`: "Generated japandi toilet (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/toilet/gen_toilet_japandi_3_4e49add0.jpg`: "Generated japandi toilet (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/toilet/gen_toilet_japandi_5_be4b440e.jpg`: "Generated japandi toilet (5)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/toilet/gen_toilet_mediterranean_1_09b9f7e2.jpg`: "Generated mediterranean toilet (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/toilet/gen_toilet_mediterranean_3_23b530a6.jpg`: "Generated mediterranean toilet (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/toilet/gen_toilet_minimal_1_3799392b.jpg`: "Generated minimal toilet (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/toilet/gen_toilet_minimal_2_817ffd06.jpg`: "Generated minimal toilet (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/toilet/gen_toilet_modern_1_3cae74e3.jpg`: "Generated modern toilet (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/toilet/gen_toilet_modern_minimal_1_c0ee88fc.jpg`: "Generated modern minimal toilet (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/toilet/gen_toilet_modern_minimal_3_1ca69a05.jpg`: "Generated modern minimal toilet (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/toilet/gen_toilet_rustic_1_c2ce66a1.jpg`: "Generated rustic toilet (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/toilet/gen_toilet_rustic_3_2dc82a8d.jpg`: "Generated rustic toilet (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/toilet/gen_toilet_scandinavian_1_f4f34056.jpg`: "Generated scandinavian toilet (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/toilet/gen_toilet_scandinavian_2_21c43147.jpg`: "Generated scandinavian toilet (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/toilet/gen_toilet_scandinavian_3_c526dae1.jpg`: "Generated scandinavian toilet (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/toilet/gen_toilet_scandinavian_4_06dcb780.jpg`: "Generated scandinavian toilet (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/toilet/gen_toilet_scandinavian_5_876486c9.jpg`: "Generated scandinavian toilet (5)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/tv_unit/abo_B00OGP5S98.jpg`: "Home Corona 2 unità da 1 TV a schermo Piatto, supporto/ripostigli" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - `thumbs/tv_unit/abo_B01DA8QJYO.jpg`: "Amazon Brand - Movian Corona TV Cabinet, Flat Screen Stand Unit, Solid Pine Wood" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - `thumbs/tv_unit/abo_B072ZMT5SD.jpg`: "Amazon Brand – Rivet King Street Industrial TV Media Console Table with Three Drawers, Black Metal and Wood, Glass" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
@@ -976,11 +1045,13 @@ Each thumbnail is a render of the object (changed: re-framed, re-lit, rendered);
 - `thumbs/washbasin/fe63d70a5f5145788cb9b1e3c47ac3c2.jpg`: "Combo CEG51-57BF/GF" by Stala (https://sketchfab.com/3d-models/fe63d70a5f5145788cb9b1e3c47ac3c2), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - `thumbs/washbasin/gen_washbasin_classic_1_9bd9b8cd.jpg`: "Generated classic washbasin (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/washbasin/gen_washbasin_industrial_1_6794b9a5.jpg`: "Generated industrial washbasin (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/washbasin/gen_washbasin_industrial_3_077278da.jpg`: "Generated industrial washbasin (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/washbasin/gen_washbasin_japandi_1_299a0eb2.jpg`: "Generated japandi washbasin (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/washbasin/gen_washbasin_japandi_2_6d594c3b.jpg`: "Generated japandi washbasin (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/washbasin/gen_washbasin_japandi_3_fc4e0710.jpg`: "Generated japandi washbasin (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/washbasin/gen_washbasin_japandi_4_576e4361.jpg`: "Generated japandi washbasin (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/washbasin/gen_washbasin_mediterranean_1_93c90025.jpg`: "Generated mediterranean washbasin (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/washbasin/gen_washbasin_mediterranean_3_5ba0774b.jpg`: "Generated mediterranean washbasin (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/washbasin/gen_washbasin_minimal_1_9dc765fb.jpg`: "Generated minimal washbasin (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/washbasin/gen_washbasin_modern_1_833baa60.jpg`: "Generated modern washbasin (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/washbasin/gen_washbasin_modern_minimal_1_d5536003.jpg`: "Generated modern minimal washbasin (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
@@ -988,9 +1059,11 @@ Each thumbnail is a render of the object (changed: re-framed, re-lit, rendered);
 - `thumbs/washbasin/gen_washbasin_scandinavian_1_6efd9d50.jpg`: "Generated scandinavian washbasin (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/washing_machine/gen_washing_machine_classic_1_dffff7e0.jpg`: "Generated classic washing machine (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/washing_machine/gen_washing_machine_industrial_1_b7c9d275.jpg`: "Generated industrial washing machine (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/washing_machine/gen_washing_machine_industrial_3_0a739610.jpg`: "Generated industrial washing machine (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/washing_machine/gen_washing_machine_japandi_1_f1f4def2.jpg`: "Generated japandi washing machine (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/washing_machine/gen_washing_machine_japandi_2_d8b8ac48.jpg`: "Generated japandi washing machine (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/washing_machine/gen_washing_machine_japandi_3_3e2ddcc7.jpg`: "Generated japandi washing machine (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/washing_machine/gen_washing_machine_japandi_5_030a02dc.jpg`: "Generated japandi washing machine (5)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/washing_machine/gen_washing_machine_mediterranean_1_bffe5bde.jpg`: "Generated mediterranean washing machine (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/washing_machine/gen_washing_machine_minimal_1_9ec6e746.jpg`: "Generated minimal washing machine (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/washing_machine/gen_washing_machine_modern_1_f4bdd46e.jpg`: "Generated modern washing machine (1)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
@@ -1004,3 +1077,4 @@ Each thumbnail is a render of the object (changed: re-framed, re-lit, rendered);
 - `thumbs/washing_machine/gen_washing_machine_scandinavian_2_67f28c86.jpg`: "Generated scandinavian washing machine (2)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/washing_machine/gen_washing_machine_scandinavian_3_292e2d11.jpg`: "Generated scandinavian washing machine (3)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
 - `thumbs/washing_machine/gen_washing_machine_scandinavian_4_d66cae6a.jpg`: "Generated scandinavian washing machine (4)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit
+- `thumbs/washing_machine/gen_washing_machine_scandinavian_5_ed8921b5.jpg`: "Generated scandinavian washing machine (5)": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit

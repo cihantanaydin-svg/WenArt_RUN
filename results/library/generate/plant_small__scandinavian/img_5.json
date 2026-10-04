@@ -1,0 +1,24 @@
+{
+ "key": "c6c5bbd6b7371c320004937a6d442c3d117fd21bb9f594a5eeae1cb7b4597e71",
+ "pair": "plant_small__scandinavian",
+ "type": "plant_small",
+ "family": "scandinavian",
+ "index": 5,
+ "prompt": "a single scandinavian style small indoor plant in a pot for a table or a shelf, matte white and pale grey ceramic, light oak, natural linen, simple soft forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 501095608,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "3434d0733624c2f5e0f4660cf3861e79401fe029885e304f82a5865124874018",
+ "seconds": 2.86,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "generated_utc": "2026-10-04T14:47:33Z"
+}
