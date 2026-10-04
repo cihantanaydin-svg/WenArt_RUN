@@ -1588,6 +1588,10 @@ DECOR_WORDS: dict[str, tuple[str, str, str]] = {
 TYPE_WORDS.update({
     "side_table": ("side table", "a small table beside a sofa, an armchair or a bed"),
     "tv_unit": ("TV unit", "a low cabinet or stand for a television"),
+    # The types the generator fills (M8 pod L3: judge-requests raised KeyError 'shower').
+    "washing_machine": ("washing machine", "a front-loading washing machine or washer-dryer"),
+    "sink_kitchen": ("kitchen sink unit", "a kitchen base cabinet with a sink and a tap"),
+    "shower": ("shower enclosure", "a walk-in or framed shower enclosure on its tray"),
 })
 
 

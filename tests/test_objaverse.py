@@ -142,6 +142,10 @@ def test_config_tables_follow_the_spec():
     assert OV.geometric_front({}, OV.DOCUMENTED_RULE, CFG["front_rules"])[0] is None
     for t in ("side_table", "tv_unit"):                             # the ABO-only furniture types
         assert t in CFG["types"] and t in table and t in OV.TYPE_WORDS
+    # Every configured type can be asked about (M8 pod L3: a generated shower crashed judge-requests).
+    for t, spec in CFG["types"].items():
+        assert t in OV.TYPE_WORDS or t in OV.DECOR_WORDS, t
+        assert t in table or t in full, t
 
 
 def test_licence_table_takes_every_licence_and_flags_all_but_cc0_and_cc_by():
