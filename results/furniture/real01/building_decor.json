@@ -1,0 +1,5510 @@
+{
+ "schema_version": "0.1",
+ "project": {
+  "id": "real01",
+  "source_folder": "projects/real01",
+  "created_utc": "2026-10-04T10:00:12Z",
+  "pipeline_commit": "714dcc50e",
+  "unit_system": "imperial"
+ },
+ "status": "ok",
+ "documents": [
+  {
+   "id": "doc_real01_pdf",
+   "file": "real01.pdf",
+   "format": "pdf",
+   "converter": null,
+   "pages": [
+    {
+     "page": 1,
+     "class": "floor_plan",
+     "skip_reason": null,
+     "kind": "vector",
+     "level_id": "L0",
+     "level_label_raw": null,
+     "classifier": "generic_labels",
+     "scale": {
+      "metres_per_unit": 0.024511058894791424,
+      "method": "dimension_text",
+      "confidence": 0.85,
+      "evidence": {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 0.85,
+       "page": 1,
+       "entity": "char:0",
+       "text": "30'"
+      }
+     },
+     "transform_to_building": [
+      0.024511058894791424,
+      0.0,
+      -4.06,
+      0.0,
+      0.024511058894791424,
+      -3.312
+     ],
+     "confidence": 0.6,
+     "evidence": [
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 1.0,
+       "page": 1,
+       "entity": "char:6",
+       "text": "Bed Room"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 1.0,
+       "page": 1,
+       "entity": "char:23",
+       "text": "Bed Room"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 1.0,
+       "page": 1,
+       "entity": "char:40",
+       "text": "Bath+"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 1.0,
+       "page": 1,
+       "entity": "char:45",
+       "text": "Toilet"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 1.0,
+       "page": 1,
+       "entity": "char:58",
+       "text": "Drawing Room"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 1.0,
+       "page": 1,
+       "entity": "char:79",
+       "text": "Dining"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 1.0,
+       "page": 1,
+       "entity": "char:93",
+       "text": "Kitchen"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 1.0,
+       "page": 1,
+       "entity": "char:114",
+       "text": "Pooja"
+      },
+      {
+       "file": "real01.pdf",
+       "method": "vector",
+       "confidence": 1.0,
+       "page": 1,
+       "entity": "char:129",
+       "text": "Store"
+      }
+     ],
+     "debug_image": "debug/real01_pdf_p1.png"
+    }
+   ],
+   "unit_system": "imperial",
+   "source_kind": "cad_pdf"
+  }
+ ],
+ "levels": [
+  {
+   "id": "L0",
+   "label": "Ground floor",
+   "order": 0,
+   "elevation": 0.0,
+   "ceiling_height": 2.7,
+   "ceiling_height_source": "assumed_default",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:6",
+     "text": "Bed Room"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:23",
+     "text": "Bed Room"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:40",
+     "text": "Bath+"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:45",
+     "text": "Toilet"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:58",
+     "text": "Drawing Room"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:79",
+     "text": "Dining"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:93",
+     "text": "Kitchen"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:114",
+     "text": "Pooja"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:129",
+     "text": "Store"
+    }
+   ],
+   "label_source": "assumed"
+  }
+ ],
+ "walls": [
+  {
+   "id": "w_L0_001",
+   "level_id": "L0",
+   "start": [
+    0.2282,
+    0.115
+   ],
+   "end": [
+    9.604,
+    0.115
+   ],
+   "thickness": 0.23,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "hatch:9,hatch:7,hatch:5",
+     "note": "run of 3 pieces"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_002",
+   "level_id": "L0",
+   "start": [
+    3.43,
+    2.439
+   ],
+   "end": [
+    4.956,
+    2.439
+   ],
+   "thickness": 0.155,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "derived",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "hatch:7,path:16612,path:16608,path:16607,path:16610,path:16609,path:16606,path:16615,path:16616",
+     "note": "extended to host the drawn door"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_003",
+   "level_id": "L0",
+   "start": [
+    9.604,
+    2.783
+   ],
+   "end": [
+    12.956,
+    2.783
+   ],
+   "thickness": 0.23,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "hatch:4,hatch:1",
+     "note": "run of 2 pieces"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_004",
+   "level_id": "L0",
+   "start": [
+    0.23,
+    3.66
+   ],
+   "end": [
+    3.28,
+    3.66
+   ],
+   "thickness": 0.15,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "hatch:8"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_005",
+   "level_id": "L0",
+   "start": [
+    9.604,
+    4.192
+   ],
+   "end": [
+    12.727,
+    4.192
+   ],
+   "thickness": 0.15,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "derived",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "hatch:1,path:11590,path:11586,path:11585,path:11587,path:11588,path:11584,path:11596",
+     "note": "extended to host the drawn door"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_006",
+   "level_id": "L0",
+   "start": [
+    5.106,
+    4.575
+   ],
+   "end": [
+    8.086,
+    4.575
+   ],
+   "thickness": 0.155,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "hatch:3"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_007",
+   "level_id": "L0",
+   "start": [
+    0.23,
+    7.203
+   ],
+   "end": [
+    12.956,
+    7.203
+   ],
+   "thickness": 0.225,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "hatch:6,hatch:3,hatch:2,hatch:0",
+     "note": "run of 4 pieces"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_008",
+   "level_id": "L0",
+   "start": [
+    0.115,
+    0.0
+   ],
+   "end": [
+    0.115,
+    7.316
+   ],
+   "thickness": 0.23,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "hatch:9,hatch:8,hatch:6",
+     "note": "run of 4 pieces"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_009",
+   "level_id": "L0",
+   "start": [
+    3.355,
+    0.23
+   ],
+   "end": [
+    3.355,
+    7.0905
+   ],
+   "thickness": 0.15,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "hatch:7,hatch:3",
+     "note": "run of 2 pieces"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_010",
+   "level_id": "L0",
+   "start": [
+    5.031,
+    0.23
+   ],
+   "end": [
+    5.031,
+    7.0905
+   ],
+   "thickness": 0.15,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "hatch:7,hatch:3",
+     "note": "run of 2 pieces"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_011",
+   "level_id": "L0",
+   "start": [
+    9.489,
+    0.2207
+   ],
+   "end": [
+    9.489,
+    7.09
+   ],
+   "thickness": 0.23,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "hatch:5,hatch:4,hatch:1,hatch:2",
+     "note": "run of 5 pieces"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_012",
+   "level_id": "L0",
+   "start": [
+    11.127,
+    2.898
+   ],
+   "end": [
+    11.127,
+    4.117
+   ],
+   "thickness": 0.155,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "hatch:1"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_013",
+   "level_id": "L0",
+   "start": [
+    12.842,
+    2.8907
+   ],
+   "end": [
+    12.842,
+    7.0907
+   ],
+   "thickness": 0.23,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "hatch:1,hatch:0",
+     "note": "run of 2 pieces"
+    }
+   ]
+  }
+ ],
+ "openings": [
+  {
+   "id": "win_L0_001",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_001",
+   "center": [
+    1.78,
+    0.115
+   ],
+   "width": 1.524,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "path:11613,path:11614,path:9060,path:9054,path:36866"
+    }
+   ],
+   "assumed": [
+    "height",
+    "sill_height"
+   ]
+  },
+  {
+   "id": "win_L0_002",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_001",
+   "center": [
+    7.056,
+    0.115
+   ],
+   "width": 1.524,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "path:9055,path:11619,path:11620,path:9054,path:36866"
+    }
+   ],
+   "assumed": [
+    "height",
+    "sill_height"
+   ]
+  },
+  {
+   "id": "win_L0_003",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_003",
+   "center": [
+    10.214,
+    2.783
+   ],
+   "width": 0.608,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "path:9061,path:11624,path:11625,path:9064,path:36866"
+    }
+   ],
+   "assumed": [
+    "height",
+    "sill_height"
+   ]
+  },
+  {
+   "id": "win_L0_004",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_007",
+   "center": [
+    1.78,
+    7.203
+   ],
+   "width": 1.524,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "path:36866,path:11508,path:16840,path:11509,path:11610,path:11611"
+    }
+   ],
+   "assumed": [
+    "height",
+    "sill_height"
+   ]
+  },
+  {
+   "id": "win_L0_005",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_007",
+   "center": [
+    6.782,
+    7.203
+   ],
+   "width": 1.524,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "path:36866,path:11508,path:11607,path:11608,path:11511,path:36865"
+    }
+   ],
+   "assumed": [
+    "height",
+    "sill_height"
+   ]
+  },
+  {
+   "id": "win_L0_006",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_007",
+   "center": [
+    11.052,
+    7.203
+   ],
+   "width": 1.22,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "path:36866,path:11508,path:36865,path:11512,path:11602,path:11603"
+    }
+   ],
+   "assumed": [
+    "height",
+    "sill_height"
+   ]
+  },
+  {
+   "id": "win_L0_007",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_008",
+   "center": [
+    0.115,
+    1.754
+   ],
+   "width": 1.216,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "path:9077,path:9078,path:9076,path:36866,path:9075"
+    }
+   ],
+   "assumed": [
+    "height",
+    "sill_height"
+   ]
+  },
+  {
+   "id": "win_L0_008",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_008",
+   "center": [
+    0.115,
+    5.373
+   ],
+   "width": 1.222,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "path:36866,path:9075,path:17129,path:17130,path:9079"
+    }
+   ],
+   "assumed": [
+    "height",
+    "sill_height"
+   ]
+  },
+  {
+   "id": "d_L0_001",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_009",
+   "center": [
+    3.355,
+    3.1265
+   ],
+   "width": 0.917,
+   "height": 2.1,
+   "sill_height": null,
+   "swing_side": "r_L0_bed_room",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "path:11564,path:11559,path:11560,path:11561,path:11570,path:11558,path:11562,path:11569"
+    }
+   ],
+   "assumed": [
+    "height"
+   ]
+  },
+  {
+   "id": "d_L0_002",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_009",
+   "center": [
+    3.355,
+    4.1935
+   ],
+   "width": 0.917,
+   "height": 2.1,
+   "sill_height": null,
+   "swing_side": "r_L0_bed_room_2",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "path:11577,path:11573,path:11572,path:5010,path:5007,path:5004,path:5001,path:11582,path:11575,path:11571,path:11583,path:11574"
+    }
+   ],
+   "assumed": [
+    "height"
+   ]
+  },
+  {
+   "id": "o_L0_001",
+   "type": "opening",
+   "level_id": "L0",
+   "wall_id": "w_L0_010",
+   "center": [
+    5.031,
+    3.5828
+   ],
+   "width": 1.8295,
+   "height": 2.1,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "derived",
+     "confidence": 0.8,
+     "page": 1,
+     "entity": "gap:hatch:7,hatch:3"
+    }
+   ],
+   "assumed": [
+    "height"
+   ]
+  },
+  {
+   "id": "d_L0_003",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_011",
+   "center": [
+    9.489,
+    0.837
+   ],
+   "width": 1.062,
+   "height": 2.1,
+   "sill_height": null,
+   "swing_side": "r_L0_drawing_room",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "path:11549,path:11545,path:11544,path:9062,path:11554,path:11547,path:11555,path:11543,path:11546"
+    }
+   ],
+   "assumed": [
+    "height"
+   ]
+  },
+  {
+   "id": "o_L0_002",
+   "type": "opening",
+   "level_id": "L0",
+   "wall_id": "w_L0_011",
+   "center": [
+    9.489,
+    3.507
+   ],
+   "width": 1.018,
+   "height": 2.1,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "derived",
+     "confidence": 0.8,
+     "page": 1,
+     "entity": "gap:hatch:4,hatch:1"
+    }
+   ],
+   "assumed": [
+    "height"
+   ]
+  },
+  {
+   "id": "o_L0_003",
+   "type": "opening",
+   "level_id": "L0",
+   "wall_id": "w_L0_011",
+   "center": [
+    9.489,
+    5.678
+   ],
+   "width": 1.6,
+   "height": 2.1,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "derived",
+     "confidence": 0.8,
+     "page": 1,
+     "entity": "gap:hatch:1,hatch:2"
+    }
+   ],
+   "assumed": [
+    "height"
+   ]
+  },
+  {
+   "id": "win_L0_009",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_013",
+   "center": [
+    12.842,
+    5.564
+   ],
+   "width": 1.22,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "path:36866,path:9045,path:9046,path:11599,path:11597,path:11598,path:36876"
+    }
+   ],
+   "assumed": [
+    "height",
+    "sill_height"
+   ]
+  },
+  {
+   "id": "d_L0_004",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_002",
+   "center": [
+    4.574,
+    2.439
+   ],
+   "width": 0.764,
+   "height": 2.1,
+   "sill_height": null,
+   "swing_side": "r_L0_bath_toilet",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "path:16612,path:16608,path:16607,path:16610,path:16609,path:16606,path:16615,path:16616"
+    }
+   ],
+   "assumed": [
+    "height"
+   ]
+  },
+  {
+   "id": "d_L0_005",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_005",
+   "center": [
+    12.2715,
+    4.192
+   ],
+   "width": 0.911,
+   "height": 2.1,
+   "sill_height": null,
+   "swing_side": "r_L0_store",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "path:11590,path:11586,path:11585,path:11587,path:11588,path:11584,path:11596"
+    }
+   ],
+   "assumed": [
+    "height"
+   ]
+  },
+  {
+   "id": "o_L0_004",
+   "type": "opening",
+   "level_id": "L0",
+   "wall_id": null,
+   "virtual": true,
+   "line": [
+    [
+     8.086,
+     4.575
+    ],
+    [
+     9.374,
+     4.575
+    ]
+   ],
+   "center": [
+    8.73,
+    4.575
+   ],
+   "width": 1.288,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "derived",
+     "confidence": 0.8,
+     "page": 1,
+     "entity": "separator:hatch:3|hatch:5,hatch:4,hatch:1,hatch:2",
+     "note": "virtual separator (end-to-wall, 1.29 m): two room names shared one face"
+    }
+   ]
+  }
+ ],
+ "rooms": [
+  {
+   "id": "r_L0_bed_room",
+   "level_id": "L0",
+   "label": "Bed Room",
+   "label_raw": "Bed Room",
+   "room_type": "bedroom",
+   "polygon": [
+    [
+     0.23,
+     0.23
+    ],
+    [
+     3.28,
+     0.23
+    ],
+    [
+     3.28,
+     3.585
+    ],
+    [
+     0.23,
+     3.585
+    ]
+   ],
+   "area_computed": 10.233,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:23",
+     "text": "Bed Room"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:31",
+     "text": "11' x 10'"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_001,w_L0_004,w_L0_008,w_L0_009"
+    }
+   ],
+   "label_size": {
+    "text": "11' x 10'",
+    "width_m": 3.3528,
+    "length_m": 3.048,
+    "measured": [
+     3.355,
+     3.05
+    ],
+    "status": "ok",
+    "off_pct": [
+     -0.1,
+     -0.1
+    ]
+   }
+  },
+  {
+   "id": "r_L0_bath_toilet",
+   "level_id": "L0",
+   "label": "Bath+ Toilet",
+   "label_raw": "Bath+ Toilet",
+   "room_type": "bathroom",
+   "polygon": [
+    [
+     3.43,
+     0.23
+    ],
+    [
+     4.956,
+     0.23
+    ],
+    [
+     4.956,
+     2.3615
+    ],
+    [
+     3.43,
+     2.3615
+    ]
+   ],
+   "area_computed": 3.253,
+   "area_label": null,
+   "has_documented_furniture": false,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:40",
+     "text": "Bath+"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:45",
+     "text": "Toilet"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:51",
+     "text": "7' x 5'"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_001,w_L0_002,w_L0_009,w_L0_010"
+    }
+   ],
+   "label_size": {
+    "text": "7' x 5'",
+    "width_m": 2.1336,
+    "length_m": 1.524,
+    "measured": [
+     2.131,
+     1.526
+    ],
+    "status": "ok",
+    "off_pct": [
+     0.1,
+     -0.1
+    ]
+   }
+  },
+  {
+   "id": "r_L0_drawing_room",
+   "level_id": "L0",
+   "label": "Drawing Room",
+   "label_raw": "Drawing Room",
+   "room_type": "living",
+   "polygon": [
+    [
+     5.106,
+     0.23
+    ],
+    [
+     9.374,
+     0.23
+    ],
+    [
+     9.374,
+     4.575
+    ],
+    [
+     8.086,
+     4.575
+    ],
+    [
+     8.086,
+     4.4975
+    ],
+    [
+     5.106,
+     4.4975
+    ]
+   ],
+   "area_computed": 18.314,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:58",
+     "text": "Drawing Room"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:70",
+     "text": "14' x 14'"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_001,w_L0_006,w_L0_010,w_L0_011"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "derived",
+     "confidence": 0.8,
+     "entity": "separator:o_L0_004"
+    }
+   ],
+   "label_size": {
+    "text": "14' x 14'",
+    "width_m": 4.2672,
+    "length_m": 4.2672,
+    "measured": [
+     4.345,
+     4.268
+    ],
+    "status": "ok",
+    "off_pct": [
+     -1.8,
+     0.0
+    ]
+   }
+  },
+  {
+   "id": "r_L0_room",
+   "level_id": "L0",
+   "label": "Room",
+   "label_raw": null,
+   "room_type": "hall",
+   "polygon": [
+    [
+     3.43,
+     2.5165
+    ],
+    [
+     4.956,
+     2.5165
+    ],
+    [
+     4.956,
+     7.0905
+    ],
+    [
+     3.43,
+     7.0905
+    ]
+   ],
+   "area_computed": 6.98,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_002,w_L0_007,w_L0_009,w_L0_010"
+    }
+   ]
+  },
+  {
+   "id": "r_L0_pooja",
+   "level_id": "L0",
+   "label": "Pooja",
+   "label_raw": "Pooja",
+   "room_type": "prayer",
+   "polygon": [
+    [
+     9.604,
+     2.898
+    ],
+    [
+     11.0495,
+     2.898
+    ],
+    [
+     11.0495,
+     4.117
+    ],
+    [
+     9.604,
+     4.117
+    ]
+   ],
+   "area_computed": 1.762,
+   "area_label": null,
+   "has_documented_furniture": false,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:114",
+     "text": "Pooja"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:119",
+     "text": "4' x 4' 9\""
+    },
+    {
+     "file": "real01.pdf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_003,w_L0_005,w_L0_011,w_L0_012"
+    }
+   ],
+   "label_size": {
+    "text": "4' x 4' 9\"",
+    "width_m": 1.2192,
+    "length_m": 1.4478,
+    "measured": [
+     1.219,
+     1.446
+    ],
+    "status": "ok",
+    "off_pct": [
+     0.0,
+     0.2
+    ]
+   }
+  },
+  {
+   "id": "r_L0_store",
+   "level_id": "L0",
+   "label": "Store",
+   "label_raw": "Store",
+   "room_type": "storage",
+   "polygon": [
+    [
+     11.2045,
+     2.898
+    ],
+    [
+     12.727,
+     2.898
+    ],
+    [
+     12.727,
+     4.117
+    ],
+    [
+     11.2045,
+     4.117
+    ]
+   ],
+   "area_computed": 1.856,
+   "area_label": null,
+   "has_documented_furniture": false,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:129",
+     "text": "Store"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:134",
+     "text": "4' x 5'"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_003,w_L0_005,w_L0_012,w_L0_013"
+    }
+   ],
+   "label_size": {
+    "text": "4' x 5'",
+    "width_m": 1.2192,
+    "length_m": 1.524,
+    "measured": [
+     1.219,
+     1.523
+    ],
+    "status": "ok",
+    "off_pct": [
+     0.0,
+     0.1
+    ]
+   }
+  },
+  {
+   "id": "r_L0_bed_room_2",
+   "level_id": "L0",
+   "label": "Bed Room",
+   "label_raw": "Bed Room",
+   "room_type": "bedroom",
+   "polygon": [
+    [
+     0.23,
+     3.735
+    ],
+    [
+     3.28,
+     3.735
+    ],
+    [
+     3.28,
+     7.0905
+    ],
+    [
+     0.23,
+     7.0905
+    ]
+   ],
+   "area_computed": 10.234,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:6",
+     "text": "Bed Room"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:14",
+     "text": "11' x 10'"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_004,w_L0_007,w_L0_008,w_L0_009"
+    }
+   ],
+   "label_size": {
+    "text": "11' x 10'",
+    "width_m": 3.3528,
+    "length_m": 3.048,
+    "measured": [
+     3.355,
+     3.05
+    ],
+    "status": "ok",
+    "off_pct": [
+     -0.1,
+     -0.1
+    ]
+   }
+  },
+  {
+   "id": "r_L0_kitchen",
+   "level_id": "L0",
+   "label": "Kitchen",
+   "label_raw": "Kitchen",
+   "room_type": "kitchen",
+   "polygon": [
+    [
+     9.604,
+     4.267
+    ],
+    [
+     12.727,
+     4.267
+    ],
+    [
+     12.727,
+     7.0905
+    ],
+    [
+     9.604,
+     7.0905
+    ]
+   ],
+   "area_computed": 8.818,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:93",
+     "text": "Kitchen"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:100",
+     "text": "9' 3\" x 10' 3\""
+    },
+    {
+     "file": "real01.pdf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_005,w_L0_007,w_L0_011,w_L0_013"
+    }
+   ],
+   "label_size": {
+    "text": "9' 3\" x 10' 3\"",
+    "width_m": 2.8194,
+    "length_m": 3.1242,
+    "measured": [
+     2.823,
+     3.123
+    ],
+    "status": "ok",
+    "off_pct": [
+     -0.1,
+     0.0
+    ]
+   }
+  },
+  {
+   "id": "r_L0_dining",
+   "level_id": "L0",
+   "label": "Dining",
+   "label_raw": "Dining",
+   "room_type": "dining",
+   "polygon": [
+    [
+     5.106,
+     4.6525
+    ],
+    [
+     8.086,
+     4.6525
+    ],
+    [
+     8.086,
+     4.575
+    ],
+    [
+     9.374,
+     4.575
+    ],
+    [
+     9.374,
+     7.0905
+    ],
+    [
+     5.106,
+     7.0905
+    ]
+   ],
+   "area_computed": 10.505,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:79",
+     "text": "Dining"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:85",
+     "text": "14' x 8'"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_006,w_L0_007,w_L0_010,w_L0_011"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "derived",
+     "confidence": 0.8,
+     "entity": "separator:o_L0_004"
+    }
+   ],
+   "label_size": {
+    "text": "14' x 8'",
+    "width_m": 4.2672,
+    "length_m": 2.4384,
+    "measured": [
+     4.268,
+     2.515
+    ],
+    "status": "ok",
+    "off_pct": [
+     0.0,
+     -3.1
+    ]
+   }
+  }
+ ],
+ "furniture": [
+  {
+   "id": "f_L0_001",
+   "level_id": "L0",
+   "room_id": "r_L0_kitchen",
+   "type": "kitchen_counter",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     12.4226,
+     5.9821
+    ],
+    "size": [
+     0.9912,
+     0.6087
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:kitchen_counter",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     0.9912,
+     0.6087,
+     0.9
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type kitchen_counter is parametric in the catalogue",
+    "cap": 1.15,
+    "style_family": null,
+    "excluded": []
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "path:9047-9048,path:11513,path:36864",
+     "note": "kitchen counter rule: chained legs between wall faces"
+    }
+   ],
+   "type_method": "rule",
+   "type_candidates": [],
+   "build": true,
+   "counter_run": {
+    "wall_id": "w_L0_013",
+    "strokes": [
+     "path:9047",
+     "path:9048",
+     "path:11513",
+     "path:36864"
+    ]
+   }
+  },
+  {
+   "id": "f_L0_002",
+   "level_id": "L0",
+   "room_id": "r_L0_kitchen",
+   "type": "kitchen_counter",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     11.4432,
+     6.7841
+    ],
+    "size": [
+     2.5676,
+     0.6128
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:kitchen_counter",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     2.5676,
+     0.6128,
+     0.9
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type kitchen_counter is parametric in the catalogue",
+    "cap": 1.15,
+    "style_family": null,
+    "excluded": []
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "path:9047-9048,path:11513,path:36864",
+     "note": "kitchen counter rule: chained legs between wall faces"
+    }
+   ],
+   "type_method": "rule",
+   "type_candidates": [],
+   "build": true,
+   "counter_run": {
+    "wall_id": "w_L0_007",
+    "strokes": [
+     "path:9047",
+     "path:9048",
+     "path:11513",
+     "path:36864"
+    ]
+   }
+  },
+  {
+   "id": "f_L0_003",
+   "level_id": "L0",
+   "room_id": "r_L0_room",
+   "type": "stair",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     4.1929,
+     5.8703
+    ],
+    "size": [
+     2.4384,
+     1.5265
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:stair",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     2.4384,
+     1.5265,
+     3.17
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type stair is parametric in the catalogue",
+    "cap": 1.15,
+    "style_family": null,
+    "excluded": []
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "path:11494,path:11517-11524,path:11529-11536",
+     "note": "stair rule: 2 flight(s), 8, 8 tread lines"
+    }
+   ],
+   "type_method": "rule",
+   "type_candidates": [],
+   "build": true,
+   "stair": {
+    "flights": [
+     {
+      "start": [
+       3.8103,
+       4.6512
+      ],
+      "end": [
+       3.8103,
+       6.4277
+      ],
+      "width": 0.7614,
+      "lines": 8,
+      "spacing": 0.253
+     },
+     {
+      "start": [
+       4.5736,
+       4.6512
+      ],
+      "end": [
+       4.5736,
+       6.4277
+      ],
+      "width": 0.7651,
+      "lines": 8,
+      "spacing": 0.253
+     }
+    ],
+    "landing": {
+     "polygon": [
+      [
+       3.4296,
+       6.4277
+      ],
+      [
+       4.9561,
+       6.4277
+      ],
+      [
+       4.9561,
+       7.0895
+      ],
+      [
+       3.4296,
+       7.0895
+      ]
+     ],
+     "depth": 0.6618
+    },
+    "direction": [
+     0.0,
+     1.0
+    ],
+    "direction_assumed": true,
+    "turn": "U",
+    "turn_assumed": true,
+    "void_assumed": true,
+    "riser_m": null,
+    "riser_source": null,
+    "reason": "no UP arrow, break line or riser text drawn: rise direction and flight order are assumed; two side-by-side flights read as a U-turn (dog-leg) stair"
+   }
+  },
+  {
+   "id": "f_L0_004",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room_2",
+   "type": "bed_double",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     1.7957,
+     6.0659
+    ],
+    "size": [
+     1.7795,
+     2.0295
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B08FTN8KHY",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.9465,
+     0.9949,
+     0.9707
+    ],
+    "bbox_m": [
+     1.7795,
+     2.0295,
+     0.9125
+    ],
+    "aspect_error": 0.0498,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0013,
+     0.0,
+     0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "abo_B08FTN8KHY",
+      "aspect_error": 0.0498,
+      "scale": [
+       0.9465,
+       0.9949,
+       0.9707
+      ],
+      "non_uniform": 1.051,
+      "mean_scale": 0.9707,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.0293,
+      "size_bucket": 0,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "modern minimal",
+     "industrial"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": [
+     4,
+     4
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.029 (step 0)",
+      "quality 3",
+      "aspect error 0.050",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B08FTN8KHY.glb",
+    "sha256_glb": "607d9d70257447c3b5f8dac6b35f36e567c9060a28bf81ad16ce10ba414d6f58",
+    "uid": "abo_B08FTN8KHY",
+    "title": "Amazon Brand - Solimo Senna Metal Glossy King Bed (Black)",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B08FTN8KHY",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand - Solimo Senna Metal Glossy King Bed (Black)\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Contemporary",
+    "name": "Amazon Brand - Solimo Senna Metal Glossy King Bed (Black)",
+    "unit_scale": 1.0
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "path:16617-16637,path:16644-16645,path:16826-16842,path:16849-16853,path:16855,path:16857,path:16866-16871"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_001",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "bed_double",
+     "front": "bottom",
+     "reason": "The object has a wide rectangular footprint with a headboard line, matching a double bed's typical plan view."
+    },
+    {
+     "file": "real01.pdf",
+     "method": "ai",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "recognition:sym_L0_001",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "bed_double",
+     "front": "top",
+     "reason": "The object has a rectangular shape with a headboard area and matches the size and typical appearance of a double bed."
+    }
+   ],
+   "type_method": "ai_two_pass",
+   "type_candidates": [
+    {
+     "type": "bed_double",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "bottom",
+     "reason": "The object has a wide rectangular footprint with a headboard line, matching a double bed's typical plan view."
+    },
+    {
+     "type": "bed_double",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 1.0,
+     "front": "top",
+     "reason": "The object has a rectangular shape with a headboard area and matches the size and typical appearance of a double bed."
+    }
+   ],
+   "build": true
+  },
+  {
+   "id": "f_L0_005",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room_2",
+   "type": "nightstand",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     2.9333,
+     6.8358
+    ],
+    "size": [
+     0.4956,
+     0.4868
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "painted_wooden_nightstand",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.9822,
+     0.9569,
+     0.9696
+    ],
+    "bbox_m": [
+     0.4956,
+     0.4868,
+     0.5968
+    ],
+    "aspect_error": 0.026,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0011,
+     -0.0052,
+     -0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "painted_wooden_nightstand",
+      "aspect_error": 0.026,
+      "scale": [
+       0.9822,
+       0.9569,
+       0.9696
+      ],
+      "non_uniform": 1.0263,
+      "mean_scale": 0.9696,
+      "accepted": true,
+      "rank": 1,
+      "source": "polyhaven",
+      "units_known": true,
+      "size_error": 0.0304,
+      "size_bucket": 0,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "rustic"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": null,
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.030 (step 0)",
+      "quality 3",
+      "aspect error 0.026",
+      "source polyhaven"
+     ],
+     "passed_over": []
+    },
+    "gltf": "models/painted_wooden_nightstand/painted_wooden_nightstand_1k.gltf"
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "path:16638-16643,path:16646-16826"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_002",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "nightstand",
+     "front": "left",
+     "reason": "Object has a small rectangular footprint with a lamp symbol, typical of a nightstand beside a bed."
+    },
+    {
+     "file": "real01.pdf",
+     "method": "ai",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "recognition:sym_L0_002",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "nightstand",
+     "front": "right",
+     "reason": "The object has a telephone and a lamp symbol, typical for a nightstand."
+    }
+   ],
+   "type_method": "ai_two_pass",
+   "type_candidates": [
+    {
+     "type": "nightstand",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "left",
+     "reason": "Object has a small rectangular footprint with a lamp symbol, typical of a nightstand beside a bed."
+    },
+    {
+     "type": "nightstand",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "right",
+     "reason": "The object has a telephone and a lamp symbol, typical for a nightstand."
+    }
+   ],
+   "build": true
+  },
+  {
+   "id": "f_L0_006",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room_2",
+   "type": "nightstand",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     0.6596,
+     6.8623
+    ],
+    "size": [
+     0.4456,
+     0.4956
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": null,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "painted_wooden_nightstand",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.8831,
+     0.9742,
+     0.9287
+    ],
+    "bbox_m": [
+     0.4456,
+     0.4956,
+     0.5716
+    ],
+    "aspect_error": 0.0983,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0011,
+     -0.0052,
+     -0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "painted_wooden_nightstand",
+      "aspect_error": 0.0983,
+      "scale": [
+       0.8831,
+       0.9742,
+       0.9287
+      ],
+      "non_uniform": 1.1032,
+      "mean_scale": 0.9287,
+      "accepted": true,
+      "rank": 1,
+      "source": "polyhaven",
+      "units_known": true,
+      "size_error": 0.0713,
+      "size_bucket": 1,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "rustic"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": null,
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.071 (step 1)",
+      "quality 3",
+      "aspect error 0.098",
+      "source polyhaven"
+     ],
+     "passed_over": []
+    },
+    "gltf": "models/painted_wooden_nightstand/painted_wooden_nightstand_1k.gltf"
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "path:16843-16848,path:16854,path:16856,path:16858-16865"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_003",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "nightstand",
+     "front": "left",
+     "reason": "The object's shape and size match a nightstand, and it's in a bedroom near a bed."
+    },
+    {
+     "file": "real01.pdf",
+     "method": "ai",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "recognition:sym_L0_003",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "nightstand",
+     "front": "left",
+     "reason": "The object's footprint and the lamp symbol match a nightstand in a bedroom."
+    }
+   ],
+   "type_method": "ai_two_pass",
+   "type_candidates": [
+    {
+     "type": "nightstand",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "left",
+     "reason": "The object's shape and size match a nightstand, and it's in a bedroom near a bed."
+    },
+    {
+     "type": "nightstand",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "left",
+     "reason": "The object's footprint and the lamp symbol match a nightstand in a bedroom."
+    }
+   ],
+   "build": true
+  },
+  {
+   "id": "f_L0_007",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room",
+   "type": "bed_double",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     1.7486,
+     1.2951
+    ],
+    "size": [
+     1.7795,
+     2.0295
+    ],
+    "rotation_deg": 180.0
+   },
+   "front_deg": 90.0,
+   "height": null,
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B08FTN8KHY",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.9465,
+     0.9949,
+     0.9707
+    ],
+    "bbox_m": [
+     1.7795,
+     2.0295,
+     0.9125
+    ],
+    "aspect_error": 0.0498,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0013,
+     0.0,
+     0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "abo_B08FTN8KHY",
+      "aspect_error": 0.0498,
+      "scale": [
+       0.9465,
+       0.9949,
+       0.9707
+      ],
+      "non_uniform": 1.051,
+      "mean_scale": 0.9707,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.0293,
+      "size_bucket": 0,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "modern minimal",
+     "industrial"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": [
+     4,
+     4
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.029 (step 0)",
+      "quality 3",
+      "aspect error 0.050",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B08FTN8KHY.glb",
+    "sha256_glb": "607d9d70257447c3b5f8dac6b35f36e567c9060a28bf81ad16ce10ba414d6f58",
+    "uid": "abo_B08FTN8KHY",
+    "title": "Amazon Brand - Solimo Senna Metal Glossy King Bed (Black)",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B08FTN8KHY",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand - Solimo Senna Metal Glossy King Bed (Black)\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Contemporary",
+    "name": "Amazon Brand - Solimo Senna Metal Glossy King Bed (Black)",
+    "unit_scale": 1.0
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "path:16872-16892,path:16899-16900,path:17082-17097,path:17104-17108,path:17110,path:17112,path:17121-17126"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_004",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "bed_double",
+     "front": "bottom",
+     "reason": "The object is a wide rectangle with a headboard line, matching a double bed footprint and orientation."
+    },
+    {
+     "file": "real01.pdf",
+     "method": "ai",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "recognition:sym_L0_004",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "bed_double",
+     "front": "top",
+     "reason": "The object's footprint and headboard lines match a bed_double."
+    }
+   ],
+   "type_method": "ai_two_pass",
+   "type_candidates": [
+    {
+     "type": "bed_double",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "bottom",
+     "reason": "The object is a wide rectangle with a headboard line, matching a double bed footprint and orientation."
+    },
+    {
+     "type": "bed_double",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "top",
+     "reason": "The object's footprint and headboard lines match a bed_double."
+    }
+   ],
+   "build": true
+  },
+  {
+   "id": "f_L0_008",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room",
+   "type": "nightstand",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     0.6125,
+     0.523
+    ],
+    "size": [
+     0.4956,
+     0.4853
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "painted_wooden_nightstand",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.9822,
+     0.954,
+     0.9681
+    ],
+    "bbox_m": [
+     0.4956,
+     0.4853,
+     0.5959
+    ],
+    "aspect_error": 0.0291,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0011,
+     -0.0052,
+     -0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "painted_wooden_nightstand",
+      "aspect_error": 0.0291,
+      "scale": [
+       0.9822,
+       0.954,
+       0.9681
+      ],
+      "non_uniform": 1.0295,
+      "mean_scale": 0.9681,
+      "accepted": true,
+      "rank": 1,
+      "source": "polyhaven",
+      "units_known": true,
+      "size_error": 0.0319,
+      "size_bucket": 0,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "rustic"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": null,
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.032 (step 0)",
+      "quality 3",
+      "aspect error 0.029",
+      "source polyhaven"
+     ],
+     "passed_over": []
+    },
+    "gltf": "models/painted_wooden_nightstand/painted_wooden_nightstand_1k.gltf"
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "path:16893-16898,path:16901-17081"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_005",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "nightstand",
+     "front": "right",
+     "reason": "Object is small, rectangular, with a lamp symbol on it, typical of a nightstand beside a bed."
+    },
+    {
+     "file": "real01.pdf",
+     "method": "ai",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "recognition:sym_L0_005",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "nightstand",
+     "front": "left",
+     "reason": "The object has a footprint of about 0.5x0.49 m, a lamp symbol on top, and is drawn inside a bedroom, matching the description of a nightstand."
+    }
+   ],
+   "type_method": "ai_two_pass",
+   "type_candidates": [
+    {
+     "type": "nightstand",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "right",
+     "reason": "Object is small, rectangular, with a lamp symbol on it, typical of a nightstand beside a bed."
+    },
+    {
+     "type": "nightstand",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "left",
+     "reason": "The object has a footprint of about 0.5x0.49 m, a lamp symbol on top, and is drawn inside a bedroom, matching the description of a nightstand."
+    }
+   ],
+   "build": true
+  },
+  {
+   "id": "f_L0_009",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room",
+   "type": "nightstand",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     2.8862,
+     0.5002
+    ],
+    "size": [
+     0.4956,
+     0.4456
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B084MYDTKM",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     1.084,
+     1.0965,
+     1.0902
+    ],
+    "bbox_m": [
+     0.4956,
+     0.4456,
+     0.6092
+    ],
+    "aspect_error": 0.0114,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     -0.0016,
+     0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "abo_B084MYDTKM",
+      "aspect_error": 0.0114,
+      "scale": [
+       1.084,
+       1.0965,
+       1.0902
+      ],
+      "non_uniform": 1.0115,
+      "mean_scale": 1.0902,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.0902,
+      "size_bucket": 1,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "rustic"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": [
+     5,
+     5
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.090 (step 1)",
+      "quality 3",
+      "aspect error 0.011",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B084MYDTKM.glb",
+    "sha256_glb": "0ffb75ec05453918ab9b1ad2a814782bccb12ad64b4c6009ac28405dec1a4ce0",
+    "uid": "abo_B084MYDTKM",
+    "title": "Amazon Brand - Rivet Mango Wood and Iron 3-Drawer Shutter Nightstand, 18\"W, Natural Finish",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B084MYDTKM",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand - Rivet Mango Wood and Iron 3-Drawer Shutter Nightstand, 18\"W, Natural Finish\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "midd Century modern",
+    "name": "Amazon Brand - Rivet Mango Wood and Iron 3-Drawer Shutter Nightstand, 18\"W, Natural Finish",
+    "unit_scale": 1.0
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "path:17098-17103,path:17109,path:17111,path:17113-17120"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_006",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "nightstand",
+     "front": "left",
+     "reason": "The object has a lamp symbol (cross) on it, typical for a nightstand beside a bed in a bedroom."
+    },
+    {
+     "file": "real01.pdf",
+     "method": "ai",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "recognition:sym_L0_006",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "nightstand",
+     "front": "right",
+     "reason": "The object's footprint and the small symbol (lamp) match a nightstand."
+    }
+   ],
+   "type_method": "ai_two_pass",
+   "type_candidates": [
+    {
+     "type": "nightstand",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "left",
+     "reason": "The object has a lamp symbol (cross) on it, typical for a nightstand beside a bed in a bedroom."
+    },
+    {
+     "type": "nightstand",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "right",
+     "reason": "The object's footprint and the small symbol (lamp) match a nightstand."
+    }
+   ],
+   "build": true
+  },
+  {
+   "id": "f_L0_010",
+   "level_id": "L0",
+   "room_id": "r_L0_dining",
+   "type": "table_dining",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     6.4974,
+     5.8909
+    ],
+    "size": [
+     1.2383,
+     0.7353
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B07RT5JN33",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     1.0276,
+     1.0298,
+     1.0287
+    ],
+    "bbox_m": [
+     1.2383,
+     0.7353,
+     0.7818
+    ],
+    "aspect_error": 0.0021,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "low",
+    "candidates": [
+     {
+      "id": "abo_B07RT5JN33",
+      "aspect_error": 0.0021,
+      "scale": [
+       1.0276,
+       1.0298,
+       1.0287
+      ],
+      "non_uniform": 1.0021,
+      "mean_scale": 1.0287,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.0287,
+      "size_bucket": 0,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "modern minimal",
+     "industrial"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": [
+     5,
+     5
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.029 (step 0)",
+      "quality 3",
+      "aspect error 0.002",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B07RT5JN33.glb",
+    "sha256_glb": "ba150f05f73b72f507164ceaa759046c2e28ddfa2e757c4f5611f69bf50196ec",
+    "uid": "abo_B07RT5JN33",
+    "title": "Amazon Brand Movian Kyyvesi Dining Table 120.5 x 71.4 x 76 cm Walnut Effect",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07RT5JN33",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand Movian Kyyvesi Dining Table 120.5 x 71.4 x 76 cm Walnut Effect\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": null,
+    "name": "Amazon Brand Movian Kyyvesi Dining Table 120.5 x 71.4 x 76 cm Walnut Effect",
+    "unit_scale": 1.0
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "path:17133-17134,path:17147,path:17930"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_007",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "table_dining",
+     "front": "top",
+     "reason": "Rectangular shape, surrounded by chairs, in dining room, matches dining table dimensions."
+    },
+    {
+     "file": "real01.pdf",
+     "method": "ai",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "recognition:sym_L0_007",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "table_dining",
+     "front": "none",
+     "reason": "The object is a large rectangle with chairs around it, matching the dining table description."
+    }
+   ],
+   "type_method": "ai_two_pass",
+   "type_candidates": [
+    {
+     "type": "table_dining",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "top",
+     "reason": "Rectangular shape, surrounded by chairs, in dining room, matches dining table dimensions."
+    },
+    {
+     "type": "table_dining",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "none",
+     "reason": "The object is a large rectangle with chairs around it, matching the dining table description."
+    }
+   ],
+   "build": true
+  },
+  {
+   "id": "f_L0_011",
+   "level_id": "L0",
+   "room_id": "r_L0_dining",
+   "type": "chair",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     6.5003,
+     5.0438
+    ],
+    "size": [
+     0.3824,
+     0.4618
+    ],
+    "rotation_deg": 180.0
+   },
+   "front_deg": 90.0,
+   "height": null,
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B0857JLP6K",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.8505,
+     0.8459,
+     0.8482
+    ],
+    "bbox_m": [
+     0.3824,
+     0.4618,
+     0.8404
+    ],
+    "aspect_error": 0.0054,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0001,
+     0.0386,
+     0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "abo_B0857JLP6K",
+      "aspect_error": 0.0054,
+      "scale": [
+       0.8505,
+       0.8459,
+       0.8482
+      ],
+      "non_uniform": 1.0054,
+      "mean_scale": 0.8482,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.1518,
+      "size_bucket": 3,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "minimal",
+     "industrial"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": [
+     4,
+     5
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.152 (step 3)",
+      "quality 3",
+      "aspect error 0.005",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B0857JLP6K.glb",
+    "sha256_glb": "84a1b59b64332354d1cc5690e1a9259590fc79d43c80f0e0ee2aece6527ef31f",
+    "uid": "abo_B0857JLP6K",
+    "title": "Amazon Brand – Stone & Beam Modern Farmhouse Birch Dining Chair, 17.5\"W, Dark Gray",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B0857JLP6K",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Stone & Beam Modern Farmhouse Birch Dining Chair, 17.5\"W, Dark Gray\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Classic",
+    "name": "Amazon Brand – Stone & Beam Modern Farmhouse Birch Dining Chair, 17.5\"W, Dark Gray",
+    "unit_scale": 1.0
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "path:17723-17917"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_008",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "chair",
+     "front": "bottom",
+     "reason": "The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a dining table."
+    },
+    {
+     "file": "real01.pdf",
+     "method": "ai",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "recognition:sym_L0_008",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "chair",
+     "front": "top",
+     "reason": "The object has a seat and backrest, typical of a dining chair, and is drawn around a table in a dining room."
+    }
+   ],
+   "type_method": "ai_two_pass",
+   "type_candidates": [
+    {
+     "type": "chair",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "bottom",
+     "reason": "The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a dining table."
+    },
+    {
+     "type": "chair",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "top",
+     "reason": "The object has a seat and backrest, typical of a dining chair, and is drawn around a table in a dining room."
+    }
+   ],
+   "build": true
+  },
+  {
+   "id": "f_L0_012",
+   "level_id": "L0",
+   "room_id": "r_L0_dining",
+   "type": "chair",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     6.5003,
+     6.741
+    ],
+    "size": [
+     0.3824,
+     0.4618
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B0857JLP6K",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.8505,
+     0.8459,
+     0.8482
+    ],
+    "bbox_m": [
+     0.3824,
+     0.4618,
+     0.8404
+    ],
+    "aspect_error": 0.0054,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0001,
+     0.0386,
+     0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "abo_B0857JLP6K",
+      "aspect_error": 0.0054,
+      "scale": [
+       0.8505,
+       0.8459,
+       0.8482
+      ],
+      "non_uniform": 1.0054,
+      "mean_scale": 0.8482,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.1518,
+      "size_bucket": 3,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "minimal",
+     "industrial"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": [
+     4,
+     5
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.152 (step 3)",
+      "quality 3",
+      "aspect error 0.005",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B0857JLP6K.glb",
+    "sha256_glb": "84a1b59b64332354d1cc5690e1a9259590fc79d43c80f0e0ee2aece6527ef31f",
+    "uid": "abo_B0857JLP6K",
+    "title": "Amazon Brand – Stone & Beam Modern Farmhouse Birch Dining Chair, 17.5\"W, Dark Gray",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B0857JLP6K",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Stone & Beam Modern Farmhouse Birch Dining Chair, 17.5\"W, Dark Gray\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Classic",
+    "name": "Amazon Brand – Stone & Beam Modern Farmhouse Birch Dining Chair, 17.5\"W, Dark Gray",
+    "unit_scale": 1.0
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "path:17511-17706"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_009",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "chair",
+     "front": "top",
+     "reason": "The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a table in a dining room."
+    },
+    {
+     "file": "real01.pdf",
+     "method": "ai",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "recognition:sym_L0_009",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "chair",
+     "front": "top",
+     "reason": "The object has a seat and backrest, typical of a dining chair, and matches the size and arrangement of chairs around a table."
+    }
+   ],
+   "type_method": "ai_two_pass",
+   "type_candidates": [
+    {
+     "type": "chair",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "top",
+     "reason": "The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a table in a dining room."
+    },
+    {
+     "type": "chair",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "top",
+     "reason": "The object has a seat and backrest, typical of a dining chair, and matches the size and arrangement of chairs around a table."
+    }
+   ],
+   "build": true
+  },
+  {
+   "id": "f_L0_013",
+   "level_id": "L0",
+   "room_id": "r_L0_dining",
+   "type": "chair",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     5.9018,
+     5.5718
+    ],
+    "size": [
+     0.3824,
+     0.4618
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": null,
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B0857JLP6K",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.8505,
+     0.8459,
+     0.8482
+    ],
+    "bbox_m": [
+     0.3824,
+     0.4618,
+     0.8404
+    ],
+    "aspect_error": 0.0054,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0001,
+     0.0386,
+     0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "abo_B0857JLP6K",
+      "aspect_error": 0.0054,
+      "scale": [
+       0.8505,
+       0.8459,
+       0.8482
+      ],
+      "non_uniform": 1.0054,
+      "mean_scale": 0.8482,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.1518,
+      "size_bucket": 3,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "minimal",
+     "industrial"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": [
+     4,
+     5
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.152 (step 3)",
+      "quality 3",
+      "aspect error 0.005",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B0857JLP6K.glb",
+    "sha256_glb": "84a1b59b64332354d1cc5690e1a9259590fc79d43c80f0e0ee2aece6527ef31f",
+    "uid": "abo_B0857JLP6K",
+    "title": "Amazon Brand – Stone & Beam Modern Farmhouse Birch Dining Chair, 17.5\"W, Dark Gray",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B0857JLP6K",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Stone & Beam Modern Farmhouse Birch Dining Chair, 17.5\"W, Dark Gray\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Classic",
+    "name": "Amazon Brand – Stone & Beam Modern Farmhouse Birch Dining Chair, 17.5\"W, Dark Gray",
+    "unit_scale": 1.0
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "path:17918-17929,path:17931-18098,path:18295-18310"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_010",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "chair",
+     "front": "right",
+     "reason": "The object's shape and size match a dining chair, placed around a table in a dining room."
+    },
+    {
+     "file": "real01.pdf",
+     "method": "ai",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "recognition:sym_L0_010",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "chair",
+     "front": "left",
+     "reason": "Small seat with backrest line, around a table in a dining room."
+    }
+   ],
+   "type_method": "ai_two_pass",
+   "type_candidates": [
+    {
+     "type": "chair",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "right",
+     "reason": "The object's shape and size match a dining chair, placed around a table in a dining room."
+    },
+    {
+     "type": "chair",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "left",
+     "reason": "Small seat with backrest line, around a table in a dining room."
+    }
+   ],
+   "build": true
+  },
+  {
+   "id": "f_L0_014",
+   "level_id": "L0",
+   "room_id": "r_L0_dining",
+   "type": "chair",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     5.9018,
+     6.2115
+    ],
+    "size": [
+     0.3794,
+     0.4618
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": null,
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B0857JLP6K",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.8439,
+     0.8459,
+     0.8449
+    ],
+    "bbox_m": [
+     0.3794,
+     0.4618,
+     0.8371
+    ],
+    "aspect_error": 0.0025,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0001,
+     0.0386,
+     0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "abo_B0857JLP6K",
+      "aspect_error": 0.0025,
+      "scale": [
+       0.8439,
+       0.8459,
+       0.8449
+      ],
+      "non_uniform": 1.0025,
+      "mean_scale": 0.8449,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.1551,
+      "size_bucket": 3,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "minimal",
+     "industrial"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": [
+     4,
+     5
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.155 (step 3)",
+      "quality 3",
+      "aspect error 0.003",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B0857JLP6K.glb",
+    "sha256_glb": "84a1b59b64332354d1cc5690e1a9259590fc79d43c80f0e0ee2aece6527ef31f",
+    "uid": "abo_B0857JLP6K",
+    "title": "Amazon Brand – Stone & Beam Modern Farmhouse Birch Dining Chair, 17.5\"W, Dark Gray",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B0857JLP6K",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Stone & Beam Modern Farmhouse Birch Dining Chair, 17.5\"W, Dark Gray\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Classic",
+    "name": "Amazon Brand – Stone & Beam Modern Farmhouse Birch Dining Chair, 17.5\"W, Dark Gray",
+    "unit_scale": 1.0
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "path:18099-18294"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_011",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "chair",
+     "front": "right",
+     "reason": "The object's shape and size match a dining chair, placed around a table in a dining room."
+    },
+    {
+     "file": "real01.pdf",
+     "method": "ai",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "recognition:sym_L0_011",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "chair",
+     "front": "left",
+     "reason": "The object has a seat and a backrest, typical of a dining chair, and matches the size and context of other dining chairs around a table."
+    }
+   ],
+   "type_method": "ai_two_pass",
+   "type_candidates": [
+    {
+     "type": "chair",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "right",
+     "reason": "The object's shape and size match a dining chair, placed around a table in a dining room."
+    },
+    {
+     "type": "chair",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 1.0,
+     "front": "left",
+     "reason": "The object has a seat and a backrest, typical of a dining chair, and matches the size and context of other dining chairs around a table."
+    }
+   ],
+   "build": true
+  },
+  {
+   "id": "f_L0_015",
+   "level_id": "L0",
+   "room_id": "r_L0_dining",
+   "type": "chair",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     7.0974,
+     5.5718
+    ],
+    "size": [
+     0.3824,
+     0.4647
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": null,
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B0857JLP6K",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.8505,
+     0.8513,
+     0.8509
+    ],
+    "bbox_m": [
+     0.3824,
+     0.4647,
+     0.8431
+    ],
+    "aspect_error": 0.0008,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0001,
+     0.0386,
+     0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "abo_B0857JLP6K",
+      "aspect_error": 0.0008,
+      "scale": [
+       0.8505,
+       0.8513,
+       0.8509
+      ],
+      "non_uniform": 1.0008,
+      "mean_scale": 0.8509,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.1491,
+      "size_bucket": 2,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "minimal",
+     "industrial"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": [
+     4,
+     5
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.149 (step 2)",
+      "quality 3",
+      "aspect error 0.001",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B0857JLP6K.glb",
+    "sha256_glb": "84a1b59b64332354d1cc5690e1a9259590fc79d43c80f0e0ee2aece6527ef31f",
+    "uid": "abo_B0857JLP6K",
+    "title": "Amazon Brand – Stone & Beam Modern Farmhouse Birch Dining Chair, 17.5\"W, Dark Gray",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B0857JLP6K",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Stone & Beam Modern Farmhouse Birch Dining Chair, 17.5\"W, Dark Gray\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Classic",
+    "name": "Amazon Brand – Stone & Beam Modern Farmhouse Birch Dining Chair, 17.5\"W, Dark Gray",
+    "unit_scale": 1.0
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "path:17135-17146,path:17148-17315,path:17707-17722"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_012",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "chair",
+     "front": "right",
+     "reason": "The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a dining table."
+    },
+    {
+     "file": "real01.pdf",
+     "method": "ai",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "recognition:sym_L0_012",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "chair",
+     "front": "right",
+     "reason": "The object has a seat and a backrest, typical of a dining chair, and matches the size and shape of other chairs around a table."
+    }
+   ],
+   "type_method": "ai_two_pass",
+   "type_candidates": [
+    {
+     "type": "chair",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "right",
+     "reason": "The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a dining table."
+    },
+    {
+     "type": "chair",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "right",
+     "reason": "The object has a seat and a backrest, typical of a dining chair, and matches the size and shape of other chairs around a table."
+    }
+   ],
+   "build": true
+  },
+  {
+   "id": "f_L0_016",
+   "level_id": "L0",
+   "room_id": "r_L0_dining",
+   "type": "chair",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     7.0974,
+     6.2115
+    ],
+    "size": [
+     0.3794,
+     0.4647
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": null,
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B0857JLP6K",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.8439,
+     0.8513,
+     0.8476
+    ],
+    "bbox_m": [
+     0.3794,
+     0.4647,
+     0.8398
+    ],
+    "aspect_error": 0.0087,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0001,
+     0.0386,
+     0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "abo_B0857JLP6K",
+      "aspect_error": 0.0087,
+      "scale": [
+       0.8439,
+       0.8513,
+       0.8476
+      ],
+      "non_uniform": 1.0088,
+      "mean_scale": 0.8476,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.1524,
+      "size_bucket": 3,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "minimal",
+     "industrial"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": [
+     4,
+     5
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.152 (step 3)",
+      "quality 3",
+      "aspect error 0.009",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B0857JLP6K.glb",
+    "sha256_glb": "84a1b59b64332354d1cc5690e1a9259590fc79d43c80f0e0ee2aece6527ef31f",
+    "uid": "abo_B0857JLP6K",
+    "title": "Amazon Brand – Stone & Beam Modern Farmhouse Birch Dining Chair, 17.5\"W, Dark Gray",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B0857JLP6K",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Stone & Beam Modern Farmhouse Birch Dining Chair, 17.5\"W, Dark Gray\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Classic",
+    "name": "Amazon Brand – Stone & Beam Modern Farmhouse Birch Dining Chair, 17.5\"W, Dark Gray",
+    "unit_scale": 1.0
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "path:17316-17510"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_013",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "chair",
+     "front": "right",
+     "reason": "The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a dining table."
+    },
+    {
+     "file": "real01.pdf",
+     "method": "ai",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "recognition:sym_L0_013",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "chair",
+     "front": "right",
+     "reason": "The object has a seat and a backrest, typical of a dining chair, and matches the size and context of other chairs around a table."
+    }
+   ],
+   "type_method": "ai_two_pass",
+   "type_candidates": [
+    {
+     "type": "chair",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "right",
+     "reason": "The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a dining table."
+    },
+    {
+     "type": "chair",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "right",
+     "reason": "The object has a seat and a backrest, typical of a dining chair, and matches the size and context of other chairs around a table."
+    }
+   ],
+   "build": true
+  },
+  {
+   "id": "f_L0_017",
+   "level_id": "L0",
+   "room_id": "r_L0_drawing_room",
+   "type": "sofa",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     6.5268,
+     0.7626
+    ],
+    "size": [
+     1.8942,
+     0.7056
+    ],
+    "rotation_deg": 180.0
+   },
+   "front_deg": 90.0,
+   "height": null,
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B075X2X4GY",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.9561,
+     1.0289,
+     0.9925
+    ],
+    "bbox_m": [
+     1.8942,
+     0.7056,
+     0.6302
+    ],
+    "aspect_error": 0.0734,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "abo_B075X2X4GY",
+      "aspect_error": 0.0734,
+      "scale": [
+       0.9561,
+       1.0289,
+       0.9925
+      ],
+      "non_uniform": 1.0761,
+      "mean_scale": 0.9925,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.0268,
+      "size_bucket": 0,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "modern minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": [
+     4,
+     5
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.027 (step 0)",
+      "quality 3",
+      "aspect error 0.073",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B075X2X4GY.glb",
+    "sha256_glb": "cd783a15bd45b13d85bbeefc07fbc0359fa22f580746a817c5f5ba6e174f4b5f",
+    "uid": "abo_B075X2X4GY",
+    "title": "Amazon Brand – Rivet Uptown Mid-Century Velvet Tufted Customizable Daybed Sofa, 78\"W, Dove Grey &amp; Brass",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B075X2X4GY",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Rivet Uptown Mid-Century Velvet Tufted Customizable Daybed Sofa, 78\"W, Dove Grey &amp; Brass\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Brass",
+    "name": "Amazon Brand – Rivet Uptown Mid-Century Velvet Tufted Customizable Daybed Sofa, 78\"W, Dove Grey &amp; Brass",
+    "unit_scale": 1.0
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "path:11626-11996"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_014",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "sofa",
+     "front": "left",
+     "reason": "Long rectangular shape with backrest lines, matches sofa dimensions and context in drawing room."
+    },
+    {
+     "file": "real01.pdf",
+     "method": "ai",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "recognition:sym_L0_014",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "sofa",
+     "front": "left",
+     "reason": "The object is a long rectangle with a backrest line and pillows, matching the description of a sofa."
+    }
+   ],
+   "type_method": "ai_two_pass",
+   "type_candidates": [
+    {
+     "type": "sofa",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "left",
+     "reason": "Long rectangular shape with backrest lines, matches sofa dimensions and context in drawing room."
+    },
+    {
+     "type": "sofa",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 1.0,
+     "front": "left",
+     "reason": "The object is a long rectangle with a backrest line and pillows, matching the description of a sofa."
+    }
+   ],
+   "build": true
+  },
+  {
+   "id": "f_L0_018",
+   "level_id": "L0",
+   "room_id": "r_L0_drawing_room",
+   "type": "unknown",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     7.9754,
+     2.4437
+    ],
+    "size": [
+     1.8972,
+     0.703
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:unknown",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     1.8972,
+     0.703,
+     0.8
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type unknown is parametric in the catalogue",
+    "cap": 1.15,
+    "style_family": null,
+    "excluded": []
+   },
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "path:11997-12367"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_015",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "wardrobe",
+     "front": "left",
+     "reason": "Long, narrow rectangle with shallow depth, typical of a wardrobe against a wall."
+    },
+    {
+     "file": "real01.pdf",
+     "method": "ai",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "recognition:sym_L0_015",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "sofa",
+     "front": "left",
+     "reason": "The object is a long rectangle with a backrest line and pillows, matching the description of a sofa."
+    }
+   ],
+   "type_method": "none",
+   "type_candidates": [
+    {
+     "type": "wardrobe",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "left",
+     "reason": "Long, narrow rectangle with shallow depth, typical of a wardrobe against a wall."
+    },
+    {
+     "type": "sofa",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 1.0,
+     "front": "left",
+     "reason": "The object is a long rectangle with a backrest line and pillows, matching the description of a sofa."
+    }
+   ],
+   "build": true
+  },
+  {
+   "id": "f_L0_019",
+   "level_id": "L0",
+   "room_id": "r_L0_drawing_room",
+   "type": "table_coffee",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     6.5312,
+     2.451
+    ],
+    "size": [
+     1.1265,
+     1.1236
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "modern_coffee_table_02",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.9395,
+     0.9366,
+     0.938
+    ],
+    "bbox_m": [
+     1.1265,
+     1.1236,
+     0.3463
+    ],
+    "aspect_error": 0.0031,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.001,
+     -0.0025,
+     -0.0002
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "low",
+    "candidates": [
+     {
+      "id": "modern_coffee_table_02",
+      "aspect_error": 0.0031,
+      "scale": [
+       0.9395,
+       0.9366,
+       0.938
+      ],
+      "non_uniform": 1.0031,
+      "mean_scale": 0.938,
+      "accepted": true,
+      "rank": 1,
+      "source": "polyhaven",
+      "units_known": true,
+      "size_error": 0.062,
+      "size_bucket": 1,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": null,
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.062 (step 1)",
+      "quality 3",
+      "aspect error 0.003",
+      "source polyhaven"
+     ],
+     "passed_over": []
+    },
+    "gltf": "models/modern_coffee_table_02/modern_coffee_table_02_1k.gltf"
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "path:12368-12401,path:12404-12430,path:12432-12436,path:12440-12445,path:12448-12474,path:12476-12494,path:12496-12499,path:12501-12599,path:12601-12602,path:12604-12607,path:12609-12626,path:12628,path:12630-12639,path:12641-12676,path:12678-12679,path:12681-12683,path:12685-12852,path:12862-12878,path:12887-12907,path:12919-12943,path:12949-12962,path:12965,path:12967-12976,path:12988-13006,path:13008-13011,path:13015,path:13017-13019,path:13022-13023,path:13029,path:13043-13044,path:13053-13055,path:13063,path:13075-13088,path:13092-13122,path:13126-13158,path:13160-13174,path:13178-13287,path:13292-13347,path:13365-13418,path:13435-13452,path:13458-13492,path:13505-13511,path:13513-13516,path:13520-13755,path:13759-13787,path:13798,path:13806-13819,path:13825,path:13836,path:13839-13841,path:13862-13890,path:13909-13916,path:13919-13937,path:13941-13943,path:13945-13949,path:13959-13961,path:13964-13981,path:13983-14038,path:14040-14042,path:14044,path:14046-14061,path:14063-14088,path:14090-14092,path:14094-14159,path:14161-14162,path:14164-14167,path:14169-14216,path:14220-14447,path:14451-14470,path:14480-14512,path:14514-14528,path:14530-14617,path:14619,path:14621-14624,path:14626-14647,path:14649-14650,path:14652-14655,path:14657-14670,path:14672-14673,path:14675-14692,path:14694-14695,path:14697-14700,path:14702-14722,path:14724-14725,path:14727-14744,path:14746-14747,path:14749-14752,path:14754-14771,path:14773-14774,path:14776-14779,path:14781-15308,path:15310-15314,path:15316-15317,path:15319-15321,path:15323-15341,path:15343-15344,path:15346-15348,path:15350-15361,path:15364-15368,path:15370-15371,path:15373-15375,path:15377-15395,path:15397-15398,path:15400-15402,path:15404-15415,path:15418-15422,path:15424-15425,path:15427-15429,path:15431-15446,path:15448-15450,path:15452-15614"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_016",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "table_coffee",
+     "front": "none",
+     "reason": "Square shape, size 1.13x1.12m fits coffee table, no backrest or armrests visible."
+    },
+    {
+     "file": "real01.pdf",
+     "method": "ai",
+     "confidence": 0.8,
+     "page": 1,
+     "entity": "recognition:sym_L0_016",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "table_coffee",
+     "front": "none",
+     "reason": "The object's footprint is square and small, fitting the size range for a coffee table."
+    }
+   ],
+   "type_method": "ai_two_pass",
+   "type_candidates": [
+    {
+     "type": "table_coffee",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "none",
+     "reason": "Square shape, size 1.13x1.12m fits coffee table, no backrest or armrests visible."
+    },
+    {
+     "type": "table_coffee",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.8,
+     "front": "none",
+     "reason": "The object's footprint is square and small, fitting the size range for a coffee table."
+    }
+   ],
+   "build": true
+  },
+  {
+   "id": "f_L0_020",
+   "level_id": "L0",
+   "room_id": "r_L0_drawing_room",
+   "type": "floor_lamp",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     8.0048,
+     0.9995
+    ],
+    "size": [
+     0.4238,
+     0.4238
+    ],
+    "rotation_deg": 78.585
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B07374SBFN",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     1.0095,
+     1.0095,
+     1.0095
+    ],
+    "bbox_m": [
+     0.4238,
+     0.4238,
+     1.4893
+    ],
+    "aspect_error": 0.0,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "low",
+    "candidates": [
+     {
+      "id": "abo_B07374SBFN",
+      "aspect_error": 0.0,
+      "scale": [
+       1.0095,
+       1.0095,
+       1.0095
+      ],
+      "non_uniform": 1.0,
+      "mean_scale": 1.0095,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.0095,
+      "size_bucket": 0,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": [
+     4,
+     5
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.009 (step 0)",
+      "quality 3",
+      "aspect error 0.000",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B07374SBFN.glb",
+    "sha256_glb": "ba9b46b71a7cc95bdafe4484b3c075e3c054d954de954307eb0f4c5c54dfaba4",
+    "uid": "abo_B07374SBFN",
+    "title": "Amazon Brand – Stone & Beam Glass Column Brass Floor Lamp, With Bulb, Linen Shade, 13.0\" x 13.0\" x 59.0\", Brushed Brass",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07374SBFN",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Stone & Beam Glass Column Brass Floor Lamp, With Bulb, Linen Shade, 13.0\" x 13.0\" x 59.0\", Brushed Brass\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Floor Lamp",
+    "name": "Amazon Brand – Stone & Beam Glass Column Brass Floor Lamp, With Bulb, Linen Shade, 13.0\" x 13.0\" x 59.0\", Brushed Brass",
+    "unit_scale": 1.0
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "path:15615-15773,path:15775,path:15779,path:15789,path:15802,path:15806,path:15813,path:15827,path:15834,path:15840,path:15844,path:15846-16466,path:16468-16487,path:16489-16531,path:16533-16546,path:16548-16604"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_017",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "floor_lamp",
+     "front": "none",
+     "reason": "Circular shape with radial spokes, typical of a floor lamp, and size matches 0.42m footprint."
+    },
+    {
+     "file": "real01.pdf",
+     "method": "ai",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "recognition:sym_L0_017",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "floor_lamp",
+     "front": "none",
+     "reason": "The object is a small circle with spokes, typical of a floor lamp, and its size matches the description."
+    }
+   ],
+   "type_method": "ai_two_pass",
+   "type_candidates": [
+    {
+     "type": "floor_lamp",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "none",
+     "reason": "Circular shape with radial spokes, typical of a floor lamp, and size matches 0.42m footprint."
+    },
+    {
+     "type": "floor_lamp",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "none",
+     "reason": "The object is a small circle with spokes, typical of a floor lamp, and its size matches the description."
+    }
+   ],
+   "build": true,
+   "shape": "round",
+   "circle_fit": {
+    "share": 1.0,
+    "radius": 0.2135
+   }
+  },
+  {
+   "id": "f_L0_021",
+   "level_id": "L0",
+   "room_id": "r_L0_bath_toilet",
+   "type": "toilet",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     3.801,
+     1.0
+    ],
+    "size": [
+     0.4,
+     0.7
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": 0.8,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Toilet placed against the left wall, not opposite the door."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      3.0,
+      1.0
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      0.4,
+      0.7
+     ]
+    },
+    "repairs": [
+     "snap"
+    ],
+    "agreed_by_other_pass": false
+   }
+  },
+  {
+   "id": "f_L0_022",
+   "level_id": "L0",
+   "room_id": "r_L0_bath_toilet",
+   "type": "washbasin",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     3.676,
+     1.551
+    ],
+    "size": [
+     0.6,
+     0.45
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": 0.85,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Washbasin placed against the left wall for functional use."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      3.0,
+      0.5
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      0.6,
+      0.45
+     ]
+    },
+    "repairs": [
+     "snap",
+     "slide"
+    ],
+    "agreed_by_other_pass": false
+   }
+  }
+ ],
+ "conflicts": [
+  {
+   "id": "c_001",
+   "kind": "symbol_type_disagreement",
+   "element_ids": [
+    "f_L0_018"
+   ],
+   "description": "f_L0_018: sym_L0_015: the passes disagree: pass 1 (Qwen/Qwen3-VL-8B-Instruct) wardrobe, pass 2 (zai-org/GLM-4.6V-Flash) sofa",
+   "resolution": "unresolved: the drawn footprint is kept as unknown, unverified"
+  },
+  {
+   "id": "c_002",
+   "kind": "symbol_front_disagreement",
+   "element_ids": [
+    "f_L0_004"
+   ],
+   "description": "f_L0_004: sym_L0_001: AI front [90.0, 270.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) bottom, pass 2 (zai-org/GLM-4.6V-Flash) top) disagrees with the drawn front 270 deg (only side within 0.25 m of a wall is the back; head = side with >= 2 small closed shapes)",
+   "resolution": "the drawn front is kept (trust order: vector geometry > AI suggestions)"
+  },
+  {
+   "id": "c_003",
+   "kind": "symbol_front_disagreement",
+   "element_ids": [
+    "f_L0_007"
+   ],
+   "description": "f_L0_007: sym_L0_004: AI front [90.0, 270.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) bottom, pass 2 (zai-org/GLM-4.6V-Flash) top) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back; head = side with >= 2 small closed shapes)",
+   "resolution": "the drawn front is kept (trust order: vector geometry > AI suggestions)"
+  },
+  {
+   "id": "c_004",
+   "kind": "symbol_front_disagreement",
+   "element_ids": [
+    "f_L0_011"
+   ],
+   "description": "f_L0_011: sym_L0_008: AI front [90.0, 270.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) bottom, pass 2 (zai-org/GLM-4.6V-Flash) top) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back; chair faces the nearest table)",
+   "resolution": "the drawn front is kept (trust order: vector geometry > AI suggestions)"
+  },
+  {
+   "id": "c_005",
+   "kind": "symbol_front_disagreement",
+   "element_ids": [
+    "f_L0_012"
+   ],
+   "description": "f_L0_012: sym_L0_009: AI front [90.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) top, pass 2 (zai-org/GLM-4.6V-Flash) top) disagrees with the drawn front 270 deg (only side within 0.25 m of a wall is the back; chair faces the nearest table)",
+   "resolution": "the drawn front is kept (trust order: vector geometry > AI suggestions)"
+  },
+  {
+   "id": "c_006",
+   "kind": "symbol_front_disagreement",
+   "element_ids": [
+    "f_L0_013"
+   ],
+   "description": "f_L0_013: sym_L0_010: AI front [0.0, 180.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) right, pass 2 (zai-org/GLM-4.6V-Flash) left) disagrees with the drawn front 0 deg (chair faces the nearest table)",
+   "resolution": "the drawn front is kept (trust order: vector geometry > AI suggestions)"
+  },
+  {
+   "id": "c_007",
+   "kind": "symbol_front_disagreement",
+   "element_ids": [
+    "f_L0_014"
+   ],
+   "description": "f_L0_014: sym_L0_011: AI front [0.0, 180.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) right, pass 2 (zai-org/GLM-4.6V-Flash) left) disagrees with the drawn front 0 deg (chair faces the nearest table)",
+   "resolution": "the drawn front is kept (trust order: vector geometry > AI suggestions)"
+  },
+  {
+   "id": "c_008",
+   "kind": "symbol_front_disagreement",
+   "element_ids": [
+    "f_L0_015"
+   ],
+   "description": "f_L0_015: sym_L0_012: AI front [0.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) right, pass 2 (zai-org/GLM-4.6V-Flash) right) disagrees with the drawn front 180 deg (chair faces the nearest table)",
+   "resolution": "the drawn front is kept (trust order: vector geometry > AI suggestions)"
+  },
+  {
+   "id": "c_009",
+   "kind": "symbol_front_disagreement",
+   "element_ids": [
+    "f_L0_016"
+   ],
+   "description": "f_L0_016: sym_L0_013: AI front [0.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) right, pass 2 (zai-org/GLM-4.6V-Flash) right) disagrees with the drawn front 180 deg (chair faces the nearest table)",
+   "resolution": "the drawn front is kept (trust order: vector geometry > AI suggestions)"
+  },
+  {
+   "id": "c_010",
+   "kind": "symbol_front_disagreement",
+   "element_ids": [
+    "f_L0_017"
+   ],
+   "description": "f_L0_017: sym_L0_014: AI front [180.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) left, pass 2 (zai-org/GLM-4.6V-Flash) left) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back)",
+   "resolution": "the drawn front is kept (trust order: vector geometry > AI suggestions)"
+  }
+ ],
+ "unverified": [
+  "r_L0_room",
+  "f_L0_018"
+ ],
+ "warnings": [
+  "level title missing: assumed L0 Ground floor",
+  "real01.pdf p1: scale from 2 dimensions, corroborated by 8 room sizes",
+  "sym_L0_001: AI front [90.0, 270.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) bottom, pass 2 (zai-org/GLM-4.6V-Flash) top) disagrees with the drawn front 270 deg (only side within 0.25 m of a wall is the back; head = side with >= 2 small closed shapes): the drawn front is kept (vector geometry > AI)",
+  "sym_L0_002: nightstand without an agreed front: front unknown: width and depth follow the nightstand size convention; the side the builder faces is assumed",
+  "sym_L0_004: AI front [90.0, 270.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) bottom, pass 2 (zai-org/GLM-4.6V-Flash) top) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back; head = side with >= 2 small closed shapes): the drawn front is kept (vector geometry > AI)",
+  "sym_L0_005: nightstand without an agreed front: front unknown: width and depth follow the nightstand size convention; the side the builder faces is assumed",
+  "sym_L0_006: nightstand without an agreed front: front unknown: width and depth follow the nightstand size convention; the side the builder faces is assumed",
+  "sym_L0_008: AI front [90.0, 270.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) bottom, pass 2 (zai-org/GLM-4.6V-Flash) top) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back; chair faces the nearest table): the drawn front is kept (vector geometry > AI)",
+  "sym_L0_009: AI front [90.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) top, pass 2 (zai-org/GLM-4.6V-Flash) top) disagrees with the drawn front 270 deg (only side within 0.25 m of a wall is the back; chair faces the nearest table): the drawn front is kept (vector geometry > AI)",
+  "sym_L0_010: AI front [0.0, 180.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) right, pass 2 (zai-org/GLM-4.6V-Flash) left) disagrees with the drawn front 0 deg (chair faces the nearest table): the drawn front is kept (vector geometry > AI)",
+  "sym_L0_011: AI front [0.0, 180.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) right, pass 2 (zai-org/GLM-4.6V-Flash) left) disagrees with the drawn front 0 deg (chair faces the nearest table): the drawn front is kept (vector geometry > AI)",
+  "sym_L0_012: AI front [0.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) right, pass 2 (zai-org/GLM-4.6V-Flash) right) disagrees with the drawn front 180 deg (chair faces the nearest table): the drawn front is kept (vector geometry > AI)",
+  "sym_L0_013: AI front [0.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) right, pass 2 (zai-org/GLM-4.6V-Flash) right) disagrees with the drawn front 180 deg (chair faces the nearest table): the drawn front is kept (vector geometry > AI)",
+  "sym_L0_014: AI front [180.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) left, pass 2 (zai-org/GLM-4.6V-Flash) left) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back): the drawn front is kept (vector geometry > AI)",
+  "Level L0: ceiling height assumed 2.70 m (no section drawing found)",
+  "L0: room at (3.43, 2.5165) (6.98 m²) has no label: unlabelled face holding the stair",
+  "r_L0_pooja: no AI furniture, prayer room: never furnished by AI (docs/milestone7.md §0)"
+ ],
+ "site": {
+  "boundary_walls": [
+   {
+    "id": "sw_L0_001",
+    "level_id": "L0",
+    "start": [
+     -0.912,
+     -0.837
+    ],
+    "end": [
+     14.328,
+     -0.837
+    ],
+    "thickness": 0.155,
+    "evidence": [
+     {
+      "file": "real01.pdf",
+      "method": "vector",
+      "confidence": 0.95,
+      "page": 1,
+      "entity": "hatch:11"
+     }
+    ],
+    "kind": "plot"
+   },
+   {
+    "id": "sw_L0_002",
+    "level_id": "L0",
+    "start": [
+     -0.912,
+     8.154
+    ],
+    "end": [
+     14.328,
+     8.154
+    ],
+    "thickness": 0.15,
+    "evidence": [
+     {
+      "file": "real01.pdf",
+      "method": "vector",
+      "confidence": 0.95,
+      "page": 1,
+      "entity": "hatch:11"
+     }
+    ],
+    "kind": "plot"
+   },
+   {
+    "id": "sw_L0_003",
+    "level_id": "L0",
+    "start": [
+     -0.837,
+     -0.7693
+    ],
+    "end": [
+     -0.837,
+     8.0807
+    ],
+    "thickness": 0.15,
+    "evidence": [
+     {
+      "file": "real01.pdf",
+      "method": "vector",
+      "confidence": 0.95,
+      "page": 1,
+      "entity": "hatch:11"
+     }
+    ],
+    "kind": "plot"
+   },
+   {
+    "id": "sw_L0_004",
+    "level_id": "L0",
+    "start": [
+     14.253,
+     2.668
+    ],
+    "end": [
+     14.253,
+     8.0807
+    ],
+    "thickness": 0.15,
+    "evidence": [
+     {
+      "file": "real01.pdf",
+      "method": "vector",
+      "confidence": 0.95,
+      "page": 1,
+      "entity": "hatch:11"
+     }
+    ],
+    "kind": "plot"
+   }
+  ],
+  "areas": [
+   {
+    "id": "sa_L0_parking",
+    "level_id": "L0",
+    "label": "Parking",
+    "label_raw": "Parking",
+    "polygon": null,
+    "evidence": [
+     {
+      "file": "real01.pdf",
+      "method": "vector",
+      "confidence": 1.0,
+      "page": 1,
+      "entity": "char:141",
+      "text": "Parking"
+     },
+     {
+      "file": "real01.pdf",
+      "method": "vector",
+      "confidence": 1.0,
+      "page": 1,
+      "entity": "char:148",
+      "text": "11' 3\" x 15' 3\""
+     }
+    ],
+    "label_size": {
+     "text": "11' 3\" x 15' 3\"",
+     "width_m": 3.429,
+     "length_m": 4.6482,
+     "measured": [
+      4.724,
+      3.427
+     ],
+     "status": "unchecked"
+    },
+    "extent_m": [
+     4.724,
+     3.427
+    ],
+    "anchor": [
+     11.9507,
+     1.2259
+    ]
+   }
+  ],
+  "decor": [
+   {
+    "id": "sd_L0_001",
+    "level_id": "L0",
+    "kind": "other",
+    "center": [
+     9.8681,
+     0.6848
+    ],
+    "size": [
+     0.4883,
+     1.3677
+    ],
+    "evidence": [
+     {
+      "file": "real01.pdf",
+      "method": "vector",
+      "confidence": 0.9,
+      "page": 1,
+      "entity": "path:11539-11540,path:11557"
+     }
+    ]
+   },
+   {
+    "id": "sd_L0_002",
+    "level_id": "L0",
+    "kind": "plant",
+    "center": [
+     13.2703,
+     2.9899
+    ],
+    "size": [
+     0.426,
+     0.4047
+    ],
+    "evidence": [
+     {
+      "file": "real01.pdf",
+      "method": "vector",
+      "confidence": 0.9,
+      "page": 1,
+      "entity": "path:22107-23055"
+     }
+    ]
+   },
+   {
+    "id": "sd_L0_003",
+    "level_id": "L0",
+    "kind": "plant",
+    "center": [
+     13.8766,
+     3.421
+    ],
+    "size": [
+     0.426,
+     0.407
+    ],
+    "evidence": [
+     {
+      "file": "real01.pdf",
+      "method": "vector",
+      "confidence": 0.9,
+      "page": 1,
+      "entity": "path:23056-24004"
+     }
+    ]
+   },
+   {
+    "id": "sd_L0_004",
+    "level_id": "L0",
+    "kind": "plant",
+    "center": [
+     13.2703,
+     3.9429
+    ],
+    "size": [
+     0.426,
+     0.4047
+    ],
+    "evidence": [
+     {
+      "file": "real01.pdf",
+      "method": "vector",
+      "confidence": 0.9,
+      "page": 1,
+      "entity": "path:21158-22106"
+     }
+    ]
+   },
+   {
+    "id": "sd_L0_005",
+    "level_id": "L0",
+    "kind": "plant",
+    "center": [
+     13.8527,
+     4.6467
+    ],
+    "size": [
+     0.4272,
+     0.4081
+    ],
+    "evidence": [
+     {
+      "file": "real01.pdf",
+      "method": "vector",
+      "confidence": 0.9,
+      "page": 1,
+      "entity": "path:24005-24953"
+     }
+    ]
+   },
+   {
+    "id": "sd_L0_006",
+    "level_id": "L0",
+    "kind": "plant",
+    "center": [
+     13.2697,
+     5.2941
+    ],
+    "size": [
+     0.426,
+     0.4073
+    ],
+    "evidence": [
+     {
+      "file": "real01.pdf",
+      "method": "vector",
+      "confidence": 0.9,
+      "page": 1,
+      "entity": "path:20209-21157"
+     }
+    ]
+   },
+   {
+    "id": "sd_L0_007",
+    "level_id": "L0",
+    "kind": "plant",
+    "center": [
+     13.8319,
+     5.895
+    ],
+    "size": [
+     0.4267,
+     0.4059
+    ],
+    "evidence": [
+     {
+      "file": "real01.pdf",
+      "method": "vector",
+      "confidence": 0.9,
+      "page": 1,
+      "entity": "path:24954-25902"
+     }
+    ]
+   },
+   {
+    "id": "sd_L0_008",
+    "level_id": "L0",
+    "kind": "plant",
+    "center": [
+     13.2701,
+     6.5757
+    ],
+    "size": [
+     0.426,
+     0.4055
+    ],
+    "evidence": [
+     {
+      "file": "real01.pdf",
+      "method": "vector",
+      "confidence": 0.9,
+      "page": 1,
+      "entity": "path:19260-20208"
+     }
+    ]
+   },
+   {
+    "id": "sd_L0_009",
+    "level_id": "L0",
+    "kind": "plant",
+    "center": [
+     13.8421,
+     7.0631
+    ],
+    "size": [
+     0.4244,
+     0.4059
+    ],
+    "evidence": [
+     {
+      "file": "real01.pdf",
+      "method": "vector",
+      "confidence": 0.9,
+      "page": 1,
+      "entity": "path:25903-26851"
+     }
+    ]
+   },
+   {
+    "id": "sd_L0_010",
+    "level_id": "L0",
+    "kind": "plant",
+    "center": [
+     13.2706,
+     7.7422
+    ],
+    "size": [
+     0.426,
+     0.4065
+    ],
+    "evidence": [
+     {
+      "file": "real01.pdf",
+      "method": "vector",
+      "confidence": 0.9,
+      "page": 1,
+      "entity": "path:18311-19259"
+     }
+    ]
+   }
+  ],
+  "openings": []
+ },
+ "decor": [
+  {
+   "id": "dec_L0_001",
+   "kind": "decor",
+   "type": "cushion",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room",
+   "center": [
+    2.193,
+    0.53
+   ],
+   "rotation_deg": 180.0,
+   "size": [
+    0.5,
+    0.3
+   ],
+   "asset": null,
+   "host_id": "f_L0_007",
+   "source": "added_by_ai",
+   "method": "rule",
+   "reason": "cushion at the head of the bed"
+  },
+  {
+   "id": "dec_L0_002",
+   "kind": "decor",
+   "type": "cushion",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room",
+   "center": [
+    1.304,
+    0.53
+   ],
+   "rotation_deg": 180.0,
+   "size": [
+    0.5,
+    0.3
+   ],
+   "asset": null,
+   "host_id": "f_L0_007",
+   "source": "added_by_ai",
+   "method": "rule",
+   "reason": "cushion at the head of the bed"
+  },
+  {
+   "id": "dec_L0_003",
+   "kind": "decor",
+   "type": "rug",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room",
+   "center": [
+    1.749,
+    1.464
+   ],
+   "rotation_deg": 180.0,
+   "size": [
+    2.379,
+    1.614
+   ],
+   "asset": null,
+   "host_id": null,
+   "anchor_ids": [
+    "f_L0_007"
+   ],
+   "source": "added_by_ai",
+   "method": "rule",
+   "reason": "rug under the lower two thirds of the double bed; cut from 2.38 x 1.95 m to stay off walls, door swings and fixed pieces"
+  },
+  {
+   "id": "dec_L0_004",
+   "kind": "decor",
+   "type": "cushion",
+   "level_id": "L0",
+   "room_id": "r_L0_drawing_room",
+   "center": [
+    7.0,
+    0.585
+   ],
+   "rotation_deg": 180.0,
+   "size": [
+    0.45,
+    0.15
+   ],
+   "asset": null,
+   "host_id": "f_L0_017",
+   "source": "added_by_ai",
+   "method": "rule",
+   "reason": "cushion against the sofa back"
+  },
+  {
+   "id": "dec_L0_005",
+   "kind": "decor",
+   "type": "cushion",
+   "level_id": "L0",
+   "room_id": "r_L0_drawing_room",
+   "center": [
+    6.053,
+    0.585
+   ],
+   "rotation_deg": 180.0,
+   "size": [
+    0.45,
+    0.15
+   ],
+   "asset": null,
+   "host_id": "f_L0_017",
+   "source": "added_by_ai",
+   "method": "rule",
+   "reason": "cushion against the sofa back"
+  },
+  {
+   "id": "dec_L0_006",
+   "kind": "decor",
+   "type": "plant",
+   "level_id": "L0",
+   "room_id": "r_L0_drawing_room",
+   "center": [
+    5.356,
+    0.48
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.4,
+    0.4
+   ],
+   "asset": null,
+   "host_id": null,
+   "source": "added_by_ai",
+   "method": "rule",
+   "reason": "potted plant in a free corner"
+  },
+  {
+   "id": "dec_L0_007",
+   "kind": "decor",
+   "type": "rug",
+   "level_id": "L0",
+   "room_id": "r_L0_drawing_room",
+   "center": [
+    6.517,
+    1.921
+   ],
+   "rotation_deg": 180.0,
+   "size": [
+    2.194,
+    2.782
+   ],
+   "asset": null,
+   "host_id": null,
+   "anchor_ids": [
+    "f_L0_017",
+    "f_L0_019"
+   ],
+   "source": "added_by_ai",
+   "method": "rule",
+   "reason": "rug under the sofa and coffee table group; cut from 2.49 x 3.20 m to stay off walls, door swings and fixed pieces"
+  },
+  {
+   "id": "dec_L0_008",
+   "kind": "decor",
+   "type": "cushion",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room_2",
+   "center": [
+    1.351,
+    6.831
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.5,
+    0.3
+   ],
+   "asset": null,
+   "host_id": "f_L0_004",
+   "source": "added_by_ai",
+   "method": "rule",
+   "reason": "cushion at the head of the bed"
+  },
+  {
+   "id": "dec_L0_009",
+   "kind": "decor",
+   "type": "cushion",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room_2",
+   "center": [
+    2.241,
+    6.831
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.5,
+    0.3
+   ],
+   "asset": null,
+   "host_id": "f_L0_004",
+   "source": "added_by_ai",
+   "method": "rule",
+   "reason": "cushion at the head of the bed"
+  },
+  {
+   "id": "dec_L0_010",
+   "kind": "decor",
+   "type": "plant",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room_2",
+   "center": [
+    0.48,
+    3.985
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.4,
+    0.4
+   ],
+   "asset": null,
+   "host_id": null,
+   "source": "added_by_ai",
+   "method": "rule",
+   "reason": "potted plant in a free corner"
+  },
+  {
+   "id": "dec_L0_011",
+   "kind": "decor",
+   "type": "rug",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room_2",
+   "center": [
+    1.776,
+    5.877
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    2.339,
+    1.654
+   ],
+   "asset": null,
+   "host_id": null,
+   "anchor_ids": [
+    "f_L0_004"
+   ],
+   "source": "added_by_ai",
+   "method": "rule",
+   "reason": "rug under the lower two thirds of the double bed; cut from 2.38 x 1.95 m to stay off walls, door swings and fixed pieces"
+  },
+  {
+   "id": "dec_L0_012",
+   "kind": "decor",
+   "type": "rug",
+   "level_id": "L0",
+   "room_id": "r_L0_dining",
+   "center": [
+    6.587,
+    5.881
+   ],
+   "rotation_deg": 90.0,
+   "size": [
+    1.818,
+    2.355
+   ],
+   "asset": null,
+   "host_id": null,
+   "anchor_ids": [
+    "f_L0_010"
+   ],
+   "source": "added_by_ai",
+   "method": "rule",
+   "reason": "rug under the dining table (+ 0.6 m each side for the chairs); cut from 3.04 x 2.54 m to stay off walls, door swings and fixed pieces"
+  }
+ ]
+}

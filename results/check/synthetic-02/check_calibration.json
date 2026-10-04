@@ -1,0 +1,158 @@
+{
+ "schema_version": "0.1",
+ "project": "synthetic-02",
+ "model_keys": [
+  "qwen",
+  "glm"
+ ],
+ "single_pass": false,
+ "metrics": {
+  "baseline": {
+   "views": 11,
+   "views_computed": 11,
+   "required_elements": 8,
+   "fa_missing": 0.0,
+   "fa_extra": 0.0,
+   "count_error": 0.0909,
+   "disputed": 0.0
+  },
+  "models": {
+   "qwen": {
+    "calls": 11,
+    "answered": 11,
+    "answer_rate": 1.0,
+    "decoys": 11,
+    "decoy_accept": 0.0909,
+    "fa_missing_single": 0.0
+   },
+   "glm": {
+    "calls": 11,
+    "answered": 11,
+    "answer_rate": 1.0,
+    "decoys": 11,
+    "decoy_accept": 0.0,
+    "fa_missing_single": 0.0
+   }
+  },
+  "fa_missing": 0.0,
+  "fa_extra": 0.0,
+  "count_error": 0.0909,
+  "removal_flagged": 0.6667,
+  "removal_confirmed": 0.6667,
+  "insertion": 0.0,
+  "insertion_flagged": 0.3333,
+  "swap_flagged": null,
+  "swap_confirmed": null,
+  "detector_insertion": {
+   "n": 0,
+   "advisory": null,
+   "found": null,
+   "flagged": null,
+   "confirmed": null,
+   "rows": []
+  },
+  "controls": {
+   "removal": {
+    "n": 3,
+    "flagged": 0.6667,
+    "confirmed": 0.6667,
+    "rows": [
+     {
+      "camera": "cam_r_L0_salon_3",
+      "kind": "removal:win_L0_003",
+      "flagged": true,
+      "confirmed": true
+     },
+     {
+      "camera": "cam_r_L0_yatak_odasi_1",
+      "kind": "removal:win_L0_002",
+      "flagged": true,
+      "confirmed": true
+     },
+     {
+      "camera": "cam_r_L0_yatak_odasi_2",
+      "kind": "removal:d_L0_004",
+      "flagged": false,
+      "confirmed": false
+     }
+    ]
+   },
+   "insertion": {
+    "n": 3,
+    "flagged": 0.3333,
+    "confirmed": 0.0,
+    "rows": [
+     {
+      "camera": "cam_r_L0_salon_3",
+      "kind": "insertion:win_L0_003",
+      "flagged": true,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L0_yatak_odasi_1",
+      "kind": "insertion:win_L0_002",
+      "flagged": false,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L0_yatak_odasi_2",
+      "kind": "insertion:d_L0_004",
+      "flagged": false,
+      "confirmed": false
+     }
+    ]
+   },
+   "swap": {
+    "n": 0,
+    "flagged": null,
+    "confirmed": null,
+    "rows": []
+   }
+  }
+ },
+ "targets": {
+  "fa_missing_max": 0.05,
+  "fa_extra_max": 0.1,
+  "removal_flagged_min": 0.8,
+  "removal_confirmed_min": 0.6,
+  "insertion_min": 0.6,
+  "decoy_accept_max": 0.1
+ },
+ "missed": [
+  {
+   "target": "removal_flagged_min",
+   "metric": "removal_flagged",
+   "value": 0.6667,
+   "threshold": 0.8,
+   "op": ">="
+  },
+  {
+   "target": "insertion_min",
+   "metric": "insertion",
+   "value": 0.0,
+   "threshold": 0.6,
+   "op": ">="
+  }
+ ],
+ "advisory": true,
+ "advisory_reasons": [
+  "removal_flagged 0.6667 misses >= 0.8",
+  "insertion 0.0 misses >= 0.6"
+ ],
+ "plan_ab": {
+  "cameras": [],
+  "pairs": 0,
+  "removal_pairs": 0,
+  "fa_missing_without": null,
+  "fa_missing_with": null,
+  "fa_extra_without": null,
+  "fa_extra_with": null,
+  "removal_confirmed_without": null,
+  "removal_confirmed_with": null,
+  "favours_plan": false,
+  "used": false,
+  "adopted": false,
+  "text": "source plan compared through the evidence chain, the projected cross-check and the side-by-side crop",
+  "note": "not enough plan A/B answers to compare"
+ }
+}

@@ -1,0 +1,23 @@
+# Change-gate thresholds (docs/milestone5.md §4.2). *_min: value >= threshold
+# passes; *_max: value <= threshold passes; region_min_frac = region pixels /
+# (W*H). Proposals from `python -m wenart.gate calibrate` are applied here by
+# hand after review; a proposal looser than the start values needs the user's OK.
+# Calibrated on 2 Oct 2026 from run 1a (results/gate/<p>/gate_calibration.md,
+# docs/milestone5.md §4.2): the user approved the looser limits on 3 Oct 2026 (user_ok);
+# every project with polish on is also validated before its polish (docs/milestone6.md §7.3).
+edges:       {hard: true,  global_min: 0.935, region_min: 0.87, region_min_ref_px: 200, radius_px: 3,
+              canny: {sigma: 1.5, low: 25, high: 75}}
+added_lines: {hard: true,  region_max_len_frac: 0.04, min_len_frac: 0.04, unmatched_frac: 0.70}
+depth:       {hard: true,  global_max: 0.05, region_max: 0.14, region_min_frac: 0.01}
+masks:       {hard: true,  region_min: 0.62, region_min_frac: 0.005, sam_reliable_min: 0.70}
+colour:      {hard: true,  global_max: 7.5, region_max: 8.0, region_min_frac: 0.01}
+neutral:     {hard: true,  region_max_dchroma: 2.0}     # wall/ceiling regions of albedo_mode flat
+features:    {hard: false, region_min: 0.80, region_min_frac: 0.01}
+calibration: {source: "run 1a, job 20261002-135133-polish", date: "2026-10-02",
+              rule: "worst benign value of both projects with a 15 % margin, rounded",
+              benign_accept: 1.0, negative_reject: 0.934, small_geometric_reject: 0.915,
+              looser_than_start: ["edges.global_min 0.95", "depth.global_max 0.02", "depth.region_max 0.05",
+                                  "masks.region_min 0.90"],
+              tighter_than_start: ["edges.region_min 0.85", "colour.global_max 10", "colour.region_max 15",
+                                   "neutral.region_max_dchroma 5"],
+              user_ok: "2026-10-03", accepted_shortfall: null}

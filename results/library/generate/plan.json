@@ -1,0 +1,1128 @@
+{
+ "schema_version": "0.1",
+ "kind": "generate_plan",
+ "generated_utc": "2026-10-04T07:22:02Z",
+ "rules": "docs/milestone8.md §3",
+ "families": [
+  "scandinavian",
+  "modern minimal",
+  "japandi",
+  "modern"
+ ],
+ "types": [
+  "bed_single",
+  "bed_double",
+  "sofa",
+  "armchair",
+  "table_dining",
+  "table_coffee",
+  "desk",
+  "chair",
+  "wardrobe",
+  "fridge",
+  "stove",
+  "sink_kitchen",
+  "washbasin",
+  "toilet",
+  "shower",
+  "bathtub",
+  "tv_unit",
+  "bookshelf",
+  "nightstand",
+  "dresser",
+  "washing_machine",
+  "side_table",
+  "floor_lamp",
+  "potted_plant"
+ ],
+ "excluded_types": [
+  "stair",
+  "kitchen_counter",
+  "kitchen_island",
+  "unknown"
+ ],
+ "images_per_pair": 2,
+ "config_sha256": "d008a01e428586af72fd3bf398e4924112f88bd9c9a9ff38623fbef2f519eef3",
+ "catalogs": [
+  {
+   "path": "/workspace/prep/library/accepted.json",
+   "format": "accepted",
+   "sha256": "f457dbf6d73e8974c2b808c6506ed2b9ca0a7b6e8271e97846f85b519adcc6a9",
+   "records": 186,
+   "usable": 162,
+   "skipped": {}
+  },
+  {
+   "path": "/workspace/repo/wenart/furniture/catalog.json",
+   "format": "catalog",
+   "sha256": "045baf67f373b0bf4f141ab11ad743d2cb44612a2576cc5f3808a481e94f5300",
+   "records": 46,
+   "usable": 30,
+   "skipped": {
+    "parametric entry": 16
+   }
+  }
+ ],
+ "counts": {
+  "pairs": 25,
+  "covered": 71,
+  "total": 96
+ },
+ "pairs": [
+  {
+   "pair": "sofa__japandi",
+   "type": "sofa",
+   "family": "japandi",
+   "prompt": "a single japandi style three-seat sofa, light ash wood, black accents, natural linen and paper textures, low profile, calm minimal forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+   "seeds": [
+    1101781235,
+    489689934
+   ],
+   "reason": "no usable sofa model lists 'japandi' or 'neutral' (15 usable sofa models; their styles: classic, minimal, modern, modern minimal, scandinavian)"
+  },
+  {
+   "pair": "fridge__scandinavian",
+   "type": "fridge",
+   "family": "scandinavian",
+   "prompt": "a single scandinavian style freestanding refrigerator, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+   "seeds": [
+    808569671,
+    370444313
+   ],
+   "reason": "no usable fridge model lists 'scandinavian' or 'neutral' (3 usable fridge models; their styles: minimal, modern, modern minimal); not counted: 1 parametric entry"
+  },
+  {
+   "pair": "fridge__japandi",
+   "type": "fridge",
+   "family": "japandi",
+   "prompt": "a single japandi style freestanding refrigerator, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+   "seeds": [
+    164433243,
+    1519058159
+   ],
+   "reason": "no usable fridge model lists 'japandi' or 'neutral' (3 usable fridge models; their styles: minimal, modern, modern minimal); not counted: 1 parametric entry"
+  },
+  {
+   "pair": "sink_kitchen__scandinavian",
+   "type": "sink_kitchen",
+   "family": "scandinavian",
+   "prompt": "a single scandinavian style kitchen sink base cabinet with a worktop and an inset sink, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+   "seeds": [
+    8822649,
+    815159649
+   ],
+   "reason": "no usable sink_kitchen model in the catalogues; not counted: 1 parametric entry"
+  },
+  {
+   "pair": "sink_kitchen__modern_minimal",
+   "type": "sink_kitchen",
+   "family": "modern minimal",
+   "prompt": "a single modern minimal style kitchen sink base cabinet with a worktop and an inset sink, matte white surfaces, flush handleless fronts, thin black fittings, crisp rectangular forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+   "seeds": [
+    1000835940,
+    1809389486
+   ],
+   "reason": "no usable sink_kitchen model in the catalogues; not counted: 1 parametric entry"
+  },
+  {
+   "pair": "sink_kitchen__japandi",
+   "type": "sink_kitchen",
+   "family": "japandi",
+   "prompt": "a single japandi style kitchen sink base cabinet with a worktop and an inset sink, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+   "seeds": [
+    1751330216,
+    1403510016
+   ],
+   "reason": "no usable sink_kitchen model in the catalogues; not counted: 1 parametric entry"
+  },
+  {
+   "pair": "sink_kitchen__modern",
+   "type": "sink_kitchen",
+   "family": "modern",
+   "prompt": "a single modern style kitchen sink base cabinet with a worktop and an inset sink, glossy white ceramic, stainless steel and chrome fittings, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+   "seeds": [
+    385914400,
+    251737293
+   ],
+   "reason": "no usable sink_kitchen model in the catalogues; not counted: 1 parametric entry"
+  },
+  {
+   "pair": "washbasin__japandi",
+   "type": "washbasin",
+   "family": "japandi",
+   "prompt": "a single japandi style bathroom washbasin on a vanity unit, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+   "seeds": [
+    642631595,
+    999623353
+   ],
+   "reason": "no usable washbasin model lists 'japandi' or 'neutral' (3 usable washbasin models; their styles: minimal, modern, modern minimal, scandinavian); not counted: 1 parametric entry"
+  },
+  {
+   "pair": "toilet__scandinavian",
+   "type": "toilet",
+   "family": "scandinavian",
+   "prompt": "a single scandinavian style floor-standing toilet with a cistern, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+   "seeds": [
+    545344929,
+    1685320567
+   ],
+   "reason": "no usable toilet model lists 'scandinavian' or 'neutral' (3 usable toilet models; their styles: minimal, modern, modern minimal); not counted: 1 parametric entry"
+  },
+  {
+   "pair": "toilet__japandi",
+   "type": "toilet",
+   "family": "japandi",
+   "prompt": "a single japandi style floor-standing toilet with a cistern, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+   "seeds": [
+    1139436299,
+    955629872
+   ],
+   "reason": "no usable toilet model lists 'japandi' or 'neutral' (3 usable toilet models; their styles: minimal, modern, modern minimal); not counted: 1 parametric entry"
+  },
+  {
+   "pair": "shower__scandinavian",
+   "type": "shower",
+   "family": "scandinavian",
+   "prompt": "a single scandinavian style square glass shower enclosure with a shower tray, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+   "seeds": [
+    1674076823,
+    1771359389
+   ],
+   "reason": "no usable shower model in the catalogues; not counted: 1 parametric entry"
+  },
+  {
+   "pair": "shower__modern_minimal",
+   "type": "shower",
+   "family": "modern minimal",
+   "prompt": "a single modern minimal style square glass shower enclosure with a shower tray, matte white surfaces, flush handleless fronts, thin black fittings, crisp rectangular forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+   "seeds": [
+    1121063307,
+    1385970729
+   ],
+   "reason": "no usable shower model in the catalogues; not counted: 1 parametric entry"
+  },
+  {
+   "pair": "shower__japandi",
+   "type": "shower",
+   "family": "japandi",
+   "prompt": "a single japandi style square glass shower enclosure with a shower tray, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+   "seeds": [
+    939201746,
+    426030452
+   ],
+   "reason": "no usable shower model in the catalogues; not counted: 1 parametric entry"
+  },
+  {
+   "pair": "shower__modern",
+   "type": "shower",
+   "family": "modern",
+   "prompt": "a single modern style square glass shower enclosure with a shower tray, glossy white ceramic, stainless steel and chrome fittings, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+   "seeds": [
+    454414153,
+    1864829116
+   ],
+   "reason": "no usable shower model in the catalogues; not counted: 1 parametric entry"
+  },
+  {
+   "pair": "bathtub__scandinavian",
+   "type": "bathtub",
+   "family": "scandinavian",
+   "prompt": "a single scandinavian style freestanding bathtub, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+   "seeds": [
+    905751746,
+    1109758153
+   ],
+   "reason": "no usable bathtub model in the catalogues; not counted: 1 parametric entry"
+  },
+  {
+   "pair": "bathtub__modern_minimal",
+   "type": "bathtub",
+   "family": "modern minimal",
+   "prompt": "a single modern minimal style freestanding bathtub, matte white surfaces, flush handleless fronts, thin black fittings, crisp rectangular forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+   "seeds": [
+    28734134,
+    637992188
+   ],
+   "reason": "no usable bathtub model in the catalogues; not counted: 1 parametric entry"
+  },
+  {
+   "pair": "bathtub__japandi",
+   "type": "bathtub",
+   "family": "japandi",
+   "prompt": "a single japandi style freestanding bathtub, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+   "seeds": [
+    157243159,
+    1197198061
+   ],
+   "reason": "no usable bathtub model in the catalogues; not counted: 1 parametric entry"
+  },
+  {
+   "pair": "bathtub__modern",
+   "type": "bathtub",
+   "family": "modern",
+   "prompt": "a single modern style freestanding bathtub, glossy white ceramic, stainless steel and chrome fittings, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+   "seeds": [
+    63257188,
+    1423604195
+   ],
+   "reason": "no usable bathtub model in the catalogues; not counted: 1 parametric entry"
+  },
+  {
+   "pair": "washing_machine__scandinavian",
+   "type": "washing_machine",
+   "family": "scandinavian",
+   "prompt": "a single scandinavian style front-loading washing machine, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+   "seeds": [
+    192962696,
+    778133070
+   ],
+   "reason": "no usable washing_machine model in the catalogues; not counted: 1 parametric entry"
+  },
+  {
+   "pair": "washing_machine__modern_minimal",
+   "type": "washing_machine",
+   "family": "modern minimal",
+   "prompt": "a single modern minimal style front-loading washing machine, matte white surfaces, flush handleless fronts, thin black fittings, crisp rectangular forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+   "seeds": [
+    1023396053,
+    2081489533
+   ],
+   "reason": "no usable washing_machine model in the catalogues; not counted: 1 parametric entry"
+  },
+  {
+   "pair": "washing_machine__japandi",
+   "type": "washing_machine",
+   "family": "japandi",
+   "prompt": "a single japandi style front-loading washing machine, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+   "seeds": [
+    696633628,
+    315156467
+   ],
+   "reason": "no usable washing_machine model in the catalogues; not counted: 1 parametric entry"
+  },
+  {
+   "pair": "washing_machine__modern",
+   "type": "washing_machine",
+   "family": "modern",
+   "prompt": "a single modern style front-loading washing machine, glossy white ceramic, stainless steel and chrome fittings, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+   "seeds": [
+    150880875,
+    2146683294
+   ],
+   "reason": "no usable washing_machine model in the catalogues; not counted: 1 parametric entry"
+  },
+  {
+   "pair": "floor_lamp__japandi",
+   "type": "floor_lamp",
+   "family": "japandi",
+   "prompt": "a single japandi style floor lamp with a fabric shade, light ash wood, black accents, natural linen and paper textures, low profile, calm minimal forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+   "seeds": [
+    948228751,
+    1825554670
+   ],
+   "reason": "no usable floor_lamp model lists 'japandi' or 'neutral' (12 usable floor_lamp models; their styles: classic, industrial, minimal, modern, modern minimal, scandinavian); not counted: 1 parametric entry"
+  },
+  {
+   "pair": "potted_plant__scandinavian",
+   "type": "potted_plant",
+   "family": "scandinavian",
+   "prompt": "a single scandinavian style large indoor plant in a floor pot, light oak wood, white and soft grey, natural linen upholstery, slim tapered legs, simple clean lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+   "seeds": [
+    670989627,
+    550685039
+   ],
+   "reason": "no usable potted_plant model lists 'scandinavian' or 'neutral' (6 usable potted_plant models; their styles: mediterranean, minimal, modern, modern minimal, rustic); not counted: 1 parametric entry"
+  },
+  {
+   "pair": "potted_plant__japandi",
+   "type": "potted_plant",
+   "family": "japandi",
+   "prompt": "a single japandi style large indoor plant in a floor pot, light ash wood, black accents, natural linen and paper textures, low profile, calm minimal forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+   "seeds": [
+    1070096842,
+    1292760884
+   ],
+   "reason": "no usable potted_plant model lists 'japandi' or 'neutral' (6 usable potted_plant models; their styles: mediterranean, minimal, modern, modern minimal, rustic); not counted: 1 parametric entry"
+  }
+ ],
+ "covered": [
+  {
+   "type": "bed_single",
+   "family": "scandinavian",
+   "count": 4,
+   "models": [
+    "abo_B07H8V14CZ",
+    "abo_B0856FL9HR",
+    "abo_B07H8V7MQS",
+    "6eb4212e70b941a3bd2db196a47828b9"
+   ]
+  },
+  {
+   "type": "bed_single",
+   "family": "modern minimal",
+   "count": 8,
+   "models": [
+    "abo_B07H8V14CZ",
+    "abo_B075Y184L3",
+    "abo_B073WR319C",
+    "abo_B0718WYQ8D",
+    "abo_B086TFXK75"
+   ]
+  },
+  {
+   "type": "bed_single",
+   "family": "japandi",
+   "count": 3,
+   "models": [
+    "abo_B07H8V14CZ",
+    "abo_B0856FL9HR",
+    "6eb4212e70b941a3bd2db196a47828b9"
+   ]
+  },
+  {
+   "type": "bed_single",
+   "family": "modern",
+   "count": 5,
+   "models": [
+    "abo_B07H8V14CZ",
+    "abo_B0718WYQ8D",
+    "abo_B0856FL9HR",
+    "abo_B07H8V7MQS",
+    "6eb4212e70b941a3bd2db196a47828b9"
+   ]
+  },
+  {
+   "type": "bed_double",
+   "family": "scandinavian",
+   "count": 4,
+   "models": [
+    "abo_B071FJR4FW",
+    "abo_B086TGFT35",
+    "abo_B075Z8767S",
+    "abo_B07BBWMPJM"
+   ]
+  },
+  {
+   "type": "bed_double",
+   "family": "modern minimal",
+   "count": 5,
+   "models": [
+    "abo_B071FJR4FW",
+    "abo_B086TGFT35",
+    "abo_B075QDMWTP",
+    "abo_B075Z8767S",
+    "abo_B08FTN8KHY"
+   ]
+  },
+  {
+   "type": "bed_double",
+   "family": "japandi",
+   "count": 3,
+   "models": [
+    "abo_B071FJR4FW",
+    "abo_B086TGFT35",
+    "abo_B075Z8767S"
+   ]
+  },
+  {
+   "type": "bed_double",
+   "family": "modern",
+   "count": 5,
+   "models": [
+    "abo_B07B4Z9Q3S",
+    "abo_B071FJR4FW",
+    "abo_B071W2SCTJ",
+    "abo_B086TGFT35",
+    "abo_B075Z8767S"
+   ]
+  },
+  {
+   "type": "sofa",
+   "family": "scandinavian",
+   "count": 2,
+   "models": [
+    "104ac40ef3ad4dac8079a11548c470e7",
+    "abo_B07K9PMZJL"
+   ]
+  },
+  {
+   "type": "sofa",
+   "family": "modern minimal",
+   "count": 6,
+   "models": [
+    "abo_B07B4FW7H5",
+    "abo_B072555T67",
+    "abo_B075X2X4GY",
+    "abo_B07HZ6HHFF",
+    "abo_B07HZ5P7P9"
+   ]
+  },
+  {
+   "type": "sofa",
+   "family": "modern",
+   "count": 9,
+   "models": [
+    "abo_B07B4FW7H5",
+    "abo_B07HZ6X7ZF",
+    "104ac40ef3ad4dac8079a11548c470e7",
+    "abo_B072555T67",
+    "abo_B075X2X4GY"
+   ]
+  },
+  {
+   "type": "armchair",
+   "family": "scandinavian",
+   "count": 4,
+   "models": [
+    "abo_B075X4N3GM",
+    "abo_B07124WN69",
+    "abo_B073G7BVCT",
+    "b23ec9725c48494788d1d88104acbb4a"
+   ]
+  },
+  {
+   "type": "armchair",
+   "family": "modern minimal",
+   "count": 8,
+   "models": [
+    "abo_B075X4N3GM",
+    "abo_B0746KJVP2",
+    "abo_B075X4N3J5",
+    "abo_B0719WQGYJ",
+    "abo_B07HZ9K9PG"
+   ]
+  },
+  {
+   "type": "armchair",
+   "family": "japandi",
+   "count": 2,
+   "models": [
+    "abo_B075X4N3GM",
+    "abo_B073G7BVCT"
+   ]
+  },
+  {
+   "type": "armchair",
+   "family": "modern",
+   "count": 11,
+   "models": [
+    "abo_B075X4N3GM",
+    "abo_B07124WN69",
+    "abo_B0746KJVP2",
+    "abo_B075X4N3J5",
+    "abo_B0719WQGYJ"
+   ]
+  },
+  {
+   "type": "table_dining",
+   "family": "scandinavian",
+   "count": 6,
+   "models": [
+    "abo_B07K7K25NM",
+    "abo_B0853Q71J6",
+    "abo_B07B82PXD8",
+    "abo_B07B82WF6G",
+    "abo_B07B82PXCM"
+   ]
+  },
+  {
+   "type": "table_dining",
+   "family": "modern minimal",
+   "count": 7,
+   "models": [
+    "abo_B07K7K25NM",
+    "abo_B07H93GTHW",
+    "abo_B0853Q71J6",
+    "abo_B07RT5JN33",
+    "abo_B07B82WF6G"
+   ]
+  },
+  {
+   "type": "table_dining",
+   "family": "japandi",
+   "count": 5,
+   "models": [
+    "abo_B07K7K25NM",
+    "abo_B0853Q71J6",
+    "abo_B07B82WF6G",
+    "abo_B07B82PXCM",
+    "3b4ee19c627e4fb4a3305621cf925aa2"
+   ]
+  },
+  {
+   "type": "table_dining",
+   "family": "modern",
+   "count": 6,
+   "models": [
+    "abo_B07K7K25NM",
+    "abo_B0853Q71J6",
+    "abo_B07B82PXD8",
+    "abo_B07B82WF6G",
+    "abo_B07B82PXCM"
+   ]
+  },
+  {
+   "type": "table_coffee",
+   "family": "scandinavian",
+   "count": 4,
+   "models": [
+    "abo_B07GDSF3MR",
+    "abo_B07GDMBZJJ",
+    "abo_B072ZK885D",
+    "abo_B075Z8WD59"
+   ]
+  },
+  {
+   "type": "table_coffee",
+   "family": "modern minimal",
+   "count": 7,
+   "models": [
+    "abo_B07GDSF3MR",
+    "abo_B07GDMBZJJ",
+    "abo_B072ZK885D",
+    "abo_B075Z8WD59",
+    "abo_B07L8DT2XT"
+   ]
+  },
+  {
+   "type": "table_coffee",
+   "family": "japandi",
+   "count": 6,
+   "models": [
+    "abo_B07GDSF3MR",
+    "abo_B07GDMBZJJ",
+    "abo_B072ZK885D",
+    "abo_B075Z8WD59",
+    "abo_B07L8DT2XT"
+   ]
+  },
+  {
+   "type": "table_coffee",
+   "family": "modern",
+   "count": 8,
+   "models": [
+    "abo_B07GDSF3MR",
+    "abo_B07GDMBZJJ",
+    "abo_B072ZK885D",
+    "abo_B075Z8WD59",
+    "abo_B07L8DT2XT"
+   ]
+  },
+  {
+   "type": "desk",
+   "family": "scandinavian",
+   "count": 6,
+   "models": [
+    "abo_B07HSCRFTN",
+    "abo_B07TKY3L6X",
+    "abo_B075ZBVZST",
+    "abo_B01FK3FWNG",
+    "abo_B07GFT639N"
+   ]
+  },
+  {
+   "type": "desk",
+   "family": "modern minimal",
+   "count": 6,
+   "models": [
+    "abo_B07HSCRFTN",
+    "abo_B075ZBVZST",
+    "abo_B01FK3FWNG",
+    "abo_B07GFT639N",
+    "abo_B0876NZQ9C"
+   ]
+  },
+  {
+   "type": "desk",
+   "family": "japandi",
+   "count": 5,
+   "models": [
+    "abo_B07HSCRFTN",
+    "abo_B07TKY3L6X",
+    "abo_B075ZBVZST",
+    "abo_B01FK3FWNG",
+    "abo_B082DFL4JW"
+   ]
+  },
+  {
+   "type": "desk",
+   "family": "modern",
+   "count": 6,
+   "models": [
+    "abo_B07HSCRFTN",
+    "abo_B07TKY3L6X",
+    "abo_B075ZBVZST",
+    "abo_B01FK3FWNG",
+    "abo_B07GFT639N"
+   ]
+  },
+  {
+   "type": "chair",
+   "family": "scandinavian",
+   "count": 4,
+   "models": [
+    "d2785b57e7da45858f2fe8bf4dedd68d",
+    "acf6497a3d274d90ad3750510348f07a",
+    "abo_B07JK8CL2Z",
+    "abo_B0857JM2NC"
+   ]
+  },
+  {
+   "type": "chair",
+   "family": "modern minimal",
+   "count": 4,
+   "models": [
+    "abo_B0728NW8FP",
+    "d2785b57e7da45858f2fe8bf4dedd68d",
+    "acf6497a3d274d90ad3750510348f07a",
+    "abo_B0857JM2NC"
+   ]
+  },
+  {
+   "type": "chair",
+   "family": "japandi",
+   "count": 3,
+   "models": [
+    "d2785b57e7da45858f2fe8bf4dedd68d",
+    "acf6497a3d274d90ad3750510348f07a",
+    "abo_B0857JM2NC"
+   ]
+  },
+  {
+   "type": "chair",
+   "family": "modern",
+   "count": 7,
+   "models": [
+    "abo_B01MQJV7ID",
+    "abo_B0728NW8FP",
+    "d2785b57e7da45858f2fe8bf4dedd68d",
+    "acf6497a3d274d90ad3750510348f07a",
+    "abo_B07JK8CL2Z"
+   ]
+  },
+  {
+   "type": "wardrobe",
+   "family": "scandinavian",
+   "count": 4,
+   "models": [
+    "abo_B07GFS1VB6",
+    "abo_B07JGPKZYT",
+    "abo_B07GFRKNR1",
+    "abo_B07B3XXD3P"
+   ]
+  },
+  {
+   "type": "wardrobe",
+   "family": "modern minimal",
+   "count": 4,
+   "models": [
+    "abo_B07GFS1VB6",
+    "abo_B07JGPKZYT",
+    "abo_B07GFRKNR1",
+    "abo_B07B3XXD3P"
+   ]
+  },
+  {
+   "type": "wardrobe",
+   "family": "japandi",
+   "count": 1,
+   "models": [
+    "abo_B07B3XXD3P"
+   ]
+  },
+  {
+   "type": "wardrobe",
+   "family": "modern",
+   "count": 4,
+   "models": [
+    "abo_B07GFS1VB6",
+    "abo_B07JGPKZYT",
+    "abo_B07GFRKNR1",
+    "abo_B07B3XXD3P"
+   ]
+  },
+  {
+   "type": "fridge",
+   "family": "modern minimal",
+   "count": 3,
+   "models": [
+    "2071bda681b642218b6829b82e4fd93b",
+    "68d69bbf7a454a09a2536ac0762532f3",
+    "c9c4e705bf794cb88d5d8726095f4917"
+   ]
+  },
+  {
+   "type": "fridge",
+   "family": "modern",
+   "count": 3,
+   "models": [
+    "2071bda681b642218b6829b82e4fd93b",
+    "68d69bbf7a454a09a2536ac0762532f3",
+    "c9c4e705bf794cb88d5d8726095f4917"
+   ]
+  },
+  {
+   "type": "stove",
+   "family": "scandinavian",
+   "count": 1,
+   "models": [
+    "electric_stove"
+   ]
+  },
+  {
+   "type": "stove",
+   "family": "modern minimal",
+   "count": 1,
+   "models": [
+    "electric_stove"
+   ]
+  },
+  {
+   "type": "stove",
+   "family": "japandi",
+   "count": 1,
+   "models": [
+    "electric_stove"
+   ]
+  },
+  {
+   "type": "stove",
+   "family": "modern",
+   "count": 1,
+   "models": [
+    "electric_stove"
+   ]
+  },
+  {
+   "type": "washbasin",
+   "family": "scandinavian",
+   "count": 1,
+   "models": [
+    "8580c4545d1649efb3503c6c2a012641"
+   ]
+  },
+  {
+   "type": "washbasin",
+   "family": "modern minimal",
+   "count": 3,
+   "models": [
+    "8580c4545d1649efb3503c6c2a012641",
+    "ce1a06f7cbe1425099a145f851fc5dee",
+    "3eafb89804b54c8e8cbe35e4d456e0a9"
+   ]
+  },
+  {
+   "type": "washbasin",
+   "family": "modern",
+   "count": 3,
+   "models": [
+    "8580c4545d1649efb3503c6c2a012641",
+    "ce1a06f7cbe1425099a145f851fc5dee",
+    "3eafb89804b54c8e8cbe35e4d456e0a9"
+   ]
+  },
+  {
+   "type": "toilet",
+   "family": "modern minimal",
+   "count": 3,
+   "models": [
+    "24d1b493899d407780140688abae19bc",
+    "0b3325fad3e740b1ac86173c90b56afd",
+    "3446229dce1f47528fa871cc7669136c"
+   ]
+  },
+  {
+   "type": "toilet",
+   "family": "modern",
+   "count": 3,
+   "models": [
+    "24d1b493899d407780140688abae19bc",
+    "0b3325fad3e740b1ac86173c90b56afd",
+    "3446229dce1f47528fa871cc7669136c"
+   ]
+  },
+  {
+   "type": "tv_unit",
+   "family": "scandinavian",
+   "count": 3,
+   "models": [
+    "abo_B00OGP5S98",
+    "abo_B07K6VT8VN",
+    "abo_B07VHNMRY8"
+   ]
+  },
+  {
+   "type": "tv_unit",
+   "family": "modern minimal",
+   "count": 6,
+   "models": [
+    "abo_B00OGP5S98",
+    "abo_B07HSG5DGP",
+    "abo_B07K6VT8VN",
+    "abo_B072ZNMKGM",
+    "abo_B07VHNMRY8"
+   ]
+  },
+  {
+   "type": "tv_unit",
+   "family": "japandi",
+   "count": 8,
+   "models": [
+    "abo_B00OGP5S98",
+    "abo_B07BVHKPFS",
+    "abo_B07HSG5DGP",
+    "abo_B07K6VT8VN",
+    "abo_B07DYV7WNN"
+   ]
+  },
+  {
+   "type": "tv_unit",
+   "family": "modern",
+   "count": 5,
+   "models": [
+    "abo_B00OGP5S98",
+    "abo_B07BVHKPFS",
+    "abo_B07K6VT8VN",
+    "abo_B07VHNMRY8",
+    "modern_wooden_cabinet"
+   ]
+  },
+  {
+   "type": "bookshelf",
+   "family": "scandinavian",
+   "count": 7,
+   "models": [
+    "abo_B07JGY5LNV",
+    "abo_B07B7J2VCD",
+    "abo_B07H8P1N9T",
+    "abo_B07HSCNKCT",
+    "abo_B07QC876WJ"
+   ]
+  },
+  {
+   "type": "bookshelf",
+   "family": "modern minimal",
+   "count": 9,
+   "models": [
+    "abo_B07JGY5LNV",
+    "eb98251fbccf4cdd8a3737362e2378e9",
+    "abo_B07B7J2VCD",
+    "abo_B07H8P1N9T",
+    "abo_B07HSCNKCT"
+   ]
+  },
+  {
+   "type": "bookshelf",
+   "family": "japandi",
+   "count": 4,
+   "models": [
+    "abo_B07JGY5LNV",
+    "abo_B07HSCNKCT",
+    "b43c45317fd74a4aa9ba443b9a355ea3",
+    "wooden_display_shelves_01"
+   ]
+  },
+  {
+   "type": "bookshelf",
+   "family": "modern",
+   "count": 7,
+   "models": [
+    "abo_B07JGY5LNV",
+    "eb98251fbccf4cdd8a3737362e2378e9",
+    "abo_B07B7J2VCD",
+    "abo_B07H8P1N9T",
+    "abo_B07HSCNKCT"
+   ]
+  },
+  {
+   "type": "nightstand",
+   "family": "scandinavian",
+   "count": 4,
+   "models": [
+    "abo_B01D3C7Z4A",
+    "abo_B07K7K7GTZ",
+    "abo_B07VB7Q6W7",
+    "side_table_01"
+   ]
+  },
+  {
+   "type": "nightstand",
+   "family": "modern minimal",
+   "count": 5,
+   "models": [
+    "abo_B01D3C7Z4A",
+    "abo_B07K7K7GTZ",
+    "abo_B07VB7Q6W7",
+    "abo_B084MYDTKM",
+    "side_table_01"
+   ]
+  },
+  {
+   "type": "nightstand",
+   "family": "japandi",
+   "count": 5,
+   "models": [
+    "abo_B01D3C7Z4A",
+    "abo_B07K7K7GTZ",
+    "abo_B07VB7Q6W7",
+    "abo_B084MYDTKM",
+    "side_table_01"
+   ]
+  },
+  {
+   "type": "nightstand",
+   "family": "modern",
+   "count": 4,
+   "models": [
+    "abo_B01D3C7Z4A",
+    "abo_B07K7K7GTZ",
+    "abo_B07VB7Q6W7",
+    "side_table_01"
+   ]
+  },
+  {
+   "type": "dresser",
+   "family": "scandinavian",
+   "count": 5,
+   "models": [
+    "abo_B075YZYJQN",
+    "abo_B071P9WJBT",
+    "abo_B07FFWSBBF",
+    "abo_B01MG6BPC6",
+    "abo_B00838756S"
+   ]
+  },
+  {
+   "type": "dresser",
+   "family": "modern minimal",
+   "count": 7,
+   "models": [
+    "abo_B071FJR3S6",
+    "abo_B075YZYJQN",
+    "abo_B071P9WJBT",
+    "abo_B071FJR479",
+    "abo_B07FFWSBBF"
+   ]
+  },
+  {
+   "type": "dresser",
+   "family": "japandi",
+   "count": 4,
+   "models": [
+    "abo_B075YZYJQN",
+    "abo_B071P9WJBT",
+    "abo_B01MG6BPC6",
+    "abo_B00838756S"
+   ]
+  },
+  {
+   "type": "dresser",
+   "family": "modern",
+   "count": 7,
+   "models": [
+    "abo_B075YZYJQN",
+    "abo_B071P9WJBT",
+    "abo_B071FJR479",
+    "abo_B07FFWSBBF",
+    "abo_B07HSH4WFB"
+   ]
+  },
+  {
+   "type": "side_table",
+   "family": "scandinavian",
+   "count": 4,
+   "models": [
+    "abo_B075Z8KX91",
+    "abo_B075Z8TDQ6",
+    "abo_B07DB92DKW",
+    "abo_B07H2J7689"
+   ]
+  },
+  {
+   "type": "side_table",
+   "family": "modern minimal",
+   "count": 6,
+   "models": [
+    "abo_B072ZKPK7J",
+    "abo_B07QGFZ2B4",
+    "abo_B075Z8TDQ6",
+    "abo_B07DB92DKW",
+    "abo_B07HSCRGTJ"
+   ]
+  },
+  {
+   "type": "side_table",
+   "family": "japandi",
+   "count": 5,
+   "models": [
+    "abo_B075Z8KX91",
+    "abo_B075Z8TDQ6",
+    "abo_B07MF1TQYR",
+    "abo_B07DB92DKW",
+    "abo_B07H2J7689"
+   ]
+  },
+  {
+   "type": "side_table",
+   "family": "modern",
+   "count": 4,
+   "models": [
+    "abo_B075Z8TDQ6",
+    "abo_B07MBFDHRY",
+    "abo_B07HSCRGTJ",
+    "abo_B07H2J7689"
+   ]
+  },
+  {
+   "type": "floor_lamp",
+   "family": "scandinavian",
+   "count": 3,
+   "models": [
+    "abo_B07B4ZK8BR",
+    "abo_B073P3S1NX",
+    "53409613b45b42b98b979f12ab8faa12"
+   ]
+  },
+  {
+   "type": "floor_lamp",
+   "family": "modern minimal",
+   "count": 5,
+   "models": [
+    "abo_B07HKF59YX",
+    "abo_B0824FJCWG",
+    "abo_B07374SBFN",
+    "abo_B073P3S1NX",
+    "53409613b45b42b98b979f12ab8faa12"
+   ]
+  },
+  {
+   "type": "floor_lamp",
+   "family": "modern",
+   "count": 8,
+   "models": [
+    "abo_B07HKF59YX",
+    "abo_B07DBHCKML",
+    "abo_B07B4ZK8BR",
+    "abo_B07374K536",
+    "abo_B0824FJCWG"
+   ]
+  },
+  {
+   "type": "potted_plant",
+   "family": "modern minimal",
+   "count": 2,
+   "models": [
+    "9dd44cda400c48a083ffd9480067f04f",
+    "57972124483145b4a4bbf4fd4caca6e7"
+   ]
+  },
+  {
+   "type": "potted_plant",
+   "family": "modern",
+   "count": 1,
+   "models": [
+    "bf122cd0854e422bb94704552c64810b"
+   ]
+  }
+ ]
+}

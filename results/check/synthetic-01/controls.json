@@ -1,0 +1,136 @@
+{
+ "schema_version": "0.1",
+ "dir_relative_to": "project_out",
+ "controls": [
+  {
+   "id": "f_L0_006",
+   "index": 17,
+   "kind": "furniture",
+   "type": "bed_double",
+   "camera": "cam_r_L0_yatak_odasi_1",
+   "room_id": "r_L0_yatak_odasi",
+   "area_frac": 0.17916,
+   "source": "from_documents",
+   "plug": false,
+   "dir": "controls/hide_f_L0_006"
+  },
+  {
+   "id": "f_L1_001",
+   "index": 46,
+   "kind": "furniture",
+   "type": "bed_double",
+   "camera": "cam_r_L1_ebeveyn_yatak_odasi_1",
+   "room_id": "r_L1_ebeveyn_yatak_odasi",
+   "area_frac": 0.1741,
+   "source": "added_by_ai",
+   "plug": false,
+   "dir": "controls/hide_f_L1_001"
+  },
+  {
+   "id": "f_L1_018",
+   "index": 63,
+   "kind": "furniture",
+   "type": "wardrobe",
+   "camera": "cam_r_L1_cocuk_odasi_1",
+   "room_id": "r_L1_cocuk_odasi",
+   "area_frac": 0.13754,
+   "source": "added_by_ai",
+   "plug": false,
+   "dir": "controls/hide_f_L1_018"
+  },
+  {
+   "id": "win_L1_001",
+   "index": 40,
+   "kind": "window",
+   "type": "window",
+   "camera": "cam_r_L1_ebeveyn_yatak_odasi_3",
+   "room_id": "r_L1_ebeveyn_yatak_odasi",
+   "area_frac": 0.0882,
+   "source": "from_documents",
+   "plug": true,
+   "dir": "controls/hide_win_L1_001"
+  },
+  {
+   "id": "win_L1_004",
+   "index": 43,
+   "kind": "window",
+   "type": "window",
+   "camera": "cam_r_L1_cocuk_odasi_1",
+   "room_id": "r_L1_cocuk_odasi",
+   "area_frac": 0.06519,
+   "source": "from_documents",
+   "plug": true,
+   "dir": "controls/hide_win_L1_004"
+  },
+  {
+   "id": "win_L0_006",
+   "index": 11,
+   "kind": "window",
+   "type": "window",
+   "camera": "cam_r_L0_banyo_1",
+   "room_id": "r_L0_banyo",
+   "area_frac": 0.04091,
+   "source": "from_documents",
+   "plug": true,
+   "dir": "controls/hide_win_L0_006"
+  },
+  {
+   "id": "d_L0_001",
+   "index": 1,
+   "kind": "door",
+   "type": "door",
+   "camera": "cam_r_L0_hol_1",
+   "room_id": "r_L0_hol",
+   "area_frac": 0.11196,
+   "source": "from_documents",
+   "plug": false,
+   "dir": "controls/hide_d_L0_001"
+  },
+  {
+   "id": "d_L1_003",
+   "index": 38,
+   "kind": "door",
+   "type": "door",
+   "camera": "cam_r_L1_yatak_odasi_3",
+   "room_id": "r_L1_yatak_odasi",
+   "area_frac": 0.08696,
+   "source": "from_documents",
+   "plug": false,
+   "dir": "controls/hide_d_L1_003"
+  }
+ ],
+ "swaps": [
+  {
+   "id": "f_L0_006",
+   "index": 17,
+   "type": "bed_double",
+   "camera": "cam_r_L0_yatak_odasi_1",
+   "room_id": "r_L0_yatak_odasi",
+   "area_frac": 0.17916,
+   "source": "from_documents",
+   "swap_to": "sofa"
+  },
+  {
+   "id": "f_L1_001",
+   "index": 46,
+   "type": "bed_double",
+   "camera": "cam_r_L1_ebeveyn_yatak_odasi_1",
+   "room_id": "r_L1_ebeveyn_yatak_odasi",
+   "area_frac": 0.1741,
+   "source": "added_by_ai",
+   "swap_to": "sofa"
+  },
+  {
+   "id": "f_L0_001",
+   "index": 12,
+   "type": "sofa",
+   "camera": "cam_r_L0_salon_1",
+   "room_id": "r_L0_salon",
+   "area_frac": 0.09208,
+   "source": "from_documents",
+   "swap_to": "bed_double"
+  }
+ ],
+ "project": "synthetic-01",
+ "hide_sets": "cam_r_L0_yatak_odasi_1:f_L0_006;cam_r_L1_ebeveyn_yatak_odasi_1:f_L1_001;cam_r_L1_cocuk_odasi_1:f_L1_018;cam_r_L1_ebeveyn_yatak_odasi_3:win_L1_001+plug;cam_r_L1_cocuk_odasi_1:win_L1_004+plug;cam_r_L0_banyo_1:win_L0_006+plug;cam_r_L0_hol_1:d_L0_001;cam_r_L1_yatak_odasi_3:d_L1_003"
+}

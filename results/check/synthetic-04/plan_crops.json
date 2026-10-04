@@ -1,0 +1,203 @@
+{
+ "schema_version": "0.1",
+ "project": "synthetic-04",
+ "views": {
+  "cam_r_L3_banyo_1": {
+   "plan": "cam_r_L3_banyo_1_plan.jpg",
+   "document": "3_kat_plani.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "3_kat_plani.dxf",
+   "crop_origin_px": [
+    815,
+    227
+   ],
+   "scale": 1.68776,
+   "bytes": 53128
+  },
+  "cam_r_L3_banyo_2": {
+   "plan": "cam_r_L3_banyo_2_plan.jpg",
+   "document": "3_kat_plani.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "3_kat_plani.dxf",
+   "crop_origin_px": [
+    815,
+    227
+   ],
+   "scale": 1.68776,
+   "bytes": 47519
+  },
+  "cam_r_L3_cocuk_odasi_1": {
+   "plan": "cam_r_L3_cocuk_odasi_1_plan.jpg",
+   "document": "3_kat_plani.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "3_kat_plani.dxf",
+   "crop_origin_px": [
+    1173,
+    227
+   ],
+   "scale": 1.33111,
+   "bytes": 63521
+  },
+  "cam_r_L3_cocuk_odasi_2": {
+   "plan": "cam_r_L3_cocuk_odasi_2_plan.jpg",
+   "document": "3_kat_plani.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "3_kat_plani.dxf",
+   "crop_origin_px": [
+    1173,
+    227
+   ],
+   "scale": 1.33111,
+   "bytes": 65485
+  },
+  "cam_r_L3_cocuk_odasi_3": {
+   "plan": "cam_r_L3_cocuk_odasi_3_plan.jpg",
+   "document": "3_kat_plani.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "3_kat_plani.dxf",
+   "crop_origin_px": [
+    1173,
+    227
+   ],
+   "scale": 1.33111,
+   "bytes": 64253
+  },
+  "cam_r_L3_hol_1": {
+   "plan": "cam_r_L3_hol_1_plan.jpg",
+   "document": "3_kat_plani.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "3_kat_plani.dxf",
+   "crop_origin_px": [
+    597,
+    227
+   ],
+   "scale": 1.15607,
+   "bytes": 51357
+  },
+  "cam_r_L3_hol_2": {
+   "plan": "cam_r_L3_hol_2_plan.jpg",
+   "document": "3_kat_plani.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "3_kat_plani.dxf",
+   "crop_origin_px": [
+    597,
+    227
+   ],
+   "scale": 1.15607,
+   "bytes": 48851
+  },
+  "cam_r_L3_hol_3": {
+   "plan": "cam_r_L3_hol_3_plan.jpg",
+   "document": "3_kat_plani.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "3_kat_plani.dxf",
+   "crop_origin_px": [
+    597,
+    227
+   ],
+   "scale": 1.15607,
+   "bytes": 48723
+  },
+  "cam_r_L3_salon_mutfak_1": {
+   "plan": "cam_r_L3_salon_mutfak_1_plan.jpg",
+   "document": "3_kat_plani.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "3_kat_plani.dxf",
+   "crop_origin_px": [
+    176,
+    227
+   ],
+   "scale": 1.0,
+   "bytes": 128227
+  },
+  "cam_r_L3_salon_mutfak_2": {
+   "plan": "cam_r_L3_salon_mutfak_2_plan.jpg",
+   "document": "3_kat_plani.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "3_kat_plani.dxf",
+   "crop_origin_px": [
+    176,
+    227
+   ],
+   "scale": 1.0,
+   "bytes": 104491
+  },
+  "cam_r_L3_salon_mutfak_3": {
+   "plan": "cam_r_L3_salon_mutfak_3_plan.jpg",
+   "document": "3_kat_plani.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "3_kat_plani.dxf",
+   "crop_origin_px": [
+    176,
+    227
+   ],
+   "scale": 1.0,
+   "bytes": 128498
+  },
+  "cam_r_L3_yatak_odasi_1": {
+   "plan": "cam_r_L3_yatak_odasi_1_plan.jpg",
+   "document": "3_kat_plani.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "3_kat_plani.dxf",
+   "crop_origin_px": [
+    1045,
+    636
+   ],
+   "scale": 1.09739,
+   "bytes": 64689
+  },
+  "cam_r_L3_yatak_odasi_2": {
+   "plan": "cam_r_L3_yatak_odasi_2_plan.jpg",
+   "document": "3_kat_plani.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "3_kat_plani.dxf",
+   "crop_origin_px": [
+    1045,
+    636
+   ],
+   "scale": 1.09739,
+   "bytes": 66383
+  },
+  "cam_r_L3_yatak_odasi_3": {
+   "plan": "cam_r_L3_yatak_odasi_3_plan.jpg",
+   "document": "3_kat_plani.dxf",
+   "page": 1,
+   "format": "dxf",
+   "source_kind": "dxf",
+   "drawn_on": "3_kat_plani.dxf",
+   "crop_origin_px": [
+    1045,
+    636
+   ],
+   "scale": 1.09739,
+   "bytes": 68314
+  }
+ },
+ "warnings": []
+}

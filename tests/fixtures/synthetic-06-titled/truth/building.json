@@ -1,0 +1,1376 @@
+{
+ "schema_version": "0.1",
+ "project": {
+  "id": "synthetic-06-titled",
+  "source_folder": "tests/fixtures/synthetic-06-titled",
+  "created_utc": "2026-10-01T00:00:00Z",
+  "pipeline_commit": "synthetic-generator",
+  "unit_system": "imperial"
+ },
+ "status": "ok",
+ "documents": [
+  {
+   "id": "doc_synthetic_06_titled_dxf",
+   "file": "synthetic-06-titled.dxf",
+   "format": "dxf",
+   "converter": null,
+   "unit_system": "imperial",
+   "source_kind": "dxf",
+   "pages": [
+    {
+     "page": 1,
+     "class": "floor_plan",
+     "skip_reason": null,
+     "kind": "vector",
+     "level_id": "L0",
+     "level_label_raw": "GROUND FLOOR PLAN",
+     "classifier": "title",
+     "scale": {
+      "metres_per_unit": 0.0254,
+      "method": "dxf_insunits",
+      "confidence": 1.0,
+      "evidence": {
+       "file": "synthetic-06-titled.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "entity": "$INSUNITS=1"
+      }
+     },
+     "transform_to_building": [
+      0.0254,
+      0.0,
+      -12.192,
+      0.0,
+      0.0254,
+      -6.096
+     ],
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "synthetic-06-titled.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "layer": "A-ANNO",
+       "entity": "TEXT:187",
+       "text": "GROUND FLOOR PLAN"
+      }
+     ],
+     "debug_image": null
+    }
+   ]
+  }
+ ],
+ "levels": [
+  {
+   "id": "L0",
+   "label": "Ground Floor",
+   "order": 0,
+   "elevation": 0.0,
+   "ceiling_height": 2.7,
+   "ceiling_height_source": "assumed_default",
+   "label_source": "title",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A-ANNO",
+     "entity": "TEXT:187",
+     "text": "GROUND FLOOR PLAN"
+    }
+   ]
+  }
+ ],
+ "walls": [
+  {
+   "id": "w_L0_001",
+   "level_id": "L0",
+   "start": [
+    0.1143,
+    0.0
+   ],
+   "end": [
+    0.1143,
+    9.2964
+   ],
+   "thickness": 0.2286,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "vector",
+     "confidence": 0.95,
+     "layer": "A-WALL",
+     "entity": "HATCH:C4"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_002",
+   "level_id": "L0",
+   "start": [
+    7.2009,
+    0.0
+   ],
+   "end": [
+    7.2009,
+    9.2964
+   ],
+   "thickness": 0.2286,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "vector",
+     "confidence": 0.95,
+     "layer": "A-WALL",
+     "entity": "HATCH:C4"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_003",
+   "level_id": "L0",
+   "start": [
+    0.2286,
+    0.1143
+   ],
+   "end": [
+    7.0866,
+    0.1143
+   ],
+   "thickness": 0.2286,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "vector",
+     "confidence": 0.95,
+     "layer": "A-WALL",
+     "entity": "HATCH:C4"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_004",
+   "level_id": "L0",
+   "start": [
+    0.2286,
+    9.1821
+   ],
+   "end": [
+    7.0866,
+    9.1821
+   ],
+   "thickness": 0.2286,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "vector",
+     "confidence": 0.95,
+     "layer": "A-WALL",
+     "entity": "HATCH:C4"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_005",
+   "level_id": "L0",
+   "start": [
+    0.2286,
+    3.9624
+   ],
+   "end": [
+    7.0866,
+    3.9624
+   ],
+   "thickness": 0.1524,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "vector",
+     "confidence": 0.95,
+     "layer": "A-WALL",
+     "entity": "HATCH:C4"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_006",
+   "level_id": "L0",
+   "start": [
+    0.2286,
+    5.6388
+   ],
+   "end": [
+    7.0866,
+    5.6388
+   ],
+   "thickness": 0.1524,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "vector",
+     "confidence": 0.95,
+     "layer": "A-WALL",
+     "entity": "HATCH:C4"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_007",
+   "level_id": "L0",
+   "start": [
+    2.7432,
+    2.0574
+   ],
+   "end": [
+    2.7432,
+    3.8862
+   ],
+   "thickness": 0.1524,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "vector",
+     "confidence": 0.95,
+     "layer": "A-WALL",
+     "entity": "HATCH:C4"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_008",
+   "level_id": "L0",
+   "start": [
+    2.4384,
+    4.0386
+   ],
+   "end": [
+    2.4384,
+    5.5626
+   ],
+   "thickness": 0.1524,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "vector",
+     "confidence": 0.95,
+     "layer": "A-WALL",
+     "entity": "HATCH:C4"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_009",
+   "level_id": "L0",
+   "start": [
+    3.5052,
+    5.715
+   ],
+   "end": [
+    3.5052,
+    9.0678
+   ],
+   "thickness": 0.1524,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "vector",
+     "confidence": 0.95,
+     "layer": "A-WALL",
+     "entity": "HATCH:C4"
+    }
+   ]
+  }
+ ],
+ "openings": [
+  {
+   "id": "d_L0_001",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_002",
+   "center": [
+    7.2009,
+    4.8006
+   ],
+   "width": 0.9144,
+   "height": 2.1,
+   "sill_height": null,
+   "assumed": [
+    "height"
+   ],
+   "swing_side": "r_L0_lobby",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "vector",
+     "confidence": 0.95,
+     "layer": "A-DOOR",
+     "entity": "ARC:CB"
+    }
+   ]
+  },
+  {
+   "id": "d_L0_002",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_008",
+   "center": [
+    2.4384,
+    4.8006
+   ],
+   "width": 0.762,
+   "height": 2.1,
+   "sill_height": null,
+   "assumed": [
+    "height"
+   ],
+   "swing_side": "r_L0_bath",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "vector",
+     "confidence": 0.95,
+     "layer": "A-DOOR",
+     "entity": "ARC:CD"
+    }
+   ]
+  },
+  {
+   "id": "d_L0_003",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_006",
+   "center": [
+    2.9972,
+    5.6388
+   ],
+   "width": 0.8128,
+   "height": 2.1,
+   "sill_height": null,
+   "assumed": [
+    "height"
+   ],
+   "swing_side": "r_L0_bed_room",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "vector",
+     "confidence": 0.95,
+     "layer": "A-DOOR",
+     "entity": "ARC:CF"
+    }
+   ]
+  },
+  {
+   "id": "d_L0_004",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_006",
+   "center": [
+    4.1148,
+    5.6388
+   ],
+   "width": 0.8128,
+   "height": 2.1,
+   "sill_height": null,
+   "assumed": [
+    "height"
+   ],
+   "swing_side": "r_L0_master_bed_room",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "vector",
+     "confidence": 0.95,
+     "layer": "A-DOOR",
+     "entity": "ARC:D1"
+    }
+   ]
+  },
+  {
+   "id": "d_L0_005",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_005",
+   "center": [
+    6.2484,
+    3.9624
+   ],
+   "width": 0.8128,
+   "height": 2.1,
+   "sill_height": null,
+   "assumed": [
+    "height"
+   ],
+   "swing_side": "r_L0_living_room",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "vector",
+     "confidence": 0.95,
+     "layer": "A-DOOR",
+     "entity": "ARC:D3"
+    }
+   ]
+  },
+  {
+   "id": "win_L0_001",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_003",
+   "center": [
+    1.4478,
+    0.1143
+   ],
+   "width": 1.2192,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "assumed": [
+    "height",
+    "sill_height"
+   ],
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "vector",
+     "confidence": 0.9,
+     "layer": "A-GLAZ",
+     "entity": "LINE:D5"
+    }
+   ]
+  },
+  {
+   "id": "win_L0_002",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_003",
+   "center": [
+    4.953,
+    0.1143
+   ],
+   "width": 1.8288,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "assumed": [
+    "height",
+    "sill_height"
+   ],
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "vector",
+     "confidence": 0.9,
+     "layer": "A-GLAZ",
+     "entity": "LINE:DA"
+    }
+   ]
+  },
+  {
+   "id": "win_L0_003",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_002",
+   "center": [
+    7.2009,
+    2.0574
+   ],
+   "width": 1.2192,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "assumed": [
+    "height",
+    "sill_height"
+   ],
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "vector",
+     "confidence": 0.9,
+     "layer": "A-GLAZ",
+     "entity": "LINE:DF"
+    }
+   ]
+  },
+  {
+   "id": "win_L0_004",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_001",
+   "center": [
+    0.1143,
+    4.8006
+   ],
+   "width": 0.6096,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "assumed": [
+    "height",
+    "sill_height"
+   ],
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "vector",
+     "confidence": 0.9,
+     "layer": "A-GLAZ",
+     "entity": "LINE:E4"
+    }
+   ]
+  },
+  {
+   "id": "win_L0_005",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_004",
+   "center": [
+    1.8288,
+    9.1821
+   ],
+   "width": 1.524,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "assumed": [
+    "height",
+    "sill_height"
+   ],
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "vector",
+     "confidence": 0.9,
+     "layer": "A-GLAZ",
+     "entity": "LINE:E9"
+    }
+   ]
+  },
+  {
+   "id": "win_L0_006",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_004",
+   "center": [
+    5.334,
+    9.1821
+   ],
+   "width": 1.524,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "assumed": [
+    "height",
+    "sill_height"
+   ],
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "vector",
+     "confidence": 0.9,
+     "layer": "A-GLAZ",
+     "entity": "LINE:EE"
+    }
+   ]
+  },
+  {
+   "id": "win_L0_007",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_002",
+   "center": [
+    7.2009,
+    7.3914
+   ],
+   "width": 1.2192,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "assumed": [
+    "height",
+    "sill_height"
+   ],
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "vector",
+     "confidence": 0.9,
+     "layer": "A-GLAZ",
+     "entity": "LINE:F3"
+    }
+   ]
+  },
+  {
+   "id": "win_L0_008",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_001",
+   "center": [
+    0.1143,
+    7.3914
+   ],
+   "width": 1.2192,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "assumed": [
+    "height",
+    "sill_height"
+   ],
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "vector",
+     "confidence": 0.9,
+     "layer": "A-GLAZ",
+     "entity": "LINE:F8"
+    }
+   ]
+  },
+  {
+   "id": "o_L0_001",
+   "type": "opening",
+   "level_id": "L0",
+   "wall_id": null,
+   "virtual": true,
+   "line": [
+    [
+     2.7432,
+     2.0574
+    ],
+    [
+     2.7432,
+     0.2286
+    ]
+   ],
+   "center": [
+    2.7432,
+    1.143
+   ],
+   "width": 1.8288,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_007"
+    }
+   ]
+  }
+ ],
+ "rooms": [
+  {
+   "id": "r_L0_kitchen",
+   "level_id": "L0",
+   "label": "Kitchen",
+   "label_raw": "KITCHEN",
+   "room_type": "kitchen",
+   "polygon": [
+    [
+     0.2286,
+     0.2286
+    ],
+    [
+     2.667,
+     0.2286
+    ],
+    [
+     2.667,
+     3.8862
+    ],
+    [
+     0.2286,
+     3.8862
+    ]
+   ],
+   "area_computed": 8.919,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A-ANNO",
+     "entity": "ATTRIB:10A",
+     "block": "ROOMTAG",
+     "text": "KITCHEN"
+    },
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_001,w_L0_003,w_L0_005,w_L0_007,o_L0_001"
+    }
+   ]
+  },
+  {
+   "id": "r_L0_living_room",
+   "level_id": "L0",
+   "label": "Living Room",
+   "label_raw": "LIVING ROOM",
+   "room_type": "living",
+   "polygon": [
+    [
+     2.8194,
+     0.2286
+    ],
+    [
+     7.0866,
+     0.2286
+    ],
+    [
+     7.0866,
+     3.8862
+    ],
+    [
+     2.8194,
+     3.8862
+    ]
+   ],
+   "area_computed": 15.608,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A-ANNO",
+     "entity": "MTEXT:107:0",
+     "text": "LIVING ROOM"
+    },
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_002,w_L0_003,w_L0_005,w_L0_007,o_L0_001"
+    }
+   ],
+   "label_size": {
+    "text": "14'-0\" X 12'-0\"",
+    "width_m": 4.2672,
+    "length_m": 3.6576,
+    "measured": [
+     4.2672,
+     3.6576
+    ],
+    "status": "ok"
+   }
+  },
+  {
+   "id": "r_L0_bath",
+   "level_id": "L0",
+   "label": "Bath",
+   "label_raw": "BATH",
+   "room_type": "bathroom",
+   "polygon": [
+    [
+     0.2286,
+     4.0386
+    ],
+    [
+     2.3622,
+     4.0386
+    ],
+    [
+     2.3622,
+     5.5626
+    ],
+    [
+     0.2286,
+     5.5626
+    ]
+   ],
+   "area_computed": 3.252,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A-ANNO",
+     "entity": "TEXT:10C",
+     "text": "BATH"
+    },
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_001,w_L0_005,w_L0_006,w_L0_008"
+    }
+   ]
+  },
+  {
+   "id": "r_L0_lobby",
+   "level_id": "L0",
+   "label": "Lobby",
+   "label_raw": "LOBBY",
+   "room_type": "hall",
+   "polygon": [
+    [
+     2.5146,
+     4.0386
+    ],
+    [
+     7.0866,
+     4.0386
+    ],
+    [
+     7.0866,
+     5.5626
+    ],
+    [
+     2.5146,
+     5.5626
+    ]
+   ],
+   "area_computed": 6.968,
+   "area_label": null,
+   "has_documented_furniture": false,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A-ANNO",
+     "entity": "TEXT:10B",
+     "text": "LOBBY"
+    },
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_002,w_L0_005,w_L0_006,w_L0_008"
+    }
+   ]
+  },
+  {
+   "id": "r_L0_bed_room",
+   "level_id": "L0",
+   "label": "Bed Room",
+   "label_raw": "BED ROOM",
+   "room_type": "bedroom",
+   "polygon": [
+    [
+     0.2286,
+     5.715
+    ],
+    [
+     3.429,
+     5.715
+    ],
+    [
+     3.429,
+     9.0678
+    ],
+    [
+     0.2286,
+     9.0678
+    ]
+   ],
+   "area_computed": 10.73,
+   "area_label": null,
+   "has_documented_furniture": false,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A-ANNO",
+     "entity": "TEXT:10D",
+     "text": "BED ROOM"
+    },
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_001,w_L0_004,w_L0_006,w_L0_009"
+    }
+   ]
+  },
+  {
+   "id": "r_L0_master_bed_room",
+   "level_id": "L0",
+   "label": "Master Bed Room",
+   "label_raw": "MASTER BED ROOM",
+   "room_type": "bedroom",
+   "polygon": [
+    [
+     3.5814,
+     5.715
+    ],
+    [
+     7.0866,
+     5.715
+    ],
+    [
+     7.0866,
+     9.0678
+    ],
+    [
+     3.5814,
+     9.0678
+    ]
+   ],
+   "area_computed": 11.752,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A-ANNO",
+     "entity": "TEXT:10E",
+     "text": "MASTER BED ROOM"
+    },
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_002,w_L0_004,w_L0_006,w_L0_009"
+    }
+   ]
+  }
+ ],
+ "furniture": [
+  {
+   "id": "f_L0_001",
+   "level_id": "L0",
+   "room_id": "r_L0_living_room",
+   "type": "sofa",
+   "type_raw": "SOFA-3",
+   "type_method": "block_name",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     4.953,
+     0.7366
+    ],
+    "size": [
+     2.1336,
+     0.9144
+    ],
+    "rotation_deg": 180.0
+   },
+   "front_deg": 90.0,
+   "height": null,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "vector",
+     "confidence": 0.9,
+     "layer": "A-FURN",
+     "entity": "INSERT:FD",
+     "block": "SOFA-3"
+    }
+   ]
+  },
+  {
+   "id": "f_L0_002",
+   "level_id": "L0",
+   "room_id": "r_L0_kitchen",
+   "type": "table_dining",
+   "type_raw": "DINING-6",
+   "type_method": "block_name",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     1.4478,
+     2.0574
+    ],
+    "size": [
+     1.8288,
+     0.9144
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "vector",
+     "confidence": 0.9,
+     "layer": "A-FURN",
+     "entity": "INSERT:FF",
+     "block": "DINING-6"
+    }
+   ]
+  },
+  {
+   "id": "f_L0_003",
+   "level_id": "L0",
+   "room_id": "r_L0_kitchen",
+   "type": "chair",
+   "type_raw": "DINING-6/CHAIR",
+   "type_method": "block_name",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     0.7112,
+     1.6002
+    ],
+    "size": [
+     0.4572,
+     0.4572
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": null,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "vector",
+     "confidence": 0.9,
+     "layer": "A-FURN",
+     "entity": "INSERT:FF/1",
+     "block": "DINING-6/CHAIR"
+    }
+   ]
+  },
+  {
+   "id": "f_L0_004",
+   "level_id": "L0",
+   "room_id": "r_L0_kitchen",
+   "type": "chair",
+   "type_raw": "DINING-6/CHAIR",
+   "type_method": "block_name",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     0.7112,
+     2.5146
+    ],
+    "size": [
+     0.4572,
+     0.4572
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": null,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "vector",
+     "confidence": 0.9,
+     "layer": "A-FURN",
+     "entity": "INSERT:FF/2",
+     "block": "DINING-6/CHAIR"
+    }
+   ]
+  },
+  {
+   "id": "f_L0_005",
+   "level_id": "L0",
+   "room_id": "r_L0_kitchen",
+   "type": "chair",
+   "type_raw": "DINING-6/CHAIR",
+   "type_method": "block_name",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     2.1844,
+     1.6002
+    ],
+    "size": [
+     0.4572,
+     0.4572
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": null,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "vector",
+     "confidence": 0.9,
+     "layer": "A-FURN",
+     "entity": "INSERT:FF/3",
+     "block": "DINING-6/CHAIR"
+    }
+   ]
+  },
+  {
+   "id": "f_L0_006",
+   "level_id": "L0",
+   "room_id": "r_L0_kitchen",
+   "type": "chair",
+   "type_raw": "DINING-6/CHAIR",
+   "type_method": "block_name",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     2.1844,
+     2.5146
+    ],
+    "size": [
+     0.4572,
+     0.4572
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": null,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "vector",
+     "confidence": 0.9,
+     "layer": "A-FURN",
+     "entity": "INSERT:FF/4",
+     "block": "DINING-6/CHAIR"
+    }
+   ]
+  },
+  {
+   "id": "f_L0_007",
+   "level_id": "L0",
+   "room_id": "r_L0_kitchen",
+   "type": "chair",
+   "type_raw": "DINING-6/CHAIR",
+   "type_method": "block_name",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     1.4478,
+     3.2512
+    ],
+    "size": [
+     0.4572,
+     0.4572
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "vector",
+     "confidence": 0.9,
+     "layer": "A-FURN",
+     "entity": "INSERT:FF/5",
+     "block": "DINING-6/CHAIR"
+    }
+   ]
+  },
+  {
+   "id": "f_L0_008",
+   "level_id": "L0",
+   "room_id": "r_L0_kitchen",
+   "type": "chair",
+   "type_raw": "DINING-6/CHAIR",
+   "type_method": "block_name",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     1.4478,
+     0.8636
+    ],
+    "size": [
+     0.4572,
+     0.4572
+    ],
+    "rotation_deg": 180.0
+   },
+   "front_deg": 90.0,
+   "height": null,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "vector",
+     "confidence": 0.9,
+     "layer": "A-FURN",
+     "entity": "INSERT:FF/6",
+     "block": "DINING-6/CHAIR"
+    }
+   ]
+  },
+  {
+   "id": "f_L0_009",
+   "level_id": "L0",
+   "room_id": "r_L0_master_bed_room",
+   "type": "bed_double",
+   "type_raw": "BED-DOUBLE",
+   "type_method": "block_name",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     5.334,
+     8.001
+    ],
+    "size": [
+     1.524,
+     2.032
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "vector",
+     "confidence": 0.9,
+     "layer": "A-FURN",
+     "entity": "INSERT:101",
+     "block": "BED-DOUBLE"
+    }
+   ]
+  },
+  {
+   "id": "f_L0_010",
+   "level_id": "L0",
+   "room_id": "r_L0_bath",
+   "type": "toilet",
+   "type_raw": "WC",
+   "type_method": "block_name",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     0.635,
+     4.3688
+    ],
+    "size": [
+     0.508,
+     0.7112
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": null,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "vector",
+     "confidence": 0.9,
+     "layer": "A-FURN",
+     "entity": "INSERT:103",
+     "block": "WC"
+    }
+   ]
+  },
+  {
+   "id": "f_L0_011",
+   "level_id": "L0",
+   "room_id": "r_L0_bath",
+   "type": "washbasin",
+   "type_raw": "BASIN",
+   "type_method": "block_name",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     1.27,
+     5.3086
+    ],
+    "size": [
+     0.508,
+     0.4064
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "synthetic-06-titled.dxf",
+     "method": "vector",
+     "confidence": 0.9,
+     "layer": "A-FURN",
+     "entity": "INSERT:105",
+     "block": "BASIN"
+    }
+   ]
+  }
+ ],
+ "conflicts": [],
+ "unverified": [],
+ "warnings": [
+  "Level L0: ceiling height assumed 2.70 m (no section drawing found)"
+ ]
+}

@@ -34,3 +34,16 @@ results/**/*.png
 .vscode/
 *.log
 logs/
+runs/
+
+# Claude Code worktrees used by review/fix agents
+.claude/worktrees/
+
+# Downloaded CC0 textures and HDRIs (manifest.json records them; pod: /workspace/assets)
+/assets/
+
+# Private projects (docs/milestone6.md §7, docs/intake.md): never committed. The repo is public;
+# private uploads, outputs and results live on the network volume, collected into runs/.
+/projects-private/
+/results-private/
+/outputs-private/

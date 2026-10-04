@@ -1,0 +1,3939 @@
+{
+ "schema_version": "0.1",
+ "project": {
+  "id": "synthetic-04",
+  "source_folder": "projects/synthetic-04",
+  "created_utc": "2026-10-04T09:59:57Z",
+  "pipeline_commit": "714dcc50e",
+  "brief": {
+   "style": "Japandi, walnut floor, cream walls, warm daylight, linen and paper lamps"
+  }
+ },
+ "status": "ok",
+ "documents": [
+  {
+   "id": "doc_3_kat_plani_dxf",
+   "file": "3_kat_plani.dxf",
+   "format": "dxf",
+   "converter": null,
+   "pages": [
+    {
+     "page": 1,
+     "class": "floor_plan",
+     "skip_reason": null,
+     "kind": "vector",
+     "level_id": "L3",
+     "level_label_raw": "3. KAT PLANI",
+     "classifier": "title",
+     "scale": {
+      "metres_per_unit": 0.001,
+      "method": "dxf_insunits",
+      "confidence": 1.0,
+      "evidence": {
+       "file": "3_kat_plani.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "entity": "$INSUNITS=4"
+      }
+     },
+     "transform_to_building": [
+      0.001,
+      0.0,
+      0.0,
+      0.0,
+      0.001,
+      0.0
+     ],
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "3_kat_plani.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "entity": "TEXT:157",
+       "text": "3. KAT PLANI"
+      }
+     ],
+     "debug_image": "debug/3_kat_plani_dxf_p1.png"
+    }
+   ],
+   "unit_system": "metric",
+   "source_kind": "dxf"
+  },
+  {
+   "id": "doc_3_kat_plani_pdf_pdf",
+   "file": "3_kat_plani_pdf.pdf",
+   "format": "pdf",
+   "converter": null,
+   "pages": [
+    {
+     "page": 1,
+     "class": "floor_plan",
+     "skip_reason": null,
+     "kind": "vector",
+     "level_id": "L3",
+     "level_label_raw": "3. KAT PLANI",
+     "classifier": "title",
+     "scale": {
+      "metres_per_unit": 0.035277777777777776,
+      "method": "pdf_scale_text",
+      "confidence": 1.0,
+      "evidence": {
+       "file": "3_kat_plani_pdf.pdf",
+       "method": "vector",
+       "confidence": 1.0,
+       "page": 1,
+       "entity": "char:37",
+       "text": "ÖLÇEK 1/100"
+      }
+     },
+     "transform_to_building": [
+      0.035277777777777776,
+      0.0,
+      -15.649222222222223,
+      0.0,
+      0.035277777777777776,
+      -10.749138888888888
+     ],
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "3_kat_plani_pdf.pdf",
+       "method": "vector",
+       "confidence": 1.0,
+       "page": 1,
+       "entity": "char:25",
+       "text": "3. KAT PLANI"
+      }
+     ],
+     "debug_image": "debug/3_kat_plani_pdf_pdf_p1.png"
+    }
+   ],
+   "unit_system": "metric",
+   "source_kind": "cad_pdf"
+  }
+ ],
+ "levels": [
+  {
+   "id": "L3",
+   "label": "3. Kat",
+   "order": 3,
+   "elevation": 9.0,
+   "ceiling_height": 2.7,
+   "ceiling_height_source": "assumed_default",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "entity": "TEXT:157",
+     "text": "3. KAT PLANI"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:25",
+     "text": "3. KAT PLANI"
+    }
+   ],
+   "label_source": "title"
+  }
+ ],
+ "walls": [
+  {
+   "id": "w_L3_001",
+   "level_id": "L3",
+   "start": [
+    0.0,
+    0.125
+   ],
+   "end": [
+    12.0,
+    0.125
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:105"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:1"
+    }
+   ]
+  },
+  {
+   "id": "w_L3_002",
+   "level_id": "L3",
+   "start": [
+    11.875,
+    0.0
+   ],
+   "end": [
+    11.875,
+    8.0
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:106"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:2"
+    }
+   ]
+  },
+  {
+   "id": "w_L3_003",
+   "level_id": "L3",
+   "start": [
+    0.0,
+    7.875
+   ],
+   "end": [
+    12.0,
+    7.875
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:107"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:3"
+    }
+   ]
+  },
+  {
+   "id": "w_L3_004",
+   "level_id": "L3",
+   "start": [
+    0.125,
+    0.0
+   ],
+   "end": [
+    0.125,
+    8.0
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:108"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:4"
+    }
+   ]
+  },
+  {
+   "id": "w_L3_005",
+   "level_id": "L3",
+   "start": [
+    3.5,
+    4.65
+   ],
+   "end": [
+    3.5,
+    7.75
+   ],
+   "thickness": 0.1,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:109"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:5"
+    }
+   ]
+  },
+  {
+   "id": "w_L3_006",
+   "level_id": "L3",
+   "start": [
+    3.45,
+    4.6
+   ],
+   "end": [
+    11.75,
+    4.6
+   ],
+   "thickness": 0.1,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:10A"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:6"
+    }
+   ]
+  },
+  {
+   "id": "w_L3_007",
+   "level_id": "L3",
+   "start": [
+    7.0,
+    0.25
+   ],
+   "end": [
+    7.0,
+    4.55
+   ],
+   "thickness": 0.1,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:10B"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:7"
+    }
+   ]
+  },
+  {
+   "id": "w_L3_008",
+   "level_id": "L3",
+   "start": [
+    5.15,
+    5.9
+   ],
+   "end": [
+    7.95,
+    5.9
+   ],
+   "thickness": 0.1,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:10C"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:8"
+    }
+   ]
+  },
+  {
+   "id": "w_L3_009",
+   "level_id": "L3",
+   "start": [
+    5.2,
+    5.95
+   ],
+   "end": [
+    5.2,
+    7.75
+   ],
+   "thickness": 0.1,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:10D"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:9"
+    }
+   ]
+  },
+  {
+   "id": "w_L3_010",
+   "level_id": "L3",
+   "start": [
+    8.0,
+    4.65
+   ],
+   "end": [
+    8.0,
+    7.75
+   ],
+   "thickness": 0.1,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:10E"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:10"
+    }
+   ]
+  }
+ ],
+ "openings": [
+  {
+   "id": "d_L3_001",
+   "type": "door",
+   "level_id": "L3",
+   "wall_id": "w_L3_003",
+   "center": [
+    4.35,
+    7.875
+   ],
+   "width": 0.9,
+   "height": null,
+   "sill_height": null,
+   "swing_side": "r_L3_hol",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "KAPI",
+     "entity": "INSERT:10F",
+     "block": "KAPI_90"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:11"
+    }
+   ]
+  },
+  {
+   "id": "d_L3_002",
+   "type": "door",
+   "level_id": "L3",
+   "wall_id": "w_L3_006",
+   "center": [
+    4.4,
+    4.6
+   ],
+   "width": 0.9,
+   "height": null,
+   "sill_height": null,
+   "swing_side": "r_L3_salon_mutfak",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "KAPI",
+     "entity": "INSERT:111",
+     "block": "KAPI_90"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:13"
+    }
+   ]
+  },
+  {
+   "id": "d_L3_003",
+   "type": "door",
+   "level_id": "L3",
+   "wall_id": "w_L3_009",
+   "center": [
+    5.2,
+    6.85
+   ],
+   "width": 0.8,
+   "height": null,
+   "sill_height": null,
+   "swing_side": "r_L3_banyo",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "KAPI",
+     "entity": "INSERT:113",
+     "block": "KAPI_80"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:15"
+    }
+   ]
+  },
+  {
+   "id": "d_L3_004",
+   "type": "door",
+   "level_id": "L3",
+   "wall_id": "w_L3_010",
+   "center": [
+    8.0,
+    5.25
+   ],
+   "width": 0.8,
+   "height": null,
+   "sill_height": null,
+   "swing_side": "r_L3_cocuk_odasi",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "KAPI",
+     "entity": "INSERT:115",
+     "block": "KAPI_80"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:17"
+    }
+   ]
+  },
+  {
+   "id": "d_L3_005",
+   "type": "door",
+   "level_id": "L3",
+   "wall_id": "w_L3_006",
+   "center": [
+    7.5,
+    4.6
+   ],
+   "width": 0.8,
+   "height": null,
+   "sill_height": null,
+   "swing_side": "r_L3_yatak_odasi",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "KAPI",
+     "entity": "INSERT:117",
+     "block": "KAPI_80"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:19"
+    }
+   ]
+  },
+  {
+   "id": "win_L3_001",
+   "type": "window",
+   "level_id": "L3",
+   "wall_id": "w_L3_001",
+   "center": [
+    2.0,
+    0.125
+   ],
+   "width": 1.8,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "PENCERE",
+     "entity": "INSERT:119",
+     "block": "PENCERE_180"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:21"
+    }
+   ]
+  },
+  {
+   "id": "win_L3_002",
+   "type": "window",
+   "level_id": "L3",
+   "wall_id": "w_L3_001",
+   "center": [
+    5.0,
+    0.125
+   ],
+   "width": 1.8,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "PENCERE",
+     "entity": "INSERT:11B",
+     "block": "PENCERE_180"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:25"
+    }
+   ]
+  },
+  {
+   "id": "win_L3_003",
+   "type": "window",
+   "level_id": "L3",
+   "wall_id": "w_L3_004",
+   "center": [
+    0.125,
+    2.3
+   ],
+   "width": 1.2,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "PENCERE",
+     "entity": "INSERT:11D",
+     "block": "PENCERE_120"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:29"
+    }
+   ]
+  },
+  {
+   "id": "win_L3_004",
+   "type": "window",
+   "level_id": "L3",
+   "wall_id": "w_L3_004",
+   "center": [
+    0.125,
+    6.2
+   ],
+   "width": 1.2,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "PENCERE",
+     "entity": "INSERT:11F",
+     "block": "PENCERE_120"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:33"
+    }
+   ]
+  },
+  {
+   "id": "win_L3_005",
+   "type": "window",
+   "level_id": "L3",
+   "wall_id": "w_L3_003",
+   "center": [
+    1.85,
+    7.875
+   ],
+   "width": 1.2,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "PENCERE",
+     "entity": "INSERT:121",
+     "block": "PENCERE_120"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:37"
+    }
+   ]
+  },
+  {
+   "id": "win_L3_006",
+   "type": "window",
+   "level_id": "L3",
+   "wall_id": "w_L3_003",
+   "center": [
+    6.6,
+    7.875
+   ],
+   "width": 0.6,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "PENCERE",
+     "entity": "INSERT:123",
+     "block": "PENCERE_60"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:41"
+    }
+   ]
+  },
+  {
+   "id": "win_L3_007",
+   "type": "window",
+   "level_id": "L3",
+   "wall_id": "w_L3_003",
+   "center": [
+    9.9,
+    7.875
+   ],
+   "width": 1.2,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "PENCERE",
+     "entity": "INSERT:125",
+     "block": "PENCERE_120"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:45"
+    }
+   ]
+  },
+  {
+   "id": "win_L3_008",
+   "type": "window",
+   "level_id": "L3",
+   "wall_id": "w_L3_002",
+   "center": [
+    11.875,
+    6.2
+   ],
+   "width": 1.2,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "PENCERE",
+     "entity": "INSERT:127",
+     "block": "PENCERE_120"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:49"
+    }
+   ]
+  },
+  {
+   "id": "win_L3_009",
+   "type": "window",
+   "level_id": "L3",
+   "wall_id": "w_L3_001",
+   "center": [
+    9.4,
+    0.125
+   ],
+   "width": 1.8,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "PENCERE",
+     "entity": "INSERT:129",
+     "block": "PENCERE_180"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:53"
+    }
+   ]
+  },
+  {
+   "id": "win_L3_010",
+   "type": "window",
+   "level_id": "L3",
+   "wall_id": "w_L3_002",
+   "center": [
+    11.875,
+    2.4
+   ],
+   "width": 1.2,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "PENCERE",
+     "entity": "INSERT:12B",
+     "block": "PENCERE_120"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:57"
+    }
+   ]
+  }
+ ],
+ "rooms": [
+  {
+   "id": "r_L3_salon_mutfak",
+   "level_id": "L3",
+   "label": "Salon + Mutfak",
+   "label_raw": "SALON + MUTFAK 39,05 m²",
+   "room_type": "living",
+   "polygon": [
+    [
+     0.25,
+     0.25
+    ],
+    [
+     6.95,
+     0.25
+    ],
+    [
+     6.95,
+     4.55
+    ],
+    [
+     3.45,
+     4.55
+    ],
+    [
+     3.45,
+     7.75
+    ],
+    [
+     0.25,
+     7.75
+    ]
+   ],
+   "area_computed": 39.05,
+   "area_label": 39.05,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "YAZI",
+     "entity": "TEXT:159",
+     "text": "SALON + MUTFAK 39,05 m²"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:48",
+     "text": "SALON + MUTFAK 39,05 m²"
+    },
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L3_001,w_L3_003,w_L3_004,w_L3_005,w_L3_006,w_L3_007"
+    }
+   ]
+  },
+  {
+   "id": "r_L3_yatak_odasi",
+   "level_id": "L3",
+   "label": "Yatak Odası",
+   "label_raw": "YATAK ODASI",
+   "room_type": "bedroom",
+   "polygon": [
+    [
+     7.05,
+     0.25
+    ],
+    [
+     11.75,
+     0.25
+    ],
+    [
+     11.75,
+     4.55
+    ],
+    [
+     7.05,
+     4.55
+    ]
+   ],
+   "area_computed": 20.21,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "YAZI",
+     "entity": "TEXT:15A",
+     "text": "YATAK ODASI"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:71",
+     "text": "YATAK ODASI"
+    },
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L3_001,w_L3_002,w_L3_006,w_L3_007"
+    }
+   ]
+  },
+  {
+   "id": "r_L3_hol",
+   "level_id": "L3",
+   "label": "Hol",
+   "label_raw": "HOL",
+   "room_type": "hall",
+   "polygon": [
+    [
+     3.55,
+     4.65
+    ],
+    [
+     7.95,
+     4.65
+    ],
+    [
+     7.95,
+     5.85
+    ],
+    [
+     5.15,
+     5.85
+    ],
+    [
+     5.15,
+     7.75
+    ],
+    [
+     3.55,
+     7.75
+    ]
+   ],
+   "area_computed": 8.32,
+   "area_label": null,
+   "has_documented_furniture": false,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "YAZI",
+     "entity": "TEXT:15B",
+     "text": "HOL"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:82",
+     "text": "HOL"
+    },
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L3_003,w_L3_005,w_L3_006,w_L3_008,w_L3_009,w_L3_010"
+    }
+   ]
+  },
+  {
+   "id": "r_L3_cocuk_odasi",
+   "level_id": "L3",
+   "label": "Çocuk Odası",
+   "label_raw": "ÇOCUK ODASI",
+   "room_type": "bedroom",
+   "polygon": [
+    [
+     8.05,
+     4.65
+    ],
+    [
+     11.75,
+     4.65
+    ],
+    [
+     11.75,
+     7.75
+    ],
+    [
+     8.05,
+     7.75
+    ]
+   ],
+   "area_computed": 11.47,
+   "area_label": null,
+   "has_documented_furniture": false,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "YAZI",
+     "entity": "TEXT:15C",
+     "text": "ÇOCUK ODASI"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:85",
+     "text": "ÇOCUK ODASI"
+    },
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L3_002,w_L3_003,w_L3_006,w_L3_010"
+    }
+   ]
+  },
+  {
+   "id": "r_L3_banyo",
+   "level_id": "L3",
+   "label": "Banyo",
+   "label_raw": "BANYO",
+   "room_type": "bathroom",
+   "polygon": [
+    [
+     5.25,
+     5.95
+    ],
+    [
+     7.95,
+     5.95
+    ],
+    [
+     7.95,
+     7.75
+    ],
+    [
+     5.25,
+     7.75
+    ]
+   ],
+   "area_computed": 4.86,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "YAZI",
+     "entity": "TEXT:15D",
+     "text": "BANYO"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:96",
+     "text": "BANYO"
+    },
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L3_003,w_L3_008,w_L3_009,w_L3_010"
+    }
+   ]
+  }
+ ],
+ "furniture": [
+  {
+   "id": "f_L3_001",
+   "level_id": "L3",
+   "room_id": "r_L3_salon_mutfak",
+   "type": "kitchen_counter",
+   "type_raw": "TEZGAH",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     1.45,
+     7.45
+    ],
+    "size": [
+     2.4,
+     0.6
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:kitchen_counter",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     2.4,
+     0.6,
+     0.9
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type kitchen_counter is parametric in the catalogue",
+    "cap": 1.15,
+    "style_family": null,
+    "excluded": []
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:12D",
+     "block": "TEZGAH"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:61"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_002",
+   "level_id": "L3",
+   "room_id": "r_L3_salon_mutfak",
+   "type": "sink_kitchen",
+   "type_raw": "EVIYE",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     0.85,
+     7.5
+    ],
+    "size": [
+     0.8,
+     0.5
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "generated",
+    "asset_id": "gen_sink_kitchen_scandinavian_2_470fa047",
+    "licence": "generated (TRELLIS.2-4B, MIT)",
+    "license": "generated (TRELLIS.2-4B, MIT)",
+    "method": "library",
+    "fit_scale": [
+     0.9315,
+     0.8358,
+     0.8837
+    ],
+    "bbox_m": [
+     0.8,
+     0.5,
+     0.8854
+    ],
+    "aspect_error": 0.1084,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     -0.0001,
+     -0.501
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "gen_sink_kitchen_scandinavian_2_470fa047",
+      "aspect_error": 0.1084,
+      "scale": [
+       0.9315,
+       0.8358,
+       0.8837
+      ],
+      "non_uniform": 1.1145,
+      "mean_scale": 0.8837,
+      "accepted": true,
+      "rank": 1,
+      "source": "generated",
+      "units_known": false,
+      "size_error": 0.1163,
+      "size_bucket": null,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": [
+     5,
+     4
+    ],
+    "units_known": false,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "generated: no other library model passed the caps",
+      "units not known (normalised by type): ranked after the real-size models",
+      "quality 3",
+      "aspect error 0.108",
+      "source generated"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/generated/gen_sink_kitchen_scandinavian_2_470fa047.glb",
+    "sha256_glb": "470fa047a82308f7fa8bceefa23ebd273e131d4fc17eca9660d1e93492a63b16",
+    "uid": "gen_sink_kitchen_scandinavian_2_470fa047",
+    "title": "Generated scandinavian sink kitchen (2)",
+    "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+    "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+    "licence_url": "",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Generated scandinavian sink kitchen (2)\": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit",
+    "licence_flag": null,
+    "generated": {
+     "prompt": "a single scandinavian style kitchen sink base cabinet with a worktop and an inset sink, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+     "image_sha256": "2e6aee94d712c8d1a99174f36e6524963712ce19576ff9a072a28b03c3fa35f7",
+     "model": "microsoft/TRELLIS.2-4B",
+     "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+     "seed": 815159649
+    },
+    "style_hint": "scandinavian",
+    "name": "Generated scandinavian sink kitchen (2)",
+    "unit_scale": 1.0
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:12F",
+     "block": "EVIYE"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:63"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_003",
+   "level_id": "L3",
+   "room_id": "r_L3_salon_mutfak",
+   "type": "stove",
+   "type_raw": "OCAK",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     2.05,
+     7.45
+    ],
+    "size": [
+     0.6,
+     0.6
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:stove",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     0.6,
+     0.6,
+     0.908
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [
+     {
+      "id": "electric_stove",
+      "aspect_error": 0.2535,
+      "scale": [
+       1.1938,
+       0.9265,
+       1.0601
+      ],
+      "non_uniform": 1.2885,
+      "mean_scale": 1.0601,
+      "accepted": false,
+      "rank": 1,
+      "source": "polyhaven",
+      "units_known": true,
+      "size_error": 0.1091,
+      "size_bucket": 2,
+      "quality": 3.0
+     },
+     {
+      "id": "objaverse_7c5c9dec5c2e4ff998c386410b0e3686",
+      "aspect_error": 0.1821,
+      "scale": [
+       1.014,
+       0.8452,
+       0.9296
+      ],
+      "non_uniform": 1.1998,
+      "mean_scale": 0.9296,
+      "accepted": false,
+      "rank": 2,
+      "source": "objaverse",
+      "units_known": false,
+      "size_error": 0.0797,
+      "size_bucket": null,
+      "quality": 3.0
+     }
+    ],
+    "fallback_reason": "no stove candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_7c5c9dec5c2e4ff998c386410b0e3686 at 20.0 % non-uniform, mean scale 0.9296)",
+    "cap": 1.15,
+    "style_family": null,
+    "excluded": []
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:131",
+     "block": "OCAK"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:65"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_004",
+   "level_id": "L3",
+   "room_id": "r_L3_salon_mutfak",
+   "type": "fridge",
+   "type_raw": "BUZDOLABI",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     3.05,
+     7.4
+    ],
+    "size": [
+     0.7,
+     0.7
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "objaverse",
+    "asset_id": "objaverse_68d69bbf7a454a09a2536ac0762532f3",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.9651,
+     1.0029,
+     0.984
+    ],
+    "bbox_m": [
+     0.7,
+     0.7,
+     1.0707
+    ],
+    "aspect_error": 0.0384,
+    "front_axis": "+X",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0509,
+     -0.0204,
+     -0.5142
+    ],
+    "rotation_fix_deg": 270.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_68d69bbf7a454a09a2536ac0762532f3",
+      "aspect_error": 0.0384,
+      "scale": [
+       0.9651,
+       1.0029,
+       0.984
+      ],
+      "non_uniform": 1.0391,
+      "mean_scale": 0.984,
+      "accepted": true,
+      "rank": 1,
+      "source": "objaverse",
+      "units_known": false,
+      "size_error": 0.0179,
+      "size_bucket": null,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": [
+     4,
+     4
+    ],
+    "units_known": false,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "units not known (normalised by type): ranked after the real-size models",
+      "quality 3",
+      "aspect error 0.038",
+      "source objaverse"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/objaverse/68d69bbf7a454a09a2536ac0762532f3.glb",
+    "sha256_glb": "8f80c749cbd00ea7007e102cda52309771a4f7bb567ba8cb110354caa2e9b7d9",
+    "uid": "68d69bbf7a454a09a2536ac0762532f3",
+    "title": "Old Fridge",
+    "author": "golddog",
+    "source_url": "https://sketchfab.com/3d-models/68d69bbf7a454a09a2536ac0762532f3",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Old Fridge\" by golddog (https://sketchfab.com/3d-models/68d69bbf7a454a09a2536ac0762532f3), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "name": "Old Fridge",
+    "unit_scale": 0.4196741214858973
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:133",
+     "block": "BUZDOLABI"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:67"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_005",
+   "level_id": "L3",
+   "room_id": "r_L3_salon_mutfak",
+   "type": "table_dining",
+   "type_raw": "YEMEK_MASASI",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     1.85,
+     5.6
+    ],
+    "size": [
+     1.6,
+     0.9
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B07H93GTHW",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     1.0133,
+     1.0216,
+     1.0174
+    ],
+    "bbox_m": [
+     1.6,
+     0.9,
+     0.7489
+    ],
+    "aspect_error": 0.0081,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0004,
+     0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "low",
+    "candidates": [
+     {
+      "id": "abo_B07H93GTHW",
+      "aspect_error": 0.0081,
+      "scale": [
+       1.0133,
+       1.0216,
+       1.0174
+      ],
+      "non_uniform": 1.0082,
+      "mean_scale": 1.0174,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.0174,
+      "size_bucket": 0,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "modern minimal",
+     "industrial"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": [
+     5,
+     5
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.017 (step 0)",
+      "quality 3",
+      "aspect error 0.008",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B07H93GTHW.glb",
+    "sha256_glb": "a67cbc865976287d79f5d36ac0bbfc6f96bd88b3c0dfb2578e2e5b59f0ef1efb",
+    "uid": "abo_B07H93GTHW",
+    "title": "Amazon Brand - Movian Kuban Dining Table, 160 x 78 x 90cm, Brown Oak-Effect Table Top/Black Legs",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07H93GTHW",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand - Movian Kuban Dining Table, 160 x 78 x 90cm, Brown Oak-Effect Table Top/Black Legs\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Dining Table 160cm",
+    "name": "Amazon Brand - Movian Kuban Dining Table, 160 x 78 x 90cm, Brown Oak-Effect Table Top/Black Legs",
+    "unit_scale": 1.0
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:135",
+     "block": "YEMEK_MASASI"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:69"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_006",
+   "level_id": "L3",
+   "room_id": "r_L3_salon_mutfak",
+   "type": "chair",
+   "type_raw": "SANDALYE",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     1.45,
+     4.8
+    ],
+    "size": [
+     0.45,
+     0.45
+    ],
+    "rotation_deg": 180.0
+   },
+   "front_deg": 90.0,
+   "height": null,
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B0857JM2NC",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.8089,
+     0.9085,
+     0.8587
+    ],
+    "bbox_m": [
+     0.45,
+     0.45,
+     0.6543
+    ],
+    "aspect_error": 0.1161,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0034,
+     0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "abo_B0857JLP6K",
+      "aspect_error": 0.1941,
+      "scale": [
+       1.0009,
+       0.8243,
+       0.9126
+      ],
+      "non_uniform": 1.2142,
+      "mean_scale": 0.9126,
+      "accepted": false,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.088,
+      "size_bucket": 1,
+      "quality": 3.0
+     },
+     {
+      "id": "abo_B0857JM2NC",
+      "aspect_error": 0.1161,
+      "scale": [
+       0.8089,
+       0.9085,
+       0.8587
+      ],
+      "non_uniform": 1.1232,
+      "mean_scale": 0.8587,
+      "accepted": true,
+      "rank": 2,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.1413,
+      "size_bucket": 2,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": [
+     5,
+     4
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 2,
+     "tried": 2,
+     "reasons": [
+      "real size: mean |scale - 1| 0.141 (step 2)",
+      "quality 3",
+      "aspect error 0.116",
+      "source abo"
+     ],
+     "passed_over": [
+      {
+       "id": "abo_B0857JLP6K",
+       "why": "outside the caps (non-uniform 21.4 %, mean scale 0.9126)"
+      }
+     ]
+    },
+    "glb": "models/abo/abo_B0857JM2NC.glb",
+    "sha256_glb": "5542c99f25b55af987693befbbfd5e7ee8445d31209f4f5a9d7b371106164aff",
+    "uid": "abo_B0857JM2NC",
+    "title": "Amazon Brand – Stone & Beam Mid-Century Beech and Rattan Dining Chair with Arms, 21.9\"W, Natural",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B0857JM2NC",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Stone & Beam Mid-Century Beech and Rattan Dining Chair with Arms, 21.9\"W, Natural\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Firm",
+    "name": "Amazon Brand – Stone & Beam Mid-Century Beech and Rattan Dining Chair with Arms, 21.9\"W, Natural",
+    "unit_scale": 1.0
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:137",
+     "block": "SANDALYE"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:71"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_007",
+   "level_id": "L3",
+   "room_id": "r_L3_salon_mutfak",
+   "type": "chair",
+   "type_raw": "SANDALYE",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     2.25,
+     4.8
+    ],
+    "size": [
+     0.45,
+     0.45
+    ],
+    "rotation_deg": 180.0
+   },
+   "front_deg": 90.0,
+   "height": null,
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B0857JM2NC",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.8089,
+     0.9085,
+     0.8587
+    ],
+    "bbox_m": [
+     0.45,
+     0.45,
+     0.6543
+    ],
+    "aspect_error": 0.1161,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0034,
+     0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "abo_B0857JLP6K",
+      "aspect_error": 0.1941,
+      "scale": [
+       1.0009,
+       0.8243,
+       0.9126
+      ],
+      "non_uniform": 1.2142,
+      "mean_scale": 0.9126,
+      "accepted": false,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.088,
+      "size_bucket": 1,
+      "quality": 3.0
+     },
+     {
+      "id": "abo_B0857JM2NC",
+      "aspect_error": 0.1161,
+      "scale": [
+       0.8089,
+       0.9085,
+       0.8587
+      ],
+      "non_uniform": 1.1232,
+      "mean_scale": 0.8587,
+      "accepted": true,
+      "rank": 2,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.1413,
+      "size_bucket": 2,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": [
+     5,
+     4
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 2,
+     "tried": 2,
+     "reasons": [
+      "real size: mean |scale - 1| 0.141 (step 2)",
+      "quality 3",
+      "aspect error 0.116",
+      "source abo"
+     ],
+     "passed_over": [
+      {
+       "id": "abo_B0857JLP6K",
+       "why": "outside the caps (non-uniform 21.4 %, mean scale 0.9126)"
+      }
+     ]
+    },
+    "glb": "models/abo/abo_B0857JM2NC.glb",
+    "sha256_glb": "5542c99f25b55af987693befbbfd5e7ee8445d31209f4f5a9d7b371106164aff",
+    "uid": "abo_B0857JM2NC",
+    "title": "Amazon Brand – Stone & Beam Mid-Century Beech and Rattan Dining Chair with Arms, 21.9\"W, Natural",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B0857JM2NC",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Stone & Beam Mid-Century Beech and Rattan Dining Chair with Arms, 21.9\"W, Natural\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Firm",
+    "name": "Amazon Brand – Stone & Beam Mid-Century Beech and Rattan Dining Chair with Arms, 21.9\"W, Natural",
+    "unit_scale": 1.0
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:139",
+     "block": "SANDALYE"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:73"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_008",
+   "level_id": "L3",
+   "room_id": "r_L3_salon_mutfak",
+   "type": "chair",
+   "type_raw": "SANDALYE",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     1.45,
+     6.4
+    ],
+    "size": [
+     0.45,
+     0.45
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B0857JM2NC",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.8089,
+     0.9085,
+     0.8587
+    ],
+    "bbox_m": [
+     0.45,
+     0.45,
+     0.6543
+    ],
+    "aspect_error": 0.1161,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0034,
+     0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "abo_B0857JLP6K",
+      "aspect_error": 0.1941,
+      "scale": [
+       1.0009,
+       0.8243,
+       0.9126
+      ],
+      "non_uniform": 1.2142,
+      "mean_scale": 0.9126,
+      "accepted": false,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.088,
+      "size_bucket": 1,
+      "quality": 3.0
+     },
+     {
+      "id": "abo_B0857JM2NC",
+      "aspect_error": 0.1161,
+      "scale": [
+       0.8089,
+       0.9085,
+       0.8587
+      ],
+      "non_uniform": 1.1232,
+      "mean_scale": 0.8587,
+      "accepted": true,
+      "rank": 2,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.1413,
+      "size_bucket": 2,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": [
+     5,
+     4
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 2,
+     "tried": 2,
+     "reasons": [
+      "real size: mean |scale - 1| 0.141 (step 2)",
+      "quality 3",
+      "aspect error 0.116",
+      "source abo"
+     ],
+     "passed_over": [
+      {
+       "id": "abo_B0857JLP6K",
+       "why": "outside the caps (non-uniform 21.4 %, mean scale 0.9126)"
+      }
+     ]
+    },
+    "glb": "models/abo/abo_B0857JM2NC.glb",
+    "sha256_glb": "5542c99f25b55af987693befbbfd5e7ee8445d31209f4f5a9d7b371106164aff",
+    "uid": "abo_B0857JM2NC",
+    "title": "Amazon Brand – Stone & Beam Mid-Century Beech and Rattan Dining Chair with Arms, 21.9\"W, Natural",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B0857JM2NC",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Stone & Beam Mid-Century Beech and Rattan Dining Chair with Arms, 21.9\"W, Natural\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Firm",
+    "name": "Amazon Brand – Stone & Beam Mid-Century Beech and Rattan Dining Chair with Arms, 21.9\"W, Natural",
+    "unit_scale": 1.0
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:13B",
+     "block": "SANDALYE"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:75"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_009",
+   "level_id": "L3",
+   "room_id": "r_L3_salon_mutfak",
+   "type": "chair",
+   "type_raw": "SANDALYE",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     2.25,
+     6.4
+    ],
+    "size": [
+     0.45,
+     0.45
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B0857JM2NC",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.8089,
+     0.9085,
+     0.8587
+    ],
+    "bbox_m": [
+     0.45,
+     0.45,
+     0.6543
+    ],
+    "aspect_error": 0.1161,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0034,
+     0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "abo_B0857JLP6K",
+      "aspect_error": 0.1941,
+      "scale": [
+       1.0009,
+       0.8243,
+       0.9126
+      ],
+      "non_uniform": 1.2142,
+      "mean_scale": 0.9126,
+      "accepted": false,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.088,
+      "size_bucket": 1,
+      "quality": 3.0
+     },
+     {
+      "id": "abo_B0857JM2NC",
+      "aspect_error": 0.1161,
+      "scale": [
+       0.8089,
+       0.9085,
+       0.8587
+      ],
+      "non_uniform": 1.1232,
+      "mean_scale": 0.8587,
+      "accepted": true,
+      "rank": 2,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.1413,
+      "size_bucket": 2,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": [
+     5,
+     4
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 2,
+     "tried": 2,
+     "reasons": [
+      "real size: mean |scale - 1| 0.141 (step 2)",
+      "quality 3",
+      "aspect error 0.116",
+      "source abo"
+     ],
+     "passed_over": [
+      {
+       "id": "abo_B0857JLP6K",
+       "why": "outside the caps (non-uniform 21.4 %, mean scale 0.9126)"
+      }
+     ]
+    },
+    "glb": "models/abo/abo_B0857JM2NC.glb",
+    "sha256_glb": "5542c99f25b55af987693befbbfd5e7ee8445d31209f4f5a9d7b371106164aff",
+    "uid": "abo_B0857JM2NC",
+    "title": "Amazon Brand – Stone & Beam Mid-Century Beech and Rattan Dining Chair with Arms, 21.9\"W, Natural",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B0857JM2NC",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Stone & Beam Mid-Century Beech and Rattan Dining Chair with Arms, 21.9\"W, Natural\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Firm",
+    "name": "Amazon Brand – Stone & Beam Mid-Century Beech and Rattan Dining Chair with Arms, 21.9\"W, Natural",
+    "unit_scale": 1.0
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:13D",
+     "block": "SANDALYE"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:77"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_010",
+   "level_id": "L3",
+   "room_id": "r_L3_salon_mutfak",
+   "type": "sofa",
+   "type_raw": "KANEPE_3LU",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     3.4,
+     2.4
+    ],
+    "size": [
+     2.2,
+     0.9
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": null,
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B072555T67",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     1.05,
+     1.0601,
+     1.055
+    ],
+    "bbox_m": [
+     2.2,
+     0.9,
+     0.8385
+    ],
+    "aspect_error": 0.0095,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.002,
+     0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "abo_B072555T67",
+      "aspect_error": 0.0095,
+      "scale": [
+       1.05,
+       1.0601,
+       1.055
+      ],
+      "non_uniform": 1.0096,
+      "mean_scale": 1.055,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.055,
+      "size_bucket": 1,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "modern minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": [
+     4,
+     5
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.055 (step 1)",
+      "quality 3",
+      "aspect error 0.009",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B072555T67.glb",
+    "sha256_glb": "42a68c582aaff40ca0e36b67bd46a6651a06b9dce7e142fde388bc216ef37ccd",
+    "uid": "abo_B072555T67",
+    "title": "Marchio Amazon - Movian Ackan - Divano a 3 posti, 209 x 87 x 80 cm, grigio chiaro",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B072555T67",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Marchio Amazon - Movian Ackan - Divano a 3 posti, 209 x 87 x 80 cm, grigio chiaro\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": null,
+    "name": "Marchio Amazon - Movian Ackan - Divano a 3 posti, 209 x 87 x 80 cm, grigio chiaro",
+    "unit_scale": 1.0
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:13F",
+     "block": "KANEPE_3LU"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:79"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_011",
+   "level_id": "L3",
+   "room_id": "r_L3_salon_mutfak",
+   "type": "table_coffee",
+   "type_raw": "SEHPA",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     4.6,
+     2.4
+    ],
+    "size": [
+     1.0,
+     0.6
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": null,
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B07L8DT2XT",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.9374,
+     0.9843,
+     0.9608
+    ],
+    "bbox_m": [
+     1.0,
+     0.6,
+     0.4393
+    ],
+    "aspect_error": 0.0488,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "low",
+    "candidates": [
+     {
+      "id": "abo_B07L8DT2XT",
+      "aspect_error": 0.0488,
+      "scale": [
+       0.9374,
+       0.9843,
+       0.9608
+      ],
+      "non_uniform": 1.05,
+      "mean_scale": 0.9608,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.0392,
+      "size_bucket": 0,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern",
+     "industrial"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": [
+     5,
+     4
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.039 (step 0)",
+      "quality 3",
+      "aspect error 0.049",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B07L8DT2XT.glb",
+    "sha256_glb": "94d8e0a09bd081d6aec8c23b2f0bc5af4436ca85b2571c4893d7bd5eeb7bbfc8",
+    "uid": "abo_B07L8DT2XT",
+    "title": "Phoenix Home Rustic Industrial Solid Wood and Steel Open Shelf Coffee Table, Brown",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07L8DT2XT",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Phoenix Home Rustic Industrial Solid Wood and Steel Open Shelf Coffee Table, Brown\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Industrial",
+    "name": "Phoenix Home Rustic Industrial Solid Wood and Steel Open Shelf Coffee Table, Brown",
+    "unit_scale": 1.0
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:141",
+     "block": "SEHPA"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:81"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_012",
+   "level_id": "L3",
+   "room_id": "r_L3_salon_mutfak",
+   "type": "tv_unit",
+   "type_raw": "TV_UNITESI",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     6.725,
+     2.4
+    ],
+    "size": [
+     1.6,
+     0.45
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": null,
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B07BVHKPFS",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.9839,
+     0.9365,
+     0.9602
+    ],
+    "bbox_m": [
+     1.6,
+     0.45,
+     0.5853
+    ],
+    "aspect_error": 0.0493,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     -0.0096,
+     0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "abo_B07BVHKPFS",
+      "aspect_error": 0.0493,
+      "scale": [
+       0.9839,
+       0.9365,
+       0.9602
+      ],
+      "non_uniform": 1.0506,
+      "mean_scale": 0.9602,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.0398,
+      "size_bucket": 0,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "japandi",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": [
+     5,
+     5
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.040 (step 0)",
+      "quality 3",
+      "aspect error 0.049",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B07BVHKPFS.glb",
+    "sha256_glb": "16a0ac966ecbd48dcda642cd77da4595a6f657e8e35808624a38eee1dc628801",
+    "uid": "abo_B07BVHKPFS",
+    "title": "Amazon Brand – Rivet Bowlyn Mid-Century Modern Wood TV Media Table Stand, 64\", Walnut",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07BVHKPFS",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Rivet Bowlyn Mid-Century Modern Wood TV Media Table Stand, 64\", Walnut\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "68\" Media Console",
+    "name": "Amazon Brand – Rivet Bowlyn Mid-Century Modern Wood TV Media Table Stand, 64\", Walnut",
+    "unit_scale": 1.0
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:143",
+     "block": "TV_UNITESI"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:83"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_013",
+   "level_id": "L3",
+   "room_id": "r_L3_salon_mutfak",
+   "type": "armchair",
+   "type_raw": "KOLTUK",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     6.25,
+     3.85
+    ],
+    "size": [
+     0.9,
+     0.9
+    ],
+    "rotation_deg": 315.0
+   },
+   "front_deg": 225.0,
+   "height": null,
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B075X4N3GM",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.9698,
+     1.0671,
+     1.0185
+    ],
+    "bbox_m": [
+     0.9,
+     0.9,
+     0.7878
+    ],
+    "aspect_error": 0.0956,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     -0.0253,
+     0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "abo_B075X4N3GM",
+      "aspect_error": 0.0956,
+      "scale": [
+       0.9698,
+       1.0671,
+       1.0185
+      ],
+      "non_uniform": 1.1003,
+      "mean_scale": 1.0185,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.0386,
+      "size_bucket": 0,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "modern",
+     "neutral"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": [
+     5,
+     5
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.039 (step 0)",
+      "quality 3",
+      "aspect error 0.096",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B075X4N3GM.glb",
+    "sha256_glb": "aa989d8447bd125e461ae9578b562e2999afd4f5a8ae21fec64e245bff3a7892",
+    "uid": "abo_B075X4N3GM",
+    "title": "Amazon Brand – Rivet Aiden Tufted Mid-Century Modern Velvet Accent Chair, 35.4\"W, Otter Grey",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B075X4N3GM",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Rivet Aiden Tufted Mid-Century Modern Velvet Accent Chair, 35.4\"W, Otter Grey\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Mid-Century modern",
+    "name": "Amazon Brand – Rivet Aiden Tufted Mid-Century Modern Velvet Accent Chair, 35.4\"W, Otter Grey",
+    "unit_scale": 1.0
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:145",
+     "block": "KOLTUK"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:85"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_014",
+   "level_id": "L3",
+   "room_id": "r_L3_salon_mutfak",
+   "type": "bookshelf",
+   "type_raw": "KITAPLIK",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     0.425,
+     3.6
+    ],
+    "size": [
+     1.0,
+     0.35
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": null,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "wooden_display_shelves_01",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.9278,
+     0.9421,
+     0.935
+    ],
+    "bbox_m": [
+     1.0,
+     0.35,
+     1.455
+    ],
+    "aspect_error": 0.0153,
+    "front_axis": "-X",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0004
+    ],
+    "rotation_fix_deg": 90.0,
+    "front_axis_confidence": "low",
+    "candidates": [
+     {
+      "id": "wooden_display_shelves_01",
+      "aspect_error": 0.0153,
+      "scale": [
+       0.9278,
+       0.9421,
+       0.935
+      ],
+      "non_uniform": 1.0154,
+      "mean_scale": 0.935,
+      "accepted": true,
+      "rank": 1,
+      "source": "polyhaven",
+      "units_known": true,
+      "size_error": 0.065,
+      "size_bucket": 1,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": null,
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.065 (step 1)",
+      "quality 3",
+      "aspect error 0.015",
+      "source polyhaven"
+     ],
+     "passed_over": []
+    },
+    "gltf": "models/wooden_display_shelves_01/wooden_display_shelves_01_1k.gltf"
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:147",
+     "block": "KITAPLIK"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:87"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_015",
+   "level_id": "L3",
+   "room_id": "r_L3_yatak_odasi",
+   "type": "bed_double",
+   "type_raw": "YATAK_CIFT",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     9.6,
+     3.55
+    ],
+    "size": [
+     1.6,
+     2.0
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B071FJR4FW",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.9826,
+     0.9479,
+     0.9652
+    ],
+    "bbox_m": [
+     1.6,
+     2.0,
+     1.3735
+    ],
+    "aspect_error": 0.0359,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0011,
+     0.0,
+     0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "abo_B071FJR4FW",
+      "aspect_error": 0.0359,
+      "scale": [
+       0.9826,
+       0.9479,
+       0.9652
+      ],
+      "non_uniform": 1.0366,
+      "mean_scale": 0.9652,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.0348,
+      "size_bucket": 0,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": [
+     5,
+     4
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.035 (step 0)",
+      "quality 3",
+      "aspect error 0.036",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B071FJR4FW.glb",
+    "sha256_glb": "3e30deb1fbb74ca48e3458919c8b1346ea3676a09bc7489217a3b8ba6ebf7e03",
+    "uid": "abo_B071FJR4FW",
+    "title": "Amazon Brand – Stone & Beam Glenwood Industrial Metal Accent Bed, Queen, 84.5\"L, Oak",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B071FJR4FW",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Stone & Beam Glenwood Industrial Metal Accent Bed, Queen, 84.5\"L, Oak\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Queen Bed",
+    "name": "Amazon Brand – Stone & Beam Glenwood Industrial Metal Accent Bed, Queen, 84.5\"L, Oak",
+    "unit_scale": 1.0
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:149",
+     "block": "YATAK_CIFT"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:89"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_016",
+   "level_id": "L3",
+   "room_id": "r_L3_yatak_odasi",
+   "type": "nightstand",
+   "type_raw": "KOMIDIN",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     8.5,
+     4.35
+    ],
+    "size": [
+     0.5,
+     0.4
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B084MYDTKM",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     1.0936,
+     0.9843,
+     1.0389
+    ],
+    "bbox_m": [
+     0.5,
+     0.4,
+     0.5805
+    ],
+    "aspect_error": 0.1054,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     -0.0016,
+     0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "abo_B084MYDTKM",
+      "aspect_error": 0.1054,
+      "scale": [
+       1.0936,
+       0.9843,
+       1.0389
+      ],
+      "non_uniform": 1.1111,
+      "mean_scale": 1.0389,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.0494,
+      "size_bucket": 0,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "rustic"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": [
+     5,
+     5
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.049 (step 0)",
+      "quality 3",
+      "aspect error 0.105",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B084MYDTKM.glb",
+    "sha256_glb": "0ffb75ec05453918ab9b1ad2a814782bccb12ad64b4c6009ac28405dec1a4ce0",
+    "uid": "abo_B084MYDTKM",
+    "title": "Amazon Brand - Rivet Mango Wood and Iron 3-Drawer Shutter Nightstand, 18\"W, Natural Finish",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B084MYDTKM",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand - Rivet Mango Wood and Iron 3-Drawer Shutter Nightstand, 18\"W, Natural Finish\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "midd Century modern",
+    "name": "Amazon Brand - Rivet Mango Wood and Iron 3-Drawer Shutter Nightstand, 18\"W, Natural Finish",
+    "unit_scale": 1.0
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:14B",
+     "block": "KOMIDIN"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:91"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_017",
+   "level_id": "L3",
+   "room_id": "r_L3_yatak_odasi",
+   "type": "nightstand",
+   "type_raw": "KOMIDIN",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     10.7,
+     4.35
+    ],
+    "size": [
+     0.5,
+     0.4
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B084MYDTKM",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     1.0936,
+     0.9843,
+     1.0389
+    ],
+    "bbox_m": [
+     0.5,
+     0.4,
+     0.5805
+    ],
+    "aspect_error": 0.1054,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     -0.0016,
+     0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "abo_B084MYDTKM",
+      "aspect_error": 0.1054,
+      "scale": [
+       1.0936,
+       0.9843,
+       1.0389
+      ],
+      "non_uniform": 1.1111,
+      "mean_scale": 1.0389,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.0494,
+      "size_bucket": 0,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "rustic"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": [
+     5,
+     5
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.049 (step 0)",
+      "quality 3",
+      "aspect error 0.105",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B084MYDTKM.glb",
+    "sha256_glb": "0ffb75ec05453918ab9b1ad2a814782bccb12ad64b4c6009ac28405dec1a4ce0",
+    "uid": "abo_B084MYDTKM",
+    "title": "Amazon Brand - Rivet Mango Wood and Iron 3-Drawer Shutter Nightstand, 18\"W, Natural Finish",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B084MYDTKM",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand - Rivet Mango Wood and Iron 3-Drawer Shutter Nightstand, 18\"W, Natural Finish\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "midd Century modern",
+    "name": "Amazon Brand - Rivet Mango Wood and Iron 3-Drawer Shutter Nightstand, 18\"W, Natural Finish",
+    "unit_scale": 1.0
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:14D",
+     "block": "KOMIDIN"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:93"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_018",
+   "level_id": "L3",
+   "room_id": "r_L3_yatak_odasi",
+   "type": "wardrobe",
+   "type_raw": "DOLAP",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     7.35,
+     1.5
+    ],
+    "size": [
+     1.8,
+     0.6
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": null,
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B07JGPKZYT",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.9946,
+     1.0347,
+     1.0147
+    ],
+    "bbox_m": [
+     1.8,
+     0.6,
+     2.1002
+    ],
+    "aspect_error": 0.0394,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "abo_B07JGPKZYT",
+      "aspect_error": 0.0394,
+      "scale": [
+       0.9946,
+       1.0347,
+       1.0147
+      ],
+      "non_uniform": 1.0402,
+      "mean_scale": 1.0147,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.0183,
+      "size_bucket": 0,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": [
+     5,
+     4
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.018 (step 0)",
+      "quality 3",
+      "aspect error 0.039",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B07JGPKZYT.glb",
+    "sha256_glb": "c6f09aa32c6e20c1046c43339e3e271eb7da9732ab97e765c690c0a3dc4a72be",
+    "uid": "abo_B07JGPKZYT",
+    "title": "Amazon Brand - Movian Mira 4-Door Wardrobe with Mirrors, 181 x 207 x 58cm, Light Brown Oak-Effect",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07JGPKZYT",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand - Movian Mira 4-Door Wardrobe with Mirrors, 181 x 207 x 58cm, Light Brown Oak-Effect\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "4-Door Wardrobe With Mirror",
+    "name": "Amazon Brand - Movian Mira 4-Door Wardrobe with Mirrors, 181 x 207 x 58cm, Light Brown Oak-Effect",
+    "unit_scale": 1.0
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:14F",
+     "block": "DOLAP"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:95"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_019",
+   "level_id": "L3",
+   "room_id": "r_L3_banyo",
+   "type": "bathtub",
+   "type_raw": "KUVET",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     7.1,
+     7.375
+    ],
+    "size": [
+     1.7,
+     0.75
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:bathtub",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     1.7,
+     0.75,
+     0.7
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [
+     {
+      "id": "gen_bathtub_scandinavian_2_6fde34a5",
+      "aspect_error": 0.2662,
+      "scale": [
+       1.2199,
+       0.9348,
+       1.0774
+      ],
+      "non_uniform": 1.305,
+      "mean_scale": 1.0774,
+      "accepted": false,
+      "rank": 1,
+      "source": "generated",
+      "units_known": false,
+      "size_error": 0.1208,
+      "size_bucket": null,
+      "quality": 3.0
+     },
+     {
+      "id": "gen_bathtub_modern_minimal_1_1a44f6ff",
+      "aspect_error": 0.3209,
+      "scale": [
+       1.2729,
+       0.9235,
+       1.0982
+      ],
+      "non_uniform": 1.3783,
+      "mean_scale": 1.0982,
+      "accepted": false,
+      "rank": 2,
+      "source": "generated",
+      "units_known": false,
+      "size_error": 0.1492,
+      "size_bucket": null,
+      "quality": 3.0
+     },
+     {
+      "id": "gen_bathtub_scandinavian_1_230fe403",
+      "aspect_error": 0.334,
+      "scale": [
+       1.3478,
+       0.9651,
+       1.1565
+      ],
+      "non_uniform": 1.3965,
+      "mean_scale": 1.1565,
+      "accepted": false,
+      "rank": 3,
+      "source": "generated",
+      "units_known": false,
+      "size_error": 0.1797,
+      "size_bucket": null,
+      "quality": 3.0
+     }
+    ],
+    "fallback_reason": "no bathtub candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: gen_bathtub_scandinavian_2_6fde34a5 at 30.5 % non-uniform, mean scale 1.0774)",
+    "cap": 1.15,
+    "style_family": null,
+    "excluded": []
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:151",
+     "block": "KUVET"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:97"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_020",
+   "level_id": "L3",
+   "room_id": "r_L3_banyo",
+   "type": "toilet",
+   "type_raw": "KLOZET",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     7.6,
+     6.35
+    ],
+    "size": [
+     0.4,
+     0.7
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:toilet",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     0.4,
+     0.7,
+     0.8
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [
+     {
+      "id": "objaverse_3446229dce1f47528fa871cc7669136c",
+      "aspect_error": 0.2233,
+      "scale": [
+       0.8836,
+       1.1046,
+       0.9941
+      ],
+      "non_uniform": 1.2502,
+      "mean_scale": 0.9941,
+      "accepted": false,
+      "rank": 1,
+      "source": "objaverse",
+      "units_known": false,
+      "size_error": 0.0756,
+      "size_bucket": null,
+      "quality": 3.0
+     },
+     {
+      "id": "objaverse_24d1b493899d407780140688abae19bc",
+      "aspect_error": 0.2259,
+      "scale": [
+       0.8824,
+       1.106,
+       0.9942
+      ],
+      "non_uniform": 1.2534,
+      "mean_scale": 0.9942,
+      "accepted": false,
+      "rank": 2,
+      "source": "objaverse",
+      "units_known": false,
+      "size_error": 0.0765,
+      "size_bucket": null,
+      "quality": 3.0
+     },
+     {
+      "id": "objaverse_0b3325fad3e740b1ac86173c90b56afd",
+      "aspect_error": 0.2649,
+      "scale": [
+       0.8654,
+       1.1279,
+       0.9967
+      ],
+      "non_uniform": 1.3033,
+      "mean_scale": 0.9967,
+      "accepted": false,
+      "rank": 3,
+      "source": "objaverse",
+      "units_known": false,
+      "size_error": 0.0886,
+      "size_bucket": null,
+      "quality": 3.0
+     }
+    ],
+    "fallback_reason": "no toilet candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_3446229dce1f47528fa871cc7669136c at 25.0 % non-uniform, mean scale 0.9941)",
+    "cap": 1.15,
+    "style_family": null,
+    "excluded": []
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:153",
+     "block": "KLOZET"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:99"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_021",
+   "level_id": "L3",
+   "room_id": "r_L3_banyo",
+   "type": "washbasin",
+   "type_raw": "LAVABO",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     6.0,
+     6.175
+    ],
+    "size": [
+     0.6,
+     0.45
+    ],
+    "rotation_deg": 180.0
+   },
+   "front_deg": 90.0,
+   "height": null,
+   "asset": {
+    "library": "objaverse",
+    "asset_id": "objaverse_ce1a06f7cbe1425099a145f851fc5dee",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.9251,
+     0.9454,
+     0.9352
+    ],
+    "bbox_m": [
+     0.6,
+     0.45,
+     0.5141
+    ],
+    "aspect_error": 0.0217,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     -0.2748
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_ce1a06f7cbe1425099a145f851fc5dee",
+      "aspect_error": 0.0217,
+      "scale": [
+       0.9251,
+       0.9454,
+       0.9352
+      ],
+      "non_uniform": 1.022,
+      "mean_scale": 0.9352,
+      "accepted": true,
+      "rank": 1,
+      "source": "objaverse",
+      "units_known": false,
+      "size_error": 0.0648,
+      "size_bucket": null,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": [
+     4,
+     4
+    ],
+    "units_known": false,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "units not known (normalised by type): ranked after the real-size models",
+      "quality 3",
+      "aspect error 0.022",
+      "source objaverse"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/objaverse/ce1a06f7cbe1425099a145f851fc5dee.glb",
+    "sha256_glb": "e1b99caba563b6c71d79eb960591d5e1049a3e7c086c6518aa83772a0621fbae",
+    "uid": "ce1a06f7cbe1425099a145f851fc5dee",
+    "title": "Sink",
+    "author": "Shining Salt",
+    "source_url": "https://sketchfab.com/3d-models/ce1a06f7cbe1425099a145f851fc5dee",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Sink\" by Shining Salt (https://sketchfab.com/3d-models/ce1a06f7cbe1425099a145f851fc5dee), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "name": "Sink",
+    "unit_scale": 0.32432313118014205
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:155",
+     "block": "LAVABO"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:101"
+    }
+   ]
+  }
+ ],
+ "conflicts": [],
+ "unverified": [],
+ "warnings": [
+  "Level L3: ceiling height assumed 2.70 m (no section drawing found)"
+ ]
+}

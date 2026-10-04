@@ -1,0 +1,24 @@
+{
+ "key": "c4bab40037c1d13bbce6f575a889baac6fb7b43d5e7da9de276c4ec6753b4b23",
+ "pair": "sofa__japandi",
+ "type": "sofa",
+ "family": "japandi",
+ "index": 2,
+ "prompt": "a single japandi style three-seat sofa, light ash wood, black accents, natural linen and paper textures, low profile, calm minimal forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 489689934,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "793acd9b09379d71d20337190e98c1b4d7583c8d4f2a61f9acaec5c0871ca0f0",
+ "seconds": 5.03,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 4500 Blackwell"
+ },
+ "generated_utc": "2026-10-04T07:24:30Z"
+}

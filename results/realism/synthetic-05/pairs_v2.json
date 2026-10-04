@@ -1,0 +1,31 @@
+{
+ "schema_version": "0.1",
+ "kind": "realism2_pairs",
+ "project": "synthetic-05",
+ "controls": false,
+ "control_views": [],
+ "reencode_quality": 70,
+ "look_alt": {
+  "cameras": 32,
+  "per_room": 2,
+  "projects": [
+   "synthetic-03",
+   "synthetic-05"
+  ],
+  "selected": [],
+  "selected_total": 32,
+  "looks": {
+   "a": "AgX - Punchy",
+   "b": null
+  },
+  "in_selection": true
+ },
+ "render_manifest": "renders/render_manifest.json",
+ "sets": {},
+ "pairs": [],
+ "dropped": [],
+ "skipped": [],
+ "warnings": [
+  "synthetic-05: 23 camera(s) without both previews (rendered without --alt-look?): not in the look_alt ranking"
+ ]
+}

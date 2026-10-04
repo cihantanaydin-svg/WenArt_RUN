@@ -1,0 +1,713 @@
+{
+ "pages": [
+  {
+   "file": "synthetic-06.dwg",
+   "page": 1,
+   "class": "floor_plan",
+   "kind": "vector",
+   "level_id": "L0",
+   "level_label_raw": null,
+   "units": "in",
+   "size": null,
+   "dpi": null,
+   "scale_metres_per_unit": 0.0254,
+   "transform": {
+    "kind": "affine",
+    "building_to_page": [
+     39.37007874015748,
+     0.0,
+     480.0,
+     0.0,
+     39.37007874015748,
+     240.0
+    ]
+   },
+   "texts": [
+    {
+     "text": "LIVING ROOM",
+     "box": [
+      640.0,
+      340.75,
+      719.2,
+      352.0
+     ],
+     "entity": "MTEXT:107:0",
+     "role": "room_label",
+     "element_id": "r_L0_living_room"
+    },
+    {
+     "text": "14'-0\" X 12'-0\"",
+     "box": [
+      640.0,
+      325.75,
+      748.0,
+      337.0
+     ],
+     "entity": "MTEXT:107:1",
+     "role": "room_size",
+     "element_id": "r_L0_living_room"
+    },
+    {
+     "text": "KITCHEN",
+     "box": [
+      504.0,
+      379.75,
+      554.4,
+      391.0
+     ],
+     "entity": "ATTRIB:10A",
+     "role": "room_label",
+     "element_id": "r_L0_kitchen"
+    },
+    {
+     "text": "LOBBY",
+     "box": [
+      620.0,
+      422.75,
+      656.0,
+      434.0
+     ],
+     "entity": "TEXT:10B",
+     "role": "room_label",
+     "element_id": "r_L0_lobby"
+    },
+    {
+     "text": "BATH",
+     "box": [
+      521.0,
+      424.5,
+      540.2,
+      432.0
+     ],
+     "entity": "TEXT:10C",
+     "role": "room_label",
+     "element_id": "r_L0_bath"
+    },
+    {
+     "text": "BED ROOM",
+     "box": [
+      510.0,
+      537.75,
+      567.6,
+      549.0
+     ],
+     "entity": "TEXT:10D",
+     "role": "room_label",
+     "element_id": "r_L0_bed_room"
+    },
+    {
+     "text": "MASTER BED ROOM",
+     "box": [
+      630.0,
+      499.75,
+      738.0,
+      511.0
+     ],
+     "entity": "TEXT:10E",
+     "role": "room_label",
+     "element_id": "r_L0_master_bed_room"
+    },
+    {
+     "text": "9'-0\"",
+     "box": [
+      522.0,
+      207.0,
+      546.0,
+      214.5
+     ],
+     "entity": "DIMENSION:10F",
+     "role": "dimension"
+    },
+    {
+     "text": "15'-0\"",
+     "box": [
+      663.6,
+      207.0,
+      692.4,
+      214.5
+     ],
+     "entity": "DIMENSION:11E",
+     "role": "dimension"
+    },
+    {
+     "text": "24'-0\"",
+     "box": [
+      609.6,
+      183.0,
+      638.4,
+      190.5
+     ],
+     "entity": "DIMENSION:12D",
+     "role": "dimension"
+    },
+    {
+     "text": "13'-0\"",
+     "box": [
+      425.1,
+      316.5,
+      453.9,
+      324.0
+     ],
+     "entity": "DIMENSION:13C",
+     "role": "dimension"
+    },
+    {
+     "text": "5'-6\"",
+     "box": [
+      427.5,
+      427.5,
+      451.5,
+      435.0
+     ],
+     "entity": "DIMENSION:14B",
+     "role": "dimension"
+    },
+    {
+     "text": "12'-0\"",
+     "box": [
+      425.1,
+      532.5,
+      453.9,
+      540.0
+     ],
+     "entity": "DIMENSION:15A",
+     "role": "dimension"
+    },
+    {
+     "text": "30'-6\"",
+     "box": [
+      401.1,
+      421.5,
+      429.9,
+      429.0
+     ],
+     "entity": "DIMENSION:169",
+     "role": "dimension"
+    },
+    {
+     "text": "30'-6\"",
+     "box": [
+      797.1,
+      421.5,
+      825.9,
+      429.0
+     ],
+     "entity": "DIMENSION:178",
+     "role": "dimension"
+    }
+   ],
+   "symbols": [
+    {
+     "id": "d_L0_001",
+     "type": "door",
+     "block": null,
+     "box": [
+      723.0,
+      411.0,
+      759.0,
+      447.0
+     ],
+     "rotation_deg": 90.0,
+     "entity": "ARC:CB"
+    },
+    {
+     "id": "d_L0_002",
+     "type": "door",
+     "block": null,
+     "box": [
+      543.0,
+      414.0,
+      573.0,
+      444.0
+     ],
+     "rotation_deg": 90.0,
+     "entity": "ARC:CD"
+    },
+    {
+     "id": "d_L0_003",
+     "type": "door",
+     "block": null,
+     "box": [
+      582.0,
+      465.0,
+      614.0,
+      497.0
+     ],
+     "rotation_deg": 0.0,
+     "entity": "ARC:CF"
+    },
+    {
+     "id": "d_L0_004",
+     "type": "door",
+     "block": null,
+     "box": [
+      626.0,
+      465.0,
+      658.0,
+      497.0
+     ],
+     "rotation_deg": 0.0,
+     "entity": "ARC:D1"
+    },
+    {
+     "id": "d_L0_005",
+     "type": "door",
+     "block": null,
+     "box": [
+      710.0,
+      361.0,
+      742.0,
+      393.0
+     ],
+     "rotation_deg": 270.0,
+     "entity": "ARC:D3"
+    },
+    {
+     "id": "win_L0_001",
+     "type": "window",
+     "block": null,
+     "box": [
+      513.0,
+      240.0,
+      561.0,
+      249.0
+     ],
+     "rotation_deg": 0.0,
+     "entity": "LINE:D5"
+    },
+    {
+     "id": "win_L0_002",
+     "type": "window",
+     "block": null,
+     "box": [
+      639.0,
+      240.0,
+      711.0,
+      249.0
+     ],
+     "rotation_deg": 0.0,
+     "entity": "LINE:DA"
+    },
+    {
+     "id": "win_L0_003",
+     "type": "window",
+     "block": null,
+     "box": [
+      759.0,
+      297.0,
+      768.0,
+      345.0
+     ],
+     "rotation_deg": 90.0,
+     "entity": "LINE:DF"
+    },
+    {
+     "id": "win_L0_004",
+     "type": "window",
+     "block": null,
+     "box": [
+      480.0,
+      417.0,
+      489.0,
+      441.0
+     ],
+     "rotation_deg": 90.0,
+     "entity": "LINE:E4"
+    },
+    {
+     "id": "win_L0_005",
+     "type": "window",
+     "block": null,
+     "box": [
+      522.0,
+      597.0,
+      582.0,
+      606.0
+     ],
+     "rotation_deg": 0.0,
+     "entity": "LINE:E9"
+    },
+    {
+     "id": "win_L0_006",
+     "type": "window",
+     "block": null,
+     "box": [
+      660.0,
+      597.0,
+      720.0,
+      606.0
+     ],
+     "rotation_deg": 0.0,
+     "entity": "LINE:EE"
+    },
+    {
+     "id": "win_L0_007",
+     "type": "window",
+     "block": null,
+     "box": [
+      759.0,
+      507.0,
+      768.0,
+      555.0
+     ],
+     "rotation_deg": 90.0,
+     "entity": "LINE:F3"
+    },
+    {
+     "id": "win_L0_008",
+     "type": "window",
+     "block": null,
+     "box": [
+      480.0,
+      507.0,
+      489.0,
+      555.0
+     ],
+     "rotation_deg": 90.0,
+     "entity": "LINE:F8"
+    },
+    {
+     "id": "f_L0_001",
+     "type": "sofa",
+     "block": "SOFA-3",
+     "box": [
+      633.0,
+      251.0,
+      717.0,
+      287.0
+     ],
+     "rotation_deg": 180.0,
+     "entity": "INSERT:FD"
+    },
+    {
+     "id": "f_L0_002",
+     "type": "table_dining",
+     "block": "DINING-6",
+     "box": [
+      519.0,
+      285.0,
+      555.0,
+      357.0
+     ],
+     "rotation_deg": 90.0,
+     "entity": "INSERT:FF"
+    },
+    {
+     "id": "f_L0_003",
+     "type": "chair",
+     "block": "DINING-6/CHAIR",
+     "box": [
+      499.0,
+      294.0,
+      517.0,
+      312.0
+     ],
+     "rotation_deg": 90.0,
+     "entity": "INSERT:FF/1"
+    },
+    {
+     "id": "f_L0_004",
+     "type": "chair",
+     "block": "DINING-6/CHAIR",
+     "box": [
+      499.0,
+      330.0,
+      517.0,
+      348.0
+     ],
+     "rotation_deg": 90.0,
+     "entity": "INSERT:FF/2"
+    },
+    {
+     "id": "f_L0_005",
+     "type": "chair",
+     "block": "DINING-6/CHAIR",
+     "box": [
+      557.0,
+      294.0,
+      575.0,
+      312.0
+     ],
+     "rotation_deg": 270.0,
+     "entity": "INSERT:FF/3"
+    },
+    {
+     "id": "f_L0_006",
+     "type": "chair",
+     "block": "DINING-6/CHAIR",
+     "box": [
+      557.0,
+      330.0,
+      575.0,
+      348.0
+     ],
+     "rotation_deg": 270.0,
+     "entity": "INSERT:FF/4"
+    },
+    {
+     "id": "f_L0_007",
+     "type": "chair",
+     "block": "DINING-6/CHAIR",
+     "box": [
+      528.0,
+      359.0,
+      546.0,
+      377.0
+     ],
+     "rotation_deg": 0.0,
+     "entity": "INSERT:FF/5"
+    },
+    {
+     "id": "f_L0_008",
+     "type": "chair",
+     "block": "DINING-6/CHAIR",
+     "box": [
+      528.0,
+      265.0,
+      546.0,
+      283.0
+     ],
+     "rotation_deg": 180.0,
+     "entity": "INSERT:FF/6"
+    },
+    {
+     "id": "f_L0_009",
+     "type": "bed_double",
+     "block": "BED-DOUBLE",
+     "box": [
+      660.0,
+      515.0,
+      720.0,
+      595.0
+     ],
+     "rotation_deg": 0.0,
+     "entity": "INSERT:101"
+    },
+    {
+     "id": "f_L0_010",
+     "type": "toilet",
+     "block": "WC",
+     "box": [
+      491.0,
+      402.0,
+      519.0,
+      422.0
+     ],
+     "rotation_deg": 90.0,
+     "entity": "INSERT:103"
+    },
+    {
+     "id": "f_L0_011",
+     "type": "washbasin",
+     "block": "BASIN",
+     "box": [
+      520.0,
+      441.0,
+      540.0,
+      457.0
+     ],
+     "rotation_deg": 0.0,
+     "entity": "INSERT:105"
+    }
+   ],
+   "walls": [
+    {
+     "id": "w_L0_001",
+     "box": [
+      480.0,
+      240.0,
+      489.0,
+      606.0
+     ],
+     "entity": "HATCH:C4"
+    },
+    {
+     "id": "w_L0_002",
+     "box": [
+      759.0,
+      240.0,
+      768.0,
+      606.0
+     ],
+     "entity": "HATCH:C4"
+    },
+    {
+     "id": "w_L0_003",
+     "box": [
+      489.0,
+      240.0,
+      759.0,
+      249.0
+     ],
+     "entity": "HATCH:C4"
+    },
+    {
+     "id": "w_L0_004",
+     "box": [
+      489.0,
+      597.0,
+      759.0,
+      606.0
+     ],
+     "entity": "HATCH:C4"
+    },
+    {
+     "id": "w_L0_005",
+     "box": [
+      489.0,
+      393.0,
+      759.0,
+      399.0
+     ],
+     "entity": "HATCH:C4"
+    },
+    {
+     "id": "w_L0_006",
+     "box": [
+      489.0,
+      459.0,
+      759.0,
+      465.0
+     ],
+     "entity": "HATCH:C4"
+    },
+    {
+     "id": "w_L0_007",
+     "box": [
+      585.0,
+      321.0,
+      591.0,
+      393.0
+     ],
+     "entity": "HATCH:C4"
+    },
+    {
+     "id": "w_L0_008",
+     "box": [
+      573.0,
+      399.0,
+      579.0,
+      459.0
+     ],
+     "entity": "HATCH:C4"
+    },
+    {
+     "id": "w_L0_009",
+     "box": [
+      615.0,
+      465.0,
+      621.0,
+      597.0
+     ],
+     "entity": "HATCH:C4"
+    }
+   ],
+   "dimensions": [
+    {
+     "measured": 2.7432,
+     "printed": "9'-0\"",
+     "entity": "DIMENSION:10F",
+     "kind": "rotated",
+     "wall_ids": [],
+     "box": [
+      522.0,
+      207.0,
+      546.0,
+      214.5
+     ]
+    },
+    {
+     "measured": 4.572,
+     "printed": "15'-0\"",
+     "entity": "DIMENSION:11E",
+     "kind": "rotated",
+     "wall_ids": [],
+     "box": [
+      663.6,
+      207.0,
+      692.4,
+      214.5
+     ]
+    },
+    {
+     "measured": 7.3152,
+     "printed": "24'-0\"",
+     "entity": "DIMENSION:12D",
+     "kind": "rotated",
+     "wall_ids": [],
+     "box": [
+      609.6,
+      183.0,
+      638.4,
+      190.5
+     ]
+    },
+    {
+     "measured": 3.9624,
+     "printed": "13'-0\"",
+     "entity": "DIMENSION:13C",
+     "kind": "aligned",
+     "wall_ids": [],
+     "box": [
+      425.1,
+      316.5,
+      453.9,
+      324.0
+     ]
+    },
+    {
+     "measured": 1.6764,
+     "printed": "5'-6\"",
+     "entity": "DIMENSION:14B",
+     "kind": "aligned",
+     "wall_ids": [],
+     "box": [
+      427.5,
+      427.5,
+      451.5,
+      435.0
+     ]
+    },
+    {
+     "measured": 3.6576,
+     "printed": "12'-0\"",
+     "entity": "DIMENSION:15A",
+     "kind": "aligned",
+     "wall_ids": [],
+     "box": [
+      425.1,
+      532.5,
+      453.9,
+      540.0
+     ]
+    },
+    {
+     "measured": 9.2964,
+     "printed": "30'-6\"",
+     "entity": "DIMENSION:169",
+     "kind": "aligned",
+     "wall_ids": [],
+     "box": [
+      401.1,
+      421.5,
+      429.9,
+      429.0
+     ]
+    },
+    {
+     "measured": 9.2964,
+     "printed": "30'-6\"",
+     "entity": "DIMENSION:178",
+     "kind": "rotated",
+     "wall_ids": [],
+     "box": [
+      797.1,
+      421.5,
+      825.9,
+      429.0
+     ]
+    }
+   ]
+  }
+ ]
+}

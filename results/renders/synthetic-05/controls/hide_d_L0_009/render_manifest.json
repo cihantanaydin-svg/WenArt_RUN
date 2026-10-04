@@ -1,0 +1,228 @@
+{
+ "schema_version": "0.1",
+ "scene": "../../scene/scene.blend",
+ "scene_sha256": "69c47b12da048baf57e4332ff99c55f2f8b81a7dafc566c6389f21f7806b12f1",
+ "device": "OPTIX",
+ "device_requested": "auto",
+ "blender_version": "5.2.2 LTS",
+ "samples": 128,
+ "resolution": [
+  1920,
+  1080
+ ],
+ "denoiser": "OPENIMAGEDENOISE",
+ "render_code_version": "m7.1",
+ "view_transform": "AgX",
+ "look": "AgX - Punchy",
+ "exposure_mode": "from",
+ "exposure_target": 0.9,
+ "exposure_limits": [
+  -2.0,
+  8.0
+ ],
+ "white_balance_mode": "from",
+ "look_from": "../../renders/render_manifest.json",
+ "hidden": [
+  "d_L0_009"
+ ],
+ "plugged": [],
+ "alt_look": null,
+ "max_bounces": null,
+ "bounces": null,
+ "ev_offset": 0.0,
+ "preview_quality": null,
+ "pass_index": {
+  "d_L0_001": 1,
+  "d_L0_002": 2,
+  "d_L0_003": 3,
+  "d_L0_004": 4,
+  "d_L0_005": 5,
+  "d_L0_006": 6,
+  "d_L0_007": 7,
+  "d_L0_008": 8,
+  "d_L0_009": 9,
+  "win_L0_001": 10,
+  "win_L0_002": 11,
+  "win_L0_003": 12,
+  "win_L0_004": 13,
+  "win_L0_005": 14,
+  "win_L0_006": 15,
+  "win_L0_007": 16,
+  "win_L0_008": 17,
+  "win_L0_009": 18,
+  "win_L0_010": 19,
+  "f_L0_001": 20,
+  "f_L0_002": 21,
+  "f_L0_003": 22,
+  "f_L0_004": 23,
+  "f_L0_005": 24,
+  "f_L0_006": 25,
+  "f_L0_007": 26,
+  "f_L0_008": 27,
+  "f_L0_009": 28,
+  "f_L0_010": 29,
+  "f_L0_011": 30,
+  "f_L0_012": 31,
+  "f_L0_013": 32,
+  "f_L0_014": 33,
+  "f_L0_015": 34,
+  "f_L0_016": 35,
+  "f_L0_017": 36,
+  "f_L0_018": 37,
+  "f_L0_019": 38,
+  "f_L0_020": 39,
+  "f_L0_021": 40,
+  "f_L0_022": 41,
+  "f_L0_023": 42,
+  "f_L0_024": 43,
+  "f_L0_025": 44,
+  "f_L0_026": 45,
+  "f_L0_027": 46,
+  "f_L0_028": 47,
+  "f_L0_029": 48,
+  "f_L0_030": 49,
+  "dec_L0_003": 50,
+  "dec_L0_010": 51
+ },
+ "renders": [
+  {
+   "camera": "cam_r_L0_hol_1",
+   "room_id": "r_L0_hol",
+   "level_id": "L0",
+   "png": "cam_r_L0_hol_1.png",
+   "exr": "cam_r_L0_hol_1_passes.exr",
+   "preview": "cam_r_L0_hol_1_preview.jpg",
+   "depth_png": "cam_r_L0_hol_1_depth.png",
+   "index_png": "cam_r_L0_hol_1_index.png",
+   "files": {
+    "index": "cam_r_L0_hol_1_index.png",
+    "depth_mm": "cam_r_L0_hol_1_depth_mm.png",
+    "normal": "cam_r_L0_hol_1_normal.png",
+    "depth": "cam_r_L0_hol_1_depth.png"
+   },
+   "preview_bytes": 94409,
+   "seconds": 3.23,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.7934362888336182,
+    "max": 8.563809394836426,
+    "mean": 2.4197959899902344,
+    "coverage": 1.0
+   },
+   "index_values": [
+    3,
+    5,
+    7,
+    8,
+    47
+   ],
+   "index_stats": {
+    "3": {
+     "pixels": 813240,
+     "box": [
+      1167,
+      0,
+      1920,
+      1080
+     ]
+    },
+    "5": {
+     "pixels": 170506,
+     "box": [
+      678,
+      0,
+      850,
+      1080
+     ]
+    },
+    "7": {
+     "pixels": 4433,
+     "box": [
+      0,
+      0,
+      12,
+      1080
+     ]
+    },
+    "8": {
+     "pixels": 21443,
+     "box": [
+      68,
+      0,
+      103,
+      835
+     ]
+    },
+    "47": {
+     "pixels": 19466,
+     "box": [
+      322,
+      308,
+      393,
+      589
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "69c47b12da048baf57e4332ff99c55f2f8b81a7dafc566c6389f21f7806b12f1",
+   "render_key": "ad7e6af7becb7fac",
+   "exposure": {
+    "mode": "from",
+    "ev": -0.333333,
+    "ev_raw": null,
+    "at_limit": false,
+    "target": null,
+    "limits": null,
+    "incident_p50": null,
+    "whitepoint": [
+     1.128212,
+     0.980094,
+     0.819651
+    ],
+    "wb_mode": "from",
+    "wb_temperature": 5416.1,
+    "wb_tint": 6.83,
+    "residual": null,
+    "window_clip_frac": null,
+    "meter_seconds": 0.0,
+    "meter": null,
+    "mood": "warm daylight",
+    "source": "../../renders/render_manifest.json",
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "hidden": [
+    "d_L0_009"
+   ],
+   "plugged": [],
+   "window_pull": null,
+   "alt_preview": null,
+   "alt_preview_bytes": null
+  }
+ ],
+ "dropped_stale": [
+  {
+   "camera": "cam_r_L0_hol_2",
+   "reason": "no such camera in the scene (a camera of an earlier build or camera policy)",
+   "scene_sha256": "1f6558e171c3b7df1d58c47988ee0db9e743eb54a5a1bccd89d9dcf2845b69bb",
+   "render_key": "d2aae3ad3e829754",
+   "files": [
+    "cam_r_L0_hol_2.png",
+    "cam_r_L0_hol_2_depth.png",
+    "cam_r_L0_hol_2_depth_mm.png",
+    "cam_r_L0_hol_2_index.png",
+    "cam_r_L0_hol_2_normal.png",
+    "cam_r_L0_hol_2_passes.exr",
+    "cam_r_L0_hol_2_preview.jpg"
+   ]
+  }
+ ],
+ "incomplete": false,
+ "not_rendered": [],
+ "deadline": 1791078100.0,
+ "warnings": []
+}

@@ -1,0 +1,43 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "synthetic-06",
+ "stage": "gate",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 46.95,
+ "fingerprint": "e4f6d6e2f5546f555d4a4f3bde20fdc9c8a9eda0fe6c1e92c5ad1b0721f8ffed",
+ "inputs": {
+  "outputs/synthetic-06/renders/render_manifest.json": "f5837ec774f5b4716e47ead49effa93bd0323161d179f3389c1b18f75bf6ac6f",
+  "outputs/synthetic-06/check/controls.json": "bfc83e5902e8b13f94d7fd787ad4e5ec96ecee2ca0d0fbf21e1cd2575504def0",
+  "outputs/synthetic-06/polish/sweep/polish_manifest.json": null,
+  "outputs/synthetic-06/controls/hide_d_L0_001/render_manifest.json": "8ce0d955fdcac4c81a657d086d17c1c68916ee024eac95f1dd5bd40ea582da79",
+  "outputs/synthetic-06/controls/hide_d_L0_002/render_manifest.json": "533ae6c5c69e9d08af2a5f1cf0d75750a68d378c2264f208453da15949632690",
+  "outputs/synthetic-06/controls/hide_f_L0_002/render_manifest.json": "a22d33f6e9ec04b9eca581f2e4151182b533407f5188f76bf829630546e82938",
+  "outputs/synthetic-06/controls/hide_f_L0_014/render_manifest.json": "6f1ed7438b0e75767e398c655138783ea45db78d4301b36b4a14a5c30fcbd638",
+  "outputs/synthetic-06/controls/hide_win_L0_002/render_manifest.json": "da804702870a3947ef98a6a680a297e7d4b1d38329566ba489e3caae0a5b94a3",
+  "outputs/synthetic-06/controls/hide_win_L0_008/render_manifest.json": "9c6d4bd0f53cd2bd5c9ce1589408c11743ce15dc38d0c0a0a5ba08f63400382a"
+ },
+ "outputs": [
+  "gate/gate_calibration.json",
+  "gate/gate_validation.json"
+ ],
+ "started_utc": "2026-10-04T01:05:12Z",
+ "git_commit": "2be169d6342eed721324d995d3e380aecfc0b6b0",
+ "log": "logs/gate.log",
+ "note": "gate decision ok",
+ "run_id": "20261004-000052-full-20261004T000516Z",
+ "steps": [
+  {
+   "name": "calibrate",
+   "rc": 0,
+   "seconds": 45.66
+  },
+  {
+   "name": "validate",
+   "rc": 0,
+   "seconds": 1.29
+  }
+ ],
+ "written": {}
+}

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="5" time="2.007" timestamp="2026-10-03T20:46:46.675213+00:00" hostname="a1d75cf13940"><testcase classname="tests.gpu.test_recognition" name="test_m7_recognition_answers_complete" time="0.134" /><testcase classname="tests.gpu.test_recognition" name="test_m7_real01_ai_typing_is_mostly_right_and_never_verified_wrong" time="0.094" /><testcase classname="tests.gpu.test_recognition" name="test_m7_raster_room_labels[real01-photo]" time="0.115"><failure message="AssertionError: real01-photo: 6/8 rooms with the right label: [{'truth': 'Bed Room', 'got': 'Bed Room', 'ok': True}, {'truth': 'Bed Room', 'got': 'Bed Room', 'ok': True}, {'truth': 'Bath+ Toilet', 'got': None, 'ok': False}, {'truth': 'Drawing Room', 'got': 'Drawing Room', 'ok': True}, {'truth': 'Dining', 'got': 'Dining', 'ok': True}, {'truth': 'Kitchen', 'got': 'Kitchen', 'ok': True}, {'truth': 'Pooja', 'got': 'Pooja', 'ok': True}, {'truth': 'Store', 'got': None, 'ok': False}]&#10;assert 6 &gt;= 7">project = 'real01-photo'
+
+    @needs_prep
+    @pytest.mark.parametrize("project", [
+        # Only the prep projects run (WENART_PREP_PROJECTS: the prep job leaves out a project it could not find);
+        # the other raster projects are skipped, not failed.
+        p if p in PREP_PROJECTS else pytest.param(p, marks=pytest.mark.skip(reason=f"{p} not in WENART_PREP_PROJECTS"))
+        for p in sorted(RASTER_LABEL_TARGETS)])
+    def test_m7_raster_room_labels(project):
+        from wenart.recognition.room_labels import norm_value
+        if not (_prep(project) / "building.json").is_file():
+            pytest.fail(f"{project}: no building.json in {_prep(project)}")
+        building = _building(project)
+        rooms = []
+        for room in building["rooms"]:
+            xs = [p[0] for p in room["polygon"]]
+            ys = [p[1] for p in room["polygon"]]
+            rooms.append((room, sum(xs) / len(xs), sum(ys) / len(ys)))
+        right, rows = 0, []
+        for t in _truth_rooms(project):
+            x0, y0, x1, y1 = t["bbox"]
+            inside = [r for r, cx, cy in rooms if x0 &lt;= cx &lt;= x1 and y0 &lt;= cy &lt;= y1]
+            got = inside[0].get("label_raw") if inside else None
+            ok = got is not None and norm_value(got) == norm_value(t["label"])
+            right += int(ok)
+            rows.append({"truth": t["label"], "got": got, "ok": ok})
+        (RESULTS / f"m7_room_labels_{project}.json").write_text(json.dumps(rows, indent=1, ensure_ascii=False))
+&gt;       assert right &gt;= RASTER_LABEL_TARGETS[project], f"{project}: {right}/{len(rows)} rooms with the right label: {rows}"
+E       AssertionError: real01-photo: 6/8 rooms with the right label: [{'truth': 'Bed Room', 'got': 'Bed Room', 'ok': True}, {'truth': 'Bed Room', 'got': 'Bed Room', 'ok': True}, {'truth': 'Bath+ Toilet', 'got': None, 'ok': False}, {'truth': 'Drawing Room', 'got': 'Drawing Room', 'ok': True}, {'truth': 'Dining', 'got': 'Dining', 'ok': True}, {'truth': 'Kitchen', 'got': 'Kitchen', 'ok': True}, {'truth': 'Pooja', 'got': 'Pooja', 'ok': True}, {'truth': 'Store', 'got': None, 'ok': False}]
+E       assert 6 &gt;= 7
+
+tests/gpu/test_recognition.py:210: AssertionError</failure></testcase><testcase classname="tests.gpu.test_recognition" name="test_m7_raster_room_labels[real01-scan]" time="0.076" /><testcase classname="tests.gpu.test_recognition" name="test_m7_raster_room_labels[synthetic-02]" time="0.035" /></testsuite></testsuites>

@@ -1,0 +1,139 @@
+# Furniture fit report: building_final
+
+Project: synthetic-05; 30 pieces, 15 library fits, 15 parametric fallbacks. Non-uniform scale cap 15 %. Footprints, types, rotations, rooms and statuses are as in the building JSON (fitting never changes them).
+
+Library style filter: family 'modern' (the profile's family, outputs/synthetic-05/style.json): library models only when their styles hold 'modern' or 'neutral'
+
+| piece | room | type | source | status | footprint w x d (m) | method | asset | licence | scale x / y / z | aspect err | height (m) |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| f_L0_001 | r_L0_salon | sofa | from_documents | verified | 2.20 x 0.90 | library | objaverse_42da0122f2134a189767d0911b401c1c | CC-BY-4.0 | 1.019 / 1.001 / 1.010 | 0.018 | 0.71 |
+| f_L0_002 | r_L0_salon | table_coffee | from_documents | verified | 1.00 x 0.60 | parametric | parametric:table_coffee | n/a | 1.000 / 1.000 / 1.000 | - | 0.45 |
+| f_L0_003 | r_L0_salon | tv_unit | from_documents | verified | 1.60 x 0.45 | parametric | parametric:tv_unit | n/a | 1.000 / 1.000 / 1.000 | - | 0.50 |
+| f_L0_004 | r_L0_salon | table_dining | from_documents | verified | 1.60 x 0.90 | library | objaverse_5f235f066a9a416fb7177496a9117ec7 | CC-BY-4.0 | 0.943 / 0.838 / 0.890 | 0.119 | 0.58 |
+| f_L0_005 | r_L0_salon | chair | from_documents | verified | 0.45 x 0.45 | library | objaverse_d2785b57e7da45858f2fe8bf4dedd68d | CC-BY-4.0 | 0.871 / 0.895 / 0.883 | 0.027 | 0.73 |
+| f_L0_006 | r_L0_salon | chair | from_documents | verified | 0.45 x 0.45 | library | objaverse_d2785b57e7da45858f2fe8bf4dedd68d | CC-BY-4.0 | 0.871 / 0.895 / 0.883 | 0.027 | 0.73 |
+| f_L0_007 | r_L0_ebeveyn_yatak_odasi | bed_double | from_documents | verified | 1.60 x 2.00 | library | objaverse_2bd3fcc82c9f43cfb0c8cf26c7d0107c | CC-BY-4.0 | 0.914 / 1.019 / 0.967 | 0.109 | 1.45 |
+| f_L0_008 | r_L0_ebeveyn_yatak_odasi | nightstand | from_documents | verified | 0.50 x 0.40 | library | side_table_01 | CC0 | 0.909 / 0.889 / 0.899 | 0.022 | 0.50 |
+| f_L0_009 | r_L0_ebeveyn_yatak_odasi | nightstand | from_documents | verified | 0.50 x 0.40 | library | side_table_01 | CC0 | 0.909 / 0.889 / 0.899 | 0.022 | 0.50 |
+| f_L0_010 | r_L0_ebeveyn_yatak_odasi | wardrobe | from_documents | verified | 1.80 x 0.60 | parametric | parametric:wardrobe | n/a | 1.000 / 1.000 / 1.000 | - | 2.10 |
+| f_L0_011 | r_L0_ebeveyn_yatak_odasi | dresser | from_documents | verified | 1.20 x 0.50 | parametric | parametric:dresser | n/a | 1.000 / 1.000 / 1.000 | - | 0.80 |
+| f_L0_012 | r_L0_ebeveyn_banyo | shower | from_documents | verified | 0.90 x 0.90 | parametric | parametric:shower | n/a | 1.000 / 1.000 / 1.000 | - | 2.00 |
+| f_L0_013 | r_L0_ebeveyn_banyo | toilet | from_documents | verified | 0.40 x 0.70 | parametric | parametric:toilet | n/a | 1.000 / 1.000 / 1.000 | - | 0.80 |
+| f_L0_014 | r_L0_ebeveyn_banyo | washbasin | from_documents | verified | 0.60 x 0.45 | library | objaverse_ce1a06f7cbe1425099a145f851fc5dee | CC-BY-4.0 | 0.925 / 0.945 / 0.935 | 0.022 | 0.51 |
+| f_L0_015 | r_L0_mutfak | kitchen_counter | from_documents | verified | 2.40 x 0.60 | parametric | parametric:kitchen_counter | n/a | 1.000 / 1.000 / 1.000 | - | 0.90 |
+| f_L0_016 | r_L0_mutfak | kitchen_counter | from_documents | verified | 2.40 x 0.60 | parametric | parametric:kitchen_counter | n/a | 1.000 / 1.000 / 1.000 | - | 0.90 |
+| f_L0_017 | r_L0_mutfak | sink_kitchen | from_documents | verified | 0.80 x 0.50 | parametric | parametric:sink_kitchen | n/a | 1.000 / 1.000 / 1.000 | - | 1.15 |
+| f_L0_018 | r_L0_mutfak | stove | from_documents | verified | 0.60 x 0.60 | parametric | parametric:stove | n/a | 1.000 / 1.000 / 1.000 | - | 0.91 |
+| f_L0_019 | r_L0_mutfak | fridge | from_documents | verified | 0.70 x 0.70 | library | objaverse_68d69bbf7a454a09a2536ac0762532f3 | CC-BY-4.0 | 0.965 / 1.003 / 0.984 | 0.038 | 1.07 |
+| f_L0_020 | r_L0_mutfak | washing_machine | from_documents | verified | 0.60 x 0.60 | parametric | parametric:washing_machine | n/a | 1.000 / 1.000 / 1.000 | - | 0.85 |
+| f_L0_021 | r_L0_banyo | bathtub | from_documents | verified | 1.70 x 0.75 | parametric | parametric:bathtub | n/a | 1.000 / 1.000 / 1.000 | - | 0.70 |
+| f_L0_022 | r_L0_banyo | toilet | from_documents | verified | 0.40 x 0.70 | parametric | parametric:toilet | n/a | 1.000 / 1.000 / 1.000 | - | 0.80 |
+| f_L0_023 | r_L0_banyo | washbasin | from_documents | verified | 0.60 x 0.45 | library | objaverse_ce1a06f7cbe1425099a145f851fc5dee | CC-BY-4.0 | 0.925 / 0.945 / 0.935 | 0.022 | 0.51 |
+| f_L0_024 | r_L0_yatak_odasi | bed_single | from_documents | verified | 0.90 x 2.00 | library | objaverse_b547d81073b64d3e97200fd3ae9a74af | CC-BY-4.0 | 0.900 / 0.949 / 0.925 | 0.053 | 0.85 |
+| f_L0_025 | r_L0_yatak_odasi | bed_single | from_documents | verified | 0.90 x 2.00 | library | objaverse_b547d81073b64d3e97200fd3ae9a74af | CC-BY-4.0 | 0.900 / 0.949 / 0.925 | 0.053 | 0.85 |
+| f_L0_026 | r_L0_yatak_odasi | nightstand | from_documents | verified | 0.50 x 0.40 | library | side_table_01 | CC0 | 0.909 / 0.889 / 0.899 | 0.022 | 0.50 |
+| f_L0_027 | r_L0_calisma_odasi | desk | added_by_ai | verified | 1.40 x 0.70 | parametric | parametric:desk | n/a | 1.000 / 1.000 / 1.000 | - | 0.75 |
+| f_L0_028 | r_L0_calisma_odasi | bookshelf | added_by_ai | verified | 1.00 x 0.35 | library | wooden_display_shelves_01 | CC0 | 0.928 / 0.942 / 0.935 | 0.015 | 1.46 |
+| f_L0_029 | r_L0_calisma_odasi | chair | added_by_ai | verified | 0.50 x 0.50 | library | objaverse_d2785b57e7da45858f2fe8bf4dedd68d | CC-BY-4.0 | 0.968 / 0.994 / 0.981 | 0.027 | 0.81 |
+| f_L0_030 | r_L0_antre | dresser | added_by_ai | verified | 1.00 x 0.45 | parametric | parametric:dresser | n/a | 1.000 / 1.000 / 1.000 | - | 0.80 |
+
+## Parametric fallbacks
+
+- f_L0_002 (table_coffee): no table_coffee candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_1d41e84fd76241e7a8929a314052269c at 17.1 % non-uniform, mean scale 0.8923)
+- f_L0_003 (tv_unit): no tv_unit candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: modern_wooden_cabinet at 32.0 % non-uniform, mean scale 0.7606)
+- f_L0_010 (wardrobe): no wardrobe candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_b46803ba0bc64e12b31f832fb761c4e0 at 61.3 % non-uniform, mean scale 1.3931)
+- f_L0_011 (dresser): no model for style modern
+- f_L0_012 (shower): type shower is parametric in the catalogue
+- f_L0_013 (toilet): no toilet candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_3446229dce1f47528fa871cc7669136c at 25.0 % non-uniform, mean scale 0.9941)
+- f_L0_015 (kitchen_counter): type kitchen_counter is parametric in the catalogue
+- f_L0_016 (kitchen_counter): type kitchen_counter is parametric in the catalogue
+- f_L0_017 (sink_kitchen): type sink_kitchen is parametric in the catalogue
+- f_L0_018 (stove): no stove candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: electric_stove at 28.8 % non-uniform, mean scale 1.0601)
+- f_L0_020 (washing_machine): type washing_machine is parametric in the catalogue
+- f_L0_021 (bathtub): type bathtub is parametric in the catalogue
+- f_L0_022 (toilet): no toilet candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_3446229dce1f47528fa871cc7669136c at 25.0 % non-uniform, mean scale 0.9941)
+- f_L0_027 (desk): no desk candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_b930438e1f804c409fd9c3f5e4b01628 at 16.1 % non-uniform, mean scale 0.8515)
+- f_L0_030 (dresser): no model for style modern
+
+## Library assets and licences
+
+- objaverse_2bd3fcc82c9f43cfb0c8cf26c7d0107c (objaverse, CC-BY-4.0) x 1
+- objaverse_42da0122f2134a189767d0911b401c1c (objaverse, CC-BY-4.0) x 1
+- objaverse_5f235f066a9a416fb7177496a9117ec7 (objaverse, CC-BY-4.0) x 1
+- objaverse_68d69bbf7a454a09a2536ac0762532f3 (objaverse, CC-BY-4.0) x 1
+- objaverse_b547d81073b64d3e97200fd3ae9a74af (objaverse, CC-BY-4.0) x 2
+- objaverse_ce1a06f7cbe1425099a145f851fc5dee (objaverse, CC-BY-4.0) x 2
+- objaverse_d2785b57e7da45858f2fe8bf4dedd68d (objaverse, CC-BY-4.0) x 3
+- side_table_01 (polyhaven, CC0) x 3
+- wooden_display_shelves_01 (polyhaven, CC0) x 1
+
+## Models not taken (mattress rule and style filter)
+
+- f_L0_001: sofa_02: styles ['classic'] include neither modern nor neutral
+- f_L0_001: Sofa_01: styles ['classic'] include neither modern nor neutral
+- f_L0_001: sofa_03: styles ['classic'] include neither modern nor neutral
+- f_L0_001: objaverse_072d0468bb97447ab1ca7e3edea25f1f: styles ['classic'] include neither modern nor neutral
+- f_L0_002: CoffeeTable_01: styles ['classic', 'rustic'] include neither modern nor neutral
+- f_L0_002: objaverse_f4031bb5f7e64ebca4c37d4fa5ba6e8d: styles ['classic', 'rustic'] include neither modern nor neutral
+- f_L0_003: WoodenTable_03: styles ['industrial', 'rustic'] include neither modern nor neutral
+- f_L0_004: dining_table: styles ['rustic'] include neither modern nor neutral
+- f_L0_004: wooden_table_02: styles ['rustic'] include neither modern nor neutral
+- f_L0_004: painted_wooden_table: styles ['rustic'] include neither modern nor neutral
+- f_L0_004: objaverse_724d93a7f3644f96909e8c55909c6418: styles ['scandinavian', 'rustic'] include neither modern nor neutral
+- f_L0_005: gallinera_chair: styles ['classic', 'rustic'] include neither modern nor neutral
+- f_L0_005: painted_wooden_chair_02: styles ['rustic'] include neither modern nor neutral
+- f_L0_005: objaverse_039c6026571943d6ac45c6816bcc7ff1: styles ['classic'] include neither modern nor neutral
+- f_L0_005: objaverse_0723b35415b0462eb5c01140b6b70340: styles ['classic'] include neither modern nor neutral
+- f_L0_005: objaverse_9234d8196b73434684bcbb8092cc9e2a: styles ['classic'] include neither modern nor neutral
+- f_L0_005: objaverse_cb43e2abac66494d81e1e7116eb47043: styles ['industrial', 'rustic'] include neither modern nor neutral
+- f_L0_006: gallinera_chair: styles ['classic', 'rustic'] include neither modern nor neutral
+- f_L0_006: painted_wooden_chair_02: styles ['rustic'] include neither modern nor neutral
+- f_L0_006: objaverse_039c6026571943d6ac45c6816bcc7ff1: styles ['classic'] include neither modern nor neutral
+- f_L0_006: objaverse_0723b35415b0462eb5c01140b6b70340: styles ['classic'] include neither modern nor neutral
+- f_L0_006: objaverse_9234d8196b73434684bcbb8092cc9e2a: styles ['classic'] include neither modern nor neutral
+- f_L0_006: objaverse_cb43e2abac66494d81e1e7116eb47043: styles ['industrial', 'rustic'] include neither modern nor neutral
+- f_L0_007: GothicBed_01: styles ['classic'] include neither modern nor neutral
+- f_L0_007: objaverse_5d3a99865ac84d8a8bf06b263aa5bb55: styles ['industrial'] include neither modern nor neutral
+- f_L0_008: ClassicNightstand_01: styles ['classic'] include neither modern nor neutral
+- f_L0_008: painted_wooden_nightstand: styles ['rustic'] include neither modern nor neutral
+- f_L0_009: ClassicNightstand_01: styles ['classic'] include neither modern nor neutral
+- f_L0_009: painted_wooden_nightstand: styles ['rustic'] include neither modern nor neutral
+- f_L0_010: objaverse_05a035c3347645b8a7ceb6d65f825ac3: styles ['classic'] include neither modern nor neutral
+- f_L0_010: objaverse_b3a99e956be64ab6958f7f5e1895f031: styles ['classic', 'rustic'] include neither modern nor neutral
+- f_L0_011: GothicCommode_01: styles ['classic'] include neither modern nor neutral
+- f_L0_011: vintage_wooden_drawer_01: styles ['classic'] include neither modern nor neutral
+- f_L0_018: objaverse_7c5c9dec5c2e4ff998c386410b0e3686: styles ['industrial'] include neither modern nor neutral
+- f_L0_026: ClassicNightstand_01: styles ['classic'] include neither modern nor neutral
+- f_L0_026: painted_wooden_nightstand: styles ['rustic'] include neither modern nor neutral
+- f_L0_027: metal_office_desk: styles ['industrial'] include neither modern nor neutral
+- f_L0_027: WoodenTable_01: styles ['rustic'] include neither modern nor neutral
+- f_L0_027: SchoolDesk_01: styles ['industrial'] include neither modern nor neutral
+- f_L0_028: Shelf_01: styles ['rustic'] include neither modern nor neutral
+- f_L0_028: wooden_bookshelf_worn: styles ['rustic'] include neither modern nor neutral
+- f_L0_028: objaverse_51d928b33e5549898cc86cbdaf966d83: styles ['modern minimal', 'minimal'] include neither modern nor neutral
+- f_L0_028: objaverse_6c5ac2547db34c3c81b2e4808b000386: styles ['classic'] include neither modern nor neutral
+- f_L0_029: gallinera_chair: styles ['classic', 'rustic'] include neither modern nor neutral
+- f_L0_029: painted_wooden_chair_02: styles ['rustic'] include neither modern nor neutral
+- f_L0_029: objaverse_039c6026571943d6ac45c6816bcc7ff1: styles ['classic'] include neither modern nor neutral
+- f_L0_029: objaverse_0723b35415b0462eb5c01140b6b70340: styles ['classic'] include neither modern nor neutral
+- f_L0_029: objaverse_9234d8196b73434684bcbb8092cc9e2a: styles ['classic'] include neither modern nor neutral
+- f_L0_029: objaverse_cb43e2abac66494d81e1e7116eb47043: styles ['industrial', 'rustic'] include neither modern nor neutral
+- f_L0_030: GothicCommode_01: styles ['classic'] include neither modern nor neutral
+- f_L0_030: vintage_wooden_drawer_01: styles ['classic'] include neither modern nor neutral
+
+## Attribution (CC BY 4.0)
+
+- objaverse_2bd3fcc82c9f43cfb0c8cf26c7d0107c: "Bed For Vr" by olamii (https://sketchfab.com/3d-models/2bd3fcc82c9f43cfb0c8cf26c7d0107c), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- objaverse_42da0122f2134a189767d0911b401c1c: "Couch Gameready" by elijahorama (https://sketchfab.com/3d-models/42da0122f2134a189767d0911b401c1c), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- objaverse_5f235f066a9a416fb7177496a9117ec7: "Low Poly - Chair and Table" by tadeus (https://sketchfab.com/3d-models/5f235f066a9a416fb7177496a9117ec7), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- objaverse_68d69bbf7a454a09a2536ac0762532f3: "Old Fridge" by golddog (https://sketchfab.com/3d-models/68d69bbf7a454a09a2536ac0762532f3), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- objaverse_b547d81073b64d3e97200fd3ae9a74af: "Bed - Sample" by Mifu Saja (https://sketchfab.com/3d-models/b547d81073b64d3e97200fd3ae9a74af), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- objaverse_ce1a06f7cbe1425099a145f851fc5dee: "Sink" by Shining Salt (https://sketchfab.com/3d-models/ce1a06f7cbe1425099a145f851fc5dee), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- objaverse_d2785b57e7da45858f2fe8bf4dedd68d: "Chair" by 杭州维界科技有限公司 (https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+
+## Decor
+
+- book_set: parametric x 2
+- cushion: parametric x 6
+- plant: potted_plant_02 x 2
+- cushions and books are parametric by design (the catalogue pillow model lies flat)

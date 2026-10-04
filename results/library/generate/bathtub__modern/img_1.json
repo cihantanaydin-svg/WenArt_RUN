@@ -1,0 +1,24 @@
+{
+ "key": "72318d3829c09f4761fa885f9e7cdf9209142aa43109531a5476ffb5fbba99e0",
+ "pair": "bathtub__modern",
+ "type": "bathtub",
+ "family": "modern",
+ "index": 1,
+ "prompt": "a single modern style freestanding bathtub, glossy white ceramic, stainless steel and chrome fittings, crisp geometric lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 63257188,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "20bfbb55f369de0019538c2d693c7133f8c8cbbbe4c33b9661c9021e091fb078",
+ "seconds": 4.91,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 4500 Blackwell"
+ },
+ "generated_utc": "2026-10-04T07:23:49Z"
+}

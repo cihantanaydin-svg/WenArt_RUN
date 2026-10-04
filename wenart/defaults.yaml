@@ -1,0 +1,51 @@
+# Project defaults (docs/plan.md §1). Every value here is an assumption:
+# a module that uses one records it as "assumed" in its output (style.json
+# warnings, scene_manifest.json), never silently.
+
+style:
+  # Used when a project has no brief.yaml or no style text in it.
+  text: "Scandinavian, light oak floor, white walls, linen textiles, warm daylight"
+  # Slot fallbacks when neither the brief nor a style family word names them.
+  fallback:
+    floor: wood_oak_light
+    walls: plaster_white
+    light: warm daylight
+  # The profile wenart.style produces from `text` above. tests/test_style.py
+  # checks that this block and the code agree, so keep both in sync.
+  profile:
+    source_text: "Scandinavian, light oak floor, white walls, linen textiles, warm daylight"
+    family: scandinavian   # Milestone 7: the library style filter of refit (docs/milestone7.md §6.3)
+    floor: {material: wood_oak_light, asset: WoodFloor051}
+    walls: {material: plaster_white, asset: white_plaster_02}
+    ceiling: {material: plaster_white}
+    wet_floor: {material: tiles_light, asset: Tiles074}
+    wet_walls: {material: tiles_light}
+    trim: {material: painted_wood_white}
+    door: {material: wood_oak_light}
+    window_frame: {material: painted_metal_white}
+    lighting:
+      hdri: kloppenheim_06
+      sun_elevation_deg: 35
+      sun_azimuth_deg: 210
+      sun_strength: 3.0
+      colour_temperature_k: 5200
+      mood: warm daylight
+    matched_terms: [Scandinavian, light oak floor, white walls, warm daylight]
+    unmatched_terms: [linen textiles]
+    warnings: []
+
+# Brief keys and their defaults; wenart.brief.load_brief merges brief.yaml
+# over this block and lists every key it took from here as assumed.
+brief:
+  empty_rooms: ai        # rooms with no documented furniture: furnish with AI (Milestone 4)
+  decor: true            # small decor in documented rooms (cushions, plants, books)
+  polish: true           # AI polish of the Cycles renders (Milestone 5); false = every view stays Cycles
+  style_photos: []       # photos in projects/<p>/style_photos/ used as style references; [] = every photo there
+  ceiling_height: 2.70   # metres, when no section or elevation gives it
+  render:
+    views_per_room: 3
+    resolution: [1920, 1080]
+    samples: 256
+    # Camera lens in mm on the 36 mm sensor (Milestone 8, docs/milestone8.md §5): auto = 18 mm, 16 mm in rooms
+    # narrower than 2.2 m (wenart.blender.cameras.room_lens); a number from 14 to 35 sets every searched camera.
+    lens_mm: auto

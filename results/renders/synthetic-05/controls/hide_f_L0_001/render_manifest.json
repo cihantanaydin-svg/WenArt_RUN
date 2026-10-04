@@ -1,0 +1,221 @@
+{
+ "schema_version": "0.1",
+ "scene": "../../scene/scene.blend",
+ "scene_sha256": "69c47b12da048baf57e4332ff99c55f2f8b81a7dafc566c6389f21f7806b12f1",
+ "device": "OPTIX",
+ "device_requested": "auto",
+ "blender_version": "5.2.2 LTS",
+ "samples": 128,
+ "resolution": [
+  1920,
+  1080
+ ],
+ "denoiser": "OPENIMAGEDENOISE",
+ "render_code_version": "m7.1",
+ "view_transform": "AgX",
+ "look": "AgX - Punchy",
+ "exposure_mode": "from",
+ "exposure_target": 0.9,
+ "exposure_limits": [
+  -2.0,
+  8.0
+ ],
+ "white_balance_mode": "from",
+ "look_from": "../../renders/render_manifest.json",
+ "hidden": [
+  "f_L0_001"
+ ],
+ "plugged": [],
+ "alt_look": null,
+ "max_bounces": null,
+ "bounces": null,
+ "ev_offset": 0.0,
+ "preview_quality": null,
+ "pass_index": {
+  "d_L0_001": 1,
+  "d_L0_002": 2,
+  "d_L0_003": 3,
+  "d_L0_004": 4,
+  "d_L0_005": 5,
+  "d_L0_006": 6,
+  "d_L0_007": 7,
+  "d_L0_008": 8,
+  "d_L0_009": 9,
+  "win_L0_001": 10,
+  "win_L0_002": 11,
+  "win_L0_003": 12,
+  "win_L0_004": 13,
+  "win_L0_005": 14,
+  "win_L0_006": 15,
+  "win_L0_007": 16,
+  "win_L0_008": 17,
+  "win_L0_009": 18,
+  "win_L0_010": 19,
+  "f_L0_001": 20,
+  "f_L0_002": 21,
+  "f_L0_003": 22,
+  "f_L0_004": 23,
+  "f_L0_005": 24,
+  "f_L0_006": 25,
+  "f_L0_007": 26,
+  "f_L0_008": 27,
+  "f_L0_009": 28,
+  "f_L0_010": 29,
+  "f_L0_011": 30,
+  "f_L0_012": 31,
+  "f_L0_013": 32,
+  "f_L0_014": 33,
+  "f_L0_015": 34,
+  "f_L0_016": 35,
+  "f_L0_017": 36,
+  "f_L0_018": 37,
+  "f_L0_019": 38,
+  "f_L0_020": 39,
+  "f_L0_021": 40,
+  "f_L0_022": 41,
+  "f_L0_023": 42,
+  "f_L0_024": 43,
+  "f_L0_025": 44,
+  "f_L0_026": 45,
+  "f_L0_027": 46,
+  "f_L0_028": 47,
+  "f_L0_029": 48,
+  "f_L0_030": 49,
+  "dec_L0_003": 50,
+  "dec_L0_010": 51
+ },
+ "renders": [
+  {
+   "camera": "cam_r_L0_salon_1",
+   "room_id": "r_L0_salon",
+   "level_id": "L0",
+   "png": "cam_r_L0_salon_1.png",
+   "exr": "cam_r_L0_salon_1_passes.exr",
+   "preview": "cam_r_L0_salon_1_preview.jpg",
+   "depth_png": "cam_r_L0_salon_1_depth.png",
+   "index_png": "cam_r_L0_salon_1_index.png",
+   "files": {
+    "index": "cam_r_L0_salon_1_index.png",
+    "depth_mm": "cam_r_L0_salon_1_depth_mm.png",
+    "normal": "cam_r_L0_salon_1_normal.png",
+    "depth": "cam_r_L0_salon_1_depth.png"
+   },
+   "preview_bytes": 131941,
+   "seconds": 2.95,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.334028959274292,
+    "max": 4.000000476837158,
+    "mean": 3.1188440322875977,
+    "coverage": 1.0
+   },
+   "index_values": [
+    10,
+    21,
+    24,
+    50
+   ],
+   "index_stats": {
+    "10": {
+     "pixels": 225294,
+     "box": [
+      134,
+      0,
+      545,
+      614
+     ]
+    },
+    "21": {
+     "pixels": 103405,
+     "box": [
+      1157,
+      742,
+      1852,
+      1080
+     ]
+    },
+    "24": {
+     "pixels": 25567,
+     "box": [
+      1782,
+      778,
+      1920,
+      1080
+     ]
+    },
+    "50": {
+     "pixels": 12307,
+     "box": [
+      625,
+      605,
+      774,
+      786
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "69c47b12da048baf57e4332ff99c55f2f8b81a7dafc566c6389f21f7806b12f1",
+   "render_key": "3a53b74e0e2c2c15",
+   "exposure": {
+    "mode": "from",
+    "ev": 3.833333,
+    "ev_raw": null,
+    "at_limit": false,
+    "target": null,
+    "limits": null,
+    "incident_p50": null,
+    "whitepoint": [
+     1.045387,
+     0.991194,
+     0.953585
+    ],
+    "wb_mode": "from",
+    "wb_temperature": 6150.8,
+    "wb_tint": 6.89,
+    "residual": null,
+    "window_clip_frac": 0.0025,
+    "meter_seconds": 0.0,
+    "meter": null,
+    "mood": "warm daylight",
+    "source": "../../renders/render_manifest.json",
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "hidden": [
+    "f_L0_001"
+   ],
+   "plugged": [],
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": 2.833333,
+    "clip_before": 0.1737,
+    "clip_after": 0.0016,
+    "pane_px": 200715,
+    "pane_median": 0.9641,
+    "wall_median": 0.6537,
+    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0016,
+      "median": 0.914
+     }
+    ],
+    "pane_median_after": 0.914,
+    "seconds": 0.851
+   },
+   "alt_preview": null,
+   "alt_preview_bytes": null
+  }
+ ],
+ "dropped_stale": [],
+ "incomplete": false,
+ "not_rendered": [],
+ "deadline": 1791078100.0,
+ "warnings": []
+}

@@ -1,0 +1,27 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "synthetic-01",
+ "stage": "ab_combine",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 13.83,
+ "fingerprint": null,
+ "inputs": {},
+ "outputs": [
+  "check/realism/realism2_ab.json"
+ ],
+ "started_utc": "2026-10-04T02:28:45Z",
+ "git_commit": "0a41bee4ea72a8713da1941efc8951188b952670",
+ "log": "logs/ab_combine.log",
+ "note": null,
+ "run_id": "20261004-013837-full-20261004T014240Z",
+ "steps": [
+  {
+   "name": "realism2-combine",
+   "rc": 0,
+   "seconds": 13.83
+  }
+ ],
+ "written": {}
+}

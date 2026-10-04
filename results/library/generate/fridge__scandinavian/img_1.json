@@ -1,0 +1,24 @@
+{
+ "key": "a14c47a1932eef3464b17270f12d358e255ad55e25fad9fe9c05943361fedf51",
+ "pair": "fridge__scandinavian",
+ "type": "fridge",
+ "family": "scandinavian",
+ "index": 1,
+ "prompt": "a single scandinavian style freestanding refrigerator, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+ "seed": 808569671,
+ "model": "Tongyi-MAI/Z-Image-Turbo@f332072aa78be7aecdf3ee76d5c247082da564a6",
+ "settings": {
+  "size": 1024,
+  "steps": 8,
+  "guidance_scale": 0.0
+ },
+ "image_sha256": "3af8d66c92ccbd8cbab7b14fa632572808c16f365f4265bd5298bde0961b7477",
+ "seconds": 4.93,
+ "versions": {
+  "torch": "2.9.1+cu128",
+  "diffusers": "0.40.0",
+  "transformers": "5.18.0",
+  "device": "NVIDIA RTX PRO 4500 Blackwell"
+ },
+ "generated_utc": "2026-10-04T07:22:29Z"
+}

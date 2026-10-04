@@ -1,0 +1,31 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "real01",
+ "stage": "layout",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 10.84,
+ "fingerprint": "27c9780d3613aa90f199b61cbce26fe105b8c8f957a854a5c467a1c309d5dd9e",
+ "inputs": {
+  "outputs/real01/building_fitted.json": "1da9ce92d80065bb1eabad636b7818ac384e4b25ce424d286120fccda687ec88",
+  "outputs/real01/style.json": "9e88465132c2a42d1a2c305c72792e6355c3720f5e7b8fcc1245c3c6dd721faa"
+ },
+ "outputs": [
+  "building_furnished.json",
+  "layout.json"
+ ],
+ "started_utc": "2026-10-04T10:03:16Z",
+ "git_commit": "714dcc50e1a342a6b723451c219e22291d3d333f",
+ "log": "logs/layout.log",
+ "note": null,
+ "run_id": "20261004-095244-full-20261004T095809Z",
+ "steps": [
+  {
+   "name": "layout",
+   "rc": 0,
+   "seconds": 10.84
+  }
+ ],
+ "written": {}
+}

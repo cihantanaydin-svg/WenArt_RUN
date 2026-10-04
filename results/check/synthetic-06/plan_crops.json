@@ -1,0 +1,245 @@
+{
+ "schema_version": "0.1",
+ "project": "synthetic-06",
+ "views": {
+  "cam_r_L0_bath_1": {
+   "plan": "cam_r_L0_bath_1_plan.jpg",
+   "document": "synthetic-06.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "synthetic-06.dwg",
+   "crop_origin_px": [
+    277,
+    600
+   ],
+   "scale": 1.53257,
+   "bytes": 53556
+  },
+  "cam_r_L0_bath_2": {
+   "plan": "cam_r_L0_bath_2_plan.jpg",
+   "document": "synthetic-06.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "synthetic-06.dwg",
+   "crop_origin_px": [
+    277,
+    600
+   ],
+   "scale": 1.53257,
+   "bytes": 47688
+  },
+  "cam_r_L0_bed_room_1": {
+   "plan": "cam_r_L0_bed_room_1_plan.jpg",
+   "document": "synthetic-06.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "synthetic-06.dwg",
+   "crop_origin_px": [
+    277,
+    18
+   ],
+   "scale": 1.10497,
+   "bytes": 61077
+  },
+  "cam_r_L0_bed_room_2": {
+   "plan": "cam_r_L0_bed_room_2_plan.jpg",
+   "document": "synthetic-06.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "synthetic-06.dwg",
+   "crop_origin_px": [
+    277,
+    18
+   ],
+   "scale": 1.10497,
+   "bytes": 56855
+  },
+  "cam_r_L0_bed_room_3": {
+   "plan": "cam_r_L0_bed_room_3_plan.jpg",
+   "document": "synthetic-06.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "synthetic-06.dwg",
+   "crop_origin_px": [
+    277,
+    18
+   ],
+   "scale": 1.10497,
+   "bytes": 65174
+  },
+  "cam_r_L0_kitchen_1": {
+   "plan": "cam_r_L0_kitchen_1_plan.jpg",
+   "document": "synthetic-06.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "synthetic-06.dwg",
+   "crop_origin_px": [
+    277,
+    878
+   ],
+   "scale": 1.03226,
+   "bytes": 61431
+  },
+  "cam_r_L0_kitchen_2": {
+   "plan": "cam_r_L0_kitchen_2_plan.jpg",
+   "document": "synthetic-06.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "synthetic-06.dwg",
+   "crop_origin_px": [
+    277,
+    878
+   ],
+   "scale": 1.03226,
+   "bytes": 61829
+  },
+  "cam_r_L0_kitchen_3": {
+   "plan": "cam_r_L0_kitchen_3_plan.jpg",
+   "document": "synthetic-06.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "synthetic-06.dwg",
+   "crop_origin_px": [
+    277,
+    878
+   ],
+   "scale": 1.03226,
+   "bytes": 62713
+  },
+  "cam_r_L0_living_room_1": {
+   "plan": "cam_r_L0_living_room_1_plan.jpg",
+   "document": "synthetic-06.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "synthetic-06.dwg",
+   "crop_origin_px": [
+    695,
+    878
+   ],
+   "scale": 1.0,
+   "bytes": 57095
+  },
+  "cam_r_L0_living_room_2": {
+   "plan": "cam_r_L0_living_room_2_plan.jpg",
+   "document": "synthetic-06.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "synthetic-06.dwg",
+   "crop_origin_px": [
+    695,
+    878
+   ],
+   "scale": 1.0,
+   "bytes": 58190
+  },
+  "cam_r_L0_living_room_3": {
+   "plan": "cam_r_L0_living_room_3_plan.jpg",
+   "document": "synthetic-06.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "synthetic-06.dwg",
+   "crop_origin_px": [
+    695,
+    878
+   ],
+   "scale": 1.0,
+   "bytes": 58125
+  },
+  "cam_r_L0_lobby_1": {
+   "plan": "cam_r_L0_lobby_1_plan.jpg",
+   "document": "synthetic-06.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "synthetic-06.dwg",
+   "crop_origin_px": [
+    657,
+    600
+   ],
+   "scale": 1.0,
+   "bytes": 43176
+  },
+  "cam_r_L0_lobby_2": {
+   "plan": "cam_r_L0_lobby_2_plan.jpg",
+   "document": "synthetic-06.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "synthetic-06.dwg",
+   "crop_origin_px": [
+    657,
+    600
+   ],
+   "scale": 1.0,
+   "bytes": 43502
+  },
+  "cam_r_L0_lobby_3": {
+   "plan": "cam_r_L0_lobby_3_plan.jpg",
+   "document": "synthetic-06.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "synthetic-06.dwg",
+   "crop_origin_px": [
+    657,
+    600
+   ],
+   "scale": 1.0,
+   "bytes": 42724
+  },
+  "cam_r_L0_master_bed_room_1": {
+   "plan": "cam_r_L0_master_bed_room_1_plan.jpg",
+   "document": "synthetic-06.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "synthetic-06.dwg",
+   "crop_origin_px": [
+    834,
+    18
+   ],
+   "scale": 1.06809,
+   "bytes": 60705
+  },
+  "cam_r_L0_master_bed_room_2": {
+   "plan": "cam_r_L0_master_bed_room_2_plan.jpg",
+   "document": "synthetic-06.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "synthetic-06.dwg",
+   "crop_origin_px": [
+    834,
+    18
+   ],
+   "scale": 1.06809,
+   "bytes": 60427
+  },
+  "cam_r_L0_master_bed_room_3": {
+   "plan": "cam_r_L0_master_bed_room_3_plan.jpg",
+   "document": "synthetic-06.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "synthetic-06.dwg",
+   "crop_origin_px": [
+    834,
+    18
+   ],
+   "scale": 1.06809,
+   "bytes": 62139
+  }
+ },
+ "warnings": []
+}

@@ -1,0 +1,62 @@
+# AI polish settings (docs/milestone5.md §3). Model ids, revisions, files and
+# licences live only here (polish models) and in wenart/gate/models.yaml (gate
+# models), see §1.6; scripts/pod_setup_polish.sh downloads exactly these and
+# the loaders pass the same revision. tests/test_m5_config.py checks the
+# revisions against the table in docs/milestone5.md §1.6.
+
+models:
+  base:
+    repo: Tongyi-MAI/Z-Image-Turbo
+    revision: f332072aa78be7aecdf3ee76d5c247082da564a6
+    licence: Apache-2.0
+    allow_patterns: [model_index.json, "scheduler/*", "text_encoder/*", "tokenizer/*", "transformer/*", "vae/*"]
+    size_gb: 32.85
+  controlnet:
+    repo: alibaba-pai/Z-Image-Turbo-Fun-Controlnet-Union-2.1
+    revision: 5155fc56d17821007d6f62ac192c09e0f0e72016
+    licence: Apache-2.0
+    files: [Z-Image-Turbo-Fun-Controlnet-Union-2.1-2602-8steps.safetensors]
+    allow_patterns: [Z-Image-Turbo-Fun-Controlnet-Union-2.1-2602-8steps.safetensors]
+    # Vendored diffusers config (591 bytes, see configs/controlnet_union_2.1/SOURCE.md),
+    # relative to wenart/polish; passed as config= to ZImageControlNetModel.from_single_file.
+    config_dir: configs/controlnet_union_2.1
+    size_gb: 6.71
+
+seed: 0          # seed of attempt k = seed + k (§3.6)
+steps: 8         # default sigmas: get_default_z_image_sigmas(8) (§3.2)
+size: native     # native = 1920x1080 reflect-padded to 1920x1088; or WxH (multiples of 16) (§3.3)
+
+# Ordered attempts, each gated at once; the first accepted one is the view's
+# candidate (§3.6). Set from run 1a's sweep (results/final/<p>/sweep_report.md).
+# mode: plain = ZImageControlNetPipeline; anchor = ZImageControlNetInpaintPipeline
+# with an all-black mask (sweep only).
+ladder:   # set from run 1a's sweep (2 Oct 2026): each rung passed the calibrated gate on all 8 sweep views
+  - {strength: 0.375, control: geometry, scale: 0.8, size: native, mode: plain}
+  - {strength: 0.25, control: canny, scale: 0.8, size: native, mode: plain}
+  - {strength: 0.125, control: depth, scale: 0.8, size: native, mode: plain}
+
+# Named grids for `python -m wenart.polish sweep --grid <name>` and `smoke`.
+grids:
+  # 10 combinations + the presumed-bad control (§3.6); all scale 0.8.
+  sweep:
+    - {role: grid, strength: 0.125, control: depth, scale: 0.8, size: native, mode: plain}
+    - {role: grid, strength: 0.25, control: depth, scale: 0.8, size: native, mode: plain}
+    - {role: grid, strength: 0.375, control: depth, scale: 0.8, size: native, mode: plain}
+    - {role: grid, strength: 0.5, control: depth, scale: 0.8, size: native, mode: plain}
+    - {role: grid, strength: 0.25, control: canny, scale: 0.8, size: native, mode: plain}
+    - {role: grid, strength: 0.375, control: canny, scale: 0.8, size: native, mode: plain}
+    - {role: grid, strength: 0.25, control: geometry, scale: 0.8, size: native, mode: plain}
+    - {role: grid, strength: 0.375, control: geometry, scale: 0.8, size: native, mode: plain}
+    - {role: grid, strength: 0.375, control: depth, scale: 0.8, size: 1536x864, mode: plain}
+    - {role: grid, strength: 0.375, control: depth, scale: 0.8, size: native, mode: anchor}
+    # Reported only (gate calibration, §4.3): no control -> ZImageImg2ImgPipeline.from_pipe.
+    - {role: presumed_bad, strength: 0.75, control: null, scale: null, size: native, mode: plain}
+  # Run 0: 4 settings per view, timings (§3.6, §8.3).
+  smoke:
+    - {role: grid, strength: 0.25, control: depth, scale: 0.8, size: native, mode: plain}
+    - {role: grid, strength: 0.375, control: depth, scale: 0.8, size: native, mode: plain}
+    - {role: grid, strength: 0.375, control: canny, scale: 0.8, size: native, mode: plain}
+    - {role: grid, strength: 0.375, control: geometry, scale: 0.8, size: native, mode: plain}
+
+# View polished twice with the same seed for determinism.json; null = the first view of the run.
+determinism_view: null

@@ -1,0 +1,27 @@
+{
+ "schema_version": "0.1",
+ "kind": "gate_validation",
+ "project": "synthetic-02",
+ "decision": "polish_disabled",
+ "benign_accept": 1.0,
+ "negative_reject": 0.8276,
+ "n_benign": 40,
+ "n_negative": 58,
+ "pass_benign": true,
+ "pass_negative": false,
+ "reasons": [
+  "negative controls rejected 0.828 < 0.90 (58 comparisons): the gate lets geometry changes through"
+ ],
+ "limits": {
+  "benign_accept_min": 0.95,
+  "negative_reject_min": 0.9
+ },
+ "polish_allowed": false,
+ "calibration": {
+  "path": "gate_calibration.json",
+  "sha256": "9ea8fc358022fb00c722d6d8df65bfe4581ed72a2b9bf8405ea66e8e73167a84",
+  "incomplete": false,
+  "thresholds_match": true
+ },
+ "created_utc": "2026-10-04T01:04:25Z"
+}

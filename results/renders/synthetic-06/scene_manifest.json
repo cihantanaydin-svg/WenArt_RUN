@@ -1,0 +1,7968 @@
+{
+ "schema_version": "0.1",
+ "project": "synthetic-06",
+ "building": "outputs/synthetic-06/building_final.json",
+ "style": "outputs/synthetic-06/style.json",
+ "style_profile": {
+  "source_text": "Mid-century modern, walnut floor, white walls, mustard and teal accents, warm daylight",
+  "family": "modern",
+  "floor": {
+   "material": "wood_walnut",
+   "asset": "WoodFloor046"
+  },
+  "walls": {
+   "material": "plaster_white",
+   "asset": "white_plaster_02"
+  },
+  "ceiling": {
+   "material": "plaster_white"
+  },
+  "wet_floor": {
+   "material": "tiles_light",
+   "asset": "Tiles074"
+  },
+  "wet_walls": {
+   "material": "tiles_light"
+  },
+  "trim": {
+   "material": "painted_wood_white"
+  },
+  "door": {
+   "material": "wood_walnut"
+  },
+  "window_frame": {
+   "material": "painted_metal_white"
+  },
+  "lighting": {
+   "hdri": "kloppenheim_06",
+   "sun_elevation_deg": 35,
+   "sun_azimuth_deg": 210,
+   "sun_strength": 3.0,
+   "colour_temperature_k": 5200,
+   "mood": "warm daylight"
+  },
+  "matched_terms": [
+   "Mid-century modern",
+   "walnut floor",
+   "white walls",
+   "warm daylight"
+  ],
+  "unmatched_terms": [
+   "mustard and teal accents"
+  ],
+  "warnings": []
+ },
+ "blender_version": "5.2.2 LTS",
+ "textures_enabled": true,
+ "assets_dir": "/workspace/assets",
+ "levels": [
+  {
+   "id": "L0",
+   "label": "Ground floor",
+   "elevation": 0.0,
+   "ceiling_height": 2.7,
+   "ceiling_height_source": "assumed_default"
+  }
+ ],
+ "objects": [
+  {
+   "name": "w_L0_001",
+   "wenart_id": "w_L0_001",
+   "kind": "wall",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "w_L0_001",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "HATCH:C4"
+    }
+   ],
+   "material": "plaster_white__white_plaster_02",
+   "textured": true,
+   "pass_index": null,
+   "assumed": {},
+   "trimmed": [],
+   "start": [
+    0.231,
+    0.115
+   ],
+   "end": [
+    7.101,
+    0.115
+   ],
+   "thickness": 0.23,
+   "height": 2.7,
+   "split_at_m": [
+    2.514,
+    6.856
+   ]
+  },
+  {
+   "name": "w_L0_002",
+   "wenart_id": "w_L0_002",
+   "kind": "wall",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "w_L0_002",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "HATCH:C4"
+    }
+   ],
+   "material": "plaster_white__white_plaster_02",
+   "textured": true,
+   "pass_index": null,
+   "assumed": {},
+   "trimmed": [],
+   "start": [
+    0.231,
+    3.963
+   ],
+   "end": [
+    7.087,
+    3.963
+   ],
+   "thickness": 0.15,
+   "height": 2.7,
+   "split_at_m": [
+    2.133,
+    2.283,
+    2.439,
+    2.589
+   ]
+  },
+  {
+   "name": "w_L0_003",
+   "wenart_id": "w_L0_003",
+   "kind": "wall",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "w_L0_003",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "HATCH:C4"
+    }
+   ],
+   "material": "plaster_white__white_plaster_02",
+   "textured": true,
+   "pass_index": null,
+   "assumed": {},
+   "trimmed": [],
+   "start": [
+    0.231,
+    5.64
+   ],
+   "end": [
+    7.087,
+    5.64
+   ],
+   "thickness": 0.155,
+   "height": 2.7,
+   "split_at_m": [
+    2.133,
+    2.283,
+    3.1975,
+    3.3525
+   ]
+  },
+  {
+   "name": "w_L0_004",
+   "wenart_id": "w_L0_004",
+   "kind": "wall",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "w_L0_004",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "HATCH:C4"
+    }
+   ],
+   "material": "plaster_white__white_plaster_02",
+   "textured": true,
+   "pass_index": null,
+   "assumed": {},
+   "trimmed": [],
+   "start": [
+    0.231,
+    9.183
+   ],
+   "end": [
+    7.101,
+    9.183
+   ],
+   "thickness": 0.23,
+   "height": 2.7,
+   "split_at_m": [
+    3.1975,
+    3.3525,
+    6.856
+   ]
+  },
+  {
+   "name": "w_L0_005",
+   "wenart_id": "w_L0_005",
+   "kind": "wall",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "w_L0_005",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "HATCH:C4"
+    }
+   ],
+   "material": "plaster_white__white_plaster_02",
+   "textured": true,
+   "pass_index": null,
+   "assumed": {},
+   "trimmed": [],
+   "start": [
+    0.115,
+    0.001
+   ],
+   "end": [
+    0.115,
+    9.297
+   ],
+   "thickness": 0.23,
+   "height": 2.7,
+   "split_at_m": [
+    0.229,
+    3.887,
+    4.037,
+    5.5615,
+    5.7165,
+    9.067
+   ]
+  },
+  {
+   "name": "w_L0_006",
+   "wenart_id": "w_L0_006",
+   "kind": "wall",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "w_L0_006",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "HATCH:C4"
+    }
+   ],
+   "material": "plaster_white__white_plaster_02",
+   "textured": true,
+   "pass_index": null,
+   "assumed": {},
+   "trimmed": [],
+   "start": [
+    2.439,
+    4.038
+   ],
+   "end": [
+    2.439,
+    5.5625
+   ],
+   "thickness": 0.15,
+   "height": 2.7
+  },
+  {
+   "name": "w_L0_007",
+   "wenart_id": "w_L0_007",
+   "kind": "wall",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "w_L0_007",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "HATCH:C4"
+    }
+   ],
+   "material": "plaster_white__white_plaster_02",
+   "textured": true,
+   "pass_index": null,
+   "assumed": {},
+   "trimmed": [],
+   "start": [
+    2.745,
+    2.059
+   ],
+   "end": [
+    2.745,
+    3.8874
+   ],
+   "thickness": 0.15,
+   "height": 2.7
+  },
+  {
+   "name": "w_L0_008",
+   "wenart_id": "w_L0_008",
+   "kind": "wall",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "w_L0_008",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "HATCH:C4"
+    }
+   ],
+   "material": "plaster_white__white_plaster_02",
+   "textured": true,
+   "pass_index": null,
+   "assumed": {},
+   "trimmed": [],
+   "start": [
+    3.506,
+    5.7175
+   ],
+   "end": [
+    3.506,
+    9.0674
+   ],
+   "thickness": 0.155,
+   "height": 2.7
+  },
+  {
+   "name": "w_L0_009",
+   "wenart_id": "w_L0_009",
+   "kind": "wall",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "w_L0_009",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "HATCH:C4"
+    }
+   ],
+   "material": "plaster_white__white_plaster_02",
+   "textured": true,
+   "pass_index": null,
+   "assumed": {},
+   "trimmed": [],
+   "start": [
+    7.202,
+    0.001
+   ],
+   "end": [
+    7.202,
+    9.297
+   ],
+   "thickness": 0.23,
+   "height": 2.7,
+   "split_at_m": [
+    0.229,
+    3.887,
+    4.037,
+    5.5615,
+    5.7165,
+    9.067
+   ]
+  },
+  {
+   "name": "d_L0_001_threshold",
+   "wenart_id": "d_L0_001",
+   "kind": "floor",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "d_L0_001",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "ARC:CB,LINE:CC"
+    }
+   ],
+   "material": "wood_walnut__WoodFloor046",
+   "textured": true,
+   "pass_index": null,
+   "assumed": {
+    "height": 2.1
+   },
+   "wall_id": "w_L0_009",
+   "room_id": "r_L0_lobby",
+   "room_type": "hall",
+   "wet": false,
+   "center_shift": 0.0,
+   "lifted": 0.0
+  },
+  {
+   "name": "d_L0_001_frame",
+   "wenart_id": "d_L0_001",
+   "kind": "door",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "d_L0_001",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "ARC:CB,LINE:CC"
+    }
+   ],
+   "material": "painted_wood_white",
+   "textured": false,
+   "pass_index": 1,
+   "assumed": {
+    "height": 2.1
+   },
+   "wall_id": "w_L0_009",
+   "has_geometry": true,
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_lobby"
+   ]
+  },
+  {
+   "name": "d_L0_001_leaf",
+   "wenart_id": "d_L0_001",
+   "kind": "door",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "d_L0_001",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "ARC:CB,LINE:CC"
+    }
+   ],
+   "material": "wood_veneer_walnut__walnut_veneer",
+   "textured": true,
+   "pass_index": 1,
+   "assumed": {
+    "height": 2.1
+   },
+   "wall_id": "w_L0_009",
+   "has_geometry": true,
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_lobby"
+   ]
+  },
+  {
+   "name": "d_L0_001_handle",
+   "wenart_id": "d_L0_001",
+   "kind": "door",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "d_L0_001",
+   "evidence": [],
+   "material": "steel_brushed",
+   "textured": false,
+   "pass_index": 1,
+   "assumed": {
+    "detail": "door_handles",
+    "lever_height_m": 1.02,
+    "reason": "design detail of the documented door (lever handles on both faces); not in the documents"
+   },
+   "wall_id": "w_L0_009",
+   "has_geometry": true,
+   "center_shift": 0.0,
+   "parent": "d_L0_001",
+   "room_ids": [
+    "r_L0_lobby"
+   ]
+  },
+  {
+   "name": "d_L0_002_threshold",
+   "wenart_id": "d_L0_002",
+   "kind": "floor",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "d_L0_002",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "ARC:CD,LINE:CE"
+    }
+   ],
+   "material": "tiles_light__Tiles074",
+   "textured": true,
+   "pass_index": null,
+   "assumed": {
+    "height": 2.1
+   },
+   "wall_id": "w_L0_006",
+   "room_id": "r_L0_bath",
+   "room_type": "bathroom",
+   "wet": true,
+   "center_shift": 0.0,
+   "lifted": 0.0
+  },
+  {
+   "name": "d_L0_002_frame",
+   "wenart_id": "d_L0_002",
+   "kind": "door",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "d_L0_002",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "ARC:CD,LINE:CE"
+    }
+   ],
+   "material": "painted_wood_white",
+   "textured": false,
+   "pass_index": 2,
+   "assumed": {
+    "height": 2.1
+   },
+   "wall_id": "w_L0_006",
+   "has_geometry": true,
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_bath",
+    "r_L0_lobby"
+   ]
+  },
+  {
+   "name": "d_L0_002_leaf",
+   "wenart_id": "d_L0_002",
+   "kind": "door",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "d_L0_002",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "ARC:CD,LINE:CE"
+    }
+   ],
+   "material": "wood_veneer_walnut__walnut_veneer",
+   "textured": true,
+   "pass_index": 2,
+   "assumed": {
+    "height": 2.1
+   },
+   "wall_id": "w_L0_006",
+   "has_geometry": true,
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_bath",
+    "r_L0_lobby"
+   ]
+  },
+  {
+   "name": "d_L0_002_handle",
+   "wenart_id": "d_L0_002",
+   "kind": "door",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "d_L0_002",
+   "evidence": [],
+   "material": "steel_brushed",
+   "textured": false,
+   "pass_index": 2,
+   "assumed": {
+    "detail": "door_handles",
+    "lever_height_m": 1.02,
+    "reason": "design detail of the documented door (lever handles on both faces); not in the documents"
+   },
+   "wall_id": "w_L0_006",
+   "has_geometry": true,
+   "center_shift": 0.0,
+   "parent": "d_L0_002",
+   "room_ids": [
+    "r_L0_bath",
+    "r_L0_lobby"
+   ]
+  },
+  {
+   "name": "d_L0_003_threshold",
+   "wenart_id": "d_L0_003",
+   "kind": "floor",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "d_L0_003",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "ARC:CF,LINE:D0"
+    }
+   ],
+   "material": "wood_walnut__WoodFloor046",
+   "textured": true,
+   "pass_index": null,
+   "assumed": {
+    "height": 2.1
+   },
+   "wall_id": "w_L0_003",
+   "room_id": "r_L0_bed_room",
+   "room_type": "bedroom",
+   "wet": false,
+   "center_shift": 0.0,
+   "lifted": 0.0
+  },
+  {
+   "name": "d_L0_003_frame",
+   "wenart_id": "d_L0_003",
+   "kind": "door",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "d_L0_003",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "ARC:CF,LINE:D0"
+    }
+   ],
+   "material": "painted_wood_white",
+   "textured": false,
+   "pass_index": 3,
+   "assumed": {
+    "height": 2.1
+   },
+   "wall_id": "w_L0_003",
+   "has_geometry": true,
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_lobby",
+    "r_L0_bed_room"
+   ]
+  },
+  {
+   "name": "d_L0_003_leaf",
+   "wenart_id": "d_L0_003",
+   "kind": "door",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "d_L0_003",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "ARC:CF,LINE:D0"
+    }
+   ],
+   "material": "wood_veneer_walnut__walnut_veneer",
+   "textured": true,
+   "pass_index": 3,
+   "assumed": {
+    "height": 2.1
+   },
+   "wall_id": "w_L0_003",
+   "has_geometry": true,
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_lobby",
+    "r_L0_bed_room"
+   ]
+  },
+  {
+   "name": "d_L0_003_handle",
+   "wenart_id": "d_L0_003",
+   "kind": "door",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "d_L0_003",
+   "evidence": [],
+   "material": "steel_brushed",
+   "textured": false,
+   "pass_index": 3,
+   "assumed": {
+    "detail": "door_handles",
+    "lever_height_m": 1.02,
+    "reason": "design detail of the documented door (lever handles on both faces); not in the documents"
+   },
+   "wall_id": "w_L0_003",
+   "has_geometry": true,
+   "center_shift": 0.0,
+   "parent": "d_L0_003",
+   "room_ids": [
+    "r_L0_lobby",
+    "r_L0_bed_room"
+   ]
+  },
+  {
+   "name": "d_L0_004_threshold",
+   "wenart_id": "d_L0_004",
+   "kind": "floor",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "d_L0_004",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "ARC:D1,LINE:D2"
+    }
+   ],
+   "material": "wood_walnut__WoodFloor046",
+   "textured": true,
+   "pass_index": null,
+   "assumed": {
+    "height": 2.1
+   },
+   "wall_id": "w_L0_003",
+   "room_id": "r_L0_master_bed_room",
+   "room_type": "bedroom",
+   "wet": false,
+   "center_shift": 0.0,
+   "lifted": 0.0
+  },
+  {
+   "name": "d_L0_004_frame",
+   "wenart_id": "d_L0_004",
+   "kind": "door",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "d_L0_004",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "ARC:D1,LINE:D2"
+    }
+   ],
+   "material": "painted_wood_white",
+   "textured": false,
+   "pass_index": 4,
+   "assumed": {
+    "height": 2.1
+   },
+   "wall_id": "w_L0_003",
+   "has_geometry": true,
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_lobby",
+    "r_L0_master_bed_room"
+   ]
+  },
+  {
+   "name": "d_L0_004_leaf",
+   "wenart_id": "d_L0_004",
+   "kind": "door",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "d_L0_004",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "ARC:D1,LINE:D2"
+    }
+   ],
+   "material": "wood_veneer_walnut__walnut_veneer",
+   "textured": true,
+   "pass_index": 4,
+   "assumed": {
+    "height": 2.1
+   },
+   "wall_id": "w_L0_003",
+   "has_geometry": true,
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_lobby",
+    "r_L0_master_bed_room"
+   ]
+  },
+  {
+   "name": "d_L0_004_handle",
+   "wenart_id": "d_L0_004",
+   "kind": "door",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "d_L0_004",
+   "evidence": [],
+   "material": "steel_brushed",
+   "textured": false,
+   "pass_index": 4,
+   "assumed": {
+    "detail": "door_handles",
+    "lever_height_m": 1.02,
+    "reason": "design detail of the documented door (lever handles on both faces); not in the documents"
+   },
+   "wall_id": "w_L0_003",
+   "has_geometry": true,
+   "center_shift": 0.0,
+   "parent": "d_L0_004",
+   "room_ids": [
+    "r_L0_lobby",
+    "r_L0_master_bed_room"
+   ]
+  },
+  {
+   "name": "d_L0_005_threshold",
+   "wenart_id": "d_L0_005",
+   "kind": "floor",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "d_L0_005",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "ARC:D3,LINE:D4"
+    }
+   ],
+   "material": "wood_walnut__WoodFloor046",
+   "textured": true,
+   "pass_index": null,
+   "assumed": {
+    "height": 2.1
+   },
+   "wall_id": "w_L0_002",
+   "room_id": "r_L0_lobby",
+   "room_type": "hall",
+   "wet": false,
+   "center_shift": 0.0,
+   "lifted": 0.0
+  },
+  {
+   "name": "d_L0_005_frame",
+   "wenart_id": "d_L0_005",
+   "kind": "door",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "d_L0_005",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "ARC:D3,LINE:D4"
+    }
+   ],
+   "material": "painted_wood_white",
+   "textured": false,
+   "pass_index": 5,
+   "assumed": {
+    "height": 2.1
+   },
+   "wall_id": "w_L0_002",
+   "has_geometry": true,
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_living_room",
+    "r_L0_lobby"
+   ]
+  },
+  {
+   "name": "d_L0_005_leaf",
+   "wenart_id": "d_L0_005",
+   "kind": "door",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "d_L0_005",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.95,
+     "entity": "ARC:D3,LINE:D4"
+    }
+   ],
+   "material": "wood_veneer_walnut__walnut_veneer",
+   "textured": true,
+   "pass_index": 5,
+   "assumed": {
+    "height": 2.1
+   },
+   "wall_id": "w_L0_002",
+   "has_geometry": true,
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_living_room",
+    "r_L0_lobby"
+   ]
+  },
+  {
+   "name": "d_L0_005_handle",
+   "wenart_id": "d_L0_005",
+   "kind": "door",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "d_L0_005",
+   "evidence": [],
+   "material": "steel_brushed",
+   "textured": false,
+   "pass_index": 5,
+   "assumed": {
+    "detail": "door_handles",
+    "lever_height_m": 1.02,
+    "reason": "design detail of the documented door (lever handles on both faces); not in the documents"
+   },
+   "wall_id": "w_L0_002",
+   "has_geometry": true,
+   "center_shift": 0.0,
+   "parent": "d_L0_005",
+   "room_ids": [
+    "r_L0_living_room",
+    "r_L0_lobby"
+   ]
+  },
+  {
+   "name": "win_L0_001_frame",
+   "wenart_id": "win_L0_001",
+   "kind": "window",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "win_L0_001",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "LINE:D6"
+    }
+   ],
+   "material": "painted_metal_white",
+   "textured": false,
+   "pass_index": 6,
+   "assumed": {
+    "height": 1.2,
+    "sill_height": 0.9
+   },
+   "wall_id": "w_L0_001",
+   "has_geometry": true,
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_kitchen"
+   ]
+  },
+  {
+   "name": "win_L0_001_glass",
+   "wenart_id": "win_L0_001",
+   "kind": "window",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "win_L0_001",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "LINE:D6"
+    }
+   ],
+   "material": "glass",
+   "textured": false,
+   "pass_index": 6,
+   "assumed": {
+    "height": 1.2,
+    "sill_height": 0.9
+   },
+   "wall_id": "w_L0_001",
+   "has_geometry": true,
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_kitchen"
+   ]
+  },
+  {
+   "name": "win_L0_002_frame",
+   "wenart_id": "win_L0_002",
+   "kind": "window",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "win_L0_002",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "LINE:DB"
+    }
+   ],
+   "material": "painted_metal_white",
+   "textured": false,
+   "pass_index": 7,
+   "assumed": {
+    "height": 1.2,
+    "sill_height": 0.9
+   },
+   "wall_id": "w_L0_001",
+   "has_geometry": true,
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_living_room"
+   ]
+  },
+  {
+   "name": "win_L0_002_glass",
+   "wenart_id": "win_L0_002",
+   "kind": "window",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "win_L0_002",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "LINE:DB"
+    }
+   ],
+   "material": "glass",
+   "textured": false,
+   "pass_index": 7,
+   "assumed": {
+    "height": 1.2,
+    "sill_height": 0.9
+   },
+   "wall_id": "w_L0_001",
+   "has_geometry": true,
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_living_room"
+   ]
+  },
+  {
+   "name": "win_L0_003_frame",
+   "wenart_id": "win_L0_003",
+   "kind": "window",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "win_L0_003",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "LINE:EA"
+    }
+   ],
+   "material": "painted_metal_white",
+   "textured": false,
+   "pass_index": 8,
+   "assumed": {
+    "height": 1.2,
+    "sill_height": 0.9
+   },
+   "wall_id": "w_L0_004",
+   "has_geometry": true,
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_bed_room"
+   ]
+  },
+  {
+   "name": "win_L0_003_glass",
+   "wenart_id": "win_L0_003",
+   "kind": "window",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "win_L0_003",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "LINE:EA"
+    }
+   ],
+   "material": "glass",
+   "textured": false,
+   "pass_index": 8,
+   "assumed": {
+    "height": 1.2,
+    "sill_height": 0.9
+   },
+   "wall_id": "w_L0_004",
+   "has_geometry": true,
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_bed_room"
+   ]
+  },
+  {
+   "name": "win_L0_004_frame",
+   "wenart_id": "win_L0_004",
+   "kind": "window",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "win_L0_004",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "LINE:EF"
+    }
+   ],
+   "material": "painted_metal_white",
+   "textured": false,
+   "pass_index": 9,
+   "assumed": {
+    "height": 1.2,
+    "sill_height": 0.9
+   },
+   "wall_id": "w_L0_004",
+   "has_geometry": true,
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_master_bed_room"
+   ]
+  },
+  {
+   "name": "win_L0_004_glass",
+   "wenart_id": "win_L0_004",
+   "kind": "window",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "win_L0_004",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "LINE:EF"
+    }
+   ],
+   "material": "glass",
+   "textured": false,
+   "pass_index": 9,
+   "assumed": {
+    "height": 1.2,
+    "sill_height": 0.9
+   },
+   "wall_id": "w_L0_004",
+   "has_geometry": true,
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_master_bed_room"
+   ]
+  },
+  {
+   "name": "win_L0_005_frame",
+   "wenart_id": "win_L0_005",
+   "kind": "window",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "win_L0_005",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "LINE:E5"
+    }
+   ],
+   "material": "painted_metal_white",
+   "textured": false,
+   "pass_index": 10,
+   "assumed": {
+    "height": 1.2,
+    "sill_height": 0.9
+   },
+   "wall_id": "w_L0_005",
+   "has_geometry": true,
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_bath"
+   ]
+  },
+  {
+   "name": "win_L0_005_glass",
+   "wenart_id": "win_L0_005",
+   "kind": "window",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "win_L0_005",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "LINE:E5"
+    }
+   ],
+   "material": "glass",
+   "textured": false,
+   "pass_index": 10,
+   "assumed": {
+    "height": 1.2,
+    "sill_height": 0.9
+   },
+   "wall_id": "w_L0_005",
+   "has_geometry": true,
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_bath"
+   ]
+  },
+  {
+   "name": "win_L0_006_frame",
+   "wenart_id": "win_L0_006",
+   "kind": "window",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "win_L0_006",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "LINE:F9"
+    }
+   ],
+   "material": "painted_metal_white",
+   "textured": false,
+   "pass_index": 11,
+   "assumed": {
+    "height": 1.2,
+    "sill_height": 0.9
+   },
+   "wall_id": "w_L0_005",
+   "has_geometry": true,
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_bed_room"
+   ]
+  },
+  {
+   "name": "win_L0_006_glass",
+   "wenart_id": "win_L0_006",
+   "kind": "window",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "win_L0_006",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "LINE:F9"
+    }
+   ],
+   "material": "glass",
+   "textured": false,
+   "pass_index": 11,
+   "assumed": {
+    "height": 1.2,
+    "sill_height": 0.9
+   },
+   "wall_id": "w_L0_005",
+   "has_geometry": true,
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_bed_room"
+   ]
+  },
+  {
+   "name": "win_L0_007_frame",
+   "wenart_id": "win_L0_007",
+   "kind": "window",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "win_L0_007",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "LINE:E0"
+    }
+   ],
+   "material": "painted_metal_white",
+   "textured": false,
+   "pass_index": 12,
+   "assumed": {
+    "height": 1.2,
+    "sill_height": 0.9
+   },
+   "wall_id": "w_L0_009",
+   "has_geometry": true,
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_living_room"
+   ]
+  },
+  {
+   "name": "win_L0_007_glass",
+   "wenart_id": "win_L0_007",
+   "kind": "window",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "win_L0_007",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "LINE:E0"
+    }
+   ],
+   "material": "glass",
+   "textured": false,
+   "pass_index": 12,
+   "assumed": {
+    "height": 1.2,
+    "sill_height": 0.9
+   },
+   "wall_id": "w_L0_009",
+   "has_geometry": true,
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_living_room"
+   ]
+  },
+  {
+   "name": "win_L0_008_frame",
+   "wenart_id": "win_L0_008",
+   "kind": "window",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "win_L0_008",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "LINE:F4"
+    }
+   ],
+   "material": "painted_metal_white",
+   "textured": false,
+   "pass_index": 13,
+   "assumed": {
+    "height": 1.2,
+    "sill_height": 0.9
+   },
+   "wall_id": "w_L0_009",
+   "has_geometry": true,
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_master_bed_room"
+   ]
+  },
+  {
+   "name": "win_L0_008_glass",
+   "wenart_id": "win_L0_008",
+   "kind": "window",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "win_L0_008",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "LINE:F4"
+    }
+   ],
+   "material": "glass",
+   "textured": false,
+   "pass_index": 13,
+   "assumed": {
+    "height": 1.2,
+    "sill_height": 0.9
+   },
+   "wall_id": "w_L0_009",
+   "has_geometry": true,
+   "center_shift": 0.0,
+   "room_ids": [
+    "r_L0_master_bed_room"
+   ]
+  },
+  {
+   "name": "o_L0_001",
+   "wenart_id": "o_L0_001",
+   "kind": "opening",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "o_L0_001",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "derived",
+     "confidence": 0.8,
+     "entity": "separator:HATCH:C4|HATCH:C4",
+     "note": "virtual separator (end-to-wall, 1.83 m): two room names shared one face"
+    }
+   ],
+   "material": null,
+   "textured": false,
+   "pass_index": null,
+   "assumed": {},
+   "wall_id": null,
+   "has_geometry": false,
+   "center_shift": 0.0,
+   "virtual": true,
+   "line": [
+    [
+     2.745,
+     0.23
+    ],
+    [
+     2.745,
+     2.059
+    ]
+   ],
+   "note": "virtual separator: no geometry; the room floors and ceilings meet at the line",
+   "room_ids": [
+    "r_L0_kitchen",
+    "r_L0_living_room"
+   ]
+  },
+  {
+   "name": "skirting_r_L0_living_room",
+   "wenart_id": "skirting_r_L0_living_room",
+   "kind": "wall",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "r_L0_living_room",
+   "parent": "r_L0_living_room",
+   "evidence": [],
+   "material": "painted_wood_white",
+   "textured": false,
+   "pass_index": 0,
+   "assumed": {
+    "detail": "skirting",
+    "size_m": [
+     0.08,
+     0.012
+    ],
+    "length_m": 13.358,
+    "runs": 6,
+    "reason": "design detail of the room's documented walls (painted skirting board); not in the documents"
+   }
+  },
+  {
+   "name": "skirting_r_L0_lobby",
+   "wenart_id": "skirting_r_L0_lobby",
+   "kind": "wall",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "r_L0_lobby",
+   "parent": "r_L0_lobby",
+   "evidence": [],
+   "material": "painted_wood_white",
+   "textured": false,
+   "pass_index": 0,
+   "assumed": {
+    "detail": "skirting",
+    "size_m": [
+     0.08,
+     0.012
+    ],
+    "length_m": 8.08,
+    "runs": 9,
+    "reason": "design detail of the room's documented walls (painted skirting board); not in the documents"
+   }
+  },
+  {
+   "name": "skirting_r_L0_bed_room",
+   "wenart_id": "skirting_r_L0_bed_room",
+   "kind": "wall",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "r_L0_bed_room",
+   "parent": "r_L0_bed_room",
+   "evidence": [],
+   "material": "painted_wood_white",
+   "textured": false,
+   "pass_index": 0,
+   "assumed": {
+    "detail": "skirting",
+    "size_m": [
+     0.08,
+     0.012
+    ],
+    "length_m": 12.285,
+    "runs": 5,
+    "reason": "design detail of the room's documented walls (painted skirting board); not in the documents"
+   }
+  },
+  {
+   "name": "skirting_r_L0_master_bed_room",
+   "wenart_id": "skirting_r_L0_master_bed_room",
+   "kind": "wall",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "r_L0_master_bed_room",
+   "parent": "r_L0_master_bed_room",
+   "evidence": [],
+   "material": "painted_wood_white",
+   "textured": false,
+   "pass_index": 0,
+   "assumed": {
+    "detail": "skirting",
+    "size_m": [
+     0.08,
+     0.012
+    ],
+    "length_m": 12.895,
+    "runs": 5,
+    "reason": "design detail of the room's documented walls (painted skirting board); not in the documents"
+   }
+  },
+  {
+   "name": "r_L0_kitchen_floor",
+   "wenart_id": "r_L0_kitchen",
+   "kind": "floor",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "r_L0_kitchen",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A-ANNO",
+     "entity": "ATTRIB:10A",
+     "block": "ROOMTAG",
+     "text": "KITCHEN"
+    },
+    {
+     "file": "synthetic-06.dwg",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_001,w_L0_002,w_L0_005,w_L0_007"
+    },
+    {
+     "file": "synthetic-06.dwg",
+     "method": "derived",
+     "confidence": 0.8,
+     "entity": "separator:o_L0_001"
+    }
+   ],
+   "material": "tiles_light__Tiles074",
+   "textured": true,
+   "pass_index": null,
+   "assumed": {},
+   "room_type": "kitchen",
+   "wet": true
+  },
+  {
+   "name": "r_L0_kitchen_ceiling",
+   "wenart_id": "r_L0_kitchen",
+   "kind": "ceiling",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "r_L0_kitchen",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A-ANNO",
+     "entity": "ATTRIB:10A",
+     "block": "ROOMTAG",
+     "text": "KITCHEN"
+    },
+    {
+     "file": "synthetic-06.dwg",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_001,w_L0_002,w_L0_005,w_L0_007"
+    },
+    {
+     "file": "synthetic-06.dwg",
+     "method": "derived",
+     "confidence": 0.8,
+     "entity": "separator:o_L0_001"
+    }
+   ],
+   "material": "plaster_white",
+   "textured": false,
+   "pass_index": null,
+   "assumed": {},
+   "room_type": "kitchen",
+   "wet": true
+  },
+  {
+   "name": "r_L0_living_room_floor",
+   "wenart_id": "r_L0_living_room",
+   "kind": "floor",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "r_L0_living_room",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A-ANNO",
+     "entity": "MTEXT:107:0",
+     "text": "LIVING ROOM"
+    },
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A-ANNO",
+     "entity": "MTEXT:107:1",
+     "text": "14'-0\" X 12'-0\""
+    },
+    {
+     "file": "synthetic-06.dwg",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_001,w_L0_002,w_L0_007,w_L0_009"
+    },
+    {
+     "file": "synthetic-06.dwg",
+     "method": "derived",
+     "confidence": 0.8,
+     "entity": "separator:o_L0_001"
+    }
+   ],
+   "material": "wood_walnut__WoodFloor046",
+   "textured": true,
+   "pass_index": null,
+   "assumed": {},
+   "room_type": "living",
+   "wet": false
+  },
+  {
+   "name": "r_L0_living_room_ceiling",
+   "wenart_id": "r_L0_living_room",
+   "kind": "ceiling",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "r_L0_living_room",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A-ANNO",
+     "entity": "MTEXT:107:0",
+     "text": "LIVING ROOM"
+    },
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A-ANNO",
+     "entity": "MTEXT:107:1",
+     "text": "14'-0\" X 12'-0\""
+    },
+    {
+     "file": "synthetic-06.dwg",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_001,w_L0_002,w_L0_007,w_L0_009"
+    },
+    {
+     "file": "synthetic-06.dwg",
+     "method": "derived",
+     "confidence": 0.8,
+     "entity": "separator:o_L0_001"
+    }
+   ],
+   "material": "plaster_white",
+   "textured": false,
+   "pass_index": null,
+   "assumed": {},
+   "room_type": "living",
+   "wet": false
+  },
+  {
+   "name": "r_L0_bath_floor",
+   "wenart_id": "r_L0_bath",
+   "kind": "floor",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "r_L0_bath",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A-ANNO",
+     "entity": "TEXT:10C",
+     "text": "BATH"
+    },
+    {
+     "file": "synthetic-06.dwg",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_002,w_L0_003,w_L0_005,w_L0_006"
+    }
+   ],
+   "material": "tiles_light__Tiles074",
+   "textured": true,
+   "pass_index": null,
+   "assumed": {},
+   "room_type": "bathroom",
+   "wet": true
+  },
+  {
+   "name": "r_L0_bath_ceiling",
+   "wenart_id": "r_L0_bath",
+   "kind": "ceiling",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "r_L0_bath",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A-ANNO",
+     "entity": "TEXT:10C",
+     "text": "BATH"
+    },
+    {
+     "file": "synthetic-06.dwg",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_002,w_L0_003,w_L0_005,w_L0_006"
+    }
+   ],
+   "material": "plaster_white",
+   "textured": false,
+   "pass_index": null,
+   "assumed": {},
+   "room_type": "bathroom",
+   "wet": true
+  },
+  {
+   "name": "r_L0_lobby_floor",
+   "wenart_id": "r_L0_lobby",
+   "kind": "floor",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "r_L0_lobby",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A-ANNO",
+     "entity": "TEXT:10B",
+     "text": "LOBBY"
+    },
+    {
+     "file": "synthetic-06.dwg",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_002,w_L0_003,w_L0_006,w_L0_009"
+    }
+   ],
+   "material": "wood_walnut__WoodFloor046",
+   "textured": true,
+   "pass_index": null,
+   "assumed": {},
+   "room_type": "hall",
+   "wet": false
+  },
+  {
+   "name": "r_L0_lobby_ceiling",
+   "wenart_id": "r_L0_lobby",
+   "kind": "ceiling",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "r_L0_lobby",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A-ANNO",
+     "entity": "TEXT:10B",
+     "text": "LOBBY"
+    },
+    {
+     "file": "synthetic-06.dwg",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_002,w_L0_003,w_L0_006,w_L0_009"
+    }
+   ],
+   "material": "plaster_white",
+   "textured": false,
+   "pass_index": null,
+   "assumed": {},
+   "room_type": "hall",
+   "wet": false
+  },
+  {
+   "name": "r_L0_bed_room_floor",
+   "wenart_id": "r_L0_bed_room",
+   "kind": "floor",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "r_L0_bed_room",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A-ANNO",
+     "entity": "TEXT:10D",
+     "text": "BED ROOM"
+    },
+    {
+     "file": "synthetic-06.dwg",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_003,w_L0_004,w_L0_005,w_L0_008"
+    }
+   ],
+   "material": "wood_walnut__WoodFloor046",
+   "textured": true,
+   "pass_index": null,
+   "assumed": {},
+   "room_type": "bedroom",
+   "wet": false
+  },
+  {
+   "name": "r_L0_bed_room_ceiling",
+   "wenart_id": "r_L0_bed_room",
+   "kind": "ceiling",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "r_L0_bed_room",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A-ANNO",
+     "entity": "TEXT:10D",
+     "text": "BED ROOM"
+    },
+    {
+     "file": "synthetic-06.dwg",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_003,w_L0_004,w_L0_005,w_L0_008"
+    }
+   ],
+   "material": "plaster_white",
+   "textured": false,
+   "pass_index": null,
+   "assumed": {},
+   "room_type": "bedroom",
+   "wet": false
+  },
+  {
+   "name": "r_L0_master_bed_room_floor",
+   "wenart_id": "r_L0_master_bed_room",
+   "kind": "floor",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "r_L0_master_bed_room",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A-ANNO",
+     "entity": "TEXT:10E",
+     "text": "MASTER BED ROOM"
+    },
+    {
+     "file": "synthetic-06.dwg",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_003,w_L0_004,w_L0_008,w_L0_009"
+    }
+   ],
+   "material": "wood_walnut__WoodFloor046",
+   "textured": true,
+   "pass_index": null,
+   "assumed": {},
+   "room_type": "bedroom",
+   "wet": false
+  },
+  {
+   "name": "r_L0_master_bed_room_ceiling",
+   "wenart_id": "r_L0_master_bed_room",
+   "kind": "ceiling",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "r_L0_master_bed_room",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "A-ANNO",
+     "entity": "TEXT:10E",
+     "text": "MASTER BED ROOM"
+    },
+    {
+     "file": "synthetic-06.dwg",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_003,w_L0_004,w_L0_008,w_L0_009"
+    }
+   ],
+   "material": "plaster_white",
+   "textured": false,
+   "pass_index": null,
+   "assumed": {},
+   "room_type": "bedroom",
+   "wet": false
+  },
+  {
+   "name": "furn_f_L0_001",
+   "wenart_id": "f_L0_001",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "f_L0_001",
+   "room_id": "r_L0_master_bed_room",
+   "type": "bed_double",
+   "source": "from_documents",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "INSERT:101/0,INSERT:101/1,INSERT:101/2,INSERT:101/3",
+     "block": "BED-DOUBLE"
+    }
+   ],
+   "pass_index": 14,
+   "assumed": {
+    "bedding": "mattress, draped duvet, turn-down band, 2 pillow(s) leaning 14 degrees",
+    "height": 0.55
+   },
+   "decor": [
+    {
+     "name": "decor_f_L0_001_7",
+     "type": "cushion",
+     "method": "parametric (fallback: no asset in the building JSON)"
+    },
+    {
+     "name": "decor_f_L0_001_8",
+     "type": "cushion",
+     "method": "parametric (fallback: no asset in the building JSON)"
+    }
+   ],
+   "center": [
+    5.335,
+    8.002,
+    0.275
+   ],
+   "size": [
+    2.032,
+    1.524,
+    0.55
+   ],
+   "rotation_deg": 90.0,
+   "front_deg": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:bed_double",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     2.032,
+     1.524,
+     1.0
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [
+     {
+      "id": "objaverse_08f7f65edfea417b8ed9ca748381e507",
+      "aspect_error": 0.1534,
+      "scale": [
+       0.8368,
+       0.7178,
+       0.7773
+      ],
+      "non_uniform": 1.1658,
+      "mean_scale": 0.7773,
+      "accepted": false
+     },
+     {
+      "id": "objaverse_2bd3fcc82c9f43cfb0c8cf26c7d0107c",
+      "aspect_error": 0.4021,
+      "scale": [
+       1.1611,
+       0.7767,
+       0.9689
+      ],
+      "non_uniform": 1.495,
+      "mean_scale": 0.9689,
+      "accepted": false
+     }
+    ],
+    "fallback_reason": "no bed_double candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_08f7f65edfea417b8ed9ca748381e507 at 16.6 % non-uniform, mean scale 0.7773)",
+    "cap": 1.15,
+    "style_family": "modern",
+    "excluded": [
+     {
+      "id": "GothicBed_01",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_5d3a99865ac84d8a8bf06b263aa5bb55",
+      "reason": "styles ['industrial'] include neither modern nor neutral"
+     }
+    ]
+   },
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "bbox_m": [
+    2.032,
+    1.524,
+    1.0
+   ],
+   "fallback_reason": "fitting chose the parametric mesh",
+   "materials": [
+    "wood_veneer_walnut__walnut_veneer",
+    "fabric_white__rough_linen",
+    "fabric_linen__rough_linen"
+   ],
+   "material": "wood_veneer_walnut__walnut_veneer",
+   "textured": true,
+   "material_keys": {
+    "wood": "wood_veneer_walnut",
+    "bedding": "fabric_white",
+    "duvet": "fabric_linen"
+   },
+   "bevel": {
+    "width_m": 0.05,
+    "segments": 3,
+    "edges": 24,
+    "max_radius_m": 0.008
+   },
+   "box3d": {
+    "center": [
+     5.335,
+     8.002,
+     0.5
+    ],
+    "size": [
+     2.032,
+     1.524,
+     1.0
+    ],
+    "rotation_deg": 90.0
+   }
+  },
+  {
+   "name": "furn_f_L0_002",
+   "wenart_id": "f_L0_002",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "f_L0_002",
+   "room_id": "r_L0_living_room",
+   "type": "sofa",
+   "source": "from_documents",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "INSERT:FD/0,INSERT:FD/1,INSERT:FD/2,INSERT:FD/3,INSERT:FD/4,INSERT:FD/5",
+     "block": "SOFA-3"
+    }
+   ],
+   "pass_index": 15,
+   "assumed": {
+    "height": 0.85
+   },
+   "decor": [
+    {
+     "name": "decor_f_L0_002_1",
+     "type": "cushion",
+     "method": "parametric (fallback: no asset in the building JSON)"
+    },
+    {
+     "name": "decor_f_L0_002_2",
+     "type": "cushion",
+     "method": "parametric (fallback: no asset in the building JSON)"
+    }
+   ],
+   "center": [
+    4.954,
+    0.7376,
+    0.425
+   ],
+   "size": [
+    2.1336,
+    0.9144,
+    0.85
+   ],
+   "rotation_deg": 0.0,
+   "front_deg": null,
+   "asset": {
+    "library": "objaverse",
+    "asset_id": "objaverse_42da0122f2134a189767d0911b401c1c",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.9883,
+     1.0168,
+     1.0025
+    ],
+    "bbox_m": [
+     2.1336,
+     0.9144,
+     0.7091
+    ],
+    "aspect_error": 0.0284,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0037,
+     0.0481,
+     0.0077
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_42da0122f2134a189767d0911b401c1c",
+      "aspect_error": 0.0284,
+      "scale": [
+       0.9883,
+       1.0168,
+       1.0025
+      ],
+      "non_uniform": 1.0288,
+      "mean_scale": 1.0025,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "modern minimal",
+     "modern"
+    ],
+    "style_family": "modern",
+    "excluded": [
+     {
+      "id": "sofa_02",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "Sofa_01",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "sofa_03",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_072d0468bb97447ab1ca7e3edea25f1f",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     }
+    ],
+    "glb": "models/objaverse/42da0122f2134a189767d0911b401c1c.glb",
+    "sha256_glb": "3c11c4750eca45c3c6f7d30b3a3505bc1512ce96ec70a71c99b30133e86a8e14",
+    "uid": "42da0122f2134a189767d0911b401c1c",
+    "title": "Couch Gameready",
+    "author": "elijahorama",
+    "source_url": "https://sketchfab.com/3d-models/42da0122f2134a189767d0911b401c1c",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Couch Gameready\" by elijahorama (https://sketchfab.com/3d-models/42da0122f2134a189767d0911b401c1c), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 1.0
+   },
+   "fit_scale": [
+    0.9883,
+    1.0168,
+    1.0025
+   ],
+   "method": "library",
+   "bbox_m": [
+    2.1337,
+    0.9144,
+    0.7091
+   ],
+   "fallback_reason": null,
+   "materials": [
+    "Orange_Throw",
+    "Material",
+    "couchlegs"
+   ],
+   "material": "Orange_Throw",
+   "textured": true,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0037,
+     0.0481,
+     0.0077
+    ],
+    "origin_offset_applied": [
+     -0.0037,
+     -0.0482,
+     -0.0077
+    ],
+    "bbox_raw_m": [
+     2.1589,
+     0.8993,
+     0.7073
+    ],
+    "bbox_m": [
+     2.1337,
+     0.9144,
+     0.7091
+    ],
+    "fit_scale": [
+     0.9883,
+     1.0168,
+     1.0025
+    ],
+    "unit_scale": 1.0
+   },
+   "file": "/workspace/assets/models/objaverse/42da0122f2134a189767d0911b401c1c.glb",
+   "imported_objects": [
+    "couch5k_1",
+    "GLTF_SceneRootNode",
+    "Object_4",
+    "Object_6",
+    "Object_7",
+    "orange_throw_0",
+    "root",
+    "Sketchfab_model"
+   ],
+   "box3d": {
+    "center": [
+     4.954,
+     0.7376,
+     0.3545
+    ],
+    "size": [
+     2.1337,
+     0.9144,
+     0.7091
+    ],
+    "rotation_deg": 0.0
+   }
+  },
+  {
+   "name": "furn_f_L0_003",
+   "wenart_id": "f_L0_003",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "f_L0_003",
+   "room_id": "r_L0_kitchen",
+   "type": "table_dining",
+   "source": "from_documents",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "INSERT:FF/0",
+     "block": "DINING-6"
+    }
+   ],
+   "pass_index": 16,
+   "assumed": {
+    "height": 0.75
+   },
+   "decor": [],
+   "center": [
+    1.4488,
+    2.0584,
+    0.375
+   ],
+   "size": [
+    1.8288,
+    0.9144,
+    0.75
+   ],
+   "rotation_deg": 90.0,
+   "front_deg": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:table_dining",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     1.8288,
+     0.9144,
+     0.75
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [
+     {
+      "id": "objaverse_5f235f066a9a416fb7177496a9117ec7",
+      "aspect_error": 0.2366,
+      "scale": [
+       1.0781,
+       0.851,
+       0.9646
+      ],
+      "non_uniform": 1.2669,
+      "mean_scale": 0.9646,
+      "accepted": false
+     },
+     {
+      "id": "objaverse_3b4ee19c627e4fb4a3305621cf925aa2",
+      "aspect_error": 0.6337,
+      "scale": [
+       1.397,
+       0.7412,
+       1.0691
+      ],
+      "non_uniform": 1.8847,
+      "mean_scale": 1.0691,
+      "accepted": false
+     },
+     {
+      "id": "objaverse_5847113c458f4a2483aedd663376c7de",
+      "aspect_error": 1.1789,
+      "scale": [
+       1.3824,
+       0.4253,
+       0.9038
+      ],
+      "non_uniform": 3.2507,
+      "mean_scale": 0.9038,
+      "accepted": false
+     }
+    ],
+    "fallback_reason": "no table_dining candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_5f235f066a9a416fb7177496a9117ec7 at 26.7 % non-uniform, mean scale 0.9646)",
+    "cap": 1.15,
+    "style_family": "modern",
+    "excluded": [
+     {
+      "id": "dining_table",
+      "reason": "styles ['rustic'] include neither modern nor neutral"
+     },
+     {
+      "id": "wooden_table_02",
+      "reason": "styles ['rustic'] include neither modern nor neutral"
+     },
+     {
+      "id": "painted_wooden_table",
+      "reason": "styles ['rustic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_724d93a7f3644f96909e8c55909c6418",
+      "reason": "styles ['scandinavian', 'rustic'] include neither modern nor neutral"
+     }
+    ]
+   },
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "bbox_m": [
+    1.8288,
+    0.9144,
+    0.75
+   ],
+   "fallback_reason": "fitting chose the parametric mesh",
+   "materials": [
+    "wood_veneer_walnut__walnut_veneer"
+   ],
+   "material": "wood_veneer_walnut__walnut_veneer",
+   "textured": true,
+   "material_keys": {
+    "wood": "wood_veneer_walnut"
+   },
+   "bevel": {
+    "width_m": 0.05,
+    "segments": 3,
+    "edges": 60,
+    "max_radius_m": 0.004
+   },
+   "box3d": {
+    "center": [
+     1.4488,
+     2.0584,
+     0.375
+    ],
+    "size": [
+     1.8288,
+     0.9144,
+     0.75
+    ],
+    "rotation_deg": 90.0
+   }
+  },
+  {
+   "name": "furn_f_L0_004",
+   "wenart_id": "f_L0_004",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "f_L0_004",
+   "room_id": "r_L0_bath",
+   "type": "toilet",
+   "source": "from_documents",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "INSERT:103/0,INSERT:103/1",
+     "block": "WC"
+    }
+   ],
+   "pass_index": 17,
+   "assumed": {
+    "height": 0.4
+   },
+   "decor": [],
+   "center": [
+    0.636,
+    4.3698,
+    0.2
+   ],
+   "size": [
+    0.7112,
+    0.508,
+    0.4
+   ],
+   "rotation_deg": 0.0,
+   "front_deg": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:toilet",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     0.7112,
+     0.508,
+     0.8
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [
+     {
+      "id": "objaverse_0b3325fad3e740b1ac86173c90b56afd",
+      "aspect_error": 0.6312,
+      "scale": [
+       1.5387,
+       0.8186,
+       1.1786
+      ],
+      "non_uniform": 1.8798,
+      "mean_scale": 1.1786,
+      "accepted": false
+     },
+     {
+      "id": "objaverse_24d1b493899d407780140688abae19bc",
+      "aspect_error": 0.6702,
+      "scale": [
+       1.5689,
+       0.8027,
+       1.1858
+      ],
+      "non_uniform": 1.9547,
+      "mean_scale": 1.1858,
+      "accepted": false
+     },
+     {
+      "id": "objaverse_3446229dce1f47528fa871cc7669136c",
+      "aspect_error": 0.6728,
+      "scale": [
+       1.571,
+       0.8016,
+       1.1863
+      ],
+      "non_uniform": 1.9598,
+      "mean_scale": 1.1863,
+      "accepted": false
+     }
+    ],
+    "fallback_reason": "no toilet candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_0b3325fad3e740b1ac86173c90b56afd at 88.0 % non-uniform, mean scale 1.1786)",
+    "cap": 1.15,
+    "style_family": "modern",
+    "excluded": []
+   },
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "method": "parametric (fallback: fitting chose the parametric mesh)",
+   "bbox_m": [
+    0.7112,
+    0.508,
+    0.8
+   ],
+   "fallback_reason": "fitting chose the parametric mesh",
+   "materials": [
+    "ceramic_white",
+    "painted_wood_white"
+   ],
+   "material": "ceramic_white",
+   "textured": false,
+   "material_keys": {
+    "ceramic": "ceramic_white",
+    "painted": "painted_wood_white"
+   },
+   "bevel": {
+    "width_m": 0.05,
+    "segments": 3,
+    "edges": 108,
+    "max_radius_m": 0.012
+   },
+   "box3d": {
+    "center": [
+     0.636,
+     4.3698,
+     0.4
+    ],
+    "size": [
+     0.7112,
+     0.508,
+     0.8
+    ],
+    "rotation_deg": 0.0
+   }
+  },
+  {
+   "name": "furn_f_L0_005",
+   "wenart_id": "f_L0_005",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "f_L0_005",
+   "room_id": "r_L0_kitchen",
+   "type": "chair",
+   "source": "from_documents",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "INSERT:FF/2/0,INSERT:FF/2/1",
+     "block": "DINING-6/CHAIR"
+    }
+   ],
+   "pass_index": 18,
+   "assumed": {
+    "height": 0.9
+   },
+   "decor": [],
+   "center": [
+    0.7122,
+    2.5156,
+    0.45
+   ],
+   "size": [
+    0.4572,
+    0.4572,
+    0.9
+   ],
+   "rotation_deg": 0.0,
+   "front_deg": null,
+   "asset": {
+    "library": "objaverse",
+    "asset_id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.8847,
+     0.9089,
+     0.8968
+    ],
+    "bbox_m": [
+     0.4572,
+     0.4572,
+     0.7436
+    ],
+    "aspect_error": 0.0271,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0148,
+     -0.4159
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+      "aspect_error": 0.0271,
+      "scale": [
+       0.8847,
+       0.9089,
+       0.8968
+      ],
+      "non_uniform": 1.0274,
+      "mean_scale": 0.8968,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "modern",
+    "excluded": [
+     {
+      "id": "gallinera_chair",
+      "reason": "styles ['classic', 'rustic'] include neither modern nor neutral"
+     },
+     {
+      "id": "painted_wooden_chair_02",
+      "reason": "styles ['rustic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_039c6026571943d6ac45c6816bcc7ff1",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_0723b35415b0462eb5c01140b6b70340",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_9234d8196b73434684bcbb8092cc9e2a",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_cb43e2abac66494d81e1e7116eb47043",
+      "reason": "styles ['industrial', 'rustic'] include neither modern nor neutral"
+     }
+    ],
+    "glb": "models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
+    "sha256_glb": "3851bf0d21d98a40810ee7029dcf21589a6c5667ba56f0ae74a707536fead537",
+    "uid": "d2785b57e7da45858f2fe8bf4dedd68d",
+    "title": "Chair",
+    "author": "杭州维界科技有限公司",
+    "source_url": "https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Chair\" by 杭州维界科技有限公司 (https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.01
+   },
+   "fit_scale": [
+    0.8847,
+    0.9089,
+    0.8968
+   ],
+   "method": "library",
+   "bbox_m": [
+    0.4572,
+    0.4572,
+    0.7436
+   ],
+   "fallback_reason": null,
+   "materials": [
+    "wood"
+   ],
+   "material": "wood",
+   "textured": true,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0,
+     0.0148,
+     -0.4159
+    ],
+    "origin_offset_applied": [
+     -0.0,
+     -0.0148,
+     0.4159
+    ],
+    "bbox_raw_m": [
+     0.5168,
+     0.503,
+     0.8292
+    ],
+    "bbox_m": [
+     0.4572,
+     0.4572,
+     0.7436
+    ],
+    "fit_scale": [
+     0.8847,
+     0.9089,
+     0.8968
+    ],
+    "unit_scale": 0.01
+   },
+   "file": "/workspace/assets/models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
+   "imported_objects": [
+    "Camera",
+    "Mesh (2)",
+    "Mesh (2)_wood_0",
+    "Mesh (3)",
+    "Mesh (3)_wood_0",
+    "Mesh (4)",
+    "Mesh (4)_wood_0",
+    "Mesh (5)",
+    "Mesh (5)_wood_0",
+    "Mesh (6)",
+    "Mesh (6)_wood_0",
+    "Mesh (7)",
+    "Mesh (7)_wood_0",
+    "Mesh (8)",
+    "Mesh (8)_wood_0",
+    "Object_18",
+    "RootNode",
+    "scene.fbx",
+    "Sketchfab_model"
+   ],
+   "box3d": {
+    "center": [
+     0.7122,
+     2.5156,
+     0.3718
+    ],
+    "size": [
+     0.4572,
+     0.4572,
+     0.7436
+    ],
+    "rotation_deg": 0.0
+   }
+  },
+  {
+   "name": "furn_f_L0_006",
+   "wenart_id": "f_L0_006",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "f_L0_006",
+   "room_id": "r_L0_kitchen",
+   "type": "chair",
+   "source": "from_documents",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "INSERT:FF/5/0,INSERT:FF/5/1",
+     "block": "DINING-6/CHAIR"
+    }
+   ],
+   "pass_index": 19,
+   "assumed": {
+    "height": 0.9
+   },
+   "decor": [],
+   "center": [
+    1.4488,
+    3.2522,
+    0.45
+   ],
+   "size": [
+    0.4572,
+    0.4572,
+    0.9
+   ],
+   "rotation_deg": 0.0,
+   "front_deg": null,
+   "asset": {
+    "library": "objaverse",
+    "asset_id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.8847,
+     0.9089,
+     0.8968
+    ],
+    "bbox_m": [
+     0.4572,
+     0.4572,
+     0.7436
+    ],
+    "aspect_error": 0.0271,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0148,
+     -0.4159
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+      "aspect_error": 0.0271,
+      "scale": [
+       0.8847,
+       0.9089,
+       0.8968
+      ],
+      "non_uniform": 1.0274,
+      "mean_scale": 0.8968,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "modern",
+    "excluded": [
+     {
+      "id": "gallinera_chair",
+      "reason": "styles ['classic', 'rustic'] include neither modern nor neutral"
+     },
+     {
+      "id": "painted_wooden_chair_02",
+      "reason": "styles ['rustic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_039c6026571943d6ac45c6816bcc7ff1",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_0723b35415b0462eb5c01140b6b70340",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_9234d8196b73434684bcbb8092cc9e2a",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_cb43e2abac66494d81e1e7116eb47043",
+      "reason": "styles ['industrial', 'rustic'] include neither modern nor neutral"
+     }
+    ],
+    "glb": "models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
+    "sha256_glb": "3851bf0d21d98a40810ee7029dcf21589a6c5667ba56f0ae74a707536fead537",
+    "uid": "d2785b57e7da45858f2fe8bf4dedd68d",
+    "title": "Chair",
+    "author": "杭州维界科技有限公司",
+    "source_url": "https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Chair\" by 杭州维界科技有限公司 (https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.01
+   },
+   "fit_scale": [
+    0.8847,
+    0.9089,
+    0.8968
+   ],
+   "method": "library",
+   "bbox_m": [
+    0.4572,
+    0.4572,
+    0.7436
+   ],
+   "fallback_reason": null,
+   "materials": [
+    "wood"
+   ],
+   "material": "wood",
+   "textured": true,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0,
+     0.0148,
+     -0.4159
+    ],
+    "origin_offset_applied": [
+     -0.0,
+     -0.0148,
+     0.4159
+    ],
+    "bbox_raw_m": [
+     0.5168,
+     0.503,
+     0.8292
+    ],
+    "bbox_m": [
+     0.4572,
+     0.4572,
+     0.7436
+    ],
+    "fit_scale": [
+     0.8847,
+     0.9089,
+     0.8968
+    ],
+    "unit_scale": 0.01
+   },
+   "file": "/workspace/assets/models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
+   "imported_objects": [
+    "Camera",
+    "Mesh (2)",
+    "Mesh (2)_wood_0",
+    "Mesh (3)",
+    "Mesh (3)_wood_0",
+    "Mesh (4)",
+    "Mesh (4)_wood_0",
+    "Mesh (5)",
+    "Mesh (5)_wood_0",
+    "Mesh (6)",
+    "Mesh (6)_wood_0",
+    "Mesh (7)",
+    "Mesh (7)_wood_0",
+    "Mesh (8)",
+    "Mesh (8)_wood_0",
+    "Object_18",
+    "RootNode",
+    "scene.fbx",
+    "Sketchfab_model"
+   ],
+   "box3d": {
+    "center": [
+     1.4488,
+     3.2522,
+     0.3718
+    ],
+    "size": [
+     0.4572,
+     0.4572,
+     0.7436
+    ],
+    "rotation_deg": 0.0
+   }
+  },
+  {
+   "name": "furn_f_L0_007",
+   "wenart_id": "f_L0_007",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "f_L0_007",
+   "room_id": "r_L0_kitchen",
+   "type": "chair",
+   "source": "from_documents",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "INSERT:FF/6/0,INSERT:FF/6/1",
+     "block": "DINING-6/CHAIR"
+    }
+   ],
+   "pass_index": 20,
+   "assumed": {
+    "height": 0.9
+   },
+   "decor": [],
+   "center": [
+    1.4488,
+    0.8646,
+    0.45
+   ],
+   "size": [
+    0.4572,
+    0.4572,
+    0.9
+   ],
+   "rotation_deg": 0.0,
+   "front_deg": null,
+   "asset": {
+    "library": "objaverse",
+    "asset_id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.8847,
+     0.9089,
+     0.8968
+    ],
+    "bbox_m": [
+     0.4572,
+     0.4572,
+     0.7436
+    ],
+    "aspect_error": 0.0271,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0148,
+     -0.4159
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+      "aspect_error": 0.0271,
+      "scale": [
+       0.8847,
+       0.9089,
+       0.8968
+      ],
+      "non_uniform": 1.0274,
+      "mean_scale": 0.8968,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "modern",
+    "excluded": [
+     {
+      "id": "gallinera_chair",
+      "reason": "styles ['classic', 'rustic'] include neither modern nor neutral"
+     },
+     {
+      "id": "painted_wooden_chair_02",
+      "reason": "styles ['rustic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_039c6026571943d6ac45c6816bcc7ff1",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_0723b35415b0462eb5c01140b6b70340",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_9234d8196b73434684bcbb8092cc9e2a",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_cb43e2abac66494d81e1e7116eb47043",
+      "reason": "styles ['industrial', 'rustic'] include neither modern nor neutral"
+     }
+    ],
+    "glb": "models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
+    "sha256_glb": "3851bf0d21d98a40810ee7029dcf21589a6c5667ba56f0ae74a707536fead537",
+    "uid": "d2785b57e7da45858f2fe8bf4dedd68d",
+    "title": "Chair",
+    "author": "杭州维界科技有限公司",
+    "source_url": "https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Chair\" by 杭州维界科技有限公司 (https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.01
+   },
+   "fit_scale": [
+    0.8847,
+    0.9089,
+    0.8968
+   ],
+   "method": "library",
+   "bbox_m": [
+    0.4572,
+    0.4572,
+    0.7436
+   ],
+   "fallback_reason": null,
+   "materials": [
+    "wood"
+   ],
+   "material": "wood",
+   "textured": true,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0,
+     0.0148,
+     -0.4159
+    ],
+    "origin_offset_applied": [
+     -0.0,
+     -0.0148,
+     0.4159
+    ],
+    "bbox_raw_m": [
+     0.5168,
+     0.503,
+     0.8292
+    ],
+    "bbox_m": [
+     0.4572,
+     0.4572,
+     0.7436
+    ],
+    "fit_scale": [
+     0.8847,
+     0.9089,
+     0.8968
+    ],
+    "unit_scale": 0.01
+   },
+   "file": "/workspace/assets/models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
+   "imported_objects": [
+    "Camera",
+    "Mesh (2)",
+    "Mesh (2)_wood_0",
+    "Mesh (3)",
+    "Mesh (3)_wood_0",
+    "Mesh (4)",
+    "Mesh (4)_wood_0",
+    "Mesh (5)",
+    "Mesh (5)_wood_0",
+    "Mesh (6)",
+    "Mesh (6)_wood_0",
+    "Mesh (7)",
+    "Mesh (7)_wood_0",
+    "Mesh (8)",
+    "Mesh (8)_wood_0",
+    "Object_18",
+    "RootNode",
+    "scene.fbx",
+    "Sketchfab_model"
+   ],
+   "box3d": {
+    "center": [
+     1.4488,
+     0.8646,
+     0.3718
+    ],
+    "size": [
+     0.4572,
+     0.4572,
+     0.7436
+    ],
+    "rotation_deg": 0.0
+   }
+  },
+  {
+   "name": "furn_f_L0_008",
+   "wenart_id": "f_L0_008",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "f_L0_008",
+   "room_id": "r_L0_kitchen",
+   "type": "chair",
+   "source": "from_documents",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "INSERT:FF/1/0,INSERT:FF/1/1",
+     "block": "DINING-6/CHAIR"
+    }
+   ],
+   "pass_index": 21,
+   "assumed": {
+    "height": 0.9
+   },
+   "decor": [],
+   "center": [
+    0.7122,
+    1.6012,
+    0.45
+   ],
+   "size": [
+    0.4572,
+    0.4572,
+    0.9
+   ],
+   "rotation_deg": 0.0,
+   "front_deg": null,
+   "asset": {
+    "library": "objaverse",
+    "asset_id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.8847,
+     0.9089,
+     0.8968
+    ],
+    "bbox_m": [
+     0.4572,
+     0.4572,
+     0.7436
+    ],
+    "aspect_error": 0.0271,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0148,
+     -0.4159
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+      "aspect_error": 0.0271,
+      "scale": [
+       0.8847,
+       0.9089,
+       0.8968
+      ],
+      "non_uniform": 1.0274,
+      "mean_scale": 0.8968,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "modern",
+    "excluded": [
+     {
+      "id": "gallinera_chair",
+      "reason": "styles ['classic', 'rustic'] include neither modern nor neutral"
+     },
+     {
+      "id": "painted_wooden_chair_02",
+      "reason": "styles ['rustic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_039c6026571943d6ac45c6816bcc7ff1",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_0723b35415b0462eb5c01140b6b70340",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_9234d8196b73434684bcbb8092cc9e2a",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_cb43e2abac66494d81e1e7116eb47043",
+      "reason": "styles ['industrial', 'rustic'] include neither modern nor neutral"
+     }
+    ],
+    "glb": "models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
+    "sha256_glb": "3851bf0d21d98a40810ee7029dcf21589a6c5667ba56f0ae74a707536fead537",
+    "uid": "d2785b57e7da45858f2fe8bf4dedd68d",
+    "title": "Chair",
+    "author": "杭州维界科技有限公司",
+    "source_url": "https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Chair\" by 杭州维界科技有限公司 (https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.01
+   },
+   "fit_scale": [
+    0.8847,
+    0.9089,
+    0.8968
+   ],
+   "method": "library",
+   "bbox_m": [
+    0.4572,
+    0.4572,
+    0.7436
+   ],
+   "fallback_reason": null,
+   "materials": [
+    "wood"
+   ],
+   "material": "wood",
+   "textured": true,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0,
+     0.0148,
+     -0.4159
+    ],
+    "origin_offset_applied": [
+     -0.0,
+     -0.0148,
+     0.4159
+    ],
+    "bbox_raw_m": [
+     0.5168,
+     0.503,
+     0.8292
+    ],
+    "bbox_m": [
+     0.4572,
+     0.4572,
+     0.7436
+    ],
+    "fit_scale": [
+     0.8847,
+     0.9089,
+     0.8968
+    ],
+    "unit_scale": 0.01
+   },
+   "file": "/workspace/assets/models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
+   "imported_objects": [
+    "Camera",
+    "Mesh (2)",
+    "Mesh (2)_wood_0",
+    "Mesh (3)",
+    "Mesh (3)_wood_0",
+    "Mesh (4)",
+    "Mesh (4)_wood_0",
+    "Mesh (5)",
+    "Mesh (5)_wood_0",
+    "Mesh (6)",
+    "Mesh (6)_wood_0",
+    "Mesh (7)",
+    "Mesh (7)_wood_0",
+    "Mesh (8)",
+    "Mesh (8)_wood_0",
+    "Object_18",
+    "RootNode",
+    "scene.fbx",
+    "Sketchfab_model"
+   ],
+   "box3d": {
+    "center": [
+     0.7122,
+     1.6012,
+     0.3718
+    ],
+    "size": [
+     0.4572,
+     0.4572,
+     0.7436
+    ],
+    "rotation_deg": 0.0
+   }
+  },
+  {
+   "name": "furn_f_L0_009",
+   "wenart_id": "f_L0_009",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "f_L0_009",
+   "room_id": "r_L0_kitchen",
+   "type": "chair",
+   "source": "from_documents",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "INSERT:FF/4/0,INSERT:FF/4/1",
+     "block": "DINING-6/CHAIR"
+    }
+   ],
+   "pass_index": 22,
+   "assumed": {
+    "height": 0.9
+   },
+   "decor": [],
+   "center": [
+    2.1854,
+    2.5156,
+    0.45
+   ],
+   "size": [
+    0.4572,
+    0.4572,
+    0.9
+   ],
+   "rotation_deg": 90.0,
+   "front_deg": null,
+   "asset": {
+    "library": "objaverse",
+    "asset_id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.8847,
+     0.9089,
+     0.8968
+    ],
+    "bbox_m": [
+     0.4572,
+     0.4572,
+     0.7436
+    ],
+    "aspect_error": 0.0271,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0148,
+     -0.4159
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+      "aspect_error": 0.0271,
+      "scale": [
+       0.8847,
+       0.9089,
+       0.8968
+      ],
+      "non_uniform": 1.0274,
+      "mean_scale": 0.8968,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "modern",
+    "excluded": [
+     {
+      "id": "gallinera_chair",
+      "reason": "styles ['classic', 'rustic'] include neither modern nor neutral"
+     },
+     {
+      "id": "painted_wooden_chair_02",
+      "reason": "styles ['rustic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_039c6026571943d6ac45c6816bcc7ff1",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_0723b35415b0462eb5c01140b6b70340",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_9234d8196b73434684bcbb8092cc9e2a",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_cb43e2abac66494d81e1e7116eb47043",
+      "reason": "styles ['industrial', 'rustic'] include neither modern nor neutral"
+     }
+    ],
+    "glb": "models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
+    "sha256_glb": "3851bf0d21d98a40810ee7029dcf21589a6c5667ba56f0ae74a707536fead537",
+    "uid": "d2785b57e7da45858f2fe8bf4dedd68d",
+    "title": "Chair",
+    "author": "杭州维界科技有限公司",
+    "source_url": "https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Chair\" by 杭州维界科技有限公司 (https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.01
+   },
+   "fit_scale": [
+    0.8847,
+    0.9089,
+    0.8968
+   ],
+   "method": "library",
+   "bbox_m": [
+    0.4572,
+    0.4572,
+    0.7436
+   ],
+   "fallback_reason": null,
+   "materials": [
+    "wood"
+   ],
+   "material": "wood",
+   "textured": true,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0,
+     0.0148,
+     -0.4159
+    ],
+    "origin_offset_applied": [
+     -0.0,
+     -0.0148,
+     0.4159
+    ],
+    "bbox_raw_m": [
+     0.5168,
+     0.503,
+     0.8292
+    ],
+    "bbox_m": [
+     0.4572,
+     0.4572,
+     0.7436
+    ],
+    "fit_scale": [
+     0.8847,
+     0.9089,
+     0.8968
+    ],
+    "unit_scale": 0.01
+   },
+   "file": "/workspace/assets/models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
+   "imported_objects": [
+    "Camera",
+    "Mesh (2)",
+    "Mesh (2)_wood_0",
+    "Mesh (3)",
+    "Mesh (3)_wood_0",
+    "Mesh (4)",
+    "Mesh (4)_wood_0",
+    "Mesh (5)",
+    "Mesh (5)_wood_0",
+    "Mesh (6)",
+    "Mesh (6)_wood_0",
+    "Mesh (7)",
+    "Mesh (7)_wood_0",
+    "Mesh (8)",
+    "Mesh (8)_wood_0",
+    "Object_18",
+    "RootNode",
+    "scene.fbx",
+    "Sketchfab_model"
+   ],
+   "box3d": {
+    "center": [
+     2.1854,
+     2.5156,
+     0.3718
+    ],
+    "size": [
+     0.4572,
+     0.4572,
+     0.7436
+    ],
+    "rotation_deg": 90.0
+   }
+  },
+  {
+   "name": "furn_f_L0_010",
+   "wenart_id": "f_L0_010",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "f_L0_010",
+   "room_id": "r_L0_kitchen",
+   "type": "chair",
+   "source": "from_documents",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "INSERT:FF/3/0,INSERT:FF/3/1",
+     "block": "DINING-6/CHAIR"
+    }
+   ],
+   "pass_index": 23,
+   "assumed": {
+    "height": 0.9
+   },
+   "decor": [],
+   "center": [
+    2.1854,
+    1.6012,
+    0.45
+   ],
+   "size": [
+    0.4572,
+    0.4572,
+    0.9
+   ],
+   "rotation_deg": 90.0,
+   "front_deg": null,
+   "asset": {
+    "library": "objaverse",
+    "asset_id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.8847,
+     0.9089,
+     0.8968
+    ],
+    "bbox_m": [
+     0.4572,
+     0.4572,
+     0.7436
+    ],
+    "aspect_error": 0.0271,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0148,
+     -0.4159
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+      "aspect_error": 0.0271,
+      "scale": [
+       0.8847,
+       0.9089,
+       0.8968
+      ],
+      "non_uniform": 1.0274,
+      "mean_scale": 0.8968,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "modern",
+    "excluded": [
+     {
+      "id": "gallinera_chair",
+      "reason": "styles ['classic', 'rustic'] include neither modern nor neutral"
+     },
+     {
+      "id": "painted_wooden_chair_02",
+      "reason": "styles ['rustic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_039c6026571943d6ac45c6816bcc7ff1",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_0723b35415b0462eb5c01140b6b70340",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_9234d8196b73434684bcbb8092cc9e2a",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_cb43e2abac66494d81e1e7116eb47043",
+      "reason": "styles ['industrial', 'rustic'] include neither modern nor neutral"
+     }
+    ],
+    "glb": "models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
+    "sha256_glb": "3851bf0d21d98a40810ee7029dcf21589a6c5667ba56f0ae74a707536fead537",
+    "uid": "d2785b57e7da45858f2fe8bf4dedd68d",
+    "title": "Chair",
+    "author": "杭州维界科技有限公司",
+    "source_url": "https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Chair\" by 杭州维界科技有限公司 (https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.01
+   },
+   "fit_scale": [
+    0.8847,
+    0.9089,
+    0.8968
+   ],
+   "method": "library",
+   "bbox_m": [
+    0.4572,
+    0.4572,
+    0.7436
+   ],
+   "fallback_reason": null,
+   "materials": [
+    "wood"
+   ],
+   "material": "wood",
+   "textured": true,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0,
+     0.0148,
+     -0.4159
+    ],
+    "origin_offset_applied": [
+     -0.0,
+     -0.0148,
+     0.4159
+    ],
+    "bbox_raw_m": [
+     0.5168,
+     0.503,
+     0.8292
+    ],
+    "bbox_m": [
+     0.4572,
+     0.4572,
+     0.7436
+    ],
+    "fit_scale": [
+     0.8847,
+     0.9089,
+     0.8968
+    ],
+    "unit_scale": 0.01
+   },
+   "file": "/workspace/assets/models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
+   "imported_objects": [
+    "Camera",
+    "Mesh (2)",
+    "Mesh (2)_wood_0",
+    "Mesh (3)",
+    "Mesh (3)_wood_0",
+    "Mesh (4)",
+    "Mesh (4)_wood_0",
+    "Mesh (5)",
+    "Mesh (5)_wood_0",
+    "Mesh (6)",
+    "Mesh (6)_wood_0",
+    "Mesh (7)",
+    "Mesh (7)_wood_0",
+    "Mesh (8)",
+    "Mesh (8)_wood_0",
+    "Object_18",
+    "RootNode",
+    "scene.fbx",
+    "Sketchfab_model"
+   ],
+   "box3d": {
+    "center": [
+     2.1854,
+     1.6012,
+     0.3718
+    ],
+    "size": [
+     0.4572,
+     0.4572,
+     0.7436
+    ],
+    "rotation_deg": 90.0
+   }
+  },
+  {
+   "name": "furn_f_L0_011",
+   "wenart_id": "f_L0_011",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "f_L0_011",
+   "room_id": "r_L0_bath",
+   "type": "washbasin",
+   "source": "from_documents",
+   "evidence": [
+    {
+     "file": "synthetic-06.dwg",
+     "method": "vector",
+     "confidence": 0.9,
+     "entity": "INSERT:105/0,INSERT:105/1",
+     "block": "BASIN"
+    }
+   ],
+   "pass_index": 24,
+   "assumed": {
+    "height": 0.85
+   },
+   "decor": [],
+   "center": [
+    1.271,
+    5.3096,
+    0.425
+   ],
+   "size": [
+    0.508,
+    0.4064,
+    0.85
+   ],
+   "rotation_deg": 0.0,
+   "front_deg": null,
+   "asset": {
+    "library": "objaverse",
+    "asset_id": "objaverse_ce1a06f7cbe1425099a145f851fc5dee",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.7832,
+     0.8538,
+     0.8185
+    ],
+    "bbox_m": [
+     0.508,
+     0.4064,
+     0.4499
+    ],
+    "aspect_error": 0.0863,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     -0.2748
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_ce1a06f7cbe1425099a145f851fc5dee",
+      "aspect_error": 0.0863,
+      "scale": [
+       0.7832,
+       0.8538,
+       0.8185
+      ],
+      "non_uniform": 1.0901,
+      "mean_scale": 0.8185,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "modern",
+    "excluded": [],
+    "glb": "models/objaverse/ce1a06f7cbe1425099a145f851fc5dee.glb",
+    "sha256_glb": "e1b99caba563b6c71d79eb960591d5e1049a3e7c086c6518aa83772a0621fbae",
+    "uid": "ce1a06f7cbe1425099a145f851fc5dee",
+    "title": "Sink",
+    "author": "Shining Salt",
+    "source_url": "https://sketchfab.com/3d-models/ce1a06f7cbe1425099a145f851fc5dee",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Sink\" by Shining Salt (https://sketchfab.com/3d-models/ce1a06f7cbe1425099a145f851fc5dee), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.32432313118014205
+   },
+   "fit_scale": [
+    0.7832,
+    0.8538,
+    0.8185
+   ],
+   "method": "library",
+   "bbox_m": [
+    0.508,
+    0.4064,
+    0.4499
+   ],
+   "fallback_reason": null,
+   "materials": [
+    "aiStandardSurface6SG",
+    "aiStandardSurface5SG",
+    "aiStandardSurface2SG"
+   ],
+   "material": "aiStandardSurface6SG",
+   "textured": true,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0,
+     0.0,
+     -0.2748
+    ],
+    "origin_offset_applied": [
+     -0.0,
+     0.0,
+     0.2748
+    ],
+    "bbox_raw_m": [
+     0.6486,
+     0.476,
+     0.5497
+    ],
+    "bbox_m": [
+     0.508,
+     0.4064,
+     0.4499
+    ],
+    "fit_scale": [
+     0.7832,
+     0.8538,
+     0.8185
+    ],
+    "unit_scale": 0.32432313118014205
+   },
+   "file": "/workspace/assets/models/objaverse/ce1a06f7cbe1425099a145f851fc5dee.glb",
+   "imported_objects": [
+    "Collada visual scene group",
+    "defaultMaterial",
+    "defaultMaterial.001",
+    "defaultMaterial.002",
+    "defaultMaterial.003",
+    "defaultMaterial.004",
+    "defaultMaterial.005",
+    "defaultMaterial.006",
+    "defaultMaterial.007",
+    "defaultMaterial.008",
+    "defaultMaterial.009",
+    "defaultMaterial.010",
+    "defaultMaterial.011",
+    "defaultMaterial.012",
+    "defaultMaterial.013",
+    "defaultMaterial.014",
+    "g",
+    "g.001",
+    "g.002",
+    "g.003",
+    "g.004",
+    "g.005",
+    "g.006",
+    "g.007",
+    "g.008",
+    "g.009",
+    "g.010",
+    "g.011",
+    "g.012",
+    "g.013",
+    "g.014",
+    "Sketchfab_model"
+   ],
+   "box3d": {
+    "center": [
+     1.271,
+     5.3096,
+     0.225
+    ],
+    "size": [
+     0.508,
+     0.4064,
+     0.4499
+    ],
+    "rotation_deg": 0.0
+   }
+  },
+  {
+   "name": "furn_f_L0_012",
+   "wenart_id": "f_L0_012",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "f_L0_012",
+   "room_id": "r_L0_lobby",
+   "type": "chair",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Mid-century modern chair for seating near the window area."
+    }
+   ],
+   "pass_index": 25,
+   "assumed": {},
+   "decor": [],
+   "center": [
+    4.82,
+    5.2,
+    0.45
+   ],
+   "size": [
+    0.5,
+    0.5,
+    0.9
+   ],
+   "rotation_deg": 0.0,
+   "front_deg": 270.0,
+   "asset": {
+    "library": "objaverse",
+    "asset_id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.9675,
+     0.994,
+     0.9808
+    ],
+    "bbox_m": [
+     0.5,
+     0.5,
+     0.8133
+    ],
+    "aspect_error": 0.0271,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0148,
+     -0.4159
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+      "aspect_error": 0.0271,
+      "scale": [
+       0.9675,
+       0.994,
+       0.9808
+      ],
+      "non_uniform": 1.0274,
+      "mean_scale": 0.9808,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "modern",
+    "excluded": [
+     {
+      "id": "gallinera_chair",
+      "reason": "styles ['classic', 'rustic'] include neither modern nor neutral"
+     },
+     {
+      "id": "painted_wooden_chair_02",
+      "reason": "styles ['rustic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_039c6026571943d6ac45c6816bcc7ff1",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_0723b35415b0462eb5c01140b6b70340",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_9234d8196b73434684bcbb8092cc9e2a",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_cb43e2abac66494d81e1e7116eb47043",
+      "reason": "styles ['industrial', 'rustic'] include neither modern nor neutral"
+     }
+    ],
+    "glb": "models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
+    "sha256_glb": "3851bf0d21d98a40810ee7029dcf21589a6c5667ba56f0ae74a707536fead537",
+    "uid": "d2785b57e7da45858f2fe8bf4dedd68d",
+    "title": "Chair",
+    "author": "杭州维界科技有限公司",
+    "source_url": "https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Chair\" by 杭州维界科技有限公司 (https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.01
+   },
+   "fit_scale": [
+    0.9675,
+    0.994,
+    0.9808
+   ],
+   "method": "library",
+   "bbox_m": [
+    0.5,
+    0.5,
+    0.8133
+   ],
+   "fallback_reason": null,
+   "materials": [
+    "wood"
+   ],
+   "material": "wood",
+   "textured": true,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0,
+     0.0148,
+     -0.4159
+    ],
+    "origin_offset_applied": [
+     -0.0,
+     -0.0148,
+     0.4159
+    ],
+    "bbox_raw_m": [
+     0.5168,
+     0.503,
+     0.8292
+    ],
+    "bbox_m": [
+     0.5,
+     0.5,
+     0.8133
+    ],
+    "fit_scale": [
+     0.9675,
+     0.994,
+     0.9808
+    ],
+    "unit_scale": 0.01
+   },
+   "file": "/workspace/assets/models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
+   "imported_objects": [
+    "Camera",
+    "Mesh (2)",
+    "Mesh (2)_wood_0",
+    "Mesh (3)",
+    "Mesh (3)_wood_0",
+    "Mesh (4)",
+    "Mesh (4)_wood_0",
+    "Mesh (5)",
+    "Mesh (5)_wood_0",
+    "Mesh (6)",
+    "Mesh (6)_wood_0",
+    "Mesh (7)",
+    "Mesh (7)_wood_0",
+    "Mesh (8)",
+    "Mesh (8)_wood_0",
+    "Object_18",
+    "RootNode",
+    "scene.fbx",
+    "Sketchfab_model"
+   ],
+   "box3d": {
+    "center": [
+     4.82,
+     5.2,
+     0.4067
+    ],
+    "size": [
+     0.5,
+     0.5,
+     0.8133
+    ],
+    "rotation_deg": 0.0
+   }
+  },
+  {
+   "name": "furn_f_L0_013",
+   "wenart_id": "f_L0_013",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "f_L0_013",
+   "room_id": "r_L0_bed_room",
+   "type": "bed_double",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Main sleeping area against the wall, leaving space for walkways and furniture."
+    }
+   ],
+   "pass_index": 26,
+   "assumed": {},
+   "decor": [
+    {
+     "name": "decor_f_L0_013_4",
+     "type": "cushion",
+     "method": "parametric (fallback: no asset in the building JSON)"
+    },
+    {
+     "name": "decor_f_L0_013_5",
+     "type": "cushion",
+     "method": "parametric (fallback: no asset in the building JSON)"
+    }
+   ],
+   "center": [
+    1.8,
+    8.047,
+    0.25
+   ],
+   "size": [
+    1.8,
+    2.0,
+    0.5
+   ],
+   "rotation_deg": 0.0,
+   "front_deg": 270.0,
+   "asset": {
+    "library": "objaverse",
+    "asset_id": "objaverse_2bd3fcc82c9f43cfb0c8cf26c7d0107c",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     1.0286,
+     1.0193,
+     1.0239
+    ],
+    "bbox_m": [
+     1.8,
+     2.0,
+     1.5348
+    ],
+    "aspect_error": 0.0091,
+    "front_axis": "+X",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.4788,
+     -0.0008,
+     0.0062
+    ],
+    "rotation_fix_deg": 270.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_2bd3fcc82c9f43cfb0c8cf26c7d0107c",
+      "aspect_error": 0.0091,
+      "scale": [
+       1.0286,
+       1.0193,
+       1.0239
+      ],
+      "non_uniform": 1.0091,
+      "mean_scale": 1.0239,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "modern minimal",
+     "modern"
+    ],
+    "style_family": "modern",
+    "excluded": [
+     {
+      "id": "GothicBed_01",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "objaverse_5d3a99865ac84d8a8bf06b263aa5bb55",
+      "reason": "styles ['industrial'] include neither modern nor neutral"
+     }
+    ],
+    "glb": "models/objaverse/2bd3fcc82c9f43cfb0c8cf26c7d0107c.glb",
+    "sha256_glb": "b374972522eaf883c09fc2896bb788c8aba4afc8a8bd513c96e477b78067fd34",
+    "uid": "2bd3fcc82c9f43cfb0c8cf26c7d0107c",
+    "title": "Bed For Vr",
+    "author": "olamii",
+    "source_url": "https://sketchfab.com/3d-models/2bd3fcc82c9f43cfb0c8cf26c7d0107c",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Bed For Vr\" by olamii (https://sketchfab.com/3d-models/2bd3fcc82c9f43cfb0c8cf26c7d0107c), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.0008053334349170668
+   },
+   "fit_scale": [
+    1.0286,
+    1.0193,
+    1.0239
+   ],
+   "method": "library",
+   "bbox_m": [
+    1.8,
+    2.0001,
+    1.5348
+   ],
+   "fallback_reason": null,
+   "materials": [
+    "FABRIC_sofa",
+    "Mat.2",
+    "Wood_17",
+    "Cube_3__0"
+   ],
+   "material": "FABRIC_sofa",
+   "textured": true,
+   "fit": {
+    "front_axis": "+X",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.4788,
+     -0.0008,
+     0.0062
+    ],
+    "origin_offset_applied": [
+     0.0008,
+     0.4788,
+     -0.0062
+    ],
+    "bbox_raw_m": [
+     1.75,
+     1.9622,
+     1.499
+    ],
+    "bbox_m": [
+     1.8,
+     2.0001,
+     1.5348
+    ],
+    "fit_scale": [
+     1.0286,
+     1.0193,
+     1.0239
+    ],
+    "unit_scale": 0.0008053334349170668
+   },
+   "file": "/workspace/assets/models/objaverse/2bd3fcc82c9f43cfb0c8cf26c7d0107c.glb",
+   "imported_objects": [
+    "3159ccd4eb0944a982db055e6786dd21.fbx",
+    "Box005",
+    "Box005_FABRIC_sofa_0",
+    "Box006",
+    "Box006_FABRIC_sofa_0",
+    "Box007",
+    "Box007_FABRIC_sofa_0",
+    "Box008",
+    "Box008_FABRIC_sofa_0",
+    "Box019",
+    "Box019_Mat.2_0",
+    "butterfly_matrac",
+    "butterfly_matrac_Mat.2_0",
+    "butterfly_pillor_squere",
+    "butterfly_pillor_squere_Mat.2_0",
+    "Camera",
+    "colette_king_bed",
+    "Cube",
+    "Cube_2",
+    "Cube_2_Wood 17_1",
+    "Cube_3",
+    "Cube_3__0",
+    "Cube_4",
+    "Cube_4_Wood 17_0",
+    "Cube_5",
+    "Cube_5_Wood 17_1",
+    "Cube_Wood 17_1",
+    "Object_23",
+    "Plane001_001_1",
+    "Plane001_001_1_FABRIC_sofa_1",
+    "RootNode",
+    "Sketchfab_model",
+    "Subdivision_Surface_1",
+    "Subdivision_Surface_10",
+    "Subdivision_Surface_11",
+    "Subdivision_Surface_12",
+    "Subdivision_Surface_13"
+   ],
+   "box3d": {
+    "center": [
+     1.8,
+     8.047,
+     0.7674
+    ],
+    "size": [
+     1.8,
+     2.0001,
+     1.5348
+    ],
+    "rotation_deg": 0.0
+   }
+  },
+  {
+   "name": "furn_f_L0_014",
+   "wenart_id": "f_L0_014",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "f_L0_014",
+   "room_id": "r_L0_bed_room",
+   "type": "nightstand",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Nightstand beside the bed for easy access to essentials."
+    }
+   ],
+   "pass_index": 27,
+   "assumed": {},
+   "decor": [],
+   "center": [
+    0.451,
+    6.8,
+    0.25
+   ],
+   "size": [
+    0.5,
+    0.4,
+    0.5
+   ],
+   "rotation_deg": 90.0,
+   "front_deg": 0.0,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "side_table_01",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.9091,
+     0.8889,
+     0.899
+    ],
+    "bbox_m": [
+     0.5,
+     0.4,
+     0.4951
+    ],
+    "aspect_error": 0.0225,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     -0.0024
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "low",
+    "candidates": [
+     {
+      "id": "side_table_01",
+      "aspect_error": 0.0225,
+      "scale": [
+       0.9091,
+       0.8889,
+       0.899
+      ],
+      "non_uniform": 1.0227,
+      "mean_scale": 0.899,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "modern",
+    "excluded": [
+     {
+      "id": "ClassicNightstand_01",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "painted_wooden_nightstand",
+      "reason": "styles ['rustic'] include neither modern nor neutral"
+     }
+    ],
+    "gltf": "models/side_table_01/side_table_01_1k.gltf"
+   },
+   "fit_scale": [
+    0.9091,
+    0.8889,
+    0.899
+   ],
+   "method": "library",
+   "bbox_m": [
+    0.5,
+    0.4,
+    0.495
+   ],
+   "fallback_reason": null,
+   "materials": [
+    "side_table_01"
+   ],
+   "material": "side_table_01",
+   "textured": true,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0,
+     0.0,
+     -0.0024
+    ],
+    "origin_offset_applied": [
+     -0.0,
+     -0.0,
+     0.0024
+    ],
+    "bbox_raw_m": [
+     0.55,
+     0.45,
+     0.5507
+    ],
+    "bbox_m": [
+     0.5,
+     0.4,
+     0.495
+    ],
+    "fit_scale": [
+     0.9091,
+     0.8889,
+     0.899
+    ],
+    "unit_scale": 1.0
+   },
+   "file": "/workspace/assets/models/side_table_01/side_table_01_1k.gltf",
+   "imported_objects": [
+    "side_table_01"
+   ],
+   "box3d": {
+    "center": [
+     0.451,
+     6.8,
+     0.2475
+    ],
+    "size": [
+     0.5,
+     0.4,
+     0.495
+    ],
+    "rotation_deg": 90.0
+   }
+  },
+  {
+   "name": "furn_f_L0_015",
+   "wenart_id": "f_L0_015",
+   "kind": "furniture",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "f_L0_015",
+   "room_id": "r_L0_bed_room",
+   "type": "nightstand",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Second nightstand for symmetry and balance."
+    }
+   ],
+   "pass_index": 28,
+   "assumed": {},
+   "decor": [],
+   "center": [
+    3.208,
+    6.9,
+    0.25
+   ],
+   "size": [
+    0.5,
+    0.4,
+    0.5
+   ],
+   "rotation_deg": 270.0,
+   "front_deg": 180.0,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "side_table_01",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.9091,
+     0.8889,
+     0.899
+    ],
+    "bbox_m": [
+     0.5,
+     0.4,
+     0.4951
+    ],
+    "aspect_error": 0.0225,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     -0.0024
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "low",
+    "candidates": [
+     {
+      "id": "side_table_01",
+      "aspect_error": 0.0225,
+      "scale": [
+       0.9091,
+       0.8889,
+       0.899
+      ],
+      "non_uniform": 1.0227,
+      "mean_scale": 0.899,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "modern",
+    "excluded": [
+     {
+      "id": "ClassicNightstand_01",
+      "reason": "styles ['classic'] include neither modern nor neutral"
+     },
+     {
+      "id": "painted_wooden_nightstand",
+      "reason": "styles ['rustic'] include neither modern nor neutral"
+     }
+    ],
+    "gltf": "models/side_table_01/side_table_01_1k.gltf"
+   },
+   "fit_scale": [
+    0.9091,
+    0.8889,
+    0.899
+   ],
+   "method": "library",
+   "bbox_m": [
+    0.5,
+    0.4,
+    0.495
+   ],
+   "fallback_reason": null,
+   "materials": [
+    "side_table_01"
+   ],
+   "material": "side_table_01",
+   "textured": true,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0,
+     0.0,
+     -0.0024
+    ],
+    "origin_offset_applied": [
+     -0.0,
+     -0.0,
+     0.0024
+    ],
+    "bbox_raw_m": [
+     0.55,
+     0.45,
+     0.5507
+    ],
+    "bbox_m": [
+     0.5,
+     0.4,
+     0.495
+    ],
+    "fit_scale": [
+     0.9091,
+     0.8889,
+     0.899
+    ],
+    "unit_scale": 1.0
+   },
+   "file": "/workspace/assets/models/side_table_01/side_table_01_1k.gltf",
+   "imported_objects": [
+    "side_table_01"
+   ],
+   "box3d": {
+    "center": [
+     3.208,
+     6.9,
+     0.2475
+    ],
+    "size": [
+     0.5,
+     0.4,
+     0.495
+    ],
+    "rotation_deg": 270.0
+   }
+  },
+  {
+   "name": "decor_f_L0_002_1",
+   "wenart_id": "f_L0_002",
+   "kind": "decor",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "f_L0_002",
+   "host_id": "f_L0_002",
+   "room_id": "r_L0_living_room",
+   "type": "cushion",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "decor",
+     "method": "rule",
+     "confidence": 1.0,
+     "text": "cushion on sofa f_L0_002 (on sofa f_L0_002)"
+    }
+   ],
+   "pass_index": 15,
+   "assumed": {
+    "rest_height": 0.45
+   },
+   "center": [
+    4.421,
+    1.02,
+    0.51
+   ],
+   "size": [
+    0.45,
+    0.15,
+    0.12
+   ],
+   "rotation_deg": 0.0,
+   "asset": null,
+   "method": "parametric (fallback: no asset in the building JSON)",
+   "bbox_m": [
+    0.45,
+    0.15,
+    0.12
+   ],
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "materials": [
+    "fabric_linen__rough_linen"
+   ],
+   "material": "fabric_linen__rough_linen",
+   "textured": true,
+   "fallback_reason": "no asset in the building JSON",
+   "bevel": {
+    "width_m": 0.05,
+    "segments": 3,
+    "edges": 12,
+    "max_radius_m": 0.03
+   },
+   "box3d": {
+    "center": [
+     4.421,
+     1.02,
+     0.51
+    ],
+    "size": [
+     0.45,
+     0.15,
+     0.12
+    ],
+    "rotation_deg": 0.0
+   }
+  },
+  {
+   "name": "decor_f_L0_002_2",
+   "wenart_id": "f_L0_002",
+   "kind": "decor",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "f_L0_002",
+   "host_id": "f_L0_002",
+   "room_id": "r_L0_living_room",
+   "type": "cushion",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "decor",
+     "method": "rule",
+     "confidence": 1.0,
+     "text": "cushion on sofa f_L0_002 (on sofa f_L0_002)"
+    }
+   ],
+   "pass_index": 15,
+   "assumed": {
+    "rest_height": 0.45
+   },
+   "center": [
+    5.487,
+    1.02,
+    0.51
+   ],
+   "size": [
+    0.45,
+    0.15,
+    0.12
+   ],
+   "rotation_deg": 0.0,
+   "asset": null,
+   "method": "parametric (fallback: no asset in the building JSON)",
+   "bbox_m": [
+    0.45,
+    0.15,
+    0.12
+   ],
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "materials": [
+    "fabric_linen__rough_linen"
+   ],
+   "material": "fabric_linen__rough_linen",
+   "textured": true,
+   "fallback_reason": "no asset in the building JSON",
+   "bevel": {
+    "width_m": 0.05,
+    "segments": 3,
+    "edges": 12,
+    "max_radius_m": 0.03
+   },
+   "box3d": {
+    "center": [
+     5.487,
+     1.02,
+     0.51
+    ],
+    "size": [
+     0.45,
+     0.15,
+     0.12
+    ],
+    "rotation_deg": 0.0
+   }
+  },
+  {
+   "name": "decor_dec_L0_003",
+   "wenart_id": "dec_L0_003",
+   "kind": "decor",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "dec_L0_003",
+   "host_id": null,
+   "room_id": "r_L0_living_room",
+   "type": "plant",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "decor",
+     "method": "rule",
+     "confidence": 1.0,
+     "text": "plant in r_L0_living_room on the floor"
+    }
+   ],
+   "pass_index": 29,
+   "assumed": {
+    "rest_height": 0.0
+   },
+   "center": [
+    6.837,
+    0.48,
+    0.24795
+   ],
+   "size": [
+    0.4,
+    0.4,
+    0.4959
+   ],
+   "rotation_deg": 0.0,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "potted_plant_02",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.5705,
+     0.6085,
+     0.5895
+    ],
+    "bbox_m": [
+     0.4,
+     0.4,
+     0.4958
+    ],
+    "aspect_error": 0.0645,
+    "gltf": "models/potted_plant_02/potted_plant_02_1k.gltf",
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0461,
+     0.0916,
+     0.0001
+    ],
+    "front_axis_confidence": "low",
+    "target": "size"
+   },
+   "method": "library",
+   "bbox_m": [
+    0.4,
+    0.4,
+    0.4959
+   ],
+   "fit_scale": [
+    0.5705,
+    0.6085,
+    0.5895
+   ],
+   "materials": [
+    "potted_plant_02_pot",
+    "potted_plant_02_leaves"
+   ],
+   "material": "potted_plant_02_pot",
+   "textured": true,
+   "fallback_reason": null,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     -0.0461,
+     0.0916,
+     0.0001
+    ],
+    "origin_offset_applied": [
+     0.0461,
+     -0.0916,
+     -0.0001
+    ],
+    "bbox_raw_m": [
+     0.7012,
+     0.6574,
+     0.8412
+    ],
+    "bbox_m": [
+     0.4,
+     0.4,
+     0.4959
+    ],
+    "fit_scale": [
+     0.5705,
+     0.6085,
+     0.5895
+    ],
+    "unit_scale": 1.0
+   },
+   "file": "/workspace/assets/models/potted_plant_02/potted_plant_02_1k.gltf",
+   "box3d": {
+    "center": [
+     6.837,
+     0.48,
+     0.2479
+    ],
+    "size": [
+     0.4,
+     0.4,
+     0.4959
+    ],
+    "rotation_deg": 0.0
+   }
+  },
+  {
+   "name": "decor_f_L0_013_4",
+   "wenart_id": "f_L0_013",
+   "kind": "decor",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "f_L0_013",
+   "host_id": "f_L0_013",
+   "room_id": "r_L0_bed_room",
+   "type": "cushion",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "decor",
+     "method": "rule",
+     "confidence": 1.0,
+     "text": "cushion on bed_double f_L0_013 (on bed_double f_L0_013)"
+    }
+   ],
+   "pass_index": 26,
+   "assumed": {
+    "rest_height": 0.5
+   },
+   "center": [
+    1.35,
+    8.797,
+    0.56
+   ],
+   "size": [
+    0.5,
+    0.3,
+    0.12
+   ],
+   "rotation_deg": 0.0,
+   "asset": null,
+   "method": "parametric (fallback: no asset in the building JSON)",
+   "bbox_m": [
+    0.5,
+    0.3,
+    0.12
+   ],
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "materials": [
+    "fabric_linen__rough_linen"
+   ],
+   "material": "fabric_linen__rough_linen",
+   "textured": true,
+   "fallback_reason": "no asset in the building JSON",
+   "bevel": {
+    "width_m": 0.05,
+    "segments": 3,
+    "edges": 12,
+    "max_radius_m": 0.03
+   },
+   "box3d": {
+    "center": [
+     1.35,
+     8.797,
+     0.56
+    ],
+    "size": [
+     0.5,
+     0.3,
+     0.12
+    ],
+    "rotation_deg": 0.0
+   }
+  },
+  {
+   "name": "decor_f_L0_013_5",
+   "wenart_id": "f_L0_013",
+   "kind": "decor",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "f_L0_013",
+   "host_id": "f_L0_013",
+   "room_id": "r_L0_bed_room",
+   "type": "cushion",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "decor",
+     "method": "rule",
+     "confidence": 1.0,
+     "text": "cushion on bed_double f_L0_013 (on bed_double f_L0_013)"
+    }
+   ],
+   "pass_index": 26,
+   "assumed": {
+    "rest_height": 0.5
+   },
+   "center": [
+    2.25,
+    8.797,
+    0.56
+   ],
+   "size": [
+    0.5,
+    0.3,
+    0.12
+   ],
+   "rotation_deg": 0.0,
+   "asset": null,
+   "method": "parametric (fallback: no asset in the building JSON)",
+   "bbox_m": [
+    0.5,
+    0.3,
+    0.12
+   ],
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "materials": [
+    "fabric_linen__rough_linen"
+   ],
+   "material": "fabric_linen__rough_linen",
+   "textured": true,
+   "fallback_reason": "no asset in the building JSON",
+   "bevel": {
+    "width_m": 0.05,
+    "segments": 3,
+    "edges": 12,
+    "max_radius_m": 0.03
+   },
+   "box3d": {
+    "center": [
+     2.25,
+     8.797,
+     0.56
+    ],
+    "size": [
+     0.5,
+     0.3,
+     0.12
+    ],
+    "rotation_deg": 0.0
+   }
+  },
+  {
+   "name": "decor_dec_L0_006",
+   "wenart_id": "dec_L0_006",
+   "kind": "decor",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "dec_L0_006",
+   "host_id": null,
+   "room_id": "r_L0_bed_room",
+   "type": "plant",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "decor",
+     "method": "rule",
+     "confidence": 1.0,
+     "text": "plant in r_L0_bed_room on the floor"
+    }
+   ],
+   "pass_index": 30,
+   "assumed": {
+    "rest_height": 0.0
+   },
+   "center": [
+    0.48,
+    5.968,
+    0.24795
+   ],
+   "size": [
+    0.4,
+    0.4,
+    0.4959
+   ],
+   "rotation_deg": 0.0,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "potted_plant_02",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.5705,
+     0.6085,
+     0.5895
+    ],
+    "bbox_m": [
+     0.4,
+     0.4,
+     0.4958
+    ],
+    "aspect_error": 0.0645,
+    "gltf": "models/potted_plant_02/potted_plant_02_1k.gltf",
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0461,
+     0.0916,
+     0.0001
+    ],
+    "front_axis_confidence": "low",
+    "target": "size"
+   },
+   "method": "library",
+   "bbox_m": [
+    0.4,
+    0.4,
+    0.4959
+   ],
+   "fit_scale": [
+    0.5705,
+    0.6085,
+    0.5895
+   ],
+   "materials": [
+    "potted_plant_02_pot",
+    "potted_plant_02_leaves"
+   ],
+   "material": "potted_plant_02_pot",
+   "textured": true,
+   "fallback_reason": null,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     -0.0461,
+     0.0916,
+     0.0001
+    ],
+    "origin_offset_applied": [
+     0.0461,
+     -0.0916,
+     -0.0001
+    ],
+    "bbox_raw_m": [
+     0.7012,
+     0.6574,
+     0.8412
+    ],
+    "bbox_m": [
+     0.4,
+     0.4,
+     0.4959
+    ],
+    "fit_scale": [
+     0.5705,
+     0.6085,
+     0.5895
+    ],
+    "unit_scale": 1.0
+   },
+   "file": "/workspace/assets/models/potted_plant_02/potted_plant_02_1k.gltf",
+   "box3d": {
+    "center": [
+     0.48,
+     5.968,
+     0.2479
+    ],
+    "size": [
+     0.4,
+     0.4,
+     0.4959
+    ],
+    "rotation_deg": 0.0
+   }
+  },
+  {
+   "name": "decor_f_L0_001_7",
+   "wenart_id": "f_L0_001",
+   "kind": "decor",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "f_L0_001",
+   "host_id": "f_L0_001",
+   "room_id": "r_L0_master_bed_room",
+   "type": "cushion",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "decor",
+     "method": "rule",
+     "confidence": 1.0,
+     "text": "cushion on bed_double f_L0_001 (on bed_double f_L0_001)"
+    }
+   ],
+   "pass_index": 14,
+   "assumed": {
+    "rest_height": 0.7388
+   },
+   "center": [
+    4.823,
+    7.494,
+    0.7988
+   ],
+   "size": [
+    0.5,
+    0.3,
+    0.12
+   ],
+   "rotation_deg": 90.0,
+   "asset": null,
+   "method": "parametric (fallback: no asset in the building JSON)",
+   "bbox_m": [
+    0.5,
+    0.3,
+    0.12
+   ],
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "materials": [
+    "fabric_linen__rough_linen"
+   ],
+   "material": "fabric_linen__rough_linen",
+   "textured": true,
+   "fallback_reason": "no asset in the building JSON",
+   "bevel": {
+    "width_m": 0.05,
+    "segments": 3,
+    "edges": 12,
+    "max_radius_m": 0.03
+   },
+   "box3d": {
+    "center": [
+     4.823,
+     7.494,
+     0.7988
+    ],
+    "size": [
+     0.5,
+     0.3,
+     0.12
+    ],
+    "rotation_deg": 90.0
+   }
+  },
+  {
+   "name": "decor_f_L0_001_8",
+   "wenart_id": "f_L0_001",
+   "kind": "decor",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "f_L0_001",
+   "host_id": "f_L0_001",
+   "room_id": "r_L0_master_bed_room",
+   "type": "cushion",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "decor",
+     "method": "rule",
+     "confidence": 1.0,
+     "text": "cushion on bed_double f_L0_001 (on bed_double f_L0_001)"
+    }
+   ],
+   "pass_index": 14,
+   "assumed": {
+    "rest_height": 0.7388
+   },
+   "center": [
+    4.823,
+    8.51,
+    0.7988
+   ],
+   "size": [
+    0.5,
+    0.3,
+    0.12
+   ],
+   "rotation_deg": 90.0,
+   "asset": null,
+   "method": "parametric (fallback: no asset in the building JSON)",
+   "bbox_m": [
+    0.5,
+    0.3,
+    0.12
+   ],
+   "fit_scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "materials": [
+    "fabric_linen__rough_linen"
+   ],
+   "material": "fabric_linen__rough_linen",
+   "textured": true,
+   "fallback_reason": "no asset in the building JSON",
+   "bevel": {
+    "width_m": 0.05,
+    "segments": 3,
+    "edges": 12,
+    "max_radius_m": 0.03
+   },
+   "box3d": {
+    "center": [
+     4.823,
+     8.51,
+     0.7988
+    ],
+    "size": [
+     0.5,
+     0.3,
+     0.12
+    ],
+    "rotation_deg": 90.0
+   }
+  },
+  {
+   "name": "decor_dec_L0_009",
+   "wenart_id": "dec_L0_009",
+   "kind": "decor",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "dec_L0_009",
+   "host_id": null,
+   "room_id": "r_L0_master_bed_room",
+   "type": "plant",
+   "source": "added_by_ai",
+   "evidence": [
+    {
+     "file": "decor",
+     "method": "rule",
+     "confidence": 1.0,
+     "text": "plant in r_L0_master_bed_room on the floor"
+    }
+   ],
+   "pass_index": 31,
+   "assumed": {
+    "rest_height": 0.0
+   },
+   "center": [
+    3.833,
+    8.818,
+    0.24795
+   ],
+   "size": [
+    0.4,
+    0.4,
+    0.4959
+   ],
+   "rotation_deg": 0.0,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "potted_plant_02",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.5705,
+     0.6085,
+     0.5895
+    ],
+    "bbox_m": [
+     0.4,
+     0.4,
+     0.4958
+    ],
+    "aspect_error": 0.0645,
+    "gltf": "models/potted_plant_02/potted_plant_02_1k.gltf",
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0461,
+     0.0916,
+     0.0001
+    ],
+    "front_axis_confidence": "low",
+    "target": "size"
+   },
+   "method": "library",
+   "bbox_m": [
+    0.4,
+    0.4,
+    0.4959
+   ],
+   "fit_scale": [
+    0.5705,
+    0.6085,
+    0.5895
+   ],
+   "materials": [
+    "potted_plant_02_pot",
+    "potted_plant_02_leaves"
+   ],
+   "material": "potted_plant_02_pot",
+   "textured": true,
+   "fallback_reason": null,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     -0.0461,
+     0.0916,
+     0.0001
+    ],
+    "origin_offset_applied": [
+     0.0461,
+     -0.0916,
+     -0.0001
+    ],
+    "bbox_raw_m": [
+     0.7012,
+     0.6574,
+     0.8412
+    ],
+    "bbox_m": [
+     0.4,
+     0.4,
+     0.4959
+    ],
+    "fit_scale": [
+     0.5705,
+     0.6085,
+     0.5895
+    ],
+    "unit_scale": 1.0
+   },
+   "file": "/workspace/assets/models/potted_plant_02/potted_plant_02_1k.gltf",
+   "box3d": {
+    "center": [
+     3.833,
+     8.818,
+     0.2479
+    ],
+    "size": [
+     0.4,
+     0.4,
+     0.4959
+    ],
+    "rotation_deg": 0.0
+   }
+  },
+  {
+   "name": "cam_r_L0_kitchen_1",
+   "wenart_id": "cam_r_L0_kitchen_1",
+   "kind": "camera",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "r_L0_kitchen",
+   "evidence": [],
+   "material": null,
+   "textured": false,
+   "pass_index": null,
+   "assumed": {}
+  },
+  {
+   "name": "cam_r_L0_kitchen_2",
+   "wenart_id": "cam_r_L0_kitchen_2",
+   "kind": "camera",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "r_L0_kitchen",
+   "evidence": [],
+   "material": null,
+   "textured": false,
+   "pass_index": null,
+   "assumed": {}
+  },
+  {
+   "name": "cam_r_L0_kitchen_3",
+   "wenart_id": "cam_r_L0_kitchen_3",
+   "kind": "camera",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "r_L0_kitchen",
+   "evidence": [],
+   "material": null,
+   "textured": false,
+   "pass_index": null,
+   "assumed": {}
+  },
+  {
+   "name": "cam_r_L0_living_room_1",
+   "wenart_id": "cam_r_L0_living_room_1",
+   "kind": "camera",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "r_L0_living_room",
+   "evidence": [],
+   "material": null,
+   "textured": false,
+   "pass_index": null,
+   "assumed": {}
+  },
+  {
+   "name": "cam_r_L0_living_room_2",
+   "wenart_id": "cam_r_L0_living_room_2",
+   "kind": "camera",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "r_L0_living_room",
+   "evidence": [],
+   "material": null,
+   "textured": false,
+   "pass_index": null,
+   "assumed": {}
+  },
+  {
+   "name": "cam_r_L0_living_room_3",
+   "wenart_id": "cam_r_L0_living_room_3",
+   "kind": "camera",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "r_L0_living_room",
+   "evidence": [],
+   "material": null,
+   "textured": false,
+   "pass_index": null,
+   "assumed": {}
+  },
+  {
+   "name": "cam_r_L0_bath_1",
+   "wenart_id": "cam_r_L0_bath_1",
+   "kind": "camera",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "r_L0_bath",
+   "evidence": [],
+   "material": null,
+   "textured": false,
+   "pass_index": null,
+   "assumed": {}
+  },
+  {
+   "name": "cam_r_L0_bath_2",
+   "wenart_id": "cam_r_L0_bath_2",
+   "kind": "camera",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "r_L0_bath",
+   "evidence": [],
+   "material": null,
+   "textured": false,
+   "pass_index": null,
+   "assumed": {}
+  },
+  {
+   "name": "cam_r_L0_lobby_1",
+   "wenart_id": "cam_r_L0_lobby_1",
+   "kind": "camera",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "r_L0_lobby",
+   "evidence": [],
+   "material": null,
+   "textured": false,
+   "pass_index": null,
+   "assumed": {}
+  },
+  {
+   "name": "cam_r_L0_lobby_2",
+   "wenart_id": "cam_r_L0_lobby_2",
+   "kind": "camera",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "r_L0_lobby",
+   "evidence": [],
+   "material": null,
+   "textured": false,
+   "pass_index": null,
+   "assumed": {}
+  },
+  {
+   "name": "cam_r_L0_lobby_3",
+   "wenart_id": "cam_r_L0_lobby_3",
+   "kind": "camera",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "r_L0_lobby",
+   "evidence": [],
+   "material": null,
+   "textured": false,
+   "pass_index": null,
+   "assumed": {}
+  },
+  {
+   "name": "cam_r_L0_bed_room_1",
+   "wenart_id": "cam_r_L0_bed_room_1",
+   "kind": "camera",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "r_L0_bed_room",
+   "evidence": [],
+   "material": null,
+   "textured": false,
+   "pass_index": null,
+   "assumed": {}
+  },
+  {
+   "name": "cam_r_L0_bed_room_2",
+   "wenart_id": "cam_r_L0_bed_room_2",
+   "kind": "camera",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "r_L0_bed_room",
+   "evidence": [],
+   "material": null,
+   "textured": false,
+   "pass_index": null,
+   "assumed": {}
+  },
+  {
+   "name": "cam_r_L0_bed_room_3",
+   "wenart_id": "cam_r_L0_bed_room_3",
+   "kind": "camera",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "r_L0_bed_room",
+   "evidence": [],
+   "material": null,
+   "textured": false,
+   "pass_index": null,
+   "assumed": {}
+  },
+  {
+   "name": "cam_r_L0_master_bed_room_1",
+   "wenart_id": "cam_r_L0_master_bed_room_1",
+   "kind": "camera",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "r_L0_master_bed_room",
+   "evidence": [],
+   "material": null,
+   "textured": false,
+   "pass_index": null,
+   "assumed": {}
+  },
+  {
+   "name": "cam_r_L0_master_bed_room_2",
+   "wenart_id": "cam_r_L0_master_bed_room_2",
+   "kind": "camera",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "r_L0_master_bed_room",
+   "evidence": [],
+   "material": null,
+   "textured": false,
+   "pass_index": null,
+   "assumed": {}
+  },
+  {
+   "name": "cam_r_L0_master_bed_room_3",
+   "wenart_id": "cam_r_L0_master_bed_room_3",
+   "kind": "camera",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "r_L0_master_bed_room",
+   "evidence": [],
+   "material": null,
+   "textured": false,
+   "pass_index": null,
+   "assumed": {}
+  },
+  {
+   "name": "sun",
+   "wenart_id": "sun",
+   "kind": "light",
+   "status": "assumed",
+   "level_id": null,
+   "element_id": null,
+   "evidence": [],
+   "material": null,
+   "textured": false,
+   "pass_index": null,
+   "assumed": {
+    "elevation_deg": 35.0,
+    "azimuth_deg": 210.0,
+    "strength": 3.0,
+    "temperature_k": 5200.0
+   }
+  },
+  {
+   "name": "portal_win_L0_001",
+   "wenart_id": "portal_win_L0_001",
+   "kind": "light",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "win_L0_001",
+   "evidence": [],
+   "material": null,
+   "textured": false,
+   "pass_index": null,
+   "reason": "portal",
+   "center": [
+    1.4488,
+    0.22,
+    1.5
+   ],
+   "size": [
+    1.1192,
+    1.1
+   ],
+   "inward": [
+    -0.0,
+    1.0
+   ],
+   "assumed": {
+    "reason": "portal",
+    "size_m": [
+     1.1192,
+     1.1
+    ],
+    "faces_room": "r_L0_kitchen"
+   }
+  },
+  {
+   "name": "portal_win_L0_002",
+   "wenart_id": "portal_win_L0_002",
+   "kind": "light",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "win_L0_002",
+   "evidence": [],
+   "material": null,
+   "textured": false,
+   "pass_index": null,
+   "reason": "portal",
+   "center": [
+    4.954,
+    0.22,
+    1.5
+   ],
+   "size": [
+    1.7288,
+    1.1
+   ],
+   "inward": [
+    -0.0,
+    1.0
+   ],
+   "assumed": {
+    "reason": "portal",
+    "size_m": [
+     1.7288,
+     1.1
+    ],
+    "faces_room": "r_L0_living_room"
+   }
+  },
+  {
+   "name": "portal_win_L0_003",
+   "wenart_id": "portal_win_L0_003",
+   "kind": "light",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "win_L0_003",
+   "evidence": [],
+   "material": null,
+   "textured": false,
+   "pass_index": null,
+   "reason": "portal",
+   "center": [
+    1.8298,
+    9.078,
+    1.5
+   ],
+   "size": [
+    1.424,
+    1.1
+   ],
+   "inward": [
+    0.0,
+    -1.0
+   ],
+   "assumed": {
+    "reason": "portal",
+    "size_m": [
+     1.424,
+     1.1
+    ],
+    "faces_room": "r_L0_bed_room"
+   }
+  },
+  {
+   "name": "portal_win_L0_004",
+   "wenart_id": "portal_win_L0_004",
+   "kind": "light",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "win_L0_004",
+   "evidence": [],
+   "material": null,
+   "textured": false,
+   "pass_index": null,
+   "reason": "portal",
+   "center": [
+    5.335,
+    9.078,
+    1.5
+   ],
+   "size": [
+    1.424,
+    1.1
+   ],
+   "inward": [
+    0.0,
+    -1.0
+   ],
+   "assumed": {
+    "reason": "portal",
+    "size_m": [
+     1.424,
+     1.1
+    ],
+    "faces_room": "r_L0_master_bed_room"
+   }
+  },
+  {
+   "name": "portal_win_L0_005",
+   "wenart_id": "portal_win_L0_005",
+   "kind": "light",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "win_L0_005",
+   "evidence": [],
+   "material": null,
+   "textured": false,
+   "pass_index": null,
+   "reason": "portal",
+   "center": [
+    0.22,
+    4.8016,
+    1.5
+   ],
+   "size": [
+    0.5096,
+    1.1
+   ],
+   "inward": [
+    1.0,
+    -0.0
+   ],
+   "assumed": {
+    "reason": "portal",
+    "size_m": [
+     0.5096,
+     1.1
+    ],
+    "faces_room": "r_L0_bath"
+   }
+  },
+  {
+   "name": "portal_win_L0_006",
+   "wenart_id": "portal_win_L0_006",
+   "kind": "light",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "win_L0_006",
+   "evidence": [],
+   "material": null,
+   "textured": false,
+   "pass_index": null,
+   "reason": "portal",
+   "center": [
+    0.22,
+    7.3924,
+    1.5
+   ],
+   "size": [
+    1.1192,
+    1.1
+   ],
+   "inward": [
+    1.0,
+    -0.0
+   ],
+   "assumed": {
+    "reason": "portal",
+    "size_m": [
+     1.1192,
+     1.1
+    ],
+    "faces_room": "r_L0_bed_room"
+   }
+  },
+  {
+   "name": "portal_win_L0_007",
+   "wenart_id": "portal_win_L0_007",
+   "kind": "light",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "win_L0_007",
+   "evidence": [],
+   "material": null,
+   "textured": false,
+   "pass_index": null,
+   "reason": "portal",
+   "center": [
+    7.097,
+    2.0584,
+    1.5
+   ],
+   "size": [
+    1.1192,
+    1.1
+   ],
+   "inward": [
+    -1.0,
+    0.0
+   ],
+   "assumed": {
+    "reason": "portal",
+    "size_m": [
+     1.1192,
+     1.1
+    ],
+    "faces_room": "r_L0_living_room"
+   }
+  },
+  {
+   "name": "portal_win_L0_008",
+   "wenart_id": "portal_win_L0_008",
+   "kind": "light",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "win_L0_008",
+   "evidence": [],
+   "material": null,
+   "textured": false,
+   "pass_index": null,
+   "reason": "portal",
+   "center": [
+    7.097,
+    7.3924,
+    1.5
+   ],
+   "size": [
+    1.1192,
+    1.1
+   ],
+   "inward": [
+    -1.0,
+    0.0
+   ],
+   "assumed": {
+    "reason": "portal",
+    "size_m": [
+     1.1192,
+     1.1
+    ],
+    "faces_room": "r_L0_master_bed_room"
+   }
+  },
+  {
+   "name": "light_r_L0_lobby",
+   "wenart_id": "light_r_L0_lobby",
+   "kind": "light",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "r_L0_lobby",
+   "parent": "r_L0_lobby",
+   "evidence": [],
+   "material": null,
+   "textured": false,
+   "pass_index": null,
+   "center": [
+    4.8005,
+    4.8003,
+    2.65
+   ],
+   "size": 0.7622,
+   "assumed": {
+    "power_w": 83.65846199999997,
+    "w_per_m2": 12.0,
+    "size_m": 0.7622,
+    "boundary_distance_m": 0.7622,
+    "window_floor_ratio": null,
+    "visible_camera": false,
+    "reason": "room has no window"
+   }
+  }
+ ],
+ "camera_policy": "search",
+ "search_seconds": 0.345,
+ "cameras": [
+  {
+   "name": "cam_r_L0_kitchen_1",
+   "room_id": "r_L0_kitchen",
+   "level_id": "L0",
+   "index": 1,
+   "position": [
+    0.548198,
+    3.569802,
+    1.25
+   ],
+   "target": [
+    1.048198,
+    2.703777,
+    1.25
+   ],
+   "lens_mm": 24.0,
+   "sensor_mm": 36.0,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "shift_x": 0.0,
+   "shift_y": -0.1,
+   "policy": "search",
+   "score": {
+    "total": 2.63,
+    "furniture": 0.7868,
+    "openings": 0.8898,
+    "floor": 0.0347,
+    "depth": 0.9187,
+    "penalties": 0.0,
+    "blocked": false,
+    "yaw_deg": 300.0,
+    "shares": {
+     "furn": 0.1967,
+     "open": 0.1068,
+     "window": 0.1068,
+     "floor": 0.0087,
+     "ceiling": 0.0,
+     "wall": 0.3971,
+     "near": 0.0074,
+     "max_single": 0.2474,
+     "d_wall": 2.7562
+    }
+   },
+   "placement": "search: score 2.630 = furniture 0.787 + openings 0.890 + floor 0.035 + depth 0.919 - penalties 0.000; yaw 300 deg",
+   "anchor": null,
+   "warning": null,
+   "visible_openings": [
+    "win_L0_001",
+    "o_L0_001"
+   ],
+   "visible_furniture": [
+    "f_L0_003",
+    "f_L0_005",
+    "f_L0_007",
+    "f_L0_008",
+    "f_L0_009",
+    "f_L0_010"
+   ],
+   "search_seconds": 0.345
+  },
+  {
+   "name": "cam_r_L0_kitchen_2",
+   "room_id": "r_L0_kitchen",
+   "level_id": "L0",
+   "index": 2,
+   "position": [
+    2.351802,
+    3.569802,
+    1.25
+   ],
+   "target": [
+    1.851802,
+    2.703777,
+    1.25
+   ],
+   "lens_mm": 24.0,
+   "sensor_mm": 36.0,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "shift_x": 0.0,
+   "shift_y": -0.1,
+   "policy": "search",
+   "score": {
+    "total": 2.6003,
+    "furniture": 0.7607,
+    "openings": 0.8898,
+    "floor": 0.0469,
+    "depth": 0.9384,
+    "penalties": 0.0354,
+    "blocked": false,
+    "yaw_deg": 240.0,
+    "shares": {
+     "furn": 0.1902,
+     "open": 0.1068,
+     "window": 0.1068,
+     "floor": 0.0117,
+     "ceiling": 0.0,
+     "wall": 0.5677,
+     "near": 0.0074,
+     "max_single": 0.2331,
+     "d_wall": 2.8151
+    }
+   },
+   "placement": "search: score 2.600 = furniture 0.761 + openings 0.890 + floor 0.047 + depth 0.938 - penalties 0.035; yaw 240 deg",
+   "anchor": null,
+   "warning": null,
+   "visible_openings": [
+    "win_L0_001"
+   ],
+   "visible_furniture": [
+    "f_L0_003",
+    "f_L0_005",
+    "f_L0_007",
+    "f_L0_008",
+    "f_L0_009",
+    "f_L0_010"
+   ],
+   "search_seconds": 0.345
+  },
+  {
+   "name": "cam_r_L0_kitchen_3",
+   "room_id": "r_L0_kitchen",
+   "level_id": "L0",
+   "index": 3,
+   "position": [
+    0.548198,
+    0.548198,
+    1.25
+   ],
+   "target": [
+    1.048198,
+    1.414223,
+    1.25
+   ],
+   "lens_mm": 24.0,
+   "sensor_mm": 36.0,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "shift_x": 0.0,
+   "shift_y": -0.1,
+   "policy": "search",
+   "score": {
+    "total": 1.8372,
+    "furniture": 0.8077,
+    "openings": 0.0,
+    "floor": 0.0295,
+    "depth": 1.0,
+    "penalties": 0.0,
+    "blocked": false,
+    "yaw_deg": 60.0,
+    "shares": {
+     "furn": 0.2019,
+     "open": 0.0,
+     "window": 0.0,
+     "floor": 0.0074,
+     "ceiling": 0.0,
+     "wall": 0.5104,
+     "near": 0.0074,
+     "max_single": 0.2326,
+     "d_wall": 3.0625
+    }
+   },
+   "placement": "search: score 1.837 = furniture 0.808 + openings 0.000 + floor 0.029 + depth 1.000 - penalties 0.000; yaw 60 deg",
+   "anchor": null,
+   "warning": null,
+   "visible_openings": [],
+   "visible_furniture": [
+    "f_L0_003",
+    "f_L0_005",
+    "f_L0_006",
+    "f_L0_007",
+    "f_L0_008",
+    "f_L0_009",
+    "f_L0_010"
+   ],
+   "search_seconds": 0.345
+  },
+  {
+   "name": "cam_r_L0_living_room_1",
+   "room_id": "r_L0_living_room",
+   "level_id": "L0",
+   "index": 1,
+   "position": [
+    3.244264,
+    3.463736,
+    1.25
+   ],
+   "target": [
+    3.744264,
+    2.597711,
+    1.25
+   ],
+   "lens_mm": 24.0,
+   "sensor_mm": 36.0,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "shift_x": 0.0,
+   "shift_y": -0.1,
+   "policy": "search",
+   "score": {
+    "total": 5.217,
+    "furniture": 2.5,
+    "openings": 1.0,
+    "floor": 0.717,
+    "depth": 1.0,
+    "penalties": 0.0,
+    "blocked": false,
+    "yaw_deg": 300.0,
+    "shares": {
+     "furn": 0.625,
+     "open": 0.1489,
+     "window": 0.1489,
+     "floor": 0.1793,
+     "ceiling": 0.0,
+     "wall": 0.5156,
+     "near": 0.0,
+     "max_single": 0.1562,
+     "d_wall": 3.2695
+    }
+   },
+   "placement": "search: score 5.217 = furniture 2.500 + openings 1.000 + floor 0.717 + depth 1.000 - penalties 0.000; yaw 300 deg",
+   "anchor": null,
+   "warning": null,
+   "visible_openings": [
+    "win_L0_002"
+   ],
+   "visible_furniture": [
+    "f_L0_002"
+   ],
+   "search_seconds": 0.345
+  },
+  {
+   "name": "cam_r_L0_living_room_2",
+   "room_id": "r_L0_living_room",
+   "level_id": "L0",
+   "index": 2,
+   "position": [
+    6.662736,
+    3.463736,
+    1.25
+   ],
+   "target": [
+    6.162736,
+    2.597711,
+    1.25
+   ],
+   "lens_mm": 24.0,
+   "sensor_mm": 36.0,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "shift_x": 0.0,
+   "shift_y": -0.1,
+   "policy": "search",
+   "score": {
+    "total": 5.1906,
+    "furniture": 2.5,
+    "openings": 0.9729,
+    "floor": 0.7222,
+    "depth": 0.9955,
+    "penalties": 0.0,
+    "blocked": false,
+    "yaw_deg": 240.0,
+    "shares": {
+     "furn": 0.625,
+     "open": 0.1168,
+     "window": 0.1168,
+     "floor": 0.1806,
+     "ceiling": 0.0,
+     "wall": 0.3724,
+     "near": 0.0,
+     "max_single": 0.1562,
+     "d_wall": 2.9864
+    }
+   },
+   "placement": "search: score 5.191 = furniture 2.500 + openings 0.973 + floor 0.722 + depth 0.996 - penalties 0.000; yaw 240 deg",
+   "anchor": null,
+   "warning": null,
+   "visible_openings": [
+    "win_L0_002",
+    "o_L0_001"
+   ],
+   "visible_furniture": [
+    "f_L0_002"
+   ],
+   "search_seconds": 0.345
+  },
+  {
+   "name": "cam_r_L0_living_room_3",
+   "room_id": "r_L0_living_room",
+   "level_id": "L0",
+   "index": 3,
+   "position": [
+    4.745,
+    3.23,
+    1.25
+   ],
+   "target": [
+    4.745,
+    2.23,
+    1.25
+   ],
+   "lens_mm": 24.0,
+   "sensor_mm": 36.0,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "shift_x": 0.0,
+   "shift_y": -0.1,
+   "policy": "search",
+   "score": {
+    "total": 4.6222,
+    "furniture": 2.4,
+    "openings": 1.0,
+    "floor": 0.2222,
+    "depth": 1.0,
+    "penalties": 0.0,
+    "blocked": false,
+    "yaw_deg": 270.0,
+    "shares": {
+     "furn": 0.6,
+     "open": 0.1918,
+     "window": 0.1918,
+     "floor": 0.0556,
+     "ceiling": 0.0,
+     "wall": 0.421,
+     "near": 0.0,
+     "max_single": 0.2791,
+     "d_wall": 3.0
+    }
+   },
+   "placement": "search: score 4.622 = furniture 2.400 + openings 1.000 + floor 0.222 + depth 1.000 - penalties 0.000; yaw 270 deg",
+   "anchor": null,
+   "warning": null,
+   "visible_openings": [
+    "win_L0_002"
+   ],
+   "visible_furniture": [
+    "f_L0_002"
+   ],
+   "search_seconds": 0.345
+  },
+  {
+   "name": "cam_r_L0_bath_1",
+   "room_id": "r_L0_bath",
+   "level_id": "L0",
+   "index": 1,
+   "position": [
+    2.045802,
+    5.244302,
+    1.25
+   ],
+   "target": [
+    1.179777,
+    4.744302,
+    1.25
+   ],
+   "lens_mm": 24.0,
+   "sensor_mm": 36.0,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "shift_x": 0.0,
+   "shift_y": -0.1,
+   "policy": "search",
+   "score": {
+    "total": 1.3969,
+    "furniture": 0.3771,
+    "openings": 1.0,
+    "floor": 0.0,
+    "depth": 0.5196,
+    "penalties": 0.4998,
+    "blocked": false,
+    "yaw_deg": 210.0,
+    "shares": {
+     "furn": 0.0943,
+     "open": 0.1215,
+     "window": 0.1215,
+     "floor": 0.0,
+     "ceiling": 0.0,
+     "wall": 0.7999,
+     "near": 0.0,
+     "max_single": 0.1215,
+     "d_wall": 1.5588
+    }
+   },
+   "placement": "search: score 1.397 = furniture 0.377 + openings 1.000 + floor 0.000 + depth 0.520 - penalties 0.500; yaw 210 deg",
+   "anchor": null,
+   "warning": null,
+   "visible_openings": [
+    "win_L0_005"
+   ],
+   "visible_furniture": [
+    "f_L0_004"
+   ],
+   "search_seconds": 0.345
+  },
+  {
+   "name": "cam_r_L0_bath_2",
+   "room_id": "r_L0_bath",
+   "level_id": "L0",
+   "index": 2,
+   "position": [
+    0.73,
+    5.038,
+    1.25
+   ],
+   "target": [
+    1.596025,
+    4.538,
+    1.25
+   ],
+   "lens_mm": 24.0,
+   "sensor_mm": 36.0,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "shift_x": 0.0,
+   "shift_y": -0.1,
+   "policy": "search",
+   "score": {
+    "total": 1.261,
+    "furniture": 0.0,
+    "openings": 1.0,
+    "floor": 0.0,
+    "depth": 0.4423,
+    "penalties": 0.1812,
+    "blocked": false,
+    "yaw_deg": 330.0,
+    "shares": {
+     "furn": 0.0,
+     "open": 0.3594,
+     "window": 0.0,
+     "floor": 0.0,
+     "ceiling": 0.0,
+     "wall": 0.6406,
+     "near": 0.0312,
+     "max_single": 0.3594,
+     "d_wall": 1.3268
+    }
+   },
+   "placement": "search: score 1.261 = furniture 0.000 + openings 1.000 + floor 0.000 + depth 0.442 - penalties 0.181; yaw 330 deg",
+   "anchor": null,
+   "warning": null,
+   "visible_openings": [
+    "d_L0_002"
+   ],
+   "visible_furniture": [],
+   "search_seconds": 0.345
+  },
+  {
+   "name": "cam_r_L0_lobby_1",
+   "room_id": "r_L0_lobby",
+   "level_id": "L0",
+   "index": 1,
+   "position": [
+    2.832198,
+    4.356198,
+    1.25
+   ],
+   "target": [
+    3.698223,
+    4.856198,
+    1.25
+   ],
+   "lens_mm": 24.0,
+   "sensor_mm": 36.0,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "shift_x": 0.0,
+   "shift_y": -0.1,
+   "policy": "search",
+   "score": {
+    "total": 2.8622,
+    "furniture": 0.725,
+    "openings": 1.0,
+    "floor": 0.349,
+    "depth": 0.7882,
+    "penalties": 0.0,
+    "blocked": false,
+    "yaw_deg": 30.0,
+    "shares": {
+     "furn": 0.1812,
+     "open": 0.4054,
+     "window": 0.0,
+     "floor": 0.0872,
+     "ceiling": 0.0,
+     "wall": 0.4319,
+     "near": 0.0,
+     "max_single": 0.2344,
+     "d_wall": 2.3646
+    }
+   },
+   "placement": "search: score 2.862 = furniture 0.725 + openings 1.000 + floor 0.349 + depth 0.788 - penalties 0.000; yaw 30 deg",
+   "anchor": null,
+   "warning": null,
+   "visible_openings": [
+    "d_L0_001",
+    "d_L0_004",
+    "d_L0_005"
+   ],
+   "visible_furniture": [
+    "f_L0_012"
+   ],
+   "search_seconds": 0.345
+  },
+  {
+   "name": "cam_r_L0_lobby_2",
+   "room_id": "r_L0_lobby",
+   "level_id": "L0",
+   "index": 2,
+   "position": [
+    6.768802,
+    5.244302,
+    1.25
+   ],
+   "target": [
+    5.902777,
+    4.744302,
+    1.25
+   ],
+   "lens_mm": 24.0,
+   "sensor_mm": 36.0,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "shift_x": 0.0,
+   "shift_y": -0.1,
+   "policy": "search",
+   "score": {
+    "total": 2.6413,
+    "furniture": 0.525,
+    "openings": 1.0,
+    "floor": 0.3281,
+    "depth": 0.7882,
+    "penalties": 0.0,
+    "blocked": false,
+    "yaw_deg": 210.0,
+    "shares": {
+     "furn": 0.1313,
+     "open": 0.329,
+     "window": 0.0,
+     "floor": 0.082,
+     "ceiling": 0.0,
+     "wall": 0.5343,
+     "near": 0.0,
+     "max_single": 0.2188,
+     "d_wall": 2.3646
+    }
+   },
+   "placement": "search: score 2.641 = furniture 0.525 + openings 1.000 + floor 0.328 + depth 0.788 - penalties 0.000; yaw 210 deg",
+   "anchor": null,
+   "warning": null,
+   "visible_openings": [
+    "d_L0_002",
+    "d_L0_003"
+   ],
+   "visible_furniture": [
+    "f_L0_012"
+   ],
+   "search_seconds": 0.345
+  },
+  {
+   "name": "cam_r_L0_lobby_3",
+   "room_id": "r_L0_lobby",
+   "level_id": "L0",
+   "index": 3,
+   "position": [
+    6.014,
+    4.538,
+    1.25
+   ],
+   "target": [
+    5.147975,
+    5.038,
+    1.25
+   ],
+   "lens_mm": 24.0,
+   "sensor_mm": 36.0,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "shift_x": 0.0,
+   "shift_y": -0.1,
+   "policy": "search",
+   "score": {
+    "total": 2.3551,
+    "furniture": 0.6125,
+    "openings": 1.0,
+    "floor": 0.3194,
+    "depth": 0.4299,
+    "penalties": 0.0068,
+    "blocked": false,
+    "yaw_deg": 150.0,
+    "shares": {
+     "furn": 0.1531,
+     "open": 0.303,
+     "window": 0.0,
+     "floor": 0.0799,
+     "ceiling": 0.0,
+     "wall": 0.5534,
+     "near": 0.0156,
+     "max_single": 0.1476,
+     "d_wall": 1.2898
+    }
+   },
+   "placement": "search: score 2.355 = furniture 0.613 + openings 1.000 + floor 0.319 + depth 0.430 - penalties 0.007; yaw 150 deg",
+   "anchor": null,
+   "warning": null,
+   "visible_openings": [
+    "d_L0_002",
+    "d_L0_003",
+    "d_L0_004"
+   ],
+   "visible_furniture": [
+    "f_L0_012"
+   ],
+   "search_seconds": 0.345
+  },
+  {
+   "name": "cam_r_L0_bed_room_1",
+   "room_id": "r_L0_bed_room",
+   "level_id": "L0",
+   "index": 1,
+   "position": [
+    3.110302,
+    6.035698,
+    1.25
+   ],
+   "target": [
+    2.244277,
+    6.535698,
+    1.25
+   ],
+   "lens_mm": 24.0,
+   "sensor_mm": 36.0,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "shift_x": 0.0,
+   "shift_y": -0.1,
+   "policy": "search",
+   "score": {
+    "total": 3.6547,
+    "furniture": 1.5664,
+    "openings": 1.0,
+    "floor": 0.1719,
+    "depth": 0.9164,
+    "penalties": 0.0,
+    "blocked": false,
+    "yaw_deg": 150.0,
+    "shares": {
+     "furn": 0.3916,
+     "open": 0.1393,
+     "window": 0.1393,
+     "floor": 0.043,
+     "ceiling": 0.0,
+     "wall": 0.4818,
+     "near": 0.0,
+     "max_single": 0.2964,
+     "d_wall": 2.7493
+    }
+   },
+   "placement": "search: score 3.655 = furniture 1.566 + openings 1.000 + floor 0.172 + depth 0.916 - penalties 0.000; yaw 150 deg",
+   "anchor": null,
+   "warning": null,
+   "visible_openings": [
+    "win_L0_006"
+   ],
+   "visible_furniture": [
+    "f_L0_013",
+    "f_L0_014"
+   ],
+   "search_seconds": 0.345
+  },
+  {
+   "name": "cam_r_L0_bed_room_2",
+   "room_id": "r_L0_bed_room",
+   "level_id": "L0",
+   "index": 2,
+   "position": [
+    1.23,
+    6.2175,
+    1.25
+   ],
+   "target": [
+    1.23,
+    7.2175,
+    1.25
+   ],
+   "lens_mm": 24.0,
+   "sensor_mm": 36.0,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "shift_x": 0.0,
+   "shift_y": -0.1,
+   "policy": "search",
+   "score": {
+    "total": 3.4435,
+    "furniture": 1.44,
+    "openings": 1.0,
+    "floor": 0.0799,
+    "depth": 0.9502,
+    "penalties": 0.0266,
+    "blocked": false,
+    "yaw_deg": 90.0,
+    "shares": {
+     "furn": 0.36,
+     "open": 0.1415,
+     "window": 0.1415,
+     "floor": 0.02,
+     "ceiling": 0.0,
+     "wall": 0.4297,
+     "near": 0.0,
+     "max_single": 0.4089,
+     "d_wall": 2.8505
+    }
+   },
+   "placement": "search: score 3.443 = furniture 1.440 + openings 1.000 + floor 0.080 + depth 0.950 - penalties 0.027; yaw 90 deg",
+   "anchor": null,
+   "warning": null,
+   "visible_openings": [
+    "win_L0_003"
+   ],
+   "visible_furniture": [
+    "f_L0_013"
+   ],
+   "search_seconds": 0.345
+  },
+  {
+   "name": "cam_r_L0_bed_room_3",
+   "room_id": "r_L0_bed_room",
+   "level_id": "L0",
+   "index": 3,
+   "position": [
+    3.110302,
+    8.749802,
+    1.25
+   ],
+   "target": [
+    2.610302,
+    7.883777,
+    1.25
+   ],
+   "lens_mm": 24.0,
+   "sensor_mm": 36.0,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "shift_x": 0.0,
+   "shift_y": -0.1,
+   "policy": "search",
+   "score": {
+    "total": 3.2361,
+    "furniture": 1.1111,
+    "openings": 1.0,
+    "floor": 0.125,
+    "depth": 1.0,
+    "penalties": 0.0,
+    "blocked": false,
+    "yaw_deg": 240.0,
+    "shares": {
+     "furn": 0.2778,
+     "open": 0.2635,
+     "window": 0.0812,
+     "floor": 0.0312,
+     "ceiling": 0.0,
+     "wall": 0.4874,
+     "near": 0.0,
+     "max_single": 0.1823,
+     "d_wall": 3.3004
+    }
+   },
+   "placement": "search: score 3.236 = furniture 1.111 + openings 1.000 + floor 0.125 + depth 1.000 - penalties 0.000; yaw 240 deg",
+   "anchor": null,
+   "warning": null,
+   "visible_openings": [
+    "d_L0_003",
+    "win_L0_006"
+   ],
+   "visible_furniture": [
+    "f_L0_013",
+    "f_L0_014",
+    "f_L0_015"
+   ],
+   "search_seconds": 0.345
+  },
+  {
+   "name": "cam_r_L0_master_bed_room_1",
+   "room_id": "r_L0_master_bed_room",
+   "level_id": "L0",
+   "index": 1,
+   "position": [
+    6.5835,
+    7.2175,
+    1.25
+   ],
+   "target": [
+    5.5835,
+    7.2175,
+    1.25
+   ],
+   "lens_mm": 24.0,
+   "sensor_mm": 36.0,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "shift_x": 0.0,
+   "shift_y": -0.1,
+   "policy": "search",
+   "score": {
+    "total": 4.6187,
+    "furniture": 2.4,
+    "openings": 1.0,
+    "floor": 0.2188,
+    "depth": 1.0,
+    "penalties": 0.0,
+    "blocked": false,
+    "yaw_deg": 180.0,
+    "shares": {
+     "furn": 0.6,
+     "open": 0.1311,
+     "window": 0.0,
+     "floor": 0.0547,
+     "ceiling": 0.0,
+     "wall": 0.5026,
+     "near": 0.0,
+     "max_single": 0.3116,
+     "d_wall": 3.0
+    }
+   },
+   "placement": "search: score 4.619 = furniture 2.400 + openings 1.000 + floor 0.219 + depth 1.000 - penalties 0.000; yaw 180 deg",
+   "anchor": null,
+   "warning": null,
+   "visible_openings": [
+    "d_L0_004"
+   ],
+   "visible_furniture": [
+    "f_L0_001"
+   ],
+   "search_seconds": 0.345
+  },
+  {
+   "name": "cam_r_L0_master_bed_room_2",
+   "room_id": "r_L0_master_bed_room",
+   "level_id": "L0",
+   "index": 2,
+   "position": [
+    6.768802,
+    6.035698,
+    1.25
+   ],
+   "target": [
+    5.902777,
+    6.535698,
+    1.25
+   ],
+   "lens_mm": 24.0,
+   "sensor_mm": 36.0,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "shift_x": 0.0,
+   "shift_y": -0.1,
+   "policy": "search",
+   "score": {
+    "total": 4.5905,
+    "furniture": 2.4,
+    "openings": 0.9006,
+    "floor": 0.2899,
+    "depth": 1.0,
+    "penalties": 0.0,
+    "blocked": false,
+    "yaw_deg": 150.0,
+    "shares": {
+     "furn": 0.6,
+     "open": 0.1081,
+     "window": 0.0929,
+     "floor": 0.0725,
+     "ceiling": 0.0,
+     "wall": 0.5256,
+     "near": 0.0,
+     "max_single": 0.2938,
+     "d_wall": 3.1459
+    }
+   },
+   "placement": "search: score 4.590 = furniture 2.400 + openings 0.901 + floor 0.290 + depth 1.000 - penalties 0.000; yaw 150 deg",
+   "anchor": null,
+   "warning": null,
+   "visible_openings": [
+    "win_L0_004"
+   ],
+   "visible_furniture": [
+    "f_L0_001"
+   ],
+   "search_seconds": 0.345
+  },
+  {
+   "name": "cam_r_L0_master_bed_room_3",
+   "room_id": "r_L0_master_bed_room",
+   "level_id": "L0",
+   "index": 3,
+   "position": [
+    3.901698,
+    6.035698,
+    1.25
+   ],
+   "target": [
+    4.401698,
+    6.901723,
+    1.25
+   ],
+   "lens_mm": 24.0,
+   "sensor_mm": 36.0,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "shift_x": 0.0,
+   "shift_y": -0.1,
+   "policy": "search",
+   "score": {
+    "total": 4.5389,
+    "furniture": 2.4,
+    "openings": 1.0,
+    "floor": 0.1632,
+    "depth": 0.9757,
+    "penalties": 0.0,
+    "blocked": false,
+    "yaw_deg": 60.0,
+    "shares": {
+     "furn": 0.6,
+     "open": 0.1771,
+     "window": 0.1771,
+     "floor": 0.0408,
+     "ceiling": 0.0,
+     "wall": 0.497,
+     "near": 0.0,
+     "max_single": 0.2852,
+     "d_wall": 2.9271
+    }
+   },
+   "placement": "search: score 4.539 = furniture 2.400 + openings 1.000 + floor 0.163 + depth 0.976 - penalties 0.000; yaw 60 deg",
+   "anchor": null,
+   "warning": null,
+   "visible_openings": [
+    "win_L0_004"
+   ],
+   "visible_furniture": [
+    "f_L0_001"
+   ],
+   "search_seconds": 0.345
+  }
+ ],
+ "rooms_without_view": [],
+ "materials": {
+  "plaster_white__white_plaster_02": {
+   "slug": "plaster_white",
+   "textured": true,
+   "asset": "white_plaster_02",
+   "source": "polyhaven",
+   "licence": "CC0",
+   "size_m": [
+    1.0,
+    1.0
+   ],
+   "flat_colour": [
+    0.85,
+    0.84,
+    0.8
+   ],
+   "tint": null,
+   "unverified": false,
+   "reason": "textured",
+   "albedo_mode": "flat",
+   "detail": 0.35,
+   "albedo_gain": null,
+   "albedo_mean_luminance": 0.2516,
+   "gain_clamped": null,
+   "metallic": 0.0,
+   "procedural": null
+  },
+  "plaster_exterior": {
+   "slug": "plaster_exterior",
+   "textured": false,
+   "asset": null,
+   "source": null,
+   "licence": null,
+   "size_m": null,
+   "flat_colour": [
+    0.55,
+    0.54,
+    0.52
+   ],
+   "tint": null,
+   "unverified": false,
+   "reason": "style names no asset for this material",
+   "albedo_mode": "flat",
+   "detail": 0.5,
+   "albedo_gain": null,
+   "albedo_mean_luminance": null,
+   "gain_clamped": null,
+   "metallic": 0.0,
+   "procedural": null
+  },
+  "tiles_light": {
+   "slug": "tiles_light",
+   "textured": false,
+   "asset": null,
+   "source": null,
+   "licence": null,
+   "size_m": null,
+   "flat_colour": [
+    0.82,
+    0.82,
+    0.8
+   ],
+   "tint": null,
+   "unverified": false,
+   "reason": "style names no asset for this material; procedural glazed tiles 0.60 x 0.30 m, 3 mm grout (node group wenart_glazed_tiles)",
+   "albedo_mode": "texture",
+   "detail": null,
+   "albedo_gain": null,
+   "albedo_mean_luminance": null,
+   "gain_clamped": null,
+   "metallic": 0.0,
+   "procedural": "glazed_tiles"
+  },
+  "painted_wood_white": {
+   "slug": "painted_wood_white",
+   "textured": false,
+   "asset": null,
+   "source": null,
+   "licence": null,
+   "size_m": null,
+   "flat_colour": [
+    0.88,
+    0.87,
+    0.84
+   ],
+   "tint": null,
+   "unverified": false,
+   "reason": "style names no asset for this material",
+   "albedo_mode": "flat",
+   "detail": 0.5,
+   "albedo_gain": null,
+   "albedo_mean_luminance": null,
+   "gain_clamped": null,
+   "metallic": 0.0,
+   "procedural": null
+  },
+  "wood_veneer_walnut__walnut_veneer": {
+   "slug": "wood_veneer_walnut",
+   "textured": true,
+   "asset": "walnut_veneer",
+   "source": "polyhaven",
+   "licence": "CC0",
+   "size_m": [
+    1.8,
+    1.8
+   ],
+   "flat_colour": [
+    0.25,
+    0.14,
+    0.08
+   ],
+   "tint": null,
+   "unverified": false,
+   "reason": "textured",
+   "albedo_mode": "texture",
+   "detail": null,
+   "albedo_gain": 0.9756,
+   "albedo_mean_luminance": 0.163,
+   "gain_clamped": false,
+   "metallic": 0.0,
+   "procedural": null
+  },
+  "painted_metal_white": {
+   "slug": "painted_metal_white",
+   "textured": false,
+   "asset": null,
+   "source": null,
+   "licence": null,
+   "size_m": null,
+   "flat_colour": [
+    0.85,
+    0.85,
+    0.85
+   ],
+   "tint": null,
+   "unverified": false,
+   "reason": "style names no asset for this material",
+   "albedo_mode": "flat",
+   "detail": 0.15,
+   "albedo_gain": null,
+   "albedo_mean_luminance": null,
+   "gain_clamped": null,
+   "metallic": 0.0,
+   "procedural": null
+  },
+  "glass": {
+   "slug": "glass",
+   "textured": false,
+   "asset": null,
+   "source": null,
+   "licence": null,
+   "size_m": null,
+   "flat_colour": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "tint": null,
+   "unverified": false,
+   "albedo_mode": null,
+   "detail": null,
+   "gain_clamped": null,
+   "reason": "camera-only glass: Glass BSDF (IOR 1.45) for camera rays and singular rays (both faces refract the view), Transparent BSDF for every other ray"
+  },
+  "steel_brushed": {
+   "slug": "steel_brushed",
+   "textured": false,
+   "asset": null,
+   "source": null,
+   "licence": null,
+   "size_m": null,
+   "flat_colour": [
+    0.62,
+    0.62,
+    0.62
+   ],
+   "tint": null,
+   "unverified": false,
+   "reason": "style names no asset for this material",
+   "albedo_mode": "texture",
+   "detail": null,
+   "albedo_gain": null,
+   "albedo_mean_luminance": null,
+   "gain_clamped": null,
+   "metallic": 1.0,
+   "procedural": null
+  },
+  "wood_walnut__WoodFloor046": {
+   "slug": "wood_walnut",
+   "textured": true,
+   "asset": "WoodFloor046",
+   "source": "ambientcg",
+   "licence": "CC0",
+   "size_m": [
+    1.3,
+    1.3
+   ],
+   "flat_colour": [
+    0.25,
+    0.14,
+    0.08
+   ],
+   "tint": null,
+   "unverified": false,
+   "reason": "textured",
+   "albedo_mode": "texture",
+   "detail": null,
+   "albedo_gain": 1.6213,
+   "albedo_mean_luminance": 0.0981,
+   "gain_clamped": false,
+   "metallic": 0.0,
+   "procedural": null
+  },
+  "tiles_light__Tiles074": {
+   "slug": "tiles_light",
+   "textured": true,
+   "asset": "Tiles074",
+   "source": "ambientcg",
+   "licence": "CC0",
+   "size_m": [
+    2.1,
+    2.1
+   ],
+   "flat_colour": [
+    0.82,
+    0.82,
+    0.8
+   ],
+   "tint": null,
+   "unverified": false,
+   "reason": "textured",
+   "albedo_mode": "texture",
+   "detail": null,
+   "albedo_gain": 2.5,
+   "albedo_mean_luminance": 0.1279,
+   "gain_clamped": true,
+   "metallic": 0.0,
+   "procedural": null
+  },
+  "plaster_white": {
+   "slug": "plaster_white",
+   "textured": false,
+   "asset": null,
+   "source": null,
+   "licence": null,
+   "size_m": null,
+   "flat_colour": [
+    0.85,
+    0.84,
+    0.8
+   ],
+   "tint": null,
+   "unverified": false,
+   "reason": "style names no asset for this material",
+   "albedo_mode": "flat",
+   "detail": 0.35,
+   "albedo_gain": null,
+   "albedo_mean_luminance": null,
+   "gain_clamped": null,
+   "metallic": 0.0,
+   "procedural": null
+  },
+  "fabric_white__rough_linen": {
+   "slug": "fabric_white",
+   "textured": true,
+   "asset": "rough_linen",
+   "source": "polyhaven",
+   "licence": "CC0",
+   "size_m": [
+    0.2707,
+    0.2713
+   ],
+   "flat_colour": [
+    0.86,
+    0.85,
+    0.82
+   ],
+   "tint": null,
+   "unverified": false,
+   "reason": "textured",
+   "albedo_mode": "flat",
+   "detail": 0.35,
+   "albedo_gain": null,
+   "albedo_mean_luminance": 0.4002,
+   "gain_clamped": null,
+   "metallic": 0.0,
+   "procedural": null
+  },
+  "fabric_linen__rough_linen": {
+   "slug": "fabric_linen",
+   "textured": true,
+   "asset": "rough_linen",
+   "source": "polyhaven",
+   "licence": "CC0",
+   "size_m": [
+    0.2707,
+    0.2713
+   ],
+   "flat_colour": [
+    0.72,
+    0.66,
+    0.55
+   ],
+   "tint": null,
+   "unverified": false,
+   "reason": "textured",
+   "albedo_mode": "flat",
+   "detail": 0.5,
+   "albedo_gain": null,
+   "albedo_mean_luminance": 0.4002,
+   "gain_clamped": null,
+   "metallic": 0.0,
+   "procedural": null
+  },
+  "ceramic_white": {
+   "slug": "ceramic_white",
+   "textured": false,
+   "asset": null,
+   "source": null,
+   "licence": null,
+   "size_m": null,
+   "flat_colour": [
+    0.92,
+    0.92,
+    0.9
+   ],
+   "tint": null,
+   "unverified": false,
+   "reason": "style names no asset for this material",
+   "albedo_mode": "texture",
+   "detail": null,
+   "albedo_gain": null,
+   "albedo_mean_luminance": null,
+   "gain_clamped": null,
+   "metallic": 0.0,
+   "procedural": null
+  }
+ },
+ "lighting": {
+  "world": {
+   "kind": "hdri",
+   "file": "/workspace/assets/hdris/kloppenheim_06_2k.hdr",
+   "strength": 1.0
+  },
+  "sun": {
+   "elevation_deg": 35.0,
+   "azimuth_deg": 210.0,
+   "strength": 3.0,
+   "temperature_k": 5200.0
+  },
+  "area_lights": [
+   "light_r_L0_lobby"
+  ],
+  "portals": [
+   "portal_win_L0_001",
+   "portal_win_L0_002",
+   "portal_win_L0_003",
+   "portal_win_L0_004",
+   "portal_win_L0_005",
+   "portal_win_L0_006",
+   "portal_win_L0_007",
+   "portal_win_L0_008"
+  ]
+ },
+ "pass_index": {
+  "d_L0_001": 1,
+  "d_L0_002": 2,
+  "d_L0_003": 3,
+  "d_L0_004": 4,
+  "d_L0_005": 5,
+  "win_L0_001": 6,
+  "win_L0_002": 7,
+  "win_L0_003": 8,
+  "win_L0_004": 9,
+  "win_L0_005": 10,
+  "win_L0_006": 11,
+  "win_L0_007": 12,
+  "win_L0_008": 13,
+  "f_L0_001": 14,
+  "f_L0_002": 15,
+  "f_L0_003": 16,
+  "f_L0_004": 17,
+  "f_L0_005": 18,
+  "f_L0_006": 19,
+  "f_L0_007": 20,
+  "f_L0_008": 21,
+  "f_L0_009": 22,
+  "f_L0_010": 23,
+  "f_L0_011": 24,
+  "f_L0_012": 25,
+  "f_L0_013": 26,
+  "f_L0_014": 27,
+  "f_L0_015": 28,
+  "dec_L0_003": 29,
+  "dec_L0_006": 30,
+  "dec_L0_009": 31
+ },
+ "assumed": [
+  {
+   "object": "d_L0_001",
+   "field": "height",
+   "value": 2.1,
+   "reason": "door height listed as assumed in the building JSON"
+  },
+  {
+   "object": "d_L0_001_handle",
+   "field": "door_handles",
+   "value": "steel lever pair at 1.02 m",
+   "reason": "design detail of the documented door (lever handles on both faces); not in the documents",
+   "parent": "d_L0_001",
+   "kind": "door_handles"
+  },
+  {
+   "object": "d_L0_002",
+   "field": "height",
+   "value": 2.1,
+   "reason": "door height listed as assumed in the building JSON"
+  },
+  {
+   "object": "d_L0_002_handle",
+   "field": "door_handles",
+   "value": "steel lever pair at 1.02 m",
+   "reason": "design detail of the documented door (lever handles on both faces); not in the documents",
+   "parent": "d_L0_002",
+   "kind": "door_handles"
+  },
+  {
+   "object": "d_L0_003",
+   "field": "height",
+   "value": 2.1,
+   "reason": "door height listed as assumed in the building JSON"
+  },
+  {
+   "object": "d_L0_003_handle",
+   "field": "door_handles",
+   "value": "steel lever pair at 1.02 m",
+   "reason": "design detail of the documented door (lever handles on both faces); not in the documents",
+   "parent": "d_L0_003",
+   "kind": "door_handles"
+  },
+  {
+   "object": "d_L0_004",
+   "field": "height",
+   "value": 2.1,
+   "reason": "door height listed as assumed in the building JSON"
+  },
+  {
+   "object": "d_L0_004_handle",
+   "field": "door_handles",
+   "value": "steel lever pair at 1.02 m",
+   "reason": "design detail of the documented door (lever handles on both faces); not in the documents",
+   "parent": "d_L0_004",
+   "kind": "door_handles"
+  },
+  {
+   "object": "d_L0_005",
+   "field": "height",
+   "value": 2.1,
+   "reason": "door height listed as assumed in the building JSON"
+  },
+  {
+   "object": "d_L0_005_handle",
+   "field": "door_handles",
+   "value": "steel lever pair at 1.02 m",
+   "reason": "design detail of the documented door (lever handles on both faces); not in the documents",
+   "parent": "d_L0_005",
+   "kind": "door_handles"
+  },
+  {
+   "object": "win_L0_001",
+   "field": "height",
+   "value": 1.2,
+   "reason": "window height listed as assumed in the building JSON"
+  },
+  {
+   "object": "win_L0_001",
+   "field": "sill_height",
+   "value": 0.9,
+   "reason": "window sill_height listed as assumed in the building JSON"
+  },
+  {
+   "object": "win_L0_002",
+   "field": "height",
+   "value": 1.2,
+   "reason": "window height listed as assumed in the building JSON"
+  },
+  {
+   "object": "win_L0_002",
+   "field": "sill_height",
+   "value": 0.9,
+   "reason": "window sill_height listed as assumed in the building JSON"
+  },
+  {
+   "object": "win_L0_003",
+   "field": "height",
+   "value": 1.2,
+   "reason": "window height listed as assumed in the building JSON"
+  },
+  {
+   "object": "win_L0_003",
+   "field": "sill_height",
+   "value": 0.9,
+   "reason": "window sill_height listed as assumed in the building JSON"
+  },
+  {
+   "object": "win_L0_004",
+   "field": "height",
+   "value": 1.2,
+   "reason": "window height listed as assumed in the building JSON"
+  },
+  {
+   "object": "win_L0_004",
+   "field": "sill_height",
+   "value": 0.9,
+   "reason": "window sill_height listed as assumed in the building JSON"
+  },
+  {
+   "object": "win_L0_005",
+   "field": "height",
+   "value": 1.2,
+   "reason": "window height listed as assumed in the building JSON"
+  },
+  {
+   "object": "win_L0_005",
+   "field": "sill_height",
+   "value": 0.9,
+   "reason": "window sill_height listed as assumed in the building JSON"
+  },
+  {
+   "object": "win_L0_006",
+   "field": "height",
+   "value": 1.2,
+   "reason": "window height listed as assumed in the building JSON"
+  },
+  {
+   "object": "win_L0_006",
+   "field": "sill_height",
+   "value": 0.9,
+   "reason": "window sill_height listed as assumed in the building JSON"
+  },
+  {
+   "object": "win_L0_007",
+   "field": "height",
+   "value": 1.2,
+   "reason": "window height listed as assumed in the building JSON"
+  },
+  {
+   "object": "win_L0_007",
+   "field": "sill_height",
+   "value": 0.9,
+   "reason": "window sill_height listed as assumed in the building JSON"
+  },
+  {
+   "object": "win_L0_008",
+   "field": "height",
+   "value": 1.2,
+   "reason": "window height listed as assumed in the building JSON"
+  },
+  {
+   "object": "win_L0_008",
+   "field": "sill_height",
+   "value": 0.9,
+   "reason": "window sill_height listed as assumed in the building JSON"
+  },
+  {
+   "object": "skirting_r_L0_living_room",
+   "field": "skirting",
+   "value": "8 cm x 12 mm, 13.358 m in 6 runs",
+   "reason": "design detail of the room's documented walls (painted skirting board); not in the documents",
+   "parent": "r_L0_living_room",
+   "kind": "skirting"
+  },
+  {
+   "object": "skirting_r_L0_lobby",
+   "field": "skirting",
+   "value": "8 cm x 12 mm, 8.08 m in 9 runs",
+   "reason": "design detail of the room's documented walls (painted skirting board); not in the documents",
+   "parent": "r_L0_lobby",
+   "kind": "skirting"
+  },
+  {
+   "object": "skirting_r_L0_bed_room",
+   "field": "skirting",
+   "value": "8 cm x 12 mm, 12.285 m in 5 runs",
+   "reason": "design detail of the room's documented walls (painted skirting board); not in the documents",
+   "parent": "r_L0_bed_room",
+   "kind": "skirting"
+  },
+  {
+   "object": "skirting_r_L0_master_bed_room",
+   "field": "skirting",
+   "value": "8 cm x 12 mm, 12.895 m in 5 runs",
+   "reason": "design detail of the room's documented walls (painted skirting board); not in the documents",
+   "parent": "r_L0_master_bed_room",
+   "kind": "skirting"
+  },
+  {
+   "object": "furniture",
+   "field": "fabric",
+   "value": "fabric_linen",
+   "reason": "style profile has no textiles slot; default fabric for sofas and chairs"
+  },
+  {
+   "object": "furn_f_L0_001",
+   "field": "bedding",
+   "value": "mattress, draped duvet, turn-down band, 2 pillow(s) leaning 14 degrees",
+   "reason": "design detail of the bed (soft bedding inside the bed's own box); the documents show only the footprint",
+   "parent": "f_L0_001",
+   "kind": "bedding"
+  },
+  {
+   "object": "furn_f_L0_001",
+   "field": "height",
+   "value": 0.55,
+   "reason": "no height in the JSON; type height for bed_double"
+  },
+  {
+   "object": "furn_f_L0_002",
+   "field": "height",
+   "value": 0.85,
+   "reason": "no height in the JSON; type height for sofa"
+  },
+  {
+   "object": "furn_f_L0_003",
+   "field": "height",
+   "value": 0.75,
+   "reason": "no height in the JSON; type height for table_dining"
+  },
+  {
+   "object": "furn_f_L0_004",
+   "field": "height",
+   "value": 0.4,
+   "reason": "no height in the JSON; type height for toilet"
+  },
+  {
+   "object": "furn_f_L0_005",
+   "field": "height",
+   "value": 0.9,
+   "reason": "no height in the JSON; type height for chair"
+  },
+  {
+   "object": "furn_f_L0_006",
+   "field": "height",
+   "value": 0.9,
+   "reason": "no height in the JSON; type height for chair"
+  },
+  {
+   "object": "furn_f_L0_007",
+   "field": "height",
+   "value": 0.9,
+   "reason": "no height in the JSON; type height for chair"
+  },
+  {
+   "object": "furn_f_L0_008",
+   "field": "height",
+   "value": 0.9,
+   "reason": "no height in the JSON; type height for chair"
+  },
+  {
+   "object": "furn_f_L0_009",
+   "field": "height",
+   "value": 0.9,
+   "reason": "no height in the JSON; type height for chair"
+  },
+  {
+   "object": "furn_f_L0_010",
+   "field": "height",
+   "value": 0.9,
+   "reason": "no height in the JSON; type height for chair"
+  },
+  {
+   "object": "furn_f_L0_011",
+   "field": "height",
+   "value": 0.85,
+   "reason": "no height in the JSON; type height for washbasin"
+  },
+  {
+   "object": "level_L0",
+   "field": "ceiling_height",
+   "value": 2.7,
+   "reason": "building JSON: assumed_default"
+  },
+  {
+   "object": "light_r_L0_lobby",
+   "field": "area_light",
+   "value": 83.65846199999997,
+   "reason": "r_L0_lobby: room has no window; soft ceiling light added (lighting mood, invisible to the camera)",
+   "parent": "r_L0_lobby",
+   "kind": "windowless_room_light"
+  }
+ ],
+ "warnings": [
+  "level title missing: assumed L0 Ground floor",
+  "Level L0: ceiling height assumed 2.70 m (no section drawing found)"
+ ],
+ "checks": {
+  "door_rays": [
+   {
+    "opening_id": "d_L0_001",
+    "hit": false,
+    "hit_object": null,
+    "hit_kind": null,
+    "passed": [
+     "d_L0_001_leaf",
+     "d_L0_001_leaf"
+    ]
+   },
+   {
+    "opening_id": "d_L0_002",
+    "hit": false,
+    "hit_object": null,
+    "hit_kind": null,
+    "passed": [
+     "d_L0_002_leaf",
+     "d_L0_002_leaf"
+    ]
+   },
+   {
+    "opening_id": "d_L0_003",
+    "hit": false,
+    "hit_object": null,
+    "hit_kind": null,
+    "passed": [
+     "d_L0_003_leaf",
+     "d_L0_003_leaf"
+    ]
+   },
+   {
+    "opening_id": "d_L0_004",
+    "hit": false,
+    "hit_object": null,
+    "hit_kind": null,
+    "passed": [
+     "d_L0_004_leaf",
+     "d_L0_004_leaf"
+    ]
+   },
+   {
+    "opening_id": "d_L0_005",
+    "hit": false,
+    "hit_object": null,
+    "hit_kind": null,
+    "passed": [
+     "d_L0_005_leaf",
+     "d_L0_005_leaf"
+    ]
+   }
+  ]
+ },
+ "previews": {
+  "L0": "level_L0_top.png"
+ },
+ "preview_maps": {
+  "L0": {
+   "png": "level_L0_top.png",
+   "bbox_m": [
+    -0.3865,
+    -0.501,
+    7.7035,
+    9.799
+   ],
+   "m_per_px": 0.01,
+   "resolution": [
+    809,
+    1030
+   ]
+  }
+ },
+ "wenart_mood": "warm daylight",
+ "build_fingerprint": "bb17380ad8d5ddcd894342d8b3bbc3291ab6e007e8d4c7ec25a4b4d9dcc397bd",
+ "build_args": {
+  "building": "outputs/synthetic-06/building_final.json",
+  "style": "outputs/synthetic-06/style.json",
+  "assets": "/workspace/assets",
+  "level": null,
+  "no_textures": false,
+  "preview_samples": 32,
+  "no_preview": false,
+  "no_glb": false,
+  "proxies": false,
+  "camera_policy": "search"
+ },
+ "files": {
+  "blend": "scene.blend",
+  "glb": "scene.glb"
+ },
+ "furniture": {
+  "pieces": 15,
+  "by_method": {
+   "parametric": 3,
+   "library": 12
+  },
+  "fallbacks": [
+   {
+    "id": "f_L0_001",
+    "type": "bed_double",
+    "reason": "fitting chose the parametric mesh"
+   },
+   {
+    "id": "f_L0_003",
+    "type": "table_dining",
+    "reason": "fitting chose the parametric mesh"
+   },
+   {
+    "id": "f_L0_004",
+    "type": "toilet",
+    "reason": "fitting chose the parametric mesh"
+   }
+  ],
+  "proxies": 0,
+  "decor": 9,
+  "proxies_forced": false,
+  "not_built": [],
+  "stairs": []
+ },
+ "site": {
+  "built": false,
+  "reason": "site elements are recorded in the building JSON and reported, never built (docs/milestone7.md §6.4)",
+  "boundary_walls": {
+   "count": 0,
+   "ids": []
+  },
+  "areas": {
+   "count": 0,
+   "ids": []
+  },
+  "decor": {
+   "count": 0,
+   "ids": []
+  },
+  "openings": {
+   "count": 0,
+   "ids": []
+  }
+ },
+ "seconds": 28.2
+}

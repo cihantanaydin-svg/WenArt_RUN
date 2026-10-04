@@ -1,0 +1,54 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "synthetic-01",
+ "stage": "gate",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 84.79,
+ "fingerprint": "22cd3858a5f517691b92560b7ca021f3521263cf397f325f8fd7191809988a1c",
+ "inputs": {
+  "outputs/synthetic-01/renders/render_manifest.json": "4444f8690c3994b40f62f70dd05089a6b44921396a1edc5f825bbf88cb603652",
+  "outputs/synthetic-01/check/controls.json": "ee6eb04b7b0f9cb173f72081ad2bc1f6c970e98c6d27b2b0e240aa73ab18a4e4",
+  "outputs/synthetic-01/polish/sweep/polish_manifest.json": null,
+  "outputs/synthetic-01/controls/hide_d_L0_001/render_manifest.json": "c52af05bc6c745b1a41e6373c6328e6ab396c2393a5686f31843f7321d6c5600",
+  "outputs/synthetic-01/controls/hide_d_L0_002/render_manifest.json": "f9290db86f476cb8b95a09a218d5252b521be2abc6290bfabda7939cbc275e6e",
+  "outputs/synthetic-01/controls/hide_d_L1_002/render_manifest.json": "41415953c17a637e45e73144fb5ea8483eea87f09666fd0fd8d79a196b05fc02",
+  "outputs/synthetic-01/controls/hide_d_L1_003/render_manifest.json": "45d71a691900478bdbc42cc9fb3a1241cd3946a2bc03ad75a891aca4e6dc6890",
+  "outputs/synthetic-01/controls/hide_f_L0_001/render_manifest.json": "f76f90b1b1f9a9ddc31dcbb511c32e36deaef2b98412135886790ebdb6f95b83",
+  "outputs/synthetic-01/controls/hide_f_L0_006/render_manifest.json": "6fd003f78bd026a0bf3279998ed90957db31004c5f0d05b5a4dc04fac0095d52",
+  "outputs/synthetic-01/controls/hide_f_L0_018/render_manifest.json": "254d853e2ead5a46c61c0e6efa7b2c2a7df81bbd942793f01248d6b997fa11c4",
+  "outputs/synthetic-01/controls/hide_f_L1_001/render_manifest.json": "30779661c9770f6e228bf348b0596ba167604f3706510fb1268dec375cd3c72a",
+  "outputs/synthetic-01/controls/hide_f_L1_006/render_manifest.json": "ff00f27caa3667669a1584cd791730b35ed13ae5421c59f68a893e959bd6b700",
+  "outputs/synthetic-01/controls/hide_f_L1_013/render_manifest.json": "6ff5e912eb13730f2156276d4ea7e0d6eb0f66d3dd2240d3bbe89e1e58cb57ea",
+  "outputs/synthetic-01/controls/hide_f_L1_018/render_manifest.json": "ab1def35f05b57e2711969da8d2a79b06ee2018c4924fd3aee6a56f1df5cd88f",
+  "outputs/synthetic-01/controls/hide_win_L0_001/render_manifest.json": "a0d3d92a107dac40f312edfbfd8d2994ba3c90d94758f34e975f2c2f054ae23b",
+  "outputs/synthetic-01/controls/hide_win_L0_002/render_manifest.json": "1baf0632a63e9ef6f9c6bff6f1b9c38e634a1cf555689448586cc9f12f099c54",
+  "outputs/synthetic-01/controls/hide_win_L0_006/render_manifest.json": "e9f810cd60da61ab4d18fa80c83088307659b039023f57a07183aab00a50fa76",
+  "outputs/synthetic-01/controls/hide_win_L1_001/render_manifest.json": "e245827a61c8fb00544a3efad5a8b3eee24d49bfdb66f482177ee42a43d59a12",
+  "outputs/synthetic-01/controls/hide_win_L1_003/render_manifest.json": "80998279271f21166e9cdcbd547f06526ae25b770e25f410dba7c7a8ff7161a7",
+  "outputs/synthetic-01/controls/hide_win_L1_004/render_manifest.json": "0c70e2731cf4b04211ddf614d67eb3d20c0351290b407cdc65905a77295d8c14"
+ },
+ "outputs": [
+  "gate/gate_calibration.json",
+  "gate/gate_validation.json"
+ ],
+ "started_utc": "2026-10-04T10:22:50Z",
+ "git_commit": "714dcc50e1a342a6b723451c219e22291d3d333f",
+ "log": "logs/gate.log",
+ "note": "gate decision flagged",
+ "run_id": "20261004-095244-full-20261004T095809Z",
+ "steps": [
+  {
+   "name": "calibrate",
+   "rc": 0,
+   "seconds": 83.4
+  },
+  {
+   "name": "validate",
+   "rc": 0,
+   "seconds": 1.39
+  }
+ ],
+ "written": {}
+}

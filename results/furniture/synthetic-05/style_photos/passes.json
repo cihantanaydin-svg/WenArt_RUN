@@ -1,0 +1,106 @@
+{
+ "schema_version": "0.1",
+ "kind": "style_photo_passes",
+ "calls": [
+  {
+   "file": "projects/synthetic-05/style_photos/salon_referans.jpg",
+   "sha256": "ed0b6d708bb55c9b40733f1972ff8caeacd3a86688be55023b21bcb0ecde0089",
+   "model_key": "glm",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "result": {
+    "schema_version": "0.1",
+    "kind": "style_photo",
+    "file": "salon_referans.jpg",
+    "sha256": "ed0b6d708bb55c9b40733f1972ff8caeacd3a86688be55023b21bcb0ecde0089",
+    "passes": [
+     {
+      "model_key": "glm",
+      "model": "zai-org/GLM-4.6V-Flash",
+      "pass": 2,
+      "data": {
+       "floor": "concrete_polished",
+       "walls": "plaster_charcoal",
+       "light": "cool daylight",
+       "family": "modern minimal"
+      },
+      "error": null,
+      "raw_text": "{\n    \"floor\": \"concrete_polished\",\n    \"walls\": \"plaster_charcoal\",\n    \"light\": \"cool daylight\",\n    \"family\": \"modern minimal\"\n}",
+      "latency_s": 1.626
+     }
+    ],
+    "agreed": {},
+    "terms": [],
+    "unclear": {},
+    "disagreements": {},
+    "single": {
+     "floor": {
+      "glm": "concrete_polished"
+     },
+     "walls": {
+      "glm": "plaster_charcoal"
+     },
+     "light": {
+      "glm": "cool daylight"
+     },
+     "family": {
+      "glm": "modern minimal"
+     }
+    },
+    "not_computed": [],
+    "single_pass": true
+   },
+   "error": null,
+   "seconds": 1.626
+  },
+  {
+   "file": "projects/synthetic-05/style_photos/salon_referans.jpg",
+   "sha256": "ed0b6d708bb55c9b40733f1972ff8caeacd3a86688be55023b21bcb0ecde0089",
+   "model_key": "qwen",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "result": {
+    "schema_version": "0.1",
+    "kind": "style_photo",
+    "file": "salon_referans.jpg",
+    "sha256": "ed0b6d708bb55c9b40733f1972ff8caeacd3a86688be55023b21bcb0ecde0089",
+    "passes": [
+     {
+      "model_key": "qwen",
+      "model": "Qwen/Qwen3-VL-8B-Instruct",
+      "pass": 1,
+      "data": {
+       "floor": "concrete_polished",
+       "walls": "plaster_charcoal",
+       "light": "overcast",
+       "family": "modern minimal"
+      },
+      "error": null,
+      "raw_text": "{\n  \"floor\": \"concrete_polished\",\n  \"walls\": \"plaster_charcoal\",\n  \"light\": \"overcast\",\n  \"family\": \"modern minimal\"\n}",
+      "latency_s": 1.226
+     }
+    ],
+    "agreed": {},
+    "terms": [],
+    "unclear": {},
+    "disagreements": {},
+    "single": {
+     "floor": {
+      "qwen": "concrete_polished"
+     },
+     "walls": {
+      "qwen": "plaster_charcoal"
+     },
+     "light": {
+      "qwen": "overcast"
+     },
+     "family": {
+      "qwen": "modern minimal"
+     }
+    },
+    "not_computed": [],
+    "single_pass": true
+   },
+   "error": null,
+   "seconds": 1.226
+  }
+ ]
+}

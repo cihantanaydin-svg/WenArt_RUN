@@ -1,0 +1,3108 @@
+{
+ "schema_version": "0.1",
+ "scene": "../scene/scene.blend",
+ "scene_sha256": "33d1897e9d521774b4b623ee36a12977ba1253fcb1a6d3c5038e993628820314",
+ "device": "OPTIX",
+ "device_requested": "auto",
+ "blender_version": "5.2.2 LTS",
+ "samples": 128,
+ "resolution": [
+  1920,
+  1080
+ ],
+ "denoiser": "OPENIMAGEDENOISE",
+ "render_code_version": "m7.1",
+ "view_transform": "AgX",
+ "look": "AgX - Punchy",
+ "exposure_mode": "auto",
+ "exposure_target": 0.9,
+ "exposure_limits": [
+  -2.0,
+  8.0
+ ],
+ "white_balance_mode": "auto",
+ "look_from": null,
+ "hidden": [],
+ "plugged": [],
+ "alt_look": null,
+ "max_bounces": null,
+ "bounces": null,
+ "ev_offset": 0.0,
+ "preview_quality": null,
+ "pass_index": {
+  "win_L0_001": 1,
+  "win_L0_002": 2,
+  "win_L0_003": 3,
+  "win_L0_004": 4,
+  "win_L0_005": 5,
+  "win_L0_006": 6,
+  "win_L0_007": 7,
+  "win_L0_008": 8,
+  "d_L0_001": 9,
+  "d_L0_002": 10,
+  "d_L0_003": 11,
+  "win_L0_009": 12,
+  "d_L0_004": 13,
+  "d_L0_005": 14,
+  "proxy:f_L0_018": 15,
+  "f_L0_001": 16,
+  "f_L0_002": 17,
+  "f_L0_004": 18,
+  "f_L0_005": 19,
+  "f_L0_006": 20,
+  "f_L0_007": 21,
+  "f_L0_008": 22,
+  "f_L0_009": 23,
+  "f_L0_010": 24,
+  "f_L0_011": 25,
+  "f_L0_012": 26,
+  "f_L0_013": 27,
+  "f_L0_014": 28,
+  "f_L0_015": 29,
+  "f_L0_016": 30,
+  "f_L0_017": 31,
+  "f_L0_019": 32,
+  "f_L0_020": 33,
+  "f_L0_021": 34,
+  "f_L0_022": 35,
+  "dec_L0_003": 36,
+  "dec_L0_006": 37,
+  "dec_L0_007": 38,
+  "dec_L0_010": 39,
+  "dec_L0_011": 40,
+  "dec_L0_012": 41,
+  "f_L0_003": 42
+ },
+ "renders": [
+  {
+   "camera": "cam_r_L0_bath_toilet_1",
+   "room_id": "r_L0_bath_toilet",
+   "level_id": "L0",
+   "lens_mm": 16.0,
+   "sensor_mm": 36.0,
+   "png": "cam_r_L0_bath_toilet_1.png",
+   "exr": "cam_r_L0_bath_toilet_1_passes.exr",
+   "preview": "cam_r_L0_bath_toilet_1_preview.jpg",
+   "depth_png": "cam_r_L0_bath_toilet_1_depth.png",
+   "index_png": "cam_r_L0_bath_toilet_1_index.png",
+   "files": {
+    "index": "cam_r_L0_bath_toilet_1_index.png",
+    "depth_mm": "cam_r_L0_bath_toilet_1_depth_mm.png",
+    "normal": "cam_r_L0_bath_toilet_1_normal.png",
+    "depth": "cam_r_L0_bath_toilet_1_depth.png"
+   },
+   "preview_bytes": 125366,
+   "seconds": 3.75,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.5539765357971191,
+    "max": 2.1739838123321533,
+    "mean": 1.344475507736206,
+    "coverage": 1.0
+   },
+   "index_values": [
+    13,
+    34,
+    35
+   ],
+   "index_stats": {
+    "13": {
+     "pixels": 467960,
+     "box": [
+      1208,
+      0,
+      1675,
+      1080
+     ]
+    },
+    "34": {
+     "pixels": 422950,
+     "box": [
+      14,
+      385,
+      757,
+      1080
+     ]
+    },
+    "35": {
+     "pixels": 47925,
+     "box": [
+      666,
+      731,
+      959,
+      1080
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "33d1897e9d521774b4b623ee36a12977ba1253fcb1a6d3c5038e993628820314",
+   "render_key": "61f78aac9cd99ca8",
+   "exposure": {
+    "mode": "auto",
+    "ev": -0.666667,
+    "ev_raw": -0.6466,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 1.408915,
+    "whitepoint": [
+     1.147095,
+     0.973775,
+     0.826646
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 5379.3,
+    "wb_tint": 3.37,
+    "residual": 0.35,
+    "window_clip_frac": null,
+    "meter_seconds": 3.651,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 865,
+     "block_px": 6,
+     "interior_frac": 0.9839
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": null,
+   "alt_preview": null,
+   "alt_preview_bytes": null
+  },
+  {
+   "camera": "cam_r_L0_bath_toilet_2",
+   "room_id": "r_L0_bath_toilet",
+   "level_id": "L0",
+   "lens_mm": 16.0,
+   "sensor_mm": 36.0,
+   "png": "cam_r_L0_bath_toilet_2.png",
+   "exr": "cam_r_L0_bath_toilet_2_passes.exr",
+   "preview": "cam_r_L0_bath_toilet_2_preview.jpg",
+   "depth_png": "cam_r_L0_bath_toilet_2_depth.png",
+   "index_png": "cam_r_L0_bath_toilet_2_index.png",
+   "files": {
+    "index": "cam_r_L0_bath_toilet_2_index.png",
+    "depth_mm": "cam_r_L0_bath_toilet_2_depth_mm.png",
+    "normal": "cam_r_L0_bath_toilet_2_normal.png",
+    "depth": "cam_r_L0_bath_toilet_2_depth.png"
+   },
+   "preview_bytes": 96841,
+   "seconds": 3.43,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.24737310409545898,
+    "max": 2.205904245376587,
+    "mean": 1.329441785812378,
+    "coverage": 1.0
+   },
+   "index_values": [
+    13,
+    34,
+    35
+   ],
+   "index_stats": {
+    "13": {
+     "pixels": 265583,
+     "box": [
+      711,
+      0,
+      1015,
+      943
+     ]
+    },
+    "34": {
+     "pixels": 231066,
+     "box": [
+      0,
+      434,
+      1180,
+      1080
+     ]
+    },
+    "35": {
+     "pixels": 20770,
+     "box": [
+      236,
+      969,
+      599,
+      1080
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "33d1897e9d521774b4b623ee36a12977ba1253fcb1a6d3c5038e993628820314",
+   "render_key": "61f78aac9cd99ca8",
+   "exposure": {
+    "mode": "auto",
+    "ev": -0.666667,
+    "ev_raw": -0.6046,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 1.368481,
+    "whitepoint": [
+     1.14768,
+     0.973615,
+     0.826511
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 5377.1,
+    "wb_tint": 3.3,
+    "residual": 0.35,
+    "window_clip_frac": null,
+    "meter_seconds": 0.291,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 877,
+     "block_px": 6,
+     "interior_frac": 0.9974
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": null,
+   "alt_preview": null,
+   "alt_preview_bytes": null
+  },
+  {
+   "camera": "cam_r_L0_bed_room_1",
+   "room_id": "r_L0_bed_room",
+   "level_id": "L0",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "png": "cam_r_L0_bed_room_1.png",
+   "exr": "cam_r_L0_bed_room_1_passes.exr",
+   "preview": "cam_r_L0_bed_room_1_preview.jpg",
+   "depth_png": "cam_r_L0_bed_room_1_depth.png",
+   "index_png": "cam_r_L0_bed_room_1_index.png",
+   "files": {
+    "index": "cam_r_L0_bed_room_1_index.png",
+    "depth_mm": "cam_r_L0_bed_room_1_depth_mm.png",
+    "normal": "cam_r_L0_bed_room_1_normal.png",
+    "depth": "cam_r_L0_bed_room_1_depth.png"
+   },
+   "preview_bytes": 175465,
+   "seconds": 3.02,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.8319923877716064,
+    "max": 3.883826732635498,
+    "mean": 2.2117114067077637,
+    "coverage": 1.0
+   },
+   "index_values": [
+    1,
+    9,
+    21,
+    36
+   ],
+   "index_stats": {
+    "1": {
+     "pixels": 119233,
+     "box": [
+      1457,
+      0,
+      1920,
+      325
+     ]
+    },
+    "9": {
+     "pixels": 335529,
+     "box": [
+      246,
+      0,
+      655,
+      890
+     ]
+    },
+    "21": {
+     "pixels": 658860,
+     "box": [
+      870,
+      254,
+      1920,
+      1080
+     ]
+    },
+    "36": {
+     "pixels": 7949,
+     "box": [
+      837,
+      802,
+      1133,
+      1080
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "33d1897e9d521774b4b623ee36a12977ba1253fcb1a6d3c5038e993628820314",
+   "render_key": "61f78aac9cd99ca8",
+   "exposure": {
+    "mode": "auto",
+    "ev": 3.333333,
+    "ev_raw": 3.2935,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 0.091792,
+    "whitepoint": [
+     1.081818,
+     0.984402,
+     0.913588
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 5877.2,
+    "wb_tint": 4.79,
+    "residual": 0.35,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 0.256,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 798,
+     "block_px": 6,
+     "interior_frac": 0.9247
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": 2.333333,
+    "clip_before": 0.0,
+    "clip_after": 0.0,
+    "pane_px": 105251,
+    "pane_median": 0.9348,
+    "wall_median": 0.6374,
+    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.8774
+     }
+    ],
+    "pane_median_after": 0.8774,
+    "seconds": 0.331
+   },
+   "alt_preview": null,
+   "alt_preview_bytes": null
+  },
+  {
+   "camera": "cam_r_L0_bed_room_2",
+   "room_id": "r_L0_bed_room",
+   "level_id": "L0",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "png": "cam_r_L0_bed_room_2.png",
+   "exr": "cam_r_L0_bed_room_2_passes.exr",
+   "preview": "cam_r_L0_bed_room_2_preview.jpg",
+   "depth_png": "cam_r_L0_bed_room_2_depth.png",
+   "index_png": "cam_r_L0_bed_room_2_index.png",
+   "files": {
+    "index": "cam_r_L0_bed_room_2_index.png",
+    "depth_mm": "cam_r_L0_bed_room_2_depth_mm.png",
+    "normal": "cam_r_L0_bed_room_2_normal.png",
+    "depth": "cam_r_L0_bed_room_2_depth.png"
+   },
+   "preview_bytes": 174697,
+   "seconds": 2.84,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.8704071044921875,
+    "max": 3.995605707168579,
+    "mean": 2.2374603748321533,
+    "coverage": 1.0
+   },
+   "index_values": [
+    1,
+    7,
+    21,
+    22,
+    23,
+    36
+   ],
+   "index_stats": {
+    "1": {
+     "pixels": 90450,
+     "box": [
+      570,
+      68,
+      993,
+      328
+     ]
+    },
+    "7": {
+     "pixels": 196071,
+     "box": [
+      1366,
+      0,
+      1815,
+      500
+     ]
+    },
+    "21": {
+     "pixels": 659430,
+     "box": [
+      537,
+      273,
+      1645,
+      1080
+     ]
+    },
+    "22": {
+     "pixels": 4959,
+     "box": [
+      1052,
+      481,
+      1236,
+      534
+     ]
+    },
+    "23": {
+     "pixels": 57754,
+     "box": [
+      316,
+      603,
+      557,
+      914
+     ]
+    },
+    "36": {
+     "pixels": 54419,
+     "box": [
+      419,
+      833,
+      1693,
+      1080
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "33d1897e9d521774b4b623ee36a12977ba1253fcb1a6d3c5038e993628820314",
+   "render_key": "61f78aac9cd99ca8",
+   "exposure": {
+    "mode": "auto",
+    "ev": 3.666667,
+    "ev_raw": 3.5841,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 0.075046,
+    "whitepoint": [
+     1.094385,
+     0.981873,
+     0.90164
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 5793.3,
+    "wb_tint": 3.9,
+    "residual": 0.35,
+    "window_clip_frac": 0.0011,
+    "meter_seconds": 0.27,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 725,
+     "block_px": 6,
+     "interior_frac": 0.8494
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": {
+    "ev": -2.0,
+    "k": 2,
+    "pane_ev": 1.666667,
+    "clip_before": 0.1852,
+    "clip_after": 0.0001,
+    "pane_px": 240742,
+    "pane_median": 0.9518,
+    "wall_median": 0.6526,
+    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0218,
+      "median": 0.8989
+     },
+     {
+      "k": 2,
+      "clip": 0.0,
+      "median": 0.8294
+     }
+    ],
+    "pane_median_after": 0.8306,
+    "seconds": 0.527
+   },
+   "alt_preview": null,
+   "alt_preview_bytes": null
+  },
+  {
+   "camera": "cam_r_L0_bed_room_2_1",
+   "room_id": "r_L0_bed_room_2",
+   "level_id": "L0",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "png": "cam_r_L0_bed_room_2_1.png",
+   "exr": "cam_r_L0_bed_room_2_1_passes.exr",
+   "preview": "cam_r_L0_bed_room_2_1_preview.jpg",
+   "depth_png": "cam_r_L0_bed_room_2_1_depth.png",
+   "index_png": "cam_r_L0_bed_room_2_1_index.png",
+   "files": {
+    "index": "cam_r_L0_bed_room_2_1_index.png",
+    "depth_mm": "cam_r_L0_bed_room_2_1_depth_mm.png",
+    "normal": "cam_r_L0_bed_room_2_1_normal.png",
+    "depth": "cam_r_L0_bed_room_2_1_depth.png"
+   },
+   "preview_bytes": 174124,
+   "seconds": 3.0,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.8704054355621338,
+    "max": 3.884455442428589,
+    "mean": 2.2210605144500732,
+    "coverage": 1.0
+   },
+   "index_values": [
+    4,
+    10,
+    18,
+    19,
+    40
+   ],
+   "index_stats": {
+    "4": {
+     "pixels": 119814,
+     "box": [
+      0,
+      0,
+      464,
+      326
+     ]
+    },
+    "10": {
+     "pixels": 335530,
+     "box": [
+      1265,
+      0,
+      1674,
+      890
+     ]
+    },
+    "18": {
+     "pixels": 653833,
+     "box": [
+      0,
+      255,
+      1043,
+      1080
+     ]
+    },
+    "19": {
+     "pixels": 5298,
+     "box": [
+      523,
+      484,
+      721,
+      530
+     ]
+    },
+    "40": {
+     "pixels": 9655,
+     "box": [
+      756,
+      798,
+      1083,
+      1080
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "33d1897e9d521774b4b623ee36a12977ba1253fcb1a6d3c5038e993628820314",
+   "render_key": "61f78aac9cd99ca8",
+   "exposure": {
+    "mode": "auto",
+    "ev": 3.666667,
+    "ev_raw": 3.605,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 0.073964,
+    "whitepoint": [
+     1.028191,
+     0.994179,
+     0.974647
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 6295.5,
+    "wb_tint": 7.68,
+    "residual": 0.35,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 0.264,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 798,
+     "block_px": 6,
+     "interior_frac": 0.9246
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": 2.666667,
+    "clip_before": 0.0066,
+    "clip_after": 0.0,
+    "pane_px": 105801,
+    "pane_median": 0.9362,
+    "wall_median": 0.6478,
+    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.879
+     }
+    ],
+    "pane_median_after": 0.8796,
+    "seconds": 0.308
+   },
+   "alt_preview": null,
+   "alt_preview_bytes": null
+  },
+  {
+   "camera": "cam_r_L0_bed_room_2_2",
+   "room_id": "r_L0_bed_room_2",
+   "level_id": "L0",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "png": "cam_r_L0_bed_room_2_2.png",
+   "exr": "cam_r_L0_bed_room_2_2_passes.exr",
+   "preview": "cam_r_L0_bed_room_2_2_preview.jpg",
+   "depth_png": "cam_r_L0_bed_room_2_2_depth.png",
+   "index_png": "cam_r_L0_bed_room_2_2_index.png",
+   "files": {
+    "index": "cam_r_L0_bed_room_2_2_index.png",
+    "depth_mm": "cam_r_L0_bed_room_2_2_depth_mm.png",
+    "normal": "cam_r_L0_bed_room_2_2_normal.png",
+    "depth": "cam_r_L0_bed_room_2_2_depth.png"
+   },
+   "preview_bytes": 168140,
+   "seconds": 2.81,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.870405912399292,
+    "max": 3.9962620735168457,
+    "mean": 2.2426645755767822,
+    "coverage": 1.0
+   },
+   "index_values": [
+    4,
+    8,
+    18,
+    19,
+    20,
+    40
+   ],
+   "index_stats": {
+    "4": {
+     "pixels": 90921,
+     "box": [
+      926,
+      68,
+      1350,
+      328
+     ]
+    },
+    "8": {
+     "pixels": 230571,
+     "box": [
+      0,
+      0,
+      503,
+      511
+     ]
+    },
+    "18": {
+     "pixels": 654900,
+     "box": [
+      311,
+      274,
+      1402,
+      1080
+     ]
+    },
+    "19": {
+     "pixels": 63114,
+     "box": [
+      1383,
+      535,
+      1630,
+      914
+     ]
+    },
+    "20": {
+     "pixels": 3256,
+     "box": [
+      711,
+      488,
+      871,
+      532
+     ]
+    },
+    "40": {
+     "pixels": 49949,
+     "box": [
+      237,
+      831,
+      1499,
+      1080
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "33d1897e9d521774b4b623ee36a12977ba1253fcb1a6d3c5038e993628820314",
+   "render_key": "61f78aac9cd99ca8",
+   "exposure": {
+    "mode": "auto",
+    "ev": 4.0,
+    "ev_raw": 4.0419,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 0.054641,
+    "whitepoint": [
+     1.040803,
+     0.992288,
+     0.956242
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 6177.2,
+    "wb_tint": 7.36,
+    "residual": 0.35,
+    "window_clip_frac": 0.0041,
+    "meter_seconds": 0.233,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 714,
+     "block_px": 6,
+     "interior_frac": 0.8326
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": 3.0,
+    "clip_before": 0.0755,
+    "clip_after": 0.0042,
+    "pane_px": 278227,
+    "pane_median": 0.942,
+    "wall_median": 0.6411,
+    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.004,
+      "median": 0.886
+     }
+    ],
+    "pane_median_after": 0.8866,
+    "seconds": 0.367
+   },
+   "alt_preview": null,
+   "alt_preview_bytes": null
+  },
+  {
+   "camera": "cam_r_L0_bed_room_2_3",
+   "room_id": "r_L0_bed_room_2",
+   "level_id": "L0",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "png": "cam_r_L0_bed_room_2_3.png",
+   "exr": "cam_r_L0_bed_room_2_3_passes.exr",
+   "preview": "cam_r_L0_bed_room_2_3_preview.jpg",
+   "depth_png": "cam_r_L0_bed_room_2_3_depth.png",
+   "index_png": "cam_r_L0_bed_room_2_3_index.png",
+   "files": {
+    "index": "cam_r_L0_bed_room_2_3_index.png",
+    "depth_mm": "cam_r_L0_bed_room_2_3_depth_mm.png",
+    "normal": "cam_r_L0_bed_room_2_3_normal.png",
+    "depth": "cam_r_L0_bed_room_2_3_depth.png"
+   },
+   "preview_bytes": 133611,
+   "seconds": 2.89,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.8509531021118164,
+    "max": 2.9649996757507324,
+    "mean": 1.9227224588394165,
+    "coverage": 1.0
+   },
+   "index_values": [
+    4,
+    8,
+    18,
+    19,
+    20,
+    40
+   ],
+   "index_stats": {
+    "4": {
+     "pixels": 119000,
+     "box": [
+      890,
+      69,
+      1390,
+      323
+     ]
+    },
+    "8": {
+     "pixels": 222120,
+     "box": [
+      0,
+      0,
+      370,
+      660
+     ]
+    },
+    "18": {
+     "pixels": 734668,
+     "box": [
+      634,
+      276,
+      1920,
+      1080
+     ]
+    },
+    "19": {
+     "pixels": 16699,
+     "box": [
+      1457,
+      529,
+      1754,
+      649
+     ]
+    },
+    "20": {
+     "pixels": 38958,
+     "box": [
+      634,
+      539,
+      850,
+      842
+     ]
+    },
+    "40": {
+     "pixels": 7285,
+     "box": [
+      592,
+      829,
+      735,
+      1080
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "33d1897e9d521774b4b623ee36a12977ba1253fcb1a6d3c5038e993628820314",
+   "render_key": "61f78aac9cd99ca8",
+   "exposure": {
+    "mode": "auto",
+    "ev": 3.833333,
+    "ev_raw": 3.7505,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 0.06687,
+    "whitepoint": [
+     1.028469,
+     0.994113,
+     0.974486
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 6293.8,
+    "wb_tint": 7.65,
+    "residual": 0.35,
+    "window_clip_frac": 0.0001,
+    "meter_seconds": 0.258,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 694,
+     "block_px": 6,
+     "interior_frac": 0.8201
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": 2.833333,
+    "clip_before": 0.0202,
+    "clip_after": 0.0,
+    "pane_px": 285748,
+    "pane_median": 0.9485,
+    "wall_median": 0.6202,
+    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.8936
+     }
+    ],
+    "pane_median_after": 0.8936,
+    "seconds": 0.369
+   },
+   "alt_preview": null,
+   "alt_preview_bytes": null
+  },
+  {
+   "camera": "cam_r_L0_bed_room_3",
+   "room_id": "r_L0_bed_room",
+   "level_id": "L0",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "png": "cam_r_L0_bed_room_3.png",
+   "exr": "cam_r_L0_bed_room_3_passes.exr",
+   "preview": "cam_r_L0_bed_room_3_preview.jpg",
+   "depth_png": "cam_r_L0_bed_room_3_depth.png",
+   "index_png": "cam_r_L0_bed_room_3_index.png",
+   "files": {
+    "index": "cam_r_L0_bed_room_3_index.png",
+    "depth_mm": "cam_r_L0_bed_room_3_depth_mm.png",
+    "normal": "cam_r_L0_bed_room_3_normal.png",
+    "depth": "cam_r_L0_bed_room_3_depth.png"
+   },
+   "preview_bytes": 140251,
+   "seconds": 2.83,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.943514347076416,
+    "max": 3.1120002269744873,
+    "mean": 1.969942569732666,
+    "coverage": 1.0
+   },
+   "index_values": [
+    1,
+    7,
+    21,
+    22,
+    23,
+    36
+   ],
+   "index_stats": {
+    "1": {
+     "pixels": 107100,
+     "box": [
+      550,
+      83,
+      1026,
+      324
+     ]
+    },
+    "7": {
+     "pixels": 271960,
+     "box": [
+      1455,
+      0,
+      1920,
+      660
+     ]
+    },
+    "21": {
+     "pixels": 742002,
+     "box": [
+      0,
+      278,
+      1336,
+      1080
+     ]
+    },
+    "22": {
+     "pixels": 37040,
+     "box": [
+      1082,
+      523,
+      1297,
+      830
+     ]
+    },
+    "23": {
+     "pixels": 1232,
+     "box": [
+      231,
+      585,
+      361,
+      639
+     ]
+    },
+    "36": {
+     "pixels": 1177,
+     "box": [
+      1253,
+      909,
+      1345,
+      1080
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "33d1897e9d521774b4b623ee36a12977ba1253fcb1a6d3c5038e993628820314",
+   "render_key": "61f78aac9cd99ca8",
+   "exposure": {
+    "mode": "auto",
+    "ev": 3.5,
+    "ev_raw": 3.4445,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 0.082671,
+    "whitepoint": [
+     1.061611,
+     0.987686,
+     0.940566
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 6044.9,
+    "wb_tint": 5.53,
+    "residual": 0.35,
+    "window_clip_frac": 0.0014,
+    "meter_seconds": 0.262,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 680,
+     "block_px": 6,
+     "interior_frac": 0.8021
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": 2.5,
+    "clip_before": 0.0135,
+    "clip_after": 0.0,
+    "pane_px": 328380,
+    "pane_median": 0.9392,
+    "wall_median": 0.6243,
+    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.8818
+     }
+    ],
+    "pane_median_after": 0.8824,
+    "seconds": 0.382
+   },
+   "alt_preview": null,
+   "alt_preview_bytes": null
+  },
+  {
+   "camera": "cam_r_L0_dining_1",
+   "room_id": "r_L0_dining",
+   "level_id": "L0",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "png": "cam_r_L0_dining_1.png",
+   "exr": "cam_r_L0_dining_1_passes.exr",
+   "preview": "cam_r_L0_dining_1_preview.jpg",
+   "depth_png": "cam_r_L0_dining_1_depth.png",
+   "index_png": "cam_r_L0_dining_1_index.png",
+   "files": {
+    "index": "cam_r_L0_dining_1_index.png",
+    "depth_mm": "cam_r_L0_dining_1_depth_mm.png",
+    "normal": "cam_r_L0_dining_1_normal.png",
+    "depth": "cam_r_L0_dining_1_depth.png"
+   },
+   "preview_bytes": 193343,
+   "seconds": 2.78,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.6376662254333496,
+    "max": 7.172293186187744,
+    "mean": 2.5673024654388428,
+    "coverage": 1.0
+   },
+   "index_values": [
+    5,
+    6,
+    12,
+    16,
+    17,
+    24,
+    25,
+    26,
+    29,
+    30,
+    41
+   ],
+   "index_stats": {
+    "5": {
+     "pixels": 341734,
+     "box": [
+      0,
+      0,
+      664,
+      568
+     ]
+    },
+    "6": {
+     "pixels": 923,
+     "box": [
+      1141,
+      217,
+      1146,
+      402
+     ]
+    },
+    "12": {
+     "pixels": 35837,
+     "box": [
+      1335,
+      216,
+      1536,
+      402
+     ]
+    },
+    "16": {
+     "pixels": 25006,
+     "box": [
+      1269,
+      397,
+      1443,
+      551
+     ]
+    },
+    "17": {
+     "pixels": 20936,
+     "box": [
+      1141,
+      395,
+      1286,
+      604
+     ]
+    },
+    "24": {
+     "pixels": 377965,
+     "box": [
+      156,
+      638,
+      1331,
+      1080
+     ]
+    },
+    "25": {
+     "pixels": 22889,
+     "box": [
+      1760,
+      823,
+      1920,
+      1080
+     ]
+    },
+    "26": {
+     "pixels": 28754,
+     "box": [
+      191,
+      552,
+      539,
+      1080
+     ]
+    },
+    "29": {
+     "pixels": 21643,
+     "box": [
+      1105,
+      556,
+      1287,
+      1080
+     ]
+    },
+    "30": {
+     "pixels": 12402,
+     "box": [
+      823,
+      526,
+      964,
+      703
+     ]
+    },
+    "41": {
+     "pixels": 38279,
+     "box": [
+      348,
+      917,
+      1582,
+      1080
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "33d1897e9d521774b4b623ee36a12977ba1253fcb1a6d3c5038e993628820314",
+   "render_key": "61f78aac9cd99ca8",
+   "exposure": {
+    "mode": "auto",
+    "ev": 4.333333,
+    "ev_raw": 4.2504,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 0.047286,
+    "whitepoint": [
+     1.047078,
+     0.985723,
+     1.002803
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 6345.8,
+    "wb_tint": 2.35,
+    "residual": 0.35,
+    "window_clip_frac": 0.0003,
+    "meter_seconds": 0.273,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 706,
+     "block_px": 6,
+     "interior_frac": 0.816
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": 3.333333,
+    "clip_before": 0.0706,
+    "clip_after": 0.0003,
+    "pane_px": 338956,
+    "pane_median": 0.9516,
+    "wall_median": 0.5798,
+    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0003,
+      "median": 0.8992
+     }
+    ],
+    "pane_median_after": 0.8995,
+    "seconds": 0.355
+   },
+   "alt_preview": null,
+   "alt_preview_bytes": null
+  },
+  {
+   "camera": "cam_r_L0_dining_2",
+   "room_id": "r_L0_dining",
+   "level_id": "L0",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "png": "cam_r_L0_dining_2.png",
+   "exr": "cam_r_L0_dining_2_passes.exr",
+   "preview": "cam_r_L0_dining_2_preview.jpg",
+   "depth_png": "cam_r_L0_dining_2_depth.png",
+   "index_png": "cam_r_L0_dining_2_index.png",
+   "files": {
+    "index": "cam_r_L0_dining_2_index.png",
+    "depth_mm": "cam_r_L0_dining_2_depth_mm.png",
+    "normal": "cam_r_L0_dining_2_normal.png",
+    "depth": "cam_r_L0_dining_2_depth.png"
+   },
+   "preview_bytes": 183942,
+   "seconds": 2.85,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.5164849758148193,
+    "max": 3.171943187713623,
+    "mean": 1.9424161911010742,
+    "coverage": 1.0
+   },
+   "index_values": [
+    5,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    41
+   ],
+   "index_stats": {
+    "5": {
+     "pixels": 293602,
+     "box": [
+      1363,
+      0,
+      1920,
+      568
+     ]
+    },
+    "24": {
+     "pixels": 297854,
+     "box": [
+      564,
+      610,
+      1576,
+      1080
+     ]
+    },
+    "25": {
+     "pixels": 47923,
+     "box": [
+      3,
+      734,
+      601,
+      1080
+     ]
+    },
+    "26": {
+     "pixels": 33143,
+     "box": [
+      1272,
+      534,
+      1591,
+      1017
+     ]
+    },
+    "27": {
+     "pixels": 19511,
+     "box": [
+      610,
+      538,
+      874,
+      1080
+     ]
+    },
+    "28": {
+     "pixels": 9620,
+     "box": [
+      909,
+      513,
+      1039,
+      660
+     ]
+    },
+    "29": {
+     "pixels": 6220,
+     "box": [
+      1540,
+      984,
+      1668,
+      1080
+     ]
+    },
+    "30": {
+     "pixels": 36657,
+     "box": [
+      1368,
+      826,
+      1920,
+      1080
+     ]
+    },
+    "41": {
+     "pixels": 80112,
+     "box": [
+      338,
+      908,
+      1473,
+      1080
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "33d1897e9d521774b4b623ee36a12977ba1253fcb1a6d3c5038e993628820314",
+   "render_key": "61f78aac9cd99ca8",
+   "exposure": {
+    "mode": "auto",
+    "ev": 4.5,
+    "ev_raw": 4.5308,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 0.038934,
+    "whitepoint": [
+     0.959545,
+     1.003607,
+     1.083394
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 7049.1,
+    "wb_tint": 9.49,
+    "residual": 0.35,
+    "window_clip_frac": 0.0049,
+    "meter_seconds": 0.292,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 745,
+     "block_px": 6,
+     "interior_frac": 0.8577
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": 3.5,
+    "clip_before": 0.2268,
+    "clip_after": 0.0055,
+    "pane_px": 263456,
+    "pane_median": 0.956,
+    "wall_median": 0.6204,
+    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0055,
+      "median": 0.9044
+     }
+    ],
+    "pane_median_after": 0.9048,
+    "seconds": 0.334
+   },
+   "alt_preview": null,
+   "alt_preview_bytes": null
+  },
+  {
+   "camera": "cam_r_L0_dining_3",
+   "room_id": "r_L0_dining",
+   "level_id": "L0",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "png": "cam_r_L0_dining_3.png",
+   "exr": "cam_r_L0_dining_3_passes.exr",
+   "preview": "cam_r_L0_dining_3_preview.jpg",
+   "depth_png": "cam_r_L0_dining_3_depth.png",
+   "index_png": "cam_r_L0_dining_3_index.png",
+   "files": {
+    "index": "cam_r_L0_dining_3_index.png",
+    "depth_mm": "cam_r_L0_dining_3_depth_mm.png",
+    "normal": "cam_r_L0_dining_3_normal.png",
+    "depth": "cam_r_L0_dining_3_depth.png"
+   },
+   "preview_bytes": 180057,
+   "seconds": 2.97,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.7410659790039062,
+    "max": 2.5,
+    "mean": 1.7568769454956055,
+    "coverage": 1.0
+   },
+   "index_values": [
+    5,
+    24,
+    25,
+    26,
+    27,
+    28
+   ],
+   "index_stats": {
+    "5": {
+     "pixels": 183130,
+     "box": [
+      1619,
+      0,
+      1920,
+      657
+     ]
+    },
+    "24": {
+     "pixels": 459780,
+     "box": [
+      0,
+      702,
+      1524,
+      1080
+     ]
+    },
+    "25": {
+     "pixels": 14031,
+     "box": [
+      0,
+      646,
+      72,
+      1000
+     ]
+    },
+    "26": {
+     "pixels": 68767,
+     "box": [
+      1484,
+      646,
+      1858,
+      1080
+     ]
+    },
+    "27": {
+     "pixels": 14371,
+     "box": [
+      624,
+      545,
+      788,
+      703
+     ]
+    },
+    "28": {
+     "pixels": 13791,
+     "box": [
+      949,
+      546,
+      1107,
+      703
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "33d1897e9d521774b4b623ee36a12977ba1253fcb1a6d3c5038e993628820314",
+   "render_key": "61f78aac9cd99ca8",
+   "exposure": {
+    "mode": "auto",
+    "ev": 4.333333,
+    "ev_raw": 4.343,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 0.044349,
+    "whitepoint": [
+     0.938065,
+     1.00687,
+     1.114324
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 7297.1,
+    "wb_tint": 10.55,
+    "residual": 0.35,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 0.277,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 792,
+     "block_px": 6,
+     "interior_frac": 0.9108
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": {
+    "ev": -2.0,
+    "k": 2,
+    "pane_ev": 2.333333,
+    "clip_before": 0.1588,
+    "clip_after": 0.0,
+    "pane_px": 145730,
+    "pane_median": 0.9362,
+    "wall_median": 0.6106,
+    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0216,
+      "median": 0.8779
+     },
+     {
+      "k": 2,
+      "clip": 0.0,
+      "median": 0.8023
+     }
+    ],
+    "pane_median_after": 0.8028,
+    "seconds": 0.534
+   },
+   "alt_preview": null,
+   "alt_preview_bytes": null
+  },
+  {
+   "camera": "cam_r_L0_drawing_room_1",
+   "room_id": "r_L0_drawing_room",
+   "level_id": "L0",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "png": "cam_r_L0_drawing_room_1.png",
+   "exr": "cam_r_L0_drawing_room_1_passes.exr",
+   "preview": "cam_r_L0_drawing_room_1_preview.jpg",
+   "depth_png": "cam_r_L0_drawing_room_1_depth.png",
+   "index_png": "cam_r_L0_drawing_room_1_index.png",
+   "files": {
+    "index": "cam_r_L0_drawing_room_1_index.png",
+    "depth_mm": "cam_r_L0_drawing_room_1_depth_mm.png",
+    "normal": "cam_r_L0_drawing_room_1_normal.png",
+    "depth": "cam_r_L0_drawing_room_1_depth.png"
+   },
+   "preview_bytes": 235271,
+   "seconds": 2.9,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.5905675888061523,
+    "max": 3.111999988555908,
+    "mean": 2.352443218231201,
+    "coverage": 1.0
+   },
+   "index_values": [
+    2,
+    11,
+    15,
+    31,
+    32,
+    33,
+    37,
+    38
+   ],
+   "index_stats": {
+    "2": {
+     "pixels": 178024,
+     "box": [
+      738,
+      83,
+      1214,
+      457
+     ]
+    },
+    "11": {
+     "pixels": 136064,
+     "box": [
+      0,
+      0,
+      215,
+      702
+     ]
+    },
+    "15": {
+     "pixels": 309829,
+     "box": [
+      0,
+      597,
+      673,
+      1080
+     ]
+    },
+    "31": {
+     "pixels": 261416,
+     "box": [
+      799,
+      471,
+      1640,
+      900
+     ]
+    },
+    "32": {
+     "pixels": 98585,
+     "box": [
+      1034,
+      919,
+      1920,
+      1080
+     ]
+    },
+    "33": {
+     "pixels": 28575,
+     "box": [
+      450,
+      457,
+      700,
+      876
+     ]
+    },
+    "37": {
+     "pixels": 5228,
+     "box": [
+      1504,
+      565,
+      1659,
+      804
+     ]
+    },
+    "38": {
+     "pixels": 157504,
+     "box": [
+      661,
+      791,
+      1920,
+      1080
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "33d1897e9d521774b4b623ee36a12977ba1253fcb1a6d3c5038e993628820314",
+   "render_key": "61f78aac9cd99ca8",
+   "exposure": {
+    "mode": "auto",
+    "ev": 3.0,
+    "ev_raw": 2.9868,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 0.113532,
+    "whitepoint": [
+     1.230754,
+     0.953716,
+     0.779002
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 4993.8,
+    "wb_tint": -4.18,
+    "residual": 0.35,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 0.227,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 750,
+     "block_px": 6,
+     "interior_frac": 0.8861
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": 2.0,
+    "clip_before": 0.0,
+    "clip_after": 0.0,
+    "pane_px": 148044,
+    "pane_median": 0.8863,
+    "wall_median": 0.6347,
+    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.813
+     }
+    ],
+    "pane_median_after": 0.8133,
+    "seconds": 0.303
+   },
+   "alt_preview": null,
+   "alt_preview_bytes": null
+  },
+  {
+   "camera": "cam_r_L0_drawing_room_2",
+   "room_id": "r_L0_drawing_room",
+   "level_id": "L0",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "png": "cam_r_L0_drawing_room_2.png",
+   "exr": "cam_r_L0_drawing_room_2_passes.exr",
+   "preview": "cam_r_L0_drawing_room_2_preview.jpg",
+   "depth_png": "cam_r_L0_drawing_room_2_depth.png",
+   "index_png": "cam_r_L0_drawing_room_2_index.png",
+   "files": {
+    "index": "cam_r_L0_drawing_room_2_index.png",
+    "depth_mm": "cam_r_L0_drawing_room_2_depth_mm.png",
+    "normal": "cam_r_L0_drawing_room_2_normal.png",
+    "depth": "cam_r_L0_drawing_room_2_depth.png"
+   },
+   "preview_bytes": 259105,
+   "seconds": 2.79,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.03712797164917,
+    "max": 4.4815521240234375,
+    "mean": 2.549172878265381,
+    "coverage": 1.0
+   },
+   "index_values": [
+    2,
+    11,
+    15,
+    31,
+    32,
+    33,
+    37,
+    38
+   ],
+   "index_stats": {
+    "2": {
+     "pixels": 134449,
+     "box": [
+      864,
+      77,
+      1255,
+      459
+     ]
+    },
+    "11": {
+     "pixels": 91445,
+     "box": [
+      320,
+      115,
+      568,
+      519
+     ]
+    },
+    "15": {
+     "pixels": 249891,
+     "box": [
+      0,
+      499,
+      624,
+      1080
+     ]
+    },
+    "31": {
+     "pixels": 233290,
+     "box": [
+      774,
+      453,
+      1528,
+      967
+     ]
+    },
+    "32": {
+     "pixels": 208155,
+     "box": [
+      74,
+      798,
+      1092,
+      1080
+     ]
+    },
+    "33": {
+     "pixels": 27435,
+     "box": [
+      586,
+      426,
+      758,
+      771
+     ]
+    },
+    "37": {
+     "pixels": 39640,
+     "box": [
+      1537,
+      607,
+      1749,
+      912
+     ]
+    },
+    "38": {
+     "pixels": 142049,
+     "box": [
+      663,
+      731,
+      1632,
+      1080
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "33d1897e9d521774b4b623ee36a12977ba1253fcb1a6d3c5038e993628820314",
+   "render_key": "61f78aac9cd99ca8",
+   "exposure": {
+    "mode": "auto",
+    "ev": 2.833333,
+    "ev_raw": 2.8219,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 0.127281,
+    "whitepoint": [
+     1.223738,
+     0.955404,
+     0.782943
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 5024.8,
+    "wb_tint": -3.56,
+    "residual": 0.35,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 0.279,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 813,
+     "block_px": 6,
+     "interior_frac": 0.9288
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": 1.833333,
+    "clip_before": 0.0,
+    "clip_after": 0.0,
+    "pane_px": 113094,
+    "pane_median": 0.8824,
+    "wall_median": 0.6332,
+    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.8088
+     }
+    ],
+    "pane_median_after": 0.8091,
+    "seconds": 0.317
+   },
+   "alt_preview": null,
+   "alt_preview_bytes": null
+  },
+  {
+   "camera": "cam_r_L0_drawing_room_3",
+   "room_id": "r_L0_drawing_room",
+   "level_id": "L0",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "png": "cam_r_L0_drawing_room_3.png",
+   "exr": "cam_r_L0_drawing_room_3_passes.exr",
+   "preview": "cam_r_L0_drawing_room_3_preview.jpg",
+   "depth_png": "cam_r_L0_drawing_room_3_depth.png",
+   "index_png": "cam_r_L0_drawing_room_3_index.png",
+   "files": {
+    "index": "cam_r_L0_drawing_room_3_index.png",
+    "depth_mm": "cam_r_L0_drawing_room_3_depth_mm.png",
+    "normal": "cam_r_L0_drawing_room_3_normal.png",
+    "depth": "cam_r_L0_drawing_room_3_depth.png"
+   },
+   "preview_bytes": 250256,
+   "seconds": 2.62,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.037128210067749,
+    "max": 4.302508354187012,
+    "mean": 2.3602874279022217,
+    "coverage": 1.0
+   },
+   "index_values": [
+    2,
+    11,
+    15,
+    31,
+    32,
+    33,
+    38
+   ],
+   "index_stats": {
+    "2": {
+     "pixels": 301681,
+     "box": [
+      1185,
+      0,
+      1795,
+      551
+     ]
+    },
+    "11": {
+     "pixels": 95150,
+     "box": [
+      664,
+      127,
+      911,
+      643
+     ]
+    },
+    "15": {
+     "pixels": 349336,
+     "box": [
+      0,
+      507,
+      791,
+      1063
+     ]
+    },
+    "31": {
+     "pixels": 410337,
+     "box": [
+      985,
+      494,
+      1920,
+      1080
+     ]
+    },
+    "32": {
+     "pixels": 64630,
+     "box": [
+      0,
+      958,
+      758,
+      1080
+     ]
+    },
+    "33": {
+     "pixels": 40318,
+     "box": [
+      824,
+      439,
+      1010,
+      842
+     ]
+    },
+    "38": {
+     "pixels": 89908,
+     "box": [
+      585,
+      846,
+      1273,
+      1080
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "33d1897e9d521774b4b623ee36a12977ba1253fcb1a6d3c5038e993628820314",
+   "render_key": "61f78aac9cd99ca8",
+   "exposure": {
+    "mode": "auto",
+    "ev": 2.666667,
+    "ev_raw": 2.6251,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 0.145879,
+    "whitepoint": [
+     1.22342,
+     0.955127,
+     0.786625
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 5035.6,
+    "wb_tint": -3.88,
+    "residual": 0.35,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 0.271,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 706,
+     "block_px": 6,
+     "interior_frac": 0.8328
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": 1.666667,
+    "clip_before": 0.0,
+    "clip_after": 0.0,
+    "pane_px": 263330,
+    "pane_median": 0.89,
+    "wall_median": 0.6295,
+    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.8175
+     }
+    ],
+    "pane_median_after": 0.8183,
+    "seconds": 0.335
+   },
+   "alt_preview": null,
+   "alt_preview_bytes": null
+  },
+  {
+   "camera": "cam_r_L0_kitchen_1",
+   "room_id": "r_L0_kitchen",
+   "level_id": "L0",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "png": "cam_r_L0_kitchen_1.png",
+   "exr": "cam_r_L0_kitchen_1_passes.exr",
+   "preview": "cam_r_L0_kitchen_1_preview.jpg",
+   "depth_png": "cam_r_L0_kitchen_1_depth.png",
+   "index_png": "cam_r_L0_kitchen_1_index.png",
+   "files": {
+    "index": "cam_r_L0_kitchen_1_index.png",
+    "depth_mm": "cam_r_L0_kitchen_1_depth_mm.png",
+    "normal": "cam_r_L0_kitchen_1_normal.png",
+    "depth": "cam_r_L0_kitchen_1_depth.png"
+   },
+   "preview_bytes": 105392,
+   "seconds": 2.77,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.7194995880126953,
+    "max": 2.432999610900879,
+    "mean": 1.828100562095642,
+    "coverage": 0.9999995177469135
+   },
+   "index_values": [
+    6,
+    12,
+    16,
+    17
+   ],
+   "index_stats": {
+    "6": {
+     "pixels": 235209,
+     "box": [
+      494,
+      7,
+      983,
+      488
+     ]
+    },
+    "12": {
+     "pixels": 86884,
+     "box": [
+      1777,
+      0,
+      1920,
+      628
+     ]
+    },
+    "16": {
+     "pixels": 336048,
+     "box": [
+      1249,
+      545,
+      1920,
+      1080
+     ]
+    },
+    "17": {
+     "pixels": 590720,
+     "box": [
+      151,
+      493,
+      1588,
+      1025
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "33d1897e9d521774b4b623ee36a12977ba1253fcb1a6d3c5038e993628820314",
+   "render_key": "61f78aac9cd99ca8",
+   "exposure": {
+    "mode": "auto",
+    "ev": 4.333333,
+    "ev_raw": 4.2999,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 0.045691,
+    "whitepoint": [
+     0.931142,
+     1.007101,
+     1.132422
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 7425.4,
+    "wb_tint": 10.28,
+    "residual": 0.35,
+    "window_clip_frac": 0.001,
+    "meter_seconds": 0.261,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 716,
+     "block_px": 6,
+     "interior_frac": 0.8278
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": 3.333333,
+    "clip_before": 0.051,
+    "clip_after": 0.0013,
+    "pane_px": 239982,
+    "pane_median": 0.9345,
+    "wall_median": 0.6425,
+    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0013,
+      "median": 0.8762
+     }
+    ],
+    "pane_median_after": 0.8762,
+    "seconds": 0.337
+   },
+   "alt_preview": null,
+   "alt_preview_bytes": null
+  },
+  {
+   "camera": "cam_r_L0_kitchen_2",
+   "room_id": "r_L0_kitchen",
+   "level_id": "L0",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "png": "cam_r_L0_kitchen_2.png",
+   "exr": "cam_r_L0_kitchen_2_passes.exr",
+   "preview": "cam_r_L0_kitchen_2_preview.jpg",
+   "depth_png": "cam_r_L0_kitchen_2_depth.png",
+   "index_png": "cam_r_L0_kitchen_2_index.png",
+   "files": {
+    "index": "cam_r_L0_kitchen_2_index.png",
+    "depth_mm": "cam_r_L0_kitchen_2_depth_mm.png",
+    "normal": "cam_r_L0_kitchen_2_normal.png",
+    "depth": "cam_r_L0_kitchen_2_depth.png"
+   },
+   "preview_bytes": 140431,
+   "seconds": 2.75,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.3858909606933594,
+    "max": 3.5706377029418945,
+    "mean": 2.2543396949768066,
+    "coverage": 1.0
+   },
+   "index_values": [
+    6,
+    12,
+    16,
+    17
+   ],
+   "index_stats": {
+    "6": {
+     "pixels": 159787,
+     "box": [
+      643,
+      22,
+      1027,
+      482
+     ]
+    },
+    "12": {
+     "pixels": 179014,
+     "box": [
+      1539,
+      0,
+      1920,
+      507
+     ]
+    },
+    "16": {
+     "pixels": 217963,
+     "box": [
+      1296,
+      459,
+      1830,
+      976
+     ]
+    },
+    "17": {
+     "pixels": 333139,
+     "box": [
+      521,
+      442,
+      1426,
+      1010
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "33d1897e9d521774b4b623ee36a12977ba1253fcb1a6d3c5038e993628820314",
+   "render_key": "61f78aac9cd99ca8",
+   "exposure": {
+    "mode": "auto",
+    "ev": 4.5,
+    "ev_raw": 4.5082,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 0.03955,
+    "whitepoint": [
+     0.976071,
+     1.000235,
+     1.068129
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 6908.8,
+    "wb_tint": 8.02,
+    "residual": 0.35,
+    "window_clip_frac": 0.001,
+    "meter_seconds": 0.242,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 662,
+     "block_px": 6,
+     "interior_frac": 0.7877
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": 3.5,
+    "clip_before": 0.3304,
+    "clip_after": 0.0012,
+    "pane_px": 286059,
+    "pane_median": 0.9725,
+    "wall_median": 0.6451,
+    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0011,
+      "median": 0.9255
+     }
+    ],
+    "pane_median_after": 0.9258,
+    "seconds": 0.341
+   },
+   "alt_preview": null,
+   "alt_preview_bytes": null
+  },
+  {
+   "camera": "cam_r_L0_kitchen_3",
+   "room_id": "r_L0_kitchen",
+   "level_id": "L0",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "png": "cam_r_L0_kitchen_3.png",
+   "exr": "cam_r_L0_kitchen_3_passes.exr",
+   "preview": "cam_r_L0_kitchen_3_preview.jpg",
+   "depth_png": "cam_r_L0_kitchen_3_depth.png",
+   "index_png": "cam_r_L0_kitchen_3_index.png",
+   "files": {
+    "index": "cam_r_L0_kitchen_3_index.png",
+    "depth_mm": "cam_r_L0_kitchen_3_depth_mm.png",
+    "normal": "cam_r_L0_kitchen_3_normal.png",
+    "depth": "cam_r_L0_kitchen_3_depth.png"
+   },
+   "preview_bytes": 140155,
+   "seconds": 2.6,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.4593315124511719,
+    "max": 2.734999656677246,
+    "mean": 1.8928254842758179,
+    "coverage": 1.0
+   },
+   "index_values": [
+    6,
+    12,
+    14,
+    16,
+    17
+   ],
+   "index_stats": {
+    "6": {
+     "pixels": 262472,
+     "box": [
+      0,
+      0,
+      408,
+      723
+     ]
+    },
+    "12": {
+     "pixels": 184891,
+     "box": [
+      994,
+      46,
+      1427,
+      473
+     ]
+    },
+    "14": {
+     "pixels": 194961,
+     "box": [
+      1692,
+      0,
+      1920,
+      929
+     ]
+    },
+    "16": {
+     "pixels": 207158,
+     "box": [
+      860,
+      476,
+      1331,
+      926
+     ]
+    },
+    "17": {
+     "pixels": 422607,
+     "box": [
+      0,
+      476,
+      883,
+      1080
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "33d1897e9d521774b4b623ee36a12977ba1253fcb1a6d3c5038e993628820314",
+   "render_key": "61f78aac9cd99ca8",
+   "exposure": {
+    "mode": "auto",
+    "ev": 4.166667,
+    "ev_raw": 4.2015,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 0.048919,
+    "whitepoint": [
+     0.919068,
+     1.008468,
+     1.154431
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 7602.4,
+    "wb_tint": 10.53,
+    "residual": 0.35,
+    "window_clip_frac": 0.0003,
+    "meter_seconds": 0.239,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 632,
+     "block_px": 6,
+     "interior_frac": 0.7506
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": 3.166667,
+    "clip_before": 0.1954,
+    "clip_after": 0.0,
+    "pane_px": 368574,
+    "pane_median": 0.9608,
+    "wall_median": 0.5941,
+    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.9104
+     }
+    ],
+    "pane_median_after": 0.9104,
+    "seconds": 0.343
+   },
+   "alt_preview": null,
+   "alt_preview_bytes": null
+  },
+  {
+   "camera": "cam_r_L0_room_1",
+   "room_id": "r_L0_room",
+   "level_id": "L0",
+   "lens_mm": 16.0,
+   "sensor_mm": 36.0,
+   "png": "cam_r_L0_room_1.png",
+   "exr": "cam_r_L0_room_1_passes.exr",
+   "preview": "cam_r_L0_room_1_preview.jpg",
+   "depth_png": "cam_r_L0_room_1_depth.png",
+   "index_png": "cam_r_L0_room_1_index.png",
+   "files": {
+    "index": "cam_r_L0_room_1_index.png",
+    "depth_mm": "cam_r_L0_room_1_depth_mm.png",
+    "normal": "cam_r_L0_room_1_normal.png",
+    "depth": "cam_r_L0_room_1_depth.png"
+   },
+   "preview_bytes": 208483,
+   "seconds": 3.39,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.7158507108688354,
+    "max": 3.1613378524780273,
+    "mean": 1.4588017463684082,
+    "coverage": 1.0
+   },
+   "index_values": [
+    10,
+    42
+   ],
+   "index_stats": {
+    "10": {
+     "pixels": 556200,
+     "box": [
+      0,
+      0,
+      515,
+      1080
+     ]
+    },
+    "42": {
+     "pixels": 537062,
+     "box": [
+      665,
+      0,
+      1882,
+      1080
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "33d1897e9d521774b4b623ee36a12977ba1253fcb1a6d3c5038e993628820314",
+   "render_key": "61f78aac9cd99ca8",
+   "exposure": {
+    "mode": "auto",
+    "ev": 0.0,
+    "ev_raw": -0.0104,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 0.906493,
+    "whitepoint": [
+     1.252855,
+     0.950451,
+     0.746269
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 4845.0,
+    "wb_tint": -3.62,
+    "residual": 0.35,
+    "window_clip_frac": null,
+    "meter_seconds": 0.266,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 851,
+     "block_px": 6,
+     "interior_frac": 0.9753
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": null,
+   "alt_preview": null,
+   "alt_preview_bytes": null
+  },
+  {
+   "camera": "cam_r_L0_room_2",
+   "room_id": "r_L0_room",
+   "level_id": "L0",
+   "lens_mm": 16.0,
+   "sensor_mm": 36.0,
+   "png": "cam_r_L0_room_2.png",
+   "exr": "cam_r_L0_room_2_passes.exr",
+   "preview": "cam_r_L0_room_2_preview.jpg",
+   "depth_png": "cam_r_L0_room_2_depth.png",
+   "index_png": "cam_r_L0_room_2_index.png",
+   "files": {
+    "index": "cam_r_L0_room_2_index.png",
+    "depth_mm": "cam_r_L0_room_2_depth_mm.png",
+    "normal": "cam_r_L0_room_2_normal.png",
+    "depth": "cam_r_L0_room_2_depth.png"
+   },
+   "preview_bytes": 199452,
+   "seconds": 3.3,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.7877192497253418,
+    "max": 7.464914798736572,
+    "mean": 2.4070162773132324,
+    "coverage": 1.0
+   },
+   "index_values": [
+    10,
+    12,
+    16,
+    38,
+    42
+   ],
+   "index_stats": {
+    "10": {
+     "pixels": 265680,
+     "box": [
+      0,
+      0,
+      246,
+      1080
+     ]
+    },
+    "12": {
+     "pixels": 966,
+     "box": [
+      1670,
+      250,
+      1677,
+      388
+     ]
+    },
+    "16": {
+     "pixels": 2831,
+     "box": [
+      1652,
+      388,
+      1677,
+      503
+     ]
+    },
+    "38": {
+     "pixels": 1112,
+     "box": [
+      1880,
+      1025,
+      1920,
+      1080
+     ]
+    },
+    "42": {
+     "pixels": 359203,
+     "box": [
+      246,
+      0,
+      950,
+      1080
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "33d1897e9d521774b4b623ee36a12977ba1253fcb1a6d3c5038e993628820314",
+   "render_key": "61f78aac9cd99ca8",
+   "exposure": {
+    "mode": "auto",
+    "ev": -0.166667,
+    "ev_raw": -0.1128,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 0.973214,
+    "whitepoint": [
+     1.241513,
+     0.95263,
+     0.758084
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 4907.5,
+    "wb_tint": -3.36,
+    "residual": 0.35,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 0.24,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 878,
+     "block_px": 6,
+     "interior_frac": 0.9952
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": null,
+   "alt_preview": null,
+   "alt_preview_bytes": null
+  },
+  {
+   "camera": "cam_r_L0_room_3",
+   "room_id": "r_L0_room",
+   "level_id": "L0",
+   "lens_mm": 16.0,
+   "sensor_mm": 36.0,
+   "png": "cam_r_L0_room_3.png",
+   "exr": "cam_r_L0_room_3_passes.exr",
+   "preview": "cam_r_L0_room_3_preview.jpg",
+   "depth_png": "cam_r_L0_room_3_depth.png",
+   "index_png": "cam_r_L0_room_3_index.png",
+   "files": {
+    "index": "cam_r_L0_room_3_index.png",
+    "depth_mm": "cam_r_L0_room_3_depth_mm.png",
+    "normal": "cam_r_L0_room_3_normal.png",
+    "depth": "cam_r_L0_room_3_depth.png"
+   },
+   "preview_bytes": 223341,
+   "seconds": 3.51,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.7158504724502563,
+    "max": 4.028639793395996,
+    "mean": 1.6888132095336914,
+    "coverage": 1.0
+   },
+   "index_values": [
+    9,
+    10,
+    42
+   ],
+   "index_stats": {
+    "9": {
+     "pixels": 496800,
+     "box": [
+      0,
+      0,
+      460,
+      1080
+     ]
+    },
+    "10": {
+     "pixels": 372820,
+     "box": [
+      575,
+      0,
+      939,
+      1080
+     ]
+    },
+    "42": {
+     "pixels": 333661,
+     "box": [
+      938,
+      0,
+      1743,
+      1043
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "33d1897e9d521774b4b623ee36a12977ba1253fcb1a6d3c5038e993628820314",
+   "render_key": "61f78aac9cd99ca8",
+   "exposure": {
+    "mode": "auto",
+    "ev": -0.5,
+    "ev_raw": -0.498,
+    "at_limit": false,
+    "target": 0.9,
+    "limits": [
+     -2.0,
+     8.0
+    ],
+    "incident_p50": 1.271045,
+    "whitepoint": [
+     1.231449,
+     0.954846,
+     0.765766
+    ],
+    "wb_mode": "auto",
+    "wb_temperature": 4956.7,
+    "wb_tint": -2.83,
+    "residual": 0.35,
+    "window_clip_frac": null,
+    "meter_seconds": 0.244,
+    "meter": {
+     "resolution": [
+      240,
+      135
+     ],
+     "samples": 16,
+     "blocks": 880,
+     "blocks_used": 871,
+     "block_px": 6,
+     "interior_frac": 0.9914
+    },
+    "mood": "warm daylight",
+    "source": null,
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "hidden": [],
+   "plugged": [],
+   "window_pull": null,
+   "alt_preview": null,
+   "alt_preview_bytes": null
+  }
+ ],
+ "dropped_stale": [],
+ "incomplete": false,
+ "not_rendered": [],
+ "deadline": 1791113620.0,
+ "warnings": []
+}

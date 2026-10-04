@@ -1,0 +1,1429 @@
+{
+ "schema_version": "0.1",
+ "kind": "recognition_requests",
+ "project": "synthetic-02",
+ "crop_version": "m7.1",
+ "models": {
+  "qwen": {
+   "id": "Qwen/Qwen3-VL-8B-Instruct",
+   "slug": "qwen3-vl-8b",
+   "pass": 1
+  },
+  "glm": {
+   "id": "zai-org/GLM-4.6V-Flash",
+   "slug": "glm-4.6v-flash",
+   "pass": 2
+  }
+ },
+ "items": [
+  {
+   "key": "sym_L0_001",
+   "task": "symbol_type",
+   "page": 1,
+   "images": [
+    "crops/sym_L0_001_ctx.png",
+    "crops/sym_L0_001_iso.png"
+   ],
+   "context": {
+    "file": "plan_scan.png",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "bedroom",
+    "room_label": null,
+    "footprint": {
+     "center": [
+      24.8833,
+      15.0193
+     ],
+     "size": [
+      2.0889,
+      2.0512
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     23.8389,
+     13.9937,
+     25.9278,
+     16.0449
+    ],
+    "crop": {
+     "object_box": [
+      23839,
+      13994,
+      25928,
+      16045
+     ],
+     "ctx_box": [
+      23212,
+      13348,
+      26554,
+      16690
+     ],
+     "iso_box": [
+      23578,
+      13714,
+      26189,
+      16325
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "raster",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "raster",
+    "choices": [
+     "bed_double",
+     "stair",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     2.09,
+     2.05
+    ],
+    "room": null,
+    "neighbours": null
+   },
+   "input_sha256": "3da8f003ab2ca9de0f3f632afeb234163d6cacc90eb05b2f1bf186ca6a6cc502"
+  },
+  {
+   "key": "sym_L0_002",
+   "task": "symbol_type",
+   "page": 1,
+   "images": [
+    "crops/sym_L0_002_ctx.png",
+    "crops/sym_L0_002_iso.png"
+   ],
+   "context": {
+    "file": "plan_scan.png",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "living",
+    "room_label": null,
+    "footprint": {
+     "center": [
+      19.3335,
+      12.3918
+     ],
+     "size": [
+      3.1869,
+      0.5255
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     17.7401,
+     12.129,
+     20.927,
+     12.6545
+    ],
+    "crop": {
+     "object_box": [
+      17740,
+      12129,
+      20927,
+      12654
+     ],
+     "ctx_box": [
+      16784,
+      9842,
+      21883,
+      14941
+     ],
+     "iso_box": [
+      17342,
+      10400,
+      21325,
+      14384
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "raster",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "raster",
+    "choices": [
+     "wardrobe",
+     "kitchen_counter",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     3.19,
+     0.53
+    ],
+    "room": null,
+    "neighbours": null
+   },
+   "input_sha256": "7bd68fc769b9d4cea1f8e874f6efce65cb4d268095ff596693c9502ea1bd741e"
+  },
+  {
+   "key": "sym_L0_003",
+   "task": "symbol_type",
+   "page": 1,
+   "images": [
+    "crops/sym_L0_003_ctx.png",
+    "crops/sym_L0_003_iso.png"
+   ],
+   "context": {
+    "file": "plan_scan.png",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "kitchen",
+    "room_label": null,
+    "footprint": {
+     "center": [
+      19.2401,
+      17.8841
+     ],
+     "size": [
+      2.4584,
+      0.6611
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     18.0109,
+     17.5536,
+     20.4693,
+     18.2146
+    ],
+    "crop": {
+     "object_box": [
+      18011,
+      17554,
+      20469,
+      18215
+     ],
+     "ctx_box": [
+      17273,
+      15917,
+      21207,
+      19851
+     ],
+     "iso_box": [
+      17704,
+      16348,
+      20777,
+      19421
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "raster",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "raster",
+    "choices": [
+     "sofa",
+     "table_dining",
+     "wardrobe",
+     "kitchen_counter",
+     "kitchen_island",
+     "tv_unit",
+     "stair",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     2.46,
+     0.66
+    ],
+    "room": null,
+    "neighbours": null
+   },
+   "input_sha256": "6eadb3bbc13a48205ef79aa6ce72479d010730e0716014e2db553edbfc768327"
+  },
+  {
+   "key": "sym_L0_004",
+   "task": "symbol_type",
+   "page": 1,
+   "images": [
+    "crops/sym_L0_004_ctx.png",
+    "crops/sym_L0_004_iso.png"
+   ],
+   "context": {
+    "file": "plan_scan.png",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "kitchen",
+    "room_label": null,
+    "footprint": {
+     "center": [
+      20.1557,
+      16.8247
+     ],
+     "size": [
+      1.6443,
+      0.9493
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     19.3335,
+     16.35,
+     20.9778,
+     17.2993
+    ],
+    "crop": {
+     "object_box": [
+      19334,
+      16350,
+      20978,
+      17299
+     ],
+     "ctx_box": [
+      18840,
+      15509,
+      21471,
+      18140
+     ],
+     "iso_box": [
+      19128,
+      15797,
+      21183,
+      17852
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "raster",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "raster",
+    "choices": [
+     "bed_single",
+     "sofa",
+     "table_dining",
+     "desk",
+     "kitchen_island",
+     "shower",
+     "bathtub",
+     "stair",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     1.64,
+     0.95
+    ],
+    "room": null,
+    "neighbours": null
+   },
+   "input_sha256": "67d8ac62fc3cef6824c43d1545e3988f9e815d7f734a9738270c96edf8b21463"
+  },
+  {
+   "key": "sym_L0_005",
+   "task": "symbol_type",
+   "page": 1,
+   "images": [
+    "crops/sym_L0_005_ctx.png",
+    "crops/sym_L0_005_iso.png"
+   ],
+   "context": {
+    "file": "plan_scan.png",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "living",
+    "room_label": null,
+    "footprint": {
+     "center": [
+      20.1043,
+      15.5603
+     ],
+     "size": [
+      1.617,
+      0.9296
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     19.2958,
+     15.0955,
+     20.9129,
+     16.0252
+    ],
+    "crop": {
+     "object_box": [
+      19296,
+      15096,
+      20913,
+      16025
+     ],
+     "ctx_box": [
+      18811,
+      14267,
+      21398,
+      16854
+     ],
+     "iso_box": [
+      19094,
+      14550,
+      21115,
+      16571
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "raster",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "raster",
+    "choices": [
+     "bed_single",
+     "sofa",
+     "table_dining",
+     "desk",
+     "kitchen_island",
+     "shower",
+     "bathtub",
+     "stair",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     1.62,
+     0.93
+    ],
+    "room": null,
+    "neighbours": null
+   },
+   "input_sha256": "990a52bc14e8dd9e6ad9f04d916d978af875f81919b870b66ad06360fb4c7ad7"
+  },
+  {
+   "key": "sym_L0_006",
+   "task": "symbol_type",
+   "page": 1,
+   "images": [
+    "crops/sym_L0_006_ctx.png",
+    "crops/sym_L0_006_iso.png"
+   ],
+   "context": {
+    "file": "plan_scan.png",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "bedroom",
+    "room_label": null,
+    "footprint": {
+     "center": [
+      22.6476,
+      13.4941
+     ],
+     "size": [
+      1.8129,
+      0.695
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     22.3001,
+     12.5876,
+     22.9951,
+     14.4005
+    ],
+    "crop": {
+     "object_box": [
+      22300,
+      12588,
+      22995,
+      14400
+     ],
+     "ctx_box": [
+      21197,
+      12044,
+      24098,
+      14944
+     ],
+     "iso_box": [
+      21515,
+      12361,
+      23781,
+      14627
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "raster",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "raster",
+    "choices": [
+     "sofa",
+     "table_dining",
+     "desk",
+     "wardrobe",
+     "kitchen_counter",
+     "kitchen_island",
+     "shower",
+     "bathtub",
+     "stair",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     1.81,
+     0.69
+    ],
+    "room": null,
+    "neighbours": null
+   },
+   "input_sha256": "a3f06d4aa5563e37406b5c328020e2c0159a653bb5362661db5b4706b05dcc9c"
+  },
+  {
+   "key": "sym_L0_007",
+   "task": "symbol_type",
+   "page": 1,
+   "images": [
+    "crops/sym_L0_007_ctx.png",
+    "crops/sym_L0_007_iso.png"
+   ],
+   "context": {
+    "file": "plan_scan.png",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "bedroom",
+    "room_label": null,
+    "footprint": {
+     "center": [
+      25.5457,
+      13.08
+     ],
+     "size": [
+      1.4223,
+      0.764
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     25.1637,
+     12.3689,
+     25.9278,
+     13.7911
+    ],
+    "crop": {
+     "object_box": [
+      25164,
+      12369,
+      25928,
+      13791
+     ],
+     "ctx_box": [
+      24296,
+      11830,
+      26796,
+      14330
+     ],
+     "iso_box": [
+      24657,
+      12191,
+      26435,
+      13969
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "raster",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "raster",
+    "choices": [
+     "sofa",
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "wardrobe",
+     "kitchen_counter",
+     "kitchen_island",
+     "shower",
+     "bathtub",
+     "stair",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     1.42,
+     0.76
+    ],
+    "room": null,
+    "neighbours": null
+   },
+   "input_sha256": "13c7da3270c3efa665ef02bcacab4af575139fd24f35d31ccd0ef0985cab69b6"
+  },
+  {
+   "key": "sym_L0_008",
+   "task": "symbol_type",
+   "page": 1,
+   "images": [
+    "crops/sym_L0_008_ctx.png",
+    "crops/sym_L0_008_iso.png"
+   ],
+   "context": {
+    "file": "plan_scan.png",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "bathroom",
+    "room_label": null,
+    "footprint": {
+     "center": [
+      24.4953,
+      17.7485
+     ],
+     "size": [
+      1.0002,
+      0.9324
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     23.9953,
+     17.2823,
+     24.9954,
+     18.2147
+    ],
+    "crop": {
+     "object_box": [
+      23995,
+      17282,
+      24995,
+      18215
+     ],
+     "ctx_box": [
+      23245,
+      16498,
+      25745,
+      18998
+     ],
+     "iso_box": [
+      23870,
+      17123,
+      25120,
+      18374
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "raster",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "raster",
+    "choices": [
+     "armchair",
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "kitchen_island",
+     "shower",
+     "potted_plant",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     1.0,
+     0.93
+    ],
+    "room": null,
+    "neighbours": null
+   },
+   "input_sha256": "775ea2310f26d075a36cbe14e0b6ea8a4cce8f2093297513217c72dc13c4304c"
+  },
+  {
+   "key": "sym_L0_009",
+   "task": "symbol_type",
+   "page": 1,
+   "images": [
+    "crops/sym_L0_009_ctx.png",
+    "crops/sym_L0_009_iso.png"
+   ],
+   "context": {
+    "file": "plan_scan.png",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "living",
+    "room_label": null,
+    "footprint": {
+     "center": [
+      21.6728,
+      14.4002
+     ],
+     "size": [
+      0.916,
+      0.9154
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     21.2151,
+     13.9422,
+     22.1306,
+     14.8582
+    ],
+    "crop": {
+     "object_box": [
+      21215,
+      13942,
+      22131,
+      14858
+     ],
+     "ctx_box": [
+      20423,
+      13150,
+      22923,
+      15650
+     ],
+     "iso_box": [
+      21100,
+      13828,
+      22245,
+      14973
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "raster",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "raster",
+    "choices": [
+     "armchair",
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "kitchen_island",
+     "fridge",
+     "shower",
+     "potted_plant",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.92,
+     0.92
+    ],
+    "room": null,
+    "neighbours": null
+   },
+   "input_sha256": "dd919679af1d9c01d84b6accb58ebfd381024caeb0035935e49e323db14a17fd"
+  },
+  {
+   "key": "sym_L0_010",
+   "task": "symbol_type",
+   "page": 1,
+   "images": [
+    "crops/sym_L0_010_ctx.png",
+    "crops/sym_L0_010_iso.png"
+   ],
+   "context": {
+    "file": "plan_scan.png",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "bathroom",
+    "room_label": null,
+    "footprint": {
+     "center": [
+      24.3936,
+      16.6484
+     ],
+     "size": [
+      0.8306,
+      0.7947
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     23.9783,
+     16.2511,
+     24.8089,
+     17.0458
+    ],
+    "crop": {
+     "object_box": [
+      23978,
+      16251,
+      24809,
+      17046
+     ],
+     "ctx_box": [
+      23144,
+      15398,
+      25644,
+      17898
+     ],
+     "iso_box": [
+      23822,
+      16077,
+      24965,
+      17220
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "raster",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "raster",
+    "choices": [
+     "armchair",
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "wardrobe",
+     "kitchen_counter",
+     "fridge",
+     "stove",
+     "shower",
+     "potted_plant",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.83,
+     0.79
+    ],
+    "room": null,
+    "neighbours": null
+   },
+   "input_sha256": "f4d7dede27004a3173f622a9dcc2749b7c7e34a387c45a0d2c914142283fd5f4"
+  },
+  {
+   "key": "sym_L0_011",
+   "task": "symbol_type",
+   "page": 1,
+   "images": [
+    "crops/sym_L0_011_ctx.png",
+    "crops/sym_L0_011_iso.png"
+   ],
+   "context": {
+    "file": "plan_scan.png",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "living",
+    "room_label": null,
+    "footprint": {
+     "center": [
+      20.1048,
+      14.392
+     ],
+     "size": [
+      1.0341,
+      0.6273
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     19.5878,
+     14.0784,
+     20.6219,
+     14.7057
+    ],
+    "crop": {
+     "object_box": [
+      19588,
+      14078,
+      20622,
+      14706
+     ],
+     "ctx_box": [
+      18855,
+      13142,
+      21355,
+      15642
+     ],
+     "iso_box": [
+      19459,
+      13746,
+      20751,
+      15038
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "raster",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "raster",
+    "choices": [
+     "armchair",
+     "table_dining",
+     "table_coffee",
+     "desk",
+     "wardrobe",
+     "kitchen_counter",
+     "kitchen_island",
+     "fridge",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "shower",
+     "tv_unit",
+     "dresser",
+     "potted_plant",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     1.03,
+     0.63
+    ],
+    "room": null,
+    "neighbours": null
+   },
+   "input_sha256": "b8a227a53ca4a85c9b5ed1cc197298c937e8ba05f9e9fa2179d179450c8a246d"
+  },
+  {
+   "key": "sym_L0_012",
+   "task": "symbol_type",
+   "page": 1,
+   "images": [
+    "crops/sym_L0_012_ctx.png",
+    "crops/sym_L0_012_iso.png"
+   ],
+   "context": {
+    "file": "plan_scan.png",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "kitchen",
+    "room_label": null,
+    "footprint": {
+     "center": [
+      20.9185,
+      17.9011
+     ],
+     "size": [
+      0.729,
+      0.6965
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     20.5702,
+     17.5366,
+     21.2668,
+     18.2656
+    ],
+    "crop": {
+     "object_box": [
+      20570,
+      17537,
+      21267,
+      18266
+     ],
+     "ctx_box": [
+      19668,
+      16651,
+      22168,
+      19151
+     ],
+     "iso_box": [
+      20347,
+      17330,
+      21490,
+      18473
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "raster",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "raster",
+    "choices": [
+     "armchair",
+     "table_dining",
+     "table_coffee",
+     "chair",
+     "wardrobe",
+     "kitchen_counter",
+     "fridge",
+     "stove",
+     "shower",
+     "washing_machine",
+     "side_table",
+     "potted_plant",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.73,
+     0.7
+    ],
+    "room": null,
+    "neighbours": null
+   },
+   "input_sha256": "6eab83c64708601c4847e6e2d8154da6155ddb07c16af8fa637f82af40160823"
+  },
+  {
+   "key": "sym_L0_013",
+   "task": "symbol_type",
+   "page": 1,
+   "images": [
+    "crops/sym_L0_013_ctx.png",
+    "crops/sym_L0_013_iso.png"
+   ],
+   "context": {
+    "file": "plan_scan.png",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "bathroom",
+    "room_label": null,
+    "footprint": {
+     "center": [
+      25.5344,
+      17.8712
+     ],
+     "size": [
+      0.7153,
+      0.6786
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     25.195,
+     17.5136,
+     25.8737,
+     18.2289
+    ],
+    "crop": {
+     "object_box": [
+      25195,
+      17514,
+      25874,
+      18229
+     ],
+     "ctx_box": [
+      24284,
+      16621,
+      26784,
+      19121
+     ],
+     "iso_box": [
+      24963,
+      17300,
+      26106,
+      18443
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "raster",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "raster",
+    "choices": [
+     "armchair",
+     "table_dining",
+     "table_coffee",
+     "chair",
+     "wardrobe",
+     "kitchen_counter",
+     "fridge",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "shower",
+     "dresser",
+     "washing_machine",
+     "side_table",
+     "potted_plant",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.72,
+     0.68
+    ],
+    "room": null,
+    "neighbours": null
+   },
+   "input_sha256": "4a181f10a88c959a80ac25045bf2c2ef718642d7a7ae812ebb78686ac454e396"
+  },
+  {
+   "key": "sym_L0_014",
+   "task": "symbol_type",
+   "page": 1,
+   "images": [
+    "crops/sym_L0_014_ctx.png",
+    "crops/sym_L0_014_iso.png"
+   ],
+   "context": {
+    "file": "plan_scan.png",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "hall",
+    "room_label": null,
+    "footprint": {
+     "center": [
+      23.7156,
+      17.7069
+     ],
+     "size": [
+      1.0156,
+      0.4238
+     ],
+     "rotation_deg": 90.0
+    },
+    "bbox": [
+     23.5037,
+     17.1991,
+     23.9275,
+     18.2147
+    ],
+    "crop": {
+     "object_box": [
+      23504,
+      17199,
+      23928,
+      18215
+     ],
+     "ctx_box": [
+      22466,
+      16457,
+      24966,
+      18957
+     ],
+     "iso_box": [
+      23081,
+      17072,
+      24350,
+      18342
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "raster",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "raster",
+    "choices": [
+     "table_coffee",
+     "sink_kitchen",
+     "washbasin",
+     "tv_unit",
+     "bookshelf",
+     "dresser",
+     "potted_plant",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     1.02,
+     0.42
+    ],
+    "room": null,
+    "neighbours": null
+   },
+   "input_sha256": "bf0761ef13ad1861f2d658836bf031019fbd469952ee78903866564dafe33a14"
+  },
+  {
+   "key": "sym_L0_015",
+   "task": "symbol_type",
+   "page": 1,
+   "images": [
+    "crops/sym_L0_015_ctx.png",
+    "crops/sym_L0_015_iso.png"
+   ],
+   "context": {
+    "file": "plan_scan.png",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "bathroom",
+    "room_label": null,
+    "footprint": {
+     "center": [
+      25.5238,
+      17.1255
+     ],
+     "size": [
+      0.7914,
+      0.4278
+     ],
+     "rotation_deg": 125.504
+    },
+    "bbox": [
+     25.4023,
+     16.9094,
+     25.9278,
+     17.5719
+    ],
+    "crop": {
+     "object_box": [
+      25402,
+      16909,
+      25928,
+      17572
+     ],
+     "ctx_box": [
+      24415,
+      15991,
+      26915,
+      18491
+     ],
+     "iso_box": [
+      25094,
+      16669,
+      26236,
+      17812
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "raster",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "raster",
+    "choices": [
+     "table_coffee",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "toilet",
+     "bookshelf",
+     "dresser",
+     "side_table",
+     "potted_plant",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.79,
+     0.43
+    ],
+    "room": null,
+    "neighbours": null
+   },
+   "input_sha256": "3c4584d5ba83b6afd2c2158e35c03422bb04e06fbfc326460605679346fa28a4"
+  },
+  {
+   "key": "sym_L0_016",
+   "task": "symbol_type",
+   "page": 1,
+   "images": [
+    "crops/sym_L0_016_ctx.png",
+    "crops/sym_L0_016_iso.png"
+   ],
+   "context": {
+    "file": "plan_scan.png",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "bathroom",
+    "room_label": null,
+    "footprint": {
+     "center": [
+      25.5464,
+      16.4803
+     ],
+     "size": [
+      0.7628,
+      0.3947
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     25.1649,
+     16.283,
+     25.9278,
+     16.6776
+    ],
+    "crop": {
+     "object_box": [
+      25165,
+      16283,
+      25928,
+      16678
+     ],
+     "ctx_box": [
+      24296,
+      15230,
+      26796,
+      17730
+     ],
+     "iso_box": [
+      24975,
+      15909,
+      26118,
+      17052
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "raster",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "raster",
+    "choices": [
+     "table_coffee",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "toilet",
+     "bookshelf",
+     "dresser",
+     "side_table",
+     "potted_plant",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.76,
+     0.39
+    ],
+    "room": null,
+    "neighbours": null
+   },
+   "input_sha256": "c80ba49076266e7de0ea559a93f7942bd821d8c66e5dcf8f3ff519fd861379f4"
+  },
+  {
+   "key": "lbl_L0_1",
+   "task": "room_label",
+   "page": 1,
+   "images": [
+    "crops/lbl_L0_1.png"
+   ],
+   "context": {
+    "file": "plan_scan.png",
+    "level": "L0",
+    "room_id": null,
+    "crop": {
+     "rect_px": [
+      1287,
+      829,
+      1558,
+      1117
+     ],
+     "size": [
+      723,
+      768
+     ],
+     "crop_version": "m7.1"
+    }
+   },
+   "input_sha256": "01fcd135f0e7557441f5a51d70c3bc7e7db6015d6dc93c922b5130308db9d7d0"
+  },
+  {
+   "key": "lbl_L0_2",
+   "task": "room_label",
+   "page": 1,
+   "images": [
+    "crops/lbl_L0_2.png"
+   ],
+   "context": {
+    "file": "plan_scan.png",
+    "level": "L0",
+    "room_id": null,
+    "crop": {
+     "rect_px": [
+      1388,
+      699,
+      1558,
+      881
+     ],
+     "size": [
+      717,
+      768
+     ],
+     "crop_version": "m7.1"
+    }
+   },
+   "input_sha256": "4a6db1f4a6dc3c1cf408da827886c5b5d5ff5c4172a6424262e4a1f090aa76ec"
+  },
+  {
+   "key": "lbl_L0_3",
+   "task": "room_label",
+   "page": 1,
+   "images": [
+    "crops/lbl_L0_3.png"
+   ],
+   "context": {
+    "file": "plan_scan.png",
+    "level": "L0",
+    "room_id": null,
+    "crop": {
+     "rect_px": [
+      1287,
+      699,
+      1439,
+      881
+     ],
+     "size": [
+      641,
+      768
+     ],
+     "crop_version": "m7.1"
+    }
+   },
+   "input_sha256": "a88ff6ea30316f47e25c2e216f2ae3f79349db67196e59f043e78415855e4aaf"
+  },
+  {
+   "key": "lbl_L0_4",
+   "task": "room_label",
+   "page": 1,
+   "images": [
+    "crops/lbl_L0_4.png"
+   ],
+   "context": {
+    "file": "plan_scan.png",
+    "level": "L0",
+    "room_id": null,
+    "crop": {
+     "rect_px": [
+      1034,
+      829,
+      1341,
+      1117
+     ],
+     "size": [
+      768,
+      720
+     ],
+     "crop_version": "m7.1"
+    }
+   },
+   "input_sha256": "44ae1045322d9c5ff9559625265897aacff2ce3ab2d1157f65929ffea4dcf47b"
+  },
+  {
+   "key": "lbl_L0_5",
+   "task": "room_label",
+   "page": 1,
+   "images": [
+    "crops/lbl_L0_5.png"
+   ],
+   "context": {
+    "file": "plan_scan.png",
+    "level": "L0",
+    "room_id": null,
+    "crop": {
+     "rect_px": [
+      1034,
+      699,
+      1341,
+      881
+     ],
+     "size": [
+      768,
+      455
+     ],
+     "crop_version": "m7.1"
+    }
+   },
+   "input_sha256": "ffd8d0afd68b17f0d92224b0eb72d53ffc86e6c8c125fc2109ad73a23df8a3a0"
+  }
+ ]
+}

@@ -1,0 +1,72 @@
+{
+ "schema_version": "0.1",
+ "kind": "recognition_answers",
+ "model_key": "qwen",
+ "model": "Qwen/Qwen3-VL-8B-Instruct",
+ "slug": "qwen3-vl-8b",
+ "incomplete": false,
+ "calls": {
+  "sym_T0_1": {
+   "task": "symbol_type",
+   "input_sha256": "0ce32e3724eb256a7b8550e681bd5f4f8768a229e1a0b10def8a58ee60c1462b",
+   "data": {
+    "type": "bed_double",
+    "front": "bottom",
+    "confidence": 0.9,
+    "reason": "wide bed, two pillows"
+   },
+   "raw_text": "{\"type\": \"bed_double\", \"front\": \"bottom\", \"confidence\": 0.9, \"reason\": \"wide bed, two pillows\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.0,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_T0_1_ctx.png",
+    "crops/sym_T0_1_iso.png"
+   ]
+  },
+  "sym_T0_2": {
+   "task": "symbol_type",
+   "input_sha256": "3ae83dc9cfc624dcd44ec2098e79f43cea282e9df826d47d7a8f02155adda944",
+   "data": {
+    "type": "chair",
+    "front": "top",
+    "confidence": 0.6,
+    "reason": "small square seat"
+   },
+   "raw_text": "{\"type\": \"chair\", \"front\": \"top\", \"confidence\": 0.6, \"reason\": \"small square seat\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.0,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_T0_2_ctx.png",
+    "crops/sym_T0_2_iso.png"
+   ]
+  },
+  "sym_T0_3": {
+   "task": "symbol_type",
+   "input_sha256": "5d2432bbf8916f021e6b114a55b6ae2d4ecb231cd41f3a267bd763e9038396c8",
+   "data": {
+    "type": "not_furniture",
+    "front": "none",
+    "confidence": 0.7,
+    "reason": "hatching"
+   },
+   "raw_text": "{\"type\": \"not_furniture\", \"front\": \"none\", \"confidence\": 0.7, \"reason\": \"hatching\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.0,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_T0_3_ctx.png",
+    "crops/sym_T0_3_iso.png"
+   ]
+  }
+ },
+ "fake": true,
+ "note": "fake answers written by tests/test_recognition_answers.py (no model ran)"
+}

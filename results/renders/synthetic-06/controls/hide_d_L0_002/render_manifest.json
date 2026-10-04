@@ -1,0 +1,245 @@
+{
+ "schema_version": "0.1",
+ "scene": "../../scene/scene.blend",
+ "scene_sha256": "6f8891bde77ad29a0f3c379b541ee9a9bc37a61d62ad9533bfa01fff1818fc42",
+ "device": "OPTIX",
+ "device_requested": "auto",
+ "blender_version": "5.2.2 LTS",
+ "samples": 128,
+ "resolution": [
+  1920,
+  1080
+ ],
+ "denoiser": "OPENIMAGEDENOISE",
+ "render_code_version": "m7.1",
+ "view_transform": "AgX",
+ "look": "AgX - Punchy",
+ "exposure_mode": "from",
+ "exposure_target": 0.9,
+ "exposure_limits": [
+  -2.0,
+  8.0
+ ],
+ "white_balance_mode": "from",
+ "look_from": "../../renders/render_manifest.json",
+ "hidden": [
+  "d_L0_002"
+ ],
+ "plugged": [],
+ "alt_look": null,
+ "max_bounces": null,
+ "bounces": null,
+ "ev_offset": 0.0,
+ "preview_quality": null,
+ "pass_index": {
+  "d_L0_001": 1,
+  "d_L0_002": 2,
+  "d_L0_003": 3,
+  "d_L0_004": 4,
+  "d_L0_005": 5,
+  "win_L0_001": 6,
+  "win_L0_002": 7,
+  "win_L0_003": 8,
+  "win_L0_004": 9,
+  "win_L0_005": 10,
+  "win_L0_006": 11,
+  "win_L0_007": 12,
+  "win_L0_008": 13,
+  "f_L0_001": 14,
+  "f_L0_002": 15,
+  "f_L0_003": 16,
+  "f_L0_004": 17,
+  "f_L0_005": 18,
+  "f_L0_006": 19,
+  "f_L0_007": 20,
+  "f_L0_008": 21,
+  "f_L0_009": 22,
+  "f_L0_010": 23,
+  "f_L0_011": 24,
+  "f_L0_012": 25,
+  "f_L0_013": 26,
+  "f_L0_014": 27,
+  "f_L0_015": 28,
+  "dec_L0_003": 29,
+  "dec_L0_006": 30,
+  "dec_L0_009": 31
+ },
+ "renders": [
+  {
+   "camera": "cam_r_L0_lobby_2",
+   "room_id": "r_L0_lobby",
+   "level_id": "L0",
+   "png": "cam_r_L0_lobby_2.png",
+   "exr": "cam_r_L0_lobby_2_passes.exr",
+   "preview": "cam_r_L0_lobby_2_preview.jpg",
+   "depth_png": "cam_r_L0_lobby_2_depth.png",
+   "index_png": "cam_r_L0_lobby_2_index.png",
+   "files": {
+    "index": "cam_r_L0_lobby_2_index.png",
+    "depth_mm": "cam_r_L0_lobby_2_depth_mm.png",
+    "normal": "cam_r_L0_lobby_2_normal.png",
+    "depth": "cam_r_L0_lobby_2_depth.png"
+   },
+   "preview_bytes": 176324,
+   "seconds": 2.87,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.0975661277770996,
+    "max": 6.265833854675293,
+    "mean": 2.561008930206299,
+    "coverage": 1.0
+   },
+   "index_values": [
+    3,
+    4,
+    5,
+    10,
+    17,
+    24,
+    25
+   ],
+   "index_stats": {
+    "3": {
+     "pixels": 25552,
+     "box": [
+      1835,
+      0,
+      1870,
+      892
+     ]
+    },
+    "4": {
+     "pixels": 32128,
+     "box": [
+      1888,
+      0,
+      1920,
+      1008
+     ]
+    },
+    "5": {
+     "pixels": 464400,
+     "box": [
+      0,
+      0,
+      430,
+      1080
+     ]
+    },
+    "10": {
+     "pixels": 37459,
+     "box": [
+      1518,
+      160,
+      1663,
+      425
+     ]
+    },
+    "17": {
+     "pixels": 16951,
+     "box": [
+      1413,
+      444,
+      1544,
+      640
+     ]
+    },
+    "24": {
+     "pixels": 445,
+     "box": [
+      1657,
+      574,
+      1674,
+      613
+     ]
+    },
+    "25": {
+     "pixels": 77172,
+     "box": [
+      1458,
+      680,
+      1869,
+      1080
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "6f8891bde77ad29a0f3c379b541ee9a9bc37a61d62ad9533bfa01fff1818fc42",
+   "render_key": "6403f70621e5eda4",
+   "exposure": {
+    "mode": "from",
+    "ev": -0.5,
+    "ev_raw": null,
+    "at_limit": false,
+    "target": null,
+    "limits": null,
+    "incident_p50": null,
+    "whitepoint": [
+     1.173939,
+     0.967781,
+     0.806977
+    ],
+    "wb_mode": "from",
+    "wb_temperature": 5239.3,
+    "wb_tint": 1.39,
+    "residual": null,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 0.0,
+    "meter": null,
+    "mood": "warm daylight",
+    "source": "../../renders/render_manifest.json",
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "hidden": [
+    "d_L0_002"
+   ],
+   "plugged": [],
+   "window_pull": {
+    "ev": 0.0,
+    "k": 0,
+    "pane_ev": -0.5,
+    "clip_before": 0.0,
+    "clip_after": 0.0,
+    "pane_px": 28124,
+    "pane_median": 0.6056,
+    "wall_median": 0.6313,
+    "rule": "no k keeps the panes brighter than the walls: no pull",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.4577
+     },
+     {
+      "k": 2,
+      "clip": 0.0,
+      "median": 0.3162
+     },
+     {
+      "k": 3,
+      "clip": 0.0,
+      "median": 0.1978
+     },
+     {
+      "k": 4,
+      "clip": 0.0,
+      "median": 0.1034
+     }
+    ],
+    "seconds": 0.881
+   },
+   "alt_preview": null,
+   "alt_preview_bytes": null
+  }
+ ],
+ "dropped_stale": [],
+ "incomplete": false,
+ "not_rendered": [],
+ "deadline": 1791066926.0,
+ "warnings": []
+}

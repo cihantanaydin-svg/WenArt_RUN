@@ -1,0 +1,32 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "real01",
+ "stage": "controls",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 55.19,
+ "fingerprint": null,
+ "inputs": {},
+ "outputs": [
+  "check/controls.json"
+ ],
+ "started_utc": "2026-10-04T10:09:00Z",
+ "git_commit": "714dcc50e1a342a6b723451c219e22291d3d333f",
+ "log": "logs/controls.log",
+ "note": null,
+ "run_id": "20261004-095244-full-20261004T095809Z",
+ "steps": [
+  {
+   "name": "select-controls",
+   "rc": 0,
+   "seconds": 5.74
+  },
+  {
+   "name": "control renders",
+   "rc": 0,
+   "seconds": 49.45
+  }
+ ],
+ "written": {}
+}

@@ -1,0 +1,27 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "synthetic-01",
+ "stage": "ab_pairs",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 5.74,
+ "fingerprint": null,
+ "inputs": {},
+ "outputs": [
+  "ab/pairs_v2.json"
+ ],
+ "started_utc": "2026-10-04T02:18:01Z",
+ "git_commit": "0a41bee4ea72a8713da1941efc8951188b952670",
+ "log": "logs/ab_pairs.log",
+ "note": null,
+ "run_id": "20261004-013837-full-20261004T014240Z",
+ "steps": [
+  {
+   "name": "realism2-pairs",
+   "rc": 0,
+   "seconds": 5.74
+  }
+ ],
+ "written": {}
+}

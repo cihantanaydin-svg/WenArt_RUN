@@ -1,0 +1,1753 @@
+{
+ "pages": [
+  {
+   "file": "zemin_kat.dxf",
+   "page": 1,
+   "class": "floor_plan",
+   "kind": "vector",
+   "level_id": "L0",
+   "level_label_raw": "ZEMİN KAT PLANI",
+   "units": "mm",
+   "size": null,
+   "dpi": null,
+   "scale_metres_per_unit": 0.001,
+   "transform": {
+    "kind": "affine",
+    "building_to_page": [
+     1000.0,
+     0.0,
+     0.0,
+     0.0,
+     1000.0,
+     0.0
+    ]
+   },
+   "texts": [
+    {
+     "text": "ZEMİN KAT PLANI",
+     "box": [
+      0.0,
+      8257.334,
+      5964.501,
+      8900.0
+     ],
+     "entity": "TEXT:124",
+     "role": "title"
+    },
+    {
+     "text": "ÖLÇEK 1/100",
+     "box": [
+      6964.501,
+      8314.401,
+      9651.641,
+      8700.0
+     ],
+     "entity": "TEXT:125",
+     "role": "scale"
+    },
+    {
+     "text": "SALON 24,50 m²",
+     "box": [
+      1000.0,
+      2442.934,
+      3272.873,
+      2700.0
+     ],
+     "entity": "TEXT:126",
+     "role": "room_label",
+     "element_id": "r_L0_salon"
+    },
+    {
+     "text": "YATAK ODASI",
+     "box": [
+      6000.0,
+      1242.934,
+      7847.555,
+      1500.0
+     ],
+     "entity": "TEXT:127",
+     "role": "room_label",
+     "element_id": "r_L0_yatak_odasi"
+    },
+    {
+     "text": "HOL",
+     "box": [
+      5600.0,
+      4942.934,
+      6175.084,
+      5200.0
+     ],
+     "entity": "TEXT:128",
+     "role": "room_label",
+     "element_id": "r_L0_hol"
+    },
+    {
+     "text": "BANYO",
+     "box": [
+      7400.0,
+      5042.934,
+      8364.635,
+      5300.0
+     ],
+     "entity": "TEXT:129",
+     "role": "room_label",
+     "element_id": "r_L0_banyo"
+    },
+    {
+     "text": "MUTFAK",
+     "box": [
+      1000.0,
+      5942.934,
+      2130.476,
+      6200.0
+     ],
+     "entity": "TEXT:12A",
+     "role": "room_label",
+     "element_id": "r_L0_mutfak"
+    },
+    {
+     "text": "5,30",
+     "box": [
+      2350.0,
+      -700.0,
+      2950.0,
+      -500.0
+     ],
+     "entity": "DIMENSION:12B",
+     "role": "dimension"
+    },
+    {
+     "text": "4,30",
+     "box": [
+      7150.0,
+      -700.0,
+      7750.0,
+      -500.0
+     ],
+     "entity": "DIMENSION:13B",
+     "role": "dimension"
+    },
+    {
+     "text": "9,60",
+     "box": [
+      4500.0,
+      -1200.0,
+      5100.0,
+      -1000.0
+     ],
+     "entity": "DIMENSION:14B",
+     "role": "dimension"
+    },
+    {
+     "text": "5,20",
+     "box": [
+      -700.0,
+      2300.0,
+      -500.0,
+      2900.0
+     ],
+     "entity": "DIMENSION:15B",
+     "role": "dimension"
+    },
+    {
+     "text": "2,00",
+     "box": [
+      -700.0,
+      5900.0,
+      -500.0,
+      6500.0
+     ],
+     "entity": "DIMENSION:16B",
+     "role": "dimension"
+    },
+    {
+     "text": "7,20",
+     "box": [
+      -1200.0,
+      3300.0,
+      -1000.0,
+      3900.0
+     ],
+     "entity": "DIMENSION:17B",
+     "role": "dimension"
+    }
+   ],
+   "symbols": [
+    {
+     "id": "d_L0_001",
+     "type": "door",
+     "block": "KAPI_90",
+     "box": [
+      5700.0,
+      6175.0,
+      6600.0,
+      7075.0
+     ],
+     "rotation_deg": 180.0,
+     "entity": "INSERT:F4"
+    },
+    {
+     "id": "d_L0_002",
+     "type": "door",
+     "block": "KAPI_90",
+     "box": [
+      4400.0,
+      4050.0,
+      5300.0,
+      4950.0
+     ],
+     "rotation_deg": 90.0,
+     "entity": "INSERT:F6"
+    },
+    {
+     "id": "d_L0_003",
+     "type": "door",
+     "block": "KAPI_80",
+     "box": [
+      4500.0,
+      5700.0,
+      5300.0,
+      6500.0
+     ],
+     "rotation_deg": 90.0,
+     "entity": "INSERT:F8"
+    },
+    {
+     "id": "d_L0_004",
+     "type": "door",
+     "block": "KAPI_80",
+     "box": [
+      5550.0,
+      3000.0,
+      6350.0,
+      3800.0
+     ],
+     "rotation_deg": 180.0,
+     "entity": "INSERT:FA"
+    },
+    {
+     "id": "d_L0_005",
+     "type": "door",
+     "block": "KAPI_80",
+     "box": [
+      7000.0,
+      5000.0,
+      7800.0,
+      5800.0
+     ],
+     "rotation_deg": 270.0,
+     "entity": "INSERT:FC"
+    },
+    {
+     "id": "win_L0_001",
+     "type": "window",
+     "block": "PENCERE_180",
+     "box": [
+      600.0,
+      75.0,
+      2400.0,
+      175.0
+     ],
+     "rotation_deg": 0.0,
+     "entity": "INSERT:FE"
+    },
+    {
+     "id": "win_L0_002",
+     "type": "window",
+     "block": "PENCERE_120",
+     "box": [
+      3200.0,
+      75.0,
+      4400.0,
+      175.0
+     ],
+     "rotation_deg": 0.0,
+     "entity": "INSERT:100"
+    },
+    {
+     "id": "win_L0_003",
+     "type": "window",
+     "block": "PENCERE_180",
+     "box": [
+      6450.0,
+      75.0,
+      8250.0,
+      175.0
+     ],
+     "rotation_deg": 0.0,
+     "entity": "INSERT:102"
+    },
+    {
+     "id": "win_L0_004",
+     "type": "window",
+     "block": "PENCERE_120",
+     "box": [
+      75.0,
+      2100.0,
+      175.0,
+      3300.0
+     ],
+     "rotation_deg": 90.0,
+     "entity": "INSERT:104"
+    },
+    {
+     "id": "win_L0_005",
+     "type": "window",
+     "block": "PENCERE_120",
+     "box": [
+      2150.0,
+      7025.0,
+      3350.0,
+      7125.0
+     ],
+     "rotation_deg": 0.0,
+     "entity": "INSERT:106"
+    },
+    {
+     "id": "win_L0_006",
+     "type": "window",
+     "block": "PENCERE_60",
+     "box": [
+      7900.0,
+      7025.0,
+      8500.0,
+      7125.0
+     ],
+     "rotation_deg": 0.0,
+     "entity": "INSERT:108"
+    },
+    {
+     "id": "f_L0_001",
+     "type": "sofa",
+     "block": "KANEPE_3LU",
+     "box": [
+      1650.0,
+      4200.0,
+      3850.0,
+      5100.0
+     ],
+     "rotation_deg": 0.0,
+     "entity": "INSERT:10A"
+    },
+    {
+     "id": "f_L0_002",
+     "type": "table_coffee",
+     "block": "SEHPA",
+     "box": [
+      2250.0,
+      3200.0,
+      3250.0,
+      3800.0
+     ],
+     "rotation_deg": 0.0,
+     "entity": "INSERT:10C"
+    },
+    {
+     "id": "f_L0_003",
+     "type": "tv_unit",
+     "block": "TV_UNITESI",
+     "box": [
+      1950.0,
+      300.0,
+      3550.0,
+      750.0
+     ],
+     "rotation_deg": 180.0,
+     "entity": "INSERT:10E"
+    },
+    {
+     "id": "f_L0_004",
+     "type": "armchair",
+     "block": "KOLTUK",
+     "box": [
+      4050.0,
+      2950.0,
+      4950.0,
+      3850.0
+     ],
+     "rotation_deg": 270.0,
+     "entity": "INSERT:110"
+    },
+    {
+     "id": "f_L0_005",
+     "type": "bookshelf",
+     "block": "KITAPLIK",
+     "box": [
+      300.0,
+      3800.0,
+      650.0,
+      4800.0
+     ],
+     "rotation_deg": 90.0,
+     "entity": "INSERT:112"
+    },
+    {
+     "id": "f_L0_006",
+     "type": "bed_double",
+     "block": "YATAK_CIFT",
+     "box": [
+      7000.0,
+      1700.0,
+      8600.0,
+      3700.0
+     ],
+     "rotation_deg": 0.0,
+     "entity": "INSERT:114"
+    },
+    {
+     "id": "f_L0_007",
+     "type": "nightstand",
+     "block": "KOMIDIN",
+     "box": [
+      6400.0,
+      3300.0,
+      6900.0,
+      3700.0
+     ],
+     "rotation_deg": 0.0,
+     "entity": "INSERT:116"
+    },
+    {
+     "id": "f_L0_008",
+     "type": "nightstand",
+     "block": "KOMIDIN",
+     "box": [
+      8700.0,
+      3300.0,
+      9200.0,
+      3700.0
+     ],
+     "rotation_deg": 0.0,
+     "entity": "INSERT:118"
+    },
+    {
+     "id": "f_L0_009",
+     "type": "wardrobe",
+     "block": "DOLAP",
+     "box": [
+      8700.0,
+      600.0,
+      9300.0,
+      2400.0
+     ],
+     "rotation_deg": 270.0,
+     "entity": "INSERT:11A"
+    },
+    {
+     "id": "f_L0_010",
+     "type": "toilet",
+     "block": "KLOZET",
+     "box": [
+      8600.0,
+      4200.0,
+      9300.0,
+      4600.0
+     ],
+     "rotation_deg": 270.0,
+     "entity": "INSERT:11C"
+    },
+    {
+     "id": "f_L0_011",
+     "type": "washbasin",
+     "block": "LAVABO",
+     "box": [
+      8850.0,
+      5100.0,
+      9300.0,
+      5700.0
+     ],
+     "rotation_deg": 270.0,
+     "entity": "INSERT:11E"
+    },
+    {
+     "id": "f_L0_012",
+     "type": "shower",
+     "block": "DUS",
+     "box": [
+      7100.0,
+      6000.0,
+      8000.0,
+      6900.0
+     ],
+     "rotation_deg": 0.0,
+     "entity": "INSERT:120"
+    },
+    {
+     "id": "f_L0_013",
+     "type": "washing_machine",
+     "block": "CAMASIR_MAK",
+     "box": [
+      8650.0,
+      6250.0,
+      9250.0,
+      6850.0
+     ],
+     "rotation_deg": 0.0,
+     "entity": "INSERT:122"
+    }
+   ],
+   "walls": [
+    {
+     "id": "w_L0_001",
+     "box": [
+      0.0,
+      0.0,
+      9600.0,
+      250.0
+     ],
+     "entity": "LWPOLYLINE:EC"
+    },
+    {
+     "id": "w_L0_002",
+     "box": [
+      9350.0,
+      0.0,
+      9600.0,
+      7200.0
+     ],
+     "entity": "LWPOLYLINE:ED"
+    },
+    {
+     "id": "w_L0_003",
+     "box": [
+      0.0,
+      6950.0,
+      9600.0,
+      7200.0
+     ],
+     "entity": "LWPOLYLINE:EE"
+    },
+    {
+     "id": "w_L0_004",
+     "box": [
+      0.0,
+      0.0,
+      250.0,
+      7200.0
+     ],
+     "entity": "LWPOLYLINE:EF"
+    },
+    {
+     "id": "w_L0_005",
+     "box": [
+      5250.0,
+      250.0,
+      5350.0,
+      6950.0
+     ],
+     "entity": "LWPOLYLINE:F0"
+    },
+    {
+     "id": "w_L0_006",
+     "box": [
+      250.0,
+      5150.0,
+      5250.0,
+      5250.0
+     ],
+     "entity": "LWPOLYLINE:F1"
+    },
+    {
+     "id": "w_L0_007",
+     "box": [
+      5350.0,
+      3750.0,
+      9350.0,
+      3850.0
+     ],
+     "entity": "LWPOLYLINE:F2"
+    },
+    {
+     "id": "w_L0_008",
+     "box": [
+      6950.0,
+      3850.0,
+      7050.0,
+      6950.0
+     ],
+     "entity": "LWPOLYLINE:F3"
+    }
+   ],
+   "dimensions": [
+    {
+     "measured": 5.3,
+     "printed": "5,30",
+     "entity": "DIMENSION:12B",
+     "wall_ids": [
+      "w_L0_001"
+     ],
+     "box": [
+      2350.0,
+      -700.0,
+      2950.0,
+      -500.0
+     ]
+    },
+    {
+     "measured": 4.3,
+     "printed": "4,30",
+     "entity": "DIMENSION:13B",
+     "wall_ids": [
+      "w_L0_001"
+     ],
+     "box": [
+      7150.0,
+      -700.0,
+      7750.0,
+      -500.0
+     ]
+    },
+    {
+     "measured": 9.6,
+     "printed": "9,60",
+     "entity": "DIMENSION:14B",
+     "wall_ids": [
+      "w_L0_001"
+     ],
+     "box": [
+      4500.0,
+      -1200.0,
+      5100.0,
+      -1000.0
+     ]
+    },
+    {
+     "measured": 5.2,
+     "printed": "5,20",
+     "entity": "DIMENSION:15B",
+     "wall_ids": [
+      "w_L0_004"
+     ],
+     "box": [
+      -700.0,
+      2300.0,
+      -500.0,
+      2900.0
+     ]
+    },
+    {
+     "measured": 2.0,
+     "printed": "2,00",
+     "entity": "DIMENSION:16B",
+     "wall_ids": [
+      "w_L0_004"
+     ],
+     "box": [
+      -700.0,
+      5900.0,
+      -500.0,
+      6500.0
+     ]
+    },
+    {
+     "measured": 7.2,
+     "printed": "7,20",
+     "entity": "DIMENSION:17B",
+     "wall_ids": [
+      "w_L0_004"
+     ],
+     "box": [
+      -1200.0,
+      3300.0,
+      -1000.0,
+      3900.0
+     ]
+    }
+   ]
+  },
+  {
+   "file": "1_kat.pdf",
+   "page": 1,
+   "class": "floor_plan",
+   "kind": "vector",
+   "level_id": "L1",
+   "level_label_raw": "1. KAT PLANI",
+   "units": "pt",
+   "size": [
+    1190.55,
+    841.89
+   ],
+   "dpi": null,
+   "scale_metres_per_unit": 0.035277777777777776,
+   "transform": {
+    "kind": "affine",
+    "building_to_page": [
+     28.34645669291339,
+     0.0,
+     477.6,
+     0.0,
+     28.34645669291339,
+     316.1
+    ]
+   },
+   "texts": [
+    {
+     "text": "4,30",
+     "box": [
+      529.639,
+      299.17,
+      547.451,
+      307.17
+     ],
+     "entity": "char:0",
+     "role": "dimension"
+    },
+    {
+     "text": "1,70",
+     "box": [
+      614.678,
+      299.17,
+      632.491,
+      307.17
+     ],
+     "entity": "char:4",
+     "role": "dimension"
+    },
+    {
+     "text": "3,60",
+     "box": [
+      689.796,
+      299.17,
+      707.609,
+      307.17
+     ],
+     "entity": "char:8",
+     "role": "dimension"
+    },
+    {
+     "text": "9,60",
+     "box": [
+      604.757,
+      284.997,
+      622.569,
+      292.997
+     ],
+     "entity": "char:12",
+     "role": "dimension"
+    },
+    {
+     "text": "4,20",
+     "box": [
+      452.514,
+      366.721,
+      460.514,
+      384.534
+     ],
+     "entity": "char:16",
+     "role": "dimension"
+    },
+    {
+     "text": "3,00",
+     "box": [
+      452.514,
+      468.769,
+      460.514,
+      486.581
+     ],
+     "entity": "char:20",
+     "role": "dimension"
+    },
+    {
+     "text": "7,20",
+     "box": [
+      438.341,
+      409.241,
+      446.341,
+      427.053
+     ],
+     "entity": "char:24",
+     "role": "dimension"
+    },
+    {
+     "text": "1. KAT PLANI",
+     "box": [
+      477.6,
+      551.808,
+      541.877,
+      561.808
+     ],
+     "entity": "char:28",
+     "role": "title"
+    },
+    {
+     "text": "ÖLÇEK 1/100",
+     "box": [
+      570.224,
+      552.048,
+      628.992,
+      561.048
+     ],
+     "entity": "char:40",
+     "role": "scale"
+    },
+    {
+     "text": "EBEVEYN YATAK ODASI",
+     "box": [
+      491.773,
+      370.871,
+      585.187,
+      378.871
+     ],
+     "entity": "char:51",
+     "role": "room_label",
+     "element_id": "r_L1_ebeveyn_yatak_odasi"
+    },
+    {
+     "text": "HOL",
+     "box": [
+      607.994,
+      413.391,
+      624.763,
+      421.391
+     ],
+     "entity": "char:70",
+     "role": "room_label",
+     "element_id": "r_L1_hol"
+    },
+    {
+     "text": "YATAK ODASI",
+     "box": [
+      659.017,
+      365.202,
+      712.892,
+      373.202
+     ],
+     "entity": "char:73",
+     "role": "room_label",
+     "element_id": "r_L1_yatak_odasi"
+    },
+    {
+     "text": "BANYO",
+     "box": [
+      659.017,
+      467.249,
+      687.146,
+      475.249
+     ],
+     "entity": "char:84",
+     "role": "room_label",
+     "element_id": "r_L1_banyo"
+    },
+    {
+     "text": "ÇOCUK ODASI",
+     "box": [
+      494.608,
+      470.084,
+      551.088,
+      478.084
+     ],
+     "entity": "char:89",
+     "role": "room_label",
+     "element_id": "r_L1_cocuk_odasi"
+    }
+   ],
+   "symbols": [
+    {
+     "id": "d_L1_001",
+     "type": "door",
+     "block": "KAPI_90",
+     "box": [
+      573.978,
+      360.037,
+      599.49,
+      385.549
+     ],
+     "rotation_deg": 90.0,
+     "entity": "path:9",
+     "paths": [
+      9,
+      10
+     ]
+    },
+    {
+     "id": "d_L1_002",
+     "type": "door",
+     "block": "KAPI_80",
+     "box": [
+      576.813,
+      460.667,
+      599.49,
+      483.344
+     ],
+     "rotation_deg": 90.0,
+     "entity": "path:11",
+     "paths": [
+      11,
+      12
+     ]
+    },
+    {
+     "id": "d_L1_003",
+     "type": "door",
+     "block": "KAPI_90",
+     "box": [
+      647.679,
+      360.037,
+      673.191,
+      385.549
+     ],
+     "rotation_deg": 270.0,
+     "entity": "path:13",
+     "paths": [
+      13,
+      14
+     ]
+    },
+    {
+     "id": "d_L1_004",
+     "type": "door",
+     "block": "KAPI_80",
+     "box": [
+      647.679,
+      460.667,
+      670.356,
+      483.344
+     ],
+     "rotation_deg": 270.0,
+     "entity": "path:15",
+     "paths": [
+      15,
+      16
+     ]
+    },
+    {
+     "id": "win_L1_001",
+     "type": "window",
+     "block": "PENCERE_180",
+     "box": [
+      515.868,
+      318.226,
+      566.891,
+      321.061
+     ],
+     "rotation_deg": 0.0,
+     "entity": "path:17",
+     "paths": [
+      17,
+      20
+     ]
+    },
+    {
+     "id": "win_L1_002",
+     "type": "window",
+     "block": "PENCERE_180",
+     "box": [
+      670.356,
+      318.226,
+      721.38,
+      321.061
+     ],
+     "rotation_deg": 0.0,
+     "entity": "path:21",
+     "paths": [
+      21,
+      24
+     ]
+    },
+    {
+     "id": "win_L1_003",
+     "type": "window",
+     "block": "PENCERE_120",
+     "box": [
+      479.726,
+      361.454,
+      482.561,
+      395.47
+     ],
+     "rotation_deg": 90.0,
+     "entity": "path:25",
+     "paths": [
+      25,
+      28
+     ]
+    },
+    {
+     "id": "win_L1_004",
+     "type": "window",
+     "block": "PENCERE_120",
+     "box": [
+      524.372,
+      515.234,
+      558.387,
+      518.069
+     ],
+     "rotation_deg": 0.0,
+     "entity": "path:29",
+     "paths": [
+      29,
+      32
+     ]
+    },
+    {
+     "id": "win_L1_005",
+     "type": "window",
+     "block": "PENCERE_60",
+     "box": [
+      615.08,
+      515.234,
+      632.088,
+      518.069
+     ],
+     "rotation_deg": 0.0,
+     "entity": "path:33",
+     "paths": [
+      33,
+      36
+     ]
+    },
+    {
+     "id": "win_L1_006",
+     "type": "window",
+     "block": "PENCERE_60",
+     "box": [
+      687.364,
+      515.234,
+      704.372,
+      518.069
+     ],
+     "rotation_deg": 0.0,
+     "entity": "path:37",
+     "paths": [
+      37,
+      40
+     ]
+    }
+   ],
+   "walls": [
+    {
+     "id": "w_L1_001",
+     "box": [
+      477.6,
+      316.1,
+      749.726,
+      323.187
+     ],
+     "entity": "path:1"
+    },
+    {
+     "id": "w_L1_002",
+     "box": [
+      742.639,
+      316.1,
+      749.726,
+      520.194
+     ],
+     "entity": "path:2"
+    },
+    {
+     "id": "w_L1_003",
+     "box": [
+      477.6,
+      513.108,
+      749.726,
+      520.194
+     ],
+     "entity": "path:3"
+    },
+    {
+     "id": "w_L1_004",
+     "box": [
+      477.6,
+      316.1,
+      484.687,
+      520.194
+     ],
+     "entity": "path:4"
+    },
+    {
+     "id": "w_L1_005",
+     "box": [
+      598.072,
+      323.187,
+      600.907,
+      513.108
+     ],
+     "entity": "path:5"
+    },
+    {
+     "id": "w_L1_006",
+     "box": [
+      646.261,
+      323.187,
+      649.096,
+      513.108
+     ],
+     "entity": "path:6"
+    },
+    {
+     "id": "w_L1_007",
+     "box": [
+      484.687,
+      433.738,
+      598.072,
+      436.572
+     ],
+     "entity": "path:7"
+    },
+    {
+     "id": "w_L1_008",
+     "box": [
+      649.096,
+      428.069,
+      742.639,
+      430.903
+     ],
+     "entity": "path:8"
+    }
+   ],
+   "dimensions": [
+    {
+     "measured": 4.3,
+     "printed": "4,30",
+     "entity": "path:41",
+     "text_entity": "char:0",
+     "wall_ids": [
+      "w_L1_001"
+     ],
+     "box": [
+      529.639,
+      299.17,
+      547.451,
+      307.17
+     ],
+     "paths": [
+      41,
+      45
+     ]
+    },
+    {
+     "measured": 1.7,
+     "printed": "1,70",
+     "entity": "path:46",
+     "text_entity": "char:4",
+     "wall_ids": [
+      "w_L1_001"
+     ],
+     "box": [
+      614.678,
+      299.17,
+      632.491,
+      307.17
+     ],
+     "paths": [
+      46,
+      50
+     ]
+    },
+    {
+     "measured": 3.6,
+     "printed": "3,60",
+     "entity": "path:51",
+     "text_entity": "char:8",
+     "wall_ids": [
+      "w_L1_001"
+     ],
+     "box": [
+      689.796,
+      299.17,
+      707.609,
+      307.17
+     ],
+     "paths": [
+      51,
+      55
+     ]
+    },
+    {
+     "measured": 9.6,
+     "printed": "9,60",
+     "entity": "path:56",
+     "text_entity": "char:12",
+     "wall_ids": [
+      "w_L1_001"
+     ],
+     "box": [
+      604.757,
+      284.997,
+      622.569,
+      292.997
+     ],
+     "paths": [
+      56,
+      60
+     ]
+    },
+    {
+     "measured": 4.2,
+     "printed": "4,20",
+     "entity": "path:61",
+     "text_entity": "char:16",
+     "wall_ids": [
+      "w_L1_004"
+     ],
+     "box": [
+      452.514,
+      366.721,
+      460.514,
+      384.534
+     ],
+     "paths": [
+      61,
+      65
+     ]
+    },
+    {
+     "measured": 3.0,
+     "printed": "3,00",
+     "entity": "path:66",
+     "text_entity": "char:20",
+     "wall_ids": [
+      "w_L1_004"
+     ],
+     "box": [
+      452.514,
+      468.769,
+      460.514,
+      486.581
+     ],
+     "paths": [
+      66,
+      70
+     ]
+    },
+    {
+     "measured": 7.2,
+     "printed": "7,20",
+     "entity": "path:71",
+     "text_entity": "char:24",
+     "wall_ids": [
+      "w_L1_004"
+     ],
+     "box": [
+      438.341,
+      409.241,
+      446.341,
+      427.053
+     ],
+     "paths": [
+      71,
+      75
+     ]
+    }
+   ]
+  },
+  {
+   "file": "1_kat_scan.png",
+   "page": 1,
+   "class": "floor_plan",
+   "kind": "scan",
+   "level_id": "L1",
+   "level_label_raw": "1. KAT PLANI",
+   "units": "px",
+   "size": [
+    2481,
+    1754
+   ],
+   "dpi": 150,
+   "scale_metres_per_unit": 0.016933333333333335,
+   "transform": {
+    "kind": "affine",
+    "building_to_page": [
+     59.05509634117118,
+     -0.05070649802041855,
+     995.1876117185199,
+     -0.05070649802041855,
+     -59.05509634117118,
+     1095.6065465007796
+    ]
+   },
+   "texts": [
+    {
+     "text": "4,30",
+     "box": [
+      1103.6,
+      1114.1,
+      1140.7,
+      1130.8
+     ],
+     "entity": "pixel_box",
+     "role": "dimension"
+    },
+    {
+     "text": "1,70",
+     "box": [
+      1280.8,
+      1113.9,
+      1317.9,
+      1130.6
+     ],
+     "entity": "pixel_box",
+     "role": "dimension"
+    },
+    {
+     "text": "3,60",
+     "box": [
+      1437.3,
+      1113.8,
+      1474.4,
+      1130.5
+     ],
+     "entity": "pixel_box",
+     "role": "dimension"
+    },
+    {
+     "text": "9,60",
+     "box": [
+      1260.1,
+      1143.5,
+      1297.3,
+      1160.2
+     ],
+     "entity": "pixel_box",
+     "role": "dimension"
+    },
+    {
+     "text": "4,20",
+     "box": [
+      942.8,
+      953.1,
+      959.5,
+      990.2
+     ],
+     "entity": "pixel_box",
+     "role": "dimension"
+    },
+    {
+     "text": "3,00",
+     "box": [
+      942.6,
+      740.5,
+      959.3,
+      777.6
+     ],
+     "entity": "pixel_box",
+     "role": "dimension"
+    },
+    {
+     "text": "7,20",
+     "box": [
+      913.2,
+      864.5,
+      929.9,
+      901.6
+     ],
+     "entity": "pixel_box",
+     "role": "dimension"
+    },
+    {
+     "text": "1. KAT PLANI",
+     "box": [
+      994.7,
+      583.6,
+      1128.7,
+      604.5
+     ],
+     "entity": "pixel_box",
+     "role": "title"
+    },
+    {
+     "text": "ÖLÇEK 1/100",
+     "box": [
+      1187.7,
+      585.0,
+      1310.2,
+      603.9
+     ],
+     "entity": "pixel_box",
+     "role": "scale"
+    },
+    {
+     "text": "EBEVEYN YATAK ODASI",
+     "box": [
+      1024.6,
+      964.6,
+      1219.2,
+      981.5
+     ],
+     "entity": "pixel_box",
+     "role": "room_label",
+     "element_id": "r_L1_ebeveyn_yatak_odasi"
+    },
+    {
+     "text": "HOL",
+     "box": [
+      1266.7,
+      876.0,
+      1301.6,
+      892.7
+     ],
+     "entity": "pixel_box",
+     "role": "room_label",
+     "element_id": "r_L1_hol"
+    },
+    {
+     "text": "YATAK ODASI",
+     "box": [
+      1373.0,
+      976.2,
+      1485.3,
+      993.0
+     ],
+     "entity": "pixel_box",
+     "role": "room_label",
+     "element_id": "r_L1_yatak_odasi"
+    },
+    {
+     "text": "BANYO",
+     "box": [
+      1372.9,
+      763.7,
+      1431.5,
+      780.4
+     ],
+     "entity": "pixel_box",
+     "role": "room_label",
+     "element_id": "r_L1_banyo"
+    },
+    {
+     "text": "ÇOCUK ODASI",
+     "box": [
+      1030.3,
+      758.0,
+      1148.0,
+      774.8
+     ],
+     "entity": "pixel_box",
+     "role": "room_label",
+     "element_id": "r_L1_cocuk_odasi"
+    }
+   ],
+   "symbols": [
+    {
+     "id": "d_L1_001",
+     "type": "door",
+     "block": "KAPI_90",
+     "box": [
+      1195.9,
+      950.7,
+      1249.0,
+      1003.9
+     ],
+     "rotation_deg": 90.0,
+     "entity": "pixel_box"
+    },
+    {
+     "id": "d_L1_002",
+     "type": "door",
+     "block": "KAPI_80",
+     "box": [
+      1201.6,
+      747.0,
+      1248.9,
+      794.2
+     ],
+     "rotation_deg": 90.0,
+     "entity": "pixel_box"
+    },
+    {
+     "id": "d_L1_003",
+     "type": "door",
+     "block": "KAPI_90",
+     "box": [
+      1349.4,
+      950.6,
+      1402.6,
+      1003.8
+     ],
+     "rotation_deg": 270.0,
+     "entity": "pixel_box"
+    },
+    {
+     "id": "d_L1_004",
+     "type": "door",
+     "block": "KAPI_80",
+     "box": [
+      1349.2,
+      746.8,
+      1396.5,
+      794.1
+     ],
+     "rotation_deg": 270.0,
+     "entity": "pixel_box"
+    },
+    {
+     "id": "win_L1_001",
+     "type": "window",
+     "block": "PENCERE_180",
+     "box": [
+      1074.9,
+      1085.1,
+      1181.2,
+      1091.1
+     ],
+     "rotation_deg": 0.0,
+     "entity": "pixel_box"
+    },
+    {
+     "id": "win_L1_002",
+     "type": "window",
+     "block": "PENCERE_180",
+     "box": [
+      1396.8,
+      1084.8,
+      1503.1,
+      1090.8
+     ],
+     "rotation_deg": 0.0,
+     "entity": "pixel_box"
+    },
+    {
+     "id": "win_L1_003",
+     "type": "window",
+     "block": "PENCERE_120",
+     "box": [
+      999.5,
+      930.2,
+      1005.4,
+      1001.1
+     ],
+     "rotation_deg": 90.0,
+     "entity": "pixel_box"
+    },
+    {
+     "id": "win_L1_004",
+     "type": "window",
+     "block": "PENCERE_120",
+     "box": [
+      1092.3,
+      674.7,
+      1163.1,
+      680.7
+     ],
+     "rotation_deg": 0.0,
+     "entity": "pixel_box"
+    },
+    {
+     "id": "win_L1_005",
+     "type": "window",
+     "block": "PENCERE_60",
+     "box": [
+      1281.2,
+      674.6,
+      1316.7,
+      680.5
+     ],
+     "rotation_deg": 0.0,
+     "entity": "pixel_box"
+    },
+    {
+     "id": "win_L1_006",
+     "type": "window",
+     "block": "PENCERE_60",
+     "box": [
+      1431.8,
+      674.4,
+      1467.3,
+      680.4
+     ],
+     "rotation_deg": 0.0,
+     "entity": "pixel_box"
+    }
+   ],
+   "walls": [
+    {
+     "id": "w_L1_001",
+     "box": [
+      995.2,
+      1080.4,
+      1562.1,
+      1095.6
+     ],
+     "entity": "pixel_box"
+    },
+    {
+     "id": "w_L1_002",
+     "box": [
+      1547.0,
+      669.9,
+      1562.1,
+      1095.1
+     ],
+     "entity": "pixel_box"
+    },
+    {
+     "id": "w_L1_003",
+     "box": [
+      994.8,
+      669.9,
+      1561.8,
+      685.2
+     ],
+     "entity": "pixel_box"
+    },
+    {
+     "id": "w_L1_004",
+     "box": [
+      994.8,
+      670.4,
+      1010.0,
+      1095.6
+     ],
+     "entity": "pixel_box"
+    },
+    {
+     "id": "w_L1_005",
+     "box": [
+      1245.8,
+      685.0,
+      1252.1,
+      1080.6
+     ],
+     "entity": "pixel_box"
+    },
+    {
+     "id": "w_L1_006",
+     "box": [
+      1346.2,
+      684.9,
+      1352.5,
+      1080.5
+     ],
+     "entity": "pixel_box"
+    },
+    {
+     "id": "w_L1_007",
+     "box": [
+      1009.7,
+      844.4,
+      1246.0,
+      850.5
+     ],
+     "entity": "pixel_box"
+    },
+    {
+     "id": "w_L1_008",
+     "box": [
+      1352.3,
+      856.0,
+      1547.2,
+      862.0
+     ],
+     "entity": "pixel_box"
+    }
+   ],
+   "dimensions": [
+    {
+     "measured": 4.3,
+     "printed": "4,30",
+     "entity": "pixel_box",
+     "wall_ids": [
+      "w_L1_001"
+     ],
+     "box": [
+      1103.6,
+      1114.1,
+      1140.7,
+      1130.8
+     ]
+    },
+    {
+     "measured": 1.7,
+     "printed": "1,70",
+     "entity": "pixel_box",
+     "wall_ids": [
+      "w_L1_001"
+     ],
+     "box": [
+      1280.8,
+      1113.9,
+      1317.9,
+      1130.6
+     ]
+    },
+    {
+     "measured": 3.6,
+     "printed": "3,60",
+     "entity": "pixel_box",
+     "wall_ids": [
+      "w_L1_001"
+     ],
+     "box": [
+      1437.3,
+      1113.8,
+      1474.4,
+      1130.5
+     ]
+    },
+    {
+     "measured": 9.6,
+     "printed": "9,60",
+     "entity": "pixel_box",
+     "wall_ids": [
+      "w_L1_001"
+     ],
+     "box": [
+      1260.1,
+      1143.5,
+      1297.3,
+      1160.2
+     ]
+    },
+    {
+     "measured": 4.2,
+     "printed": "4,20",
+     "entity": "pixel_box",
+     "wall_ids": [
+      "w_L1_004"
+     ],
+     "box": [
+      942.8,
+      953.1,
+      959.5,
+      990.2
+     ]
+    },
+    {
+     "measured": 3.0,
+     "printed": "3,00",
+     "entity": "pixel_box",
+     "wall_ids": [
+      "w_L1_004"
+     ],
+     "box": [
+      942.6,
+      740.5,
+      959.3,
+      777.6
+     ]
+    },
+    {
+     "measured": 7.2,
+     "printed": "7,20",
+     "entity": "pixel_box",
+     "wall_ids": [
+      "w_L1_004"
+     ],
+     "box": [
+      913.2,
+      864.5,
+      929.9,
+      901.6
+     ]
+    }
+   ],
+   "H_building_to_pixels": [
+    [
+     59.05509634117118,
+     -0.05070649802041855,
+     995.1876117185199
+    ],
+    [
+     -0.05070649802041855,
+     -59.05509634117118,
+     1095.6065465007796
+    ],
+    [
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  }
+ ]
+}

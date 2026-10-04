@@ -1,0 +1,255 @@
+{
+ "schema_version": "0.1",
+ "kind": "recognition_requests",
+ "project": "toy",
+ "crop_version": "m7.1",
+ "models": {
+  "qwen": {
+   "id": "Qwen/Qwen3-VL-8B-Instruct",
+   "slug": "qwen3-vl-8b",
+   "pass": 1
+  },
+  "glm": {
+   "id": "zai-org/GLM-4.6V-Flash",
+   "slug": "glm-4.6v-flash",
+   "pass": 2
+  }
+ },
+ "items": [
+  {
+   "key": "sym_T0_1",
+   "task": "symbol_type",
+   "page": 1,
+   "images": [
+    "crops/sym_T0_1_ctx.png",
+    "crops/sym_T0_1_iso.png"
+   ],
+   "context": {
+    "file": "toy.pdf",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "bedroom",
+    "room_label": null,
+    "footprint": {
+     "center": [
+      1.2,
+      2.5
+     ],
+     "size": [
+      1.6,
+      2.0
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     0.4,
+     1.5,
+     2.0,
+     3.5
+    ],
+    "crop": {
+     "object_box": [
+      400,
+      1500,
+      2000,
+      3500
+     ],
+     "ctx_box": [
+      -400,
+      900,
+      2800,
+      4100
+     ],
+     "iso_box": [
+      -50,
+      1250,
+      2450,
+      3750
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "bed_double",
+     "stair",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     1.6,
+     2.0
+    ],
+    "room": {
+     "label": null,
+     "type": null
+    },
+    "neighbours": null
+   },
+   "input_sha256": "0ce32e3724eb256a7b8550e681bd5f4f8768a229e1a0b10def8a58ee60c1462b"
+  },
+  {
+   "key": "sym_T0_2",
+   "task": "symbol_type",
+   "page": 1,
+   "images": [
+    "crops/sym_T0_2_ctx.png",
+    "crops/sym_T0_2_iso.png"
+   ],
+   "context": {
+    "file": "toy.pdf",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "bedroom",
+    "room_label": null,
+    "footprint": {
+     "center": [
+      3.425,
+      1.025
+     ],
+     "size": [
+      0.45,
+      0.45
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     3.2,
+     0.8,
+     3.65,
+     1.25
+    ],
+    "crop": {
+     "object_box": [
+      3200,
+      800,
+      3650,
+      1250
+     ],
+     "ctx_box": [
+      2175,
+      -225,
+      4675,
+      2275
+     ],
+     "iso_box": [
+      2854,
+      454,
+      3996,
+      1596
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "chair",
+     "stove",
+     "sink_kitchen",
+     "washbasin",
+     "nightstand",
+     "side_table",
+     "floor_lamp",
+     "potted_plant",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.45,
+     0.45
+    ],
+    "room": {
+     "label": null,
+     "type": null
+    },
+    "neighbours": null
+   },
+   "input_sha256": "3ae83dc9cfc624dcd44ec2098e79f43cea282e9df826d47d7a8f02155adda944"
+  },
+  {
+   "key": "sym_T0_3",
+   "task": "symbol_type",
+   "page": 1,
+   "images": [
+    "crops/sym_T0_3_ctx.png",
+    "crops/sym_T0_3_iso.png"
+   ],
+   "context": {
+    "file": "toy.pdf",
+    "level": "L0",
+    "room_id": null,
+    "room_type": "bedroom",
+    "room_label": null,
+    "footprint": {
+     "center": [
+      3.85,
+      3.4
+     ],
+     "size": [
+      0.9,
+      0.3
+     ],
+     "rotation_deg": 0.0
+    },
+    "bbox": [
+     3.4,
+     3.25,
+     4.3,
+     3.55
+    ],
+    "crop": {
+     "object_box": [
+      3400,
+      3250,
+      4300,
+      3550
+     ],
+     "ctx_box": [
+      2600,
+      2150,
+      5100,
+      4650
+     ],
+     "iso_box": [
+      3279,
+      2829,
+      4421,
+      3971
+     ],
+     "units": "mm",
+     "px": 512,
+     "kind": "vector",
+     "crop_version": "m7.1"
+    }
+   },
+   "question": {
+    "kind": "vector",
+    "choices": [
+     "tv_unit",
+     "bookshelf",
+     "potted_plant",
+     "unknown",
+     "not_furniture"
+    ],
+    "size_m": [
+     0.9,
+     0.3
+    ],
+    "room": {
+     "label": null,
+     "type": null
+    },
+    "neighbours": null
+   },
+   "input_sha256": "5d2432bbf8916f021e6b114a55b6ae2d4ecb231cd41f3a267bd763e9038396c8"
+  }
+ ]
+}

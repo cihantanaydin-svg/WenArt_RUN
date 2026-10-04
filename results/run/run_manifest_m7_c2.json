@@ -1,0 +1,410 @@
+{
+ "schema_version": "0.1",
+ "kind": "run_manifest",
+ "run_id": "20261004-013837-full-20261004T014240Z",
+ "job": "20261004-013837-full",
+ "git_commit": "0a41bee4ea72a8713da1941efc8951188b952670",
+ "profile": "full",
+ "deadline": 1791083963.0,
+ "started_utc": "2026-10-04T01:42:40Z",
+ "finished_utc": "2026-10-04T02:30:02Z",
+ "final": true,
+ "exit_code": 1,
+ "projects": [
+  {
+   "name": "synthetic-03",
+   "private": false,
+   "state": "ok",
+   "out_dir": "outputs/synthetic-03",
+   "stages": [
+    {
+     "stage": "intake",
+     "status": "skipped",
+     "seconds": 0.0,
+     "note": "private only"
+    },
+    {
+     "stage": "pipeline",
+     "status": "ok",
+     "seconds": 9.6,
+     "note": null
+    },
+    {
+     "stage": "recognize",
+     "status": "skipped",
+     "seconds": 0.0,
+     "note": "no questions"
+    },
+    {
+     "stage": "pipeline_final",
+     "status": "skipped",
+     "seconds": 0.0,
+     "note": "no questions"
+    },
+    {
+     "stage": "photos",
+     "status": "skipped",
+     "seconds": 0.0,
+     "note": "no style photos"
+    },
+    {
+     "stage": "style",
+     "status": "ok",
+     "seconds": 0.2,
+     "note": null
+    },
+    {
+     "stage": "assets",
+     "status": "ok",
+     "seconds": 0.8,
+     "note": null
+    },
+    {
+     "stage": "fit",
+     "status": "ok",
+     "seconds": 1.7,
+     "note": null
+    },
+    {
+     "stage": "layout",
+     "status": "ok",
+     "seconds": 76.8,
+     "note": null
+    },
+    {
+     "stage": "decor",
+     "status": "ok",
+     "seconds": 2.5,
+     "note": null
+    },
+    {
+     "stage": "refit",
+     "status": "ok",
+     "seconds": 1.4,
+     "note": null
+    },
+    {
+     "stage": "build",
+     "status": "ok",
+     "seconds": 53.9,
+     "note": null
+    },
+    {
+     "stage": "render",
+     "status": "ok",
+     "seconds": 240.6,
+     "note": null
+    },
+    {
+     "stage": "controls",
+     "status": "ok",
+     "seconds": 59.9,
+     "note": null
+    },
+    {
+     "stage": "gate",
+     "status": "ok",
+     "seconds": 84.6,
+     "note": "gate decision ok"
+    },
+    {
+     "stage": "polish",
+     "status": "ok",
+     "seconds": 1236.1,
+     "note": null
+    },
+    {
+     "stage": "detect",
+     "status": "ok",
+     "seconds": 14.0,
+     "note": null
+    },
+    {
+     "stage": "expected",
+     "status": "ok",
+     "seconds": 16.9,
+     "note": null
+    },
+    {
+     "stage": "check",
+     "status": "ok",
+     "seconds": 192.6,
+     "note": null
+    },
+    {
+     "stage": "combine",
+     "status": "ok",
+     "seconds": 30.2,
+     "note": null
+    },
+    {
+     "stage": "report",
+     "status": "ok",
+     "seconds": 13.7,
+     "note": null
+    }
+   ],
+   "gate_decision": "ok",
+   "views": 44
+  }
+ ],
+ "totals": {
+  "ok": 1,
+  "needs_review": 0,
+  "failed": 0,
+  "incomplete": 0
+ },
+ "ab_phase": "all",
+ "ab_controls": "synthetic-01",
+ "ab": [
+  {
+   "name": "synthetic-03",
+   "controls": false,
+   "look_alt": true,
+   "controls_rendered": false,
+   "dropped": null,
+   "stages": [
+    {
+     "stage": "ab_pairs",
+     "status": "ok",
+     "seconds": 5.3,
+     "note": null
+    },
+    {
+     "stage": "ab_realism",
+     "status": "ok",
+     "seconds": 79.2,
+     "note": null
+    },
+    {
+     "stage": "ab_combine",
+     "status": "ok",
+     "seconds": 8.4,
+     "note": null
+    }
+   ]
+  },
+  {
+   "name": "synthetic-05",
+   "controls": false,
+   "look_alt": true,
+   "controls_rendered": false,
+   "dropped": "no pairs",
+   "stages": [
+    {
+     "stage": "ab_pairs",
+     "status": "failed",
+     "seconds": 1.9,
+     "note": "realism2-pairs exit 1"
+    }
+   ]
+  },
+  {
+   "name": "synthetic-01",
+   "controls": true,
+   "look_alt": false,
+   "controls_rendered": false,
+   "dropped": null,
+   "stages": [
+    {
+     "stage": "ab_render",
+     "status": "reused",
+     "seconds": 0.0,
+     "note": "the M6 control renders on the volume (ab/renders, ab/ctl_*, ab/nuisance_ev) are used as they are"
+    },
+    {
+     "stage": "ab_controls",
+     "status": "reused",
+     "seconds": 0.0,
+     "note": "the M6 control renders on the volume (ab/renders, ab/ctl_*, ab/nuisance_ev) are used as they are"
+    },
+    {
+     "stage": "ab_pairs",
+     "status": "ok",
+     "seconds": 5.7,
+     "note": null
+    },
+    {
+     "stage": "ab_realism",
+     "status": "ok",
+     "seconds": 187.8,
+     "note": null
+    },
+    {
+     "stage": "ab_combine",
+     "status": "ok",
+     "seconds": 13.8,
+     "note": null
+    }
+   ]
+  }
+ ],
+ "realism_summary": {
+  "stage": "realism_summary",
+  "status": "ok",
+  "rc": 0,
+  "seconds": 1.7,
+  "note": null
+ },
+ "phases": [
+  {
+   "phase": 1,
+   "name": "cpu: intake, pipeline, fit, style",
+   "start_utc": "2026-10-04T01:42:41Z",
+   "end_utc": "2026-10-04T01:42:57Z",
+   "seconds": 16.2
+  },
+  {
+   "phase": 2,
+   "name": "vlm glm: recognition, style photos",
+   "start_utc": "2026-10-04T01:42:57Z",
+   "end_utc": "2026-10-04T01:42:57Z",
+   "seconds": 0.0
+  },
+  {
+   "phase": 3,
+   "name": "vlm qwen: recognition, pipeline_final, fit, style photos, layout",
+   "start_utc": "2026-10-04T01:42:57Z",
+   "end_utc": "2026-10-04T01:49:16Z",
+   "seconds": 379.1
+  },
+  {
+   "phase": 4,
+   "name": "cpu: assets, decor, refit, A/B prepare",
+   "start_utc": "2026-10-04T01:49:16Z",
+   "end_utc": "2026-10-04T01:49:21Z",
+   "seconds": 5.4
+  },
+  {
+   "phase": 5,
+   "name": "blender: build, render, controls, A/B control renders",
+   "start_utc": "2026-10-04T01:49:21Z",
+   "end_utc": "2026-10-04T01:55:16Z",
+   "seconds": 354.6
+  },
+  {
+   "phase": 6,
+   "name": "diffusion: gate, polish, detect",
+   "start_utc": "2026-10-04T01:55:16Z",
+   "end_utc": "2026-10-04T02:17:31Z",
+   "seconds": 1335.4
+  },
+  {
+   "phase": 7,
+   "name": "cpu: expected, plan crops, A/B pairs",
+   "start_utc": "2026-10-04T02:17:31Z",
+   "end_utc": "2026-10-04T02:18:01Z",
+   "seconds": 29.9
+  },
+  {
+   "phase": 8,
+   "name": "vlm qwen: check, realism",
+   "start_utc": "2026-10-04T02:18:01Z",
+   "end_utc": "2026-10-04T02:22:33Z",
+   "seconds": 271.7
+  },
+  {
+   "phase": 9,
+   "name": "vlm glm: check, realism",
+   "start_utc": "2026-10-04T02:22:33Z",
+   "end_utc": "2026-10-04T02:27:53Z",
+   "seconds": 320.0
+  },
+  {
+   "phase": 10,
+   "name": "cpu: combine, realism summary, report",
+   "start_utc": "2026-10-04T02:27:53Z",
+   "end_utc": "2026-10-04T02:29:01Z",
+   "seconds": 67.9
+  },
+  {
+   "phase": 11,
+   "name": "gpu tests, run manifest",
+   "start_utc": "2026-10-04T02:29:01Z",
+   "end_utc": "2026-10-04T02:30:02Z",
+   "seconds": 61.5
+  }
+ ],
+ "servers": [
+  {
+   "key": "qwen",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seqs": 8,
+   "seconds_to_ready": 300.0,
+   "ok": true,
+   "phase": 3,
+   "started_utc": "2026-10-04T01:49:16Z"
+  },
+  {
+   "key": "qwen",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seqs": 8,
+   "seconds_to_ready": 40.0,
+   "ok": true,
+   "phase": 8,
+   "started_utc": "2026-10-04T02:22:33Z"
+  },
+  {
+   "key": "glm",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seqs": 8,
+   "seconds_to_ready": 90.0,
+   "ok": true,
+   "phase": 9,
+   "started_utc": "2026-10-04T02:27:53Z"
+  }
+ ],
+ "tests": [
+  {
+   "group": "full",
+   "files": [
+    "tests/gpu/test_full_run.py",
+    "tests/gpu/test_render.py",
+    "tests/gpu/test_look_m6.py",
+    "tests/gpu/test_furnish.py",
+    "tests/gpu/test_check.py",
+    "tests/gpu/test_realism.py"
+   ],
+   "rc": 1,
+   "status": "failed",
+   "junit": "junit-full.xml",
+   "seconds": 7.2
+  },
+  {
+   "group": "polish",
+   "files": [
+    "tests/gpu/test_polish.py",
+    "tests/gpu/test_polish_backend.py",
+    "tests/gpu/test_detect.py"
+   ],
+   "rc": 0,
+   "status": "passed",
+   "junit": "junit-polish.xml",
+   "seconds": 15.9
+  }
+ ],
+ "test_lists": {
+  "RUN_TEST_PROJECTS": "synthetic-03",
+  "NEEDS_REVIEW_TEST_PROJECTS": "",
+  "RENDER_TEST_PROJECTS": "synthetic-03",
+  "FURNISH_TEST_PROJECTS": "synthetic-03",
+  "CHECK_TEST_PROJECTS": "synthetic-03",
+  "POLISH_TEST_PROJECTS": "synthetic-03",
+  "GATE_TEST_PROJECTS": "synthetic-03",
+  "DETECT_TEST_PROJECTS": "synthetic-03",
+  "AB_TEST_PROJECTS": "synthetic-03",
+  "AB_CONTROL_PROJECT": "synthetic-01",
+  "SELFTEST_TEST_ALIAS": ""
+ },
+ "force": [],
+ "gpu": {
+  "name": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+  "memory_mib": 97887,
+  "speed": 1.634,
+  "speed_of": "RTX PRO 6000",
+  "seqs": {
+   "qwen": 8,
+   "glm": 8
+  }
+ }
+}

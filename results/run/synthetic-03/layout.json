@@ -1,0 +1,31 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "synthetic-03",
+ "stage": "layout",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 76.84,
+ "fingerprint": "aabd1ef34306ae6d72a9ce764abf0065c8c3f80fb9c6a43e0b78a63f77374a8a",
+ "inputs": {
+  "outputs/synthetic-03/building_fitted.json": "f8556899bf814f579bcb9b890368a35545b53e9d2ff0f32a0044685af42ec108",
+  "outputs/synthetic-03/style.json": "b3c18bc8b3b2d85a7f7281d40c42fe2ef68115f4dd76dad215a2b472a582b305"
+ },
+ "outputs": [
+  "building_furnished.json",
+  "layout.json"
+ ],
+ "started_utc": "2026-10-04T01:49:15Z",
+ "git_commit": "0a41bee4ea72a8713da1941efc8951188b952670",
+ "log": "logs/layout.log",
+ "note": null,
+ "run_id": "20261004-013837-full-20261004T014240Z",
+ "steps": [
+  {
+   "name": "layout",
+   "rc": 0,
+   "seconds": 76.84
+  }
+ ],
+ "written": {}
+}

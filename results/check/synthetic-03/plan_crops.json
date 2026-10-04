@@ -1,0 +1,623 @@
+{
+ "schema_version": "0.1",
+ "project": "synthetic-03",
+ "views": {
+  "cam_r_L-1_banyo_1": {
+   "plan": "cam_r_L-1_banyo_1_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 1,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    2846,
+    1275
+   ],
+   "scale": 2.25352,
+   "bytes": 53346
+  },
+  "cam_r_L-1_banyo_2": {
+   "plan": "cam_r_L-1_banyo_2_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 1,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    2846,
+    1275
+   ],
+   "scale": 2.25352,
+   "bytes": 55362
+  },
+  "cam_r_L-1_hol_1": {
+   "plan": "cam_r_L-1_hol_1_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 1,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    2409,
+    1275
+   ],
+   "scale": 1.0,
+   "bytes": 40872
+  },
+  "cam_r_L-1_hol_2": {
+   "plan": "cam_r_L-1_hol_2_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 1,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    2409,
+    1275
+   ],
+   "scale": 1.0,
+   "bytes": 31377
+  },
+  "cam_r_L-1_hol_3": {
+   "plan": "cam_r_L-1_hol_3_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 1,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    2409,
+    1275
+   ],
+   "scale": 1.0,
+   "bytes": 38436
+  },
+  "cam_r_L-1_kiler_1": {
+   "plan": "cam_r_L-1_kiler_1_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 1,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    1925,
+    1724
+   ],
+   "scale": 1.35364,
+   "bytes": 44058
+  },
+  "cam_r_L-1_kiler_2_1": {
+   "plan": "cam_r_L-1_kiler_2_1_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 1,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    1925,
+    1275
+   ],
+   "scale": 1.35364,
+   "bytes": 43733
+  },
+  "cam_r_L-1_wc_1": {
+   "plan": "cam_r_L-1_wc_1_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 1,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    2610,
+    1275
+   ],
+   "scale": 2.25352,
+   "bytes": 50820
+  },
+  "cam_r_L-1_wc_2": {
+   "plan": "cam_r_L-1_wc_2_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 1,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    2610,
+    1275
+   ],
+   "scale": 2.25352,
+   "bytes": 51446
+  },
+  "cam_r_L-1_yatak_odasi_1": {
+   "plan": "cam_r_L-1_yatak_odasi_1_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 1,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    2610,
+    1523
+   ],
+   "scale": 1.09141,
+   "bytes": 57060
+  },
+  "cam_r_L-1_yatak_odasi_2": {
+   "plan": "cam_r_L-1_yatak_odasi_2_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 1,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    2610,
+    1523
+   ],
+   "scale": 1.09141,
+   "bytes": 59380
+  },
+  "cam_r_L-1_yatak_odasi_3": {
+   "plan": "cam_r_L-1_yatak_odasi_3_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 1,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    2610,
+    1523
+   ],
+   "scale": 1.09141,
+   "bytes": 55243
+  },
+  "cam_r_L0_antre_1": {
+   "plan": "cam_r_L0_antre_1_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 2,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    2326,
+    1275
+   ],
+   "scale": 1.93237,
+   "bytes": 46928
+  },
+  "cam_r_L0_antre_2": {
+   "plan": "cam_r_L0_antre_2_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 2,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    2326,
+    1275
+   ],
+   "scale": 1.93237,
+   "bytes": 47288
+  },
+  "cam_r_L0_hol_1": {
+   "plan": "cam_r_L0_hol_1_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 2,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    2527,
+    1275
+   ],
+   "scale": 1.0,
+   "bytes": 41374
+  },
+  "cam_r_L0_hol_2": {
+   "plan": "cam_r_L0_hol_2_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 2,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    2527,
+    1275
+   ],
+   "scale": 1.0,
+   "bytes": 34050
+  },
+  "cam_r_L0_hol_3": {
+   "plan": "cam_r_L0_hol_3_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 2,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    2527,
+    1275
+   ],
+   "scale": 1.0,
+   "bytes": 41216
+  },
+  "cam_r_L0_kiler_1": {
+   "plan": "cam_r_L0_kiler_1_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 2,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    2905,
+    1275
+   ],
+   "scale": 2.25352,
+   "bytes": 54429
+  },
+  "cam_r_L0_mutfak_1": {
+   "plan": "cam_r_L0_mutfak_1_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 2,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    1925,
+    1275
+   ],
+   "scale": 1.5748,
+   "bytes": 66247
+  },
+  "cam_r_L0_mutfak_2": {
+   "plan": "cam_r_L0_mutfak_2_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 2,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    1925,
+    1275
+   ],
+   "scale": 1.5748,
+   "bytes": 63119
+  },
+  "cam_r_L0_mutfak_3": {
+   "plan": "cam_r_L0_mutfak_3_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 2,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    1925,
+    1275
+   ],
+   "scale": 1.5748,
+   "bytes": 63259
+  },
+  "cam_r_L0_salon_1": {
+   "plan": "cam_r_L0_salon_1_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 2,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    1925,
+    1582
+   ],
+   "scale": 1.12835,
+   "bytes": 72341
+  },
+  "cam_r_L0_salon_2": {
+   "plan": "cam_r_L0_salon_2_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 2,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    1925,
+    1582
+   ],
+   "scale": 1.12835,
+   "bytes": 56340
+  },
+  "cam_r_L0_salon_3": {
+   "plan": "cam_r_L0_salon_3_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 2,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    1925,
+    1582
+   ],
+   "scale": 1.12835,
+   "bytes": 66461
+  },
+  "cam_r_L0_wc_1": {
+   "plan": "cam_r_L0_wc_1_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 2,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    2728,
+    1275
+   ],
+   "scale": 2.25352,
+   "bytes": 51906
+  },
+  "cam_r_L0_yatak_odasi_1": {
+   "plan": "cam_r_L0_yatak_odasi_1_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 2,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    2728,
+    1523
+   ],
+   "scale": 1.09141,
+   "bytes": 51267
+  },
+  "cam_r_L0_yatak_odasi_2": {
+   "plan": "cam_r_L0_yatak_odasi_2_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 2,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    2728,
+    1523
+   ],
+   "scale": 1.09141,
+   "bytes": 55105
+  },
+  "cam_r_L0_yatak_odasi_3": {
+   "plan": "cam_r_L0_yatak_odasi_3_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 2,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    2728,
+    1523
+   ],
+   "scale": 1.09141,
+   "bytes": 49411
+  },
+  "cam_r_L1_balkon_1": {
+   "plan": "cam_r_L1_balkon_1_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 3,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    2846,
+    1275
+   ],
+   "scale": 1.57171,
+   "bytes": 42376
+  },
+  "cam_r_L1_banyo_1": {
+   "plan": "cam_r_L1_banyo_1_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 3,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    2610,
+    1275
+   ],
+   "scale": 1.57171,
+   "bytes": 50335
+  },
+  "cam_r_L1_banyo_2": {
+   "plan": "cam_r_L1_banyo_2_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 3,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    2610,
+    1275
+   ],
+   "scale": 1.57171,
+   "bytes": 48804
+  },
+  "cam_r_L1_banyo_3": {
+   "plan": "cam_r_L1_banyo_3_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 3,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    2610,
+    1275
+   ],
+   "scale": 1.57171,
+   "bytes": 47289
+  },
+  "cam_r_L1_cocuk_odasi_1": {
+   "plan": "cam_r_L1_cocuk_odasi_1_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 3,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    1925,
+    1275
+   ],
+   "scale": 1.35364,
+   "bytes": 67214
+  },
+  "cam_r_L1_cocuk_odasi_2": {
+   "plan": "cam_r_L1_cocuk_odasi_2_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 3,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    1925,
+    1275
+   ],
+   "scale": 1.35364,
+   "bytes": 60749
+  },
+  "cam_r_L1_cocuk_odasi_3": {
+   "plan": "cam_r_L1_cocuk_odasi_3_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 3,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    1925,
+    1275
+   ],
+   "scale": 1.35364,
+   "bytes": 63891
+  },
+  "cam_r_L1_ebeveyn_yatak_odasi_1": {
+   "plan": "cam_r_L1_ebeveyn_yatak_odasi_1_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 3,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    1925,
+    1677
+   ],
+   "scale": 1.35364,
+   "bytes": 62247
+  },
+  "cam_r_L1_ebeveyn_yatak_odasi_2": {
+   "plan": "cam_r_L1_ebeveyn_yatak_odasi_2_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 3,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    1925,
+    1677
+   ],
+   "scale": 1.35364,
+   "bytes": 71226
+  },
+  "cam_r_L1_ebeveyn_yatak_odasi_3": {
+   "plan": "cam_r_L1_ebeveyn_yatak_odasi_3_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 3,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    1925,
+    1677
+   ],
+   "scale": 1.35364,
+   "bytes": 68050
+  },
+  "cam_r_L1_hol_1": {
+   "plan": "cam_r_L1_hol_1_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 3,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    2409,
+    1275
+   ],
+   "scale": 1.0,
+   "bytes": 40268
+  },
+  "cam_r_L1_hol_2": {
+   "plan": "cam_r_L1_hol_2_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 3,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    2409,
+    1275
+   ],
+   "scale": 1.0,
+   "bytes": 33462
+  },
+  "cam_r_L1_hol_3": {
+   "plan": "cam_r_L1_hol_3_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 3,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    2409,
+    1275
+   ],
+   "scale": 1.0,
+   "bytes": 38384
+  },
+  "cam_r_L1_yatak_odasi_1": {
+   "plan": "cam_r_L1_yatak_odasi_1_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 3,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    2610,
+    1677
+   ],
+   "scale": 1.38169,
+   "bytes": 65476
+  },
+  "cam_r_L1_yatak_odasi_2": {
+   "plan": "cam_r_L1_yatak_odasi_2_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 3,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    2610,
+    1677
+   ],
+   "scale": 1.38169,
+   "bytes": 69027
+  },
+  "cam_r_L1_yatak_odasi_3": {
+   "plan": "cam_r_L1_yatak_odasi_3_plan.jpg",
+   "document": "kat_planlari.pdf",
+   "page": 3,
+   "format": "pdf",
+   "source_kind": "cad_pdf",
+   "drawn_on": "kat_planlari.pdf",
+   "crop_origin_px": [
+    2610,
+    1677
+   ],
+   "scale": 1.38169,
+   "bytes": 70052
+  }
+ },
+ "warnings": []
+}

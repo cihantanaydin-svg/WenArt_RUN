@@ -1,0 +1,1205 @@
+"""CPU tests of the camera search (wenart.blender.camsearch, docs/milestone6.md §4.1).
+
+The ray caster is checked against an independent brute-force caster of an
+axis-aligned room (every label and depth of the 64 x 36 grid), the score
+against hand-computed values of the §4.1 formula, then the candidate grid,
+the blocked rule, the view-count and diversity rules, determinism, the plan
+fields, the searched views of the synthetic projects (better than the M5
+rules by the model, never blocked without the warning), the search time on
+synthetic-03 (<= 60 s) and that the M5 policy still reproduces every
+committed M5 camera (``git show a2adcef``) within 1 mm. The height profile
+of pieces with a back (beds, chairs, sofas, toilets) is checked against the
+builder's parts and, ray by ray, against the built parametric meshes; the
+five searched views of pod run 20261003-205431 whose listed piece was not
+in the render are replayed from tests/fixtures/camsearch_pod_20261003.json.
+No Blender needed (one test runs the search inside Blender's Python when it
+is installed).
+"""
+import json
+import math
+import random
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+import jsonschema
+import numpy as np
+import pytest
+
+from wenart import geometry as G
+from wenart.blender import cameras, camsearch as C, cli, geom2d, schemas
+from wenart.blender.parametric import obstacle_rect
+
+ROOT = Path(__file__).resolve().parents[1]
+PROJECTS = ROOT / "projects"
+RESULTS = ROOT / "results"
+M5_COMMIT = "a2adcef"
+BLENDER = cli.find_blender()
+
+
+# --------------------------------------------------------------------------
+# Hand-made rooms
+# --------------------------------------------------------------------------
+
+def _building(width: float = 5.0, depth: float = 4.0, ceiling: float = 2.6, openings=(), furniture=(),
+              polygon=None, thickness: float = 0.2) -> dict:
+    """One room whose inner faces are x in [0, width], y in [0, depth] (or ``polygon``); wall centre
+    lines ``thickness / 2`` outside. ``openings``: (id, type, wall s/e/n/w, centre along the wall,
+    width, sill, height); ``furniture``: (id, type, centre, footprint size, rotation, library bbox)."""
+    t, h = thickness, thickness / 2.0
+    walls = [
+        {"id": "w_s", "level_id": "L0", "start": [-t, -h], "end": [width + t, -h], "thickness": t},
+        {"id": "w_e", "level_id": "L0", "start": [width + h, -t], "end": [width + h, depth + t], "thickness": t},
+        {"id": "w_n", "level_id": "L0", "start": [width + t, depth + h], "end": [-t, depth + h], "thickness": t},
+        {"id": "w_w", "level_id": "L0", "start": [-h, depth + t], "end": [-h, -t], "thickness": t},
+    ]
+    where = {"s": lambda a: [a, -h], "e": lambda a: [width + h, a], "n": lambda a: [a, depth + h],
+             "w": lambda a: [-h, a]}
+    ops = [{"id": oid, "level_id": "L0", "type": otype, "wall_id": f"w_{wall}", "center": where[wall](along),
+            "width": w, "sill_height": sill, "height": height}
+           for oid, otype, wall, along, w, sill, height in openings]
+    pieces = [{"id": fid, "type": ftype, "room_id": "r", "level_id": "L0", "front_deg": 0.0,
+               "footprint": {"center": list(c), "size": list(s), "rotation_deg": rot},
+               "asset": {"method": "library", "bbox_m": list(bbox)}}
+              for fid, ftype, c, s, rot, bbox in furniture]
+    poly = polygon or [[0, 0], [width, 0], [width, depth], [0, depth]]
+    return {"project": {"id": "hand"}, "status": "ok",
+            "levels": [{"id": "L0", "elevation": 0.0, "ceiling_height": ceiling}],
+            "walls": walls, "openings": ops,
+            "rooms": [{"id": "r", "level_id": "L0", "label": "Oda", "room_type": "bedroom", "polygon": poly}],
+            "furniture": pieces}
+
+
+ROOM_A = dict(
+    openings=[("win", "window", "s", 2.5, 1.6, 0.9, 1.2), ("door", "door", "e", 1.0, 0.9, 0.0, 2.1)],
+    furniture=[("bed", "bed_double", (1.5, 2.9), (1.6, 2.0), 0.0, (1.6, 2.0, 0.6)),
+               ("ward", "wardrobe", (4.6, 3.0), (1.2, 0.6), 90.0, (1.2, 0.6, 2.1))],
+)
+
+
+def _brute_force(building: dict, position, yaw_deg: float, shift_y: float, grid=(64, 36), lens_mm: float = 24.0):
+    """Labels (names) and planar depths of an axis-aligned room, ray by ray in plain Python, through a
+    ``lens_mm`` lens on the 36 mm sensor.
+
+    Independent of camsearch's caster: the room is the box of its rectangular polygon (exit plane of the
+    box), openings are rectangles on those planes, pieces are world-axis boxes (rotation a multiple of 90
+    only): the boxes of ``camsearch.piece_profile`` (one box, or the low part and the back slab of a piece
+    with a back; the profile itself is checked against the builder's parts below)."""
+    (x0, y0), (x1, y1) = building["rooms"][0]["polygon"][0], building["rooms"][0]["polygon"][2]
+    z0 = building["levels"][0]["elevation"]
+    z1 = z0 + building["levels"][0]["ceiling_height"]
+    plane_of = {"w_s": ("y", y0), "w_n": ("y", y1), "w_w": ("x", x0), "w_e": ("x", x1)}
+    rects = []
+    for o in building["openings"]:
+        axis, value = plane_of[o["wall_id"]]
+        along = o["center"][0] if axis == "y" else o["center"][1]
+        rects.append((axis, value, along - o["width"] / 2, along + o["width"] / 2, o["sill_height"],
+                      o["sill_height"] + o["height"], o["id"]))
+    boxes = []
+    for f in building["furniture"]:
+        quarter = round(f["footprint"]["rotation_deg"] / 90.0) % 4
+        assert abs(f["footprint"]["rotation_deg"] - 90.0 * round(f["footprint"]["rotation_deg"] / 90.0)) < 1e-9
+        cx, cy = f["footprint"]["center"]
+        for bx0, by0, bx1, by1, top in C.piece_profile(f):
+            corners = [(bx0, by0), (bx1, by1)]
+            for _ in range(quarter):                                   # turn by 90 degrees: (x, y) -> (-y, x)
+                corners = [(-y, x) for x, y in corners]
+            xs, ys = [cx + p[0] for p in corners], [cy + p[1] for p in corners]
+            boxes.append(((min(xs), min(ys), z0), (max(xs), max(ys), z0 + top), f["id"]))
+    W, H = 1920.0, 1080.0
+    fpx = lens_mm / 36.0 * W
+    yaw = math.radians(yaw_deg)
+    fwd, right = (math.cos(yaw), math.sin(yaw), 0.0), (math.sin(yaw), -math.cos(yaw), 0.0)
+    names, depths = [], []
+    ox, oy, oz = position
+    for j in range(grid[1]):
+        for i in range(grid[0]):
+            a = ((i + 0.5) * W / grid[0] - W / 2) / fpx
+            b = -((j + 0.5) * H / grid[1] - H / 2 - shift_y * W) / fpx
+            d = (fwd[0] + a * right[0], fwd[1] + a * right[1], b)
+            best = (math.inf, None)
+            for axis, k, lo, hi in (("x", 0, x0, x1), ("y", 1, y0, y1), ("z", 2, z0, z1)):
+                if d[k] > 0:
+                    tt, value = (hi - position[k]) / d[k], hi
+                elif d[k] < 0:
+                    tt, value = (lo - position[k]) / d[k], lo
+                else:
+                    continue
+                if tt < best[0]:
+                    best = (tt, (axis, value))
+            tt, (axis, value) = best
+            p = (ox + tt * d[0], oy + tt * d[1], oz + tt * d[2])
+            if axis == "z":
+                name = "floor" if value == z0 else "ceiling"
+            else:
+                name = "wall"
+                for r_axis, r_value, lo, hi, zlo, zhi, oid in rects:
+                    along = p[1] if r_axis == "x" else p[0]
+                    if r_axis == axis and r_value == value and lo <= along <= hi and zlo <= p[2] <= zhi:
+                        name = oid
+            for lo3, hi3, fid in boxes:
+                tn, tf = -math.inf, math.inf
+                for k in range(3):
+                    if d[k] == 0:
+                        if not lo3[k] <= position[k] <= hi3[k]:
+                            tn, tf = math.inf, -math.inf
+                        continue
+                    ta, tb = (lo3[k] - position[k]) / d[k], (hi3[k] - position[k]) / d[k]
+                    tn, tf = max(tn, min(ta, tb)), min(tf, max(ta, tb))
+                if tn <= tf and tn > 1e-4 and tn < tt:
+                    tt, name = tn, fid
+            names.append(name)
+            depths.append(tt)
+    return names, np.array(depths)
+
+
+def _model_names(model: C.RoomModel, labels: np.ndarray) -> list[str]:
+    fixed = {C.FLOOR: "floor", C.CEILING: "ceiling", C.WALL: "wall", C.OPENING: "opening", C.NOTHING: "nothing"}
+    return [fixed.get(int(v)) or model.elements[int(v) - C.FIRST_ELEMENT]["id"] for v in labels]
+
+
+def _cast(building, position, yaw, shift_y=C.SHIFT_Y, grid=(64, 36), lens_mm=C.LENS_MM):
+    model = C.RoomModel(building["rooms"][0], building)
+    a, b = C.ray_grid(grid, lens_mm, shift_y=shift_y)
+    labels, depth = model.cast(position, C.yaw_directions([yaw], a, b))
+    return model, labels[0], depth[0]
+
+
+# --------------------------------------------------------------------------
+# Ray caster vs brute force
+# --------------------------------------------------------------------------
+
+@pytest.mark.parametrize("yaw", [0, 90, 150, 270, 300])
+@pytest.mark.parametrize("shift_y", [0.0, -0.10])
+@pytest.mark.parametrize("lens", [24.0, 18.0, 16.0])
+def test_ray_caster_matches_a_brute_force_caster(yaw, shift_y, lens):
+    # Milestone 8: the ray grid of every lens the cameras use (24 mm m5, 18 mm, 16 mm narrow rooms).
+    building = _building(**ROOM_A)
+    position = (2.5, 1.5, 1.25)
+    model, labels, depth = _cast(building, position, yaw, shift_y, lens_mm=lens)
+    names, ref_depth = _brute_force(building, position, yaw, shift_y, lens_mm=lens)
+    got = _model_names(model, labels)
+    assert got == names
+    assert np.allclose(depth, ref_depth, rtol=1e-9, atol=1e-9)
+
+
+def test_ray_caster_sees_every_kind_of_label():
+    building = _building(**ROOM_A)
+    seen = set()
+    for yaw in (0, 90, 270):
+        model, labels, _ = _cast(building, (2.5, 1.5, 1.25), yaw)
+        seen |= set(_model_names(model, labels))
+    model, labels, _ = _cast(building, (4.4, 0.6, 1.25), 150, shift_y=0.0)     # the far corner: ceiling
+    seen |= set(_model_names(model, labels))
+    assert {"floor", "ceiling", "wall", "win", "door", "bed", "ward"} <= seen
+
+
+def test_plain_openings_are_neither_wall_nor_element():
+    building = _building(openings=[("arch", "opening", "n", 2.5, 1.5, 0.0, 2.2)])
+    model, labels, _ = _cast(building, (2.5, 1.0, 1.25), 90)
+    assert C.OPENING in labels and model.elements == []
+    m = model.measure(labels[None, :], np.where(labels == labels, 3.0, 3.0)[None, :], C.border_mask())[0]
+    assert m["open"] == 0.0 and m["max_single"] == 0.0
+
+
+def test_camera_directions_equal_the_yaw_directions_for_pitch_zero():
+    a, b = C.ray_grid(shift_y=-0.1)
+    for yaw in (0, 30, 135, 270):
+        pos = (1.0, 2.0, 1.25)
+        tgt = (1.0 + math.cos(math.radians(yaw)), 2.0 + math.sin(math.radians(yaw)), 1.25)
+        assert np.allclose(C.camera_directions(pos, tgt, a, b), C.yaw_directions([yaw], a, b)[0], atol=1e-12)
+
+
+@pytest.mark.parametrize("lens", [None, 24.0, 18.0, 16.0])
+def test_ray_grid_follows_the_shift_formula_of_the_spec(lens):
+    # Milestone 8: the grid of the camera's own lens; the default is the 18 mm lens (cameras.LENS_MM).
+    a, b = C.ray_grid((4, 2), shift_x=0.05, shift_y=-0.10) if lens is None else \
+        C.ray_grid((4, 2), lens, shift_x=0.05, shift_y=-0.10)
+    fpx = (lens or 18.0) / 36.0 * 1920
+    cols = (np.arange(4) + 0.5) * 1920 / 4
+    rows = (np.arange(2) + 0.5) * 1080 / 2
+    assert np.allclose(a.reshape(2, 4)[0], (cols - 960 + 0.05 * 1920) / fpx)
+    assert np.allclose(b.reshape(2, 4)[:, 0], -(rows - 540 + 0.10 * 1920) / fpx)
+    # The lens shift is a fraction of the image width: the horizon (b = 0) stays on the same image row,
+    # 540 - 0.10 x 1920 = 348 px from the top (32 %), whatever the lens; only the angles scale.
+    a1, b1 = C.ray_grid((1, 1080), lens or 18.0, shift_y=-0.10)
+    assert int(np.argmin(np.abs(b1))) in (347, 348) and np.all(np.diff(b1) < 0)
+    border = C.border_mask((4, 3)).reshape(3, 4)
+    assert border.sum() == 10 and not border[1, 1] and not border[1, 2]
+
+
+# --------------------------------------------------------------------------
+# Score (§4.1 formula)
+# --------------------------------------------------------------------------
+
+def test_score_table_holds_the_spec_constants():
+    w = C.SCORE["type_weight"]
+    for t in ("bed", "bed_double", "bed_single", "sofa", "kitchen_counter", "kitchen_island"):
+        assert w[t] == 3.0
+    assert w["bathtub"] == 2.5
+    for t in ("table_dining", "desk", "toilet", "washbasin", "shower", "sink_kitchen"):
+        assert w[t] == 2.0
+    for t in ("wardrobe", "armchair", "stove", "tv_unit", "table_coffee"):
+        assert w[t] == 1.5
+    assert w["chair"] == 0.8 and C.type_weight("nightstand") == 1.0 and C.type_weight(None) == 1.0
+    assert C.SCORE["penalties"] == {"near": (3.0, 0.08), "max_single": (3.0, 0.40), "wall": (2.0, 0.55),
+                                    "window": (2.0, 0.20), "ceiling": (1.0, 0.15)}
+    assert (C.SCORE["grid"], C.SCORE["near_m"], C.SCORE["blocked_near"], C.SCORE["blocked_single"]) == \
+        ((64, 36), 0.9, 0.30, 0.50)
+    # Milestone 8 (docs/milestone8.md §5): the default lens is 18 mm (was 24 mm); the near distance 0.9 m
+    # belongs to the 24 mm lens and scales with the lens (0.675 m at 18 mm, 0.6 m at 16 mm).
+    assert (C.CAMERA_HEIGHT, C.SHIFT_X, C.SHIFT_Y, C.LENS_MM, C.GRID_STEP, C.YAW_STEP_DEG) == \
+        (1.25, 0.0, -0.10, 18.0, 0.5, 30)
+    assert C.SCORE["near_lens_mm"] == 24.0
+    assert [C.near_distance(v) for v in (24.0, 18.0, 16.0)] == pytest.approx([0.9, 0.675, 0.6])
+
+
+def test_furniture_share_by_hand():
+    # bed 0.5 of the rays (capped at 0.25), a nightstand cut by the border (x 0.6), a chair 0.05.
+    furn = C.furniture_share([0.5, 0.1, 0.05], [False, True, False], [3.0, 1.0, 0.8])
+    assert furn == pytest.approx((3.0 * 1.0 + 1.0 * 0.4 * 0.6 + 0.8 * 0.2) / 4.8)
+    assert C.furniture_share([], [], []) == 0.0
+    # A piece the camera does not see still counts in the denominator.
+    assert C.furniture_share([0.25, 0.0], [False, False], [3.0, 3.0]) == pytest.approx(0.5)
+
+
+def test_score_terms_by_hand():
+    m = {"furn": 0.5, "open": 0.06, "floor": 0.30, "wall": 0.65, "window": 0.25, "ceiling": 0.20, "near": 0.10,
+         "max_single": 0.45, "d_wall": 1.5}
+    s = C.score_terms(m)
+    assert s["furniture"] == pytest.approx(2.0) and s["openings"] == pytest.approx(0.5)
+    assert s["floor"] == pytest.approx(1.0) and s["depth"] == pytest.approx(0.5)
+    assert s["penalties"] == pytest.approx(3 * 0.02 + 3 * 0.05 + 2 * 0.10 + 2 * 0.05 + 1 * 0.05)
+    assert s["total"] == pytest.approx(4.0 - 0.56) and s["blocked"] is False
+    assert C.score_terms(dict(m, near=0.31))["blocked"] and C.score_terms(dict(m, max_single=0.51))["blocked"]
+    assert not C.score_terms(dict(m, near=0.30, max_single=0.50))["blocked"]
+    assert C.score_terms(dict(m, d_wall=9.0))["depth"] == 1.0
+
+
+@pytest.mark.parametrize("lens", [24.0, 18.0, 16.0])
+def test_score_of_a_bare_wall_by_hand(lens):
+    # From the centre of an empty 4 x 4 room looking east (no shift): 24 mm: every ray hits the east wall
+    # 2 m away (lateral reach 0.73 x 2 < 2 m, vertical 1.25 +- 0.41 x 2 inside 0 .. 2.6 m). 18 mm (the
+    # camera's own lens_mm): lateral 0.98 x 2 < 2 m, vertical 1.25 +- 0.55 x 2: the same. 16 mm: the 4 + 4
+    # outer columns (|a| > 1) hit the side walls 1.81 m ahead (still wall, still not near: the near distance
+    # of 16 mm is 0.6 m), the median wall depth stays 2 m.
+    building = _building(4.0, 4.0)
+    plan = {"room_id": "r", "position": [2.0, 2.0, 1.25], "target": [3.0, 2.0, 1.25], "lens_mm": lens}
+    out = C.score_camera(building, plan)
+    m, s = out["shares"], out["terms"]
+    assert m["wall"] == 1.0 and m["floor"] == m["ceiling"] == m["near"] == 0.0 and m["d_wall"] == pytest.approx(2.0)
+    assert s["total"] == pytest.approx(2.0 / 3.0 - 2.0 * 0.45)
+
+
+@pytest.mark.parametrize("lens, cols, rows", [(24.0, 42, 25), (18.0, 32, 20), (16.0, 28, 17)])
+def test_score_of_a_window_wall_by_hand(lens, cols, rows):
+    # Same camera, a 2.0 m window (sill 0.9, top 2.1) centred on the east wall, f = lens / 36 x 1920 px:
+    # 24 mm: |a| <= 0.5 holds for columns 11..52 (42 of 64), 0.9 <= z <= 2.1 at 2 m for rows 0..24 (25 of 36);
+    # 18 mm: columns 16..47 (32), rows 4..23 (20); 16 mm: columns 18..45 (28), rows 6..22 (17).
+    building = _building(4.0, 4.0, openings=[("win", "window", "e", 2.0, 2.0, 0.9, 1.2)])
+    plan = {"room_id": "r", "position": [2.0, 2.0, 1.25], "target": [3.0, 2.0, 1.25], "lens_mm": lens}
+    out = C.score_camera(building, plan)
+    m, s = out["shares"], out["terms"]
+    share = cols * rows / 2304
+    assert m["window"] == pytest.approx(share) and m["open"] == pytest.approx(share)
+    assert m["max_single"] == pytest.approx(share) and m["wall"] == pytest.approx(1 - share)
+    penalties = 2 * max(0.0, share - 0.2) + 3 * max(0.0, share - 0.4) + 2 * max(0.0, 1 - share - 0.55)
+    assert s["openings"] == 1.0 and s["penalties"] == pytest.approx(penalties)
+    assert s["total"] == pytest.approx(1.0 + 2.0 / 3.0 - penalties)
+
+
+def test_border_pieces_count_less_and_near_rays_are_planar_depth():
+    # A low bed 2.5 m ahead (24 mm lens): the lowest rays (slope -0.56) reach the floor at 1.25 / 0.56 =
+    # 2.23 m, in front of it, so the bed is inside the frame; 0.9 m ahead it fills the bottom rows (cut).
+    building = _building(4.0, 4.0, furniture=[("bed", "bed", (2.0, 3.4), (1.0, 1.0), 0.0, (1.0, 1.0, 0.5))])
+    model = C.RoomModel(building["rooms"][0], building)
+    a, b = C.ray_grid(lens_mm=24.0, shift_y=C.SHIFT_Y)
+    labels, depth = model.cast((2.0, 0.4, 1.25), C.yaw_directions([90], a, b))
+    m = model.measure(labels, depth, C.border_mask())[0]
+    assert "bed" not in m["cut"] and m["furn"] == pytest.approx(min(m["elements"]["bed"], 0.25) / 0.25)
+    assert m["floor"] > 0
+    labels, depth = model.cast((2.0, 2.0, 1.25), C.yaw_directions([90], a, b))
+    m = model.measure(labels, depth, C.border_mask())[0]
+    assert "bed" in m["cut"] and m["furn"] == pytest.approx(min(m["elements"]["bed"], 0.25) / 0.25 * 0.6)
+    # near = planar depth < 0.9 m (the 24 mm near distance, measure's default): a wall 0.85 m ahead is near
+    # over the whole frame.
+    labels, depth = model.cast((3.15, 2.0, 1.25), C.yaw_directions([0], a, b))
+    m = model.measure(labels, depth, C.border_mask())[0]
+    assert m["near"] == 1.0 and C.is_blocked(m)
+
+
+@pytest.mark.parametrize("lens, near_m", [(24.0, 0.9), (18.0, 0.675), (16.0, 0.6)])
+def test_near_distance_scales_with_the_lens(lens, near_m):
+    """Milestone 8: a surface d metres away through lens L is as large in the frame as d x 24 / L through 24 mm,
+    so the near share counts depths below 0.9 m x L / 24. A wall just inside that distance fills the frame with
+    near rays (blocked), one just beyond it none; the same 0.85 m wall that blocks a 24 mm camera is not near
+    for an 18 mm one. ``score_candidates`` and ``score_camera`` use the near distance of the camera's lens."""
+    building = _building(4.0, 4.0)
+    model = C.RoomModel(building["rooms"][0], building)
+    a, b = C.ray_grid(lens_mm=lens, shift_y=C.SHIFT_Y)
+    for gap, near in ((near_m - 0.05, 1.0), (near_m + 0.05, 0.0)):
+        x = 4.0 - gap                                    # every ray of the frame hits the east wall at ``gap``
+        labels, depth = model.cast((x, 2.0, 1.25), C.yaw_directions([0], a, b))
+        m = model.measure(labels, depth, C.border_mask(), C.near_distance(lens))[0]
+        assert m["near"] == near and C.is_blocked(m) is (near == 1.0), (lens, gap)
+        (cand,) = C.score_candidates(model, [(x, 2.0)], yaws=[0], lens_mm=lens)
+        assert cand["shares"]["near"] == near
+        plan = {"room_id": "r", "position": [x, 2.0, 1.25], "target": [x + 1.0, 2.0, 1.25], "lens_mm": lens,
+                "shift_y": C.SHIFT_Y}
+        assert C.score_camera(building, plan)["shares"]["near"] == near
+    labels, depth = model.cast((3.15, 2.0, 1.25), C.yaw_directions([0], a, b))
+    assert model.measure(labels, depth, C.border_mask(), C.near_distance(lens))[0]["near"] == (1.0 if lens == 24.0
+                                                                                              else 0.0)
+
+
+# --------------------------------------------------------------------------
+# Candidates, view count, the pick
+# --------------------------------------------------------------------------
+
+def test_candidate_grid_of_an_empty_square_room():
+    building = _building(4.0, 4.0)
+    points, warning = C.candidate_positions(building["rooms"][0], building)
+    assert warning is None
+    grid = {(x, y) for x in (0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5) for y in (0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5)}
+    k1, k2 = round(0.45 / math.sqrt(2), 9), round(0.6 / math.sqrt(2), 9)
+    corners = set()
+    for cx, sx in ((0.0, 1), (4.0, -1)):
+        for cy, sy in ((0.0, 1), (4.0, -1)):
+            for k in (k1, k2):
+                corners.add((round(cx + sx * k, 9), round(cy + sy * k, 9)))
+    assert set(points) == grid | corners and len(points) == 57
+    assert points == sorted(points)
+
+
+def test_candidates_keep_the_obstacle_clearance():
+    building = _building(4.0, 4.0, furniture=[("t", "table_dining", (2.0, 2.0), (1.0, 1.0), 0.0, (1.0, 1.0, 0.75))])
+    points, _ = C.candidate_positions(building["rooms"][0], building)
+    assert len(points) == 57 - 9
+    for p in points:
+        assert geom2d.distance_to_rect(p, (2.0, 2.0), (1.0, 1.0), 0.0) >= cameras.CAMERA_OBSTACLE_CLEARANCE - 1e-9
+    # The obstacle is the fitted box when it is larger than the drawn footprint.
+    big = _building(4.0, 4.0, furniture=[("t", "table_dining", (2.0, 2.0), (1.0, 1.0), 0.0, (2.0, 2.0, 0.75))])
+    assert obstacle_rect(big["furniture"][0])["size"] == [2.0, 2.0]
+    assert len(C.candidate_positions(big["rooms"][0], big)[0]) < len(points)
+
+
+@pytest.mark.parametrize("clockwise", [False, True])
+def test_only_convex_corners_get_points(clockwise):
+    poly = [(0, 0), (6, 0), (6, 3), (3, 3), (3, 6), (0, 6)]
+    if clockwise:
+        poly = poly[::-1]
+    pts = C.convex_corner_points(poly)
+    assert len(pts) == 10
+    for p in pts:
+        assert G.point_in_polygon(p, poly) and math.dist(p, (3, 3)) > 1.0
+    building = _building(polygon=[list(p) for p in poly])
+    points, _ = C.candidate_positions(building["rooms"][0], building)
+    for p in points:
+        assert geom2d.point_is_free(p, poly, [], 0.3, 0.2)
+
+
+def test_views_per_room_by_area():
+    assert [C.views_for_area(a) for a in (0.5, 2.99, 3.0, 5.99, 6.0, 40.0)] == [1, 1, 2, 2, 3, 3]
+    assert C.room_view_count({"polygon": [[0, 0], [2, 0], [2, 1.4], [0, 1.4], [0, 0]]}) == 1
+    assert C.room_view_count({"polygon": [[0, 0], [2, 0], [2, 2], [0, 2]]}) == 2
+    assert C.room_view_count({"polygon": [[0, 0], [3, 0], [3, 2], [0, 2]]}) == 3
+
+
+def _cand(total, x, y, yaw, blocked=False):
+    return {"total": total, "x": x, "y": y, "yaw": yaw, "blocked": blocked}
+
+
+def test_select_views_greedy_diversity_and_drop_rules():
+    cands = [_cand(3.0, 1.0, 1.0, 0), _cand(2.9, 1.0, 1.0, 30), _cand(2.8, 1.5, 1.0, 40),
+             _cand(2.7, 1.0, 1.0, 60), _cand(2.6, 2.0, 1.0, 10), _cand(2.5, 3.0, 3.0, 200)]
+    picks, warning = C.select_views(cands, 3)
+    assert warning is None
+    # 30 deg at the same point and 40 deg at 0.5 m are too similar; 60 deg is enough; then 1.0 m away.
+    assert [(p["yaw"], p["x"]) for p in picks] == [(0, 1.0), (60, 1.0), (10, 2.0)]
+    assert len(C.select_views(cands, 1)[0]) == 1
+    # Exactly 50 deg or exactly 1.0 m is enough.
+    picks, _ = C.select_views([_cand(3.0, 1.0, 1.0, 0), _cand(2.9, 1.0, 1.0, 50), _cand(2.8, 2.0, 1.0, 0)], 3)
+    assert len(picks) == 3
+    # Below half the best score: dropped, even when diverse.
+    picks, _ = C.select_views([_cand(4.0, 1.0, 1.0, 0), _cand(1.99, 3.0, 3.0, 180), _cand(2.0, 3.0, 3.0, 90)], 3)
+    assert [p["yaw"] for p in picks] == [0, 90]
+    # A negative best keeps one view only.
+    assert len(C.select_views([_cand(-0.5, 1.0, 1.0, 0), _cand(-0.6, 3.0, 3.0, 180)], 3)[0]) == 1
+    assert C.select_views([], 3) == ([], None)
+
+
+def test_select_views_ties_and_blocked_candidates():
+    # Equal scores (to 1e-6): lower x, then y, then yaw first.
+    cands = [_cand(2.0 + 1e-9, 2.0, 1.0, 0), _cand(2.0, 1.0, 2.0, 90), _cand(2.0, 1.0, 1.0, 180),
+             _cand(2.0, 1.0, 1.0, 90)]
+    assert [(p["x"], p["y"], p["yaw"]) for p in C.select_views(cands, 1)[0]] == [(1.0, 1.0, 90)]
+    # A blocked candidate is never picked while an unblocked one exists, whatever its score.
+    picks, warning = C.select_views([_cand(5.0, 1.0, 1.0, 0, True), _cand(1.0, 2.0, 2.0, 90)], 3)
+    assert [p["yaw"] for p in picks] == [90] and warning is None
+    # Only blocked candidates: the best one, with the warning.
+    picks, warning = C.select_views([_cand(1.0, 1.0, 1.0, 0, True), _cand(2.0, 2.0, 2.0, 90, True)], 3)
+    assert [p["yaw"] for p in picks] == [90] and warning == C.BLOCKED_WARNING == "blocked unavoidable"
+
+
+def test_a_tiny_room_gets_one_blocked_view_with_the_warning():
+    # Milestone 7 (§6.2): a tiny room with a piece to show still gets its one (blocked) view ...
+    # (with a 24 mm lens, the brief's lens here: walls 0.9 m away fill half the frame) ...
+    building = _building(1.2, 1.2, furniture=[("wb", "washbasin", (0.6, 0.95), (0.5, 0.4), 0.0, (0.5, 0.4, 0.85))])
+    plans = cameras.plan_cameras(building, "L0", policy="search", lens_mm=24.0)
+    assert len(plans) == 1 and plans[0]["warning"] == "blocked unavoidable" and plans[0]["score"]["blocked"]
+    assert plans[0]["lens_mm"] == 24.0 and plans[0]["lens_rule"] == "brief render.lens_mm"
+    assert C.rooms_without_view(building) == []
+    # Milestone 8: the automatic lens of this 1.2 m room is 16 mm; its near distance is 0.6 m (0.9 m x 16 / 24),
+    # and the same corner view is no longer blocked (near share 0.51 at 24 mm, 0.05 at 16 mm).
+    (plan,) = cameras.plan_cameras(building, "L0", policy="search")
+    assert plan["lens_mm"] == 16.0 and plan["warning"] is None and not plan["score"]["blocked"]
+    assert plan["score"]["shares"]["near"] < 0.1
+
+
+def test_rooms_without_furniture_get_one_view_or_none_below_2_5_m2():
+    # Milestone 7 (docs/milestone7.md §6.2, user decision 8).
+    assert (C.EMPTY_ROOM_VIEWS, C.MIN_EMPTY_ROOM_AREA_M2) == (1, 2.5)
+    big = _building(5.0, 4.0, openings=ROOM_A["openings"])            # 20 m2, nothing to show: one view
+    plans = cameras.plan_cameras(big, "L0", policy="search")
+    assert [p["name"] for p in plans] == ["cam_r_1"] and C.room_view_count(big["rooms"][0], big) == 1
+    assert C.room_view_count(big["rooms"][0]) == 3                      # the area rule alone (pre-layout estimate)
+    assert C.rooms_without_view(big) == []
+    tiny = _building(1.2, 1.2)                                        # 1.44 m2, empty: no view, listed
+    assert cameras.plan_cameras(tiny, "L0", policy="search") == []
+    assert C.plan_room(tiny["rooms"][0], tiny) == ([], 0)
+    (row,) = C.rooms_without_view(tiny, "L0")
+    assert row["room_id"] == "r" and row["level_id"] == "L0" and row["label"] == "Oda" and row["area_m2"] == 1.44
+    assert row["reason"].startswith("no furniture after layout and decor and 1.44 m2 < 2.5 m2")
+    assert cameras.rooms_without_view(tiny, "L0", "search") == [row] and cameras.rooms_without_view(tiny, "L0") == []
+    assert len(cameras.plan_cameras(tiny, "L0")) == 3                    # the m5 policy is unchanged
+    assert C.room_view_count(_building(2.5, 1.0)["rooms"][0], _building(2.5, 1.0)) == 1   # exactly 2.5 m2: one view
+    # Decor and build: false pieces do not count as something to show (and are not in the model).
+    shown = _building(5.0, 4.0, furniture=[("sym", "unknown", (2.0, 2.0), (0.6, 0.6), 0.0, (0.6, 0.6, 0.8)),
+                                           ("cush", "cushion", (3.0, 2.0), (0.4, 0.2), 0.0, (0.4, 0.2, 0.2))])
+    shown["furniture"][0]["build"] = False
+    shown["furniture"][1]["kind"] = "decor"
+    assert C.shown_pieces(shown["rooms"][0], shown) == [] and C.RoomModel(shown["rooms"][0], shown).pieces == []
+    plans = cameras.plan_cameras(shown, "L0", policy="search")
+    assert len(plans) == 1 and plans[0]["visible_furniture"] == []
+    assert all("sym" not in p["visible_furniture"] for p in cameras.plan_cameras(shown, "L0"))
+    shown["furniture"][0]["build"] = True
+    assert len(C.shown_pieces(shown["rooms"][0], shown)) == 1 and C.room_view_count(shown["rooms"][0], shown) == 3
+
+
+def test_a_room_without_a_free_point_gets_the_fallback_with_a_warning():
+    # A low bed leaves no free point: the M5 fallback puts the camera at the centroid (above the bed,
+    # clear of every box at least as tall as the camera) and every view says so.
+    building = _building(3.0, 3.0, furniture=[("b", "bed", (1.5, 1.5), (2.6, 2.6), 0.0, (2.6, 2.6, 0.6))])
+    points, warning = C.candidate_positions(building["rooms"][0], building)
+    assert points == [(1.5, 1.5)] and "no free camera point" in warning and "room's inner point" in warning
+    plans = cameras.plan_cameras(building, "L0", policy="search")
+    assert 1 <= len(plans) <= 3
+    for p in plans:
+        assert p["position"][:2] == [1.5, 1.5] and p["warning"].startswith("no free camera point")
+    # A tall wardrobe filling the room: nothing is clear of it; the warning says the camera is inside.
+    full = _building(3.0, 3.0, furniture=[("w", "wardrobe", (1.5, 1.5), (2.8, 2.8), 0.0, (2.8, 2.8, 2.1))])
+    plans = cameras.plan_cameras(full, "L0", policy="search")
+    assert plans and all("INSIDE a proxy" in p["warning"] for p in plans)
+
+
+L_SHAFT = [[0, 0], [3, 0], [3, 0.5], [0.5, 0.5], [0.5, 3], [0, 3]]           # legs 0.5 m wide
+L_CLOSET = [[0, 0], [3, 0], [3, 1.0], [1.0, 1.0], [1.0, 3], [0, 3]]          # legs 1.0 m wide
+CLOSET_WARDROBES = [("w1", "wardrobe", (1.5, 0.3), (3.0, 0.6), 0.0, (3.0, 0.6, 2.1)),
+                    ("w2", "wardrobe", (0.3, 1.5), (3.0, 0.6), 90.0, (3.0, 0.6, 2.1))]
+
+
+@pytest.mark.parametrize("polygon, furniture, inside_proxy", [(L_SHAFT, [], False),
+                                                              (L_CLOSET, CLOSET_WARDROBES, True)])
+def test_fallback_camera_of_an_l_shaped_room_stays_inside_the_room(polygon, furniture, inside_proxy):
+    # Review C1: the centroid of an L lies in the notch, outside the room. The fallback is anchored at the
+    # room's inner point (lighting.polylabel), so the camera stays in the room, the cramped view is flagged
+    # "blocked unavoidable" and the warning says where the camera is (inside a proxy only when it is).
+    building = _building(3.0, 3.0, polygon=polygon, furniture=furniture)
+    assert not G.point_in_polygon(G.polygon_centroid(polygon), polygon)
+    plans = cameras.plan_cameras(building, "L0", policy="search")
+    assert len(plans) == 1
+    (plan,) = plans
+    assert G.point_in_polygon(plan["position"][:2], polygon)
+    assert plan["score"]["blocked"] and C.BLOCKED_WARNING in plan["warning"]
+    assert "room's inner point" in plan["warning"] and "centroid" not in plan["warning"]
+    assert ("INSIDE a proxy" in plan["warning"]) is inside_proxy
+    if not inside_proxy:
+        assert "m from the nearest wall" in plan["warning"]
+    # The M5 policy keeps its own fallback, byte for byte (cameras._Search is unchanged).
+    m5 = cameras.plan_cameras(building, "L0")
+    assert all("centroid" in p["warning"] for p in m5)
+
+
+# --------------------------------------------------------------------------
+# Plans
+# --------------------------------------------------------------------------
+
+def _search(building, level="L0"):
+    return cameras.plan_cameras(building, level, policy="search")
+
+
+def _strip(plans):
+    return [{k: v for k, v in p.items() if k != "search_seconds"} for p in plans]
+
+
+def test_search_plans_carry_the_spec_fields():
+    building = _building(**ROOM_A)
+    plans = _search(building)
+    assert [p["name"] for p in plans] == ["cam_r_1", "cam_r_2", "cam_r_3"]      # 20 m2: 3 views
+    validator = jsonschema.Draft202012Validator(schemas.SCENE_CAMERA)
+    for i, p in enumerate(plans, start=1):
+        assert not list(validator.iter_errors(p)), p["name"]
+        assert p["index"] == i and p["room_id"] == "r" and p["level_id"] == "L0"
+        assert p["policy"] == "search" and p["shift_x"] == 0.0 and p["shift_y"] == -0.10
+        # Milestone 8: the room's own lens, 18 mm for a 5 x 4 m room (24 mm before), and why.
+        assert p["lens_mm"] == 18.0 and p["sensor_mm"] == 36.0 and p["resolution"] == [1920, 1080]
+        assert p["lens_rule"] == "room width 4.00 m >= 2.2 m"
+        assert p["position"][2] == p["target"][2] == pytest.approx(1.25)
+        yaw = math.radians(p["score"]["yaw_deg"])
+        assert p["target"][0] - p["position"][0] == pytest.approx(math.cos(yaw), abs=2e-6)
+        assert p["target"][1] - p["position"][1] == pytest.approx(math.sin(yaw), abs=2e-6)
+        assert p["anchor"] is None and p["warning"] is None and not p["score"]["blocked"]
+        s = p["score"]
+        assert set(s) >= {"total", "furniture", "openings", "floor", "depth", "penalties", "blocked"}
+        assert s["total"] == pytest.approx(s["furniture"] + s["openings"] + s["floor"] + s["depth"] - s["penalties"],
+                                           abs=5e-4)
+        assert p["placement"].startswith(f"search: score {s['total']:.3f} = furniture {s['furniture']:.3f}")
+        assert p["search_seconds"] >= 0 and p["search_seconds"] == plans[0]["search_seconds"]
+        assert geom2d.point_is_free(p["position"][:2], [tuple(v) for v in building["rooms"][0]["polygon"]],
+                                    [obstacle_rect(f) for f in building["furniture"]], 0.3, 0.2)
+    assert [p["score"]["total"] for p in plans] == sorted((p["score"]["total"] for p in plans), reverse=True)
+    assert C.level_search_seconds(plans) == {"L0": plans[0]["search_seconds"]}
+    # The bed (type weight 3) fills a good part of the best view (its centre may lie below the frame).
+    seen = C.score_camera(building, plans[0])["shares"]["elements"]
+    assert seen.get("bed", 0.0) >= 0.1 and plans[0]["score"]["shares"]["furn"] > 0.5
+
+
+@pytest.mark.parametrize("width, brief, lens", [(5.0, None, 18.0), (2.0, None, 16.0), (2.0, 24.0, 24.0),
+                                                (5.0, 14.0, 14.0)])
+def test_search_scores_each_room_through_its_own_lens(width, brief, lens):
+    """Milestone 8: the candidates of a room are scored with the room's lens (ray grid and near distance), so a
+    plan's stored score is what ``score_camera`` (which reads the plan's own ``lens_mm``) measures for it, and
+    its frustum lists are those of its lens."""
+    building = _building(width, 4.0, openings=[("win", "window", "s", width / 2.0, 1.0, 0.9, 1.2)],
+                         furniture=[("bed", "bed_single", (width / 2.0, 3.0), (0.9, 2.0), 0.0, (0.9, 2.0, 0.6))])
+    plans = cameras.plan_cameras(building, "L0", policy="search", lens_mm=brief)
+    assert plans and {p["lens_mm"] for p in plans} == {lens}
+    tangents = geom2d.frustum_tangents(lens, 36.0, (1920, 1080))
+    for p in plans:
+        again = C.score_camera(building, p)
+        assert again["terms"]["total"] == pytest.approx(p["score"]["total"], abs=1e-4)
+        assert again["shares"]["near"] == pytest.approx(p["score"]["shares"]["near"], abs=1e-4)
+        inside = geom2d.point_in_frustum((width / 2.0, -0.1, 1.0), p["position"], p["target"], tangents,
+                                         shift_y=C.SHIFT_Y)
+        assert ("win" in p["visible_openings"]) == inside
+
+
+def test_frustum_lists_use_the_shift():
+    """Openings: centre in the shifted frustum. Pieces (review dwgblender-2, changed on purpose): centre in
+    the shifted frustum, or seen by the model's rays of the view (a long piece seen from the side)."""
+    building = _building(**ROOM_A)
+    for p in _search(building):
+        tangents = geom2d.frustum_tangents(p["lens_mm"], 36.0, (1920, 1080))     # the camera's own lens (18 mm)
+        seen = C.score_camera(building, p)["shares"]["elements"]
+        for f in building["furniture"]:
+            centre = (*f["footprint"]["center"], f["asset"]["bbox_m"][2] / 2.0)
+            inside = geom2d.point_in_frustum(centre, p["position"], p["target"], tangents, shift_y=-0.10)
+            assert (f["id"] in p["visible_furniture"]) == (inside or seen.get(f["id"], 0.0) > 0.0)
+        for o in building["openings"]:
+            inside = geom2d.point_in_frustum((*o["center"], 1.0), p["position"], p["target"], tangents, shift_y=-0.1)
+            assert (o["id"] in p["visible_openings"]) == inside
+
+
+# --------------------------------------------------------------------------
+# The stair (review dwgblender-2): its built parts, not a solid box
+# --------------------------------------------------------------------------
+
+def _stair_hall() -> dict:
+    """real01's stair hall (tests/test_blender_geometry.py): the drawn U stair in its 1.53 x 4.57 m hall."""
+    from test_blender_geometry import HALL, HALL_WALLS, LEVEL0, real01_stair_piece
+
+    return {"project": {"id": "hall"}, "status": "ok", "levels": [dict(LEVEL0)],
+            "walls": [dict(w) for w in HALL_WALLS], "openings": [], "rooms": [dict(HALL)],
+            "furniture": [real01_stair_piece()]}
+
+
+def _mesh_hits(parts, floor_z: float, origin, dirs: np.ndarray) -> np.ndarray:
+    """Nearest hit parameter of every ray on the triangles of ``parts`` (inf: none). Independent of
+    camsearch: Moeller-Trumbore on the fan triangles of every face."""
+    o = np.asarray(origin, dtype=float)
+    best = np.full(dirs.shape[0], np.inf)
+    for part in parts:
+        v = np.array([(x, y, z + floor_z) for x, y, z in part["verts"]])
+        for face in part["faces"]:
+            for k in range(1, len(face) - 1):
+                p0, p1, p2 = v[face[0]], v[face[k]], v[face[k + 1]]
+                e1, e2 = p1 - p0, p2 - p0
+                pv = np.cross(dirs, e2)
+                det = pv @ e1
+                ok = np.abs(det) > 1e-12
+                inv = np.where(ok, 1.0 / np.where(ok, det, 1.0), 0.0)
+                tv = o - p0
+                u = (pv @ tv) * inv
+                qv = np.cross(tv, e1)
+                w = (dirs @ qv) * inv
+                t = (qv @ e2) * inv
+                hit = ok & (u >= 0) & (w >= 0) & (u + w <= 1) & (t > 1e-6)
+                best = np.where(hit & (t < best), t, best)
+    return best
+
+
+def test_stair_rays_pass_under_the_upper_flight_and_the_landing():
+    """The model's stair is the built stair: a ray under the landing and under the upper flight reaches the
+    wall behind (the old 3.17 m box stopped both), a ray onto a tread stops on it, a ray along the upper
+    flight at 2 m stops on its sloped soffit, not at the start of the footprint."""
+    from wenart.blender import parametric as P
+
+    ft, rh = 0.3048, 2.85 / 16
+    building = _stair_hall()
+    model = C.RoomModel(building["rooms"][0], building)
+    assert P.piece_bbox(building["furniture"][0])[2] > 2.7          # the box: taller than the room
+
+    def ray(origin, direction):
+        labels, depth = model.cast(origin, np.array([direction], dtype=float))
+        return _model_names(model, labels)[0], float(depth[0])
+
+    assert ray((12.5 * ft, 16.5 * ft, 2.5), (0, 0, -1)) == ("f_L0_019", pytest.approx(2.5 - 2 * rh, abs=1e-6))
+    # Under the landing (slab 1.27-1.43 m) at 0.6 m: across the hall to the east wall face (16.26 ft).
+    assert ray((11.5 * ft, 22.2 * ft, 0.6), (1, 0, 0)) == ("wall", pytest.approx(4.76 * ft, abs=1e-6))
+    # Under the upper flight (it rises south from the landing, soffit >= 1.2 m) at 0.5 m: to the north wall.
+    assert ray((15.0 * ft, 12.0 * ft, 0.5), (0, 1, 0)) == ("wall", pytest.approx(11.257 * ft, abs=1e-6))
+    # At 2.0 m the same ray meets the soffit of the upper flight (2.0 m high 1.08 m south of the landing).
+    name, t = ray((15.0 * ft, 12.0 * ft, 2.0), (0, 1, 0))
+    k = rh / (0.833 * ft)
+    soffit_s = (2.0 - 8 * rh + P.STAIR_WAIST_M * math.sqrt(1 + k * k)) / k
+    assert name == "f_L0_019" and t == pytest.approx(21.085 * ft - soffit_s - 12.0 * ft, abs=2e-3)
+    assert model.solids and not model.boxes
+
+
+@pytest.mark.parametrize("position,yaws", [((12.3, 9.3), (60, 90, 120)), ((15.3, 9.0), (60, 90, 120)),
+                                           ((15.0, 12.5), (60, 90, 120))])
+def test_stair_shares_match_the_built_mesh(position, yaws):
+    """Every ray of the 64 x 36 grid: the model sees the stair exactly where an independent triangle caster
+    on the built parts (``shell.plan_stairs`` / ``parametric.stair_parts``, what ``build_stairs`` builds)
+    hits it before the walls, floor or ceiling. The old box model was off by up to 0.66 of the frame on
+    real01's hall (27.5 % model vs 4.3 % in the render)."""
+    from wenart.blender import parametric as P, shell
+
+    ft = 0.3048
+    building = _stair_hall()
+    model = C.RoomModel(building["rooms"][0], building)
+    bare = C.RoomModel(building["rooms"][0], dict(building, furniture=[]))
+    plan = shell.plan_stairs(building, building["levels"][0])[0]["plan"]
+    parts = P.stair_parts(plan)
+    a, b = C.ray_grid(shift_y=C.SHIFT_Y)
+    origin = (position[0] * ft, position[1] * ft, C.CAMERA_HEIGHT)
+    code = C.FIRST_ELEMENT
+    for yaw in yaws:
+        dirs = C.yaw_directions([yaw], a, b)[0]
+        labels, depth = model.cast(origin, dirs)
+        _, room_depth = bare.cast(origin, dirs)
+        t = _mesh_hits(parts, 0.0, origin, dirs)
+        truth = t < room_depth
+        assert truth.mean() > 0.05, yaw                                  # the stair is in the view
+        assert np.array_equal(labels == code, truth), (yaw, int((labels == code).sum()), int(truth.sum()))
+        assert np.allclose(depth[truth], t[truth], atol=1e-6)
+
+
+def test_hall_views_show_the_stair_and_list_it():
+    """real01's hall: the picked views look at the stair (model share >= 0.15, the model now matching the
+    built stair) and list it in ``visible_furniture``. With the box model the search marked every view
+    towards the stair blocked and picked two views of the walls with ``visible_furniture: []``."""
+    building = _stair_hall()
+    plans = _search(building)
+    assert len(plans) == C.views_for_area(G.polygon_area(C.room_polygon(building["rooms"][0])))
+    for p in plans:
+        share = C.score_camera(building, p)["shares"]["elements"].get("f_L0_019", 0.0)
+        assert share >= 0.15 and "f_L0_019" in p["visible_furniture"], (p["name"], share)
+        assert not p["score"]["blocked"] and p["warning"] is None
+
+
+@pytest.mark.parametrize("lens", [24.0, 16.0])
+def test_a_long_piece_seen_from_the_side_is_listed_although_its_centre_is_outside(lens):
+    """``visible_furniture`` lists a piece the view's rays see even when its centre is outside the frame
+    (a 2.4 m stair whose side fills half the picture). Milestone 8: the frustum and the rays of the camera's
+    own lens (the hall's automatic lens is 16 mm, whose 96.7 degree frame holds the stair's centre from these
+    three points; the 24 mm case of review dwgblender-2 is the one with the centre outside)."""
+    ft = 0.3048
+    building = _stair_hall()
+    room = building["rooms"][0]
+    model = C.RoomModel(room, building)
+    stair = building["furniture"][0]
+    assert cameras.room_lens(room) == (16.0, "room width 1.53 m < 2.2 m")       # the 1.53 m hall
+    tangents = geom2d.frustum_tangents(lens, 36.0, (1920, 1080))
+    found = 0
+    for c in C.score_candidates(model, [(12.0 * ft, 13.5 * ft), (15.8 * ft, 13.0 * ft), (13.75 * ft, 9.0 * ft)],
+                                lens_mm=lens):
+        share = c["shares"]["elements"].get("f_L0_019", 0.0)
+        plan = C._plan(model, 1, c, None, lens)
+        centre = (*stair["footprint"]["center"], 3.17 / 2.0)
+        inside = geom2d.point_in_frustum(centre, plan["position"], plan["target"], tangents, shift_y=C.SHIFT_Y)
+        assert ("f_L0_019" in plan["visible_furniture"]) == (inside or share > 0.0)
+        if not inside and share >= 0.1:
+            found += 1
+    assert found >= (1 if lens == 24.0 else 0)
+
+
+# --------------------------------------------------------------------------
+# Pieces with a back: the height profile (pod run 20261003-205431)
+# --------------------------------------------------------------------------
+
+POD_FIXTURE = ROOT / "tests" / "fixtures" / "camsearch_pod_20261003.json"
+POD_LENS_MM = 24.0                  # the lens of the pod run's cameras (before Milestone 8): its cases replay at 24 mm
+MODEL_HIDDEN_SHARE = 0.005          # tests/gpu/test_render.py: a listed piece may be absent below this model share
+
+
+def _parametric(building: dict, heights: dict) -> dict:
+    """``building`` with the pieces of ``heights`` ({id: type height}) built parametrically (no library asset)."""
+    for f in building["furniture"]:
+        if f["id"] in heights:
+            f["asset"] = None
+            f["height"] = heights[f["id"]]
+    return building
+
+
+def _true_shares(building: dict, position, yaw: float, grid=(64, 36), lens_mm: float = POD_LENS_MM) -> dict:
+    """``{piece id: ray share}`` of the meshes the scene builds for the room's parametric pieces
+    (``parametric.build_parts`` with the footprint and the type height, placed by ``parametric.world_mesh`` as
+    ``furniture._parametric_object`` places them), nearest of them and the bare room, found by the independent
+    triangle caster ``_mesh_hits``."""
+    from wenart.blender import parametric as P
+    from wenart.blender.proxies import proxy_height
+
+    room = building["rooms"][0]
+    a, b = C.ray_grid(grid, lens_mm, shift_y=C.SHIFT_Y)
+    dirs = C.yaw_directions([yaw], a, b)[0]
+    _, best = C.RoomModel(room, dict(building, furniture=[])).cast(position, dirs)
+    owner = np.full(best.shape, None, dtype=object)
+    for f in building["furniture"]:
+        assert not (f.get("asset") or {}).get("method") == "library", f["id"]
+        fp = f["footprint"]
+        h, _ = proxy_height(f["type"], f.get("height"))
+        parts = P.build_parts(f["type"], fp["size"][0], fp["size"][1], h, piece=f)
+        verts, faces, _ = P.world_mesh(parts, fp["center"], fp["rotation_deg"], 0.0)
+        t = _mesh_hits([{"verts": verts, "faces": faces}], 0.0, position, dirs)
+        closer = t < best
+        best = np.where(closer, t, best)
+        owner[closer] = f["id"]
+    return {f["id"]: float((owner == f["id"]).mean()) for f in building["furniture"]}
+
+
+def _shares(building: dict, position, yaw: float, grid=(64, 36), lens_mm: float = POD_LENS_MM) -> dict:
+    model, labels, _ = _cast(building, position, yaw, grid=grid, lens_mm=lens_mm)
+    names = np.array(_model_names(model, labels), dtype=object)
+    return {f["id"]: float((names == f["id"]).mean()) for f in building["furniture"]}
+
+
+@pytest.mark.parametrize("ftype, size, height, low", [("bed_double", (1.6, 2.0), 0.55, 0.55),
+                                                     ("bed_single", (0.9, 2.0), 0.5, 0.5),
+                                                     ("chair", (0.46, 0.4), 0.9, 0.45),
+                                                     ("sofa", (2.0, 0.9), 0.85, 0.45),
+                                                     ("armchair", (0.8, 0.85), 0.85, 0.45),
+                                                     ("toilet", (0.4, 0.7), 0.4, 0.4)])
+def test_profile_is_the_builders_low_part_and_back(ftype, size, height, low):
+    """A piece with a back is modelled as the parts the scene builds: the low part at the builder's mattress /
+    seat / bowl top (``low``: bed = type height, chair min(0.45, h / 2), sofa seat min(0.45, 0.55 h), toilet bowl
+    = type height), the sofa arms, and the back slab on the rear edge (+Y, opposite the front) up to the piece's
+    full height. Every vertex of those parts lies inside the profile, the profile inside the piece's box."""
+    from wenart.blender import parametric as P
+
+    piece = {"id": "p", "type": ftype, "height": height, "asset": None,
+             "footprint": {"center": [1.0, 2.0], "size": list(size), "rotation_deg": 30.0}}
+    w, d, top, source = P.piece_bbox(piece)
+    assert source == "parametric"
+    boxes = C.piece_profile(piece)
+    low_roles, side_roles = C.PROFILES[ftype]
+    assert boxes[0][4] == pytest.approx(low) and boxes[-1][4] == pytest.approx(top) and top > low + 0.3
+    assert len(boxes) == 2 + (2 if side_roles else 0)
+    parts = P.build_parts(ftype, size[0], size[1], height)
+    back = [p for p in parts if p["role"] == "back"]
+    assert boxes[-1][1] == pytest.approx(P.parts_bbox(back)[1]) and boxes[-1][3] == pytest.approx(d / 2.0)
+    assert boxes[-1][3] - boxes[-1][1] <= max(0.2, 0.3 * d)                  # a slab, not the footprint
+    for x0, y0, x1, y1, z1 in boxes:
+        assert -w / 2 - 1e-9 <= x0 < x1 <= w / 2 + 1e-9 and -d / 2 - 1e-9 <= y0 < y1 <= d / 2 + 1e-9 and z1 <= top
+    for part in parts:
+        if part["role"] in low_roles + side_roles + ("back",):
+            for x, y, z in part["verts"]:
+                assert any(x0 - 1e-9 <= x <= x1 + 1e-9 and y0 - 1e-9 <= y <= y1 + 1e-9 and z <= z1 + 1e-9
+                           for x0, y0, x1, y1, z1 in boxes), (part["role"], (x, y, z))
+
+
+def test_library_profile_takes_the_fitted_box_and_the_builders_seat():
+    """A library asset sits in the same frame (front -Y), so its back rises to the fitted box's height (a
+    1.53 m headboard, a 0.74 m chair back) and its mattress or seat is the builder's at the type height;
+    a low library piece (its box no taller than the seat) stays one box, as do types without a back."""
+    def piece(ftype, size, bbox, height=None):
+        return {"id": "p", "type": ftype, "height": height, "footprint": {"center": [0, 0], "size": list(size),
+                                                                          "rotation_deg": 0.0},
+                "asset": {"method": "library", "bbox_m": list(bbox)}}
+
+    bed = C.piece_profile(piece("bed_double", (1.8, 2.0), (1.8, 2.0, 1.5348), 0.5))
+    assert [round(v, 4) for v in bed[0]] == [-0.9, -1.0, 0.9, 1.0, 0.5]           # frame + mattress, 0.5 m
+    assert [round(v, 4) for v in bed[1]] == [-0.9, 0.94, 0.9, 1.0, 1.5348]        # 0.06 m headboard to 1.53 m
+    chair = C.piece_profile(piece("chair", (0.4572, 0.4572), (0.4572, 0.4572, 0.7436)))
+    assert chair[0][4] == pytest.approx(0.45) and chair[-1][4] == pytest.approx(0.7436)
+    assert chair[-1][3] - chair[-1][1] == pytest.approx(min(0.04, 0.4572 * 0.1))
+    assert C.piece_profile(piece("bed", (1.0, 1.0), (1.0, 1.0, 0.5))) == [(-0.5, -0.5, 0.5, 0.5, 0.5)]
+    assert C.piece_profile(piece("wardrobe", (1.2, 0.6), (1.2, 0.6, 2.1))) == [(-0.6, -0.3, 0.6, 0.3, 2.1)]
+
+
+@pytest.mark.parametrize("rotation", [0.0, 90.0, 207.0, 315.0])
+def test_profile_boxes_turn_with_the_footprint_back_opposite_the_front(rotation):
+    """The profile boxes stand where the scene builds the parts: turned by the footprint rotation about its
+    centre, so the back lies opposite ``front_deg`` (= rotation + 270, the convention of every stage). Rays
+    straight down onto a chair: the seat top near the front, the back's top on the rear edge, the seat again
+    just in front of the back."""
+    building = _parametric(_building(4.0, 4.0, furniture=[("chair", "chair", (2.0, 2.0), (0.5, 0.5), rotation,
+                                                           (0.5, 0.5, 0.9))]), {"chair": 0.9})
+    building["furniture"][0]["front_deg"] = (rotation + 270.0) % 360.0
+    model = C.RoomModel(building["rooms"][0], building)
+    front = math.radians(building["furniture"][0]["front_deg"])
+    t = min(0.04, 0.5 * 0.1)                                         # parametric._chair's back depth
+
+    def down(offset: float):
+        """Label and hit height of a ray straight down at ``offset`` m from the centre towards the front."""
+        labels, depth = model.cast((2.0 + offset * math.cos(front), 2.0 + offset * math.sin(front), 2.0),
+                                   np.array([[0.0, 0.0, -1.0]]))
+        return _model_names(model, labels)[0], round(2.0 - float(depth[0]), 9)
+
+    assert down(0.2) == ("chair", 0.45) and down(-0.24) == ("chair", 0.9)
+    assert down(-0.25 + t - 0.002) == ("chair", 0.9) and down(-0.25 + t + 0.002) == ("chair", 0.45)
+
+
+def test_a_bed_beside_the_camera_shows_its_mattress_not_its_headboard(monkeypatch):
+    """Pod case synthetic-06 cam_r_L0_bed_room_2: a double bed beside the camera, its tall headboard on the
+    far wall out of the frame. The box model put the 1.53 m headboard height over the whole footprint (0.35
+    of the frame); the profile sees a strip of mattress at the bottom edge and nothing above it, and for a
+    parametric bed it sees what the built mesh shows."""
+    def room(library: bool) -> dict:
+        b = _building(3.2, 3.35, furniture=[("bed", "bed_double", (1.57, 2.33), (1.8, 2.0), 0.0, (1.8, 2.0, 1.5348)),
+                                            ("ns", "nightstand", (2.98, 1.18), (0.5, 0.4), 270.0, (0.5, 0.4, 0.495))])
+        for f in b["furniture"]:
+            f["height"] = 0.5
+        return b if library else _parametric(b, {"bed": 0.5, "ns": 0.5})
+
+    position, yaw = (1.0, 1.0, 1.25), 0
+    model, labels, depth = _cast(room(True), position, yaw, lens_mm=POD_LENS_MM)
+    names = np.array(_model_names(model, labels), dtype=object)
+    a, b = C.ray_grid(lens_mm=POD_LENS_MM, shift_y=C.SHIFT_Y)
+    z = position[2] + depth * b                                      # planar depth x vertical slope
+    on_bed = names == "bed"
+    assert 0 < on_bed.mean() < 0.05 and z[on_bed].max() <= 0.5 + 1e-9    # the mattress only
+    profile, truth = _shares(room(False), position, yaw), _true_shares(room(False), position, yaw)
+    assert abs(profile["bed"] - truth["bed"]) <= 0.005 and truth["bed"] < 0.05, (profile, truth)
+    monkeypatch.setattr(C, "PROFILES", {})                           # the box model of the pod run
+    assert _shares(room(True), position, yaw)["bed"] > 0.3 and _shares(room(False), position, yaw)["bed"] > 0.1
+
+
+# real01's dining room (tests/fixtures/camsearch_pod_20261003.json) moved to the origin: a table and six chairs.
+DINING = [("table", "table_dining", (1.3914, 1.2384), (1.2383, 0.7353), 90.0, (1.2383, 0.7353, 0.75)),
+          ("c11", "chair", (1.3943, 0.3913), (0.4618, 0.3824), 90.0, (0.4618, 0.3824, 0.9)),
+          ("c12", "chair", (1.3943, 2.0885), (0.4618, 0.3824), 90.0, (0.4618, 0.3824, 0.9)),
+          ("c13", "chair", (0.7958, 0.9193), (0.4618, 0.3824), 0.0, (0.4618, 0.3824, 0.9)),
+          ("c14", "chair", (0.7958, 1.559), (0.4618, 0.3794), 0.0, (0.4618, 0.3794, 0.9)),
+          ("c15", "chair", (1.9914, 0.9193), (0.4647, 0.3824), 0.0, (0.4647, 0.3824, 0.9)),
+          ("c16", "chair", (1.9914, 1.559), (0.4647, 0.3794), 0.0, (0.4647, 0.3794, 0.9))]
+
+
+def test_a_chair_beside_the_table_is_hidden_as_in_the_render(monkeypatch):
+    """Pod case real01 cam_r_L0_dining_1: chair c14 (f_L0_014) next to the table, half out of the frame: its
+    seat is below the frame, its back outside it, but the 0.9 m box over its footprint showed a corner above
+    the table top. The profile hides it like the built chair; every chair and the table get the share the
+    built meshes show (within 0.005)."""
+    building = _parametric(_building(4.268, 2.438, furniture=DINING), {"table": 0.75, **{f"c1{i}": 0.9 for i in
+                                                                                         range(1, 7)}})
+    position, yaw = (0.5, 0.4225, 1.25), 30
+    profile, truth = _shares(building, position, yaw), _true_shares(building, position, yaw)
+    assert profile["c14"] == truth["c14"] == 0.0
+    for fid in profile:
+        assert abs(profile[fid] - truth[fid]) <= 0.005, (fid, profile[fid], truth[fid])
+    assert sum(1 for fid in profile if fid.startswith("c") and truth[fid] > 0.01) >= 4    # chairs in the view
+    monkeypatch.setattr(C, "PROFILES", {})
+    assert _shares(building, position, yaw)["c14"] > 0.02
+
+
+@pytest.mark.parametrize("rotation, behind", [(0.0, "seat hidden, back above the table top"),
+                                              (180.0, "back against the table edge")])
+def test_a_chair_behind_the_table_shows_what_the_built_chair_shows(rotation, behind, monkeypatch):
+    """A chair behind a 0.75 m table, facing it (its 0.9 m back on the far edge) or turned away (its back on
+    the table edge): the table top hides the 0.45 m seat, only the back rises into view. The profile's share
+    is the built mesh's (within 0.005); the box model put the back's height over the whole seat and saw more.
+    (A chair behind a table is never hidden by it unless its back is lower than the table top: none of the
+    pod's absent chairs was; they stood at the frame edge, see the dining test above.)"""
+    building = _parametric(_building(4.0, 4.0, furniture=[
+        ("table", "table_dining", (2.0, 2.0), (1.6, 0.9), 0.0, (1.6, 0.9, 0.75)),
+        ("chair", "chair", (2.0, 2.7), (0.46, 0.42), rotation, (0.46, 0.42, 0.9))]), {"table": 0.75, "chair": 0.9})
+    position, yaw = (2.0, 0.6, 1.25), 90
+    profile, truth = _shares(building, position, yaw), _true_shares(building, position, yaw)
+    for fid in ("table", "chair"):
+        assert abs(profile[fid] - truth[fid]) <= 0.005, (behind, fid, profile[fid], truth[fid])
+    assert truth["table"] > 0.1
+    monkeypatch.setattr(C, "PROFILES", {})
+    assert _shares(building, position, yaw)["chair"] > truth["chair"] + 0.003, behind
+
+
+def test_a_toilet_whose_cistern_is_out_of_the_frame_is_hidden(monkeypatch):
+    """Pod case synthetic-01 cam_r_L1_banyo_3: the toilet beside the camera, its cistern (1.2 m) behind the
+    camera plane, its 0.8 m bowl below the frame. The box model put the cistern height over the bowl (0.23 of
+    the frame, in front of the door); the profile hides it like the built toilet. The door leaf in that
+    render is closed in its frame (shell.build_openings builds every leaf closed), which the door rectangle
+    of the model is: the door gets the rays the toilet box took."""
+    building = _building(3.3, 2.9, openings=[("door", "door", "w", 1.45, 0.8, 0.0, 2.1)], furniture=[
+        ("shower", "shower", (1.121, 0.471), (0.9, 0.9), 180.0, (0.9, 0.9, 2.0)),
+        ("toilet", "toilet", (0.55, 2.529), (0.4, 0.7), 0.0, (0.4, 0.7, 1.2)),
+        ("basin", "washbasin", (0.246, 0.35), (0.6, 0.45), 90.0, (0.6, 0.45, 1.0)),
+        ("tub", "bathtub", (2.904, 2.029), (1.7, 0.75), 270.0, (1.7, 0.75, 0.75))])
+    _parametric(building, {"shower": 2.0, "toilet": 0.8, "basin": 0.85, "tub": 0.6})
+    position, yaw = (1.0, 2.5, 1.25), 240
+    profile, truth = _shares(building, position, yaw), _true_shares(building, position, yaw)
+    assert profile["toilet"] == truth["toilet"] == 0.0 and profile["shower"] > 0.2
+    model, labels, _ = _cast(building, position, yaw, lens_mm=POD_LENS_MM)
+    door_profile = float((np.array(_model_names(model, labels), dtype=object) == "door").mean())
+    monkeypatch.setattr(C, "PROFILES", {})
+    model, labels, _ = _cast(building, position, yaw, lens_mm=POD_LENS_MM)
+    assert _shares(building, position, yaw)["toilet"] > 0.2
+    assert door_profile > float((np.array(_model_names(model, labels), dtype=object) == "door").mean()) + 0.1
+
+
+def _pod_cases():
+    doc = json.loads(POD_FIXTURE.read_text(encoding="utf-8"))
+    return [(key, building, cam) for key, building in doc["rooms"].items() for cam in building["cameras"]]
+
+
+@pytest.mark.parametrize("key, building, cam", _pod_cases(), ids=lambda v: v["name"] if isinstance(v, dict) and
+                         "name" in v else None)
+def test_pod_cameras_replayed_the_absent_pieces_are_hidden(key, building, cam, monkeypatch):
+    """The five searched views of pod run 20261003-205431 whose listed piece was absent from the index pass
+    (the room data of the run, tests/fixtures/camsearch_pod_20261003.json). The box model reproduces the
+    run's shares (so the fixture is complete); the profile model gives the four parametric or low-chair
+    cases a share below the GPU test's 0.005 and the library bed (shape unknown beyond its box) a thin strip
+    of mattress (0.35 -> 0.026, its headboard not in view)."""
+    piece = cam["failed_piece"]
+    after = C.model_shares(building, cam).get(piece, 0.0)
+    if piece == "f_L0_013" and key.startswith("synthetic-06"):
+        assert 0.0 < after < 0.03
+    else:
+        assert after < MODEL_HIDDEN_SHARE, (cam["name"], piece, after)
+    monkeypatch.setattr(C, "PROFILES", {})
+    assert C.model_shares(building, cam).get(piece, 0.0) == pytest.approx(cam["pod_model_share"], abs=1e-4)
+
+
+def test_search_is_deterministic_and_independent_of_input_order():
+    building = json.loads((PROJECTS / "synthetic-01" / "truth" / "building.json").read_text(encoding="utf-8"))
+    first = _strip(_search(building))
+    assert first == _strip(_search(building))
+    shuffled = json.loads(json.dumps(building))
+    rng = random.Random(7)
+    rng.shuffle(shuffled["furniture"])
+    rng.shuffle(shuffled["openings"])
+    again = {p["name"]: p for p in _strip(_search(shuffled))}
+    assert set(again) == {p["name"] for p in first}
+    for p in first:
+        q = again[p["name"]]
+        assert q["position"] == p["position"] and q["target"] == p["target"] and q["score"] == p["score"]
+        assert sorted(q["visible_furniture"]) == sorted(p["visible_furniture"])
+
+
+def test_m5_stays_the_default_policy():
+    building = json.loads((PROJECTS / "synthetic-01" / "truth" / "building.json").read_text(encoding="utf-8"))
+    default = cameras.plan_cameras(building, "L0")
+    assert default == cameras.plan_cameras(building, "L0", policy="m5")
+    assert all("policy" not in p and "shift_y" not in p and "score" not in p for p in default)
+    with pytest.raises(ValueError):
+        cameras.plan_cameras(building, "L0", policy="best")
+
+
+# --------------------------------------------------------------------------
+# Synthetic projects
+# --------------------------------------------------------------------------
+
+def _truth(name):
+    return json.loads((PROJECTS / name / "truth" / "building.json").read_text(encoding="utf-8"))
+
+
+def _final(name):
+    return json.loads((RESULTS / "furniture" / name / "building_final.json").read_text(encoding="utf-8"))
+
+
+SEARCH_BUILDINGS = [("truth", "synthetic-01"), ("truth", "synthetic-02"), ("truth", "synthetic-03"),
+                    ("final", "synthetic-01"), ("final", "synthetic-03")]
+
+
+@pytest.fixture(scope="module", params=SEARCH_BUILDINGS, ids=lambda p: f"{p[0]}-{p[1]}")
+def searched(request):
+    kind, name = request.param
+    building = _truth(name) if kind == "truth" else _final(name)
+    plans = []
+    for level in building["levels"]:
+        plans.extend(_search(building, level["id"]))
+    return name, building, plans
+
+
+def test_synthetic_search_views_per_room(searched):
+    name, building, plans = searched
+    by_room = {}
+    for p in plans:
+        by_room.setdefault(p["room_id"], []).append(p)
+    without = {r["room_id"] for r in C.rooms_without_view(building)}
+    assert set(by_room) == {r["id"] for r in building["rooms"]} - without and not set(by_room) & without, name
+    for room in building["rooms"]:
+        if room["id"] in without:
+            assert not C.shown_pieces(room, building) and G.polygon_area(C.room_polygon(room)) < 2.5, room["id"]
+            continue
+        views = by_room[room["id"]]
+        assert 1 <= len(views) <= C.room_view_count(room, building) <= C.room_view_count(room), room["id"]
+        if not C.shown_pieces(room, building):
+            assert len(views) == 1, room["id"]                           # Milestone 7: nothing to show, one view
+        assert [p["name"] for p in views] == [f"cam_{room['id']}_{i}" for i in range(1, len(views) + 1)]
+
+
+def test_synthetic_search_cameras_are_free_and_unblocked(searched):
+    name, building, plans = searched
+    rooms = {r["id"]: r for r in building["rooms"]}
+    blocked = []
+    for p in plans:
+        room = rooms[p["room_id"]]
+        poly = C.room_polygon(room)
+        obstacles = [obstacle_rect(f) for f in building["furniture"]
+                     if f.get("room_id") == room["id"] and f.get("kind") != "decor"]
+        if not p["warning"]:
+            assert geom2d.point_is_free(p["position"][:2], poly, obstacles, 0.3, 0.2), p["name"]
+        assert G.point_in_polygon(p["position"][:2], poly), p["name"]
+        if p["score"]["blocked"]:
+            blocked.append(p["name"])
+            assert p["warning"] and "blocked unavoidable" in p["warning"], p["name"]
+    print(f"{name}: {len(plans)} views, blocked unavoidable: {blocked}")
+
+
+def test_synthetic_search_beats_the_m5_cameras_by_the_model(searched):
+    name, building, plans = searched
+    m5 = [p for level in building["levels"] for p in cameras.plan_cameras(building, level["id"])]
+    m5_scores = [C.score_camera(building, p) for p in m5]
+    mean_m5 = sum(s["terms"]["total"] for s in m5_scores) / len(m5_scores)
+    mean_search = sum(p["score"]["total"] for p in plans) / len(plans)
+    blocked_m5 = sum(s["terms"]["blocked"] for s in m5_scores)
+    floor_m5 = sum(s["shares"]["floor"] for s in m5_scores) / len(m5_scores)
+    floor_search = sum(p["score"]["shares"]["floor"] for p in plans) / len(plans)
+    print(f"{name}: model score m5 {mean_m5:.2f} -> search {mean_search:.2f}; floor {floor_m5:.3f} -> "
+          f"{floor_search:.3f}; blocked m5 {blocked_m5}")
+    assert mean_search > mean_m5 + 1.0 and floor_search > floor_m5
+    # The best view of every room scores at least as well as the best M5 view of that room.
+    best_m5 = {}
+    for p, s in zip(m5, m5_scores):
+        best_m5[p["room_id"]] = max(best_m5.get(p["room_id"], -9.0), s["terms"]["total"])
+    for p in plans:
+        if p["index"] == 1:
+            assert p["score"]["total"] >= best_m5[p["room_id"]] - 1e-3, p["name"]
+
+
+def test_plan_count_of_the_committed_buildings_follows_the_area_rule():
+    # docs/milestone6.md §8.1: 29 views for synthetic-01 and 50 for synthetic-03 by the area rule.
+    assert sum(C.room_view_count(r) for r in _final("synthetic-01")["rooms"]) == 29
+    assert sum(C.room_view_count(r) for r in _final("synthetic-03")["rooms"]) == 50
+    # Milestone 7 (§6.2): synthetic-03's two storage rooms and the balcony have nothing to show (3 + 2 + 1 -> 1
+    # each); synthetic-01's furnished rooms keep the area rule. No committed room is empty and under 2.5 m2.
+    final = {name: _final(name) for name in ("synthetic-01", "synthetic-03")}
+    assert sum(C.room_view_count(r, final["synthetic-01"]) for r in final["synthetic-01"]["rooms"]) == 29
+    assert sum(C.room_view_count(r, final["synthetic-03"]) for r in final["synthetic-03"]["rooms"]) == 44
+    assert [r["id"] for r in final["synthetic-03"]["rooms"] if not C.shown_pieces(r, final["synthetic-03"])] == \
+        ["r_L-1_kiler", "r_L-1_kiler_2", "r_L1_balkon"]
+    assert all(C.rooms_without_view(b) == [] for b in final.values())
+
+
+def test_search_time_of_synthetic_03_is_within_budget():
+    building = _final("synthetic-03")
+    t0 = time.perf_counter()
+    plans = []
+    for level in building["levels"]:
+        plans.extend(_search(building, level["id"]))
+    seconds = time.perf_counter() - t0
+    recorded = sum(C.level_search_seconds(plans).values())
+    print(f"synthetic-03: {len(plans)} views searched in {seconds:.1f} s")
+    assert seconds <= 60.0 and 0 < recorded <= seconds + 0.01      # recorded per level, rounded to 1 ms
+    assert set(C.level_search_seconds(plans)) == {lv["id"] for lv in building["levels"]}
+
+
+# --------------------------------------------------------------------------
+# M5 policy: the committed M5 cameras, 1 mm
+# --------------------------------------------------------------------------
+
+def _git_show(path: str):
+    try:
+        out = subprocess.run(["git", "show", f"{M5_COMMIT}:{path}"], cwd=ROOT, capture_output=True, timeout=60)
+    except (OSError, subprocess.SubprocessError) as exc:
+        pytest.skip(f"git not usable: {exc}")
+    if out.returncode != 0:
+        pytest.skip(f"{M5_COMMIT}:{path} not in this clone (shallow?): {out.stderr.decode()[-200:]}")
+    return json.loads(out.stdout.decode("utf-8"))
+
+
+@pytest.mark.parametrize("name", ["synthetic-01", "synthetic-03"])
+def test_m5_policy_reproduces_the_committed_m5_cameras(name):
+    scene = _git_show(f"results/renders/{name}/scene_manifest.json")
+    building = _git_show(f"results/furniture/{name}/building_final.json")
+    plans = {p["name"]: p for level in building["levels"]
+             for p in cameras.plan_cameras(building, level["id"], policy="m5")}
+    committed = {c["name"]: c for c in scene["cameras"]}
+    assert set(plans) == set(committed) and len(committed) in (30, 57)
+    for cam, c in committed.items():
+        for key in ("position", "target"):
+            assert max(abs(a - b) for a, b in zip(plans[cam][key], c[key])) <= 0.001, (cam, key)
+        assert plans[cam]["room_id"] == c["room_id"] and plans[cam]["index"] == c["index"]
+    # Byte for byte: every field of every plan (warnings, anchors, frustum lists) is the committed one.
+    assert [cam for cam, c in committed.items() if plans[cam] != c] == []
+
+
+# --------------------------------------------------------------------------
+# Imports, CLI, Blender's Python
+# --------------------------------------------------------------------------
+
+def test_camsearch_imports_no_blender_shapely_cv2_or_pil():
+    code = ("import sys, wenart.blender.camsearch; "
+            "print(','.join(m for m in ('bpy', 'shapely', 'cv2', 'PIL', 'scipy', 'yaml') if m in sys.modules))")
+    out = subprocess.run([sys.executable, "-c", code], cwd=ROOT, capture_output=True, text=True, check=True)
+    assert out.stdout.strip() == ""
+
+
+def test_cli_writes_the_plans_and_a_report(tmp_path, capsys):
+    path = tmp_path / "building.json"
+    path.write_text(json.dumps(_building(**ROOM_A)), encoding="utf-8")
+    rc = C.main([str(path), "--out", str(tmp_path / "cams.json"), "--report", str(tmp_path / "cams.md")])
+    assert rc == 0
+    out = json.loads((tmp_path / "cams.json").read_text(encoding="utf-8"))
+    assert out["policy"] == "search" and len(out["cameras"]) == 3 and set(out["search_seconds"]) == {"L0"}
+    md = (tmp_path / "cams.md").read_text(encoding="utf-8")
+    assert "| cam_r_1 | r | 20.00 | 18 |" in md and "lens 18 mm;" in md
+    assert "blocked unavoidable: none" in capsys.readouterr().out
+    assert C.main([str(path), "--out", str(tmp_path / "x.json"), "--level", "L9"]) == 2
+    # Milestone 8: --lens-mm (the brief's render.lens_mm) for every room; outside 14-35 mm it is refused.
+    assert C.main([str(path), "--out", str(tmp_path / "l.json"), "--lens-mm", "20"]) == 0
+    out = json.loads((tmp_path / "l.json").read_text(encoding="utf-8"))
+    assert {(c["lens_mm"], c["lens_rule"]) for c in out["cameras"]} == {(20.0, "brief render.lens_mm")}
+    assert C.main([str(path), "--out", str(tmp_path / "y.json"), "--lens-mm", "40"]) == 2
+    assert "14 to 35 mm" in capsys.readouterr().err and not (tmp_path / "y.json").exists()
+
+
+@pytest.mark.skipif(BLENDER is None, reason="no Blender binary")
+def test_search_runs_inside_blender_python_with_the_same_result(tmp_path):
+    src = PROJECTS / "synthetic-01" / "truth" / "building.json"
+    out = tmp_path / "plans.json"
+    expr = (f"import sys, json; sys.path.insert(0, {str(ROOT)!r})\n"
+            "from wenart.blender import cameras\n"
+            f"b = json.load(open({str(src)!r}))\n"
+            "plans = [p for lv in b['levels'] for p in cameras.plan_cameras(b, lv['id'], policy='search')]\n"
+            f"json.dump(plans, open({str(out)!r}, 'w'))\n")
+    proc = subprocess.run([BLENDER, "-b", "--factory-startup", "--python-exit-code", "1", "--python-expr", expr],
+                          capture_output=True, text=True, timeout=600, cwd=str(ROOT))
+    assert proc.returncode == 0, proc.stdout[-2000:] + proc.stderr[-2000:]
+    inside = _strip(json.loads(out.read_text(encoding="utf-8")))
+    building = _truth("synthetic-01")
+    here = _strip([p for lv in building["levels"] for p in _search(building, lv["id"])])
+    assert [p["name"] for p in inside] == [p["name"] for p in here]
+    for a, b in zip(inside, here):
+        assert a["position"] == pytest.approx(b["position"], abs=1e-9) and a["target"] == pytest.approx(b["target"])
+        assert a["score"]["total"] == pytest.approx(b["score"]["total"], abs=1e-6)

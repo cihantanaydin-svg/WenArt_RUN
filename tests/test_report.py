@@ -1,0 +1,1696 @@
+"""CPU tests for wenart.report (docs/milestone5.md §7): the final decision, final/ files and the sweep report.
+
+A hand-made project output (scene, render, polish, check manifests in the
+shapes of §2.5, §3.6, §4.3, §5.7) with five views covers every final
+reason: polished, rejected by the vision check (flagged and recomputed),
+check incomplete, gate. Missing inputs (no check, no polish, no renders,
+results copies without PNGs) must still give a report that says what did
+not run. Images are tiny except where the 300 KB limit is tested.
+
+Milestone 6 (docs/milestone6.md §7.4, §9): the gate validation and its effect
+on the finals, camera policy/score, window pull, views per room, the stage
+table from ``run/*.json``, private projects (no plan crop or debug image
+copied), the needs-review report and ``resolve_repo_path`` for the building.
+"""
+import copy
+import json
+import re
+from pathlib import Path
+
+import numpy as np
+import pytest
+from PIL import Image
+
+from wenart import views as VW
+from wenart.report import common as C
+from wenart.report import final as F
+from wenart.report import sweep as S
+from wenart.report.__main__ import main as report_main
+
+W, H = 96, 54
+CAMERAS = [("cam_salon_1", "r_L0_salon", "L0"), ("cam_salon_2", "r_L0_salon", "L0"), ("cam_hol_1", "r_L0_hol", "L0"),
+           ("cam_yatak_1", "r_L1_yatak", "L1"), ("cam_yatak_2", "r_L1_yatak", "L1")]
+INDEX = {"d_1": 1, "win_1": 2, "win_2": 3, "f_1": 4, "f_2": 5, "f_3": 6, "f_9": 7, "dec_1": 8}
+
+
+def ev(file="plan.dxf", **kw):
+    return [{"file": file, "method": "vector", "confidence": 1.0, **kw}]
+
+
+def building(project_dir: Path) -> dict:
+    return {
+        "schema_version": "0.1", "status": "ok",
+        "project": {"id": "toy", "source_folder": str(project_dir), "brief": {"style": "stale brief"}},
+        "documents": [], "walls": [],
+        "levels": [{"id": "L0", "label": "Zemin"}, {"id": "L1", "label": "1. Kat"}],
+        "rooms": [{"id": "r_L0_salon", "level_id": "L0", "room_type": "living", "status": "verified"},
+                  {"id": "r_L0_hol", "level_id": "L0", "room_type": "hall", "status": "verified"},
+                  {"id": "r_L1_yatak", "level_id": "L1", "room_type": "bedroom", "status": "verified"}],
+        "openings": [{"id": "d_1", "type": "door", "level_id": "L0", "status": "verified",
+                      "evidence": ev(layer="KAPI", entity="INSERT:F4")},
+                     {"id": "win_1", "type": "window", "level_id": "L0", "status": "verified",
+                      "evidence": ev(layer="PENCERE", entity="INSERT:A1")},
+                     {"id": "win_2", "type": "window", "level_id": "L1", "status": "verified",
+                      "evidence": ev("plan.pdf", page=2, entity="path:12")}],
+        "furniture": [{"id": "f_1", "type": "sofa", "level_id": "L0", "room_id": "r_L0_salon",
+                       "source": "from_documents", "status": "verified",
+                       "evidence": ev(layer="MOBILYA", entity="INSERT:1A"),
+                       "asset": {"method": "library", "licence": "CC0"}},
+                      {"id": "f_2", "type": "tv_unit", "level_id": "L0", "room_id": "r_L0_salon",
+                       "source": "added_by_ai", "status": "verified",
+                       "evidence": [{"file": "layout", "method": "ai", "model": "qwen", "confidence": 0.9}],
+                       "asset": {"method": "parametric", "licence": "n/a"}},
+                      {"id": "f_3", "type": "bed_double", "level_id": "L1", "room_id": "r_L1_yatak",
+                       "source": "from_documents", "status": "verified", "evidence": ev(entity="INSERT:2B"),
+                       "asset": {"method": "library", "licence": "CC0"}},
+                      {"id": "f_9", "type": "unknown", "level_id": "L0", "room_id": "r_L0_hol",
+                       "source": "from_documents", "status": "unverified", "evidence": ev(entity="INSERT:9Z")}],
+        "decor": [{"id": "dec_1", "type": "plant", "level_id": "L0", "room_id": "r_L0_salon", "source": "added_by_ai",
+                   "method": "rule", "reason": "plant in the free corner", "asset": None}],
+        "conflicts": [{"id": "c_001", "kind": "count_mismatch", "element_ids": ["win_2"],
+                       "description": "plan.dxf has 2 windows, plan.pdf p2 has 1", "resolution": "DXF wins"}],
+        "unverified": ["f_9"],
+        "warnings": [],
+    }
+
+
+def obj(name, wid, kind, pi, **extra):
+    return {"name": name, "wenart_id": wid, "kind": kind, "status": "verified", "level_id": "L0",
+            "evidence": ev(), "pass_index": pi, **extra}
+
+
+def scene(building_path: Path) -> dict:
+    return {
+        "schema_version": "0.1", "project": "toy", "building": str(building_path),
+        "style_profile": {"walls": {"material": "plaster_white"}}, "seconds": 36.4,
+        "cameras": [{"name": c, "room_id": r, "level_id": l} for c, r, l in CAMERAS],
+        "materials": {"plaster_white__x": {"textured": True, "asset": "white_plaster_02", "licence": "CC0"},
+                      "wood__y": {"textured": True, "asset": "WoodFloor051", "licence": "CC0"},
+                      "flat": {"textured": False}},
+        "pass_index": INDEX,
+        "objects": [
+            obj("w_1", "w_1", "wall", None),
+            obj("d_1_frame", "d_1", "door", 1, room_ids=["r_L0_salon", "r_L0_hol"]),
+            obj("win_1_frame", "win_1", "window", 2, room_ids=["r_L0_salon"]),
+            obj("win_2_frame", "win_2", "window", 3, room_ids=["r_L1_yatak"], level_id="L1"),
+            obj("furn_f_1", "f_1", "furniture", 4, room_id="r_L0_salon", type="sofa", source="from_documents"),
+            obj("furn_f_2", "f_2", "furniture", 5, room_id="r_L0_salon", type="tv_unit", source="added_by_ai"),
+            obj("furn_f_3", "f_3", "furniture", 6, room_id="r_L1_yatak", type="bed_double", source="from_documents",
+                level_id="L1"),
+            obj("proxy_f_9", "proxy:f_9", "furniture_proxy", 7, room_id="r_L0_hol", type="unknown",
+                source="from_documents", status="unverified"),
+            obj("decor_dec_1", "dec_1", "decor", 8, room_id="r_L0_salon", type="plant", source="added_by_ai",
+                status="assumed"),
+        ],
+    }
+
+
+STATS = {
+    "cam_salon_1": {"1": [400, [0, 10, 12, 50]], "2": [300, [40, 5, 60, 25]], "4": [900, [20, 30, 70, 54]],
+                    "5": [200, [70, 30, 90, 45]], "8": [50, [5, 40, 10, 50]]},
+    "cam_salon_2": {"2": [300, [40, 5, 60, 25]], "4": [800, [20, 30, 70, 54]], "5": [250, [70, 30, 90, 45]]},
+    "cam_hol_1": {"1": [500, [30, 5, 50, 54]], "7": [300, [60, 20, 90, 50]]},
+    "cam_yatak_1": {"3": [300, [10, 5, 30, 25]], "6": [1200, [20, 25, 80, 54]]},
+    "cam_yatak_2": {"3": [300, [50, 5, 70, 25]], "6": [1000, [10, 25, 70, 54]]},
+}
+
+
+def render_entry(cam, room, i):
+    stats = {k: {"pixels": v[0], "box": v[1]} for k, v in STATS[cam].items()}
+    return {"camera": cam, "png": f"{cam}.png", "exr": f"{cam}_passes.exr", "preview": f"{cam}_preview.jpg",
+            "depth_png": f"{cam}_depth.png", "index_png": f"{cam}_index.png", "seconds": 10.0 + i, "samples": 128,
+            "resolution": [W, H], "index_values": sorted(int(k) for k in stats), "room_id": room,
+            "scene_sha256": "x", "index_stats": stats,
+            "files": {"depth_mm": f"{cam}_depth_mm.png", "normal": f"{cam}_normal.png"},
+            "render_key": f"{i:016x}", "hidden": [], "plugged": [],
+            "exposure": {"mode": "auto", "ev": [1.5, 2.0, 8.0, 0.5, 1.0][i], "ev_raw": 1.5, "at_limit": i == 2,
+                         "target": 0.9, "whitepoint": [1.0, 1.0, 0.9], "meter_seconds": 2.0, "source": None}}
+
+
+def gate(decision, checks=()):
+    reasons = [{"check": c, "region": "global", "value": 0.5, "threshold": 0.95, "op": ">="} for c in checks]
+    return {"decision": decision, "reasons": reasons, "notes": [],
+            "metrics": {"edges": {"global": 0.99 if decision == "accept" else 0.7, "regions": {}, "skipped": {}},
+                        "depth": {"global": 0.01, "regions": {}, "skipped": {}},
+                        "regions": {}, "seconds": {"edges": 0.5, "depth": 1.5}},
+            "gate_key": "g" * 16}
+
+
+def attempt(cam, k, decision, checks=(), strength=0.375):
+    return {"k": k, "role": "ladder", "strength": strength, "control": "depth", "scale": 0.8, "size": "native",
+            "mode": "plain", "seed": k, "steps": 8, "sigmas": [0.643, 0.5], "seconds": 6.0, "png": f"{cam}_a{k}.png",
+            "sha256": "a" * 64, "attempt_key": "b" * 64, "panes_restored": 1, "gate": gate(decision, checks),
+            "debug_jpg": f"{cam}_a{k}_gate.jpg", "gate_seconds": 2.0}
+
+
+def polish_manifest(sha: dict) -> dict:
+    def view(cam, room, final, k, attempts, reason=None):
+        return {"camera": cam, "room_id": room, "source_png": f"../renders/{cam}.png", "source_sha256": sha[cam],
+                "prompt": "Photorealistic interior photograph", "controls": {"depth": f"{cam}_control_depth.png"},
+                "attempts": attempts, "final": final, "final_attempt": k, "reason": reason}
+    model = {"repo": "r", "revision": "0" * 40, "licence": "Apache-2.0"}
+    return {
+        "schema_version": "0.1", "kind": "run", "project": "toy", "incomplete": False,
+        "models": {"base": {**model, "repo": "Tongyi-MAI/Z-Image-Turbo", "files": []},
+                   "controlnet": {**model, "repo": "alibaba-pai/Z-Image-Turbo-Fun-Controlnet-Union-2.1"},
+                   "gate": {"depth": {**model, "repo": "depth-anything/Depth-Anything-V2-Small-hf"},
+                            "sam": {**model, "repo": "facebook/sam2.1-hiera-large"},
+                            "dino": {**model, "repo": "facebook/dinov2-base"}}},
+        "config": {}, "thresholds": {"calibration": {"source": None, "accepted_shortfall": None}},
+        "device": "cuda", "torch": "2.9.1", "diffusers": "0.40.0", "memory_mode": "resident",
+        "peak_vram_gib": 17.9, "load_seconds": 30.0, "seconds_per_forward": 3.0,
+        "views": [
+            view("cam_salon_1", "r_L0_salon", "polished", 1, [attempt("cam_salon_1", 1, "accept")]),
+            view("cam_salon_2", "r_L0_salon", "polished", 2,
+                 [attempt("cam_salon_2", 1, "reject", ["edges"]), attempt("cam_salon_2", 2, "accept", strength=0.25)]),
+            view("cam_hol_1", "r_L0_hol", "cycles", None,
+                 [attempt("cam_hol_1", k, "reject", ["depth"]) for k in (1, 2, 3)], reason="gate"),
+            view("cam_yatak_1", "r_L1_yatak", "polished", 2,
+                 [attempt("cam_yatak_1", 1, "reject", ["colour"]), attempt("cam_yatak_1", 2, "accept", strength=0.25)]),
+            view("cam_yatak_2", "r_L1_yatak", "polished", 2,
+                 [attempt("cam_yatak_2", 1, "reject", ["colour"]), attempt("cam_yatak_2", 2, "accept", strength=0.25)]),
+        ],
+        "rooms": {"r_L0_salon": {"rule": "ok", "rung": None}, "r_L1_yatak": {"rule": "downgraded", "rung": 2}},
+        "warnings": [],
+    }
+
+
+def element(label, role, kind, type_, source, result, statuses=("present", "present")):
+    passes = {k: {"status": s, "seen_as": type_, "confidence": 0.9} for k, s in zip(("qwen", "glm"), statuses)}
+    return {"label": label, "role": role, "kind": kind, "type": type_, "type_unverified": type_ == "unknown",
+            "source": source, "box_1000": [0, 0, 100, 100], "passes": passes, "result": result, "single": None}
+
+
+def check_entry(elements, verdict="ok", extras=(), counts=None, not_computed=(), unreliable=(), images=()):
+    return {"verdict": verdict, "prompt_kind": "check", "elements": elements, "extras": list(extras),
+            "extras_dropped": {}, "counts": counts or {"door": {"expected": [0, 1], "passes": {"qwen": 0, "glm": 0},
+                                                               "result": "ok"}},
+            "unreliable": list(unreliable), "not_computed": list(not_computed), "decoy": None, "images": list(images)}
+
+
+def check_manifest() -> dict:
+    ok_salon = {"f_1": element("E1", "required", "furniture", "sofa", "from_documents", "ok"),
+                "win_1": element("E2", "required", "window", "window", "from_documents", "ok"),
+                "f_2": element("E3", "optional", "furniture", "tv_unit", "added_by_ai", "ok")}
+    lost = copy.deepcopy(ok_salon)
+    lost["f_1"].update(result="missing", passes={"qwen": {"status": "absent"}, "glm": {"status": "absent"}})
+    yatak = {"f_3": element("E1", "required", "furniture", "bed_double", "from_documents", "ok"),
+             "win_2": element("E2", "required", "window", "window", "from_documents", "ok")}
+    yatak_lost = copy.deepcopy(yatak)
+    yatak_lost["f_3"]["result"] = "changed"
+    hol = {"f_9": element("E1", "required", "furniture", "unknown", "from_documents", "ok"),
+           "d_1": element("E2", "required", "door", "door", "from_documents", "missing", ("absent", "absent"))}
+    extra = {"class": "furniture", "categories": {"qwen": "armchair", "glm": "armchair"}, "box_px": [5, 5, 30, 30],
+             "iou": 0.6, "confirmed": True, "passes": ["qwen", "glm"], "info": False}
+    pref = {"votes": 3, "answers": 4, "asked": 4, "min_votes": 3, "preferred": True, "calls": {}}
+    views = {
+        "cam_salon_1": {"cycles": check_entry(ok_salon),
+                        "polished": {**check_entry(ok_salon, images=["../polish/cam_salon_1_a1.png"]),
+                                     "preference": pref},
+                        "json_crosscheck": {"level_id": "L0", "in_json_not_rendered": [], "rendered_not_in_json": [],
+                                            "misplaced": []},
+                        "polished_rejected": False, "polished_reason": None, "polished_reasons": [],
+                        "needs_review": False, "needs_review_reasons": []},
+        "cam_salon_2": {"cycles": check_entry(ok_salon), "polished": check_entry(lost, "mismatch"),
+                        "json_crosscheck": {"in_json_not_rendered": [], "rendered_not_in_json": [], "misplaced": []},
+                        "polished_rejected": True, "polished_reason": "vision_check",
+                        "polished_reasons": [{"reason": "vision_check", "what": "element", "id": "f_1", "type": "sofa",
+                                              "source": "from_documents", "cycles": "ok", "polished": "missing"}],
+                        "needs_review": False, "needs_review_reasons": []},
+        "cam_hol_1": {"cycles": check_entry(hol, "mismatch", extras=[extra]),
+                      "json_crosscheck": {"in_json_not_rendered": [
+                          {"id": "f_9", "kind": "furniture", "type": "unknown", "source": "from_documents",
+                           "status": "unverified", "visible_share": 0.6, "area_frac": 0.05, "box_px": [1, 2, 3, 4]}],
+                          "rendered_not_in_json": [], "misplaced": []},
+                      "polished_rejected": False, "polished_reasons": [], "needs_review": True,
+                      "needs_review_reasons": ["d_1 (door, from_documents): missing"]},
+        "cam_yatak_1": {"cycles": check_entry(yatak), "polished": check_entry(yatak, "not_computed",
+                                                                               not_computed=["glm"]),
+                        "polished_rejected": True, "polished_reason": "check_incomplete",
+                        "polished_reasons": [{"reason": "check_incomplete", "image": "polished",
+                                              "detail": "not computed: glm"}],
+                        "needs_review": False, "needs_review_reasons": []},
+        # The manifest did not flag it, but the elements show a loss: recomputed as vision_check.
+        "cam_yatak_2": {"cycles": check_entry(yatak), "polished": check_entry(yatak_lost, "mismatch"),
+                        "polished_rejected": False, "polished_reasons": [], "needs_review": False},
+    }
+    return {"schema_version": "0.1", "project": "toy", "advisory": True, "advisory_reason": "decoy_accept[glm] 0.2",
+            "single_pass": False, "model_keys": ["qwen", "glm"],
+            "models": {"qwen": {"id": "Qwen/Qwen3-VL-8B-Instruct", "slug": "qwen3-vl-8b", "revision": "0c35",
+                                "licence": "Apache-2.0"},
+                       "glm": {"id": "zai-org/GLM-4.6V-Flash", "slug": "glm-4.6v-flash", "revision": "411b"}},
+            "views": views, "warnings": []}
+
+
+def expected_views() -> dict:
+    views = {}
+    for cam, room, level in CAMERAS:
+        els = []
+        for idx, (pixels, box) in STATS[cam].items():
+            wid = {v: k for k, v in INDEX.items()}[int(idx)]
+            src = "added_by_ai" if wid in ("f_2", "dec_1") else "from_documents"
+            els.append({"index": int(idx), "wenart_id": wid, "kind": "decor" if wid == "dec_1" else "furniture",
+                        "type": "unknown" if wid == "f_9" else "x", "source": src,
+                        "status": "unverified" if wid == "f_9" else "verified", "pixels": pixels,
+                        "role": "ignore" if pixels < 60 else "required", "box_px": box})
+        views[cam] = {"camera": cam, "room_id": room, "size": [W, H], "elements": els,
+                      "json_crosscheck": {"level_id": level, "in_json_not_rendered": [], "rendered_not_in_json": [],
+                                          "misplaced": []}}
+    return {"schema_version": "0.1", "project": "toy", "views": views, "warnings": []}
+
+
+def make_project(tmp_path, *, polish=True, check=True, brief="style: Scandinavian\n", pngs=True) -> Path:
+    """outputs/toy with every manifest; returns the project output folder."""
+    project_dir = tmp_path / "projects" / "toy"
+    project_dir.mkdir(parents=True)
+    if brief is not None:
+        (project_dir / "brief.yaml").write_text(brief, encoding="utf-8")
+    out = tmp_path / "outputs" / "toy"
+    for sub in ("scene", "renders", "polish", "check", "gate"):
+        (out / sub).mkdir(parents=True)
+    bpath = out / "building_final.json"
+    bpath.write_text(json.dumps(building(project_dir)), encoding="utf-8")
+    (out / "scene" / "scene_manifest.json").write_text(json.dumps(scene(bpath)), encoding="utf-8")
+    entries, sha = [], {}
+    for i, (cam, room, _) in enumerate(CAMERAS):
+        entries.append(render_entry(cam, room, i))
+        rgb = np.zeros((H, W, 3), dtype=np.uint8)
+        rgb[..., 0] = 40 * i
+        rgb[..., 1] = 120
+        if pngs:
+            VW.write_png_rgb(out / "renders" / f"{cam}.png", rgb)
+            sha[cam] = C.sha256_file(out / "renders" / f"{cam}.png")
+        else:
+            sha[cam] = "c" * 64
+        Image.fromarray(rgb).save(out / "renders" / f"{cam}_preview.jpg", quality=80)
+    (out / "renders" / "render_manifest.json").write_text(
+        json.dumps({"schema_version": "0.1", "renders": entries, "warnings": []}), encoding="utf-8")
+    if polish:
+        pm = polish_manifest(sha)
+        (out / "polish" / "polish_manifest.json").write_text(json.dumps(pm), encoding="utf-8")
+        for v in pm["views"]:
+            for a in v["attempts"]:
+                rgb = np.full((H, W, 3), 200, dtype=np.uint8)
+                if pngs:
+                    VW.write_png_rgb(out / "polish" / a["png"], rgb)
+                Image.fromarray(rgb).save(out / "polish" / f"{v['camera']}_a{a['k']}_preview.jpg", quality=80)
+    if check:
+        cm = check_manifest()
+        pviews = {v["camera"]: v for v in polish_manifest(sha)["views"]}
+        for cam, entry in cm["views"].items():
+            # The check manifest records the hash of every image it checked (vision_check combine).
+            entry["cycles"]["image_sha256"] = [sha[cam]]
+            k = pviews[cam]["final_attempt"]
+            if "polished" in entry and k is not None:
+                png = out / "polish" / f"{cam}_a{k}.png"
+                entry["polished"]["image_sha256"] = [C.sha256_file(png) if png.is_file() else "a" * 64]
+        (out / "check" / "check_manifest.json").write_text(json.dumps(cm), encoding="utf-8")
+        (out / "check" / "expected_views.json").write_text(json.dumps(expected_views()), encoding="utf-8")
+        (out / "check" / "check_calibration.json").write_text(json.dumps({
+            "metrics": {"fa_missing": 0.02, "fa_extra": 0.05, "models": {"qwen": {"decoy_accept": 0.0},
+                                                                         "glm": {"decoy_accept": 0.2}}},
+            "targets": {"fa_missing_max": 0.05, "decoy_accept_max": 0.1},
+            "missed": [{"target": "decoy_accept_max", "metric": "decoy_accept[glm]", "value": 0.2, "threshold": 0.1,
+                        "op": "<="}], "advisory": True, "plan_ab": {"adopted": False}}), encoding="utf-8")
+        (out / "check" / "answers_qwen3-vl-8b.json").write_text(json.dumps({
+            "model": "Qwen/Qwen3-VL-8B-Instruct", "slug": "qwen3-vl-8b",
+            "calls": {"k1": {"latency_s": 5.0}, "k2": {"latency_s": 4.5}}}), encoding="utf-8")
+        for cam in ("cam_salon_1", "cam_hol_1"):
+            Image.new("RGB", (64, 48), (255, 255, 255)).save(out / "check" / f"{cam}_plan.jpg")
+    return out
+
+
+def by_cam(manifest):
+    return {v["camera"]: v for v in manifest["views"]}
+
+
+# --------------------------------------------------------------------------
+# The decision rule
+# --------------------------------------------------------------------------
+
+POLISHED = {"final": "polished", "final_attempt": 2, "reason": None, "source_sha256": "s",
+            "attempts": [{"k": 2, "png": "cam_a2.png", "sha256": "p", "gate": gate("accept")}]}
+OK_ENTRY = check_entry({"f_1": element("E1", "required", "furniture", "sofa", "from_documents", "ok")})
+# The check saw the render with sha256 "s" and the polished image with sha256 "p".
+CHECK_OK = {"cycles": {**OK_ENTRY, "image_sha256": ["s"]},
+            "polished": {**OK_ENTRY, "images": ["../polish/cam_a2.png"], "image_sha256": ["p"]}}
+
+
+@pytest.mark.parametrize("pview, cview, kw, final, reason", [
+    (POLISHED, CHECK_OK, {}, "polished", None),
+    (POLISHED, CHECK_OK, {"allowed": False}, "cycles", "brief"),
+    (POLISHED, CHECK_OK, {"polish_ran": False}, "cycles", "not_run"),
+    (None, CHECK_OK, {}, "cycles", "not_run"),
+    ({**POLISHED, "final": "cycles", "reason": "gate", "final_attempt": None}, CHECK_OK, {}, "cycles", "gate"),
+    ({**POLISHED, "final": "cycles", "reason": "room"}, CHECK_OK, {}, "cycles", "room"),
+    ({**POLISHED, "final": "cycles", "reason": "deadline"}, CHECK_OK, {}, "cycles", "deadline"),
+    ({**POLISHED, "final": "cycles", "reason": "weird"}, CHECK_OK, {}, "cycles", "error"),
+    ({**POLISHED, "final": None, "reason": None}, CHECK_OK, {}, "cycles", "not_run"),
+    ({**POLISHED, "final_attempt": 9}, CHECK_OK, {}, "cycles", "error"),
+    (POLISHED, CHECK_OK, {"source_sha256": "other"}, "cycles", "error"),
+    (POLISHED, None, {"check_ran": False}, "cycles", "check_incomplete"),
+    (POLISHED, None, {}, "cycles", "check_incomplete"),
+    (POLISHED, {"cycles": OK_ENTRY}, {}, "cycles", "check_incomplete"),
+    (POLISHED, {"polished": OK_ENTRY}, {}, "cycles", "check_incomplete"),
+    (POLISHED, {**CHECK_OK, "polished": {**OK_ENTRY, "not_computed": ["glm"], "verdict": "not_computed"}}, {},
+     "cycles", "check_incomplete"),
+    (POLISHED, {**CHECK_OK, "polished": {**OK_ENTRY, "unreliable": ["qwen"]}}, {}, "cycles", "check_incomplete"),
+    (POLISHED, {**CHECK_OK, "cycles": {**OK_ENTRY, "unreliable": ["glm"]}}, {}, "cycles", "check_incomplete"),
+    (POLISHED, {**CHECK_OK, "polished": {**OK_ENTRY, "preference_only": True}}, {}, "cycles", "check_incomplete"),
+    (POLISHED, {**CHECK_OK, "polished": {**CHECK_OK["polished"], "images": ["../polish/cam_a1.png"]}}, {},
+     "cycles", "check_incomplete"),
+    # The same file name with other pixels, on either image, or no hash recorded at all.
+    (POLISHED, {**CHECK_OK, "polished": {**CHECK_OK["polished"], "image_sha256": ["old"]}}, {}, "cycles",
+     "check_incomplete"),
+    (POLISHED, {**CHECK_OK, "cycles": {**OK_ENTRY, "image_sha256": ["old"]}}, {}, "cycles", "check_incomplete"),
+    (POLISHED, {**CHECK_OK, "polished": {**OK_ENTRY, "images": ["../polish/cam_a2.png"]}}, {}, "cycles",
+     "check_incomplete"),
+    (POLISHED, {**CHECK_OK, "cycles": OK_ENTRY}, {}, "cycles", "check_incomplete"),
+    (POLISHED, {**CHECK_OK, "cycles": OK_ENTRY}, {"source_sha256": None}, "polished", None),
+    (POLISHED, {**CHECK_OK, "polished_rejected": True, "polished_reason": "vision_check"}, {}, "cycles",
+     "vision_check"),
+    (POLISHED, {**CHECK_OK, "polished_rejected": True, "polished_reasons": [{"reason": "check_incomplete"}]}, {},
+     "cycles", "check_incomplete"),
+    (POLISHED, {**CHECK_OK, "polished_rejected": True, "polished_reasons": [{"reason": "vision_check",
+                                                                             "what": "added_by_polish"}]}, {},
+     "cycles", "vision_check"),
+])
+def test_decide_rule_table(pview, cview, kw, final, reason):
+    args = {"polish_ran": True, "check_ran": True, "allowed": True, "source_sha256": "s", **kw}
+    out = F.decide(pview, cview, **args)
+    assert (out["final"], out["reason"]) == (final, reason), out
+    assert out["final"] == "cycles" or out["detail"] is None
+
+
+def test_decide_recomputes_the_differential_rule():
+    lost = copy.deepcopy(CHECK_OK["polished"])                   # the check saw the polished image "p"
+    lost["elements"]["f_1"]["result"] = "missing_or_changed"
+    out = F.decide(POLISHED, {"cycles": OK_ENTRY, "polished": lost}, polish_ran=True, check_ran=True)
+    assert out["reason"] == "vision_check" and "did not flag" in out["detail"] and "f_1" in out["detail"]
+    # Missing on both images is a Cycles mismatch (needs review), not a polish loss.
+    both = {"cycles": lost, "polished": lost}
+    assert F.decide(POLISHED, both, polish_ran=True, check_ran=True)["final"] == "polished"
+    # Unverified on Cycles, confirmed changed on the polished image: rejected.
+    unv = copy.deepcopy(OK_ENTRY)
+    unv["elements"]["f_1"]["result"] = "unverified"
+    assert F.decide(POLISHED, {"cycles": unv, "polished": lost}, polish_ran=True,
+                    check_ran=True)["reason"] == "vision_check"
+
+
+def test_decide_checks_the_polished_file(tmp_path):
+    out = F.decide(POLISHED, CHECK_OK, polish_ran=True, check_ran=True, polish_dir=tmp_path)
+    assert out["reason"] == "error" and "not found" in out["detail"]
+    (tmp_path / "cam_a2.png").write_bytes(b"x")
+    # The file on disk is hashed (not the manifest's sha256 "p"): it is not what the check saw.
+    out = F.decide(POLISHED, CHECK_OK, polish_ran=True, check_ran=True, polish_dir=tmp_path)
+    assert out["reason"] == "check_incomplete" and "sha256 differs" in out["detail"]
+    seen = {**CHECK_OK, "polished": {**CHECK_OK["polished"], "image_sha256": [C.sha256_file(tmp_path / "cam_a2.png")]}}
+    assert F.decide(POLISHED, seen, polish_ran=True, check_ran=True, polish_dir=tmp_path)["final"] == "polished"
+
+
+# --------------------------------------------------------------------------
+# End to end
+# --------------------------------------------------------------------------
+
+def links(md: str) -> list[str]:
+    return re.findall(r"\]\(([^)]+)\)", md)
+
+
+def test_final_report_end_to_end(tmp_path):
+    out = make_project(tmp_path)
+    assert report_main(["final", "--project-out", str(out)]) == 0
+    final = out / "final"
+    manifest = json.loads((final / "final_manifest.json").read_text(encoding="utf-8"))
+    assert F.validate_final_manifest(manifest) == []
+    v = by_cam(manifest)
+    assert [x["camera"] for x in manifest["views"]] == [c for c, _, _ in CAMERAS]
+    assert (v["cam_salon_1"]["final"], v["cam_salon_1"]["reason"]) == ("polished", None)
+    assert v["cam_salon_1"]["image"] == "../polish/cam_salon_1_a1.png"
+    assert (v["cam_salon_2"]["final"], v["cam_salon_2"]["reason"]) == ("cycles", "vision_check")
+    assert v["cam_salon_2"]["image"] == "../renders/cam_salon_2.png"
+    assert (v["cam_hol_1"]["final"], v["cam_hol_1"]["reason"]) == ("cycles", "gate")
+    assert "no ladder attempt passed the gate" in v["cam_hol_1"]["detail"]
+    assert (v["cam_yatak_1"]["final"], v["cam_yatak_1"]["reason"]) == ("cycles", "check_incomplete")
+    assert (v["cam_yatak_2"]["final"], v["cam_yatak_2"]["reason"]) == ("cycles", "vision_check")
+    s = manifest["summary"]
+    assert s["views"] == 5 and s["polished"] == 1 and s["cycles"] == 4
+    assert s["cycles_by_reason"] == {"check_incomplete": 1, "gate": 1, "vision_check": 2}
+    assert s["needs_review"] == 1 and v["cam_hol_1"]["needs_review"]
+    assert s["exposure"]["min"] == 0.5 and s["exposure"]["max"] == 8.0 and s["exposure"]["at_limit"] == 1
+    assert s["seconds"] == {"build": 36.4, "render": 60.0, "meter": 10.0, "polish": 90.0, "gate": 20.0, "check": 9.5}
+    # Settings and gate summary of the chosen attempt; check verdicts of both images; preference.
+    a = v["cam_salon_2"]["attempt"]
+    assert a["k"] == 2 and a["strength"] == 0.25 and a["control"] == "depth" and a["png"] == "cam_salon_2_a2.png"
+    assert v["cam_salon_2"]["gate"]["decision"] == "accept" and v["cam_salon_2"]["gate"]["global"]["edges"] == 0.99
+    vc = v["cam_salon_2"]["vision_check"]
+    assert vc["cycles"]["verdict"] == "ok" and vc["polished"]["verdict"] == "mismatch" and vc["polished_rejected"]
+    assert v["cam_salon_1"]["preference"]["preferred"] is True
+    assert v["cam_hol_1"]["attempt"] is None and v["cam_hol_1"]["vision_check"]["polished"] is None
+    # Ids per source, unverified pieces in view (ignored slivers left out).
+    assert v["cam_salon_1"]["ids_by_source"] == {"added_by_ai": ["f_2"], "from_documents": ["d_1", "f_1", "win_1"]}
+    assert v["cam_hol_1"]["unverified"] == ["f_9"] and v["cam_salon_1"]["unverified"] == []
+    # Mismatches with source and evidence; the added_by_ai note; never fixed.
+    hol = {(m["what"], m["id"] or m["type"]): m for m in v["cam_hol_1"]["mismatches"]}
+    door = hol[("element", "d_1")]
+    assert door["result"] == "missing" and "KAPI INSERT:F4 vector 1.00" in door["evidence"]
+    assert hol[("extra", "armchair")]["kind"] == "furniture"
+    assert hol[("crosscheck", "f_9")]["result"] == "in_json_not_rendered"
+    assert v["cam_hol_1"]["final_mismatches"] == 2                 # door missing + confirmed extra
+    sal2 = [m for m in v["cam_salon_2"]["mismatches"] if m["image"] == "polished"]
+    assert sal2[0]["id"] == "f_1" and sal2[0]["evidence"].startswith("plan.dxf MOBILYA INSERT:1A")
+    # Rooms mixing polished and Cycles; building unverified/conflicts; models and licences.
+    assert manifest["rooms_mixed"] == ["r_L0_salon"] and manifest["rooms"]["r_L1_yatak"]["polish_rule"] == "downgraded"
+    assert manifest["building"]["unverified"] == ["f_9"] and manifest["building"]["conflicts"][0]["id"] == "c_001"
+    roles = {m["role"]: m for m in manifest["models"]}
+    assert set(roles) == {"polish base", "polish controlnet", "gate depth", "gate sam", "gate dino", "check qwen",
+                          "check glm"}
+    assert roles["check glm"]["licence"] == "MIT"                   # filled from check.yaml
+    assert manifest["assets"] == {"textures": {"CC0": 2}, "models": {"CC0": 2}}
+    assert any("decoy_accept[glm]" in f for f in manifest["advisory_flags"])
+    assert any("not calibrated" in f for f in manifest["advisory_flags"])
+    assert manifest["advisory"] is True and manifest["stages"]["check"] == "run"
+    # Files: previews, plan copies, contact sheets, all <= 300 KB.
+    for x in manifest["views"]:
+        assert x["preview"] == f"{x['camera']}_final_preview.jpg" and (final / x["preview"]).is_file()
+    assert v["cam_salon_1"]["plan"] == "cam_salon_1_plan.jpg" and v["cam_salon_2"]["plan"] is None
+    assert manifest["contact_sheets"] == {"L0": "contact_L0.jpg", "L1": "contact_L1.jpg"}
+    for f in final.glob("*.jpg"):
+        assert f.stat().st_size <= 300_000
+    with Image.open(final / "contact_L0.jpg") as im:
+        assert im.width == 3 * 480 + 4 * 4                         # 3 views on L0, 480 px tiles
+    # The polished preview shows the polished image, the Cycles one the render.
+    assert VW.read_rgb(final / "cam_salon_1_final_preview.jpg")[..., 0].mean() > 150
+    assert VW.read_rgb(final / "cam_hol_1_final_preview.jpg")[..., 0].mean() == pytest.approx(80, abs=8)
+    # The report: every table, links only to files in final/ that exist.
+    md = (final / "final_report.md").read_text(encoding="utf-8")
+    assert "| A1 D3 |" not in md and "| D3 A1 |" in md
+    for heading in ("# Final report: toy", "## Summary", "## Advisory flags and open items", "## Views",
+                    "## Mismatches (never auto-fixed)", "## Needs review",
+                    "## Building JSON: unverified items and conflicts", "## Rooms mixing polished and Cycles views",
+                    "## Models and licences", "## Contact sheets"):
+        assert heading in md, heading
+    assert links(md) and all("/" not in l and (final / l).is_file() for l in links(md))
+    assert "| cam_salon_2 | r_L0_salon | L0 | cycles | vision_check |" in md
+    assert "added_by_ai: render/polish issue, not a document conflict" not in md or "f_2" in md
+    assert "c_001" in md and "Qwen/Qwen3-VL-8B-Instruct" in md and "Apache-2.0" in md
+    assert "r_L0_salon" in md.split("## Rooms mixing polished and Cycles views")[1]
+
+
+def test_a_polished_image_the_check_did_not_see_is_not_final(tmp_path):
+    """Re-polished under the same attempt name (new pixels) while the old check manifest stays: the check
+    never saw this image, so it cannot be final (§5.5, §7: the check checked that very image)."""
+    out = make_project(tmp_path)
+    assert (by_cam(F.write_final(out))["cam_salon_1"]["final"]) == "polished"
+    png = out / "polish" / "cam_salon_1_a1.png"
+    rgb = VW.read_rgb(png)
+    rgb[: H // 2] = 0
+    VW.write_png_rgb(png, rgb)
+    pm = json.loads((out / "polish" / "polish_manifest.json").read_text(encoding="utf-8"))
+    pm["views"][0]["attempts"][0]["sha256"] = C.sha256_file(png)
+    (out / "polish" / "polish_manifest.json").write_text(json.dumps(pm), encoding="utf-8")
+    v = by_cam(F.write_final(out))["cam_salon_1"]
+    assert (v["final"], v["reason"]) == ("cycles", "check_incomplete") and "sha256" in v["detail"]
+    assert v["image"] == "../renders/cam_salon_1.png"
+    # A check manifest without image hashes (written before they were recorded) cannot vouch for an image.
+    cm = json.loads((out / "check" / "check_manifest.json").read_text(encoding="utf-8"))
+    cm["views"]["cam_salon_1"]["polished"]["image_sha256"] = [C.sha256_file(png)]
+    del cm["views"]["cam_salon_1"]["cycles"]["image_sha256"]
+    (out / "check" / "check_manifest.json").write_text(json.dumps(cm), encoding="utf-8")
+    v = by_cam(F.write_final(out))["cam_salon_1"]
+    assert (v["final"], v["reason"]) == ("cycles", "check_incomplete") and "re-run" in v["detail"]
+    cm["views"]["cam_salon_1"]["cycles"]["image_sha256"] = [C.sha256_file(out / "renders" / "cam_salon_1.png")]
+    (out / "check" / "check_manifest.json").write_text(json.dumps(cm), encoding="utf-8")
+    assert by_cam(F.write_final(out))["cam_salon_1"]["final"] == "polished"
+
+
+def test_rerun_is_stable_and_lists_stale_files(tmp_path):
+    out = make_project(tmp_path)
+    F.write_final(out)
+    first = (out / "final" / "final_manifest.json").read_text(encoding="utf-8")
+    F.write_final(out)
+    assert (out / "final" / "final_manifest.json").read_text(encoding="utf-8") == first
+    (out / "final" / "cam_gone_final_preview.jpg").write_bytes(b"x")
+    manifest = F.write_final(out)
+    assert (out / "final" / "cam_gone_final_preview.jpg").is_file()          # listed, never deleted
+    assert any("cam_gone_final_preview.jpg is from an earlier run" in w for w in manifest["warnings"])
+
+
+def test_crosscheck_error_is_reported(tmp_path):
+    out = make_project(tmp_path)
+    cm = json.loads((out / "check" / "check_manifest.json").read_text(encoding="utf-8"))
+    cm["views"]["cam_salon_1"]["json_crosscheck"] = {"error": "camera not in the scene manifest"}
+    (out / "check" / "check_manifest.json").write_text(json.dumps(cm), encoding="utf-8")
+    manifest = F.write_final(out)
+    assert "cam_salon_1: JSON cross-check not computed (camera not in the scene manifest)" in manifest["warnings"]
+
+
+def test_added_by_ai_mismatch_is_labelled(tmp_path):
+    out = make_project(tmp_path)
+    cm = json.loads((out / "check" / "check_manifest.json").read_text(encoding="utf-8"))
+    cm["views"]["cam_salon_1"]["cycles"]["elements"]["f_2"]["result"] = "changed"
+    (out / "check" / "check_manifest.json").write_text(json.dumps(cm), encoding="utf-8")
+    manifest = F.write_final(out)
+    item = next(m for m in by_cam(manifest)["cam_salon_1"]["mismatches"] if m["id"] == "f_2")
+    assert F.ADDED_BY_AI_NOTE in item["notes"] and item["source"] == "added_by_ai"
+    assert "layout ai" in item["evidence"]
+    md = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    assert F.ADDED_BY_AI_NOTE in md
+
+
+def test_no_check_manifest_keeps_cycles_and_says_not_run(tmp_path):
+    out = make_project(tmp_path, check=False)
+    manifest = F.write_final(out)
+    v = by_cam(manifest)
+    assert all(x["final"] == "cycles" for x in manifest["views"])
+    assert v["cam_salon_1"]["reason"] == "check_incomplete" and v["cam_salon_1"]["detail"] == "vision check not run"
+    assert v["cam_hol_1"]["reason"] == "gate"
+    assert manifest["stages"]["check"] == "not_run" and manifest["stages"]["expected"] == "not_run"
+    assert any("vision check not run" in f for f in manifest["advisory_flags"])
+    # Without the expected lists the ids come from the render's index statistics.
+    assert v["cam_salon_1"]["ids_by_source"] == {"added_by_ai": ["dec_1", "f_2"],
+                                                 "from_documents": ["d_1", "f_1", "win_1"]}
+    assert v["cam_hol_1"]["unverified"] == ["f_9"]
+    assert all(x["plan"] is None and x["vision_check"] is None for x in manifest["views"])
+    md = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    assert "vision check not run" in md and "| check Cycles |" in md and "not run" in md
+    assert "Not computed: the vision check and the expected lists did not run." in md
+
+
+def test_no_polish_manifest(tmp_path):
+    out = make_project(tmp_path, polish=False)
+    manifest = F.write_final(out)
+    assert {x["reason"] for x in manifest["views"]} == {"not_run"}
+    assert manifest["stages"]["polish"] == "not_run" and manifest["models"][0]["role"] == "check qwen"
+    assert "polish not run (every view is the Cycles render)" in manifest["advisory_flags"]
+    md = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    assert "polish not run" in md
+
+
+def test_brief_polish_false_wins(tmp_path):
+    out = make_project(tmp_path, brief="style: Scandinavian\npolish: false\n")
+    manifest = F.write_final(out)
+    assert {(x["final"], x["reason"]) for x in manifest["views"]} == {("cycles", "brief")}
+    assert manifest["polish_allowed"] is False
+    assert any("brief polish: false" in f for f in manifest["advisory_flags"])
+
+
+def test_missing_brief_is_assumed(tmp_path):
+    out = make_project(tmp_path, brief=None)
+    manifest = F.write_final(out)
+    assert manifest["polish_allowed"] is True and "polish" in manifest["brief_assumed"]
+    assert "(default, not in brief.yaml)" in (out / "final" / "final_report.md").read_text(encoding="utf-8")
+
+
+def test_unanswered_pieces_assumed_fronts_and_photo_aspect_are_reported(tmp_path):
+    """Review cross-2/cross-5/ingest-6: pieces that got no AI answer are flagged, a front kept from the drawing and an
+    assumed photo aspect are listed under 'Assumed values'."""
+    out = make_m7_project(tmp_path)
+    path = out / "building_final.json"
+    b = json.loads(path.read_text(encoding="utf-8"))
+    b["furniture"].append({"id": "f_q", "level_id": "L1", "room_id": "r_L1_yatak", "type": "unknown",
+                           "source": "from_documents", "status": "unverified", "type_method": "none",
+                           "footprint": {"center": [1, 1], "size": [0.5, 0.5], "rotation_deg": 0},
+                           "evidence": [{"file": "plan.pdf", "method": "vector", "confidence": 0.9}]})
+    b["furniture"][0]["assumed"] = ["front_deg"]
+    b["documents"][0].setdefault("pages", [{"page": 1}])[0]["aspect"] = {
+        "assumed": True, "name": "ISO", "snapped": 1.4142, "measured": 1.3762, "off_pct": 2.7}
+    path.write_text(json.dumps(b), encoding="utf-8")
+    m = F.write_final(out)
+    assert "f_q" in m["recognition"]["no_answer"]
+    assert any(f.startswith("1 drawn piece(s) without an AI answer") and "f_q" in f for f in m["advisory_flags"])
+    text = "\n".join(m["assumed"]["building"])
+    assert "photo aspect assumed: snapped to the ISO sheet ratio 1.4142 (measured 1.3762, 2.7 % off)" in text
+    assert f"front kept from the drawing although both AI passes answered 'none': 1 piece(s) ({b['furniture'][0]['id']})" in text
+
+
+def test_default_style_and_nested_brief_defaults_are_listed_as_assumed(tmp_path):
+    """M7 §0/§13: a project without a brief (real01) gets the default style, and the report must say so; nested
+    brief defaults are shown with their value (``render.samples: 256``), not ``None``."""
+    out = make_project(tmp_path, brief=None)
+    write_json(out / "style.json", {"source_text": "Scandinavian, light oak floor, white walls",
+                                    "warnings": ["assumed: no style in the brief, default style text from "
+                                                 "wenart/defaults.yaml", "unmatched: linen textiles"]})
+    manifest = F.write_final(out)
+    assumed = manifest["assumed"]
+    assert assumed["style"] == ['style: default text "Scandinavian, light oak floor, white walls" (no style in '
+                                'brief.yaml; wenart/defaults.yaml)']
+    assert {"key": "render.samples", "value": 256} in assumed["brief"]
+    assert all(a["value"] is not None for a in assumed["brief"])
+    text = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    assert 'style: default text "Scandinavian' in text and "render.samples: 256" in text
+
+
+def test_results_copy_without_pngs_uses_previews(tmp_path):
+    """A results/ copy has no PNGs: previews come from the committed JPEGs and the decision says why."""
+    out = make_project(tmp_path, pngs=False)
+    manifest = F.write_final(out)
+    v = by_cam(manifest)
+    assert v["cam_salon_1"]["reason"] == "error" and "not found" in v["cam_salon_1"]["detail"]
+    assert all(x["preview"] for x in manifest["views"])
+    assert any("preview made from" in w for w in manifest["warnings"])
+
+
+def test_stale_polish_and_unknown_polish_kind(tmp_path):
+    out = make_project(tmp_path)
+    VW.write_png_rgb(out / "renders" / "cam_salon_1.png", np.zeros((H, W, 3), dtype=np.uint8))
+    manifest = F.write_final(out)
+    assert "another render" in by_cam(manifest)["cam_salon_1"]["detail"]
+    pm = json.loads((out / "polish" / "polish_manifest.json").read_text(encoding="utf-8"))
+    pm["kind"] = "smoke"
+    (out / "polish" / "polish_manifest.json").write_text(json.dumps(pm), encoding="utf-8")
+    manifest = F.write_final(out)
+    assert manifest["stages"]["polish"] == "not_run" and any("'smoke'" in w for w in manifest["warnings"])
+
+
+def test_broken_and_missing_inputs(tmp_path):
+    out = make_project(tmp_path)
+    (out / "check" / "check_manifest.json").write_text("{broken", encoding="utf-8")
+    (out / "scene" / "scene_manifest.json").unlink()
+    manifest = F.write_final(out)
+    assert manifest["stages"]["check"] == "not_run"
+    assert any("check_manifest.json: unreadable" in w for w in manifest["warnings"])
+    assert any("scene/scene_manifest.json not readable" in w for w in manifest["warnings"])
+    assert manifest["building"]["unverified"] == []                  # no building without the scene manifest
+    assert [x["level_id"] for x in manifest["views"]] == [l for _, _, l in CAMERAS]   # from the expected lists
+    (out / "check" / "expected_views.json").unlink()
+    manifest = F.write_final(out)
+    assert all(x["level_id"] == "unknown" for x in manifest["views"])
+    assert manifest["contact_sheets"] == {"unknown": "contact_unknown.jpg"}
+    (out / "renders" / "render_manifest.json").unlink()
+    assert report_main(["final", "--project-out", str(out)]) == 1     # nothing rendered: the stage failed
+    md = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    assert "render_manifest.json not found" in md
+    assert report_main(["final", "--project-out", str(tmp_path / "nope")]) == 2
+
+
+# --------------------------------------------------------------------------
+# Images
+# --------------------------------------------------------------------------
+
+def noise(h, w, seed=0):
+    return np.random.default_rng(seed).integers(0, 256, size=(h, w, 3), dtype=np.uint8)
+
+
+def test_save_jpeg_under_steps_quality_then_size(tmp_path):
+    info = C.save_jpeg_under(noise(1080, 1920), tmp_path / "a.jpg")
+    assert (tmp_path / "a.jpg").stat().st_size == info["bytes"] <= 300_000
+    assert info["quality"] < 88 or info["scale"] < 1.0
+    small = C.save_jpeg_under(np.full((50, 80, 3), 7, dtype=np.uint8), tmp_path / "b.jpg")
+    assert small["quality"] == 88 and small["scale"] == 1.0 and small["size"] == [80, 50]
+    with pytest.raises(ValueError):
+        C.save_jpeg_under(noise(200, 200), tmp_path / "c.jpg", max_bytes=100)
+
+
+def test_contact_sheet_size_and_labels(tmp_path):
+    tiles = [(f"cam_{i}  {'P' if i % 2 else 'C'}  U{i % 3}", Image.fromarray(noise(540, 960, i))) for i in range(10)]
+    sheet = F.contact_sheet(tiles)
+    assert sheet.width == 4 * 480 + 5 * 4 and sheet.height == 3 * (270 + F.LABEL_HEIGHT) + 4 * 4
+    label_strip = np.asarray(sheet)[4 + 270: 4 + 270 + F.LABEL_HEIGHT, 4:484]
+    assert label_strip.max() == 255 and np.median(label_strip) == 0      # white text on black
+    info = C.save_jpeg_under(sheet, tmp_path / "contact.jpg")
+    assert (tmp_path / "contact.jpg").stat().st_size <= 300_000 and info["bytes"] <= 300_000
+    assert F.tile_label({"camera": "cam_x", "final": "polished", "unverified": ["a", "b"]}) == "cam_x  P  U2"
+
+
+# --------------------------------------------------------------------------
+# Sweep report
+# --------------------------------------------------------------------------
+
+def sweep_manifest() -> dict:
+    grid = [(1, "grid", 0.125, "depth", "native", "plain"), (2, "grid", 0.375, "depth", "native", "plain"),
+            (3, "grid", 0.375, "canny", "native", "plain"), (4, "grid", 0.375, "depth", "1536x864", "anchor"),
+            (5, "presumed_bad", 0.75, None, "native", "plain")]
+    views = []
+    for cam in ("cam_salon_1", "cam_yatak_1"):
+        atts = []
+        for k, role, strength, control, size, mode in grid:
+            ok = strength <= 0.375 and not (control == "canny" and cam == "cam_yatak_1")
+            a = attempt(cam, k, "accept" if ok else "reject", [] if ok else ["edges", "depth"], strength=strength)
+            a.update(role=role, control=control, size=size, mode=mode, scale=None if control is None else 0.8)
+            atts.append(a)
+        views.append({"camera": cam, "room_id": "r", "attempts": atts, "final": None, "final_attempt": None,
+                      "reason": None})
+    views[1]["attempts"][1]["error"] = "CUDA out of memory"
+    views[1]["attempts"][1]["gate"] = None
+    return {"schema_version": "0.1", "kind": "sweep", "project": "toy", "incomplete": False, "views": views,
+            "config": {"ladder": [{"strength": 0.375, "control": "depth", "scale": 0.8, "size": "native",
+                                   "mode": "plain"}]},
+            "thresholds": {"edges": {"hard": True, "global_min": 0.95, "region_min": 0.85}}, "warnings": ["w1"]}
+
+
+def gate_calibration() -> dict:
+    return {"benign": [{"camera": "c1", "control": "jpeg", "magnitude": 75, "decision": "accept", "reasons": []},
+                       {"camera": "c1", "control": "blur", "magnitude": 1, "decision": "reject",
+                        "reasons": [{"check": "edges"}]}],
+            "negative": [{"camera": "c1", "control": "shift", "magnitude": 6, "decision": "accept", "reasons": []},
+                         {"camera": "c1", "control": "shift", "magnitude": 25, "decision": "reject",
+                          "reasons": [{"check": "edges"}]}],
+            "presumed_bad": [{"camera": "c1", "control": "sweep:a5", "magnitude": 0.75, "decision": "reject"}],
+            "rates": {"benign_accept": 0.5, "negative_reject": 0.5, "by_control": {"shift": {"n": 2, "rate": 0.5}}},
+            "per_metric": {"edges": {"worst_benign": 0.96, "best_small_negative": 0.9, "best_negative": 0.6,
+                                     "separates": True, "proposed": 0.945}},
+            "smallest_detected": {"shift_px": 12, "scale": 1.08}, "explanations": ["blur softens edges"]}
+
+
+def test_sweep_report(tmp_path):
+    out = make_project(tmp_path)
+    (out / "polish" / "sweep").mkdir()
+    (out / "polish" / "sweep" / "polish_manifest.json").write_text(json.dumps(sweep_manifest()), encoding="utf-8")
+    (out / "gate" / "gate_calibration.json").write_text(json.dumps(gate_calibration()), encoding="utf-8")
+    cm = json.loads((out / "check" / "check_manifest.json").read_text(encoding="utf-8"))
+    cm["views"]["cam_salon_1"]["sweep:a2"] = {"verdict": "info", "preference_only": True,
+                                              "preference": {"preferred": True}}
+    (out / "check" / "check_manifest.json").write_text(json.dumps(cm), encoding="utf-8")
+    assert report_main(["sweep", "--project-out", str(out)]) == 0
+    md = (out / "final" / "sweep_report.md").read_text(encoding="utf-8")
+    rows = S.sweep_settings(sweep_manifest(), cm)
+    assert [r["label"] for r in rows] == ["s 0.125 depth x0.8", "s 0.375 depth x0.8", "s 0.375 canny x0.8",
+                                          "s 0.375 depth x0.8 1536x864 anchor", "s 0.75 no control [presumed_bad]"]
+    assert rows[0]["rate"] == 1.0 and rows[1]["gated"] == 1 and rows[1]["errors"] == 1
+    assert rows[2]["accepted"] == 1 and rows[2]["failing"] == {"depth": 1, "edges": 1}
+    assert rows[1]["preferred"] == 1 and rows[1]["preference_asked"] == 1
+    assert rows[4]["rate"] == 0.0 and rows[0]["medians"]["edges"] == 0.99
+    assert [r["label"] for r in S.candidate_ladder(rows)] == [
+        "s 0.375 depth x0.8", "s 0.375 depth x0.8 1536x864 anchor", "s 0.125 depth x0.8"]
+    for text in ("# Sweep report: toy", "## Polish sweep", "### Decisions per view", "## Gate calibration",
+                 "## Vision-check calibration", "| cam_yatak_1 | A | err | R (depth, edges) | A |",
+                 "Current ladder (polish.yaml)",
+                 "benign accepted | 50 %", "c1: blur 1 -> reject (edges)", "c1: shift 6 -> accept",
+                 "shift_px 12", "blur softens edges", "| edges | 0.960 | 0.900 | 0.600 | yes | 0.945 |",
+                 "global_min 0.950", "decoy_accept", "MISSED", "Plan A/B: not adopted", "sweep: w1"):
+        assert text in md, text
+
+
+def test_sweep_report_says_whether_the_plan_crop_is_used_not_only_favoured():
+    from wenart.vision_check import calibrate as CAL
+    cases = [({"favours_plan": True, "used": False, "adopted": False, "text": CAL.FAVOURS_TEXT},
+              "Plan A/B: favours the plan crop, not adopted (check.yaml plan_image: false): A/B favours the plan "
+              "crop: set plan_image: true to adopt."),
+             ({"favours_plan": True, "used": True, "adopted": True, "text": CAL.USED_TEXT},
+              "Plan A/B: used (check.yaml plan_image: true)"),
+             # Written before plan_image existed: "adopted" meant only that the A/B favoured the crop.
+             ({"adopted": True, "text": "source-plan crop adopted as Image 2 of the element check"},
+              "Plan A/B: favours the plan crop, not adopted")]
+    for pab, line in cases:
+        md = S.report_markdown("toy", None, None, {"metrics": {}, "targets": {}, "missed": [], "plan_ab": pab})
+        assert line in md, md
+
+
+def test_sweep_report_reads_the_ladder_from_polish_yaml_when_the_manifest_has_none(tmp_path):
+    sweep = sweep_manifest()
+    sweep["config"] = {}
+    md = S.report_markdown("toy", sweep, None, None)
+    from wenart.polish.config import load_config
+    rungs = "; ".join(f"s {a['strength']} {a['control']} x{a['scale']}" for a in load_config()["ladder"])
+    assert f"Current ladder (polish.yaml): {rungs}." in md
+
+
+def test_broken_brief_does_not_stop_the_report(tmp_path):
+    out = make_project(tmp_path, brief="style: [unclosed\n")
+    manifest = F.write_final(out)
+    assert any(w.startswith("project inputs not fully readable (ParserError") for w in manifest["warnings"])
+    assert manifest["polish_allowed"] is True and manifest["summary"]["views"] == 5
+    # The scene manifest and the building are still read directly.
+    assert manifest["building"]["unverified"] == ["f_9"] and by_cam(manifest)["cam_yatak_1"]["level_id"] == "L1"
+
+
+def test_sweep_report_with_nothing_run(tmp_path):
+    out = tmp_path / "outputs" / "toy"
+    out.mkdir(parents=True)
+    path = S.write_sweep(out)
+    md = path.read_text(encoding="utf-8")
+    assert path == out / "final" / "sweep_report.md"
+    assert md.count("Not run (") == 3 and "# Sweep report: toy" in md
+
+
+# --------------------------------------------------------------------------
+# Milestone 6 (docs/milestone6.md §7.4): gate validation, cameras, stages, private projects, needs review
+# --------------------------------------------------------------------------
+
+def write_json(path: Path, data) -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data), encoding="utf-8")
+    return path
+
+
+def gate_validation(out: Path, decision: str, sha256=None, reasons=None) -> Path:
+    return write_json(out / "gate" / "gate_validation.json", {
+        "schema_version": "0.1", "kind": "gate_validation", "project": "toy", "decision": decision,
+        "benign_accept": 0.9 if decision == "flagged" else 1.0,
+        "negative_reject": 0.8 if decision == "polish_disabled" else 0.95, "n_benign": 64, "n_negative": 170,
+        "pass_benign": decision != "flagged", "pass_negative": decision != "polish_disabled",
+        "reasons": [] if reasons is None else reasons,
+        "limits": {"benign_accept_min": 0.95, "negative_reject_min": 0.9},
+        "polish_allowed": decision in ("ok", "flagged"),
+        "calibration": {"path": "gate_calibration.json", "sha256": sha256, "incomplete": False,
+                        "thresholds_match": True}})
+
+
+def stage_record(out: Path, stage: str, status: str, started: str, seconds=1.0, note=None, **extra) -> Path:
+    return write_json(out / "run" / f"{stage}.json", {
+        "schema_version": "0.1", "kind": "stage_record", "project": out.name, "stage": stage, "rc": 0,
+        "status": status, "seconds": seconds, "fingerprint": "f" * 64, "inputs": {"/x/secret.pdf": "a" * 64},
+        "outputs": [], "started_utc": started, "git_commit": "abc", "log": f"logs/{stage}.log", "note": note,
+        **extra})
+
+
+@pytest.mark.parametrize("decision", ["polish_disabled", "not_validated"])
+def test_gate_validation_without_polish_gives_cycles_finals(tmp_path, decision):
+    out = make_project(tmp_path)
+    gate_validation(out, decision, reasons=["negative controls rejected 0.800 < 0.90"])
+    manifest = F.write_final(out)
+    assert F.validate_final_manifest(manifest) == []
+    assert {(v["final"], v["reason"]) for v in manifest["views"]} == {("cycles", "gate_validation")}
+    assert manifest["summary"]["cycles_by_reason"] == {"gate_validation": 5}
+    assert manifest["stages"]["gate_validation"] == decision
+    g = manifest["gate_validation"]
+    assert g["decision"] == decision and g["polish_allowed"] is False and "Cycles render" in g["effect"]
+    assert any(f.startswith(f"gate validation {decision}: no polish") and "0.800" in f
+               for f in manifest["advisory_flags"])
+    md = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    assert "## Gate validation" in md and f"| decision | {decision} |" in md
+    assert "| negative controls rejected |" in md and "(limit 90 %)" in md
+    assert VW.read_rgb(out / "final" / "cam_salon_1_final_preview.jpg")[..., 0].mean() < 150   # the render
+
+
+def test_gate_validation_ok_and_flagged_keep_the_polish(tmp_path):
+    out = make_project(tmp_path)
+    gate_validation(out, "ok")
+    manifest = F.write_final(out)
+    assert by_cam(manifest)["cam_salon_1"]["final"] == "polished"
+    assert not any("gate validation" in f for f in manifest["advisory_flags"])
+    gate_validation(out, "flagged", reasons=["benign controls accepted 0.900 < 0.95"])
+    manifest = F.write_final(out)
+    assert by_cam(manifest)["cam_salon_1"]["final"] == "polished"
+    assert any(f.startswith("gate validation flagged: polish ran") for f in manifest["advisory_flags"])
+    assert "| decision | flagged |" in (out / "final" / "final_report.md").read_text(encoding="utf-8")
+
+
+def test_gate_validation_older_than_the_calibration_is_not_validated(tmp_path):
+    out = make_project(tmp_path)
+    cal = write_json(out / "gate" / "gate_calibration.json", {"benign": [], "negative": [], "rates": {}})
+    from wenart.canonical import canonical_sha256
+    gate_validation(out, "ok", sha256=canonical_sha256(cal))
+    assert by_cam(F.write_final(out))["cam_salon_1"]["final"] == "polished"
+    write_json(cal, {"benign": [], "negative": [], "rates": {}, "incomplete": True})     # re-calibrated
+    manifest = F.write_final(out)
+    g = manifest["gate_validation"]
+    assert g["decision"] == "not_validated" and g["recorded_decision"] == "ok"
+    assert "changed after the validation" in g["reasons"][-1]
+    assert {v["reason"] for v in manifest["views"]} == {"gate_validation"}
+    md = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    assert "| decision | not_validated (recorded ok) |" in md
+
+
+def test_gate_validation_not_recorded_and_brief_wins(tmp_path):
+    out = make_project(tmp_path)
+    manifest = F.write_final(out)
+    assert manifest["gate_validation"] is None and manifest["stages"]["gate_validation"] == "not_run"
+    assert any(f.startswith("gate validation not recorded") for f in manifest["advisory_flags"])
+    assert "Not recorded (`gate/gate_validation.json` missing)" in \
+        (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    out2 = make_project(tmp_path / "b", brief="style: x\npolish: false\n")
+    gate_validation(out2, "polish_disabled")
+    manifest = F.write_final(out2)
+    assert {v["reason"] for v in manifest["views"]} == {"brief"}
+    assert not any(f.startswith("gate validation not recorded") for f in manifest["advisory_flags"])
+
+
+def test_decide_gate_decision_rule():
+    args = {"polish_ran": True, "check_ran": True, "allowed": True, "source_sha256": "s"}
+    for decision in ("polish_disabled", "not_validated"):
+        out = F.decide(POLISHED, CHECK_OK, gate_decision=decision, **args)
+        assert (out["final"], out["reason"]) == ("cycles", "gate_validation") and decision in out["detail"]
+    for decision in (None, "ok", "flagged"):
+        assert F.decide(POLISHED, CHECK_OK, gate_decision=decision, **args)["final"] == "polished"
+    assert F.decide(POLISHED, CHECK_OK, gate_decision="not_validated", **{**args, "allowed": False})["reason"] == \
+        "brief"
+
+
+def test_cameras_window_pull_and_views_per_room(tmp_path):
+    out = make_project(tmp_path)
+    scene_path = out / "scene" / "scene_manifest.json"
+    sc = json.loads(scene_path.read_text(encoding="utf-8"))
+    for i, cam in enumerate(sc["cameras"]):
+        cam.update(policy="search", shift_x=0.0, shift_y=-0.1, placement="search",
+                   score={"total": 3.0 + i / 10, "furniture": 0.5, "openings": 0.1, "floor": 0.2, "depth": 0.9,
+                          "penalties": 0.0, "blocked": i == 4},
+                   warning="blocked unavoidable" if i == 4 else None)
+    scene_path.write_text(json.dumps(sc), encoding="utf-8")
+    rm_path = out / "renders" / "render_manifest.json"
+    rm = json.loads(rm_path.read_text(encoding="utf-8"))
+    rm["renders"][0]["window_pull"] = {"ev": 2, "clip_before": 0.2, "clip_after": 0.01, "pane_px": 900}
+    rm["renders"][1]["window_pull"] = None
+    rm_path.write_text(json.dumps(rm), encoding="utf-8")
+    b_path = out / "building_final.json"
+    b = json.loads(b_path.read_text(encoding="utf-8"))
+    b["rooms"].append({"id": "r_L1_bos", "level_id": "L1", "room_type": "other", "status": "verified"})
+    b_path.write_text(json.dumps(b), encoding="utf-8")
+    manifest = F.write_final(out)
+    v = by_cam(manifest)
+    cp = v["cam_salon_1"]["camera_plan"]
+    assert cp["policy"] == "search" and cp["score_total"] == 3.0 and cp["shift_y"] == -0.1
+    assert v["cam_salon_1"]["window_pull"]["ev"] == 2 and v["cam_salon_2"]["window_pull"] is None
+    s = manifest["summary"]
+    assert s["cameras"]["policies"] == {"search": 5} and s["cameras"]["score_max"] == 3.4
+    assert s["cameras"]["warnings"] == ["cam_yatak_2: blocked unavoidable"]
+    assert s["exposure"]["window_pull"] == {"views": 1, "min": 2.0, "max": 2.0}
+    assert s["views_per_room"] == {"0": 1, "1": 1, "2": 2}
+    assert manifest["rooms"]["r_L1_bos"]["views"] == [] and manifest["rooms"]["r_L0_salon"]["room_type"] == "living"
+    assert "camera cam_yatak_2: blocked unavoidable" in manifest["advisory_flags"]
+    md = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    assert "| EV | pull EV | camera |" in md and "| search 3.00 |" in md and "| search 3.40 blocked |" in md
+    assert "## Views per room" in md and "Rooms without a rendered view: r_L1_bos." in md
+    assert "| camera policy | search 5 |" in md and "| window pull | 1 view(s), 2 .. 2 EV |" in md
+    # M5 manifests carry no policy: their cameras are the m5 rules.
+    out2 = make_project(tmp_path / "m5")
+    assert by_cam(F.write_final(out2))["cam_salon_1"]["camera_plan"]["policy"] == "m5"
+
+
+def test_stage_table_from_run_records(tmp_path):
+    out = make_project(tmp_path)
+    stage_record(out, "render", "ok", "2026-10-02T10:05:00Z", seconds=300.0)
+    stage_record(out, "pipeline", "reused", "2026-10-02T10:00:00Z", seconds=0.1)
+    stage_record(out, "photos", "skipped", "2026-10-02T10:01:00Z", seconds=0, note="no style photos")
+    stage_record(out, "report", "ok", "2026-10-02T09:00:00Z")                    # an earlier report: left out
+    write_json(out / "run" / "other.json", {"kind": "something_else", "status": "ok"})
+    (out / "run" / "broken.json").write_text("{", encoding="utf-8")
+    manifest = F.write_final(out)
+    assert [r["stage"] for r in manifest["run_stages"]] == ["pipeline", "photos", "render"]
+    assert manifest["run_stages"][1]["note"] == "no style photos" and "inputs" not in manifest["run_stages"][0]
+    assert any("broken.json: unreadable" in w for w in manifest["warnings"])
+    md = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    assert "## Stages" in md and "| photos | skipped | 0.0 s | no style photos |" in md
+    assert "| render | ok | 5.0 min | - |" in md and "secret.pdf" not in md
+
+
+def test_private_project_never_copies_plan_crops(tmp_path):
+    out = make_project(tmp_path)
+    write_json(out / "intake_manifest.json", {
+        "kind": "intake_manifest", "alias": "real-01", "status": "ok", "reasons": [],
+        "totals": {"files": 4, "kept": 3, "skipped": 1, "documents": 2, "style_photos": 1, "notes": 0},
+        "skipped_by_reason": {"junk (system metadata file)": 1},
+        "files": [{"path": "Gizli Villa Bodrum.pdf", "kept": True}]})
+    manifest = F.write_final(out)
+    final = out / "final"
+    assert manifest["private"] is True
+    assert not list(final.glob("*_plan.jpg"))
+    v = by_cam(manifest)
+    assert v["cam_salon_1"]["plan"] is None and v["cam_salon_1"]["plan_kept"] == "check/cam_salon_1_plan.jpg"
+    assert manifest["kept_on_volume"] == ["check/cam_hol_1_plan.jpg", "check/cam_salon_1_plan.jpg"]
+    assert manifest["intake"]["totals"]["kept"] == 3 and "files" not in manifest["intake"]
+    md = (final / "final_report.md").read_text(encoding="utf-8")
+    assert "## Kept on the volume (private project)" in md and "- check/cam_salon_1_plan.jpg" in md
+    assert "## Intake (private upload)" in md and "| junk (system metadata file) | 1 |" in md
+    assert "Gizli" not in md and "Gizli" not in json.dumps(manifest)
+    assert all("plan" not in link for link in links(md))
+    # Previews and contact sheets are still made (they are the private allow-list).
+    assert (final / "cam_salon_1_final_preview.jpg").is_file() and (final / "contact_L0.jpg").is_file()
+
+
+def test_private_by_flag_alias_name_or_volume_root(tmp_path, monkeypatch):
+    out = make_project(tmp_path)
+    assert report_main(["final", "--project-out", str(out), "--private"]) == 0
+    assert json.loads((out / "final" / "final_manifest.json").read_text(encoding="utf-8"))["private"] is True
+    assert not list((out / "final").glob("*_plan.jpg"))
+    assert F.is_private(tmp_path / "outputs-private" / "real-07")
+    assert F.is_private(tmp_path / "x" / "selftest-02")
+    assert not F.is_private(out)
+    from wenart.run import projects as P
+    monkeypatch.setattr(P, "PRIVATE_OUTPUTS", tmp_path / "outputs")
+    assert F.is_private(out)
+
+
+def test_building_path_is_resolved_against_the_repo_root(tmp_path, monkeypatch):
+    """A repo-relative ``building`` in the scene manifest (§1.1) is read with views._resolve_repo_path;
+    an absolute one (a private project on the volume) stays as it is."""
+    out = make_project(tmp_path, brief="style: [unclosed\n")          # project_paths fails: the report's own path
+    building_file = out / "building_final.json"
+    elsewhere = write_json(tmp_path / "data" / "b.json", json.loads(building_file.read_text(encoding="utf-8")))
+    building_file.unlink()
+    scene_path = out / "scene" / "scene_manifest.json"
+    sc = json.loads(scene_path.read_text(encoding="utf-8"))
+    sc["building"] = "data/b.json"
+    scene_path.write_text(json.dumps(sc), encoding="utf-8")
+    assert F.write_final(out)["building"]["unverified"] == []          # not found from the real repo root
+    monkeypatch.setattr(VW, "REPO_ROOT", tmp_path)
+    manifest = F.write_final(out)
+    assert manifest["building"]["unverified"] == ["f_9"]
+    assert manifest["inputs"]["building"] == C.rel(elsewhere, out / "final")
+    sc["building"] = str(elsewhere)                                    # absolute stays absolute
+    scene_path.write_text(json.dumps(sc), encoding="utf-8")
+    monkeypatch.setattr(VW, "REPO_ROOT", tmp_path / "nowhere")
+    assert F.write_final(out)["building"]["unverified"] == ["f_9"]
+    assert F._building_path({"building": None}, out) is None
+
+
+def test_status_of_a_report_without_renders(tmp_path):
+    out = make_project(tmp_path)
+    assert F.write_final(out)["status"] == "ok"
+    (out / "renders" / "render_manifest.json").unlink()
+    assert report_main(["final", "--project-out", str(out)]) == 1
+    m = json.loads((out / "final" / "final_manifest.json").read_text(encoding="utf-8"))
+    assert m["status"] == "not_rendered" and F.validate_final_manifest(m) == []
+
+
+# --------------------------------------------------------------------------
+# Needs-review report
+# --------------------------------------------------------------------------
+
+def review_building(source_folder: str, debug=("debug/plan_scan_png_p1.png", "debug/plan_pdf_p2.png"),
+                    reasons=("plan.pdf p2: no scale source",), schema_error=False) -> dict:
+    pages = [{"file": "plan_scan.png", "format": "image", "pages": [
+                 {"page": 1, "class": "other", "kind": "scan", "level_id": None, "scale": None, "confidence": 0.0,
+                  "skip_reason": "no text layer", "debug_image": debug[0]}]},
+             {"file": "plan.pdf", "format": "pdf", "pages": [
+                 {"page": 2, "class": "floor_plan", "kind": "vector", "level_id": "L0",
+                  "scale": {"metres_per_unit": 0.0352778, "method": "text"}, "confidence": 1.0, "skip_reason": None,
+                  "debug_image": debug[1]}]}]
+    warnings = ["plan_scan.png p1: scan page skipped (no text layer)"] + [f"needs review: {r}" for r in reasons]
+    if schema_error:
+        warnings.append("schema: rooms[0]: 'polygon' is a required property")
+    return {"schema_version": "0.1", "status": "needs_review",
+            "project": {"id": "toy", "source_folder": source_folder, "created_utc": "2026-10-02T10:00:00Z"},
+            "documents": pages, "levels": [], "walls": [], "openings": [], "rooms": [], "furniture": [],
+            "conflicts": [], "unverified": [], "warnings": warnings}
+
+
+def make_review_project(tmp_path, name="toy", building=None, big_debug=True) -> Path:
+    out = tmp_path / "outputs" / name
+    b = building if building is not None else review_building(f"projects/{name}")
+    write_json(out / "building.json", b)
+    (out / "report.md").write_text("# Ingest report\n\n## Documents\n\n| File | Page |\n|---|---|\n| plan.pdf | 2 |\n\n"
+                                   "## Levels\n", encoding="utf-8")
+    for i, rel in enumerate(p["debug_image"] for d in b["documents"] for p in d["pages"]):
+        if rel:
+            arr = noise(1400, 2000, i) if big_debug and i == 0 else np.full((60, 80, 3), 200, dtype=np.uint8)
+            VW.write_png_rgb(out / rel, arr)
+    return out
+
+
+def test_needs_review_report(tmp_path, capsys):
+    out = make_review_project(tmp_path)
+    write_json(out / "renders" / "render_manifest.json", {"renders": []})          # an earlier run: ignored
+    stage_record(out, "pipeline", "needs_review", "2026-10-02T10:00:00Z", note="building needs review")
+    assert report_main(["final", "--project-out", str(out)]) == 0
+    assert "needs_review (1 reason(s))" in capsys.readouterr().out
+    final = out / "final"
+    m = json.loads((final / "final_manifest.json").read_text(encoding="utf-8"))
+    assert F.validate_final_manifest(m) == []
+    assert m["status"] == "needs_review" and m["kind"] == "final" and m["private"] is False
+    assert m["reasons"] == ["plan.pdf p2: no scale source"]                      # the record adds nothing new
+    assert m["hints"] == ["add a scale (ÖLÇEK 1/50, 1/100 or DXF $INSUNITS) to the plan"]
+    assert m["views"] == [] and m["summary"]["views"] == 0 and m["building"]["status"] == "needs_review"
+    assert [(d["file"], d["page"], d["debug_preview"]) for d in m["documents"]] == [
+        ("plan_scan.png", 1, "debug/plan_scan_png_p1.jpg"), ("plan.pdf", 2, "debug/plan_pdf_p2.jpg")]
+    for img in m["debug_images"]:
+        path = final / img["preview"]
+        assert path.is_file() and path.stat().st_size <= 300_000 and img["bytes"] == path.stat().st_size
+    assert any("earlier run's renders" in w for w in m["warnings"])
+    md = (final / "final_report.md").read_text(encoding="utf-8")
+    for text in ("# Final report: toy (needs review)", "## Reasons", "- plan.pdf p2: no scale source",
+                 "## What to do", "## Documents and pages", "| plan.pdf | 2 | floor_plan | vector | L0 | "
+                 "0.0352778 m/unit (text) | 1.00 | - | [debug/plan_pdf_p2.jpg](debug/plan_pdf_p2.jpg) |",
+                 "## Building JSON", "## Stages", "| pipeline | needs_review | 1.0 s | building needs review |"):
+        assert text in md, text
+    assert links(md) and all(link.startswith("debug/") and (final / link).is_file() for link in links(md))
+
+
+def test_needs_review_reasons_from_every_source(tmp_path):
+    out = make_review_project(tmp_path, building=review_building("projects/toy", reasons=(), schema_error=True))
+    m = F.write_final(out)
+    assert m["reasons"] == ["building JSON failed schema validation"]
+    b = review_building("projects/toy", reasons=())
+    out2 = make_review_project(tmp_path / "2", building=b)
+    assert F.write_final(out2)["reasons"] == ["building.json says needs_review (no reason recorded)"]
+    # No building at all: a stage record that says needs_review (e.g. a pipeline crash before writing).
+    out3 = tmp_path / "3" / "outputs" / "toy"
+    stage_record(out3, "pipeline", "needs_review", "2026-10-02T10:00:00Z", note="exit 1, status needs_review")
+    m = F.write_final(out3)
+    assert m["reasons"] == ["pipeline: exit 1, status needs_review"] and m["documents"] == []
+    md = (out3 / "final" / "final_report.md").read_text(encoding="utf-8")
+    assert "No document page was classified" in md
+    # An ok project is not a needs-review project.
+    assert F.review_inputs(make_project(tmp_path / "4")) is None
+
+
+def test_needs_review_report_md_table_when_building_has_no_documents(tmp_path):
+    b = review_building("projects/toy")
+    b["documents"] = []
+    out = make_review_project(tmp_path, building=b)
+    assert F.write_final(out)["documents"] == []
+    md = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    assert "From the pipeline's report.md:" in md and "| plan.pdf | 2 |" in md
+
+
+def test_private_needs_review_never_copies_debug_images(tmp_path):
+    out = make_review_project(tmp_path, name="real-01",
+                              building=review_building("/workspace/outputs-private/real-01/input/real-01"))
+    write_json(out / "intake_manifest.json", {"kind": "intake_manifest", "alias": "real-01", "status": "ok",
+                                              "reasons": [], "totals": {"kept": 2, "documents": 2}})
+    m = F.write_final(out)
+    final = out / "final"
+    assert m["private"] is True and not (final / "debug").exists()
+    assert [(i["source"], i["preview"]) for i in m["debug_images"]] == [
+        ("debug/plan_scan_png_p1.png", None), ("debug/plan_pdf_p2.png", None)]
+    md = (final / "final_report.md").read_text(encoding="utf-8")
+    assert "debug/plan_pdf_p2.png (on the volume, not copied)" in md and not links(md)
+    assert "## Intake (private upload)" in md
+    assert sorted(p.name for p in final.iterdir()) == ["final_manifest.json", "final_report.md"]
+
+
+def test_intake_needs_review_ignores_an_older_building(tmp_path):
+    out = make_review_project(tmp_path, name="real-02", building=review_building("x", reasons=("old reason",)))
+    write_json(out / "intake_manifest.json", {"kind": "intake_manifest", "alias": "real-02", "status": "needs_review",
+                                              "reasons": ["not uploaded"], "totals": {}, "files": []})
+    stage_record(out, "intake", "needs_review", "2026-10-02T11:00:00Z", note="not uploaded")
+    stage_record(out, "pipeline", "needs_review", "2026-10-01T11:00:00Z", note="old")
+    m = F.write_final(out)
+    assert m["reasons"] == ["intake: not uploaded"] and m["building"] is None and m["documents"] == []
+    assert m["hints"] == ["upload the project folder (docs/intake.md, step 5) and run again"]
+    assert any("building.json is from an earlier run" in w for w in m["warnings"])
+    assert F.validate_final_manifest(m) == []
+
+
+def test_review_hints_only_from_known_reasons():
+    # M7 §5.1: DWG files are read with LibreDWG 0.14 (the hint was "DWG is not read" before Milestone 7).
+    assert F.review_hints(["a.dwg: DWG conversion failed: no converter", "L0: outer walls do not form a closed loop"]) \
+        == ["DWG is read with LibreDWG 0.14 (beta); if it fails, export DXF",
+            "close the outer walls of the level in the drawing"]
+    assert F.review_hints(["something unexpected"]) == []
+
+
+# --------------------------------------------------------------------------
+# Review fixes: stale polish manifest, earlier runs' records, no renders, intake notes and brief warnings
+# --------------------------------------------------------------------------
+
+def drop_render(out: Path, cam: str) -> int:
+    """Remove ``cam`` from the render manifest (an M6 run with fewer cameras than the M5 polish had)."""
+    path = out / "renders" / "render_manifest.json"
+    rm = json.loads(path.read_text(encoding="utf-8"))
+    rm["renders"] = [e for e in rm["renders"] if e["camera"] != cam]
+    path.write_text(json.dumps(rm), encoding="utf-8")
+    return len(rm["renders"])
+
+
+def test_a_camera_only_in_the_polish_manifest_is_a_warning_not_a_view(tmp_path):
+    out = make_project(tmp_path)
+    n = drop_render(out, "cam_yatak_2")
+    manifest = F.write_final(out)
+    assert manifest["summary"]["views"] == n == 4
+    assert "cam_yatak_2" not in by_cam(manifest)
+    assert any(w.startswith("cam_yatak_2: in the polish manifest but not in the render manifest")
+               for w in manifest["warnings"])
+
+
+@pytest.mark.parametrize("decision", ["polish_disabled", "not_validated"])
+def test_stale_polish_manifest_is_not_used_when_the_gate_switches_the_polish_off(tmp_path, decision):
+    """An earlier run's polish manifest (kind run, one camera more) stays on the volume when this run's gate
+    validation switches the polish off: the views are the render manifest's and the polish counts as not run."""
+    out = make_project(tmp_path)
+    n = drop_render(out, "cam_yatak_2")
+    gate_validation(out, decision)
+    manifest = F.write_final(out)
+    assert F.validate_final_manifest(manifest) == []
+    assert manifest["summary"]["views"] == n == 4
+    assert manifest["stages"]["polish"] == "not_run"
+    assert manifest["summary"]["cycles_by_reason"] == {"gate_validation": 4}
+    assert manifest["summary"]["seconds"]["polish"] is None
+    assert not [m for m in manifest["models"] if m["role"].startswith(("polish", "gate"))]
+    assert all(v["polish"] is None for v in manifest["views"])
+    assert any(w.startswith(f"polish/polish_manifest.json not used: the gate validation says {decision}")
+               for w in manifest["warnings"])
+    md = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    assert "polish not_run" in md
+
+
+def test_stage_table_lists_earlier_runs_apart(tmp_path):
+    """Records of an earlier run (stages this run did not reach) are labelled and never decide the status."""
+    out = make_project(tmp_path)
+    for stage, t in (("pipeline", "10:00"), ("build", "10:05"), ("render", "10:10"), ("layout", "10:02")):
+        stage_record(out, stage, "needs_review" if stage == "layout" else "ok", f"2026-10-01T{t}:00Z",
+                     run_id="podA-20261001T095900Z", note="old" if stage == "layout" else None)
+    stage_record(out, "intake", "skipped", "2026-10-02T11:00:00Z", note="private only", run_id="podB-1")
+    stage_record(out, "pipeline", "reused", "2026-10-02T11:00:01Z", run_id="podB-1")
+    stage_record(out, "build", "incomplete", "2026-10-02T11:01:00Z", note="timeout", run_id="podB-1")
+    manifest = F.write_final(out)
+    assert manifest["status"] == "ok"                      # the earlier layout needs_review is not this run's
+    assert manifest["run_id"] == "podB-1"
+    assert [(r["stage"], r["status"]) for r in manifest["run_stages"]] == [
+        ("intake", "skipped"), ("pipeline", "reused"), ("build", "incomplete")]
+    assert [(r["stage"], r["run_id"]) for r in manifest["earlier_run_stages"]] == [
+        ("layout", "podA-20261001T095900Z"), ("render", "podA-20261001T095900Z")]
+    assert manifest["stopped_stages"] == [{"stage": "build", "status": "incomplete", "note": "timeout"}]
+    md = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    this_run, earlier = md.split("## Stages", 1)[1].split("Earlier runs:", 1)
+    assert "This run (`podB-1`):" in this_run and "| render |" not in this_run
+    assert "| render | ok | 1.0 s | - | earlier run podA-20261001T095900Z |" in earlier
+    # Records without a run id (a project run by hand) all count as this run's.
+    assert F.split_runs([{"stage": "a", "started_utc": "x"}, {"stage": "b", "started_utc": None}])[1:] == ([], None)
+
+
+def test_needs_review_report_does_not_mix_in_an_earlier_run(tmp_path):
+    out = make_review_project(tmp_path, name="real-02", building=review_building("x", reasons=("old reason",)))
+    write_json(out / "intake_manifest.json", {"kind": "intake_manifest", "alias": "real-02", "status": "needs_review",
+                                              "reasons": ["document name collision"], "totals": {}, "files": []})
+    for stage in ("pipeline", "build", "render", "polish", "check"):
+        stage_record(out, stage, "ok", "2026-10-01T10:00:00Z", run_id="podA-1")
+    stage_record(out, "intake", "needs_review", "2026-10-02T11:00:00Z", note="document name collision",
+                 run_id="podX-2")
+    m = F.write_final(out)
+    assert F.validate_final_manifest(m) == []
+    assert m["run_id"] == "podX-2" and [r["stage"] for r in m["run_stages"]] == ["intake"]
+    assert sorted(r["stage"] for r in m["earlier_run_stages"]) == ["build", "check", "pipeline", "polish", "render"]
+    md = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    this_run, earlier = md.split("## Stages", 1)[1].split("Earlier runs:", 1)
+    assert "| intake | needs_review |" in this_run and "| build |" not in this_run
+    assert "| build | ok | 1.0 s | - | earlier run podA-1 |" in earlier
+    assert "nothing was built, rendered or polished in this run" in md
+
+
+def test_report_without_renders_says_no_renders_in_this_run(tmp_path, capsys):
+    """A project cut by the deadline before its build: exit 1 (nothing to report; the orchestrator records the
+    report as a warning, so the project stays incomplete), and the report says why in plain words."""
+    out = tmp_path / "outputs" / "synthetic-04"
+    write_json(out / "building.json", {"schema_version": "0.1", "status": "ok", "project": {"id": "synthetic-04"},
+                                       "warnings": []})
+    stage_record(out, "pipeline", "reused", "2026-10-02T11:00:00Z", run_id="podB-1")
+    stage_record(out, "build", "incomplete", "2026-10-02T11:00:01Z", note="deadline: build not started",
+                 run_id="podB-1")
+    assert report_main(["final", "--project-out", str(out)]) == 1
+    printed = capsys.readouterr().out
+    assert "synthetic-04: not_rendered: no renders in this run" in printed
+    assert "  stopped: build incomplete (deadline: build not started)" in printed
+    m = json.loads((out / "final" / "final_manifest.json").read_text(encoding="utf-8"))
+    assert F.validate_final_manifest(m) == []
+    assert m["status"] == "not_rendered" and m["status_note"] == "no renders in this run"
+    assert m["stages"]["render"] == "not_run"
+    assert m["stopped_stages"] == [{"stage": "build", "status": "incomplete", "note": "deadline: build not started"}]
+    md = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    assert "Status: **not_rendered**: no renders in this run." in md
+    assert "This run stopped the project before its renders: build incomplete (deadline: build not started)." in md
+
+
+@pytest.mark.parametrize("which", ["final", "needs_review"])
+def test_final_manifest_is_written_last(tmp_path, monkeypatch, which):
+    """A report that fails while writing final_report.md leaves no final_manifest.json, so the orchestrator
+    never reads a crash as 'not rendered'."""
+    out = make_project(tmp_path) if which == "final" else make_review_project(tmp_path)
+
+    def boom(*a, **k):
+        raise RuntimeError("disk full")
+
+    monkeypatch.setattr(F, "report_markdown" if which == "final" else "review_markdown", boom)
+    with pytest.raises(RuntimeError):
+        F.write_final(out)
+    assert not (out / "final" / "final_manifest.json").exists()
+
+
+def stage_upload(tmp_path, files: dict, alias="real-01") -> Path:
+    """Run the real intake on an upload; returns the project output folder (its intake_manifest.json)."""
+    from wenart import intake as I
+    up = tmp_path / "pp" / alias
+    for rel, data in files.items():
+        (up / rel).parent.mkdir(parents=True, exist_ok=True)
+        (up / rel).write_bytes(data)
+    out_dir = tmp_path / "po" / alias
+    intake = I.stage_project(alias, out_dir / "input" / alias, root=tmp_path / "pp", repo_root=tmp_path / "repo")
+    assert intake.status == "ok", intake.reasons
+    return out_dir
+
+
+def test_intake_notes_reach_the_private_report_without_file_names(tmp_path):
+    """A misnamed brief and a lone DWG are kept by the intake with fixed notes: the report counts them by note
+    text and flags the brief that was not read (every brief value is a default), never naming a file."""
+    po = stage_upload(tmp_path, {"Gizli_Villa_zemin.dxf": b"0\nEOF\n", "Gizli_Villa_mobilya.dwg": b"AC1032",
+                                 "Brief.yaml": b"style: Gizli stil\n"})
+    out = make_project(tmp_path / "p", brief=None)
+    (out / "intake_manifest.json").write_bytes((po / "intake_manifest.json").read_bytes())
+    manifest = F.write_final(out)
+    from wenart import intake as I
+    brief_note = "not read: the brief must be brief.yaml at the top level of the folder"
+    assert manifest["intake"]["notes_by_kind"] == {I.DWG_NOTE: 1, brief_note: 1}
+    assert manifest["intake"]["brief_staged"] is False
+    flags = manifest["advisory_flags"]
+    assert any(f.startswith("brief.yaml not read: 1 brief file(s)") and "every brief value is a default" in f
+               for f in flags)
+    assert f"intake note on 1 file(s): {I.DWG_NOTE}" in flags
+    md = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    assert f"| {I.DWG_NOTE} | 1 |" in md and "Open items from the intake:" in md
+    assert "Gizli" not in md and "Gizli" not in json.dumps(manifest)
+    # A nested brief next to the real one: only the extra file is flagged.
+    po2 = stage_upload(tmp_path / "2", {"zemin.dxf": b"0\nEOF\n", "brief.yaml": b"style: x\n",
+                                        "eski/brief.yaml": b"style: y\n"}, alias="real-02")
+    summary = F.intake_summary(json.loads((po2 / "intake_manifest.json").read_text(encoding="utf-8")))
+    assert summary["brief_staged"] is True and summary["notes_by_kind"] == {brief_note: 1}
+    assert F.intake_flags(summary) == ["1 other brief file(s) not read (another name or in a subfolder): only "
+                                       "brief.yaml at the top level of the folder is read"]
+
+
+def test_intake_notes_by_kind_never_copies_an_unknown_note():
+    from wenart import intake as I
+    files = [{"note": f"{I.DWG_NOTE}; name collision"}, {"note": "name collision"}, {"note": "Gizli Villa.pdf odd"},
+             {"note": None}, "junk"]
+    assert F.intake_notes_by_kind({"files": files}) == {I.DWG_NOTE: 1, "name collision": 2, F.OTHER_INTAKE_NOTE: 1}
+
+
+def test_brief_warnings_reach_the_report(tmp_path):
+    out = make_project(tmp_path, brief=None)
+    manifest = F.write_final(out)
+    assert any(w.startswith("no brief.yaml in ") and w.endswith("every brief value is a default")
+               for w in manifest["warnings"])
+    # A private project's brief values stay out of the report; the key and the default are named.
+    out2 = make_project(tmp_path / "b", brief="style: x\npolish: 'Gizli secret'\nstyle_photos: [1, 'Gizli.jpg']\n")
+    manifest = F.write_final(out2, private=True)
+    assert "brief.yaml polish: expected bool, got str; default True used" in manifest["warnings"]
+    assert any(w.startswith("brief.yaml style_photos: expected a list of file names; default")
+               for w in manifest["warnings"])
+    md = (out2 / "final" / "final_report.md").read_text(encoding="utf-8")
+    assert "Gizli" not in md and "Gizli" not in json.dumps(manifest)
+    # A public project keeps the whole warning.
+    assert any("'Gizli secret'" in w for w in F.write_final(out2)["warnings"])
+
+
+# --------------------------------------------------------------------------
+# Milestone 7 (docs/milestone7.md §9.4): hints, detector keys, side-by-side sheets, units, recognition, site,
+# separators, assumed values, attribution, detector
+# --------------------------------------------------------------------------
+
+def test_m7_review_hints():
+    from wenart import intake as I
+    assert F.DWG_HINT == I.DWG_NOTE == "DWG is read with LibreDWG 0.14 (beta); if it fails, export DXF"
+    reasons = ["plan_photo.jpg p1: photo page: no page quadrilateral found",
+               "plan_scan.png p1: no dimension readable on the raster page",
+               "plan_photo.jpg p1: photo aspect unknown (not within 4 % of a sheet ratio)",
+               "plan.pdf p1: text drawn as geometry (no text layer, e.g. AutoCAD SHX fonts)",
+               "cannot order untitled plan pages (a.pdf p1, a.pdf p2)",
+               "real01.pdf p1: scale not corroborated: 1 dimension, 0 room sizes"]
+    hints = F.review_hints(reasons)
+    assert len(hints) == 6
+    assert hints[0].startswith("photograph the whole sheet with its four corners visible")
+    assert hints[1].startswith("a scan or photo needs dimension texts that OCR can read")
+    assert hints[2].startswith("photograph the sheet straight on")
+    assert hints[3].startswith("export the PDF with real text")
+    assert hints[4].startswith("add a level title to every plan page")
+    assert hints[5].startswith("check the plan's dimension texts and room-size labels")
+    # Every hint once, whatever the number of reasons it matches.
+    assert F.review_hints(reasons + reasons) == hints
+
+
+def test_label_path_confidences_mirror_room_labels():
+    from wenart.recognition import room_labels as RL
+    assert F.LABEL_TWO_PASS_CONFIDENCE == RL.AGREE_CONFIDENCE
+    assert F.LABEL_TESSERACT_CONFIDENCE == RL.TESSERACT_CONFIDENCE
+    assert RL.UNACCEPTED_CONFIDENCE not in (F.LABEL_TWO_PASS_CONFIDENCE, F.LABEL_TESSERACT_CONFIDENCE)
+
+
+def test_detector_keys_of_a_check_camera_are_not_image_kinds():
+    cview = {"cycles": OK_ENTRY, "polished": OK_ENTRY, "added_by_polish": True,
+             "detector": {"status": "calibrated", "computed": True, "file": "detect/cam.json", "added": []}}
+    assert set(F.image_entries(cview)) == {"cycles", "polished"}
+    assert {"added_by_polish", "detector"} <= F.CHECK_VIEW_KEYS
+
+
+def test_side_by_side_sheets_per_room(tmp_path):
+    out = make_project(tmp_path)
+    manifest = F.write_final(out)
+    assert F.validate_final_manifest(manifest) == []
+    sheets = manifest["side_by_side"]["sheets"]
+    assert sheets == {"r_L0_hol": "contact_sbs_r_L0_hol.jpg", "r_L0_salon": "contact_sbs_r_L0_salon.jpg",
+                      "r_L1_yatak": "contact_sbs_r_L1_yatak.jpg"}
+    final = out / "final"
+    for name in sheets.values():
+        assert (final / name).stat().st_size <= 300_000
+    tile_h = round(H * 480 / W)                                   # 270 px
+    with Image.open(final / "contact_sbs_r_L0_salon.jpg") as im:
+        assert im.size == (2 * 480 + 3 * 4, 2 * (tile_h + F.SBS_LABEL_HEIGHT) + 3 * 4)
+        rgb = np.asarray(im.convert("RGB"))
+    left, right = rgb[4 + tile_h // 2, 4 + 240], rgb[4 + tile_h // 2, 8 + 480 + 240]
+    assert abs(int(left[0]) - 0) <= 12 and abs(int(left[1]) - 120) <= 12      # cam_salon_1's render (R 0, G 120)
+    assert min(right) >= 185                                                    # its polished image (grey 200)
+    # A view no attempt passed (gate) still shows the last attempt the gate saw; the labels carry the decisions.
+    left_lines, right_lines = F.side_by_side_labels(by_cam(manifest)["cam_hol_1"],
+                                                    {"k": 3, "gate": gate("reject", ["depth"])})
+    assert left_lines == ["cam_hol_1  Cycles", "check mismatch (2)"]
+    assert right_lines == ["a3  gate reject (depth)", "check -  ->  final Cycles (gate)"]
+    salon_2 = F.side_by_side_labels(by_cam(manifest)["cam_salon_2"], {"k": 2, "gate": gate("accept")})
+    assert salon_2[1] == ["a2  gate accept", "check mismatch (1)  ->  final Cycles (vision_check)"]
+    md = (final / "final_report.md").read_text(encoding="utf-8")
+    assert "## Side-by-side sheets (Cycles | polished)" in md
+    assert "- r_L0_salon: [contact_sbs_r_L0_salon.jpg](contact_sbs_r_L0_salon.jpg)" in md
+    assert "| r_L0_hol | cam_hol_1 | - | - | mismatch (2) | - | - | cycles (gate) |" in md
+    assert links(md) and all("/" not in link and (final / link).is_file() for link in links(md))
+    # A second run writes the same sheets and lists none of them as stale.
+    again = F.write_final(out)
+    assert not [w for w in again["warnings"] if "contact_sbs_" in w]
+
+
+@pytest.mark.parametrize("change, note", [
+    ({"brief": "style: x\npolish: false\n"}, "brief polish: false"),
+    ({"polish": False}, "the polish did not run in this run"),
+])
+def test_no_side_by_side_sheets_without_the_polish(tmp_path, change, note):
+    out = make_project(tmp_path, **change)
+    manifest = F.write_final(out)
+    assert manifest["side_by_side"] == {"sheets": {}, "note": note}
+    assert not list((out / "final").glob("contact_sbs_*.jpg"))
+    md = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    assert f"None: {note}." in md.split("## Side-by-side sheets (Cycles | polished)")[1]
+
+
+def test_side_by_side_when_the_gate_switches_the_polish_off(tmp_path):
+    out = make_project(tmp_path)
+    gate_validation(out, "polish_disabled")
+    manifest = F.write_final(out)
+    assert manifest["side_by_side"]["sheets"] == {}
+    assert manifest["side_by_side"]["note"].startswith("gate validation polish_disabled")
+
+
+def m7_building(project_dir: Path) -> dict:
+    """The toy building with the Milestone 7 fields: imperial units, a raster page, AI-typed pieces, a composite,
+    a site, a separator, assumed values and an Objaverse model."""
+    b = building(project_dir)
+    b["project"]["unit_system"] = "imperial"
+    b["documents"] = [
+        {"file": "real01.pdf", "format": "pdf", "unit_system": "imperial", "source_kind": "cad_pdf",
+         "pages": [{"page": 1, "class": "floor_plan", "kind": "vector", "level_id": "L0", "confidence": 0.6,
+                    "classifier": "generic_labels"}]},
+        {"file": "plan_scan.png", "format": "image", "unit_system": "imperial", "source_kind": "raster_scan",
+         "pages": [{"page": 1, "class": "floor_plan", "kind": "scan", "level_id": "L1", "confidence": 0.8,
+                    "rectified_image": "rectified/plan_scan_png_p1.png", "skip_reason": None}]}]
+    b["levels"][0].update(label="Ground floor", label_source="assumed", ceiling_height=2.7,
+                          ceiling_height_source="assumed_default")
+    b["levels"][1].update(label="First Floor", label_source="title", ceiling_height=2.9,
+                          ceiling_height_source="section")
+
+    def ai_ev(conf, p):
+        return {"file": "plan_scan.png", "page": 1, "method": "ai", "confidence": conf, "entity": "recognition:lbl_L1_1",
+                "model": f"m{p}", "pass": p}
+
+    ocr = {"file": "plan_scan.png", "page": 1, "method": "ocr", "confidence": 0.91, "text": "BED ROOM"}
+    b["rooms"] = [
+        {"id": "r_L0_salon", "level_id": "L0", "room_type": "living", "status": "verified", "label": "Drawing Room",
+         "label_raw": "DRAWING ROOM", "evidence": [{"file": "real01.pdf", "page": 1, "method": "vector",
+                                                   "confidence": 1.0}]},
+        {"id": "r_L0_hol", "level_id": "L0", "room_type": "hall", "status": "unverified", "label": "Room",
+         "label_raw": None, "evidence": [{"file": "real01.pdf", "method": "derived", "confidence": 0.5}]},
+        {"id": "r_L1_yatak", "level_id": "L1", "room_type": "bedroom", "status": "verified", "label": "Bed Room",
+         "label_raw": "BED ROOM", "evidence": [ocr, ai_ev(0.85, 1), ai_ev(0.85, 2)]},
+        {"id": "r_L1_b", "level_id": "L1", "room_type": "kitchen", "status": "verified", "label": "Kitchen",
+         "label_raw": "KITCHEN", "evidence": [ocr, ai_ev(0.8, 1), ai_ev(0.3, 2)]},
+        {"id": "r_L1_c", "level_id": "L1", "room_type": "bathroom", "status": "unverified", "label": "Bath",
+         "label_raw": "BATH", "evidence": [ocr, ai_ev(0.3, 1), ai_ev(0.3, 2)]},
+        {"id": "r_L1_d", "level_id": "L1", "room_type": "storage", "status": "unverified", "label": "Store",
+         "label_raw": "STORE", "evidence": [ocr]},
+    ]
+    cands = [{"type": "bed_double", "model": "Qwen/Qwen3-VL-8B-Instruct", "model_key": "qwen", "pass": 1,
+              "confidence": 0.9, "front": "top", "reason": "pillows"},
+             {"type": "bed_double", "model": "zai-org/GLM-4.6V-Flash", "model_key": "glm", "pass": 2,
+              "confidence": 0.8, "front": "top", "reason": "a bed"}]
+    b["furniture"][2].update(type_method="ai_two_pass", type_candidates=cands)          # f_3, agreed
+    b["furniture"][3].update(type_method="none", type_candidates=[                     # f_9, disagreed
+        dict(cands[0], type="table_dining"), dict(cands[1], type="sofa")])
+    b["furniture"].append({"id": "f_10", "type": "unknown", "level_id": "L1", "room_id": "r_L1_yatak",
+                           "source": "from_documents", "status": "unverified", "type_method": "none",
+                           "footprint": {"center": [1, 1], "size": [2.77, 0.6], "rotation_deg": 0},
+                           "evidence": [{"file": "plan_scan.png", "method": "raster", "confidence": 0.7,
+                                         "note": "possible group of 3 pieces"}]})
+    b["furniture"].append({"id": "f_11", "type": "stair", "level_id": "L0", "room_id": "r_L0_hol",
+                           "source": "from_documents", "status": "verified", "type_method": "rule",
+                           "stair": {"flights": [], "direction_assumed": True, "turn_assumed": True,
+                                     "void_assumed": True, "reason": "no UP arrow drawn", "riser_m": 0.178,
+                                     "riser_source": "derived from assumed ceiling and slab"},
+                           "evidence": ev("real01.pdf", entity="path:1-40")})
+    b["furniture"][0]["asset"] = {"method": "library", "library": "objaverse", "asset_id": "objaverse_u1",
+                                  "licence": "CC-BY-4.0", "attribution": '"Sofa" by A (https://x/u1), CC BY 4.0 '
+                                                                         "(https://creativecommons.org/licenses/by/4.0/)"}
+    b["decor"][0]["asset"] = {"method": "library", "library": "objaverse", "asset_id": "objaverse_u2",
+                              "licence": "CC-BY-4.0"}
+    b["openings"] += [
+        {"id": "d_L0_009", "type": "door", "level_id": "L0", "wall_id": "w_1", "width": 0.9, "height": 2.1,
+         "assumed": ["height"], "status": "verified", "evidence": ev("real01.pdf")},
+        {"id": "o_L0_001", "type": "opening", "level_id": "L0", "wall_id": None, "virtual": True,
+         "line": [[0.0, 0.0], [0.0, 1.2954]], "width": 1.2954, "height": 2.1, "assumed": ["height"],
+         "status": "verified", "evidence": [{"file": "real01.pdf", "method": "derived", "confidence": 0.8,
+                                             "note": "two room names share one face"}]}]
+    b["site"] = {"boundary_walls": [{"id": "sw_L0_001", "level_id": "L0", "start": [0, 0], "end": [15.24, 0],
+                                     "thickness": 0.1524, "kind": "plot", "evidence": ev("real01.pdf")}],
+                 "areas": [{"id": "sa_L0_parking", "level_id": "L0", "label": "Parking", "label_raw": "PARKING",
+                            "label_size": {"text": "15'3\" x 11'3\"", "measured": [4.572, 3.429],
+                                           "status": "unchecked"}, "polygon": None, "evidence": ev("real01.pdf")}],
+                 "decor": [{"id": "sd_L0_001", "level_id": "L0", "kind": "plant", "center": [1, 1], "size": [0.5, 0.5],
+                            "evidence": ev("real01.pdf")}] * 2,
+                 "openings": []}
+    return b
+
+
+def make_m7_project(tmp_path) -> Path:
+    out = make_project(tmp_path)
+    b = m7_building(tmp_path / "projects" / "toy")
+    write_json(out / "building_final.json", b)
+    sc = json.loads((out / "scene" / "scene_manifest.json").read_text(encoding="utf-8"))
+    sc["assumed"] = [{"object": f"d_{i}", "field": "height", "value": 2.1,
+                      "reason": "door height not in the JSON; default"} for i in range(3)]
+    write_json(out / "scene" / "scene_manifest.json", sc)
+    write_json(out / "recognition" / "requests.json", {"items": [{"key": "sym_L0_1"}, {"key": "lbl_L1_1"}]})
+    write_json(out / "recognition" / "answers_qwen3-vl-8b.json", {"answers": {}})
+    return out
+
+
+def test_m7_sections_units_recognition_site_separators_assumed(tmp_path):
+    out = make_m7_project(tmp_path)
+    m = F.write_final(out)
+    assert F.validate_final_manifest(m) == []
+    assert m["units"]["system"] == "imperial" and m["units"]["recorded"] is True
+    assert [d["source_kind"] for d in m["units"]["documents"]] == ["cad_pdf", "raster_scan"]
+    rec = m["recognition"]
+    assert rec["type_methods"] == {"ai_two_pass": 1, "none": 2, "rule": 1}
+    assert rec["questions"] == 2 and rec["answer_files"] == ["answers_qwen3-vl-8b.json"]
+    ai = {p["id"]: p for p in rec["ai_typed"]}
+    assert set(ai) == {"f_3", "f_9"} and ai["f_3"]["agreed"] and not ai["f_9"]["agreed"]
+    assert [a["type"] for a in ai["f_9"]["answers"]] == ["table_dining", "sofa"]
+    assert rec["composites"] == [{"id": "f_10", "room_id": "r_L1_yatak", "type": "unknown", "status": "unverified",
+                                  "size": [2.77, 0.6], "note": "possible group of 3 pieces"}]
+    assert [pg["file"] for pg in rec["raster_pages"]] == ["plan_scan.png"]
+    assert {r["id"]: r["path"] for r in rec["raster_rooms"]} == {
+        "r_L1_yatak": "two_pass", "r_L1_b": "tesseract", "r_L1_c": "not_accepted", "r_L1_d": "tesseract_only"}
+    site = m["site"]
+    assert site["boundary_walls"][0]["length_m"] == pytest.approx(15.24) and site["decor"] == {"plant": 2}
+    assert site["areas"][0]["closed"] is False
+    assert m["separators"] == [{"id": "o_L0_001", "level_id": "L0", "status": "verified", "length_m": 1.295,
+                                "note": "two room names share one face"}]
+    assumed = m["assumed"]
+    # The toy brief sets the style only: every other brief value is a default.
+    assert {"key": "polish", "value": True} in assumed["brief"]
+    assert "style" not in {a["key"] for a in assumed["brief"]}
+    text = "\n".join(assumed["building"])
+    assert "L0: level 'Ground floor' assumed (no level title on the page)" in text
+    assert "L0: ceiling height 8' 10\" (2.70 m) (assumed_default)" in text and "L1: ceiling" not in text
+    assert "door height 6' 11\" (2.10 m): 1 opening(s) (d_L0_009)" in text
+    assert "opening height 6' 11\" (2.10 m): 1 opening(s) (o_L0_001)" in text
+    assert "f_11 (stair): direction, turn, void assumed (no UP arrow drawn)" in text
+    assert "f_11 (stair): riser 0' 7\" (0.18 m) (derived from assumed ceiling and slab)" in text
+    assert assumed["scene"] == [{"field": "height", "reason": "door height not in the JSON; default", "count": 3,
+                                 "examples": ["d_0", "d_1", "d_2"]}]
+    flags = m["advisory_flags"]
+    assert any(f.startswith("1 drawn piece(s) not typed") and "f_9" in f for f in flags)
+    assert any(f.startswith("1 drawn group(s) not split") and "f_10" in f for f in flags)
+    assert any(f.startswith("2 raster room label(s) not confirmed") and "r_L1_c" in f and "r_L1_d" in f
+               for f in flags)
+    md = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    for heading in ("## Units", "## Recognition (AI typing and raster labels)", "## Site", "## Separators",
+                    "## Assumed values", "## Attribution", "## Added-object detector"):
+        assert heading in md, heading
+    assert "Project unit system: **imperial** (lengths in feet and inches, metres in brackets)." in md
+    assert "| sw_L0_001 | boundary wall (plot) | 50' 0\" (15.24 m) long, 0' 6\" (0.15 m) thick |" in md
+    assert "| o_L0_001 | L0 | 4' 3\" (1.29 m) | verified | two room names share one face |" in md
+    assert "| f_9 | r_L0_hol | unknown | no | unverified | yes |" in md
+    assert "pass 1 Qwen/Qwen3-VL-8B-Instruct: table_dining, front top 0.90" in md
+    assert "| r_L1_b | Kitchen | KITCHEN | kitchen | verified | one pass equals the Tesseract text |" in md
+    assert "| r_L1_d | Store | STORE | storage | unverified | Tesseract only (not confirmed by the passes) |" in md
+    assert "| f_10 | r_L1_yatak | 9' 1\" (2.77 m) x 2' 0\" (0.60 m) | unverified | possible group of 3 pieces |" in md
+    assert "| unit system | imperial |" in md
+
+
+def test_metric_project_lengths_and_missing_m7_fields(tmp_path):
+    out = make_project(tmp_path)
+    m = F.write_final(out)
+    assert m["units"] == {"system": "metric", "recorded": False, "documents": []}
+    assert m["site"] is None and m["separators"] == [] and m["recognition"]["ai_typed"] == []
+    assert m["attribution"] == {"credits": [], "notice": None, "missing": []}
+    assert F.length_text(3.43, "metric") == "3,43 m" and F.length_text(3.43, "imperial") == "11' 3\" (3.43 m)"
+    assert F.length_text(None, "metric") == "-"
+    md = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    assert "(not recorded in the building JSON: metric)" in md
+    assert "No CC BY or Objaverse model in this project" in md
+
+
+def test_attribution_section_names_every_objaverse_model(tmp_path):
+    out = make_m7_project(tmp_path)
+    m = F.write_final(out)
+    att = m["attribution"]
+    assert [c["asset_id"] for c in att["credits"]] == ["objaverse_u1", "objaverse_u2"]
+    assert att["credits"][0]["pieces"] == ["f_1"] and att["credits"][1]["credit"] is None
+    assert att["missing"] == ["objaverse_u2"] and "ODC-By 1.0" in att["notice"]
+    assert any(f.startswith("Objaverse model(s) without a credit line") and "objaverse_u2" in f
+               for f in m["advisory_flags"])
+    md = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    section = md.split("## Attribution")[1].split("## Added-object detector")[0]
+    assert '- "Sofa" by A (https://x/u1), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) (used for f_1)' \
+        in section
+    assert "- objaverse_u2: no attribution recorded (check the catalogue entry) (used for dec_1)" in section
+    assert "ODC Attribution License" in section
+
+
+def test_detector_section_model_row_and_added_by_polish(tmp_path):
+    out = make_project(tmp_path)
+    cm = json.loads((out / "check" / "check_manifest.json").read_text(encoding="utf-8"))
+    cm["detector"] = {"status": "calibrated", "advisory": False, "reason": None,
+                      "thresholds": {"t_det": 0.3, "t_strong": 0.6},
+                      "model": {"repo": "google/owlv2-base-patch16-ensemble",
+                                "revision": "cfd3195ba4ea9592eec887ded089f4c08eff231d", "licence": "Apache-2.0"},
+                      "views": ["cam_salon_1"], "not_computed": []}
+    box = {"class": "furniture", "group": "armchair", "box_px": [10, 10, 40, 40], "score": 0.7,
+           "confirmed_by": ["strong"]}
+    view = cm["views"]["cam_salon_1"]
+    view.update(polished_rejected=True, polished_reason="vision_check", added_by_polish=True,
+                polished_reasons=[{"reason": "vision_check", "what": "added_by_polish", "source": "detector",
+                                   "class": "furniture", "box_px": [10, 10, 40, 40], "score": 0.7}],
+                detector={"status": "calibrated", "computed": True, "file": "detect/cam_salon_1.json",
+                          "added": [box], "candidates": [box]})
+    write_json(out / "check" / "check_manifest.json", cm)
+    m = F.write_final(out)
+    v = by_cam(m)["cam_salon_1"]
+    assert (v["final"], v["reason"]) == ("cycles", "vision_check") and "added_by_polish furniture" in v["detail"]
+    assert v["added_by_polish"] is True and v["detector"]["added"] == 1 and v["detector"]["computed"]
+    assert set(F.image_entries(cm["views"]["cam_salon_1"])) == {"cycles", "polished"}   # not a 'detector' image
+    assert m["detector"]["status"] == "calibrated" and m["detector"]["views_added"] == ["cam_salon_1"]
+    roles = {r["role"]: r for r in m["models"]}
+    assert roles["detector"]["repo"] == "google/owlv2-base-patch16-ensemble"
+    assert any(f.startswith("the polish added an object in cam_salon_1") for f in m["advisory_flags"])
+    md = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    section = md.split("## Added-object detector")[1]
+    assert "Calibrated: t_det 0.3, t_strong 0.6" in section
+    assert "| cam_salon_1 | calibrated | yes | yes | furniture [10, 10, 40, 40] (strong) |" in section
+    # An advisory detector is a flag; a check manifest without a detector block says not run.
+    cm["detector"].update(status="advisory", advisory=True, reason="no detector: block in check.yaml")
+    write_json(out / "check" / "check_manifest.json", cm)
+    assert any(f.startswith("added-object detector advisory") for f in F.write_final(out)["advisory_flags"])
+    del cm["detector"]
+    write_json(out / "check" / "check_manifest.json", cm)
+    m = F.write_final(out)
+    assert m["detector"]["status"] == "not_recorded"
+    assert "Not run for this project" in (out / "final" / "final_report.md").read_text(encoding="utf-8")
+
+
+def test_m7_sections_of_a_private_project_name_no_file(tmp_path):
+    out = make_m7_project(tmp_path)
+    m = F.write_final(out, private=True)
+    assert [d["file"] for d in m["units"]["documents"]] == ["document 1", "document 2"]
+    assert m["recognition"]["raster_pages"][0]["file"] == "document 2"
+    assert m["recognition"]["raster_pages"][0]["rectified_image"] is None
+    assert {r["file"] for r in m["recognition"]["raster_rooms"]} == {"document 2"}
+    md = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    section = md.split("## Units")[1].split("## Rooms mixing")[0]
+    assert "real01.pdf" not in section and "plan_scan" not in section
+    assert json.dumps(m["units"]).count("real01") == 0 and "plan_scan" not in json.dumps(m["recognition"])

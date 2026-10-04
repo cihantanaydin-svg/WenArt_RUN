@@ -1,0 +1,231 @@
+{
+ "schema_version": "0.1",
+ "scene": "../../scene/scene.blend",
+ "scene_sha256": "bbb69d4e11692d87ff790e00536ad7d7a2164da5f561888bbacd9c25d1a02cf9",
+ "device": "OPTIX",
+ "device_requested": "auto",
+ "blender_version": "5.2.2 LTS",
+ "samples": 128,
+ "resolution": [
+  1920,
+  1080
+ ],
+ "denoiser": "OPENIMAGEDENOISE",
+ "render_code_version": "m7.1",
+ "view_transform": "AgX",
+ "look": "AgX - Punchy",
+ "exposure_mode": "from",
+ "exposure_target": 0.9,
+ "exposure_limits": [
+  -2.0,
+  8.0
+ ],
+ "white_balance_mode": "from",
+ "look_from": "../../renders/render_manifest.json",
+ "hidden": [
+  "d_L3_004"
+ ],
+ "plugged": [],
+ "alt_look": null,
+ "max_bounces": null,
+ "bounces": null,
+ "ev_offset": 0.0,
+ "preview_quality": null,
+ "pass_index": {
+  "d_L3_001": 1,
+  "d_L3_002": 2,
+  "d_L3_003": 3,
+  "d_L3_004": 4,
+  "d_L3_005": 5,
+  "win_L3_001": 6,
+  "win_L3_002": 7,
+  "win_L3_003": 8,
+  "win_L3_004": 9,
+  "win_L3_005": 10,
+  "win_L3_006": 11,
+  "win_L3_007": 12,
+  "win_L3_008": 13,
+  "win_L3_009": 14,
+  "win_L3_010": 15,
+  "f_L3_001": 16,
+  "f_L3_002": 17,
+  "f_L3_003": 18,
+  "f_L3_004": 19,
+  "f_L3_005": 20,
+  "f_L3_006": 21,
+  "f_L3_007": 22,
+  "f_L3_008": 23,
+  "f_L3_009": 24,
+  "f_L3_010": 25,
+  "f_L3_011": 26,
+  "f_L3_012": 27,
+  "f_L3_013": 28,
+  "f_L3_014": 29,
+  "f_L3_015": 30,
+  "f_L3_016": 31,
+  "f_L3_017": 32,
+  "f_L3_018": 33,
+  "f_L3_019": 34,
+  "f_L3_020": 35,
+  "f_L3_021": 36,
+  "f_L3_022": 37,
+  "f_L3_023": 38,
+  "f_L3_024": 39,
+  "f_L3_025": 40,
+  "f_L3_026": 41,
+  "dec_L3_004": 42,
+  "dec_L3_005": 43,
+  "dec_L3_008": 44,
+  "dec_L3_009": 45,
+  "dec_L3_010": 46,
+  "dec_L3_012": 47,
+  "dec_L3_013": 48
+ },
+ "renders": [
+  {
+   "camera": "cam_r_L3_cocuk_odasi_3",
+   "room_id": "r_L3_cocuk_odasi",
+   "level_id": "L3",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "png": "cam_r_L3_cocuk_odasi_3.png",
+   "exr": "cam_r_L3_cocuk_odasi_3_passes.exr",
+   "preview": "cam_r_L3_cocuk_odasi_3_preview.jpg",
+   "depth_png": "cam_r_L3_cocuk_odasi_3_depth.png",
+   "index_png": "cam_r_L3_cocuk_odasi_3_index.png",
+   "files": {
+    "index": "cam_r_L3_cocuk_odasi_3_index.png",
+    "depth_mm": "cam_r_L3_cocuk_odasi_3_depth_mm.png",
+    "normal": "cam_r_L3_cocuk_odasi_3_normal.png",
+    "depth": "cam_r_L3_cocuk_odasi_3_depth.png"
+   },
+   "preview_bytes": 127129,
+   "seconds": 3.16,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.8794584274291992,
+    "max": 7.500000953674316,
+    "mean": 2.3696587085723877,
+    "coverage": 1.0
+   },
+   "index_values": [
+    2,
+    5,
+    12,
+    38,
+    39,
+    40,
+    48
+   ],
+   "index_stats": {
+    "2": {
+     "pixels": 8706,
+     "box": [
+      728,
+      217,
+      757,
+      535
+     ]
+    },
+    "5": {
+     "pixels": 20209,
+     "box": [
+      557,
+      120,
+      595,
+      676
+     ]
+    },
+    "12": {
+     "pixels": 19571,
+     "box": [
+      1884,
+      0,
+      1920,
+      547
+     ]
+    },
+    "38": {
+     "pixels": 388657,
+     "box": [
+      973,
+      439,
+      1920,
+      1080
+     ]
+    },
+    "39": {
+     "pixels": 108506,
+     "box": [
+      87,
+      682,
+      420,
+      1080
+     ]
+    },
+    "40": {
+     "pixels": 93960,
+     "box": [
+      0,
+      0,
+      87,
+      1080
+     ]
+    },
+    "48": {
+     "pixels": 56867,
+     "box": [
+      1046,
+      192,
+      1287,
+      428
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "bbb69d4e11692d87ff790e00536ad7d7a2164da5f561888bbacd9c25d1a02cf9",
+   "render_key": "296bc6cfabf0ad83",
+   "exposure": {
+    "mode": "from",
+    "ev": 4.5,
+    "ev_raw": null,
+    "at_limit": false,
+    "target": null,
+    "limits": null,
+    "incident_p50": null,
+    "whitepoint": [
+     0.914605,
+     1.013621,
+     1.116529
+    ],
+    "wb_mode": "from",
+    "wb_temperature": 7404.0,
+    "wb_tint": 14.1,
+    "residual": null,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 0.0,
+    "meter": null,
+    "mood": "warm daylight",
+    "source": "../../renders/render_manifest.json",
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "hidden": [
+    "d_L3_004"
+   ],
+   "plugged": [],
+   "window_pull": null,
+   "alt_preview": null,
+   "alt_preview_bytes": null
+  }
+ ],
+ "dropped_stale": [],
+ "incomplete": false,
+ "not_rendered": [],
+ "deadline": 1791113620.0,
+ "warnings": []
+}

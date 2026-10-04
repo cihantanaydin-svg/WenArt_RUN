@@ -1,0 +1,41 @@
+{
+ "dpi": 150,
+ "file": "real01_scan.png",
+ "generator": "python -m wenart.synthetic.raster fixtures",
+ "kind": "raster_fixture",
+ "page": 1,
+ "page_size_pt": [
+  842.0,
+  595.0
+ ],
+ "pdf_points_to_pixels": [
+  [
+   2.0831323964520156,
+   0.0289343503445213,
+   -8.520441178049651
+  ],
+  [
+   0.0289343503445213,
+   -2.0831323964520156,
+   1227.336426339717
+  ],
+  [
+   0.0,
+   0.0,
+   1.0
+  ]
+ ],
+ "raster_kind": "scan",
+ "scan_angle_noise": {
+  "blur_sigma": 0.7,
+  "max_deg": 1.5,
+  "noise_sigma": 4.0
+ },
+ "schema_version": "0.1",
+ "seed": 7101,
+ "size": [
+  1755,
+  1240
+ ],
+ "source_pdf": "projects/real01/real01.pdf"
+}

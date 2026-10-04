@@ -1,0 +1,3964 @@
+{
+ "schema_version": "0.1",
+ "project": "synthetic-02",
+ "render_dir": "../renders",
+ "views": {
+  "cam_r_L0_antre_1": {
+   "camera": "cam_r_L0_antre_1",
+   "room_id": "r_L0_antre",
+   "room_type": "hall",
+   "room_label": "Antre",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 4,
+     "wenart_id": "d_L0_004",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_yatak_odasi",
+      "r_L0_antre"
+     ],
+     "own_room": true,
+     "pixels": 584280,
+     "area_frac": 0.281771,
+     "box_px": [
+      390,
+      0,
+      931,
+      1080
+     ],
+     "box_1000": [
+      203,
+      0,
+      485,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "arc:5,seg:129",
+       "pixel_box": [
+        1317.1,
+        832.3,
+        1365.2,
+        881.9
+       ]
+      },
+      {
+       "file": "plan_photo.jpg",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "arc:6,seg:240",
+       "pixel_box": [
+        1310.6,
+        857.8,
+        1353.5,
+        905.1
+       ]
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 2,
+     "wenart_id": "d_L0_002",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_mutfak",
+      "r_L0_antre"
+     ],
+     "own_room": true,
+     "pixels": 486000,
+     "area_frac": 0.234375,
+     "box_px": [
+      1120,
+      0,
+      1570,
+      1080
+     ],
+     "box_1000": [
+      583,
+      0,
+      818,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "arc:3,seg:117",
+       "pixel_box": [
+        1247.0,
+        773.8,
+        1297.6,
+        821.2
+       ]
+      },
+      {
+       "file": "plan_photo.jpg",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "arc:4,seg:233",
+       "pixel_box": [
+        1248.9,
+        803.9,
+        1294.2,
+        851.3
+       ]
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 26,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_002": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.6358,
+      "area_frac": 0.23693,
+      "centre_px": [
+       1339.8,
+       539.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 486000
+     },
+     "d_L0_004": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.6321,
+      "area_frac": 0.27419,
+      "centre_px": [
+       670.4,
+       540.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 584280
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_banyo_1": {
+   "camera": "cam_r_L0_banyo_1",
+   "room_id": "r_L0_banyo",
+   "room_type": "bathroom",
+   "room_label": "Banyo",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 10,
+     "wenart_id": "win_L0_006",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_banyo"
+     ],
+     "own_room": true,
+     "pixels": 358874,
+     "area_frac": 0.173068,
+     "box_px": [
+      449,
+      0,
+      970,
+      725
+     ],
+     "box_1000": [
+      233,
+      0,
+      506,
+      672
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:20,seg:40",
+       "pixel_box": [
+        1472.7,
+        691.8,
+        1507.0,
+        709.9
+       ]
+      },
+      {
+       "file": "plan_photo.jpg",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:125,seg:137",
+       "pixel_box": [
+        1447.2,
+        730.8,
+        1480.9,
+        746.8
+       ]
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 18,
+     "wenart_id": "f_L0_013",
+     "kind": "furniture",
+     "type": "unknown",
+     "type_unverified": true,
+     "source": "from_documents",
+     "status": "unverified",
+     "room_id": "r_L0_banyo",
+     "room_ids": [
+      "r_L0_banyo"
+     ],
+     "own_room": true,
+     "pixels": 287216,
+     "area_frac": 0.138511,
+     "box_px": [
+      444,
+      752,
+      1727,
+      1080
+     ],
+     "box_1000": [
+      231,
+      696,
+      900,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.1088,
+     "in_frame": 0.1115,
+     "unoccluded": 0.9761,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:46,seg:51,seg:63,seg:71,seg:85-87,seg:91",
+       "pixel_box": [
+        1471.7,
+        707.7,
+        1512.5,
+        750.7
+       ]
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_013",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "side_table",
+       "front": "none",
+       "reason": "Square shape, small size (0.72x0.68m), no visible front or back, typical for a side table."
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_013",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "fridge",
+       "front": "right",
+       "reason": "The object's footprint size and shape match a typical kitchen fridge."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 22,
+     "wenart_id": "f_L0_008",
+     "kind": "furniture",
+     "type": "shower",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_banyo",
+     "room_ids": [
+      "r_L0_banyo"
+     ],
+     "own_room": true,
+     "pixels": 181440,
+     "area_frac": 0.0875,
+     "box_px": [
+      0,
+      0,
+      168,
+      1080
+     ],
+     "box_1000": [
+      0,
+      0,
+      88,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0001,
+     "in_frame": 0.0001,
+     "unoccluded": 0.9993,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:50,seg:59,seg:70,seg:94",
+       "pixel_box": [
+        1400.6,
+        707.2,
+        1460.7,
+        763.3
+       ]
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_008",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "shower",
+       "front": "bottom",
+       "reason": "Square shape 1.00x0.93m matches shower footprint, and it's in a bathroom labeled 'BANYO'."
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_008",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "shower",
+       "front": "bottom",
+       "reason": "The object is a square with a 1m scale bar, matching the typical size and shape of a shower in a bathroom."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 26,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_006": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.5613,
+      "area_frac": 0.17324,
+      "centre_px": [
+       713.4,
+       344.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 358874
+     },
+     "f_L0_008": {
+      "kind": "furniture",
+      "type": "shower",
+      "visible_share": 0.118,
+      "area_frac": 0.08756,
+      "centre_px": [
+       83.6,
+       539.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 181440
+     },
+     "f_L0_013": {
+      "kind": "furniture",
+      "type": "unknown",
+      "visible_share": 0.2594,
+      "area_frac": 0.1419,
+      "centre_px": [
+       1061.0,
+       916.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 287216
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_mutfak_1": {
+   "camera": "cam_r_L0_mutfak_1",
+   "room_id": "r_L0_mutfak",
+   "room_type": "kitchen",
+   "room_label": "Mutfak",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 14,
+     "wenart_id": "f_L0_004",
+     "kind": "furniture",
+     "type": "unknown",
+     "type_unverified": true,
+     "source": "from_documents",
+     "status": "unverified",
+     "room_id": "r_L0_mutfak",
+     "room_ids": [
+      "r_L0_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 476800,
+     "area_frac": 0.229938,
+     "box_px": [
+      0,
+      606,
+      1410,
+      1080
+     ],
+     "box_1000": [
+      0,
+      561,
+      735,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0696,
+     "in_frame": 0.0779,
+     "unoccluded": 0.8934,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:95-99,seg:108-111,seg:113-114",
+       "pixel_box": [
+        1124.6,
+        755.7,
+        1222.7,
+        813.6
+       ]
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_004",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "sofa",
+       "front": "left",
+       "reason": "Rectangular shape with backrest line, size 1.64x0.95m fits sofa dimensions, front points left as user faces seating area."
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.8,
+       "page": 1,
+       "entity": "recognition:sym_L0_004",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "table_dining",
+       "front": "bottom",
+       "reason": "Footprint matches dining table size, front is bottom edge."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 9,
+     "wenart_id": "win_L0_005",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 414435,
+     "area_frac": 0.199863,
+     "box_px": [
+      1036,
+      0,
+      1772,
+      630
+     ],
+     "box_1000": [
+      539,
+      0,
+      923,
+      584
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:22,seg:34,seg:38",
+       "pixel_box": [
+        1107.8,
+        684.5,
+        1209.1,
+        703.9
+       ]
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 20,
+     "wenart_id": "f_L0_003",
+     "kind": "furniture",
+     "type": "kitchen_counter",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_mutfak",
+     "room_ids": [
+      "r_L0_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 234534,
+     "area_frac": 0.113105,
+     "box_px": [
+      606,
+      466,
+      1572,
+      959
+     ],
+     "box_1000": [
+      315,
+      431,
+      819,
+      888
+     ],
+     "touches_border": false,
+     "visibility": 0.3312,
+     "in_frame": 0.7216,
+     "unoccluded": 0.4589,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:47,seg:60,seg:65-68,seg:72-73,seg:75,seg:77-84,seg:88",
+       "pixel_box": [
+        1048.0,
+        700.2,
+        1193.8,
+        742.0
+       ]
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_003",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "kitchen_counter",
+       "front": "left",
+       "reason": "Long shallow rectangle matching kitchen counter dimensions, likely along a kitchen wall."
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_003",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "kitchen_counter",
+       "front": "top",
+       "reason": "The object is a long shallow rectangle fitting the kitchen counter size and shape."
+      },
+      {
+       "file": "plan_photo.jpg",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:143,seg:171-173,seg:180-181,seg:183-188,seg:193-194",
+       "pixel_box": [
+        1060.4,
+        731.9,
+        1194.5,
+        774.3
+       ]
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 17,
+     "wenart_id": "f_L0_012",
+     "kind": "furniture",
+     "type": "unknown",
+     "type_unverified": true,
+     "source": "from_documents",
+     "status": "unverified",
+     "room_id": "r_L0_mutfak",
+     "room_ids": [
+      "r_L0_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 213537,
+     "area_frac": 0.102979,
+     "box_px": [
+      1247,
+      704,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      649,
+      651,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.1048,
+     "in_frame": 0.123,
+     "unoccluded": 0.8517,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:43,seg:48,seg:92",
+       "pixel_box": [
+        1198.9,
+        700.2,
+        1240.8,
+        744.0
+       ]
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_012",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "fridge",
+       "front": "left",
+       "reason": "Square shape 0.73x0.70m matches fridge size, with top edge likely front for user access."
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.6,
+       "page": 1,
+       "entity": "recognition:sym_L0_012",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "unknown",
+       "front": "none",
+       "reason": "The object is a square with a small line inside, size fits unknown furniture, no clear features to identify."
+      },
+      {
+       "file": "plan_photo.jpg",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:156,seg:162,seg:197-200,seg:203-204",
+       "pixel_box": [
+        1200.7,
+        735.3,
+        1238.7,
+        777.9
+       ]
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 26,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_005": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.7629,
+      "area_frac": 0.21489,
+      "centre_px": [
+       1404.4,
+       302.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 414435
+     },
+     "f_L0_003": {
+      "kind": "furniture",
+      "type": "kitchen_counter",
+      "visible_share": 0.5478,
+      "area_frac": 0.24646,
+      "centre_px": [
+       1086.6,
+       698.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 234534
+     },
+     "f_L0_004": {
+      "kind": "furniture",
+      "type": "unknown",
+      "visible_share": 0.5255,
+      "area_frac": 0.22995,
+      "centre_px": [
+       683.0,
+       843.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 476800
+     },
+     "f_L0_012": {
+      "kind": "furniture",
+      "type": "unknown",
+      "visible_share": 0.2366,
+      "area_frac": 0.11056,
+      "centre_px": [
+       1588.1,
+       890.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 213537
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_mutfak_2": {
+   "camera": "cam_r_L0_mutfak_2",
+   "room_id": "r_L0_mutfak",
+   "room_type": "kitchen",
+   "room_label": "Mutfak",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 14,
+     "wenart_id": "f_L0_004",
+     "kind": "furniture",
+     "type": "unknown",
+     "type_unverified": true,
+     "source": "from_documents",
+     "status": "unverified",
+     "room_id": "r_L0_mutfak",
+     "room_ids": [
+      "r_L0_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 472326,
+     "area_frac": 0.227781,
+     "box_px": [
+      746,
+      584,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      388,
+      540,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.1419,
+     "in_frame": 0.1566,
+     "unoccluded": 0.906,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:95-99,seg:108-111,seg:113-114",
+       "pixel_box": [
+        1124.6,
+        755.7,
+        1222.7,
+        813.6
+       ]
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_004",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "sofa",
+       "front": "left",
+       "reason": "Rectangular shape with backrest line, size 1.64x0.95m fits sofa dimensions, front points left as user faces seating area."
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.8,
+       "page": 1,
+       "entity": "recognition:sym_L0_004",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "table_dining",
+       "front": "bottom",
+       "reason": "Footprint matches dining table size, front is bottom edge."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 9,
+     "wenart_id": "win_L0_005",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 464786,
+     "area_frac": 0.224144,
+     "box_px": [
+      0,
+      0,
+      795,
+      657
+     ],
+     "box_1000": [
+      0,
+      0,
+      415,
+      609
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:22,seg:34,seg:38",
+       "pixel_box": [
+        1107.8,
+        684.5,
+        1209.1,
+        703.9
+       ]
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 20,
+     "wenart_id": "f_L0_003",
+     "kind": "furniture",
+     "type": "kitchen_counter",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_mutfak",
+     "room_ids": [
+      "r_L0_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 441496,
+     "area_frac": 0.212913,
+     "box_px": [
+      0,
+      531,
+      1067,
+      1080
+     ],
+     "box_1000": [
+      0,
+      491,
+      556,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0011,
+     "in_frame": 0.0013,
+     "unoccluded": 0.8374,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:47,seg:60,seg:65-68,seg:72-73,seg:75,seg:77-84,seg:88",
+       "pixel_box": [
+        1048.0,
+        700.2,
+        1193.8,
+        742.0
+       ]
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_003",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "kitchen_counter",
+       "front": "left",
+       "reason": "Long shallow rectangle matching kitchen counter dimensions, likely along a kitchen wall."
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_003",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "kitchen_counter",
+       "front": "top",
+       "reason": "The object is a long shallow rectangle fitting the kitchen counter size and shape."
+      },
+      {
+       "file": "plan_photo.jpg",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:143,seg:171-173,seg:180-181,seg:183-188,seg:193-194",
+       "pixel_box": [
+        1060.4,
+        731.9,
+        1194.5,
+        774.3
+       ]
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 2,
+     "wenart_id": "d_L0_002",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_mutfak",
+      "r_L0_antre"
+     ],
+     "own_room": true,
+     "pixels": 225973,
+     "area_frac": 0.108976,
+     "box_px": [
+      1529,
+      0,
+      1897,
+      639
+     ],
+     "box_1000": [
+      796,
+      0,
+      989,
+      592
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "arc:3,seg:117",
+       "pixel_box": [
+        1247.0,
+        773.8,
+        1297.6,
+        821.2
+       ]
+      },
+      {
+       "file": "plan_photo.jpg",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "arc:4,seg:233",
+       "pixel_box": [
+        1248.9,
+        803.9,
+        1294.2,
+        851.3
+       ]
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 17,
+     "wenart_id": "f_L0_012",
+     "kind": "furniture",
+     "type": "unknown",
+     "type_unverified": true,
+     "source": "from_documents",
+     "status": "unverified",
+     "room_id": "r_L0_mutfak",
+     "room_ids": [
+      "r_L0_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 24892,
+     "area_frac": 0.012004,
+     "box_px": [
+      913,
+      531,
+      1230,
+      729
+     ],
+     "box_1000": [
+      475,
+      491,
+      641,
+      675
+     ],
+     "touches_border": false,
+     "visibility": 0.1021,
+     "in_frame": 0.9991,
+     "unoccluded": 0.1022,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:43,seg:48,seg:92",
+       "pixel_box": [
+        1198.9,
+        700.2,
+        1240.8,
+        744.0
+       ]
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_012",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "fridge",
+       "front": "left",
+       "reason": "Square shape 0.73x0.70m matches fridge size, with top edge likely front for user access."
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.6,
+       "page": 1,
+       "entity": "recognition:sym_L0_012",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "unknown",
+       "front": "none",
+       "reason": "The object is a square with a small line inside, size fits unknown furniture, no clear features to identify."
+      },
+      {
+       "file": "plan_photo.jpg",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:156,seg:162,seg:197-200,seg:203-204",
+       "pixel_box": [
+        1200.7,
+        735.3,
+        1238.7,
+        777.9
+       ]
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 26,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_002": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.6887,
+      "area_frac": 0.14532,
+      "centre_px": [
+       1719.7,
+       316.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 225973
+     },
+     "win_L0_005": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.6482,
+      "area_frac": 0.21834,
+      "centre_px": [
+       388.1,
+       316.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 464786
+     },
+     "f_L0_003": {
+      "kind": "furniture",
+      "type": "kitchen_counter",
+      "visible_share": 0.3529,
+      "area_frac": 0.25426,
+      "centre_px": [
+       532.8,
+       800.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 441496
+     },
+     "f_L0_004": {
+      "kind": "furniture",
+      "type": "unknown",
+      "visible_share": 0.6075,
+      "area_frac": 0.22775,
+      "centre_px": [
+       1342.4,
+       832.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 472326
+     },
+     "f_L0_012": {
+      "kind": "furniture",
+      "type": "unknown",
+      "visible_share": 0.232,
+      "area_frac": 0.1049,
+      "centre_px": [
+       1068.2,
+       620.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 24892
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_mutfak_3": {
+   "camera": "cam_r_L0_mutfak_3",
+   "room_id": "r_L0_mutfak",
+   "room_type": "kitchen",
+   "room_label": "Mutfak",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 9,
+     "wenart_id": "win_L0_005",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 360202,
+     "area_frac": 0.173709,
+     "box_px": [
+      1298,
+      0,
+      1838,
+      808
+     ],
+     "box_1000": [
+      676,
+      0,
+      958,
+      749
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:22,seg:34,seg:38",
+       "pixel_box": [
+        1107.8,
+        684.5,
+        1209.1,
+        703.9
+       ]
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 14,
+     "wenart_id": "f_L0_004",
+     "kind": "furniture",
+     "type": "unknown",
+     "type_unverified": true,
+     "source": "from_documents",
+     "status": "unverified",
+     "room_id": "r_L0_mutfak",
+     "room_ids": [
+      "r_L0_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 349902,
+     "area_frac": 0.168741,
+     "box_px": [
+      0,
+      609,
+      759,
+      1080
+     ],
+     "box_1000": [
+      0,
+      563,
+      396,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0584,
+     "in_frame": 0.0629,
+     "unoccluded": 0.9273,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:95-99,seg:108-111,seg:113-114",
+       "pixel_box": [
+        1124.6,
+        755.7,
+        1222.7,
+        813.6
+       ]
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_004",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "sofa",
+       "front": "left",
+       "reason": "Rectangular shape with backrest line, size 1.64x0.95m fits sofa dimensions, front points left as user faces seating area."
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.8,
+       "page": 1,
+       "entity": "recognition:sym_L0_004",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "table_dining",
+       "front": "bottom",
+       "reason": "Footprint matches dining table size, front is bottom edge."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 20,
+     "wenart_id": "f_L0_003",
+     "kind": "furniture",
+     "type": "kitchen_counter",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_mutfak",
+     "room_ids": [
+      "r_L0_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 283750,
+     "area_frac": 0.136839,
+     "box_px": [
+      851,
+      476,
+      1633,
+      943
+     ],
+     "box_1000": [
+      443,
+      440,
+      851,
+      874
+     ],
+     "touches_border": false,
+     "visibility": 0.2831,
+     "in_frame": 0.3972,
+     "unoccluded": 0.7126,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:47,seg:60,seg:65-68,seg:72-73,seg:75,seg:77-84,seg:88",
+       "pixel_box": [
+        1048.0,
+        700.2,
+        1193.8,
+        742.0
+       ]
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_003",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "kitchen_counter",
+       "front": "left",
+       "reason": "Long shallow rectangle matching kitchen counter dimensions, likely along a kitchen wall."
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_003",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "kitchen_counter",
+       "front": "top",
+       "reason": "The object is a long shallow rectangle fitting the kitchen counter size and shape."
+      },
+      {
+       "file": "plan_photo.jpg",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:143,seg:171-173,seg:180-181,seg:183-188,seg:193-194",
+       "pixel_box": [
+        1060.4,
+        731.9,
+        1194.5,
+        774.3
+       ]
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 17,
+     "wenart_id": "f_L0_012",
+     "kind": "furniture",
+     "type": "unknown",
+     "type_unverified": true,
+     "source": "from_documents",
+     "status": "unverified",
+     "room_id": "r_L0_mutfak",
+     "room_ids": [
+      "r_L0_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 134915,
+     "area_frac": 0.065063,
+     "box_px": [
+      784,
+      943,
+      1869,
+      1080
+     ],
+     "box_1000": [
+      408,
+      873,
+      974,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0073,
+     "in_frame": 0.009,
+     "unoccluded": 0.8077,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:43,seg:48,seg:92",
+       "pixel_box": [
+        1198.9,
+        700.2,
+        1240.8,
+        744.0
+       ]
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_012",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "fridge",
+       "front": "left",
+       "reason": "Square shape 0.73x0.70m matches fridge size, with top edge likely front for user access."
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.6,
+       "page": 1,
+       "entity": "recognition:sym_L0_012",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "unknown",
+       "front": "none",
+       "reason": "The object is a square with a small line inside, size fits unknown furniture, no clear features to identify."
+      },
+      {
+       "file": "plan_photo.jpg",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:156,seg:162,seg:197-200,seg:203-204",
+       "pixel_box": [
+        1200.7,
+        735.3,
+        1238.7,
+        777.9
+       ]
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 26,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_005": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.5844,
+      "area_frac": 0.19574,
+      "centre_px": [
+       1577.8,
+       354.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 360202
+     },
+     "f_L0_003": {
+      "kind": "furniture",
+      "type": "kitchen_counter",
+      "visible_share": 0.7711,
+      "area_frac": 0.19202,
+      "centre_px": [
+       1246.1,
+       703.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 283750
+     },
+     "f_L0_004": {
+      "kind": "furniture",
+      "type": "unknown",
+      "visible_share": 0.4381,
+      "area_frac": 0.16878,
+      "centre_px": [
+       380.0,
+       845.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 349902
+     },
+     "f_L0_012": {
+      "kind": "furniture",
+      "type": "unknown",
+      "visible_share": 0.1247,
+      "area_frac": 0.07078,
+      "centre_px": [
+       1341.6,
+       1013.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 134915
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_salon_1": {
+   "camera": "cam_r_L0_salon_1",
+   "room_id": "r_L0_salon",
+   "room_type": "living",
+   "room_label": "Salon",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 23,
+     "wenart_id": "f_L0_009",
+     "kind": "furniture",
+     "type": "fridge",
+     "type_unverified": true,
+     "source": "from_documents",
+     "status": "unverified",
+     "room_id": "r_L0_salon",
+     "room_ids": [
+      "r_L0_salon"
+     ],
+     "own_room": true,
+     "pixels": 382476,
+     "area_frac": 0.18445,
+     "box_px": [
+      349,
+      63,
+      829,
+      997
+     ],
+     "box_1000": [
+      181,
+      58,
+      432,
+      924
+     ],
+     "touches_border": false,
+     "visibility": 0.9234,
+     "in_frame": 1.0,
+     "unoccluded": 0.9234,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:154-158,seg:179",
+       "pixel_box": [
+        1232.7,
+        901.9,
+        1287.8,
+        957.0
+       ]
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_009",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "fridge",
+       "front": "left",
+       "reason": "Square shape 0.92x0.92m matches fridge size, with a handle on left side indicating front."
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_009",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "fridge",
+       "front": "left",
+       "reason": "The object is a square with a handle on the left side, matching the typical size and shape of a fridge."
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 13,
+     "wenart_id": "f_L0_002",
+     "kind": "furniture",
+     "type": "unknown",
+     "type_unverified": true,
+     "source": "from_documents",
+     "status": "unverified",
+     "room_id": "r_L0_salon",
+     "room_ids": [
+      "r_L0_salon"
+     ],
+     "own_room": true,
+     "pixels": 250798,
+     "area_frac": 0.120948,
+     "box_px": [
+      1331,
+      509,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      693,
+      471,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0273,
+     "in_frame": 0.0273,
+     "unoccluded": 0.9982,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:199-203,seg:208",
+       "pixel_box": [
+        1025.6,
+        1027.8,
+        1214.2,
+        1062.5
+       ]
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.85,
+       "page": 1,
+       "entity": "recognition:sym_L0_002",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "unknown",
+       "front": "left",
+       "reason": "The object is a long shallow rectangle, but its exact type (e.g., cabinet, counter, or furniture) cannot be determined from the plan."
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.8,
+       "page": 1,
+       "entity": "recognition:sym_L0_002",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "kitchen_counter",
+       "front": "left",
+       "reason": "The object's footprint matches a kitchen counter size, and the front is the left side where a user would stand."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 5,
+     "wenart_id": "win_L0_001",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_salon"
+     ],
+     "own_room": true,
+     "pixels": 219058,
+     "area_frac": 0.105641,
+     "box_px": [
+      1464,
+      0,
+      1920,
+      515
+     ],
+     "box_1000": [
+      762,
+      0,
+      1000,
+      477
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:213,seg:222",
+       "pixel_box": [
+        1113.4,
+        1059.9,
+        1217.6,
+        1076.7
+       ]
+      },
+      {
+       "file": "plan_photo.jpg",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:356,seg:364,seg:367,seg:375",
+       "pixel_box": [
+        1140.3,
+        1073.3,
+        1222.2,
+        1089.8
+       ]
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 25,
+     "wenart_id": "f_L0_011",
+     "kind": "furniture",
+     "type": "table_coffee",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_salon",
+     "room_ids": [
+      "r_L0_salon"
+     ],
+     "own_room": true,
+     "pixels": 149371,
+     "area_frac": 0.072035,
+     "box_px": [
+      539,
+      788,
+      1310,
+      1080
+     ],
+     "box_1000": [
+      280,
+      729,
+      683,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.2817,
+     "in_frame": 0.2971,
+     "unoccluded": 0.948,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:159,seg:164,seg:167-168,seg:174",
+       "pixel_box": [
+        1136.9,
+        909.0,
+        1198.6,
+        947.2
+       ]
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_011",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "table_coffee",
+       "front": "bottom",
+       "reason": "Rectangular shape, low profile, size matches coffee table, front edge at bottom."
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.8,
+       "page": 1,
+       "entity": "recognition:sym_L0_011",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "table_coffee",
+       "front": "bottom",
+       "reason": "The object's footprint is a low rectangle, fitting the size and shape of a coffee table."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 15,
+     "wenart_id": "f_L0_005",
+     "kind": "furniture",
+     "type": "unknown",
+     "type_unverified": true,
+     "source": "from_documents",
+     "status": "unverified",
+     "room_id": "r_L0_salon",
+     "room_ids": [
+      "r_L0_salon"
+     ],
+     "own_room": true,
+     "pixels": 123899,
+     "area_frac": 0.059751,
+     "box_px": [
+      0,
+      625,
+      350,
+      1080
+     ],
+     "box_1000": [
+      0,
+      578,
+      183,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0055,
+     "in_frame": 0.008,
+     "unoccluded": 0.6777,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:130,seg:140-141,seg:144,seg:153",
+       "pixel_box": [
+        1120.9,
+        830.8,
+        1217.3,
+        887.5
+       ]
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_005",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "sofa",
+       "front": "bottom",
+       "reason": "Rectangular shape with backrest line, size 1.62x0.93m matches sofa dimensions, front is bottom where user sits."
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.8,
+       "page": 1,
+       "entity": "recognition:sym_L0_005",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "table_dining",
+       "front": "bottom",
+       "reason": "Footprint matches table_dining size, no backrest or headboard lines."
+      },
+      {
+       "file": "plan_photo.jpg",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:255-256,seg:262,seg:270-277",
+       "pixel_box": [
+        1131.5,
+        857.0,
+        1219.2,
+        912.8
+       ]
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 26,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_001": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.6315,
+      "area_frac": 0.10299,
+      "centre_px": [
+       1698.2,
+       252.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 219058
+     },
+     "f_L0_002": {
+      "kind": "furniture",
+      "type": "unknown",
+      "visible_share": 0.402,
+      "area_frac": 0.12117,
+      "centre_px": [
+       1628.9,
+       789.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 250798
+     },
+     "f_L0_005": {
+      "kind": "furniture",
+      "type": "unknown",
+      "visible_share": 0.1571,
+      "area_frac": 0.05965,
+      "centre_px": [
+       134.3,
+       854.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 123899
+     },
+     "f_L0_009": {
+      "kind": "furniture",
+      "type": "fridge",
+      "visible_share": 0.958,
+      "area_frac": 0.19864,
+      "centre_px": [
+       584.9,
+       529.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 382476
+     },
+     "f_L0_011": {
+      "kind": "furniture",
+      "type": "table_coffee",
+      "visible_share": 0.4837,
+      "area_frac": 0.07598,
+      "centre_px": [
+       913.6,
+       935.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 149371
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_salon_2": {
+   "camera": "cam_r_L0_salon_2",
+   "room_id": "r_L0_salon",
+   "room_type": "living",
+   "room_label": "Salon",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 23,
+     "wenart_id": "f_L0_009",
+     "kind": "furniture",
+     "type": "fridge",
+     "type_unverified": true,
+     "source": "from_documents",
+     "status": "unverified",
+     "room_id": "r_L0_salon",
+     "room_ids": [
+      "r_L0_salon"
+     ],
+     "own_room": true,
+     "pixels": 425293,
+     "area_frac": 0.205099,
+     "box_px": [
+      137,
+      86,
+      674,
+      945
+     ],
+     "box_1000": [
+      71,
+      79,
+      352,
+      875
+     ],
+     "touches_border": false,
+     "visibility": 0.9369,
+     "in_frame": 1.0,
+     "unoccluded": 0.9369,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:154-158,seg:179",
+       "pixel_box": [
+        1232.7,
+        901.9,
+        1287.8,
+        957.0
+       ]
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_009",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "fridge",
+       "front": "left",
+       "reason": "Square shape 0.92x0.92m matches fridge size, with a handle on left side indicating front."
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_009",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "fridge",
+       "front": "left",
+       "reason": "The object is a square with a handle on the left side, matching the typical size and shape of a fridge."
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 13,
+     "wenart_id": "f_L0_002",
+     "kind": "furniture",
+     "type": "unknown",
+     "type_unverified": true,
+     "source": "from_documents",
+     "status": "unverified",
+     "room_id": "r_L0_salon",
+     "room_ids": [
+      "r_L0_salon"
+     ],
+     "own_room": true,
+     "pixels": 302407,
+     "area_frac": 0.145837,
+     "box_px": [
+      1220,
+      589,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      635,
+      545,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0006,
+     "in_frame": 0.0006,
+     "unoccluded": 0.9954,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:199-203,seg:208",
+       "pixel_box": [
+        1025.6,
+        1027.8,
+        1214.2,
+        1062.5
+       ]
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.85,
+       "page": 1,
+       "entity": "recognition:sym_L0_002",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "unknown",
+       "front": "left",
+       "reason": "The object is a long shallow rectangle, but its exact type (e.g., cabinet, counter, or furniture) cannot be determined from the plan."
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.8,
+       "page": 1,
+       "entity": "recognition:sym_L0_002",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "kitchen_counter",
+       "front": "left",
+       "reason": "The object's footprint matches a kitchen counter size, and the front is the left side where a user would stand."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 5,
+     "wenart_id": "win_L0_001",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_salon"
+     ],
+     "own_room": true,
+     "pixels": 234088,
+     "area_frac": 0.11289,
+     "box_px": [
+      1526,
+      0,
+      1920,
+      658
+     ],
+     "box_1000": [
+      794,
+      0,
+      1000,
+      610
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:213,seg:222",
+       "pixel_box": [
+        1113.4,
+        1059.9,
+        1217.6,
+        1076.7
+       ]
+      },
+      {
+       "file": "plan_photo.jpg",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:356,seg:364,seg:367,seg:375",
+       "pixel_box": [
+        1140.3,
+        1073.3,
+        1222.2,
+        1089.8
+       ]
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 25,
+     "wenart_id": "f_L0_011",
+     "kind": "furniture",
+     "type": "table_coffee",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_salon",
+     "room_ids": [
+      "r_L0_salon"
+     ],
+     "own_room": true,
+     "pixels": 73387,
+     "area_frac": 0.035391,
+     "box_px": [
+      0,
+      840,
+      382,
+      1080
+     ],
+     "box_1000": [
+      0,
+      777,
+      199,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0785,
+     "in_frame": 0.0986,
+     "unoccluded": 0.7964,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:159,seg:164,seg:167-168,seg:174",
+       "pixel_box": [
+        1136.9,
+        909.0,
+        1198.6,
+        947.2
+       ]
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_011",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "table_coffee",
+       "front": "bottom",
+       "reason": "Rectangular shape, low profile, size matches coffee table, front edge at bottom."
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.8,
+       "page": 1,
+       "entity": "recognition:sym_L0_011",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "table_coffee",
+       "front": "bottom",
+       "reason": "The object's footprint is a low rectangle, fitting the size and shape of a coffee table."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 26,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_001": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.3785,
+      "area_frac": 0.10604,
+      "centre_px": [
+       1724.6,
+       295.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 234088
+     },
+     "f_L0_002": {
+      "kind": "furniture",
+      "type": "unknown",
+      "visible_share": 0.3446,
+      "area_frac": 0.14651,
+      "centre_px": [
+       1570.6,
+       835.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 302407
+     },
+     "f_L0_009": {
+      "kind": "furniture",
+      "type": "fridge",
+      "visible_share": 0.9657,
+      "area_frac": 0.21734,
+      "centre_px": [
+       410.1,
+       515.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 425293
+     },
+     "f_L0_011": {
+      "kind": "furniture",
+      "type": "table_coffee",
+      "visible_share": 0.2707,
+      "area_frac": 0.04444,
+      "centre_px": [
+       189.3,
+       961.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 73387
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_salon_3": {
+   "camera": "cam_r_L0_salon_3",
+   "room_id": "r_L0_salon",
+   "room_type": "living",
+   "room_label": "Salon",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 23,
+     "wenart_id": "f_L0_009",
+     "kind": "furniture",
+     "type": "fridge",
+     "type_unverified": true,
+     "source": "from_documents",
+     "status": "unverified",
+     "room_id": "r_L0_salon",
+     "room_ids": [
+      "r_L0_salon"
+     ],
+     "own_room": true,
+     "pixels": 638329,
+     "area_frac": 0.307836,
+     "box_px": [
+      1324,
+      0,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      689,
+      0,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.1962,
+     "in_frame": 0.1992,
+     "unoccluded": 0.9848,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:154-158,seg:179",
+       "pixel_box": [
+        1232.7,
+        901.9,
+        1287.8,
+        957.0
+       ]
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_009",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "fridge",
+       "front": "left",
+       "reason": "Square shape 0.92x0.92m matches fridge size, with a handle on left side indicating front."
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_009",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "fridge",
+       "front": "left",
+       "reason": "The object is a square with a handle on the left side, matching the typical size and shape of a fridge."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 15,
+     "wenart_id": "f_L0_005",
+     "kind": "furniture",
+     "type": "unknown",
+     "type_unverified": true,
+     "source": "from_documents",
+     "status": "unverified",
+     "room_id": "r_L0_salon",
+     "room_ids": [
+      "r_L0_salon"
+     ],
+     "own_room": true,
+     "pixels": 221320,
+     "area_frac": 0.106732,
+     "box_px": [
+      678,
+      491,
+      1329,
+      1004
+     ],
+     "box_1000": [
+      353,
+      454,
+      693,
+      930
+     ],
+     "touches_border": false,
+     "visibility": 0.6717,
+     "in_frame": 1.0,
+     "unoccluded": 0.6717,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:130,seg:140-141,seg:144,seg:153",
+       "pixel_box": [
+        1120.9,
+        830.8,
+        1217.3,
+        887.5
+       ]
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_005",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "sofa",
+       "front": "bottom",
+       "reason": "Rectangular shape with backrest line, size 1.62x0.93m matches sofa dimensions, front is bottom where user sits."
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.8,
+       "page": 1,
+       "entity": "recognition:sym_L0_005",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "table_dining",
+       "front": "bottom",
+       "reason": "Footprint matches table_dining size, no backrest or headboard lines."
+      },
+      {
+       "file": "plan_photo.jpg",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:255-256,seg:262,seg:270-277",
+       "pixel_box": [
+        1131.5,
+        857.0,
+        1219.2,
+        912.8
+       ]
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 25,
+     "wenart_id": "f_L0_011",
+     "kind": "furniture",
+     "type": "table_coffee",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_salon",
+     "room_ids": [
+      "r_L0_salon"
+     ],
+     "own_room": true,
+     "pixels": 121505,
+     "area_frac": 0.058596,
+     "box_px": [
+      402,
+      719,
+      1095,
+      1080
+     ],
+     "box_1000": [
+      209,
+      665,
+      571,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.4217,
+     "in_frame": 0.7662,
+     "unoccluded": 0.5504,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:159,seg:164,seg:167-168,seg:174",
+       "pixel_box": [
+        1136.9,
+        909.0,
+        1198.6,
+        947.2
+       ]
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_011",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "table_coffee",
+       "front": "bottom",
+       "reason": "Rectangular shape, low profile, size matches coffee table, front edge at bottom."
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.8,
+       "page": 1,
+       "entity": "recognition:sym_L0_011",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "table_coffee",
+       "front": "bottom",
+       "reason": "The object's footprint is a low rectangle, fitting the size and shape of a coffee table."
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 11,
+     "wenart_id": "win_L0_007",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_salon"
+     ],
+     "own_room": true,
+     "pixels": 99204,
+     "area_frac": 0.047841,
+     "box_px": [
+      0,
+      1,
+      216,
+      491
+     ],
+     "box_1000": [
+      0,
+      0,
+      113,
+      455
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:165,seg:166,seg:89",
+       "pixel_box": [
+        1028.4,
+        906.8,
+        1046.3,
+        978.1
+       ]
+      },
+      {
+       "file": "plan_photo.jpg",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:196,seg:287,seg:288",
+       "pixel_box": [
+        1046.9,
+        930.0,
+        1062.6,
+        996.3
+       ]
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 7,
+     "wenart_id": "win_L0_003",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_salon",
+      "r_L0_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 83606,
+     "area_frac": 0.040319,
+     "box_px": [
+      1139,
+      24,
+      1329,
+      481
+     ],
+     "box_1000": [
+      593,
+      22,
+      693,
+      446
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:127",
+       "pixel_box": [
+        1173.2,
+        824.7,
+        1218.3,
+        833.9
+       ]
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 26,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_003": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.7,
+      "area_frac": 0.05975,
+      "centre_px": [
+       1238.0,
+       254.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 83606
+     },
+     "win_L0_007": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.4194,
+      "area_frac": 0.04573,
+      "centre_px": [
+       106.5,
+       247.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 99204
+     },
+     "f_L0_005": {
+      "kind": "furniture",
+      "type": "unknown",
+      "visible_share": 0.6957,
+      "area_frac": 0.14701,
+      "centre_px": [
+       1005.7,
+       740.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 221320
+     },
+     "f_L0_009": {
+      "kind": "furniture",
+      "type": "fridge",
+      "visible_share": 0.286,
+      "area_frac": 0.30843,
+      "centre_px": [
+       1616.7,
+       538.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 638329
+     },
+     "f_L0_011": {
+      "kind": "furniture",
+      "type": "table_coffee",
+      "visible_share": 0.8478,
+      "area_frac": 0.10645,
+      "centre_px": [
+       749.7,
+       901.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 121505
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_yatak_odasi_1": {
+   "camera": "cam_r_L0_yatak_odasi_1",
+   "room_id": "r_L0_yatak_odasi",
+   "room_type": "bedroom",
+   "room_label": "Yatak Odası",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 21,
+     "wenart_id": "f_L0_006",
+     "kind": "furniture",
+     "type": "wardrobe",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_yatak_odasi",
+     "room_ids": [
+      "r_L0_yatak_odasi"
+     ],
+     "own_room": true,
+     "pixels": 463320,
+     "area_frac": 0.223438,
+     "box_px": [
+      1491,
+      0,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      776,
+      0,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.1378,
+     "in_frame": 0.1414,
+     "unoccluded": 0.9747,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:169-172,seg:180-181,seg:194,seg:196,seg:204",
+       "pixel_box": [
+        1295.1,
+        930.1,
+        1338.2,
+        1037.9
+       ]
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_006",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "wardrobe",
+       "front": "right",
+       "reason": "The object is a tall, narrow rectangle against a wall, matching a wardrobe's typical footprint and placement."
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_006",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "wardrobe",
+       "front": "right",
+       "reason": "The object is a long, shallow rectangle against a wall, matching the description of a wardrobe."
+      },
+      {
+       "file": "plan_photo.jpg",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:291-293,seg:346,seg:348",
+       "pixel_box": [
+        1292.9,
+        953.5,
+        1330.2,
+        1055.4
+       ]
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 12,
+     "wenart_id": "f_L0_001",
+     "kind": "furniture",
+     "type": "unknown",
+     "type_unverified": true,
+     "source": "from_documents",
+     "status": "unverified",
+     "room_id": "r_L0_yatak_odasi",
+     "room_ids": [
+      "r_L0_yatak_odasi"
+     ],
+     "own_room": true,
+     "pixels": 456959,
+     "area_frac": 0.22037,
+     "box_px": [
+      0,
+      543,
+      927,
+      1080
+     ],
+     "box_1000": [
+      0,
+      502,
+      483,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0123,
+     "in_frame": 0.013,
+     "unoccluded": 0.9466,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:131,seg:136,seg:138-139,seg:142-143,seg:145-150,seg:152,seg:178",
+       "pixel_box": [
+        1387.5,
+        835.0,
+        1513.1,
+        958.4
+       ]
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_001",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "unknown",
+       "front": "bottom",
+       "reason": "Rectangular shape with no clear furniture features like headboard or drawers, but has a front edge at bottom."
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_001",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "bed_double",
+       "front": "bottom",
+       "reason": "The object's footprint matches the typical size and shape of a double bed."
+      },
+      {
+       "file": "plan_photo.jpg",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:257-259,seg:261,seg:263-266,seg:311,seg:313,seg:315",
+       "pixel_box": [
+        1376.5,
+        863.8,
+        1484.7,
+        980.5
+       ]
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 6,
+     "wenart_id": "win_L0_002",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_yatak_odasi"
+     ],
+     "own_room": true,
+     "pixels": 228093,
+     "area_frac": 0.109999,
+     "box_px": [
+      926,
+      24,
+      1480,
+      482
+     ],
+     "box_1000": [
+      482,
+      22,
+      771,
+      447
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:214,seg:223",
+       "pixel_box": [
+        1354.3,
+        1064.7,
+        1455.6,
+        1081.4
+       ]
+      },
+      {
+       "file": "plan_photo.jpg",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:357,seg:371",
+       "pixel_box": [
+        1341.3,
+        1077.4,
+        1436.0,
+        1094.1
+       ]
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 16,
+     "wenart_id": "f_L0_007",
+     "kind": "furniture",
+     "type": "unknown",
+     "type_unverified": true,
+     "source": "from_documents",
+     "status": "unverified",
+     "room_id": "r_L0_yatak_odasi",
+     "room_ids": [
+      "r_L0_yatak_odasi"
+     ],
+     "own_room": true,
+     "pixels": 55291,
+     "area_frac": 0.026664,
+     "box_px": [
+      252,
+      480,
+      837,
+      634
+     ],
+     "box_1000": [
+      131,
+      444,
+      436,
+      588
+     ],
+     "touches_border": false,
+     "visibility": 0.2621,
+     "in_frame": 1.0,
+     "unoccluded": 0.2621,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:182-184,seg:205,seg:207",
+       "pixel_box": [
+        1463.8,
+        969.4,
+        1510.5,
+        1054.2
+       ]
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_007",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "desk",
+       "front": "left",
+       "reason": "Rectangular shape 1.42x0.76m matches desk size, with door handle indicating it's a door, not furniture."
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_007",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "wardrobe",
+       "front": "right",
+       "reason": "The object is a long, shallow rectangle against a wall, matching the typical size and shape of a wardrobe."
+      },
+      {
+       "file": "plan_photo.jpg",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:326-327,seg:329,seg:349",
+       "pixel_box": [
+        1444.9,
+        988.8,
+        1486.7,
+        1068.7
+       ]
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 26,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_002": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 1.0,
+      "area_frac": 0.1091,
+      "centre_px": [
+       1208.1,
+       253.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 228093
+     },
+     "f_L0_001": {
+      "kind": "furniture",
+      "type": "unknown",
+      "visible_share": 0.344,
+      "area_frac": 0.22053,
+      "centre_px": [
+       460.2,
+       810.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 456959
+     },
+     "f_L0_006": {
+      "kind": "furniture",
+      "type": "wardrobe",
+      "visible_share": 0.1918,
+      "area_frac": 0.22431,
+      "centre_px": [
+       1697.7,
+       540.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 463320
+     },
+     "f_L0_007": {
+      "kind": "furniture",
+      "type": "unknown",
+      "visible_share": 0.5245,
+      "area_frac": 0.10174,
+      "centre_px": [
+       541.8,
+       555.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 55291
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_yatak_odasi_2": {
+   "camera": "cam_r_L0_yatak_odasi_2",
+   "room_id": "r_L0_yatak_odasi",
+   "room_type": "bedroom",
+   "room_label": "Yatak Odası",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 12,
+     "wenart_id": "f_L0_001",
+     "kind": "furniture",
+     "type": "unknown",
+     "type_unverified": true,
+     "source": "from_documents",
+     "status": "unverified",
+     "room_id": "r_L0_yatak_odasi",
+     "room_ids": [
+      "r_L0_yatak_odasi"
+     ],
+     "own_room": true,
+     "pixels": 533487,
+     "area_frac": 0.257276,
+     "box_px": [
+      963,
+      519,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      501,
+      480,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.246,
+     "in_frame": 0.2469,
+     "unoccluded": 0.9966,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:131,seg:136,seg:138-139,seg:142-143,seg:145-150,seg:152,seg:178",
+       "pixel_box": [
+        1387.5,
+        835.0,
+        1513.1,
+        958.4
+       ]
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_001",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "unknown",
+       "front": "bottom",
+       "reason": "Rectangular shape with no clear furniture features like headboard or drawers, but has a front edge at bottom."
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_001",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "bed_double",
+       "front": "bottom",
+       "reason": "The object's footprint matches the typical size and shape of a double bed."
+      },
+      {
+       "file": "plan_photo.jpg",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:257-259,seg:261,seg:263-266,seg:311,seg:313,seg:315",
+       "pixel_box": [
+        1376.5,
+        863.8,
+        1484.7,
+        980.5
+       ]
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 21,
+     "wenart_id": "f_L0_006",
+     "kind": "furniture",
+     "type": "wardrobe",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_yatak_odasi",
+     "room_ids": [
+      "r_L0_yatak_odasi"
+     ],
+     "own_room": true,
+     "pixels": 375840,
+     "area_frac": 0.18125,
+     "box_px": [
+      0,
+      0,
+      348,
+      1080
+     ],
+     "box_1000": [
+      0,
+      0,
+      182,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0002,
+     "in_frame": 0.0003,
+     "unoccluded": 0.9722,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:169-172,seg:180-181,seg:194,seg:196,seg:204",
+       "pixel_box": [
+        1295.1,
+        930.1,
+        1338.2,
+        1037.9
+       ]
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_006",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "wardrobe",
+       "front": "right",
+       "reason": "The object is a tall, narrow rectangle against a wall, matching a wardrobe's typical footprint and placement."
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_006",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "wardrobe",
+       "front": "right",
+       "reason": "The object is a long, shallow rectangle against a wall, matching the description of a wardrobe."
+      },
+      {
+       "file": "plan_photo.jpg",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:291-293,seg:346,seg:348",
+       "pixel_box": [
+        1292.9,
+        953.5,
+        1330.2,
+        1055.4
+       ]
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 4,
+     "wenart_id": "d_L0_004",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_yatak_odasi",
+      "r_L0_antre"
+     ],
+     "own_room": true,
+     "pixels": 231776,
+     "area_frac": 0.111775,
+     "box_px": [
+      499,
+      25,
+      792,
+      823
+     ],
+     "box_1000": [
+      259,
+      23,
+      413,
+      763
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "arc:5,seg:129",
+       "pixel_box": [
+        1317.1,
+        832.3,
+        1365.2,
+        881.9
+       ]
+      },
+      {
+       "file": "plan_photo.jpg",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "arc:6,seg:240",
+       "pixel_box": [
+        1310.6,
+        857.8,
+        1353.5,
+        905.1
+       ]
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 8,
+     "wenart_id": "win_L0_004",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_yatak_odasi",
+      "r_L0_banyo"
+     ],
+     "own_room": true,
+     "pixels": 65540,
+     "area_frac": 0.031607,
+     "box_px": [
+      1596,
+      28,
+      1741,
+      480
+     ],
+     "box_1000": [
+      831,
+      25,
+      907,
+      445
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:128",
+       "pixel_box": [
+        1488.1,
+        831.0,
+        1513.3,
+        839.8
+       ]
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 26,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_004": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.8302,
+      "area_frac": 0.10845,
+      "centre_px": [
+       644.6,
+       429.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 231776
+     },
+     "win_L0_004": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.9091,
+      "area_frac": 0.03406,
+      "centre_px": [
+       1669.5,
+       254.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 65540
+     },
+     "f_L0_001": {
+      "kind": "furniture",
+      "type": "unknown",
+      "visible_share": 0.6147,
+      "area_frac": 0.25816,
+      "centre_px": [
+       1440.2,
+       798.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 533487
+     },
+     "f_L0_006": {
+      "kind": "furniture",
+      "type": "wardrobe",
+      "visible_share": 0.2018,
+      "area_frac": 0.18339,
+      "centre_px": [
+       187.2,
+       539.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 375840
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_yatak_odasi_3": {
+   "camera": "cam_r_L0_yatak_odasi_3",
+   "room_id": "r_L0_yatak_odasi",
+   "room_type": "bedroom",
+   "room_label": "Yatak Odası",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 21,
+     "wenart_id": "f_L0_006",
+     "kind": "furniture",
+     "type": "wardrobe",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_yatak_odasi",
+     "room_ids": [
+      "r_L0_yatak_odasi"
+     ],
+     "own_room": true,
+     "pixels": 836829,
+     "area_frac": 0.403563,
+     "box_px": [
+      0,
+      0,
+      785,
+      1080
+     ],
+     "box_1000": [
+      0,
+      0,
+      409,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.2093,
+     "in_frame": 0.2143,
+     "unoccluded": 0.9765,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:169-172,seg:180-181,seg:194,seg:196,seg:204",
+       "pixel_box": [
+        1295.1,
+        930.1,
+        1338.2,
+        1037.9
+       ]
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_006",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "wardrobe",
+       "front": "right",
+       "reason": "The object is a tall, narrow rectangle against a wall, matching a wardrobe's typical footprint and placement."
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_006",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "wardrobe",
+       "front": "right",
+       "reason": "The object is a long, shallow rectangle against a wall, matching the description of a wardrobe."
+      },
+      {
+       "file": "plan_photo.jpg",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:291-293,seg:346,seg:348",
+       "pixel_box": [
+        1292.9,
+        953.5,
+        1330.2,
+        1055.4
+       ]
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 12,
+     "wenart_id": "f_L0_001",
+     "kind": "furniture",
+     "type": "unknown",
+     "type_unverified": true,
+     "source": "from_documents",
+     "status": "unverified",
+     "room_id": "r_L0_yatak_odasi",
+     "room_ids": [
+      "r_L0_yatak_odasi"
+     ],
+     "own_room": true,
+     "pixels": 372260,
+     "area_frac": 0.179524,
+     "box_px": [
+      725,
+      633,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      377,
+      586,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0003,
+     "in_frame": 0.0003,
+     "unoccluded": 0.9489,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:131,seg:136,seg:138-139,seg:142-143,seg:145-150,seg:152,seg:178",
+       "pixel_box": [
+        1387.5,
+        835.0,
+        1513.1,
+        958.4
+       ]
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.95,
+       "page": 1,
+       "entity": "recognition:sym_L0_001",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "unknown",
+       "front": "bottom",
+       "reason": "Rectangular shape with no clear furniture features like headboard or drawers, but has a front edge at bottom."
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "ai",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "recognition:sym_L0_001",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "bed_double",
+       "front": "bottom",
+       "reason": "The object's footprint matches the typical size and shape of a double bed."
+      },
+      {
+       "file": "plan_photo.jpg",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "seg:257-259,seg:261,seg:263-266,seg:311,seg:313,seg:315",
+       "pixel_box": [
+        1376.5,
+        863.8,
+        1484.7,
+        980.5
+       ]
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 4,
+     "wenart_id": "d_L0_004",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_yatak_odasi",
+      "r_L0_antre"
+     ],
+     "own_room": true,
+     "pixels": 225473,
+     "area_frac": 0.108735,
+     "box_px": [
+      1349,
+      0,
+      1659,
+      762
+     ],
+     "box_1000": [
+      702,
+      0,
+      865,
+      706
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "arc:5,seg:129",
+       "pixel_box": [
+        1317.1,
+        832.3,
+        1365.2,
+        881.9
+       ]
+      },
+      {
+       "file": "plan_photo.jpg",
+       "method": "raster",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "arc:6,seg:240",
+       "pixel_box": [
+        1310.6,
+        857.8,
+        1353.5,
+        905.1
+       ]
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 26,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_004": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.6858,
+      "area_frac": 0.13916,
+      "centre_px": [
+       1504.2,
+       378.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 225473
+     },
+     "f_L0_001": {
+      "kind": "furniture",
+      "type": "unknown",
+      "visible_share": 0.1169,
+      "area_frac": 0.17948,
+      "centre_px": [
+       1325.3,
+       859.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 372260
+     },
+     "f_L0_006": {
+      "kind": "furniture",
+      "type": "wardrobe",
+      "visible_share": 0.3671,
+      "area_frac": 0.41224,
+      "centre_px": [
+       398.4,
+       538.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 836829
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  }
+ },
+ "warnings": []
+}

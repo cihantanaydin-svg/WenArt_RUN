@@ -1,0 +1,20 @@
+{
+ "schema_version": "0.1",
+ "camera": "cam_r_L0_bath_1",
+ "max_abs_diff": 0,
+ "seconds": 7.55,
+ "attempt_key": "b769e069fb287753eb1f1d2540943d2b0484bcbb2d00579c12663eb7621f3e98",
+ "settings": {
+  "strength": 0.375,
+  "control": "geometry",
+  "scale": 0.8,
+  "size": "native",
+  "mode": "plain",
+  "seed": 1,
+  "steps": 8
+ },
+ "seconds_each": [
+  3.77,
+  3.78
+ ]
+}

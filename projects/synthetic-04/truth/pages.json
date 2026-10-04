@@ -1,0 +1,1843 @@
+{
+ "pages": [
+  {
+   "file": "3_kat_plani.dxf",
+   "page": 1,
+   "class": "floor_plan",
+   "kind": "vector",
+   "level_id": "L3",
+   "level_label_raw": "3. KAT PLANI",
+   "units": "mm",
+   "size": null,
+   "dpi": null,
+   "scale_metres_per_unit": 0.001,
+   "transform": {
+    "kind": "affine",
+    "building_to_page": [
+     1000.0,
+     0.0,
+     0.0,
+     0.0,
+     1000.0,
+     0.0
+    ]
+   },
+   "texts": [
+    {
+     "text": "3. KAT PLANI",
+     "box": [
+      0.0,
+      9057.334,
+      4408.573,
+      9700.0
+     ],
+     "entity": "TEXT:157",
+     "role": "title"
+    },
+    {
+     "text": "ÖLÇEK 1/100",
+     "box": [
+      5408.573,
+      9114.401,
+      8095.713,
+      9500.0
+     ],
+     "entity": "TEXT:158",
+     "role": "scale"
+    },
+    {
+     "text": "SALON + MUTFAK 39,05 m²",
+     "box": [
+      600.0,
+      3842.934,
+      4407.636,
+      4100.0
+     ],
+     "entity": "TEXT:159",
+     "role": "room_label",
+     "element_id": "r_L3_salon_mutfak"
+    },
+    {
+     "text": "YATAK ODASI",
+     "box": [
+      7400.0,
+      542.934,
+      9247.555,
+      800.0
+     ],
+     "entity": "TEXT:15A",
+     "role": "room_label",
+     "element_id": "r_L3_yatak_odasi"
+    },
+    {
+     "text": "HOL",
+     "box": [
+      3800.0,
+      7142.934,
+      4375.084,
+      7400.0
+     ],
+     "entity": "TEXT:15B",
+     "role": "room_label",
+     "element_id": "r_L3_hol"
+    },
+    {
+     "text": "ÇOCUK ODASI",
+     "box": [
+      8400.0,
+      7142.934,
+      10336.906,
+      7400.0
+     ],
+     "entity": "TEXT:15C",
+     "role": "room_label",
+     "element_id": "r_L3_cocuk_odasi"
+    },
+    {
+     "text": "BANYO",
+     "box": [
+      5500.0,
+      7342.934,
+      6464.635,
+      7600.0
+     ],
+     "entity": "TEXT:15D",
+     "role": "room_label",
+     "element_id": "r_L3_banyo"
+    },
+    {
+     "text": "7,00",
+     "box": [
+      3200.0,
+      -700.0,
+      3800.0,
+      -500.0
+     ],
+     "entity": "DIMENSION:15E",
+     "role": "dimension"
+    },
+    {
+     "text": "5,00",
+     "box": [
+      9200.0,
+      -700.0,
+      9800.0,
+      -500.0
+     ],
+     "entity": "DIMENSION:16E",
+     "role": "dimension"
+    },
+    {
+     "text": "12,00",
+     "box": [
+      5625.0,
+      -1200.0,
+      6375.0,
+      -1000.0
+     ],
+     "entity": "DIMENSION:17E",
+     "role": "dimension"
+    },
+    {
+     "text": "4,60",
+     "box": [
+      -700.0,
+      2000.0,
+      -500.0,
+      2600.0
+     ],
+     "entity": "DIMENSION:18E",
+     "role": "dimension"
+    },
+    {
+     "text": "3,40",
+     "box": [
+      -700.0,
+      6000.0,
+      -500.0,
+      6600.0
+     ],
+     "entity": "DIMENSION:19E",
+     "role": "dimension"
+    },
+    {
+     "text": "8,00",
+     "box": [
+      -1200.0,
+      3700.0,
+      -1000.0,
+      4300.0
+     ],
+     "entity": "DIMENSION:1AE",
+     "role": "dimension"
+    }
+   ],
+   "symbols": [
+    {
+     "id": "d_L3_001",
+     "type": "door",
+     "block": "KAPI_90",
+     "box": [
+      3900.0,
+      6975.0,
+      4800.0,
+      7875.0
+     ],
+     "rotation_deg": 180.0,
+     "entity": "INSERT:10F"
+    },
+    {
+     "id": "d_L3_002",
+     "type": "door",
+     "block": "KAPI_90",
+     "box": [
+      3950.0,
+      3700.0,
+      4850.0,
+      4600.0
+     ],
+     "rotation_deg": 180.0,
+     "entity": "INSERT:111"
+    },
+    {
+     "id": "d_L3_003",
+     "type": "door",
+     "block": "KAPI_80",
+     "box": [
+      5200.0,
+      6450.0,
+      6000.0,
+      7250.0
+     ],
+     "rotation_deg": 270.0,
+     "entity": "INSERT:113"
+    },
+    {
+     "id": "d_L3_004",
+     "type": "door",
+     "block": "KAPI_80",
+     "box": [
+      8000.0,
+      4850.0,
+      8800.0,
+      5650.0
+     ],
+     "rotation_deg": 270.0,
+     "entity": "INSERT:115"
+    },
+    {
+     "id": "d_L3_005",
+     "type": "door",
+     "block": "KAPI_80",
+     "box": [
+      7100.0,
+      3800.0,
+      7900.0,
+      4600.0
+     ],
+     "rotation_deg": 180.0,
+     "entity": "INSERT:117"
+    },
+    {
+     "id": "win_L3_001",
+     "type": "window",
+     "block": "PENCERE_180",
+     "box": [
+      1100.0,
+      75.0,
+      2900.0,
+      175.0
+     ],
+     "rotation_deg": 0.0,
+     "entity": "INSERT:119"
+    },
+    {
+     "id": "win_L3_002",
+     "type": "window",
+     "block": "PENCERE_180",
+     "box": [
+      4100.0,
+      75.0,
+      5900.0,
+      175.0
+     ],
+     "rotation_deg": 0.0,
+     "entity": "INSERT:11B"
+    },
+    {
+     "id": "win_L3_003",
+     "type": "window",
+     "block": "PENCERE_120",
+     "box": [
+      75.0,
+      1700.0,
+      175.0,
+      2900.0
+     ],
+     "rotation_deg": 90.0,
+     "entity": "INSERT:11D"
+    },
+    {
+     "id": "win_L3_004",
+     "type": "window",
+     "block": "PENCERE_120",
+     "box": [
+      75.0,
+      5600.0,
+      175.0,
+      6800.0
+     ],
+     "rotation_deg": 90.0,
+     "entity": "INSERT:11F"
+    },
+    {
+     "id": "win_L3_005",
+     "type": "window",
+     "block": "PENCERE_120",
+     "box": [
+      1250.0,
+      7825.0,
+      2450.0,
+      7925.0
+     ],
+     "rotation_deg": 0.0,
+     "entity": "INSERT:121"
+    },
+    {
+     "id": "win_L3_006",
+     "type": "window",
+     "block": "PENCERE_60",
+     "box": [
+      6300.0,
+      7825.0,
+      6900.0,
+      7925.0
+     ],
+     "rotation_deg": 0.0,
+     "entity": "INSERT:123"
+    },
+    {
+     "id": "win_L3_007",
+     "type": "window",
+     "block": "PENCERE_120",
+     "box": [
+      9300.0,
+      7825.0,
+      10500.0,
+      7925.0
+     ],
+     "rotation_deg": 0.0,
+     "entity": "INSERT:125"
+    },
+    {
+     "id": "win_L3_008",
+     "type": "window",
+     "block": "PENCERE_120",
+     "box": [
+      11825.0,
+      5600.0,
+      11925.0,
+      6800.0
+     ],
+     "rotation_deg": 90.0,
+     "entity": "INSERT:127"
+    },
+    {
+     "id": "win_L3_009",
+     "type": "window",
+     "block": "PENCERE_180",
+     "box": [
+      8500.0,
+      75.0,
+      10300.0,
+      175.0
+     ],
+     "rotation_deg": 0.0,
+     "entity": "INSERT:129"
+    },
+    {
+     "id": "win_L3_010",
+     "type": "window",
+     "block": "PENCERE_120",
+     "box": [
+      11825.0,
+      1800.0,
+      11925.0,
+      3000.0
+     ],
+     "rotation_deg": 90.0,
+     "entity": "INSERT:12B"
+    },
+    {
+     "id": "f_L3_001",
+     "type": "kitchen_counter",
+     "block": "TEZGAH",
+     "box": [
+      250.0,
+      7150.0,
+      2650.0,
+      7750.0
+     ],
+     "rotation_deg": 0.0,
+     "entity": "INSERT:12D"
+    },
+    {
+     "id": "f_L3_002",
+     "type": "sink_kitchen",
+     "block": "EVIYE",
+     "box": [
+      450.0,
+      7250.0,
+      1250.0,
+      7750.0
+     ],
+     "rotation_deg": 0.0,
+     "entity": "INSERT:12F"
+    },
+    {
+     "id": "f_L3_003",
+     "type": "stove",
+     "block": "OCAK",
+     "box": [
+      1750.0,
+      7150.0,
+      2350.0,
+      7750.0
+     ],
+     "rotation_deg": 0.0,
+     "entity": "INSERT:131"
+    },
+    {
+     "id": "f_L3_004",
+     "type": "fridge",
+     "block": "BUZDOLABI",
+     "box": [
+      2700.0,
+      7050.0,
+      3400.0,
+      7750.0
+     ],
+     "rotation_deg": 0.0,
+     "entity": "INSERT:133"
+    },
+    {
+     "id": "f_L3_005",
+     "type": "table_dining",
+     "block": "YEMEK_MASASI",
+     "box": [
+      1050.0,
+      5150.0,
+      2650.0,
+      6050.0
+     ],
+     "rotation_deg": 0.0,
+     "entity": "INSERT:135"
+    },
+    {
+     "id": "f_L3_006",
+     "type": "chair",
+     "block": "SANDALYE",
+     "box": [
+      1225.0,
+      4575.0,
+      1675.0,
+      5025.0
+     ],
+     "rotation_deg": 180.0,
+     "entity": "INSERT:137"
+    },
+    {
+     "id": "f_L3_007",
+     "type": "chair",
+     "block": "SANDALYE",
+     "box": [
+      2025.0,
+      4575.0,
+      2475.0,
+      5025.0
+     ],
+     "rotation_deg": 180.0,
+     "entity": "INSERT:139"
+    },
+    {
+     "id": "f_L3_008",
+     "type": "chair",
+     "block": "SANDALYE",
+     "box": [
+      1225.0,
+      6175.0,
+      1675.0,
+      6625.0
+     ],
+     "rotation_deg": 0.0,
+     "entity": "INSERT:13B"
+    },
+    {
+     "id": "f_L3_009",
+     "type": "chair",
+     "block": "SANDALYE",
+     "box": [
+      2025.0,
+      6175.0,
+      2475.0,
+      6625.0
+     ],
+     "rotation_deg": 0.0,
+     "entity": "INSERT:13D"
+    },
+    {
+     "id": "f_L3_010",
+     "type": "sofa",
+     "block": "KANEPE_3LU",
+     "box": [
+      2950.0,
+      1300.0,
+      3850.0,
+      3500.0
+     ],
+     "rotation_deg": 90.0,
+     "entity": "INSERT:13F"
+    },
+    {
+     "id": "f_L3_011",
+     "type": "table_coffee",
+     "block": "SEHPA",
+     "box": [
+      4300.0,
+      1900.0,
+      4900.0,
+      2900.0
+     ],
+     "rotation_deg": 90.0,
+     "entity": "INSERT:141"
+    },
+    {
+     "id": "f_L3_012",
+     "type": "tv_unit",
+     "block": "TV_UNITESI",
+     "box": [
+      6500.0,
+      1600.0,
+      6950.0,
+      3200.0
+     ],
+     "rotation_deg": 270.0,
+     "entity": "INSERT:143"
+    },
+    {
+     "id": "f_L3_013",
+     "type": "armchair",
+     "block": "KOLTUK",
+     "box": [
+      5613.604,
+      3213.604,
+      6886.396,
+      4486.396
+     ],
+     "rotation_deg": 315.0,
+     "entity": "INSERT:145"
+    },
+    {
+     "id": "f_L3_014",
+     "type": "bookshelf",
+     "block": "KITAPLIK",
+     "box": [
+      250.0,
+      3100.0,
+      600.0,
+      4100.0
+     ],
+     "rotation_deg": 90.0,
+     "entity": "INSERT:147"
+    },
+    {
+     "id": "f_L3_015",
+     "type": "bed_double",
+     "block": "YATAK_CIFT",
+     "box": [
+      8800.0,
+      2550.0,
+      10400.0,
+      4550.0
+     ],
+     "rotation_deg": 0.0,
+     "entity": "INSERT:149"
+    },
+    {
+     "id": "f_L3_016",
+     "type": "nightstand",
+     "block": "KOMIDIN",
+     "box": [
+      8250.0,
+      4150.0,
+      8750.0,
+      4550.0
+     ],
+     "rotation_deg": 0.0,
+     "entity": "INSERT:14B"
+    },
+    {
+     "id": "f_L3_017",
+     "type": "nightstand",
+     "block": "KOMIDIN",
+     "box": [
+      10450.0,
+      4150.0,
+      10950.0,
+      4550.0
+     ],
+     "rotation_deg": 0.0,
+     "entity": "INSERT:14D"
+    },
+    {
+     "id": "f_L3_018",
+     "type": "wardrobe",
+     "block": "DOLAP",
+     "box": [
+      7050.0,
+      600.0,
+      7650.0,
+      2400.0
+     ],
+     "rotation_deg": 90.0,
+     "entity": "INSERT:14F"
+    },
+    {
+     "id": "f_L3_019",
+     "type": "bathtub",
+     "block": "KUVET",
+     "box": [
+      6250.0,
+      7000.0,
+      7950.0,
+      7750.0
+     ],
+     "rotation_deg": 0.0,
+     "entity": "INSERT:151"
+    },
+    {
+     "id": "f_L3_020",
+     "type": "toilet",
+     "block": "KLOZET",
+     "box": [
+      7250.0,
+      6150.0,
+      7950.0,
+      6550.0
+     ],
+     "rotation_deg": 270.0,
+     "entity": "INSERT:153"
+    },
+    {
+     "id": "f_L3_021",
+     "type": "washbasin",
+     "block": "LAVABO",
+     "box": [
+      5700.0,
+      5950.0,
+      6300.0,
+      6400.0
+     ],
+     "rotation_deg": 180.0,
+     "entity": "INSERT:155"
+    }
+   ],
+   "walls": [
+    {
+     "id": "w_L3_001",
+     "box": [
+      0.0,
+      0.0,
+      12000.0,
+      250.0
+     ],
+     "entity": "LWPOLYLINE:105"
+    },
+    {
+     "id": "w_L3_002",
+     "box": [
+      11750.0,
+      0.0,
+      12000.0,
+      8000.0
+     ],
+     "entity": "LWPOLYLINE:106"
+    },
+    {
+     "id": "w_L3_003",
+     "box": [
+      0.0,
+      7750.0,
+      12000.0,
+      8000.0
+     ],
+     "entity": "LWPOLYLINE:107"
+    },
+    {
+     "id": "w_L3_004",
+     "box": [
+      0.0,
+      0.0,
+      250.0,
+      8000.0
+     ],
+     "entity": "LWPOLYLINE:108"
+    },
+    {
+     "id": "w_L3_005",
+     "box": [
+      3450.0,
+      4650.0,
+      3550.0,
+      7750.0
+     ],
+     "entity": "LWPOLYLINE:109"
+    },
+    {
+     "id": "w_L3_006",
+     "box": [
+      3450.0,
+      4550.0,
+      11750.0,
+      4650.0
+     ],
+     "entity": "LWPOLYLINE:10A"
+    },
+    {
+     "id": "w_L3_007",
+     "box": [
+      6950.0,
+      250.0,
+      7050.0,
+      4550.0
+     ],
+     "entity": "LWPOLYLINE:10B"
+    },
+    {
+     "id": "w_L3_008",
+     "box": [
+      5150.0,
+      5850.0,
+      7950.0,
+      5950.0
+     ],
+     "entity": "LWPOLYLINE:10C"
+    },
+    {
+     "id": "w_L3_009",
+     "box": [
+      5150.0,
+      5950.0,
+      5250.0,
+      7750.0
+     ],
+     "entity": "LWPOLYLINE:10D"
+    },
+    {
+     "id": "w_L3_010",
+     "box": [
+      7950.0,
+      4650.0,
+      8050.0,
+      7750.0
+     ],
+     "entity": "LWPOLYLINE:10E"
+    }
+   ],
+   "dimensions": [
+    {
+     "measured": 7.0,
+     "printed": "7,00",
+     "entity": "DIMENSION:15E",
+     "wall_ids": [
+      "w_L3_001"
+     ],
+     "box": [
+      3200.0,
+      -700.0,
+      3800.0,
+      -500.0
+     ]
+    },
+    {
+     "measured": 5.0,
+     "printed": "5,00",
+     "entity": "DIMENSION:16E",
+     "wall_ids": [
+      "w_L3_001"
+     ],
+     "box": [
+      9200.0,
+      -700.0,
+      9800.0,
+      -500.0
+     ]
+    },
+    {
+     "measured": 12.0,
+     "printed": "12,00",
+     "entity": "DIMENSION:17E",
+     "wall_ids": [
+      "w_L3_001"
+     ],
+     "box": [
+      5625.0,
+      -1200.0,
+      6375.0,
+      -1000.0
+     ]
+    },
+    {
+     "measured": 4.6,
+     "printed": "4,60",
+     "entity": "DIMENSION:18E",
+     "wall_ids": [
+      "w_L3_004"
+     ],
+     "box": [
+      -700.0,
+      2000.0,
+      -500.0,
+      2600.0
+     ]
+    },
+    {
+     "measured": 3.4,
+     "printed": "3,40",
+     "entity": "DIMENSION:19E",
+     "wall_ids": [
+      "w_L3_004"
+     ],
+     "box": [
+      -700.0,
+      6000.0,
+      -500.0,
+      6600.0
+     ]
+    },
+    {
+     "measured": 8.0,
+     "printed": "8,00",
+     "entity": "DIMENSION:1AE",
+     "wall_ids": [
+      "w_L3_004"
+     ],
+     "box": [
+      -1200.0,
+      3700.0,
+      -1000.0,
+      4300.0
+     ]
+    }
+   ]
+  },
+  {
+   "file": "3_kat_plani_pdf.pdf",
+   "page": 1,
+   "class": "floor_plan",
+   "kind": "vector",
+   "level_id": "L3",
+   "level_label_raw": "3. KAT PLANI",
+   "units": "pt",
+   "size": [
+    1190.55,
+    841.89
+   ],
+   "dpi": null,
+   "scale_metres_per_unit": 0.035277777777777776,
+   "transform": {
+    "kind": "affine",
+    "building_to_page": [
+     28.34645669291339,
+     0.0,
+     443.6,
+     0.0,
+     28.34645669291339,
+     304.7
+    ]
+   },
+   "texts": [
+    {
+     "text": "7,00",
+     "box": [
+      533.906,
+      287.77,
+      551.719,
+      295.77
+     ],
+     "entity": "char:0",
+     "role": "dimension"
+    },
+    {
+     "text": "5,00",
+     "box": [
+      703.985,
+      287.77,
+      721.798,
+      295.77
+     ],
+     "entity": "char:4",
+     "role": "dimension"
+    },
+    {
+     "text": "12,00",
+     "box": [
+      602.228,
+      273.597,
+      625.13,
+      281.597
+     ],
+     "entity": "char:8",
+     "role": "dimension"
+    },
+    {
+     "text": "4,60",
+     "box": [
+      418.514,
+      360.991,
+      426.514,
+      378.803
+     ],
+     "entity": "char:13",
+     "role": "dimension"
+    },
+    {
+     "text": "3,40",
+     "box": [
+      418.514,
+      474.376,
+      426.514,
+      492.189
+     ],
+     "entity": "char:17",
+     "role": "dimension"
+    },
+    {
+     "text": "8,00",
+     "box": [
+      404.341,
+      409.18,
+      412.341,
+      426.992
+     ],
+     "entity": "char:21",
+     "role": "dimension"
+    },
+    {
+     "text": "3. KAT PLANI",
+     "box": [
+      443.6,
+      563.085,
+      507.877,
+      573.085
+     ],
+     "entity": "char:25",
+     "role": "title"
+    },
+    {
+     "text": "ÖLÇEK 1/100",
+     "box": [
+      536.224,
+      563.325,
+      594.992,
+      572.325
+     ],
+     "entity": "char:37",
+     "role": "scale"
+    },
+    {
+     "text": "SALON + MUTFAK 39,05 m²",
+     "box": [
+      460.608,
+      413.329,
+      571.639,
+      421.329
+     ],
+     "entity": "char:48",
+     "role": "room_label",
+     "element_id": "r_L3_salon_mutfak"
+    },
+    {
+     "text": "YATAK ODASI",
+     "box": [
+      653.364,
+      319.786,
+      707.239,
+      327.786
+     ],
+     "entity": "char:71",
+     "role": "room_label",
+     "element_id": "r_L3_yatak_odasi"
+    },
+    {
+     "text": "HOL",
+     "box": [
+      551.317,
+      506.873,
+      568.086,
+      514.873
+     ],
+     "entity": "char:82",
+     "role": "room_label",
+     "element_id": "r_L3_hol"
+    },
+    {
+     "text": "ÇOCUK ODASI",
+     "box": [
+      681.71,
+      506.873,
+      738.191,
+      514.873
+     ],
+     "entity": "char:85",
+     "role": "room_label",
+     "element_id": "r_L3_cocuk_odasi"
+    },
+    {
+     "text": "BANYO",
+     "box": [
+      599.506,
+      512.542,
+      627.634,
+      520.542
+     ],
+     "entity": "char:96",
+     "role": "room_label",
+     "element_id": "r_L3_banyo"
+    }
+   ],
+   "symbols": [
+    {
+     "id": "d_L3_001",
+     "type": "door",
+     "block": "KAPI_90",
+     "box": [
+      554.151,
+      502.417,
+      579.663,
+      527.928
+     ],
+     "rotation_deg": 180.0,
+     "entity": "path:11",
+     "paths": [
+      11,
+      12
+     ]
+    },
+    {
+     "id": "d_L3_002",
+     "type": "door",
+     "block": "KAPI_90",
+     "box": [
+      555.569,
+      409.582,
+      581.08,
+      435.094
+     ],
+     "rotation_deg": 180.0,
+     "entity": "path:13",
+     "paths": [
+      13,
+      14
+     ]
+    },
+    {
+     "id": "d_L3_003",
+     "type": "door",
+     "block": "KAPI_80",
+     "box": [
+      591.002,
+      487.535,
+      613.679,
+      510.212
+     ],
+     "rotation_deg": 270.0,
+     "entity": "path:15",
+     "paths": [
+      15,
+      16
+     ]
+    },
+    {
+     "id": "d_L3_004",
+     "type": "door",
+     "block": "KAPI_80",
+     "box": [
+      670.372,
+      442.18,
+      693.049,
+      464.857
+     ],
+     "rotation_deg": 270.0,
+     "entity": "path:17",
+     "paths": [
+      17,
+      18
+     ]
+    },
+    {
+     "id": "d_L3_005",
+     "type": "door",
+     "block": "KAPI_80",
+     "box": [
+      644.86,
+      412.417,
+      667.537,
+      435.094
+     ],
+     "rotation_deg": 180.0,
+     "entity": "path:19",
+     "paths": [
+      19,
+      20
+     ]
+    },
+    {
+     "id": "win_L3_001",
+     "type": "window",
+     "block": "PENCERE_180",
+     "box": [
+      474.781,
+      306.826,
+      525.805,
+      309.661
+     ],
+     "rotation_deg": 0.0,
+     "entity": "path:21",
+     "paths": [
+      21,
+      24
+     ]
+    },
+    {
+     "id": "win_L3_002",
+     "type": "window",
+     "block": "PENCERE_180",
+     "box": [
+      559.82,
+      306.826,
+      610.844,
+      309.661
+     ],
+     "rotation_deg": 0.0,
+     "entity": "path:25",
+     "paths": [
+      25,
+      28
+     ]
+    },
+    {
+     "id": "win_L3_003",
+     "type": "window",
+     "block": "PENCERE_120",
+     "box": [
+      445.726,
+      352.889,
+      448.561,
+      386.905
+     ],
+     "rotation_deg": 90.0,
+     "entity": "path:29",
+     "paths": [
+      29,
+      32
+     ]
+    },
+    {
+     "id": "win_L3_004",
+     "type": "window",
+     "block": "PENCERE_120",
+     "box": [
+      445.726,
+      463.44,
+      448.561,
+      497.456
+     ],
+     "rotation_deg": 90.0,
+     "entity": "path:33",
+     "paths": [
+      33,
+      36
+     ]
+    },
+    {
+     "id": "win_L3_005",
+     "type": "window",
+     "block": "PENCERE_120",
+     "box": [
+      479.033,
+      526.511,
+      513.049,
+      529.346
+     ],
+     "rotation_deg": 0.0,
+     "entity": "path:37",
+     "paths": [
+      37,
+      40
+     ]
+    },
+    {
+     "id": "win_L3_006",
+     "type": "window",
+     "block": "PENCERE_60",
+     "box": [
+      622.183,
+      526.511,
+      639.191,
+      529.346
+     ],
+     "rotation_deg": 0.0,
+     "entity": "path:41",
+     "paths": [
+      41,
+      44
+     ]
+    },
+    {
+     "id": "win_L3_007",
+     "type": "window",
+     "block": "PENCERE_120",
+     "box": [
+      707.222,
+      526.511,
+      741.238,
+      529.346
+     ],
+     "rotation_deg": 0.0,
+     "entity": "path:45",
+     "paths": [
+      45,
+      48
+     ]
+    },
+    {
+     "id": "win_L3_008",
+     "type": "window",
+     "block": "PENCERE_120",
+     "box": [
+      778.797,
+      463.44,
+      781.631,
+      497.456
+     ],
+     "rotation_deg": 90.0,
+     "entity": "path:49",
+     "paths": [
+      49,
+      52
+     ]
+    },
+    {
+     "id": "win_L3_009",
+     "type": "window",
+     "block": "PENCERE_180",
+     "box": [
+      684.545,
+      306.826,
+      735.569,
+      309.661
+     ],
+     "rotation_deg": 0.0,
+     "entity": "path:53",
+     "paths": [
+      53,
+      56
+     ]
+    },
+    {
+     "id": "win_L3_010",
+     "type": "window",
+     "block": "PENCERE_120",
+     "box": [
+      778.797,
+      355.724,
+      781.631,
+      389.739
+     ],
+     "rotation_deg": 90.0,
+     "entity": "path:57",
+     "paths": [
+      57,
+      60
+     ]
+    },
+    {
+     "id": "f_L3_001",
+     "type": "kitchen_counter",
+     "block": "TEZGAH",
+     "box": [
+      450.687,
+      507.377,
+      518.718,
+      524.385
+     ],
+     "rotation_deg": 0.0,
+     "entity": "path:61",
+     "paths": [
+      61,
+      62
+     ]
+    },
+    {
+     "id": "f_L3_002",
+     "type": "sink_kitchen",
+     "block": "EVIYE",
+     "box": [
+      456.356,
+      510.212,
+      479.033,
+      524.385
+     ],
+     "rotation_deg": 0.0,
+     "entity": "path:63",
+     "paths": [
+      63,
+      64
+     ]
+    },
+    {
+     "id": "f_L3_003",
+     "type": "stove",
+     "block": "OCAK",
+     "box": [
+      493.206,
+      507.377,
+      510.214,
+      524.385
+     ],
+     "rotation_deg": 0.0,
+     "entity": "path:65",
+     "paths": [
+      65,
+      66
+     ]
+    },
+    {
+     "id": "f_L3_004",
+     "type": "fridge",
+     "block": "BUZDOLABI",
+     "box": [
+      520.135,
+      504.543,
+      539.978,
+      524.385
+     ],
+     "rotation_deg": 0.0,
+     "entity": "path:67",
+     "paths": [
+      67,
+      68
+     ]
+    },
+    {
+     "id": "f_L3_005",
+     "type": "table_dining",
+     "block": "YEMEK_MASASI",
+     "box": [
+      473.364,
+      450.684,
+      518.718,
+      476.196
+     ],
+     "rotation_deg": 0.0,
+     "entity": "path:69",
+     "paths": [
+      69,
+      70
+     ]
+    },
+    {
+     "id": "f_L3_006",
+     "type": "chair",
+     "block": "SANDALYE",
+     "box": [
+      478.324,
+      434.385,
+      491.08,
+      447.141
+     ],
+     "rotation_deg": 180.0,
+     "entity": "path:71",
+     "paths": [
+      71,
+      72
+     ]
+    },
+    {
+     "id": "f_L3_007",
+     "type": "chair",
+     "block": "SANDALYE",
+     "box": [
+      501.002,
+      434.385,
+      513.757,
+      447.141
+     ],
+     "rotation_deg": 180.0,
+     "entity": "path:73",
+     "paths": [
+      73,
+      74
+     ]
+    },
+    {
+     "id": "f_L3_008",
+     "type": "chair",
+     "block": "SANDALYE",
+     "box": [
+      478.324,
+      479.739,
+      491.08,
+      492.495
+     ],
+     "rotation_deg": 0.0,
+     "entity": "path:75",
+     "paths": [
+      75,
+      76
+     ]
+    },
+    {
+     "id": "f_L3_009",
+     "type": "chair",
+     "block": "SANDALYE",
+     "box": [
+      501.002,
+      479.739,
+      513.757,
+      492.495
+     ],
+     "rotation_deg": 0.0,
+     "entity": "path:77",
+     "paths": [
+      77,
+      78
+     ]
+    },
+    {
+     "id": "f_L3_010",
+     "type": "sofa",
+     "block": "KANEPE_3LU",
+     "box": [
+      527.222,
+      341.55,
+      552.734,
+      403.913
+     ],
+     "rotation_deg": 90.0,
+     "entity": "path:79",
+     "paths": [
+      79,
+      80
+     ]
+    },
+    {
+     "id": "f_L3_011",
+     "type": "table_coffee",
+     "block": "SEHPA",
+     "box": [
+      565.49,
+      358.558,
+      582.498,
+      386.905
+     ],
+     "rotation_deg": 90.0,
+     "entity": "path:81",
+     "paths": [
+      81,
+      82
+     ]
+    },
+    {
+     "id": "f_L3_012",
+     "type": "tv_unit",
+     "block": "TV_UNITESI",
+     "box": [
+      627.852,
+      350.054,
+      640.608,
+      395.409
+     ],
+     "rotation_deg": 270.0,
+     "entity": "path:83",
+     "paths": [
+      83,
+      84
+     ]
+    },
+    {
+     "id": "f_L3_013",
+     "type": "armchair",
+     "block": "KOLTUK",
+     "box": [
+      602.726,
+      395.794,
+      638.805,
+      431.873
+     ],
+     "rotation_deg": 315.0,
+     "entity": "path:85",
+     "paths": [
+      85,
+      86
+     ]
+    },
+    {
+     "id": "f_L3_014",
+     "type": "bookshelf",
+     "block": "KITAPLIK",
+     "box": [
+      450.687,
+      392.574,
+      460.608,
+      420.92
+     ],
+     "rotation_deg": 90.0,
+     "entity": "path:87",
+     "paths": [
+      87,
+      88
+     ]
+    },
+    {
+     "id": "f_L3_015",
+     "type": "bed_double",
+     "block": "YATAK_CIFT",
+     "box": [
+      693.049,
+      376.983,
+      738.403,
+      433.676
+     ],
+     "rotation_deg": 0.0,
+     "entity": "path:89",
+     "paths": [
+      89,
+      90
+     ]
+    },
+    {
+     "id": "f_L3_016",
+     "type": "nightstand",
+     "block": "KOMIDIN",
+     "box": [
+      677.458,
+      422.338,
+      691.631,
+      433.676
+     ],
+     "rotation_deg": 0.0,
+     "entity": "path:91",
+     "paths": [
+      91,
+      92
+     ]
+    },
+    {
+     "id": "f_L3_017",
+     "type": "nightstand",
+     "block": "KOMIDIN",
+     "box": [
+      739.82,
+      422.338,
+      753.994,
+      433.676
+     ],
+     "rotation_deg": 0.0,
+     "entity": "path:93",
+     "paths": [
+      93,
+      94
+     ]
+    },
+    {
+     "id": "f_L3_018",
+     "type": "wardrobe",
+     "block": "DOLAP",
+     "box": [
+      643.443,
+      321.708,
+      660.45,
+      372.731
+     ],
+     "rotation_deg": 90.0,
+     "entity": "path:95",
+     "paths": [
+      95,
+      96
+     ]
+    },
+    {
+     "id": "f_L3_019",
+     "type": "bathtub",
+     "block": "KUVET",
+     "box": [
+      620.765,
+      503.125,
+      668.954,
+      524.385
+     ],
+     "rotation_deg": 0.0,
+     "entity": "path:97",
+     "paths": [
+      97,
+      98
+     ]
+    },
+    {
+     "id": "f_L3_020",
+     "type": "toilet",
+     "block": "KLOZET",
+     "box": [
+      649.112,
+      479.031,
+      668.954,
+      490.369
+     ],
+     "rotation_deg": 270.0,
+     "entity": "path:99",
+     "paths": [
+      99,
+      100
+     ]
+    },
+    {
+     "id": "f_L3_021",
+     "type": "washbasin",
+     "block": "LAVABO",
+     "box": [
+      605.175,
+      473.361,
+      622.183,
+      486.117
+     ],
+     "rotation_deg": 180.0,
+     "entity": "path:101",
+     "paths": [
+      101,
+      102
+     ]
+    }
+   ],
+   "walls": [
+    {
+     "id": "w_L3_001",
+     "box": [
+      443.6,
+      304.7,
+      783.757,
+      311.787
+     ],
+     "entity": "path:1"
+    },
+    {
+     "id": "w_L3_002",
+     "box": [
+      776.671,
+      304.7,
+      783.757,
+      531.472
+     ],
+     "entity": "path:2"
+    },
+    {
+     "id": "w_L3_003",
+     "box": [
+      443.6,
+      524.385,
+      783.757,
+      531.472
+     ],
+     "entity": "path:3"
+    },
+    {
+     "id": "w_L3_004",
+     "box": [
+      443.6,
+      304.7,
+      450.687,
+      531.472
+     ],
+     "entity": "path:4"
+    },
+    {
+     "id": "w_L3_005",
+     "box": [
+      541.395,
+      436.511,
+      544.23,
+      524.385
+     ],
+     "entity": "path:5"
+    },
+    {
+     "id": "w_L3_006",
+     "box": [
+      541.395,
+      433.676,
+      776.671,
+      436.511
+     ],
+     "entity": "path:6"
+    },
+    {
+     "id": "w_L3_007",
+     "box": [
+      640.608,
+      311.787,
+      643.443,
+      433.676
+     ],
+     "entity": "path:7"
+    },
+    {
+     "id": "w_L3_008",
+     "box": [
+      589.584,
+      470.527,
+      668.954,
+      473.361
+     ],
+     "entity": "path:8"
+    },
+    {
+     "id": "w_L3_009",
+     "box": [
+      589.584,
+      473.361,
+      592.419,
+      524.385
+     ],
+     "entity": "path:9"
+    },
+    {
+     "id": "w_L3_010",
+     "box": [
+      668.954,
+      436.511,
+      671.789,
+      524.385
+     ],
+     "entity": "path:10"
+    }
+   ],
+   "dimensions": [
+    {
+     "measured": 7.0,
+     "printed": "7,00",
+     "entity": "path:103",
+     "text_entity": "char:0",
+     "wall_ids": [
+      "w_L3_001"
+     ],
+     "box": [
+      533.906,
+      287.77,
+      551.719,
+      295.77
+     ],
+     "paths": [
+      103,
+      107
+     ]
+    },
+    {
+     "measured": 5.0,
+     "printed": "5,00",
+     "entity": "path:108",
+     "text_entity": "char:4",
+     "wall_ids": [
+      "w_L3_001"
+     ],
+     "box": [
+      703.985,
+      287.77,
+      721.798,
+      295.77
+     ],
+     "paths": [
+      108,
+      112
+     ]
+    },
+    {
+     "measured": 12.0,
+     "printed": "12,00",
+     "entity": "path:113",
+     "text_entity": "char:8",
+     "wall_ids": [
+      "w_L3_001"
+     ],
+     "box": [
+      602.228,
+      273.597,
+      625.13,
+      281.597
+     ],
+     "paths": [
+      113,
+      117
+     ]
+    },
+    {
+     "measured": 4.6,
+     "printed": "4,60",
+     "entity": "path:118",
+     "text_entity": "char:13",
+     "wall_ids": [
+      "w_L3_004"
+     ],
+     "box": [
+      418.514,
+      360.991,
+      426.514,
+      378.803
+     ],
+     "paths": [
+      118,
+      122
+     ]
+    },
+    {
+     "measured": 3.4,
+     "printed": "3,40",
+     "entity": "path:123",
+     "text_entity": "char:17",
+     "wall_ids": [
+      "w_L3_004"
+     ],
+     "box": [
+      418.514,
+      474.376,
+      426.514,
+      492.189
+     ],
+     "paths": [
+      123,
+      127
+     ]
+    },
+    {
+     "measured": 8.0,
+     "printed": "8,00",
+     "entity": "path:128",
+     "text_entity": "char:21",
+     "wall_ids": [
+      "w_L3_004"
+     ],
+     "box": [
+      404.341,
+      409.18,
+      412.341,
+      426.992
+     ],
+     "paths": [
+      128,
+      132
+     ]
+    }
+   ]
+  }
+ ]
+}
