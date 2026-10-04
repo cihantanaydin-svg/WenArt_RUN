@@ -294,4 +294,5 @@ if __name__ == "__main__":
         traceback.print_exc()
         print(f"EXPORT_FAILED {type(exc).__name__}: {exc}")
         code = 1
-    sys.exit(code)
+    if code:                                   # as render.py: a normal end lets Blender exit by itself
+        sys.exit(code)

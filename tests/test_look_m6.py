@@ -254,7 +254,7 @@ def test_veneer_and_fabric_materials_in_the_vocabulary():
     assert V.FURNITURE_MATERIALS["fabric_linen"]["size_m"] == [0.2707, 0.2713]
     assert V.albedo_mode("fabric_linen") == ("flat", 0.5) and V.albedo_mode("fabric_white") == ("flat", 0.35)
     assert V.albedo_mode("wood_veneer_oak") == ("texture", None)
-    assert V.METALLIC == {"steel_brushed": 1.0}
+    assert V.METALLIC == {"steel_brushed": 1.0, "mirror": 1.0}           # Milestone 9: the mirror glass
     assert V.furniture_textures() == [("polyhaven", "rough_linen", "fabric_linen"),
                                       ("polyhaven", "oak_veneer_01", "wood_veneer_oak"),
                                       ("polyhaven", "walnut_veneer", "wood_veneer_walnut")]

@@ -576,3 +576,25 @@ check, which checks the polished images):
 
 About $0.02 per view (≈ 25–30 s of GPU per view including its checks); every pod also has ≈ 20 min of fixed setup
 (≈ $0.70) with or without polish.
+
+## Milestone 8 – product-model furniture library, generated models, bed frames, rugs and wall art, wider lenses (done, 4 Oct 2026)
+
+Spec: `docs/milestone8.md`. Five pods, $6.10 in all (`docs/gpu-log.md`: L1, L2, L3, L3b, F1).
+
+- **Library** (`wenart/furniture/catalog_library.json`): 180 furniture models (124 Amazon Berkeley Objects, CC BY 4.0;
+  38 Objaverse of any licence, flagged; 18 generated with TRELLIS.2 from Z-Image-Turbo pictures for the gaps:
+  washing machines, kitchen sink units, showers, bathtubs, a fridge, a washbasin, plants) and 24 decor models
+  (cushions, rugs, wall art). Every model was judged by two vision models; credits in `ATTRIBUTION.md`.
+- **Builder**: bed frames get real bedding on their measured deck; rugs and wall art come from the library.
+- **Cameras**: 18 mm lenses, 16 mm in rooms narrower than 2.2 m.
+- **Full runs (pod F1)**, all `ok`:
+
+| Project | Pieces from the library | Movable pieces from the library | Final images | Decor items |
+|---|---|---|---|---|
+| real01 | 17 of 22 | 16 of 17 | 20 Cycles (the gate turned the polish off) | 12 |
+| synthetic-01 | 23 of 39 | 21 of 30 | 23 polished, 6 Cycles | 24 |
+| synthetic-04 | 17 of 26 | 17 of 21 | 6 polished, 8 Cycles | 13 |
+
+Open after F1: two real01 GPU tests failed. Both were test faults, fixed in Milestone 9: the detector test
+counted old files from an M7 run, and the counter test measured a kitchen counter seen through a door from
+another room.
