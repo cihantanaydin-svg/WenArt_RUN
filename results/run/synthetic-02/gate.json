@@ -1,0 +1,40 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "synthetic-02",
+ "stage": "gate",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 41.24,
+ "fingerprint": "75ba0e8c04fdbe4111e946bd446eaa1d5b92b63c68c5fffdf2a48c1fda226932",
+ "inputs": {
+  "outputs/synthetic-02/renders/render_manifest.json": "8f4aff3620ed8561faf109f55493ce1ed48279836f1eea903ab7baa5c09c8ee4",
+  "outputs/synthetic-02/check/controls.json": "224454b25ed5d3f6cf59300288c0aef6975f23c0bcd2a0148604a7c975363e99",
+  "outputs/synthetic-02/polish/sweep/polish_manifest.json": null,
+  "outputs/synthetic-02/controls/hide_d_L0_004/render_manifest.json": "ad8868e54ce680b42fa43d541da107f87a7776b7d97adb4980cc90f9ebd36ecb",
+  "outputs/synthetic-02/controls/hide_win_L0_002/render_manifest.json": "fd59e0ed2a30075f894ef6fbc5b19c8a20b49e9390bdd7e08e0dbd6ec0d43fbd",
+  "outputs/synthetic-02/controls/hide_win_L0_003/render_manifest.json": "f4d3567cd93abd7fc808469ffb170f25214aea690075c78045a3d5055cc05e1e"
+ },
+ "outputs": [
+  "gate/gate_calibration.json",
+  "gate/gate_validation.json"
+ ],
+ "started_utc": "2026-10-04T01:04:25Z",
+ "git_commit": "2be169d6342eed721324d995d3e380aecfc0b6b0",
+ "log": "logs/gate.log",
+ "note": "gate decision polish_disabled",
+ "run_id": "20261004-000052-full-20261004T000516Z",
+ "steps": [
+  {
+   "name": "calibrate",
+   "rc": 0,
+   "seconds": 39.95
+  },
+  {
+   "name": "validate",
+   "rc": 0,
+   "seconds": 1.29
+  }
+ ],
+ "written": {}
+}

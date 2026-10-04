@@ -1,0 +1,613 @@
+{
+ "project": "synthetic-01",
+ "server": "http://127.0.0.1:8001/v1",
+ "model": "Qwen/Qwen3-VL-8B-Instruct",
+ "rooms": [
+  {
+   "room_id": "r_L0_hol",
+   "label": "Hol",
+   "room_type": "hall",
+   "passes": [
+    {
+     "pass": 1,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "latency_s": 1.896,
+     "error": null,
+     "pieces_proposed": 2,
+     "pieces_placed": 1,
+     "pieces_dropped": 1,
+     "iterations": 7,
+     "repair_steps": 7,
+     "anchor_first": false,
+     "rejected_types": []
+    },
+    {
+     "pass": 2,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "latency_s": 1.024,
+     "error": null,
+     "pieces_proposed": 1,
+     "pieces_placed": 1,
+     "pieces_dropped": 0,
+     "iterations": 4,
+     "repair_steps": 4,
+     "anchor_first": false,
+     "rejected_types": []
+    }
+   ],
+   "chosen_pass": 2,
+   "latency_s": 2.92,
+   "skipped": null,
+   "pieces": [
+    {
+     "id": "f_L0_014",
+     "type": "dresser",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    }
+   ]
+  },
+  {
+   "room_id": "r_L0_mutfak",
+   "label": "Mutfak",
+   "room_type": "kitchen",
+   "passes": [
+    {
+     "pass": 1,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "latency_s": 7.595,
+     "error": null,
+     "pieces_proposed": 9,
+     "pieces_placed": 5,
+     "pieces_dropped": 4,
+     "iterations": 29,
+     "repair_steps": 29,
+     "anchor_first": false,
+     "rejected_types": []
+    },
+    {
+     "pass": 2,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "latency_s": 5.244,
+     "error": null,
+     "pieces_proposed": 6,
+     "pieces_placed": 5,
+     "pieces_dropped": 1,
+     "iterations": 21,
+     "repair_steps": 21,
+     "anchor_first": false,
+     "rejected_types": []
+    }
+   ],
+   "chosen_pass": 2,
+   "latency_s": 12.839,
+   "skipped": null,
+   "pieces": [
+    {
+     "id": "f_L0_015",
+     "type": "kitchen_counter",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "id": "f_L0_016",
+     "type": "sink_kitchen",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "id": "f_L0_017",
+     "type": "stove",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "id": "f_L0_018",
+     "type": "fridge",
+     "confidence": 0.9,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "id": "f_L0_019",
+     "type": "table_dining",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    }
+   ]
+  },
+  {
+   "room_id": "r_L1_ebeveyn_yatak_odasi",
+   "label": "Ebeveyn Yatak Odası",
+   "room_type": "bedroom",
+   "passes": [
+    {
+     "pass": 1,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "latency_s": 5.067,
+     "error": null,
+     "pieces_proposed": 6,
+     "pieces_placed": 4,
+     "pieces_dropped": 2,
+     "iterations": 23,
+     "repair_steps": 23,
+     "anchor_first": false,
+     "rejected_types": []
+    },
+    {
+     "pass": 2,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "latency_s": 4.921,
+     "error": null,
+     "pieces_proposed": 6,
+     "pieces_placed": 5,
+     "pieces_dropped": 1,
+     "iterations": 18,
+     "repair_steps": 18,
+     "anchor_first": false,
+     "rejected_types": []
+    }
+   ],
+   "chosen_pass": 2,
+   "latency_s": 9.987,
+   "skipped": null,
+   "pieces": [
+    {
+     "id": "f_L1_001",
+     "type": "bed_double",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "id": "f_L1_002",
+     "type": "nightstand",
+     "confidence": 0.9,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "id": "f_L1_003",
+     "type": "nightstand",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "id": "f_L1_004",
+     "type": "wardrobe",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "id": "f_L1_005",
+     "type": "desk",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    }
+   ]
+  },
+  {
+   "room_id": "r_L1_hol",
+   "label": "Hol",
+   "room_type": "hall",
+   "passes": [
+    {
+     "pass": 1,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "latency_s": 1.856,
+     "error": null,
+     "pieces_proposed": 2,
+     "pieces_placed": 2,
+     "pieces_dropped": 0,
+     "iterations": 2,
+     "repair_steps": 2,
+     "anchor_first": false,
+     "rejected_types": []
+    },
+    {
+     "pass": 2,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "latency_s": 1.837,
+     "error": null,
+     "pieces_proposed": 2,
+     "pieces_placed": 2,
+     "pieces_dropped": 0,
+     "iterations": 3,
+     "repair_steps": 3,
+     "anchor_first": false,
+     "rejected_types": []
+    }
+   ],
+   "chosen_pass": 1,
+   "latency_s": 3.692,
+   "skipped": null,
+   "pieces": [
+    {
+     "id": "f_L1_006",
+     "type": "dresser",
+     "confidence": 0.9,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "id": "f_L1_007",
+     "type": "chair",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    }
+   ]
+  },
+  {
+   "room_id": "r_L1_yatak_odasi",
+   "label": "Yatak Odası",
+   "room_type": "bedroom",
+   "passes": [
+    {
+     "pass": 1,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "latency_s": 5.069,
+     "error": null,
+     "pieces_proposed": 6,
+     "pieces_placed": 4,
+     "pieces_dropped": 2,
+     "iterations": 23,
+     "repair_steps": 24,
+     "anchor_first": true,
+     "rejected_types": []
+    },
+    {
+     "pass": 2,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "latency_s": 5.199,
+     "error": null,
+     "pieces_proposed": 6,
+     "pieces_placed": 4,
+     "pieces_dropped": 2,
+     "iterations": 22,
+     "repair_steps": 23,
+     "anchor_first": true,
+     "rejected_types": []
+    }
+   ],
+   "chosen_pass": 1,
+   "latency_s": 10.268,
+   "skipped": null,
+   "pieces": [
+    {
+     "id": "f_L1_008",
+     "type": "bed_double",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "id": "f_L1_009",
+     "type": "nightstand",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "id": "f_L1_010",
+     "type": "nightstand",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "id": "f_L1_011",
+     "type": "chair",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    }
+   ]
+  },
+  {
+   "room_id": "r_L1_banyo",
+   "label": "Banyo",
+   "room_type": "bathroom",
+   "passes": [
+    {
+     "pass": 1,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "latency_s": 3.741,
+     "error": null,
+     "pieces_proposed": 4,
+     "pieces_placed": 4,
+     "pieces_dropped": 0,
+     "iterations": 14,
+     "repair_steps": 14,
+     "anchor_first": false,
+     "rejected_types": []
+    },
+    {
+     "pass": 2,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "latency_s": 2.751,
+     "error": null,
+     "pieces_proposed": 3,
+     "pieces_placed": 3,
+     "pieces_dropped": 0,
+     "iterations": 5,
+     "repair_steps": 5,
+     "anchor_first": false,
+     "rejected_types": []
+    }
+   ],
+   "chosen_pass": 1,
+   "latency_s": 6.492,
+   "skipped": null,
+   "pieces": [
+    {
+     "id": "f_L1_012",
+     "type": "shower",
+     "confidence": 0.9,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "id": "f_L1_013",
+     "type": "toilet",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "id": "f_L1_014",
+     "type": "washbasin",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "id": "f_L1_015",
+     "type": "bathtub",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    }
+   ]
+  },
+  {
+   "room_id": "r_L1_cocuk_odasi",
+   "label": "Çocuk Odası",
+   "room_type": "bedroom",
+   "passes": [
+    {
+     "pass": 1,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "latency_s": 5.13,
+     "error": null,
+     "pieces_proposed": 6,
+     "pieces_placed": 5,
+     "pieces_dropped": 1,
+     "iterations": 23,
+     "repair_steps": 23,
+     "anchor_first": false,
+     "rejected_types": []
+    },
+    {
+     "pass": 2,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "latency_s": 4.253,
+     "error": null,
+     "pieces_proposed": 5,
+     "pieces_placed": 4,
+     "pieces_dropped": 1,
+     "iterations": 14,
+     "repair_steps": 14,
+     "anchor_first": false,
+     "rejected_types": []
+    }
+   ],
+   "chosen_pass": 1,
+   "latency_s": 9.383,
+   "skipped": null,
+   "pieces": [
+    {
+     "id": "f_L1_016",
+     "type": "bed_single",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "id": "f_L1_017",
+     "type": "nightstand",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "id": "f_L1_018",
+     "type": "wardrobe",
+     "confidence": 0.9,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "id": "f_L1_019",
+     "type": "chair",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "id": "f_L1_020",
+     "type": "bookshelf",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    }
+   ]
+  }
+ ],
+ "pieces_added": 26,
+ "latency_s": 55.582
+}

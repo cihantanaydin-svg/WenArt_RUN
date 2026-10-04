@@ -1,0 +1,4857 @@
+{
+ "schema_version": "0.1",
+ "project": "synthetic-06",
+ "render_dir": "../renders",
+ "views": {
+  "cam_r_L0_bath_1": {
+   "camera": "cam_r_L0_bath_1",
+   "room_id": "r_L0_bath",
+   "room_type": "bathroom",
+   "room_label": "Bath",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 10,
+     "wenart_id": "win_L0_005",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_bath"
+     ],
+     "own_room": true,
+     "pixels": 250940,
+     "area_frac": 0.121017,
+     "box_px": [
+      1150,
+      0,
+      1575,
+      610
+     ],
+     "box_1000": [
+      598,
+      0,
+      821,
+      565
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "LINE:E5"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 17,
+     "wenart_id": "f_L0_004",
+     "kind": "furniture",
+     "type": "toilet",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_bath",
+     "room_ids": [
+      "r_L0_bath"
+     ],
+     "own_room": true,
+     "pixels": 156294,
+     "area_frac": 0.075373,
+     "box_px": [
+      664,
+      650,
+      1199,
+      1080
+     ],
+     "box_1000": [
+      345,
+      601,
+      625,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.2956,
+     "in_frame": 0.4979,
+     "unoccluded": 0.5937,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:103/0,INSERT:103/1",
+       "block": "WC"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 28,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_005": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.7198,
+      "area_frac": 0.11956,
+      "centre_px": [
+       1368.4,
+       295.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 250940
+     },
+     "f_L0_004": {
+      "kind": "furniture",
+      "type": "toilet",
+      "visible_share": 0.6171,
+      "area_frac": 0.12696,
+      "centre_px": [
+       888.9,
+       851.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 156294
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_bath_2": {
+   "camera": "cam_r_L0_bath_2",
+   "room_id": "r_L0_bath",
+   "room_type": "bathroom",
+   "room_label": "Bath",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 2,
+     "wenart_id": "d_L0_002",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_bath",
+      "r_L0_lobby"
+     ],
+     "own_room": true,
+     "pixels": 743040,
+     "area_frac": 0.358333,
+     "box_px": [
+      62,
+      0,
+      750,
+      1080
+     ],
+     "box_1000": [
+      32,
+      0,
+      391,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.95,
+       "entity": "ARC:CD,LINE:CE"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 28,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_002": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.5736,
+      "area_frac": 0.34478,
+      "centre_px": [
+       411.2,
+       539.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 743040
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_bed_room_1": {
+   "camera": "cam_r_L0_bed_room_1",
+   "room_id": "r_L0_bed_room",
+   "room_type": "bedroom",
+   "room_label": "Bed Room",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 26,
+     "wenart_id": "f_L0_013",
+     "kind": "furniture",
+     "type": "bed_double",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_bed_room",
+     "room_ids": [
+      "r_L0_bed_room"
+     ],
+     "own_room": true,
+     "pixels": 566573,
+     "area_frac": 0.273232,
+     "box_px": [
+      875,
+      203,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      455,
+      187,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.2006,
+     "in_frame": 0.3845,
+     "unoccluded": 0.5219,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Main sleeping area against the wall, leaving space for walkways and furniture."
+      }
+     ],
+     "host_decor": [
+      "cushion"
+     ],
+     "role": "optional"
+    },
+    {
+     "index": 11,
+     "wenart_id": "win_L0_006",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_bed_room"
+     ],
+     "own_room": true,
+     "pixels": 206211,
+     "area_frac": 0.099446,
+     "box_px": [
+      606,
+      0,
+      1041,
+      500
+     ],
+     "box_1000": [
+      315,
+      0,
+      543,
+      463
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "LINE:F9"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 27,
+     "wenart_id": "f_L0_014",
+     "kind": "furniture",
+     "type": "nightstand",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_bed_room",
+     "room_ids": [
+      "r_L0_bed_room"
+     ],
+     "own_room": true,
+     "pixels": 76178,
+     "area_frac": 0.036737,
+     "box_px": [
+      499,
+      672,
+      789,
+      1017
+     ],
+     "box_1000": [
+      259,
+      622,
+      411,
+      942
+     ],
+     "touches_border": false,
+     "visibility": 0.8837,
+     "in_frame": 1.0,
+     "unoccluded": 0.8837,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Nightstand beside the bed for easy access to essentials."
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 8,
+     "wenart_id": "win_L0_003",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_bed_room"
+     ],
+     "own_room": true,
+     "pixels": 67537,
+     "area_frac": 0.03257,
+     "box_px": [
+      1603,
+      0,
+      1920,
+      228
+     ],
+     "box_1000": [
+      834,
+      0,
+      1000,
+      212
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "LINE:EA"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 30,
+     "wenart_id": "dec_L0_006",
+     "kind": "decor",
+     "type": "plant",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "assumed",
+     "room_id": "r_L0_bed_room",
+     "room_ids": [
+      "r_L0_bed_room"
+     ],
+     "own_room": true,
+     "pixels": 41487,
+     "area_frac": 0.020007,
+     "box_px": [
+      31,
+      768,
+      303,
+      1080
+     ],
+     "box_1000": [
+      16,
+      711,
+      158,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.3873,
+     "in_frame": 0.8847,
+     "unoccluded": 0.4377,
+     "evidence": [
+      {
+       "file": "decor",
+       "method": "rule",
+       "confidence": 1.0,
+       "text": "plant in r_L0_bed_room on the floor"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 28,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_003": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.1952,
+      "area_frac": 0.07311,
+      "centre_px": [
+       1766.1,
+       111.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 67537
+     },
+     "win_L0_006": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.9646,
+      "area_frac": 0.09996,
+      "centre_px": [
+       823.0,
+       244.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 206211
+     },
+     "f_L0_013": {
+      "kind": "furniture",
+      "type": "bed_double",
+      "visible_share": 0.3703,
+      "area_frac": 0.52355,
+      "centre_px": [
+       1350.7,
+       541.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 566573
+     },
+     "f_L0_014": {
+      "kind": "furniture",
+      "type": "nightstand",
+      "visible_share": 1.0,
+      "area_frac": 0.04157,
+      "centre_px": [
+       640.8,
+       840.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 76178
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_bed_room_2": {
+   "camera": "cam_r_L0_bed_room_2",
+   "room_id": "r_L0_bed_room",
+   "room_type": "bedroom",
+   "room_label": "Bed Room",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 26,
+     "wenart_id": "f_L0_013",
+     "kind": "furniture",
+     "type": "bed_double",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_bed_room",
+     "room_ids": [
+      "r_L0_bed_room"
+     ],
+     "own_room": true,
+     "pixels": 751299,
+     "area_frac": 0.362316,
+     "box_px": [
+      769,
+      210,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      400,
+      194,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.1142,
+     "in_frame": 0.2412,
+     "unoccluded": 0.4735,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Main sleeping area against the wall, leaving space for walkways and furniture."
+      }
+     ],
+     "host_decor": [
+      "cushion"
+     ],
+     "role": "optional"
+    },
+    {
+     "index": 8,
+     "wenart_id": "win_L0_003",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_bed_room"
+     ],
+     "own_room": true,
+     "pixels": 142385,
+     "area_frac": 0.068666,
+     "box_px": [
+      889,
+      0,
+      1556,
+      216
+     ],
+     "box_1000": [
+      463,
+      0,
+      811,
+      200
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "LINE:EA"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 11,
+     "wenart_id": "win_L0_006",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_bed_room"
+     ],
+     "own_room": true,
+     "pixels": 119029,
+     "area_frac": 0.057402,
+     "box_px": [
+      0,
+      0,
+      189,
+      660
+     ],
+     "box_1000": [
+      0,
+      0,
+      99,
+      612
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "LINE:F9"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 28,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_003": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.4194,
+      "area_frac": 0.15832,
+      "centre_px": [
+       1218.9,
+       106.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 142385
+     },
+     "win_L0_006": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.1623,
+      "area_frac": 0.04823,
+      "centre_px": [
+       76.6,
+       299.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 119029
+     },
+     "f_L0_013": {
+      "kind": "furniture",
+      "type": "bed_double",
+      "visible_share": 0.2325,
+      "area_frac": 0.76522,
+      "centre_px": [
+       1191.5,
+       546.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 751299
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_bed_room_3": {
+   "camera": "cam_r_L0_bed_room_3",
+   "room_id": "r_L0_bed_room",
+   "room_type": "bedroom",
+   "room_label": "Bed Room",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 3,
+     "wenart_id": "d_L0_003",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_lobby",
+      "r_L0_bed_room"
+     ],
+     "own_room": true,
+     "pixels": 395694,
+     "area_frac": 0.190825,
+     "box_px": [
+      46,
+      0,
+      487,
+      926
+     ],
+     "box_1000": [
+      23,
+      0,
+      254,
+      858
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.95,
+       "entity": "ARC:CF,LINE:D0"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 26,
+     "wenart_id": "f_L0_013",
+     "kind": "furniture",
+     "type": "bed_double",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_bed_room",
+     "room_ids": [
+      "r_L0_bed_room"
+     ],
+     "own_room": true,
+     "pixels": 227629,
+     "area_frac": 0.109775,
+     "box_px": [
+      675,
+      796,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      351,
+      737,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0005,
+     "in_frame": 0.003,
+     "unoccluded": 0.1591,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Main sleeping area against the wall, leaving space for walkways and furniture."
+      }
+     ],
+     "host_decor": [
+      "cushion"
+     ],
+     "role": "optional"
+    },
+    {
+     "index": 11,
+     "wenart_id": "win_L0_006",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_bed_room"
+     ],
+     "own_room": true,
+     "pixels": 164733,
+     "area_frac": 0.079443,
+     "box_px": [
+      1594,
+      0,
+      1920,
+      522
+     ],
+     "box_1000": [
+      830,
+      0,
+      1000,
+      484
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "LINE:F9"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 28,
+     "wenart_id": "f_L0_015",
+     "kind": "furniture",
+     "type": "nightstand",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_bed_room",
+     "room_ids": [
+      "r_L0_bed_room"
+     ],
+     "own_room": true,
+     "pixels": 59646,
+     "area_frac": 0.028764,
+     "box_px": [
+      0,
+      866,
+      326,
+      1080
+     ],
+     "box_1000": [
+      0,
+      801,
+      170,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.2063,
+     "in_frame": 0.2079,
+     "unoccluded": 0.9927,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Second nightstand for symmetry and balance."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 27,
+     "wenart_id": "f_L0_014",
+     "kind": "furniture",
+     "type": "nightstand",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_bed_room",
+     "room_ids": [
+      "r_L0_bed_room"
+     ],
+     "own_room": true,
+     "pixels": 40347,
+     "area_frac": 0.019457,
+     "box_px": [
+      1381,
+      638,
+      1677,
+      864
+     ],
+     "box_1000": [
+      719,
+      590,
+      874,
+      800
+     ],
+     "touches_border": false,
+     "visibility": 0.5392,
+     "in_frame": 1.0,
+     "unoccluded": 0.5392,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Nightstand beside the bed for easy access to essentials."
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 30,
+     "wenart_id": "dec_L0_006",
+     "kind": "decor",
+     "type": "plant",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "assumed",
+     "room_id": "r_L0_bed_room",
+     "room_ids": [
+      "r_L0_bed_room"
+     ],
+     "own_room": true,
+     "pixels": 12420,
+     "area_frac": 0.00599,
+     "box_px": [
+      1175,
+      612,
+      1328,
+      782
+     ],
+     "box_1000": [
+      611,
+      566,
+      692,
+      725
+     ],
+     "touches_border": false,
+     "visibility": 0.3162,
+     "in_frame": 1.0,
+     "unoccluded": 0.3162,
+     "evidence": [
+      {
+       "file": "decor",
+       "method": "rule",
+       "confidence": 1.0,
+       "text": "plant in r_L0_bed_room on the floor"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 28,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_003": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.8275,
+      "area_frac": 0.1937,
+      "centre_px": [
+       269.6,
+       456.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 395694
+     },
+     "win_L0_006": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.5213,
+      "area_frac": 0.07674,
+      "centre_px": [
+       1754.9,
+       254.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 164733
+     },
+     "f_L0_013": {
+      "kind": "furniture",
+      "type": "bed_double",
+      "visible_share": 0.4051,
+      "area_frac": 0.68999,
+      "centre_px": [
+       1199.7,
+       534.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 227629
+     },
+     "f_L0_014": {
+      "kind": "furniture",
+      "type": "nightstand",
+      "visible_share": 0.7436,
+      "area_frac": 0.03608,
+      "centre_px": [
+       1529.5,
+       749.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 40347
+     },
+     "f_L0_015": {
+      "kind": "furniture",
+      "type": "nightstand",
+      "visible_share": 0.4269,
+      "area_frac": 0.02898,
+      "centre_px": [
+       154.3,
+       975.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 59646
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_kitchen_1": {
+   "camera": "cam_r_L0_kitchen_1",
+   "room_id": "r_L0_kitchen",
+   "room_type": "kitchen",
+   "room_label": "Kitchen",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 16,
+     "wenart_id": "f_L0_003",
+     "kind": "furniture",
+     "type": "table_dining",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_kitchen",
+     "room_ids": [
+      "r_L0_kitchen"
+     ],
+     "own_room": true,
+     "pixels": 449799,
+     "area_frac": 0.216917,
+     "box_px": [
+      23,
+      579,
+      1416,
+      1080
+     ],
+     "box_1000": [
+      11,
+      536,
+      738,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.2538,
+     "in_frame": 0.3072,
+     "unoccluded": 0.8264,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:FF/0",
+       "block": "DINING-6"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 6,
+     "wenart_id": "win_L0_001",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_kitchen"
+     ],
+     "own_room": true,
+     "pixels": 208420,
+     "area_frac": 0.100511,
+     "box_px": [
+      1098,
+      0,
+      1557,
+      492
+     ],
+     "box_1000": [
+      571,
+      0,
+      811,
+      456
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "LINE:D6"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 21,
+     "wenart_id": "f_L0_008",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_kitchen",
+     "room_ids": [
+      "r_L0_kitchen"
+     ],
+     "own_room": true,
+     "pixels": 72727,
+     "area_frac": 0.035073,
+     "box_px": [
+      1375,
+      739,
+      1752,
+      1080
+     ],
+     "box_1000": [
+      716,
+      684,
+      913,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.2639,
+     "in_frame": 0.5877,
+     "unoccluded": 0.4491,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:FF/1/0,INSERT:FF/1/1",
+       "block": "DINING-6/CHAIR"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 7,
+     "wenart_id": "win_L0_002",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_living_room"
+     ],
+     "own_room": false,
+     "pixels": 64417,
+     "area_frac": 0.031065,
+     "box_px": [
+      375,
+      119,
+      586,
+      442
+     ],
+     "box_1000": [
+      195,
+      110,
+      306,
+      410
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "LINE:DB"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 15,
+     "wenart_id": "f_L0_002",
+     "kind": "furniture",
+     "type": "sofa",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_living_room",
+     "room_ids": [
+      "r_L0_living_room"
+     ],
+     "own_room": false,
+     "pixels": 42225,
+     "area_frac": 0.020363,
+     "box_px": [
+      375,
+      523,
+      606,
+      769
+     ],
+     "box_1000": [
+      195,
+      484,
+      316,
+      713
+     ],
+     "touches_border": false,
+     "visibility": 0.2852,
+     "in_frame": 1.0,
+     "unoccluded": 0.2852,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:FD/0,INSERT:FD/1,INSERT:FD/2,INSERT:FD/3,INSERT:FD/4,INSERT:FD/5",
+       "block": "SOFA-3"
+      }
+     ],
+     "host_decor": [
+      "cushion"
+     ],
+     "role": "optional"
+    },
+    {
+     "index": 22,
+     "wenart_id": "f_L0_009",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_kitchen",
+     "room_ids": [
+      "r_L0_kitchen"
+     ],
+     "own_room": true,
+     "pixels": 12625,
+     "area_frac": 0.006088,
+     "box_px": [
+      71,
+      726,
+      483,
+      1080
+     ],
+     "box_1000": [
+      36,
+      672,
+      252,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0356,
+     "in_frame": 0.5696,
+     "unoccluded": 0.0625,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:FF/4/0,INSERT:FF/4/1",
+       "block": "DINING-6/CHAIR"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 20,
+     "wenart_id": "f_L0_007",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_kitchen",
+     "room_ids": [
+      "r_L0_kitchen"
+     ],
+     "own_room": true,
+     "pixels": 6350,
+     "area_frac": 0.003062,
+     "box_px": [
+      1132,
+      592,
+      1335,
+      990
+     ],
+     "box_1000": [
+      589,
+      548,
+      696,
+      917
+     ],
+     "touches_border": false,
+     "visibility": 0.0593,
+     "in_frame": 1.0,
+     "unoccluded": 0.0593,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:FF/6/0,INSERT:FF/6/1",
+       "block": "DINING-6/CHAIR"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 23,
+     "wenart_id": "f_L0_010",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_kitchen",
+     "room_ids": [
+      "r_L0_kitchen"
+     ],
+     "own_room": true,
+     "pixels": 1497,
+     "area_frac": 0.000722,
+     "box_px": [
+      716,
+      608,
+      857,
+      662
+     ],
+     "box_1000": [
+      372,
+      562,
+      447,
+      613
+     ],
+     "touches_border": false,
+     "visibility": 0.0103,
+     "in_frame": 1.0,
+     "unoccluded": 0.0103,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:FF/3/0,INSERT:FF/3/1",
+       "block": "DINING-6/CHAIR"
+      }
+     ],
+     "host_decor": [],
+     "role": "ignore"
+    },
+    {
+     "index": 18,
+     "wenart_id": "f_L0_005",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_kitchen",
+     "room_ids": [
+      "r_L0_kitchen"
+     ],
+     "own_room": true,
+     "pixels": 271,
+     "area_frac": 0.000131,
+     "box_px": [
+      1176,
+      1071,
+      1226,
+      1080
+     ],
+     "box_1000": [
+      612,
+      991,
+      639,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0002,
+     "in_frame": 0.1082,
+     "unoccluded": 0.0022,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:FF/2/0,INSERT:FF/2/1",
+       "block": "DINING-6/CHAIR"
+      }
+     ],
+     "host_decor": [],
+     "role": "ignore"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 28,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_001": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 1.0,
+      "area_frac": 0.09947,
+      "centre_px": [
+       1331.3,
+       246.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 208420
+     },
+     "win_L0_002": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.6304,
+      "area_frac": 0.0434,
+      "centre_px": [
+       481.2,
+       281.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 64417
+     },
+     "f_L0_002": {
+      "kind": "furniture",
+      "type": "sofa",
+      "visible_share": 0.2938,
+      "area_frac": 0.0714,
+      "centre_px": [
+       488.9,
+       624.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 42225
+     },
+     "f_L0_003": {
+      "kind": "furniture",
+      "type": "table_dining",
+      "visible_share": 0.6146,
+      "area_frac": 0.26249,
+      "centre_px": [
+       723.2,
+       830.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 449799
+     },
+     "f_L0_005": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.2984,
+      "area_frac": 0.0597,
+      "centre_px": [
+       1435.5,
+       965.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 271
+     },
+     "f_L0_006": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.0233,
+      "area_frac": 0.00991,
+      "centre_px": [
+       131.0,
+       1033.2
+      ],
+      "in_view": false
+     },
+     "f_L0_007": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.5533,
+      "area_frac": 0.0516,
+      "centre_px": [
+       1223.4,
+       769.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 6350
+     },
+     "f_L0_008": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.7204,
+      "area_frac": 0.0781,
+      "centre_px": [
+       1558.7,
+       869.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 72727
+     },
+     "f_L0_009": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.335,
+      "area_frac": 0.09744,
+      "centre_px": [
+       282.5,
+       874.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 12625
+     },
+     "f_L0_010": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.29,
+      "area_frac": 0.07007,
+      "centre_px": [
+       731.7,
+       635.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 1497
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_kitchen_2": {
+   "camera": "cam_r_L0_kitchen_2",
+   "room_id": "r_L0_kitchen",
+   "room_type": "kitchen",
+   "room_label": "Kitchen",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 16,
+     "wenart_id": "f_L0_003",
+     "kind": "furniture",
+     "type": "table_dining",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_kitchen",
+     "room_ids": [
+      "r_L0_kitchen"
+     ],
+     "own_room": true,
+     "pixels": 448944,
+     "area_frac": 0.216505,
+     "box_px": [
+      505,
+      579,
+      1899,
+      1080
+     ],
+     "box_1000": [
+      263,
+      536,
+      990,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.2539,
+     "in_frame": 0.3079,
+     "unoccluded": 0.8244,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:FF/0",
+       "block": "DINING-6"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 6,
+     "wenart_id": "win_L0_001",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_kitchen"
+     ],
+     "own_room": true,
+     "pixels": 208342,
+     "area_frac": 0.100474,
+     "box_px": [
+      364,
+      0,
+      823,
+      492
+     ],
+     "box_1000": [
+      189,
+      0,
+      429,
+      456
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "LINE:D6"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 23,
+     "wenart_id": "f_L0_010",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_kitchen",
+     "room_ids": [
+      "r_L0_kitchen"
+     ],
+     "own_room": true,
+     "pixels": 57097,
+     "area_frac": 0.027535,
+     "box_px": [
+      166,
+      681,
+      520,
+      1080
+     ],
+     "box_1000": [
+      86,
+      630,
+      271,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.2077,
+     "in_frame": 0.5885,
+     "unoccluded": 0.3529,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:FF/3/0,INSERT:FF/3/1",
+       "block": "DINING-6/CHAIR"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 22,
+     "wenart_id": "f_L0_009",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_kitchen",
+     "room_ids": [
+      "r_L0_kitchen"
+     ],
+     "own_room": true,
+     "pixels": 19132,
+     "area_frac": 0.009226,
+     "box_px": [
+      477,
+      903,
+      757,
+      1080
+     ],
+     "box_1000": [
+      248,
+      836,
+      395,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0168,
+     "in_frame": 0.109,
+     "unoccluded": 0.1542,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:FF/4/0,INSERT:FF/4/1",
+       "block": "DINING-6/CHAIR"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 18,
+     "wenart_id": "f_L0_005",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_kitchen",
+     "room_ids": [
+      "r_L0_kitchen"
+     ],
+     "own_room": true,
+     "pixels": 14043,
+     "area_frac": 0.006772,
+     "box_px": [
+      1561,
+      752,
+      1821,
+      1080
+     ],
+     "box_1000": [
+      813,
+      696,
+      949,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0396,
+     "in_frame": 0.5704,
+     "unoccluded": 0.0695,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:FF/2/0,INSERT:FF/2/1",
+       "block": "DINING-6/CHAIR"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 20,
+     "wenart_id": "f_L0_007",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_kitchen",
+     "room_ids": [
+      "r_L0_kitchen"
+     ],
+     "own_room": true,
+     "pixels": 6114,
+     "area_frac": 0.002948,
+     "box_px": [
+      586,
+      592,
+      789,
+      990
+     ],
+     "box_1000": [
+      305,
+      548,
+      411,
+      917
+     ],
+     "touches_border": false,
+     "visibility": 0.0572,
+     "in_frame": 1.0,
+     "unoccluded": 0.0572,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:FF/6/0,INSERT:FF/6/1",
+       "block": "DINING-6/CHAIR"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 21,
+     "wenart_id": "f_L0_008",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_kitchen",
+     "room_ids": [
+      "r_L0_kitchen"
+     ],
+     "own_room": true,
+     "pixels": 3480,
+     "area_frac": 0.001678,
+     "box_px": [
+      1159,
+      620,
+      1302,
+      686
+     ],
+     "box_1000": [
+      603,
+      574,
+      679,
+      636
+     ],
+     "touches_border": false,
+     "visibility": 0.024,
+     "in_frame": 1.0,
+     "unoccluded": 0.024,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:FF/1/0,INSERT:FF/1/1",
+       "block": "DINING-6/CHAIR"
+      }
+     ],
+     "host_decor": [],
+     "role": "ignore"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 28,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_001": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 1.0,
+      "area_frac": 0.09936,
+      "centre_px": [
+       589.6,
+       246.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 208342
+     },
+     "f_L0_003": {
+      "kind": "furniture",
+      "type": "table_dining",
+      "visible_share": 0.6129,
+      "area_frac": 0.26261,
+      "centre_px": [
+       1198.2,
+       830.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 448944
+     },
+     "f_L0_005": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.3367,
+      "area_frac": 0.09744,
+      "centre_px": [
+       1638.5,
+       874.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 14043
+     },
+     "f_L0_006": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.0233,
+      "area_frac": 0.00997,
+      "centre_px": [
+       1790.8,
+       1032.3
+      ],
+      "in_view": false
+     },
+     "f_L0_007": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.5183,
+      "area_frac": 0.05156,
+      "centre_px": [
+       697.7,
+       769.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 6114
+     },
+     "f_L0_008": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.29,
+      "area_frac": 0.07001,
+      "centre_px": [
+       1189.3,
+       635.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 3480
+     },
+     "f_L0_009": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.2984,
+      "area_frac": 0.05984,
+      "centre_px": [
+       488.0,
+       964.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 19132
+     },
+     "f_L0_010": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.7097,
+      "area_frac": 0.07803,
+      "centre_px": [
+       363.4,
+       869.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 57097
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_kitchen_3": {
+   "camera": "cam_r_L0_kitchen_3",
+   "room_id": "r_L0_kitchen",
+   "room_type": "kitchen",
+   "room_label": "Kitchen",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 16,
+     "wenart_id": "f_L0_003",
+     "kind": "furniture",
+     "type": "table_dining",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_kitchen",
+     "room_ids": [
+      "r_L0_kitchen"
+     ],
+     "own_room": true,
+     "pixels": 445121,
+     "area_frac": 0.214661,
+     "box_px": [
+      504,
+      579,
+      1899,
+      1080
+     ],
+     "box_1000": [
+      262,
+      536,
+      990,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.2506,
+     "in_frame": 0.3066,
+     "unoccluded": 0.8175,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:FF/0",
+       "block": "DINING-6"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 18,
+     "wenart_id": "f_L0_005",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_kitchen",
+     "room_ids": [
+      "r_L0_kitchen"
+     ],
+     "own_room": true,
+     "pixels": 56730,
+     "area_frac": 0.027358,
+     "box_px": [
+      171,
+      676,
+      532,
+      1080
+     ],
+     "box_1000": [
+      89,
+      625,
+      278,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.2056,
+     "in_frame": 0.587,
+     "unoccluded": 0.3502,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:FF/2/0,INSERT:FF/2/1",
+       "block": "DINING-6/CHAIR"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 5,
+     "wenart_id": "d_L0_005",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_living_room",
+      "r_L0_lobby"
+     ],
+     "own_room": false,
+     "pixels": 48692,
+     "area_frac": 0.023482,
+     "box_px": [
+      1634,
+      152,
+      1739,
+      636
+     ],
+     "box_1000": [
+      851,
+      140,
+      906,
+      589
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.95,
+       "entity": "ARC:D3,LINE:D4"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 21,
+     "wenart_id": "f_L0_008",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_kitchen",
+     "room_ids": [
+      "r_L0_kitchen"
+     ],
+     "own_room": true,
+     "pixels": 29343,
+     "area_frac": 0.014151,
+     "box_px": [
+      188,
+      892,
+      696,
+      1080
+     ],
+     "box_1000": [
+      97,
+      825,
+      363,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0256,
+     "in_frame": 0.1077,
+     "unoccluded": 0.2375,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:FF/1/0,INSERT:FF/1/1",
+       "block": "DINING-6/CHAIR"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 23,
+     "wenart_id": "f_L0_010",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_kitchen",
+     "room_ids": [
+      "r_L0_kitchen"
+     ],
+     "own_room": true,
+     "pixels": 11541,
+     "area_frac": 0.005566,
+     "box_px": [
+      1437,
+      727,
+      1850,
+      1080
+     ],
+     "box_1000": [
+      748,
+      673,
+      964,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0325,
+     "in_frame": 0.5689,
+     "unoccluded": 0.0571,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:FF/3/0,INSERT:FF/3/1",
+       "block": "DINING-6/CHAIR"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 19,
+     "wenart_id": "f_L0_006",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_kitchen",
+     "room_ids": [
+      "r_L0_kitchen"
+     ],
+     "own_room": true,
+     "pixels": 7583,
+     "area_frac": 0.003657,
+     "box_px": [
+      572,
+      566,
+      764,
+      976
+     ],
+     "box_1000": [
+      297,
+      524,
+      398,
+      904
+     ],
+     "touches_border": false,
+     "visibility": 0.0708,
+     "in_frame": 1.0,
+     "unoccluded": 0.0708,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:FF/5/0,INSERT:FF/5/1",
+       "block": "DINING-6/CHAIR"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 20,
+     "wenart_id": "f_L0_007",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_kitchen",
+     "room_ids": [
+      "r_L0_kitchen"
+     ],
+     "own_room": true,
+     "pixels": 4432,
+     "area_frac": 0.002137,
+     "box_px": [
+      1691,
+      1048,
+      1899,
+      1080
+     ],
+     "box_1000": [
+      880,
+      970,
+      990,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0015,
+     "in_frame": 0.0067,
+     "unoccluded": 0.2194,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:FF/6/0,INSERT:FF/6/1",
+       "block": "DINING-6/CHAIR"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 22,
+     "wenart_id": "f_L0_009",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_kitchen",
+     "room_ids": [
+      "r_L0_kitchen"
+     ],
+     "own_room": true,
+     "pixels": 1500,
+     "area_frac": 0.000723,
+     "box_px": [
+      1063,
+      609,
+      1206,
+      663
+     ],
+     "box_1000": [
+      553,
+      563,
+      629,
+      614
+     ],
+     "touches_border": false,
+     "visibility": 0.0103,
+     "in_frame": 1.0,
+     "unoccluded": 0.0103,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:FF/4/0,INSERT:FF/4/1",
+       "block": "DINING-6/CHAIR"
+      }
+     ],
+     "host_decor": [],
+     "role": "ignore"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 28,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_005": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.7853,
+      "area_frac": 0.02357,
+      "centre_px": [
+       1680.8,
+       397.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 48692
+     },
+     "f_L0_003": {
+      "kind": "furniture",
+      "type": "table_dining",
+      "visible_share": 0.6053,
+      "area_frac": 0.26258,
+      "centre_px": [
+       1197.6,
+       828.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 445121
+     },
+     "f_L0_005": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.6505,
+      "area_frac": 0.07811,
+      "centre_px": [
+       361.4,
+       870.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 56730
+     },
+     "f_L0_006": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.52,
+      "area_frac": 0.05164,
+      "centre_px": [
+       696.8,
+       769.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 7583
+     },
+     "f_L0_007": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.0233,
+      "area_frac": 0.00974,
+      "centre_px": [
+       1790.8,
+       1033.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 4432
+     },
+     "f_L0_008": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.2984,
+      "area_frac": 0.05957,
+      "centre_px": [
+       484.8,
+       966.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 29343
+     },
+     "f_L0_009": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.29,
+      "area_frac": 0.07013,
+      "centre_px": [
+       1188.7,
+       635.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 1500
+     },
+     "f_L0_010": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.33,
+      "area_frac": 0.09746,
+      "centre_px": [
+       1638.3,
+       874.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 11541
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_living_room_1": {
+   "camera": "cam_r_L0_living_room_1",
+   "room_id": "r_L0_living_room",
+   "room_type": "living",
+   "room_label": "Living Room",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 15,
+     "wenart_id": "f_L0_002",
+     "kind": "furniture",
+     "type": "sofa",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_living_room",
+     "room_ids": [
+      "r_L0_living_room"
+     ],
+     "own_room": true,
+     "pixels": 294144,
+     "area_frac": 0.141852,
+     "box_px": [
+      475,
+      545,
+      1390,
+      1042
+     ],
+     "box_1000": [
+      247,
+      504,
+      724,
+      965
+     ],
+     "touches_border": false,
+     "visibility": 0.8089,
+     "in_frame": 1.0,
+     "unoccluded": 0.8089,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:FD/0,INSERT:FD/1,INSERT:FD/2,INSERT:FD/3,INSERT:FD/4,INSERT:FD/5",
+       "block": "SOFA-3"
+      }
+     ],
+     "host_decor": [
+      "cushion"
+     ],
+     "role": "required"
+    },
+    {
+     "index": 7,
+     "wenart_id": "win_L0_002",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_living_room"
+     ],
+     "own_room": true,
+     "pixels": 234379,
+     "area_frac": 0.11303,
+     "box_px": [
+      771,
+      16,
+      1331,
+      485
+     ],
+     "box_1000": [
+      401,
+      14,
+      694,
+      450
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "LINE:DB"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 12,
+     "wenart_id": "win_L0_007",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_living_room"
+     ],
+     "own_room": true,
+     "pixels": 58839,
+     "area_frac": 0.028375,
+     "box_px": [
+      0,
+      29,
+      136,
+      479
+     ],
+     "box_1000": [
+      0,
+      26,
+      71,
+      444
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "LINE:E0"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 29,
+     "wenart_id": "dec_L0_003",
+     "kind": "decor",
+     "type": "plant",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "assumed",
+     "room_id": "r_L0_living_room",
+     "room_ids": [
+      "r_L0_living_room"
+     ],
+     "own_room": true,
+     "pixels": 3181,
+     "area_frac": 0.001534,
+     "box_px": [
+      444,
+      572,
+      491,
+      714
+     ],
+     "box_1000": [
+      231,
+      529,
+      256,
+      662
+     ],
+     "touches_border": false,
+     "visibility": 0.1111,
+     "in_frame": 1.0,
+     "unoccluded": 0.1111,
+     "evidence": [
+      {
+       "file": "decor",
+       "method": "rule",
+       "confidence": 1.0,
+       "text": "plant in r_L0_living_room on the floor"
+      }
+     ],
+     "host_decor": [],
+     "role": "ignore"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 28,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_002": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.9769,
+      "area_frac": 0.113,
+      "centre_px": [
+       1051.1,
+       251.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 234379
+     },
+     "win_L0_007": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.2581,
+      "area_frac": 0.02653,
+      "centre_px": [
+       66.7,
+       255.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 58839
+     },
+     "f_L0_002": {
+      "kind": "furniture",
+      "type": "sofa",
+      "visible_share": 1.0,
+      "area_frac": 0.17536,
+      "centre_px": [
+       934.4,
+       775.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 294144
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_living_room_2": {
+   "camera": "cam_r_L0_living_room_2",
+   "room_id": "r_L0_living_room",
+   "room_type": "living",
+   "room_label": "Living Room",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 15,
+     "wenart_id": "f_L0_002",
+     "kind": "furniture",
+     "type": "sofa",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_living_room",
+     "room_ids": [
+      "r_L0_living_room"
+     ],
+     "own_room": true,
+     "pixels": 296463,
+     "area_frac": 0.14297,
+     "box_px": [
+      530,
+      545,
+      1445,
+      1042
+     ],
+     "box_1000": [
+      276,
+      504,
+      753,
+      965
+     ],
+     "touches_border": false,
+     "visibility": 0.8149,
+     "in_frame": 1.0,
+     "unoccluded": 0.8149,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:FD/0,INSERT:FD/1,INSERT:FD/2,INSERT:FD/3,INSERT:FD/4,INSERT:FD/5",
+       "block": "SOFA-3"
+      }
+     ],
+     "host_decor": [
+      "cushion"
+     ],
+     "role": "required"
+    },
+    {
+     "index": 7,
+     "wenart_id": "win_L0_002",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_living_room"
+     ],
+     "own_room": true,
+     "pixels": 234848,
+     "area_frac": 0.113256,
+     "box_px": [
+      588,
+      16,
+      1149,
+      485
+     ],
+     "box_1000": [
+      306,
+      14,
+      599,
+      450
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "LINE:DB"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 6,
+     "wenart_id": "win_L0_001",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_kitchen"
+     ],
+     "own_room": false,
+     "pixels": 43679,
+     "area_frac": 0.021064,
+     "box_px": [
+      1555,
+      140,
+      1711,
+      434
+     ],
+     "box_1000": [
+      809,
+      129,
+      892,
+      402
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "LINE:D6"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 29,
+     "wenart_id": "dec_L0_003",
+     "kind": "decor",
+     "type": "plant",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "assumed",
+     "room_id": "r_L0_living_room",
+     "room_ids": [
+      "r_L0_living_room"
+     ],
+     "own_room": true,
+     "pixels": 32565,
+     "area_frac": 0.015705,
+     "box_px": [
+      2,
+      745,
+      236,
+      999
+     ],
+     "box_1000": [
+      1,
+      689,
+      123,
+      925
+     ],
+     "touches_border": false,
+     "visibility": 0.382,
+     "in_frame": 0.9001,
+     "unoccluded": 0.4244,
+     "evidence": [
+      {
+       "file": "decor",
+       "method": "rule",
+       "confidence": 1.0,
+       "text": "plant in r_L0_living_room on the floor"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 16,
+     "wenart_id": "f_L0_003",
+     "kind": "furniture",
+     "type": "table_dining",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_kitchen",
+     "room_ids": [
+      "r_L0_kitchen"
+     ],
+     "own_room": false,
+     "pixels": 6670,
+     "area_frac": 0.003217,
+     "box_px": [
+      1824,
+      484,
+      1920,
+      718
+     ],
+     "box_1000": [
+      950,
+      448,
+      1000,
+      665
+     ],
+     "touches_border": true,
+     "visibility": 0.0222,
+     "in_frame": 0.0754,
+     "unoccluded": 0.294,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:FF/0",
+       "block": "DINING-6"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 20,
+     "wenart_id": "f_L0_007",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_kitchen",
+     "room_ids": [
+      "r_L0_kitchen"
+     ],
+     "own_room": false,
+     "pixels": 6545,
+     "area_frac": 0.003156,
+     "box_px": [
+      1729,
+      486,
+      1905,
+      692
+     ],
+     "box_1000": [
+      900,
+      450,
+      993,
+      641
+     ],
+     "touches_border": false,
+     "visibility": 0.1608,
+     "in_frame": 1.0,
+     "unoccluded": 0.1608,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:FF/6/0,INSERT:FF/6/1",
+       "block": "DINING-6/CHAIR"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 23,
+     "wenart_id": "f_L0_010",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_kitchen",
+     "room_ids": [
+      "r_L0_kitchen"
+     ],
+     "own_room": false,
+     "pixels": 5951,
+     "area_frac": 0.00287,
+     "box_px": [
+      1836,
+      512,
+      1920,
+      756
+     ],
+     "box_1000": [
+      956,
+      474,
+      1000,
+      700
+     ],
+     "touches_border": true,
+     "visibility": 0.0884,
+     "in_frame": 0.3994,
+     "unoccluded": 0.2212,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:FF/3/0,INSERT:FF/3/1",
+       "block": "DINING-6/CHAIR"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 28,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_001": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.8148,
+      "area_frac": 0.02332,
+      "centre_px": [
+       1628.1,
+       287.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 43679
+     },
+     "win_L0_002": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.9769,
+      "area_frac": 0.11305,
+      "centre_px": [
+       868.5,
+       251.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 234848
+     },
+     "f_L0_002": {
+      "kind": "furniture",
+      "type": "sofa",
+      "visible_share": 1.0,
+      "area_frac": 0.17543,
+      "centre_px": [
+       985.2,
+       775.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 296463
+     },
+     "f_L0_003": {
+      "kind": "furniture",
+      "type": "table_dining",
+      "visible_share": 0.0684,
+      "area_frac": 0.01094,
+      "centre_px": [
+       1874.2,
+       605.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 6670
+     },
+     "f_L0_007": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.7083,
+      "area_frac": 0.01962,
+      "centre_px": [
+       1810.2,
+       582.4
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 6545
+     },
+     "f_L0_010": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.315,
+      "area_frac": 0.01297,
+      "centre_px": [
+       1870.9,
+       638.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 5951
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_living_room_3": {
+   "camera": "cam_r_L0_living_room_3",
+   "room_id": "r_L0_living_room",
+   "room_type": "living",
+   "room_label": "Living Room",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 15,
+     "wenart_id": "f_L0_002",
+     "kind": "furniture",
+     "type": "sofa",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_living_room",
+     "room_ids": [
+      "r_L0_living_room"
+     ],
+     "own_room": true,
+     "pixels": 546580,
+     "area_frac": 0.26359,
+     "box_px": [
+      158,
+      625,
+      1500,
+      1080
+     ],
+     "box_1000": [
+      82,
+      578,
+      782,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.7612,
+     "in_frame": 0.8987,
+     "unoccluded": 0.847,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:FD/0,INSERT:FD/1,INSERT:FD/2,INSERT:FD/3,INSERT:FD/4,INSERT:FD/5",
+       "block": "SOFA-3"
+      }
+     ],
+     "host_decor": [
+      "cushion"
+     ],
+     "role": "required"
+    },
+    {
+     "index": 7,
+     "wenart_id": "win_L0_002",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_living_room"
+     ],
+     "own_room": true,
+     "pixels": 376428,
+     "area_frac": 0.181534,
+     "box_px": [
+      492,
+      0,
+      1254,
+      494
+     ],
+     "box_1000": [
+      256,
+      0,
+      654,
+      458
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "LINE:DB"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 29,
+     "wenart_id": "dec_L0_003",
+     "kind": "decor",
+     "type": "plant",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "assumed",
+     "room_id": "r_L0_living_room",
+     "room_ids": [
+      "r_L0_living_room"
+     ],
+     "own_room": true,
+     "pixels": 11751,
+     "area_frac": 0.005667,
+     "box_px": [
+      0,
+      723,
+      110,
+      929
+     ],
+     "box_1000": [
+      0,
+      669,
+      58,
+      861
+     ],
+     "touches_border": true,
+     "visibility": 0.1313,
+     "in_frame": 0.4055,
+     "unoccluded": 0.3239,
+     "evidence": [
+      {
+       "file": "decor",
+       "method": "rule",
+       "confidence": 1.0,
+       "text": "plant in r_L0_living_room on the floor"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 28,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_002": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 1.0,
+      "area_frac": 0.17824,
+      "centre_px": [
+       874.1,
+       245.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 376428
+     },
+     "f_L0_002": {
+      "kind": "furniture",
+      "type": "sofa",
+      "visible_share": 0.9512,
+      "area_frac": 0.31122,
+      "centre_px": [
+       828.6,
+       828.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 546580
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_lobby_1": {
+   "camera": "cam_r_L0_lobby_1",
+   "room_id": "r_L0_lobby",
+   "room_type": "hall",
+   "room_label": "Lobby",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 4,
+     "wenart_id": "d_L0_004",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_lobby",
+      "r_L0_master_bed_room"
+     ],
+     "own_room": true,
+     "pixels": 480600,
+     "area_frac": 0.231771,
+     "box_px": [
+      391,
+      0,
+      836,
+      1080
+     ],
+     "box_1000": [
+      203,
+      0,
+      436,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.95,
+       "entity": "ARC:D1,LINE:D2"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 1,
+     "wenart_id": "d_L0_001",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_lobby"
+     ],
+     "own_room": true,
+     "pixels": 221993,
+     "area_frac": 0.107057,
+     "box_px": [
+      1376,
+      52,
+      1704,
+      783
+     ],
+     "box_1000": [
+      716,
+      48,
+      888,
+      725
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.95,
+       "entity": "ARC:CB,LINE:CC"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 3,
+     "wenart_id": "d_L0_003",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_lobby",
+      "r_L0_bed_room"
+     ],
+     "own_room": true,
+     "pixels": 82080,
+     "area_frac": 0.039583,
+     "box_px": [
+      0,
+      0,
+      76,
+      1080
+     ],
+     "box_1000": [
+      0,
+      0,
+      40,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.95,
+       "entity": "ARC:CF,LINE:D0"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 25,
+     "wenart_id": "f_L0_012",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_lobby",
+     "room_ids": [
+      "r_L0_lobby"
+     ],
+     "own_room": true,
+     "pixels": 58172,
+     "area_frac": 0.028054,
+     "box_px": [
+      926,
+      591,
+      1275,
+      1080
+     ],
+     "box_1000": [
+      482,
+      547,
+      665,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.2517,
+     "in_frame": 0.8386,
+     "unoccluded": 0.3001,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Mid-century modern chair for seating near the window area."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 5,
+     "wenart_id": "d_L0_005",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_living_room",
+      "r_L0_lobby"
+     ],
+     "own_room": true,
+     "pixels": 37607,
+     "area_frac": 0.018136,
+     "box_px": [
+      1848,
+      0,
+      1891,
+      960
+     ],
+     "box_1000": [
+      962,
+      0,
+      985,
+      889
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.95,
+       "entity": "ARC:D3,LINE:D4"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 28,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_001": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.8934,
+      "area_frac": 0.10372,
+      "centre_px": [
+       1541.6,
+       421.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 221993
+     },
+     "d_L0_003": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.0,
+      "area_frac": 0.01618,
+      "centre_px": null,
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 82080
+     },
+     "d_L0_004": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.6164,
+      "area_frac": 0.23573,
+      "centre_px": [
+       620.2,
+       539.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 480600
+     },
+     "d_L0_005": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.0,
+      "area_frac": 0.01508,
+      "centre_px": null,
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 37607
+     },
+     "f_L0_012": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.8867,
+      "area_frac": 0.09346,
+      "centre_px": [
+       1112.3,
+       827.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 58172
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_lobby_2": {
+   "camera": "cam_r_L0_lobby_2",
+   "room_id": "r_L0_lobby",
+   "room_type": "hall",
+   "room_label": "Lobby",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 5,
+     "wenart_id": "d_L0_005",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_living_room",
+      "r_L0_lobby"
+     ],
+     "own_room": true,
+     "pixels": 464400,
+     "area_frac": 0.223958,
+     "box_px": [
+      0,
+      0,
+      430,
+      1080
+     ],
+     "box_1000": [
+      0,
+      0,
+      224,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.95,
+       "entity": "ARC:D3,LINE:D4"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 2,
+     "wenart_id": "d_L0_002",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_bath",
+      "r_L0_lobby"
+     ],
+     "own_room": true,
+     "pixels": 185322,
+     "area_frac": 0.089372,
+     "box_px": [
+      1402,
+      55,
+      1674,
+      778
+     ],
+     "box_1000": [
+      730,
+      50,
+      872,
+      721
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.95,
+       "entity": "ARC:CD,LINE:CE"
+      }
+     ],
+     "host_decor": [],
+     "role": "required"
+    },
+    {
+     "index": 25,
+     "wenart_id": "f_L0_012",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_lobby",
+     "room_ids": [
+      "r_L0_lobby"
+     ],
+     "own_room": true,
+     "pixels": 77172,
+     "area_frac": 0.037216,
+     "box_px": [
+      1458,
+      680,
+      1869,
+      1080
+     ],
+     "box_1000": [
+      759,
+      629,
+      974,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.202,
+     "in_frame": 0.5531,
+     "unoccluded": 0.3652,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Mid-century modern chair for seating near the window area."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 4,
+     "wenart_id": "d_L0_004",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_lobby",
+      "r_L0_master_bed_room"
+     ],
+     "own_room": true,
+     "pixels": 32128,
+     "area_frac": 0.015494,
+     "box_px": [
+      1888,
+      0,
+      1920,
+      1008
+     ],
+     "box_1000": [
+      983,
+      0,
+      1000,
+      934
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.95,
+       "entity": "ARC:D1,LINE:D2"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 3,
+     "wenart_id": "d_L0_003",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_lobby",
+      "r_L0_bed_room"
+     ],
+     "own_room": true,
+     "pixels": 25552,
+     "area_frac": 0.012323,
+     "box_px": [
+      1835,
+      0,
+      1870,
+      892
+     ],
+     "box_1000": [
+      955,
+      0,
+      974,
+      826
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.95,
+       "entity": "ARC:CF,LINE:D0"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 10,
+     "wenart_id": "win_L0_005",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_bath"
+     ],
+     "own_room": false,
+     "pixels": 264,
+     "area_frac": 0.000127,
+     "box_px": [
+      1654,
+      161,
+      1655,
+      425
+     ],
+     "box_1000": [
+      861,
+      149,
+      862,
+      394
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "LINE:E5"
+      }
+     ],
+     "host_decor": [],
+     "role": "ignore"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 28,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_002": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.8792,
+      "area_frac": 0.08782,
+      "centre_px": [
+       1538.9,
+       421.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 185322
+     },
+     "d_L0_003": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.0,
+      "area_frac": 0.01862,
+      "centre_px": null,
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 25552
+     },
+     "d_L0_004": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.0,
+      "area_frac": 0.0,
+      "centre_px": null,
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 32128
+     },
+     "d_L0_005": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.2444,
+      "area_frac": 0.20109,
+      "centre_px": [
+       192.4,
+       541.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 464400
+     },
+     "win_L0_005": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.0,
+      "area_frac": 0.01797,
+      "centre_px": null,
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 264
+     },
+     "f_L0_012": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.6968,
+      "area_frac": 0.1019,
+      "centre_px": [
+       1672.7,
+       850.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 77172
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_lobby_3": {
+   "camera": "cam_r_L0_lobby_3",
+   "room_id": "r_L0_lobby",
+   "room_type": "hall",
+   "room_label": "Lobby",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 2,
+     "wenart_id": "d_L0_002",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_bath",
+      "r_L0_lobby"
+     ],
+     "own_room": true,
+     "pixels": 285757,
+     "area_frac": 0.137807,
+     "box_px": [
+      163,
+      0,
+      505,
+      886
+     ],
+     "box_1000": [
+      84,
+      0,
+      264,
+      821
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.95,
+       "entity": "ARC:CD,LINE:CE"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 4,
+     "wenart_id": "d_L0_004",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_lobby",
+      "r_L0_master_bed_room"
+     ],
+     "own_room": true,
+     "pixels": 221843,
+     "area_frac": 0.106984,
+     "box_px": [
+      825,
+      0,
+      1060,
+      1044
+     ],
+     "box_1000": [
+      429,
+      0,
+      553,
+      967
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.95,
+       "entity": "ARC:D1,LINE:D2"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 3,
+     "wenart_id": "d_L0_003",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_lobby",
+      "r_L0_bed_room"
+     ],
+     "own_room": true,
+     "pixels": 91806,
+     "area_frac": 0.044274,
+     "box_px": [
+      657,
+      0,
+      767,
+      919
+     ],
+     "box_1000": [
+      342,
+      0,
+      400,
+      851
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.95,
+       "entity": "ARC:CF,LINE:D0"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 25,
+     "wenart_id": "f_L0_012",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L0_lobby",
+     "room_ids": [
+      "r_L0_lobby"
+     ],
+     "own_room": true,
+     "pixels": 55269,
+     "area_frac": 0.026654,
+     "box_px": [
+      693,
+      711,
+      1179,
+      1080
+     ],
+     "box_1000": [
+      360,
+      658,
+      615,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0846,
+     "in_frame": 0.3574,
+     "unoccluded": 0.2366,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Mid-century modern chair for seating near the window area."
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 17,
+     "wenart_id": "f_L0_004",
+     "kind": "furniture",
+     "type": "toilet",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_bath",
+     "room_ids": [
+      "r_L0_bath"
+     ],
+     "own_room": false,
+     "pixels": 259,
+     "area_frac": 0.000125,
+     "box_px": [
+      189,
+      576,
+      191,
+      706
+     ],
+     "box_1000": [
+      98,
+      533,
+      100,
+      654
+     ],
+     "touches_border": false,
+     "visibility": 0.0056,
+     "in_frame": 1.0,
+     "unoccluded": 0.0056,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:103/0,INSERT:103/1",
+       "block": "WC"
+      }
+     ],
+     "host_decor": [],
+     "role": "ignore"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 28,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_002": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.8802,
+      "area_frac": 0.13513,
+      "centre_px": [
+       334.5,
+       439.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 285757
+     },
+     "d_L0_003": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.0,
+      "area_frac": 0.04761,
+      "centre_px": null,
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 91806
+     },
+     "d_L0_004": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.6334,
+      "area_frac": 0.12458,
+      "centre_px": [
+       951.3,
+       507.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 221843
+     },
+     "f_L0_004": {
+      "kind": "furniture",
+      "type": "toilet",
+      "visible_share": 0.0486,
+      "area_frac": 0.02218,
+      "centre_px": [
+       190.5,
+       596.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 259
+     },
+     "f_L0_012": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.4699,
+      "area_frac": 0.11265,
+      "centre_px": [
+       954.4,
+       880.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 55269
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_master_bed_room_1": {
+   "camera": "cam_r_L0_master_bed_room_1",
+   "room_id": "r_L0_master_bed_room",
+   "room_type": "bedroom",
+   "room_label": "Master Bed Room",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 14,
+     "wenart_id": "f_L0_001",
+     "kind": "furniture",
+     "type": "bed_double",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_master_bed_room",
+     "room_ids": [
+      "r_L0_master_bed_room"
+     ],
+     "own_room": true,
+     "pixels": 646795,
+     "area_frac": 0.311919,
+     "box_px": [
+      718,
+      508,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      373,
+      470,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0411,
+     "in_frame": 0.0499,
+     "unoccluded": 0.8253,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:101/0,INSERT:101/1,INSERT:101/2,INSERT:101/3",
+       "block": "BED-DOUBLE"
+      }
+     ],
+     "host_decor": [
+      "cushion"
+     ],
+     "role": "optional"
+    },
+    {
+     "index": 4,
+     "wenart_id": "d_L0_004",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_lobby",
+      "r_L0_master_bed_room"
+     ],
+     "own_room": true,
+     "pixels": 260110,
+     "area_frac": 0.125439,
+     "box_px": [
+      29,
+      0,
+      292,
+      1080
+     ],
+     "box_1000": [
+      15,
+      0,
+      153,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.95,
+       "entity": "ARC:D1,LINE:D2"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 28,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_004": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.7439,
+      "area_frac": 0.12474,
+      "centre_px": [
+       154.7,
+       526.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 260110
+     },
+     "f_L0_001": {
+      "kind": "furniture",
+      "type": "bed_double",
+      "visible_share": 0.3548,
+      "area_frac": 0.37795,
+      "centre_px": [
+       1161.3,
+       783.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 646795
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_master_bed_room_2": {
+   "camera": "cam_r_L0_master_bed_room_2",
+   "room_id": "r_L0_master_bed_room",
+   "room_type": "bedroom",
+   "room_label": "Master Bed Room",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 14,
+     "wenart_id": "f_L0_001",
+     "kind": "furniture",
+     "type": "bed_double",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_master_bed_room",
+     "room_ids": [
+      "r_L0_master_bed_room"
+     ],
+     "own_room": true,
+     "pixels": 622128,
+     "area_frac": 0.300023,
+     "box_px": [
+      813,
+      443,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      423,
+      410,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.4055,
+     "in_frame": 0.4464,
+     "unoccluded": 0.9082,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:101/0,INSERT:101/1,INSERT:101/2,INSERT:101/3",
+       "block": "BED-DOUBLE"
+      }
+     ],
+     "host_decor": [
+      "cushion"
+     ],
+     "role": "required"
+    },
+    {
+     "index": 9,
+     "wenart_id": "win_L0_004",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_master_bed_room"
+     ],
+     "own_room": true,
+     "pixels": 181082,
+     "area_frac": 0.087327,
+     "box_px": [
+      1550,
+      0,
+      1920,
+      514
+     ],
+     "box_1000": [
+      807,
+      0,
+      1000,
+      476
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "LINE:EF"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 4,
+     "wenart_id": "d_L0_004",
+     "kind": "door",
+     "type": "door",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_lobby",
+      "r_L0_master_bed_room"
+     ],
+     "own_room": true,
+     "pixels": 32128,
+     "area_frac": 0.015494,
+     "box_px": [
+      0,
+      0,
+      32,
+      1008
+     ],
+     "box_1000": [
+      0,
+      0,
+      17,
+      934
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.95,
+       "entity": "ARC:D1,LINE:D2"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 28,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "d_L0_004": {
+      "kind": "door",
+      "type": "door",
+      "visible_share": 0.0,
+      "area_frac": 0.0,
+      "centre_px": null,
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 32128
+     },
+     "win_L0_004": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.5509,
+      "area_frac": 0.08467,
+      "centre_px": [
+       1740.0,
+       251.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 181082
+     },
+     "f_L0_001": {
+      "kind": "furniture",
+      "type": "bed_double",
+      "visible_share": 0.6136,
+      "area_frac": 0.33034,
+      "centre_px": [
+       1367.8,
+       761.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 622128
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L0_master_bed_room_3": {
+   "camera": "cam_r_L0_master_bed_room_3",
+   "room_id": "r_L0_master_bed_room",
+   "room_type": "bedroom",
+   "room_label": "Master Bed Room",
+   "level_id": "L0",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 14,
+     "wenart_id": "f_L0_001",
+     "kind": "furniture",
+     "type": "bed_double",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L0_master_bed_room",
+     "room_ids": [
+      "r_L0_master_bed_room"
+     ],
+     "own_room": true,
+     "pixels": 596490,
+     "area_frac": 0.287659,
+     "box_px": [
+      562,
+      457,
+      1909,
+      1080
+     ],
+     "box_1000": [
+      292,
+      423,
+      995,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.4717,
+     "in_frame": 0.6497,
+     "unoccluded": 0.726,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:101/0,INSERT:101/1,INSERT:101/2,INSERT:101/3",
+       "block": "BED-DOUBLE"
+      }
+     ],
+     "host_decor": [
+      "cushion"
+     ],
+     "role": "required"
+    },
+    {
+     "index": 9,
+     "wenart_id": "win_L0_004",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_master_bed_room"
+     ],
+     "own_room": true,
+     "pixels": 234273,
+     "area_frac": 0.112979,
+     "box_px": [
+      556,
+      0,
+      1077,
+      496
+     ],
+     "box_1000": [
+      289,
+      0,
+      561,
+      460
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "LINE:EF"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 13,
+     "wenart_id": "win_L0_008",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L0_master_bed_room"
+     ],
+     "own_room": true,
+     "pixels": 124008,
+     "area_frac": 0.059803,
+     "box_px": [
+      1667,
+      0,
+      1920,
+      506
+     ],
+     "box_1000": [
+      868,
+      0,
+      1000,
+      469
+     ],
+     "touches_border": true,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "synthetic-06.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "LINE:F4"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    },
+    {
+     "index": 31,
+     "wenart_id": "dec_L0_009",
+     "kind": "decor",
+     "type": "plant",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "assumed",
+     "room_id": "r_L0_master_bed_room",
+     "room_ids": [
+      "r_L0_master_bed_room"
+     ],
+     "own_room": true,
+     "pixels": 39622,
+     "area_frac": 0.019108,
+     "box_px": [
+      45,
+      744,
+      304,
+      1054
+     ],
+     "box_1000": [
+      23,
+      688,
+      159,
+      976
+     ],
+     "touches_border": false,
+     "visibility": 0.422,
+     "in_frame": 0.9812,
+     "unoccluded": 0.4301,
+     "evidence": [
+      {
+       "file": "decor",
+       "method": "rule",
+       "confidence": 1.0,
+       "text": "plant in r_L0_master_bed_room on the floor"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional"
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L0",
+    "tested": 28,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L0_004": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.9669,
+      "area_frac": 0.11418,
+      "centre_px": [
+       817.2,
+       242.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 234273
+     },
+     "win_L0_008": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.4454,
+      "area_frac": 0.05745,
+      "centre_px": [
+       1795.1,
+       247.6
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 124008
+     },
+     "f_L0_001": {
+      "kind": "furniture",
+      "type": "bed_double",
+      "visible_share": 0.8632,
+      "area_frac": 0.39624,
+      "centre_px": [
+       1233.4,
+       757.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 596490
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  }
+ },
+ "warnings": []
+}

@@ -1,0 +1,102 @@
+{
+ "schema_version": "0.1",
+ "dir_relative_to": "project_out",
+ "controls": [
+  {
+   "id": "f_L0_001",
+   "index": 12,
+   "kind": "furniture",
+   "type": "sofa",
+   "camera": "cam_r_L0_salon_1",
+   "room_id": "r_L0_salon",
+   "area_frac": 0.10951,
+   "source": "from_documents",
+   "plug": false,
+   "dir": "controls/hide_f_L0_001"
+  },
+  {
+   "id": "f_L0_018",
+   "index": 29,
+   "kind": "furniture",
+   "type": "fridge",
+   "camera": "cam_r_L0_mutfak_1",
+   "room_id": "r_L0_mutfak",
+   "area_frac": 0.08477,
+   "source": "added_by_ai",
+   "plug": false,
+   "dir": "controls/hide_f_L0_018"
+  },
+  {
+   "id": "f_L1_006",
+   "index": 47,
+   "kind": "furniture",
+   "type": "dresser",
+   "camera": "cam_r_L1_hol_2",
+   "room_id": "r_L1_hol",
+   "area_frac": 0.08067,
+   "source": "added_by_ai",
+   "plug": false,
+   "dir": "controls/hide_f_L1_006"
+  },
+  {
+   "id": "win_L1_003",
+   "index": 38,
+   "kind": "window",
+   "type": "window",
+   "camera": "cam_r_L1_ebeveyn_yatak_odasi_2",
+   "room_id": "r_L1_ebeveyn_yatak_odasi",
+   "area_frac": 0.08834,
+   "source": "from_documents",
+   "plug": true,
+   "dir": "controls/hide_win_L1_003"
+  },
+  {
+   "id": "win_L0_001",
+   "index": 6,
+   "kind": "window",
+   "type": "window",
+   "camera": "cam_r_L0_salon_2",
+   "room_id": "r_L0_salon",
+   "area_frac": 0.06911,
+   "source": "from_documents",
+   "plug": true,
+   "dir": "controls/hide_win_L0_001"
+  },
+  {
+   "id": "d_L1_002",
+   "index": 33,
+   "kind": "door",
+   "type": "door",
+   "camera": "cam_r_L1_cocuk_odasi_1",
+   "room_id": "r_L1_cocuk_odasi",
+   "area_frac": 0.10004,
+   "source": "from_documents",
+   "plug": false,
+   "dir": "controls/hide_d_L1_002"
+  }
+ ],
+ "swaps": [
+  {
+   "id": "f_L0_001",
+   "index": 12,
+   "type": "sofa",
+   "camera": "cam_r_L0_salon_1",
+   "room_id": "r_L0_salon",
+   "area_frac": 0.10951,
+   "source": "from_documents",
+   "swap_to": "bed_double"
+  },
+  {
+   "id": "f_L1_005",
+   "index": 46,
+   "type": "desk",
+   "camera": "cam_r_L1_ebeveyn_yatak_odasi_1",
+   "room_id": "r_L1_ebeveyn_yatak_odasi",
+   "area_frac": 0.04218,
+   "source": "added_by_ai",
+   "swap_to": "armchair"
+  }
+ ],
+ "project": "synthetic-01",
+ "hide_sets": "cam_r_L0_salon_1:f_L0_001;cam_r_L0_mutfak_1:f_L0_018;cam_r_L1_hol_2:f_L1_006;cam_r_L1_ebeveyn_yatak_odasi_2:win_L1_003+plug;cam_r_L0_salon_2:win_L0_001+plug;cam_r_L1_cocuk_odasi_1:d_L1_002"
+}

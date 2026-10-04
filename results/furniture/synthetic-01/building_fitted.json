@@ -1,0 +1,3072 @@
+{
+ "schema_version": "0.1",
+ "project": {
+  "id": "synthetic-01",
+  "source_folder": "projects/synthetic-01",
+  "created_utc": "2026-10-04T00:05:42Z",
+  "pipeline_commit": "2be169d6",
+  "brief": {
+   "style": "Scandinavian, light oak floor, white walls, linen textiles, warm daylight"
+  }
+ },
+ "status": "ok",
+ "documents": [
+  {
+   "id": "doc_1_kat_pdf",
+   "file": "1_kat.pdf",
+   "format": "pdf",
+   "converter": null,
+   "pages": [
+    {
+     "page": 1,
+     "class": "floor_plan",
+     "skip_reason": null,
+     "kind": "vector",
+     "level_id": "L1",
+     "level_label_raw": "1. KAT PLANI",
+     "classifier": "title",
+     "scale": {
+      "metres_per_unit": 0.035277777777777776,
+      "method": "pdf_scale_text",
+      "confidence": 1.0,
+      "evidence": {
+       "file": "1_kat.pdf",
+       "method": "vector",
+       "confidence": 1.0,
+       "page": 1,
+       "entity": "char:40",
+       "text": "ÖLÇEK 1/100"
+      }
+     },
+     "transform_to_building": [
+      0.035277777777777776,
+      0.0,
+      -16.848666666666666,
+      0.0,
+      0.035277777777777776,
+      -11.151305555555556
+     ],
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "1_kat.pdf",
+       "method": "vector",
+       "confidence": 1.0,
+       "page": 1,
+       "entity": "char:28",
+       "text": "1. KAT PLANI"
+      }
+     ],
+     "debug_image": "debug/1_kat_pdf_p1.png"
+    }
+   ],
+   "unit_system": "metric",
+   "source_kind": "cad_pdf"
+  },
+  {
+   "id": "doc_1_kat_scan_png",
+   "file": "1_kat_scan.png",
+   "format": "image",
+   "converter": null,
+   "pages": [
+    {
+     "page": 1,
+     "class": "floor_plan",
+     "skip_reason": null,
+     "kind": "scan",
+     "level_id": "L1",
+     "level_label_raw": "1. KAT PLANI",
+     "classifier": "ocr",
+     "scale": {
+      "metres_per_unit": 0.01695835025823463,
+      "method": "dimension_text",
+      "confidence": 0.9,
+      "evidence": {
+       "file": "1_kat_scan.png",
+       "method": "ocr",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "ocr:8",
+       "text": "4,30",
+       "model": "tesseract --oem 1 --psm 7 -l eng+tur (glyph row)",
+       "pixel_box": [
+        1103.7,
+        1113.0,
+        1140.2,
+        1127.0
+       ]
+      }
+     },
+     "transform_to_building": [
+      0.01695835025823463,
+      0.0,
+      -16.86,
+      0.0,
+      0.01695835025823463,
+      -11.1389
+     ],
+     "confidence": 0.9,
+     "evidence": [
+      {
+       "file": "1_kat_scan.png",
+       "method": "ocr",
+       "confidence": 0.9353,
+       "page": 1,
+       "pixel_box": [
+        996.9,
+        583.5,
+        1127.5,
+        599.5
+       ],
+       "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+       "text": "1. KAT PLANI"
+      },
+      {
+       "file": "1_kat_scan.png",
+       "method": "raster",
+       "confidence": 0.9,
+       "text": "kind: paper outline fills the image"
+      }
+     ],
+     "debug_image": "debug/1_kat_scan_png_p1.png",
+     "rectified_image": "rectified/1_kat_scan_png_p1.png",
+     "to_original": [
+      [
+       0.999999888,
+       -0.000472818,
+       -0.499054271
+      ],
+      [
+       -0.000472818,
+       -0.999999888,
+       1755.500195836
+      ],
+      [
+       0.0,
+       0.0,
+       1.0
+      ]
+     ]
+    }
+   ],
+   "unit_system": "metric",
+   "source_kind": "raster_scan"
+  },
+  {
+   "id": "doc_zemin_kat_dxf",
+   "file": "zemin_kat.dxf",
+   "format": "dxf",
+   "converter": null,
+   "pages": [
+    {
+     "page": 1,
+     "class": "floor_plan",
+     "skip_reason": null,
+     "kind": "vector",
+     "level_id": "L0",
+     "level_label_raw": "ZEMİN KAT PLANI",
+     "classifier": "title",
+     "scale": {
+      "metres_per_unit": 0.001,
+      "method": "dxf_insunits",
+      "confidence": 1.0,
+      "evidence": {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "entity": "$INSUNITS=4"
+      }
+     },
+     "transform_to_building": [
+      0.001,
+      0.0,
+      0.0,
+      0.0,
+      0.001,
+      0.0
+     ],
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "entity": "TEXT:124",
+       "text": "ZEMİN KAT PLANI"
+      }
+     ],
+     "debug_image": "debug/zemin_kat_dxf_p1.png"
+    }
+   ],
+   "unit_system": "metric",
+   "source_kind": "dxf"
+  }
+ ],
+ "levels": [
+  {
+   "id": "L0",
+   "label": "Zemin Kat",
+   "order": 0,
+   "elevation": 0.0,
+   "ceiling_height": 2.7,
+   "ceiling_height_source": "assumed_default",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "entity": "TEXT:124",
+     "text": "ZEMİN KAT PLANI"
+    }
+   ],
+   "label_source": "title"
+  },
+  {
+   "id": "L1",
+   "label": "1. Kat",
+   "order": 1,
+   "elevation": 3.0,
+   "ceiling_height": 2.7,
+   "ceiling_height_source": "assumed_default",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:28",
+     "text": "1. KAT PLANI"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "ocr",
+     "confidence": 0.9353,
+     "page": 1,
+     "pixel_box": [
+      996.9,
+      583.5,
+      1127.5,
+      599.5
+     ],
+     "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+     "text": "1. KAT PLANI"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.9,
+     "text": "kind: paper outline fills the image"
+    }
+   ],
+   "label_source": "title"
+  }
+ ],
+ "walls": [
+  {
+   "id": "w_L0_001",
+   "level_id": "L0",
+   "start": [
+    0.0,
+    0.125
+   ],
+   "end": [
+    9.6,
+    0.125
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:EC"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_002",
+   "level_id": "L0",
+   "start": [
+    9.475,
+    0.0
+   ],
+   "end": [
+    9.475,
+    7.2
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:ED"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_003",
+   "level_id": "L0",
+   "start": [
+    0.0,
+    7.075
+   ],
+   "end": [
+    9.6,
+    7.075
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:EE"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_004",
+   "level_id": "L0",
+   "start": [
+    0.125,
+    0.0
+   ],
+   "end": [
+    0.125,
+    7.2
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:EF"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_005",
+   "level_id": "L0",
+   "start": [
+    5.3,
+    0.25
+   ],
+   "end": [
+    5.3,
+    6.95
+   ],
+   "thickness": 0.1,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:F0"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_006",
+   "level_id": "L0",
+   "start": [
+    0.25,
+    5.2
+   ],
+   "end": [
+    5.25,
+    5.2
+   ],
+   "thickness": 0.1,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:F1"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_007",
+   "level_id": "L0",
+   "start": [
+    5.35,
+    3.8
+   ],
+   "end": [
+    9.35,
+    3.8
+   ],
+   "thickness": 0.1,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:F2"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_008",
+   "level_id": "L0",
+   "start": [
+    7.0,
+    3.85
+   ],
+   "end": [
+    7.0,
+    6.95
+   ],
+   "thickness": 0.1,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:F3"
+    }
+   ]
+  },
+  {
+   "id": "w_L1_001",
+   "level_id": "L1",
+   "start": [
+    0.0,
+    0.125
+   ],
+   "end": [
+    9.6,
+    0.125
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:1"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      993.9,
+      1080.4,
+      1564.7,
+      1095.4
+     ]
+    }
+   ]
+  },
+  {
+   "id": "w_L1_002",
+   "level_id": "L1",
+   "start": [
+    9.475,
+    0.0
+   ],
+   "end": [
+    9.475,
+    7.2
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:2"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "note": "run of 2 pieces"
+    }
+   ]
+  },
+  {
+   "id": "w_L1_003",
+   "level_id": "L1",
+   "start": [
+    0.0,
+    7.075
+   ],
+   "end": [
+    9.6,
+    7.075
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:3"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      994.3,
+      670.1,
+      1564.5,
+      684.5
+     ]
+    }
+   ]
+  },
+  {
+   "id": "w_L1_004",
+   "level_id": "L1",
+   "start": [
+    0.125,
+    0.0
+   ],
+   "end": [
+    0.125,
+    7.2
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:4"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "note": "run of 2 pieces"
+    }
+   ]
+  },
+  {
+   "id": "w_L1_005",
+   "level_id": "L1",
+   "start": [
+    4.3,
+    0.25
+   ],
+   "end": [
+    4.3,
+    6.95
+   ],
+   "thickness": 0.1,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:5"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      1245.4,
+      685.2,
+      1251.2,
+      1080.6
+     ]
+    }
+   ]
+  },
+  {
+   "id": "w_L1_006",
+   "level_id": "L1",
+   "start": [
+    6.0,
+    0.25
+   ],
+   "end": [
+    6.0,
+    6.95
+   ],
+   "thickness": 0.1,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:6"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      1346.0,
+      684.3,
+      1352.1,
+      1079.6
+     ]
+    }
+   ]
+  },
+  {
+   "id": "w_L1_007",
+   "level_id": "L1",
+   "start": [
+    0.25,
+    4.2
+   ],
+   "end": [
+    4.25,
+    4.2
+   ],
+   "thickness": 0.1,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:7"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      1009.1,
+      844.1,
+      1245.4,
+      851.6
+     ]
+    }
+   ]
+  },
+  {
+   "id": "w_L1_008",
+   "level_id": "L1",
+   "start": [
+    6.05,
+    4.0
+   ],
+   "end": [
+    9.35,
+    4.0
+   ],
+   "thickness": 0.1,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:8"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      1352.1,
+      855.8,
+      1547.0,
+      863.3
+     ]
+    }
+   ]
+  }
+ ],
+ "openings": [
+  {
+   "id": "d_L0_001",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_003",
+   "center": [
+    6.15,
+    7.075
+   ],
+   "width": 0.9,
+   "height": null,
+   "sill_height": null,
+   "swing_side": "r_L0_hol",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "KAPI",
+     "entity": "INSERT:F4",
+     "block": "KAPI_90"
+    }
+   ]
+  },
+  {
+   "id": "d_L0_002",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_005",
+   "center": [
+    5.3,
+    4.5
+   ],
+   "width": 0.9,
+   "height": null,
+   "sill_height": null,
+   "swing_side": "r_L0_salon",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "KAPI",
+     "entity": "INSERT:F6",
+     "block": "KAPI_90"
+    }
+   ]
+  },
+  {
+   "id": "d_L0_003",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_005",
+   "center": [
+    5.3,
+    6.1
+   ],
+   "width": 0.8,
+   "height": null,
+   "sill_height": null,
+   "swing_side": "r_L0_mutfak",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "KAPI",
+     "entity": "INSERT:F8",
+     "block": "KAPI_80"
+    }
+   ]
+  },
+  {
+   "id": "d_L0_004",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_007",
+   "center": [
+    5.95,
+    3.8
+   ],
+   "width": 0.8,
+   "height": null,
+   "sill_height": null,
+   "swing_side": "r_L0_yatak_odasi",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "KAPI",
+     "entity": "INSERT:FA",
+     "block": "KAPI_80"
+    }
+   ]
+  },
+  {
+   "id": "d_L0_005",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_008",
+   "center": [
+    7.0,
+    5.4
+   ],
+   "width": 0.8,
+   "height": null,
+   "sill_height": null,
+   "swing_side": "r_L0_banyo",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "KAPI",
+     "entity": "INSERT:FC",
+     "block": "KAPI_80"
+    }
+   ]
+  },
+  {
+   "id": "win_L0_001",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_001",
+   "center": [
+    1.5,
+    0.125
+   ],
+   "width": 1.8,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "PENCERE",
+     "entity": "INSERT:FE",
+     "block": "PENCERE_180"
+    }
+   ]
+  },
+  {
+   "id": "win_L0_002",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_001",
+   "center": [
+    3.8,
+    0.125
+   ],
+   "width": 1.2,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "PENCERE",
+     "entity": "INSERT:100",
+     "block": "PENCERE_120"
+    }
+   ]
+  },
+  {
+   "id": "win_L0_003",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_001",
+   "center": [
+    7.35,
+    0.125
+   ],
+   "width": 1.8,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "PENCERE",
+     "entity": "INSERT:102",
+     "block": "PENCERE_180"
+    }
+   ]
+  },
+  {
+   "id": "win_L0_004",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_004",
+   "center": [
+    0.125,
+    2.7
+   ],
+   "width": 1.2,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "PENCERE",
+     "entity": "INSERT:104",
+     "block": "PENCERE_120"
+    }
+   ]
+  },
+  {
+   "id": "win_L0_005",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_003",
+   "center": [
+    2.75,
+    7.075
+   ],
+   "width": 1.2,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "PENCERE",
+     "entity": "INSERT:106",
+     "block": "PENCERE_120"
+    }
+   ]
+  },
+  {
+   "id": "win_L0_006",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_003",
+   "center": [
+    8.2,
+    7.075
+   ],
+   "width": 0.6,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "PENCERE",
+     "entity": "INSERT:108",
+     "block": "PENCERE_60"
+    }
+   ]
+  },
+  {
+   "id": "d_L1_001",
+   "type": "door",
+   "level_id": "L1",
+   "wall_id": "w_L1_005",
+   "center": [
+    4.3,
+    2.0
+   ],
+   "width": 0.9,
+   "height": null,
+   "sill_height": null,
+   "swing_side": "r_L1_ebeveyn_yatak_odasi",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:9"
+    }
+   ]
+  },
+  {
+   "id": "d_L1_002",
+   "type": "door",
+   "level_id": "L1",
+   "wall_id": "w_L1_005",
+   "center": [
+    4.3,
+    5.5
+   ],
+   "width": 0.8,
+   "height": null,
+   "sill_height": null,
+   "swing_side": "r_L1_cocuk_odasi",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:11"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "arc:2,seg:54",
+     "pixel_box": [
+      1198.0,
+      747.4,
+      1248.1,
+      793.9
+     ]
+    }
+   ]
+  },
+  {
+   "id": "d_L1_003",
+   "type": "door",
+   "level_id": "L1",
+   "wall_id": "w_L1_006",
+   "center": [
+    6.0,
+    2.0
+   ],
+   "width": 0.9,
+   "height": null,
+   "sill_height": null,
+   "swing_side": "r_L1_yatak_odasi",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:13"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "arc:3,seg:65",
+     "pixel_box": [
+      1349.8,
+      950.8,
+      1405.5,
+      1003.3
+     ]
+    }
+   ]
+  },
+  {
+   "id": "d_L1_004",
+   "type": "door",
+   "level_id": "L1",
+   "wall_id": "w_L1_006",
+   "center": [
+    6.0,
+    5.5
+   ],
+   "width": 0.8,
+   "height": null,
+   "sill_height": null,
+   "swing_side": "r_L1_banyo",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:15"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "arc:1,seg:52",
+     "pixel_box": [
+      1348.6,
+      746.9,
+      1400.3,
+      794.9
+     ]
+    }
+   ]
+  },
+  {
+   "id": "win_L1_001",
+   "type": "window",
+   "level_id": "L1",
+   "wall_id": "w_L1_001",
+   "center": [
+    2.25,
+    0.125
+   ],
+   "width": 1.8,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:17"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:108,seg:98",
+     "pixel_box": [
+      1073.2,
+      1080.6,
+      1183.2,
+      1095.4
+     ]
+    }
+   ]
+  },
+  {
+   "id": "win_L1_002",
+   "type": "window",
+   "level_id": "L1",
+   "wall_id": "w_L1_001",
+   "center": [
+    7.7,
+    0.125
+   ],
+   "width": 1.8,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:21"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:106,seg:94",
+     "pixel_box": [
+      1395.2,
+      1080.5,
+      1505.2,
+      1095.3
+     ]
+    }
+   ]
+  },
+  {
+   "id": "win_L1_003",
+   "type": "window",
+   "level_id": "L1",
+   "wall_id": "w_L1_004",
+   "center": [
+    0.125,
+    2.2
+   ],
+   "width": 1.2,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:25"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:63,seg:64",
+     "pixel_box": [
+      994.4,
+      930.0,
+      1009.2,
+      1002.0
+     ]
+    }
+   ]
+  },
+  {
+   "id": "win_L1_004",
+   "type": "window",
+   "level_id": "L1",
+   "wall_id": "w_L1_003",
+   "center": [
+    2.25,
+    7.075
+   ],
+   "width": 1.2,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:29"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:23,seg:41",
+     "pixel_box": [
+      1091.0,
+      670.3,
+      1164.0,
+      684.4
+     ]
+    }
+   ]
+  },
+  {
+   "id": "win_L1_005",
+   "type": "window",
+   "level_id": "L1",
+   "wall_id": "w_L1_003",
+   "center": [
+    5.15,
+    7.075
+   ],
+   "width": 0.6,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:33"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:25,seg:38",
+     "pixel_box": [
+      1280.0,
+      670.2,
+      1318.0,
+      684.4
+     ]
+    }
+   ]
+  },
+  {
+   "id": "win_L1_006",
+   "type": "window",
+   "level_id": "L1",
+   "wall_id": "w_L1_003",
+   "center": [
+    7.7,
+    7.075
+   ],
+   "width": 0.6,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:37"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:26,seg:37",
+     "pixel_box": [
+      1431.0,
+      670.1,
+      1468.0,
+      684.3
+     ]
+    }
+   ]
+  }
+ ],
+ "rooms": [
+  {
+   "id": "r_L0_salon",
+   "level_id": "L0",
+   "label": "Salon",
+   "label_raw": "SALON 24,50 m²",
+   "room_type": "living",
+   "polygon": [
+    [
+     0.25,
+     0.25
+    ],
+    [
+     5.25,
+     0.25
+    ],
+    [
+     5.25,
+     5.15
+    ],
+    [
+     0.25,
+     5.15
+    ]
+   ],
+   "area_computed": 24.5,
+   "area_label": 24.5,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "YAZI",
+     "entity": "TEXT:126",
+     "text": "SALON 24,50 m²"
+    },
+    {
+     "file": "zemin_kat.dxf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_001,w_L0_004,w_L0_005,w_L0_006"
+    }
+   ]
+  },
+  {
+   "id": "r_L0_yatak_odasi",
+   "level_id": "L0",
+   "label": "Yatak Odası",
+   "label_raw": "YATAK ODASI",
+   "room_type": "bedroom",
+   "polygon": [
+    [
+     5.35,
+     0.25
+    ],
+    [
+     9.35,
+     0.25
+    ],
+    [
+     9.35,
+     3.75
+    ],
+    [
+     5.35,
+     3.75
+    ]
+   ],
+   "area_computed": 14.0,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "YAZI",
+     "entity": "TEXT:127",
+     "text": "YATAK ODASI"
+    },
+    {
+     "file": "zemin_kat.dxf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_001,w_L0_002,w_L0_005,w_L0_007"
+    }
+   ]
+  },
+  {
+   "id": "r_L0_hol",
+   "level_id": "L0",
+   "label": "Hol",
+   "label_raw": "HOL",
+   "room_type": "hall",
+   "polygon": [
+    [
+     5.35,
+     3.85
+    ],
+    [
+     6.95,
+     3.85
+    ],
+    [
+     6.95,
+     6.95
+    ],
+    [
+     5.35,
+     6.95
+    ]
+   ],
+   "area_computed": 4.96,
+   "area_label": null,
+   "has_documented_furniture": false,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "YAZI",
+     "entity": "TEXT:128",
+     "text": "HOL"
+    },
+    {
+     "file": "zemin_kat.dxf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_003,w_L0_005,w_L0_007,w_L0_008"
+    }
+   ]
+  },
+  {
+   "id": "r_L0_banyo",
+   "level_id": "L0",
+   "label": "Banyo",
+   "label_raw": "BANYO",
+   "room_type": "bathroom",
+   "polygon": [
+    [
+     7.05,
+     3.85
+    ],
+    [
+     9.35,
+     3.85
+    ],
+    [
+     9.35,
+     6.95
+    ],
+    [
+     7.05,
+     6.95
+    ]
+   ],
+   "area_computed": 7.13,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "YAZI",
+     "entity": "TEXT:129",
+     "text": "BANYO"
+    },
+    {
+     "file": "zemin_kat.dxf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_002,w_L0_003,w_L0_007,w_L0_008"
+    }
+   ]
+  },
+  {
+   "id": "r_L0_mutfak",
+   "level_id": "L0",
+   "label": "Mutfak",
+   "label_raw": "MUTFAK",
+   "room_type": "kitchen",
+   "polygon": [
+    [
+     0.25,
+     5.25
+    ],
+    [
+     5.25,
+     5.25
+    ],
+    [
+     5.25,
+     6.95
+    ],
+    [
+     0.25,
+     6.95
+    ]
+   ],
+   "area_computed": 8.5,
+   "area_label": null,
+   "has_documented_furniture": false,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "YAZI",
+     "entity": "TEXT:12A",
+     "text": "MUTFAK"
+    },
+    {
+     "file": "zemin_kat.dxf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_003,w_L0_004,w_L0_005,w_L0_006"
+    }
+   ]
+  },
+  {
+   "id": "r_L1_ebeveyn_yatak_odasi",
+   "level_id": "L1",
+   "label": "Ebeveyn Yatak Odası",
+   "label_raw": "EBEVEYN YATAK ODASI",
+   "room_type": "bedroom",
+   "polygon": [
+    [
+     0.25,
+     0.25
+    ],
+    [
+     4.25,
+     0.25
+    ],
+    [
+     4.25,
+     4.15
+    ],
+    [
+     0.25,
+     4.15
+    ]
+   ],
+   "area_computed": 15.6,
+   "area_label": null,
+   "has_documented_furniture": false,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:51",
+     "text": "EBEVEYN YATAK ODASI"
+    },
+    {
+     "file": "1_kat.pdf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L1_001,w_L1_004,w_L1_005,w_L1_007"
+    }
+   ]
+  },
+  {
+   "id": "r_L1_hol",
+   "level_id": "L1",
+   "label": "Hol",
+   "label_raw": "HOL",
+   "room_type": "hall",
+   "polygon": [
+    [
+     4.35,
+     0.25
+    ],
+    [
+     5.95,
+     0.25
+    ],
+    [
+     5.95,
+     6.95
+    ],
+    [
+     4.35,
+     6.95
+    ]
+   ],
+   "area_computed": 10.72,
+   "area_label": null,
+   "has_documented_furniture": false,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:70",
+     "text": "HOL"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "ocr",
+     "confidence": 0.964,
+     "page": 1,
+     "pixel_box": [
+      1267.6,
+      874.9,
+      1301.6,
+      888.4
+     ],
+     "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+     "text": "HOL"
+    },
+    {
+     "file": "1_kat.pdf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L1_001,w_L1_003,w_L1_005,w_L1_006"
+    }
+   ]
+  },
+  {
+   "id": "r_L1_yatak_odasi",
+   "level_id": "L1",
+   "label": "Yatak Odası",
+   "label_raw": "YATAK ODASI",
+   "room_type": "bedroom",
+   "polygon": [
+    [
+     6.05,
+     0.25
+    ],
+    [
+     9.35,
+     0.25
+    ],
+    [
+     9.35,
+     3.95
+    ],
+    [
+     6.05,
+     3.95
+    ]
+   ],
+   "area_computed": 12.21,
+   "area_label": null,
+   "has_documented_furniture": false,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:73",
+     "text": "YATAK ODASI"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "ocr",
+     "confidence": 0.9244,
+     "page": 1,
+     "pixel_box": [
+      1372.6,
+      975.8,
+      1484.6,
+      989.9
+     ],
+     "model": "tesseract --oem 1 --psm 7 -l eng+tur (glyph row)",
+     "text": "YATAK ODASI"
+    },
+    {
+     "file": "1_kat.pdf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L1_001,w_L1_002,w_L1_006,w_L1_008"
+    }
+   ]
+  },
+  {
+   "id": "r_L1_banyo",
+   "level_id": "L1",
+   "label": "Banyo",
+   "label_raw": "BANYO",
+   "room_type": "bathroom",
+   "polygon": [
+    [
+     6.05,
+     4.05
+    ],
+    [
+     9.35,
+     4.05
+    ],
+    [
+     9.35,
+     6.95
+    ],
+    [
+     6.05,
+     6.95
+    ]
+   ],
+   "area_computed": 9.57,
+   "area_label": null,
+   "has_documented_furniture": false,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:84",
+     "text": "BANYO"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "ocr",
+     "confidence": 0.8903,
+     "page": 1,
+     "pixel_box": [
+      1373.5,
+      762.3,
+      1431.5,
+      776.9
+     ],
+     "model": "tesseract --oem 1 --psm 7 -l eng+tur (glyph row)",
+     "text": "BANYO"
+    },
+    {
+     "file": "1_kat.pdf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L1_002,w_L1_003,w_L1_006,w_L1_008"
+    }
+   ]
+  },
+  {
+   "id": "r_L1_cocuk_odasi",
+   "level_id": "L1",
+   "label": "Çocuk Odası",
+   "label_raw": "ÇOCUK ODASI",
+   "room_type": "bedroom",
+   "polygon": [
+    [
+     0.25,
+     4.25
+    ],
+    [
+     4.25,
+     4.25
+    ],
+    [
+     4.25,
+     6.95
+    ],
+    [
+     0.25,
+     6.95
+    ]
+   ],
+   "area_computed": 10.8,
+   "area_label": null,
+   "has_documented_furniture": false,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:89",
+     "text": "ÇOCUK ODASI"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "ocr",
+     "confidence": 0.9605,
+     "page": 1,
+     "pixel_box": [
+      1030.5,
+      757.0,
+      1146.5,
+      773.5
+     ],
+     "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+     "text": "ÇOCUK ODASI"
+    },
+    {
+     "file": "1_kat.pdf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L1_003,w_L1_004,w_L1_005,w_L1_007"
+    }
+   ]
+  }
+ ],
+ "furniture": [
+  {
+   "id": "f_L0_001",
+   "level_id": "L0",
+   "room_id": "r_L0_salon",
+   "type": "sofa",
+   "type_raw": "KANEPE_3LU",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     2.75,
+     4.65
+    ],
+    "size": [
+     2.2,
+     0.9
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "objaverse",
+    "asset_id": "objaverse_42da0122f2134a189767d0911b401c1c",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     1.019,
+     1.0008,
+     1.0099
+    ],
+    "bbox_m": [
+     2.2,
+     0.9,
+     0.7143
+    ],
+    "aspect_error": 0.0181,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0037,
+     0.0481,
+     0.0077
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_42da0122f2134a189767d0911b401c1c",
+      "aspect_error": 0.0181,
+      "scale": [
+       1.019,
+       1.0008,
+       1.0099
+      ],
+      "non_uniform": 1.0182,
+      "mean_scale": 1.0099,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "modern minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "glb": "models/objaverse/42da0122f2134a189767d0911b401c1c.glb",
+    "sha256_glb": "3c11c4750eca45c3c6f7d30b3a3505bc1512ce96ec70a71c99b30133e86a8e14",
+    "uid": "42da0122f2134a189767d0911b401c1c",
+    "title": "Couch Gameready",
+    "author": "elijahorama",
+    "source_url": "https://sketchfab.com/3d-models/42da0122f2134a189767d0911b401c1c",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Couch Gameready\" by elijahorama (https://sketchfab.com/3d-models/42da0122f2134a189767d0911b401c1c), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 1.0
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:10A",
+     "block": "KANEPE_3LU"
+    }
+   ]
+  },
+  {
+   "id": "f_L0_002",
+   "level_id": "L0",
+   "room_id": "r_L0_salon",
+   "type": "table_coffee",
+   "type_raw": "SEHPA",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     2.75,
+     3.5
+    ],
+    "size": [
+     1.0,
+     0.6
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "objaverse",
+    "asset_id": "objaverse_f4031bb5f7e64ebca4c37d4fa5ba6e8d",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.8358,
+     0.8974,
+     0.8666
+    ],
+    "bbox_m": [
+     1.0,
+     0.6,
+     0.3122
+    ],
+    "aspect_error": 0.0711,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     -0.2132
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "low",
+    "candidates": [
+     {
+      "id": "CoffeeTable_01",
+      "aspect_error": 0.0515,
+      "scale": [
+       0.6494,
+       0.6168,
+       0.6331
+      ],
+      "non_uniform": 1.0528,
+      "mean_scale": 0.6331,
+      "accepted": false
+     },
+     {
+      "id": "objaverse_f4031bb5f7e64ebca4c37d4fa5ba6e8d",
+      "aspect_error": 0.0711,
+      "scale": [
+       0.8358,
+       0.8974,
+       0.8666
+      ],
+      "non_uniform": 1.0737,
+      "mean_scale": 0.8666,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "classic",
+     "rustic"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "glb": "models/objaverse/f4031bb5f7e64ebca4c37d4fa5ba6e8d.glb",
+    "sha256_glb": "2bc22be99daf7683d44c72511d94ff01a90a3d79f817289942edcba3606cbe6f",
+    "uid": "f4031bb5f7e64ebca4c37d4fa5ba6e8d",
+    "title": "LP Table",
+    "author": "doplerato",
+    "source_url": "https://sketchfab.com/3d-models/f4031bb5f7e64ebca4c37d4fa5ba6e8d",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"LP Table\" by doplerato (https://sketchfab.com/3d-models/f4031bb5f7e64ebca4c37d4fa5ba6e8d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 8.325952670722103
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:10C",
+     "block": "SEHPA"
+    }
+   ]
+  },
+  {
+   "id": "f_L0_003",
+   "level_id": "L0",
+   "room_id": "r_L0_salon",
+   "type": "tv_unit",
+   "type_raw": "TV_UNITESI",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     2.75,
+     0.525
+    ],
+    "size": [
+     1.6,
+     0.45
+    ],
+    "rotation_deg": 180.0
+   },
+   "front_deg": 90.0,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:tv_unit",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     1.6,
+     0.45,
+     0.5
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [
+     {
+      "id": "modern_wooden_cabinet",
+      "aspect_error": 0.2774,
+      "scale": [
+       0.6557,
+       0.8654,
+       0.7606
+      ],
+      "non_uniform": 1.3197,
+      "mean_scale": 0.7606,
+      "accepted": false
+     },
+     {
+      "id": "WoodenTable_03",
+      "aspect_error": 0.4328,
+      "scale": [
+       1.2058,
+       0.7822,
+       0.994
+      ],
+      "non_uniform": 1.5416,
+      "mean_scale": 0.994,
+      "accepted": false
+     }
+    ],
+    "fallback_reason": "no tv_unit candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: modern_wooden_cabinet at 32.0 % non-uniform, mean scale 0.7606)",
+    "cap": 1.15,
+    "style_family": null,
+    "excluded": []
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:10E",
+     "block": "TV_UNITESI"
+    }
+   ]
+  },
+  {
+   "id": "f_L0_004",
+   "level_id": "L0",
+   "room_id": "r_L0_salon",
+   "type": "armchair",
+   "type_raw": "KOLTUK",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     4.5,
+     3.4
+    ],
+    "size": [
+     0.9,
+     0.9
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": null,
+   "asset": {
+    "library": "objaverse",
+    "asset_id": "objaverse_aedb9509ef9347a5b055e02deeadeff7",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.9978,
+     0.9984,
+     0.9981
+    ],
+    "bbox_m": [
+     0.9,
+     0.9,
+     0.9412
+    ],
+    "aspect_error": 0.0007,
+    "front_axis": "+X",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0295,
+     -0.001,
+     0.0002
+    ],
+    "rotation_fix_deg": 270.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_aedb9509ef9347a5b055e02deeadeff7",
+      "aspect_error": 0.0007,
+      "scale": [
+       0.9978,
+       0.9984,
+       0.9981
+      ],
+      "non_uniform": 1.0007,
+      "mean_scale": 0.9981,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "classic"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "glb": "models/objaverse/aedb9509ef9347a5b055e02deeadeff7.glb",
+    "sha256_glb": "f1e2aca421cebd2ba10178fc88899a41a06c27508609a639ba3c638be6788808",
+    "uid": "aedb9509ef9347a5b055e02deeadeff7",
+    "title": "Sofa",
+    "author": "mustafasahinfb",
+    "source_url": "https://sketchfab.com/3d-models/aedb9509ef9347a5b055e02deeadeff7",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Sofa\" by mustafasahinfb (https://sketchfab.com/3d-models/aedb9509ef9347a5b055e02deeadeff7), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.01
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:110",
+     "block": "KOLTUK"
+    }
+   ]
+  },
+  {
+   "id": "f_L0_005",
+   "level_id": "L0",
+   "room_id": "r_L0_salon",
+   "type": "bookshelf",
+   "type_raw": "KITAPLIK",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     0.475,
+     4.3
+    ],
+    "size": [
+     1.0,
+     0.35
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": null,
+   "asset": {
+    "library": "objaverse",
+    "asset_id": "objaverse_51d928b33e5549898cc86cbdaf966d83",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.8363,
+     0.8355,
+     0.8359
+    ],
+    "bbox_m": [
+     1.0,
+     0.35,
+     1.6659
+    ],
+    "aspect_error": 0.001,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     -0.0101,
+     -0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_51d928b33e5549898cc86cbdaf966d83",
+      "aspect_error": 0.001,
+      "scale": [
+       0.8363,
+       0.8355,
+       0.8359
+      ],
+      "non_uniform": 1.001,
+      "mean_scale": 0.8359,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "modern minimal",
+     "minimal"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "glb": "models/objaverse/51d928b33e5549898cc86cbdaf966d83.glb",
+    "sha256_glb": "8876efd23bfdc64030a37788be6960c5cd318440e1da3e8ce945d936977510fa",
+    "uid": "51d928b33e5549898cc86cbdaf966d83",
+    "title": "Simple Book Shelf | [FREE] | Agustin Honnun",
+    "author": "Agustín Hönnun",
+    "source_url": "https://sketchfab.com/3d-models/51d928b33e5549898cc86cbdaf966d83",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Simple Book Shelf | [FREE] | Agustin Honnun\" by Agustín Hönnun (https://sketchfab.com/3d-models/51d928b33e5549898cc86cbdaf966d83), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 1.0
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:112",
+     "block": "KITAPLIK"
+    }
+   ]
+  },
+  {
+   "id": "f_L0_006",
+   "level_id": "L0",
+   "room_id": "r_L0_yatak_odasi",
+   "type": "bed_double",
+   "type_raw": "YATAK_CIFT",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     7.8,
+     2.7
+    ],
+    "size": [
+     1.6,
+     2.0
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "GothicBed_01",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     1.0711,
+     0.9804,
+     1.0257
+    ],
+    "bbox_m": [
+     1.6,
+     2.0,
+     1.5732
+    ],
+    "aspect_error": 0.0885,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0355,
+     0.0331,
+     -0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "GothicBed_01",
+      "aspect_error": 0.0885,
+      "scale": [
+       1.0711,
+       0.9804,
+       1.0257
+      ],
+      "non_uniform": 1.0925,
+      "mean_scale": 1.0257,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "classic"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "gltf": "models/GothicBed_01/GothicBed_01_1k.gltf"
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:114",
+     "block": "YATAK_CIFT"
+    }
+   ]
+  },
+  {
+   "id": "f_L0_007",
+   "level_id": "L0",
+   "room_id": "r_L0_yatak_odasi",
+   "type": "nightstand",
+   "type_raw": "KOMIDIN",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     6.65,
+     3.5
+    ],
+    "size": [
+     0.5,
+     0.4
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "side_table_01",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.9091,
+     0.8889,
+     0.899
+    ],
+    "bbox_m": [
+     0.5,
+     0.4,
+     0.4951
+    ],
+    "aspect_error": 0.0225,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     -0.0024
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "low",
+    "candidates": [
+     {
+      "id": "side_table_01",
+      "aspect_error": 0.0225,
+      "scale": [
+       0.9091,
+       0.8889,
+       0.899
+      ],
+      "non_uniform": 1.0227,
+      "mean_scale": 0.899,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "gltf": "models/side_table_01/side_table_01_1k.gltf"
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:116",
+     "block": "KOMIDIN"
+    }
+   ]
+  },
+  {
+   "id": "f_L0_008",
+   "level_id": "L0",
+   "room_id": "r_L0_yatak_odasi",
+   "type": "nightstand",
+   "type_raw": "KOMIDIN",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     8.95,
+     3.5
+    ],
+    "size": [
+     0.5,
+     0.4
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "side_table_01",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.9091,
+     0.8889,
+     0.899
+    ],
+    "bbox_m": [
+     0.5,
+     0.4,
+     0.4951
+    ],
+    "aspect_error": 0.0225,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     -0.0024
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "low",
+    "candidates": [
+     {
+      "id": "side_table_01",
+      "aspect_error": 0.0225,
+      "scale": [
+       0.9091,
+       0.8889,
+       0.899
+      ],
+      "non_uniform": 1.0227,
+      "mean_scale": 0.899,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "gltf": "models/side_table_01/side_table_01_1k.gltf"
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:118",
+     "block": "KOMIDIN"
+    }
+   ]
+  },
+  {
+   "id": "f_L0_009",
+   "level_id": "L0",
+   "room_id": "r_L0_yatak_odasi",
+   "type": "wardrobe",
+   "type_raw": "DOLAP",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     9.0,
+     1.5
+    ],
+    "size": [
+     1.8,
+     0.6
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:wardrobe",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     1.8,
+     0.6,
+     2.1
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [
+     {
+      "id": "objaverse_b3a99e956be64ab6958f7f5e1895f031",
+      "aspect_error": 0.2691,
+      "scale": [
+       1.3923,
+       1.0638,
+       1.2281
+      ],
+      "non_uniform": 1.3088,
+      "mean_scale": 1.2281,
+      "accepted": false
+     },
+     {
+      "id": "objaverse_b46803ba0bc64e12b31f832fb761c4e0",
+      "aspect_error": 0.4784,
+      "scale": [
+       1.7202,
+       1.0661,
+       1.3931
+      ],
+      "non_uniform": 1.6135,
+      "mean_scale": 1.3931,
+      "accepted": false
+     },
+     {
+      "id": "objaverse_05a035c3347645b8a7ceb6d65f825ac3",
+      "aspect_error": 0.5003,
+      "scale": [
+       1.5848,
+       0.9609,
+       1.2729
+      ],
+      "non_uniform": 1.6492,
+      "mean_scale": 1.2729,
+      "accepted": false
+     }
+    ],
+    "fallback_reason": "no wardrobe candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_b3a99e956be64ab6958f7f5e1895f031 at 30.9 % non-uniform, mean scale 1.2281)",
+    "cap": 1.15,
+    "style_family": null,
+    "excluded": []
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:11A",
+     "block": "DOLAP"
+    }
+   ]
+  },
+  {
+   "id": "f_L0_010",
+   "level_id": "L0",
+   "room_id": "r_L0_banyo",
+   "type": "toilet",
+   "type_raw": "KLOZET",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     8.95,
+     4.4
+    ],
+    "size": [
+     0.4,
+     0.7
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:toilet",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     0.4,
+     0.7,
+     0.8
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [
+     {
+      "id": "objaverse_3446229dce1f47528fa871cc7669136c",
+      "aspect_error": 0.2233,
+      "scale": [
+       0.8836,
+       1.1046,
+       0.9941
+      ],
+      "non_uniform": 1.2502,
+      "mean_scale": 0.9941,
+      "accepted": false
+     },
+     {
+      "id": "objaverse_24d1b493899d407780140688abae19bc",
+      "aspect_error": 0.2259,
+      "scale": [
+       0.8824,
+       1.106,
+       0.9942
+      ],
+      "non_uniform": 1.2534,
+      "mean_scale": 0.9942,
+      "accepted": false
+     },
+     {
+      "id": "objaverse_0b3325fad3e740b1ac86173c90b56afd",
+      "aspect_error": 0.2649,
+      "scale": [
+       0.8654,
+       1.1279,
+       0.9967
+      ],
+      "non_uniform": 1.3033,
+      "mean_scale": 0.9967,
+      "accepted": false
+     }
+    ],
+    "fallback_reason": "no toilet candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_3446229dce1f47528fa871cc7669136c at 25.0 % non-uniform, mean scale 0.9941)",
+    "cap": 1.15,
+    "style_family": null,
+    "excluded": []
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:11C",
+     "block": "KLOZET"
+    }
+   ]
+  },
+  {
+   "id": "f_L0_011",
+   "level_id": "L0",
+   "room_id": "r_L0_banyo",
+   "type": "washbasin",
+   "type_raw": "LAVABO",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     9.075,
+     5.4
+    ],
+    "size": [
+     0.6,
+     0.45
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": null,
+   "asset": {
+    "library": "objaverse",
+    "asset_id": "objaverse_ce1a06f7cbe1425099a145f851fc5dee",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.9251,
+     0.9454,
+     0.9352
+    ],
+    "bbox_m": [
+     0.6,
+     0.45,
+     0.5141
+    ],
+    "aspect_error": 0.0217,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     -0.2748
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_ce1a06f7cbe1425099a145f851fc5dee",
+      "aspect_error": 0.0217,
+      "scale": [
+       0.9251,
+       0.9454,
+       0.9352
+      ],
+      "non_uniform": 1.022,
+      "mean_scale": 0.9352,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "glb": "models/objaverse/ce1a06f7cbe1425099a145f851fc5dee.glb",
+    "sha256_glb": "e1b99caba563b6c71d79eb960591d5e1049a3e7c086c6518aa83772a0621fbae",
+    "uid": "ce1a06f7cbe1425099a145f851fc5dee",
+    "title": "Sink",
+    "author": "Shining Salt",
+    "source_url": "https://sketchfab.com/3d-models/ce1a06f7cbe1425099a145f851fc5dee",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Sink\" by Shining Salt (https://sketchfab.com/3d-models/ce1a06f7cbe1425099a145f851fc5dee), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.32432313118014205
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:11E",
+     "block": "LAVABO"
+    }
+   ]
+  },
+  {
+   "id": "f_L0_012",
+   "level_id": "L0",
+   "room_id": "r_L0_banyo",
+   "type": "shower",
+   "type_raw": "DUS",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     7.55,
+     6.45
+    ],
+    "size": [
+     0.9,
+     0.9
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:shower",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     0.9,
+     0.9,
+     2.0
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type shower is parametric in the catalogue",
+    "cap": 1.15,
+    "style_family": null,
+    "excluded": []
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:120",
+     "block": "DUS"
+    }
+   ]
+  },
+  {
+   "id": "f_L0_013",
+   "level_id": "L0",
+   "room_id": "r_L0_banyo",
+   "type": "washing_machine",
+   "type_raw": "CAMASIR_MAK",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     8.95,
+     6.55
+    ],
+    "size": [
+     0.6,
+     0.6
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:washing_machine",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     0.6,
+     0.6,
+     0.85
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type washing_machine is parametric in the catalogue",
+    "cap": 1.15,
+    "style_family": null,
+    "excluded": []
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:122",
+     "block": "CAMASIR_MAK"
+    }
+   ]
+  }
+ ],
+ "conflicts": [],
+ "unverified": [],
+ "warnings": [
+  "Level L0: ceiling height assumed 2.70 m (no section drawing found)",
+  "Level L1: ceiling height assumed 2.70 m (no section drawing found)",
+  "1. Kat: 1_kat_scan.png (scan) is evidence only for 1_kat.pdf p1: 8 walls, 9 openings, 0 furniture pieces and 4 room names confirmed"
+ ]
+}

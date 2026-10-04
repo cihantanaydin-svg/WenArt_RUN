@@ -1,0 +1,153 @@
+# Final vision check settings (docs/milestone5.md §5). The two VLM ids and
+# revisions live only here (§1.6); tests/test_m5_config.py checks them
+# against the table in docs/milestone5.md §1.6. `server_flags` are appended to
+# `vllm serve <id>` by the job (scripts/jobs/polish.sh).
+
+models:
+  qwen:                       # pass 1
+    id: Qwen/Qwen3-VL-8B-Instruct
+    revision: 0c351dd01ed87e9c1b53cbc748cba10e6187ff3b
+    licence: Apache-2.0
+    slug: qwen3-vl-8b
+    max_seqs: 8                 # probed on the RTX PRO 6000 (M7 prep pod)
+    server_flags: ''
+    size_gb: 17.5
+  glm:                        # pass 2
+    id: zai-org/GLM-4.6V-Flash
+    revision: 411bb4d77144a3f03accbf4b780f5acb8b7cde4e
+    licence: MIT
+    slug: glm-4.6v-flash
+    max_seqs: 8                 # probed on the RTX PRO 6000 (M7 prep pod)
+    server_flags: '--reasoning-parser glm45'
+    size_gb: 20.6
+
+# Expected elements per view (§5.1).
+roles:
+  ignore_area_frac: 0.002         # area_frac < 0.002 -> ignore
+  required_area_frac: 0.03        # own-room door/window/furniture with area_frac >= 0.03 -> required,
+  required_min_area_frac: 0.01    # or area_frac >= 0.01 and (visibility is None or >= 0.35)
+  required_min_visibility: 0.35   # everything else -> optional (decor, other rooms: never required)
+  # From run 1b (2 Oct 2026): 34 of 36 required elements the models did not confirm on clean renders
+  # touched the image border (furniture slivers with visibility < 0.35, doors at the frame edge).
+  furniture_min_visibility: 0.35  # furniture with a smaller visible share of its box -> optional
+  border_openings_required: false # doors/windows touching the image border -> optional
+
+# Building-JSON cross-check, projected with a depth test (§5.1).
+crosscheck:
+  depth_tolerance_m: 0.05         # a projected sample is visible within 5 cm of the rendered depth
+  min_visible_share: 0.35         # in_json_not_rendered: projected visible share >= 0.35
+  min_area_frac: 0.01             #   and projected area >= 0.01 of the frame, index absent
+  # misplaced: the element's rendered pixels, put back into the world with depth_mm, lie more than
+  # misplaced_margin_m outside its drawn footprint (furniture) or wall rectangle (doors, windows) for more
+  # than misplaced_max_outside of them (elements with fewer pixels are not judged). Clean Blender renders
+  # of synthetic-01 at 192x108 to 960x540: share 0.000-0.004; drawn 0.3 m off: mostly > 0.1.
+  misplaced_margin_m: 0.10
+  misplaced_max_outside: 0.10
+  misplaced_min_pixels: 20
+
+# Sentinel decoy label (§5.3).
+decoy:
+  fallback_types: [armchair, desk, bookshelf, bathtub]   # when every allowed type is in the room
+  box_frac: [0.18, 0.25]          # box size as a share of W and H
+  min_bare_frac: 0.98             # share of bare-structure (index 0) pixels inside the box
+  step_frac: 0.05                 # search grid step; tie-break: lowest centre
+
+# Extras and counts (§5.3, §5.4).
+extras:
+  max: 8
+  covered_frac: 0.5               # extras >= 50 % covered by any indexed mask are dropped
+  match_iou: 0.3                  # pass A/B extras confirmed at IoU >= 0.3 and the same class
+
+# Removal / insertion / type-swap controls (§5.5).
+controls:
+  furniture: 3                    # per project, at least 1 from_documents
+  windows: 3
+  doors: 2
+  min_area_frac: 0.03             # required, own room, not touching the border
+  swap_pairs: [[sofa, bed_double], [armchair, desk]]
+  swaps: 3                        # type-swap controls per project (one per room, largest first)
+
+# Plan A/B (§5.2, §5.5): the control cameras plus this many sweep views get the
+# source-plan crop as Image 2; it favours the crop only if removal detection rises and false alarms do not.
+plan_ab:
+  views: 4
+
+# Source-plan crop as Image 2 of every element check (cycles, polished, removal/insertion/swap controls).
+# Set by the session, by hand, only when calibrate's plan A/B favours the crop (check_calibration.json
+# plan_ab.favours_plan); a camera without a crop is checked without it on every image.
+plan_image: false
+
+# Model calls (§5.7): `run` and `preference` send this many calls at once to one server (vLLM serves
+# --max-num-seqs 2 below 40 GB of VRAM, 4 above); one thread writes the answers file, in call-key order.
+calls:
+  workers: 2
+
+# Added-object detector (docs/milestone7.md §8.1, wenart/gate/detect.py; read by `combine`). A polished box with
+# score >= t_det that has no Cycles box of its group at IoU >= match_iou and is not covered >= cover_frac by one
+# element of a compatible type is a candidate; it is confirmed by score >= t_strong or by a VLM extra of either
+# reliable pass at IoU >= confirm_iou, and a confirmed non-decor one rejects the polished image (added_by_polish).
+# No thresholds yet: the detector is advisory (boxes recorded and listed, nothing rejected). Between the prep pod
+# and the full runs the integrator replaces this block with `check_yaml_block` of $RESULTS/detect/
+# detector_calibration.json (t_det, t_strong, calibration) when that file says `usable: true`.
+detector:                         # calibrated on the M7 prep pod (results/detect/detector_calibration.json)
+  advisory: false
+  t_det: 0.08
+  t_strong: 0.11
+  match_iou: 0.3
+  cover_frac: 0.5
+  confirm_iou: 0.3
+  calibration:
+    file: detector_calibration.json
+    model_revision: cfd3195ba4ea9592eec887ded089f4c08eff231d
+    detect_version: m7.1
+    positives: 29
+    negatives: 260
+    insertion_confirmed: 0.7931
+    false_confirmed: 0.0269
+    insertion_flagged: 0.7931
+    false_flagged: 0.0808
+
+# Realism preference (§5.6): preferred when >= 3 of 4 answers pick the polished image.
+preference:
+  min_votes: 3
+
+# Calibration targets (§5.5); a missed target makes the check advisory.
+targets:
+  fa_missing_max: 0.05            # combined false "missing" rate
+  fa_extra_max: 0.10              # share of views with a confirmed non-decor extra
+  removal_flagged_min: 0.80
+  removal_confirmed_min: 0.60
+  insertion_min: 0.60
+  decoy_accept_max: 0.10          # per model
+
+# Realism A/B (docs/milestone6.md §6, wenart/vision_check/realism.py): pairwise forced choice per aspect, both
+# orders, both models. `realism-combine` only counts; `realism-summary` decides, and only for a model whose
+# controls pass (§6.2). Outcomes: W = B picked in both orders, L = A in both, T = follows the position.
+realism:
+  control_views: 8                # views of the control project's AB renders with the highest furniture share
+  reencode_quality: 70            # null_reencode: the A image is the normal preview re-encoded by PIL at q70
+  min_decisive: 30                # better/worse needs >= 30 decisive consensus pairs ...
+  min_rooms: 10                   # ... from >= 10 rooms
+  alpha: 0.05                     # exact two-sided sign test
+  bootstrap_resamples: 2000       # room-cluster bootstrap 95 % interval of the net win (W - L) / N
+  bootstrap_seed: 0
+  targets:                        # §6.2; a model has signal when it meets the first three on each ctl_* set
+    correct_min: 0.70             # order-consistent correct (W on the set's target aspect), per model
+    wrong_max: 0.05               # order-consistent wrong (L on the target aspect), per model
+    consensus_correct_min: 0.60   # both models correct (reported)
+    null_identical_tie_min: 0.90  # identical files: T on >= 90 % of pair-aspects, every flip listed
+    null_reencode_win_max: 0.10   # JPEG q70 re-encode: the normal file wins <= 10 % of pair-aspects
+    nuisance_brighter_max: 0.30   # +0.3 EV: brighter image wins > 30 % -> flag every A/B pair with |dEV| > 0.3
+    delta_ev_flag: 0.3
+    halo_max: 0.80                # non-target aspects following the target winner; above: note for M7
+
+# Realism v2 (docs/milestone7.md §8.2, `realism2-*` commands): one aspect per call, both orders; the statistics,
+# controls and decision rules (and their thresholds) are those of `realism:` above. look_alt = renders/<cam>_preview.jpg
+# (A, AgX - Punchy) vs renders/<cam>_alt_preview.jpg (B, look None) on `look_alt_cameras` cameras of the A/B
+# projects (highest furniture share, <= `look_alt_per_room` per room, round-robin over the projects by name);
+# the control sets come from the control project's M6 ab/ renders. null_identical (byte-identical images) is asked
+# with `null_identical_workers` calls at once (1: a batch of requests on one server must not change an answer).
+realism2:
+  look_alt_cameras: 32
+  look_alt_per_room: 2
+  null_identical_workers: 1

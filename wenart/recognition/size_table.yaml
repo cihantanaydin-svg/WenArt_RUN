@@ -1,0 +1,48 @@
+# Plausible footprint of every furniture type of the building schema, seen from above (docs/milestone7.md §3.2).
+#
+# width and depth are [min, max] in metres. A footprint (a, b) fits a type when it lies in the ranges in either
+# orientation, with `tolerance` (+15 %) on top: min / 1.15 <= side <= max * 1.15 (the reader applies it, see
+# wenart/recognition/symbols.py `fits` and wenart/ingest/generic/symbols.py `fits`).
+# `unknown` has no entry on purpose: it is not a type a footprint can fit (the composite split of §2.8 treats a
+# cluster that fits no type as a possible group).
+#
+# Used by: the generic core (block-name check, composite split, rule types), the two-pass rule (§3.3: both passes
+# must name the type AND the footprint must fit it).
+#
+# Sources (checked 3 Oct 2026):
+#   std  = common furniture and sanitary-ware sizes as published in planning handbooks and manufacturer ranges
+#          (single beds 90-120 x 190-200 cm, doubles 135-180 (king 200) x 190-210, sofas of 2-3 seats 140-240 x
+#          80-100, dining tables 75-110 wide, kitchen base units 60 deep); ranges widened to cover the other two
+#          sources; not checked against one specific standard
+#   syn  = the synthetic drawing blocks (wenart/synthetic/blocks.py BLOCKS) and the layout sizes
+#          (wenart/furniture/schemas.py SIZE_OPTIONS): every one of them fits its type here
+#   r01  = the real01 reference (tests/fixtures/real01_reference.yaml), measured in the PDF
+tolerance: 0.15
+types:
+  bed_single:      {width: [0.80, 1.20], depth: [1.80, 2.20], source: "std; syn 0.9-1.2 x 1.9-2.0"}
+  bed_double:      {width: [1.35, 2.00], depth: [1.85, 2.25], source: "std; syn 1.4-1.8 x 2.0; r01 F1/F4 1.78 x 2.03"}
+  sofa:            {width: [1.20, 3.00], depth: [0.70, 1.10], source: "std; syn 1.6-2.6 x 0.9-0.95; r01 F14/F15 1.90 x 0.70"}
+  armchair:        {width: [0.60, 1.10], depth: [0.60, 1.10], source: "std; syn 0.8-1.0 square"}
+  table_dining:    {width: [0.80, 2.60], depth: [0.70, 1.20], source: "std (round 0.9-1.2, 4-10 seats); syn 1.2-2.0 x 0.8-1.0; r01 F7 1.24 x 0.73"}
+  table_coffee:    {width: [0.60, 1.40], depth: [0.40, 1.20], source: "std; syn 0.8-1.2 x 0.5-0.7; r01 F16 1.13 x 1.12"}
+  desk:            {width: [0.90, 2.00], depth: [0.50, 0.90], source: "std; syn 1.2-1.6 x 0.6-0.8"}
+  chair:           {width: [0.35, 0.65], depth: [0.35, 0.65], source: "std; syn 0.4-0.5 square; r01 F8-F13 0.38 x 0.45"}
+  wardrobe:        {width: [0.80, 3.00], depth: [0.50, 0.70], source: "std (0.6 deep carcass); syn 1.2-2.4 x 0.6"}
+  kitchen_counter: {width: [0.60, 5.00], depth: [0.50, 0.75], source: "std (base units 0.6 deep); syn 1.8-3.0 x 0.6; r01 F18a 2.57 x 0.61, F18b 0.99 x 0.61"}
+  kitchen_island:  {width: [1.00, 2.50], depth: [0.60, 1.20], source: "std; syn 1.2-2.0 x 0.8-1.0"}
+  fridge:          {width: [0.55, 0.95], depth: [0.55, 0.80], source: "std (single 0.6, side-by-side 0.9); syn 0.6-0.9 x 0.65-0.75"}
+  stove:           {width: [0.45, 0.95], depth: [0.50, 0.70], source: "std (0.5/0.6/0.9 ranges); syn 0.5-0.9 x 0.6"}
+  sink_kitchen:    {width: [0.45, 1.20], depth: [0.40, 0.60], source: "std; syn 0.6-1.0 x 0.5-0.6"}
+  washbasin:       {width: [0.40, 0.90], depth: [0.35, 0.60], source: "std; syn 0.5-0.8 x 0.4-0.5"}
+  toilet:          {width: [0.35, 0.50], depth: [0.55, 0.80], source: "std (pan plus cistern); syn 0.36-0.45 x 0.65-0.75"}
+  shower:          {width: [0.70, 1.60], depth: [0.70, 1.20], source: "std (trays 0.7-1.6); syn 0.8-1.2 x 0.8-0.9"}
+  bathtub:         {width: [1.40, 1.90], depth: [0.65, 0.90], source: "std; syn 1.5-1.8 x 0.7-0.8"}
+  tv_unit:         {width: [1.00, 2.40], depth: [0.30, 0.60], source: "std; syn 1.2-2.0 x 0.4-0.45"}
+  bookshelf:       {width: [0.60, 2.00], depth: [0.25, 0.45], source: "std; syn 0.8-1.2 x 0.3-0.4"}
+  nightstand:      {width: [0.35, 0.65], depth: [0.30, 0.55], source: "std; syn 0.4-0.6 x 0.4-0.45; r01 F2/F3/F5/F6 0.49 x 0.45"}
+  dresser:         {width: [0.80, 1.60], depth: [0.40, 0.60], source: "std; syn 1.0-1.4 x 0.45-0.5"}
+  washing_machine: {width: [0.55, 0.70], depth: [0.55, 0.70], source: "std (0.60 x 0.55-0.65 front loaders); syn 0.55-0.7 square"}
+  stair:           {width: [0.70, 3.00], depth: [1.50, 6.00], source: "std (flight 0.8-1.2 wide, 2.5-4.5 m run; dog-leg 1.6-2.6 wide); r01 F19 2.44 x 1.53"}
+  side_table:      {width: [0.30, 0.70], depth: [0.30, 0.70], source: "std (side and corner tables 0.4-0.6); r01 F17 round 0.43 (type open)"}
+  floor_lamp:      {width: [0.25, 0.60], depth: [0.25, 0.60], source: "std (bases and shades 0.3-0.5 from above); r01 F17 round 0.43 (type open)"}
+  potted_plant:    {width: [0.20, 1.00], depth: [0.20, 1.00], source: "std (pots 0.2-0.6, foliage up to 1.0)"}

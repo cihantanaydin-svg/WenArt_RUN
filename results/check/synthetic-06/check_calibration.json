@@ -1,0 +1,218 @@
+{
+ "schema_version": "0.1",
+ "project": "synthetic-06",
+ "model_keys": [
+  "qwen",
+  "glm"
+ ],
+ "single_pass": false,
+ "metrics": {
+  "baseline": {
+   "views": 17,
+   "views_computed": 17,
+   "required_elements": 11,
+   "fa_missing": 0.0,
+   "fa_extra": 0.0,
+   "count_error": 0.0,
+   "disputed": 0.0
+  },
+  "models": {
+   "qwen": {
+    "calls": 17,
+    "answered": 17,
+    "answer_rate": 1.0,
+    "decoys": 17,
+    "decoy_accept": 0.0,
+    "fa_missing_single": 0.0
+   },
+   "glm": {
+    "calls": 17,
+    "answered": 17,
+    "answer_rate": 1.0,
+    "decoys": 17,
+    "decoy_accept": 0.0,
+    "fa_missing_single": 0.0
+   }
+  },
+  "fa_missing": 0.0,
+  "fa_extra": 0.0,
+  "count_error": 0.0,
+  "removal_flagged": 0.75,
+  "removal_confirmed": 0.5,
+  "insertion": 0.0,
+  "insertion_flagged": 0.5,
+  "swap_flagged": 1.0,
+  "swap_confirmed": 0.0,
+  "detector_insertion": {
+   "n": 4,
+   "advisory": false,
+   "found": 0.75,
+   "flagged": 0.75,
+   "confirmed": 0.75,
+   "rows": [
+    {
+     "camera": "cam_r_L0_bed_room_1",
+     "kind": "insertion:f_L0_014",
+     "hit_score": 0.435,
+     "hit_group": "side_table",
+     "flagged": true,
+     "confirmed": true
+    },
+    {
+     "camera": "cam_r_L0_living_room_2",
+     "kind": "insertion:f_L0_002",
+     "hit_score": 0.7451,
+     "hit_group": "sofa",
+     "flagged": true,
+     "confirmed": true
+    },
+    {
+     "camera": "cam_r_L0_living_room_2",
+     "kind": "insertion:win_L0_002",
+     "hit_score": 0.2759,
+     "hit_group": "window",
+     "flagged": true,
+     "confirmed": true
+    },
+    {
+     "camera": "cam_r_L0_lobby_1",
+     "kind": "insertion:d_L0_001",
+     "hit_score": null,
+     "hit_group": null,
+     "flagged": false,
+     "confirmed": false
+    }
+   ]
+  },
+  "controls": {
+   "removal": {
+    "n": 4,
+    "flagged": 0.75,
+    "confirmed": 0.5,
+    "rows": [
+     {
+      "camera": "cam_r_L0_bed_room_1",
+      "kind": "removal:f_L0_014",
+      "flagged": true,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L0_living_room_2",
+      "kind": "removal:f_L0_002",
+      "flagged": true,
+      "confirmed": true
+     },
+     {
+      "camera": "cam_r_L0_living_room_2",
+      "kind": "removal:win_L0_002",
+      "flagged": true,
+      "confirmed": true
+     },
+     {
+      "camera": "cam_r_L0_lobby_1",
+      "kind": "removal:d_L0_001",
+      "flagged": false,
+      "confirmed": false
+     }
+    ]
+   },
+   "insertion": {
+    "n": 4,
+    "flagged": 0.5,
+    "confirmed": 0.0,
+    "rows": [
+     {
+      "camera": "cam_r_L0_bed_room_1",
+      "kind": "insertion:f_L0_014",
+      "flagged": true,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L0_living_room_2",
+      "kind": "insertion:f_L0_002",
+      "flagged": true,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L0_living_room_2",
+      "kind": "insertion:win_L0_002",
+      "flagged": false,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L0_lobby_1",
+      "kind": "insertion:d_L0_001",
+      "flagged": false,
+      "confirmed": false
+     }
+    ]
+   },
+   "swap": {
+    "n": 1,
+    "flagged": 1.0,
+    "confirmed": 0.0,
+    "rows": [
+     {
+      "camera": "cam_r_L0_living_room_2",
+      "kind": "swap:f_L0_002",
+      "flagged": true,
+      "confirmed": false
+     }
+    ]
+   }
+  }
+ },
+ "targets": {
+  "fa_missing_max": 0.05,
+  "fa_extra_max": 0.1,
+  "removal_flagged_min": 0.8,
+  "removal_confirmed_min": 0.6,
+  "insertion_min": 0.6,
+  "decoy_accept_max": 0.1
+ },
+ "missed": [
+  {
+   "target": "removal_flagged_min",
+   "metric": "removal_flagged",
+   "value": 0.75,
+   "threshold": 0.8,
+   "op": ">="
+  },
+  {
+   "target": "removal_confirmed_min",
+   "metric": "removal_confirmed",
+   "value": 0.5,
+   "threshold": 0.6,
+   "op": ">="
+  },
+  {
+   "target": "insertion_min",
+   "metric": "insertion",
+   "value": 0.0,
+   "threshold": 0.6,
+   "op": ">="
+  }
+ ],
+ "advisory": true,
+ "advisory_reasons": [
+  "removal_flagged 0.75 misses >= 0.8",
+  "removal_confirmed 0.5 misses >= 0.6",
+  "insertion 0.0 misses >= 0.6"
+ ],
+ "plan_ab": {
+  "cameras": [],
+  "pairs": 0,
+  "removal_pairs": 0,
+  "fa_missing_without": null,
+  "fa_missing_with": null,
+  "fa_extra_without": null,
+  "fa_extra_with": null,
+  "removal_confirmed_without": null,
+  "removal_confirmed_with": null,
+  "favours_plan": false,
+  "used": false,
+  "adopted": false,
+  "text": "source plan compared through the evidence chain, the projected cross-check and the side-by-side crop",
+  "note": "not enough plan A/B answers to compare"
+ }
+}

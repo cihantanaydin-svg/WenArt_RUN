@@ -1,0 +1,51 @@
+{
+  "source_text": "Modern minimal, polished concrete floor, charcoal and white, brass details, cool daylight",
+  "family": "modern minimal",
+  "floor": {
+    "material": "concrete_polished",
+    "asset": "Concrete046"
+  },
+  "walls": {
+    "material": "plaster_charcoal",
+    "asset": "white_plaster_02"
+  },
+  "ceiling": {
+    "material": "plaster_white"
+  },
+  "wet_floor": {
+    "material": "concrete_polished",
+    "asset": "Concrete046"
+  },
+  "wet_walls": {
+    "material": "tiles_light"
+  },
+  "trim": {
+    "material": "painted_wood_white"
+  },
+  "door": {
+    "material": "painted_wood_white"
+  },
+  "window_frame": {
+    "material": "painted_metal_white"
+  },
+  "lighting": {
+    "hdri": "kloofendal_43d_clear_puresky",
+    "sun_elevation_deg": 55,
+    "sun_azimuth_deg": 180,
+    "sun_strength": 4.0,
+    "colour_temperature_k": 6500,
+    "mood": "cool daylight"
+  },
+  "matched_terms": [
+    "Modern minimal",
+    "polished concrete floor",
+    "charcoal and white",
+    "cool daylight"
+  ],
+  "unmatched_terms": [
+    "brass details"
+  ],
+  "warnings": [
+    "ignored wall word 'white' in 'charcoal and white' (phrase already gives plaster_charcoal)"
+  ]
+}

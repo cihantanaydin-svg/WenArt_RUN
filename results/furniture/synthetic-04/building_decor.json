@@ -1,0 +1,3768 @@
+{
+ "schema_version": "0.1",
+ "project": {
+  "id": "synthetic-04",
+  "source_folder": "projects/synthetic-04",
+  "created_utc": "2026-10-04T00:06:34Z",
+  "pipeline_commit": "2be169d6",
+  "brief": {
+   "style": "Japandi, walnut floor, cream walls, warm daylight, linen and paper lamps"
+  }
+ },
+ "status": "ok",
+ "documents": [
+  {
+   "id": "doc_3_kat_plani_dxf",
+   "file": "3_kat_plani.dxf",
+   "format": "dxf",
+   "converter": null,
+   "pages": [
+    {
+     "page": 1,
+     "class": "floor_plan",
+     "skip_reason": null,
+     "kind": "vector",
+     "level_id": "L3",
+     "level_label_raw": "3. KAT PLANI",
+     "classifier": "title",
+     "scale": {
+      "metres_per_unit": 0.001,
+      "method": "dxf_insunits",
+      "confidence": 1.0,
+      "evidence": {
+       "file": "3_kat_plani.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "entity": "$INSUNITS=4"
+      }
+     },
+     "transform_to_building": [
+      0.001,
+      0.0,
+      0.0,
+      0.0,
+      0.001,
+      0.0
+     ],
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "3_kat_plani.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "entity": "TEXT:157",
+       "text": "3. KAT PLANI"
+      }
+     ],
+     "debug_image": "debug/3_kat_plani_dxf_p1.png"
+    }
+   ],
+   "unit_system": "metric",
+   "source_kind": "dxf"
+  },
+  {
+   "id": "doc_3_kat_plani_pdf_pdf",
+   "file": "3_kat_plani_pdf.pdf",
+   "format": "pdf",
+   "converter": null,
+   "pages": [
+    {
+     "page": 1,
+     "class": "floor_plan",
+     "skip_reason": null,
+     "kind": "vector",
+     "level_id": "L3",
+     "level_label_raw": "3. KAT PLANI",
+     "classifier": "title",
+     "scale": {
+      "metres_per_unit": 0.035277777777777776,
+      "method": "pdf_scale_text",
+      "confidence": 1.0,
+      "evidence": {
+       "file": "3_kat_plani_pdf.pdf",
+       "method": "vector",
+       "confidence": 1.0,
+       "page": 1,
+       "entity": "char:37",
+       "text": "ÖLÇEK 1/100"
+      }
+     },
+     "transform_to_building": [
+      0.035277777777777776,
+      0.0,
+      -15.649222222222223,
+      0.0,
+      0.035277777777777776,
+      -10.749138888888888
+     ],
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "3_kat_plani_pdf.pdf",
+       "method": "vector",
+       "confidence": 1.0,
+       "page": 1,
+       "entity": "char:25",
+       "text": "3. KAT PLANI"
+      }
+     ],
+     "debug_image": "debug/3_kat_plani_pdf_pdf_p1.png"
+    }
+   ],
+   "unit_system": "metric",
+   "source_kind": "cad_pdf"
+  }
+ ],
+ "levels": [
+  {
+   "id": "L3",
+   "label": "3. Kat",
+   "order": 3,
+   "elevation": 9.0,
+   "ceiling_height": 2.7,
+   "ceiling_height_source": "assumed_default",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "entity": "TEXT:157",
+     "text": "3. KAT PLANI"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:25",
+     "text": "3. KAT PLANI"
+    }
+   ],
+   "label_source": "title"
+  }
+ ],
+ "walls": [
+  {
+   "id": "w_L3_001",
+   "level_id": "L3",
+   "start": [
+    0.0,
+    0.125
+   ],
+   "end": [
+    12.0,
+    0.125
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:105"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:1"
+    }
+   ]
+  },
+  {
+   "id": "w_L3_002",
+   "level_id": "L3",
+   "start": [
+    11.875,
+    0.0
+   ],
+   "end": [
+    11.875,
+    8.0
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:106"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:2"
+    }
+   ]
+  },
+  {
+   "id": "w_L3_003",
+   "level_id": "L3",
+   "start": [
+    0.0,
+    7.875
+   ],
+   "end": [
+    12.0,
+    7.875
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:107"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:3"
+    }
+   ]
+  },
+  {
+   "id": "w_L3_004",
+   "level_id": "L3",
+   "start": [
+    0.125,
+    0.0
+   ],
+   "end": [
+    0.125,
+    8.0
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:108"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:4"
+    }
+   ]
+  },
+  {
+   "id": "w_L3_005",
+   "level_id": "L3",
+   "start": [
+    3.5,
+    4.65
+   ],
+   "end": [
+    3.5,
+    7.75
+   ],
+   "thickness": 0.1,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:109"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:5"
+    }
+   ]
+  },
+  {
+   "id": "w_L3_006",
+   "level_id": "L3",
+   "start": [
+    3.45,
+    4.6
+   ],
+   "end": [
+    11.75,
+    4.6
+   ],
+   "thickness": 0.1,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:10A"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:6"
+    }
+   ]
+  },
+  {
+   "id": "w_L3_007",
+   "level_id": "L3",
+   "start": [
+    7.0,
+    0.25
+   ],
+   "end": [
+    7.0,
+    4.55
+   ],
+   "thickness": 0.1,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:10B"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:7"
+    }
+   ]
+  },
+  {
+   "id": "w_L3_008",
+   "level_id": "L3",
+   "start": [
+    5.15,
+    5.9
+   ],
+   "end": [
+    7.95,
+    5.9
+   ],
+   "thickness": 0.1,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:10C"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:8"
+    }
+   ]
+  },
+  {
+   "id": "w_L3_009",
+   "level_id": "L3",
+   "start": [
+    5.2,
+    5.95
+   ],
+   "end": [
+    5.2,
+    7.75
+   ],
+   "thickness": 0.1,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:10D"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:9"
+    }
+   ]
+  },
+  {
+   "id": "w_L3_010",
+   "level_id": "L3",
+   "start": [
+    8.0,
+    4.65
+   ],
+   "end": [
+    8.0,
+    7.75
+   ],
+   "thickness": 0.1,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:10E"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:10"
+    }
+   ]
+  }
+ ],
+ "openings": [
+  {
+   "id": "d_L3_001",
+   "type": "door",
+   "level_id": "L3",
+   "wall_id": "w_L3_003",
+   "center": [
+    4.35,
+    7.875
+   ],
+   "width": 0.9,
+   "height": null,
+   "sill_height": null,
+   "swing_side": "r_L3_hol",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "KAPI",
+     "entity": "INSERT:10F",
+     "block": "KAPI_90"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:11"
+    }
+   ]
+  },
+  {
+   "id": "d_L3_002",
+   "type": "door",
+   "level_id": "L3",
+   "wall_id": "w_L3_006",
+   "center": [
+    4.4,
+    4.6
+   ],
+   "width": 0.9,
+   "height": null,
+   "sill_height": null,
+   "swing_side": "r_L3_salon_mutfak",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "KAPI",
+     "entity": "INSERT:111",
+     "block": "KAPI_90"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:13"
+    }
+   ]
+  },
+  {
+   "id": "d_L3_003",
+   "type": "door",
+   "level_id": "L3",
+   "wall_id": "w_L3_009",
+   "center": [
+    5.2,
+    6.85
+   ],
+   "width": 0.8,
+   "height": null,
+   "sill_height": null,
+   "swing_side": "r_L3_banyo",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "KAPI",
+     "entity": "INSERT:113",
+     "block": "KAPI_80"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:15"
+    }
+   ]
+  },
+  {
+   "id": "d_L3_004",
+   "type": "door",
+   "level_id": "L3",
+   "wall_id": "w_L3_010",
+   "center": [
+    8.0,
+    5.25
+   ],
+   "width": 0.8,
+   "height": null,
+   "sill_height": null,
+   "swing_side": "r_L3_cocuk_odasi",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "KAPI",
+     "entity": "INSERT:115",
+     "block": "KAPI_80"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:17"
+    }
+   ]
+  },
+  {
+   "id": "d_L3_005",
+   "type": "door",
+   "level_id": "L3",
+   "wall_id": "w_L3_006",
+   "center": [
+    7.5,
+    4.6
+   ],
+   "width": 0.8,
+   "height": null,
+   "sill_height": null,
+   "swing_side": "r_L3_yatak_odasi",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "KAPI",
+     "entity": "INSERT:117",
+     "block": "KAPI_80"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:19"
+    }
+   ]
+  },
+  {
+   "id": "win_L3_001",
+   "type": "window",
+   "level_id": "L3",
+   "wall_id": "w_L3_001",
+   "center": [
+    2.0,
+    0.125
+   ],
+   "width": 1.8,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "PENCERE",
+     "entity": "INSERT:119",
+     "block": "PENCERE_180"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:21"
+    }
+   ]
+  },
+  {
+   "id": "win_L3_002",
+   "type": "window",
+   "level_id": "L3",
+   "wall_id": "w_L3_001",
+   "center": [
+    5.0,
+    0.125
+   ],
+   "width": 1.8,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "PENCERE",
+     "entity": "INSERT:11B",
+     "block": "PENCERE_180"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:25"
+    }
+   ]
+  },
+  {
+   "id": "win_L3_003",
+   "type": "window",
+   "level_id": "L3",
+   "wall_id": "w_L3_004",
+   "center": [
+    0.125,
+    2.3
+   ],
+   "width": 1.2,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "PENCERE",
+     "entity": "INSERT:11D",
+     "block": "PENCERE_120"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:29"
+    }
+   ]
+  },
+  {
+   "id": "win_L3_004",
+   "type": "window",
+   "level_id": "L3",
+   "wall_id": "w_L3_004",
+   "center": [
+    0.125,
+    6.2
+   ],
+   "width": 1.2,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "PENCERE",
+     "entity": "INSERT:11F",
+     "block": "PENCERE_120"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:33"
+    }
+   ]
+  },
+  {
+   "id": "win_L3_005",
+   "type": "window",
+   "level_id": "L3",
+   "wall_id": "w_L3_003",
+   "center": [
+    1.85,
+    7.875
+   ],
+   "width": 1.2,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "PENCERE",
+     "entity": "INSERT:121",
+     "block": "PENCERE_120"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:37"
+    }
+   ]
+  },
+  {
+   "id": "win_L3_006",
+   "type": "window",
+   "level_id": "L3",
+   "wall_id": "w_L3_003",
+   "center": [
+    6.6,
+    7.875
+   ],
+   "width": 0.6,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "PENCERE",
+     "entity": "INSERT:123",
+     "block": "PENCERE_60"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:41"
+    }
+   ]
+  },
+  {
+   "id": "win_L3_007",
+   "type": "window",
+   "level_id": "L3",
+   "wall_id": "w_L3_003",
+   "center": [
+    9.9,
+    7.875
+   ],
+   "width": 1.2,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "PENCERE",
+     "entity": "INSERT:125",
+     "block": "PENCERE_120"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:45"
+    }
+   ]
+  },
+  {
+   "id": "win_L3_008",
+   "type": "window",
+   "level_id": "L3",
+   "wall_id": "w_L3_002",
+   "center": [
+    11.875,
+    6.2
+   ],
+   "width": 1.2,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "PENCERE",
+     "entity": "INSERT:127",
+     "block": "PENCERE_120"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:49"
+    }
+   ]
+  },
+  {
+   "id": "win_L3_009",
+   "type": "window",
+   "level_id": "L3",
+   "wall_id": "w_L3_001",
+   "center": [
+    9.4,
+    0.125
+   ],
+   "width": 1.8,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "PENCERE",
+     "entity": "INSERT:129",
+     "block": "PENCERE_180"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:53"
+    }
+   ]
+  },
+  {
+   "id": "win_L3_010",
+   "type": "window",
+   "level_id": "L3",
+   "wall_id": "w_L3_002",
+   "center": [
+    11.875,
+    2.4
+   ],
+   "width": 1.2,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "PENCERE",
+     "entity": "INSERT:12B",
+     "block": "PENCERE_120"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:57"
+    }
+   ]
+  }
+ ],
+ "rooms": [
+  {
+   "id": "r_L3_salon_mutfak",
+   "level_id": "L3",
+   "label": "Salon + Mutfak",
+   "label_raw": "SALON + MUTFAK 39,05 m²",
+   "room_type": "living",
+   "polygon": [
+    [
+     0.25,
+     0.25
+    ],
+    [
+     6.95,
+     0.25
+    ],
+    [
+     6.95,
+     4.55
+    ],
+    [
+     3.45,
+     4.55
+    ],
+    [
+     3.45,
+     7.75
+    ],
+    [
+     0.25,
+     7.75
+    ]
+   ],
+   "area_computed": 39.05,
+   "area_label": 39.05,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "YAZI",
+     "entity": "TEXT:159",
+     "text": "SALON + MUTFAK 39,05 m²"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:48",
+     "text": "SALON + MUTFAK 39,05 m²"
+    },
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L3_001,w_L3_003,w_L3_004,w_L3_005,w_L3_006,w_L3_007"
+    }
+   ]
+  },
+  {
+   "id": "r_L3_yatak_odasi",
+   "level_id": "L3",
+   "label": "Yatak Odası",
+   "label_raw": "YATAK ODASI",
+   "room_type": "bedroom",
+   "polygon": [
+    [
+     7.05,
+     0.25
+    ],
+    [
+     11.75,
+     0.25
+    ],
+    [
+     11.75,
+     4.55
+    ],
+    [
+     7.05,
+     4.55
+    ]
+   ],
+   "area_computed": 20.21,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "YAZI",
+     "entity": "TEXT:15A",
+     "text": "YATAK ODASI"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:71",
+     "text": "YATAK ODASI"
+    },
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L3_001,w_L3_002,w_L3_006,w_L3_007"
+    }
+   ]
+  },
+  {
+   "id": "r_L3_hol",
+   "level_id": "L3",
+   "label": "Hol",
+   "label_raw": "HOL",
+   "room_type": "hall",
+   "polygon": [
+    [
+     3.55,
+     4.65
+    ],
+    [
+     7.95,
+     4.65
+    ],
+    [
+     7.95,
+     5.85
+    ],
+    [
+     5.15,
+     5.85
+    ],
+    [
+     5.15,
+     7.75
+    ],
+    [
+     3.55,
+     7.75
+    ]
+   ],
+   "area_computed": 8.32,
+   "area_label": null,
+   "has_documented_furniture": false,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "YAZI",
+     "entity": "TEXT:15B",
+     "text": "HOL"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:82",
+     "text": "HOL"
+    },
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L3_003,w_L3_005,w_L3_006,w_L3_008,w_L3_009,w_L3_010"
+    }
+   ]
+  },
+  {
+   "id": "r_L3_cocuk_odasi",
+   "level_id": "L3",
+   "label": "Çocuk Odası",
+   "label_raw": "ÇOCUK ODASI",
+   "room_type": "bedroom",
+   "polygon": [
+    [
+     8.05,
+     4.65
+    ],
+    [
+     11.75,
+     4.65
+    ],
+    [
+     11.75,
+     7.75
+    ],
+    [
+     8.05,
+     7.75
+    ]
+   ],
+   "area_computed": 11.47,
+   "area_label": null,
+   "has_documented_furniture": false,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "YAZI",
+     "entity": "TEXT:15C",
+     "text": "ÇOCUK ODASI"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:85",
+     "text": "ÇOCUK ODASI"
+    },
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L3_002,w_L3_003,w_L3_006,w_L3_010"
+    }
+   ]
+  },
+  {
+   "id": "r_L3_banyo",
+   "level_id": "L3",
+   "label": "Banyo",
+   "label_raw": "BANYO",
+   "room_type": "bathroom",
+   "polygon": [
+    [
+     5.25,
+     5.95
+    ],
+    [
+     7.95,
+     5.95
+    ],
+    [
+     7.95,
+     7.75
+    ],
+    [
+     5.25,
+     7.75
+    ]
+   ],
+   "area_computed": 4.86,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "YAZI",
+     "entity": "TEXT:15D",
+     "text": "BANYO"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:96",
+     "text": "BANYO"
+    },
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L3_003,w_L3_008,w_L3_009,w_L3_010"
+    }
+   ]
+  }
+ ],
+ "furniture": [
+  {
+   "id": "f_L3_001",
+   "level_id": "L3",
+   "room_id": "r_L3_salon_mutfak",
+   "type": "kitchen_counter",
+   "type_raw": "TEZGAH",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     1.45,
+     7.45
+    ],
+    "size": [
+     2.4,
+     0.6
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:kitchen_counter",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     2.4,
+     0.6,
+     0.9
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type kitchen_counter is parametric in the catalogue",
+    "cap": 1.15,
+    "style_family": null,
+    "excluded": []
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:12D",
+     "block": "TEZGAH"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:61"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_002",
+   "level_id": "L3",
+   "room_id": "r_L3_salon_mutfak",
+   "type": "sink_kitchen",
+   "type_raw": "EVIYE",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     0.85,
+     7.5
+    ],
+    "size": [
+     0.8,
+     0.5
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:sink_kitchen",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     0.8,
+     0.5,
+     1.15
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type sink_kitchen is parametric in the catalogue",
+    "cap": 1.15,
+    "style_family": null,
+    "excluded": []
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:12F",
+     "block": "EVIYE"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:63"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_003",
+   "level_id": "L3",
+   "room_id": "r_L3_salon_mutfak",
+   "type": "stove",
+   "type_raw": "OCAK",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     2.05,
+     7.45
+    ],
+    "size": [
+     0.6,
+     0.6
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:stove",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     0.6,
+     0.6,
+     0.908
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [
+     {
+      "id": "objaverse_7c5c9dec5c2e4ff998c386410b0e3686",
+      "aspect_error": 0.1821,
+      "scale": [
+       1.014,
+       0.8452,
+       0.9296
+      ],
+      "non_uniform": 1.1998,
+      "mean_scale": 0.9296,
+      "accepted": false
+     },
+     {
+      "id": "electric_stove",
+      "aspect_error": 0.2535,
+      "scale": [
+       1.1938,
+       0.9265,
+       1.0601
+      ],
+      "non_uniform": 1.2885,
+      "mean_scale": 1.0601,
+      "accepted": false
+     }
+    ],
+    "fallback_reason": "no stove candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_7c5c9dec5c2e4ff998c386410b0e3686 at 20.0 % non-uniform, mean scale 0.9296)",
+    "cap": 1.15,
+    "style_family": null,
+    "excluded": []
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:131",
+     "block": "OCAK"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:65"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_004",
+   "level_id": "L3",
+   "room_id": "r_L3_salon_mutfak",
+   "type": "fridge",
+   "type_raw": "BUZDOLABI",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     3.05,
+     7.4
+    ],
+    "size": [
+     0.7,
+     0.7
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "objaverse",
+    "asset_id": "objaverse_68d69bbf7a454a09a2536ac0762532f3",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.9651,
+     1.0029,
+     0.984
+    ],
+    "bbox_m": [
+     0.7,
+     0.7,
+     1.0707
+    ],
+    "aspect_error": 0.0384,
+    "front_axis": "+X",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0509,
+     -0.0204,
+     -0.5142
+    ],
+    "rotation_fix_deg": 270.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_68d69bbf7a454a09a2536ac0762532f3",
+      "aspect_error": 0.0384,
+      "scale": [
+       0.9651,
+       1.0029,
+       0.984
+      ],
+      "non_uniform": 1.0391,
+      "mean_scale": 0.984,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "glb": "models/objaverse/68d69bbf7a454a09a2536ac0762532f3.glb",
+    "sha256_glb": "8f80c749cbd00ea7007e102cda52309771a4f7bb567ba8cb110354caa2e9b7d9",
+    "uid": "68d69bbf7a454a09a2536ac0762532f3",
+    "title": "Old Fridge",
+    "author": "golddog",
+    "source_url": "https://sketchfab.com/3d-models/68d69bbf7a454a09a2536ac0762532f3",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Old Fridge\" by golddog (https://sketchfab.com/3d-models/68d69bbf7a454a09a2536ac0762532f3), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.4196741214858973
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:133",
+     "block": "BUZDOLABI"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:67"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_005",
+   "level_id": "L3",
+   "room_id": "r_L3_salon_mutfak",
+   "type": "table_dining",
+   "type_raw": "YEMEK_MASASI",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     1.85,
+     5.6
+    ],
+    "size": [
+     1.6,
+     0.9
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "objaverse",
+    "asset_id": "objaverse_5f235f066a9a416fb7177496a9117ec7",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.9432,
+     0.8376,
+     0.8904
+    ],
+    "bbox_m": [
+     1.6,
+     0.9,
+     0.5788
+    ],
+    "aspect_error": 0.1188,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0066,
+     0.005,
+     -0.0161
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "low",
+    "candidates": [
+     {
+      "id": "dining_table",
+      "aspect_error": 0.0913,
+      "scale": [
+       0.7093,
+       0.6474,
+       0.6783
+      ],
+      "non_uniform": 1.0956,
+      "mean_scale": 0.6783,
+      "accepted": false
+     },
+     {
+      "id": "wooden_table_02",
+      "aspect_error": 0.1011,
+      "scale": [
+       1.4104,
+       1.2748,
+       1.3426
+      ],
+      "non_uniform": 1.1064,
+      "mean_scale": 1.3426,
+      "accepted": false
+     },
+     {
+      "id": "objaverse_5f235f066a9a416fb7177496a9117ec7",
+      "aspect_error": 0.1188,
+      "scale": [
+       0.9432,
+       0.8376,
+       0.8904
+      ],
+      "non_uniform": 1.1261,
+      "mean_scale": 0.8904,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "modern minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "glb": "models/objaverse/5f235f066a9a416fb7177496a9117ec7.glb",
+    "sha256_glb": "24ecc9ca3ddef33b7899920c493eb837fce57f45917dbbcc3b2c925335eef96a",
+    "uid": "5f235f066a9a416fb7177496a9117ec7",
+    "title": "Low Poly - Chair and Table",
+    "author": "tadeus",
+    "source_url": "https://sketchfab.com/3d-models/5f235f066a9a416fb7177496a9117ec7",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Low Poly - Chair and Table\" by tadeus (https://sketchfab.com/3d-models/5f235f066a9a416fb7177496a9117ec7), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.003482351830475967
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:135",
+     "block": "YEMEK_MASASI"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:69"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_006",
+   "level_id": "L3",
+   "room_id": "r_L3_salon_mutfak",
+   "type": "chair",
+   "type_raw": "SANDALYE",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     1.45,
+     4.8
+    ],
+    "size": [
+     0.45,
+     0.45
+    ],
+    "rotation_deg": 180.0
+   },
+   "front_deg": 90.0,
+   "height": null,
+   "asset": {
+    "library": "objaverse",
+    "asset_id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.8707,
+     0.8946,
+     0.8827
+    ],
+    "bbox_m": [
+     0.45,
+     0.45,
+     0.7319
+    ],
+    "aspect_error": 0.0271,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0148,
+     -0.4159
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+      "aspect_error": 0.0271,
+      "scale": [
+       0.8707,
+       0.8946,
+       0.8827
+      ],
+      "non_uniform": 1.0274,
+      "mean_scale": 0.8827,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "glb": "models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
+    "sha256_glb": "3851bf0d21d98a40810ee7029dcf21589a6c5667ba56f0ae74a707536fead537",
+    "uid": "d2785b57e7da45858f2fe8bf4dedd68d",
+    "title": "Chair",
+    "author": "杭州维界科技有限公司",
+    "source_url": "https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Chair\" by 杭州维界科技有限公司 (https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.01
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:137",
+     "block": "SANDALYE"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:71"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_007",
+   "level_id": "L3",
+   "room_id": "r_L3_salon_mutfak",
+   "type": "chair",
+   "type_raw": "SANDALYE",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     2.25,
+     4.8
+    ],
+    "size": [
+     0.45,
+     0.45
+    ],
+    "rotation_deg": 180.0
+   },
+   "front_deg": 90.0,
+   "height": null,
+   "asset": {
+    "library": "objaverse",
+    "asset_id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.8707,
+     0.8946,
+     0.8827
+    ],
+    "bbox_m": [
+     0.45,
+     0.45,
+     0.7319
+    ],
+    "aspect_error": 0.0271,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0148,
+     -0.4159
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+      "aspect_error": 0.0271,
+      "scale": [
+       0.8707,
+       0.8946,
+       0.8827
+      ],
+      "non_uniform": 1.0274,
+      "mean_scale": 0.8827,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "glb": "models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
+    "sha256_glb": "3851bf0d21d98a40810ee7029dcf21589a6c5667ba56f0ae74a707536fead537",
+    "uid": "d2785b57e7da45858f2fe8bf4dedd68d",
+    "title": "Chair",
+    "author": "杭州维界科技有限公司",
+    "source_url": "https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Chair\" by 杭州维界科技有限公司 (https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.01
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:139",
+     "block": "SANDALYE"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:73"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_008",
+   "level_id": "L3",
+   "room_id": "r_L3_salon_mutfak",
+   "type": "chair",
+   "type_raw": "SANDALYE",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     1.45,
+     6.4
+    ],
+    "size": [
+     0.45,
+     0.45
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "objaverse",
+    "asset_id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.8707,
+     0.8946,
+     0.8827
+    ],
+    "bbox_m": [
+     0.45,
+     0.45,
+     0.7319
+    ],
+    "aspect_error": 0.0271,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0148,
+     -0.4159
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+      "aspect_error": 0.0271,
+      "scale": [
+       0.8707,
+       0.8946,
+       0.8827
+      ],
+      "non_uniform": 1.0274,
+      "mean_scale": 0.8827,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "glb": "models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
+    "sha256_glb": "3851bf0d21d98a40810ee7029dcf21589a6c5667ba56f0ae74a707536fead537",
+    "uid": "d2785b57e7da45858f2fe8bf4dedd68d",
+    "title": "Chair",
+    "author": "杭州维界科技有限公司",
+    "source_url": "https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Chair\" by 杭州维界科技有限公司 (https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.01
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:13B",
+     "block": "SANDALYE"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:75"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_009",
+   "level_id": "L3",
+   "room_id": "r_L3_salon_mutfak",
+   "type": "chair",
+   "type_raw": "SANDALYE",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     2.25,
+     6.4
+    ],
+    "size": [
+     0.45,
+     0.45
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "objaverse",
+    "asset_id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.8707,
+     0.8946,
+     0.8827
+    ],
+    "bbox_m": [
+     0.45,
+     0.45,
+     0.7319
+    ],
+    "aspect_error": 0.0271,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0148,
+     -0.4159
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+      "aspect_error": 0.0271,
+      "scale": [
+       0.8707,
+       0.8946,
+       0.8827
+      ],
+      "non_uniform": 1.0274,
+      "mean_scale": 0.8827,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "glb": "models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
+    "sha256_glb": "3851bf0d21d98a40810ee7029dcf21589a6c5667ba56f0ae74a707536fead537",
+    "uid": "d2785b57e7da45858f2fe8bf4dedd68d",
+    "title": "Chair",
+    "author": "杭州维界科技有限公司",
+    "source_url": "https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Chair\" by 杭州维界科技有限公司 (https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.01
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:13D",
+     "block": "SANDALYE"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:77"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_010",
+   "level_id": "L3",
+   "room_id": "r_L3_salon_mutfak",
+   "type": "sofa",
+   "type_raw": "KANEPE_3LU",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     3.4,
+     2.4
+    ],
+    "size": [
+     2.2,
+     0.9
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": null,
+   "asset": {
+    "library": "objaverse",
+    "asset_id": "objaverse_42da0122f2134a189767d0911b401c1c",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     1.019,
+     1.0008,
+     1.0099
+    ],
+    "bbox_m": [
+     2.2,
+     0.9,
+     0.7143
+    ],
+    "aspect_error": 0.0181,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0037,
+     0.0481,
+     0.0077
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_42da0122f2134a189767d0911b401c1c",
+      "aspect_error": 0.0181,
+      "scale": [
+       1.019,
+       1.0008,
+       1.0099
+      ],
+      "non_uniform": 1.0182,
+      "mean_scale": 1.0099,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "modern minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "glb": "models/objaverse/42da0122f2134a189767d0911b401c1c.glb",
+    "sha256_glb": "3c11c4750eca45c3c6f7d30b3a3505bc1512ce96ec70a71c99b30133e86a8e14",
+    "uid": "42da0122f2134a189767d0911b401c1c",
+    "title": "Couch Gameready",
+    "author": "elijahorama",
+    "source_url": "https://sketchfab.com/3d-models/42da0122f2134a189767d0911b401c1c",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Couch Gameready\" by elijahorama (https://sketchfab.com/3d-models/42da0122f2134a189767d0911b401c1c), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 1.0
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:13F",
+     "block": "KANEPE_3LU"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:79"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_011",
+   "level_id": "L3",
+   "room_id": "r_L3_salon_mutfak",
+   "type": "table_coffee",
+   "type_raw": "SEHPA",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     4.6,
+     2.4
+    ],
+    "size": [
+     1.0,
+     0.6
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": null,
+   "asset": {
+    "library": "objaverse",
+    "asset_id": "objaverse_f4031bb5f7e64ebca4c37d4fa5ba6e8d",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.8358,
+     0.8974,
+     0.8666
+    ],
+    "bbox_m": [
+     1.0,
+     0.6,
+     0.3122
+    ],
+    "aspect_error": 0.0711,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     -0.2132
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "low",
+    "candidates": [
+     {
+      "id": "CoffeeTable_01",
+      "aspect_error": 0.0515,
+      "scale": [
+       0.6494,
+       0.6168,
+       0.6331
+      ],
+      "non_uniform": 1.0528,
+      "mean_scale": 0.6331,
+      "accepted": false
+     },
+     {
+      "id": "objaverse_f4031bb5f7e64ebca4c37d4fa5ba6e8d",
+      "aspect_error": 0.0711,
+      "scale": [
+       0.8358,
+       0.8974,
+       0.8666
+      ],
+      "non_uniform": 1.0737,
+      "mean_scale": 0.8666,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "classic",
+     "rustic"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "glb": "models/objaverse/f4031bb5f7e64ebca4c37d4fa5ba6e8d.glb",
+    "sha256_glb": "2bc22be99daf7683d44c72511d94ff01a90a3d79f817289942edcba3606cbe6f",
+    "uid": "f4031bb5f7e64ebca4c37d4fa5ba6e8d",
+    "title": "LP Table",
+    "author": "doplerato",
+    "source_url": "https://sketchfab.com/3d-models/f4031bb5f7e64ebca4c37d4fa5ba6e8d",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"LP Table\" by doplerato (https://sketchfab.com/3d-models/f4031bb5f7e64ebca4c37d4fa5ba6e8d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 8.325952670722103
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:141",
+     "block": "SEHPA"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:81"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_012",
+   "level_id": "L3",
+   "room_id": "r_L3_salon_mutfak",
+   "type": "tv_unit",
+   "type_raw": "TV_UNITESI",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     6.725,
+     2.4
+    ],
+    "size": [
+     1.6,
+     0.45
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:tv_unit",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     1.6,
+     0.45,
+     0.5
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [
+     {
+      "id": "modern_wooden_cabinet",
+      "aspect_error": 0.2774,
+      "scale": [
+       0.6557,
+       0.8654,
+       0.7606
+      ],
+      "non_uniform": 1.3197,
+      "mean_scale": 0.7606,
+      "accepted": false
+     },
+     {
+      "id": "WoodenTable_03",
+      "aspect_error": 0.4328,
+      "scale": [
+       1.2058,
+       0.7822,
+       0.994
+      ],
+      "non_uniform": 1.5416,
+      "mean_scale": 0.994,
+      "accepted": false
+     }
+    ],
+    "fallback_reason": "no tv_unit candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: modern_wooden_cabinet at 32.0 % non-uniform, mean scale 0.7606)",
+    "cap": 1.15,
+    "style_family": null,
+    "excluded": []
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:143",
+     "block": "TV_UNITESI"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:83"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_013",
+   "level_id": "L3",
+   "room_id": "r_L3_salon_mutfak",
+   "type": "armchair",
+   "type_raw": "KOLTUK",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     6.25,
+     3.85
+    ],
+    "size": [
+     0.9,
+     0.9
+    ],
+    "rotation_deg": 315.0
+   },
+   "front_deg": 225.0,
+   "height": null,
+   "asset": {
+    "library": "objaverse",
+    "asset_id": "objaverse_aedb9509ef9347a5b055e02deeadeff7",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.9978,
+     0.9984,
+     0.9981
+    ],
+    "bbox_m": [
+     0.9,
+     0.9,
+     0.9412
+    ],
+    "aspect_error": 0.0007,
+    "front_axis": "+X",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0295,
+     -0.001,
+     0.0002
+    ],
+    "rotation_fix_deg": 270.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_aedb9509ef9347a5b055e02deeadeff7",
+      "aspect_error": 0.0007,
+      "scale": [
+       0.9978,
+       0.9984,
+       0.9981
+      ],
+      "non_uniform": 1.0007,
+      "mean_scale": 0.9981,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "classic"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "glb": "models/objaverse/aedb9509ef9347a5b055e02deeadeff7.glb",
+    "sha256_glb": "f1e2aca421cebd2ba10178fc88899a41a06c27508609a639ba3c638be6788808",
+    "uid": "aedb9509ef9347a5b055e02deeadeff7",
+    "title": "Sofa",
+    "author": "mustafasahinfb",
+    "source_url": "https://sketchfab.com/3d-models/aedb9509ef9347a5b055e02deeadeff7",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Sofa\" by mustafasahinfb (https://sketchfab.com/3d-models/aedb9509ef9347a5b055e02deeadeff7), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.01
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:145",
+     "block": "KOLTUK"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:85"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_014",
+   "level_id": "L3",
+   "room_id": "r_L3_salon_mutfak",
+   "type": "bookshelf",
+   "type_raw": "KITAPLIK",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     0.425,
+     3.6
+    ],
+    "size": [
+     1.0,
+     0.35
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": null,
+   "asset": {
+    "library": "objaverse",
+    "asset_id": "objaverse_51d928b33e5549898cc86cbdaf966d83",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.8363,
+     0.8355,
+     0.8359
+    ],
+    "bbox_m": [
+     1.0,
+     0.35,
+     1.6659
+    ],
+    "aspect_error": 0.001,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     -0.0101,
+     -0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_51d928b33e5549898cc86cbdaf966d83",
+      "aspect_error": 0.001,
+      "scale": [
+       0.8363,
+       0.8355,
+       0.8359
+      ],
+      "non_uniform": 1.001,
+      "mean_scale": 0.8359,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "modern minimal",
+     "minimal"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "glb": "models/objaverse/51d928b33e5549898cc86cbdaf966d83.glb",
+    "sha256_glb": "8876efd23bfdc64030a37788be6960c5cd318440e1da3e8ce945d936977510fa",
+    "uid": "51d928b33e5549898cc86cbdaf966d83",
+    "title": "Simple Book Shelf | [FREE] | Agustin Honnun",
+    "author": "Agustín Hönnun",
+    "source_url": "https://sketchfab.com/3d-models/51d928b33e5549898cc86cbdaf966d83",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Simple Book Shelf | [FREE] | Agustin Honnun\" by Agustín Hönnun (https://sketchfab.com/3d-models/51d928b33e5549898cc86cbdaf966d83), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 1.0
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:147",
+     "block": "KITAPLIK"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:87"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_015",
+   "level_id": "L3",
+   "room_id": "r_L3_yatak_odasi",
+   "type": "bed_double",
+   "type_raw": "YATAK_CIFT",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     9.6,
+     3.55
+    ],
+    "size": [
+     1.6,
+     2.0
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "GothicBed_01",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     1.0711,
+     0.9804,
+     1.0257
+    ],
+    "bbox_m": [
+     1.6,
+     2.0,
+     1.5732
+    ],
+    "aspect_error": 0.0885,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0355,
+     0.0331,
+     -0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "GothicBed_01",
+      "aspect_error": 0.0885,
+      "scale": [
+       1.0711,
+       0.9804,
+       1.0257
+      ],
+      "non_uniform": 1.0925,
+      "mean_scale": 1.0257,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "classic"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "gltf": "models/GothicBed_01/GothicBed_01_1k.gltf"
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:149",
+     "block": "YATAK_CIFT"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:89"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_016",
+   "level_id": "L3",
+   "room_id": "r_L3_yatak_odasi",
+   "type": "nightstand",
+   "type_raw": "KOMIDIN",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     8.5,
+     4.35
+    ],
+    "size": [
+     0.5,
+     0.4
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "side_table_01",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.9091,
+     0.8889,
+     0.899
+    ],
+    "bbox_m": [
+     0.5,
+     0.4,
+     0.4951
+    ],
+    "aspect_error": 0.0225,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     -0.0024
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "low",
+    "candidates": [
+     {
+      "id": "side_table_01",
+      "aspect_error": 0.0225,
+      "scale": [
+       0.9091,
+       0.8889,
+       0.899
+      ],
+      "non_uniform": 1.0227,
+      "mean_scale": 0.899,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "gltf": "models/side_table_01/side_table_01_1k.gltf"
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:14B",
+     "block": "KOMIDIN"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:91"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_017",
+   "level_id": "L3",
+   "room_id": "r_L3_yatak_odasi",
+   "type": "nightstand",
+   "type_raw": "KOMIDIN",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     10.7,
+     4.35
+    ],
+    "size": [
+     0.5,
+     0.4
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "side_table_01",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.9091,
+     0.8889,
+     0.899
+    ],
+    "bbox_m": [
+     0.5,
+     0.4,
+     0.4951
+    ],
+    "aspect_error": 0.0225,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     -0.0024
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "low",
+    "candidates": [
+     {
+      "id": "side_table_01",
+      "aspect_error": 0.0225,
+      "scale": [
+       0.9091,
+       0.8889,
+       0.899
+      ],
+      "non_uniform": 1.0227,
+      "mean_scale": 0.899,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "gltf": "models/side_table_01/side_table_01_1k.gltf"
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:14D",
+     "block": "KOMIDIN"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:93"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_018",
+   "level_id": "L3",
+   "room_id": "r_L3_yatak_odasi",
+   "type": "wardrobe",
+   "type_raw": "DOLAP",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     7.35,
+     1.5
+    ],
+    "size": [
+     1.8,
+     0.6
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:wardrobe",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     1.8,
+     0.6,
+     2.1
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [
+     {
+      "id": "objaverse_b3a99e956be64ab6958f7f5e1895f031",
+      "aspect_error": 0.2691,
+      "scale": [
+       1.3923,
+       1.0638,
+       1.2281
+      ],
+      "non_uniform": 1.3088,
+      "mean_scale": 1.2281,
+      "accepted": false
+     },
+     {
+      "id": "objaverse_b46803ba0bc64e12b31f832fb761c4e0",
+      "aspect_error": 0.4784,
+      "scale": [
+       1.7202,
+       1.0661,
+       1.3931
+      ],
+      "non_uniform": 1.6135,
+      "mean_scale": 1.3931,
+      "accepted": false
+     },
+     {
+      "id": "objaverse_05a035c3347645b8a7ceb6d65f825ac3",
+      "aspect_error": 0.5003,
+      "scale": [
+       1.5848,
+       0.9609,
+       1.2729
+      ],
+      "non_uniform": 1.6492,
+      "mean_scale": 1.2729,
+      "accepted": false
+     }
+    ],
+    "fallback_reason": "no wardrobe candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_b3a99e956be64ab6958f7f5e1895f031 at 30.9 % non-uniform, mean scale 1.2281)",
+    "cap": 1.15,
+    "style_family": null,
+    "excluded": []
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:14F",
+     "block": "DOLAP"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:95"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_019",
+   "level_id": "L3",
+   "room_id": "r_L3_banyo",
+   "type": "bathtub",
+   "type_raw": "KUVET",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     7.1,
+     7.375
+    ],
+    "size": [
+     1.7,
+     0.75
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:bathtub",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     1.7,
+     0.75,
+     0.7
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type bathtub is parametric in the catalogue",
+    "cap": 1.15,
+    "style_family": null,
+    "excluded": []
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:151",
+     "block": "KUVET"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:97"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_020",
+   "level_id": "L3",
+   "room_id": "r_L3_banyo",
+   "type": "toilet",
+   "type_raw": "KLOZET",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     7.6,
+     6.35
+    ],
+    "size": [
+     0.4,
+     0.7
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:toilet",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     0.4,
+     0.7,
+     0.8
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [
+     {
+      "id": "objaverse_3446229dce1f47528fa871cc7669136c",
+      "aspect_error": 0.2233,
+      "scale": [
+       0.8836,
+       1.1046,
+       0.9941
+      ],
+      "non_uniform": 1.2502,
+      "mean_scale": 0.9941,
+      "accepted": false
+     },
+     {
+      "id": "objaverse_24d1b493899d407780140688abae19bc",
+      "aspect_error": 0.2259,
+      "scale": [
+       0.8824,
+       1.106,
+       0.9942
+      ],
+      "non_uniform": 1.2534,
+      "mean_scale": 0.9942,
+      "accepted": false
+     },
+     {
+      "id": "objaverse_0b3325fad3e740b1ac86173c90b56afd",
+      "aspect_error": 0.2649,
+      "scale": [
+       0.8654,
+       1.1279,
+       0.9967
+      ],
+      "non_uniform": 1.3033,
+      "mean_scale": 0.9967,
+      "accepted": false
+     }
+    ],
+    "fallback_reason": "no toilet candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_3446229dce1f47528fa871cc7669136c at 25.0 % non-uniform, mean scale 0.9941)",
+    "cap": 1.15,
+    "style_family": null,
+    "excluded": []
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:153",
+     "block": "KLOZET"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:99"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_021",
+   "level_id": "L3",
+   "room_id": "r_L3_banyo",
+   "type": "washbasin",
+   "type_raw": "LAVABO",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     6.0,
+     6.175
+    ],
+    "size": [
+     0.6,
+     0.45
+    ],
+    "rotation_deg": 180.0
+   },
+   "front_deg": 90.0,
+   "height": null,
+   "asset": {
+    "library": "objaverse",
+    "asset_id": "objaverse_ce1a06f7cbe1425099a145f851fc5dee",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.9251,
+     0.9454,
+     0.9352
+    ],
+    "bbox_m": [
+     0.6,
+     0.45,
+     0.5141
+    ],
+    "aspect_error": 0.0217,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     -0.2748
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_ce1a06f7cbe1425099a145f851fc5dee",
+      "aspect_error": 0.0217,
+      "scale": [
+       0.9251,
+       0.9454,
+       0.9352
+      ],
+      "non_uniform": 1.022,
+      "mean_scale": 0.9352,
+      "accepted": true
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "glb": "models/objaverse/ce1a06f7cbe1425099a145f851fc5dee.glb",
+    "sha256_glb": "e1b99caba563b6c71d79eb960591d5e1049a3e7c086c6518aa83772a0621fbae",
+    "uid": "ce1a06f7cbe1425099a145f851fc5dee",
+    "title": "Sink",
+    "author": "Shining Salt",
+    "source_url": "https://sketchfab.com/3d-models/ce1a06f7cbe1425099a145f851fc5dee",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Sink\" by Shining Salt (https://sketchfab.com/3d-models/ce1a06f7cbe1425099a145f851fc5dee), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "unit_scale": 0.32432313118014205
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "3_kat_plani.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:155",
+     "block": "LAVABO"
+    },
+    {
+     "file": "3_kat_plani_pdf.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:101"
+    }
+   ]
+  },
+  {
+   "id": "f_L3_022",
+   "level_id": "L3",
+   "room_id": "r_L3_hol",
+   "type": "dresser",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     3.796,
+     6.304
+    ],
+    "size": [
+     1.0,
+     0.45
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": 0.8,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Slim walnut dresser against wall for minimal storage without blocking walkway."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      3.7,
+      7.6
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      1.0,
+      0.45
+     ]
+    },
+    "repairs": [
+     "snap",
+     "slide",
+     "relocate"
+    ],
+    "agreed_by_other_pass": false
+   }
+  },
+  {
+   "id": "f_L3_023",
+   "level_id": "L3",
+   "room_id": "r_L3_cocuk_odasi",
+   "type": "bed_single",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     9.071,
+     6.779
+    ],
+    "size": [
+     1.2,
+     2.0
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": 0.5,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Main sleeping area against the wall, leaving space for walkways."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      9.375,
+      6.2
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      1.2,
+      2.0
+     ]
+    },
+    "repairs": [
+     "snap",
+     "slide",
+     "shrink",
+     "slide",
+     "shrink",
+     "slide",
+     "relocate"
+    ],
+    "agreed_by_other_pass": true
+   }
+  },
+  {
+   "id": "f_L3_024",
+   "level_id": "L3",
+   "room_id": "r_L3_cocuk_odasi",
+   "type": "nightstand",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     9.375,
+     4.871
+    ],
+    "size": [
+     0.5,
+     0.4
+    ],
+    "rotation_deg": 180.0
+   },
+   "front_deg": 90.0,
+   "height": 0.5,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Placed beside the bed for easy access to essentials."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      9.375,
+      5.7
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      0.5,
+      0.4
+     ]
+    },
+    "repairs": [
+     "snap"
+    ],
+    "agreed_by_other_pass": false
+   }
+  },
+  {
+   "id": "f_L3_025",
+   "level_id": "L3",
+   "room_id": "r_L3_cocuk_odasi",
+   "type": "wardrobe",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     10.671,
+     4.971
+    ],
+    "size": [
+     1.2,
+     0.6
+    ],
+    "rotation_deg": 180.0
+   },
+   "front_deg": 90.0,
+   "height": 2.1,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Storage against the wall, away from door swing and window."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      8.05,
+      6.5
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      1.8,
+      0.6
+     ]
+    },
+    "repairs": [
+     "snap",
+     "slide",
+     "shrink",
+     "slide",
+     "relocate"
+    ],
+    "agreed_by_other_pass": true
+   }
+  },
+  {
+   "id": "f_L3_026",
+   "level_id": "L3",
+   "room_id": "r_L3_cocuk_odasi",
+   "type": "chair",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     11.5,
+     5.0
+    ],
+    "size": [
+     0.45,
+     0.45
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": 0.9,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Seating for desk, positioned to face the desk."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": false,
+    "proposed": {
+     "center": [
+      10.5,
+      5.0
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      0.45,
+      0.45
+     ]
+    },
+    "repairs": [
+     "slide"
+    ],
+    "agreed_by_other_pass": false
+   }
+  }
+ ],
+ "conflicts": [],
+ "unverified": [],
+ "warnings": [
+  "Level L3: ceiling height assumed 2.70 m (no section drawing found)"
+ ],
+ "decor": [
+  {
+   "id": "dec_L3_001",
+   "kind": "decor",
+   "type": "cushion",
+   "level_id": "L3",
+   "room_id": "r_L3_salon_mutfak",
+   "center": [
+    3.125,
+    1.85
+   ],
+   "rotation_deg": 90.0,
+   "size": [
+    0.45,
+    0.15
+   ],
+   "asset": null,
+   "host_id": "f_L3_010",
+   "source": "added_by_ai",
+   "method": "rule",
+   "reason": "cushion against the sofa back"
+  },
+  {
+   "id": "dec_L3_002",
+   "kind": "decor",
+   "type": "cushion",
+   "level_id": "L3",
+   "room_id": "r_L3_salon_mutfak",
+   "center": [
+    3.125,
+    2.95
+   ],
+   "rotation_deg": 90.0,
+   "size": [
+    0.45,
+    0.15
+   ],
+   "asset": null,
+   "host_id": "f_L3_010",
+   "source": "added_by_ai",
+   "method": "rule",
+   "reason": "cushion against the sofa back"
+  },
+  {
+   "id": "dec_L3_003",
+   "kind": "decor",
+   "type": "book_set",
+   "level_id": "L3",
+   "room_id": "r_L3_salon_mutfak",
+   "center": [
+    0.425,
+    3.6
+   ],
+   "rotation_deg": 90.0,
+   "size": [
+    0.3,
+    0.22
+   ],
+   "asset": null,
+   "host_id": "f_L3_014",
+   "source": "added_by_ai",
+   "method": "rule",
+   "reason": "books on the shelf"
+  },
+  {
+   "id": "dec_L3_004",
+   "kind": "decor",
+   "type": "cushion",
+   "level_id": "L3",
+   "room_id": "r_L3_yatak_odasi",
+   "center": [
+    9.2,
+    4.3
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.5,
+    0.3
+   ],
+   "asset": null,
+   "host_id": "f_L3_015",
+   "source": "added_by_ai",
+   "method": "rule",
+   "reason": "cushion at the head of the bed"
+  },
+  {
+   "id": "dec_L3_005",
+   "kind": "decor",
+   "type": "cushion",
+   "level_id": "L3",
+   "room_id": "r_L3_yatak_odasi",
+   "center": [
+    10.0,
+    4.3
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.5,
+    0.3
+   ],
+   "asset": null,
+   "host_id": "f_L3_015",
+   "source": "added_by_ai",
+   "method": "rule",
+   "reason": "cushion at the head of the bed"
+  },
+  {
+   "id": "dec_L3_006",
+   "kind": "decor",
+   "type": "plant",
+   "level_id": "L3",
+   "room_id": "r_L3_yatak_odasi",
+   "center": [
+    11.5,
+    0.5
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.4,
+    0.4
+   ],
+   "asset": null,
+   "host_id": null,
+   "source": "added_by_ai",
+   "method": "rule",
+   "reason": "potted plant in a free corner"
+  },
+  {
+   "id": "dec_L3_007",
+   "kind": "decor",
+   "type": "cushion",
+   "level_id": "L3",
+   "room_id": "r_L3_cocuk_odasi",
+   "center": [
+    8.321,
+    6.779
+   ],
+   "rotation_deg": 90.0,
+   "size": [
+    0.5,
+    0.3
+   ],
+   "asset": null,
+   "host_id": "f_L3_023",
+   "source": "added_by_ai",
+   "method": "rule",
+   "reason": "cushion at the head of the bed"
+  },
+  {
+   "id": "dec_L3_008",
+   "kind": "decor",
+   "type": "plant",
+   "level_id": "L3",
+   "room_id": "r_L3_cocuk_odasi",
+   "center": [
+    11.5,
+    7.5
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.4,
+    0.4
+   ],
+   "asset": null,
+   "host_id": null,
+   "source": "added_by_ai",
+   "method": "rule",
+   "reason": "potted plant in a free corner"
+  }
+ ]
+}

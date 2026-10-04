@@ -1,0 +1,217 @@
+{
+ "schema_version": "0.1",
+ "scene": "../../scene/scene.blend",
+ "scene_sha256": "14deaf21929681bbb8010ab12698b3ed6448ba838943d883688a67f50911ab70",
+ "device": "OPTIX",
+ "device_requested": "auto",
+ "blender_version": "5.2.2 LTS",
+ "samples": 128,
+ "resolution": [
+  1920,
+  1080
+ ],
+ "denoiser": "OPENIMAGEDENOISE",
+ "render_code_version": "m7.1",
+ "view_transform": "AgX",
+ "look": "AgX - Punchy",
+ "exposure_mode": "from",
+ "exposure_target": 0.9,
+ "exposure_limits": [
+  -2.0,
+  8.0
+ ],
+ "white_balance_mode": "from",
+ "look_from": "../../renders/render_manifest.json",
+ "hidden": [
+  "win_L3_008"
+ ],
+ "plugged": [
+  "win_L3_008"
+ ],
+ "alt_look": null,
+ "max_bounces": null,
+ "bounces": null,
+ "ev_offset": 0.0,
+ "preview_quality": null,
+ "pass_index": {
+  "d_L3_001": 1,
+  "d_L3_002": 2,
+  "d_L3_003": 3,
+  "d_L3_004": 4,
+  "d_L3_005": 5,
+  "win_L3_001": 6,
+  "win_L3_002": 7,
+  "win_L3_003": 8,
+  "win_L3_004": 9,
+  "win_L3_005": 10,
+  "win_L3_006": 11,
+  "win_L3_007": 12,
+  "win_L3_008": 13,
+  "win_L3_009": 14,
+  "win_L3_010": 15,
+  "f_L3_001": 16,
+  "f_L3_002": 17,
+  "f_L3_003": 18,
+  "f_L3_004": 19,
+  "f_L3_005": 20,
+  "f_L3_006": 21,
+  "f_L3_007": 22,
+  "f_L3_008": 23,
+  "f_L3_009": 24,
+  "f_L3_010": 25,
+  "f_L3_011": 26,
+  "f_L3_012": 27,
+  "f_L3_013": 28,
+  "f_L3_014": 29,
+  "f_L3_015": 30,
+  "f_L3_016": 31,
+  "f_L3_017": 32,
+  "f_L3_018": 33,
+  "f_L3_019": 34,
+  "f_L3_020": 35,
+  "f_L3_021": 36,
+  "f_L3_022": 37,
+  "f_L3_023": 38,
+  "f_L3_024": 39,
+  "f_L3_025": 40,
+  "f_L3_026": 41,
+  "dec_L3_006": 42,
+  "dec_L3_008": 43
+ },
+ "renders": [
+  {
+   "camera": "cam_r_L3_cocuk_odasi_1",
+   "room_id": "r_L3_cocuk_odasi",
+   "level_id": "L3",
+   "png": "cam_r_L3_cocuk_odasi_1.png",
+   "exr": "cam_r_L3_cocuk_odasi_1_passes.exr",
+   "preview": "cam_r_L3_cocuk_odasi_1_preview.jpg",
+   "depth_png": "cam_r_L3_cocuk_odasi_1_depth.png",
+   "index_png": "cam_r_L3_cocuk_odasi_1_index.png",
+   "files": {
+    "index": "cam_r_L3_cocuk_odasi_1_index.png",
+    "depth_mm": "cam_r_L3_cocuk_odasi_1_depth_mm.png",
+    "normal": "cam_r_L3_cocuk_odasi_1_normal.png",
+    "depth": "cam_r_L3_cocuk_odasi_1_depth.png"
+   },
+   "preview_bytes": 126727,
+   "seconds": 2.73,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.2970600128173828,
+    "max": 4.318933486938477,
+    "mean": 2.6836462020874023,
+    "coverage": 1.0
+   },
+   "index_values": [
+    12,
+    38,
+    40,
+    43
+   ],
+   "index_stats": {
+    "12": {
+     "pixels": 205479,
+     "box": [
+      0,
+      0,
+      407,
+      528
+     ]
+    },
+    "38": {
+     "pixels": 265215,
+     "box": [
+      0,
+      707,
+      837,
+      1080
+     ]
+    },
+    "40": {
+     "pixels": 533520,
+     "box": [
+      1426,
+      0,
+      1920,
+      1080
+     ]
+    },
+    "43": {
+     "pixels": 11248,
+     "box": [
+      700,
+      589,
+      840,
+      758
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "14deaf21929681bbb8010ab12698b3ed6448ba838943d883688a67f50911ab70",
+   "render_key": "d911fc0a758b9dd0",
+   "exposure": {
+    "mode": "from",
+    "ev": 4.833333,
+    "ev_raw": null,
+    "at_limit": false,
+    "target": null,
+    "limits": null,
+    "incident_p50": null,
+    "whitepoint": [
+     0.940987,
+     1.009723,
+     1.077457
+    ],
+    "wb_mode": "from",
+    "wb_temperature": 7091.1,
+    "wb_tint": 12.9,
+    "residual": null,
+    "window_clip_frac": 0.0021,
+    "meter_seconds": 0.0,
+    "meter": null,
+    "mood": "warm daylight",
+    "source": "../../renders/render_manifest.json",
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "hidden": [
+    "win_L3_008"
+   ],
+   "plugged": [
+    "win_L3_008"
+   ],
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": 3.833333,
+    "clip_before": 0.2968,
+    "clip_after": 0.0024,
+    "pane_px": 180913,
+    "pane_median": 0.9681,
+    "wall_median": 0.4956,
+    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0024,
+      "median": 0.9185
+     }
+    ],
+    "pane_median_after": 0.9188,
+    "seconds": 0.79
+   },
+   "alt_preview": null,
+   "alt_preview_bytes": null
+  }
+ ],
+ "dropped_stale": [],
+ "incomplete": false,
+ "not_rendered": [],
+ "deadline": 1791078100.0,
+ "warnings": []
+}

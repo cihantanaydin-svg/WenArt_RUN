@@ -1,0 +1,80 @@
+{
+ "schema_version": "0.1",
+ "dir_relative_to": "project_out",
+ "controls": [
+  {
+   "id": "f_L0_017",
+   "index": 31,
+   "kind": "furniture",
+   "type": "sofa",
+   "camera": "cam_r_L0_drawing_room_2",
+   "room_id": "r_L0_drawing_room",
+   "area_frac": 0.17334,
+   "source": "from_documents",
+   "plug": false,
+   "dir": "controls/hide_f_L0_017"
+  },
+  {
+   "id": "f_L0_001",
+   "index": 16,
+   "kind": "furniture",
+   "type": "kitchen_counter",
+   "camera": "cam_r_L0_kitchen_1",
+   "room_id": "r_L0_kitchen",
+   "area_frac": 0.11413,
+   "source": "from_documents",
+   "plug": false,
+   "dir": "controls/hide_f_L0_001"
+  },
+  {
+   "id": "f_L0_006",
+   "index": 20,
+   "kind": "furniture",
+   "type": "nightstand",
+   "camera": "cam_r_L0_bed_room_2_2",
+   "room_id": "r_L0_bed_room_2",
+   "area_frac": 0.03002,
+   "source": "from_documents",
+   "plug": false,
+   "dir": "controls/hide_f_L0_006"
+  },
+  {
+   "id": "win_L0_002",
+   "index": 2,
+   "kind": "window",
+   "type": "window",
+   "camera": "cam_r_L0_drawing_room_2",
+   "room_id": "r_L0_drawing_room",
+   "area_frac": 0.11296,
+   "source": "from_documents",
+   "plug": true,
+   "dir": "controls/hide_win_L0_002"
+  },
+  {
+   "id": "d_L0_003",
+   "index": 11,
+   "kind": "door",
+   "type": "door",
+   "camera": "cam_r_L0_drawing_room_3",
+   "room_id": "r_L0_drawing_room",
+   "area_frac": 0.08304,
+   "source": "from_documents",
+   "plug": false,
+   "dir": "controls/hide_d_L0_003"
+  }
+ ],
+ "swaps": [
+  {
+   "id": "f_L0_017",
+   "index": 31,
+   "type": "sofa",
+   "camera": "cam_r_L0_drawing_room_2",
+   "room_id": "r_L0_drawing_room",
+   "area_frac": 0.17334,
+   "source": "from_documents",
+   "swap_to": "bed_double"
+  }
+ ],
+ "project": "real01",
+ "hide_sets": "cam_r_L0_drawing_room_2:f_L0_017;cam_r_L0_kitchen_1:f_L0_001;cam_r_L0_bed_room_2_2:f_L0_006;cam_r_L0_drawing_room_2:win_L0_002+plug;cam_r_L0_drawing_room_3:d_L0_003"
+}

@@ -1,0 +1,220 @@
+{
+ "schema_version": "0.1",
+ "scene": "../../scene/scene.blend",
+ "scene_sha256": "8e1b8c6812ab00c40a3c6777613e77f416c1a39f9a27014f30ac3639b82a95f7",
+ "device": "OPTIX",
+ "device_requested": "auto",
+ "blender_version": "5.2.2 LTS",
+ "samples": 128,
+ "resolution": [
+  1920,
+  1080
+ ],
+ "denoiser": "OPENIMAGEDENOISE",
+ "render_code_version": "m7.1",
+ "view_transform": "AgX",
+ "look": "AgX - Punchy",
+ "exposure_mode": "from",
+ "exposure_target": 0.9,
+ "exposure_limits": [
+  -2.0,
+  8.0
+ ],
+ "white_balance_mode": "from",
+ "look_from": "../../renders/render_manifest.json",
+ "hidden": [
+  "d_L0_004"
+ ],
+ "plugged": [],
+ "alt_look": null,
+ "max_bounces": null,
+ "bounces": null,
+ "ev_offset": 0.0,
+ "preview_quality": null,
+ "pass_index": {
+  "d_L0_001": 1,
+  "d_L0_002": 2,
+  "d_L0_003": 3,
+  "d_L0_004": 4,
+  "win_L0_001": 5,
+  "win_L0_002": 6,
+  "win_L0_003": 7,
+  "win_L0_004": 8,
+  "win_L0_005": 9,
+  "win_L0_006": 10,
+  "win_L0_007": 11,
+  "proxy:f_L0_001": 12,
+  "proxy:f_L0_002": 13,
+  "proxy:f_L0_004": 14,
+  "proxy:f_L0_005": 15,
+  "proxy:f_L0_007": 16,
+  "proxy:f_L0_012": 17,
+  "proxy:f_L0_013": 18,
+  "proxy:f_L0_015": 19,
+  "f_L0_003": 20,
+  "f_L0_006": 21,
+  "f_L0_008": 22,
+  "f_L0_009": 23,
+  "f_L0_010": 24,
+  "f_L0_011": 25,
+  "f_L0_016": 26
+ },
+ "renders": [
+  {
+   "camera": "cam_r_L0_yatak_odasi_2",
+   "room_id": "r_L0_yatak_odasi",
+   "level_id": "L0",
+   "png": "cam_r_L0_yatak_odasi_2.png",
+   "exr": "cam_r_L0_yatak_odasi_2_passes.exr",
+   "preview": "cam_r_L0_yatak_odasi_2_preview.jpg",
+   "depth_png": "cam_r_L0_yatak_odasi_2_depth.png",
+   "index_png": "cam_r_L0_yatak_odasi_2_index.png",
+   "files": {
+    "index": "cam_r_L0_yatak_odasi_2_index.png",
+    "depth_mm": "cam_r_L0_yatak_odasi_2_depth_mm.png",
+    "normal": "cam_r_L0_yatak_odasi_2_normal.png",
+    "depth": "cam_r_L0_yatak_odasi_2_depth.png"
+   },
+   "preview_bytes": 169427,
+   "seconds": 2.9,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.104841709136963,
+    "max": 5.704715251922607,
+    "mean": 2.685230016708374,
+    "coverage": 1.0
+   },
+   "index_values": [
+    1,
+    2,
+    8,
+    12,
+    21
+   ],
+   "index_stats": {
+    "1": {
+     "pixels": 63908,
+     "box": [
+      658,
+      152,
+      792,
+      636
+     ]
+    },
+    "2": {
+     "pixels": 3695,
+     "box": [
+      517,
+      97,
+      523,
+      716
+     ]
+    },
+    "8": {
+     "pixels": 65540,
+     "box": [
+      1596,
+      28,
+      1741,
+      480
+     ]
+    },
+    "12": {
+     "pixels": 533487,
+     "box": [
+      963,
+      519,
+      1920,
+      1080
+     ]
+    },
+    "21": {
+     "pixels": 375840,
+     "box": [
+      0,
+      0,
+      348,
+      1080
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "8e1b8c6812ab00c40a3c6777613e77f416c1a39f9a27014f30ac3639b82a95f7",
+   "render_key": "d5d8e516a3078281",
+   "exposure": {
+    "mode": "from",
+    "ev": 4.5,
+    "ev_raw": null,
+    "at_limit": false,
+    "target": null,
+    "limits": null,
+    "incident_p50": null,
+    "whitepoint": [
+     1.056528,
+     0.98496,
+     0.982532
+    ],
+    "wb_mode": "from",
+    "wb_temperature": 6227.8,
+    "wb_tint": 2.66,
+    "residual": null,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 0.0,
+    "meter": null,
+    "mood": "warm daylight",
+    "source": "../../renders/render_manifest.json",
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "hidden": [
+    "d_L0_004"
+   ],
+   "plugged": [],
+   "window_pull": {
+    "ev": 0.0,
+    "k": 0,
+    "pane_ev": 4.5,
+    "clip_before": 0.0,
+    "clip_after": 0.0,
+    "pane_px": 46217,
+    "pane_median": 0.5381,
+    "wall_median": 0.7422,
+    "rule": "no k keeps the panes brighter than the walls: no pull",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.3885
+     },
+     {
+      "k": 2,
+      "clip": 0.0,
+      "median": 0.2572
+     },
+     {
+      "k": 3,
+      "clip": 0.0,
+      "median": 0.1501
+     },
+     {
+      "k": 4,
+      "clip": 0.0,
+      "median": 0.0692
+     }
+    ],
+    "seconds": 0.971
+   },
+   "alt_preview": null,
+   "alt_preview_bytes": null
+  }
+ ],
+ "dropped_stale": [],
+ "incomplete": false,
+ "not_rendered": [],
+ "deadline": 1791078100.0,
+ "warnings": []
+}

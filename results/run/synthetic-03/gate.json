@@ -1,0 +1,51 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "synthetic-03",
+ "stage": "gate",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 84.57,
+ "fingerprint": "fa155bff5328a26618152a6cd5093adfc07dce755911c63d52e771d6d13ad04d",
+ "inputs": {
+  "outputs/synthetic-03/renders/render_manifest.json": "be1cdcf64efeaf197d73a981d621303dbb6b99dce7a41ccf2a16e65004f33bc0",
+  "outputs/synthetic-03/check/controls.json": "376a5d2bc440644971cbe5330a536841842427e47c9676a2da4d374ea50a71a9",
+  "outputs/synthetic-03/polish/sweep/polish_manifest.json": null,
+  "outputs/synthetic-03/controls/hide_d_L-1_002/render_manifest.json": "8bcdec4fec39a310f0277e5d326b0623211e148b9fbcc6d0c1863b9400de64a9",
+  "outputs/synthetic-03/controls/hide_d_L0_004/render_manifest.json": "796befb4d1fb10f62820ef020d6c8baeb6053b983f3db3f64de348f79b749ede",
+  "outputs/synthetic-03/controls/hide_d_L1_002/render_manifest.json": "e8d89f14619e497246236d4932b8d2cf89dbded1d9177fae064c8cd053929745",
+  "outputs/synthetic-03/controls/hide_d_L1_003/render_manifest.json": "c7ec489c8103aa8c424442c5ed7b1783be96aeaec204e53ef8c908a323be3922",
+  "outputs/synthetic-03/controls/hide_f_L-1_003/render_manifest.json": "80c6073b2adc77b33b703f2c7be8d90700592e8fd259a87758390afcb990690c",
+  "outputs/synthetic-03/controls/hide_f_L0_014/render_manifest.json": "153c00008057dc27fa03ee81a4ff6fee9a80fd3ab1cbfa1c8ab3deb9062616c9",
+  "outputs/synthetic-03/controls/hide_f_L0_017/render_manifest.json": "98583d3f0d91a6d6bcb460de1384d51db00b992e1842fff001a6b1e6c427f3b1",
+  "outputs/synthetic-03/controls/hide_f_L1_001/render_manifest.json": "bcf545e0cc664bbdc72301e6b8b3c6e3161771daefb936cb85bd1e68026f1299",
+  "outputs/synthetic-03/controls/hide_f_L1_013/render_manifest.json": "08c80fd4c8aeb8e2401a7fa065d1f9a1a9a41c3f3334363d5584f2cfb3bb1239",
+  "outputs/synthetic-03/controls/hide_f_L1_014/render_manifest.json": "fb174af2472d9b8ac8b745c4340e81352ce492c08a70cb4bd60b188f8ab98355",
+  "outputs/synthetic-03/controls/hide_win_L-1_001/render_manifest.json": "19166491c3009cf614527d4a0a49bf1dbd1b7c5978cc9223c446090febce2bdc",
+  "outputs/synthetic-03/controls/hide_win_L0_002/render_manifest.json": "5f0d51d1ea9d78cefb68a8fe01f2b587be03a4bc735ea357cbc552d51dffee43",
+  "outputs/synthetic-03/controls/hide_win_L1_003/render_manifest.json": "2c6c170f6ca003239fb9e6bd381e7d5a3ba63a8c24696d2445f7419ab0f13f17",
+  "outputs/synthetic-03/controls/hide_win_L1_004/render_manifest.json": "33593c268a661d0db75746cb152025aa8c9aeadd1930ad8f55f6cb1e62f7a4c8"
+ },
+ "outputs": [
+  "gate/gate_calibration.json",
+  "gate/gate_validation.json"
+ ],
+ "started_utc": "2026-10-04T01:56:41Z",
+ "git_commit": "0a41bee4ea72a8713da1941efc8951188b952670",
+ "log": "logs/gate.log",
+ "note": "gate decision ok",
+ "run_id": "20261004-013837-full-20261004T014240Z",
+ "steps": [
+  {
+   "name": "calibrate",
+   "rc": 0,
+   "seconds": 83.39
+  },
+  {
+   "name": "validate",
+   "rc": 0,
+   "seconds": 1.18
+  }
+ ],
+ "written": {}
+}

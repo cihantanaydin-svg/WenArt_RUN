@@ -1,0 +1,2067 @@
+{
+ "schema_version": "0.1",
+ "kind": "objaverse_accepted",
+ "generated_utc": "2026-10-03T20:46:28Z",
+ "rules": "docs/milestone7.md §7.2",
+ "counts": {
+  "accepted": 50,
+  "front_not_agreed": 33,
+  "quality": 23,
+  "type_mismatch": 4,
+  "no_common_style": 1,
+  "over_type_limit": 2
+ },
+ "accepted": [
+  {
+   "uid": "124297e7e4574c48b9c1b814b6ddf516",
+   "type": "armchair",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.237 of the extent): front -Y",
+   "styles": [
+    "classic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['classic'], glm ['classic']",
+   "has_mattress": null,
+   "quality": [
+    5,
+    5
+   ]
+  },
+  {
+   "uid": "69f1c0489a144f3c98e66dcfe72b3969",
+   "type": "armchair",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.381 of the extent): front -Y",
+   "styles": [
+    "classic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['classic'], glm ['classic']",
+   "has_mattress": null,
+   "quality": [
+    5,
+    5
+   ]
+  },
+  {
+   "uid": "da6d646358d1451fa751f1a9141290a3",
+   "type": "armchair",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.382 of the extent): front -Y",
+   "styles": [
+    "classic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['classic'], glm ['classic']",
+   "has_mattress": null,
+   "quality": [
+    5,
+    5
+   ]
+  },
+  {
+   "uid": "09ee59423b4b428f94f01fc5beccd227",
+   "type": "armchair",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.326 of the extent): front -Y",
+   "styles": [
+    "classic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['classic'], glm ['classic']",
+   "has_mattress": null,
+   "quality": [
+    5,
+    4
+   ]
+  },
+  {
+   "uid": "aedb9509ef9347a5b055e02deeadeff7",
+   "type": "armchair",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "+X",
+   "front_view": 1,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 1 (camera on the +X side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.384 of the extent): front +X",
+   "styles": [
+    "classic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['classic'], glm ['modern', 'classic']",
+   "has_mattress": null,
+   "quality": [
+    4,
+    5
+   ]
+  },
+  {
+   "uid": "f7f99449b896488fa6d468e70518b21d",
+   "type": "armchair",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.351 of the extent): front -Y",
+   "styles": [
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern', 'modern minimal', 'scandinavian', 'japandi'], glm ['modern', 'neutral']",
+   "has_mattress": null,
+   "quality": [
+    4,
+    4
+   ]
+  },
+  {
+   "uid": "08f7f65edfea417b8ed9ca748381e507",
+   "type": "bed_double",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-X",
+   "front_view": 3,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 3 (camera on the -X side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +X (+0.336 of the extent): front -X",
+   "styles": [
+    "scandinavian",
+    "japandi",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern'], glm ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern']",
+   "has_mattress": true,
+   "quality": [
+    5,
+    4
+   ]
+  },
+  {
+   "uid": "2bd3fcc82c9f43cfb0c8cf26c7d0107c",
+   "type": "bed_double",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "+X",
+   "front_view": 1,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 1 (camera on the +X side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.431 of the extent): front +X",
+   "styles": [
+    "modern minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'modern']",
+   "has_mattress": true,
+   "quality": [
+    4,
+    4
+   ]
+  },
+  {
+   "uid": "5d3a99865ac84d8a8bf06b263aa5bb55",
+   "type": "bed_double",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.485 of the extent): front -Y",
+   "styles": [
+    "industrial"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['industrial', 'modern minimal', 'minimal'], glm ['industrial']",
+   "has_mattress": true,
+   "quality": [
+    4,
+    4
+   ]
+  },
+  {
+   "uid": "6eb4212e70b941a3bd2db196a47828b9",
+   "type": "bed_single",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-X",
+   "front_view": 3,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 3 (camera on the -X side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +X (+0.349 of the extent): front -X",
+   "styles": [
+    "scandinavian",
+    "japandi",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern'], glm ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern']",
+   "has_mattress": true,
+   "quality": [
+    4,
+    4
+   ]
+  },
+  {
+   "uid": "b547d81073b64d3e97200fd3ae9a74af",
+   "type": "bed_single",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.468 of the extent): front -Y",
+   "styles": [
+    "scandinavian",
+    "japandi",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern'], glm ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern']",
+   "has_mattress": true,
+   "quality": [
+    4,
+    4
+   ]
+  },
+  {
+   "uid": "b43c45317fd74a4aa9ba443b9a355ea3",
+   "type": "bookshelf",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: open_side: closed panel 1.00 at +Y, 0.28 at the other side: front -Y",
+   "styles": [
+    "modern",
+    "neutral"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['japandi', 'modern minimal', 'minimal', 'modern', 'industrial', 'rustic', 'neutral'], glm ['modern', 'neutral']",
+   "has_mattress": null,
+   "quality": [
+    5,
+    4
+   ]
+  },
+  {
+   "uid": "6c5ac2547db34c3c81b2e4808b000386",
+   "type": "bookshelf",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "+Y",
+   "front_view": 2,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 2 (camera on the +Y side) shows the front; geometry: open_side: closed panel 0.88 at -Y, 0.01 at the other side: front +Y",
+   "styles": [
+    "classic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'industrial', 'classic'], glm ['classic', 'rustic']",
+   "has_mattress": null,
+   "quality": [
+    4,
+    4
+   ]
+  },
+  {
+   "uid": "51d928b33e5549898cc86cbdaf966d83",
+   "type": "bookshelf",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: open_side: closed panel 1.00 at +Y, 0.08 at the other side: front -Y",
+   "styles": [
+    "modern minimal",
+    "minimal"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'japandi', 'scandinavian', 'rustic'], glm ['modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "quality": [
+    4,
+    4
+   ]
+  },
+  {
+   "uid": "0723b35415b0462eb5c01140b6b70340",
+   "type": "chair",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.255 of the extent): front -Y",
+   "styles": [
+    "classic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['classic'], glm ['classic']",
+   "has_mattress": null,
+   "quality": [
+    5,
+    5
+   ]
+  },
+  {
+   "uid": "039c6026571943d6ac45c6816bcc7ff1",
+   "type": "chair",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.274 of the extent): front -Y",
+   "styles": [
+    "classic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['classic'], glm ['classic', 'rustic']",
+   "has_mattress": null,
+   "quality": [
+    5,
+    5
+   ]
+  },
+  {
+   "uid": "d2785b57e7da45858f2fe8bf4dedd68d",
+   "type": "chair",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.230 of the extent): front -Y",
+   "styles": [
+    "scandinavian",
+    "japandi",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern'], glm ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "quality": [
+    5,
+    5
+   ]
+  },
+  {
+   "uid": "9234d8196b73434684bcbb8092cc9e2a",
+   "type": "chair",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-X",
+   "front_view": 3,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 3 (camera on the -X side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +X (+0.368 of the extent): front -X",
+   "styles": [
+    "classic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['classic'], glm ['classic']",
+   "has_mattress": null,
+   "quality": [
+    4,
+    4
+   ]
+  },
+  {
+   "uid": "cb43e2abac66494d81e1e7116eb47043",
+   "type": "chair",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.452 of the extent): front -Y",
+   "styles": [
+    "industrial",
+    "rustic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['industrial', 'rustic'], glm ['industrial', 'rustic']",
+   "has_mattress": null,
+   "quality": [
+    4,
+    4
+   ]
+  },
+  {
+   "uid": "b930438e1f804c409fd9c3f5e4b01628",
+   "type": "desk",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 1374 vs 79 vertices in the y slabs: front -Y",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "quality": [
+    4,
+    4
+   ]
+  },
+  {
+   "uid": "33eb258d9873435690254cfbb0ea46ec",
+   "type": "floor_lamp",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "floor_lamp has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern', 'neutral']",
+   "has_mattress": null,
+   "quality": [
+    4,
+    5
+   ]
+  },
+  {
+   "uid": "71853da424aa4b208e14f6cf430339ae",
+   "type": "floor_lamp",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "floor_lamp has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "industrial",
+    "classic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['classic', 'industrial'], glm ['industrial', 'classic']",
+   "has_mattress": null,
+   "quality": [
+    5,
+    4
+   ]
+  },
+  {
+   "uid": "01c53767c1f84f55ad9f46eb89949cf9",
+   "type": "floor_lamp",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "floor_lamp has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "classic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['classic'], glm ['classic']",
+   "has_mattress": null,
+   "quality": [
+    4,
+    4
+   ]
+  },
+  {
+   "uid": "8170cf1409924abc9c3fc8becccdd36e",
+   "type": "floor_lamp",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "floor_lamp has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern', 'neutral']",
+   "has_mattress": null,
+   "quality": [
+    4,
+    4
+   ]
+  },
+  {
+   "uid": "2071bda681b642218b6829b82e4fd93b",
+   "type": "fridge",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 3030 vs 42 vertices in the y slabs: front -Y",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "quality": [
+    4,
+    4
+   ]
+  },
+  {
+   "uid": "68d69bbf7a454a09a2536ac0762532f3",
+   "type": "fridge",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "+X",
+   "front_view": 1,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 1 (camera on the +X side) shows the front; geometry: detail_side: 221 vs 24 vertices in the x slabs: front +X",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "quality": [
+    4,
+    4
+   ]
+  },
+  {
+   "uid": "71b53eaee72e4a829a9256a7bcfb7dab",
+   "type": "potted_plant",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "potted_plant has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "rustic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['industrial', 'rustic'], glm ['rustic', 'neutral']",
+   "has_mattress": null,
+   "quality": [
+    4,
+    4
+   ]
+  },
+  {
+   "uid": "b99c584dd11d4691b5d13303383371e5",
+   "type": "potted_plant",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "potted_plant has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "mediterranean"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['mediterranean'], glm ['mediterranean', 'rustic']",
+   "has_mattress": null,
+   "quality": [
+    4,
+    4
+   ]
+  },
+  {
+   "uid": "ef3832963ab24d129ec88fd4cac4818f",
+   "type": "sofa",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.238 of the extent): front -Y",
+   "styles": [
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern', 'modern minimal'], glm ['modern', 'minimal']",
+   "has_mattress": null,
+   "quality": [
+    4,
+    4
+   ]
+  },
+  {
+   "uid": "072d0468bb97447ab1ca7e3edea25f1f",
+   "type": "sofa",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-X",
+   "front_view": 3,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 3 (camera on the -X side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +X (+0.173 of the extent): front -X",
+   "styles": [
+    "classic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['classic'], glm ['classic', 'rustic']",
+   "has_mattress": null,
+   "quality": [
+    4,
+    4
+   ]
+  },
+  {
+   "uid": "9b1e09abe5e34d6397937ebf59901898",
+   "type": "sofa",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.329 of the extent): front -Y",
+   "styles": [
+    "modern minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'modern']",
+   "has_mattress": null,
+   "quality": [
+    4,
+    4
+   ]
+  },
+  {
+   "uid": "9c242421a7c1447f941f72b57e7473e5",
+   "type": "sofa",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.288 of the extent): front -Y",
+   "styles": [
+    "modern minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'modern']",
+   "has_mattress": null,
+   "quality": [
+    4,
+    4
+   ]
+  },
+  {
+   "uid": "42da0122f2134a189767d0911b401c1c",
+   "type": "sofa",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.109 of the extent): front -Y",
+   "styles": [
+    "modern minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'modern']",
+   "has_mattress": null,
+   "quality": [
+    4,
+    4
+   ]
+  },
+  {
+   "uid": "7c5c9dec5c2e4ff998c386410b0e3686",
+   "type": "stove",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-X",
+   "front_view": 3,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 3 (camera on the -X side) shows the front; geometry: detail_side: 1653 vs 183 vertices in the x slabs: front -X",
+   "styles": [
+    "industrial"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['industrial'], glm ['industrial', 'rustic']",
+   "has_mattress": null,
+   "quality": [
+    4,
+    4
+   ]
+  },
+  {
+   "uid": "c17577daa87849d09960669606c0ce27",
+   "type": "table_coffee",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "table_coffee has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "japandi",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['japandi', 'modern minimal', 'minimal', 'modern'], glm ['japandi', 'modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "quality": [
+    5,
+    4
+   ]
+  },
+  {
+   "uid": "c42d069236174467a2fb536f7d42d7f0",
+   "type": "table_coffee",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "table_coffee has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "japandi",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['japandi', 'modern minimal', 'minimal', 'modern'], glm ['japandi', 'modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "quality": [
+    4,
+    4
+   ]
+  },
+  {
+   "uid": "1d41e84fd76241e7a8929a314052269c",
+   "type": "table_coffee",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "table_coffee has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "scandinavian",
+    "japandi",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern', 'industrial', 'rustic', 'neutral'], glm ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "quality": [
+    4,
+    4
+   ]
+  },
+  {
+   "uid": "f4031bb5f7e64ebca4c37d4fa5ba6e8d",
+   "type": "table_coffee",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "table_coffee has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "classic",
+    "rustic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['classic', 'rustic'], glm ['classic', 'rustic']",
+   "has_mattress": null,
+   "quality": [
+    4,
+    4
+   ]
+  },
+  {
+   "uid": "b0c0c9c65d06443c87391134a62e2287",
+   "type": "table_coffee",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "table_coffee has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "japandi",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['japandi', 'modern minimal', 'minimal', 'modern'], glm ['japandi', 'modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "quality": [
+    4,
+    4
+   ]
+  },
+  {
+   "uid": "3b4ee19c627e4fb4a3305621cf925aa2",
+   "type": "table_dining",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "table_dining has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "rustic",
+    "neutral"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['rustic', 'modern', 'industrial', 'neutral'], glm ['rustic', 'neutral']",
+   "has_mattress": null,
+   "quality": [
+    4,
+    5
+   ]
+  },
+  {
+   "uid": "5847113c458f4a2483aedd663376c7de",
+   "type": "table_dining",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "table_dining has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern', 'rustic', 'neutral'], glm ['modern', 'minimal']",
+   "has_mattress": null,
+   "quality": [
+    4,
+    4
+   ]
+  },
+  {
+   "uid": "5f235f066a9a416fb7177496a9117ec7",
+   "type": "table_dining",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "table_dining has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "modern minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern', 'industrial', 'rustic', 'neutral'], glm ['modern minimal', 'modern']",
+   "has_mattress": null,
+   "quality": [
+    4,
+    4
+   ]
+  },
+  {
+   "uid": "724d93a7f3644f96909e8c55909c6418",
+   "type": "table_dining",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": null,
+   "front_axis_confidence": "low",
+   "front_axis_note": "table_dining has no front: -Y kept as the model frame gives it (front_axis_confidence low)",
+   "styles": [
+    "scandinavian",
+    "rustic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['rustic', 'scandinavian', 'japandi', 'modern minimal', 'neutral'], glm ['scandinavian', 'rustic']",
+   "has_mattress": null,
+   "quality": [
+    4,
+    4
+   ]
+  },
+  {
+   "uid": "24d1b493899d407780140688abae19bc",
+   "type": "toilet",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.313 of the extent): front -Y",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "quality": [
+    4,
+    4
+   ]
+  },
+  {
+   "uid": "0b3325fad3e740b1ac86173c90b56afd",
+   "type": "toilet",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.345 of the extent): front -Y",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "quality": [
+    4,
+    4
+   ]
+  },
+  {
+   "uid": "3446229dce1f47528fa871cc7669136c",
+   "type": "toilet",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "+X",
+   "front_view": 1,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 1 (camera on the +X side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.348 of the extent): front +X",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "quality": [
+    4,
+    4
+   ]
+  },
+  {
+   "uid": "05a035c3347645b8a7ceb6d65f825ac3",
+   "type": "wardrobe",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 837 vs 224 vertices in the y slabs: front -Y",
+   "styles": [
+    "classic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['classic'], glm ['classic', 'rustic']",
+   "has_mattress": null,
+   "quality": [
+    5,
+    4
+   ]
+  },
+  {
+   "uid": "b3a99e956be64ab6958f7f5e1895f031",
+   "type": "wardrobe",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 1068 vs 533 vertices in the y slabs: front -Y",
+   "styles": [
+    "classic",
+    "rustic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['classic', 'rustic'], glm ['classic', 'rustic']",
+   "has_mattress": null,
+   "quality": [
+    4,
+    4
+   ]
+  },
+  {
+   "uid": "b46803ba0bc64e12b31f832fb761c4e0",
+   "type": "wardrobe",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: detail_side: 1532 vs 92 vertices in the y slabs: front -Y",
+   "styles": [
+    "scandinavian",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern'], glm ['scandinavian', 'modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "quality": [
+    4,
+    4
+   ]
+  },
+  {
+   "uid": "ce1a06f7cbe1425099a145f851fc5dee",
+   "type": "washbasin",
+   "accepted": true,
+   "failed": [],
+   "code": "",
+   "detail": "",
+   "front_axis": "-Y",
+   "front_view": 0,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 0 (camera on the -Y side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.087 of the extent): front -Y",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "quality": [
+    4,
+    4
+   ]
+  }
+ ],
+ "refused": [
+  {
+   "uid": "01b79647e6e442989fda47ff20cabdc9",
+   "type": "armchair",
+   "accepted": false,
+   "failed": [
+    [
+     "over_type_limit",
+     "keep 6"
+    ]
+   ],
+   "code": "over_type_limit",
+   "detail": "rank 8 of 8 accepted armchair models (keep 6)",
+   "front_axis": "-X",
+   "front_view": 3,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 3 (camera on the -X side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward +X (+0.323 of the extent): front -X",
+   "styles": [
+    "classic"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['classic'], glm ['classic']",
+   "has_mattress": null,
+   "quality": [
+    4,
+    4
+   ]
+  },
+  {
+   "uid": "132a8ee2af3a40d39d270fbed3d3666c",
+   "type": "toilet",
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: qwen 1, glm 0"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: qwen 1, glm 0"
+  },
+  {
+   "uid": "15a583ac9db84a529e7ea1d2bd7eadbe",
+   "type": "fridge",
+   "accepted": false,
+   "failed": [
+    [
+     "quality",
+     "qwen 3, glm 3"
+    ],
+    [
+     "front_not_agreed",
+     "judges: view 0 (-Y); geometry undecided (detail_side: x ratio 2.86 and y ratio 2.79 do not single out one axis)"
+    ]
+   ],
+   "code": "quality",
+   "detail": "qwen 3, glm 3"
+  },
+  {
+   "uid": "17c796aeb1b8455d8f594a72490e11b7",
+   "type": "washbasin",
+   "accepted": false,
+   "failed": [
+    [
+     "quality",
+     "qwen 3, glm 4"
+    ],
+    [
+     "front_not_agreed",
+     "judges: qwen 2, glm 1"
+    ]
+   ],
+   "code": "quality",
+   "detail": "qwen 3, glm 4"
+  },
+  {
+   "uid": "1f07c148a7bc4e7c88dc57de50dc36b3",
+   "type": "toilet",
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: view 0 (-Y); geometry undecided (back_taller: offsets -0.057 (x) and +0.092 (y) do not single out one axis)"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: view 0 (-Y); geometry undecided (back_taller: offsets -0.057 (x) and +0.092 (y) do not single out one axis)"
+  },
+  {
+   "uid": "23fa151346304c8bb8c58f58a76e6407",
+   "type": "desk",
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: qwen 1, glm 3"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: qwen 1, glm 3"
+  },
+  {
+   "uid": "2b7d5c96159c42589dd970d81e877668",
+   "type": "toilet",
+   "accepted": false,
+   "failed": [
+    [
+     "quality",
+     "qwen 3, glm 4"
+    ]
+   ],
+   "code": "quality",
+   "detail": "qwen 3, glm 4"
+  },
+  {
+   "uid": "2f1706233a3248cf9a74586fc2e7120c",
+   "type": "bathtub",
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: qwen 2, glm 0"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: qwen 2, glm 0"
+  },
+  {
+   "uid": "309ccba7b2cb40a6bfffb89f498fc54c",
+   "type": "wardrobe",
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: view 0 (-Y); geometry undecided (detail_side: vertex counts {'-x': 96, '+x': 96, '-y': 50, '+y': 51} give no side with 1.3x more detail)"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: view 0 (-Y); geometry undecided (detail_side: vertex counts {'-x': 96, '+x': 96, '-y': 50, '+y': 51} give no side with 1.3x more detail)"
+  },
+  {
+   "uid": "317dac94ec404bdbaa6d41a85e04f51c",
+   "type": "floor_lamp",
+   "accepted": false,
+   "failed": [
+    [
+     "type_mismatch",
+     "qwen False, glm True"
+    ],
+    [
+     "quality",
+     "qwen 3, glm 4"
+    ],
+    [
+     "no_common_style",
+     "qwen [], glm ['industrial']"
+    ]
+   ],
+   "code": "type_mismatch",
+   "detail": "qwen False, glm True"
+  },
+  {
+   "uid": "322ba3a159a845c7b7642467e23fcc2d",
+   "type": "bed_single",
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: qwen 1, glm 3"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: qwen 1, glm 3"
+  },
+  {
+   "uid": "3597a7a470ac4f81b1b362eea66f4d6f",
+   "type": "wardrobe",
+   "accepted": false,
+   "failed": [
+    [
+     "quality",
+     "qwen 3, glm 4"
+    ]
+   ],
+   "code": "quality",
+   "detail": "qwen 3, glm 4"
+  },
+  {
+   "uid": "39541d5daa7a4fba9614ad9847c992d5",
+   "type": "desk",
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: qwen 2, glm 0"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: qwen 2, glm 0"
+  },
+  {
+   "uid": "426c14adba6a45638752986c2f7d16b2",
+   "type": "bed_double",
+   "accepted": false,
+   "failed": [
+    [
+     "quality",
+     "qwen 3, glm 4"
+    ],
+    [
+     "front_not_agreed",
+     "judges: qwen 2, glm 0"
+    ]
+   ],
+   "code": "quality",
+   "detail": "qwen 3, glm 4"
+  },
+  {
+   "uid": "4ae706aa53c043fa8261ebf40f580303",
+   "type": "potted_plant",
+   "accepted": false,
+   "failed": [
+    [
+     "quality",
+     "qwen 3, glm 3"
+    ]
+   ],
+   "code": "quality",
+   "detail": "qwen 3, glm 3"
+  },
+  {
+   "uid": "536dbfc2fdbe4dec9203ab390b9a6eda",
+   "type": "bathtub",
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: qwen 2, glm 0"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: qwen 2, glm 0"
+  },
+  {
+   "uid": "568f22034e364caca4e450a6d534dbd6",
+   "type": "bed_double",
+   "accepted": false,
+   "failed": [
+    [
+     "quality",
+     "qwen 4, glm 3"
+    ],
+    [
+     "front_not_agreed",
+     "judges: view 3 (-X); geometry undecided (back_taller: top centroid offset +0.048 of the extent on y is below 0.08: no taller side)"
+    ],
+    [
+     "no_common_style",
+     "qwen ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern'], glm ['neutral']"
+    ]
+   ],
+   "code": "quality",
+   "detail": "qwen 4, glm 3"
+  },
+  {
+   "uid": "592d31f4896948bb9ac5e53ac246d8c8",
+   "type": "stove",
+   "accepted": false,
+   "failed": [
+    [
+     "quality",
+     "qwen 3, glm 3"
+    ],
+    [
+     "front_not_agreed",
+     "judges: view 0 (-Y); geometry undecided (detail_side: only 6 vertices at the x sides)"
+    ]
+   ],
+   "code": "quality",
+   "detail": "qwen 3, glm 3"
+  },
+  {
+   "uid": "5ec9697d85654005b27fd29bd6df987e",
+   "type": "sofa",
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: qwen 2, glm 0"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: qwen 2, glm 0"
+  },
+  {
+   "uid": "604886640ac948f1980d81bc4a3ed7cf",
+   "type": "bed_double",
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: qwen 1, glm 0"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: qwen 1, glm 0"
+  },
+  {
+   "uid": "624c9f7dcb2f4acd93237591ef10c76a",
+   "type": "chair",
+   "accepted": false,
+   "failed": [
+    [
+     "quality",
+     "qwen 3, glm 4"
+    ],
+    [
+     "front_not_agreed",
+     "judges: qwen 1, glm 3"
+    ]
+   ],
+   "code": "quality",
+   "detail": "qwen 3, glm 4"
+  },
+  {
+   "uid": "65a13a04056c4f51a9c324e2a975b9a5",
+   "type": "bed_double",
+   "accepted": false,
+   "failed": [
+    [
+     "type_mismatch",
+     "qwen False, glm True"
+    ],
+    [
+     "no_mattress",
+     "qwen False, glm True"
+    ],
+    [
+     "front_not_agreed",
+     "judges: qwen None, glm 2"
+    ],
+    [
+     "no_common_style",
+     "qwen [], glm ['scandinavian', 'japandi', 'modern minimal', 'minimal', 'modern']"
+    ]
+   ],
+   "code": "type_mismatch",
+   "detail": "qwen False, glm True"
+  },
+  {
+   "uid": "674b6c07743e4f569d4b745949d1a0f1",
+   "type": "bathtub",
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: qwen 3, glm 2"
+    ],
+    [
+     "no_common_style",
+     "qwen ['classic'], glm ['modern minimal', 'minimal', 'modern']"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: qwen 3, glm 2"
+  },
+  {
+   "uid": "70b7b418af714050aa83e99deb2253b7",
+   "type": "wardrobe",
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: view 0 (-Y); geometry +Y"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: view 0 (-Y); geometry +Y"
+  },
+  {
+   "uid": "75aa9519195647d99cf1e2d4863dbe87",
+   "type": "bookshelf",
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: view 0 (-Y); geometry undecided (open_side: panel fractions {'-x': 0.8648, '+x': 0.8528, '-y': 0.0033, '+y': 0.0} give 0 axes with one closed side)"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: view 0 (-Y); geometry undecided (open_side: panel fractions {'-x': 0.8648, '+x': 0.8528, '-y': 0.0033, '+y': 0.0} give 0 axes with one closed side)"
+  },
+  {
+   "uid": "774971f63ea54cdba8119439f4ff09c5",
+   "type": "table_dining",
+   "accepted": false,
+   "failed": [
+    [
+     "quality",
+     "qwen 3, glm 5"
+    ]
+   ],
+   "code": "quality",
+   "detail": "qwen 3, glm 5"
+  },
+  {
+   "uid": "800d3c5569b94abfa2da7976504d589d",
+   "type": "bathtub",
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: view 0 (-Y); geometry +Y"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: view 0 (-Y); geometry +Y"
+  },
+  {
+   "uid": "813f5aeef3f3430d947f3879c6941719",
+   "type": "floor_lamp",
+   "accepted": false,
+   "failed": [
+    [
+     "no_common_style",
+     "qwen ['classic'], glm ['neutral']"
+    ]
+   ],
+   "code": "no_common_style",
+   "detail": "qwen ['classic'], glm ['neutral']"
+  },
+  {
+   "uid": "815bd9cee3644f3f8996b4a6d123c7c3",
+   "type": "desk",
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: qwen 2, glm 0"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: qwen 2, glm 0"
+  },
+  {
+   "uid": "81ada0e24e1647d8a0d6d0708a696f84",
+   "type": "bed_single",
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: qwen 2, glm 0"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: qwen 2, glm 0"
+  },
+  {
+   "uid": "8cd4ef86c0914b95a181473230c77eda",
+   "type": "stove",
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: qwen 1, glm 0"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: qwen 1, glm 0"
+  },
+  {
+   "uid": "8e1fddb38fa8400c9fcc784abe29aaaa",
+   "type": "fridge",
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: view 0 (-Y); geometry +Y"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: view 0 (-Y); geometry +Y"
+  },
+  {
+   "uid": "8fba1e7048c0421fb7e6b6e8be8fce88",
+   "type": "stove",
+   "accepted": false,
+   "failed": [
+    [
+     "quality",
+     "qwen 3, glm 4"
+    ]
+   ],
+   "code": "quality",
+   "detail": "qwen 3, glm 4"
+  },
+  {
+   "uid": "9155b2b4be5f452a98837459112a3b9b",
+   "type": "potted_plant",
+   "accepted": false,
+   "failed": [
+    [
+     "quality",
+     "qwen 3, glm 4"
+    ]
+   ],
+   "code": "quality",
+   "detail": "qwen 3, glm 4"
+  },
+  {
+   "uid": "98b39c575de547a483f8fbaec2c0242f",
+   "type": "potted_plant",
+   "accepted": false,
+   "failed": [
+    [
+     "quality",
+     "qwen 3, glm 3"
+    ]
+   ],
+   "code": "quality",
+   "detail": "qwen 3, glm 3"
+  },
+  {
+   "uid": "9c4935439367490b8039a3cad9c46243",
+   "type": "sofa",
+   "accepted": false,
+   "failed": [
+    [
+     "quality",
+     "qwen 3, glm 3"
+    ],
+    [
+     "front_not_agreed",
+     "judges: qwen 1, glm None"
+    ]
+   ],
+   "code": "quality",
+   "detail": "qwen 3, glm 3"
+  },
+  {
+   "uid": "a5eea808dc20404cb5f9e05680f7362f",
+   "type": "wardrobe",
+   "accepted": false,
+   "failed": [
+    [
+     "type_mismatch",
+     "qwen False, glm True"
+    ],
+    [
+     "front_not_agreed",
+     "judges: qwen None, glm 1"
+    ],
+    [
+     "no_common_style",
+     "qwen [], glm ['modern', 'neutral']"
+    ]
+   ],
+   "code": "type_mismatch",
+   "detail": "qwen False, glm True"
+  },
+  {
+   "uid": "a82bff9b83be4072871d3e2afc6cec14",
+   "type": "fridge",
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: view 0 (-Y); geometry +X"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: view 0 (-Y); geometry +X"
+  },
+  {
+   "uid": "a9917037f0c643dbbde0475b59bc53b1",
+   "type": "table_coffee",
+   "accepted": false,
+   "failed": [
+    [
+     "quality",
+     "qwen 3, glm 4"
+    ]
+   ],
+   "code": "quality",
+   "detail": "qwen 3, glm 4"
+  },
+  {
+   "uid": "aa9a7f23471a4bb6b461d5240c2bf1a7",
+   "type": "bookshelf",
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: view 0 (-Y); geometry undecided (open_side: panel fractions {'-x': 0.2845, '+x': 0.2274, '-y': 0.0427, '+y': 0.1454} give 0 axes with one closed side)"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: view 0 (-Y); geometry undecided (open_side: panel fractions {'-x': 0.2845, '+x': 0.2274, '-y': 0.0427, '+y': 0.1454} give 0 axes with one closed side)"
+  },
+  {
+   "uid": "b7f753028d354b419de1dcd966ab9f60",
+   "type": "table_dining",
+   "accepted": false,
+   "failed": [
+    [
+     "quality",
+     "qwen 3, glm 4"
+    ]
+   ],
+   "code": "quality",
+   "detail": "qwen 3, glm 4"
+  },
+  {
+   "uid": "b8792d1b3acf4081b0f173497d19d08b",
+   "type": "bookshelf",
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: view 0 (-Y); geometry undecided (open_side: panel fractions {'-x': 0.0104, '+x': 0.0218, '-y': 0.0002, '+y': 0.0238} give 0 axes with one closed side)"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: view 0 (-Y); geometry undecided (open_side: panel fractions {'-x': 0.0104, '+x': 0.0218, '-y': 0.0002, '+y': 0.0238} give 0 axes with one closed side)"
+  },
+  {
+   "uid": "bd384d46514548cf8c4202f1ae6ea551",
+   "type": "fridge",
+   "accepted": false,
+   "failed": [
+    [
+     "quality",
+     "qwen 4, glm 3"
+    ],
+    [
+     "front_not_agreed",
+     "judges: view 0 (-Y); geometry +X"
+    ]
+   ],
+   "code": "quality",
+   "detail": "qwen 4, glm 3"
+  },
+  {
+   "uid": "c1338e44401949c1be64e6668d38c100",
+   "type": "potted_plant",
+   "accepted": false,
+   "failed": [
+    [
+     "quality",
+     "qwen 3, glm 4"
+    ]
+   ],
+   "code": "quality",
+   "detail": "qwen 3, glm 4"
+  },
+  {
+   "uid": "c4a92f9eafa64e03b8fe6e1c4ce462ab",
+   "type": "potted_plant",
+   "accepted": false,
+   "failed": [
+    [
+     "quality",
+     "qwen 3, glm 4"
+    ]
+   ],
+   "code": "quality",
+   "detail": "qwen 3, glm 4"
+  },
+  {
+   "uid": "c603a9922c6a4e77ab2306590f536ad6",
+   "type": "armchair",
+   "accepted": false,
+   "failed": [
+    [
+     "over_type_limit",
+     "keep 6"
+    ]
+   ],
+   "code": "over_type_limit",
+   "detail": "rank 7 of 8 accepted armchair models (keep 6)",
+   "front_axis": "+X",
+   "front_view": 1,
+   "front_axis_confidence": "high",
+   "front_axis_note": "both judges: view 1 (camera on the +X side) shows the front; geometry: back_taller: the top 30 % of the vertices sit toward -X (-0.404 of the extent): front +X",
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "style_note": "intersection of the two judges' styles on the 2 x 2 sheet: qwen ['modern minimal', 'minimal', 'modern'], glm ['modern minimal', 'minimal', 'modern']",
+   "has_mattress": null,
+   "quality": [
+    4,
+    4
+   ]
+  },
+  {
+   "uid": "c626625486104768a6cab5eb4ecf9cf3",
+   "type": "potted_plant",
+   "accepted": false,
+   "failed": [
+    [
+     "quality",
+     "qwen 3, glm 3"
+    ]
+   ],
+   "code": "quality",
+   "detail": "qwen 3, glm 3"
+  },
+  {
+   "uid": "c67f61fa444044bcb88ec3e28f0ca7ac",
+   "type": "desk",
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: qwen 1, glm 3"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: qwen 1, glm 3"
+  },
+  {
+   "uid": "c7d79c5a304a476d87c8014a2f6565cf",
+   "type": "desk",
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: view 0 (-Y); geometry +X"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: view 0 (-Y); geometry +X"
+  },
+  {
+   "uid": "cf7f142c5aa8439d9b8d545993efdac4",
+   "type": "toilet",
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: view 0 (-Y); geometry undecided (back_taller: offsets +0.284 (x) and +0.147 (y) do not single out one axis)"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: view 0 (-Y); geometry undecided (back_taller: offsets +0.284 (x) and +0.147 (y) do not single out one axis)"
+  },
+  {
+   "uid": "d1d7750af5144d1bb7d9fcc66b137c4c",
+   "type": "bed_single",
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: qwen 2, glm 0"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: qwen 2, glm 0"
+  },
+  {
+   "uid": "d367f2a1e96644c7afd46fdd47659a69",
+   "type": "wardrobe",
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: view 0 (-Y); geometry undecided (detail_side: vertex counts {'-x': 851, '+x': 848, '-y': 95, '+y': 111} give no side with 1.3x more detail)"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: view 0 (-Y); geometry undecided (detail_side: vertex counts {'-x': 851, '+x': 848, '-y': 95, '+y': 111} give no side with 1.3x more detail)"
+  },
+  {
+   "uid": "d601c2907f114376bf9826272d686e81",
+   "type": "chair",
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: view 2 (+Y); geometry undecided (back_taller: offsets -0.167 (x) and -0.296 (y) do not single out one axis)"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: view 2 (+Y); geometry undecided (back_taller: offsets -0.167 (x) and -0.296 (y) do not single out one axis)"
+  },
+  {
+   "uid": "d7fcaa3e8c844418a38b721c325bb2af",
+   "type": "bed_single",
+   "accepted": false,
+   "failed": [
+    [
+     "quality",
+     "qwen 3, glm 3"
+    ],
+    [
+     "front_not_agreed",
+     "judges: view 1 (+X); geometry undecided (back_taller: top centroid offset +0.017 of the extent on y is below 0.08: no taller side)"
+    ]
+   ],
+   "code": "quality",
+   "detail": "qwen 3, glm 3"
+  },
+  {
+   "uid": "dda2613eb5c04527a325a3b0bce9f79c",
+   "type": "bed_single",
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: view 1 (+X); geometry undecided (back_taller: top centroid offset -0.006 of the extent on y is below 0.08: no taller side)"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: view 1 (+X); geometry undecided (back_taller: top centroid offset -0.006 of the extent on y is below 0.08: no taller side)"
+  },
+  {
+   "uid": "dfb7c3b51e264b5083dc28450e55c2a0",
+   "type": "chair",
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: qwen 0, glm 3"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: qwen 0, glm 3"
+  },
+  {
+   "uid": "e9f40d803a874e84931192f09dedd58b",
+   "type": "desk",
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: view 3 (-X); geometry +Y"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: view 3 (-X); geometry +Y"
+  },
+  {
+   "uid": "ea1ea4d5847b4550bc58ef4107df6f94",
+   "type": "fridge",
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: qwen 1, glm 0"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: qwen 1, glm 0"
+  },
+  {
+   "uid": "f1b05ddf1b634481903e353d41b6a654",
+   "type": "bathtub",
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: view 1 (+X); geometry -X"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: view 1 (+X); geometry -X"
+  },
+  {
+   "uid": "f2b3a71f48d040069fb144f76a1180d9",
+   "type": "bed_double",
+   "accepted": false,
+   "failed": [
+    [
+     "type_mismatch",
+     "qwen False, glm True"
+    ],
+    [
+     "quality",
+     "qwen 3, glm 4"
+    ],
+    [
+     "front_not_agreed",
+     "judges: qwen None, glm 3"
+    ],
+    [
+     "no_common_style",
+     "qwen [], glm ['modern minimal', 'industrial']"
+    ]
+   ],
+   "code": "type_mismatch",
+   "detail": "qwen False, glm True"
+  },
+  {
+   "uid": "f57bb579c5da4b9c95f1cb874ec558f7",
+   "type": "fridge",
+   "accepted": false,
+   "failed": [
+    [
+     "quality",
+     "qwen 3, glm 3"
+    ],
+    [
+     "front_not_agreed",
+     "judges: view 1 (+X); geometry -Y"
+    ]
+   ],
+   "code": "quality",
+   "detail": "qwen 3, glm 3"
+  },
+  {
+   "uid": "fd612e2ea8e94d80ac3b8097eb2e5bbe",
+   "type": "bathtub",
+   "accepted": false,
+   "failed": [
+    [
+     "front_not_agreed",
+     "judges: qwen 2, glm 3"
+    ],
+    [
+     "no_common_style",
+     "qwen ['industrial'], glm ['modern', 'minimal']"
+    ]
+   ],
+   "code": "front_not_agreed",
+   "detail": "judges: qwen 2, glm 3"
+  },
+  {
+   "uid": "fe4339a62a544ec081d23f85e1a8c7f7",
+   "type": "stove",
+   "accepted": false,
+   "failed": [
+    [
+     "quality",
+     "qwen 3, glm 4"
+    ]
+   ],
+   "code": "quality",
+   "detail": "qwen 3, glm 4"
+  }
+ ]
+}

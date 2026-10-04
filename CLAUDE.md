@@ -20,7 +20,9 @@ Plan: `docs/plan.md`. Status: `docs/progress.md`. GPU spending: `docs/gpu-log.md
   (the list is in `docs/setup.md`, step 4.1).
 - RunPod API: use REST v2 `https://api.runpod.io/v2` (v1 retires 15 Nov 2026).
   Pods: image `runpod/pytorch:1.4.0-cu1281-torch291-ubuntu2404`, Network Volume in EU-RO-1,
-  default GPU RTX A5000 (then RTX 4090, RTX A6000), prices read live from `/v2/catalog/gpus`.
+  GPU: the fastest one in stock under $5.00/h with ≥ 24 GB (order in `scripts/gpu_run.py` GPU_PRIORITY: RTX PRO
+  6000, RTX 5090, RTX PRO 5000, L40S, H200/H100, RTX 4090, …, RTX PRO 4500; never L4), prices read live from
+  `/v2/catalog/gpus`; a pod whose worst case is over $5 needs your OK first (`--over-5-ok`).
 
 ## Secrets
 - `RUNPOD_API_KEY` comes from the environment (cloud) or the user's local store (Mac).
@@ -29,15 +31,16 @@ Plan: `docs/plan.md`. Status: `docs/progress.md`. GPU spending: `docs/gpu-log.md
   a key into the chat. `.env` is git-ignored.
 
 ## GPU limits (hard rules)
-- Max $1.00 per GPU-hour, max $10 per day, max 2 hours per pod run, one pod at a time.
+- Max $5.00 per GPU-hour (raised from $1.00 on 3 Oct 2026), max $10 per day, max 2 hours per pod run, one pod at a time.
 - Ask the user before: going over any limit, creating or deleting a Network Volume,
   deleting any data, or any single action costing more than $5.
 - Every pod must shut itself down when its job ends or at the max runtime
-  (watchdog inside the pod, e.g. `runpodctl stop pod $RUNPOD_POD_ID`). Never rely on
+  (watchdog inside the pod, `runpodctl pod stop $RUNPOD_POD_ID` or REST fallback, see `scripts/pod_entry.sh`). Never rely on
   the session to stop a pod. If a job fails or hangs: stop the pod first, then debug.
 - Before ending a session, check that no pod is running.
 - Log every run in `docs/gpu-log.md`: pod ID, GPU, minutes, cost, purpose.
-- Models download on the pod into the Network Volume (`HF_HOME=/workspace/hf`), never here.
+- Models download on the pod into the container-disk cache (`HF_HOME=/opt/wenart/hf`, ≈ 1.1 GB/s;
+  the Network Volume is too slow for caches and venvs, plan §5), never here.
 - Batch GPU work: several tests per pod session, not one pod per small check.
 
 ## Furniture rules

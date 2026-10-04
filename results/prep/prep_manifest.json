@@ -1,0 +1,712 @@
+{
+ "schema_version": "0.1",
+ "kind": "prep_manifest",
+ "job": "20261003-202712-prep",
+ "git_commit": "d69054baa700c94b9c97e20aec186c167836764e",
+ "started_utc": "2026-10-03T20:31:36Z",
+ "finished_utc": "2026-10-03T20:46:59Z",
+ "final": true,
+ "deadline": 1791062889.0,
+ "exit_code": 1,
+ "gpu": {
+  "name": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+  "memory_mib": 97887,
+  "key": "RTX PRO 6000"
+ },
+ "steps": [
+  {
+   "name": "survey",
+   "status": "ok",
+   "note": "127 candidate(s)",
+   "seconds": 293.3,
+   "commands": [
+    {
+     "what": null,
+     "cmd": "/workspace/venv/bin/python -m wenart.assets.objaverse survey --cache /opt/wenart/hf --out /workspace/prep/library",
+     "rc": 0,
+     "seconds": 293.29
+    }
+   ],
+   "log": "/workspace/logs/prep-20261003-202712-prep/survey.log",
+   "started_utc": "2026-10-03T20:31:37Z",
+   "candidates": 127
+  },
+  {
+   "name": "thumbnails",
+   "status": "ok",
+   "note": null,
+   "seconds": 14.0,
+   "commands": [
+    {
+     "what": null,
+     "cmd": "/workspace/venv/bin/python -m wenart.assets.objaverse thumbnails --out /workspace/prep/library --work /workspace/prep/library-work",
+     "rc": 0,
+     "seconds": 14.03
+    }
+   ],
+   "log": "/workspace/logs/prep-20261003-202712-prep/thumbnails.log",
+   "started_utc": "2026-10-03T20:36:31Z",
+   "counts": {
+    "over_candidate_limit": 1,
+    "ready": 113,
+    "unit_none": 13
+   },
+   "device": "OPTIX"
+  },
+  {
+   "name": "judge_requests",
+   "status": "ok",
+   "note": "113 sheet(s) to judge",
+   "seconds": 1.6,
+   "commands": [
+    {
+     "what": null,
+     "cmd": "/workspace/venv/bin/python -m wenart.assets.objaverse judge-requests --out /workspace/prep/library",
+     "rc": 0,
+     "seconds": 1.56
+    }
+   ],
+   "log": "/workspace/logs/prep-20261003-202712-prep/judge_requests.log",
+   "started_utc": "2026-10-03T20:36:45Z",
+   "items": 113
+  },
+  {
+   "name": "detect_calibrate",
+   "status": "ok",
+   "note": null,
+   "seconds": 13.8,
+   "commands": [
+    {
+     "what": null,
+     "cmd": "/opt/wenart/venv-polish/bin/python -m wenart.gate detect-calibrate --project-outs /workspace/repo/outputs/synthetic-01 /workspace/repo/outputs/synthetic-03 /workspace/repo/outputs/synthetic-04 /workspace/repo/outputs/synthetic-05 --out /workspace/jobs/20261003-202712-prep/results/detect --cache /workspace/prep/detect-cache --device cuda",
+     "rc": 0,
+     "seconds": 13.76
+    }
+   ],
+   "log": "/workspace/logs/prep-20261003-202712-prep/detect_calibrate.log",
+   "started_utc": "2026-10-03T20:36:47Z",
+   "project_outs": [
+    "/workspace/repo/outputs/synthetic-01",
+    "/workspace/repo/outputs/synthetic-03",
+    "/workspace/repo/outputs/synthetic-04",
+    "/workspace/repo/outputs/synthetic-05"
+   ],
+   "calibration": {
+    "usable": true,
+    "t_det": 0.08,
+    "t_strong": 0.11
+   }
+  },
+  {
+   "name": "timings",
+   "status": "skipped",
+   "note": "in --skip",
+   "seconds": 0.0,
+   "commands": [],
+   "log": null,
+   "started_utc": "2026-10-03T20:37:01Z"
+  },
+  {
+   "name": "pipelines",
+   "status": "ok",
+   "note": "4 project(s) with questions",
+   "seconds": 131.5,
+   "commands": [
+    {
+     "what": "real01",
+     "cmd": "/workspace/venv/bin/python -m wenart.ingest.pipeline projects/real01 --out /workspace/outputs-prep/real01",
+     "rc": 4,
+     "seconds": 14.53
+    },
+    {
+     "what": "synthetic-02",
+     "cmd": "/workspace/venv/bin/python -m wenart.ingest.pipeline projects/synthetic-02 --out /workspace/outputs-prep/synthetic-02",
+     "rc": 4,
+     "seconds": 48.78
+    },
+    {
+     "what": "synthetic-06",
+     "cmd": "/workspace/venv/bin/python -m wenart.ingest.pipeline projects/synthetic-06 --out /workspace/outputs-prep/synthetic-06",
+     "rc": 0,
+     "seconds": 10.8
+    },
+    {
+     "what": "real01-scan",
+     "cmd": "/workspace/venv/bin/python -m wenart.ingest.pipeline tests/fixtures/real01_raster/real01-scan --out /workspace/outputs-prep/real01-scan",
+     "rc": 4,
+     "seconds": 26.9
+    },
+    {
+     "what": "real01-photo",
+     "cmd": "/workspace/venv/bin/python -m wenart.ingest.pipeline tests/fixtures/real01_raster/real01-photo --out /workspace/outputs-prep/real01-photo",
+     "rc": 4,
+     "seconds": 25.02
+    }
+   ],
+   "log": "/workspace/logs/prep-20261003-202712-prep/pipeline-real01-photo.log",
+   "started_utc": "2026-10-03T20:37:01Z",
+   "projects": {
+    "real01": "pending",
+    "synthetic-02": "pending",
+    "synthetic-06": "ok",
+    "real01-scan": "pending",
+    "real01-photo": "pending"
+   },
+   "reused": []
+  },
+  {
+   "name": "session_qwen",
+   "status": "ok",
+   "note": "8 sequences; 4 project(s) asked, library judged",
+   "seconds": 187.9,
+   "commands": [
+    {
+     "what": "real01",
+     "cmd": "/workspace/venv/bin/python -m wenart.recognition.answers ask /workspace/outputs-prep/real01/recognition --model-key qwen --server http://127.0.0.1:8001/v1 --workers 8",
+     "rc": 0,
+     "seconds": 6.54
+    },
+    {
+     "what": "synthetic-02",
+     "cmd": "/workspace/venv/bin/python -m wenart.recognition.answers ask /workspace/outputs-prep/synthetic-02/recognition --model-key qwen --server http://127.0.0.1:8001/v1 --workers 8",
+     "rc": 0,
+     "seconds": 4.35
+    },
+    {
+     "what": "real01-scan",
+     "cmd": "/workspace/venv/bin/python -m wenart.recognition.answers ask /workspace/outputs-prep/real01-scan/recognition --model-key qwen --server http://127.0.0.1:8001/v1 --workers 8",
+     "rc": 0,
+     "seconds": 4.08
+    },
+    {
+     "what": "real01-photo",
+     "cmd": "/workspace/venv/bin/python -m wenart.recognition.answers ask /workspace/outputs-prep/real01-photo/recognition --model-key qwen --server http://127.0.0.1:8001/v1 --workers 8",
+     "rc": 0,
+     "seconds": 3.89
+    },
+    {
+     "what": "library judge",
+     "cmd": "/workspace/venv/bin/python -m wenart.assets.objaverse judge --out /workspace/prep/library --model-key qwen --server http://127.0.0.1:8001/v1 --workers 8",
+     "rc": 0,
+     "seconds": 17.31
+    }
+   ],
+   "log": "/workspace/logs/prep-20261003-202712-prep/judge-qwen.log",
+   "started_utc": "2026-10-03T20:39:12Z",
+   "session": {
+    "key": "qwen",
+    "tier": 8,
+    "probe": true,
+    "tried": [
+     {
+      "seqs": 8,
+      "ok": true,
+      "seconds_to_ready": 150.0
+     }
+    ],
+    "max_seqs": 8,
+    "asks": [
+     {
+      "project": "real01",
+      "rc": 0,
+      "items": 17,
+      "seconds": 6.54,
+      "seeded_from": null
+     },
+     {
+      "project": "synthetic-02",
+      "rc": 0,
+      "items": 21,
+      "seconds": 4.35,
+      "seeded_from": null
+     },
+     {
+      "project": "real01-scan",
+      "rc": 0,
+      "items": 19,
+      "seconds": 4.08,
+      "seeded_from": null
+     },
+     {
+      "project": "real01-photo",
+      "rc": 0,
+      "items": 18,
+      "seconds": 3.89,
+      "seeded_from": null
+     }
+    ],
+    "judge": {
+     "rc": 0,
+     "items": 113,
+     "missing_before": 113,
+     "seconds": 17.31
+    },
+    "missing": {
+     "recognition": {
+      "real01": 17,
+      "synthetic-02": 16,
+      "real01-scan": 13,
+      "real01-photo": 15
+     },
+     "judge": 113
+    }
+   }
+  },
+  {
+   "name": "session_glm",
+   "status": "ok",
+   "note": "8 sequences; 4 project(s) asked, library judged",
+   "seconds": 121.1,
+   "commands": [
+    {
+     "what": "real01",
+     "cmd": "/workspace/venv/bin/python -m wenart.recognition.answers ask /workspace/outputs-prep/real01/recognition --model-key glm --server http://127.0.0.1:8001/v1 --workers 8",
+     "rc": 0,
+     "seconds": 6.94
+    },
+    {
+     "what": "synthetic-02",
+     "cmd": "/workspace/venv/bin/python -m wenart.recognition.answers ask /workspace/outputs-prep/synthetic-02/recognition --model-key glm --server http://127.0.0.1:8001/v1 --workers 8",
+     "rc": 0,
+     "seconds": 4.69
+    },
+    {
+     "what": "real01-scan",
+     "cmd": "/workspace/venv/bin/python -m wenart.recognition.answers ask /workspace/outputs-prep/real01-scan/recognition --model-key glm --server http://127.0.0.1:8001/v1 --workers 8",
+     "rc": 0,
+     "seconds": 4.15
+    },
+    {
+     "what": "real01-photo",
+     "cmd": "/workspace/venv/bin/python -m wenart.recognition.answers ask /workspace/outputs-prep/real01-photo/recognition --model-key glm --server http://127.0.0.1:8001/v1 --workers 8",
+     "rc": 0,
+     "seconds": 4.49
+    },
+    {
+     "what": "library judge",
+     "cmd": "/workspace/venv/bin/python -m wenart.assets.objaverse judge --out /workspace/prep/library --model-key glm --server http://127.0.0.1:8001/v1 --workers 8",
+     "rc": 0,
+     "seconds": 19.92
+    }
+   ],
+   "log": "/workspace/logs/prep-20261003-202712-prep/judge-glm.log",
+   "started_utc": "2026-10-03T20:42:20Z",
+   "session": {
+    "key": "glm",
+    "tier": 8,
+    "probe": true,
+    "tried": [
+     {
+      "seqs": 8,
+      "ok": true,
+      "seconds_to_ready": 80.0
+     }
+    ],
+    "max_seqs": 8,
+    "asks": [
+     {
+      "project": "real01",
+      "rc": 0,
+      "items": 17,
+      "seconds": 6.94,
+      "seeded_from": null
+     },
+     {
+      "project": "synthetic-02",
+      "rc": 0,
+      "items": 21,
+      "seconds": 4.69,
+      "seeded_from": null
+     },
+     {
+      "project": "real01-scan",
+      "rc": 0,
+      "items": 19,
+      "seconds": 4.15,
+      "seeded_from": null
+     },
+     {
+      "project": "real01-photo",
+      "rc": 0,
+      "items": 18,
+      "seconds": 4.49,
+      "seeded_from": null
+     }
+    ],
+    "judge": {
+     "rc": 0,
+     "items": 113,
+     "missing_before": 113,
+     "seconds": 19.92
+    },
+    "missing": {
+     "recognition": {
+      "real01": 17,
+      "synthetic-02": 16,
+      "real01-scan": 13,
+      "real01-photo": 15
+     },
+     "judge": 113
+    }
+   }
+  },
+  {
+   "name": "pipeline_final",
+   "status": "ok",
+   "note": null,
+   "seconds": 125.3,
+   "commands": [
+    {
+     "what": "real01 answers status",
+     "cmd": "/workspace/venv/bin/python -m wenart.recognition.answers status /workspace/outputs-prep/real01/recognition",
+     "rc": 0,
+     "seconds": 0.89
+    },
+    {
+     "what": "real01",
+     "cmd": "/workspace/venv/bin/python -m wenart.ingest.pipeline projects/real01 --out /workspace/outputs-prep/real01 --answers /workspace/outputs-prep/real01/recognition",
+     "rc": 0,
+     "seconds": 13.95
+    },
+    {
+     "what": "synthetic-02 answers status",
+     "cmd": "/workspace/venv/bin/python -m wenart.recognition.answers status /workspace/outputs-prep/synthetic-02/recognition",
+     "rc": 0,
+     "seconds": 0.84
+    },
+    {
+     "what": "synthetic-02",
+     "cmd": "/workspace/venv/bin/python -m wenart.ingest.pipeline projects/synthetic-02 --out /workspace/outputs-prep/synthetic-02 --answers /workspace/outputs-prep/synthetic-02/recognition",
+     "rc": 0,
+     "seconds": 48.43
+    },
+    {
+     "what": "real01-scan answers status",
+     "cmd": "/workspace/venv/bin/python -m wenart.recognition.answers status /workspace/outputs-prep/real01-scan/recognition",
+     "rc": 0,
+     "seconds": 0.94
+    },
+    {
+     "what": "real01-scan",
+     "cmd": "/workspace/venv/bin/python -m wenart.ingest.pipeline tests/fixtures/real01_raster/real01-scan --out /workspace/outputs-prep/real01-scan --answers /workspace/outputs-prep/real01-scan/recognition",
+     "rc": 0,
+     "seconds": 33.03
+    },
+    {
+     "what": "real01-photo answers status",
+     "cmd": "/workspace/venv/bin/python -m wenart.recognition.answers status /workspace/outputs-prep/real01-photo/recognition",
+     "rc": 0,
+     "seconds": 0.86
+    },
+    {
+     "what": "real01-photo",
+     "cmd": "/workspace/venv/bin/python -m wenart.ingest.pipeline tests/fixtures/real01_raster/real01-photo --out /workspace/outputs-prep/real01-photo --answers /workspace/outputs-prep/real01-photo/recognition",
+     "rc": 0,
+     "seconds": 26.22
+    }
+   ],
+   "log": "/workspace/logs/prep-20261003-202712-prep/pipeline_final-real01-photo.log",
+   "started_utc": "2026-10-03T20:44:21Z",
+   "projects": {
+    "real01": {
+     "rc": 0,
+     "answers_complete": true,
+     "second_round": false
+    },
+    "synthetic-02": {
+     "rc": 0,
+     "answers_complete": true,
+     "second_round": false
+    },
+    "real01-scan": {
+     "rc": 0,
+     "answers_complete": true,
+     "second_round": false
+    },
+    "real01-photo": {
+     "rc": 0,
+     "answers_complete": true,
+     "second_round": false
+    }
+   }
+  },
+  {
+   "name": "library",
+   "status": "ok",
+   "note": "50 model(s) in catalog_objaverse.json",
+   "seconds": 5.8,
+   "commands": [
+    {
+     "what": "accept",
+     "cmd": "/workspace/venv/bin/python -m wenart.assets.objaverse accept --out /workspace/prep/library",
+     "rc": 0,
+     "seconds": 1.18
+    },
+    {
+     "what": "write-catalog",
+     "cmd": "/workspace/venv/bin/python -m wenart.assets.objaverse write-catalog --out /workspace/prep/library --assets /workspace/assets",
+     "rc": 0,
+     "seconds": 3.43
+    },
+    {
+     "what": "report",
+     "cmd": "/workspace/venv/bin/python -m wenart.assets.objaverse report --out /workspace/prep/library",
+     "rc": 0,
+     "seconds": 1.1
+    }
+   ],
+   "log": "/workspace/logs/prep-20261003-202712-prep/library.log",
+   "started_utc": "2026-10-03T20:46:27Z",
+   "accepted_models": 50,
+   "attribution": true
+  },
+  {
+   "name": "copy",
+   "status": "ok",
+   "note": "174 project file(s), 236 library file(s)",
+   "seconds": 11.6,
+   "commands": [],
+   "log": null,
+   "started_utc": "2026-10-03T20:46:32Z",
+   "files": {
+    "real01": 42,
+    "synthetic-02": 50,
+    "synthetic-06": 4,
+    "real01-scan": 39,
+    "real01-photo": 39
+   },
+   "library_attribution": true,
+   "library_files": 236
+  },
+  {
+   "name": "tests",
+   "status": "failed",
+   "note": "failed: recognition (rc 1)",
+   "seconds": 14.6,
+   "commands": [
+    {
+     "what": "recognition",
+     "cmd": "/workspace/venv/bin/python -m pytest -m gpu tests/gpu/test_recognition.py -k m7 -v -ra -p no:cacheprovider --junitxml=/workspace/jobs/20261003-202712-prep/results/tests/junit-recognition.xml",
+     "rc": 1,
+     "seconds": 4.25
+    },
+    {
+     "what": "library",
+     "cmd": "/workspace/venv/bin/python -m pytest -m gpu tests/gpu/test_library.py -v -ra -p no:cacheprovider --junitxml=/workspace/jobs/20261003-202712-prep/results/tests/junit-library.xml",
+     "rc": 0,
+     "seconds": 4.05
+    },
+    {
+     "what": "detect",
+     "cmd": "/opt/wenart/venv-polish/bin/python -m pytest -m gpu tests/gpu/test_detect.py -v -ra -p no:cacheprovider --junitxml=/workspace/jobs/20261003-202712-prep/results/tests/junit-detect.xml",
+     "rc": 0,
+     "seconds": 6.29
+    }
+   ],
+   "log": "/workspace/logs/prep-20261003-202712-prep/pytest-detect.log",
+   "started_utc": "2026-10-03T20:46:44Z"
+  }
+ ],
+ "projects": [
+  {
+   "name": "real01",
+   "project_dir": "projects/real01",
+   "out_dir": "/workspace/outputs-prep/real01",
+   "pipeline_rc": 4,
+   "questions": 17,
+   "answers_complete": true,
+   "pipeline_final_rc": 0
+  },
+  {
+   "name": "synthetic-02",
+   "project_dir": "projects/synthetic-02",
+   "out_dir": "/workspace/outputs-prep/synthetic-02",
+   "pipeline_rc": 4,
+   "questions": 21,
+   "answers_complete": true,
+   "pipeline_final_rc": 0
+  },
+  {
+   "name": "synthetic-06",
+   "project_dir": "projects/synthetic-06",
+   "out_dir": "/workspace/outputs-prep/synthetic-06",
+   "pipeline_rc": 0,
+   "questions": 0,
+   "answers_complete": null,
+   "pipeline_final_rc": null
+  },
+  {
+   "name": "real01-scan",
+   "project_dir": "tests/fixtures/real01_raster/real01-scan",
+   "out_dir": "/workspace/outputs-prep/real01-scan",
+   "pipeline_rc": 4,
+   "questions": 19,
+   "answers_complete": true,
+   "pipeline_final_rc": 0
+  },
+  {
+   "name": "real01-photo",
+   "project_dir": "tests/fixtures/real01_raster/real01-photo",
+   "out_dir": "/workspace/outputs-prep/real01-photo",
+   "pipeline_rc": 4,
+   "questions": 18,
+   "answers_complete": true,
+   "pipeline_final_rc": 0
+  }
+ ],
+ "sessions": {
+  "qwen": {
+   "key": "qwen",
+   "tier": 8,
+   "probe": true,
+   "tried": [
+    {
+     "seqs": 8,
+     "ok": true,
+     "seconds_to_ready": 150.0
+    }
+   ],
+   "max_seqs": 8,
+   "asks": [
+    {
+     "project": "real01",
+     "rc": 0,
+     "items": 17,
+     "seconds": 6.54,
+     "seeded_from": null
+    },
+    {
+     "project": "synthetic-02",
+     "rc": 0,
+     "items": 21,
+     "seconds": 4.35,
+     "seeded_from": null
+    },
+    {
+     "project": "real01-scan",
+     "rc": 0,
+     "items": 19,
+     "seconds": 4.08,
+     "seeded_from": null
+    },
+    {
+     "project": "real01-photo",
+     "rc": 0,
+     "items": 18,
+     "seconds": 3.89,
+     "seeded_from": null
+    }
+   ],
+   "judge": {
+    "rc": 0,
+    "items": 113,
+    "missing_before": 113,
+    "seconds": 17.31
+   },
+   "missing": {
+    "recognition": {
+     "real01": 17,
+     "synthetic-02": 16,
+     "real01-scan": 13,
+     "real01-photo": 15
+    },
+    "judge": 113
+   }
+  },
+  "glm": {
+   "key": "glm",
+   "tier": 8,
+   "probe": true,
+   "tried": [
+    {
+     "seqs": 8,
+     "ok": true,
+     "seconds_to_ready": 80.0
+    }
+   ],
+   "max_seqs": 8,
+   "asks": [
+    {
+     "project": "real01",
+     "rc": 0,
+     "items": 17,
+     "seconds": 6.94,
+     "seeded_from": null
+    },
+    {
+     "project": "synthetic-02",
+     "rc": 0,
+     "items": 21,
+     "seconds": 4.69,
+     "seeded_from": null
+    },
+    {
+     "project": "real01-scan",
+     "rc": 0,
+     "items": 19,
+     "seconds": 4.15,
+     "seeded_from": null
+    },
+    {
+     "project": "real01-photo",
+     "rc": 0,
+     "items": 18,
+     "seconds": 4.49,
+     "seeded_from": null
+    }
+   ],
+   "judge": {
+    "rc": 0,
+    "items": 113,
+    "missing_before": 113,
+    "seconds": 19.92
+   },
+   "missing": {
+    "recognition": {
+     "real01": 17,
+     "synthetic-02": 16,
+     "real01-scan": 13,
+     "real01-photo": 15
+    },
+    "judge": 113
+   }
+  }
+ },
+ "timing": null,
+ "tests": [
+  {
+   "group": "recognition",
+   "rc": 1,
+   "status": "failed",
+   "junit": "tests/junit-recognition.xml"
+  },
+  {
+   "group": "library",
+   "rc": 0,
+   "status": "passed",
+   "junit": "tests/junit-library.xml"
+  },
+  {
+   "group": "detect",
+   "rc": 0,
+   "status": "passed",
+   "junit": "tests/junit-detect.xml"
+  }
+ ],
+ "proposals": {
+  "check_yaml_max_seqs": {
+   "qwen": 8,
+   "glm": 8
+  },
+  "plan_gpu_speed": null,
+  "detector": {
+   "usable": true,
+   "t_det": 0.08,
+   "t_strong": 0.11,
+   "file": "detect/detector_calibration.json"
+  },
+  "catalog_objaverse": "library/catalog_objaverse.json"
+ },
+ "outputs": "/workspace/outputs-prep",
+ "prep_root": "/workspace/prep"
+}

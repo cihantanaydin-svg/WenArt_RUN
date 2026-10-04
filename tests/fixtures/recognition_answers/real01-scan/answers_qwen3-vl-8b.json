@@ -1,0 +1,421 @@
+{
+ "schema_version": "0.1",
+ "kind": "recognition_answers",
+ "model_key": "qwen",
+ "model": "Qwen/Qwen3-VL-8B-Instruct",
+ "slug": "qwen3-vl-8b",
+ "incomplete": false,
+ "calls": {
+  "lbl_L0_1": {
+   "task": "room_label",
+   "input_sha256": "3d6de99219954738c7b57ca7ef089127a5eeb6c2ef9fc3b19d0d21eb44a89130",
+   "data": {
+    "label": "Kitchen",
+    "size_text": "9' 3\" x 10' 3\"",
+    "area_text": null,
+    "box": [
+     250,
+     400,
+     750,
+     650
+    ]
+   },
+   "raw_text": "{\n  \"label\": \"Kitchen\",\n  \"size_text\": \"9' 3\\\" x 10' 3\\\"\",\n  \"area_text\": null,\n  \"box\": [250, 400, 750, 650]\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.054,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/lbl_L0_1.png"
+   ]
+  },
+  "lbl_L0_2": {
+   "task": "room_label",
+   "input_sha256": "4eafae17e4964fd996761a9e2230270cfb592073381ac4d66e2cbc45c5c06753",
+   "data": {
+    "label": "Store",
+    "size_text": "4' x 5'",
+    "area_text": null,
+    "box": [
+     170,
+     270,
+     700,
+     700
+    ]
+   },
+   "raw_text": "{\n  \"label\": \"Store\",\n  \"size_text\": \"4' x 5'\",\n  \"area_text\": null,\n  \"box\": [170, 270, 700, 700]\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.97,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/lbl_L0_2.png"
+   ]
+  },
+  "lbl_L0_3": {
+   "task": "room_label",
+   "input_sha256": "610f47fbe4ac04d40e8fd67bd7cb47961fa58f25ca3d088f8f350b3de168bb9d",
+   "data": {
+    "label": "Pooja",
+    "size_text": "4' x 4' 9\"",
+    "area_text": null,
+    "box": [
+     100,
+     200,
+     800,
+     700
+    ]
+   },
+   "raw_text": "{\n  \"label\": \"Pooja\",\n  \"size_text\": \"4' x 4' 9\\\"\",\n  \"area_text\": null,\n  \"box\": [100, 200, 800, 700]\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.039,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/lbl_L0_3.png"
+   ]
+  },
+  "lbl_L0_4": {
+   "task": "room_label",
+   "input_sha256": "b54943fd40391932acb8ff7eef11634b336f8fc2d4402e38d432e64fbeb17bce",
+   "data": {
+    "label": "Drawing Room",
+    "size_text": "14' x 14'",
+    "area_text": null,
+    "box": [
+     120,
+     200,
+     500,
+     300
+    ]
+   },
+   "raw_text": "{\n  \"label\": \"Drawing Room\",\n  \"size_text\": \"14' x 14'\",\n  \"area_text\": null,\n  \"box\": [120, 200, 500, 300]\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.999,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/lbl_L0_4.png"
+   ]
+  },
+  "lbl_L0_5": {
+   "task": "room_label",
+   "input_sha256": "d47b373fcfac05392f311831f0934926e0db74bf051e5237758c0a5233826a9b",
+   "data": {
+    "label": "Dining",
+    "size_text": "14' x 8'",
+    "area_text": null,
+    "box": [
+     570,
+     390,
+     800,
+     600
+    ]
+   },
+   "raw_text": "{\n  \"label\": \"Dining\",\n  \"size_text\": \"14' x 8'\",\n  \"area_text\": null,\n  \"box\": [570, 390, 800, 600]\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.991,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/lbl_L0_5.png"
+   ]
+  },
+  "lbl_L0_6": {
+   "task": "room_label",
+   "input_sha256": "bd516538e084098c550ac29023d8c43d2b7552592d65f1b1a6c05c041a419226",
+   "data": {
+    "label": "Bath+ Toilet",
+    "size_text": "7' x 5'",
+    "area_text": null,
+    "box": [
+     120,
+     100,
+     880,
+     800
+    ]
+   },
+   "raw_text": "{\n  \"label\": \"Bath+ Toilet\",\n  \"size_text\": \"7' x 5'\",\n  \"area_text\": null,\n  \"box\": [120, 100, 880, 800]\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.006,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/lbl_L0_6.png"
+   ]
+  },
+  "lbl_L0_7": {
+   "task": "room_label",
+   "input_sha256": "8dbaf528d5beb1a90473303087af848fe74c23dbb8baee2af753914b952d4d18",
+   "data": {
+    "label": null,
+    "size_text": null,
+    "area_text": null,
+    "box": null
+   },
+   "raw_text": "{\n  \"label\": null,\n  \"size_text\": null,\n  \"area_text\": null,\n  \"box\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.712,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/lbl_L0_7.png"
+   ]
+  },
+  "lbl_L0_8": {
+   "task": "room_label",
+   "input_sha256": "018802b3e55d7737660c82ffbf1c2f913ba1b96c87c5f6ecdd0678360e01f25e",
+   "data": {
+    "label": "Bed Room",
+    "size_text": "11' x 10'",
+    "area_text": null,
+    "box": [
+     240,
+     630,
+     660,
+     780
+    ]
+   },
+   "raw_text": "{\n  \"label\": \"Bed Room\",\n  \"size_text\": \"11' x 10'\",\n  \"area_text\": null,\n  \"box\": [240, 630, 660, 780]\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.005,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/lbl_L0_8.png"
+   ]
+  },
+  "lbl_L0_9": {
+   "task": "room_label",
+   "input_sha256": "e6a6d38b3fd2b5b0cdd30837f923195a52c47409f5c6dede3fe2b257fd1968fc",
+   "data": {
+    "label": "Bed Room",
+    "size_text": "11' x 10'",
+    "area_text": null,
+    "box": [
+     270,
+     180,
+     660,
+     340
+    ]
+   },
+   "raw_text": "{\n  \"label\": \"Bed Room\",\n  \"size_text\": \"11' x 10'\",\n  \"area_text\": null,\n  \"box\": [270, 180, 660, 340]\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.84,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/lbl_L0_9.png"
+   ]
+  },
+  "sym_L0_001": {
+   "task": "symbol_type",
+   "input_sha256": "8d89fb81bad1bbf962fa68ae52ff0cd4da7a6dfe4ea4ade471c1ab30c385a268",
+   "data": {
+    "type": "not_furniture",
+    "front": "none",
+    "confidence": 1.0,
+    "reason": "The object is a kitchen layout with walls and no furniture or fixed equipment inside the dashed box."
+   },
+   "raw_text": "{\n  \"type\": \"not_furniture\",\n  \"front\": \"none\",\n  \"confidence\": 1.0,\n  \"reason\": \"The object is a kitchen layout with walls and no furniture or fixed equipment inside the dashed box.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.105,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_001_ctx.png",
+    "crops/sym_L0_001_iso.png"
+   ]
+  },
+  "sym_L0_002": {
+   "task": "symbol_type",
+   "input_sha256": "ffe09d43f2dca11626c5c2923a6b9aa6bd8471080eb42851c19ed0c7dfb7e1a5",
+   "data": {
+    "type": "unknown",
+    "front": "bottom",
+    "confidence": 0.95,
+    "reason": "The object has a rectangular footprint with curved elements at the bottom, resembling a bathtub or sink, but lacks clear identifying features."
+   },
+   "raw_text": "{\n  \"type\": \"unknown\",\n  \"front\": \"bottom\",\n  \"confidence\": 0.95,\n  \"reason\": \"The object has a rectangular footprint with curved elements at the bottom, resembling a bathtub or sink, but lacks clear identifying features.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.16,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_002_ctx.png",
+    "crops/sym_L0_002_iso.png"
+   ]
+  },
+  "sym_L0_003": {
+   "task": "symbol_type",
+   "input_sha256": "b61e67a50c01775d234c820089a933bec6b00fb5992fffd376c11cf8fd488487",
+   "data": {
+    "type": "stair",
+    "front": "bottom",
+    "confidence": 0.95,
+    "reason": "The object has multiple parallel horizontal lines representing treads, typical of a staircase, and the front is the bottom edge."
+   },
+   "raw_text": "{\n  \"type\": \"stair\",\n  \"front\": \"bottom\",\n  \"confidence\": 0.95,\n  \"reason\": \"The object has multiple parallel horizontal lines representing treads, typical of a staircase, and the front is the bottom edge.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.17,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_003_ctx.png",
+    "crops/sym_L0_003_iso.png"
+   ]
+  },
+  "sym_L0_004": {
+   "task": "symbol_type",
+   "input_sha256": "e80172c76130465378c9da3e0e2b4765e21e3e111571425ef6bf058e2eda087f",
+   "data": {
+    "type": "table_dining",
+    "front": "none",
+    "confidence": 0.95,
+    "reason": "Rectangular table with chairs around it, matching dining table footprint and usage."
+   },
+   "raw_text": "{\n  \"type\": \"table_dining\",\n  \"front\": \"none\",\n  \"confidence\": 0.95,\n  \"reason\": \"Rectangular table with chairs around it, matching dining table footprint and usage.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.059,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_004_ctx.png",
+    "crops/sym_L0_004_iso.png"
+   ]
+  },
+  "sym_L0_005": {
+   "task": "symbol_type",
+   "input_sha256": "7cf548779b6156894e31be70456e44545a1466eff7acb2806103389bd3f142ca",
+   "data": {
+    "type": "sofa",
+    "front": "left",
+    "confidence": 0.95,
+    "reason": "Long rectangular shape with backrest lines and armrests, matching sofa dimensions and orientation."
+   },
+   "raw_text": "{\n  \"type\": \"sofa\",\n  \"front\": \"left\",\n  \"confidence\": 0.95,\n  \"reason\": \"Long rectangular shape with backrest lines and armrests, matching sofa dimensions and orientation.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.092,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_005_ctx.png",
+    "crops/sym_L0_005_iso.png"
+   ]
+  },
+  "sym_L0_006": {
+   "task": "symbol_type",
+   "input_sha256": "4c5b733396dd333c76f2822417448f57be315b4a9cf22d0de25bbf7f31df9bd9",
+   "data": {
+    "type": "wardrobe",
+    "front": "right",
+    "confidence": 0.95,
+    "reason": "Long narrow rectangle with vertical lines suggesting doors, typical of a wardrobe against a wall."
+   },
+   "raw_text": "{\n  \"type\": \"wardrobe\",\n  \"front\": \"right\",\n  \"confidence\": 0.95,\n  \"reason\": \"Long narrow rectangle with vertical lines suggesting doors, typical of a wardrobe against a wall.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.095,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_006_ctx.png",
+    "crops/sym_L0_006_iso.png"
+   ]
+  },
+  "sym_L0_007": {
+   "task": "symbol_type",
+   "input_sha256": "bd5848d6ab2ad80a49acbf56c5f592755d759c0ca46eb60dfb50810882df0640",
+   "data": {
+    "type": "unknown",
+    "front": "none",
+    "confidence": 0.9,
+    "reason": "Square outline with no distinguishing features, could be any furniture or fixture, too ambiguous to classify."
+   },
+   "raw_text": "{\n  \"type\": \"unknown\",\n  \"front\": \"none\",\n  \"confidence\": 0.9,\n  \"reason\": \"Square outline with no distinguishing features, could be any furniture or fixture, too ambiguous to classify.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.092,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_007_ctx.png",
+    "crops/sym_L0_007_iso.png"
+   ]
+  },
+  "sym_L0_008": {
+   "task": "symbol_type",
+   "input_sha256": "55ed37ca8fc4f5c892d3d31134fea24057ae97de2ac9cb68cc78563a420fad83",
+   "data": {
+    "type": "chair",
+    "front": "bottom",
+    "confidence": 0.95,
+    "reason": "The object has a seat and backrest, typical of a chair, and is placed around a table in a drawing room."
+   },
+   "raw_text": "{\n  \"type\": \"chair\",\n  \"front\": \"bottom\",\n  \"confidence\": 0.95,\n  \"reason\": \"The object has a seat and backrest, typical of a chair, and is placed around a table in a drawing room.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.165,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_008_ctx.png",
+    "crops/sym_L0_008_iso.png"
+   ]
+  },
+  "sym_L0_009": {
+   "task": "symbol_type",
+   "input_sha256": "1017604e0169632bcc2459a662ceabb8b3972aacdb6f16af4ca6e4d2f3240d51",
+   "data": {
+    "type": "floor_lamp",
+    "front": "none",
+    "confidence": 0.95,
+    "reason": "Circular shape with radial lines, typical of a floor lamp, and size matches 0.34x0.33m."
+   },
+   "raw_text": "{\n  \"type\": \"floor_lamp\",\n  \"front\": \"none\",\n  \"confidence\": 0.95,\n  \"reason\": \"Circular shape with radial lines, typical of a floor lamp, and size matches 0.34x0.33m.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.952,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_009_ctx.png",
+    "crops/sym_L0_009_iso.png"
+   ]
+  },
+  "sym_L0_010": {
+   "task": "symbol_type",
+   "input_sha256": "d9e72919b4a0a53037bd5a080f5b1ffcdcc30d668bee2344aea164e917c0df32",
+   "data": {
+    "type": "not_furniture",
+    "front": "none",
+    "confidence": 0.95,
+    "reason": "The object is a dimension label '9'' within a dashed box, not a physical furniture item or fixture."
+   },
+   "raw_text": "{\n  \"type\": \"not_furniture\",\n  \"front\": \"none\",\n  \"confidence\": 0.95,\n  \"reason\": \"The object is a dimension label '9'' within a dashed box, not a physical furniture item or fixture.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.895,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_010_ctx.png",
+    "crops/sym_L0_010_iso.png"
+   ]
+  }
+ }
+}

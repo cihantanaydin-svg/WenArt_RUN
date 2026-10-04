@@ -1,0 +1,32 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "synthetic-06",
+ "stage": "refit",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 1.18,
+ "fingerprint": "a20265bc8c6e5da198c939ad586484aee2a2be46f4a2dbaf4312979036057733",
+ "inputs": {
+  "outputs/synthetic-06/building_decor.json": "b08453c46daba7377db6f9fb7852af5eb7dea8a24e52850d6bdcd72e29e5f02c",
+  "outputs/synthetic-06/style.json": "393eb1729b69c689f59123c49b0fde13d8a99b219b655db07e0b39471da2e1d4",
+  "wenart/furniture/catalog.json": "97daab6eff894903fad4bdcf957e34f70f6e3694b020463efded738fbd750f30",
+  "wenart/furniture/catalog_objaverse.json": "380f5df05b817d9b25fa09e6fd7149ad87696d3cffa5390dfc6b65fe5301fb91"
+ },
+ "outputs": [
+  "building_final.json"
+ ],
+ "started_utc": "2026-10-04T00:14:41Z",
+ "git_commit": "2be169d6342eed721324d995d3e380aecfc0b6b0",
+ "log": "logs/refit.log",
+ "note": null,
+ "run_id": "20261004-000052-full-20261004T000516Z",
+ "steps": [
+  {
+   "name": "refit",
+   "rc": 0,
+   "seconds": 1.18
+  }
+ ],
+ "written": {}
+}

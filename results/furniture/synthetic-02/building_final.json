@@ -1,0 +1,3594 @@
+{
+ "schema_version": "0.1",
+ "project": {
+  "id": "synthetic-02",
+  "source_folder": "projects/synthetic-02",
+  "created_utc": "2026-10-04T00:08:18Z",
+  "pipeline_commit": "2be169d6",
+  "unit_system": "metric"
+ },
+ "status": "ok",
+ "documents": [
+  {
+   "id": "doc_plan_photo_jpg",
+   "file": "plan_photo.jpg",
+   "format": "image",
+   "converter": null,
+   "pages": [
+    {
+     "page": 1,
+     "class": "floor_plan",
+     "skip_reason": null,
+     "kind": "photo",
+     "level_id": "L0",
+     "level_label_raw": "ZEMIN KAT PLANI",
+     "classifier": "ocr",
+     "scale": {
+      "metres_per_unit": 0.018514812645032686,
+      "method": "dimension_text",
+      "confidence": 0.7,
+      "evidence": {
+       "file": "plan_photo.jpg",
+       "method": "ocr",
+       "confidence": 0.7,
+       "page": 1,
+       "entity": "ocr:9",
+       "text": "4,50",
+       "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+       "pixel_box": [
+        1152.2,
+        1104.8,
+        1185.7,
+        1120.3
+       ]
+      }
+     },
+     "transform_to_building": [
+      0.018514812645032686,
+      0.0,
+      -17.765500000000003,
+      0.0,
+      0.018514812645032686,
+      -11.8265
+     ],
+     "confidence": 0.9,
+     "evidence": [
+      {
+       "file": "plan_photo.jpg",
+       "method": "ocr",
+       "confidence": 0.9397,
+       "page": 1,
+       "pixel_box": [
+        1047.9,
+        632.4,
+        1214.4,
+        657.3
+       ],
+       "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+       "text": "ZEMIN KAT PLANI"
+      },
+      {
+       "file": "plan_photo.jpg",
+       "method": "raster",
+       "confidence": 0.8,
+       "text": "kind: paper outline is a skewed quadrilateral (corners moved up to 7.3%)"
+      }
+     ],
+     "debug_image": "debug/plan_photo_jpg_p1.png",
+     "rectified_image": "rectified/plan_photo_jpg_p1.png",
+     "to_original": [
+      [
+       1.094939207,
+       -0.015053807,
+       57.733688495
+      ],
+      [
+       0.058826281,
+       -1.094673534,
+       1787.086679604
+      ],
+      [
+       3.4826e-05,
+       -1.5759e-05,
+       1.02675606
+      ]
+     ],
+     "aspect": {
+      "measured": 1.37642,
+      "method": "side_ratio",
+      "side_ratio": 1.37642,
+      "snapped": 1.41421,
+      "name": "ISO (sqrt 2)",
+      "off_pct": 2.67,
+      "assumed": true,
+      "solved_from": null,
+      "factor": null,
+      "checked_by_dimensions": null
+     }
+    }
+   ],
+   "unit_system": "metric",
+   "source_kind": "raster_photo"
+  },
+  {
+   "id": "doc_plan_scan_png",
+   "file": "plan_scan.png",
+   "format": "image",
+   "converter": null,
+   "pages": [
+    {
+     "page": 1,
+     "class": "floor_plan",
+     "skip_reason": null,
+     "kind": "scan",
+     "level_id": "L0",
+     "level_label_raw": "ZEMIN KAT PLANI",
+     "classifier": "ocr",
+     "scale": {
+      "metres_per_unit": 0.01695179245670512,
+      "method": "dimension_text",
+      "confidence": 0.9,
+      "evidence": {
+       "file": "plan_scan.png",
+       "method": "ocr",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "ocr:11",
+       "text": "4,50",
+       "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+       "pixel_box": [
+        1140.2,
+        1093.1,
+        1177.0,
+        1108.8
+       ]
+      }
+     },
+     "transform_to_building": [
+      0.01695179245670512,
+      0.0,
+      -17.758,
+      0.0,
+      0.01695179245670512,
+      -11.8341
+     ],
+     "confidence": 0.9,
+     "evidence": [
+      {
+       "file": "plan_scan.png",
+       "method": "ocr",
+       "confidence": 0.9416,
+       "page": 1,
+       "pixel_box": [
+        1036.0,
+        593.4,
+        1215.9,
+        617.0
+       ],
+       "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+       "text": "ZEMIN KAT PLANI"
+      },
+      {
+       "file": "plan_scan.png",
+       "method": "raster",
+       "confidence": 0.9,
+       "text": "kind: paper outline fills the image"
+      }
+     ],
+     "debug_image": "debug/plan_scan_png_p1.png",
+     "rectified_image": "rectified/plan_scan_png_p1.png",
+     "to_original": [
+      [
+       0.999802193,
+       0.019889043,
+       -35.378525639
+      ],
+      [
+       0.019889043,
+       -0.999802193,
+       1752.808399347
+      ],
+      [
+       0.0,
+       0.0,
+       1.0
+      ]
+     ]
+    }
+   ],
+   "unit_system": "metric",
+   "source_kind": "raster_scan"
+  }
+ ],
+ "levels": [
+  {
+   "id": "L0",
+   "label": "Zemin Kat",
+   "order": 0,
+   "elevation": 0.0,
+   "ceiling_height": 2.7,
+   "ceiling_height_source": "assumed_default",
+   "evidence": [
+    {
+     "file": "plan_scan.png",
+     "method": "ocr",
+     "confidence": 0.9416,
+     "page": 1,
+     "pixel_box": [
+      1036.0,
+      593.4,
+      1215.9,
+      617.0
+     ],
+     "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+     "text": "ZEMIN KAT PLANI"
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "raster",
+     "confidence": 0.9,
+     "text": "kind: paper outline fills the image"
+    },
+    {
+     "file": "plan_photo.jpg",
+     "method": "ocr",
+     "confidence": 0.9397,
+     "page": 1,
+     "pixel_box": [
+      1047.9,
+      632.4,
+      1214.4,
+      657.3
+     ],
+     "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+     "text": "ZEMIN KAT PLANI"
+    },
+    {
+     "file": "plan_photo.jpg",
+     "method": "raster",
+     "confidence": 0.8,
+     "text": "kind: paper outline is a skewed quadrilateral (corners moved up to 7.3%)"
+    }
+   ],
+   "label_source": "title"
+  }
+ ],
+ "walls": [
+  {
+   "id": "w_L0_001",
+   "level_id": "L0",
+   "start": [
+    0.0,
+    0.1809
+   ],
+   "end": [
+    8.452,
+    0.1809
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "plan_scan.png",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      1026.4,
+      1058.1,
+      1525.2,
+      1082.8
+     ]
+    },
+    {
+     "file": "plan_photo.jpg",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      1046.8,
+      1071.4,
+      1501.4,
+      1095.4
+     ]
+    }
+   ]
+  },
+  {
+   "id": "w_L0_002",
+   "level_id": "L0",
+   "start": [
+    0.0,
+    4.2409
+   ],
+   "end": [
+    8.406,
+    4.2409
+   ],
+   "thickness": 0.14,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "plan_scan.png",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      1031.3,
+      821.9,
+      1527.2,
+      840.0
+     ]
+    },
+    {
+     "file": "plan_photo.jpg",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      1047.2,
+      849.6,
+      1500.5,
+      868.7
+     ]
+    }
+   ]
+  },
+  {
+   "id": "w_L0_003",
+   "level_id": "L0",
+   "start": [
+    0.0,
+    6.5179
+   ],
+   "end": [
+    8.452,
+    6.5179
+   ],
+   "thickness": 0.295,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "plan_scan.png",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      1033.8,
+      683.1,
+      1532.7,
+      710.4
+     ]
+    },
+    {
+     "file": "plan_photo.jpg",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      1047.3,
+      718.0,
+      1504.2,
+      747.5
+     ]
+    }
+   ]
+  },
+  {
+   "id": "w_L0_004",
+   "level_id": "L0",
+   "start": [
+    0.141,
+    0.0
+   ],
+   "end": [
+    0.141,
+    6.3704
+   ],
+   "thickness": 0.28,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "plan_scan.png",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "note": "run of 3 pieces"
+    },
+    {
+     "file": "plan_photo.jpg",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "note": "run of 3 pieces"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_005",
+   "level_id": "L0",
+   "start": [
+    4.5157,
+    0.3059
+   ],
+   "end": [
+    4.5157,
+    6.3704
+   ],
+   "thickness": 0.115,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "plan_scan.png",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "note": "run of 2 pieces"
+    },
+    {
+     "file": "plan_photo.jpg",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "note": "run of 2 pieces"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_006",
+   "level_id": "L0",
+   "start": [
+    6.203,
+    4.3109
+   ],
+   "end": [
+    6.203,
+    6.3704
+   ],
+   "thickness": 0.14,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "plan_scan.png",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      1393.1,
+      707.7,
+      1403.8,
+      829.9
+     ]
+    },
+    {
+     "file": "plan_photo.jpg",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      1378.7,
+      743.6,
+      1387.7,
+      858.9
+     ]
+    }
+   ]
+  },
+  {
+   "id": "w_L0_007",
+   "level_id": "L0",
+   "start": [
+    8.2756,
+    0.0
+   ],
+   "end": [
+    8.2756,
+    6.3704
+   ],
+   "thickness": 0.26,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "plan_scan.png",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "note": "run of 3 pieces"
+    },
+    {
+     "file": "plan_photo.jpg",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "note": "run of 3 pieces"
+    }
+   ]
+  }
+ ],
+ "openings": [
+  {
+   "id": "d_L0_001",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_003",
+   "center": [
+    5.2002,
+    6.5179
+   ],
+   "width": 0.8781,
+   "height": 2.1,
+   "sill_height": null,
+   "swing_side": "r_L0_antre",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "plan_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "arc:1,seg:30",
+     "pixel_box": [
+      1313.8,
+      696.5,
+      1367.9,
+      750.5
+     ]
+    }
+   ],
+   "assumed": [
+    "height"
+   ]
+  },
+  {
+   "id": "d_L0_002",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_005",
+   "center": [
+    4.5157,
+    4.805
+   ],
+   "width": 0.7867,
+   "height": 2.1,
+   "sill_height": null,
+   "swing_side": "r_L0_mutfak",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "plan_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "arc:3,seg:117",
+     "pixel_box": [
+      1247.0,
+      773.8,
+      1297.6,
+      821.2
+     ]
+    },
+    {
+     "file": "plan_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "arc:4,seg:233",
+     "pixel_box": [
+      1248.9,
+      803.9,
+      1294.2,
+      851.3
+     ]
+    }
+   ],
+   "assumed": [
+    "height"
+   ]
+  },
+  {
+   "id": "d_L0_003",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_002",
+   "center": [
+    3.8955,
+    4.2409
+   ],
+   "width": 0.8805,
+   "height": 2.1,
+   "sill_height": null,
+   "swing_side": "r_L0_salon",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "plan_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "arc:4,seg:132",
+     "pixel_box": [
+      1234.1,
+      830.1,
+      1288.3,
+      885.9
+     ]
+    },
+    {
+     "file": "plan_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "arc:5,seg:253",
+     "pixel_box": [
+      1233.2,
+      855.7,
+      1284.3,
+      909.1
+     ]
+    }
+   ],
+   "assumed": [
+    "height"
+   ]
+  },
+  {
+   "id": "d_L0_004",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_002",
+   "center": [
+    5.2461,
+    4.2409
+   ],
+   "width": 0.7712,
+   "height": 2.1,
+   "sill_height": null,
+   "swing_side": "r_L0_yatak_odasi",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "plan_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "arc:5,seg:129",
+     "pixel_box": [
+      1317.1,
+      832.3,
+      1365.2,
+      881.9
+     ]
+    },
+    {
+     "file": "plan_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "arc:6,seg:240",
+     "pixel_box": [
+      1310.6,
+      857.8,
+      1353.5,
+      905.1
+     ]
+    }
+   ],
+   "assumed": [
+    "height"
+   ]
+  },
+  {
+   "id": "win_L0_001",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_001",
+   "center": [
+    2.3553,
+    0.1809
+   ],
+   "width": 1.7629,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "plan_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:213,seg:222",
+     "pixel_box": [
+      1113.4,
+      1059.9,
+      1217.6,
+      1076.7
+     ]
+    },
+    {
+     "file": "plan_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:356,seg:364,seg:367,seg:375",
+     "pixel_box": [
+      1140.3,
+      1073.3,
+      1222.2,
+      1089.8
+     ]
+    }
+   ],
+   "assumed": [
+    "height",
+    "sill_height"
+   ]
+  },
+  {
+   "id": "win_L0_002",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_001",
+   "center": [
+    6.4153,
+    0.1809
+   ],
+   "width": 1.7121,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "plan_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:214,seg:223",
+     "pixel_box": [
+      1354.3,
+      1064.7,
+      1455.6,
+      1081.4
+     ]
+    },
+    {
+     "file": "plan_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:357,seg:371",
+     "pixel_box": [
+      1341.3,
+      1077.4,
+      1436.0,
+      1094.1
+     ]
+    }
+   ],
+   "assumed": [
+    "height",
+    "sill_height"
+   ]
+  },
+  {
+   "id": "win_L0_003",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_002",
+   "center": [
+    2.7875,
+    4.2409
+   ],
+   "width": 0.7629,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "plan_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:127",
+     "pixel_box": [
+      1173.2,
+      824.7,
+      1218.3,
+      833.9
+     ]
+    }
+   ],
+   "assumed": [
+    "height",
+    "sill_height"
+   ]
+  },
+  {
+   "id": "win_L0_004",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_002",
+   "center": [
+    7.9579,
+    4.2409
+   ],
+   "width": 0.4238,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "plan_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:128",
+     "pixel_box": [
+      1488.1,
+      831.0,
+      1513.3,
+      839.8
+     ]
+    }
+   ],
+   "assumed": [
+    "height",
+    "sill_height"
+   ]
+  },
+  {
+   "id": "win_L0_005",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_003",
+   "center": [
+    2.1094,
+    6.5179
+   ],
+   "width": 1.7122,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "plan_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:22,seg:34,seg:38",
+     "pixel_box": [
+      1107.8,
+      684.5,
+      1209.1,
+      703.9
+     ]
+    }
+   ],
+   "assumed": [
+    "height",
+    "sill_height"
+   ]
+  },
+  {
+   "id": "win_L0_006",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_003",
+   "center": [
+    7.729,
+    6.5179
+   ],
+   "width": 0.5764,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "plan_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:20,seg:40",
+     "pixel_box": [
+      1472.7,
+      691.8,
+      1507.0,
+      709.9
+     ]
+    },
+    {
+     "file": "plan_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:125,seg:137",
+     "pixel_box": [
+      1447.2,
+      730.8,
+      1480.9,
+      746.8
+     ]
+    }
+   ],
+   "assumed": [
+    "height",
+    "sill_height"
+   ]
+  },
+  {
+   "id": "win_L0_007",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_004",
+   "center": [
+    0.141,
+    2.2698
+   ],
+   "width": 1.2036,
+   "height": 1.2,
+   "sill_height": 0.9,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "plan_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:165,seg:166,seg:89",
+     "pixel_box": [
+      1028.4,
+      906.8,
+      1046.3,
+      978.1
+     ]
+    },
+    {
+     "file": "plan_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:196,seg:287,seg:288",
+     "pixel_box": [
+      1046.9,
+      930.0,
+      1062.6,
+      996.3
+     ]
+    }
+   ],
+   "assumed": [
+    "height",
+    "sill_height"
+   ]
+  }
+ ],
+ "rooms": [
+  {
+   "id": "r_L0_salon",
+   "level_id": "L0",
+   "label": "Salon",
+   "label_raw": "SALON",
+   "room_type": "living",
+   "polygon": [
+    [
+     0.281,
+     0.3059
+    ],
+    [
+     4.4582,
+     0.3059
+    ],
+    [
+     4.4582,
+     4.1709
+    ],
+    [
+     0.281,
+     4.1709
+    ]
+   ],
+   "area_computed": 16.145,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "plan_scan.png",
+     "method": "ocr",
+     "confidence": 0.9115,
+     "page": 1,
+     "pixel_box": [
+      1088.2,
+      943.0,
+      1144.4,
+      957.6
+     ],
+     "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+     "text": "SALON"
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "recognition:lbl_L0_4",
+     "pixel_box": [
+      1082.6,
+      933.9,
+      1144.5,
+      963.9
+     ],
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "SALON"
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "recognition:lbl_L0_4",
+     "pixel_box": [
+      1085.6,
+      936.8,
+      1133.5,
+      953.9
+     ],
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "SALON"
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_001,w_L0_002,w_L0_004,w_L0_005"
+    }
+   ]
+  },
+  {
+   "id": "r_L0_yatak_odasi",
+   "level_id": "L0",
+   "label": "Yatak Odası",
+   "label_raw": "YATAK ODASI",
+   "room_type": "bedroom",
+   "polygon": [
+    [
+     4.5732,
+     0.3059
+    ],
+    [
+     8.1456,
+     0.3059
+    ],
+    [
+     8.1456,
+     4.1709
+    ],
+    [
+     4.5732,
+     4.1709
+    ]
+   ],
+   "area_computed": 13.807,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "plan_scan.png",
+     "method": "ocr",
+     "confidence": 0.7331,
+     "page": 1,
+     "pixel_box": [
+      1426.4,
+      996.2,
+      1456.5,
+      1025.8
+     ],
+     "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+     "text": "Li"
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ocr",
+     "confidence": 0.9633,
+     "page": 1,
+     "pixel_box": [
+      1345.9,
+      1037.1,
+      1457.1,
+      1053.3
+     ],
+     "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+     "text": "YATAK ODASI"
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "recognition:lbl_L0_1",
+     "pixel_box": [
+      1342.1,
+      1028.4,
+      1461.9,
+      1059.5
+     ],
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "YATAK ODASI"
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "recognition:lbl_L0_1",
+     "pixel_box": [
+      1343.9,
+      1033.0,
+      1455.9,
+      1052.2
+     ],
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "YATAK ODASI"
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_001,w_L0_002,w_L0_005,w_L0_007"
+    }
+   ]
+  },
+  {
+   "id": "r_L0_mutfak",
+   "level_id": "L0",
+   "label": "Mutfak",
+   "label_raw": "MUTFAK",
+   "room_type": "kitchen",
+   "polygon": [
+    [
+     0.281,
+     4.3109
+    ],
+    [
+     4.4582,
+     4.3109
+    ],
+    [
+     4.4582,
+     6.3704
+    ],
+    [
+     0.281,
+     6.3704
+    ]
+   ],
+   "area_computed": 8.603,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "plan_scan.png",
+     "method": "ocr",
+     "confidence": 0.9622,
+     "page": 1,
+     "pixel_box": [
+      1033.0,
+      787.9,
+      1126.0,
+      818.2
+     ],
+     "model": "tesseract --oem 1 --psm 7 -l eng+tur (glyph row)",
+     "text": "MUTFAK"
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "recognition:lbl_L0_5",
+     "pixel_box": [
+      1049.0,
+      761.7,
+      1203.2,
+      801.1
+     ],
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "MUTFAK"
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "recognition:lbl_L0_5",
+     "pixel_box": [
+      1058.5,
+      787.4,
+      1127.8,
+      814.2
+     ],
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "MUTFAK"
+    },
+    {
+     "file": "plan_photo.jpg",
+     "method": "ocr",
+     "confidence": 0.961,
+     "page": 1,
+     "pixel_box": [
+      1074.9,
+      826.0,
+      1134.4,
+      841.1
+     ],
+     "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+     "text": "MUTFAK"
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_002,w_L0_003,w_L0_004,w_L0_005"
+    }
+   ]
+  },
+  {
+   "id": "r_L0_antre",
+   "level_id": "L0",
+   "label": "Antre",
+   "label_raw": "ANTRE",
+   "room_type": "hall",
+   "polygon": [
+    [
+     4.5732,
+     4.3109
+    ],
+    [
+     6.133,
+     4.3109
+    ],
+    [
+     6.133,
+     6.3704
+    ],
+    [
+     4.5732,
+     6.3704
+    ]
+   ],
+   "area_computed": 3.212,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "plan_scan.png",
+     "method": "ocr",
+     "confidence": 0.9199,
+     "page": 1,
+     "pixel_box": [
+      1309.7,
+      770.4,
+      1365.4,
+      785.5
+     ],
+     "model": "tesseract --oem 1 --psm 7 -l eng+tur (glyph row)",
+     "text": "ANTRE"
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "recognition:lbl_L0_3",
+     "pixel_box": [
+      1304.4,
+      715.8,
+      1376.4,
+      819.2
+     ],
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "ANTRE"
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "recognition:lbl_L0_3",
+     "pixel_box": [
+      1308.0,
+      765.9,
+      1366.2,
+      784.4
+     ],
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "ANTRE"
+    },
+    {
+     "file": "plan_photo.jpg",
+     "method": "ocr",
+     "confidence": 0.9083,
+     "page": 1,
+     "pixel_box": [
+      1302.6,
+      802.7,
+      1353.8,
+      817.6
+     ],
+     "model": "tesseract --oem 1 --psm 7 -l eng+tur (glyph row)",
+     "text": "ANTRE"
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_002,w_L0_003,w_L0_005,w_L0_006"
+    }
+   ]
+  },
+  {
+   "id": "r_L0_banyo",
+   "level_id": "L0",
+   "label": "Banyo",
+   "label_raw": "BANYO",
+   "room_type": "bathroom",
+   "polygon": [
+    [
+     6.273,
+     4.3109
+    ],
+    [
+     8.1456,
+     4.3109
+    ],
+    [
+     8.1456,
+     6.3704
+    ],
+    [
+     6.273,
+     6.3704
+    ]
+   ],
+   "area_computed": 3.857,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "plan_scan.png",
+     "method": "ocr",
+     "confidence": 0.8819,
+     "page": 1,
+     "pixel_box": [
+      1410.1,
+      775.4,
+      1468.8,
+      790.5
+     ],
+     "model": "tesseract --oem 1 --psm 7 -l eng+tur (glyph row)",
+     "text": "BANYO"
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "recognition:lbl_L0_2",
+     "pixel_box": [
+      1401.3,
+      768.7,
+      1466.5,
+      797.3
+     ],
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "BANYO"
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "recognition:lbl_L0_2",
+     "pixel_box": [
+      1408.5,
+      772.8,
+      1468.6,
+      790.7
+     ],
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "BANYO"
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_002,w_L0_003,w_L0_006,w_L0_007"
+    }
+   ]
+  }
+ ],
+ "furniture": [
+  {
+   "id": "f_L0_001",
+   "level_id": "L0",
+   "room_id": "r_L0_yatak_odasi",
+   "type": "unknown",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     7.1253,
+     3.1852
+    ],
+    "size": [
+     2.0889,
+     2.0512
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:unknown",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     2.0889,
+     2.0512,
+     0.8
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type unknown is parametric in the catalogue",
+    "cap": 1.15,
+    "style_family": "scandinavian",
+    "excluded": []
+   },
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "plan_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:131,seg:136,seg:138-139,seg:142-143,seg:145-150,seg:152,seg:178",
+     "pixel_box": [
+      1387.5,
+      835.0,
+      1513.1,
+      958.4
+     ]
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_001",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "unknown",
+     "front": "bottom",
+     "reason": "Rectangular shape with no clear furniture features like headboard or drawers, but has a front edge at bottom."
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "recognition:sym_L0_001",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "bed_double",
+     "front": "bottom",
+     "reason": "The object's footprint matches the typical size and shape of a double bed."
+    },
+    {
+     "file": "plan_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:257-259,seg:261,seg:263-266,seg:311,seg:313,seg:315",
+     "pixel_box": [
+      1376.5,
+      863.8,
+      1484.7,
+      980.5
+     ]
+    }
+   ],
+   "type_method": "none",
+   "type_candidates": [
+    {
+     "type": "unknown",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "bottom",
+     "reason": "Rectangular shape with no clear furniture features like headboard or drawers, but has a front edge at bottom."
+    },
+    {
+     "type": "bed_double",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "bottom",
+     "reason": "The object's footprint matches the typical size and shape of a double bed."
+    }
+   ],
+   "build": true
+  },
+  {
+   "id": "f_L0_002",
+   "level_id": "L0",
+   "room_id": "r_L0_salon",
+   "type": "unknown",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     1.5755,
+     0.5577
+    ],
+    "size": [
+     0.5255,
+     3.1869
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:unknown",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     0.5255,
+     3.1869,
+     0.8
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type unknown is parametric in the catalogue",
+    "cap": 1.15,
+    "style_family": "scandinavian",
+    "excluded": []
+   },
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "plan_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:199-203,seg:208",
+     "pixel_box": [
+      1025.6,
+      1027.8,
+      1214.2,
+      1062.5
+     ]
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "recognition:sym_L0_002",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "unknown",
+     "front": "left",
+     "reason": "The object is a long shallow rectangle, but its exact type (e.g., cabinet, counter, or furniture) cannot be determined from the plan."
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.8,
+     "page": 1,
+     "entity": "recognition:sym_L0_002",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "kitchen_counter",
+     "front": "left",
+     "reason": "The object's footprint matches a kitchen counter size, and the front is the left side where a user would stand."
+    }
+   ],
+   "type_method": "none",
+   "type_candidates": [
+    {
+     "type": "unknown",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.85,
+     "front": "left",
+     "reason": "The object is a long shallow rectangle, but its exact type (e.g., cabinet, counter, or furniture) cannot be determined from the plan."
+    },
+    {
+     "type": "kitchen_counter",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.8,
+     "front": "left",
+     "reason": "The object's footprint matches a kitchen counter size, and the front is the left side where a user would stand."
+    }
+   ],
+   "build": true
+  },
+  {
+   "id": "f_L0_003",
+   "level_id": "L0",
+   "room_id": "r_L0_mutfak",
+   "type": "kitchen_counter",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     1.4821,
+     6.05
+    ],
+    "size": [
+     2.4584,
+     0.6611
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:kitchen_counter",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     2.4584,
+     0.6611,
+     0.9
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type kitchen_counter is parametric in the catalogue",
+    "cap": 1.15,
+    "style_family": "scandinavian",
+    "excluded": []
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "plan_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:47,seg:60,seg:65-68,seg:72-73,seg:75,seg:77-84,seg:88",
+     "pixel_box": [
+      1048.0,
+      700.2,
+      1193.8,
+      742.0
+     ]
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_003",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "kitchen_counter",
+     "front": "left",
+     "reason": "Long shallow rectangle matching kitchen counter dimensions, likely along a kitchen wall."
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "recognition:sym_L0_003",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "kitchen_counter",
+     "front": "top",
+     "reason": "The object is a long shallow rectangle fitting the kitchen counter size and shape."
+    },
+    {
+     "file": "plan_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:143,seg:171-173,seg:180-181,seg:183-188,seg:193-194",
+     "pixel_box": [
+      1060.4,
+      731.9,
+      1194.5,
+      774.3
+     ]
+    }
+   ],
+   "type_method": "ai_two_pass",
+   "type_candidates": [
+    {
+     "type": "kitchen_counter",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "left",
+     "reason": "Long shallow rectangle matching kitchen counter dimensions, likely along a kitchen wall."
+    },
+    {
+     "type": "kitchen_counter",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "top",
+     "reason": "The object is a long shallow rectangle fitting the kitchen counter size and shape."
+    }
+   ],
+   "build": true
+  },
+  {
+   "id": "f_L0_004",
+   "level_id": "L0",
+   "room_id": "r_L0_mutfak",
+   "type": "unknown",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     2.3977,
+     4.9906
+    ],
+    "size": [
+     1.6443,
+     0.9493
+    ],
+    "rotation_deg": 180.0
+   },
+   "front_deg": 90.0,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:unknown",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     1.6443,
+     0.9493,
+     0.8
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type unknown is parametric in the catalogue",
+    "cap": 1.15,
+    "style_family": "scandinavian",
+    "excluded": []
+   },
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "plan_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:95-99,seg:108-111,seg:113-114",
+     "pixel_box": [
+      1124.6,
+      755.7,
+      1222.7,
+      813.6
+     ]
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_004",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "sofa",
+     "front": "left",
+     "reason": "Rectangular shape with backrest line, size 1.64x0.95m fits sofa dimensions, front points left as user faces seating area."
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.8,
+     "page": 1,
+     "entity": "recognition:sym_L0_004",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "table_dining",
+     "front": "bottom",
+     "reason": "Footprint matches dining table size, front is bottom edge."
+    }
+   ],
+   "type_method": "none",
+   "type_candidates": [
+    {
+     "type": "sofa",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "left",
+     "reason": "Rectangular shape with backrest line, size 1.64x0.95m fits sofa dimensions, front points left as user faces seating area."
+    },
+    {
+     "type": "table_dining",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.8,
+     "front": "bottom",
+     "reason": "Footprint matches dining table size, front is bottom edge."
+    }
+   ],
+   "build": true
+  },
+  {
+   "id": "f_L0_005",
+   "level_id": "L0",
+   "room_id": "r_L0_salon",
+   "type": "unknown",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     2.3463,
+     3.7262
+    ],
+    "size": [
+     1.617,
+     0.9296
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:unknown",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     1.617,
+     0.9296,
+     0.8
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type unknown is parametric in the catalogue",
+    "cap": 1.15,
+    "style_family": "scandinavian",
+    "excluded": []
+   },
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "plan_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:130,seg:140-141,seg:144,seg:153",
+     "pixel_box": [
+      1120.9,
+      830.8,
+      1217.3,
+      887.5
+     ]
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_005",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "sofa",
+     "front": "bottom",
+     "reason": "Rectangular shape with backrest line, size 1.62x0.93m matches sofa dimensions, front is bottom where user sits."
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.8,
+     "page": 1,
+     "entity": "recognition:sym_L0_005",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "table_dining",
+     "front": "bottom",
+     "reason": "Footprint matches table_dining size, no backrest or headboard lines."
+    },
+    {
+     "file": "plan_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:255-256,seg:262,seg:270-277",
+     "pixel_box": [
+      1131.5,
+      857.0,
+      1219.2,
+      912.8
+     ]
+    }
+   ],
+   "type_method": "none",
+   "type_candidates": [
+    {
+     "type": "sofa",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "bottom",
+     "reason": "Rectangular shape with backrest line, size 1.62x0.93m matches sofa dimensions, front is bottom where user sits."
+    },
+    {
+     "type": "table_dining",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.8,
+     "front": "bottom",
+     "reason": "Footprint matches table_dining size, no backrest or headboard lines."
+    }
+   ],
+   "build": true
+  },
+  {
+   "id": "f_L0_006",
+   "level_id": "L0",
+   "room_id": "r_L0_yatak_odasi",
+   "type": "wardrobe",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     4.8896,
+     1.66
+    ],
+    "size": [
+     1.8129,
+     0.695
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:wardrobe",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     1.8129,
+     0.695,
+     2.1
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [
+     {
+      "id": "objaverse_b46803ba0bc64e12b31f832fb761c4e0",
+      "aspect_error": 0.3386,
+      "scale": [
+       1.7325,
+       1.2349,
+       1.4837
+      ],
+      "non_uniform": 1.403,
+      "mean_scale": 1.4837,
+      "accepted": false
+     }
+    ],
+    "fallback_reason": "no wardrobe candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_b46803ba0bc64e12b31f832fb761c4e0 at 40.3 % non-uniform, mean scale 1.4837)",
+    "cap": 1.15,
+    "style_family": "scandinavian",
+    "excluded": [
+     {
+      "id": "objaverse_05a035c3347645b8a7ceb6d65f825ac3",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_b3a99e956be64ab6958f7f5e1895f031",
+      "reason": "styles ['classic', 'rustic'] include neither scandinavian nor neutral"
+     }
+    ]
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "plan_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:169-172,seg:180-181,seg:194,seg:196,seg:204",
+     "pixel_box": [
+      1295.1,
+      930.1,
+      1338.2,
+      1037.9
+     ]
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_006",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "wardrobe",
+     "front": "right",
+     "reason": "The object is a tall, narrow rectangle against a wall, matching a wardrobe's typical footprint and placement."
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "recognition:sym_L0_006",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "wardrobe",
+     "front": "right",
+     "reason": "The object is a long, shallow rectangle against a wall, matching the description of a wardrobe."
+    },
+    {
+     "file": "plan_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:291-293,seg:346,seg:348",
+     "pixel_box": [
+      1292.9,
+      953.5,
+      1330.2,
+      1055.4
+     ]
+    }
+   ],
+   "type_method": "ai_two_pass",
+   "type_candidates": [
+    {
+     "type": "wardrobe",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "right",
+     "reason": "The object is a tall, narrow rectangle against a wall, matching a wardrobe's typical footprint and placement."
+    },
+    {
+     "type": "wardrobe",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "right",
+     "reason": "The object is a long, shallow rectangle against a wall, matching the description of a wardrobe."
+    }
+   ],
+   "build": true
+  },
+  {
+   "id": "f_L0_007",
+   "level_id": "L0",
+   "room_id": "r_L0_yatak_odasi",
+   "type": "unknown",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     7.7877,
+     1.2459
+    ],
+    "size": [
+     1.4223,
+     0.764
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:unknown",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     1.4223,
+     0.764,
+     0.8
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type unknown is parametric in the catalogue",
+    "cap": 1.15,
+    "style_family": "scandinavian",
+    "excluded": []
+   },
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "plan_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:182-184,seg:205,seg:207",
+     "pixel_box": [
+      1463.8,
+      969.4,
+      1510.5,
+      1054.2
+     ]
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_007",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "desk",
+     "front": "left",
+     "reason": "Rectangular shape 1.42x0.76m matches desk size, with door handle indicating it's a door, not furniture."
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "recognition:sym_L0_007",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "wardrobe",
+     "front": "right",
+     "reason": "The object is a long, shallow rectangle against a wall, matching the typical size and shape of a wardrobe."
+    },
+    {
+     "file": "plan_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:326-327,seg:329,seg:349",
+     "pixel_box": [
+      1444.9,
+      988.8,
+      1486.7,
+      1068.7
+     ]
+    }
+   ],
+   "type_method": "none",
+   "type_candidates": [
+    {
+     "type": "desk",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "left",
+     "reason": "Rectangular shape 1.42x0.76m matches desk size, with door handle indicating it's a door, not furniture."
+    },
+    {
+     "type": "wardrobe",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "right",
+     "reason": "The object is a long, shallow rectangle against a wall, matching the typical size and shape of a wardrobe."
+    }
+   ],
+   "build": true
+  },
+  {
+   "id": "f_L0_008",
+   "level_id": "L0",
+   "room_id": "r_L0_banyo",
+   "type": "shower",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     6.7373,
+     5.9144
+    ],
+    "size": [
+     1.0002,
+     0.9324
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:shower",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     1.0002,
+     0.9324,
+     2.0
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type shower is parametric in the catalogue",
+    "cap": 1.15,
+    "style_family": "scandinavian",
+    "excluded": []
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "plan_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:50,seg:59,seg:70,seg:94",
+     "pixel_box": [
+      1400.6,
+      707.2,
+      1460.7,
+      763.3
+     ]
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_008",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "shower",
+     "front": "bottom",
+     "reason": "Square shape 1.00x0.93m matches shower footprint, and it's in a bathroom labeled 'BANYO'."
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "recognition:sym_L0_008",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "shower",
+     "front": "bottom",
+     "reason": "The object is a square with a 1m scale bar, matching the typical size and shape of a shower in a bathroom."
+    }
+   ],
+   "type_method": "ai_two_pass",
+   "type_candidates": [
+    {
+     "type": "shower",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "bottom",
+     "reason": "Square shape 1.00x0.93m matches shower footprint, and it's in a bathroom labeled 'BANYO'."
+    },
+    {
+     "type": "shower",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "bottom",
+     "reason": "The object is a square with a 1m scale bar, matching the typical size and shape of a shower in a bathroom."
+    }
+   ],
+   "build": true
+  },
+  {
+   "id": "f_L0_009",
+   "level_id": "L0",
+   "room_id": "r_L0_salon",
+   "type": "fridge",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     3.9148,
+     2.5661
+    ],
+    "size": [
+     0.916,
+     0.9154
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:fridge",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     0.916,
+     0.9154,
+     1.8
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "no model for style scandinavian",
+    "cap": 1.15,
+    "style_family": "scandinavian",
+    "excluded": [
+     {
+      "id": "objaverse_2071bda681b642218b6829b82e4fd93b",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_68d69bbf7a454a09a2536ac0762532f3",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     }
+    ]
+   },
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "plan_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:154-158,seg:179",
+     "pixel_box": [
+      1232.7,
+      901.9,
+      1287.8,
+      957.0
+     ]
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_009",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "fridge",
+     "front": "left",
+     "reason": "Square shape 0.92x0.92m matches fridge size, with a handle on left side indicating front."
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "recognition:sym_L0_009",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "fridge",
+     "front": "left",
+     "reason": "The object is a square with a handle on the left side, matching the typical size and shape of a fridge."
+    }
+   ],
+   "type_method": "ai_two_pass",
+   "type_candidates": [
+    {
+     "type": "fridge",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "left",
+     "reason": "Square shape 0.92x0.92m matches fridge size, with a handle on left side indicating front."
+    },
+    {
+     "type": "fridge",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "left",
+     "reason": "The object is a square with a handle on the left side, matching the typical size and shape of a fridge."
+    }
+   ],
+   "build": true
+  },
+  {
+   "id": "f_L0_010",
+   "level_id": "L0",
+   "room_id": "r_L0_banyo",
+   "type": "shower",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     6.6356,
+     4.8143
+    ],
+    "size": [
+     0.7947,
+     0.8306
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:shower",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     0.7947,
+     0.8306,
+     2.0
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type shower is parametric in the catalogue",
+    "cap": 1.15,
+    "style_family": "scandinavian",
+    "excluded": []
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "plan_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "arc:2,seg:102,seg:107",
+     "pixel_box": [
+      1398.4,
+      776.1,
+      1448.3,
+      823.9
+     ]
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_010",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "shower",
+     "front": "left",
+     "reason": "The shape and context suggest a shower, with a curved wall line typical of shower enclosures."
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "recognition:sym_L0_010",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "shower",
+     "front": "none",
+     "reason": "The object has a square footprint with a curved edge, typical of a shower enclosure."
+    }
+   ],
+   "type_method": "ai_two_pass",
+   "type_candidates": [
+    {
+     "type": "shower",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "left",
+     "reason": "The shape and context suggest a shower, with a curved wall line typical of shower enclosures."
+    },
+    {
+     "type": "shower",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "none",
+     "reason": "The object has a square footprint with a curved edge, typical of a shower enclosure."
+    }
+   ],
+   "build": true
+  },
+  {
+   "id": "f_L0_011",
+   "level_id": "L0",
+   "room_id": "r_L0_salon",
+   "type": "table_coffee",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     2.3468,
+     2.5579
+    ],
+    "size": [
+     1.0341,
+     0.6273
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:table_coffee",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     1.0341,
+     0.6273,
+     0.45
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [
+     {
+      "id": "objaverse_1d41e84fd76241e7a8929a314052269c",
+      "aspect_error": 0.1467,
+      "scale": [
+       0.9954,
+       0.8596,
+       0.9275
+      ],
+      "non_uniform": 1.158,
+      "mean_scale": 0.9275,
+      "accepted": false
+     }
+    ],
+    "fallback_reason": "no table_coffee candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_1d41e84fd76241e7a8929a314052269c at 15.8 % non-uniform, mean scale 0.9275)",
+    "cap": 1.15,
+    "style_family": "scandinavian",
+    "excluded": [
+     {
+      "id": "CoffeeTable_01",
+      "reason": "styles ['classic', 'rustic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "modern_coffee_table_01",
+      "reason": "styles ['modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "modern_coffee_table_02",
+      "reason": "styles ['modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_b0c0c9c65d06443c87391134a62e2287",
+      "reason": "styles ['japandi', 'modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_c17577daa87849d09960669606c0ce27",
+      "reason": "styles ['japandi', 'modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_c42d069236174467a2fb536f7d42d7f0",
+      "reason": "styles ['japandi', 'modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_f4031bb5f7e64ebca4c37d4fa5ba6e8d",
+      "reason": "styles ['classic', 'rustic'] include neither scandinavian nor neutral"
+     }
+    ]
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "plan_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:159,seg:164,seg:167-168,seg:174",
+     "pixel_box": [
+      1136.9,
+      909.0,
+      1198.6,
+      947.2
+     ]
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_011",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "table_coffee",
+     "front": "bottom",
+     "reason": "Rectangular shape, low profile, size matches coffee table, front edge at bottom."
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.8,
+     "page": 1,
+     "entity": "recognition:sym_L0_011",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "table_coffee",
+     "front": "bottom",
+     "reason": "The object's footprint is a low rectangle, fitting the size and shape of a coffee table."
+    }
+   ],
+   "type_method": "ai_two_pass",
+   "type_candidates": [
+    {
+     "type": "table_coffee",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "bottom",
+     "reason": "Rectangular shape, low profile, size matches coffee table, front edge at bottom."
+    },
+    {
+     "type": "table_coffee",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.8,
+     "front": "bottom",
+     "reason": "The object's footprint is a low rectangle, fitting the size and shape of a coffee table."
+    }
+   ],
+   "build": true
+  },
+  {
+   "id": "f_L0_012",
+   "level_id": "L0",
+   "room_id": "r_L0_mutfak",
+   "type": "unknown",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     3.1605,
+     6.067
+    ],
+    "size": [
+     0.6965,
+     0.729
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:unknown",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     0.6965,
+     0.729,
+     0.8
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type unknown is parametric in the catalogue",
+    "cap": 1.15,
+    "style_family": "scandinavian",
+    "excluded": []
+   },
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "plan_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:43,seg:48,seg:92",
+     "pixel_box": [
+      1198.9,
+      700.2,
+      1240.8,
+      744.0
+     ]
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_012",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "fridge",
+     "front": "left",
+     "reason": "Square shape 0.73x0.70m matches fridge size, with top edge likely front for user access."
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.6,
+     "page": 1,
+     "entity": "recognition:sym_L0_012",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "unknown",
+     "front": "none",
+     "reason": "The object is a square with a small line inside, size fits unknown furniture, no clear features to identify."
+    },
+    {
+     "file": "plan_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:156,seg:162,seg:197-200,seg:203-204",
+     "pixel_box": [
+      1200.7,
+      735.3,
+      1238.7,
+      777.9
+     ]
+    }
+   ],
+   "type_method": "none",
+   "type_candidates": [
+    {
+     "type": "fridge",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "left",
+     "reason": "Square shape 0.73x0.70m matches fridge size, with top edge likely front for user access."
+    },
+    {
+     "type": "unknown",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.6,
+     "front": "none",
+     "reason": "The object is a square with a small line inside, size fits unknown furniture, no clear features to identify."
+    }
+   ],
+   "build": true
+  },
+  {
+   "id": "f_L0_013",
+   "level_id": "L0",
+   "room_id": "r_L0_banyo",
+   "type": "unknown",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     7.7764,
+     6.0371
+    ],
+    "size": [
+     0.7153,
+     0.6786
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:unknown",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     0.7153,
+     0.6786,
+     0.8
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type unknown is parametric in the catalogue",
+    "cap": 1.15,
+    "style_family": "scandinavian",
+    "excluded": []
+   },
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "plan_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:46,seg:51,seg:63,seg:71,seg:85-87,seg:91",
+     "pixel_box": [
+      1471.7,
+      707.7,
+      1512.5,
+      750.7
+     ]
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_013",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "side_table",
+     "front": "none",
+     "reason": "Square shape, small size (0.72x0.68m), no visible front or back, typical for a side table."
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "recognition:sym_L0_013",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "fridge",
+     "front": "right",
+     "reason": "The object's footprint size and shape match a typical kitchen fridge."
+    }
+   ],
+   "type_method": "none",
+   "type_candidates": [
+    {
+     "type": "side_table",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "none",
+     "reason": "Square shape, small size (0.72x0.68m), no visible front or back, typical for a side table."
+    },
+    {
+     "type": "fridge",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "right",
+     "reason": "The object's footprint size and shape match a typical kitchen fridge."
+    }
+   ],
+   "build": true
+  },
+  {
+   "id": "f_L0_014",
+   "level_id": "L0",
+   "room_id": "r_L0_antre",
+   "type": "unknown",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     5.9576,
+     5.8728
+    ],
+    "size": [
+     1.0156,
+     0.4238
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:unknown",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     1.0156,
+     0.4238,
+     0.8
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type unknown is parametric in the catalogue",
+    "cap": 1.15,
+    "style_family": "scandinavian",
+    "excluded": []
+   },
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "plan_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:49,seg:61,seg:101",
+     "pixel_box": [
+      1371.5,
+      706.6,
+      1397.7,
+      767.0
+     ]
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.99,
+     "page": 1,
+     "entity": "recognition:sym_L0_014",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "not_furniture",
+     "front": "left",
+     "reason": "The object is a door, indicated by its rectangular shape and handle, which is not furniture."
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "recognition:sym_L0_014",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "not_furniture",
+     "front": "none",
+     "reason": "The object is a door swing, not furniture."
+    },
+    {
+     "file": "plan_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:174,seg:220",
+     "pixel_box": [
+      1359.8,
+      741.4,
+      1382.0,
+      800.4
+     ]
+    }
+   ],
+   "type_method": "none",
+   "type_candidates": [
+    {
+     "type": "not_furniture",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.99,
+     "front": "left",
+     "reason": "The object is a door, indicated by its rectangular shape and handle, which is not furniture."
+    },
+    {
+     "type": "not_furniture",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "none",
+     "reason": "The object is a door swing, not furniture."
+    }
+   ],
+   "build": false
+  },
+  {
+   "id": "f_L0_015",
+   "level_id": "L0",
+   "room_id": "r_L0_banyo",
+   "type": "unknown",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     7.7658,
+     5.2914
+    ],
+    "size": [
+     0.7914,
+     0.4278
+    ],
+    "rotation_deg": 125.504
+   },
+   "front_deg": null,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:unknown",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     0.7914,
+     0.4278,
+     0.8
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "type unknown is parametric in the catalogue",
+    "cap": 1.15,
+    "style_family": "scandinavian",
+    "excluded": []
+   },
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "plan_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:90,seg:93,seg:103-104",
+     "pixel_box": [
+      1466.2,
+      746.4,
+      1514.9,
+      800.0
+     ]
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_015",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "unknown",
+     "front": "none",
+     "reason": "The object is a rectangular outline with a handle, resembling a door or cabinet, but its context and exact function are unclear."
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.8,
+     "page": 1,
+     "entity": "recognition:sym_L0_015",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "stove",
+     "front": "right",
+     "reason": "The object's footprint and shape match a stove in a kitchen."
+    }
+   ],
+   "type_method": "none",
+   "type_candidates": [
+    {
+     "type": "unknown",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "none",
+     "reason": "The object is a rectangular outline with a handle, resembling a door or cabinet, but its context and exact function are unclear."
+    },
+    {
+     "type": "stove",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.8,
+     "front": "right",
+     "reason": "The object's footprint and shape match a stove in a kitchen."
+    }
+   ],
+   "build": true
+  },
+  {
+   "id": "f_L0_016",
+   "level_id": "L0",
+   "room_id": "r_L0_banyo",
+   "type": "washbasin",
+   "type_raw": null,
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     7.7884,
+     4.6462
+    ],
+    "size": [
+     0.3947,
+     0.7628
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": null,
+   "asset": {
+    "library": "parametric",
+    "asset_id": "parametric:washbasin",
+    "licence": "n/a",
+    "license": "n/a",
+    "method": "parametric",
+    "fit_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "bbox_m": [
+     0.3947,
+     0.7628,
+     1.0
+    ],
+    "aspect_error": null,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "candidates": [],
+    "fallback_reason": "no model for style scandinavian",
+    "cap": 1.15,
+    "style_family": "scandinavian",
+    "excluded": [
+     {
+      "id": "objaverse_ce1a06f7cbe1425099a145f851fc5dee",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     }
+    ]
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "plan_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:105-106,seg:115",
+     "pixel_box": [
+      1468.4,
+      799.2,
+      1513.9,
+      823.4
+     ]
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_016",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "washbasin",
+     "front": "left",
+     "reason": "Rectangular shape, size 0.76x0.39m fits washbasin, and it's in a bathroom (BANYO) context."
+    },
+    {
+     "file": "plan_scan.png",
+     "method": "ai",
+     "confidence": 0.8,
+     "page": 1,
+     "entity": "recognition:sym_L0_016",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "washbasin",
+     "front": "left",
+     "reason": "The object's footprint matches the size and shape of a washbasin from above."
+    },
+    {
+     "file": "plan_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:226-228,seg:230",
+     "pixel_box": [
+      1446.5,
+      830.0,
+      1488.0,
+      854.6
+     ]
+    }
+   ],
+   "type_method": "ai_two_pass",
+   "type_candidates": [
+    {
+     "type": "washbasin",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "left",
+     "reason": "Rectangular shape, size 0.76x0.39m fits washbasin, and it's in a bathroom (BANYO) context."
+    },
+    {
+     "type": "washbasin",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.8,
+     "front": "left",
+     "reason": "The object's footprint matches the size and shape of a washbasin from above."
+    }
+   ],
+   "build": true
+  }
+ ],
+ "conflicts": [
+  {
+   "id": "c_001",
+   "kind": "symbol_type_disagreement",
+   "element_ids": [
+    "f_L0_001"
+   ],
+   "description": "f_L0_001: sym_L0_001: the passes disagree: pass 1 (Qwen/Qwen3-VL-8B-Instruct) unknown, pass 2 (zai-org/GLM-4.6V-Flash) bed_double",
+   "resolution": "unresolved: the drawn footprint is kept as unknown, unverified"
+  },
+  {
+   "id": "c_002",
+   "kind": "symbol_type_disagreement",
+   "element_ids": [
+    "f_L0_002"
+   ],
+   "description": "f_L0_002: sym_L0_002: the passes disagree: pass 1 (Qwen/Qwen3-VL-8B-Instruct) unknown, pass 2 (zai-org/GLM-4.6V-Flash) kitchen_counter",
+   "resolution": "unresolved: the drawn footprint is kept as unknown, unverified"
+  },
+  {
+   "id": "c_003",
+   "kind": "symbol_type_disagreement",
+   "element_ids": [
+    "f_L0_004"
+   ],
+   "description": "f_L0_004: sym_L0_004: the passes disagree: pass 1 (Qwen/Qwen3-VL-8B-Instruct) sofa, pass 2 (zai-org/GLM-4.6V-Flash) table_dining",
+   "resolution": "unresolved: the drawn footprint is kept as unknown, unverified"
+  },
+  {
+   "id": "c_004",
+   "kind": "symbol_type_disagreement",
+   "element_ids": [
+    "f_L0_005"
+   ],
+   "description": "f_L0_005: sym_L0_005: the passes disagree: pass 1 (Qwen/Qwen3-VL-8B-Instruct) sofa, pass 2 (zai-org/GLM-4.6V-Flash) table_dining",
+   "resolution": "unresolved: the drawn footprint is kept as unknown, unverified"
+  },
+  {
+   "id": "c_005",
+   "kind": "symbol_type_disagreement",
+   "element_ids": [
+    "f_L0_007"
+   ],
+   "description": "f_L0_007: sym_L0_007: the passes disagree: pass 1 (Qwen/Qwen3-VL-8B-Instruct) desk, pass 2 (zai-org/GLM-4.6V-Flash) wardrobe",
+   "resolution": "unresolved: the drawn footprint is kept as unknown, unverified"
+  },
+  {
+   "id": "c_006",
+   "kind": "symbol_type_disagreement",
+   "element_ids": [
+    "f_L0_012"
+   ],
+   "description": "f_L0_012: sym_L0_012: the passes disagree: pass 1 (Qwen/Qwen3-VL-8B-Instruct) fridge, pass 2 (zai-org/GLM-4.6V-Flash) unknown",
+   "resolution": "unresolved: the drawn footprint is kept as unknown, unverified"
+  },
+  {
+   "id": "c_007",
+   "kind": "symbol_type_disagreement",
+   "element_ids": [
+    "f_L0_013"
+   ],
+   "description": "f_L0_013: sym_L0_013: the passes disagree: pass 1 (Qwen/Qwen3-VL-8B-Instruct) side_table, pass 2 (zai-org/GLM-4.6V-Flash) fridge",
+   "resolution": "unresolved: the drawn footprint is kept as unknown, unverified"
+  },
+  {
+   "id": "c_008",
+   "kind": "symbol_type_disagreement",
+   "element_ids": [
+    "f_L0_015"
+   ],
+   "description": "f_L0_015: sym_L0_015: the passes disagree: pass 1 (Qwen/Qwen3-VL-8B-Instruct) unknown, pass 2 (zai-org/GLM-4.6V-Flash) stove",
+   "resolution": "unresolved: the drawn footprint is kept as unknown, unverified"
+  },
+  {
+   "id": "c_009",
+   "kind": "raster_count_mismatch",
+   "element_ids": [
+    "win_L0_001",
+    "win_L0_002",
+    "win_L0_003",
+    "win_L0_004",
+    "win_L0_005",
+    "win_L0_006",
+    "win_L0_007"
+   ],
+   "description": "Zemin Kat: plan_scan.png has 7 windows, the photo plan_photo.jpg shows 5 (more than 1 apart)",
+   "resolution": "scan wins; the photo is evidence only"
+  },
+  {
+   "id": "c_010",
+   "kind": "symbol_front_disagreement",
+   "element_ids": [
+    "f_L0_004"
+   ],
+   "description": "f_L0_004: sym_L0_004: AI front [180.0, 270.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) left, pass 2 (zai-org/GLM-4.6V-Flash) bottom) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back)",
+   "resolution": "the drawn front is kept (trust order: vector geometry > AI suggestions)"
+  },
+  {
+   "id": "c_011",
+   "kind": "symbol_front_disagreement",
+   "element_ids": [
+    "f_L0_012"
+   ],
+   "description": "f_L0_012: sym_L0_012: AI front [180.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) left) disagrees with the drawn front 270 deg (only side within 0.25 m of a wall is the back)",
+   "resolution": "the drawn front is kept (trust order: vector geometry > AI suggestions)"
+  }
+ ],
+ "unverified": [
+  "f_L0_001",
+  "f_L0_002",
+  "f_L0_004",
+  "f_L0_005",
+  "f_L0_007",
+  "f_L0_009",
+  "f_L0_012",
+  "f_L0_013",
+  "f_L0_014",
+  "f_L0_015"
+ ],
+ "warnings": [
+  "plan_photo.jpg p1: photo aspect assumed: the page quad measures 1.3764 (width / height, side_ratio), snapped to the ISO (sqrt 2) sheet ratio 1.4142 (2.7 % off; no dimension groups to check it) (evidence-only page)",
+  "sym_L0_003: kitchen_counter without an agreed front: front unknown: width and depth follow the kitchen_counter size convention; the side the builder faces is assumed",
+  "sym_L0_004: AI front [180.0, 270.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) left, pass 2 (zai-org/GLM-4.6V-Flash) bottom) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back): the drawn front is kept (vector geometry > AI)",
+  "sym_L0_009: fridge is not a type allowed in a living room: kept, unverified",
+  "sym_L0_010: shower without an agreed front: front unknown: width and depth follow the shower size convention (footprint turned 90 deg); the side the builder faces is assumed",
+  "sym_L0_012: AI front [180.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) left) disagrees with the drawn front 270 deg (only side within 0.25 m of a wall is the back): the drawn front is kept (vector geometry > AI)",
+  "sym_L0_014: both passes say not_furniture: kept as an obstacle, not built",
+  "Level L0: ceiling height assumed 2.70 m (no section drawing found)",
+  "r_L0_yatak_odasi: room label 'YATAK ODASI' (two VLM passes) where Tesseract read 'Li YATAK ODASI' on plan_scan.png: no word disagrees, the passes' spelling kept",
+  "Zemin Kat: plan_photo.jpg (photo) is evidence only for plan_scan.png: 7 walls, 7 openings, 8 furniture pieces and 2 room names confirmed",
+  "plan_photo.jpg (evidence only): dimension text 3.90 vs 4.96 m measured on the raster (21.4%)"
+ ],
+ "site": {
+  "boundary_walls": [],
+  "areas": [],
+  "decor": [],
+  "openings": []
+ },
+ "decor": []
+}

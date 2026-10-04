@@ -1,0 +1,5 @@
+2026-10-01T15:28:10Z paddlepaddle-gpu==3.2.0 from cu126 index
+  WARNING: Connection interrupted while downloading.
+  WARNING: Attempting to resume incomplete download (7.1 MB/1890.4 MB, attempt 1)
+2026-10-01T15:48:39Z paddlepaddle-gpu==3.2.0 from cu126 index
+2026-10-01T16:12:23Z paddlepaddle-gpu==3.3.1 from cu129 index (compute capability 12)

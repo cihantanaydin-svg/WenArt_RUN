@@ -1,0 +1,39 @@
+{
+ "dpi": 150,
+ "file": "real01_photo.jpg",
+ "generator": "python -m wenart.synthetic.raster fixtures",
+ "jpeg_quality": 80,
+ "kind": "raster_fixture",
+ "max_corner_shift": 0.06,
+ "page": 1,
+ "page_size_pt": [
+  842.0,
+  595.0
+ ],
+ "pdf_points_to_pixels": [
+  [
+   2.0303611676029387,
+   -0.05470847594872901,
+   98.78719023212841
+  ],
+  [
+   0.04193713629418312,
+   -2.068772711997513,
+   1245.6880596429444
+  ],
+  [
+   3.202371457119475e-05,
+   -8.564525164308884e-05,
+   1.0505865160653367
+  ]
+ ],
+ "raster_kind": "photo",
+ "scan_seed": 7101,
+ "schema_version": "0.1",
+ "seed": 7102,
+ "size": [
+  1755,
+  1240
+ ],
+ "source_pdf": "projects/real01/real01.pdf"
+}

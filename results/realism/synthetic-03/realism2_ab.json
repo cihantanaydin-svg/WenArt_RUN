@@ -1,0 +1,6982 @@
+{
+ "schema_version": "0.1",
+ "kind": "realism2_ab",
+ "project": "synthetic-03",
+ "project_out": "outputs/synthetic-03",
+ "pairs_file": "../../ab/pairs_v2.json",
+ "models": {
+  "qwen": {
+   "id": "Qwen/Qwen3-VL-8B-Instruct",
+   "slug": "qwen3-vl-8b",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "answers": "answers_realism2_qwen3-vl-8b.json",
+   "incomplete": false,
+   "position_bias": {
+    "image_1": 190,
+    "picks": 256,
+    "index": 0.7422
+   }
+  },
+  "glm": {
+   "id": "zai-org/GLM-4.6V-Flash",
+   "slug": "glm-4.6v-flash",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "answers": "answers_realism2_glm-4.6v-flash.json",
+   "incomplete": false,
+   "position_bias": {
+    "image_1": 1,
+    "picks": 256,
+    "index": 0.0039
+   }
+  }
+ },
+ "sets": {
+  "look_alt": {
+   "pairs": 32,
+   "rooms": 18,
+   "consensus_models": [
+    "qwen",
+    "glm"
+   ],
+   "aspects": {
+    "materials": {
+     "models": {
+      "qwen": {
+       "W": 7,
+       "L": 0,
+       "T": 25,
+       "NC": 0,
+       "consistency": 0.2188,
+       "mean_graded": 0.438
+      },
+      "glm": {
+       "W": 0,
+       "L": 0,
+       "T": 32,
+       "NC": 0,
+       "consistency": 0.0,
+       "mean_graded": 0.0
+      }
+     },
+     "consensus": {
+      "W": 0,
+      "L": 0,
+      "T": 32,
+      "NC": 0
+     },
+     "n": 32,
+     "decisive": 0,
+     "decisive_rooms": 0,
+     "win_rate": 0.0,
+     "loss_rate": 0.0,
+     "net_win": 0.0,
+     "sign_p": 1.0,
+     "rooms": {
+      "W": 0,
+      "L": 0,
+      "T": 18,
+      "NC": 0
+     },
+     "rooms_sign_p": 1.0,
+     "net_win_ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "lighting": {
+     "models": {
+      "qwen": {
+       "W": 21,
+       "L": 0,
+       "T": 11,
+       "NC": 0,
+       "consistency": 0.6562,
+       "mean_graded": 1.312
+      },
+      "glm": {
+       "W": 0,
+       "L": 0,
+       "T": 32,
+       "NC": 0,
+       "consistency": 0.0,
+       "mean_graded": 0.0
+      }
+     },
+     "consensus": {
+      "W": 0,
+      "L": 0,
+      "T": 32,
+      "NC": 0
+     },
+     "n": 32,
+     "decisive": 0,
+     "decisive_rooms": 0,
+     "win_rate": 0.0,
+     "loss_rate": 0.0,
+     "net_win": 0.0,
+     "sign_p": 1.0,
+     "rooms": {
+      "W": 0,
+      "L": 0,
+      "T": 18,
+      "NC": 0
+     },
+     "rooms_sign_p": 1.0,
+     "net_win_ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "furniture": {
+     "models": {
+      "qwen": {
+       "W": 9,
+       "L": 0,
+       "T": 23,
+       "NC": 0,
+       "consistency": 0.2812,
+       "mean_graded": 0.562
+      },
+      "glm": {
+       "W": 0,
+       "L": 0,
+       "T": 32,
+       "NC": 0,
+       "consistency": 0.0,
+       "mean_graded": 0.0
+      }
+     },
+     "consensus": {
+      "W": 0,
+      "L": 0,
+      "T": 32,
+      "NC": 0
+     },
+     "n": 32,
+     "decisive": 0,
+     "decisive_rooms": 0,
+     "win_rate": 0.0,
+     "loss_rate": 0.0,
+     "net_win": 0.0,
+     "sign_p": 1.0,
+     "rooms": {
+      "W": 0,
+      "L": 0,
+      "T": 18,
+      "NC": 0
+     },
+     "rooms_sign_p": 1.0,
+     "net_win_ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "photo": {
+     "models": {
+      "qwen": {
+       "W": 21,
+       "L": 0,
+       "T": 11,
+       "NC": 0,
+       "consistency": 0.6562,
+       "mean_graded": 1.312
+      },
+      "glm": {
+       "W": 1,
+       "L": 0,
+       "T": 31,
+       "NC": 0,
+       "consistency": 0.0312,
+       "mean_graded": 0.062
+      }
+     },
+     "consensus": {
+      "W": 1,
+      "L": 0,
+      "T": 31,
+      "NC": 0
+     },
+     "n": 32,
+     "decisive": 1,
+     "decisive_rooms": 1,
+     "win_rate": 0.0312,
+     "loss_rate": 0.0,
+     "net_win": 0.0312,
+     "sign_p": 1.0,
+     "rooms": {
+      "W": 1,
+      "L": 0,
+      "T": 17,
+      "NC": 0
+     },
+     "rooms_sign_p": 1.0,
+     "net_win_ci95": [
+      0.0,
+      0.1034
+     ]
+    }
+   },
+   "position_bias": {
+    "qwen": {
+     "image_1": 190,
+     "picks": 256,
+     "index": 0.7422
+    },
+    "glm": {
+     "image_1": 1,
+     "picks": 256,
+     "index": 0.0039
+    }
+   },
+   "top_cues": {
+    "materials": {
+     "W": [],
+     "L": []
+    },
+    "lighting": {
+     "W": [],
+     "L": []
+    },
+    "furniture": {
+     "W": [],
+     "L": []
+    },
+    "photo": {
+     "W": [],
+     "L": []
+    }
+   }
+  }
+ },
+ "controls": null,
+ "calls": [
+  {
+   "project": "synthetic-03",
+   "set": "look_alt",
+   "model": "qwen",
+   "expected": 256,
+   "answered": 256,
+   "failed": 0,
+   "stale": 0,
+   "missing": 0,
+   "answered_rate": 1.0,
+   "status": "complete"
+  },
+  {
+   "project": "synthetic-03",
+   "set": "look_alt",
+   "model": "glm",
+   "expected": 256,
+   "answered": 256,
+   "failed": 0,
+   "stale": 0,
+   "missing": 0,
+   "answered_rate": 1.0,
+   "status": "complete"
+  }
+ ],
+ "control_views": [],
+ "dropped": [],
+ "skipped": [],
+ "warnings": [
+  "synthetic-05: 23 camera(s) without both previews (rendered without --alt-look?): not in the look_alt ranking"
+ ],
+ "contact_sheets": {
+  "look_alt": [
+   "contact_realism2_look_alt_1.jpg",
+   "contact_realism2_look_alt_2.jpg",
+   "contact_realism2_look_alt_3.jpg",
+   "contact_realism2_look_alt_4.jpg"
+  ]
+ },
+ "rows": [
+  {
+   "pair_id": "look_alt:cam_r_L1_cocuk_odasi_3",
+   "set": "look_alt",
+   "cam": "cam_r_L1_cocuk_odasi_3",
+   "room_id": "r_L1_cocuk_odasi",
+   "room": "synthetic-03:r_L1_cocuk_odasi",
+   "project": "synthetic-03",
+   "a": "renders/cam_r_L1_cocuk_odasi_3_preview.jpg",
+   "b": "renders/cam_r_L1_cocuk_odasi_3_alt_preview.jpg",
+   "expected": null,
+   "target_aspect": null,
+   "delta_ev": 0.351,
+   "models": {
+    "qwen": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    },
+    "glm": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        0.8
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    }
+   },
+   "consensus": {
+    "materials": "T",
+    "lighting": "T",
+    "furniture": "T",
+    "photo": "T"
+   }
+  },
+  {
+   "pair_id": "look_alt:cam_r_L1_ebeveyn_yatak_odasi_3",
+   "set": "look_alt",
+   "cam": "cam_r_L1_ebeveyn_yatak_odasi_3",
+   "room_id": "r_L1_ebeveyn_yatak_odasi",
+   "room": "synthetic-03:r_L1_ebeveyn_yatak_odasi",
+   "project": "synthetic-03",
+   "a": "renders/cam_r_L1_ebeveyn_yatak_odasi_3_preview.jpg",
+   "b": "renders/cam_r_L1_ebeveyn_yatak_odasi_3_alt_preview.jpg",
+   "expected": null,
+   "target_aspect": null,
+   "delta_ev": 0.353,
+   "models": {
+    "qwen": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    },
+    "glm": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        0.8
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    }
+   },
+   "consensus": {
+    "materials": "T",
+    "lighting": "T",
+    "furniture": "T",
+    "photo": "T"
+   }
+  },
+  {
+   "pair_id": "look_alt:cam_r_L0_mutfak_1",
+   "set": "look_alt",
+   "cam": "cam_r_L0_mutfak_1",
+   "room_id": "r_L0_mutfak",
+   "room": "synthetic-03:r_L0_mutfak",
+   "project": "synthetic-03",
+   "a": "renders/cam_r_L0_mutfak_1_preview.jpg",
+   "b": "renders/cam_r_L0_mutfak_1_alt_preview.jpg",
+   "expected": null,
+   "target_aspect": null,
+   "delta_ev": 0.342,
+   "models": {
+    "qwen": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    },
+    "glm": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1.0,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        0.8
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    }
+   },
+   "consensus": {
+    "materials": "T",
+    "lighting": "T",
+    "furniture": "T",
+    "photo": "T"
+   }
+  },
+  {
+   "pair_id": "look_alt:cam_r_L1_ebeveyn_yatak_odasi_2",
+   "set": "look_alt",
+   "cam": "cam_r_L1_ebeveyn_yatak_odasi_2",
+   "room_id": "r_L1_ebeveyn_yatak_odasi",
+   "room": "synthetic-03:r_L1_ebeveyn_yatak_odasi",
+   "project": "synthetic-03",
+   "a": "renders/cam_r_L1_ebeveyn_yatak_odasi_2_preview.jpg",
+   "b": "renders/cam_r_L1_ebeveyn_yatak_odasi_2_alt_preview.jpg",
+   "expected": null,
+   "target_aspect": null,
+   "delta_ev": 0.354,
+   "models": {
+    "qwen": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    },
+    "glm": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        0.8
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        0.8
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        0.8
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    }
+   },
+   "consensus": {
+    "materials": "T",
+    "lighting": "T",
+    "furniture": "T",
+    "photo": "T"
+   }
+  },
+  {
+   "pair_id": "look_alt:cam_r_L-1_banyo_2",
+   "set": "look_alt",
+   "cam": "cam_r_L-1_banyo_2",
+   "room_id": "r_L-1_banyo",
+   "room": "synthetic-03:r_L-1_banyo",
+   "project": "synthetic-03",
+   "a": "renders/cam_r_L-1_banyo_2_preview.jpg",
+   "b": "renders/cam_r_L-1_banyo_2_alt_preview.jpg",
+   "expected": null,
+   "target_aspect": null,
+   "delta_ev": 0.461,
+   "models": {
+    "qwen": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    },
+    "glm": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    }
+   },
+   "consensus": {
+    "materials": "T",
+    "lighting": "T",
+    "furniture": "T",
+    "photo": "T"
+   }
+  },
+  {
+   "pair_id": "look_alt:cam_r_L0_mutfak_2",
+   "set": "look_alt",
+   "cam": "cam_r_L0_mutfak_2",
+   "room_id": "r_L0_mutfak",
+   "room": "synthetic-03:r_L0_mutfak",
+   "project": "synthetic-03",
+   "a": "renders/cam_r_L0_mutfak_2_preview.jpg",
+   "b": "renders/cam_r_L0_mutfak_2_alt_preview.jpg",
+   "expected": null,
+   "target_aspect": null,
+   "delta_ev": 0.325,
+   "models": {
+    "qwen": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    },
+    "glm": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        0.8
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        0.8
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    }
+   },
+   "consensus": {
+    "materials": "T",
+    "lighting": "T",
+    "furniture": "T",
+    "photo": "T"
+   }
+  },
+  {
+   "pair_id": "look_alt:cam_r_L0_yatak_odasi_2",
+   "set": "look_alt",
+   "cam": "cam_r_L0_yatak_odasi_2",
+   "room_id": "r_L0_yatak_odasi",
+   "room": "synthetic-03:r_L0_yatak_odasi",
+   "project": "synthetic-03",
+   "a": "renders/cam_r_L0_yatak_odasi_2_preview.jpg",
+   "b": "renders/cam_r_L0_yatak_odasi_2_alt_preview.jpg",
+   "expected": null,
+   "target_aspect": null,
+   "delta_ev": 0.394,
+   "models": {
+    "qwen": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    },
+    "glm": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        0.8
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        0.8
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    }
+   },
+   "consensus": {
+    "materials": "T",
+    "lighting": "T",
+    "furniture": "T",
+    "photo": "T"
+   }
+  },
+  {
+   "pair_id": "look_alt:cam_r_L1_cocuk_odasi_1",
+   "set": "look_alt",
+   "cam": "cam_r_L1_cocuk_odasi_1",
+   "room_id": "r_L1_cocuk_odasi",
+   "room": "synthetic-03:r_L1_cocuk_odasi",
+   "project": "synthetic-03",
+   "a": "renders/cam_r_L1_cocuk_odasi_1_preview.jpg",
+   "b": "renders/cam_r_L1_cocuk_odasi_1_alt_preview.jpg",
+   "expected": null,
+   "target_aspect": null,
+   "delta_ev": 0.333,
+   "models": {
+    "qwen": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    },
+    "glm": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        0.8
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        0.8
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    }
+   },
+   "consensus": {
+    "materials": "T",
+    "lighting": "T",
+    "furniture": "T",
+    "photo": "T"
+   }
+  },
+  {
+   "pair_id": "look_alt:cam_r_L0_salon_1",
+   "set": "look_alt",
+   "cam": "cam_r_L0_salon_1",
+   "room_id": "r_L0_salon",
+   "room": "synthetic-03:r_L0_salon",
+   "project": "synthetic-03",
+   "a": "renders/cam_r_L0_salon_1_preview.jpg",
+   "b": "renders/cam_r_L0_salon_1_alt_preview.jpg",
+   "expected": null,
+   "target_aspect": null,
+   "delta_ev": 0.386,
+   "models": {
+    "qwen": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    },
+    "glm": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        0.7
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.9,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        0.8
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    }
+   },
+   "consensus": {
+    "materials": "T",
+    "lighting": "T",
+    "furniture": "T",
+    "photo": "T"
+   }
+  },
+  {
+   "pair_id": "look_alt:cam_r_L1_banyo_3",
+   "set": "look_alt",
+   "cam": "cam_r_L1_banyo_3",
+   "room_id": "r_L1_banyo",
+   "room": "synthetic-03:r_L1_banyo",
+   "project": "synthetic-03",
+   "a": "renders/cam_r_L1_banyo_3_preview.jpg",
+   "b": "renders/cam_r_L1_banyo_3_alt_preview.jpg",
+   "expected": null,
+   "target_aspect": null,
+   "delta_ev": 0.363,
+   "models": {
+    "qwen": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    },
+    "glm": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        0.8
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    }
+   },
+   "consensus": {
+    "materials": "T",
+    "lighting": "T",
+    "furniture": "T",
+    "photo": "T"
+   }
+  },
+  {
+   "pair_id": "look_alt:cam_r_L1_banyo_2",
+   "set": "look_alt",
+   "cam": "cam_r_L1_banyo_2",
+   "room_id": "r_L1_banyo",
+   "room": "synthetic-03:r_L1_banyo",
+   "project": "synthetic-03",
+   "a": "renders/cam_r_L1_banyo_2_preview.jpg",
+   "b": "renders/cam_r_L1_banyo_2_alt_preview.jpg",
+   "expected": null,
+   "target_aspect": null,
+   "delta_ev": 0.412,
+   "models": {
+    "qwen": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    },
+    "glm": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        0.8
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    }
+   },
+   "consensus": {
+    "materials": "T",
+    "lighting": "T",
+    "furniture": "T",
+    "photo": "T"
+   }
+  },
+  {
+   "pair_id": "look_alt:cam_r_L-1_yatak_odasi_1",
+   "set": "look_alt",
+   "cam": "cam_r_L-1_yatak_odasi_1",
+   "room_id": "r_L-1_yatak_odasi",
+   "room": "synthetic-03:r_L-1_yatak_odasi",
+   "project": "synthetic-03",
+   "a": "renders/cam_r_L-1_yatak_odasi_1_preview.jpg",
+   "b": "renders/cam_r_L-1_yatak_odasi_1_alt_preview.jpg",
+   "expected": null,
+   "target_aspect": null,
+   "delta_ev": 0.484,
+   "models": {
+    "qwen": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    },
+    "glm": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        0.8
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    }
+   },
+   "consensus": {
+    "materials": "T",
+    "lighting": "T",
+    "furniture": "T",
+    "photo": "T"
+   }
+  },
+  {
+   "pair_id": "look_alt:cam_r_L0_yatak_odasi_3",
+   "set": "look_alt",
+   "cam": "cam_r_L0_yatak_odasi_3",
+   "room_id": "r_L0_yatak_odasi",
+   "room": "synthetic-03:r_L0_yatak_odasi",
+   "project": "synthetic-03",
+   "a": "renders/cam_r_L0_yatak_odasi_3_preview.jpg",
+   "b": "renders/cam_r_L0_yatak_odasi_3_alt_preview.jpg",
+   "expected": null,
+   "target_aspect": null,
+   "delta_ev": 0.322,
+   "models": {
+    "qwen": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    },
+    "glm": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        0.8
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    }
+   },
+   "consensus": {
+    "materials": "T",
+    "lighting": "T",
+    "furniture": "T",
+    "photo": "T"
+   }
+  },
+  {
+   "pair_id": "look_alt:cam_r_L-1_banyo_1",
+   "set": "look_alt",
+   "cam": "cam_r_L-1_banyo_1",
+   "room_id": "r_L-1_banyo",
+   "room": "synthetic-03:r_L-1_banyo",
+   "project": "synthetic-03",
+   "a": "renders/cam_r_L-1_banyo_1_preview.jpg",
+   "b": "renders/cam_r_L-1_banyo_1_alt_preview.jpg",
+   "expected": null,
+   "target_aspect": null,
+   "delta_ev": 0.446,
+   "models": {
+    "qwen": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    },
+    "glm": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    }
+   },
+   "consensus": {
+    "materials": "T",
+    "lighting": "T",
+    "furniture": "T",
+    "photo": "T"
+   }
+  },
+  {
+   "pair_id": "look_alt:cam_r_L1_yatak_odasi_1",
+   "set": "look_alt",
+   "cam": "cam_r_L1_yatak_odasi_1",
+   "room_id": "r_L1_yatak_odasi",
+   "room": "synthetic-03:r_L1_yatak_odasi",
+   "project": "synthetic-03",
+   "a": "renders/cam_r_L1_yatak_odasi_1_preview.jpg",
+   "b": "renders/cam_r_L1_yatak_odasi_1_alt_preview.jpg",
+   "expected": null,
+   "target_aspect": null,
+   "delta_ev": 0.48,
+   "models": {
+    "qwen": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    },
+    "glm": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        0.8
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    }
+   },
+   "consensus": {
+    "materials": "T",
+    "lighting": "T",
+    "furniture": "T",
+    "photo": "T"
+   }
+  },
+  {
+   "pair_id": "look_alt:cam_r_L1_yatak_odasi_3",
+   "set": "look_alt",
+   "cam": "cam_r_L1_yatak_odasi_3",
+   "room_id": "r_L1_yatak_odasi",
+   "room": "synthetic-03:r_L1_yatak_odasi",
+   "project": "synthetic-03",
+   "a": "renders/cam_r_L1_yatak_odasi_3_preview.jpg",
+   "b": "renders/cam_r_L1_yatak_odasi_3_alt_preview.jpg",
+   "expected": null,
+   "target_aspect": null,
+   "delta_ev": 0.456,
+   "models": {
+    "qwen": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    },
+    "glm": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        0.8
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    }
+   },
+   "consensus": {
+    "materials": "T",
+    "lighting": "T",
+    "furniture": "T",
+    "photo": "T"
+   }
+  },
+  {
+   "pair_id": "look_alt:cam_r_L0_salon_3",
+   "set": "look_alt",
+   "cam": "cam_r_L0_salon_3",
+   "room_id": "r_L0_salon",
+   "room": "synthetic-03:r_L0_salon",
+   "project": "synthetic-03",
+   "a": "renders/cam_r_L0_salon_3_preview.jpg",
+   "b": "renders/cam_r_L0_salon_3_alt_preview.jpg",
+   "expected": null,
+   "target_aspect": null,
+   "delta_ev": 0.445,
+   "models": {
+    "qwen": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    },
+    "glm": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        0.8
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    }
+   },
+   "consensus": {
+    "materials": "T",
+    "lighting": "T",
+    "furniture": "T",
+    "photo": "T"
+   }
+  },
+  {
+   "pair_id": "look_alt:cam_r_L-1_yatak_odasi_2",
+   "set": "look_alt",
+   "cam": "cam_r_L-1_yatak_odasi_2",
+   "room_id": "r_L-1_yatak_odasi",
+   "room": "synthetic-03:r_L-1_yatak_odasi",
+   "project": "synthetic-03",
+   "a": "renders/cam_r_L-1_yatak_odasi_2_preview.jpg",
+   "b": "renders/cam_r_L-1_yatak_odasi_2_alt_preview.jpg",
+   "expected": null,
+   "target_aspect": null,
+   "delta_ev": 0.481,
+   "models": {
+    "qwen": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    },
+    "glm": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        0.8
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        0.8
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        0.8
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    }
+   },
+   "consensus": {
+    "materials": "T",
+    "lighting": "T",
+    "furniture": "T",
+    "photo": "T"
+   }
+  },
+  {
+   "pair_id": "look_alt:cam_r_L0_hol_1",
+   "set": "look_alt",
+   "cam": "cam_r_L0_hol_1",
+   "room_id": "r_L0_hol",
+   "room": "synthetic-03:r_L0_hol",
+   "project": "synthetic-03",
+   "a": "renders/cam_r_L0_hol_1_preview.jpg",
+   "b": "renders/cam_r_L0_hol_1_alt_preview.jpg",
+   "expected": null,
+   "target_aspect": null,
+   "delta_ev": 0.481,
+   "models": {
+    "qwen": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    },
+    "glm": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        0.8
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    }
+   },
+   "consensus": {
+    "materials": "T",
+    "lighting": "T",
+    "furniture": "T",
+    "photo": "T"
+   }
+  },
+  {
+   "pair_id": "look_alt:cam_r_L0_antre_2",
+   "set": "look_alt",
+   "cam": "cam_r_L0_antre_2",
+   "room_id": "r_L0_antre",
+   "room": "synthetic-03:r_L0_antre",
+   "project": "synthetic-03",
+   "a": "renders/cam_r_L0_antre_2_preview.jpg",
+   "b": "renders/cam_r_L0_antre_2_alt_preview.jpg",
+   "expected": null,
+   "target_aspect": null,
+   "delta_ev": 0.46,
+   "models": {
+    "qwen": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    },
+    "glm": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        0.8
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        0.8
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    }
+   },
+   "consensus": {
+    "materials": "T",
+    "lighting": "T",
+    "furniture": "T",
+    "photo": "T"
+   }
+  },
+  {
+   "pair_id": "look_alt:cam_r_L-1_wc_1",
+   "set": "look_alt",
+   "cam": "cam_r_L-1_wc_1",
+   "room_id": "r_L-1_wc",
+   "room": "synthetic-03:r_L-1_wc",
+   "project": "synthetic-03",
+   "a": "renders/cam_r_L-1_wc_1_preview.jpg",
+   "b": "renders/cam_r_L-1_wc_1_alt_preview.jpg",
+   "expected": null,
+   "target_aspect": null,
+   "delta_ev": 0.424,
+   "models": {
+    "qwen": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    },
+    "glm": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        0.8
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    }
+   },
+   "consensus": {
+    "materials": "T",
+    "lighting": "T",
+    "furniture": "T",
+    "photo": "T"
+   }
+  },
+  {
+   "pair_id": "look_alt:cam_r_L0_antre_1",
+   "set": "look_alt",
+   "cam": "cam_r_L0_antre_1",
+   "room_id": "r_L0_antre",
+   "room": "synthetic-03:r_L0_antre",
+   "project": "synthetic-03",
+   "a": "renders/cam_r_L0_antre_1_preview.jpg",
+   "b": "renders/cam_r_L0_antre_1_alt_preview.jpg",
+   "expected": null,
+   "target_aspect": null,
+   "delta_ev": 0.472,
+   "models": {
+    "qwen": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    },
+    "glm": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        0.8
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    }
+   },
+   "consensus": {
+    "materials": "T",
+    "lighting": "T",
+    "furniture": "T",
+    "photo": "T"
+   }
+  },
+  {
+   "pair_id": "look_alt:cam_r_L-1_wc_2",
+   "set": "look_alt",
+   "cam": "cam_r_L-1_wc_2",
+   "room_id": "r_L-1_wc",
+   "room": "synthetic-03:r_L-1_wc",
+   "project": "synthetic-03",
+   "a": "renders/cam_r_L-1_wc_2_preview.jpg",
+   "b": "renders/cam_r_L-1_wc_2_alt_preview.jpg",
+   "expected": null,
+   "target_aspect": null,
+   "delta_ev": 0.421,
+   "models": {
+    "qwen": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    },
+    "glm": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    }
+   },
+   "consensus": {
+    "materials": "T",
+    "lighting": "T",
+    "furniture": "T",
+    "photo": "T"
+   }
+  },
+  {
+   "pair_id": "look_alt:cam_r_L0_kiler_1",
+   "set": "look_alt",
+   "cam": "cam_r_L0_kiler_1",
+   "room_id": "r_L0_kiler",
+   "room": "synthetic-03:r_L0_kiler",
+   "project": "synthetic-03",
+   "a": "renders/cam_r_L0_kiler_1_preview.jpg",
+   "b": "renders/cam_r_L0_kiler_1_alt_preview.jpg",
+   "expected": null,
+   "target_aspect": null,
+   "delta_ev": 0.309,
+   "models": {
+    "qwen": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    },
+    "glm": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        0.8
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        0.8
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    }
+   },
+   "consensus": {
+    "materials": "T",
+    "lighting": "T",
+    "furniture": "T",
+    "photo": "T"
+   }
+  },
+  {
+   "pair_id": "look_alt:cam_r_L1_hol_1",
+   "set": "look_alt",
+   "cam": "cam_r_L1_hol_1",
+   "room_id": "r_L1_hol",
+   "room": "synthetic-03:r_L1_hol",
+   "project": "synthetic-03",
+   "a": "renders/cam_r_L1_hol_1_preview.jpg",
+   "b": "renders/cam_r_L1_hol_1_alt_preview.jpg",
+   "expected": null,
+   "target_aspect": null,
+   "delta_ev": 0.498,
+   "models": {
+    "qwen": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    },
+    "glm": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        0.8
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    }
+   },
+   "consensus": {
+    "materials": "T",
+    "lighting": "T",
+    "furniture": "T",
+    "photo": "T"
+   }
+  },
+  {
+   "pair_id": "look_alt:cam_r_L-1_hol_1",
+   "set": "look_alt",
+   "cam": "cam_r_L-1_hol_1",
+   "room_id": "r_L-1_hol",
+   "room": "synthetic-03:r_L-1_hol",
+   "project": "synthetic-03",
+   "a": "renders/cam_r_L-1_hol_1_preview.jpg",
+   "b": "renders/cam_r_L-1_hol_1_alt_preview.jpg",
+   "expected": null,
+   "target_aspect": null,
+   "delta_ev": 0.493,
+   "models": {
+    "qwen": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    },
+    "glm": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        0.8
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    }
+   },
+   "consensus": {
+    "materials": "T",
+    "lighting": "T",
+    "furniture": "T",
+    "photo": "T"
+   }
+  },
+  {
+   "pair_id": "look_alt:cam_r_L0_hol_2",
+   "set": "look_alt",
+   "cam": "cam_r_L0_hol_2",
+   "room_id": "r_L0_hol",
+   "room": "synthetic-03:r_L0_hol",
+   "project": "synthetic-03",
+   "a": "renders/cam_r_L0_hol_2_preview.jpg",
+   "b": "renders/cam_r_L0_hol_2_alt_preview.jpg",
+   "expected": null,
+   "target_aspect": null,
+   "delta_ev": 0.446,
+   "models": {
+    "qwen": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    },
+    "glm": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        0.8
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    }
+   },
+   "consensus": {
+    "materials": "T",
+    "lighting": "T",
+    "furniture": "T",
+    "photo": "T"
+   }
+  },
+  {
+   "pair_id": "look_alt:cam_r_L1_hol_2",
+   "set": "look_alt",
+   "cam": "cam_r_L1_hol_2",
+   "room_id": "r_L1_hol",
+   "room": "synthetic-03:r_L1_hol",
+   "project": "synthetic-03",
+   "a": "renders/cam_r_L1_hol_2_preview.jpg",
+   "b": "renders/cam_r_L1_hol_2_alt_preview.jpg",
+   "expected": null,
+   "target_aspect": null,
+   "delta_ev": 0.503,
+   "models": {
+    "qwen": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    },
+    "glm": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        0.8
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    }
+   },
+   "consensus": {
+    "materials": "T",
+    "lighting": "T",
+    "furniture": "T",
+    "photo": "T"
+   }
+  },
+  {
+   "pair_id": "look_alt:cam_r_L0_wc_1",
+   "set": "look_alt",
+   "cam": "cam_r_L0_wc_1",
+   "room_id": "r_L0_wc",
+   "room": "synthetic-03:r_L0_wc",
+   "project": "synthetic-03",
+   "a": "renders/cam_r_L0_wc_1_preview.jpg",
+   "b": "renders/cam_r_L0_wc_1_alt_preview.jpg",
+   "expected": null,
+   "target_aspect": null,
+   "delta_ev": 0.407,
+   "models": {
+    "qwen": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    },
+    "glm": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    }
+   },
+   "consensus": {
+    "materials": "T",
+    "lighting": "T",
+    "furniture": "T",
+    "photo": "T"
+   }
+  },
+  {
+   "pair_id": "look_alt:cam_r_L-1_hol_2",
+   "set": "look_alt",
+   "cam": "cam_r_L-1_hol_2",
+   "room_id": "r_L-1_hol",
+   "room": "synthetic-03:r_L-1_hol",
+   "project": "synthetic-03",
+   "a": "renders/cam_r_L-1_hol_2_preview.jpg",
+   "b": "renders/cam_r_L-1_hol_2_alt_preview.jpg",
+   "expected": null,
+   "target_aspect": null,
+   "delta_ev": 0.52,
+   "models": {
+    "qwen": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    },
+    "glm": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        0.8
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        0.8
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    }
+   },
+   "consensus": {
+    "materials": "T",
+    "lighting": "T",
+    "furniture": "T",
+    "photo": "T"
+   }
+  },
+  {
+   "pair_id": "look_alt:cam_r_L-1_kiler_1",
+   "set": "look_alt",
+   "cam": "cam_r_L-1_kiler_1",
+   "room_id": "r_L-1_kiler",
+   "room": "synthetic-03:r_L-1_kiler",
+   "project": "synthetic-03",
+   "a": "renders/cam_r_L-1_kiler_1_preview.jpg",
+   "b": "renders/cam_r_L-1_kiler_1_alt_preview.jpg",
+   "expected": null,
+   "target_aspect": null,
+   "delta_ev": 0.602,
+   "models": {
+    "qwen": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    },
+    "glm": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.7,
+        0.8
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.8,
+        0.6
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    }
+   },
+   "consensus": {
+    "materials": "T",
+    "lighting": "T",
+    "furniture": "T",
+    "photo": "W"
+   }
+  },
+  {
+   "pair_id": "look_alt:cam_r_L-1_kiler_2_1",
+   "set": "look_alt",
+   "cam": "cam_r_L-1_kiler_2_1",
+   "room_id": "r_L-1_kiler_2",
+   "room": "synthetic-03:r_L-1_kiler_2",
+   "project": "synthetic-03",
+   "a": "renders/cam_r_L-1_kiler_2_1_preview.jpg",
+   "b": "renders/cam_r_L-1_kiler_2_1_alt_preview.jpg",
+   "expected": null,
+   "target_aspect": null,
+   "delta_ev": 0.583,
+   "models": {
+    "qwen": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_1",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "W",
+       "graded": 2,
+       "winners": [
+        "image_2",
+        "image_1"
+       ],
+       "confidences": [
+        0.95,
+        0.95
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    },
+    "glm": {
+     "calls": {
+      "materials|ab": "answered",
+      "materials|ba": "answered",
+      "lighting|ab": "answered",
+      "lighting|ba": "answered",
+      "furniture|ab": "answered",
+      "furniture|ba": "answered",
+      "photo|ab": "answered",
+      "photo|ba": "answered"
+     },
+     "aspects": {
+      "materials": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        0.9
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "lighting": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "furniture": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        1,
+        1
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      },
+      "photo": {
+       "outcome": "T",
+       "graded": 0,
+       "winners": [
+        "image_2",
+        "image_2"
+       ],
+       "confidences": [
+        0.8,
+        0.8
+       ],
+       "margins": [
+        null,
+        null
+       ],
+       "cues": [
+        null,
+        null
+       ]
+      }
+     }
+    }
+   },
+   "consensus": {
+    "materials": "T",
+    "lighting": "T",
+    "furniture": "T",
+    "photo": "T"
+   }
+  }
+ ]
+}

@@ -1,0 +1,608 @@
+{
+ "project": "synthetic-02",
+ "file": "plan_scan.png",
+ "page": 1,
+ "kind": "scan",
+ "model": "Qwen/Qwen3-VL-8B-Instruct",
+ "tiled": true,
+ "extent": [
+  918,
+  648,
+  1562,
+  1185
+ ],
+ "extent_info": {
+  "frames": [
+   {
+    "box": [
+     0,
+     0,
+     2468,
+     1754
+    ],
+    "ink": 29525,
+    "span": [
+     0.995,
+     1.0
+    ],
+    "inner_ink_share": 0.0
+   }
+  ],
+  "n_components": 3,
+  "n_chosen": 1,
+  "ink_share_in_extent": 0.9429
+ },
+ "tile_px": 1024,
+ "overlap": 0.2,
+ "tiles": [
+  {
+   "index": 0,
+   "box": [
+    918,
+    648,
+    1562,
+    1185
+   ],
+   "n_items": 22,
+   "n_clipped": 0,
+   "latency_s": 18.953,
+   "error": null,
+   "sent_size": [
+    644,
+    537
+   ],
+   "crop_size": [
+    644,
+    537
+   ]
+  }
+ ],
+ "symbols": {
+  "items": [
+   {
+    "type": "door",
+    "box": [
+     1304.4,
+     701.7,
+     1343.0,
+     755.4
+    ],
+    "rotation_deg": 0,
+    "confidence": 0.95,
+    "edge_clipped": false,
+    "tiles": [
+     0
+    ]
+   },
+   {
+    "type": "door",
+    "box": [
+     1304.4,
+     809.1,
+     1343.0,
+     862.8
+    ],
+    "rotation_deg": 0,
+    "confidence": 0.95,
+    "edge_clipped": false,
+    "tiles": [
+     0
+    ]
+   },
+   {
+    "type": "door",
+    "box": [
+     1304.4,
+     916.5,
+     1343.0,
+     970.2
+    ],
+    "rotation_deg": 0,
+    "confidence": 0.95,
+    "edge_clipped": false,
+    "tiles": [
+     0
+    ]
+   },
+   {
+    "type": "door",
+    "box": [
+     1014.6,
+     862.8,
+     1053.2,
+     916.5
+    ],
+    "rotation_deg": 0,
+    "confidence": 0.95,
+    "edge_clipped": false,
+    "tiles": [
+     0
+    ]
+   },
+   {
+    "type": "window",
+    "box": [
+     1014.6,
+     701.7,
+     1053.2,
+     755.4
+    ],
+    "rotation_deg": 0,
+    "confidence": 0.95,
+    "edge_clipped": false,
+    "tiles": [
+     0
+    ]
+   },
+   {
+    "type": "window",
+    "box": [
+     1014.6,
+     809.1,
+     1053.2,
+     862.8
+    ],
+    "rotation_deg": 0,
+    "confidence": 0.95,
+    "edge_clipped": false,
+    "tiles": [
+     0
+    ]
+   },
+   {
+    "type": "window",
+    "box": [
+     1014.6,
+     916.5,
+     1053.2,
+     970.2
+    ],
+    "rotation_deg": 0,
+    "confidence": 0.95,
+    "edge_clipped": false,
+    "tiles": [
+     0
+    ]
+   },
+   {
+    "type": "window",
+    "box": [
+     1401.0,
+     701.7,
+     1439.6,
+     755.4
+    ],
+    "rotation_deg": 0,
+    "confidence": 0.95,
+    "edge_clipped": false,
+    "tiles": [
+     0
+    ]
+   },
+   {
+    "type": "window",
+    "box": [
+     1401.0,
+     809.1,
+     1439.6,
+     862.8
+    ],
+    "rotation_deg": 0,
+    "confidence": 0.95,
+    "edge_clipped": false,
+    "tiles": [
+     0
+    ]
+   },
+   {
+    "type": "window",
+    "box": [
+     1401.0,
+     916.5,
+     1439.6,
+     970.2
+    ],
+    "rotation_deg": 0,
+    "confidence": 0.95,
+    "edge_clipped": false,
+    "tiles": [
+     0
+    ]
+   },
+   {
+    "type": "unknown",
+    "box": [
+     1046.8,
+     701.7,
+     1111.2,
+     755.4
+    ],
+    "rotation_deg": 0,
+    "confidence": 0.8,
+    "edge_clipped": false,
+    "tiles": [
+     0
+    ]
+   },
+   {
+    "type": "unknown",
+    "box": [
+     1046.8,
+     809.1,
+     1111.2,
+     862.8
+    ],
+    "rotation_deg": 0,
+    "confidence": 0.8,
+    "edge_clipped": false,
+    "tiles": [
+     0
+    ]
+   },
+   {
+    "type": "unknown",
+    "box": [
+     1046.8,
+     916.5,
+     1111.2,
+     970.2
+    ],
+    "rotation_deg": 0,
+    "confidence": 0.8,
+    "edge_clipped": false,
+    "tiles": [
+     0
+    ]
+   },
+   {
+    "type": "unknown",
+    "box": [
+     1175.6,
+     701.7,
+     1240.0,
+     755.4
+    ],
+    "rotation_deg": 0,
+    "confidence": 0.8,
+    "edge_clipped": false,
+    "tiles": [
+     0
+    ]
+   },
+   {
+    "type": "unknown",
+    "box": [
+     1175.6,
+     809.1,
+     1240.0,
+     862.8
+    ],
+    "rotation_deg": 0,
+    "confidence": 0.8,
+    "edge_clipped": false,
+    "tiles": [
+     0
+    ]
+   },
+   {
+    "type": "unknown",
+    "box": [
+     1175.6,
+     916.5,
+     1240.0,
+     970.2
+    ],
+    "rotation_deg": 0,
+    "confidence": 0.8,
+    "edge_clipped": false,
+    "tiles": [
+     0
+    ]
+   },
+   {
+    "type": "unknown",
+    "box": [
+     1304.4,
+     701.7,
+     1368.8,
+     755.4
+    ],
+    "rotation_deg": 0,
+    "confidence": 0.8,
+    "edge_clipped": false,
+    "tiles": [
+     0
+    ]
+   },
+   {
+    "type": "unknown",
+    "box": [
+     1304.4,
+     809.1,
+     1368.8,
+     862.8
+    ],
+    "rotation_deg": 0,
+    "confidence": 0.8,
+    "edge_clipped": false,
+    "tiles": [
+     0
+    ]
+   },
+   {
+    "type": "unknown",
+    "box": [
+     1304.4,
+     916.5,
+     1368.8,
+     970.2
+    ],
+    "rotation_deg": 0,
+    "confidence": 0.8,
+    "edge_clipped": false,
+    "tiles": [
+     0
+    ]
+   },
+   {
+    "type": "unknown",
+    "box": [
+     1433.2,
+     701.7,
+     1497.6,
+     755.4
+    ],
+    "rotation_deg": 0,
+    "confidence": 0.8,
+    "edge_clipped": false,
+    "tiles": [
+     0
+    ]
+   },
+   {
+    "type": "unknown",
+    "box": [
+     1433.2,
+     809.1,
+     1497.6,
+     862.8
+    ],
+    "rotation_deg": 0,
+    "confidence": 0.8,
+    "edge_clipped": false,
+    "tiles": [
+     0
+    ]
+   },
+   {
+    "type": "unknown",
+    "box": [
+     1433.2,
+     916.5,
+     1497.6,
+     970.2
+    ],
+    "rotation_deg": 0,
+    "confidence": 0.8,
+    "edge_clipped": false,
+    "tiles": [
+     0
+    ]
+   }
+  ],
+  "merge": {
+   "n_input": 22,
+   "n_merged": 22,
+   "n_duplicates": 0,
+   "n_clipped": 0,
+   "n_clipped_absorbed": 0,
+   "type_conflicts": 3
+  }
+ },
+ "scores": {
+  "symbols": {
+   "per_type": {
+    "armchair": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 1,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "bed_double": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 1,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "bookshelf": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 1,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "chair": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 1,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "desk": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 1,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "door": {
+     "tp": 0,
+     "fp": 4,
+     "fn": 5,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "fridge": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 1,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "kitchen_counter": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 1,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "nightstand": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 1,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "shower": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 1,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "sink_kitchen": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 1,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "sofa": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 1,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "stove": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 1,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "table_coffee": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 1,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "table_dining": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 1,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "toilet": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 1,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "tv_unit": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 1,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "unknown": {
+     "tp": 0,
+     "fp": 12,
+     "fn": 0,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "wardrobe": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 1,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "washbasin": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 1,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "washing_machine": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 1,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "window": {
+     "tp": 0,
+     "fp": 6,
+     "fn": 5,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    }
+   },
+   "overall": {
+    "tp": 0,
+    "fp": 22,
+    "fn": 29,
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0
+   },
+   "n_pred": 22,
+   "n_truth": 29
+  },
+  "latency_s": {
+   "symbols_tiled": 18.953
+  },
+  "errors": {},
+  "n_tiles": 1,
+  "merge": {
+   "n_input": 22,
+   "n_merged": 22,
+   "n_duplicates": 0,
+   "n_clipped": 0,
+   "n_clipped_absorbed": 0,
+   "type_conflicts": 3
+  }
+ },
+ "has_errors": false
+}

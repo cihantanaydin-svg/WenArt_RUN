@@ -1,0 +1,19 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "synthetic-01",
+ "stage": "ab_render",
+ "rc": null,
+ "status": "reused",
+ "seconds": 0.0,
+ "fingerprint": null,
+ "inputs": {},
+ "outputs": [],
+ "started_utc": "2026-10-04T01:55:16Z",
+ "git_commit": "0a41bee4ea72a8713da1941efc8951188b952670",
+ "log": "logs/ab_render.log",
+ "note": "the M6 control renders on the volume (ab/renders, ab/ctl_*, ab/nuisance_ev) are used as they are",
+ "run_id": "20261004-013837-full-20261004T014240Z",
+ "steps": [],
+ "written": {}
+}

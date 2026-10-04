@@ -1,0 +1,49 @@
+{
+  "source_text": "Japandi, walnut floor, cream walls, warm daylight, linen and paper lamps",
+  "family": "japandi",
+  "floor": {
+    "material": "wood_walnut",
+    "asset": "WoodFloor046"
+  },
+  "walls": {
+    "material": "plaster_cream",
+    "asset": "beige_wall_001"
+  },
+  "ceiling": {
+    "material": "plaster_white"
+  },
+  "wet_floor": {
+    "material": "tiles_light",
+    "asset": "Tiles074"
+  },
+  "wet_walls": {
+    "material": "tiles_light"
+  },
+  "trim": {
+    "material": "painted_wood_white"
+  },
+  "door": {
+    "material": "wood_walnut"
+  },
+  "window_frame": {
+    "material": "painted_metal_white"
+  },
+  "lighting": {
+    "hdri": "kloppenheim_06",
+    "sun_elevation_deg": 35,
+    "sun_azimuth_deg": 210,
+    "sun_strength": 3.0,
+    "colour_temperature_k": 5200,
+    "mood": "warm daylight"
+  },
+  "matched_terms": [
+    "Japandi",
+    "walnut floor",
+    "cream walls",
+    "warm daylight"
+  ],
+  "unmatched_terms": [
+    "linen and paper lamps"
+  ],
+  "warnings": []
+}

@@ -59,6 +59,7 @@ api.polyhaven.com
 polyhaven.com
 dl.polyhaven.org
 ambientcg.com
+acg-download.struffelproductions.com
 ```
 
 4.2 **RunPod key** – choose one:
@@ -84,12 +85,12 @@ Claude: "Setup done, run the checks."
 
 Checklist (Claude fills this in):
 
-| Item | Ready? |
+| Item | Ready? (checked 1 Oct 2026) |
 |---|---|
-| Hugging Face token created | |
-| RunPod balance added, auto-top-up off | |
-| RunPod restricted API key | |
-| RunPod secret `hf_token` | |
-| Cloud environment: Custom network list | |
-| Cloud environment: RunPod key as API credential or variable | |
-| Read-only API checks pass | |
+| Hugging Face token created | yes (stored as RunPod secret `hf_token`; value never read) |
+| RunPod balance added, auto-top-up off | not checkable by API; please confirm on the billing page |
+| RunPod restricted API key | yes, key works for pods, volumes, secrets, catalog (read). Write scope is tested in Milestone 1 |
+| RunPod secret `hf_token` | yes, exists (created 1 Oct 2026) |
+| Cloud environment: Custom network list | yes, all domains reachable except `cdn-lfs.huggingface.co` (proxy answers 502; not needed, models download on the pod) |
+| Cloud environment: RunPod key as API credential or variable | yes, as environment variable `RUNPOD_API_KEY` |
+| Read-only API checks pass | yes, all 5 checks returned HTTP 200 |

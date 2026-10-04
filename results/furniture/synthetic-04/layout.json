@@ -1,0 +1,150 @@
+{
+ "project": "synthetic-04",
+ "server": "http://127.0.0.1:8001/v1",
+ "model": "Qwen/Qwen3-VL-8B-Instruct",
+ "rooms": [
+  {
+   "room_id": "r_L3_hol",
+   "label": "Hol",
+   "room_type": "hall",
+   "passes": [
+    {
+     "pass": 1,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "latency_s": 1.882,
+     "error": null,
+     "pieces_proposed": 2,
+     "pieces_placed": 1,
+     "pieces_dropped": 1,
+     "iterations": 7,
+     "repair_steps": 7,
+     "anchor_first": false,
+     "rejected_types": []
+    },
+    {
+     "pass": 2,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "latency_s": 1.022,
+     "error": null,
+     "pieces_proposed": 1,
+     "pieces_placed": 1,
+     "pieces_dropped": 0,
+     "iterations": 3,
+     "repair_steps": 3,
+     "anchor_first": false,
+     "rejected_types": []
+    }
+   ],
+   "chosen_pass": 2,
+   "latency_s": 2.904,
+   "skipped": null,
+   "pieces": [
+    {
+     "id": "f_L3_022",
+     "type": "dresser",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    }
+   ]
+  },
+  {
+   "room_id": "r_L3_cocuk_odasi",
+   "label": "Çocuk Odası",
+   "room_type": "bedroom",
+   "passes": [
+    {
+     "pass": 1,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "latency_s": 4.43,
+     "error": null,
+     "pieces_proposed": 5,
+     "pieces_placed": 4,
+     "pieces_dropped": 1,
+     "iterations": 20,
+     "repair_steps": 20,
+     "anchor_first": false,
+     "rejected_types": []
+    },
+    {
+     "pass": 2,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "latency_s": 5.34,
+     "error": null,
+     "pieces_proposed": 6,
+     "pieces_placed": 4,
+     "pieces_dropped": 2,
+     "iterations": 16,
+     "repair_steps": 16,
+     "anchor_first": false,
+     "rejected_types": []
+    }
+   ],
+   "chosen_pass": 1,
+   "latency_s": 9.77,
+   "skipped": null,
+   "pieces": [
+    {
+     "id": "f_L3_023",
+     "type": "bed_single",
+     "confidence": 0.9,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "id": "f_L3_024",
+     "type": "nightstand",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "id": "f_L3_025",
+     "type": "wardrobe",
+     "confidence": 0.9,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "id": "f_L3_026",
+     "type": "chair",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    }
+   ]
+  }
+ ],
+ "pieces_added": 5,
+ "latency_s": 12.674
+}

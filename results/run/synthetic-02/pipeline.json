@@ -1,0 +1,31 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "synthetic-02",
+ "stage": "pipeline",
+ "rc": 4,
+ "status": "pending",
+ "seconds": 60.39,
+ "fingerprint": "932f3d41b1f1f523175021aac37ee1dd34d5cd27aefb881532510ad7f412bad1",
+ "inputs": {
+  "projects/synthetic-02": "4123b0fffd135e4a503f18ebf73a8cb35837eff6c6975b60e592b0a7a4133db4",
+  "<LibreDWG VERSION>": "0.14 d9468ae"
+ },
+ "outputs": [
+  "building.json",
+  "report.md"
+ ],
+ "started_utc": "2026-10-04T00:07:38Z",
+ "git_commit": "2be169d6342eed721324d995d3e380aecfc0b6b0",
+ "log": "logs/pipeline.log",
+ "note": "21 recognition question(s) written (recognition/requests.json)",
+ "run_id": "20261004-000052-full-20261004T000516Z",
+ "steps": [
+  {
+   "name": "pipeline",
+   "rc": 4,
+   "seconds": 60.39
+  }
+ ],
+ "written": {}
+}

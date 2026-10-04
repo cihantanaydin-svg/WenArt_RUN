@@ -1,0 +1,450 @@
+{
+ "asked_matched": 17,
+ "right": 16,
+ "unmatched": [],
+ "wrong_verified": [],
+ "pieces": [
+  {
+   "id": "f_L0_004",
+   "ref": "F1",
+   "type": "bed_double",
+   "status": "verified",
+   "candidates": [
+    {
+     "type": "bed_double",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "bottom",
+     "reason": "The object has a wide rectangular footprint with a headboard line, matching a double bed's typical plan view."
+    },
+    {
+     "type": "bed_double",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 1.0,
+     "front": "top",
+     "reason": "The object has a rectangular shape with a headboard area and matches the size and typical appearance of a double bed."
+    }
+   ]
+  },
+  {
+   "id": "f_L0_005",
+   "ref": "F3",
+   "type": "nightstand",
+   "status": "verified",
+   "candidates": [
+    {
+     "type": "nightstand",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "left",
+     "reason": "Object has a small rectangular footprint with a lamp symbol, typical of a nightstand beside a bed."
+    },
+    {
+     "type": "nightstand",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "right",
+     "reason": "The object has a telephone and a lamp symbol, typical for a nightstand."
+    }
+   ]
+  },
+  {
+   "id": "f_L0_006",
+   "ref": "F2",
+   "type": "nightstand",
+   "status": "verified",
+   "candidates": [
+    {
+     "type": "nightstand",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "left",
+     "reason": "The object's shape and size match a nightstand, and it's in a bedroom near a bed."
+    },
+    {
+     "type": "nightstand",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "left",
+     "reason": "The object's footprint and the lamp symbol match a nightstand in a bedroom."
+    }
+   ]
+  },
+  {
+   "id": "f_L0_007",
+   "ref": "F4",
+   "type": "bed_double",
+   "status": "verified",
+   "candidates": [
+    {
+     "type": "bed_double",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "bottom",
+     "reason": "The object is a wide rectangle with a headboard line, matching a double bed footprint and orientation."
+    },
+    {
+     "type": "bed_double",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "top",
+     "reason": "The object's footprint and headboard lines match a bed_double."
+    }
+   ]
+  },
+  {
+   "id": "f_L0_008",
+   "ref": "F5",
+   "type": "nightstand",
+   "status": "verified",
+   "candidates": [
+    {
+     "type": "nightstand",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "right",
+     "reason": "Object is small, rectangular, with a lamp symbol on it, typical of a nightstand beside a bed."
+    },
+    {
+     "type": "nightstand",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "left",
+     "reason": "The object has a footprint of about 0.5x0.49 m, a lamp symbol on top, and is drawn inside a bedroom, matching the description of a nightstand."
+    }
+   ]
+  },
+  {
+   "id": "f_L0_009",
+   "ref": "F6",
+   "type": "nightstand",
+   "status": "verified",
+   "candidates": [
+    {
+     "type": "nightstand",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "left",
+     "reason": "The object has a lamp symbol (cross) on it, typical for a nightstand beside a bed in a bedroom."
+    },
+    {
+     "type": "nightstand",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "right",
+     "reason": "The object's footprint and the small symbol (lamp) match a nightstand."
+    }
+   ]
+  },
+  {
+   "id": "f_L0_010",
+   "ref": "F7",
+   "type": "table_dining",
+   "status": "verified",
+   "candidates": [
+    {
+     "type": "table_dining",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "top",
+     "reason": "Rectangular shape, surrounded by chairs, in dining room, matches dining table dimensions."
+    },
+    {
+     "type": "table_dining",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "none",
+     "reason": "The object is a large rectangle with chairs around it, matching the dining table description."
+    }
+   ]
+  },
+  {
+   "id": "f_L0_011",
+   "ref": "F13",
+   "type": "chair",
+   "status": "verified",
+   "candidates": [
+    {
+     "type": "chair",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "bottom",
+     "reason": "The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a dining table."
+    },
+    {
+     "type": "chair",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "top",
+     "reason": "The object has a seat and backrest, typical of a dining chair, and is drawn around a table in a dining room."
+    }
+   ]
+  },
+  {
+   "id": "f_L0_012",
+   "ref": "F12",
+   "type": "chair",
+   "status": "verified",
+   "candidates": [
+    {
+     "type": "chair",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "top",
+     "reason": "The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a table in a dining room."
+    },
+    {
+     "type": "chair",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "top",
+     "reason": "The object has a seat and backrest, typical of a dining chair, and matches the size and arrangement of chairs around a table."
+    }
+   ]
+  },
+  {
+   "id": "f_L0_013",
+   "ref": "F9",
+   "type": "chair",
+   "status": "verified",
+   "candidates": [
+    {
+     "type": "chair",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "right",
+     "reason": "The object's shape and size match a dining chair, placed around a table in a dining room."
+    },
+    {
+     "type": "chair",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "left",
+     "reason": "Small seat with backrest line, around a table in a dining room."
+    }
+   ]
+  },
+  {
+   "id": "f_L0_014",
+   "ref": "F8",
+   "type": "chair",
+   "status": "verified",
+   "candidates": [
+    {
+     "type": "chair",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "right",
+     "reason": "The object's shape and size match a dining chair, placed around a table in a dining room."
+    },
+    {
+     "type": "chair",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 1.0,
+     "front": "left",
+     "reason": "The object has a seat and a backrest, typical of a dining chair, and matches the size and context of other dining chairs around a table."
+    }
+   ]
+  },
+  {
+   "id": "f_L0_015",
+   "ref": "F11",
+   "type": "chair",
+   "status": "verified",
+   "candidates": [
+    {
+     "type": "chair",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "right",
+     "reason": "The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a dining table."
+    },
+    {
+     "type": "chair",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "right",
+     "reason": "The object has a seat and a backrest, typical of a dining chair, and matches the size and shape of other chairs around a table."
+    }
+   ]
+  },
+  {
+   "id": "f_L0_016",
+   "ref": "F10",
+   "type": "chair",
+   "status": "verified",
+   "candidates": [
+    {
+     "type": "chair",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "right",
+     "reason": "The object's footprint (0.46x0.38m) matches a dining chair, and it's placed around a dining table."
+    },
+    {
+     "type": "chair",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "right",
+     "reason": "The object has a seat and a backrest, typical of a dining chair, and matches the size and context of other chairs around a table."
+    }
+   ]
+  },
+  {
+   "id": "f_L0_017",
+   "ref": "F14",
+   "type": "sofa",
+   "status": "verified",
+   "candidates": [
+    {
+     "type": "sofa",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "left",
+     "reason": "Long rectangular shape with backrest lines, matches sofa dimensions and context in drawing room."
+    },
+    {
+     "type": "sofa",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 1.0,
+     "front": "left",
+     "reason": "The object is a long rectangle with a backrest line and pillows, matching the description of a sofa."
+    }
+   ]
+  },
+  {
+   "id": "f_L0_018",
+   "ref": "F15",
+   "type": "unknown",
+   "status": "unverified",
+   "candidates": [
+    {
+     "type": "wardrobe",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "left",
+     "reason": "Long, narrow rectangle with shallow depth, typical of a wardrobe against a wall."
+    },
+    {
+     "type": "sofa",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 1.0,
+     "front": "left",
+     "reason": "The object is a long rectangle with a backrest line and pillows, matching the description of a sofa."
+    }
+   ]
+  },
+  {
+   "id": "f_L0_019",
+   "ref": "F16",
+   "type": "table_coffee",
+   "status": "verified",
+   "candidates": [
+    {
+     "type": "table_coffee",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "none",
+     "reason": "Square shape, size 1.13x1.12m fits coffee table, no backrest or armrests visible."
+    },
+    {
+     "type": "table_coffee",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.8,
+     "front": "none",
+     "reason": "The object's footprint is square and small, fitting the size range for a coffee table."
+    }
+   ]
+  },
+  {
+   "id": "f_L0_020",
+   "ref": "F17",
+   "type": "floor_lamp",
+   "status": "verified",
+   "candidates": [
+    {
+     "type": "floor_lamp",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "none",
+     "reason": "Circular shape with radial spokes, typical of a floor lamp, and size matches 0.42m footprint."
+    },
+    {
+     "type": "floor_lamp",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "none",
+     "reason": "The object is a small circle with spokes, typical of a floor lamp, and its size matches the description."
+    }
+   ]
+  }
+ ]
+}

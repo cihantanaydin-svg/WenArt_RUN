@@ -1,0 +1,31 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "synthetic-05",
+ "stage": "fit",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 1.18,
+ "fingerprint": "a4ea035e31ec5a29b1a43cc6bd08e5ed49b82391cad5aae73a6beeb14a0357b8",
+ "inputs": {
+  "outputs/synthetic-05/building.json": "e67776360ad968f21aa45878abcf1313c46ce888a2d9519b1098706b319946cc",
+  "wenart/furniture/catalog.json": "97daab6eff894903fad4bdcf957e34f70f6e3694b020463efded738fbd750f30",
+  "wenart/furniture/catalog_objaverse.json": "380f5df05b817d9b25fa09e6fd7149ad87696d3cffa5390dfc6b65fe5301fb91"
+ },
+ "outputs": [
+  "building_fitted.json"
+ ],
+ "started_utc": "2026-10-04T00:07:59Z",
+ "git_commit": "2be169d6342eed721324d995d3e380aecfc0b6b0",
+ "log": "logs/fit.log",
+ "note": null,
+ "run_id": "20261004-000052-full-20261004T000516Z",
+ "steps": [
+  {
+   "name": "fit",
+   "rc": 0,
+   "seconds": 1.18
+  }
+ ],
+ "written": {}
+}

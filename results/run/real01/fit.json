@@ -1,0 +1,31 @@
+{
+ "schema_version": "0.1",
+ "kind": "stage_record",
+ "project": "real01",
+ "stage": "fit",
+ "rc": 0,
+ "status": "ok",
+ "seconds": 1.33,
+ "fingerprint": "31962b762b2106ad4084a884c11afbf16538e936d389b7ef08992c4e9b576866",
+ "inputs": {
+  "outputs/real01/building.json": "685930899d41cfa7c357d2d0ec99cad2210fb76d049b470f4cdff99728cb8a8a",
+  "wenart/furniture/catalog.json": "97daab6eff894903fad4bdcf957e34f70f6e3694b020463efded738fbd750f30",
+  "wenart/furniture/catalog_objaverse.json": "380f5df05b817d9b25fa09e6fd7149ad87696d3cffa5390dfc6b65fe5301fb91"
+ },
+ "outputs": [
+  "building_fitted.json"
+ ],
+ "started_utc": "2026-10-04T00:08:14Z",
+ "git_commit": "2be169d6342eed721324d995d3e380aecfc0b6b0",
+ "log": "logs/fit.log",
+ "note": null,
+ "run_id": "20261004-000052-full-20261004T000516Z",
+ "steps": [
+  {
+   "name": "fit",
+   "rc": 0,
+   "seconds": 1.33
+  }
+ ],
+ "written": {}
+}
