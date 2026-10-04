@@ -551,3 +551,27 @@ Open items:
 GPU cost so far: $19.17 of $100 (`docs/gpu-log.md`). No pod is running.
 
 Next step: your answers to the five points above. Then Milestone 8 (to be planned with you).
+
+## Decisions of 4 Oct 2026
+
+| # | Item | Your decision | What it means |
+|---|---|---|---|
+| 1 | real01 style | you add `projects/real01/brief.yaml` later | then one pod re-runs real01 from the style on (≈ 25 min, ≈ $1) |
+| 2 | AI polish | decide from the cost | see the table below |
+| 3, 4 | Furniture | better furniture is a must; do whatever is needed; licences may be ignored for now | Milestone 8 (`docs/milestone8.md`): Amazon Berkeley Objects product models (CC BY 4.0), Objaverse of any licence (flagged), TRELLIS.2 generated models for the gaps, bed frames with real bedding, rugs and wall art |
+| 5 | Warm white walls with Punchy | accepted | the GPU test limit becomes R/B ≤ 1.12 |
+| 6 | Cameras | wider lenses | 18 mm (90° view), 16 mm in rooms narrower than 2.2 m |
+
+AI polish cost (pods C1/C2, RTX PRO 6000 at $2.09/h; gate check + polish + added-object detector + half of the vision
+check, which checks the polished images):
+
+| Project | Views | Polish GPU time | Polish cost | Rest of the project | Polished finals |
+|---|---|---|---|---|---|
+| real01 | 20 | 10.8 min | $0.38 | $0.24 | 10 of 20 |
+| synthetic-01 | 29 | 11.5 min | $0.40 | $0.40 | 19 of 29 |
+| synthetic-03 | 44 | 23.9 min | $0.83 | $0.38 | 27 of 44 |
+| synthetic-04 | 14 | 4.7 min | $0.16 | $0.25 | 7 of 14 |
+| synthetic-06 | 17 | 4.0 min | $0.14 | $0.21 | 16 of 17 |
+
+About $0.02 per view (≈ 25–30 s of GPU per view including its checks); every pod also has ≈ 20 min of fixed setup
+(≈ $0.70) with or without polish.
