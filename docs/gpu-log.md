@@ -34,5 +34,6 @@ runner could not write it). Costs are estimates from the on-demand price at star
 | 2026-10-03 18:15 | 87xpy12z302wrz | NVIDIA RTX PRO 6000 Blackwell Server Edition | 45 | 1.57 | M7 prep pod: recognition answers, Objaverse library, detector calibration, timings | exit 1, stopped by runner after collect (watchdog and job-end stop armed) |
 | 2026-10-03 20:48 | 4cppylnby3j7y7 | NVIDIA RTX PRO 6000 Blackwell Server Edition | 21 | 0.74 | M7 prep pod 2: recognition answers (new prompt), Objaverse library judging, detector calibration (new hit counting) | exit 1, stopped by runner after collect (watchdog and job-end stop armed) |
 | 2026-10-03 21:58 | akwjvq9ykiy33v | NVIDIA RTX PRO 6000 Blackwell Server Edition | 64 | 2.24 | M7 pod B: full run real01, synthetic-01/04/02/06/05 (AgX Punchy, style-filtered + Objaverse library, detector, raster and DWG paths) | exit 1, stopped by runner after collect (watchdog and job-end stop armed) |
+| 2026-10-04 00:00 | pending:20261004-000052-full | RTX PRO 6000 | 115 | 4.01 | M7 pod C1: full re-run real01, synthetic-01/04/02/06/05 (drawn fronts kept, camera height profiles, raster end caps) | creating (provisional, worst case) |
 
-**Total spent so far: $13.29** (budget: $100; limits: $5.00/GPU-hour, $10/day, 2 h/run)
+**Total spent so far: $17.30** (budget: $100; limits: $5.00/GPU-hour, $10/day, 2 h/run)
