@@ -38,5 +38,6 @@ runner could not write it). Costs are estimates from the on-demand price at star
 | 2026-10-04 02:33 | m2ffj6ebpgu848 | NVIDIA RTX PRO 6000 Blackwell Server Edition | 55 | 1.93 | M7 pod C2: full run synthetic-03 + realism A/B v2 (synthetic-03, -05; controls on synthetic-01) | exit 1, stopped by runner after collect (watchdog and job-end stop armed) |
 | 2026-10-04 02:52 | zsz4apa9ik7ltj | NVIDIA RTX PRO 6000 Blackwell Server Edition | 16 | 0.57 | M7 pod C0: raster fixtures (real01 scan/photo after P7) with real AI answers; recognition, library, detect GPU tests | ok, stopped by runner after collect (watchdog and job-end stop armed) |
 | 2026-10-04 07:03 | z7v2fau6hng9j0 | NVIDIA RTX PRO 6000 Blackwell Server Edition | 66 | 2.31 | M8 pod L1: library of real models (ABO + Objaverse any licence), thumbnails, two-model judging, catalogue | ok, stopped by runner after collect (watchdog and job-end stop armed) |
+| 2026-10-04 07:07 | pending:20261004-070705-prep | RTX PRO 4500 | 120 | 1.44 | M8 pod L2: TRELLIS.2 setup (Blackwell wheels cached) + generated models for 25 style gaps, judging, catalogue merge | creating (provisional, worst case) |
 
-**Total spent so far: $21.48** (budget: $100; limits: $5.00/GPU-hour, $10/day, 2 h/run)
+**Total spent so far: $22.92** (budget: $100; limits: $5.00/GPU-hour, $10/day, 2 h/run)
