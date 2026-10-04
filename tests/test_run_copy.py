@@ -307,3 +307,67 @@ def test_library_attribution_from_the_objaverse_catalogue(tmp_path):
     text = CP.library_attribution(lib).read_text()
     assert '"Oak table" by Ana (https://sketchfab.com/u2), CC0 1.0' in text
     assert "objaverse_u3: no attribution recorded" in text
+
+
+ABO_LINE = ('"Oak Rug" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), '
+            "https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, "
+            "re-oriented, rendered, AI-retouched")
+
+
+def test_attribution_of_every_library_source(tmp_path):
+    """docs/milestone8.md §2: the credits cover ABO, Objaverse (with its licence flag) and generated models, the
+    furniture pieces and the decor items of building_final.json, and the notices of the sources present."""
+    results, pub, _priv = refs(tmp_path)
+    fill(pub.out_dir)
+    nc = dict(objaverse_asset("u5", "NC chair"), licence="CC-BY-NC-4.0", licence_flag="non_commercial")
+    building = {"furniture": [
+        {"id": "f_L0_001", "type": "sofa", "asset": {"library": "abo", "method": "library",
+                                                     "asset_id": "abo_B072PZ4LVN", "licence": "CC-BY-4.0",
+                                                     "attribution": ABO_LINE.replace("Oak Rug", "Revolve Sofa")}},
+        {"id": "f_L0_002", "type": "chair", "asset": nc},
+        {"id": "f_L0_003", "type": "chair", "asset": {"library": "generated", "method": "library",
+                                                      "asset_id": "gen_chair_modern_1_ab12cd34",
+                                                      "licence": "generated (TRELLIS.2-4B, MIT)",
+                                                      "attribution": '"generated chair": generated with TRELLIS.2-4B '
+                                                                     "(MIT) for WenArt_RUN; no third-party credit"}}],
+        "decor": [{"id": "d_001", "type": "rug", "asset": {"source": "abo", "asset_id": "abo_B071777YN3",
+                                                           "licence": "CC-BY-4.0", "attribution": ABO_LINE}}]}
+    put(pub.out_dir / "building_final.json", json.dumps(building).encode())
+    credits = CP.project_credits(pub.out_dir)
+    assert [c["source"] for c in credits] == ["abo", "abo", "generated", "objaverse"]          # by catalogue id
+    CP.copy_project(pub)
+    text = (results / "final" / "p" / CP.ATTRIBUTION).read_text()
+    assert f"- {ABO_LINE} (used for d_001 (rug))" in text
+    assert "Revolve Sofa" in text and "(used for f_L0_001 (sofa))" in text
+    assert "NC chair" in text and "[licence flag: non_commercial]" in text
+    assert "generated with TRELLIS.2-4B" in text
+    assert "Amazon Berkeley Objects, Objaverse 1.0, generated models" in text
+    for notice in ("ODC Attribution License", "Contains 3D models and product data from Amazon Berkeley Objects",
+                   "Generated models (docs/milestone8.md §3)"):
+        assert notice in text, notice
+
+
+def test_library_attribution_prefers_the_library_catalogue_and_lists_decor(tmp_path):
+    lib = tmp_path / "library"
+    put(lib / "catalog_objaverse.json", {"entries": [dict(objaverse_asset("u2", "Old table"), id="objaverse_u2")]})
+    assert '"Old table" by Ana' in CP.library_attribution(lib).read_text()     # the M7 file alone
+    put(lib / "catalog_library.json", {"kind": "library_catalog", "entries": [
+        dict(objaverse_asset("u4", "Flagged sofa"), id="objaverse_u4", source="objaverse", licence="CC-BY-SA-4.0",
+             licence_flag="share_alike")],
+        "decor": [{"id": "abo_B071777YN3", "source": "abo", "licence": "CC-BY-4.0", "attribution": ABO_LINE}]})
+    text = CP.library_attribution(lib).read_text()
+    assert "Old table" not in text and "Flagged sofa" in text and "[licence flag: share_alike]" in text
+    assert f"- {ABO_LINE}" in text and "Amazon Berkeley Objects" in text and "ODC Attribution License" in text
+    assert CP.library_catalog_path(lib) == lib / "catalog_library.json"
+
+
+def test_library_files_leave_model_files_out(tmp_path):
+    lib = tmp_path / "library"
+    for rel in ("survey_abo.json", "judge/sheets/abo_X.jpg", "generate/plan.json", "generate/images/x.png"):
+        put(lib / rel)
+    for rel in ("generate/gen_x.glb", "survey.json.tmp", "generate/x.part"):
+        put(lib / rel)
+    put(lib / "big.json", size=CP.MAX_TEXT_BYTES + 1)
+    got = sorted(f.relative_to(lib).as_posix() for f in CP.library_files(lib))
+    assert got == ["generate/images/x.png", "generate/plan.json", "judge/sheets/abo_X.jpg", "survey_abo.json"]
+    assert CP.library_files(tmp_path / "nowhere") == []

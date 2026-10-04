@@ -40,6 +40,17 @@ against the catalogue's ``sha256_glb``. A miss or a mismatch raises
 and says why; full runs are offline). The licence gate is the model rule of
 ``fetch.check_licence`` (CC0 or CC BY 4.0 with the credit fields), and the
 manifest entry keeps the credit line.
+
+Milestone 8 (docs/milestone8.md §2): the same cache-only fetch for every
+library source, ``fetch_model(..., source="abo" | "generated" | "objaverse",
+licence=..., meta=<fit asset>)`` (``fetch_library_cached``): the GLB
+``<assets>/models/<source>/<uid>.glb`` the prep pod's ``write-catalog``
+wrote, its sha256 checked against the catalogue's ``sha256_glb``; a miss or a
+mismatch raises ``fetch.AssetNotFound`` (parametric fallback, full runs are
+offline). The licence gate is ``fetch.check_licence`` (Objaverse: any licence
+with its flag; ABO: CC BY 4.0; generated: ``generated ...``); the manifest
+entry keeps the credit fields, the licence flag and, for a generated model,
+its ``generated`` record.
 """
 from __future__ import annotations
 
@@ -58,9 +69,13 @@ DEFAULT_SIZE = "1k"
 PAGE_URL = "https://polyhaven.com/a/{id}"
 OBJAVERSE = "objaverse"
 OBJAVERSE_CACHE = f"{MODELS_DIR}/objaverse"     # <assets>/models/objaverse/<uid>.glb, written by the prep pod
+# The library sources (docs/milestone8.md §2): cache-only GLBs in <assets>/models/<source>/<uid>.glb.
+LIBRARY_SOURCES = ("objaverse", "abo", "generated")
 _UID_RE = re.compile(r"[A-Za-z0-9_-]{1,64}")
 # Fields of the fit asset (catalogue entry) kept in the manifest entry of an Objaverse model.
 OBJAVERSE_META = ("uid", "title", "author", "source_url", "licence_url", "via", "attribution")
+# ... and of every library model (Milestone 8).
+LIBRARY_META = OBJAVERSE_META + ("licence_flag",)
 
 # glTF component types -> struct format and byte size.
 _COMPONENT = {5120: ("b", 1), 5121: ("B", 1), 5122: ("h", 2), 5123: ("H", 2), 5125: ("I", 4), 5126: ("f", 4)}
@@ -271,48 +286,65 @@ def gltf_relpath(asset_id: str, size: str = DEFAULT_SIZE) -> str:
     return f"{MODELS_DIR}/{asset_id}/{asset_id}_{size}.gltf"
 
 
+def library_relpath(source: str, uid: str) -> str:
+    """Where the prep pod puts a library GLB (relative to the assets dir): ``models/<source>/<uid>.glb``."""
+    if source not in LIBRARY_SOURCES:
+        raise fetch.AssetNotFound(f"{source}: not a library source {LIBRARY_SOURCES}")
+    if not _UID_RE.fullmatch(str(uid or "")):
+        raise fetch.AssetNotFound(f"{source}: uid {uid!r} is not a plain object id")
+    return f"{MODELS_DIR}/{source}/{uid}.glb"
+
+
 def objaverse_relpath(uid: str) -> str:
     """Where the prep pod puts an Objaverse GLB (relative to the assets dir): ``models/objaverse/<uid>.glb``."""
-    if not _UID_RE.fullmatch(str(uid or "")):
-        raise fetch.AssetNotFound(f"objaverse: uid {uid!r} is not a plain object id")
-    return f"{OBJAVERSE_CACHE}/{uid}.glb"
+    return library_relpath(OBJAVERSE, uid)
 
 
-def fetch_objaverse_cached(asset_id: str, out_dir: Path, licence: str, meta: Optional[dict]) -> dict:
-    """The cached GLB of one Objaverse model, recorded in the manifest (no network, ever).
+def fetch_library_cached(asset_id: str, out_dir: Path, source: str, licence: str, meta: Optional[dict]) -> dict:
+    """The cached GLB of one library model (``source`` in ``LIBRARY_SOURCES``), recorded in the manifest (no
+    network, ever).
 
-    ``meta`` is the fit's asset dict (or the catalogue entry): ``uid``, ``sha256_glb`` and the credit
-    fields. Raises ``fetch.AssetNotFound`` when the file is missing or its sha256 differs from the
-    catalogue's; the manifest entry is ``{"id", "source": "objaverse", "licence", "files": {"glb": rel},
-    "sha256": {"glb": hex}, "uid", "title", "author", "source_url", "licence_url", "via", "attribution",
-    "cache_only": true, "fetched_utc"}``."""
+    ``meta`` is the fit's asset dict (or the catalogue entry): ``uid``, ``sha256_glb``, the credit fields, the
+    ``licence_flag`` and, for a generated model, ``generated``. Raises ``fetch.AssetNotFound`` when the file is
+    missing or its sha256 differs from the catalogue's; the manifest entry is ``{"id", "source", "licence", "files":
+    {"glb": rel}, "sha256": {"glb": hex}, "uid", "title", "author", "source_url", "licence_url", "via",
+    "attribution", "licence_flag", ["generated",] "cache_only": true, "fetched_utc"}``."""
     out_dir = Path(out_dir)
     meta = dict(meta or {})
     sha = str(meta.get("sha256_glb") or "")
-    rel = objaverse_relpath(meta.get("uid"))
+    rel = library_relpath(source, meta.get("uid"))
     if len(sha) != 64:
-        raise fetch.AssetNotFound(f"objaverse {asset_id}: no sha256_glb in the catalogue entry; refused")
+        raise fetch.AssetNotFound(f"{source} {asset_id}: no sha256_glb in the catalogue entry; refused")
     path = out_dir / rel
     if not path.is_file():
-        raise fetch.AssetNotFound(f"objaverse {asset_id}: {rel} is not in the cache {out_dir / OBJAVERSE_CACHE} "
+        raise fetch.AssetNotFound(f"{source} {asset_id}: {rel} is not in the cache {out_dir / MODELS_DIR / source} "
                                   f"(the prep pod writes it; full runs never download)")
     digest = web.sha256_file(path)
     if digest != sha:
-        raise fetch.AssetNotFound(f"objaverse {asset_id}: cached {rel} has sha256 {digest[:12]}..., the catalogue "
+        raise fetch.AssetNotFound(f"{source} {asset_id}: cached {rel} has sha256 {digest[:12]}..., the catalogue "
                                   f"says {sha[:12]}...; refused")
-    entry = {"id": asset_id, "source": OBJAVERSE, "licence": str(licence).strip().upper(),
+    keep = OBJAVERSE_META if source == OBJAVERSE and "licence_flag" not in meta else LIBRARY_META
+    entry = {"id": asset_id, "source": source,
+             "licence": fetch.check_licence(source, licence, kind="models", entry=dict(meta, id=asset_id)),
              "files": {"glb": rel}, "sha256": {"glb": digest}, "cache_only": True,
-             **{k: meta.get(k) for k in OBJAVERSE_META}}
+             **{k: meta.get(k) for k in keep}}
+    if source == "generated" and meta.get("generated") is not None:
+        entry["generated"] = meta["generated"]
     manifest = fetch.load_manifest(out_dir)
     models = _manifest_models(manifest)
     old = models.get(asset_id)
     if old and {k: v for k, v in old.items() if k != "fetched_utc"} == entry:
         return old                                      # idempotent: the manifest is not rewritten
     entry["fetched_utc"] = fetch._now()
-    fetch.check_licence(OBJAVERSE, entry["licence"], kind="models", entry=entry)
+    fetch.check_licence(source, entry["licence"], kind="models", entry=entry)
     models[asset_id] = entry
     fetch.save_manifest(out_dir, manifest)
     return entry
+
+
+def fetch_objaverse_cached(asset_id: str, out_dir: Path, licence: str, meta: Optional[dict]) -> dict:
+    """The cached GLB of one Objaverse model (``fetch_library_cached`` with source objaverse; M7 name)."""
+    return fetch_library_cached(asset_id, out_dir, OBJAVERSE, licence, meta)
 
 
 def fetch_model(asset_id: str, out_dir: Path, size: str = DEFAULT_SIZE, source: str = polyhaven.SOURCE,
@@ -329,11 +361,12 @@ def fetch_model(asset_id: str, out_dir: Path, size: str = DEFAULT_SIZE, source: 
     Paths are relative to ``out_dir``; the box is in the Z-up frame, metres.
     """
     out_dir = Path(out_dir)
-    fetch.check_licence(source, licence, kind="models", entry=meta if source == OBJAVERSE else None)
-    if source == OBJAVERSE:
-        return fetch_objaverse_cached(asset_id, out_dir, licence, meta)
+    fetch.check_licence(source, licence, kind="models", entry=meta if source in LIBRARY_SOURCES else None)
+    if source in LIBRARY_SOURCES:
+        return fetch_library_cached(asset_id, out_dir, source, licence, meta)
     if source != polyhaven.SOURCE:
-        raise fetch.AssetNotFound(f"models come from Poly Haven or the Objaverse cache only, not '{source}'")
+        raise fetch.AssetNotFound(f"models come from Poly Haven or the library cache ({', '.join(LIBRARY_SOURCES)}) "
+                                  f"only, not '{source}'")
     manifest = fetch.load_manifest(out_dir)
     cached = _manifest_models(manifest).get(asset_id)
     if cached and _entry_ok(out_dir, cached, size):

@@ -833,7 +833,8 @@ class Orchestrator:
         """Stage fit (the building's documented pieces; ``catalog_objaverse.json`` is merged by catalog.load, so it
         is an input too)."""
         self.fp_stage(pr, "fit", S.fit(self.tools, pr.ref),
-                      [pr.out / "building.json", self.repo_root / S.CATALOG, self.repo_root / S.CATALOG_OBJAVERSE])
+                      [pr.out / "building.json", self.repo_root / S.CATALOG, self.repo_root / S.CATALOG_OBJAVERSE,
+                       self.repo_root / S.CATALOG_LIBRARY])
 
     # ----- recognition (M7 §1.4, §9.1) --------------------------------------
 
@@ -1415,7 +1416,7 @@ class Orchestrator:
                 continue
             self.fp_stage(pr, "refit", S.refit(self.tools, pr.ref),
                           [pr.out / "building_decor.json", pr.out / "style.json", self.repo_root / S.CATALOG,
-                           self.repo_root / S.CATALOG_OBJAVERSE])
+                           self.repo_root / S.CATALOG_OBJAVERSE, self.repo_root / S.CATALOG_LIBRARY])
         if self.opts.ab_phase == "judge":
             return
         for pr in self.ab_runs:

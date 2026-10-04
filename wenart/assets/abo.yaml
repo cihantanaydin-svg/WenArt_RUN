@@ -1,0 +1,110 @@
+# Amazon Berkeley Objects (ABO) furniture and decor library: the survey (docs/milestone8.md §1, §2).
+#
+# Read by wenart/assets/abo.py (`load_config`). Tables only: the rules that use them live in the module. Thumbnails,
+# judging, acceptance and the catalogue are the shared library steps of wenart/assets/objaverse.py.
+#
+# Verified from the session on 4 Oct 2026 (the metadata files downloaded from the bucket below and read here):
+#   3dmodels/metadata/3dmodels.csv.gz: 7,953 rows; fields 3dmodel_id, path, meshes, materials, textures, images,
+#     image_height_max, image_height_min, image_width_max, image_width_min, vertices, faces, extent_x, extent_y,
+#     extent_z (metres, in the glTF frame: +Y up, so extent_y is the height and extent_z the depth).
+#   listings/metadata/listings_{0..9,a..f}.json.gz: one JSON object per line; 7,960 listings carry a 3dmodel_id
+#     (7,953 distinct models, 6 models listed twice; 484 listings without an English item_name).
+#   3dmodels/README.md: "Creative Commons Attribution 4.0 International Public License"; credit for the data
+#     "Amazon.com", for the dataset the six names below; GLB (glTF 2.0) files with +Y up, +Z pointing to the
+#     natural front of the product "wherever applicable", standing products on Y = 0, wall-hung products with their
+#     back on Z = 0.
+#   Two GLBs downloaded and imported with Blender 5.2's glTF importer (B07B4SCB6T queen bed 3.3 MB, B075X4N3QJ arm
+#     chair 4.0 MB): one mesh, one metallic-roughness material, base colour, metallic-roughness and normal maps
+#     embedded in the GLB (PNG/JPEG, 2048 px); the importer's Z-up box is (extent_x, extent_z, extent_y) of the csv
+#     (the bed: 1.71 x 2.37 x 1.44 m) and the bed's headboard lies at +Y, so the product front is -Y.
+dataset:
+  name: Amazon Berkeley Objects
+  base_url: https://amazon-berkeley-objects.s3.amazonaws.com
+  index_url: https://amazon-berkeley-objects.s3.amazonaws.com/index.html
+  csv: 3dmodels/metadata/3dmodels.csv.gz
+  listings: listings/metadata/listings_{shard}.json.gz
+  shards: "0123456789abcdef"
+  readme: 3dmodels/README.md
+  glb: 3dmodels/original/{path}
+  licence: CC-BY-4.0
+  licence_url: https://creativecommons.org/licenses/by/4.0/
+  credit_data: Amazon.com
+  credit_dataset: "Matthieu Guillaumin, Thomas Dideriksen, Kenan Deng, Himanshu Arora (Amazon.com), Jasmine Collins
+    and Jitendra Malik (UC Berkeley)"
+  via: Amazon Berkeley Objects (CC BY 4.0)
+  # README convention 2: glTF +Z is the product's natural front = -Y in the Z-up frame of Blender's glTF importer.
+  # It is the documented front of every ABO model (the judges must not contradict it, objaverse.decide).
+  front_axis: "-Y"
+  # The credit line of docs/milestone8.md §2, plus the changes CC BY 4.0 §3(a)(1)(B) asks for (as the Objaverse
+  # line of docs/milestone7.md §7.3).
+  attribution: '"{title}" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), {index_url}'
+  changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+
+# Survey limits (docs/milestone8.md §2).
+survey:
+  per_type_limit: 24          # <= 24 candidates per type
+  max_downloads_per_type: 36  # downloads tried in pick order until per_type_limit pass the file checks
+  max_glb_mb: 60              # larger GLBs are refused (glb_size)
+  workers: 8                  # parallel GLB downloads
+  # Pick order inside a type: round robin over the listing's English `style` values (casefolded; no value is a
+  # group of its own), groups in order of size (largest first, then by name); inside a group the colour variants of
+  # one product (same brand and item name without its last comma-separated part, e.g. "..., Spinnsol Cocoa") come
+  # after the other products, then the larger texture first (image_width_max x image_height_max), then the id.
+  english_tags: [en_US, en_GB, en_IN, en_AU, en_CA, en_SG, en_AE]   # item_name / style / colour: first of these,
+                                                                    # then any en_*; no English name -> any name
+
+# Mapping (docs/milestone8.md §2): the first rule that matches decides. A rule matches a listing when its product
+# type is in `product_types`, its English item_name holds one of `words` (when the rule has words: whole words,
+# case-insensitive, a plural s / es allowed), none of `not_words`, and the model's height (csv extent_y, metres) is
+# at least `min_height`. `types`: the first type whose size range holds the model's box (wenart/recognition/
+# size_table.yaml footprint + 15 %, objaverse.yaml height range; decor: objaverse.yaml decor_sizes); none holds it ->
+# refused size_range (named after the first type). `bed` = bed_single / bed_double by the width (the shorter footprint
+# side) at objaverse.yaml bed_split_width_m. Listings without an English item_name match only rules without words.
+# Counts on the real metadata (4 Oct 2026, `python -m wenart.assets.abo survey --metadata DIR --no-download`;
+# mapped / in the size range, i.e. candidates before the 24 cap): sofa 962/748, armchair 580/560, chair 430/367,
+# bed_double 161/144, bed_single 27/12, table_coffee 152/143, side_table 136/121, desk 146/101, floor_lamp 101/76,
+# nightstand 82/76, tv_unit 68/57, dresser 53/46, table_dining 54/46, bookshelf 48/41, wardrobe 21/16; decor: rug
+# 861/861, wall_art 639/633, cushion 195/195, plant 189/142 (436 candidates; 536 models refused size_range; 483 models
+# without an English item name). No sanitary ware or kitchen appliances in ABO: those stay Objaverse/parametric.
+rules:
+  - {name: bed, product_types: [BED, BED_FRAME],
+     not_words: [loft, bunk, air mattress, airbed, inflatable, daybed, trundle, toddler], types: [bed]}
+  - {name: sofa, product_types: [SOFA], types: [sofa]}
+  - {name: sofa_named, product_types: [CHAIR, HOME_FURNITURE_AND_DECOR, FURNITURE, HOME],
+     words: [sofa, couch, loveseat, settee], not_words: [slipcover, cover, ottoman, table, bed, pillow], types: [sofa]}
+  - {name: armchair, product_types: [CHAIR],
+     words: [armchair, arm chair, arm, accent, lounge, club, wingback, recliner],
+     not_words: [armless, office, gaming, task, computer, executive, desk, dining, outdoor, patio, folding, sectional],
+     types: [armchair, chair]}
+  - {name: chair, product_types: [CHAIR],
+     not_words: [office, gaming, task, computer, executive, desk, outdoor, patio, folding, sectional],
+     types: [chair, armchair]}
+  - {name: table_coffee, product_types: [TABLE, HOME_FURNITURE_AND_DECOR, FURNITURE], words: [coffee],
+     types: [table_coffee]}
+  - {name: nightstand, product_types: [TABLE, CABINET, DRESSER, HOME_FURNITURE_AND_DECOR, FURNITURE],
+     words: [nightstand, night stand, bedside, night table], types: [nightstand]}
+  - {name: tv_unit, product_types: [CABINET, TABLE, SHELF, HOME_FURNITURE_AND_DECOR, FURNITURE], words: [tv, media],
+     types: [tv_unit]}
+  - {name: side_table, product_types: [TABLE], words: [side, end, accent], types: [side_table]}
+  - {name: table_dining, product_types: [TABLE], words: [dining, kitchen table], types: [table_dining]}
+  - {name: desk, product_types: [DESK], types: [desk]}
+  - {name: desk_named, product_types: [TABLE], words: [desk, writing table], types: [desk]}
+  - {name: wardrobe, product_types: [CABINET, HOME_FURNITURE_AND_DECOR, FURNITURE], words: [wardrobe, armoire],
+     types: [wardrobe]}
+  - {name: dresser, product_types: [DRESSER], types: [dresser, nightstand]}
+  - {name: dresser_named, product_types: [CABINET, HOME_FURNITURE_AND_DECOR, FURNITURE],
+     words: [chest of drawers, dresser], types: [dresser, nightstand]}
+  - {name: bookshelf, product_types: [SHELF], not_words: [floating, wall], min_height: 1.0, types: [bookshelf]}
+  - {name: bookshelf_named, product_types: [HOME_FURNITURE_AND_DECOR, FURNITURE],
+     words: [bookcase, bookshelf, shelving unit], min_height: 1.0, types: [bookshelf]}
+  - {name: floor_lamp, product_types: [LAMP], min_height: 1.2, types: [floor_lamp]}
+  # decor (kind decor; docs/milestone8.md §4)
+  - {name: rug, product_types: [RUG], types: [rug]}
+  - {name: rug_named, product_types: [HOME_FURNITURE_AND_DECOR, FURNITURE, HOME], words: [rug], types: [rug]}
+  - {name: wall_art, product_types: [WALL_ART], types: [wall_art]}
+  - {name: wall_art_named, product_types: [HOME, HOME_FURNITURE_AND_DECOR], words: [wall art, print, mural],
+     not_words: [mirror, pillow], types: [wall_art]}
+  - {name: cushion, product_types: [PILLOW], not_words: [patio, outdoor, sofa], types: [cushion]}
+  - {name: cushion_named, product_types: [HOME], words: [pillow], not_words: [sofa, bed], types: [cushion]}
+  - {name: plant, product_types: [PLANTER], types: [plant]}
+  - {name: plant_named, product_types: [HOME, HOME_FURNITURE_AND_DECOR], words: [planter], types: [plant]}

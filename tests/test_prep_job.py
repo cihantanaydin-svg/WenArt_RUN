@@ -327,7 +327,13 @@ def _label(cmd: list) -> str:
     if mod == "wenart.assets.objaverse":
         if rest[0] == "judge":
             return f"objaverse judge {rest[rest.index('--model-key') + 1]}"
+        if rest[0] == "accept" and "--sources" in rest:
+            return f"objaverse accept {rest[rest.index('--sources') + 1]}"
         return f"objaverse {rest[0]}"
+    if mod == "wenart.assets.abo":
+        return f"abo {rest[0]}"
+    if mod == "wenart.assets.generate":
+        return f"generate {rest[0]}"
     if mod == "wenart.gate":
         return f"gate {rest[0]}"
     if mod == "wenart.blender.cli":
@@ -372,6 +378,8 @@ class World:
         self.second_round: set = set()           # projects whose pipeline_final exits 4 without --no-ai
         self.step_s = step_s
         self.gpu = dict(gpu)
+        self.trellis_setup = {"ok": True, "versions": {"trellis2": "af44b45"}}
+        self.trellis_py = tmp_path / "fast" / "venv-trellis" / "bin" / "python"
         for name in projects:
             root = "projects" if not name.startswith("real01-") else "tests/fixtures/real01_raster"
             (self.repo / root / name).mkdir(parents=True)
@@ -406,11 +414,16 @@ class World:
         base = dict(results=self.results, outputs=self.outputs, projects=list(self.pipeline_rc)[:4],
                     m6_outputs=self.m6, prep_root=self.prep_root, assets=self.assets, hf_cache=self.tmp / "hf",
                     logs_dir=self.logs, job_dir=self.tmp / "job", job_id="t1", deadline=None, py="/venv/python",
-                    polish_py="/fast/venv-polish/python", repo_root=self.repo)
+                    polish_py="/fast/venv-polish/python", repo_root=self.repo, abo_cache=self.tmp / "abo",
+                    fast=self.tmp / "fast", trellis_py=str(self.trellis_py))
         base.update(kw)
         return P.PrepOptions(**base)
 
-    def prep(self, **kw) -> P.Prep:
+    def prep(self, l2: bool = False, **kw) -> P.Prep:
+        """A prep job; the first library pod (L1) by default: ``trellis_setup`` and ``generate`` are added to
+        ``--skip`` unless ``l2`` (the second pod, docs/milestone8.md §6) or ``--only`` selects the steps."""
+        if not l2 and not kw.get("only"):
+            kw["skip"] = tuple(kw.get("skip", ())) + ("trellis_setup", "generate")
         return P.Prep(self.opts(**kw), runner=self.runner, server_factory=self.server, clock=self.clock,
                       out=self.lines.append, gpu_query=lambda: dict(self.gpu))
 
@@ -427,18 +440,33 @@ class World:
         self.calls.append({"cmd": cmd, "env": env, "label": label, "timeout": timeout, "log": str(log),
                            "t": self.clock.t})
         self.events.append(("run", label))
+        self.env = env
         rc = self.write(cmd, label)
         self.clock.t += self.step_s
         return self.rc.get(label, rc)
 
     def write(self, cmd: list, label: str) -> int:
+        env = self.env
+
         def arg(flag):
             return cmd[cmd.index(flag) + 1]
 
-        lib = Path(arg("--out")) if label.startswith("objaverse ") else None
+        lib = Path(arg("--out")) if label.startswith(("objaverse ", "abo ", "generate ")) else None
 
         if label == "objaverse survey":
             P.write_json(lib / "survey.json", {"candidates": [{"uid": "u1"}, {"uid": "u2"}]})
+        elif label == "abo survey":
+            P.write_json(lib / "survey_abo.json", {"candidates": [{"uid": "abo_A1"}, {"uid": "abo_A2"}]})
+        elif label == "bash scripts/pod_setup_trellis.sh":
+            P.write_json(Path(env["WENART_RESULTS"]) / "setup_trellis.json", self.trellis_setup)
+            return 0 if self.trellis_setup.get("ok") else 1
+        elif label == "objaverse accept abo,objaverse":
+            P.write_json(lib / "accepted.json", {"sources": ["abo", "objaverse"], "accepted": [{"uid": "u1"}]})
+        elif label == "generate plan":
+            P.write_json(lib / "generate" / "plan.json", {"pairs": [{"type": "sofa", "family": f}
+                                                                     for f in arg("--families").split(",")]})
+        elif label == "generate run":
+            P.write_json(lib / "survey_generated.json", {"candidates": [{"uid": "gen_sofa_scandinavian_1_ab12cd34"}]})
         elif label == "objaverse thumbnails":
             P.write_json(lib / "thumbnails.json", {"counts": {"rendered": 2}, "device": "OPTIX"})
         elif label == "objaverse judge-requests":
@@ -452,7 +480,7 @@ class World:
         elif label == "objaverse accept":
             P.write_json(lib / "accepted.json", {"accepted": ["u1"]})
         elif label == "objaverse write-catalog":
-            P.write_json(lib / "catalog_objaverse.json", {"entries": [
+            P.write_json(lib / "catalog_library.json", {"entries": [
                 {"id": "objaverse_u1", "uid": "u1", "type": "sofa", "licence": "CC-BY-4.0",
                  "attribution": '"Sofa" by A (https://sketchfab.com/3d-models/u1), CC BY 4.0'}]})
         elif label == "objaverse report":
@@ -517,6 +545,15 @@ class World:
                 self.events.append(("stop", key))
         return cm()
 
+    def generation_tools(self) -> None:
+        """What the L2 pod has: scripts/pod_setup_trellis.sh and wenart/assets/generate.py in the repo and the
+        venv-trellis interpreter on the container disk."""
+        for rel in (P.SETUP_TRELLIS, P.GENERATE_MODULE):
+            (self.repo / rel).parent.mkdir(parents=True, exist_ok=True)
+            (self.repo / rel).write_text("# fake\n")
+        self.trellis_py.parent.mkdir(parents=True, exist_ok=True)
+        self.trellis_py.write_text("#!/bin/sh\n")
+
     def manifest(self) -> dict:
         return json.loads((self.results / P.MANIFEST).read_text())
 
@@ -535,12 +572,14 @@ class World:
 
 
 def test_full_prep_runs_every_step_in_the_fixed_order(tmp_path):
+    """The first library pod (L1, docs/milestone8.md §6): every step but the generation."""
     w = World(tmp_path)
-    assert w.prep().run_all() == 0, w.lines
+    assert w.prep(skip=("trellis_setup", "generate")).run_all() == 0, w.lines
     assert [s["name"] for s in w.manifest()["steps"]] == list(P.STEPS)
-    assert {s["name"]: s["status"] for s in w.manifest()["steps"]} == {name: "ok" for name in P.STEPS}
+    assert {s["name"]: s["status"] for s in w.manifest()["steps"]} == {
+        name: "skipped" if name in ("trellis_setup", "generate") else "ok" for name in P.STEPS}
     assert w.labels() == [
-        "objaverse survey", "objaverse thumbnails", "objaverse judge-requests", "gate detect-calibrate",
+        "abo survey", "objaverse survey", "objaverse thumbnails", "objaverse judge-requests", "gate detect-calibrate",
         "blender render", "polish smoke",
         "pipeline real01", "pipeline synthetic-02", "pipeline synthetic-06", "pipeline real01-scan",
         "start qwen 8", "ask qwen real01", "ask qwen synthetic-02", "ask qwen real01-scan", "objaverse judge qwen",
@@ -555,8 +594,10 @@ def test_full_prep_runs_every_step_in_the_fixed_order(tmp_path):
 
 def test_commands_of_every_step(tmp_path):
     w = World(tmp_path)
-    w.prep().run_all()
+    w.prep(skip=("trellis_setup", "generate")).run_all()
     lib = str(w.prep_root / "library")              # the persistent library work folder (orch-3)
+    assert w.call("abo survey")["cmd"] == ["/venv/python", "-m", "wenart.assets.abo", "survey", "--cache",
+                                           str(tmp_path / "abo"), "--out", lib]
     assert w.call("objaverse survey")["cmd"] == ["/venv/python", "-m", "wenart.assets.objaverse", "survey",
                                                  "--cache", str(tmp_path / "hf"), "--out", lib]
     thumbs = w.call("objaverse thumbnails")["cmd"][3:]
@@ -594,14 +635,21 @@ def test_commands_of_every_step(tmp_path):
 
 
 def test_survey_downloads_then_everything_runs_offline(tmp_path):
+    """The surveys, the TRELLIS.2 setup and the generation download (the last one before the thumbnails); every later
+    step runs with HF_HUB_OFFLINE=1 (docs/milestone8.md §6)."""
     w = World(tmp_path)
-    w.prep().run_all()
-    assert w.calls[0]["label"] == "objaverse survey" and w.calls[0]["env"]["HF_HUB_OFFLINE"] == "0"
-    assert all(c["env"]["HF_HUB_OFFLINE"] == "1" for c in w.calls[1:])
+    w.generation_tools()
+    _judged_library(w)
+    w.prep(l2=True).run_all()
+    online = ["abo survey", "objaverse survey", "bash scripts/pod_setup_trellis.sh", "objaverse accept abo,objaverse",
+              "generate plan", "generate run"]
+    assert [c["label"] for c in w.calls[:6]] == online
+    assert all(c["env"]["HF_HUB_OFFLINE"] == "0" for c in w.calls[:6])
+    assert all(c["env"]["HF_HUB_OFFLINE"] == "1" for c in w.calls[6:])
     assert {c["env"]["HF_HOME"] for c in w.calls} == {str(tmp_path / "hf")}
-    # Skipping the survey still switches to offline for the rest.
+    # Skipping the downloads still switches to offline for the rest.
     w2 = World(tmp_path / "b")
-    w2.prep(skip=("survey",)).run_all()
+    w2.prep(skip=("abo_survey", "survey", "trellis_setup", "generate")).run_all()
     assert w2.calls and all(c["env"]["HF_HUB_OFFLINE"] == "1" for c in w2.calls)
 
 
@@ -646,11 +694,14 @@ def test_no_probe_below_80_gb(tmp_path):
 
 def test_deadline_stops_heavy_steps_and_lets_cpu_steps_and_tests_run(tmp_path):
     w = World(tmp_path, step_s=100.0)
-    deadline = w.clock.t + 500.0
-    assert w.prep(deadline=deadline).run_all() == 1
+    deadline = w.clock.t + 600.0
+    assert w.prep(l2=True, deadline=deadline).run_all() == 1
     status = {name: s["status"] for name, s in w.steps().items()}
-    # survey (300 s) at t+0 and thumbnails (180 s) at t+100 fit; detect_calibrate (240 s) at t+300 does not.
-    assert status["survey"] == "ok" and status["thumbnails"] == "ok" and status["judge_requests"] == "ok"
+    # abo_survey (300 s) at t+0, survey (300 s) at t+100 and thumbnails (300 s) at t+200 fit; trellis_setup (900 s)
+    # and generate (600 s) at t+200 do not, nor detect_calibrate (240 s) at t+400.
+    assert status["abo_survey"] == "ok" and status["survey"] == "ok"
+    assert status["trellis_setup"] == "deadline" and status["generate"] == "deadline"
+    assert status["thumbnails"] == "ok" and status["judge_requests"] == "ok"
     assert status["detect_calibrate"] == "deadline" and status["timings"] == "deadline"
     assert status["session_qwen"] == "deadline" and status["session_glm"] == "deadline"
     assert "not started" in w.steps()["session_qwen"]["note"]
@@ -775,7 +826,7 @@ def test_detector_and_library_proposals(tmp_path):
     proposals = w.manifest()["proposals"]
     assert proposals["detector"] == {"usable": True, "t_det": 0.3, "t_strong": 0.6,
                                      "file": "detect/detector_calibration.json"}
-    assert proposals["catalog_objaverse"] == "library/catalog_objaverse.json"
+    assert proposals["catalog_library"] == "library/catalog_library.json"
     assert w.steps()["library"]["accepted_models"] == 1
     m = w.manifest()
     assert m["final"] is True and m["exit_code"] == 0 and m["gpu"]["key"] == "RTX PRO 6000"
@@ -966,7 +1017,7 @@ def test_a_targeted_rerun_judges_the_library_of_an_earlier_job(tmp_path):
     assert w.manifest_of(results2)["sessions"]["qwen"]["judge"]["items"] == 2
     assert job.copy_only() == 0
     for name in ("judge/requests.json", "judge/answers_qwen.json", "judge/answers_glm.json", "survey.json",
-                 "thumbnails.json", "catalog_objaverse.json", "ATTRIBUTION.md"):
+                 "survey_abo.json", "thumbnails.json", "catalog_library.json", "ATTRIBUTION.md"):
         assert (results2 / "library" / name).is_file(), name
 
 
@@ -1051,14 +1102,14 @@ def test_nothing_accepted_removes_an_earlier_catalogue_from_the_work_folder(tmp_
     """The library work folder outlives the job: a catalogue of an earlier accept is not proposed again."""
     w = World(tmp_path)
     assert w.prep().run_all() == 0
-    assert (w.prep_root / "library" / "catalog_objaverse.json").is_file()
+    assert (w.prep_root / "library" / "catalog_library.json").is_file()
     w.rc["objaverse accept"] = 1
     results2 = tmp_path / "results-2"
     assert w.prep(results=results2, only=("library", "copy")).run_all() == 0
-    assert not (w.prep_root / "library" / "catalog_objaverse.json").exists()
-    assert not (results2 / "library" / "catalog_objaverse.json").exists()
-    assert w.manifest_of(results2)["proposals"]["catalog_objaverse"] is None
-    assert w.steps_of(results2)["library"]["stale_removed"] == ["catalog_objaverse.json", "ATTRIBUTION.md"]
+    assert not (w.prep_root / "library" / "catalog_library.json").exists()
+    assert not (results2 / "library" / "catalog_library.json").exists()
+    assert w.manifest_of(results2)["proposals"]["catalog_library"] is None
+    assert w.steps_of(results2)["library"]["stale_removed"] == ["catalog_library.json", "ATTRIBUTION.md"]
 
 
 def test_timings_use_the_frozen_reference_not_the_live_results(tmp_path):
@@ -1169,7 +1220,8 @@ def test_estimates_cover_every_heavy_step():
     assert all(v > 0 for v in w_est.values())
     assert w_est["session_qwen"] > w_est["session_glm"]                 # Qwen starts slower (M6 measurements)
     assert set(P.HEAVY) <= set(P.STEPS) and P.STEPS.index("thumbnails") < P.STEPS.index("session_qwen")
-    assert P.STEPS.index("survey") == 0 and P.STEPS[-2:] == ("copy", "tests")
+    assert P.STEPS[:4] == ("abo_survey", "survey", "trellis_setup", "generate") and P.STEPS[-2:] == ("copy", "tests")
+    assert P.STEPS.index("generate") < P.STEPS.index("thumbnails") < P.STEPS.index("judge_requests")
 
 
 def test_the_real_server_session_starts_vllm_offline(tmp_path, monkeypatch):
@@ -1213,3 +1265,166 @@ def test_the_real_server_session_starts_vllm_offline(tmp_path, monkeypatch):
     assert spawned["env"]["HF_HUB_OFFLINE"] == "1" and spawned["env"]["HF_HOME"] == str(tmp_path / "hf")
     assert spawned["cmd"][-4:] == ["--max-model-len", "32768", "--max-num-seqs", "8"]
     assert stats and stats[0]["ok"] and stats[0]["seqs"] == 8
+
+
+# --------------------------------------------------------------------------
+# Milestone 8: the library of every source and the generation (docs/milestone8.md §6)
+# --------------------------------------------------------------------------
+
+def _judged_library(w, complete=("qwen", "glm"), sources=("abo", "objaverse"), answered=2):
+    """An L1 library on the volume: judge requests of real models; ``answered`` of each source's two items answered
+    by the models of ``complete``."""
+    from fakes.fake_vlm import minimal_instance
+    from wenart.assets import objaverse as OV
+    lib = w.prep_root / "library"
+    items = [{"key": f"lib_{s}_{i}", "task": "library_judge", "images": [f"sheets/{s}_{i}.jpg"],
+              "input_sha256": f"{i + 20 + n * 5:064x}", "context": {"uid": f"{s}_{i}", "source": s,
+                                                                    "kind": "furniture"}}
+             for n, s in enumerate(sources) for i in (1, 2)]
+    P.write_json(lib / "judge" / "requests.json", {"kind": "objaverse_judge_requests", "items": items})
+    judgement = minimal_instance(OV.judge_schema())
+    done = [i for i in items if int(i["key"][-1]) <= answered]
+    for key in ("qwen", "glm"):
+        _store(lib / "judge" / f"answers_{_models()[key]['slug']}.json", key, done if key in complete else [],
+               judgement)
+    return items
+
+
+def test_l2_generates_after_a_first_accept_over_the_real_models(tmp_path):
+    """L2: trellis_setup, then the real models' accept (abo, objaverse), generate plan with the committed projects'
+    families, generate run in venv-trellis; thumbnails and judging follow, the library takes every source."""
+    w = World(tmp_path)
+    w.generation_tools()
+    _judged_library(w)
+    assert w.prep(l2=True).run_all() == 0, w.lines
+    labels = w.labels()
+    assert labels[:7] == ["abo survey", "objaverse survey", "bash scripts/pod_setup_trellis.sh",
+                          "objaverse accept abo,objaverse", "generate plan", "generate run", "objaverse thumbnails"]
+    lib = w.prep_root / "library"
+    setup = w.call("bash scripts/pod_setup_trellis.sh")
+    assert setup["cmd"] == ["bash", "scripts/pod_setup_trellis.sh"]
+    assert setup["env"]["WENART_RESULTS"] == str(w.results) and setup["env"]["WENART_FAST"] == str(tmp_path / "fast")
+    assert w.call("objaverse accept abo,objaverse")["cmd"] == ["/venv/python", "-m", "wenart.assets.objaverse",
+                                                               "accept", "--out", str(lib), "--sources",
+                                                               "abo,objaverse"]
+    py = str(w.trellis_py)
+    assert w.call("generate plan")["cmd"] == [py, "-m", "wenart.assets.generate", "plan", "--catalog",
+                                              str(lib / "accepted.json"), "--families", "scandinavian", "--out",
+                                              str(lib)]
+    assert w.call("generate run")["cmd"] == [py, "-m", "wenart.assets.generate", "run", "--out", str(lib), "--plan",
+                                             str(lib / "generate" / "plan.json")]
+    steps = w.steps()
+    assert steps["trellis_setup"]["status"] == "ok" and steps["trellis_setup"]["setup"]["versions"]
+    gen = steps["generate"]
+    assert gen["status"] == "ok" and gen["families"] == ["scandinavian"] and gen["pairs"] == 1
+    assert gen["candidates"] == 1 and gen["real_judged"] == 4 == gen["real_items"]
+    assert "objaverse accept" in labels and labels.index("objaverse accept") > labels.index("generate run")
+    assert (w.results / "library" / "survey_generated.json").is_file()
+
+
+def test_the_generation_needs_its_tools_and_the_judged_real_models(tmp_path):
+    """Never silently: a missing generate.py, venv-trellis, setup script or judged real model fails its step with
+    the reason, and the library is still built from the real sources."""
+    w = World(tmp_path)                                   # no tools at all
+    _judged_library(w)
+    assert w.prep(l2=True).run_all() == 1
+    steps = w.steps()
+    assert steps["trellis_setup"]["status"] == "failed" and "tools missing" in steps["trellis_setup"]["note"]
+    assert steps["generate"]["status"] == "failed"
+    assert "wenart/assets/generate.py is not in the repository" in steps["generate"]["note"]
+    assert f"no {w.trellis_py}" in steps["generate"]["note"] and "trellis_setup failed" in steps["generate"]["note"]
+    assert steps["library"]["status"] == "ok" and not [x for x in w.labels() if x.startswith("generate ")]
+    # The setup fails: its reason from setup_trellis.json.
+    w2 = World(tmp_path / "b")
+    w2.generation_tools()
+    _judged_library(w2)
+    w2.trellis_setup = {"ok": False, "reason": "flash-attn did not build (sm_120)"}
+    w2.prep(l2=True).run_all()
+    note = w2.steps()["trellis_setup"]["note"]
+    assert w2.steps()["trellis_setup"]["status"] == "failed" and "flash-attn did not build (sm_120)" in note
+    assert "built from the real sources only" in note
+    # No judge requests (L1 never ran) or nothing judged: the generate step fails before any command.
+    w3 = World(tmp_path / "c")
+    w3.generation_tools()
+    assert w3.prep(only=("generate",)).run_all() == 1
+    step = w3.steps()["generate"]
+    assert "no judge/requests.json" in step["note"] and "PREP_SKIP=trellis_setup,generate" in step["note"]
+    assert not w3.calls
+    _judged_library(w3, complete=("qwen",))
+    w3.prep(results=tmp_path / "c-2", only=("generate",)).run_all()
+    step = w3.steps_of(tmp_path / "c-2")["generate"]
+    assert step["status"] == "failed" and "none of the 4 real model(s)" in step["note"] and not w3.calls
+    # Some real models not judged: generated anyway, a warning that says how many.
+    _judged_library(w3, answered=1)
+    assert w3.prep(results=tmp_path / "c-3", only=("generate",)).run_all() == 0
+    step = w3.steps_of(tmp_path / "c-3")["generate"]
+    assert step["status"] == "warning" and "2 of 4 real model(s) were not judged" in step["note"]
+
+
+def test_a_failed_or_cut_generation_leaves_the_library_to_the_real_sources(tmp_path):
+    w = World(tmp_path, rc={"generate run": 1})
+    w.generation_tools()
+    _judged_library(w)
+    assert w.prep(l2=True).run_all() == 1
+    steps = w.steps()
+    assert steps["generate"]["status"] == "failed" and "generate run exit 1" in steps["generate"]["note"]
+    assert steps["library"]["status"] == "ok" and steps["thumbnails"]["status"] == "ok"
+    w2 = World(tmp_path / "b", rc={"generate run": 3})
+    w2.generation_tools()
+    _judged_library(w2)
+    w2.prep(l2=True).run_all()
+    assert w2.steps()["generate"]["status"] == "deadline"
+    w3 = World(tmp_path / "c", rc={"generate plan": 2})
+    w3.generation_tools()
+    _judged_library(w3)
+    w3.prep(l2=True).run_all()
+    assert w3.steps()["generate"]["note"].startswith("generate plan exit 2")
+    assert "generate run" not in w3.labels()
+
+
+def test_both_generation_steps_are_skippable(tmp_path):
+    w = World(tmp_path)
+    w.generation_tools()
+    _judged_library(w)
+    assert w.prep(l2=True, skip=("generate",)).run_all() == 0
+    steps = w.steps()
+    assert steps["generate"]["status"] == "skipped" and steps["trellis_setup"]["status"] == "ok"
+    assert not [x for x in w.labels() if x.startswith("generate ")]
+
+
+def test_families_of_the_committed_projects(tmp_path):
+    """docs/milestone8.md §3: the style families of the committed projects' first style profile plus the default
+    family (wenart/defaults.yaml: scandinavian)."""
+    w = World(tmp_path)
+    (w.repo / "projects" / "real01" / "brief.yaml").write_text("style: Japandi, walnut floor, cream walls\n")
+    (w.repo / "projects" / "synthetic-02" / "brief.yaml").write_text(
+        "styles:\n- Industrial loft, brick walls\n- Rustic farmhouse\n")
+    (w.repo / "projects" / "synthetic-06" / "brief.yaml").write_text("style: something no family names\n")
+    assert w.prep().families() == ["japandi", "industrial", "scandinavian"]
+    real = P.Prep(P.PrepOptions(results=tmp_path / "r"), runner=w.runner)
+    assert real.families() == ["scandinavian", "modern minimal", "japandi", "modern"]
+
+
+def test_the_library_copy_leaves_model_files_out(tmp_path):
+    w = World(tmp_path)
+    lib = w.prep_root / "library"
+    (lib / "generate").mkdir(parents=True)
+    (lib / "generate" / "gen_sofa_1.glb").write_bytes(b"glTF")
+    (lib / "generate" / "gen_sofa_1.png").write_bytes(b"png")
+    P.write_json(lib / "survey_generated.json", {"candidates": []})
+    assert w.prep().sync_library() == 2
+    got = sorted(f.relative_to(w.results / "library").as_posix() for f in (w.results / "library").rglob("*"))
+    assert got == ["generate", "generate/gen_sofa_1.png", "survey_generated.json"]
+
+
+def test_cli_options_of_the_library_sources(tmp_path, monkeypatch):
+    monkeypatch.setenv("WENART_FAST", str(tmp_path / "fast"))
+    monkeypatch.delenv("WENART_ABO_CACHE", raising=False)
+    monkeypatch.delenv("WENART_TRELLIS_PY", raising=False)
+    opts = P.options_from_args(P.parse_args(["--results", str(tmp_path / "r")]))
+    assert opts.abo_cache == tmp_path / "fast" / "abo" and opts.fast == tmp_path / "fast"
+    assert opts.trellis_python == str(tmp_path / "fast" / "venv-trellis" / "bin" / "python")
+    opts = P.options_from_args(P.parse_args(["--results", "r", "--abo-cache", "/x/abo", "--trellis-py", "/t/py",
+                                             "--skip", "trellis_setup,generate"]))
+    assert opts.abo_cache == Path("/x/abo") and opts.trellis_python == "/t/py"
+    assert opts.skip == ("trellis_setup", "generate")

@@ -47,6 +47,9 @@ CATALOG = "wenart/furniture/catalog.json"
 # The Objaverse library (docs/milestone7.md §6.6, §7): merged by catalog.load() after catalog.json; committed
 # between the prep pod and the full runs (absent until then: a missing input hashes to None).
 CATALOG_OBJAVERSE = "wenart/furniture/catalog_objaverse.json"
+# Milestone 8 (docs/milestone8.md §2): the one library catalogue of every source; catalog.load() merges it instead of
+# catalog_objaverse.json when it is committed (both are fit and refit inputs; FIT_CODE's catalog*.json covers both).
+CATALOG_LIBRARY = "wenart/furniture/catalog_library.json"
 CHECK_YAML = "wenart/vision_check/check.yaml"
 RECOGNITION_DIR = "recognition"            # <out>/recognition: requests.json, answers_<slug>.json, crops/
 EXIT_QUESTIONS = 4                         # wenart.ingest.pipeline: questions written, answers missing (§1.4)

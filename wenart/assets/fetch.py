@@ -28,6 +28,14 @@ anything else refused), and a CC BY 4.0 model needs its credit fields
 (``CC_BY_FIELDS``). ``load_manifest`` checks every entry against the rule
 of its section.
 
+Milestone 8 (docs/milestone8.md §1, §2; user decisions 3 and 4: any licence
+for now, recorded and flagged): models may also come from ABO (CC BY 4.0)
+and from the generated library (licence ``generated (...)``); an Objaverse
+model may carry any licence of ``wenart.furniture.catalog.LICENCE_FLAGS``
+(an entry's ``licence_flag``, when given, must be that licence's flag). Every
+non-CC0 model of Objaverse or ABO needs its credit fields. Textures and
+HDRIs stay CC0 only.
+
 Idempotent: an asset whose manifest entry and files are present with the
 recorded sha256 is returned without any network call.
 """
@@ -50,8 +58,14 @@ LICENCE = "CC0"
 LICENCES = {"polyhaven": "CC0", "ambientcg": "CC0"}
 LICENCE_URLS = {"polyhaven": "https://polyhaven.com/license", "ambientcg": "https://ambientcg.com/"}
 CC_BY = "CC-BY-4.0"
-# Model sources whose objects carry their own licence (Milestone 7): only these licences are taken.
-MODEL_SOURCE_LICENCES = {"objaverse": (LICENCE, CC_BY)}
+# Model sources whose objects carry their own licence (Milestone 7; Milestone 8 adds ABO, generated models and every
+# Objaverse licence, flagged): these licences are taken. Generated models: any licence starting with "generated".
+_FLAGS = {"CC0": None, "CC-BY-4.0": None, "CC-BY-NC-4.0": "non_commercial", "CC-BY-NC-SA-4.0": "non_commercial",
+          "CC-BY-NC-ND-4.0": "non_commercial", "CC-BY-SA-4.0": "share_alike", "CC-BY-ND-4.0": "no_derivatives",
+          "Sketchfab-Editorial": "non_commercial", "Sketchfab-Standard": "unknown",
+          "Sketchfab-Free-Standard": "unknown", "unknown": "unknown"}   # = wenart.furniture.catalog.LICENCE_FLAGS
+MODEL_SOURCE_LICENCES = {"objaverse": tuple(_FLAGS), "abo": (CC_BY,)}
+GENERATED = "generated"                     # model source; its licence starts with this word
 # Manifest sections; the licence rule depends on the kind.
 KINDS = ("textures", "hdris", "models")
 # The credit line of a CC BY 4.0 model (CC BY 4.0 §3(a)(1)): every field must be non-empty.
@@ -72,12 +86,16 @@ class AssetNotFound(RuntimeError):
 
 def check_licence(source: str, licence: Optional[str] = None, kind: str = "textures",
                   entry: Optional[dict] = None) -> str:
-    """Return the licence (``"CC0"`` or ``"CC-BY-4.0"``) or raise ``LicenceError``.
+    """Return the licence (``"CC0"``, ``"CC-BY-4.0"``, a flagged licence name or a generated licence) or raise
+    ``LicenceError``.
 
     Every kind: a CC0 source (``LICENCES``) with no licence string or exactly
     ``CC0``. Kind ``models`` only: an Objaverse object whose ``licence`` (required)
-    is one of ``MODEL_SOURCE_LICENCES``; a CC BY 4.0 one with ``entry`` given must
-    carry every ``CC_BY_FIELDS`` field. Textures and HDRIs are CC0 only.
+    is one of ``MODEL_SOURCE_LICENCES`` (CC0 / CC BY 4.0, or a flagged one: then an
+    ``entry`` that has ``licence_flag`` must carry that licence's flag), an ABO object
+    (CC BY 4.0) or a generated model (licence ``generated ...``); a non-CC0 Objaverse
+    or ABO model with ``entry`` given must carry every ``CC_BY_FIELDS`` field.
+    Textures and HDRIs are CC0 only.
     """
     if kind not in KINDS:
         raise ValueError(f"unknown asset kind {kind!r} (expected one of {KINDS})")
@@ -86,19 +104,28 @@ def check_licence(source: str, licence: Optional[str] = None, kind: str = "textu
         if licence is not None and str(licence).strip().upper() != LICENCE:
             raise LicenceError(f"{source}: licence '{licence}' is not {LICENCE}; refused")
         return expected
+    if kind == "models" and source == GENERATED:
+        text = str(licence or "").strip()
+        if not text.startswith(GENERATED):
+            raise LicenceError(f"{source}: licence '{licence}' does not start with '{GENERATED}'; refused")
+        return text
     allowed = MODEL_SOURCE_LICENCES.get(source) if kind == "models" else None
     if allowed is None:
-        sources = sorted(LICENCES) + (sorted(MODEL_SOURCE_LICENCES) if kind == "models" else [])
+        sources = sorted(LICENCES) + (sorted(MODEL_SOURCE_LICENCES) + [GENERATED] if kind == "models" else [])
         raise LicenceError(f"source '{source}' is not a {kind} source {sources}; refused")
     if licence is None:
         raise LicenceError(f"{source}: no per-object licence given; refused")
-    text = str(licence).strip().upper()
+    text = str(licence).strip()
+    text = {a.upper(): a for a in allowed}.get(text.upper(), text)
     if text not in allowed:
         raise LicenceError(f"{source}: licence '{licence}' is not one of {', '.join(allowed)}; refused")
-    if text == CC_BY and entry is not None:
+    if entry is not None and "licence_flag" in entry and entry.get("licence_flag") != _FLAGS[text]:
+        raise LicenceError(f"{source}: model {entry.get('id', '?')!r} with licence {text} has licence_flag "
+                           f"{entry.get('licence_flag')!r}, not {_FLAGS[text]!r}; refused")
+    if text != LICENCE and entry is not None:
         missing = [k for k in CC_BY_FIELDS if not str(entry.get(k) or "").strip()]
         if missing:
-            raise LicenceError(f"{source}: CC BY 4.0 model {entry.get('id', '?')!r} without {', '.join(missing)} "
+            raise LicenceError(f"{source}: {text} model {entry.get('id', '?')!r} without {', '.join(missing)} "
                                f"(no credit line); refused")
     return text
 

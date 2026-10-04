@@ -118,10 +118,13 @@ def test_config_tables_follow_the_spec():
     pre = CFG["prefilter"]
     assert pre["face_count"] == [2000, 150000]
     assert pre["max_glb_mb"] == 40
-    assert pre["per_type_limit"] <= 8
+    assert pre["per_type_limit"] == 24                      # docs/milestone8.md §2 (M7: 8)
     assert CFG["units"] == [1.0, 0.01, 0.0254, 0.001]
     assert CFG["dataset"]["revision"] == "21e4e142159e2153706c23a3a02e55cec5591cea"
-    assert CFG["accept"] == {"min_quality": 4, "per_type_max": 6}
+    assert CFG["accept"] == {"min_quality": 4, "per_type_max": 12, "decor_per_type_max": 16, "per_family_max": 3,
+                             "source_order": ["abo", "polyhaven", "objaverse", "generated"]}
+    assert CFG["survey_files"] == OV.SURVEY_FILES and OV.CATALOG_NAME == "catalog_library.json"
+    assert CFG["bed_frame"] == {"ray_offset": 0.2, "min_hits": 3, "deck_range_m": [0.08, 0.90]}
     table, _tol = OV.load_size_table()
     mapped = {t for spec in CFG["categories"].values() for t in spec["types"]}
     for t in mapped:
@@ -129,42 +132,59 @@ def test_config_tables_follow_the_spec():
     for name in ("tv_unit", "kitchen_counter", "stair"):            # no LVIS category: parametric
         assert name not in mapped
     frontless = {t for t, spec in CFG["types"].items() if spec["front"] == "none"}
-    assert frontless == {"table_dining", "table_coffee", "floor_lamp", "potted_plant"} & mapped
+    assert frontless == {"table_dining", "table_coffee", "floor_lamp", "potted_plant", "side_table", "rug",
+                         "cushion", "plant"}
+    # Decor (docs/milestone8.md §4): a size range, a height range, a question each; wall art only by a documented front.
+    full, _ = OV.library_size_table(CFG)
+    for d in C.DECOR_TYPES:
+        assert d in OV.DECOR_TYPES and d in CFG["types"] and d in full and d in OV.DECOR_WORDS
+    assert CFG["types"]["wall_art"]["front"] == OV.DOCUMENTED_RULE
+    assert OV.geometric_front({}, OV.DOCUMENTED_RULE, CFG["front_rules"])[0] is None
+    for t in ("side_table", "tv_unit"):                             # the ABO-only furniture types
+        assert t in CFG["types"] and t in table and t in OV.TYPE_WORDS
 
 
-def test_licence_strings_accept_only_cc0_and_cc_by():
+def test_licence_table_takes_every_licence_and_flags_all_but_cc0_and_cc_by():
+    """docs/milestone8.md §2 (user decisions 3, 4): every licence is taken; CC0 / CC BY 4.0 unflagged, the others
+    carry the flag of wenart.furniture.catalog.LICENCE_FLAGS; every licence has a URL and a printed name."""
     lic = CFG["licences"]
     assert set(lic["accept"]) == {C.LICENCE, C.CC_BY}
-    accepted = {s.casefold() for v in lic["accept"].values() for s in v}
-    refused = {s.casefold() for s in lic["refuse"]}
-    assert not accepted & refused
-    for s in accepted:                                    # no NC, ND, SA spelling among the accepted
-        assert not any(tok in s.replace(" ", "-").split("-") for tok in ("nc", "nd", "sa"))
-    assert {"by-nc", "by-sa", "by-nc-sa", "by-nd", "by-nc-nd"} <= refused
+    names = set(lic["accept"]) | set(lic["flagged"]) | {lic["unknown"]}
+    assert names == set(C.LICENCE_FLAGS)
+    for name in names:
+        assert lic["urls"][name].startswith("https://") and lic["names"][name], name
+    spellings = [s.casefold() for table in (lic["accept"], lic["flagged"]) for v in table.values() for s in v]
+    assert len(spellings) == len(set(spellings))                    # one licence per spelling
+    for name, flag in (("CC-BY-NC-4.0", "non_commercial"), ("CC-BY-NC-SA-4.0", "non_commercial"),
+                       ("CC-BY-SA-4.0", "share_alike"), ("CC-BY-ND-4.0", "no_derivatives"),
+                       ("Sketchfab-Free-Standard", "unknown"), ("unknown", "unknown"), (C.CC_BY, None), (C.LICENCE, None)):
+        assert C.licence_flag_of(name) == flag, name
     assert lic["urls"][C.CC_BY] == "https://creativecommons.org/licenses/by/4.0/"
 
 
 def test_licence_values_seen_on_the_prep_pod_are_verified():
     """Prep pod P4 (survey.json, 3 Oct 2026): the metadata holds by 1369, by-sa 77, by-nc 35, by-nc-sa 16, cc0 1.
-    The accepted spellings `by` and `cc0` occur, so the table is verified; the other values stay refused."""
+    The spellings `by` and `cc0` occur, so the table is verified; the others are taken with their flag (M8)."""
     assert CFG["licences"]["verified"] is True
-    seen = {"by": C.CC_BY, "cc0": C.LICENCE, "by-sa": None, "by-nc": None, "by-nc-sa": None}
-    for value, licence in seen.items():
-        name, code, _ = OV.classify_licence(value, CFG)
-        assert name == licence and code == ("" if licence else "licence_refused"), value
+    seen = {"by": (C.CC_BY, None), "cc0": (C.LICENCE, None), "by-sa": ("CC-BY-SA-4.0", "share_alike"),
+            "by-nc": ("CC-BY-NC-4.0", "non_commercial"), "by-nc-sa": ("CC-BY-NC-SA-4.0", "non_commercial")}
+    for value, (licence, flag) in seen.items():
+        assert OV.classify_licence(value, CFG)[:2] == (licence, flag), value
 
 
 @pytest.mark.parametrize("raw, expect", [
-    ("by", (C.CC_BY, "")), (" BY ", (C.CC_BY, "")), ("cc0", (C.LICENCE, "")), ("CC0", (C.LICENCE, "")),
-    ("CC-BY 4.0", (C.CC_BY, "")), ({"slug": "by", "label": "CC Attribution"}, (C.CC_BY, "")),
-    ("by-nc", (None, "licence_refused")), ("by-sa", (None, "licence_refused")),
-    ("by-nc-sa", (None, "licence_refused")), ("free-st", (None, "licence_refused")),
-    ("CC-BY-NC 4.0", (None, "licence_refused")), ("cc-by-4.0-maybe", (None, "licence_unknown")),
-    ("", (None, "licence_missing")), (None, (None, "licence_missing")), (3, (None, "licence_missing")),
+    ("by", (C.CC_BY, None)), (" BY ", (C.CC_BY, None)), ("cc0", (C.LICENCE, None)), ("CC0", (C.LICENCE, None)),
+    ("CC-BY 4.0", (C.CC_BY, None)), ({"slug": "by", "label": "CC Attribution"}, (C.CC_BY, None)),
+    ("by-nc", ("CC-BY-NC-4.0", "non_commercial")), ("by-sa", ("CC-BY-SA-4.0", "share_alike")),
+    ("by-nc-sa", ("CC-BY-NC-SA-4.0", "non_commercial")), ("by-nd", ("CC-BY-ND-4.0", "no_derivatives")),
+    ("free-st", ("Sketchfab-Free-Standard", "unknown")), ("ed", ("Sketchfab-Editorial", "non_commercial")),
+    ("CC-BY-NC 4.0", ("CC-BY-NC-4.0", "non_commercial")), ("cc-by-4.0-maybe", ("unknown", "unknown")),
+    ("", ("unknown", "unknown")), (None, ("unknown", "unknown")), (3, ("unknown", "unknown")),
 ])
 def test_licence_classification(raw, expect):
-    name, code, _detail = OV.classify_licence(raw, CFG)
-    assert (name, code) == expect
+    licence, flag, detail = OV.classify_licence(raw, CFG)
+    assert (licence, flag) == expect
+    assert (detail == "") == (flag is None)                         # a flagged or unknown value says what it was
 
 
 def test_module_imports_only_the_standard_library_at_top_level():
@@ -217,14 +237,17 @@ def test_shard_of_reads_the_object_path():
 
 def test_survey_filters_on_canned_metadata(tmp_path):
     m = Mirror(tmp_path / "mirror")
-    ok_by = m.add("sofa", licence="by", likes=9)
-    ok_cc0 = m.add("sofa", licence="cc0", likes=5)
-    vertex = m.add("sofa", textured=False, colours=True, likes=1)
+    ok_by = m.add("sofa", licence="by", likes=19)
+    ok_cc0 = m.add("sofa", licence="cc0", likes=15)
+    vertex = m.add("sofa", textured=False, colours=True, likes=11)
+    # Milestone 8: every licence is taken, flagged unless CC0 / CC BY 4.0 (docs/milestone8.md §2).
+    flagged = {
+        m.add("sofa", licence="by-nc", likes=9): ("CC-BY-NC-4.0", "non_commercial"),
+        m.add("sofa", licence="by-sa", likes=8): ("CC-BY-SA-4.0", "share_alike"),
+        m.add("sofa", licence="free-st", likes=7): ("Sketchfab-Free-Standard", "unknown"),
+        m.add("sofa", licence="mystery", likes=6): ("unknown", "unknown"),
+    }
     refused = {
-        m.add("sofa", licence="by-nc"): "licence_refused",
-        m.add("sofa", licence="by-sa"): "licence_refused",
-        m.add("sofa", licence="free-st"): "licence_refused",
-        m.add("sofa", licence="mystery"): "licence_unknown",
         m.add("sofa", faces=1500): "face_count",
         m.add("sofa", faces=200000): "face_count",
         m.add("sofa", size=50 * 1024 * 1024): "glb_size",
@@ -241,13 +264,25 @@ def test_survey_filters_on_canned_metadata(tmp_path):
     hub = m.write()
     doc = OV.survey(hub, tmp_path / "lib", CFG, log=quiet)
     cands = {c["uid"]: c for c in doc["candidates"]}
-    assert set(cands) == {ok_by, ok_cc0, vertex, both}
-    assert [c["uid"] for c in doc["candidates"] if c["group"] == "sofa"] == [ok_by, ok_cc0, vertex]   # likes
+    assert set(cands) == {ok_by, ok_cc0, vertex, both} | set(flagged)
+    assert [c["uid"] for c in doc["candidates"] if c["group"] == "sofa"][:3] == [ok_by, ok_cc0, vertex]   # likes
     assert cands[ok_by]["licence"] == C.CC_BY and cands[ok_cc0]["licence"] == C.LICENCE
+    assert cands[ok_by]["licence_flag"] is None and cands[ok_cc0]["licence_flag"] is None
+    for uid, (licence, flag) in flagged.items():
+        assert (cands[uid]["licence"], cands[uid]["licence_flag"]) == (licence, flag), uid
+        assert cands[uid]["attribution"].startswith(f'"{cands[uid]["title"]}" by Ann Author ')
+    unknown = cands[next(u for u, v in flagged.items() if v[0] == "unknown")]
+    assert ", licence unknown (https://huggingface.co/datasets/allenai/objaverse), via Objaverse" in unknown["attribution"]
     assert sorted(cands[both]["categories"]) == ["armoire", "wardrobe"]
     for c in cands.values():
         assert len(c["glb_sha256"]) == 64 and Path(c["glb"]).is_file()
         assert c["title"] and c["author"] == "Ann Author" and c["source_url"].startswith("https://")
+        # The Milestone 8 record fields (docs/milestone8.md §2).
+        assert c["source"] == "objaverse" and c["kind"] == "furniture" and c["decor_type"] is None
+        assert c["units_known"] is False and c["extents_raw"] is None and c["style_hint"] is None
+        assert c["licence_url"] == CFG["licences"]["urls"][c["licence"]] and c["via"] == CFG["attribution"]["via"]
+    assert cands[ok_by]["attribution"] == OV.attribution_line(cands[ok_by]["title"], "Ann Author",
+                                                              cands[ok_by]["source_url"], C.CC_BY, CFG)
     got = {r["uid"]: r["code"] for r in doc["refused"]}
     assert got == refused
     assert doc["licence_values"]["by"] >= 1 and doc["licence_values"]["by-nc"] == 1
@@ -259,57 +294,58 @@ def test_survey_filters_on_canned_metadata(tmp_path):
     text = OV.report(tmp_path / "lib", CFG)
     assert "Missing (a warning: their types stay parametric)" in text
     assert "- `nightstand`: names in the file sharing a word: `night_table`" in text
+    assert "| `by-nc` | 1 | CC-BY-NC-4.0 | non_commercial |" in text
     assert (tmp_path / "lib" / OV.SURVEY_NAME).is_file()
-    assert doc["counts"]["sofa"]["candidates"] == 3
+    assert doc["counts"]["sofa"]["candidates"] == 7 and doc["counts"]["sofa"]["flagged"] == 4
 
 
-def test_survey_ranks_and_keeps_at_most_eight_per_type(tmp_path):
+def test_survey_ranks_and_keeps_at_most_24_per_type(tmp_path):
     m = Mirror(tmp_path / "mirror")
-    chairs = [m.add("chair", likes=n, views=100 - n) for n in range(12)]
+    chairs = [m.add("chair", likes=n, views=100 - n) for n in range(30)]
     tie_a = m.add("desk", likes=3, views=10)
     tie_b = m.add("desk", likes=3, views=20)
-    beds = [m.add("bed", likes=n) for n in range(20)]
+    beds = [m.add("bed", likes=n) for n in range(60)]
     hub = m.write()
     doc = OV.survey(hub, tmp_path / "lib", CFG, log=quiet)
     chosen = [c["uid"] for c in doc["candidates"] if c["group"] == "chair"]
-    assert chosen == list(reversed(chairs))[:8]            # likes descending
-    assert doc["counts"]["chair"]["not_selected"] == 4
+    assert chosen == list(reversed(chairs))[:24]           # likes descending
+    assert doc["counts"]["chair"]["not_selected"] == 6
     assert [c["uid"] for c in doc["candidates"] if c["group"] == "desk"] == [tie_b, tie_a]   # then views
     bed_group = OV.group_key(["bed_double", "bed_single"])
-    assert sum(1 for c in doc["candidates"] if c["group"] == bed_group) == 16   # 8 per bed type before the split
-    assert len(beds) == 20
+    assert sum(1 for c in doc["candidates"] if c["group"] == bed_group) == 48   # 24 per bed type before the split
+    assert len(beds) == 60
 
 
 def test_survey_lamp_ranks_floor_lamps_first(tmp_path):
     m = Mirror(tmp_path / "mirror")
-    table_lamps = [m.add("lamp", likes=50 + n, name=f"Desk lamp {n}") for n in range(9)]
+    table_lamps = [m.add("lamp", likes=50 + n, name=f"Desk lamp {n}") for n in range(25)]
     floor = m.add("lamp", likes=1, name="Arc lamp", tags=("floor lamp",))
     standing = m.add("lamp", likes=0, name="Standing lamp")
     hub = m.write()
     doc = OV.survey(hub, tmp_path / "lib", CFG, log=quiet)
     chosen = [c["uid"] for c in doc["candidates"] if c["group"] == "floor_lamp"]
-    assert chosen[:2] == [floor, standing] and len(chosen) == 8
+    assert chosen[:2] == [floor, standing] and len(chosen) == 24
     assert table_lamps[-1] in chosen and table_lamps[0] not in chosen
 
 
 def test_survey_tries_the_next_rank_when_a_download_fails_the_file_checks(tmp_path):
     m = Mirror(tmp_path / "mirror")
     plain = [m.add("toilet", likes=100 + n, textured=False) for n in range(3)]
-    good = [m.add("toilet", likes=n) for n in range(9)]
+    good = [m.add("toilet", likes=n) for n in range(25)]
     hub = m.write()
     doc = OV.survey(hub, tmp_path / "lib", CFG, log=quiet)
     chosen = [c["uid"] for c in doc["candidates"] if c["group"] == "toilet"]
-    assert len(chosen) == 8 and not set(chosen) & set(plain)
-    assert doc["counts"]["toilet"]["tried"] == 11 and doc["counts"]["toilet"]["not_selected"] == 1
-    assert sorted(good, reverse=True)[:8] == chosen
+    assert len(chosen) == 24 and not set(chosen) & set(plain)
+    assert doc["counts"]["toilet"]["tried"] == 27 and doc["counts"]["toilet"]["not_selected"] == 1
+    assert sorted(good, reverse=True)[:24] == chosen
 
 
 def test_survey_without_download_lists_the_top_of_the_ranking(tmp_path):
     m = Mirror(tmp_path / "mirror")
-    uids = [m.add("sofa", likes=n, glb=False) for n in range(10)]
+    uids = [m.add("sofa", likes=n, glb=False) for n in range(30)]
     hub = m.write()
     doc = OV.survey(hub, tmp_path / "lib", CFG, download=False, log=quiet)
-    assert [c["uid"] for c in doc["candidates"]] == list(reversed(uids))[:8]
+    assert [c["uid"] for c in doc["candidates"]] == list(reversed(uids))[:24]
     assert all("glb" not in c for c in doc["candidates"]) and doc["downloaded"] is False
 
 
@@ -321,7 +357,7 @@ def test_survey_cli_with_a_mirror(tmp_path):
     assert OV.main(["survey", "--mirror", str(tmp_path / "mirror"), "--out", str(out)]) == 0
     assert len(OV.read_json(out / OV.SURVEY_NAME)["candidates"]) == 1
     empty = Mirror(tmp_path / "empty")
-    empty.add("sofa", licence="by-nc")
+    empty.add("sofa", user="")                              # no credit: still refused (M8 keeps the credit fields)
     empty.write()
     assert OV.main(["survey", "--mirror", str(tmp_path / "empty"), "--out", str(tmp_path / "lib2")]) == 1
 
@@ -508,22 +544,29 @@ def make_view(path: Path, shade: int) -> None:
     Image.new("RGB", (256, 256), (shade, shade, shade)).save(path)
 
 
-def fake_runner(shapes: dict, calls: list):
-    """A runner that writes what the Blender side writes: measure/<uid>.json and the four views."""
+def fake_runner(shapes: dict, calls: list, jobs_seen: list = None):
+    """A runner that writes what the Blender side writes: measure/<uid>.json and the four views. A shape is
+    ``(points, polys)`` or ``(points, polys, deck)`` (a canned deck measurement for a bed job; without one a bed job
+    gets the measurement of no hit: ``deck_height`` on no polygon)."""
     def run(_blender, jobs_path, _log, _timeout):
         jobs = json.loads(Path(jobs_path).read_text())
         calls.append([j["uid"] for j in jobs["objects"]])
+        if jobs_seen is not None:
+            jobs_seen.extend(jobs["objects"])
         for n, job in enumerate(jobs["objects"]):
             shape = shapes.get(job["uid"])
             rec = {"uid": job["uid"], "glb": job["glb"], "glb_sha256": job["glb_sha256"], "device": "OPTIX"}
             if shape is None:
                 rec.update(ok=False, error="RuntimeError: no mesh objects in the GLB")
             else:
-                points, polys = shape
+                points, polys = shape[0], shape[1]
                 rec.update(ok=True, stats=OV.front_stats(points, polys), vertices=len(points), triangles=4000,
                            mesh_objects=1, images=1, colour_attributes=0, seconds=1.0)
-                for i, view in enumerate(job["views"]):
-                    make_view(Path(view), 60 + 40 * i + n)
+                if job.get("deck"):
+                    rec["deck"] = shape[2] if len(shape) > 2 else OV.deck_height([], *OV.bounds(points))
+                if job.get("render", True):
+                    for i, view in enumerate(job["views"]):
+                        make_view(Path(view), 60 + 40 * i + n)
             OV.write_json(Path(job["measure"]), rec)
         OV.write_json(Path(jobs["work"]) / "blender_status.json",
                       {"device": "OPTIX", "blender": "5.2.2", "done": [], "failed": [], "left": []})
@@ -684,7 +727,9 @@ class FakeClient:
         assert kw["task"] == "library_judge" and kw["system_prompt"] == OV.SYSTEM_PROMPT
         assert all(Path(p).is_file() for p in images)
         data = self.fn(images, prompt)
-        error = None if OV.valid_judgement(data) else "schema: invalid"
+        kind = "decor" if schema.get("title") == "LibraryJudgeDecor" else "furniture"   # the item's own schema
+        assert schema == OV.judge_schema(kind)
+        error = None if OV.valid_judgement(data, kind) else "schema: invalid"
         return SimpleNamespace(data=data if error is None else None, raw_text=json.dumps(data), error=error,
                                attempts=1, latency_s=0.01)
 
@@ -703,8 +748,12 @@ def good_answers(library, key):
     return fn
 
 
-def run_judges(library, clients=None):
+def run_judges(library, clients=None, fresh=False):
+    """Both judges over ``judge/requests.json`` (written anew); ``fresh`` drops the stored answers first."""
     clients = clients or {}
+    if fresh:
+        for f in (library.out / "judge").glob("answers_*.json"):
+            f.unlink()
     OV.judge_requests(library.out, CFG)
     rcs = {}
     for key in OV.MODEL_KEYS:
@@ -771,7 +820,9 @@ def obj(ftype="sofa", geo="-Y"):
     (obj(), answer(single=False), answer(), "not_single"),
     (obj(), answer(), answer(match=False), "type_mismatch"),
     (obj(), answer(quality=3), answer(), "quality"),
-    (obj("bed_double"), answer(mattress=True), answer(mattress=False), "no_mattress"),
+    (obj("bed_double"), answer(mattress=True), answer(mattress=False), "mattress_not_agreed"),
+    (obj("bed_double"), answer(mattress=None), answer(mattress=None), "mattress_not_agreed"),
+    (obj("bed_double"), answer(mattress=False), answer(mattress=False), "no_deck"),          # no deck measured
     (obj("bed_double"), answer(mattress=True), answer(mattress=True), ""),
     (obj(), answer(front=0), answer(front=2), "front_not_agreed"),
     (obj(), answer(front=None), answer(front=None), "front_not_agreed"),
@@ -798,24 +849,79 @@ def test_accept_front_and_styles_of_an_accepted_object():
     assert [c for c, _ in many["failed"]] == ["not_single", "quality", "front_not_agreed"]
 
 
-def test_accept_keeps_six_per_type(tmp_path, monkeypatch):
+def _canned_accept(tmp_path, monkeypatch, specs):
+    """``accept`` over canned objects: specs = [(uid, source, kind, type, styles, quality, likes)]."""
     out = tmp_path / "lib"
-    objects, cands = {}, []
-    for n in range(8):
-        uid = f"{n:032x}"
-        objects[uid] = dict(obj(), uid=uid, status="ready")
-        cands.append({"uid": uid, "likes": n, "views": 0})
+    objects, cands, answers = {}, {}, {}
+    for uid, source, kind, ftype, styles, q, likes in specs:
+        o = dict(obj(ftype, geo=None if CFG["types"][ftype]["front"] == "none" else "-Y"), uid=uid, status="ready",
+                 source=source, kind=kind, decor_type=ftype if kind == "decor" else None)
+        objects[uid] = o
+        cands.setdefault(source, []).append({"uid": uid, "likes": likes, "views": 0, "types": [ftype], "kind": kind})
+        a = answer(front=0, styles=styles, quality=q)
+        if kind == "decor":
+            a = {"is_single_object": True, "is_decor_type": True, "photoreal_quality": q, "styles": list(styles),
+                 "front_view": None}
+        answers[uid] = {"qwen": a, "glm": a}
     OV.write_json(out / OV.THUMBS_JSON, {"objects": objects})
-    OV.write_json(out / OV.SURVEY_NAME, {"candidates": cands})
-    quality = {f"{n:032x}": 5 if n % 2 else 4 for n in range(8)}
-    monkeypatch.setattr(OV, "load_judgements",
-                        lambda *_a, **_k: {u: {"qwen": answer(quality=q), "glm": answer(quality=q)}
-                                           for u, q in quality.items()})
+    for source, recs in cands.items():
+        OV.write_json(out / OV.SURVEY_FILES[source], {"candidates": recs})
+    monkeypatch.setattr(OV, "load_judgements", lambda *_a, **_k: answers)
+    return out
+
+
+def test_accept_keeps_12_per_type_and_3_per_style_family(tmp_path, monkeypatch):
+    """docs/milestone8.md §2: <= 12 per furniture type, <= 3 per (type, style family); rank by mean quality, then the
+    source order (abo, polyhaven, objaverse, generated), then the lower quality and likes."""
+    families = [s for s in OV.style_values() if s != C.NEUTRAL]
+    specs = []
+    for n in range(20):                                   # 20 sofas over 5 families, quality 5 / 4 alternating
+        specs.append((f"o{n:02d}", "objaverse", "furniture", "sofa", [families[n % 5]], 5 if n % 2 else 4, n))
+    out = _canned_accept(tmp_path, monkeypatch, specs)
     doc = OV.accept(out, CFG)
     kept = [d["uid"] for d in doc["accepted"]]
-    assert len(kept) == 6 and doc["counts"]["over_type_limit"] == 2
-    assert all(quality[u] == 5 for u in kept[:4])            # quality first, then likes
-    assert kept[:4] == [f"{n:032x}" for n in (7, 5, 3, 1)]
+    per_family: dict = {}
+    for d in doc["accepted"]:
+        for f in d["styles"]:
+            per_family[f] = per_family.get(f, 0) + 1
+    assert len(kept) == 12 and max(per_family.values()) == 3 and doc["counts"]["over_type_limit"] == 8
+    assert all(int(u[1:]) % 2 for u in kept[:10])         # every quality-5 sofa first (10 of them, 2 per family)
+    assert kept[0] == "o19"                               # then likes
+    # 15 sofas of 3 families: 3 per family are kept, the type limit is not reached.
+    specs = [(f"p{n:02d}", "objaverse", "furniture", "sofa", [families[n % 3]], 5, n) for n in range(15)]
+    doc = OV.accept(_canned_accept(tmp_path / "3", monkeypatch, specs), CFG)
+    assert len(doc["accepted"]) == 9 and doc["counts"]["over_style_limit"] == 6
+    assert {d["uid"] for d in doc["accepted"]} == {f"p{n:02d}" for n in range(6, 15)}      # the most liked
+    # A model listed in a full family and one with room is kept and counts for both.
+    specs = [(f"a{n}", "objaverse", "furniture", "sofa", ["modern"], 5, 10 - n) for n in range(3)]
+    specs += [("b0", "objaverse", "furniture", "sofa", ["modern", "industrial"], 5, 0),
+              ("b1", "objaverse", "furniture", "sofa", ["modern"], 5, 0)]
+    out = _canned_accept(tmp_path / "2", monkeypatch, specs)
+    doc = OV.accept(out, CFG)
+    assert [d["uid"] for d in doc["accepted"]] == ["a0", "a1", "a2", "b0"]
+    assert [(d["uid"], d["code"]) for d in doc["refused"]] == [("b1", "over_style_limit")]
+
+
+def test_accept_ranks_by_mean_quality_then_source_order_and_limits_decor_to_16(tmp_path, monkeypatch):
+    specs = [("gen_sofa", "generated", "furniture", "sofa", ["modern"], 5, 0),
+             ("obj_sofa", "objaverse", "furniture", "sofa", ["modern"], 5, 99),
+             ("abo_sofa", "abo", "furniture", "sofa", ["modern"], 5, 0),
+             ("abo_low", "abo", "furniture", "sofa", ["modern"], 4, 0)]
+    specs += [(f"abo_rug{n:02d}", "abo", "decor", "rug", [OV.style_values()[n % 9]], 5, 0) for n in range(30)]
+    out = _canned_accept(tmp_path, monkeypatch, specs)
+    doc = OV.accept(out, CFG)
+    sofas = [d["uid"] for d in doc["accepted"] if d["type"] == "sofa"]
+    assert sofas == ["abo_sofa", "obj_sofa", "gen_sofa"]  # mean quality, then abo, objaverse, generated
+    assert next(d for d in doc["refused"] if d["uid"] == "abo_low")["code"] == "over_style_limit"
+    rugs = [d for d in doc["accepted"] if d["type"] == "rug"]
+    assert len(rugs) == 16 and all(d["kind"] == "decor" and d["decor_type"] == "rug" for d in rugs)
+    assert doc["accepted_by_source"] == {"abo": 17, "generated": 1, "objaverse": 1}
+    assert doc["limits"] == {"per_type_max": 12, "decor_per_type_max": 16, "per_family_max": 3}
+    # --sources: the real sources only (the prep job's first accept before the generation).
+    real = OV.accept(out, CFG, sources=["abo", "objaverse"])
+    assert "gen_sofa" not in {d["uid"] for d in real["accepted"] + real["refused"]}
+    assert real["sources"] == ["abo", "objaverse"]
+    assert OV.main(["accept", "--out", str(out), "--sources", "abo,nowhere"]) == OV.EXIT_SERVER
 
 
 # --------------------------------------------------------------------------
@@ -843,8 +949,18 @@ def test_odc_by_notice():
 def test_write_catalog_validates_merges_and_fills_the_cache(library):
     run_judges(library)
     acc = OV.accept(library.out, CFG)
-    expected = {library.uids[k] for k in ("sofa_cm", "sofa_m", "sofa_tv", "bed", "table", "giant")}
+    # <= 3 per (type, style family) (docs/milestone8.md §2): four scandinavian sofas, the giant ranks last (likes).
+    expected = {library.uids[k] for k in ("sofa_cm", "sofa_m", "sofa_tv", "bed", "table")}
     assert {d["uid"] for d in acc["accepted"]} == expected
+    assert [(d["uid"], d["code"]) for d in acc["refused"]] == [(library.uids["giant"], "over_style_limit")]
+    # The giant judged industrial by both is kept (its family has room).
+    styles = {library.uids["giant"]: ["industrial"]}
+    run_judges(library, clients={k: (lambda key: lambda images, prompt: dict(
+        good_answers(library, key)(images, prompt), **({"styles": styles[Path(images[0]).stem]}
+                                                        if Path(images[0]).stem in styles else {})))(k)
+        for k in OV.MODEL_KEYS}, fresh=True)
+    acc = OV.accept(library.out, CFG)
+    assert {d["uid"] for d in acc["accepted"]} == expected | {library.uids["giant"]}
     assets = library.tmp / "assets"
     doc = OV.write_catalog(library.out, assets, CFG, log=quiet)
     C.validate(doc, complete=False)
@@ -1071,9 +1187,9 @@ def test_blender_side_measures_renders_and_survives_a_broken_glb(library, monkey
     assert OV.read_json(work / "blender_status.json")["left"] == [j["uid"] for j in jobs["objects"]]
 
 
-def test_thumbnails_keep_eight_per_type_after_the_bed_split(tmp_path):
+def test_thumbnails_keep_24_per_type_after_the_bed_split(tmp_path):
     m = Mirror(tmp_path / "mirror")
-    beds = [m.add("bed", likes=100 - n) for n in range(16)]
+    beds = [m.add("bed", likes=100 - n) for n in range(48)]
     hub = m.write()
     out = tmp_path / "lib"
     OV.survey(hub, out, CFG, log=quiet)
@@ -1084,8 +1200,463 @@ def test_thumbnails_keep_eight_per_type_after_the_bed_split(tmp_path):
     objs = doc["objects"]
     ready = {t: [u for u in beds if objs[u]["status"] == "ready" and objs[u]["type"] == t]
              for t in ("bed_double", "bed_single")}
-    assert len(ready["bed_single"]) == 4 and len(ready["bed_double"]) == 8
+    assert len(ready["bed_single"]) == 12 and len(ready["bed_double"]) == 24
     over = [u for u in beds if objs[u].get("code") == "over_candidate_limit"]
-    assert len(over) == 4 and all(objs[u]["type"] == "bed_double" for u in over)
-    assert over == [u for u in beds if u not in ready["bed_single"]][8:]      # the lowest ranks go
+    assert len(over) == 12 and all(objs[u]["type"] == "bed_double" for u in over)
+    assert over == [u for u in beds if u not in ready["bed_single"]][24:]     # the lowest ranks go
     assert not (out / "thumbs" / "bed_double" / f"{over[0]}.jpg").exists()
+
+
+# --------------------------------------------------------------------------
+# Milestone 8: every source in one library (docs/milestone8.md §2)
+# --------------------------------------------------------------------------
+
+ABO_FIXTURE = Path(__file__).resolve().parent / "fixtures" / "abo"
+GEN_UID = "gen_chair_scandinavian_1_ab12cd34"
+
+
+def quad_z(x0, y0, x1, y1, z):
+    """A horizontal rectangle (world vertices) at height z."""
+    return [(x0, y0, z), (x1, y0, z), (x1, y1, z), (x0, y1, z)]
+
+
+def bed_frame_shape(deck_z=0.35, slats=True):
+    """A bed frame (metres, front -Y): rails, a headboard at +Y and, with ``slats``, a deck at ``deck_z``. The deck
+    measurement is ``deck_height`` on its polygons (the real function on canned geometry)."""
+    pts = box(-0.8, -1.0, 0.0, 0.8, 1.0, deck_z) + box(-0.8, 0.9, deck_z, 0.8, 1.0, 1.1)
+    polys = [quad_z(-0.8, -1.0, 0.8, -0.95, deck_z), quad_z(-0.8, 0.85, 0.8, 0.9, deck_z),     # end rails
+             quad_z(-0.8, -1.0, -0.75, 0.9, deck_z), quad_z(0.75, -1.0, 0.8, 0.9, deck_z)]     # side rails
+    if slats:
+        polys.append(quad_z(-0.75, -0.95, 0.75, 0.85, deck_z))
+    mins, maxs = OV.bounds(pts)
+    return pts, [], OV.deck_height(polys, mins, maxs, CFG["bed_frame"]["ray_offset"])
+
+
+def decor_answer(ok=True, quality=5, styles=("modern", "scandinavian"), front=None):
+    return {"is_single_object": True, "is_decor_type": ok, "photoreal_quality": quality, "styles": list(styles),
+            "front_view": front}
+
+
+@pytest.fixture()
+def mixed(tmp_path):
+    """A library of every source: the ABO survey of the canned metadata (GLBs from a fake fetcher), two Objaverse
+    sofas (CC BY 4.0 and CC BY-NC 4.0) and one generated chair; thumbnails with a fake Blender and canned decks."""
+    from wenart.assets import abo as A
+    out = tmp_path / "lib"
+    m = Mirror(tmp_path / "mirror")
+    obj_by = m.add("sofa", likes=9, name="Oak Sofa")
+    obj_nc = m.add("sofa", likes=8, licence="by-nc", name="NC Sofa")
+    OV.survey(m.write(), out, CFG, log=quiet)
+    n = [0]
+
+    def fetcher(url, dest, max_bytes):
+        n[0] += 1
+        return make_glb(Path(dest), pad=4 * n[0])
+    acfg = A.load_config()
+    A.survey(A.Metadata(acfg, ABO_FIXTURE, download_missing=False), out, acfg, CFG, download_glbs=True,
+             cache=tmp_path / "abo", fetcher=fetcher, workers=1, log=quiet)
+    gen_glb = make_glb(tmp_path / "gen" / f"{GEN_UID}.glb", pad=400)
+    OV.write_json(out / OV.SURVEY_FILES["generated"], {"kind": "generated_survey", "candidates": [{
+        "uid": GEN_UID, "group": "chair", "types": ["chair"], "title": "generated chair (scandinavian)",
+        "licence": "generated (TRELLIS.2-4B, MIT)", "licence_flag": None, "source": "generated", "kind": "furniture",
+        "units_known": False, "style_hint": "scandinavian", "glb": str(gen_glb), "glb_sha256": OV.sha256_file(gen_glb),
+        "glb_bytes": gen_glb.stat().st_size, "glb_info": OV.glb_info(gen_glb), "rank": 1,
+        "generated": {"prompt": "a single scandinavian style chair, ...", "image_sha256": "c" * 64,
+                      "model": "microsoft/TRELLIS.2-4B", "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+                      "seed": 7}}]})
+    chair = box(-0.25, -0.25, 0, 0.25, 0.25, 0.45) + box(-0.25, 0.2, 0.45, 0.25, 0.25, 0.9)
+    uids = {"tisbury": "abo_B07B4SCB6T", "frame_full": "abo_B086VNNCMZ", "sofa": "abo_B072PZ4LVN",
+            "loveseat": "abo_B075X4VQV1", "armchair": "abo_B073G7BVCT", "rug": "abo_B071777YN3",
+            "rug2": "abo_B0719STLL8", "art": "abo_B073P5V3BJ", "plant": "abo_B07QD5G1KC", "side": "abo_B072ZLCB3M",
+            "obj_by": obj_by, "obj_nc": obj_nc, "gen": GEN_UID}
+    shapes = {
+        uids["tisbury"]: bed_frame_shape(0.35),
+        uids["frame_full"]: bed_frame_shape(0.30, slats=False),          # rails only: the rays miss
+        uids["sofa"]: (sofa_points(), []),                               # 2 x 0.9 x 0.85 m, back at +Y
+        uids["loveseat"]: ([(x * 0.76, y * 0.89, z) for x, y, z in sofa_points()], []),
+        uids["armchair"]: ([(x * 0.4, y, z * 1.2) for x, y, z in sofa_points()], []),
+        uids["rug"]: (box(-0.9, -0.6, 0, 0.9, 0.6, 0.02), []),
+        uids["rug2"]: (box(-1.2, -0.4, 0, 1.2, 0.4, 0.02), []),
+        uids["art"]: (box(-0.32, -0.03, 0, 0.32, 0.0, 1.46), []),
+        uids["plant"]: (box(-0.11, -0.11, 0, 0.11, 0.11, 0.2), []),
+        uids["side"]: (box(-0.7, -0.7, 0, 0.7, 0.7, 1.4), []),           # three times the listed box
+        uids["obj_by"]: (scaled(sofa_points(), 100.0), []),
+        uids["obj_nc"]: (sofa_points(), []),
+        uids["gen"]: (scaled(chair, 10.0), []),
+    }
+    jobs: list = []
+    doc, rc = OV.thumbnails(out, tmp_path / "work", CFG, runner=fake_runner(shapes, [], jobs), log=quiet)
+    answers = {
+        uids["tisbury"]: (answer(front=0, mattress=False), answer(front=0, mattress=False)),
+        uids["frame_full"]: (answer(front=0, mattress=False), answer(front=0, mattress=False)),
+        uids["sofa"]: (answer(front=0), answer(front=0)),
+        uids["loveseat"]: (answer(front=2), answer(front=2)),           # both contradict the documented -Y
+        uids["armchair"]: (answer(front=0), answer(front=None)),        # split: the documented front decides
+        uids["rug"]: (decor_answer(), decor_answer()),
+        uids["rug2"]: (decor_answer(), decor_answer(ok=False)),
+        uids["art"]: (decor_answer(front=0), decor_answer(front=0)),
+        uids["plant"]: (decor_answer(ok=False), decor_answer(ok=False)),    # an empty planter
+        uids["obj_by"]: (answer(front=0), answer(front=0)),
+        uids["obj_nc"]: (answer(front=0, styles=["industrial"]), answer(front=0, styles=["industrial"])),
+        uids["gen"]: (answer(front=0, styles=["scandinavian"]), answer(front=0, styles=["scandinavian"])),
+    }
+    lib = SimpleNamespace(out=out, tmp=tmp_path, uids=uids, doc=doc, rc=rc, jobs=jobs, shapes=shapes)
+    clients = {k: (lambda i: lambda images, _p: answers[Path(images[0]).stem][i])(i) for i, k in
+               enumerate(OV.MODEL_KEYS)}
+    lib.rcs = run_judges(lib, clients=clients)
+    return lib
+
+
+def test_load_candidates_merges_every_survey_file(mixed):
+    cands = OV.load_candidates(mixed.out)
+    by_source = {}
+    for c in cands:
+        by_source.setdefault(c["source"], []).append(c["uid"])
+    assert set(by_source) == {"objaverse", "abo", "generated"}
+    assert by_source["generated"] == [GEN_UID] and len(by_source["abo"]) == 28 and len(by_source["objaverse"]) == 2
+    assert [c["source"] for c in cands] == sorted((c["source"] for c in cands), key=list(OV.SURVEY_FILES).index)
+    gen = next(c for c in cands if c["source"] == "generated")
+    assert gen["decor_type"] is None and gen["extents_raw"] is None and gen["categories"] == []
+    assert OV.load_candidates(mixed.out, sources=["generated"]) == [gen]
+    # A uid in two survey files is refused (never guessed which is right).
+    surv = OV.read_json(mixed.out / OV.SURVEY_FILES["generated"])
+    surv["candidates"].append(dict(surv["candidates"][0], uid=mixed.uids["obj_by"]))
+    OV.write_json(mixed.out / OV.SURVEY_FILES["generated"], surv)
+    with pytest.raises(OV.UsageError, match="is a candidate of objaverse and generated"):
+        OV.load_candidates(mixed.out)
+    with pytest.raises(OV.UsageError, match="no survey file"):
+        OV.load_candidates(mixed.tmp / "nowhere")
+
+
+def test_units_known_documented_fronts_and_decks_in_the_thumbnails(mixed):
+    objs, u = mixed.doc["objects"], mixed.uids
+    assert mixed.rc == OV.EXIT_OK                       # objects without a shape: blender_error, not the step
+    sofa = objs[u["sofa"]]
+    assert sofa["status"] == "ready" and sofa["source"] == "abo" and sofa["units_known"] is True
+    assert sofa["unit"]["scale"] == 1.0 and sofa["unit"]["known"] and sofa["unit"]["note"].startswith("units known")
+    assert sofa["front_documented"] == "-Y" and "glTF +Z" in sofa["front_documented_note"]
+    side = objs[u["side"]]                                                    # units known: refused, never normalised
+    assert side["status"] == "refused" and side["code"] == "size_range" and "never normalised" in side["detail"]
+    gen = objs[u["gen"]]
+    assert gen["status"] == "ready" and gen["unit"]["normalised"] and gen["type"] == "chair"
+    assert objs[u["obj_by"]]["unit"]["scale"] == 0.01 and objs[u["obj_nc"]]["licence_flag"] == "non_commercial"
+    rug = objs[u["rug"]]
+    assert rug["kind"] == "decor" and rug["decor_type"] == "rug" and rug["type"] == "rug" and "front_documented" \
+        not in rug                                                            # rugs have no front
+    assert objs[u["art"]]["front_rule"] == OV.DOCUMENTED_RULE and objs[u["art"]]["front_documented"] == "-Y"
+    # Beds: the deck of 5 downward rays, in metres; only bed candidates are measured for it.
+    bed = objs[u["tisbury"]]
+    assert bed["deck_height_m"] == pytest.approx(0.35) and bed["deck"]["hits"] == 5
+    assert objs[u["frame_full"]]["deck_height_m"] is None and objs[u["frame_full"]]["deck"]["hits"] == 0
+    deck_jobs = {j["uid"] for j in mixed.jobs if j["deck"]}
+    assert deck_jobs == {c["uid"] for c in OV.load_candidates(mixed.out) if OV.needs_deck(c)}
+    notice = (mixed.out / "thumbs" / "NOTICE.md").read_text()
+    assert "ODC Attribution License" in notice and "Amazon Berkeley Objects" in notice and "TRELLIS.2-4B" in notice
+    assert f"`thumbs/sofa/{u['sofa']}.jpg`: " in notice
+
+
+def test_a_bed_measured_before_m8_gets_its_deck_without_a_new_render(mixed):
+    measure = mixed.tmp / "work" / "measure" / f"{mixed.uids['tisbury']}.json"
+    rec = OV.read_json(measure)
+    rec.pop("deck")
+    OV.write_json(measure, rec)
+    jobs: list = []
+    calls: list = []
+    doc, _rc = OV.thumbnails(mixed.out, mixed.tmp / "work", CFG, runner=fake_runner(mixed.shapes, calls, jobs),
+                             log=quiet)
+    tis = next(j for j in jobs if j["uid"] == mixed.uids["tisbury"])
+    assert tis["render"] is False and tis["deck"] is True
+    assert doc["objects"][mixed.uids["tisbury"]]["deck_height_m"] == pytest.approx(0.35)
+    failed = {uid for uid, o in mixed.doc["objects"].items() if o.get("code") == "blender_error"}
+    assert failed and {j["uid"] for j in jobs if j["render"]} == failed     # only the ones Blender could not do
+
+
+def test_decor_and_furniture_questions(mixed):
+    doc = OV.read_requests(mixed.out)
+    items = {i["context"]["uid"]: i for i in doc["items"]}
+    rug = items[mixed.uids["rug"]]
+    assert rug["context"]["kind"] == "decor" and rug["context"]["decor_type"] == "rug"
+    assert "offered as rug decor" in rug["prompt"] and "is_decor_type: true when it is one flat floor rug" in rug["prompt"]
+    plant = items[mixed.uids["plant"]]
+    assert "an empty pot, planter or vase is not one" in plant["prompt"]
+    assert "picture side" in items[mixed.uids["art"]]["prompt"]
+    sofa = items[mixed.uids["sofa"]]
+    # The furniture question is the M7 one (stored M7 answers stay current).
+    assert sofa["prompt"] == OV.judge_prompt("sofa", sofa["context"]["dims_m"], True, False)
+    assert sofa["context"]["source"] == "abo" and sofa["context"]["kind"] == "furniture"
+    assert OV.judge_schema("decor")["required"] == ["is_single_object", "is_decor_type", "photoreal_quality",
+                                                    "styles", "front_view"]
+    assert "matches_type" not in OV.judge_schema("decor")["properties"]
+    assert not OV.valid_judgement(answer(), "decor") and OV.valid_judgement(decor_answer(), "decor")
+    assert mixed.rcs["qwen"] == 0 and mixed.rcs["glm"] == 0
+    status = OV.judge_status(mixed.out)
+    assert status["complete"] and status["items"] == len(items)
+
+
+def test_accept_of_every_source(mixed):
+    acc = OV.accept(mixed.out, CFG)
+    u = mixed.uids
+    got = {d["uid"]: d for d in acc["accepted"]}
+    codes = {d["uid"]: d["code"] for d in acc["refused"]}
+    assert set(got) == {u[k] for k in ("tisbury", "sofa", "armchair", "rug", "art", "obj_by", "obj_nc", "gen")}
+    assert codes[u["frame_full"]] == "no_deck" and "0 of 5 downward rays" in next(
+        d["detail"] for d in acc["refused"] if d["uid"] == u["frame_full"])
+    assert codes[u["loveseat"]] == "front_not_agreed" and codes[u["rug2"]] == "not_decor_type"
+    assert codes[u["plant"]] == "not_decor_type"
+    bed = got[u["tisbury"]]
+    assert bed["bed_frame"] is True and bed["has_mattress"] is False and bed["deck_height_m"] == pytest.approx(0.35)
+    assert got[u["sofa"]]["bed_frame"] is None and got[u["sofa"]]["front_axis"] == "-Y"
+    assert "did not agree" in got[u["armchair"]]["front_axis_note"] and got[u["armchair"]]["front_axis"] == "-Y"
+    assert got[u["art"]]["front_axis"] == "-Y" and got[u["art"]]["front_axis_confidence"] == "high"
+    assert got[u["rug"]]["kind"] == "decor" and got[u["rug"]]["front_axis_confidence"] == "low"
+    assert got[u["obj_nc"]]["licence_flag"] == "non_commercial" and got[u["gen"]]["source"] == "generated"
+    assert acc["accepted_by_source"] == {"abo": 5, "generated": 1, "objaverse": 2}
+    real = OV.accept(mixed.out, CFG, sources=["abo", "objaverse"])
+    assert u["gen"] not in {d["uid"] for d in real["accepted"]} and len(real["accepted"]) == 7
+
+
+def test_bed_frame_rules_on_canned_decks():
+    bed = dict(obj("bed_double"), deck_height_m=0.32, deck={"hits": 4, "hits_raw": [0.32] * 4 + [None]})
+    no = answer(mattress=False)
+    dec = OV.decide(bed, {"qwen": no, "glm": no}, CFG)
+    assert dec["accepted"] and dec["bed_frame"] is True and dec["has_mattress"] is False and dec["deck_height_m"] == 0.32
+    assert "median of 4 of 5" in dec["deck_note"]
+    for deck, why in ((dict(bed, deck_height_m=0.03), "outside 0.08-0.9 m"),        # the floor rail
+                      (dict(bed, deck_height_m=2.0), "outside 0.08-0.9 m"),         # a canopy
+                      (dict(bed, deck={"hits": 2, "hits_raw": [0.3, 0.3, None, None, None]}), "2 of 5")):
+        refused = OV.decide(deck, {"qwen": no, "glm": no}, CFG)
+        assert refused["code"] == "no_deck" and why in refused["detail"], refused
+    yes = answer(mattress=True)
+    kept = OV.decide(dict(bed, deck_height_m=None), {"qwen": yes, "glm": yes}, CFG)
+    assert kept["accepted"] and kept["has_mattress"] is True and kept["bed_frame"] is False
+
+
+def test_deck_height_on_canned_geometry():
+    """Five rays straight down inside the inner 50 % of the footprint; each hit is the topmost surface above its
+    point; the median of the hits above the box bottom."""
+    mins, maxs = [-1.0, -1.0, 0.0], [1.0, 1.0, 1.0]
+    pts = OV.deck_points(mins, maxs, 0.2)
+    assert pts == [(0.0, 0.0), (-0.4, -0.4), (0.4, -0.4), (-0.4, 0.4), (0.4, 0.4)]
+    assert all(abs(x) < 0.5 and abs(y) < 0.5 for x, y in pts)                       # inside the inner 50 %
+    # Slats along x at y = -0.4 and 0.0 (z 0.30) and a bottom bar under everything (z 0.05): three rays meet a slat.
+    slats = [quad_z(-1, -0.45, 1, -0.35, 0.30), quad_z(-1, -0.05, 1, 0.05, 0.30)]
+    bar = [quad_z(-1, -1, 1, 1, 0.05)]
+    deck = OV.deck_height(slats + bar, mins, maxs)
+    assert deck["hits_raw"] == [0.3, 0.3, 0.3, 0.05, 0.05] and deck["height_raw"] == 0.3 and deck["hits"] == 5
+    # The topmost surface counts (a mattress over the slats); a vertical face is never a hit; no polygon: no hit.
+    top = OV.deck_height(slats + bar + [quad_z(-1, -1, 1, 1, 0.55)], mins, maxs)
+    assert top["height_raw"] == 0.55
+    wall = [[(0.0, -1.0, 0.0), (0.0, 1.0, 0.0), (0.0, 1.0, 1.0), (0.0, -1.0, 1.0)]]
+    assert OV.deck_height(wall, mins, maxs)["hits"] == 0
+    assert OV.deck_height([], mins, maxs) == {"points": [[0.0, 0.0], [-0.4, -0.4], [0.4, -0.4], [-0.4, 0.4],
+                                                         [0.4, 0.4]], "hits_raw": [None] * 5, "hits": 0,
+                                              "height_raw": None, "offset": 0.2}
+    # A box offset from the origin: the hits are measured from its bottom.
+    shifted = OV.deck_height([quad_z(9, 9, 11, 11, 3.4)], [9, 9, 3.0], [11, 11, 4.0])
+    assert shifted["height_raw"] == pytest.approx(0.4)
+
+
+def test_write_catalog_of_every_source(mixed):
+    OV.accept(mixed.out, CFG)
+    assets = mixed.tmp / "assets"
+    doc = OV.write_catalog(mixed.out, assets, CFG, log=quiet)
+    C.validate(doc, complete=False)
+    u = mixed.uids
+    entries = {e["uid"]: e for e in doc["entries"]}
+    decor = {e["uid"]: e for e in doc["decor"]}
+    assert set(decor) == {u["rug"], u["art"]} and set(entries) == {u[k] for k in ("tisbury", "sofa", "armchair",
+                                                                                     "obj_by", "obj_nc", "gen")}
+    assert doc["sources"] == ["abo", "objaverse", "generated"] and doc["kind"] == "library_catalog"
+    assert doc["file_licences"] == ["ODC-By-1.0", "CC-BY-4.0"] and len(doc["notices"]) == 3
+    assert doc["counts"]["licence_flags"] == {"non_commercial": 1} and doc["counts"]["bed_frames"] == 1
+    for e in doc["entries"] + doc["decor"]:
+        cached = assets / e["glb"]
+        assert e["glb"] == f"models/{e['source']}/{e['uid']}.glb" and OV.sha256_file(cached) == e["sha256_glb"]
+    sofa = entries[u["sofa"]]
+    assert sofa["id"] == u["sofa"] and sofa["source"] == "abo" and sofa["unit_scale"] == 1.0 and sofa["units_known"]
+    assert sofa["abo_3dmodel_id"] == "B072PZ4LVN" and sofa["attribution"].endswith("AI-retouched")
+    assert sofa["attribution"].startswith('"Amazon Brand – Rivet Revolve Modern Upholstered Sofa Couch')
+    assert sofa["licence"] == C.CC_BY and sofa["licence_flag"] is None and sofa["quality"] == [5, 5]
+    bed = entries[u["tisbury"]]
+    assert bed["bed_frame"] is True and bed["has_mattress"] is False and bed["deck_height_m"] == pytest.approx(0.35)
+    assert C.bed_usable(bed) and not C.has_mattress(bed)
+    nc = entries[u["obj_nc"]]
+    assert nc["id"] == f"objaverse_{u['obj_nc']}" and nc["licence"] == "CC-BY-NC-4.0"
+    assert nc["licence_flag"] == "non_commercial" and "CC BY-NC 4.0" in nc["attribution"]
+    gen = entries[u["gen"]]
+    assert gen["source"] == "generated" and gen["licence"].startswith("generated") and gen["licence_flag"] is None
+    assert gen["generated"]["seed"] == 7 and gen["unit_note"].startswith(OV.NORMALISED_NOTE)
+    rug = decor[u["rug"]]
+    assert rug["type"] == "decor_rug" and rug["kind"] == "decor" and rug["decor_type"] == "rug"
+    # catalog.load merges the library file (decor too) and prefers it over an M7 catalog_objaverse.json.
+    base_dir = mixed.tmp / "furniture"
+    base_dir.mkdir()
+    shutil.copy(C.CATALOG_PATH, base_dir / "catalog.json")
+    shutil.copy(mixed.out / OV.CATALOG_NAME, base_dir / "catalog_library.json")
+    (base_dir / "catalog_objaverse.json").write_text("{}")                       # ignored while the library is there
+    merged = C.load(base_dir / "catalog.json")
+    assert merged.merged["source"] == "catalog_library.json" and merged.merged["decor_added"] == 2
+    assert [e["id"] for e in merged.decor_candidates("rug")] == [u["rug"]]
+    assert merged.decor_candidates("cushion") == [] and merged.entry(u["art"])["decor_type"] == "wall_art"
+    assert u["sofa"] in [e["id"] for e in merged.candidates("sofa")]
+    assert any(e["id"] == "throw_pillows_01" for e in merged.decor)              # Poly Haven decor stays
+
+
+def test_write_catalog_takes_the_assets_copy_when_the_survey_cache_is_gone(mixed):
+    """A later pod (L2) has not downloaded the real models again: the GLB an earlier write-catalog put into the
+    assets cache on the volume (same sha256) is used; without it the model is refused glb_changed."""
+    OV.accept(mixed.out, CFG)
+    assets = mixed.tmp / "assets"
+    OV.write_catalog(mixed.out, assets, CFG, log=quiet)
+    cand = next(c for c in OV.load_candidates(mixed.out) if c["uid"] == mixed.uids["sofa"])
+    Path(cand["glb"]).unlink()
+    doc = OV.write_catalog(mixed.out, assets, CFG, log=quiet)
+    assert mixed.uids["sofa"] in {e["uid"] for e in doc["entries"]} and doc["refused_at_write"] == []
+    (assets / "models" / "abo" / f"{mixed.uids['sofa']}.glb").unlink()
+    doc = OV.write_catalog(mixed.out, assets, CFG, log=quiet)
+    assert doc["refused_at_write"] == [{"uid": mixed.uids["sofa"], "code": "glb_changed", "detail": cand["glb"]}]
+
+
+def test_report_of_every_source(mixed):
+    OV.accept(mixed.out, CFG)
+    OV.write_catalog(mixed.out, mixed.tmp / "assets", CFG, log=quiet)
+    text = OV.report(mixed.out, CFG)
+    for heading in ("## Sources", "## Steps", "## Per type", "## Refusals by reason", "## Licence values seen",
+                    "## ABO mapping", "## Licence flags (catalogue)", "## Style coverage", "## Beds", "## Catalogue",
+                    "## Attribution", "## Refused after judging"):
+        assert heading in text, heading
+    assert "| abo | survey_abo.json | 28 | 28 |" in text and "| generated | survey_generated.json | 1 | 1 |" in text
+    assert "| CC-BY-NC-4.0 | non_commercial | 1 |" in text and "(licence flag: non_commercial)" in text
+    assert OV.odc_by_notice(CFG) in text and "Amazon Berkeley Objects" in text and OV.GENERATED_NOTICE in text
+    assert "| accept | no_deck |" in text and "| thumbnails | size_range |" in text
+    assert f"| `{mixed.uids['tisbury']}` | bed_double | abo | False | True | 0.35 |" in text
+    for e in OV.read_json(mixed.out / OV.CATALOG_NAME)["entries"]:
+        assert e["attribution"] in text
+
+
+# --------------------------------------------------------------------------
+# The catalogue of every source (wenart/furniture/catalog.py; docs/milestone8.md §2, §7)
+# --------------------------------------------------------------------------
+
+def lib_entry(source, uid, ftype, dims=(1.0, 0.5, 0.8), licence=None, **extra):
+    """A minimal valid library entry of ``source`` (furniture, or decor for a ``decor_<type>`` type)."""
+    w, d, h = dims
+    e = {"id": f"objaverse_{uid}" if source == "objaverse" else uid, "type": ftype, "source": source,
+         "licence": licence or {"abo": C.CC_BY, "generated": "generated (TRELLIS.2-4B, MIT)"}.get(source, C.CC_BY),
+         "bbox_m": [w, d, h], "bbox_model_m": [w, d, h], "bbox_min_m": [-w / 2, -d / 2, 0.0],
+         "bbox_max_m": [w / 2, d / 2, h], "front_axis": "-Y", "up_axis": "+Z", "origin_offset": [0.0, 0.0, 0.0],
+         "front_axis_confidence": "high", "glb": f"models/{source}/{uid}.glb", "sha256_glb": "ab" * 32, "uid": uid,
+         "styles": ["modern"], "style_note": "both judges", "title": f"Model {uid}", "author": "Amazon.com",
+         "source_url": f"https://example.org/{uid}", "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+         "via": "Amazon Berkeley Objects (CC BY 4.0)", "attribution": f'"Model {uid}" by Amazon.com', "quality": [5, 4]}
+    e["licence_flag"] = C.licence_flag_of(e["licence"])
+    if source == "generated":
+        e["generated"] = {"prompt": "p", "image_sha256": "c" * 64, "model": "microsoft/TRELLIS.2-4B", "revision": "r",
+                          "seed": 1}
+    if ftype.startswith("decor_"):
+        e.update(kind="decor", decor_type=ftype[len("decor_"):], front_axis_confidence="low")
+    elif ftype in C.BED_TYPES:
+        e["has_mattress"] = True
+    e.update(extra)
+    return e
+
+
+def test_catalogue_validation_of_every_source():
+    good = {"entries": [lib_entry("abo", "abo_A1", "sofa", (2.0, 0.9, 0.85)),
+                        lib_entry("objaverse", "u1", "chair", (0.5, 0.5, 0.9), licence="CC-BY-NC-4.0"),
+                        lib_entry("objaverse", "u2", "desk", licence="unknown"),
+                        lib_entry("generated", "gen_chair_modern_1_ab12cd34", "chair", (0.5, 0.5, 0.9),
+                                  author="", source_url="", attribution=""),
+                        lib_entry("abo", "abo_B1", "bed_double", (1.6, 2.1, 0.9), has_mattress=False,
+                                  bed_frame=True, deck_height_m=0.32)],
+            "decor": [lib_entry("abo", "abo_R1", "decor_rug", (2.0, 1.4, 0.02))]}
+    C.validate(good, complete=False)
+    assert C.validate({"entries": [], "decor": good["decor"]}, complete=False) is None   # decor only
+
+    def broken(where, i, match=None, **change):
+        d = json.loads(json.dumps(good))
+        d[where][i].update(change)
+        for k, v in list(change.items()):
+            if v is KeyError:
+                d[where][i].pop(k)
+        with pytest.raises(C.CatalogError, match=match):
+            C.validate(d, complete=False)
+
+    broken("entries", 0, "abo/CC0", licence="CC0", licence_flag=None)               # ABO is CC BY 4.0
+    broken("entries", 0, "credit line", author="")
+    broken("entries", 1, "licence_flag", licence_flag=None)                          # a flagged licence's flag
+    broken("entries", 1, "licence_flag", licence_flag=KeyError)
+    broken("entries", 1, "credit line", attribution="")                             # any non-CC0 licence: credit
+    broken("entries", 0, "licence_flag", licence_flag="non_commercial")              # CC BY 4.0: no flag
+    broken("entries", 1, "is not allowed", licence="CC BY-NC", licence_flag="unknown")
+    broken("entries", 3, "generated", licence="MIT", licence_flag=None)
+    broken("entries", 3, "generated record", generated={"prompt": "p"})
+    broken("entries", 3, "missing field", generated=KeyError)
+    broken("entries", 0, "at least one style", styles=[])
+    broken("entries", 0, "kind furniture", kind="decor")
+    broken("entries", 0, "decor_type", decor_type="rug")
+    broken("entries", 0, "quality", quality=[5])
+    broken("entries", 0, "quality", quality=[6, 5])
+    broken("entries", 4, "deck_height_m", deck_height_m=KeyError)                   # a frame needs its deck
+    broken("entries", 4, "no mattress", has_mattress=True)
+    broken("entries", 4, "positive", deck_height_m=-0.1)
+    broken("entries", 0, "beds only", bed_frame=True, deck_height_m=0.3)
+    broken("decor", 0, "decor_type", decor_type="lamp")
+    broken("decor", 0, "has type decor_rug", type="decor_cushion")
+    broken("decor", 0, "needs kind decor", kind=KeyError, decor_type=None)
+    d = json.loads(json.dumps(good))
+    d["decor"].append(dict(d["decor"][0]))
+    with pytest.raises(C.CatalogError, match="duplicate id"):
+        C.validate(d, complete=False)
+    # The M7 Objaverse entries (no licence_flag, CC0 / CC BY 4.0) stay valid.
+    m7 = OV.read_json(C.objaverse_path(C.CATALOG_PATH))
+    if m7 is not None:
+        C.validate(m7, complete=False)
+
+
+def test_catalogue_load_merges_the_library_file_with_decor(tmp_path):
+    main = tmp_path / "catalog.json"
+    shutil.copy(C.CATALOG_PATH, main)
+    assert C.extra_path(main) is None and C.load(main).merged == {}
+    old = {"entries": [lib_entry("objaverse", "u9", "chair", (0.5, 0.5, 0.9), licence="CC0", author="a",
+                                 attribution="x")]}
+    C.objaverse_path(main).write_text(json.dumps(old))
+    assert C.load(main).merged["source"] == "catalog_objaverse.json"                    # the M7 fallback
+    lib = {"entries": [lib_entry("abo", "abo_A1", "sofa", (2.0, 0.9, 0.85)),
+                       lib_entry("abo", "abo_B1", "bed_single", (1.0, 2.0, 0.7), has_mattress=False, bed_frame=True,
+                                 deck_height_m=0.3)],
+           "decor": [lib_entry("abo", "abo_R1", "decor_rug", (2.0, 1.4, 0.02)),
+                     lib_entry("abo", "abo_P1", "decor_plant", (0.4, 0.4, 1.0)),
+                     lib_entry("abo", "abo_R2", "decor_rug", (3.0, 2.0, 0.02))]}
+    C.library_path(main).write_text(json.dumps(lib))
+    cat = C.load(main)
+    assert C.extra_path(main) == tmp_path / "catalog_library.json"
+    assert cat.merged == {"source": "catalog_library.json", "models_added": 2, "parametric_replaced": ["bed_single"],
+                          "decor_added": 3}
+    assert "objaverse_u9" not in cat.ids()                                               # only one file is merged
+    assert [e["id"] for e in cat.decor_candidates("rug")] == ["abo_R1", "abo_R2"]
+    assert [e["id"] for e in cat.decor_candidates("plant")] == ["abo_P1"] and cat.decor_candidates("wall_art") == []
+    assert cat.entry("abo_R2")["decor_type"] == "rug" and cat.candidates("sofa")[-1]["id"] == "abo_A1"
+    frame = cat.entry("abo_B1")
+    assert C.bed_usable(frame) and not C.has_mattress(frame)
+    assert not C.bed_usable(dict(frame, bed_frame=False)) and C.bed_usable(cat.entry("abo_A1"))
+    assert C.load(main, library=False).merged == {}
+    assert C.load(main, library=C.objaverse_path(main)).merged["source"] == "catalog_objaverse.json"
+    # An id in both files is refused (the merge keeps ids unique).
+    lib["decor"][0]["id"] = cat.models[0]["id"]
+    C.library_path(main).write_text(json.dumps(lib))
+    with pytest.raises(C.CatalogError, match="duplicate id"):
+        C.load(main)
+
+
+def test_a_candidate_whose_uid_is_no_plain_id_is_refused_visibly(mixed):
+    """The cache path models/<source>/<uid>.glb needs a plain id: a generated uid with a space is refused bad_uid in
+    the thumbnails (never a failed fetch on the full run)."""
+    surv = OV.read_json(mixed.out / OV.SURVEY_FILES["generated"])
+    bad = dict(surv["candidates"][0], uid="gen_sofa_modern minimal_1_ab12cd34", group="sofa", types=["sofa"])
+    surv["candidates"].append(bad)
+    OV.write_json(mixed.out / OV.SURVEY_FILES["generated"], surv)
+    doc, _rc = OV.thumbnails(mixed.out, mixed.tmp / "work", CFG, runner=fake_runner(mixed.shapes, []), log=quiet)
+    rec = doc["objects"][bad["uid"]]
+    assert rec["status"] == "refused" and rec["code"] == "bad_uid" and doc["counts"]["bad_uid"] == 1
+    assert doc["objects"][GEN_UID]["status"] == "ready"

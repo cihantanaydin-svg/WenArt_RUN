@@ -1,5 +1,6 @@
 """The furniture catalogue: our furniture types -> CC0 Poly Haven models (and,
-from Milestone 7, CC0 / CC BY 4.0 Objaverse models).
+from Milestone 7, CC0 / CC BY 4.0 Objaverse models; from Milestone 8 the
+library of every source: ABO, Objaverse of any licence, generated models).
 
 ``catalog.json`` was written by hand on 2026-10-01 after surveying the 521
 models of ``GET https://api.polyhaven.com/assets?type=models`` (85 in the
@@ -71,6 +72,34 @@ Milestone 7 (docs/milestone7.md §6.3, §6.6, user decision 7):
   unknown and it was normalised by type), which the fit carries into the
   asset and the scene builder applies to the imported mesh before
   ``fit_scale``.
+
+Milestone 8 (docs/milestone8.md §1, §2):
+
+- ``load()`` merges ``catalog_library.json`` (the prep pod's one library
+  catalogue of every source) when it is next to the catalogue file, else the
+  M7 ``catalog_objaverse.json`` (a fallback until the library file replaces
+  it); both are merged the same way (``merge``), and the library file's
+  ``decor`` models are appended to the ``decor`` section.
+- Sources: ``polyhaven`` (CC0), ``objaverse`` (any licence: CC0 / CC BY 4.0
+  unflagged, every other licence of ``LICENCE_FLAGS`` with its
+  ``licence_flag``), ``abo`` (Amazon Berkeley Objects, CC BY 4.0, units
+  known: metres) and ``generated`` (TRELLIS.2 models, licence
+  ``generated (...)``, with the ``generated`` record of how they were made).
+  Library entries (every source but Poly Haven) carry the frame fields, the
+  GLB fields, ``styles`` and, except generated ones, the credit fields.
+- New entry fields: ``source``, ``licence_flag`` (null for CC0 / CC BY 4.0
+  and generated models; else ``non_commercial``, ``share_alike``,
+  ``no_derivatives`` or ``unknown``; recorded, never filtered while the user
+  allows any licence), ``quality`` (the two judges' photoreal quality),
+  ``kind`` (``furniture`` / ``decor``) and ``decor_type`` (decor), and for
+  beds ``bed_frame`` (a frame without a mattress: the scene builder adds the
+  parametric bedding on its deck) with ``deck_height_m``.
+- Library decor models live in the ``decor`` section with ``kind: decor``,
+  ``decor_type`` in ``DECOR_TYPES`` and ``type`` ``decor_<decor_type>``;
+  ``Catalog.decor_candidates(decor_type)`` lists them (the Poly Haven decor
+  models of ``catalog.json`` stay as they were).
+- ``bed_usable(entry)``: a bed model with a mattress, or a bed frame with a
+  deck; ``has_mattress`` keeps its M7 meaning.
 """
 from __future__ import annotations
 
@@ -80,15 +109,35 @@ from pathlib import Path
 from typing import Optional
 
 CATALOG_PATH = Path(__file__).resolve().parent / "catalog.json"
-OBJAVERSE_SUFFIX = "_objaverse"        # catalog.json -> catalog_objaverse.json (same folder)
+OBJAVERSE_SUFFIX = "_objaverse"        # catalog.json -> catalog_objaverse.json (same folder; M7)
+LIBRARY_SUFFIX = "_library"            # catalog.json -> catalog_library.json (same folder; M8, preferred)
 LICENCE = "CC0"
 CC_BY = "CC-BY-4.0"
-SOURCES = ("polyhaven", "objaverse")
-# Source -> licences its models may carry (docs/milestone7.md §6.3): Poly Haven is CC0 only; Objaverse
-# objects carry the uploader's licence, of which only CC0 and CC BY 4.0 are taken.
-SOURCE_LICENCES: dict[str, tuple[str, ...]] = {"polyhaven": (LICENCE,), "objaverse": (LICENCE, CC_BY)}
-# Fields a CC BY entry needs for its credit line (CC BY 4.0 §3(a)(1)).
+SOURCES = ("polyhaven", "objaverse", "abo", "generated")
+LIBRARY_SOURCES = ("objaverse", "abo", "generated")      # written by the prep pod (wenart/assets/objaverse.py)
+# Licence -> its flag (docs/milestone8.md §2): None for CC0 and CC BY 4.0 (credit only), else what limits the use.
+# The Objaverse licence strings map onto these names in wenart/assets/objaverse.yaml (licences).
+LICENCE_FLAGS: dict[str, Optional[str]] = {
+    LICENCE: None, CC_BY: None,
+    "CC-BY-NC-4.0": "non_commercial", "CC-BY-NC-SA-4.0": "non_commercial", "CC-BY-NC-ND-4.0": "non_commercial",
+    "CC-BY-SA-4.0": "share_alike", "CC-BY-ND-4.0": "no_derivatives",
+    "Sketchfab-Editorial": "non_commercial", "Sketchfab-Standard": "unknown", "Sketchfab-Free-Standard": "unknown",
+    "unknown": "unknown",
+}
+FLAGS = ("non_commercial", "share_alike", "no_derivatives", "unknown")
+GENERATED_LICENCE_PREFIX = "generated"   # e.g. "generated (TRELLIS.2-4B, MIT)" (docs/milestone8.md §3)
+# Source -> licences its models may carry (docs/milestone7.md §6.3, docs/milestone8.md §2): Poly Haven is CC0 only;
+# Objaverse objects carry the uploader's licence (any, flagged unless CC0 / CC BY 4.0); ABO is CC BY 4.0; a generated
+# model's licence starts with "generated" (checked apart).
+SOURCE_LICENCES: dict[str, tuple[str, ...]] = {"polyhaven": (LICENCE,), "objaverse": tuple(LICENCE_FLAGS),
+                                               "abo": (CC_BY,)}
+# Fields a CC BY entry needs for its credit line (CC BY 4.0 §3(a)(1)); every library model but a generated one has
+# them (any non-CC0 licence asks for the credit).
 CC_BY_FIELDS = ("title", "author", "source_url", "licence_url", "via", "attribution")
+# The fields of a generated model's ``generated`` record (docs/milestone8.md §2).
+GENERATED_FIELDS = ("prompt", "image_sha256", "model", "revision", "seed")
+KINDS = ("furniture", "decor")
+DECOR_TYPES = ("cushion", "plant", "rug", "wall_art")    # library decor (docs/milestone8.md §4)
 # The unit factors of the prep pod's unit guess (docs/milestone7.md §7.2; wenart/assets/objaverse.yaml units).
 # An Objaverse entry's optional ``unit_scale`` is one of them, or any positive finite factor with a ``unit_note``
 # saying where it comes from (a model of unknown units normalised by type, wenart.assets.objaverse.normalise_unit).
@@ -122,8 +171,10 @@ FRAME_FIELDS = ("id", "type", "source", "licence", "bbox_m", "bbox_model_m", "bb
                 "front_axis", "up_axis", "origin_offset", "front_axis_confidence")
 # Poly Haven models (and the Poly Haven decor models).
 REQUIRED_MODEL_FIELDS = FRAME_FIELDS + ("url", "gltf")
-# Objaverse models (docs/milestone7.md §6.6), written by the prep pod.
+# Objaverse models (docs/milestone7.md §6.6), written by the prep pod; ABO models the same (docs/milestone8.md §2).
 OBJAVERSE_FIELDS = FRAME_FIELDS + ("glb", "sha256_glb", "uid") + CC_BY_FIELDS + ("styles",)
+# Generated models: no credit fields (nobody to credit), the record of how they were made instead.
+GENERATED_MODEL_FIELDS = FRAME_FIELDS + ("glb", "sha256_glb", "uid", "styles", "generated")
 
 
 def style_values() -> tuple[str, ...]:
@@ -137,6 +188,29 @@ def objaverse_path(path: Path) -> Path:
     """The Objaverse catalogue next to a catalogue file: ``<stem>_objaverse.json``."""
     path = Path(path)
     return path.with_name(f"{path.stem}{OBJAVERSE_SUFFIX}{path.suffix}")
+
+
+def library_path(path: Path) -> Path:
+    """The library catalogue next to a catalogue file: ``<stem>_library.json`` (docs/milestone8.md §2)."""
+    path = Path(path)
+    return path.with_name(f"{path.stem}{LIBRARY_SUFFIX}{path.suffix}")
+
+
+def extra_path(path: Path) -> Optional[Path]:
+    """The file ``load`` merges next to ``path``: ``catalog_library.json`` when present, else the M7
+    ``catalog_objaverse.json`` when present, else None."""
+    for candidate in (library_path(path), objaverse_path(path)):
+        if candidate.is_file():
+            return candidate
+    return None
+
+
+def licence_flag_of(licence: Optional[str]) -> Optional[str]:
+    """The flag of a catalogue licence (``LICENCE_FLAGS``; generated models: None; an unknown name: unknown)."""
+    text = str(licence or "")
+    if text.startswith(GENERATED_LICENCE_PREFIX):
+        return None
+    return LICENCE_FLAGS.get(text, "unknown")
 
 
 class CatalogError(ValueError):
@@ -166,6 +240,11 @@ class Catalog:
         """Library entries of ``ftype`` in file order (empty for parametric or unknown types)."""
         return [e for e in self.models if e["type"] == ftype]
 
+    def decor_candidates(self, decor_type: str) -> list[dict]:
+        """Library decor models (``kind: decor``) of ``decor_type`` (``DECOR_TYPES``) in file order; the Poly Haven
+        decor models of ``catalog.json`` are not listed (they have no ``kind``)."""
+        return [e for e in self.decor if e.get("kind") == "decor" and e.get("decor_type") == decor_type]
+
     def entry(self, asset_id: str) -> Optional[dict]:
         for e in self.models + self.decor:
             if e.get("id") == asset_id:
@@ -179,32 +258,41 @@ class Catalog:
         return sorted({e["type"] for e in self.entries})
 
 
-def load(path: Optional[Path] = None, objaverse: Optional[Path] | bool = True) -> Catalog:
-    """The catalogue at ``path`` (default ``catalog.json``) merged with its Objaverse file
-    (``objaverse_path(path)`` when ``objaverse`` is True, a given path, or nothing with False/None);
-    a missing Objaverse file adds nothing."""
+def load(path: Optional[Path] = None, objaverse: Optional[Path] | bool = True,
+         library: Optional[Path] | bool | None = None) -> Catalog:
+    """The catalogue at ``path`` (default ``catalog.json``) merged with its library file: with True (default)
+    ``catalog_library.json`` next to it when present, else ``catalog_objaverse.json`` when present (``extra_path``);
+    a given path; nothing with False/None. ``library`` (when given) wins over the M7 name ``objaverse``; a missing
+    file adds nothing."""
     path = Path(path) if path else CATALOG_PATH
     data = json.loads(path.read_text(encoding="utf-8"))
-    extra_path = objaverse_path(path) if objaverse is True else (Path(objaverse) if objaverse else None)
-    if extra_path is not None and extra_path.is_file():
-        extra = json.loads(extra_path.read_text(encoding="utf-8"))
-        data = merge(data, extra, source=extra_path.name)
+    want = objaverse if library is None else library
+    extra = extra_path(path) if want is True else (Path(want) if want else None)
+    if extra is not None and extra.is_file():
+        data = merge(data, json.loads(extra.read_text(encoding="utf-8")), source=extra.name)
     return Catalog(data, path)
 
 
-def merge(base: dict, extra: dict, source: str = "catalog_objaverse.json") -> dict:
-    """``base`` with the models of ``extra`` appended (docs/milestone7.md §6.6). Both are validated first
-    (``extra`` with ``complete=False``); a type that is parametric in ``base`` but has models in ``extra``
-    loses its parametric entry. ``merged`` records the source, the number of models added and those types."""
+def merge(base: dict, extra: dict, source: str = "catalog_library.json") -> dict:
+    """``base`` with the models of ``extra`` appended (docs/milestone7.md §6.6) and its decor models appended to the
+    ``decor`` section (docs/milestone8.md §2). Both are validated first (``extra`` with ``complete=False``); a type
+    that is parametric in ``base`` but has models in ``extra`` loses its parametric entry; ids stay unique across
+    both. ``merged`` records the source, the number of models (and decor models) added and the replaced types."""
     validate(base)
     validate(extra, complete=False)
     added = [e for e in extra.get("entries", []) if not e.get("parametric")]
+    decor = list(extra.get("decor", []))
     library_types = {e["type"] for e in added}
     replaced = sorted(e["type"] for e in base.get("entries", []) if e.get("parametric") and e["type"] in library_types)
     out = dict(base)
     out["entries"] = [e for e in base.get("entries", []) if not (e.get("parametric") and e["type"] in library_types)]
     out["entries"] += added
+    if decor:
+        out["decor"] = list(base.get("decor", [])) + decor
     out["merged"] = {"source": source, "models_added": len(added), "parametric_replaced": replaced}
+    if decor:
+        out["merged"]["decor_added"] = len(decor)
+    validate(out)
     return out
 
 
@@ -213,8 +301,8 @@ def validate(data: dict, complete: bool = True) -> None:
     catalogue and the merged one): every furniture type has a library or a parametric entry; the
     Objaverse file alone is checked with ``complete=False`` (models only, any subset of types)."""
     entries = data.get("entries")
-    if not isinstance(entries, list) or not entries:
-        raise CatalogError("catalog has no entries")
+    if not isinstance(entries, list) or (not entries and (complete or not data.get("decor"))):
+        raise CatalogError("catalog has no entries")      # a partial library file may hold decor models only
     seen_types, seen_ids = set(), set()
     for e in entries:
         if e.get("parametric"):
@@ -243,7 +331,7 @@ def _validate_model(e: dict, seen_ids: set, furniture: bool) -> None:
     source = e.get("source")
     if source not in SOURCES:
         raise CatalogError(f"{e.get('id', '?')}: source {source!r} is not one of {SOURCES}")
-    required = REQUIRED_MODEL_FIELDS if source == "polyhaven" else OBJAVERSE_FIELDS
+    required = {"polyhaven": REQUIRED_MODEL_FIELDS, "generated": GENERATED_MODEL_FIELDS}.get(source, OBJAVERSE_FIELDS)
     if furniture and source == "polyhaven":
         required = required + ("styles", "style_note")
     for key in required:
@@ -252,13 +340,8 @@ def _validate_model(e: dict, seen_ids: set, furniture: bool) -> None:
     if e["id"] in seen_ids:
         raise CatalogError(f"duplicate id {e['id']}")
     seen_ids.add(e["id"])
-    if e["licence"] not in SOURCE_LICENCES[source]:
-        raise CatalogError(f"{e['id']}: source/licence {source}/{e['licence']} is not allowed "
-                           f"({source}: {', '.join(SOURCE_LICENCES[source])})")
-    if e["licence"] == CC_BY:
-        empty = [k for k in CC_BY_FIELDS if not (isinstance(e.get(k), str) and e[k].strip())]
-        if empty:
-            raise CatalogError(f"{e['id']}: a CC BY 4.0 entry needs {', '.join(empty)} for its credit line")
+    _validate_licence(e, source)
+    _validate_kind(e, source, furniture)
     for key in ("bbox_m", "bbox_model_m"):
         if len(e[key]) != 3 or not all(isinstance(v, (int, float)) and v > 0 for v in e[key]):
             raise CatalogError(f"{e['id']}: {key} must be three positive numbers")
@@ -281,13 +364,19 @@ def _validate_model(e: dict, seen_ids: set, furniture: bool) -> None:
         unknown = [v for v in styles if v not in allowed]
         if unknown:
             raise CatalogError(f"{e['id']}: unknown style word(s) {unknown} (allowed: {', '.join(allowed)})")
-        if source == "objaverse" and not styles:
-            raise CatalogError(f"{e['id']}: an Objaverse model needs at least one style (docs/milestone7.md §7.2)")
+        if source in LIBRARY_SOURCES and not styles:
+            raise CatalogError(f"{e['id']}: a {source} model needs at least one style (docs/milestone7.md §7.2)")
     if "style_note" in e and not (isinstance(e["style_note"], str) and e["style_note"].strip()):
         raise CatalogError(f"{e['id']}: style_note must say why the styles were chosen")
     if furniture and e["type"] in BED_TYPES and not isinstance(e.get("has_mattress"), bool):
         raise CatalogError(f"{e['id']}: a bed model needs has_mattress (true/false)")
-    if source == "objaverse":
+    _validate_bed_frame(e, furniture)
+    if "quality" in e:
+        q = e["quality"]
+        if not (isinstance(q, list) and len(q) == 2 and all(isinstance(v, int) and not isinstance(v, bool)
+                                                            and 1 <= v <= 5 for v in q)):
+            raise CatalogError(f"{e['id']}: quality {q!r} must be the two judges' 1..5 answers")
+    if source in LIBRARY_SOURCES:
         if not (isinstance(e["sha256_glb"], str) and len(e["sha256_glb"]) == 64):
             raise CatalogError(f"{e['id']}: sha256_glb must be 64 hex digits")
         if not str(e["glb"]).endswith(".glb"):
@@ -303,6 +392,71 @@ def _validate_model(e: dict, seen_ids: set, furniture: bool) -> None:
                                    "(a model normalised by type says so there)")
 
 
+def _validate_licence(e: dict, source: str) -> None:
+    """The licence rule of the source (``SOURCE_LICENCES``), the flag (``LICENCE_FLAGS``) and the credit fields."""
+    licence = e["licence"]
+    if source == "generated":
+        if not (isinstance(licence, str) and licence.startswith(GENERATED_LICENCE_PREFIX)):
+            raise CatalogError(f"{e['id']}: a generated model's licence must start with "
+                               f"{GENERATED_LICENCE_PREFIX!r}, not {licence!r}")
+        rec = e["generated"]
+        missing = [k for k in GENERATED_FIELDS if not isinstance(rec, dict) or k not in rec]
+        if missing:
+            raise CatalogError(f"{e['id']}: generated record without {', '.join(missing)}")
+    elif licence not in SOURCE_LICENCES[source]:
+        raise CatalogError(f"{e['id']}: source/licence {source}/{licence} is not allowed "
+                           f"({source}: {', '.join(SOURCE_LICENCES[source])})")
+    expect = licence_flag_of(licence)
+    if ("licence_flag" in e or expect is not None) and e.get("licence_flag") != expect:
+        raise CatalogError(f"{e['id']}: licence {licence} needs licence_flag {expect!r}, not "
+                           f"{e.get('licence_flag')!r} (docs/milestone8.md §2)")
+    if licence == CC_BY or (source in ("objaverse", "abo") and licence != LICENCE):
+        empty = [k for k in CC_BY_FIELDS if not (isinstance(e.get(k), str) and e[k].strip())]
+        if empty:
+            raise CatalogError(f"{e['id']}: a {licence} entry needs {', '.join(empty)} for its credit line")
+
+
+def _validate_kind(e: dict, source: str, furniture: bool) -> None:
+    """``kind`` / ``decor_type``: entries are furniture; a library decor model (decor section) is ``kind: decor`` with
+    a ``decor_type`` of ``DECOR_TYPES`` and the type ``decor_<decor_type>``."""
+    kind = e.get("kind", "furniture" if furniture else None)
+    if kind is not None and kind not in KINDS:
+        raise CatalogError(f"{e['id']}: kind {kind!r} is not one of {KINDS}")
+    if furniture and kind != "furniture":
+        raise CatalogError(f"{e['id']}: a model in entries must be kind furniture, not {kind!r}")
+    if kind == "decor":
+        if e.get("decor_type") not in DECOR_TYPES:
+            raise CatalogError(f"{e['id']}: decor_type {e.get('decor_type')!r} is not one of {DECOR_TYPES}")
+        if e["type"] != f"decor_{e['decor_type']}":
+            raise CatalogError(f"{e['id']}: a {e['decor_type']} decor model has type decor_{e['decor_type']}, "
+                               f"not {e['type']!r}")
+    elif e.get("decor_type") is not None:
+        raise CatalogError(f"{e['id']}: decor_type on an entry that is not kind decor")
+    if not furniture and source in LIBRARY_SOURCES and kind != "decor":
+        raise CatalogError(f"{e['id']}: a {source} model in the decor section needs kind decor")
+
+
+def _validate_bed_frame(e: dict, furniture: bool) -> None:
+    """``bed_frame`` (docs/milestone8.md §2): only on a bed without a mattress, with a positive ``deck_height_m``."""
+    deck = e.get("deck_height_m")
+    if deck is not None and (isinstance(deck, bool) or not isinstance(deck, (int, float)) or not math.isfinite(deck)
+                             or deck <= 0):
+        raise CatalogError(f"{e['id']}: deck_height_m {deck!r} is not a positive number")
+    frame = e.get("bed_frame")
+    if frame is None:
+        return
+    if not isinstance(frame, bool):
+        raise CatalogError(f"{e['id']}: bed_frame must be true/false")
+    if frame:
+        if not furniture or e["type"] not in BED_TYPES:
+            raise CatalogError(f"{e['id']}: bed_frame on a {e['type']} (beds only)")
+        if e.get("has_mattress") is not False:
+            raise CatalogError(f"{e['id']}: a bed frame has no mattress (has_mattress false)")
+        if deck is None:
+            raise CatalogError(f"{e['id']}: a bed frame needs deck_height_m (docs/milestone8.md §2: no deck -> "
+                               "refused)")
+
+
 def styles_match(entry: dict, family: Optional[str]) -> bool:
     """True when ``entry`` may be used for a project of style ``family``: its ``styles`` contain the
     family or ``neutral``; every entry matches when the family is None (docs/milestone7.md §6.3)."""
@@ -315,6 +469,16 @@ def styles_match(entry: dict, family: Optional[str]) -> bool:
 def has_mattress(entry: dict) -> bool:
     """A bed model is usable only with a mattress (user decision 7); other types always are."""
     return entry["type"] not in BED_TYPES or entry.get("has_mattress") is True
+
+
+def bed_usable(entry: dict) -> bool:
+    """Milestone 8: a bed model is usable with a mattress, or as a bed frame with a measured deck (the scene builder
+    puts the parametric mattress, duvet and pillows on it, docs/milestone8.md §4); other types always are."""
+    if entry["type"] not in BED_TYPES:
+        return True
+    deck = entry.get("deck_height_m")
+    return entry.get("has_mattress") is True or (entry.get("bed_frame") is True and isinstance(deck, (int, float))
+                                                 and not isinstance(deck, bool) and deck > 0)
 
 
 # --------------------------------------------------------------------------

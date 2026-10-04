@@ -1,4 +1,6 @@
-# Objaverse 1.0 furniture library: survey, thumbnails, judging, acceptance (docs/milestone7.md §7).
+# The furniture library of every source: the Objaverse 1.0 survey (docs/milestone7.md §7) and the shared steps
+# (thumbnails, judging, acceptance, catalogue) for every source's survey records (docs/milestone8.md §2: Objaverse,
+# ABO from wenart/assets/abo.yaml, generated models from wenart/assets/generate.py).
 #
 # Read by wenart/assets/objaverse.py (`load_config`). Tables only: the rules that use them live in the module.
 #
@@ -8,15 +10,11 @@
 #   577 MB in all), glbs/ (160 folders 000-000 ... 000-159); README.md: "ODC-By v1.0 ... Individual objects ...
 #   CC-BY 4.0 (721K objects), CC-BY-NC 4.0 (25K), CC-BY-NC-SA 4.0 (52K), CC-BY-SA 4.0 (16K), CC0 1.0 (3.5K). The
 #   metadata will provide the license for each object."
-# NOT verified here (LFS downloads are blocked in the session; marked `to verify on the pod`): the exact licence
-# strings and metadata field names inside the shards, and the LVIS category names inside lvis-annotations.json.gz.
-# The survey records every licence value, every metadata key and every missing LVIS category it meets
-# (survey.json, library_report.md). tests/gpu/test_library.py fails when no accepted licence spelling occurs and
-# warns (no failure) for a missing LVIS category: its types stay parametric. A wrong guess here can only refuse
-# objects, never accept a wrong licence.
 # Checked on the M7 prep pod (87xpy12z302wrz, 3 Oct 2026, runs/20261003-173020-prep/results/library/survey.json):
 # licence values by 1369, by-sa 77, by-nc 35, by-nc-sa 16, cc0 1 (so `by` and `cc0` occur); LVIS categories
 # `chest_of_drawers_(furniture)` and `nightstand` are not in lvis-annotations.json.gz (every other one is).
+# Milestone 8 (user decisions 3 and 4 of 4 Oct 2026, "licences may be ignored for now"): every licence is taken and
+# recorded; anything but CC0 / CC BY 4.0 carries a `licence_flag` (never filtered while the user allows it).
 
 dataset:
   repo: allenai/objaverse
@@ -44,32 +42,61 @@ metadata_fields:
   likes: likeCount
   views: viewCount
 
-# Licence values of the metadata field `license` (compared case-insensitively, spaces collapsed).
-# `accept` maps our catalogue licence to the strings that mean exactly that licence; the Sketchfab slugs `cc0` and
-# `by` are what the Objaverse 1.0 metadata holds (seen on the 3 Oct 2026 prep pod: by 1369, cc0 1); the long forms
-# are the README's names of the same licences. Everything in `refuse` and every value not listed is refused (NC, ND, SA,
-# Sketchfab Standard / Free Standard / Editorial, unknown): docs/milestone7.md §7.1 step 3.
+# Licence values of the metadata field `license` (compared case-insensitively, spaces collapsed) -> the catalogue
+# licence (wenart/furniture/catalog.py LICENCE_FLAGS). `accept`: CC0 and CC BY 4.0 (licence_flag null); the Sketchfab
+# slugs `cc0` and `by` are what the Objaverse 1.0 metadata holds (seen on the 3 Oct 2026 prep pod: by 1369, cc0 1);
+# the long forms are the README's names of the same licences. `flagged` (Milestone 8): taken with the licence's flag
+# (non_commercial for any NC and Sketchfab's Editorial licence, no_derivatives, share_alike; Sketchfab's Standard and
+# Free Standard store licences are not Creative Commons: unknown). Every other value, and no value, is taken as
+# licence `unknown` with flag `unknown` (the raw value is kept in licence_raw).
 licences:
   verified: true                               # the prep pod's survey.json (3 Oct 2026) shows `by` and `cc0`
   accept:
     CC0: [cc0, "cc0 1.0", "cc0-1.0"]
     CC-BY-4.0: [by, "cc-by 4.0", "cc by 4.0", "cc-by-4.0"]
-  refuse: [by-sa, by-nc, by-nc-sa, by-nd, by-nc-nd, "cc-by-sa 4.0", "cc-by-nc 4.0", "cc-by-nc-sa 4.0",
-           "cc-by-nd 4.0", "cc-by-nc-nd 4.0", free-st, st, ed]
+  flagged:
+    CC-BY-NC-4.0: [by-nc, "cc-by-nc 4.0", "cc-by-nc-4.0"]
+    CC-BY-NC-SA-4.0: [by-nc-sa, "cc-by-nc-sa 4.0", "cc-by-nc-sa-4.0"]
+    CC-BY-NC-ND-4.0: [by-nc-nd, "cc-by-nc-nd 4.0", "cc-by-nc-nd-4.0"]
+    CC-BY-SA-4.0: [by-sa, "cc-by-sa 4.0", "cc-by-sa-4.0"]
+    CC-BY-ND-4.0: [by-nd, "cc-by-nd 4.0", "cc-by-nd-4.0"]
+    Sketchfab-Standard: [st]
+    Sketchfab-Free-Standard: [free-st]
+    Sketchfab-Editorial: [ed]
+  unknown: unknown                             # the catalogue licence of any other value (flag unknown)
   urls:
     CC0: https://creativecommons.org/publicdomain/zero/1.0/
     CC-BY-4.0: https://creativecommons.org/licenses/by/4.0/
+    CC-BY-NC-4.0: https://creativecommons.org/licenses/by-nc/4.0/
+    CC-BY-NC-SA-4.0: https://creativecommons.org/licenses/by-nc-sa/4.0/
+    CC-BY-NC-ND-4.0: https://creativecommons.org/licenses/by-nc-nd/4.0/
+    CC-BY-SA-4.0: https://creativecommons.org/licenses/by-sa/4.0/
+    CC-BY-ND-4.0: https://creativecommons.org/licenses/by-nd/4.0/
+    Sketchfab-Standard: https://sketchfab.com/licenses
+    Sketchfab-Free-Standard: https://sketchfab.com/licenses
+    Sketchfab-Editorial: https://sketchfab.com/licenses
+    unknown: https://huggingface.co/datasets/allenai/objaverse
   names:                                       # as printed in the credit line (docs/milestone7.md §7.3)
     CC0: CC0 1.0
     CC-BY-4.0: CC BY 4.0
+    CC-BY-NC-4.0: CC BY-NC 4.0
+    CC-BY-NC-SA-4.0: CC BY-NC-SA 4.0
+    CC-BY-NC-ND-4.0: CC BY-NC-ND 4.0
+    CC-BY-SA-4.0: CC BY-SA 4.0
+    CC-BY-ND-4.0: CC BY-ND 4.0
+    Sketchfab-Standard: Sketchfab Standard licence
+    Sketchfab-Free-Standard: Sketchfab Free Standard licence
+    Sketchfab-Editorial: Sketchfab Editorial licence
+    unknown: licence unknown
 
 # Prefilter (§7.1 step 4): metadata first, then the downloaded file.
 prefilter:
   face_count: [2000, 150000]                   # triangles of the GLB archive
   max_glb_mb: 40
-  per_type_limit: 8                            # <= 8 candidates per furniture type (a category that maps to two
-                                               # types, `bed`, may hold 8 per type = 16 before the size split)
-  max_downloads_per_type: 16                   # downloads tried in rank order until per_type_limit pass the file checks
+  per_type_limit: 24                           # <= 24 candidates per furniture type (docs/milestone8.md §2; M7: 8;
+                                               # a category that maps to two types, `bed`, may hold 24 per type
+                                               # before the size split)
+  max_downloads_per_type: 48                   # downloads tried in rank order until per_type_limit pass the file checks
   rank: [likes, views]                         # descending; ties by uid
 
 # LVIS category -> furniture type(s) (§7.1 step 2). Checked on the 3 Oct 2026 prep pod against
@@ -119,7 +146,10 @@ bed_split_width_m: 1.275
 #                 its 5 % slab) is the front
 #   open_side   - open shelving: the side with the flat back panel (outward faces in its slab) is the back
 #   none        - no front (tables, lamps, plants): front_axis -Y with front_axis_confidence low
-# Footprints come from wenart/recognition/size_table.yaml (width/depth, either orientation, its tolerance).
+#   documented  - only a front the source documents decides (ABO: glTF +Z = -Y, abo.yaml dataset.front_axis): wall
+#                 art, whose picture side the geometry cannot tell; without one the object is refused
+# Footprints come from wenart/recognition/size_table.yaml (width/depth, either orientation, its tolerance); the decor
+# types (docs/milestone8.md §4) from `decor_sizes` below. side_table and tv_unit come from ABO only (no LVIS category).
 types:
   bed_double:   {height: [0.25, 1.60], front: back_taller}
   bed_single:   {height: [0.25, 1.60], front: back_taller}
@@ -140,6 +170,23 @@ types:
   stove:        {height: [0.80, 1.20], front: detail_side}
   floor_lamp:   {height: [1.20, 2.10], front: none}
   potted_plant: {height: [0.30, 2.20], front: none}
+  side_table:   {height: [0.35, 0.85], front: none}
+  tv_unit:      {height: [0.30, 1.00], front: detail_side}
+  # decor (kind decor; the catalogue's `decor` section, type decor_<name>)
+  rug:          {height: [0.002, 0.08], front: none}
+  wall_art:     {height: [0.15, 1.80], front: documented}
+  cushion:      {height: [0.15, 0.75], front: none}
+  plant:        {height: [0.15, 2.20], front: none}
+
+# Footprints of the decor types (the size table format: width / depth in metres, either orientation, + the size
+# table's 15 % tolerance). Common product sizes (rugs 2 x 3 ft to 9 x 12 ft and runners; framed art 8 x 10 in to
+# 60 x 60 in; throw pillows 12 x 20 in to 26 x 26 in; planters 4 in to 3 ft), widened; checked against the ABO
+# metadata of 4 Oct 2026 (RUG, WALL_ART, PILLOW, PLANTER: their typical boxes fit).
+decor_sizes:
+  rug:      {width: [0.60, 4.50], depth: [0.40, 3.60]}
+  wall_art: {width: [0.15, 2.40], depth: [0.003, 0.15]}
+  cushion:  {width: [0.25, 0.90], depth: [0.05, 0.40]}
+  plant:    {width: [0.10, 1.00], depth: [0.10, 1.00]}
 
 front_rules:
   top_fraction: 0.30            # back_taller: vertices in the top 30 % of the height (as models.measure_gltf)
@@ -167,10 +214,30 @@ thumbnails:
   thumb_px: 256                 # thumbs/<type>/<uid>.jpg, the sheet scaled down
   thumb_jpeg_quality: 85
 
+# Bed frames (docs/milestone8.md §2): a bed both judges see without a mattress is a bed frame when the thumbnail step
+# measures a deck: five rays straight down (the footprint centre and the points at +-0.2 of the box's x and y extents
+# from it: inside the inner 50 % of the footprint), the topmost surface each ray meets, in the Z-up model frame; the
+# deck height is the median of the hits above the box bottom, times the unit scale (metres). Fewer than `min_hits`
+# hits, or a deck outside `deck_range_m` (a ray through the slats to the floor rail, a canopy) -> refused no_deck.
+bed_frame:
+  ray_offset: 0.2
+  min_hits: 3
+  deck_range_m: [0.08, 0.90]
+
 accept:
   min_quality: 4                # both judges' photoreal_quality >= 4
-  per_type_max: 6               # catalog_objaverse.json keeps <= 6 per type (rank: lower quality, mean quality,
-                                # likes, views)
+  per_type_max: 12              # catalog_library.json keeps <= 12 per furniture type (docs/milestone8.md §2; M7: 6)
+  decor_per_type_max: 16        # and <= 16 per decor type
+  per_family_max: 3             # at most 3 per (type, style family; `neutral` counts as a family): a model is kept
+                                # while one of its families still has room, and counts for each of them
+  source_order: [abo, polyhaven, objaverse, generated]   # rank: mean quality, then this order, then the lower
+                                                         # quality, likes, views, survey rank, uid
+
+# The survey files the shared steps read (each source's survey writes its own; docs/milestone8.md §2).
+survey_files:
+  objaverse: survey.json
+  abo: survey_abo.json
+  generated: survey_generated.json
 
 attribution:
   via: Objaverse (allenai/objaverse, ODC-By 1.0)

@@ -1,21 +1,33 @@
 #!/usr/bin/env bash
-# Milestone 7 prep job (docs/milestone7.md §9.2, §10): what the M7 full runs need before they start. Run by
-# scripts/pod_entry.sh on a RunPod pod (cwd /workspace/repo; WENART_RESULTS, WENART_JOB_DIR and WENART_DEADLINE
-# set; /workspace/venv has the CPU deps; Blender at /workspace/tools/blender/blender). The bash parts follow
-# scripts/jobs/full.sh (traps, tee log, exports, cgroup thread budget, setup, EXIT trap); `python -m
-# wenart.run.prep` does the rest in a fixed order: Objaverse survey (the last download), thumbnails, detector
-# calibration on the M6 outputs, GPU timings, the prep projects' pipelines, the Qwen and GLM sessions
-# (8-sequence probe, recognition answers, library judging), pipeline_final, the library catalogue, the copy and
-# the GPU tests (wenart/run/prep.py).
+# Prep job (Milestone 7 docs/milestone7.md §9.2, §10; Milestone 8 docs/milestone8.md §6): what the full runs need
+# before they start. Run by scripts/pod_entry.sh on a RunPod pod (cwd /workspace/repo; WENART_RESULTS,
+# WENART_JOB_DIR and WENART_DEADLINE set; /workspace/venv has the CPU deps; Blender at /workspace/tools/blender/blender).
+# The bash parts follow scripts/jobs/full.sh (traps, tee log, exports, cgroup thread budget, setup, EXIT trap);
+# `python -m wenart.run.prep` does the rest in a fixed order: the ABO survey, the Objaverse survey (all licences),
+# the TRELLIS.2 setup and the generation (the last downloads), thumbnails, detector calibration on the M6 outputs,
+# GPU timings, the prep projects' pipelines, the Qwen and GLM sessions (8-sequence probe, recognition answers,
+# library judging of every source), pipeline_final, the library catalogue (catalog_library.json), the copy and the
+# GPU tests (wenart/run/prep.py).
+#
+# Milestone 8 runs it on two library pods (docs/milestone8.md §6): L1 = the real models (ABO + Objaverse + judging
+# + catalogue), without the generation:
 #
 #   scripts/gpu_run.py run --job scripts/jobs/prep.sh --gpu 'RTX PRO 6000' --disk 150 --max-minutes 90 \
-#     --grace 600 --purpose "M7 prep pod: recognition answers, Objaverse library, detector calibration, timings"
+#     --grace 600 --env PREP_SKIP=trellis_setup,generate --purpose "M8 L1: ABO + Objaverse library, judging"
+#
+# then L2 = every step on a new pod: both surveys download the real candidates again (their measurements, sheets
+# and judge answers on the volume are reused), trellis_setup builds venv-trellis, generate accepts over L1's
+# judgements and generates the (type, family) pairs still without a model, the sessions judge the generated
+# models and the library step writes the catalogue of every source:
+#
+#   scripts/gpu_run.py run --job scripts/jobs/prep.sh --gpu 'RTX PRO 6000' --disk 150 --max-minutes 90 \
+#     --grace 600 --purpose "M8 L2: TRELLIS.2 generation, judging, library catalogue of every source"
 #
 # (§10: RTX PRO 6000, 96 GB, $2.09/h -> worst case $3.14; never L4. --disk 150: the VLMs, the polish/gate/OWLv2
-# models, the Objaverse candidates, venv-vllm, venv-polish and the LibreDWG build live on the container disk.)
-# --max-minutes 90 gives WENART_DEADLINE = entry + 75 min; a cut pod exits 1 and the same command resumes
-# (pipeline records, answers, the library work, thumbnail measurements, detector boxes and timing renders are
-# reused from the volume).
+# models, the Objaverse and ABO candidates, venv-vllm, venv-polish, venv-trellis and the LibreDWG build live on the
+# container disk.) --max-minutes 90 gives WENART_DEADLINE = entry + 75 min; a cut pod exits 1 and the same command
+# resumes (pipeline records, answers, the library work, thumbnail measurements, detector boxes and timing renders
+# are reused from the volume).
 #
 # Env (all optional):
 #   PREP_PROJECTS   prep projects (default "real01 synthetic-02 synthetic-06 real01-scan real01-photo")
@@ -23,15 +35,19 @@
 #                   a selected step whose inputs are missing fails (e.g. PREP_ONLY=session_qwen,session_glm,library
 #                   needs the library work of an earlier job in /workspace/prep/library; on a new pod add survey:
 #                   the accepted GLBs live in its container-disk cache:
-#                   PREP_ONLY=survey,session_qwen,session_glm,library)
+#                   PREP_ONLY=survey,session_qwen,session_glm,library; with ABO models add abo_survey too, unless an
+#                   earlier write-catalog put them into /workspace/assets/models/<source>/)
+#   WENART_ABO_CACHE  ABO metadata and GLBs (default $WENART_FAST/abo, container disk)
+#   WENART_TRELLIS_PY venv-trellis python (default $WENART_FAST/venv-trellis/bin/python, scripts/pod_setup_trellis.sh)
 #   CHECK_MODELS    check.yaml model keys of the setup (default "qwen glm")
 #   RENDER_SAMPLES  Cycles samples of the timing renders (default 128)
 #   RUN_THREADS     CPU threads per process (default: the pod's cgroup CPU quota, see cpu_budget)
 #
-# Results ($RESULTS, collected by the runner): prep_manifest.json, setup_polish.json, library/, detect/,
-# timing/gpu_speed.json, recognition/<p>/, furniture/<p>/, run/<p>/, tests/, and this job's logs (tails) in logs/.
-# The pipeline outputs stay in /workspace/outputs-prep, the persistent work in /workspace/prep (library/ = the
-# Objaverse survey, thumbnails, judge requests and answers, catalogue; $RESULTS/library is its copy) (both outside
+# Results ($RESULTS, collected by the runner): prep_manifest.json, setup_polish.json, setup_trellis.json, library/,
+# detect/, timing/gpu_speed.json, recognition/<p>/, furniture/<p>/, run/<p>/, tests/, and this job's logs (tails) in
+# logs/. The pipeline outputs stay in /workspace/outputs-prep, the persistent work in /workspace/prep (library/ = the
+# surveys of every source, thumbnails, judge requests and answers, the generation plan, catalogue; $RESULTS/library
+# is its copy, without model files) (both outside
 # the repo: pod_entry.sh's git clean never touches them).
 set -Eeuo pipefail
 
@@ -192,8 +208,8 @@ POLISH_RECOG_PARTS="vllm libredwg models" POLISH_MODE=final \
 if [ "$setup_rc" -ne 0 ]; then
   log "warning: pod_setup_polish.sh exit $setup_rc (see setup_polish.json): the steps that need a missing part fail"
 fi
-# The prep's first step, the Objaverse survey, is the last download (M7 §7.1, into $HF_HOME); wenart.run.prep
-# runs every step after it with HF_HUB_OFFLINE=1.
+# The prep's first steps download (the ABO and Objaverse surveys, the TRELLIS.2 setup and the generation, into the
+# container-disk caches and $HF_HOME); wenart.run.prep runs every step after the generation with HF_HUB_OFFLINE=1.
 export HF_HUB_OFFLINE=0
 
 rc=0

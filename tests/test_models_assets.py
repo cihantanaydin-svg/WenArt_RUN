@@ -264,9 +264,12 @@ def test_objaverse_models_come_from_the_cache_only(tmp_path, monkeypatch):
     with pytest.raises(fetch.LicenceError, match="credit line"):
         models.fetch_model("objaverse_chair", assets, source="objaverse", licence="CC-BY-4.0",
                            meta=_objaverse_meta(sha=sha, attribution=""))
-    with pytest.raises(fetch.LicenceError):
-        models.fetch_model("objaverse_chair", assets, source="objaverse", licence="CC-BY-NC-4.0",
+    with pytest.raises(fetch.LicenceError):                       # a licence spelling outside the catalogue table
+        models.fetch_model("objaverse_chair", assets, source="objaverse", licence="CC BY-NC",
                            meta=_objaverse_meta(sha=sha))
+    with pytest.raises(fetch.LicenceError, match="licence_flag"):  # M8: flagged licences carry their flag
+        models.fetch_model("objaverse_chair", assets, source="objaverse", licence="CC-BY-NC-4.0",
+                           meta=_objaverse_meta(sha=sha, licence_flag=None))
     entry = models.fetch_model("objaverse_chair", assets, source="objaverse", licence="CC-BY-4.0",
                                meta=_objaverse_meta(sha=sha))
     assert entry["source"] == "objaverse" and entry["licence"] == "CC-BY-4.0" and entry["cache_only"] is True
@@ -338,3 +341,71 @@ def test_download_armchair_and_compare_with_catalog():
         assert abs(a - b) <= 0.01
     assert models.api_dimensions_match(entry)
     assert fetch.load_manifest(ASSETS)["models"][TEST_MODEL]["bbox_m"] == entry["bbox_m"]
+
+
+# --------------------------------------------------------------------------
+# Milestone 8: every library source from the cache (docs/milestone8.md §2)
+# --------------------------------------------------------------------------
+
+def _library_meta(source, uid, sha, **extra):
+    meta = {"uid": uid, "sha256_glb": sha, "glb": f"models/{source}/{uid}.glb", "title": "Rug", "author": "Amazon.com",
+            "source_url": f"https://amazon-berkeley-objects.s3.amazonaws.com/index.html#{uid[4:]}",
+            "licence_url": "https://creativecommons.org/licenses/by/4.0/", "via": "Amazon Berkeley Objects (CC BY 4.0)",
+            "attribution": '"Rug" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), '
+                           "https://amazon-berkeley-objects.s3.amazonaws.com/index.html", "licence_flag": None}
+    meta.update(extra)
+    return meta
+
+
+def test_abo_generated_and_flagged_objaverse_models_come_from_the_cache_only(tmp_path, monkeypatch):
+    """ABO and generated models use the same cache-only fetch as Objaverse (``<assets>/models/<source>/<uid>.glb``,
+    sha256 checked against the catalogue); the manifest keeps the credit fields, the licence flag and the
+    generated record; a flagged Objaverse licence is fetched with its flag."""
+    def no_network(*a, **k):
+        raise AssertionError("network")
+
+    monkeypatch.setattr(models.web, "download", no_network)
+    monkeypatch.setattr(models.polyhaven, "info", no_network)
+    assets = tmp_path / "assets"
+
+    def put(source, uid):
+        path = assets / models.library_relpath(source, uid)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(f"glTF {source} {uid}".encode())
+        return web.sha256_file(path)
+
+    assert models.LIBRARY_SOURCES == ("objaverse", "abo", "generated")
+    assert models.library_relpath("abo", "abo_B07B4SCB6T") == "models/abo/abo_B07B4SCB6T.glb"
+    with pytest.raises(fetch.AssetNotFound, match="not a library source"):
+        models.library_relpath("polyhaven", "x")
+    sha = put("abo", "abo_B071777YN3")
+    entry = models.fetch_model("abo_B071777YN3", assets, source="abo", licence="CC-BY-4.0",
+                               meta=_library_meta("abo", "abo_B071777YN3", sha))
+    assert entry["source"] == "abo" and entry["files"] == {"glb": "models/abo/abo_B071777YN3.glb"}
+    assert entry["licence"] == "CC-BY-4.0" and entry["licence_flag"] is None and entry["author"] == "Amazon.com"
+    assert entry["cache_only"] is True and fetch.load_manifest(assets)["models"]["abo_B071777YN3"] == entry
+    with pytest.raises(fetch.LicenceError):                                # ABO is CC BY 4.0
+        models.fetch_model("abo_B071777YN3", assets, source="abo", licence="CC0",
+                           meta=_library_meta("abo", "abo_B071777YN3", sha))
+    with pytest.raises(fetch.LicenceError, match="credit line"):
+        models.fetch_model("abo_B071777YN3", assets, source="abo", licence="CC-BY-4.0",
+                           meta=_library_meta("abo", "abo_B071777YN3", sha, author=""))
+    with pytest.raises(fetch.AssetNotFound, match="sha256"):
+        models.fetch_model("abo_B071777YN3", assets, source="abo", licence="CC-BY-4.0",
+                           meta=_library_meta("abo", "abo_B071777YN3", "e" * 64))
+    with pytest.raises(fetch.AssetNotFound, match="not in the cache"):
+        models.fetch_model("abo_other", assets, source="abo", licence="CC-BY-4.0",
+                           meta=_library_meta("abo", "abo_other", "e" * 64))
+    gen_uid = "gen_chair_scandinavian_1_ab12cd34"
+    gsha = put("generated", gen_uid)
+    record = {"prompt": "a single scandinavian style chair", "image_sha256": "c" * 64,
+              "model": "microsoft/TRELLIS.2-4B", "revision": "af44b45", "seed": 7}
+    gen = models.fetch_model(gen_uid, assets, source="generated", licence="generated (TRELLIS.2-4B, MIT)",
+                             meta={"uid": gen_uid, "sha256_glb": gsha, "licence_flag": None, "generated": record})
+    assert gen["source"] == "generated" and gen["generated"] == record and gen["licence"].startswith("generated")
+    uid = "0123456789abcdef0123456789abcdef"
+    osha = put("objaverse", uid)
+    nc = models.fetch_model(f"objaverse_{uid}", assets, source="objaverse", licence="CC-BY-NC-4.0",
+                            meta=_objaverse_meta(uid=uid, sha=osha, licence_flag="non_commercial"))
+    assert nc["licence"] == "CC-BY-NC-4.0" and nc["licence_flag"] == "non_commercial"
+    assert set(fetch.load_manifest(assets)["models"]) == {"abo_B071777YN3", gen_uid, f"objaverse_{uid}"}

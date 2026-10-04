@@ -39,6 +39,15 @@ line per model, from ``furniture[].asset.attribution``) and the ODC-By 1.0
 notice; nothing is written when the project uses none. ``library_attribution``
 writes the same for a library folder from ``catalog_objaverse.json``.
 
+Milestone 8 (docs/milestone8.md §2): the credits cover every library source
+(ABO, Objaverse of any licence, generated models; furniture and decor items),
+each line with its licence flag when it has one, followed by the notices of
+the sources present (the ODC-By notice for Objaverse, the ABO credit, the
+generated-model note); ``library_attribution`` reads ``catalog_library.json``
+(else the M7 ``catalog_objaverse.json``), its ``entries`` and ``decor``.
+``library_files`` lists what the prep job copies from its library work folder
+into ``$RESULTS/library`` (everything but model files and files over 8 MB).
+
 Private projects use an allow-list only, into
 ``<results-private>/<alias>/<area>/``: ``final/final_report.md``,
 ``final/final_manifest.json``, ``final/*_final_preview.jpg``,
@@ -81,6 +90,12 @@ MAX_JPEG_BYTES = 300 * KIB         # find -size -301k
 MAX_PNG_BYTES = 3 * 1024 * KIB     # debug overlays and rectified pages (M7 §9.1)
 MAX_CROPS = 200                    # recognition crops per project (M7 §9.1)
 ATTRIBUTION = "ATTRIBUTION.md"
+LIBRARY_CATALOG = "catalog_library.json"      # the prep pod's library catalogue (docs/milestone8.md §2)
+OBJAVERSE_CATALOG = "catalog_objaverse.json"  # its M7 name (read when the library file is missing)
+LIBRARY_SOURCES = ("objaverse", "abo", "generated")   # = wenart.furniture.catalog.LIBRARY_SOURCES
+# The library work folder's files that never go to $RESULTS (``library_files``): model files (the GLBs live in the
+# sources' caches and <assets>/models/<source>/) and anything larger than the text limit.
+LIBRARY_SKIP_SUFFIXES = (".glb", ".gltf", ".bin", ".blend", ".ply", ".obj", ".fbx", ".part", ".tmp")
 IMAGE_AREAS = ("renders", "polish", "gate", "check", "realism", "final")   # folders that show a project's images
 LOG_TAIL_LINES = 400
 STAMP_OVERLAP_S = 2
@@ -233,51 +248,94 @@ def copy_project(ref: ProjectRef, since: Optional[float] = None) -> int:
 # ATTRIBUTION.md (docs/milestone7.md §7.3)
 # --------------------------------------------------------------------------
 
+def _source_of(asset: dict) -> str:
+    """The library source of a fitted asset or a catalogue entry (``library`` of a fit asset, else ``source``)."""
+    return str(asset.get("library") or asset.get("source") or "")
+
+
 def _credit(asset: dict) -> str:
-    """The §7.3 line of a fitted Objaverse asset (``asset.attribution``; built from its fields when missing)."""
+    """The credit line of a fitted library asset or catalogue entry (``attribution``; for an Objaverse one without
+    it, the §7.3 line built from its fields)."""
     if asset.get("attribution"):
         return str(asset["attribution"])
     fields = [asset.get(k) for k in ("title", "author", "source_url")]
-    if all(fields) and asset.get("licence") in ("CC0", "CC-BY-4.0"):
-        from wenart.assets.objaverse import CC0, CC_BY, attribution_line
-        licence = CC0 if asset["licence"] == "CC0" else CC_BY
-        return attribution_line(str(fields[0]), str(fields[1]), str(fields[2]), licence)
+    if all(fields) and _source_of(asset) in ("objaverse", "") and asset.get("licence"):
+        from wenart.assets.objaverse import attribution_line
+        try:
+            from wenart.assets.objaverse import load_config
+            cfg = load_config()
+        except Exception:  # noqa: BLE001 - the line has built-in names for CC0 and CC BY 4.0
+            cfg = None
+        return attribution_line(str(fields[0]), str(fields[1]), str(fields[2]), str(asset["licence"]), cfg)
     return f"{asset.get('asset_id') or asset.get('uid') or '?'}: no attribution recorded (check the catalogue entry)"
 
 
+def _library_asset(asset) -> bool:
+    return (isinstance(asset, dict) and _source_of(asset) in LIBRARY_SOURCES
+            and asset.get("method") != "parametric")
+
+
 def project_credits(out_dir: Path) -> list[dict]:
-    """``[{"credit", "pieces": [(id, type)]}]`` of the Objaverse models in ``<out>/building_final.json``, one entry
-    per model (catalogue id), in id order."""
+    """``[{"credit", "pieces": [(id, type)], "source", "licence_flag"}]`` of the library models (ABO, Objaverse,
+    generated; docs/milestone8.md §2) in ``<out>/building_final.json``: its furniture pieces' and decor items'
+    ``asset``, one entry per model (catalogue id), in id order."""
     try:
         building = json.loads((Path(out_dir) / "building_final.json").read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return []
+    if not isinstance(building, dict):
+        return []
     found: dict = {}
-    for piece in building.get("furniture") or [] if isinstance(building, dict) else []:
-        asset = piece.get("asset") if isinstance(piece, dict) else None
-        if not isinstance(asset, dict) or asset.get("library") != "objaverse" or asset.get("method") == "parametric":
+    for item in list(building.get("furniture") or []) + list(building.get("decor") or []):
+        asset = item.get("asset") if isinstance(item, dict) else None
+        if not _library_asset(asset):
             continue
         key = str(asset.get("asset_id") or asset.get("uid") or "")
-        entry = found.setdefault(key, {"credit": _credit(asset), "pieces": []})
-        entry["pieces"].append((str(piece.get("id") or "?"), str(piece.get("type") or "?")))
+        entry = found.setdefault(key, {"credit": _credit(asset), "pieces": [], "source": _source_of(asset),
+                                       "licence_flag": asset.get("licence_flag")})
+        entry["pieces"].append((str(item.get("id") or "?"), str(item.get("type") or "?")))
     return [found[k] for k in sorted(found)]
 
 
-def _notice() -> str:
+def _notices(sources) -> list[str]:
+    """The notices of the sources present (``wenart.assets.objaverse.source_notices``: the ODC-By notice of
+    Objaverse, the ABO credit, the generated-model note)."""
     from wenart.assets import objaverse as OBJ      # stdlib-only at import; the yaml is read here
     try:
         cfg = OBJ.load_config()
     except Exception:  # noqa: BLE001 - the notice has built-in defaults (allenai/objaverse @ 21e4e14)
         cfg = None
-    return OBJ.odc_by_notice(cfg)
+    try:
+        return OBJ.source_notices(sources, cfg)
+    except Exception:  # noqa: BLE001 - abo.yaml unreadable: the ODC-By notice stays (Objaverse is the M7 source)
+        return [OBJ.odc_by_notice(cfg)] if "objaverse" in sources else []
+
+
+def _notice() -> str:
+    """The ODC-By notice (M7 name)."""
+    return _notices(["objaverse"])[0]
+
+
+SOURCE_NAMES = {"abo": "Amazon Berkeley Objects", "objaverse": "Objaverse 1.0", "generated": "generated models"}
 
 
 def attribution_text(title: str, credits: list[dict]) -> str:
-    lines = ["# Attribution", "", f"{title} show 3D models from Objaverse 1.0. Credits (docs/milestone7.md §7.3):", ""]
+    """The ``ATTRIBUTION.md`` text: the credit line of every library model (with its licence flag when it has one,
+    docs/milestone8.md §2) and the notices of the sources present (Objaverse when nothing says the source)."""
+    order = [s for s in ("abo", "objaverse", "generated")]
+    sources = sorted({c.get("source") or "objaverse" for c in credits}, key=lambda s: order.index(s)
+                     if s in order else len(order))
+    names = ", ".join(SOURCE_NAMES.get(s, s) for s in sources)
+    lines = ["# Attribution", "", f"{title} show 3D models from the furniture library ({names}). Credits "
+             "(docs/milestone7.md §7.3, docs/milestone8.md §2):", ""]
     for c in credits:
         pieces = ", ".join(f"{pid} ({ptype})" for pid, ptype in c.get("pieces") or [])
-        lines.append(f"- {c['credit']}" + (f" (used for {pieces})" if pieces else ""))
-    return "\n".join(lines + ["", _notice(), ""])
+        flag = f" [licence flag: {c['licence_flag']}]" if c.get("licence_flag") else ""
+        lines.append(f"- {c['credit']}{flag}" + (f" (used for {pieces})" if pieces else ""))
+    lines.append("")
+    for text in _notices(sources):
+        lines += [text, ""]
+    return "\n".join(lines)
 
 
 def _has_image(folder: Path) -> bool:
@@ -310,25 +368,58 @@ def write_attributions(ref: ProjectRef) -> int:
     return n
 
 
-def library_attribution(library_dir: Path, catalog: Optional[Path] = None) -> Optional[Path]:
-    """``<library_dir>/ATTRIBUTION.md`` with the credit of every model of ``catalog`` (default
-    ``<library_dir>/catalog_objaverse.json``); None when the catalogue has no entry."""
+def library_catalog_path(library_dir: Path) -> Path:
+    """The catalogue of a library folder: ``catalog_library.json`` (Milestone 8) when present, else the M7
+    ``catalog_objaverse.json``."""
     library_dir = Path(library_dir)
-    path = Path(catalog) if catalog is not None else library_dir / "catalog_objaverse.json"
+    for name in (LIBRARY_CATALOG, OBJAVERSE_CATALOG):
+        if (library_dir / name).is_file():
+            return library_dir / name
+    return library_dir / LIBRARY_CATALOG
+
+
+def library_attribution(library_dir: Path, catalog: Optional[Path] = None) -> Optional[Path]:
+    """``<library_dir>/ATTRIBUTION.md`` with the credit (and licence flag) of every model and decor model of
+    ``catalog`` (default ``library_catalog_path``); None when the catalogue has no entry."""
+    library_dir = Path(library_dir)
+    path = Path(catalog) if catalog is not None else library_catalog_path(library_dir)
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return None
-    entries = data.get("entries") if isinstance(data, dict) else data      # objaverse.write_catalog's layout
+    if isinstance(data, dict):                                 # objaverse.write_catalog's layout
+        entries = list(data.get("entries") or []) + list(data.get("decor") or [])
+    else:
+        entries = data
     entries = [e for e in entries or [] if isinstance(e, dict)]
     if not entries:
         return None
-    credits = [{"credit": _credit(dict(e, asset_id=e.get("id"))), "pieces": []}
+    credits = [{"credit": _credit(dict(e, asset_id=e.get("id"))), "pieces": [], "source": _source_of(e),
+                "licence_flag": e.get("licence_flag")}
                for e in sorted(entries, key=lambda e: str(e.get("id") or e.get("uid") or ""))]
     target = library_dir / ATTRIBUTION
     library_dir.mkdir(parents=True, exist_ok=True)
     _write_if_changed(target, attribution_text("The thumbnails and models of this library", credits))
     return target
+
+
+def library_files(library_dir: Path) -> list[Path]:
+    """The files of a library work folder that go to ``$RESULTS/library`` (the prep job's copy): every survey file
+    (``survey.json``, ``survey_abo.json``, ``survey_generated.json``), the thumbnails, judging sheets, requests
+    and answers, ``accepted.json``, ``catalog_library.json``, the report, ``ATTRIBUTION.md`` and the generation plan
+    and images; never a model file (``LIBRARY_SKIP_SUFFIXES``: the GLBs stay in the caches and
+    ``<assets>/models/<source>/``), a symlink or a file over ``MAX_TEXT_BYTES``."""
+    src = Path(library_dir)
+    if not src.is_dir():
+        return []
+    out = []
+    for f in sorted(src.rglob("*")):
+        if not f.is_file() or f.is_symlink() or f.suffix.lower() in LIBRARY_SKIP_SUFFIXES:
+            continue
+        if f.stat().st_size > MAX_TEXT_BYTES:
+            continue
+        out.append(f)
+    return out
 
 
 def _stamp(path: Path) -> None:

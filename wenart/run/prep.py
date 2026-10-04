@@ -1,8 +1,37 @@
-"""The prep pod's job (docs/milestone7.md §9.2, §10): what the M7 full runs need before they start.
+"""The prep pod's job (docs/milestone7.md §9.2, §10; docs/milestone8.md §6): what the full runs need before they start.
 
     python -m wenart.run.prep --results $RESULTS [--outputs /workspace/outputs-prep] [--projects "real01 ..."]
                               [--skip step,...] [--only step,...] [--no-tests] [--copy-only]
+                              [--abo-cache /opt/wenart/abo] [--trellis-py /opt/wenart/venv-trellis/bin/python]
     (also ``python -m wenart.run prep ...``; run by ``scripts/jobs/prep.sh`` after the setup)
+
+Milestone 8 (docs/milestone8.md §6): the library steps cover every source, in this order: ``abo_survey``,
+``survey`` (Objaverse, all licences), ``trellis_setup``, ``generate``, ``thumbnails``, ``judge_requests``, then the
+M7 steps from ``detect_calibrate`` to ``pipeline_final`` as before (the sessions judge every source's sheets),
+``library`` (accept over every source, ``write-catalog`` -> ``catalog_library.json``, report, ``ATTRIBUTION.md``),
+``copy``, ``tests``:
+
+- ``abo_survey``: ``wenart.assets.abo survey --cache <abo-cache> --out <prep-root>/library`` (the ABO metadata and
+  candidate GLBs into the container-disk cache, ``/opt/wenart/abo``) -> ``survey_abo.json``.
+- ``trellis_setup``: ``bash scripts/pod_setup_trellis.sh`` (venv-trellis on the container disk, TRELLIS.2 into
+  ``HF_HOME``; it writes ``$WENART_RESULTS/setup_trellis.json`` and exits non-zero on failure: ``failed`` with the
+  reason; the library is then built from the real sources only).
+- ``generate`` (needs the real models judged, so it runs on the second library pod, L2): ``objaverse accept
+  --sources abo,objaverse`` first (the real models' ``accepted.json``: the spec's "first accept on the real models"
+  is run inside this step), then ``<trellis-py> -m wenart.assets.generate plan --catalog <library>/accepted.json --families F1,F2 --out
+  <library>`` and ``... generate run --out <library> --plan <library>/generate/plan.json`` (-> ``survey_generated.json``).
+  The families are the style families of the committed projects (``wenart.furniture.fit.style_family_of`` of each
+  project's first style profile, ``wenart.style`` with its defaults) plus the default family. ``failed`` with the
+  reason when ``generate.py``, venv-trellis or the judged real models are missing (never silently); a failed
+  generation leaves the library to the real sources.
+- Two pods (docs/milestone8.md §6): L1 = ``PREP_SKIP=trellis_setup,generate`` (real models: survey, judging,
+  catalogue); L2 = every step on a new pod: both surveys download the real candidates again (same picks; their
+  measurements, sheets and judge answers on the volume are reused), ``generate`` accepts over L1's judgements and
+  generates the gaps, the thumbnails and both sessions add only the generated models, ``library`` builds the
+  catalogue of every source. Every download happens before ``thumbnails``: the steps from there run with
+  ``HF_HUB_OFFLINE=1``.
+
+The M7 text below holds for the other steps (its ``survey`` now follows ``abo_survey``):
 
 What, in this fixed order (``STEPS``; every command runs with cwd = the repo root, its output appended to
 ``<logs>/prep-<job>/<step>.log``):
@@ -102,12 +131,19 @@ from wenart.run import stages as S
 from wenart.run import state as ST
 from wenart.run.projects import REPO_ROOT, ProjectError, ProjectRef, check_name
 
-STEPS = ("survey", "thumbnails", "judge_requests", "detect_calibrate", "timings", "pipelines", "session_qwen",
-         "session_glm", "pipeline_final", "library", "copy", "tests")
+STEPS = ("abo_survey", "survey", "trellis_setup", "generate", "thumbnails", "judge_requests", "detect_calibrate",
+         "timings", "pipelines", "session_qwen", "session_glm", "pipeline_final", "library", "copy", "tests")
 # Download and GPU steps: they start only when now + EST_S < deadline (seconds; §10 table, measured on nothing
 # yet: the prep pod is where they are measured).
-HEAVY = ("survey", "thumbnails", "detect_calibrate", "timings", "session_qwen", "session_glm")
-EST_S = {"survey": 300.0, "thumbnails": 180.0, "detect_calibrate": 240.0, "timings": 420.0}
+HEAVY = ("abo_survey", "survey", "trellis_setup", "generate", "thumbnails", "detect_calibrate", "timings",
+         "session_qwen", "session_glm")
+EST_S = {"abo_survey": 300.0, "survey": 300.0, "trellis_setup": 900.0, "generate": 600.0, "thumbnails": 300.0,
+         "detect_calibrate": 240.0, "timings": 420.0}
+LAST_DOWNLOAD_STEP = "generate"            # HF_HUB_OFFLINE=1 for every step after it (M7: after the survey)
+SETUP_TRELLIS = "scripts/pod_setup_trellis.sh"
+GENERATE_MODULE = Path("wenart") / "assets" / "generate.py"
+REAL_SOURCES = ("abo", "objaverse")         # the first accept of the generate step (wenart.assets.objaverse)
+LIBRARY_CATALOG = CP.LIBRARY_CATALOG        # catalog_library.json
 EST_CALLS_MIN_S = 120.0                    # a session starts only with room for its server start and some calls
 SESSION_KEYS = {"session_qwen": "qwen", "session_glm": "glm"}     # pass 1, then pass 2 (§3.3, §9.2)
 STATUSES = ("ok", "warning", "skipped", "deadline", "failed")
@@ -263,6 +299,9 @@ class PrepOptions:
     prep_root: Path = Path("/workspace/prep")              # persistent work: library-work, caches, timing renders
     assets: Path = Path("/workspace/assets")
     hf_cache: Path = Path("/opt/wenart/hf")
+    abo_cache: Path = Path("/opt/wenart/abo")                # ABO metadata and GLBs (container disk)
+    fast: Path = Path("/opt/wenart")                         # WENART_FAST: the container-disk tools
+    trellis_py: Optional[str] = None                         # default <fast>/venv-trellis/bin/python
     logs_dir: Path = Path("/workspace/logs")
     job_dir: Optional[Path] = None
     job_id: str = "prep"
@@ -280,6 +319,11 @@ class PrepOptions:
         """The library work folder every ``objaverse`` step reads and writes (persistent: a resumed or targeted
         job finds the survey, thumbnails, judge requests and answers of earlier jobs)."""
         return Path(self.prep_root) / LIBRARY_DIR
+
+    @property
+    def trellis_python(self) -> str:
+        """The venv-trellis interpreter ``scripts/pod_setup_trellis.sh`` builds."""
+        return str(self.trellis_py or Path(self.fast) / "venv-trellis" / "bin" / "python")
 
     @property
     def results_library(self) -> Path:
@@ -433,15 +477,14 @@ class Prep:
         return seeds if seeds is not None and seeds.is_dir() else None
 
     def sync_library(self) -> int:
-        """Copy the library work folder (``<prep-root>/library``) into ``$RESULTS/library``; the number of files
-        written (a file whose size and bytes are already there is not copied again)."""
+        """Copy the library work folder (``<prep-root>/library``) into ``$RESULTS/library`` (``copy.library_files``:
+        no model file, nothing over 8 MB); the number of files written (a file whose size and bytes are already there
+        is not copied again)."""
         src, dst = Path(self.opts.library), Path(self.opts.results_library)
         if not src.is_dir():
             return 0
         n = 0
-        for f in sorted(src.rglob("*")):
-            if not f.is_file() or f.is_symlink() or f.name.endswith(".tmp"):
-                continue
+        for f in CP.library_files(src):
             target = dst / f.relative_to(src)
             if target.is_file() and target.stat().st_size == f.stat().st_size \
                     and target.read_bytes() == f.read_bytes():
@@ -565,7 +608,7 @@ class Prep:
             entry.update(status=status, note=note, seconds=round(max(0.0, self.now() - t0), 1))
         self.out(f"prep {name}: {entry['status']}" + (f" ({entry['note']})" if entry["note"] else "")
                  + f" in {entry['seconds']:.0f} s")
-        if name == "survey":
+        if name == LAST_DOWNLOAD_STEP:
             self.offline = True               # the HF downloads are over: nothing is fetched behind our back
         self.write_manifest()
         return entry
@@ -580,6 +623,9 @@ class Prep:
     def objaverse(self, *args) -> list:
         return [self.opts.py, "-m", "wenart.assets.objaverse", *[str(a) for a in args]]
 
+    def generate_cmd(self, *args) -> list:
+        return [self.opts.trellis_python, "-m", "wenart.assets.generate", *[str(a) for a in args]]
+
     def do_survey(self, entry: dict) -> tuple:
         rc = self.run(self.objaverse("survey", "--cache", self.opts.hf_cache, "--out", self.opts.library))
         survey = read_json(self.opts.library / "survey.json")
@@ -589,14 +635,134 @@ class Prep:
             return "failed", f"exit {rc}" + ("" if rc != 1 else ": no candidate")
         return "ok", f"{n} candidate(s)"
 
+    def do_abo_survey(self, entry: dict) -> tuple:
+        """The ABO survey (docs/milestone8.md §2): metadata and candidate GLBs into ``--abo-cache``."""
+        rc = self.run([self.opts.py, "-m", "wenart.assets.abo", "survey", "--cache", self.opts.abo_cache, "--out",
+                       self.opts.library])
+        survey = read_json(self.opts.library / "survey_abo.json")
+        n = len(survey.get("candidates") or []) if isinstance(survey, dict) else 0
+        entry["candidates"] = n
+        if rc != 0:
+            return "failed", f"exit {rc}" + {1: ": no candidate", 2: ": metadata missing or a usage error"}.get(rc, "")
+        return "ok", f"{n} candidate(s)"
+
+    def do_trellis_setup(self, entry: dict) -> tuple:
+        """``bash scripts/pod_setup_trellis.sh`` (docs/milestone8.md §3): ``failed`` with the reason of its
+        ``setup_trellis.json`` when it exits non-zero or is not in the repository."""
+        if not (Path(self.opts.repo_root) / SETUP_TRELLIS).is_file():
+            return "failed", f"tools missing: {SETUP_TRELLIS} is not in the repository"
+        rc = self.run(["bash", SETUP_TRELLIS], extra_env={"WENART_RESULTS": self.opts.results,
+                                                          "WENART_FAST": self.opts.fast})
+        setup = read_json(Path(self.opts.results) / "setup_trellis.json")
+        setup = setup if isinstance(setup, dict) else {}
+        entry["setup"] = {k: setup[k] for k in ("ok", "status", "reason", "error", "versions", "seconds") if k in setup}
+        if rc != 0:
+            reason = setup.get("reason") or setup.get("error")
+            return "failed", (f"exit {rc}: {reason}" if reason else f"exit {rc} (no reason in setup_trellis.json)") \
+                + "; the library is built from the real sources only"
+        return "ok", None
+
+    def real_judged(self) -> tuple[int, int]:
+        """``(judged by both models, all)`` of the real sources' (ABO, Objaverse) judge items of the library."""
+        data = read_json(self.opts.library / "judge" / "requests.json")
+        items = [i for i in (data.get("items") or []) if isinstance(i, dict)] if isinstance(data, dict) else []
+        items = [i for i in items if ((i.get("context") or {}).get("source") or "objaverse") in REAL_SOURCES]
+        if not items:
+            return 0, 0
+        try:
+            from wenart.assets import objaverse as OV        # lazy: the recognition answer store
+            stores = [OV.judge_store(self.opts.library, key, self.models()) for key in SESSION_KEYS.values()]
+        except Exception:  # noqa: BLE001 - an unreadable store: nothing is judged
+            return 0, len(items)
+        judged = 0
+        for item in items:
+            try:
+                judged += all(s.valid(item) is not None for s in stores)
+            except Exception:  # noqa: BLE001 - a broken item or record is not an answer
+                pass
+        return judged, len(items)
+
+    def families(self) -> list[str]:
+        """The style families of the committed projects (``projects/*``: the first style profile of each brief,
+        ``wenart.style`` with its defaults, through ``wenart.furniture.fit.style_family_of``) plus the default
+        family, in that order without repeats; a project whose style names no family adds none."""
+        import yaml
+
+        from wenart.furniture.fit import style_family_of
+        from wenart.style import profile as SPF
+        out: list[str] = []
+        root = Path(self.opts.repo_root) / "projects"
+        for folder in sorted(p for p in root.iterdir() if p.is_dir()) if root.is_dir() else []:
+            path = folder / "brief.yaml"
+            brief = (yaml.safe_load(path.read_text(encoding="utf-8")) or {}) if path.is_file() else None
+            family, _how = style_family_of(SPF.profiles_from_brief(brief))
+            if family and family not in out:
+                out.append(family)
+        default, _how = style_family_of(SPF.default_profile())
+        if default and default not in out:
+            out.append(default)
+        return out
+
+    def do_generate(self, entry: dict) -> tuple:
+        """docs/milestone8.md §3, §6: the real models' first accept, then ``generate plan`` and ``generate run`` in
+        venv-trellis (module docstring). Missing tools or inputs -> ``failed`` with the reason (never silently)."""
+        lib = self.opts.library
+        missing = []
+        if not (Path(self.opts.repo_root) / GENERATE_MODULE).is_file():
+            missing.append(f"{GENERATE_MODULE.as_posix()} is not in the repository")
+        if not Path(self.opts.trellis_python).is_file():
+            setup = next((s for s in self.steps if s["name"] == "trellis_setup"), {})
+            missing.append(f"no {self.opts.trellis_python} (venv-trellis; trellis_setup {setup.get('status')})")
+        if missing:
+            return "failed", "tools missing: " + "; ".join(missing) + "; the library is built from the real sources"
+        if not (lib / "judge" / "requests.json").is_file():
+            return "failed", (self.missing_input("judge/requests.json") + "; the first accept needs the real models "
+                              "judged: run the L1 prep (PREP_SKIP=trellis_setup,generate) first")
+        judged, real = self.real_judged()
+        entry.update(real_judged=judged, real_items=real)
+        if not judged:
+            return "failed", (f"input missing: none of the {real} real model(s) in {lib / 'judge'} is judged by both "
+                              "models: run the L1 prep (PREP_SKIP=trellis_setup,generate) first")
+        rc_acc = self.run(self.objaverse("accept", "--out", lib, "--sources", ",".join(REAL_SOURCES)), late=True,
+                          what="accept (real sources)")
+        if rc_acc not in (0, 1):
+            return "failed", f"first accept (real sources) exit {rc_acc}"
+        families = self.families()
+        entry["families"] = families
+        rc_plan = self.run(self.generate_cmd("plan", "--catalog", lib / "accepted.json", "--families",
+                                             ",".join(families), "--out", lib), what="plan")
+        if rc_plan != 0:
+            return "failed", f"generate plan exit {rc_plan}: the library is built from the real sources only"
+        plan = read_json(lib / "generate" / "plan.json")
+        pairs = (plan.get("pairs") or plan.get("items") or []) if isinstance(plan, dict) else (plan or [])
+        entry["pairs"] = len(pairs) if isinstance(pairs, list) else None
+        rc_run = self.run(self.generate_cmd("run", "--out", lib, "--plan", lib / "generate" / "plan.json"),
+                          what="run")
+        surv = read_json(lib / "survey_generated.json")
+        n = len(surv.get("candidates") or []) if isinstance(surv, dict) else 0
+        entry["candidates"] = n
+        if rc_run == 3:
+            return "deadline", f"cut by the deadline: {n} generated candidate(s) so far (the library takes them)"
+        if rc_run != 0:
+            return "failed", (f"generate run exit {rc_run}: {n} generated candidate(s); the library is built from "
+                              "the real sources and those")
+        note = f"{entry['pairs']} pair(s) planned, {n} generated candidate(s)"
+        if judged < real:
+            return "warning", (note + f"; {real - judged} of {real} real model(s) were not judged by both models "
+                               "before the plan (their pairs may be generated needlessly)")
+        return "ok", note
+
     def missing_input(self, name: str) -> str:
         """The note of a selected step whose input is not in the library work folder (status ``failed``)."""
         return (f"input missing: no {name} in {self.opts.library} (run the earlier library steps, or the whole "
                 f"prep, first)")
 
     def do_thumbnails(self, entry: dict) -> tuple:
-        if not (self.opts.library / "survey.json").is_file():
-            return "failed", self.missing_input("survey.json")
+        from wenart.assets.objaverse import SURVEY_FILES
+        present = [n for n in SURVEY_FILES.values() if (self.opts.library / n).is_file()]
+        entry["surveys"] = present
+        if not present:
+            return "failed", self.missing_input(" or ".join(SURVEY_FILES.values()))
         rc = self.run(self.objaverse("thumbnails", "--out", self.opts.library, "--work",
                                      Path(self.opts.prep_root) / "library-work"))
         thumbs = read_json(self.opts.library / "thumbnails.json")
@@ -629,16 +795,19 @@ class Prep:
         else:
             # The work folder outlives the job: a catalogue (and its credits) of an earlier accept is not this
             # accept's result (write-catalog removes a stale file the same way when nothing is accepted).
-            stale = [f.name for f in (lib / "catalog_objaverse.json", lib / CP.ATTRIBUTION) if f.is_file()]
+            stale = [f.name for f in (lib / LIBRARY_CATALOG, lib / CP.ATTRIBUTION) if f.is_file()]
             for name in stale:
                 (lib / name).unlink()
             if stale:
                 entry["stale_removed"] = stale
         rc_report = self.run(self.objaverse("report", "--out", lib), late=True, what="report")
-        attribution = CP.library_attribution(lib)
-        catalog = read_json(lib / "catalog_objaverse.json")
+        attribution = CP.library_attribution(lib, lib / LIBRARY_CATALOG)
+        catalog = read_json(lib / LIBRARY_CATALOG)
         entries = catalog.get("entries") if isinstance(catalog, dict) else catalog
+        decor = catalog.get("decor") if isinstance(catalog, dict) else None
         entry.update(accepted_models=len(entries or []) if isinstance(entries, list) else 0,
+                     decor_models=len(decor or []) if isinstance(decor, list) else 0,
+                     sources=catalog.get("sources") if isinstance(catalog, dict) else None,
                      attribution=attribution is not None)
         if rc_accept == 1:
             return "warning", "nothing accepted: every type stays Poly Haven or parametric (library_report.md)"
@@ -647,22 +816,39 @@ class Prep:
             absent = self.accepted_glbs_missing() if rc_catalog not in (0, None) else []
             if absent:
                 entry["glbs_missing"] = len(absent)
-                note += (f"; {len(absent)} accepted GLB(s) not on this pod's disk (e.g. {absent[0]}): the survey's "
-                         f"cache is on the container disk, a targeted re-run on a new pod must include survey")
+                note += (f"; {len(absent)} accepted GLB(s) not on this pod's disk (e.g. {absent[0]}): the surveys' "
+                         f"caches are on the container disk, a targeted re-run on a new pod must include survey and "
+                         f"abo_survey (they download them again)")
             return "failed", note
-        return "ok", f"{entry['accepted_models']} model(s) in catalog_objaverse.json"
+        return "ok", (f"{entry['accepted_models']} model(s) and {entry['decor_models']} decor model(s) in "
+                      f"{LIBRARY_CATALOG}")
 
     def accepted_glbs_missing(self) -> list[str]:
         """The survey GLB paths of the accepted objects (``accepted.json``) that are not files on this pod: the
-        survey downloads them into ``$HF_HOME`` on the container disk, so a new pod has none of them until its
-        own survey ran (write-catalog then refuses every object as ``glb_changed``)."""
+        surveys download them into their container-disk caches (``$HF_HOME``, the ABO cache), so a new pod has none
+        of them until its own surveys ran; a copy an earlier ``write-catalog`` put into ``<assets>/models/<source>/``
+        counts (write-catalog takes it). Without either, write-catalog refuses the object as ``glb_changed``."""
+        from wenart.assets.objaverse import SURVEY_FILES
         lib = self.opts.library
-        acc, surv = read_json(lib / "accepted.json"), read_json(lib / "survey.json")
-        if not isinstance(acc, dict) or not isinstance(surv, dict):
+        acc = read_json(lib / "accepted.json")
+        if not isinstance(acc, dict):
             return []
-        glbs = {c.get("uid"): c.get("glb") for c in surv.get("candidates") or [] if isinstance(c, dict)}
-        uids = [d.get("uid") for d in acc.get("accepted") or [] if isinstance(d, dict)]
-        return [str(glbs.get(u)) for u in uids if not glbs.get(u) or not Path(str(glbs[u])).is_file()]
+        glbs: dict = {}
+        for source, name in SURVEY_FILES.items():
+            surv = read_json(lib / name)
+            for c in (surv.get("candidates") or []) if isinstance(surv, dict) else []:
+                if isinstance(c, dict):
+                    glbs[c.get("uid")] = (c.get("source") or source, c.get("glb"))
+        out = []
+        for dec in acc.get("accepted") or []:
+            uid = dec.get("uid") if isinstance(dec, dict) else None
+            source, glb = glbs.get(uid, ("objaverse", None))
+            if glb and Path(str(glb)).is_file():
+                continue
+            if uid and (Path(self.opts.assets) / "models" / str(source) / f"{uid}.glb").is_file():
+                continue
+            out.append(str(glb))
+        return out
 
     # ----- detector, timings ------------------------------------------------
 
@@ -1022,7 +1208,7 @@ class Prep:
 
     def do_copy(self, entry: dict) -> tuple:
         entry["files"] = self.copy_projects()
-        if CP.library_attribution(self.opts.library) is not None:
+        if CP.library_attribution(self.opts.library, self.opts.library / LIBRARY_CATALOG) is not None:
             entry["library_attribution"] = True
         entry["library_files"] = self.sync_library()
         return "ok", f"{sum(entry['files'].values())} project file(s), {entry['library_files']} library file(s)"
@@ -1061,7 +1247,8 @@ class Prep:
                  f"{self.opts.deadline if self.opts.deadline is not None else 'none'}")
         gpu = self.gpu_info()
         self.out(f"prep GPU: {gpu.get('name') or 'none'} ({gpu.get('memory_mib') or 0} MiB, key {gpu.get('key')})")
-        table = {"survey": self.do_survey, "thumbnails": self.do_thumbnails, "judge_requests": self.do_judge_requests,
+        table = {"abo_survey": self.do_abo_survey, "survey": self.do_survey, "trellis_setup": self.do_trellis_setup,
+                 "generate": self.do_generate, "thumbnails": self.do_thumbnails, "judge_requests": self.do_judge_requests,
                  "detect_calibrate": self.do_detect_calibrate, "timings": self.do_timings,
                  "pipelines": self.do_pipelines, "session_qwen": lambda e: self.do_session(e, "qwen"),
                  "session_glm": lambda e: self.do_session(e, "glm"), "pipeline_final": self.do_pipeline_final,
@@ -1077,7 +1264,7 @@ class Prep:
     def copy_only(self) -> int:
         """The EXIT trap of prep.sh: the prep projects' small files and the library folder, nothing else."""
         counts = self.copy_projects()
-        CP.library_attribution(self.opts.library)
+        CP.library_attribution(self.opts.library, self.opts.library / LIBRARY_CATALOG)
         synced = self.sync_library()
         self.out(f"prep copy: {sum(counts.values())} file(s) of {len(counts)} project(s); "
                  f"{synced} library file(s) copied to {self.opts.results_library}")
@@ -1089,7 +1276,7 @@ class Prep:
         """What the integrator commits between the prep pod and the full runs (§9.2)."""
         out: dict = {"check_yaml_max_seqs": {k: s["max_seqs"] for k, s in self.sessions.items()
                                              if s.get("probe") and s.get("max_seqs")},
-                     "plan_gpu_speed": None, "detector": None, "catalog_objaverse": None}
+                     "plan_gpu_speed": None, "detector": None, "catalog_library": None}
         gpu = self.gpu or {}
         if self.timing and self.timing.get("speed") and gpu.get("key"):
             out["plan_gpu_speed"] = {gpu["key"]: self.timing["speed"]}
@@ -1097,8 +1284,8 @@ class Prep:
         if isinstance(cal, dict):
             out["detector"] = {"usable": cal.get("usable"), "t_det": cal.get("t_det"), "t_strong": cal.get("t_strong"),
                                "file": "detect/detector_calibration.json"}
-        if (self.opts.library / "catalog_objaverse.json").is_file():
-            out["catalog_objaverse"] = "library/catalog_objaverse.json"
+        if (self.opts.library / LIBRARY_CATALOG).is_file():
+            out["catalog_library"] = f"library/{LIBRARY_CATALOG}"
         return out
 
     def manifest(self, final: bool) -> dict:
@@ -1159,6 +1346,11 @@ def parse_args(argv) -> argparse.Namespace:
     p.add_argument("--prep-root", default=None, help="persistent work (default $WENART_PREP_ROOT or /workspace/prep)")
     p.add_argument("--assets", default=None, help="default $WENART_ASSETS or /workspace/assets")
     p.add_argument("--hf-cache", default=None, help="default $HF_HOME or /opt/wenart/hf")
+    p.add_argument("--abo-cache", default=None, help="ABO metadata and GLBs (default $WENART_ABO_CACHE or "
+                                                      "$WENART_FAST/abo, /opt/wenart/abo)")
+    p.add_argument("--fast", default=None, help="container-disk tools (default $WENART_FAST or /opt/wenart)")
+    p.add_argument("--trellis-py", default=None, help="venv-trellis python (default $WENART_TRELLIS_PY or "
+                                                       "<fast>/venv-trellis/bin/python)")
     p.add_argument("--logs", default=None, help="default $WENART_LOGS or /workspace/logs")
     p.add_argument("--job-dir", default=None, help="default $WENART_JOB_DIR")
     p.add_argument("--deadline", type=float, default=None, help="epoch seconds (default $WENART_DEADLINE)")
@@ -1188,6 +1380,7 @@ def options_from_args(args) -> PrepOptions:
         except ValueError:
             samples = 128
     job_dir = args.job_dir or os.environ.get("WENART_JOB_DIR") or None
+    fast = Path(args.fast) if args.fast else _env_path("WENART_FAST", "/opt/wenart")
     return PrepOptions(
         results=Path(args.results), outputs=Path(args.outputs) if args.outputs else
         _env_path("WENART_PREP_OUTPUTS", "/workspace/outputs-prep"), projects=projects,
@@ -1196,6 +1389,8 @@ def options_from_args(args) -> PrepOptions:
         prep_root=Path(args.prep_root) if args.prep_root else _env_path("WENART_PREP_ROOT", "/workspace/prep"),
         assets=Path(args.assets) if args.assets else _env_path("WENART_ASSETS", "/workspace/assets"),
         hf_cache=Path(args.hf_cache) if args.hf_cache else _env_path("HF_HOME", "/opt/wenart/hf"),
+        abo_cache=Path(args.abo_cache) if args.abo_cache else _env_path("WENART_ABO_CACHE", fast / "abo"), fast=fast,
+        trellis_py=args.trellis_py or os.environ.get("WENART_TRELLIS_PY") or None,
         logs_dir=Path(args.logs) if args.logs else _env_path("WENART_LOGS", "/workspace/logs"),
         job_dir=Path(job_dir) if job_dir else None, job_id=os.environ.get("JOB_ID") or "prep",
         deadline=args.deadline if args.deadline is not None else env_deadline(), py=sys.executable,

@@ -1,9 +1,36 @@
-"""Objaverse 1.0 furniture library for the prep pod: survey, thumbnails, judging, acceptance, catalogue, report.
+"""The furniture library for the prep pod: the Objaverse survey and the shared steps of every source (thumbnails,
+judging, acceptance, catalogue, report).
 
 What (docs/milestone7.md §7, user decision 7): a larger furniture library than the 31 CC0 Poly Haven models, taken
-from Objaverse 1.0 (Hugging Face ``allenai/objaverse`` @ 21e4e14, ODC-By 1.0) and limited to objects whose uploader
-licence is CC0 or CC BY 4.0. Nothing here runs in the session: the prep pod runs the steps in this order and the
-integrator commits ``catalog_objaverse.json`` into ``wenart/furniture/`` before the full runs.
+from Objaverse 1.0 (Hugging Face ``allenai/objaverse`` @ 21e4e14, ODC-By 1.0). Nothing here runs in the session: the
+prep pod runs the steps in this order and the integrator commits the catalogue into ``wenart/furniture/`` before the
+full runs.
+
+Milestone 8 (docs/milestone8.md §1, §2; user decisions 3 and 4 of 4 Oct 2026):
+
+- One library pipeline for every source. The survey is per source: ``survey`` here (Objaverse, ``survey.json``),
+  ``python -m wenart.assets.abo survey`` (``survey_abo.json``) and ``python -m wenart.assets.generate run``
+  (``survey_generated.json``); every later step reads the candidates of every survey file present in ``--out``
+  (``load_candidates``; field ``source``). Records keep the M7 shape plus ``source``, ``licence_flag``,
+  ``style_hint``, ``kind`` (``furniture`` / ``decor``), ``decor_type``, ``units_known`` and ``extents_raw``.
+- Objaverse: the licence filter is gone (any licence; ``licence_flag`` null for CC0 / CC BY 4.0, else
+  ``non_commercial`` / ``share_alike`` / ``no_derivatives`` / ``unknown``; the credit fields are still required),
+  <= 24 candidates per type.
+- Thumbnails: a record with ``units_known`` (ABO: metres) skips the unit guess and is refused when its measured box is
+  outside the type's range (no normalisation); a documented front (ABO: glTF +Z = -Y) replaces the geometric front
+  (the geometric check is kept in the note); every bed gets ``deck_height_m`` (the median of 5 downward rays inside
+  the inner 50 % of the footprint, Z-up model frame, metres; ``deck_height``).
+- Decor (``kind: decor``; ``decor_type`` cushion, plant, rug, wall_art): thumbnails, a judge question of its own
+  (``is_decor_type``: a rug is a rug, a planter holds a plant) and acceptance (<= 16 per decor type).
+- Accept: beds both judges see without a mattress are bed frames (``bed_frame: true``) when the deck was measured,
+  else refused ``no_deck``; <= 12 per furniture type, <= 3 per (type, style family), ranked by mean quality, then
+  source order (abo, polyhaven, objaverse, generated); ``--sources`` limits a run to some sources (the prep job's
+  first accept over the real models before the generation).
+- ``write-catalog`` writes ``catalog_library.json`` (``wenart.furniture.catalog.load`` merges it; the M7
+  ``catalog_objaverse.json`` is only a fallback there) with the GLBs in ``<assets>/models/<source>/<uid>.glb``; the
+  report and ``ATTRIBUTION.md`` list every source, credit line and licence flag.
+
+The steps as Milestone 7 built them (the Milestone 8 changes above apply on top of this text):
 
 1. ``survey``: downloads ``lvis-annotations.json.gz``, ``object-paths.json.gz`` and the metadata shards into the
    container-disk Hugging Face cache (``--cache /opt/wenart/hf``), maps LVIS categories to furniture types
@@ -44,7 +71,7 @@ Why so many checks: the per-object licences are uploader-declared (unverified: f
 metadata says nothing about scale or orientation, and the furniture rules need a model that is one piece, of the
 drawn type, with a known front. Every refusal keeps its reason; nothing is guessed silently (CLAUDE.md).
 
-CLI (all steps read and write ``--out``, the prep job's ``$RESULTS/library``)::
+CLI (all steps read and write ``--out``, the prep job's library folder)::
 
     python -m wenart.assets.objaverse survey --out DIR [--cache /opt/wenart/hf | --mirror DIR] [--no-download]
     python -m wenart.assets.objaverse thumbnails --out DIR [--work DIR] [--blender PATH] [--device auto|cpu]
@@ -53,7 +80,7 @@ CLI (all steps read and write ``--out``, the prep job's ``$RESULTS/library``)::
     python -m wenart.assets.objaverse judge --out DIR --model-key qwen|glm [--server URL] [--workers N]
         [--deadline T] [--seed-answers DIR]
     python -m wenart.assets.objaverse judge-status --out DIR
-    python -m wenart.assets.objaverse accept --out DIR
+    python -m wenart.assets.objaverse accept --out DIR [--sources abo,objaverse]
     python -m wenart.assets.objaverse write-catalog --out DIR [--assets /workspace/assets]
     python -m wenart.assets.objaverse report --out DIR
 
@@ -69,7 +96,7 @@ verify on the pod", the survey records what it meets (licence values, metadata k
 
 Inside Blender (``blender -b --python wenart/assets/objaverse.py -- blender-thumbs <jobs.json>``) this file runs
 as a plain script: its top-level imports are the standard library only, and the Blender side uses only the pure
-helpers below (``front_stats``, ``newell``, ``view_location``, ``camera_distance``, ``write_json``).
+helpers below (``front_stats``, ``newell``, ``view_location``, ``camera_distance``, ``deck_height``, ``write_json``).
 """
 from __future__ import annotations
 
@@ -111,9 +138,19 @@ EXIT_OK, EXIT_FAIL, EXIT_SERVER, EXIT_DEADLINE = 0, 1, 2, 3
 DEFAULT_SERVER = "http://127.0.0.1:8001/v1"
 
 SURVEY_NAME = "survey.json"
+# Every source's survey file in the library folder (objaverse.yaml survey_files; docs/milestone8.md §2).
+SURVEY_FILES: dict[str, str] = {"objaverse": SURVEY_NAME, "abo": "survey_abo.json",
+                                "generated": "survey_generated.json"}
+SOURCES: tuple[str, ...] = tuple(SURVEY_FILES)
+REAL_SOURCES: tuple[str, ...] = ("abo", "objaverse")       # the generation plan follows their accepted models
+SOURCE_ORDER: tuple[str, ...] = ("abo", "polyhaven", "objaverse", "generated")   # rank order of docs/milestone8.md §2
+DECOR_TYPES: tuple[str, ...] = ("cushion", "plant", "rug", "wall_art")            # = catalog.DECOR_TYPES
+BED_TYPES: tuple[str, ...] = ("bed_single", "bed_double")
+DOCUMENTED_RULE = "documented"                        # a front only the source's documented convention decides
 THUMBS_JSON = "thumbnails.json"
 ACCEPTED_NAME = "accepted.json"
-CATALOG_NAME = "catalog_objaverse.json"
+CATALOG_NAME = "catalog_library.json"                 # Milestone 8 (replaces catalog_objaverse.json)
+OLD_CATALOG_NAME = "catalog_objaverse.json"           # Milestone 7
 REPORT_NAME = "library_report.md"
 JUDGE_DIR = "judge"
 REQUESTS_NAME = "requests.json"
@@ -133,12 +170,9 @@ REASONS: dict[str, str] = {
     "no_object_path": "no path in object-paths.json.gz",
     "bad_object_path": "object path not of the form glbs/<folder>/<uid>.glb",
     "no_metadata": "no metadata record",
-    "licence_missing": "no licence in the metadata",
-    "licence_refused": "licence not CC0 / CC BY 4.0 (NC, ND, SA, Standard, Editorial)",
-    "licence_unknown": "licence value not known (refused, never guessed)",
     "no_credit": "credit field missing (title, author or link)",
     "face_count": "face count outside 2k-150k",
-    "glb_size": "GLB larger than 40 MB",
+    "glb_size": "GLB larger than the source's limit (Objaverse 40 MB, ABO 60 MB)",
     "download_failed": "download failed",
     "glb_unreadable": "GLB header unreadable",
     "untextured": "no image texture and no vertex colours",
@@ -147,17 +181,21 @@ REASONS: dict[str, str] = {
     "unit_none": "no unit factor fits and the box proportions (footprint, height / width) are outside the type's "
                  "ranges",
     "unit_ambiguous": "more than one unit factor fits (never guessed)",
-    "size_range": "box outside the resolved type's size range",
+    "size_range": "box outside the resolved type's size range (units known: never normalised)",
     "not_judged": "an answer of a judge is missing",
     "not_single": "not a single object (a judge)",
     "type_mismatch": "not the furniture type (a judge)",
+    "not_decor_type": "not the decor type (a judge; a planter must hold a plant)",
     "quality": "photoreal quality below 4 (a judge)",
     "no_mattress": "bed without a mattress (a judge)",
-    "front_not_agreed": "front not agreed (judges and geometry)",
+    "mattress_not_agreed": "the judges disagree whether the bed has a mattress",
+    "no_deck": "bed frame without a measurable deck (5 downward rays)",
+    "front_not_agreed": "front not agreed (judges and geometry or the documented front)",
     "no_common_style": "no style both judges name",
-    "over_candidate_limit": "over the 8 candidates of its type after the bed split",
+    "over_candidate_limit": "over the candidates of its source and type after the bed split",
     "over_type_limit": "over the per-type limit of the catalogue",
-    "glb_changed": "GLB sha256 differs from the survey",
+    "over_style_limit": "every style family it fits already has 3 models of its type",
+    "glb_changed": "GLB sha256 differs from the survey (and no copy in the assets cache)",
 }
 
 
@@ -241,6 +279,19 @@ def load_size_table(path: Optional[Path] = None) -> tuple[dict, float]:
         w, d = spec["width"], spec["depth"]
         table[name] = ((float(w[0]), float(w[1])), (float(d[0]), float(d[1])))
     return table, float(data.get("tolerance", 0.15))
+
+
+def library_size_table(cfg: dict, path: Optional[Path] = None) -> tuple[dict, float]:
+    """``load_size_table`` plus the decor footprints of ``objaverse.yaml`` ``decor_sizes`` (docs/milestone8.md §4)."""
+    table, tol = load_size_table(path)
+    for name, spec in (cfg.get("decor_sizes") or {}).items():
+        w, d = spec["width"], spec["depth"]
+        table[name] = ((float(w[0]), float(w[1])), (float(d[0]), float(d[1])))
+    return table, tol
+
+
+def heights_of(cfg: dict) -> dict:
+    return {t: spec["height"] for t, spec in cfg["types"].items()}
 
 
 _LVIS_STOP = {"of", "the", "and", "a", "for", "furniture"}
@@ -352,18 +403,26 @@ def licence_value(raw) -> Optional[str]:
     return " ".join(raw.strip().casefold().split()) or None
 
 
-def classify_licence(raw, cfg: dict) -> tuple[Optional[str], str, str]:
-    """``(catalogue licence | None, refusal code, detail)`` of a metadata licence value (§7.1 step 3)."""
+LICENCE_FLAG_NAMES = ("non_commercial", "share_alike", "no_derivatives", "unknown")   # = catalog.FLAGS
+UNKNOWN_LICENCE = "unknown"
+
+
+def classify_licence(raw, cfg: dict) -> tuple[str, Optional[str], str]:
+    """``(catalogue licence, licence_flag, detail)`` of a metadata licence value (docs/milestone8.md §2: every
+    licence is taken; M7 refused all but CC0 / CC BY 4.0). ``accept`` spellings give CC0 / CC BY 4.0 with flag None;
+    ``flagged`` spellings their licence with its flag (``wenart.furniture.catalog.LICENCE_FLAGS``); any other value,
+    or none, the licence ``unknown`` with flag ``unknown`` (the detail says what was there)."""
+    from wenart.furniture import catalog as C
     value = licence_value(raw)
     lic = cfg["licences"]
+    unknown = str(lic.get("unknown") or UNKNOWN_LICENCE)
     if value is None:
-        return None, "licence_missing", ""
-    for name, spellings in lic["accept"].items():
-        if value in {" ".join(str(s).casefold().split()) for s in spellings}:
-            return name, "", ""
-    if value in {" ".join(str(s).casefold().split()) for s in lic.get("refuse") or []}:
-        return None, "licence_refused", value
-    return None, "licence_unknown", value
+        return unknown, C.licence_flag_of(unknown), "no licence in the metadata"
+    for table in (lic["accept"], lic.get("flagged") or {}):
+        for name, spellings in table.items():
+            if value in {" ".join(str(s).casefold().split()) for s in spellings}:
+                return name, C.licence_flag_of(name), "" if table is lic["accept"] else value
+    return unknown, C.licence_flag_of(unknown), f"licence value {value!r} not known"
 
 
 def credit_of(meta: dict, fields: dict) -> tuple[dict, list[str]]:
@@ -498,7 +557,8 @@ def _load_shards(hub, shards: list[str], wanted: dict[str, set], workers: int, l
 
 def survey(hub, out: Path, cfg: Optional[dict] = None, download: bool = True, workers: int = 8,
            log: Callable = print) -> dict:
-    """§7.1: LVIS categories -> types, licence, credit, prefilter, rank, <= 8 candidates per type -> ``survey.json``.
+    """§7.1: LVIS categories -> types, licence (any, flagged: docs/milestone8.md §2), credit, prefilter, rank,
+    <= ``per_type_limit`` (24) candidates per type -> ``survey.json``.
 
     ``hub.path(filename)`` returns a local file of the dataset (``HFHub`` on the pod, ``LocalHub`` in tests).
     With ``download`` the candidates' GLBs are fetched in rank order (at most ``max_downloads_per_type`` per type)
@@ -539,7 +599,7 @@ def survey(hub, out: Path, cfg: Optional[dict] = None, download: bool = True, wo
             continue
         types = list(next(iter(type_sets)))
         group = group_key(types)
-        c = counts.setdefault(group, {"lvis": 0, "metadata": 0, "licence_ok": 0, "prefilter_ok": 0,
+        c = counts.setdefault(group, {"lvis": 0, "metadata": 0, "licence_ok": 0, "flagged": 0, "prefilter_ok": 0,
                                       "tried": 0, "candidates": 0, "not_selected": 0})
         c["lvis"] += 1
         if not _UID_RE.fullmatch(uid):
@@ -577,11 +637,8 @@ def survey(hub, out: Path, cfg: Optional[dict] = None, download: bool = True, wo
         raw = dig(meta, fields["licence"])
         shown = licence_value(raw) or "(none)"
         licence_values[shown] = licence_values.get(shown, 0) + 1
-        licence, code, detail = classify_licence(raw, cfg)
-        if licence is None:
-            refused.append(_refusal(uid, code, detail, categories=cats, group=group))
-            continue
-        c["licence_ok"] += 1
+        licence, flag, _detail = classify_licence(raw, cfg)    # every licence is taken (M8), flagged
+        c["licence_ok" if flag is None else "flagged"] = c.get("licence_ok" if flag is None else "flagged", 0) + 1
         credit, missing = credit_of(meta, fields)
         for name in ("likes", "views"):
             if _int(dig(meta, fields[name])) is None:
@@ -615,6 +672,12 @@ def survey(hub, out: Path, cfg: Optional[dict] = None, download: bool = True, wo
             "texture_count": _int(dig(meta, fields["texture_count"])),
             "likes": _int(dig(meta, fields["likes"])) or 0, "views": _int(dig(meta, fields["views"])) or 0,
             "prefer_hit": prefer_hit(meta, fields, words), "object_path": opath,
+            # Milestone 8 record fields (docs/milestone8.md §2)
+            "source": SOURCE, "licence_flag": flag, "licence_url": licence_url(licence, cfg),
+            "via": cfg["attribution"]["via"],
+            "attribution": attribution_line(credit["title"], credit["author"], credit["source_url"], licence, cfg),
+            "style_hint": None, "kind": "furniture", "decor_type": None, "units_known": False,
+            "extents_raw": None,
         })
 
     candidates: list[dict] = []
@@ -642,13 +705,14 @@ def survey(hub, out: Path, cfg: Optional[dict] = None, download: bool = True, wo
             c["candidates"] += 1
             candidates.append(rec)
         log(f"objaverse survey: {group}: {c['lvis']} LVIS objects, {c['licence_ok']} CC0/CC BY, "
-            f"{c['prefilter_ok']} past the prefilter, {c['candidates']} candidates")
+            f"{c.get('flagged', 0)} flagged licences, {c['prefilter_ok']} past the prefilter, "
+            f"{c['candidates']} candidates")
 
     refused_counts: dict[str, int] = {}
     for r in refused:
         refused_counts[r["code"]] = refused_counts.get(r["code"], 0) + 1
     doc = {
-        "schema_version": SCHEMA_VERSION, "kind": "objaverse_survey", "generated_utc": now_utc(),
+        "schema_version": SCHEMA_VERSION, "kind": "objaverse_survey", "source": SOURCE, "generated_utc": now_utc(),
         "dataset": {k: ds[k] for k in ("repo", "revision", "licence", "licence_url", "page") if k in ds},
         "hub": hub.describe() if hasattr(hub, "describe") else str(hub), "downloaded": bool(download),
         "config_sha256": config_sha256(cfg), "licences_verified": bool(cfg["licences"].get("verified")),
@@ -680,6 +744,83 @@ def _fetch_candidate(hub, rec: dict, max_bytes: float) -> Optional[tuple[str, st
         return "untextured", f"{info['images']} images, {info['textures']} textures, no COLOR_0"
     rec.update({"glb": str(local), "glb_sha256": sha256_file(local), "glb_bytes": size, "glb_info": info})
     return None
+
+
+# --------------------------------------------------------------------------
+# Every source's survey records (docs/milestone8.md §2)
+# --------------------------------------------------------------------------
+
+def licence_url(licence: str, cfg: dict) -> str:
+    """The licence's URL (objaverse.yaml licences.urls; a generated model has none: the empty string)."""
+    urls = (cfg.get("licences") or {}).get("urls") or {}
+    return str(urls.get(licence) or "")
+
+
+def normalise_record(rec: dict, source: str) -> dict:
+    """A survey record of ``source`` with the Milestone 8 fields filled where an older (M7) or a minimal record
+    leaves them out: ``source``, ``types`` / ``group``, ``kind`` (furniture), ``decor_type``, ``units_known`` (False),
+    ``style_hint``, ``extents_raw``, ``licence_flag`` (from the licence). ``UsageError`` when the record names
+    another source or has no uid."""
+    from wenart.furniture import catalog as C
+    out = dict(rec)
+    if not out.get("uid"):
+        raise UsageError(f"{SURVEY_FILES[source]}: a candidate without uid")
+    if out.setdefault("source", source) != source:
+        raise UsageError(f"{SURVEY_FILES[source]}: candidate {out['uid']} has source {out['source']!r}, not {source}")
+    if not out.get("types"):
+        out["types"] = [out["type"]] if out.get("type") else []
+    out.setdefault("group", group_key(out["types"]))
+    out.setdefault("kind", "decor" if out["types"] and out["types"][0] in DECOR_TYPES else "furniture")
+    out.setdefault("decor_type", out["types"][0] if out["kind"] == "decor" and out["types"] else None)
+    out.setdefault("units_known", False)
+    out.setdefault("style_hint", None)
+    out.setdefault("extents_raw", None)
+    out.setdefault("categories", [])
+    if "licence_flag" not in out:
+        out["licence_flag"] = C.licence_flag_of(out.get("licence"))
+    return out
+
+
+def load_surveys(out: Path) -> dict:
+    """``{source: survey document}`` of every survey file present in ``out`` (``SURVEY_FILES`` order)."""
+    docs = {}
+    for source, name in SURVEY_FILES.items():
+        doc = read_json(Path(out) / name)
+        if doc is not None:
+            docs[source] = doc
+    return docs
+
+
+def load_candidates(out: Path, sources=None) -> list[dict]:
+    """The candidates of every survey file in ``out`` (``normalise_record``d, in ``SURVEY_FILES`` order), or of
+    ``sources`` only. ``UsageError`` when no survey file is there or a uid occurs twice."""
+    docs = load_surveys(out)
+    if not docs:
+        raise UsageError(f"no survey file ({', '.join(SURVEY_FILES.values())}) in {out}: run a survey first")
+    seen: dict[str, str] = {}
+    cands = []
+    for source, doc in docs.items():
+        if sources is not None and source not in sources:
+            continue
+        for rec in doc.get("candidates") or []:
+            rec = normalise_record(rec, source)
+            if rec["uid"] in seen:
+                raise UsageError(f"uid {rec['uid']} is a candidate of {seen[rec['uid']]} and {source}")
+            seen[rec["uid"]] = source
+            cands.append(rec)
+    return cands
+
+
+def credit_line(cand: dict, cfg: dict) -> str:
+    """The credit line of a candidate: its survey's ``attribution`` (ABO, generated, M8 Objaverse), else the §7.3
+    Objaverse line built from its credit fields (M7 records)."""
+    if cand.get("attribution"):
+        return str(cand["attribution"])
+    if cand.get("source") == "generated":
+        return (f'"{cand.get("title") or cand["uid"]}": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no '
+                "third-party credit")
+    return attribution_line(cand.get("title") or cand["uid"], cand.get("author") or "unknown author",
+                            cand.get("source_url") or "", cand.get("licence") or UNKNOWN_LICENCE, cfg)
 
 
 # --------------------------------------------------------------------------
@@ -761,6 +902,64 @@ def front_stats(points, polys=(), top_fraction: float = 0.3, side_fraction: floa
             "top_centroid_n": [round(v, 4) for v in top_n], "side_counts": counts, "panel_fraction": panel}
 
 
+def deck_points(mins, maxs, offset: float = 0.2) -> list[tuple[float, float]]:
+    """The five ray positions of the deck measurement: the footprint centre and the points at +-``offset`` of the
+    box's x and y extents from it (inside the inner 50 % of the footprint for an offset below 0.25)."""
+    ex, ey = maxs[0] - mins[0], maxs[1] - mins[1]
+    cx, cy = (mins[0] + maxs[0]) / 2.0, (mins[1] + maxs[1]) / 2.0
+    return [(cx, cy)] + [(cx + sx * offset * ex, cy + sy * offset * ey) for sy in (-1, 1) for sx in (-1, 1)]
+
+
+def _triangle_z(a, b, c, px: float, py: float) -> Optional[float]:
+    """The z of triangle ``abc`` above the point (px, py) (None when the point is outside its XY projection or the
+    triangle stands vertical)."""
+    d = (b[1] - c[1]) * (a[0] - c[0]) + (c[0] - b[0]) * (a[1] - c[1])
+    span = (max(a[0], b[0], c[0]) - min(a[0], b[0], c[0])) + (max(a[1], b[1], c[1]) - min(a[1], b[1], c[1]))
+    if abs(d) <= 1e-9 * span * span:
+        return None
+    l1 = ((b[1] - c[1]) * (px - c[0]) + (c[0] - b[0]) * (py - c[1])) / d
+    l2 = ((c[1] - a[1]) * (px - c[0]) + (a[0] - c[0]) * (py - c[1])) / d
+    l3 = 1.0 - l1 - l2
+    eps = 1e-9
+    if l1 < -eps or l2 < -eps or l3 < -eps:
+        return None
+    return l1 * a[2] + l2 * b[2] + l3 * c[2]
+
+
+def deck_height(polygons, mins, maxs, offset: float = 0.2) -> dict:
+    """The deck of a bed (docs/milestone8.md §2), in the model's own units, Z up: five rays straight down at
+    ``deck_points``; each ray's hit is the topmost polygon surface above its point (polygons: lists of world
+    vertices, fanned into triangles), measured from the box bottom. ``{"points", "hits_raw": [h | None] * 5, "hits",
+    "height_raw": median of the hits | None}``; the unit scale and the plausibility checks are applied by the caller
+    (``thumbnails``, ``decide``)."""
+    pts = deck_points(mins, maxs, offset)
+    best: list[Optional[float]] = [None] * len(pts)
+    for poly in polygons:
+        if len(poly) < 3:
+            continue
+        a = poly[0]
+        for k in range(1, len(poly) - 1):
+            b, c = poly[k], poly[k + 1]
+            x0, x1 = min(a[0], b[0], c[0]), max(a[0], b[0], c[0])
+            y0, y1 = min(a[1], b[1], c[1]), max(a[1], b[1], c[1])
+            for i, (px, py) in enumerate(pts):
+                if px < x0 or px > x1 or py < y0 or py > y1:
+                    continue
+                z = _triangle_z(a, b, c, px, py)
+                if z is not None and (best[i] is None or z > best[i]):
+                    best[i] = z
+    hits = [None if z is None else round(float(z) - float(mins[2]), 6) for z in best]
+    got = sorted(h for h in hits if h is not None)
+    if not got:
+        median = None
+    elif len(got) % 2:
+        median = got[len(got) // 2]
+    else:
+        median = (got[len(got) // 2 - 1] + got[len(got) // 2]) / 2.0
+    return {"points": [[round(x, 6), round(y, 6)] for x, y in pts], "hits_raw": hits, "hits": len(got),
+            "height_raw": median, "offset": offset}
+
+
 def _axis_name(axis: str, sign: int) -> str:
     return ("-" if sign < 0 else "+") + axis.upper()
 
@@ -775,6 +974,8 @@ def geometric_front(stats: dict, rule: str, rules: dict) -> tuple[Optional[str],
     None means the geometry does not decide (the object is then refused "front not agreed")."""
     if rule == FRONTLESS_RULE:
         return None, "type without a front"
+    if rule == DOCUMENTED_RULE:
+        return None, "documented: only the source's documented front decides (the geometry cannot tell)"
     if rule == "back_taller":
         p = rules["back_taller"]
         nx, ny = stats["top_centroid_n"]
@@ -995,6 +1196,20 @@ def normalise_unit(extents_raw, types, cfg: dict, table: dict, tol: float) -> di
             "note": unit_note + (f"; {note}" if note else "")}
 
 
+def known_unit(extents_raw, ftype: str, cfg: dict, table: dict, tol: float, source: str = "") -> dict:
+    """The unit of a record whose units are known (``units_known``: ABO, metres; docs/milestone8.md §2): scale 1,
+    the survey's type, refused ``size_range`` when the measured box is outside the type's range (never normalised).
+    """
+    dims = [round(float(v), 4) for v in extents_raw]
+    where = f"{source} metadata" if source else "the source"
+    if fits_type(dims, ftype, table, tol, heights_of(cfg)):
+        return {"ok": True, "scale": 1.0, "type": ftype, "dims_m": dims, "fits": [], "known": True,
+                "note": f"units known (metres, {where}): {_fmt_dims(dims)} m in the {ftype} range"}
+    return {"ok": False, "code": "size_range", "fits": [], "known": True,
+            "detail": f"units known (metres, {where}): {_fmt_dims(dims)} m is outside the {ftype} range "
+                      "(never normalised)"}
+
+
 # --------------------------------------------------------------------------
 # 2. Thumbnails: Blender jobs, the 2 x 2 sheet, thumbnails.json
 # --------------------------------------------------------------------------
@@ -1025,6 +1240,11 @@ def _measure_paths(work: Path, uid: str) -> tuple[Path, list[Path]]:
 def _measure_done(measure_path: Path, sha: str, views: list[Path]) -> bool:
     rec = read_json(measure_path)
     return bool(rec and rec.get("glb_sha256") == sha and rec.get("ok") and all(v.is_file() for v in views))
+
+
+def needs_deck(cand: dict) -> bool:
+    """A bed candidate: the thumbnail step measures its deck (docs/milestone8.md §2)."""
+    return any(t in BED_TYPES for t in cand.get("types") or [])
 
 
 def pixels_sha256(path: Path) -> dict:
@@ -1083,7 +1303,7 @@ def compose_sheet(view_paths: list[Path], sheet_path: Path, thumb_path: Optional
 
 
 def odc_by_notice(cfg: Optional[dict] = None) -> str:
-    """The ODC-By 1.0 §4.2 notice carried by every library output (§7.3)."""
+    """The ODC-By 1.0 §4.2 notice carried by every library output that holds Objaverse data (§7.3)."""
     ds = (cfg or {}).get("dataset") or {"repo": "allenai/objaverse",
                                         "revision": "21e4e142159e2153706c23a3a02e55cec5591cea",
                                         "page": "https://huggingface.co/datasets/allenai/objaverse",
@@ -1092,12 +1312,14 @@ def odc_by_notice(cfg: Optional[dict] = None) -> str:
     return (f"Contains information from Objaverse 1.0 ({page}, "
             f"revision {ds['revision'][:7]}), which is made available under the ODC Attribution License "
             f"(ODC-By 1.0, {ds.get('licence_url', 'https://opendatacommons.org/licenses/by/1-0/')}). Every object "
-            "keeps its own licence (here CC0 1.0 or CC BY 4.0), as declared by its uploader and not verified by "
-            "WenArt_RUN: check it before commercial use. This file is licensed ODC-By 1.0, not MIT.")
+            "keeps its own licence, as declared by its uploader and not verified by WenArt_RUN (CC0 1.0 and CC BY "
+            "4.0 unflagged, every other licence flagged: docs/milestone8.md §2): check it before commercial use. "
+            "This file is licensed ODC-By 1.0, not MIT.")
 
 
 def attribution_line(title: str, author: str, source_url: str, licence: str, cfg: Optional[dict] = None) -> str:
-    """The credit line of §7.3 (CC BY 4.0; the same form names CC0 1.0 for a CC0 object)."""
+    """The credit line of §7.3 (CC BY 4.0; the same form names CC0 1.0 for a CC0 object and every flagged licence
+    of objaverse.yaml by its printed name)."""
     cfg = cfg or {}
     lic = cfg.get("licences") or {}
     names = lic.get("names") or {CC0: "CC0 1.0", CC_BY: "CC BY 4.0"}
@@ -1105,8 +1327,9 @@ def attribution_line(title: str, author: str, source_url: str, licence: str, cfg
                                CC_BY: "https://creativecommons.org/licenses/by/4.0/"}
     att = cfg.get("attribution") or {"via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
                                      "changes": "scaled to the drawn footprint, re-oriented, rendered, AI-retouched"}
-    return (f'"{title}" by {author} ({source_url}), {names[licence]} ({urls[licence]}), via {att["via"]}; '
-            f'changes: {att["changes"]}')
+    name, url = names.get(licence, licence), urls.get(licence)
+    shown = f"{name} ({url})" if url else name
+    return f'"{title}" by {author} ({source_url}), {shown}, via {att["via"]}; changes: {att["changes"]}'
 
 
 def _thumb_settings(cfg: dict, device: str) -> dict:
@@ -1117,31 +1340,40 @@ def _thumb_settings(cfg: dict, device: str) -> dict:
     s["top_fraction"] = float(rules["top_fraction"])
     s["side_fraction"] = float(rules["side_fraction"])
     s["normal_dot"] = float(rules["open_side"]["normal_dot"])
+    s["deck_ray_offset"] = float((cfg.get("bed_frame") or {}).get("ray_offset", 0.2))
     return s
 
 
 def thumbnails(out: Path, work: Optional[Path] = None, cfg: Optional[dict] = None, blender: Optional[str] = None,
                runner: Optional[Callable] = None, deadline: Optional[float] = None, device: str = "auto",
                log: Callable = print) -> tuple[dict, int]:
-    """§7.2 thumbnails for every downloaded candidate of ``survey.json`` -> ``thumbnails.json`` and the exit code.
+    """§7.2 thumbnails for every downloaded candidate of every survey file (``load_candidates``) ->
+    ``thumbnails.json`` and the exit code.
 
-    Objects measured and rendered earlier (same GLB sha256, four views on disk) are not rendered again.
-    ``runner(blender, jobs_path, log_path, timeout) -> exit code`` replaces ``run_blender`` (tests)."""
+    Objects measured and rendered earlier (same GLB sha256, four views on disk) are not rendered again; a bed
+    measured before Milestone 8 (no deck) is measured once more without rendering. A record with ``units_known``
+    keeps its type and scale 1 (``known_unit``: refused when outside the type's range); the others go through the
+    unit guess. ``runner(blender, jobs_path, log_path, timeout) -> exit code`` replaces ``run_blender`` (tests)."""
     cfg = cfg or load_config()
     out = Path(out)
     work = Path(work) if work else out / WORK_DIR
-    surv = read_json(out / SURVEY_NAME)
-    if surv is None:
-        raise UsageError(f"{out / SURVEY_NAME} not found: run survey first")
+    cands = [c for c in load_candidates(out) if c.get("glb")]
+    # A uid that is not a plain id (the cache path models/<source>/<uid>.glb and the fetch need one, e.g. a
+    # generated uid with a space) is refused here, visibly, instead of failing at the full run's fetch.
+    bad_uids = [c for c in cands if not _UID_RE.fullmatch(str(c["uid"]))]
+    cands = [c for c in cands if _UID_RE.fullmatch(str(c["uid"]))]
     settings = _thumb_settings(cfg, device)
-    cands = [c for c in surv["candidates"] if c.get("glb")]
     jobs = []
     for cand in cands:
         measure, views = _measure_paths(work, cand["uid"])
+        deck = needs_deck(cand)
+        job = {"uid": cand["uid"], "glb": cand["glb"], "glb_sha256": cand["glb_sha256"], "measure": str(measure),
+               "views": [str(v) for v in views], "deck": deck, "render": True}
         if _measure_done(measure, cand["glb_sha256"], views):
-            continue
-        jobs.append({"uid": cand["uid"], "glb": cand["glb"], "glb_sha256": cand["glb_sha256"],
-                     "measure": str(measure), "views": [str(v) for v in views]})
+            if not deck or "deck" in (read_json(measure) or {}):
+                continue
+            job["render"] = False                       # measured before M8: the deck only, the views stay
+        jobs.append(job)
     rc = EXIT_OK
     if jobs:
         for sub in ("measure", "views"):
@@ -1156,12 +1388,13 @@ def thumbnails(out: Path, work: Optional[Path] = None, cfg: Optional[dict] = Non
                 raise UsageError("no Blender binary: set WENART_BLENDER or pass --blender")
             runner = run_blender
         timeout = (deadline - time.time() + 120.0) if deadline else 3.0 * 3600.0
-        log(f"objaverse thumbnails: rendering {len(jobs)} object(s) in one Blender process")
+        log(f"library thumbnails: rendering {sum(j['render'] for j in jobs)} object(s), measuring "
+            f"{sum(not j['render'] for j in jobs)} deck(s) only, in one Blender process")
         rc = runner(blender, jobs_path, work / "blender.log", timeout)
-        log(f"objaverse thumbnails: Blender exited {rc}")
+        log(f"library thumbnails: Blender exited {rc}")
     status = read_json(work / "blender_status.json") or {}
 
-    table, tol = load_size_table()
+    table, tol = library_size_table(cfg)
     rules = cfg["front_rules"]
     objects: dict[str, dict] = {}
     notices = []
@@ -1169,8 +1402,10 @@ def thumbnails(out: Path, work: Optional[Path] = None, cfg: Optional[dict] = Non
     for cand in cands:
         uid = cand["uid"]
         measure_path, views = _measure_paths(work, uid)
-        rec = {"uid": uid, "group": cand["group"], "types": cand["types"], "title": cand["title"],
-               "author": cand["author"], "source_url": cand["source_url"], "licence": cand["licence"]}
+        rec = {"uid": uid, "group": cand["group"], "types": cand["types"], "title": cand.get("title"),
+               "author": cand.get("author"), "source_url": cand.get("source_url"), "licence": cand.get("licence"),
+               "source": cand["source"], "licence_flag": cand.get("licence_flag"), "kind": cand["kind"],
+               "decor_type": cand.get("decor_type"), "units_known": bool(cand.get("units_known"))}
         objects[uid] = rec
         m = read_json(measure_path)
         if not m or m.get("glb_sha256") != cand["glb_sha256"]:
@@ -1183,13 +1418,19 @@ def thumbnails(out: Path, work: Optional[Path] = None, cfg: Optional[dict] = Non
         if not all(v.is_file() for v in views):
             rec.update(status="refused", code="blender_error", detail="views missing")
             continue
+        if needs_deck(cand) and "deck" not in m:
+            rec.update(status="refused", code="not_rendered", detail="deck not measured (Blender stopped before it)")
+            continue
         st = m["stats"]
         rec["measure"] = {k: m.get(k) for k in ("vertices", "triangles", "mesh_objects", "images",
                                                 "colour_attributes", "seconds")}
         rec["measure"].update({"bbox_min_raw": st["bbox_min"], "bbox_max_raw": st["bbox_max"],
                                "extents_raw": st["extents"]})
         rec["stats"] = {k: st[k] for k in ("top_centroid_n", "side_counts", "panel_fraction")}
-        unit = guess_unit(st["extents"], cand["types"], cfg, table, tol)
+        if cand.get("units_known"):
+            unit = known_unit(st["extents"], cand["types"][0], cfg, table, tol, cand["source"])
+        else:
+            unit = guess_unit(st["extents"], cand["types"], cfg, table, tol)
         rec["unit"] = unit
         if not unit["ok"]:
             rec.update(status="refused", code=unit["code"], detail=unit["detail"])
@@ -1199,41 +1440,54 @@ def thumbnails(out: Path, work: Optional[Path] = None, cfg: Optional[dict] = Non
         front, note = geometric_front(st, rule, rules)
         rec.update(status="ready", type=ftype, front_rule=rule, geometric_front=front, geometric_note=note,
                    rank=cand.get("rank"))
+        if cand.get("front_documented") and rule != FRONTLESS_RULE:
+            rec["front_documented"] = cand["front_documented"]
+            rec["front_documented_note"] = cand.get("front_note") or f"{cand['source']} documents the front"
+        if ftype in BED_TYPES:
+            deck = m.get("deck") or {}
+            rec["deck"] = deck
+            height = deck.get("height_raw")
+            rec["deck_height_m"] = round(float(height) * float(unit["scale"]), 4) if height is not None else None
 
-    # <= per_type_limit per resolved type (a category that maps to two types, ``bed``, was surveyed with the
-    # limit of both; the split by width may give one of them more): the best survey ranks stay.
+    # <= per_type_limit per source and resolved type (a category that maps to two types, ``bed``, was surveyed with
+    # the limit of both; the split by width may give one of them more): the best survey ranks stay.
     limit = int(cfg["prefilter"]["per_type_limit"])
-    by_type: dict[str, list[dict]] = {}
+    by_type: dict[tuple, list[dict]] = {}
     for rec in objects.values():
         if rec["status"] == "ready":
-            by_type.setdefault(rec["type"], []).append(rec)
-    for ftype, recs in by_type.items():
+            by_type.setdefault((rec["source"], rec["type"]), []).append(rec)
+    for (source, ftype), recs in by_type.items():
         for n, rec in enumerate(sorted(recs, key=lambda r: (r.get("rank") or 0, r["uid"]))):
             if n >= limit:
                 rec.update(status="refused", code="over_candidate_limit",
-                           detail=f"survey rank {rec.get('rank')}: {ftype} has {len(recs)} candidates after the "
-                                  f"unit guess, {limit} are judged")
+                           detail=f"survey rank {rec.get('rank')}: {source} has {len(recs)} {ftype} candidates "
+                                  f"after the unit guess, {limit} are judged")
     for uid, rec in objects.items():
         if rec["status"] != "ready":
             continue
         cand = by_uid[uid]
         sheet_rel = f"{JUDGE_DIR}/{SHEETS_DIR}/{uid}.jpg"
         thumb_rel = f"{THUMBS_DIR}/{rec['type']}/{uid}.jpg"
-        line = attribution_line(cand["title"], cand["author"], cand["source_url"], cand["licence"], cfg)
+        line = credit_line(cand, cfg)
         rec["sheet_pixels"] = compose_sheet(_measure_paths(work, uid)[1], out / sheet_rel, out / thumb_rel,
-                                            settings, comment=f"Objaverse {uid}: {line}")
+                                            settings, comment=f"{cand['source']} {uid}: {line}")
         rec.update(sheet=sheet_rel, thumb=thumb_rel)
-        notices.append((thumb_rel, line))
+        notices.append((thumb_rel, line, cand["source"]))
 
+    for cand in bad_uids:
+        objects[cand["uid"]] = {"uid": cand["uid"], "group": cand["group"], "types": cand["types"],
+                                "source": cand["source"], "kind": cand["kind"], "status": "refused", "code": "bad_uid",
+                                "detail": "letters, digits, _ and - only (1-64): the cache path needs a plain id"}
     counts: dict[str, int] = {}
     for rec in objects.values():
         key = rec["status"] if rec["status"] == "ready" else rec["code"]
         counts[key] = counts.get(key, 0) + 1
     # ``blender_status.json`` is the last Blender run's (a resumed run that renders nothing keeps the earlier one).
     doc = {"schema_version": SCHEMA_VERSION, "kind": "objaverse_thumbnails", "generated_utc": now_utc(),
+           "sources": sorted({c["source"] for c in cands}),
            "device": status.get("device"), "blender": status.get("blender"), "blender_exit": rc,
-           "rendered_now": len(jobs), "settings": settings, "counts": dict(sorted(counts.items())),
-           "objects": objects}
+           "rendered_now": sum(1 for j in jobs if j["render"]), "decks_now": sum(1 for j in jobs if j["deck"]),
+           "settings": settings, "counts": dict(sorted(counts.items())), "objects": objects}
     write_json(out / THUMBS_JSON, doc)
     _write_thumb_notice(out, notices, cfg)
     if rc == EXIT_DEADLINE:
@@ -1243,10 +1497,31 @@ def thumbnails(out: Path, work: Optional[Path] = None, cfg: Optional[dict] = Non
     return doc, EXIT_OK
 
 
-def _write_thumb_notice(out: Path, notices: list[tuple[str, str]], cfg: dict) -> None:
-    lines = ["# Thumbnails of Objaverse objects", "", odc_by_notice(cfg), "",
-             "Each thumbnail is a render of the object (changed: re-framed, re-lit, rendered); credits:", ""]
-    lines += [f"- `{rel}`: {line}" for rel, line in sorted(notices)]
+GENERATED_NOTICE = ("Generated models (docs/milestone8.md §3): made by TRELLIS.2-4B (microsoft/TRELLIS.2-4B, MIT) "
+                    "from Z-Image-Turbo product images; marked `generated`, no third-party credit.")
+
+
+def source_notices(sources, cfg: Optional[dict] = None) -> list[str]:
+    """The notices of the sources present: the ODC-By notice (Objaverse), the ABO credit (CC BY 4.0) and the
+    generated-model note."""
+    out = []
+    if "objaverse" in sources:
+        out.append(odc_by_notice(cfg))
+    if "abo" in sources:
+        from wenart.assets import abo
+        out.append(abo.notice())
+    if "generated" in sources:
+        out.append(GENERATED_NOTICE)
+    return out
+
+
+def _write_thumb_notice(out: Path, notices: list[tuple[str, str, str]], cfg: dict) -> None:
+    sources = sorted({source for _rel, _line, source in notices}, key=SOURCE_ORDER.index)
+    lines = ["# Thumbnails of library models", ""]
+    for text in source_notices(sources or ["objaverse"], cfg):
+        lines += [text, ""]
+    lines += ["Each thumbnail is a render of the object (changed: re-framed, re-lit, rendered); credits:", ""]
+    lines += [f"- `{rel}`: {line}" for rel, line, _source in sorted(notices)]
     path = out / THUMBS_DIR / NOTICE_NAME
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
@@ -1299,38 +1574,69 @@ FRONT_WORDS = ("the seat side of a sofa or chair, the foot end of a bed, the doo
                "side of a shelf, the user side of a desk, toilet, washbasin, bath, stove or fridge")
 
 
-def judge_schema() -> dict:
+# Decor type -> (name, what it is, what counts as one) for the decor question (docs/milestone8.md §2: "a rug is a rug,
+# a planter holds a plant").
+DECOR_WORDS: dict[str, tuple[str, str, str]] = {
+    "cushion": ("cushion", "a decorative throw pillow or cushion for a sofa, chair or bed",
+                "one throw pillow or cushion (not a seat pad, not a bed pillow, not a pouf)"),
+    "plant": ("potted plant", "an indoor plant in a pot or planter",
+              "a pot or planter that holds a plant with leaves; an empty pot, planter or vase is not one"),
+    "rug": ("rug", "a floor rug or carpet", "one flat floor rug or carpet (not a doormat, not a wall hanging)"),
+    "wall_art": ("wall art", "a framed picture, print, canvas or mural for a wall",
+                 "one picture, print, canvas or mural for a wall (not a mirror, not a shelf, not a clock)"),
+}
+TYPE_WORDS.update({
+    "side_table": ("side table", "a small table beside a sofa, an armchair or a bed"),
+    "tv_unit": ("TV unit", "a low cabinet or stand for a television"),
+})
+
+
+def item_kind(item: dict) -> str:
+    """The kind of a judging request item (``furniture`` unless its context says ``decor``)."""
+    return str((item.get("context") or {}).get("kind") or "furniture")
+
+
+def judge_schema(kind: str = "furniture") -> dict:
     """The §7.2 answer schema (strict: no other keys). No ``uniqueItems`` on ``styles``: vLLM's xgrammar backend
     does not implement it (every judge call of the 3 Oct 2026 prep pod failed with HTTP 400 "Unimplemented keys:
-    uniqueItems"); repeated styles are removed in code (``clean_judgement``)."""
+    uniqueItems"); repeated styles are removed in code (``clean_judgement``). Decor (docs/milestone8.md §2) answers
+    ``is_decor_type`` instead of ``matches_type`` and has no ``has_mattress``."""
     styles = list(style_values())
+    props = {
+        "is_single_object": {"type": "boolean"},
+        "matches_type": {"type": "boolean"},
+        "photoreal_quality": {"type": "integer", "minimum": 1, "maximum": 5},
+        "has_mattress": {"type": ["boolean", "null"]},
+        "styles": {"type": "array", "items": {"enum": styles}, "maxItems": len(styles)},
+        "front_view": {"type": ["integer", "null"], "minimum": 0, "maximum": len(VIEW_SIDES) - 1},
+    }
+    required = ["is_single_object", "matches_type", "photoreal_quality", "has_mattress", "styles", "front_view"]
+    title = "LibraryJudge"
+    if kind == "decor":
+        props = {"is_single_object": props["is_single_object"], "is_decor_type": {"type": "boolean"},
+                 "photoreal_quality": props["photoreal_quality"], "styles": props["styles"],
+                 "front_view": props["front_view"]}
+        required = ["is_single_object", "is_decor_type", "photoreal_quality", "styles", "front_view"]
+        title = "LibraryJudgeDecor"
     return {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "title": "LibraryJudge",
+        "title": title,
         "type": "object",
         "additionalProperties": False,
-        "required": ["is_single_object", "matches_type", "photoreal_quality", "has_mattress", "styles",
-                     "front_view"],
-        "properties": {
-            "is_single_object": {"type": "boolean"},
-            "matches_type": {"type": "boolean"},
-            "photoreal_quality": {"type": "integer", "minimum": 1, "maximum": 5},
-            "has_mattress": {"type": ["boolean", "null"]},
-            "styles": {"type": "array", "items": {"enum": styles}, "maxItems": len(styles)},
-            "front_view": {"type": ["integer", "null"], "minimum": 0, "maximum": len(VIEW_SIDES) - 1},
-        },
+        "required": required,
+        "properties": props,
     }
 
 
-def judgement_errors(data) -> list[str]:
+def judgement_errors(data, kind: str = "furniture") -> list[str]:
     import jsonschema
-    validator = jsonschema.Draft202012Validator(judge_schema())
+    validator = jsonschema.Draft202012Validator(judge_schema(kind))
     return [f"{'/'.join(str(p) for p in e.absolute_path) or '<root>'}: {e.message}"
             for e in sorted(validator.iter_errors(data), key=lambda e: list(e.absolute_path))]
 
 
-def valid_judgement(data) -> bool:
-    return data is not None and not judgement_errors(data)
+def valid_judgement(data, kind: str = "furniture") -> bool:
+    return data is not None and not judgement_errors(data, kind)
 
 
 def clean_judgement(data):
@@ -1345,23 +1651,28 @@ def clean_judgement(data):
     return dict(data, styles=styles)
 
 
-def judge_prompt(ftype: str, dims_m, has_front: bool, normalised: bool = False) -> str:
-    """The question for one object: the same text for both models (temperature 0, structured output). A model of
-    unknown units (``normalised``) is not given a measured size: it is scaled to a typical piece of the type."""
-    name, what = TYPE_WORDS[ftype]
+def _tiles_and_size(dims_m, normalised: bool, name: str) -> tuple[str, str]:
     tiles = ", ".join(f"{i} ({place}) from the model's {side} side"
                       for i, (place, side) in enumerate(zip(VIEW_PLACES, VIEW_SIDES)))
-    styles = "; ".join(f"{s} ({STYLE_HINTS.get(s, s)})" for s in style_values())
-    is_bed = ftype in ("bed_single", "bed_double")
-    mattress = ("true when the bed has a mattress on it, false for a bare frame or base" if is_bed
-                else "null (this is not a bed)")
-    front = (f"the number of the tile that looks straight at the front of the piece ({FRONT_WORDS}); null when you "
-             "cannot tell" if has_front else "null (this type has no front)")
     size = (f"The tiles are framed on the model, so they do not show its size, and the model file gives no usable "
             f"unit: scaled to a typical {name} it would measure about {_fmt_dims(dims_m)} m (x, y, height)."
             if normalised else
             f"The tiles are framed on the model, so they do not show its size: it measures about "
             f"{_fmt_dims(dims_m)} m (x, y, height).")
+    return tiles, size
+
+
+def judge_prompt(ftype: str, dims_m, has_front: bool, normalised: bool = False) -> str:
+    """The question for one object: the same text for both models (temperature 0, structured output). A model of
+    unknown units (``normalised``) is not given a measured size: it is scaled to a typical piece of the type."""
+    name, what = TYPE_WORDS[ftype]
+    tiles, size = _tiles_and_size(dims_m, normalised, name)
+    styles = "; ".join(f"{s} ({STYLE_HINTS.get(s, s)})" for s in style_values())
+    is_bed = ftype in BED_TYPES
+    mattress = ("true when the bed has a mattress on it, false for a bare frame or base" if is_bed
+                else "null (this is not a bed)")
+    front = (f"the number of the tile that looks straight at the front of the piece ({FRONT_WORDS}); null when you "
+             "cannot tell" if has_front else "null (this type has no front)")
     return "\n\n".join([
         "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey "
         "background. Each tile shows the model from one side, 30 degrees from above, and carries its number: "
@@ -1381,17 +1692,56 @@ def judge_prompt(ftype: str, dims_m, has_front: bool, normalised: bool = False) 
     ])
 
 
+def decor_prompt(decor_type: str, dims_m, has_front: bool, normalised: bool = False) -> str:
+    """The decor question (docs/milestone8.md §2): is it that decor type (a planter must hold a plant), single,
+    photoreal, which styles, and for wall art the picture side."""
+    name, what, counts = DECOR_WORDS[decor_type]
+    tiles, size = _tiles_and_size(dims_m, normalised, name)
+    styles = "; ".join(f"{s} ({STYLE_HINTS.get(s, s)})" for s in style_values())
+    front = ("the number of the tile that looks straight at the picture side; null when you cannot tell" if has_front
+             else "null (this decor has no front)")
+    return "\n\n".join([
+        "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey "
+        "background. Each tile shows the model from one side, 30 degrees from above, and carries its number: "
+        f"{tiles}. {size}",
+        f"It is offered as {name} decor ({what}) for photoreal renders of furnished rooms.",
+        "Fields of the answer:\n"
+        "- is_single_object: true when the tiles show exactly one item and nothing else (no second item, room, "
+        "floor, wall, person or text).\n"
+        f"- is_decor_type: true when it is {counts}.\n"
+        "- photoreal_quality: 1 to 5, how real it would look in a photoreal interior render: 5 detailed shape and "
+        "realistic materials, 4 good, 3 plain or game-like, 2 crude, 1 broken, untextured or cartoon.\n"
+        f"- styles: the interior styles it fits, from: {styles}. List only styles that clearly fit; an empty list "
+        "when none does.\n"
+        f"- front_view: {front}.",
+        "Answer only with JSON.",
+    ])
+
+
+def has_front_of(ftype: str, cfg: dict) -> bool:
+    return cfg["types"][ftype]["front"] != FRONTLESS_RULE
+
+
 def request_item(rec: dict, out: Path, cfg: dict) -> dict:
-    """One judging request (``judge/requests.json`` item) for a ``ready`` object of ``thumbnails.json``."""
+    """One judging request (``judge/requests.json`` item) for a ``ready`` object of ``thumbnails.json``. The
+    furniture question is the M7 one (answers of M7 objects stay current); decor gets ``decor_prompt`` and the decor
+    schema."""
     ftype = rec["type"]
-    has_front = cfg["types"][ftype]["front"] != FRONTLESS_RULE
-    prompt = judge_prompt(ftype, rec["unit"]["dims_m"], has_front, bool(rec["unit"].get("normalised")))
+    kind = rec.get("kind") or "furniture"
+    normalised = bool(rec["unit"].get("normalised"))
+    if kind == "decor":
+        prompt = decor_prompt(ftype, rec["unit"]["dims_m"], has_front_of(ftype, cfg), normalised)
+    else:
+        prompt = judge_prompt(ftype, rec["unit"]["dims_m"], has_front_of(ftype, cfg), normalised)
     image = f"{SHEETS_DIR}/{rec['uid']}.jpg"
     pixels = pixels_sha256(Path(out) / JUDGE_DIR / image)
     description = {"version": JUDGE_VERSION, "task": TASK, "system": SYSTEM_PROMPT, "prompt": prompt,
-                   "schema": judge_schema(), "sheet": pixels}
-    return {"key": f"lib_{rec['uid']}", "task": TASK, "images": [image], "prompt": prompt,
-            "context": {"uid": rec["uid"], "type": ftype, "dims_m": rec["unit"]["dims_m"], "title": rec["title"]},
+                   "schema": judge_schema(kind), "sheet": pixels}
+    context = {"uid": rec["uid"], "type": ftype, "dims_m": rec["unit"]["dims_m"], "title": rec["title"],
+               "source": rec.get("source") or SOURCE, "kind": kind}
+    if kind == "decor":
+        context["decor_type"] = rec.get("decor_type") or ftype
+    return {"key": f"lib_{rec['uid']}", "task": TASK, "images": [image], "prompt": prompt, "context": context,
             "input_sha256": canonical_sha256(description)}
 
 
@@ -1406,6 +1756,7 @@ def judge_requests(out: Path, cfg: Optional[dict] = None) -> dict:
              if rec.get("status") == "ready"]
     doc = {"schema_version": SCHEMA_VERSION, "kind": "objaverse_judge_requests", "task": TASK,
            "judge_version": JUDGE_VERSION, "system_prompt": SYSTEM_PROMPT, "schema": judge_schema(),
+           "schemas": {k: judge_schema(k) for k in ("furniture", "decor")},
            "view_sides": list(VIEW_SIDES), "items": items}
     write_json(out / JUDGE_DIR / REQUESTS_NAME, doc)
     return doc
@@ -1439,7 +1790,7 @@ def _store_class():
                 rec = self.calls.get(item["key"])
                 if not self.current(rec, item):
                     return None
-                return rec if valid_judgement(rec.get("data")) else None
+                return rec if valid_judgement(rec.get("data"), item_kind(item)) else None
 
         _STORE_CLASS = JudgeStore
     return _STORE_CLASS
@@ -1459,7 +1810,7 @@ def item_state(store, item: dict) -> str:
         return "missing"
     if not store.current(rec, item):
         return "stale"
-    return "answered" if valid_judgement(rec.get("data")) else "failed"
+    return "answered" if valid_judgement(rec.get("data"), item_kind(item)) else "failed"
 
 
 def seed_store(store, items: list[dict], seed_dir: Path, log: Callable = print) -> int:
@@ -1477,7 +1828,7 @@ def seed_store(store, items: list[dict], seed_dir: Path, log: Callable = print) 
         if store.valid(item) is not None:
             continue
         rec = (seed.get("calls") or {}).get(item["key"])
-        if not store.current(rec, item) or not valid_judgement(rec.get("data")):
+        if not store.current(rec, item) or not valid_judgement(rec.get("data"), item_kind(item)):
             continue
         store.put(item["key"], dict(rec, seeded_from=str(seed_path)), save=False)
         copied += 1
@@ -1502,7 +1853,7 @@ def judge_ask(items: list[dict], store, client, out: Path, *, workers: int = 1, 
     """Ask every item without a current answer, ``workers`` at once, until ``deadline`` (as
     ``wenart.recognition.answers.ask``: no call starts after it, none is waited for past it)."""
     judge_dir = Path(out) / JUDGE_DIR
-    schema = judge_schema()
+    schemas = {k: judge_schema(k) for k in ("furniture", "decor")}
     stats = {"asked": 0, "reused": 0, "failed": 0, "left": 0, "incomplete": False}
     if deadline is not None and hasattr(client, "deadline"):
         client.deadline = float(deadline)
@@ -1524,8 +1875,9 @@ def judge_ask(items: list[dict], store, client, out: Path, *, workers: int = 1, 
             running[started] = item
 
             def call(item=item):
-                return client.run_schema([str(judge_dir / p) for p in item["images"]], item["prompt"], schema,
-                                         seed=seed, task=TASK, max_side=0, labels=None, system_prompt=SYSTEM_PROMPT)
+                return client.run_schema([str(judge_dir / p) for p in item["images"]], item["prompt"],
+                                         schemas[item_kind(item)], seed=seed, task=TASK, max_side=0, labels=None,
+                                         system_prompt=SYSTEM_PROMPT)
             _spawn(call, started, results)
             started += 1
         if not running:
@@ -1547,7 +1899,7 @@ def judge_ask(items: list[dict], store, client, out: Path, *, workers: int = 1, 
                        latency_s=round(float(result.latency_s), 3))
         store.put(item["key"], rec)
         stats["asked"] += 1
-        if not valid_judgement(rec["data"]):
+        if not valid_judgement(rec["data"], item_kind(item)):
             stats["failed"] += 1
             log(f"objaverse judge: {item['key']}: {rec['error'] or 'answer not schema-valid'}")
     stats["left"] = len(pending) - started + abandoned
@@ -1654,14 +2006,39 @@ def load_judgements(out: Path, models: Optional[dict] = None) -> dict:
 # 5. Acceptance (§7.2)
 # --------------------------------------------------------------------------
 
+def deck_ok(obj: dict, cfg: dict) -> tuple[bool, str]:
+    """Whether a bed's measured deck (``thumbnails``: ``deck``, ``deck_height_m``) makes it a usable bed frame
+    (objaverse.yaml ``bed_frame``: at least ``min_hits`` of the 5 rays hit, the median inside ``deck_range_m``)."""
+    bf = cfg.get("bed_frame") or {}
+    lo, hi = (float(v) for v in bf.get("deck_range_m", (0.08, 0.90)))
+    need = int(bf.get("min_hits", 3))
+    deck = obj.get("deck") or {}
+    hits = int(deck.get("hits") or 0)
+    height = obj.get("deck_height_m")
+    total = len(deck.get("hits_raw") or []) or 5
+    if height is None or hits < need:
+        return False, f"{hits} of {total} downward rays hit the frame (at least {need} needed)"
+    if not lo <= float(height) <= hi:
+        return False, f"deck {float(height):.3f} m above the floor is outside {lo:g}-{hi:g} m"
+    return True, f"deck {float(height):.3f} m above the floor (median of {hits} of {total} downward rays)"
+
+
 def decide(obj: dict, answers: dict, cfg: dict) -> dict:
     """Accept or refuse one ``ready`` object of ``thumbnails.json`` on both judges' answers.
 
-    Returns ``{"uid", "type", "accepted": bool, "code", "detail", "failed": [(code, detail), ...]}`` plus, when
-    accepted, ``front_axis``, ``front_view``, ``front_axis_confidence``, ``front_axis_note``, ``styles``,
-    ``style_note``, ``has_mattress``, ``quality``. Every failed rule is listed; ``code`` is the first."""
+    Returns ``{"uid", "type", "source", "kind", "decor_type", "accepted": bool, "code", "detail", "failed": [(code,
+    detail), ...]}`` plus, when accepted, ``front_axis``, ``front_view``, ``front_axis_confidence``,
+    ``front_axis_note``, ``styles``, ``style_note``, ``has_mattress``, ``bed_frame``, ``deck_height_m``, ``quality``,
+    ``licence_flag``. Every failed rule is listed; ``code`` is the first.
+
+    Milestone 8: decor answers ``is_decor_type``; a bed both judges see without a mattress is a bed frame when its
+    deck was measured (``deck_ok``), else ``no_deck``; judges that disagree on the mattress -> ``mattress_not_agreed``;
+    a documented front (ABO) replaces the geometric one: both judges naming another view refuse the object, judges
+    that do not agree leave the documented front (source evidence decides, CLAUDE.md trust order)."""
     ftype = obj["type"]
-    out = {"uid": obj["uid"], "type": ftype, "accepted": False, "failed": []}
+    kind = obj.get("kind") or "furniture"
+    out = {"uid": obj["uid"], "type": ftype, "source": obj.get("source") or SOURCE, "kind": kind,
+           "decor_type": obj.get("decor_type") if kind == "decor" else None, "accepted": False, "failed": []}
     fail = out["failed"]
     a, b = (clean_judgement(answers.get(k)) for k in MODEL_KEYS)
     missing = [k for k in MODEL_KEYS if answers.get(k) is None]
@@ -1674,20 +2051,50 @@ def decide(obj: dict, answers: dict, cfg: dict) -> dict:
         return f"{MODEL_KEYS[0]} {a.get(name)!r}, {MODEL_KEYS[1]} {b.get(name)!r}"
     if not (a["is_single_object"] is True and b["is_single_object"] is True):
         fail.append(("not_single", both("is_single_object")))
-    if not (a["matches_type"] is True and b["matches_type"] is True):
+    if kind == "decor":
+        if not (a.get("is_decor_type") is True and b.get("is_decor_type") is True):
+            fail.append(("not_decor_type", both("is_decor_type")))
+    elif not (a.get("matches_type") is True and b.get("matches_type") is True):
         fail.append(("type_mismatch", both("matches_type")))
     min_q = int(cfg["accept"]["min_quality"])
     if min(int(a["photoreal_quality"]), int(b["photoreal_quality"])) < min_q:
         fail.append(("quality", both("photoreal_quality")))
-    if ftype in ("bed_single", "bed_double") and not (a["has_mattress"] is True and b["has_mattress"] is True):
-        fail.append(("no_mattress", both("has_mattress")))
+    mattress, frame, deck_note = None, None, ""
+    if kind != "decor" and ftype in BED_TYPES:
+        ma, mb = a.get("has_mattress"), b.get("has_mattress")
+        if ma is True and mb is True:
+            mattress, frame = True, False
+        elif ma is False and mb is False:
+            ok, deck_note = deck_ok(obj, cfg)
+            if ok:
+                mattress, frame = False, True
+            else:
+                fail.append(("no_deck", f"both judges: no mattress; {deck_note}"))
+        else:
+            fail.append(("mattress_not_agreed", both("has_mattress")))
     if not (obj.get("unit") or {}).get("ok"):
         fail.append(("size_range", "no unit guess"))
 
     rule = cfg["types"][ftype]["front"]
+    documented = obj.get("front_documented")
     if rule == FRONTLESS_RULE:
         front, view, confidence = "-Y", None, "low"
         front_note = f"{ftype} has no front: -Y kept as the model frame gives it (front_axis_confidence low)"
+    elif documented:
+        va, vb = a["front_view"], b["front_view"]
+        doc_note = obj.get("front_documented_note") or "documented by the source"
+        front, view, confidence, front_note = None, None, "high", ""
+        if va is not None and va == vb and VIEW_SIDES[va] != documented:
+            fail.append(("front_not_agreed", f"judges: view {va} ({VIEW_SIDES[va]}); documented front {documented} "
+                                             f"({doc_note})"))
+        elif va is not None and va == vb:
+            front, view = documented, va
+            front_note = (f"documented front {documented} ({doc_note}); both judges: view {va} (camera on the "
+                          f"{VIEW_SIDES[va]} side) shows the front; geometry: {obj.get('geometric_note', '')}")
+        else:
+            front = documented
+            front_note = (f"documented front {documented} ({doc_note}); the judges did not agree ({both('front_view')}): "
+                          f"the documented front decides; geometry: {obj.get('geometric_note', '')}")
     else:
         va, vb = a["front_view"], b["front_view"]
         geo = obj.get("geometric_front")
@@ -1716,54 +2123,94 @@ def decide(obj: dict, answers: dict, cfg: dict) -> dict:
         "front_axis_confidence": confidence, "front_axis_note": front_note, "styles": styles,
         "style_note": (f"intersection of the two judges' styles on the 2 x 2 sheet: {MODEL_KEYS[0]} "
                        f"{a.get('styles')}, {MODEL_KEYS[1]} {b.get('styles')}"),
-        "has_mattress": True if ftype in ("bed_single", "bed_double") else None,
+        "has_mattress": mattress, "bed_frame": frame,
+        "deck_height_m": obj.get("deck_height_m") if frame else None, "deck_note": deck_note or None,
         "quality": [int(a["photoreal_quality"]), int(b["photoreal_quality"])],
+        "licence_flag": obj.get("licence_flag"),
     })
     return out
 
 
-def _rank_key(dec: dict, cand: dict) -> tuple:
+def _rank_key(dec: dict, cand: dict, cfg: Optional[dict] = None) -> tuple:
+    """Mean quality, then the source order (abo, polyhaven, objaverse, generated), then the lower quality, likes,
+    views, the survey rank and the uid (docs/milestone8.md §2)."""
     q = dec["quality"]
-    return (-min(q), -sum(q), -(cand.get("likes") or 0), -(cand.get("views") or 0), dec["uid"])
+    order = list(((cfg or {}).get("accept") or {}).get("source_order") or SOURCE_ORDER)
+    source = dec.get("source") or SOURCE
+    return (-sum(q) / len(q), order.index(source) if source in order else len(order), -min(q),
+            -(cand.get("likes") or 0), -(cand.get("views") or 0), cand.get("rank") or 0, dec["uid"])
 
 
-def accept(out: Path, cfg: Optional[dict] = None, models: Optional[dict] = None) -> dict:
-    """Decide every ``ready`` object, keep <= ``per_type_max`` per type -> ``accepted.json``."""
+def accept(out: Path, cfg: Optional[dict] = None, models: Optional[dict] = None, sources=None) -> dict:
+    """Decide every ``ready`` object (of ``sources`` only, when given), keep <= ``per_type_max`` per furniture type
+    (``decor_per_type_max`` per decor type) and <= ``per_family_max`` per (type, style family) -> ``accepted.json``.
+
+    In rank order (``_rank_key``) a model is kept while its type has room and one of its style families (``neutral``
+    counts as one) has fewer than ``per_family_max`` kept models; it then counts for each of its families. Refused:
+    ``over_type_limit``, ``over_style_limit``.
+
+    ``accepted.json`` (also the ``--catalog`` of ``wenart.assets.generate plan``, docs/milestone8.md §3, after the
+    prep job's first accept with ``sources=["abo", "objaverse"]``): ``{"kind": "objaverse_accepted", "sources":
+    "all" | [...], "limits", "counts", "accepted_by_source", "accepted": [decision], "refused": [decision]}``; a
+    decision (``decide``) has ``uid``, ``type`` (the furniture or decor type), ``source``, ``kind``, ``decor_type``,
+    ``styles`` (families or ``neutral``), ``quality``, ``front_axis``, ``has_mattress``, ``bed_frame``,
+    ``deck_height_m``, ``licence_flag`` (refused ones ``code`` and ``detail`` instead)."""
     cfg = cfg or load_config()
     out = Path(out)
     thumbs = read_json(out / THUMBS_JSON)
-    surv = read_json(out / SURVEY_NAME)
-    if thumbs is None or surv is None:
-        raise UsageError("survey.json / thumbnails.json missing: run survey and thumbnails first")
-    cands = {c["uid"]: c for c in surv["candidates"]}
+    if thumbs is None:
+        raise UsageError("thumbnails.json missing: run the survey(s) and thumbnails first")
+    cands = {c["uid"]: c for c in load_candidates(out)}
+    wanted = None if sources is None else set(sources)
     answers = load_judgements(out, models)
     decisions = []
     for uid, obj in sorted(thumbs["objects"].items()):
         if obj.get("status") != "ready":
             continue
+        if wanted is not None and (obj.get("source") or SOURCE) not in wanted:
+            continue
         decisions.append(decide(obj, answers.get(uid) or {}, cfg))
-    limit = int(cfg["accept"]["per_type_max"])
+    acc_cfg = cfg["accept"]
+    per_family = int(acc_cfg.get("per_family_max", 3))
     accepted, refused = [], []
-    by_type: dict[str, list[dict]] = {}
+    groups: dict[tuple, list[dict]] = {}
     for dec in decisions:
         if dec["accepted"]:
-            by_type.setdefault(dec["type"], []).append(dec)
+            groups.setdefault((dec["kind"], dec["type"]), []).append(dec)
         else:
             refused.append(dec)
-    for ftype in sorted(by_type):
-        ranked = sorted(by_type[ftype], key=lambda d: _rank_key(d, cands.get(d["uid"], {})))
+    for kind, ftype in sorted(groups):
+        limit = int(acc_cfg["decor_per_type_max"] if kind == "decor" else acc_cfg["per_type_max"])
+        ranked = sorted(groups[(kind, ftype)], key=lambda d: _rank_key(d, cands.get(d["uid"], {}), cfg))
+        kept, families = 0, {}
         for n, dec in enumerate(ranked):
-            if n < limit:
-                accepted.append(dec)
-            else:
+            full = [f for f in dec["styles"] if families.get(f, 0) >= per_family]
+            if kept >= limit:
                 refused.append(dict(dec, accepted=False, code="over_type_limit",
                                     detail=f"rank {n + 1} of {len(ranked)} accepted {ftype} models (keep {limit})",
                                     failed=[("over_type_limit", f"keep {limit}")]))
+            elif len(full) == len(dec["styles"]):
+                refused.append(dict(dec, accepted=False, code="over_style_limit",
+                                    detail=f"rank {n + 1}: {ftype} already has {per_family} models of each of its "
+                                           f"styles ({', '.join(full)})",
+                                    failed=[("over_style_limit", f"keep {per_family} per family")]))
+            else:
+                accepted.append(dec)
+                kept += 1
+                for f in dec["styles"]:
+                    families[f] = families.get(f, 0) + 1
     counts: dict[str, int] = {"accepted": len(accepted)}
     for dec in refused:
         counts[dec["code"]] = counts.get(dec["code"], 0) + 1
+    by_source: dict[str, int] = {}
+    for dec in accepted:
+        by_source[dec["source"]] = by_source.get(dec["source"], 0) + 1
     doc = {"schema_version": SCHEMA_VERSION, "kind": "objaverse_accepted", "generated_utc": now_utc(),
-           "rules": "docs/milestone7.md §7.2", "counts": counts, "accepted": accepted,
+           "rules": "docs/milestone7.md §7.2, docs/milestone8.md §2",
+           "sources": sorted(wanted) if wanted is not None else "all",
+           "limits": {"per_type_max": int(acc_cfg["per_type_max"]),
+                      "decor_per_type_max": int(acc_cfg["decor_per_type_max"]), "per_family_max": per_family},
+           "counts": counts, "accepted_by_source": dict(sorted(by_source.items())), "accepted": accepted,
            "refused": sorted(refused, key=lambda d: d["uid"])}
     write_json(out / ACCEPTED_NAME, doc)
     return doc
@@ -1773,10 +2220,35 @@ def accept(out: Path, cfg: Optional[dict] = None, models: Optional[dict] = None)
 # 6. Catalogue (wenart/furniture/catalog.py frame fields, §6.6 fields, §7.3 credits)
 # --------------------------------------------------------------------------
 
+GENERATED_AUTHOR = "generated (TRELLIS.2-4B)"
+GENERATED_FIELDS = ("prompt", "image_sha256", "model", "revision", "seed")      # = catalog.GENERATED_FIELDS
+
+
+def entry_id(source: str, uid: str) -> str:
+    """The catalogue id of a library model: ``objaverse_<uid>`` (M7) for Objaverse, the uid itself for the sources
+    whose uid carries its own prefix (``abo_<3dmodel_id>``, ``gen_<type>_<family>_<n>_<sha8>``)."""
+    return f"{ID_PREFIX}{uid}" if source == SOURCE else str(uid)
+
+
+def cache_rel(source: str, uid: str) -> str:
+    """``models/<source>/<uid>.glb`` (relative to the assets dir; ``wenart.assets.models.library_relpath``)."""
+    return f"models/{source}/{uid}.glb"
+
+
+def generated_record(cand: dict) -> dict:
+    """The ``generated`` record of a generated candidate: its own ``generated`` dict, completed from the record's
+    top-level fields of the same names (docs/milestone8.md §2: prompt, image hash, model, revision, seed)."""
+    rec = dict(cand.get("generated") or {})
+    for key in GENERATED_FIELDS:
+        rec.setdefault(key, cand.get(key))
+    return rec
+
+
 def catalog_entry(cand: dict, obj: dict, dec: dict, sha: str, cfg: dict, answers: Optional[dict] = None) -> dict:
-    """One ``catalog_objaverse.json`` entry. Boxes are metres in the model frame of the glTF importer (Z up):
-    the measured raw box times ``unit_scale``; the scene builder must scale the imported mesh by ``unit_scale``
-    before the fit (``fit_scale`` maps metres to the footprint)."""
+    """One ``catalog_library.json`` entry. Boxes are metres in the model frame of the glTF importer (Z up): the
+    measured raw box times ``unit_scale``; the scene builder must scale the imported mesh by ``unit_scale`` before
+    the fit (``fit_scale`` maps metres to the footprint). Decor models get the type ``decor_<decor_type>`` (they go
+    to the catalogue's ``decor`` section)."""
     from wenart.furniture import catalog as C
     u = float(obj["unit"]["scale"])
     m = obj["measure"]
@@ -1784,33 +2256,52 @@ def catalog_entry(cand: dict, obj: dict, dec: dict, sha: str, cfg: dict, answers
     mx = [round(float(v) * u, 4) for v in m["bbox_max_raw"]]
     model = [round((float(m["bbox_max_raw"][i]) - float(m["bbox_min_raw"][i])) * u, 4) for i in range(3)]
     front = dec["front_axis"]
-    uid = cand["uid"]
-    lic = cfg["licences"]
-    return {
-        "id": f"{ID_PREFIX}{uid}", "type": dec["type"], "source": SOURCE, "licence": cand["licence"],
-        "licence_url": lic["urls"][cand["licence"]], "name": cand["title"],
+    uid, source = cand["uid"], cand["source"]
+    kind = dec.get("kind") or "furniture"
+    title = cand.get("title") or (f"generated {dec['type']}" if source == "generated" else uid)
+    entry = {
+        "id": entry_id(source, uid), "type": f"decor_{dec['decor_type']}" if kind == "decor" else dec["type"],
+        "source": source, "licence": cand["licence"], "licence_flag": cand.get("licence_flag"),
+        "licence_url": cand.get("licence_url") or licence_url(cand["licence"], cfg), "name": title,
         "bbox_m": C.oriented_bbox(model, front), "bbox_model_m": model, "bbox_min_m": mn, "bbox_max_m": mx,
         "front_axis": front, "up_axis": "+Z", "origin_offset": C.origin_offset(mn, mx),
         "front_axis_confidence": dec["front_axis_confidence"], "front_axis_note": dec["front_axis_note"],
-        "unit_scale": u, "unit_note": obj["unit"]["note"],
-        "styles": list(dec["styles"]), "style_note": dec["style_note"], "has_mattress": dec["has_mattress"],
-        "glb": f"{CACHE_REL}/{uid}.glb", "sha256_glb": sha, "uid": uid,
-        "title": cand["title"], "author": cand["author"], "source_url": cand["source_url"],
-        "via": cfg["attribution"]["via"],
-        "attribution": attribution_line(cand["title"], cand["author"], cand["source_url"], cand["licence"], cfg),
-        "lvis_categories": list(cand["categories"]), "objaverse_path": cand["object_path"],
-        "dataset_revision": cfg["dataset"]["revision"],
+        "unit_scale": u, "unit_note": obj["unit"]["note"], "units_known": bool(cand.get("units_known")),
+        "styles": list(dec["styles"]), "style_note": dec["style_note"], "kind": kind,
+        "glb": cache_rel(source, uid), "sha256_glb": sha, "uid": uid,
+        "title": title, "author": cand.get("author") or (GENERATED_AUTHOR if source == "generated" else ""),
+        "source_url": cand.get("source_url") or "", "via": cand.get("via") or cfg["attribution"]["via"],
+        "attribution": credit_line(cand, cfg),
         "polycount": m.get("triangles"), "vertices": m.get("vertices"),
         "textured": bool((cand.get("glb_info") or {}).get("textured")),
         "vertex_colours": bool((cand.get("glb_info") or {}).get("vertex_colours")),
-        "quality": list(dec["quality"]), "judged": answers or {},
-        "likes": cand.get("likes"), "views": cand.get("views"), "thumbnail": obj.get("thumb"),
+        "quality": list(dec["quality"]), "judged": answers or {}, "thumbnail": obj.get("thumb"),
     }
+    if kind == "decor":
+        entry["decor_type"] = dec["decor_type"]
+    else:
+        entry["has_mattress"] = dec.get("has_mattress")
+        if dec["type"] in BED_TYPES:
+            entry["bed_frame"] = bool(dec.get("bed_frame"))
+            if dec.get("bed_frame"):
+                entry["deck_height_m"] = dec["deck_height_m"]
+                entry["deck_note"] = dec.get("deck_note")
+    if source == SOURCE:
+        entry.update({"lvis_categories": list(cand.get("categories") or []),
+                      "objaverse_path": cand.get("object_path"), "dataset_revision": cfg["dataset"]["revision"],
+                      "likes": cand.get("likes"), "views": cand.get("views")})
+    elif source == "abo":
+        entry.update({"abo_item_id": cand.get("item_id"), "abo_3dmodel_id": cand.get("abo_3dmodel_id"),
+                      "abo_path": cand.get("object_path"), "abo_product_type": cand.get("product_type"),
+                      "brand": cand.get("brand"), "style_hint": cand.get("style_hint")})
+    elif source == "generated":
+        entry.update({"generated": generated_record(cand), "style_hint": cand.get("style_hint")})
+    return entry
 
 
-def copy_glb(src: Path, assets: Path, uid: str, sha: str) -> Path:
-    """``<assets>/models/objaverse/<uid>.glb`` with sha256 ``sha`` (copied when missing or different)."""
-    dst = Path(assets) / CACHE_REL / f"{uid}.glb"
+def copy_glb(src: Path, assets: Path, uid: str, sha: str, source: str = SOURCE) -> Path:
+    """``<assets>/models/<source>/<uid>.glb`` with sha256 ``sha`` (copied when missing or different)."""
+    dst = Path(assets) / cache_rel(source, uid)
     if dst.is_file() and sha256_file(dst) == sha:
         return dst
     dst.parent.mkdir(parents=True, exist_ok=True)
@@ -1824,59 +2315,112 @@ def copy_glb(src: Path, assets: Path, uid: str, sha: str) -> Path:
     return dst
 
 
+def glb_source(cand: dict, assets: Path) -> Optional[Path]:
+    """The GLB file of an accepted candidate with the survey's sha256: the survey's own path (the source's cache on
+    the container disk), else the copy an earlier ``write-catalog`` put into the assets cache on the volume (a later
+    pod that did not survey again); None when neither holds it."""
+    sha = cand.get("glb_sha256")
+    for path in (cand.get("glb"), Path(assets) / cache_rel(cand["source"], cand["uid"])):
+        if path and Path(path).is_file() and sha256_file(Path(path)) == sha:
+            return Path(path)
+    return None
+
+
+DATASETS = {
+    "objaverse": lambda cfg: {k: cfg["dataset"][k] for k in ("repo", "revision", "licence", "licence_url", "page")},
+}
+
+
+def _dataset_info(source: str, cfg: dict) -> dict:
+    if source == SOURCE:
+        return DATASETS[SOURCE](cfg)
+    if source == "abo":
+        from wenart.assets import abo
+        ds = abo.load_config()["dataset"]
+        return {k: ds[k] for k in ("name", "index_url", "licence", "licence_url", "credit_data", "credit_dataset")}
+    return {"name": "generated (TRELLIS.2-4B)", "licence": "MIT (model); output marked generated"}
+
+
 def write_catalog(out: Path, assets: Path, cfg: Optional[dict] = None, base_catalog: Optional[Path] = None,
                   models: Optional[dict] = None, log: Callable = print) -> Optional[dict]:
-    """``catalog_objaverse.json`` from ``accepted.json`` (None and no file when nothing is accepted; a stale file
-    in ``out`` is removed). Every GLB is copied to the assets cache with its sha256 checked against the survey;
-    the result must pass ``catalog.validate(complete=False)`` and merge with ``catalog.json``."""
+    """``catalog_library.json`` from ``accepted.json`` (None and no file when nothing is accepted; a stale file in
+    ``out`` is removed). Every GLB is copied to ``<assets>/models/<source>/<uid>.glb`` with its sha256 checked
+    against the survey (``glb_source``); furniture goes to ``entries``, decor to ``decor``; the result must pass
+    ``catalog.validate(complete=False)`` and merge with ``catalog.json``."""
     from wenart.furniture import catalog as C
     cfg = cfg or load_config()
     out = Path(out)
-    acc, thumbs, surv = (read_json(out / n) for n in (ACCEPTED_NAME, THUMBS_JSON, SURVEY_NAME))
-    if acc is None or thumbs is None or surv is None:
-        raise UsageError("accepted.json / thumbnails.json / survey.json missing: run accept first")
-    cands = {c["uid"]: c for c in surv["candidates"]}
+    acc, thumbs = (read_json(out / n) for n in (ACCEPTED_NAME, THUMBS_JSON))
+    if acc is None or thumbs is None:
+        raise UsageError("accepted.json / thumbnails.json missing: run accept first")
+    cands = {c["uid"]: c for c in load_candidates(out)}
     answers = load_judgements(out, models)
-    entries, problems = [], []
+    entries, decor, problems = [], [], []
     for dec in acc["accepted"]:
         uid = dec["uid"]
         cand, obj = cands[uid], thumbs["objects"][uid]
-        src = Path(cand["glb"])
-        if not src.is_file() or sha256_file(src) != cand["glb_sha256"]:
-            problems.append({"uid": uid, "code": "glb_changed", "detail": str(src)})
+        src = glb_source(cand, assets)
+        if src is None:
+            problems.append({"uid": uid, "code": "glb_changed", "detail": str(cand.get("glb"))})
             continue
-        copy_glb(src, assets, uid, cand["glb_sha256"])
-        entries.append(catalog_entry(cand, obj, dec, cand["glb_sha256"], cfg, answers.get(uid)))
+        copy_glb(src, assets, uid, cand["glb_sha256"], cand["source"])
+        entry = catalog_entry(cand, obj, dec, cand["glb_sha256"], cfg, answers.get(uid))
+        (decor if entry["kind"] == "decor" else entries).append(entry)
     path = out / CATALOG_NAME
-    if not entries:
+    if not entries and not decor:
         if path.exists():
             path.unlink()
-        log("objaverse write-catalog: no accepted model: catalog_objaverse.json not written")
+        log(f"library write-catalog: no accepted model: {CATALOG_NAME} not written")
         return None
     entries.sort(key=lambda e: (C.FURNITURE_TYPES.index(e["type"]), e["id"]))
+    decor.sort(key=lambda e: (DECOR_TYPES.index(e["decor_type"]), e["id"]))
+    sources = sorted({e["source"] for e in entries + decor}, key=SOURCE_ORDER.index)
+    notices = source_notices(sources, cfg)
+    licences: dict[str, int] = {}
+    flags: dict[str, int] = {}
+    for e in entries + decor:
+        licences[e["licence"]] = licences.get(e["licence"], 0) + 1
+        if e.get("licence_flag"):
+            flags[e["licence_flag"]] = flags.get(e["licence_flag"], 0) + 1
+    file_licences = (["ODC-By-1.0"] if SOURCE in sources else []) + (["CC-BY-4.0"] if "abo" in sources else [])
     doc = {
-        "schema_version": SCHEMA_VERSION, "kind": "objaverse_catalog", "source": SOURCE,
-        "generated_utc": now_utc(), "file_licence": "ODC-By-1.0", "notice": odc_by_notice(cfg),
-        "dataset": {k: cfg["dataset"][k] for k in ("repo", "revision", "licence", "licence_url", "page")},
+        "schema_version": SCHEMA_VERSION, "kind": "library_catalog", "sources": sources,
+        "generated_utc": now_utc(), "file_licence": file_licences[0] if file_licences else "MIT",
+        "file_licences": file_licences, "notice": "\n\n".join(notices), "notices": notices,
+        "datasets": {s: _dataset_info(s, cfg) for s in sources},
         "licences_verified": bool(cfg["licences"].get("verified")),
+        "counts": {"entries": len(entries), "decor": len(decor),
+                   "by_source": {s: sum(1 for e in entries + decor if e["source"] == s) for s in sources},
+                   "licences": dict(sorted(licences.items())), "licence_flags": dict(sorted(flags.items())),
+                   "bed_frames": sum(1 for e in entries if e.get("bed_frame"))},
         "notes": [
-            "Written by python -m wenart.assets.objaverse write-catalog on the prep pod (docs/milestone7.md §7); "
-            "the integrator copies it into wenart/furniture/ before the full runs.",
-            "Boxes are metres in the Z-up frame of Blender's glTF importer: the raw GLB box times unit_scale "
-            "(the §7.2 unit guess). The scene builder scales the imported mesh by unit_scale before fit_scale.",
-            "front_axis: the side both judges named on the 2 x 2 sheet, equal to the geometric check "
-            "(front_axis_note); front-less types keep -Y with front_axis_confidence low.",
-            "styles: the intersection of both judges' answers (neutral only when both name it).",
-            "Per-object licences are uploader-declared and unverified: flag them before commercial use.",
+            "Written by python -m wenart.assets.objaverse write-catalog on the prep pod (docs/milestone8.md §2); the "
+            "integrator copies it into wenart/furniture/ before the full runs (catalog.load merges it, else the M7 "
+            "catalog_objaverse.json).",
+            "Boxes are metres in the Z-up frame of Blender's glTF importer: the raw GLB box times unit_scale (the "
+            "unit guess; 1 for sources with known units: ABO). The scene builder scales the imported mesh by "
+            "unit_scale before fit_scale.",
+            "front_axis: the side both judges named on the 2 x 2 sheet, equal to the geometric check, or the "
+            "source's documented front (ABO: glTF +Z = -Y) that no judge pair contradicts (front_axis_note); "
+            "front-less types keep -Y with front_axis_confidence low.",
+            "styles: the intersection of both judges' answers (neutral only when both name it). Beds: has_mattress "
+            "from both judges; bed_frame true = no mattress, a deck at deck_height_m (the builder adds the bedding).",
+            "Licences: every licence is recorded; licence_flag marks the ones that are not CC0 / CC BY 4.0 "
+            "(non_commercial, share_alike, no_derivatives, unknown). Objaverse licences are uploader-declared and "
+            "unverified: check them before commercial use.",
         ],
         "refused_at_write": problems,
         "entries": entries,
+        "decor": decor,
     }
+    if SOURCE in sources:
+        doc["dataset"] = _dataset_info(SOURCE, cfg)
     C.validate(doc, complete=False)
     base = read_json(base_catalog or C.CATALOG_PATH)
     C.Catalog(C.merge(base, doc))                         # must merge with the Poly Haven catalogue
     write_json(path, doc)
-    log(f"objaverse write-catalog: {len(entries)} model(s) -> {path}; GLBs in {Path(assets) / CACHE_REL}")
+    log(f"library write-catalog: {len(entries)} model(s) and {len(decor)} decor model(s) -> {path}; GLBs in "
+        f"{Path(assets) / 'models'}/<source>/")
     return doc
 
 
@@ -1890,27 +2434,61 @@ def _table(header: list[str], rows: list[list]) -> list[str]:
     return lines
 
 
+def _count(items, key) -> dict:
+    out: dict = {}
+    for item in items:
+        k = key(item)
+        out[k] = out.get(k, 0) + 1
+    return out
+
+
+def _by_source(items) -> str:
+    counts = _count(items, lambda d: d.get("source") or SOURCE)
+    return ", ".join(f"{s} {n}" for s, n in sorted(counts.items(), key=lambda kv: SOURCE_ORDER.index(kv[0])
+                                                    if kv[0] in SOURCE_ORDER else 99))
+
+
+def library_types(cfg: dict) -> list[str]:
+    """The furniture types a library source can fill: the Objaverse categories' and the ABO rules' (beds both)."""
+    from wenart.furniture import catalog as C
+    types = {t for spec in cfg["categories"].values() for t in spec["types"]}
+    try:
+        from wenart.assets import abo
+        for rule in abo.load_config()["rules"]:
+            for t in rule["types"]:
+                types.update(BED_TYPES if t == "bed" else [t])
+    except (OSError, ImportError, KeyError):
+        pass
+    return sorted((t for t in types if t in C.FURNITURE_TYPES), key=C.FURNITURE_TYPES.index)
+
+
 def report(out: Path, cfg: Optional[dict] = None, models: Optional[dict] = None,
            base_catalog: Optional[Path] = None) -> str:
-    """``library_report.md`` from whatever steps have run (missing files are reported as not run). The style
-    coverage counts the Poly Haven models of ``base_catalog`` (default ``catalog.json``) too."""
+    """``library_report.md`` from whatever steps have run (missing files are reported as not run): every source
+    (counts, licences and flags, credits), the refusals by reason, the style coverage (the Poly Haven models of
+    ``base_catalog``, default ``catalog.json``, count too), bed frames, the catalogue and the attribution list."""
     from wenart.furniture import catalog as C
     cfg = cfg or load_config()
     out = Path(out)
-    surv = read_json(out / SURVEY_NAME)
+    surveys = load_surveys(out)
     thumbs = read_json(out / THUMBS_JSON)
     acc = read_json(out / ACCEPTED_NAME)
     cat = read_json(out / CATALOG_NAME)
+    sources_seen = [s for s in SOURCE_ORDER if s in surveys]
     ds = cfg["dataset"]
-    lines = ["# Objaverse furniture library (docs/milestone7.md §7)", "", odc_by_notice(cfg), "",
-             f"Dataset: [{ds['repo']}]({ds['page']}) @ `{ds['revision'][:7]}` ({ds['licence']}). Licence strings "
-             f"and metadata field names of objaverse.yaml verified on the pod: "
-             f"{'yes' if cfg['licences'].get('verified') else 'no (to verify: see Licence values seen)'}.", ""]
-    if surv is None:
+    lines = ["# Furniture library (docs/milestone7.md §7, docs/milestone8.md §2)", ""]
+    for text in source_notices(sources_seen or [SOURCE], cfg):
+        lines += [text, ""]
+    lines += [f"Objaverse: [{ds['repo']}]({ds['page']}) @ `{ds['revision'][:7]}` ({ds['licence']}). Licence strings "
+              f"and metadata field names of objaverse.yaml verified on the pod: "
+              f"{'yes' if cfg['licences'].get('verified') else 'no (to verify: see Licence values seen)'}. Every "
+              "licence is taken (docs/milestone8.md §2); not CC0 / CC BY 4.0 -> licence_flag.", ""]
+    if not surveys:
         lines += ["Survey not run.", ""]
         text = "\n".join(lines) + "\n"
         (out / REPORT_NAME).write_text(text, encoding="utf-8")
         return text
+    cands = load_candidates(out)
     objects = (thumbs or {}).get("objects") or {}
     judged = {}
     try:
@@ -1918,87 +2496,129 @@ def report(out: Path, cfg: Optional[dict] = None, models: Optional[dict] = None,
             judged = load_judgements(out, models)
     except (OSError, ValueError, KeyError):
         judged = {}
-    both = sum(1 for v in judged.values() if all(v.get(k) is not None for k in MODEL_KEYS))
-    counts = surv["counts"]
-    total = {k: sum(c.get(k, 0) for c in counts.values()) for k in ("lvis", "licence_ok", "prefilter_ok",
-                                                                    "candidates")}
+    both_ok = {u for u, v in judged.items() if all(v.get(k) is not None for k in MODEL_KEYS)}
+    entries = ((cat or {}).get("entries") or []) + ((cat or {}).get("decor") or [])
+    accepted = (acc or {}).get("accepted") or []
+
+    lines += ["## Sources", ""]
+    rows = []
+    for s in sources_seen:
+        sc = [c for c in cands if c["source"] == s]
+        so = [o for o in objects.values() if (o.get("source") or SOURCE) == s]
+        rows.append([s, SURVEY_FILES[s], len(sc), sum(1 for c in sc if c.get("glb")),
+                     sum(1 for o in so if o.get("status") == "ready") if thumbs else "not run",
+                     sum(1 for o in so if o["uid"] in both_ok) if judged else "not run",
+                     sum(1 for d in accepted if d.get("source") == s) if acc else "not run",
+                     sum(1 for e in entries if e.get("source") == s) if cat else "not written"])
+    lines += _table(["Source", "Survey file", "Candidates", "With GLB", "Ready", "Judged by both", "Accepted",
+                     "In catalogue"], rows)
+
+    counts = (surveys.get(SOURCE) or {}).get("counts") or {}
     ready = sum(1 for o in objects.values() if o.get("status") == "ready")
     normalised = sum(1 for o in objects.values()
                      if o.get("status") == "ready" and (o.get("unit") or {}).get("normalised"))
     rendered = sum(1 for o in objects.values() if "measure" in o)
-    lines += ["## Steps", ""]
+    lines += ["", "## Steps", ""]
     lines += _table(["Step", "Objects"], [
-        ["LVIS objects in the mapped categories", total["lvis"]],
-        ["Licence CC0 or CC BY 4.0 (metadata)", total["licence_ok"]],
-        ["Past the metadata prefilter (credit, faces, size)", total["prefilter_ok"]],
-        ["Candidates (downloaded; textured or vertex-coloured)", total["candidates"]],
+        ["Objaverse: LVIS objects in the mapped categories", sum(c.get("lvis", 0) for c in counts.values())],
+        ["Objaverse: licence CC0 or CC BY 4.0 (metadata)", sum(c.get("licence_ok", 0) for c in counts.values())],
+        ["Objaverse: other licences (taken, flagged)", sum(c.get("flagged", 0) for c in counts.values())],
+        ["Objaverse: past the metadata prefilter (credit, faces, size)",
+         sum(c.get("prefilter_ok", 0) for c in counts.values())],
+        ["Candidates of every source (downloaded; textured or vertex-coloured)", sum(1 for c in cands if c.get("glb"))],
         ["Rendered (thumbnails)", rendered if thumbs else "not run"],
         ["Ready for judging (unit and type resolved)", ready if thumbs else "not run"],
         [f"of which {NORMALISED_NOTE}", normalised if thumbs else "not run"],
-        ["Judged by both models", both if judged else "not run"],
-        ["Accepted", len(acc["accepted"]) if acc else "not run"],
-        ["In catalog_objaverse.json", len(cat["entries"]) if cat else "not written"],
+        ["Judged by both models", len(both_ok) if judged else "not run"],
+        ["Accepted", len(accepted) if acc else "not run"],
+        [f"In {CATALOG_NAME}", len(entries) if cat else "not written"],
     ])
-    type_rows = []
-    per_type: dict[str, dict] = {}
+
+    per_type: dict[tuple, dict] = {}
+    for c in cands:
+        d = per_type.setdefault((c["group"], c["source"]), {"cand": 0, "ready": 0, "accepted": 0, "catalog": 0})
+        d["cand"] += 1
     for o in objects.values():
-        t = o.get("type") or o.get("group")
-        d = per_type.setdefault(t, {"ready": 0, "accepted": 0, "catalog": 0})
-        d["ready"] += o.get("status") == "ready"
-    for dec in (acc or {}).get("accepted") or []:
-        per_type.setdefault(dec["type"], {"ready": 0, "accepted": 0, "catalog": 0})["accepted"] += 1
-    for e in (cat or {}).get("entries") or []:
-        per_type.setdefault(e["type"], {"ready": 0, "accepted": 0, "catalog": 0})["catalog"] += 1
-    for group in sorted(set(counts) | set(per_type)):
-        c = counts.get(group, {})
-        d = per_type.get(group, {"ready": 0, "accepted": 0, "catalog": 0})
-        type_rows.append([group, c.get("lvis", "–"), c.get("licence_ok", "–"), c.get("candidates", "–"),
-                          d["ready"], d["accepted"], d["catalog"]])
-    lines += ["", "## Per type (bed candidates are split into bed_single / bed_double after the unit guess)", ""]
-    lines += _table(["Type", "LVIS", "CC0/CC BY", "Candidates", "Ready", "Accepted", "In catalogue"], type_rows)
+        if o.get("status") == "ready":
+            per_type.setdefault((o["type"], o.get("source") or SOURCE),
+                                {"cand": 0, "ready": 0, "accepted": 0, "catalog": 0})["ready"] += 1
+    for dec in accepted:
+        per_type.setdefault((dec["type"], dec.get("source") or SOURCE),
+                            {"cand": 0, "ready": 0, "accepted": 0, "catalog": 0})["accepted"] += 1
+    for e in entries:
+        t = e.get("decor_type") or e["type"]
+        per_type.setdefault((t, e["source"]), {"cand": 0, "ready": 0, "accepted": 0, "catalog": 0})["catalog"] += 1
+    type_rows = []
+    for (group, source), d in sorted(per_type.items(), key=lambda kv: (kv[0][0], SOURCE_ORDER.index(kv[0][1])
+                                                                        if kv[0][1] in SOURCE_ORDER else 99)):
+        lvis = counts.get(group, {}).get("lvis", "–") if source == SOURCE else "–"
+        type_rows.append([group, source, lvis, d["cand"], d["ready"], d["accepted"], d["catalog"]])
+    lines += ["", "## Per type (Objaverse bed candidates are split into bed_single / bed_double after the unit "
+                  "guess)", ""]
+    lines += _table(["Type", "Source", "LVIS", "Candidates", "Ready", "Accepted", "In catalogue"], type_rows)
 
     refusal_rows = []
-    for code, n in sorted(surv["refused_counts"].items()):
-        refusal_rows.append(["survey", code, REASONS.get(code, code), n])
-    nsel = sum(c.get("not_selected", 0) for c in counts.values())
+    survey_refused = [r for s, doc in surveys.items() for r in (doc.get("refused") or [])
+                      for r in [dict(r, source=r.get("source") or s)]]
+    for code, items in sorted(_count(survey_refused, lambda r: r["code"]).items()):
+        rs = [r for r in survey_refused if r["code"] == code]
+        refusal_rows.append(["survey", code, REASONS.get(code, code), items, _by_source(rs)])
+    nsel = sum(c.get("not_selected", 0) for doc in surveys.values() for c in (doc.get("counts") or {}).values()
+               if isinstance(c, dict))
     if nsel:
-        refusal_rows.append(["survey", "not_selected", "below the top 8 per type (rank by likes, views)", nsel])
-    th_counts: dict[str, int] = {}
-    for o in objects.values():
-        if o.get("status") != "ready":
-            th_counts[o["code"]] = th_counts.get(o["code"], 0) + 1
-    refusal_rows += [["thumbnails", c, REASONS.get(c, c), n] for c, n in sorted(th_counts.items())]
-    acc_counts: dict[str, int] = {}
-    for dec in (acc or {}).get("refused") or []:
-        acc_counts[dec["code"]] = acc_counts.get(dec["code"], 0) + 1
-    refusal_rows += [["accept", c, REASONS.get(c, c), n] for c, n in sorted(acc_counts.items())]
+        refusal_rows.append(["survey", "not_selected", "below the candidates per type (rank, or the pick order)",
+                             nsel, ""])
+    th_refused = [o for o in objects.values() if o.get("status") != "ready"]
+    for code, n in sorted(_count(th_refused, lambda o: o["code"]).items()):
+        refusal_rows.append(["thumbnails", code, REASONS.get(code, code), n,
+                             _by_source([o for o in th_refused if o["code"] == code])])
+    acc_refused = (acc or {}).get("refused") or []
+    for code, n in sorted(_count(acc_refused, lambda d: d["code"]).items()):
+        refusal_rows.append(["accept", code, REASONS.get(code, code), n,
+                             _by_source([d for d in acc_refused if d["code"] == code])])
     lines += ["", "## Refusals by reason (first failed rule per object)", ""]
-    lines += _table(["Step", "Code", "Reason", "Objects"], refusal_rows or [["–", "–", "none", 0]])
+    lines += _table(["Step", "Code", "Reason", "Objects", "Sources"], refusal_rows or [["–", "–", "none", 0, ""]])
 
-    lic_rows = []
-    for value, n in surv["licence_values"].items():
-        name, code, _ = classify_licence(value if value != "(none)" else None, cfg)
-        lic_rows.append([f"`{value}`", n, name or code])
-    lines += ["", "## Licence values seen (metadata field `" + str(cfg["metadata_fields"]["licence"]) + "`)", ""]
-    lines += _table(["Value", "Objects", "Decision"], lic_rows or [["–", 0, "–"]])
-    lv = surv["lvis"]
-    lines += ["", "## LVIS categories", "",
-              "Found: " + (", ".join(f"`{c}` {n}" for c, n in sorted(lv["found"].items())) or "none") + ".",
-              "Missing (a warning: their types stay parametric): "
-              + (", ".join(f"`{c}`" for c in lv["missing"]) or "none") + ".", ""]
-    for c, names in sorted((lv.get("near_missing") or {}).items()):
-        lines += [f"- `{c}`: names in the file sharing a word: " + (", ".join(f"`{n}`" for n in names) or "none")
-                  + " (an alternate needs a reason in objaverse.yaml)."]
-    if lv.get("near_missing"):
-        lines += [""]
-    if surv.get("missing_fields"):
-        lines += ["Metadata fields missing: " + ", ".join(f"{k} {v}" for k, v in surv["missing_fields"].items())
-                  + ".", ""]
+    surv = surveys.get(SOURCE)
+    if surv is not None:
+        lic_rows = []
+        for value, n in (surv.get("licence_values") or {}).items():
+            name, flag, _ = classify_licence(value if value != "(none)" else None, cfg)
+            lic_rows.append([f"`{value}`", n, name, flag or "–"])
+        lines += ["", "## Licence values seen (Objaverse metadata field `" + str(cfg["metadata_fields"]["licence"])
+                  + "`)", ""]
+        lines += _table(["Value", "Objects", "Licence", "Flag"], lic_rows or [["–", 0, "–", "–"]])
+        lv = surv.get("lvis") or {"found": {}, "missing": []}
+        lines += ["", "## LVIS categories", "",
+                  "Found: " + (", ".join(f"`{c}` {n}" for c, n in sorted(lv["found"].items())) or "none") + ".",
+                  "Missing (a warning: their types stay parametric): "
+                  + (", ".join(f"`{c}`" for c in lv["missing"]) or "none") + ".", ""]
+        for c, names in sorted((lv.get("near_missing") or {}).items()):
+            lines += [f"- `{c}`: names in the file sharing a word: " + (", ".join(f"`{n}`" for n in names) or "none")
+                      + " (an alternate needs a reason in objaverse.yaml)."]
+        if lv.get("near_missing"):
+            lines += [""]
+        if surv.get("missing_fields"):
+            lines += ["Metadata fields missing: " + ", ".join(f"{k} {v}" for k, v in surv["missing_fields"].items())
+                      + ".", ""]
+    abo_doc = surveys.get("abo")
+    if abo_doc is not None:
+        rows = [[t, c.get("mapped", 0), c.get("in_size", 0), c.get("candidates", 0), c.get("not_selected", 0)]
+                for t, c in sorted((abo_doc.get("counts") or {}).items())]
+        lines += ["", "## ABO mapping (abo.yaml rules; units known: metres)", ""]
+        lines += _table(["Type", "Mapped", "In the size range", "Candidates", "Not selected"], rows or [["–"] * 5])
+        unmapped = abo_doc.get("unmapped_product_types") or {}
+        lines += ["", "Product types with a 3D model left unmapped: "
+                  + (", ".join(f"{k} {v}" for k, v in list(unmapped.items())[:30]) or "none") + "."]
+
+    lines += ["", "## Licence flags (catalogue)", ""]
+    flag_rows = [[lic, C.licence_flag_of(lic) or "–", n] for lic, n in
+                 sorted(_count(entries, lambda e: e["licence"]).items())]
+    lines += _table(["Licence", "Flag", "Models"], flag_rows or [["–", "–", 0]])
 
     families = [s for s in style_values() if s != C.NEUTRAL]
-    types = sorted({t for spec in cfg["categories"].values() for t in spec["types"]},
-                   key=C.FURNITURE_TYPES.index)
-    entries = (cat or {}).get("entries") or []
+    types = library_types(cfg)
+    furniture = (cat or {}).get("entries") or []
     try:
         polyhaven = [e for e in C.load(base_catalog, objaverse=False).models if e.get("source") == "polyhaven"]
     except (OSError, ValueError):
@@ -2007,36 +2627,50 @@ def report(out: Path, cfg: Optional[dict] = None, models: Optional[dict] = None,
     for t in types:
         row = [t]
         for fam in families:
-            n_o = sum(1 for e in entries if e["type"] == t and C.styles_match(e, fam) and C.has_mattress(e))
-            n_p = sum(1 for e in polyhaven if e["type"] == t and C.styles_match(e, fam) and C.has_mattress(e))
-            row.append(f"{n_o}+{n_p}" if n_o or n_p else "–")
-            if not (n_o or n_p):
+            n_l = sum(1 for e in furniture if e["type"] == t and C.styles_match(e, fam) and C.bed_usable(e))
+            n_p = sum(1 for e in polyhaven if e["type"] == t and C.styles_match(e, fam) and C.bed_usable(e))
+            row.append(f"{n_l}+{n_p}" if n_l or n_p else "–")
+            if not (n_l or n_p):
                 gaps.append(f"{t}/{fam}")
         cov_rows.append(row)
-    lines += ["## Style coverage", "",
-              "Models per type and style family: Objaverse + Poly Haven (`neutral` counts for every family; beds "
-              "only with a mattress). `–` = no model: refit builds the parametric mesh for that pair.", ""]
+    lines += ["", "## Style coverage", "",
+              "Models per type and style family: library + Poly Haven (`neutral` counts for every family; beds with a "
+              "mattress or as a bed frame with a deck). `–` = no model: refit builds the parametric mesh for that "
+              "pair (or a generated model fills it, docs/milestone8.md §3).", ""]
     lines += _table(["Type"] + families, cov_rows)
     lines += ["", f"Parametric: {len(gaps)} of {len(types) * len(families)} type/family pairs"
                   + (f" ({', '.join(gaps)})." if len(gaps) <= 40 else "."), ""]
+
+    beds = [e for e in furniture if e["type"] in BED_TYPES]
+    if beds:
+        lines += ["## Beds", ""]
+        lines += _table(["Id", "Type", "Source", "Mattress", "Bed frame", "Deck (m)"],
+                        [[f"`{e['id']}`", e["type"], e["source"], e.get("has_mattress"), e.get("bed_frame", False),
+                          e.get("deck_height_m") or "–"] for e in beds])
+        lines += [""]
 
     lines += ["## Catalogue", ""]
     if entries:
         rows = []
         for e in entries:
-            rows.append([e["type"], f"`{e['id']}`", e["title"], e["author"], e["licence"], ", ".join(e["styles"]),
+            rows.append([e.get("decor_type") or e["type"], e["source"], f"`{e['id']}`", e.get("title"),
+                         e.get("author"), e["licence"], e.get("licence_flag") or "–", ", ".join(e["styles"]),
                          f"{e['front_axis']} ({e['front_axis_confidence']})", "/".join(str(q) for q in e["quality"]),
                          _fmt_dims(e["bbox_m"]), f"x{e['unit_scale']:g}"])
-        lines += _table(["Type", "Id", "Title", "Author", "Licence", "Styles", "Front", "Quality", "W x D x H (m)",
-                         "Unit"], rows)
+        lines += _table(["Type", "Source", "Id", "Title", "Author", "Licence", "Flag", "Styles", "Front", "Quality",
+                         "W x D x H (m)", "Unit"], rows)
     else:
         lines += ["No catalogue written."]
-    lines += ["", "## Attribution", "", odc_by_notice(cfg), ""]
-    lines += [f"- {e['attribution']}" for e in entries] or ["- (no model in the catalogue)"]
+    lines += ["", "## Attribution", ""]
+    for text in source_notices(sorted({e["source"] for e in entries}, key=SOURCE_ORDER.index) or [SOURCE], cfg):
+        lines += [text, ""]
+    lines += [f"- {e['attribution']}" + (f" (licence flag: {e['licence_flag']})" if e.get("licence_flag") else "")
+              for e in entries] or ["- (no model in the catalogue)"]
     if acc and acc.get("refused"):
         lines += ["", "## Refused after judging", ""]
-        lines += _table(["uid", "Type", "Reason"],
-                        [[d["uid"], d["type"], reason_text(d["code"], d.get("detail", ""))] for d in acc["refused"]])
+        lines += _table(["uid", "Source", "Type", "Reason"],
+                        [[d["uid"], d.get("source") or SOURCE, d["type"], reason_text(d["code"], d.get("detail", ""))]
+                         for d in acc["refused"]])
     text = "\n".join(lines) + "\n"
     (out / REPORT_NAME).write_text(text, encoding="utf-8")
     return text
@@ -2052,7 +2686,9 @@ class UsageError(ValueError):
 
 def parse_args(argv) -> argparse.Namespace:
     parser = argparse.ArgumentParser(prog="python -m wenart.assets.objaverse",
-                                     description="Objaverse furniture library for the prep pod (docs/milestone7.md §7)")
+                                     description="the furniture library for the prep pod: the Objaverse survey and "
+                                                 "the steps of every source (docs/milestone7.md §7, "
+                                                 "docs/milestone8.md §2)")
     sub = parser.add_subparsers(dest="command", required=True)
 
     def add(name: str, help_text: str) -> argparse.ArgumentParser:
@@ -2082,9 +2718,11 @@ def parse_args(argv) -> argparse.Namespace:
     p.add_argument("--timeout", type=float, default=600.0)
     p = add("judge-status", "answered / stale / failed / missing per model")
     p.add_argument("--json", action="store_true")
-    add("accept", "apply the §7.2 rules -> accepted.json")
-    p = add("write-catalog", "catalog_objaverse.json and the GLB cache")
-    p.add_argument("--assets", default="/workspace/assets", help="assets dir (GLBs to <assets>/models/objaverse)")
+    p = add("accept", "apply the §7.2 rules (docs/milestone8.md §2) -> accepted.json")
+    p.add_argument("--sources", default=None,
+                   help=f"only these sources, comma separated (default: every one; {','.join(SOURCES)})")
+    p = add("write-catalog", f"{CATALOG_NAME} and the GLB cache")
+    p.add_argument("--assets", default="/workspace/assets", help="assets dir (GLBs to <assets>/models/<source>)")
     add("report", "library_report.md")
     return parser.parse_args(argv)
 
@@ -2130,8 +2768,15 @@ def main(argv=None, client_factory=None) -> int:
                           f"failed, {m['missing']} missing{' (incomplete)' if m['incomplete'] else ''}")
             return EXIT_OK if summary["complete"] else EXIT_FAIL
         if args.command == "accept":
-            doc = accept(out, cfg)
-            print(f"objaverse accept: {doc['counts']} -> {out / ACCEPTED_NAME}")
+            sources = None
+            if args.sources:
+                sources = [s for s in args.sources.replace(",", " ").split() if s]
+                unknown = [s for s in sources if s not in SOURCES]
+                if unknown:
+                    raise UsageError(f"unknown source(s) {', '.join(unknown)} (sources: {', '.join(SOURCES)})")
+            doc = accept(out, cfg, sources=sources)
+            print(f"library accept ({'all sources' if sources is None else ', '.join(sources)}): {doc['counts']} "
+                  f"-> {out / ACCEPTED_NAME}")
             return EXIT_OK if doc["accepted"] else EXIT_FAIL
         if args.command == "write-catalog":
             doc = write_catalog(out, Path(args.assets), cfg)
@@ -2200,8 +2845,9 @@ def _bl_world(scene, grey: float) -> None:
     bg.inputs["Strength"].default_value = 1.0
 
 
-def _bl_measure(bpy, meshes) -> tuple[list, list, dict]:
-    """World vertices, polygon records and counts of the imported mesh objects (evaluated, all transforms)."""
+def _bl_measure(bpy, meshes, raw: Optional[list] = None) -> tuple[list, list, dict]:
+    """World vertices, polygon records and counts of the imported mesh objects (evaluated, all transforms); with
+    ``raw`` (a list) every polygon's world vertices are appended to it too (the deck measurement of a bed)."""
     depsgraph = bpy.context.evaluated_depsgraph_get()
     points, polys = [], []
     counts = {"triangles": 0, "colour_attributes": 0, "images": set()}
@@ -2216,6 +2862,8 @@ def _bl_measure(bpy, meshes) -> tuple[list, list, dict]:
                 vs = [wv[i] for i in poly.vertices]
                 polys.append(poly_record(vs))
                 counts["triangles"] += max(0, len(vs) - 2)
+                if raw is not None:
+                    raw.append(vs)
             counts["colour_attributes"] += len(getattr(me, "color_attributes", None) or [])
         finally:
             ev.to_mesh_clear()
@@ -2240,10 +2888,17 @@ def _bl_one(bpy, Vector, scene, cam, sun, job: dict, s: dict) -> dict:
         if ob.type == "LIGHT":                 # a light shipped in the GLB would change the judged look
             ob.hide_render = True
     bpy.context.view_layer.update()
-    points, polys, counts = _bl_measure(bpy, meshes)
+    raw = [] if job.get("deck") else None
+    points, polys, counts = _bl_measure(bpy, meshes, raw)
     if not points:
         raise RuntimeError("no vertices in the GLB")
     stats = front_stats(points, polys, s["top_fraction"], s["side_fraction"], s["normal_dot"])
+    result = {"stats": stats, "vertices": len(points), "triangles": counts["triangles"], "mesh_objects": len(meshes),
+              "images": len(counts["images"]), "colour_attributes": counts["colour_attributes"]}
+    if raw is not None:
+        result["deck"] = deck_height(raw, stats["bbox_min"], stats["bbox_max"], float(s.get("deck_ray_offset", 0.2)))
+    if job.get("render", True) is False:
+        return result                          # measured before M8: the views on disk stay
     centre = [(a + b) / 2.0 for a, b in zip(stats["bbox_min"], stats["bbox_max"])]
     dist = camera_distance(stats["extents"], float(s["lens_mm"]), float(s["sensor_mm"]), float(s["margin"]))
     cam.data.clip_start = max(1e-4, dist * 0.01)
@@ -2256,8 +2911,7 @@ def _bl_one(bpy, Vector, scene, cam, sun, job: dict, s: dict) -> dict:
         sun.rotation_euler = (-Vector(light)).to_track_quat("-Z", "Y").to_euler()
         scene.render.filepath = job["views"][i]
         bpy.ops.render.render(write_still=True)
-    return {"stats": stats, "vertices": len(points), "triangles": counts["triangles"], "mesh_objects": len(meshes),
-            "images": len(counts["images"]), "colour_attributes": counts["colour_attributes"]}
+    return result
 
 
 def _bl_clear(bpy, keep: set) -> None:

@@ -68,9 +68,27 @@ def test_licence_gates_per_kind():
         fetch.check_licence("polyhaven", "CC-BY-4.0", kind="models")          # Poly Haven is CC0 only
     assert fetch.check_licence("objaverse", "cc0", kind="models") == "CC0"
     assert fetch.check_licence("objaverse", "CC-BY-4.0", kind="models") == "CC-BY-4.0"
-    for bad in (None, "CC-BY-NC-4.0", "CC-BY-SA-4.0", "CC-BY-ND-4.0", "CC-BY", "CC-BY 4.0", "free standard", ""):
+    # Milestone 8 (docs/milestone8.md §2, user decisions 3, 4): every catalogue licence of an Objaverse object is
+    # taken (flagged in the catalogue); a spelling outside the catalogue table is still refused.
+    from wenart.furniture import catalog as C
+    assert fetch._FLAGS == C.LICENCE_FLAGS
+    for ok in ("CC-BY-NC-4.0", "CC-BY-SA-4.0", "CC-BY-ND-4.0", "Sketchfab-Standard", "unknown"):
+        assert fetch.check_licence("objaverse", ok, kind="models") == ok
+    for bad in (None, "CC-BY", "CC-BY 4.0", "free standard", ""):
         with pytest.raises(fetch.LicenceError):
             fetch.check_licence("objaverse", bad, kind="models")
+    with pytest.raises(fetch.LicenceError, match="licence_flag"):        # the flag must be the licence's
+        fetch.check_licence("objaverse", "CC-BY-NC-4.0", kind="models", entry={"licence_flag": None})
+    # ABO: CC BY 4.0 only, with the credit; generated models: a licence that says so.
+    assert fetch.check_licence("abo", "CC-BY-4.0", kind="models") == "CC-BY-4.0"
+    for bad in ("CC0", "CC-BY-NC-4.0", None):
+        with pytest.raises(fetch.LicenceError):
+            fetch.check_licence("abo", bad, kind="models")
+    assert fetch.check_licence("generated", "generated (TRELLIS.2-4B, MIT)", kind="models").startswith("generated")
+    with pytest.raises(fetch.LicenceError):
+        fetch.check_licence("generated", "MIT", kind="models")
+    with pytest.raises(fetch.LicenceError):
+        fetch.check_licence("generated", "generated", kind="textures")
     with pytest.raises(fetch.LicenceError):
         fetch.check_licence("sketchfab", "CC0", kind="models")
     credits = {"title": "t", "author": "a", "source_url": "u", "licence_url": "l", "via": "Objaverse",
