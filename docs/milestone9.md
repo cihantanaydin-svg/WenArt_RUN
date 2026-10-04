@@ -243,11 +243,49 @@ Pods (RTX PRO 6000; `docs/gpu-log.md`):
 |---|---|---|---|---|
 | L1 | 55 | $1.93 | ABO survey 828 candidates (40 per type, table lamps, vases, mirrors), Objaverse 396 (fixtures with flat colours), 871 sheets judged by both models, catalogue 343 + 114 decor | 1: two GPU test checks (fixed: flat-colour fixtures in `test_library.py`, a test group skipped when its step does not run) |
 | L2 | 97 | $3.39 | TRELLIS.2 in two shards for 67 min (126 new models), stopped 30 min before the deadline to judge them in the same pod (996 sheets), catalogue 419 + 133 decor | 1: the generation was cut by its own deadline as planned; GPU tests passed |
+| F1 | 24 | $0.87 | full run of real01 only (RTX PRO 6000 Workstation Edition; the server edition was out of stock): AI decor, renders, 3D files | 0: every GPU test passed, `tests/gpu/test_m9.py` included |
+| L3 | 96 | $1.58 | the rest of the generation on an RTX 5090 (one worker, 84 new models), judging, catalogue 453 + 152 decor | 1: generation cut by its own deadline as planned; GPU tests passed |
 
-Library after L2 (`wenart/furniture/catalog_library.json`): 419 furniture models (231 Amazon Berkeley Objects,
-77 Objaverse, 111 generated) and 133 decor models (114 ABO, 19 generated); 7 models carry a licence flag
-(4 non-commercial, 3 share-alike). 12 of 24 furniture types have 20 models; the rest of the generation plan
-(251 candidates for 13 short types) goes to pod L3.
+M9 total: $7.77 (all milestones $33.04 of $100). The user stopped the library expansion after L3 (4 Oct 2026).
+
+Library (`wenart/furniture/catalog_library.json`, after L3): 453 furniture models (231 Amazon Berkeley Objects,
+77 Objaverse, 145 generated) and 152 decor models (114 ABO, 38 generated); 7 models carry a licence flag
+(4 non-commercial, 3 share-alike). M8 had 180 + 24.
+
+| Furniture type | M8 | M9 | | Furniture type | M8 | M9 |
+|---|---|---|---|---|---|---|
+| armchair | 12 | 20 | | shower | 2 | 10 |
+| bathtub | 3 | 20 | | side_table | 12 | 20 |
+| bed_double | 9 | 20 | | sink_kitchen | 3 | 15 |
+| bed_single | 8 | 20 | | sofa | 12 | 20 |
+| bookshelf | 11 | 20 | | stove | 1 | 18 |
+| chair | 12 | 20 | | table_coffee | 9 | 20 |
+| desk | 8 | 20 | | table_dining | 10 | 20 |
+| dresser | 10 | 18 | | toilet | 3 | 17 |
+| floor_lamp | 12 | 20 | | tv_unit | 9 | 20 |
+| fridge | 4 | 18 | | wardrobe | 7 | 20 |
+| nightstand | 5 | 18 | | washbasin | 4 | 19 |
+| potted_plant | 10 | 20 | | washing_machine | 4 | 20 |
+
+Decor: cushion 5 → 20, rug 11 → 20, wall art 8 → 17, and new: table lamp 20, vase 20, small plant 20, bowl 18,
+mirror 17. 16 of 24 furniture types reach 20 in the new library alone; with the 30 Poly Haven models of the base
+catalogue (`catalog.json`, M4), which the fit also uses and the generation plan counts, 18 of 24 (dresser 18 + 2,
+nightstand 18 + 3, the ABO pools of both are used up: 18 of 24 judged pass). Below 20: shower 10, sink_kitchen
+15, toilet 17, fridge 18, stove 19, washbasin 19, because the judges refuse many generated sanitary and kitchen
+models (showers 10 of 28 accepted, toilets 9 of 22, kitchen sinks 15 of 28). Decor below 20: bowl 18; wall art and
+mirrors 17 (ABO only: 17 of the surveyed candidates passed). A next library pod would plan 38 candidates at the
+assumed 70 % acceptance (more would be needed for showers and toilets); the user stopped the expansion here.
+
+F1 (real01, `results/*/real01/`, built with the L2 catalogue):
+- AI decor: 19 items in the 5 rooms with drawn furniture (bedrooms: cushions, a small plant, table lamps, rugs;
+  drawing room: cushions, a plant, a rug, a vase; bathroom: a mirror above the washbasin; dining: a plant, a rug,
+  a vase), every item agreed by both passes of Qwen3-VL-8B; no room fell back to the rules; wall art was left out
+  where a window is behind the bed or sofa (the reasons are in `decor_report.md`). No furniture moved, added or
+  removed.
+- 3D files: `real01.blend` 75.4 MB (79 images packed, 68 as JPEG, 72 scaled to 1024 px; 20 cameras with their
+  exposure) and `real01.glb` 150.8 MB; export 18 s in Blender 5.2.2; handed over as six 24 MiB zip parts.
+- Final images: 20 Cycles (the gate validation disabled the polish again: negatives rejected 0.877 < 0.90, as in
+  M8); vision check advisory (removal and insertion targets missed); 1 drawn piece stays untyped (f_L0_018).
 
 Changes found while running:
 - The full CPU suite needed the M9 entries in three word lists (`mirror` material, `no decor questions`) and a

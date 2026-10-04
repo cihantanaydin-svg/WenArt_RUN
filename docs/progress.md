@@ -598,3 +598,41 @@ Spec: `docs/milestone8.md`. Five pods, $6.10 in all (`docs/gpu-log.md`: L1, L2, 
 Open after F1: two real01 GPU tests failed. Both were test faults, fixed in Milestone 9: the detector test
 counted old files from an M7 run, and the counter test measured a kitchen counter seen through a door from
 another room.
+
+## Milestone 9 – 20 models per type, more decor, AI decor in rooms with drawn furniture, 3D files (done, 4 Oct 2026)
+
+Spec and details: `docs/milestone9.md` (§9 "As built"). Four pods, $7.77 (`docs/gpu-log.md`): L1, L2 and L3
+built the library, F1 rendered real01 (you asked for real01 only). You stopped the library expansion after L3.
+
+**Library** (`wenart/furniture/catalog_library.json`):
+
+| | M8 | M9 |
+|---|---|---|
+| Furniture models | 180 | 453 (231 Amazon Berkeley Objects, 77 Objaverse, 145 generated with TRELLIS.2) |
+| Decor models | 24 | 152 (114 ABO, 38 generated) |
+| Furniture types with 20 models | 0 of 24 | 16 of 24 (18 of 24 with the 30 Poly Haven base models the fit also uses) |
+| Decor types | 3 | 8: cushion, rug, wall art, and new: table lamp, vase, mirror, bowl, small plant |
+
+Below 20 models: shower 10, kitchen sink 15, toilet 17, fridge 18, stove 19, washbasin 19 (the two judge models
+refuse many generated sanitary and kitchen models), bowl 18, wall art and mirror 17.
+
+**AI decor**: a vision-language model (Qwen3-VL-8B, two passes at temperature 0, strict schema) decorates every
+furnished room, including the rooms whose furniture comes from the plans. It only picks from checked places (tops,
+sofa and bed cushions, shelves, walls, free corners, rug areas) and never moves, adds or removes furniture; an item
+is built only when both passes agree. real01: 19 items in all 5 rooms with drawn furniture, no rule fallback.
+
+**3D files**: every full run now also writes `<project>.blend` (opens in Blender: packed textures, the render
+cameras with their exposure) and `<project>.glb` (glTF for other 3D tools). real01: 75 MB and 151 MB, sent to you
+as six 24 MB zip parts (the app refused the single big files); `python -m wenart.run.pack3d` makes the parts.
+
+**real01 (pod F1)**: ok, no GPU test failed (48 run, 10 skipped). 20 Cycles images: the gate validation turned the AI polish off
+again (it rejects only 87.7 % of geometry changes, needs 90 %), as in M8.
+
+Open items (none blocks M9):
+- real01 polish stays off until the gate rejects ≥ 90 % of geometry changes on it.
+- The vision check misses most removal and insertion controls on real01 (advisory only).
+- One drawn piece of real01 (f_L0_018) stays untyped: the two AI passes disagree or do not answer (unverified,
+  footprint kept).
+- The other projects get the new library, AI decor and 3D files on their next full run.
+
+GPU cost so far: $33.04 of $100. No pod is running.
