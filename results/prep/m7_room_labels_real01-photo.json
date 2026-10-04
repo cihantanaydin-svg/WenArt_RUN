@@ -11,8 +11,8 @@
  },
  {
   "truth": "Bath+ Toilet",
-  "got": null,
-  "ok": false
+  "got": "Bath+ Toilet",
+  "ok": true
  },
  {
   "truth": "Drawing Room",
@@ -36,7 +36,7 @@
  },
  {
   "truth": "Store",
-  "got": null,
-  "ok": false
+  "got": "Store",
+  "ok": true
  }
 ]

@@ -8,22 +8,22 @@
  "calls": {
   "lbl_L0_1": {
    "task": "room_label",
-   "input_sha256": "1b4e920c09532a6647dfdb5b8ba49e93d53189cb02bdd0c3ddcea2c005b238a8",
+   "input_sha256": "eb1033c24f8ac6787569fbf877e24fda49ca67ff4346f3a70c489eb696c101a1",
    "data": {
     "label": "Kitchen",
     "size_text": "9' 3\" x 10' 3\"",
     "area_text": null,
     "box": [
-     312,
-     322,
-     608,
-     446
+     316,
+     438,
+     590,
+     615
     ]
    },
-   "raw_text": "{\n    \"label\": \"Kitchen\",\n    \"size_text\": \"9' 3\\\" x 10' 3\\\"\",\n    \"area_text\": null,\n    \"box\": [312, 322, 608, 446]\n}",
+   "raw_text": "{\n    \"label\": \"Kitchen\",\n    \"size_text\": \"9' 3\\\" x 10' 3\\\"\",\n    \"area_text\": null,\n    \"box\": [316, 438, 590, 615]\n}",
    "error": null,
    "attempts": 1,
-   "latency_s": 1.202,
+   "latency_s": 1.41,
    "model": "zai-org/GLM-4.6V-Flash",
    "seed": 0,
    "images": [
@@ -32,22 +32,22 @@
   },
   "lbl_L0_2": {
    "task": "room_label",
-   "input_sha256": "faae293335f8776a19f6ae52e3aa618e91cb3ce15f5a9e0e8a6b7063d01157ca",
+   "input_sha256": "ec61a6ff0cb3147d535a0d3bfea74bb34da30502a84be36b7da8b4741e575874",
    "data": {
-    "label": "Pooja",
-    "size_text": "4' x 4' 9\"",
+    "label": "Store",
+    "size_text": "4' x 5'",
     "area_text": null,
     "box": [
-     236,
-     322,
-     630,
-     620
+     217,
+     345,
+     528,
+     672
     ]
    },
-   "raw_text": "{\n    \"label\": \"Pooja\",\n    \"size_text\": \"4' x 4' 9\\\"\",\n    \"area_text\": null,\n    \"box\": [236, 322, 630, 620]\n}",
+   "raw_text": "{\n    \"label\": \"Store\",\n    \"size_text\": \"4' x 5'\",\n    \"area_text\": null,\n    \"box\": [217, 345, 528, 672]\n}",
    "error": null,
    "attempts": 1,
-   "latency_s": 1.176,
+   "latency_s": 1.304,
    "model": "zai-org/GLM-4.6V-Flash",
    "seed": 0,
    "images": [
@@ -55,6 +55,30 @@
    ]
   },
   "lbl_L0_3": {
+   "task": "room_label",
+   "input_sha256": "faae293335f8776a19f6ae52e3aa618e91cb3ce15f5a9e0e8a6b7063d01157ca",
+   "data": {
+    "label": "Pooja",
+    "size_text": "4' x 4' 9\"",
+    "area_text": null,
+    "box": [
+     246,
+     321,
+     630,
+     621
+    ]
+   },
+   "raw_text": "{\n    \"label\": \"Pooja\",\n    \"size_text\": \"4' x 4' 9\\\"\",\n    \"area_text\": null,\n    \"box\": [246, 321, 630, 621]\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.389,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/lbl_L0_3.png"
+   ]
+  },
+  "lbl_L0_4": {
    "task": "room_label",
    "input_sha256": "3ee80f9f84758a351168d2ba73f99d20a4ea32cea377fa7387801ef8a62f53d3",
    "data": {
@@ -71,14 +95,14 @@
    "raw_text": "{\n    \"label\": \"Drawing Room\",\n    \"size_text\": \"14' x 14'\",\n    \"area_text\": null,\n    \"box\": [122, 194, 527, 335]\n}",
    "error": null,
    "attempts": 1,
-   "latency_s": 1.209,
+   "latency_s": 1.308,
    "model": "zai-org/GLM-4.6V-Flash",
    "seed": 0,
    "images": [
-    "crops/lbl_L0_3.png"
+    "crops/lbl_L0_4.png"
    ]
   },
-  "lbl_L0_4": {
+  "lbl_L0_5": {
    "task": "room_label",
    "input_sha256": "7b97f6b7b215038388fd29ea268746e9b65d2be8c5aeeb9043d045c15f176c7a",
    "data": {
@@ -95,31 +119,7 @@
    "raw_text": "{\n    \"label\": \"Dining\",\n    \"size_text\": \"14' x 8'\",\n    \"area_text\": null,\n    \"box\": [605, 416, 780, 577]\n}",
    "error": null,
    "attempts": 1,
-   "latency_s": 1.216,
-   "model": "zai-org/GLM-4.6V-Flash",
-   "seed": 0,
-   "images": [
-    "crops/lbl_L0_4.png"
-   ]
-  },
-  "lbl_L0_5": {
-   "task": "room_label",
-   "input_sha256": "11373a84d93ac17f3740e6738cc0a5b9a39c42931e36f6ef4f2474895fdc6097",
-   "data": {
-    "label": "Bath+ Toilet",
-    "size_text": "7' x 5'",
-    "area_text": null,
-    "box": [
-     276,
-     731,
-     716,
-     846
-    ]
-   },
-   "raw_text": "{\n    \"label\": \"Bath+ Toilet\",\n    \"size_text\": \"7' x 5'\",\n    \"area_text\": null,\n    \"box\": [276, 731, 716, 846]\n}",
-   "error": null,
-   "attempts": 1,
-   "latency_s": 1.148,
+   "latency_s": 1.319,
    "model": "zai-org/GLM-4.6V-Flash",
    "seed": 0,
    "images": [
@@ -127,6 +127,49 @@
    ]
   },
   "lbl_L0_6": {
+   "task": "room_label",
+   "input_sha256": "9a0ab864d501de1c5eef60b0fd23ebd4a975ef05686a57ec0296e8e466f3437a",
+   "data": {
+    "label": null,
+    "size_text": null,
+    "area_text": null,
+    "box": null
+   },
+   "raw_text": "{\n    \"label\": null,\n    \"size_text\": null,\n    \"area_text\": null,\n    \"box\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.666,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/lbl_L0_6.png"
+   ]
+  },
+  "lbl_L0_7": {
+   "task": "room_label",
+   "input_sha256": "ecc9a72860cb62e174e94c89f899820385ed3cc91d56e895a2cfd419be5b64d0",
+   "data": {
+    "label": "Bath+ Toilet",
+    "size_text": "7' x 5'",
+    "area_text": null,
+    "box": [
+     316,
+     355,
+     666,
+     685
+    ]
+   },
+   "raw_text": "{\n    \"label\": \"Bath+ Toilet\",\n    \"size_text\": \"7' x 5'\",\n    \"area_text\": null,\n    \"box\": [316, 355, 666, 685]\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.978,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/lbl_L0_7.png"
+   ]
+  },
+  "lbl_L0_8": {
    "task": "room_label",
    "input_sha256": "74c10120b6caae8210328511e01c757856466339f0029e2031ae6a51bc34e303",
    "data": {
@@ -137,20 +180,20 @@
      253,
      653,
      633,
-     795
+     796
     ]
    },
-   "raw_text": "{\n    \"label\": \"Bed Room\",\n    \"size_text\": \"11' x 10'\",\n    \"area_text\": null,\n    \"box\": [253, 653, 633, 795]\n}",
+   "raw_text": "{\n    \"label\": \"Bed Room\",\n    \"size_text\": \"11' x 10'\",\n    \"area_text\": null,\n    \"box\": [253, 653, 633, 796]\n}",
    "error": null,
    "attempts": 1,
-   "latency_s": 1.193,
+   "latency_s": 0.935,
    "model": "zai-org/GLM-4.6V-Flash",
    "seed": 0,
    "images": [
-    "crops/lbl_L0_6.png"
+    "crops/lbl_L0_8.png"
    ]
   },
-  "lbl_L0_7": {
+  "lbl_L0_9": {
    "task": "room_label",
    "input_sha256": "1fe22939d222922012eaeb7bf78b755580d9a0c59c75751eef3774f7a29f3a00",
    "data": {
@@ -167,11 +210,11 @@
    "raw_text": "{\n    \"label\": \"Bed Room\",\n    \"size_text\": \"11' x 10'\",\n    \"area_text\": null,\n    \"box\": [276, 162, 654, 336]\n}",
    "error": null,
    "attempts": 1,
-   "latency_s": 1.159,
+   "latency_s": 0.89,
    "model": "zai-org/GLM-4.6V-Flash",
    "seed": 0,
    "images": [
-    "crops/lbl_L0_7.png"
+    "crops/lbl_L0_9.png"
    ]
   },
   "sym_L0_001": {
@@ -316,26 +359,6 @@
   },
   "sym_L0_008": {
    "task": "symbol_type",
-   "input_sha256": "bee02bdcc04d82dbb04cd2e2b09743b6c22e37d3f6d6b5e68504c9ee8fc08349",
-   "data": {
-    "type": "not_furniture",
-    "front": "none",
-    "confidence": 0.9,
-    "reason": "The object is a curved line, not a piece of furniture or a plant."
-   },
-   "raw_text": "{\n    \"type\": \"not_furniture\",\n    \"front\": \"none\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object is a curved line, not a piece of furniture or a plant.\"\n}",
-   "error": null,
-   "attempts": 1,
-   "latency_s": 1.417,
-   "model": "zai-org/GLM-4.6V-Flash",
-   "seed": 0,
-   "images": [
-    "crops/sym_L0_008_ctx.png",
-    "crops/sym_L0_008_iso.png"
-   ]
-  },
-  "sym_L0_009": {
-   "task": "symbol_type",
    "input_sha256": "f7268feab43fd0d5460c143be7da62cbf8e6bfdf8bca7eb26c54187ebb2e117a",
    "data": {
     "type": "potted_plant",
@@ -346,15 +369,15 @@
    "raw_text": "{\n    \"type\": \"potted_plant\",\n    \"front\": \"top\",\n    \"confidence\": 0.8,\n    \"reason\": \"The object is a rounded shape with a top rim, typical of a potted plant, and its size fits the footprint.\"\n}",
    "error": null,
    "attempts": 1,
-   "latency_s": 1.415,
+   "latency_s": 1.94,
    "model": "zai-org/GLM-4.6V-Flash",
    "seed": 0,
    "images": [
-    "crops/sym_L0_009_ctx.png",
-    "crops/sym_L0_009_iso.png"
+    "crops/sym_L0_008_ctx.png",
+    "crops/sym_L0_008_iso.png"
    ]
   },
-  "sym_L0_010": {
+  "sym_L0_009": {
    "task": "symbol_type",
    "input_sha256": "508a143f64735c107a944b24fb6bde6a04df53acf47453c3046d2bb664588fac",
    "data": {
@@ -366,7 +389,27 @@
    "raw_text": "{\n    \"type\": \"floor_lamp\",\n    \"front\": \"none\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object has a circular base with spokes, typical of a floor lamp.\"\n}",
    "error": null,
    "attempts": 1,
-   "latency_s": 1.234,
+   "latency_s": 1.773,
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seed": 0,
+   "images": [
+    "crops/sym_L0_009_ctx.png",
+    "crops/sym_L0_009_iso.png"
+   ]
+  },
+  "sym_L0_010": {
+   "task": "symbol_type",
+   "input_sha256": "23facca88de7dd4f37e788a9283b9d14e2b853d7503a0f1d48d36a5f7eb6ed60",
+   "data": {
+    "type": "chair",
+    "front": "top",
+    "confidence": 0.9,
+    "reason": "The object has a seat shape and is positioned around a table, matching a dining chair."
+   },
+   "raw_text": "{\n    \"type\": \"chair\",\n    \"front\": \"top\",\n    \"confidence\": 0.9,\n    \"reason\": \"The object has a seat shape and is positioned around a table, matching a dining chair.\"\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.79,
    "model": "zai-org/GLM-4.6V-Flash",
    "seed": 0,
    "images": [

@@ -67,11 +67,11 @@
   "complete": true
  },
  "real01-photo": {
-  "items": 18,
+  "items": 19,
   "models": {
    "qwen": {
     "slug": "qwen3-vl-8b",
-    "answered": 18,
+    "answered": 19,
     "stale": 0,
     "failed": 0,
     "missing": 0,
@@ -79,7 +79,7 @@
    },
    "glm": {
     "slug": "glm-4.6v-flash",
-    "answered": 18,
+    "answered": 19,
     "stale": 0,
     "failed": 0,
     "missing": 0,

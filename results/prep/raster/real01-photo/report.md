@@ -1,7 +1,7 @@
 # Ingest report: real01-photo
 
 Status: **ok**
-Source: `tests/fixtures/real01_raster/real01-photo`, pipeline commit `d69054ba`, created 2026-10-03T20:46:04Z
+Source: `tests/fixtures/real01_raster/real01-photo`, pipeline commit `dd3449d4`, created 2026-10-04T02:50:00Z
 
 ## Documents
 
@@ -13,18 +13,20 @@ Source: `tests/fixtures/real01_raster/real01-photo`, pipeline commit `d69054ba`,
 
 | Level | Label | Order | Elevation | Ceiling | Walls | Openings | Rooms | Furniture |
 |---|---|---|---|---|---|---|---|---|
-| L0 | Ground floor (assumed) | 0 | 0.00 | 2.70 (assumed_default) | 21 | 18 | 7 | 22 |
+| L0 | Ground floor (assumed) | 0 | 0.00 | 2.70 (assumed_default) | 20 | 19 | 9 | 21 |
 
 ## Rooms
 
 | Room | Level | Label | As drawn | Type | Area computed | Area label | Furniture in documents | Status |
 |---|---|---|---|---|---|---|---|---|
 | r_L0_bed_room | L0 | Bed Room | Bed Room | bedroom | 10,03 | - | yes | verified |
-| r_L0_bath_toilet | L0 | Bath+ Toilet | Bath+ Toilet | bathroom | 10,05 | - | yes | unverified |
+| r_L0_bath_toilet | L0 | Bath+ Toilet | Bath+ Toilet | bathroom | 3,15 | - | no | verified |
 | r_L0_drawing_room | L0 | Drawing Room | Drawing Room | living | 18,11 | - | yes | verified |
+| r_L0_room | L0 | Room | — | hall | 6,82 | - | yes | unverified |
 | r_L0_pooja | L0 | Pooja | Pooja | prayer | 1,70 | - | no | verified |
+| r_L0_store | L0 | Store | Store | storage | 1,80 | - | no | verified |
 | r_L0_bed_room_2 | L0 | Bed Room | Bed Room | bedroom | 10,07 | - | yes | verified |
-| r_L0_kitchen | L0 | Kitchen | Kitchen | kitchen | 10,61 | - | yes | verified |
+| r_L0_kitchen | L0 | Kitchen | Kitchen | kitchen | 8,65 | - | yes | verified |
 | r_L0_dining | L0 | Dining | Dining | dining | 10,34 | - | yes | verified |
 
 ## Furniture
@@ -44,15 +46,14 @@ Source: `tests/fixtures/real01_raster/real01-photo`, pipeline commit `d69054ba`,
 | f_L0_011 | L0 | r_L0_bed_room | unknown | - | from_documents | 0.21 x 0.06 | 90 | unverified | real01_photo.jpg |
 | f_L0_012 | L0 | r_L0_bed_room | bed_double | - | from_documents | 2.34 x 2.06 | 0 | verified | real01_photo.jpg |
 | f_L0_013 | L0 | r_L0_kitchen | unknown | - | from_documents | 2.96 x 0.91 | 152 | unverified | real01_photo.jpg |
-| f_L0_014 | L0 | r_L0_bath_toilet | stair | - | from_documents | 1.49 x 2.27 | 0 | unverified | real01_photo.jpg |
+| f_L0_014 | L0 | r_L0_room | stair | - | from_documents | 1.49 x 2.27 | 0 | unverified | real01_photo.jpg |
 | f_L0_015 | L0 | r_L0_bed_room_2 | bed_double | - | from_documents | 1.65 x 1.82 | 90 | verified | real01_photo.jpg |
 | f_L0_016 | L0 | r_L0_drawing_room | unknown | - | from_documents | 1.88 x 0.74 | 90 | unverified | real01_photo.jpg |
-| f_L0_017 | L0 | r_L0_drawing_room | sofa | - | from_documents | 1.87 x 0.71 | 0 | verified | real01_photo.jpg |
+| f_L0_017 | L0 | r_L0_drawing_room | sofa | - | from_documents | 1.87 x 0.71 | 180 | verified | real01_photo.jpg |
 | f_L0_018 | L0 | r_L0_drawing_room | unknown | - | from_documents | 0.85 x 0.85 | 90 | unverified | real01_photo.jpg |
-| f_L0_019 | L0 | r_L0_kitchen | unknown | - | from_documents | 1.08 x 0.19 | 138 | unverified | real01_photo.jpg |
-| f_L0_020 | L0 | r_L0_dining | unknown | - | from_documents | 0.76 x 0.60 | 0 | unverified | real01_photo.jpg |
-| f_L0_021 | L0 | r_L0_bed_room_2 | unknown | - | from_documents | 0.42 x 0.38 | 98 | unverified | real01_photo.jpg |
-| f_L0_022 | L0 | r_L0_dining | chair | - | from_documents | 0.41 x 0.38 | 90 | verified | real01_photo.jpg |
+| f_L0_019 | L0 | r_L0_dining | unknown | - | from_documents | 0.76 x 0.60 | 0 | unverified | real01_photo.jpg |
+| f_L0_020 | L0 | r_L0_bed_room_2 | unknown | - | from_documents | 0.42 x 0.38 | 98 | unverified | real01_photo.jpg |
+| f_L0_021 | L0 | r_L0_dining | chair | - | from_documents | 0.38 x 0.41 | 180 | verified | real01_photo.jpg |
 
 ## Units
 
@@ -72,28 +73,29 @@ Project unit system: **imperial** (lengths in feet and inches, metres in bracket
 
 | Room-size label | Printed | Measured (clear size) | Off | Status |
 |---|---|---|---|---|
-| Kitchen (9' 3" x 10' 3") | 9' 3" (2.82 m) x 10' 3" (3.12 m) | 10' 2" (3.10 m) x 13' 9" (4.18 m) | -17.0% | conflict |
+| Kitchen (9' 3" x 10' 3") | 9' 3" (2.82 m) x 10' 3" (3.12 m) | 9' 2" (2.79 m) x 10' 2" (3.10 m) | +1.0%, +0.8% | ok |
+| Store (4' x 5') | 4' 0" (1.22 m) x 5' 0" (1.52 m) | 3' 11" (1.20 m) x 4' 11" (1.50 m) | +1.7%, +1.6% | ok |
 | Pooja (4' x 4' 9") | 4' 0" (1.22 m) x 4' 9" (1.45 m) | 3' 11" (1.20 m) x 4' 8" (1.42 m) | +1.7%, +2.0% | ok |
 | Drawing Room (14' x 14') | 14' 0" (4.27 m) x 14' 0" (4.27 m) | 14' 3" (4.33 m) x 13' 11" (4.24 m) | -1.6%, +0.6% | ok |
 | Dining (14' x 8') | 14' 0" (4.27 m) x 8' 0" (2.44 m) | 13' 11" (4.24 m) x 8' 3" (2.50 m) | +0.6%, -2.6% | ok |
-| Bath+ Toilet (7' x 5') | 7' 0" (2.13 m) x 5' 0" (1.52 m) | 22' 5" (6.84 m) x 4' 11" (1.50 m) | -68.8%, +1.7% | conflict |
+| Bath+ Toilet (7' x 5') | 7' 0" (2.13 m) x 5' 0" (1.52 m) | 6' 11" (2.10 m) x 4' 11" (1.50 m) | +1.5%, +1.7% | ok |
 | Bed Room (11' x 10') | 11' 0" (3.35 m) x 10' 0" (3.05 m) | 10' 11" (3.33 m) x 9' 11" (3.03 m) | +0.6%, +0.7% | ok |
 | Bed Room (11' x 10') | 11' 0" (3.35 m) x 10' 0" (3.05 m) | 10' 11" (3.33 m) x 9' 11" (3.03 m) | +0.7%, +0.7% | ok |
 
 - real01_photo.jpg p1: provisional scale from 1 dimension text ('50'): 0.012712 m/unit; needs >= 3 room-size labels within 5%
-- scale from one dimension, corroborated by 5 room sizes
-- 1 of 6 room-size labels differ from the scale by more than 5%: Bath+ Toilet 7' x 5' vs 6.84 x 1.50 m (-68.8%, +1.7%)
+- scale from one dimension, corroborated by 8 room sizes
 
 ## Room size labels
 
 | Room | Label size | Measured | Status |
 |---|---|---|---|
 | r_L0_bed_room | 11' x 10' | 10' 11" (3.33 m) x 9' 11" (3.03 m) | ok |
-| r_L0_bath_toilet | 7' x 5' | 22' 5" (6.84 m) x 4' 11" (1.50 m) | conflict |
+| r_L0_bath_toilet | 7' x 5' | 6' 11" (2.10 m) x 4' 11" (1.50 m) | ok |
 | r_L0_drawing_room | 14' x 14' | 14' 3" (4.34 m) x 13' 11" (4.24 m) | ok |
 | r_L0_pooja | 4' x 4' 9" | 3' 11" (1.20 m) x 4' 8" (1.42 m) | ok |
+| r_L0_store | 4' x 5' | 3' 11" (1.20 m) x 4' 11" (1.50 m) | ok |
 | r_L0_bed_room_2 | 11' x 10' | 10' 11" (3.33 m) x 9' 11" (3.03 m) | ok |
-| r_L0_kitchen | 9' 3" x 10' 3" | 10' 2" (3.10 m) x 13' 9" (4.18 m) | conflict |
+| r_L0_kitchen | 9' 3" x 10' 3" | 9' 2" (2.79 m) x 10' 2" (3.10 m) | ok |
 | r_L0_dining | 14' x 8' | 13' 11" (4.24 m) x 8' 3" (2.50 m) | ok |
 
 ## Site
@@ -122,7 +124,6 @@ Recorded, not built.
 
 | Page | Kind | Length | Kept | Reason |
 |---|---|---|---|---|
-| real01_photo.jpg | end_to_wall | 2' 1" (0.63 m) | no | considered, not needed |
 | real01_photo.jpg | end_to_wall | 4' 1" (1.25 m) | yes | two room names shared one face |
 
 ## Gaps
@@ -140,13 +141,13 @@ Recorded, not built.
 | real01_photo.jpg | run | window | 3' 11" (1.20 m) | seg:368, seg:370, seg:371, seg:372, seg:529, seg:530 (+2) |
 | real01_photo.jpg | split | door | 2' 8" (0.82 m) | arc:26, seg:584, seg:674 |
 | real01_photo.jpg | split | door | 2' 9" (0.84 m) | arc:22, seg:573 |
-| real01_photo.jpg | run | door | 2' 8" (0.81 m) | arc:32 |
 | real01_photo.jpg | run | empty | 5' 10" (1.78 m) | seg:538 |
 | real01_photo.jpg | run | door | 3' 4" (1.02 m) | arc:43, seg:1012, seg:1020, seg:773, seg:774 |
 | real01_photo.jpg | run | empty | 3' 3" (0.98 m) | - |
 | real01_photo.jpg | run | empty | 5' 1" (1.56 m) | - |
 | real01_photo.jpg | run | window | 3' 10" (1.18 m) | seg:347, seg:348, seg:350, seg:351, seg:435 |
-| real01_photo.jpg | end | empty | 2' 1" (0.63 m) | - |
+| real01_photo.jpg | end | door | 2' 3" (0.69 m) | arc:32, seg:694 |
+| real01_photo.jpg | end | door | 2' 11" (0.88 m) | arc:20, seg:550, seg:551, seg:553, seg:558, seg:559 |
 | real01_photo.jpg | end | empty | 4' 1" (1.25 m) | - |
 
 ## Furniture typing
@@ -171,12 +172,11 @@ Recorded, not built.
 | f_L0_016 | unknown | none | pass 1: wardrobe; pass 2: sofa | yes | unverified |
 | f_L0_017 | sofa | ai_two_pass | pass 1: sofa; pass 2: sofa | yes | verified |
 | f_L0_018 | unknown | none | pass 1: unknown; pass 2: unknown | yes | unverified |
-| f_L0_019 | unknown | none | pass 1: not_furniture; pass 2: not_furniture | no (drawn symbol, not built) | unverified |
-| f_L0_020 | unknown | none | pass 1: side_table; pass 2: potted_plant | yes | unverified |
-| f_L0_021 | unknown | none | pass 1: nightstand; pass 2: floor_lamp | yes | unverified |
-| f_L0_022 | chair | ai_two_pass | pass 1: chair; pass 2: chair | yes | verified |
+| f_L0_019 | unknown | none | pass 1: side_table; pass 2: potted_plant | yes | unverified |
+| f_L0_020 | unknown | none | pass 1: nightstand; pass 2: floor_lamp | yes | unverified |
+| f_L0_021 | chair | ai_two_pass | pass 1: chair; pass 2: chair | yes | verified |
 
-Recognition questions: 18 (`recognition/requests.json`), 0 without a complete pair of answers.
+Recognition questions: 19 (`recognition/requests.json`), 0 without a complete pair of answers.
 
 ## Assumed values
 
@@ -202,13 +202,14 @@ Recognition questions: 18 (`recognition/requests.json`), 0 without a complete pa
 - win_L0_008 (window): sill height 2' 11" (0.90 m)
 - d_L0_001 (door): height 6' 11" (2.10 m)
 - d_L0_002 (door): height 6' 11" (2.10 m)
-- d_L0_003 (door): height 6' 11" (2.10 m)
 - o_L0_002 (opening): height 6' 11" (2.10 m)
-- d_L0_004 (door): height 6' 11" (2.10 m)
+- d_L0_003 (door): height 6' 11" (2.10 m)
 - o_L0_003 (opening): height 6' 11" (2.10 m)
 - o_L0_004 (opening): height 6' 11" (2.10 m)
 - win_L0_009 (window): height 3' 11" (1.20 m)
 - win_L0_009 (window): sill height 2' 11" (0.90 m)
+- d_L0_004 (door): height 6' 11" (2.10 m)
+- d_L0_005 (door): height 6' 11" (2.10 m)
 
 ## Notes
 
@@ -224,10 +225,14 @@ Recognition questions: 18 (`recognition/requests.json`), 0 without a complete pa
 - length text '7' read with confidence 0.00 < 0.85: not used
 - length text '28' read with confidence 0.70 < 0.85: not used
 - length text '25' read with confidence 0.73 < 0.85: not used
-- 8 raster wall ends moved onto the wall face they stop short of by <= 1.5 px: wall 14 end +0 mm, wall 17 start +1 mm, wall 17 end +0 mm, wall 19 start +1 mm, wall 19 end +0 mm, wall 22 start +1 mm, wall 22 end +0 mm, wall 24 end +0 mm
+- wall 18: a 0.050 m strip along one face over 0.81 m, where the leaf of door swing arc:32 rests (a leaf fused to the wall face in the wall mask), is not counted as wall: thickness 0.180 m as the rest of the run, not 0.240 m
+- wall 7: a 0.040 m piece (0.140 m thick) at the end of a 0.190 m wall is a frame or nub of that wall's end, not a wall end of its own (no gap is cast from or to it)
+- wall 19: a 0.030 m piece (0.140 m thick) at the end of a 0.250 m wall is a frame or nub of that wall's end, not a wall end of its own (no gap is cast from or to it)
+- wall 20: a 0.040 m piece (0.110 m thick) at the end of a 0.250 m wall is a frame or nub of that wall's end, not a wall end of its own (no gap is cast from or to it)
+- 8 raster wall ends moved onto the wall face they stop short of by <= 1.5 px: wall 14 end +0 mm, wall 17 start +1 mm, wall 17 end +0 mm, wall 18 start +1 mm, wall 18 end +0 mm, wall 21 start +1 mm, wall 21 end +0 mm, wall 23 end +0 mm
 - furniture size checks use the wenart/recognition/size_table.yaml
 - 327 glyph strokes inside text boxes ignored
-- 18 stroke segments dropped as wall outline (>= 90 % within 20 mm of walls/openings)
+- 17 stroke segments dropped as wall outline (>= 90 % within 20 mm of walls/openings)
 - unknown piece 0.23 x 0.17 m at (14.34, 8.78): possible group of 6 pieces
 - unknown piece 0.11 x 0.34 m at (5.96, 10.35): possible group of 6 pieces
 - unknown piece 0.43 x 0.05 m at (11.03, 9.39): fits no size-table type
@@ -239,7 +244,7 @@ Recognition questions: 18 (`recognition/requests.json`), 0 without a complete pa
 - unknown piece 0.22 x 0.06 m at (10.91, 6.87): possible group of 4 pieces
 - unknown piece 0.06 x 0.21 m at (6.03, 6.18): possible group of 2 pieces
 - unknown piece 0.06 x 0.21 m at (5.46, 6.18): possible group of 2 pieces
-- 31 drawn details smaller than 0.2 m ignored
+- 28 drawn details smaller than 0.2 m ignored
 - 5 line details (minimum rectangle thinner than 0.05 m: single lines, not furniture) ignored: seg:186,seg:542,seg:575,seg:581,seg:1009
 - 27 site edge or boundary line groups outside the building (not decor)
 
@@ -247,17 +252,17 @@ Recognition questions: 18 (`recognition/requests.json`), 0 without a complete pa
 
 | Id | Kind | Elements | Description | Resolution |
 |---|---|---|---|---|
-| c_001 | label_size_mismatch | r_L0_bath_toilet | r_L0_bath_toilet: label size '7' x 5'' vs the room's clear size 22' 5" x 4' 11" (-68.8%, +1.7%) | drawn walls kept; room marked unverified |
-| c_002 | label_size_mismatch | r_L0_kitchen | r_L0_kitchen: label size '9' 3" x 10' 3"' vs the room's clear size 10' 2" x 13' 9" (-17.0%) | drawn walls kept (within 10 %) |
-| c_003 | symbol_type_disagreement | f_L0_016 | f_L0_016: sym_L0_005: the passes disagree: pass 1 (Qwen/Qwen3-VL-8B-Instruct) wardrobe, pass 2 (zai-org/GLM-4.6V-Flash) sofa | unresolved: the drawn footprint is kept as unknown, unverified |
-| c_004 | symbol_type_disagreement | f_L0_020 | f_L0_020: sym_L0_009: the passes disagree: pass 1 (Qwen/Qwen3-VL-8B-Instruct) side_table, pass 2 (zai-org/GLM-4.6V-Flash) potted_plant | unresolved: the drawn footprint is kept as unknown, unverified |
-| c_005 | symbol_type_disagreement | f_L0_021 | f_L0_021: sym_L0_010: the passes disagree: pass 1 (Qwen/Qwen3-VL-8B-Instruct) nightstand, pass 2 (zai-org/GLM-4.6V-Flash) floor_lamp | unresolved: the drawn footprint is kept as unknown, unverified |
+| c_001 | symbol_type_disagreement | f_L0_016 | f_L0_016: sym_L0_005: the passes disagree: pass 1 (Qwen/Qwen3-VL-8B-Instruct) wardrobe, pass 2 (zai-org/GLM-4.6V-Flash) sofa | unresolved: the drawn footprint is kept as unknown, unverified |
+| c_002 | symbol_type_disagreement | f_L0_019 | f_L0_019: sym_L0_008: the passes disagree: pass 1 (Qwen/Qwen3-VL-8B-Instruct) side_table, pass 2 (zai-org/GLM-4.6V-Flash) potted_plant | unresolved: the drawn footprint is kept as unknown, unverified |
+| c_003 | symbol_type_disagreement | f_L0_020 | f_L0_020: sym_L0_009: the passes disagree: pass 1 (Qwen/Qwen3-VL-8B-Instruct) nightstand, pass 2 (zai-org/GLM-4.6V-Flash) floor_lamp | unresolved: the drawn footprint is kept as unknown, unverified |
+| c_004 | symbol_front_disagreement | f_L0_017 | f_L0_017: sym_L0_006: AI front [180.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) left, pass 2 (zai-org/GLM-4.6V-Flash) left) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back) | the drawn front is kept (trust order: vector geometry > AI suggestions) |
+| c_005 | symbol_front_disagreement | f_L0_019 | f_L0_019: sym_L0_008: AI front [90.0] (pass 2 (zai-org/GLM-4.6V-Flash) top) disagrees with the drawn front 270 deg (only side within 0.25 m of a wall is the back) | the drawn front is kept (trust order: vector geometry > AI suggestions) |
+| c_006 | symbol_front_disagreement | f_L0_021 | f_L0_021: sym_L0_010: AI front [90.0, 270.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) bottom, pass 2 (zai-org/GLM-4.6V-Flash) top) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back) | the drawn front is kept (trust order: vector geometry > AI suggestions) |
 
 ## Unverified
 
 - o_L0_001
-- d_L0_003
-- r_L0_bath_toilet
+- r_L0_room
 - f_L0_001
 - f_L0_002
 - f_L0_003
@@ -275,28 +280,21 @@ Recognition questions: 18 (`recognition/requests.json`), 0 without a complete pa
 - f_L0_018
 - f_L0_019
 - f_L0_020
-- f_L0_021
 
 ## Warnings
 
 - level title missing: assumed L0 Ground floor
 - real01_photo.jpg p1: wall component without room labels at (17.39, 0.28) m (0.48 x 0.10 m) is not part of the building: recorded in site, not built
-- real01_photo.jpg p1: scale from one dimension, corroborated by 5 room sizes
-- real01_photo.jpg p1: 1 of 6 room-size labels differ from the scale by more than 5%: Bath+ Toilet 7' x 5' vs 6.84 x 1.50 m (-68.8%, +1.7%)
+- real01_photo.jpg p1: scale from one dimension, corroborated by 8 room sizes
 - sym_L0_001: bed_double without an agreed front: front unknown: width and depth follow the bed_double size convention; the side the builder faces is assumed
 - sym_L0_002: both passes say not_furniture: kept as an obstacle, not built
-- sym_L0_003: stair is not a type allowed in a bathroom room: kept, unverified
 - sym_L0_003: stair named by both passes, but the stair rule found no treads there: flights unknown, unverified
 - sym_L0_003: stair without an agreed front: front unknown: width and depth follow the stair size convention (footprint turned 90 deg); the side the builder faces is assumed
 - sym_L0_004: bed_double without an agreed front: front unknown: width and depth follow the bed_double size convention (footprint turned 90 deg); the side the builder faces is assumed
-- sym_L0_006: AI front [180.0] disagrees with the drawn front 90: front unknown
-- sym_L0_006: sofa without an agreed front: front unknown: width and depth follow the sofa size convention; the side the builder faces is assumed
+- sym_L0_006: AI front [180.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) left, pass 2 (zai-org/GLM-4.6V-Flash) left) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back): the drawn front is kept (vector geometry > AI)
 - sym_L0_007: both passes say unknown: type left open
-- sym_L0_008: both passes say not_furniture: kept as an obstacle, not built
-- sym_L0_009: AI front [90.0] disagrees with the drawn front 270: front unknown
-- sym_L0_011: AI front [90.0, 270.0] disagrees with the drawn front 90: front unknown
-- sym_L0_011: chair without an agreed front: front unknown: width and depth follow the chair size convention; the side the builder faces is assumed
+- sym_L0_008: AI front [90.0] (pass 2 (zai-org/GLM-4.6V-Flash) top) disagrees with the drawn front 270 deg (only side within 0.25 m of a wall is the back): the drawn front is kept (vector geometry > AI)
+- sym_L0_010: AI front [90.0, 270.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) bottom, pass 2 (zai-org/GLM-4.6V-Flash) top) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back): the drawn front is kept (vector geometry > AI)
 - real01_photo.jpg p1: photo aspect assumed: the page quad measures 1.4050 (width / height, side_ratio), snapped to the ISO (sqrt 2) sheet ratio 1.4142 (0.7 % off; no dimension groups to check it)
 - Level L0: ceiling height assumed 2.70 m (no section drawing found)
-- r_L0_kitchen: Tesseract also read 'Store' in this room on real01_photo.jpg; replaced by the accepted label 'Kitchen' (§3.4)
-- d_L0_003: swing side (4.92, 2.15) lies in no room of L0
+- L0: room at (3.47, 2.5514) (6.82 m²) has no label: unlabelled face holding the stair

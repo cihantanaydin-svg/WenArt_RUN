@@ -3,8 +3,8 @@
  "project": {
   "id": "real01-scan",
   "source_folder": "tests/fixtures/real01_raster/real01-scan",
-  "created_utc": "2026-10-03T20:45:32Z",
-  "pipeline_commit": "d69054ba",
+  "created_utc": "2026-10-04T02:49:29Z",
+  "pipeline_commit": "dd3449d4",
   "unit_system": "imperial"
  },
  "status": "ok",
@@ -391,7 +391,7 @@
     2.46
    ],
    "end": [
-    4.8939,
+    4.9537,
     2.46
    ],
    "thickness": 0.18,
@@ -683,37 +683,6 @@
    "id": "w_L0_013",
    "level_id": "L0",
    "start": [
-    5.0139,
-    1.74
-   ],
-   "end": [
-    5.0139,
-    2.55
-   ],
-   "thickness": 0.24,
-   "height": 2.7,
-   "exterior": false,
-   "status": "verified",
-   "evidence": [
-    {
-     "file": "real01_scan.png",
-     "method": "raster",
-     "confidence": 0.85,
-     "page": 1,
-     "entity": "raster:mask",
-     "pixel_box": [
-      758.5,
-      742.3,
-      779.9,
-      811.5
-     ]
-    }
-   ]
-  },
-  {
-   "id": "w_L0_014",
-   "level_id": "L0",
-   "start": [
     5.0437,
     0.26
    ],
@@ -732,12 +701,12 @@
      "confidence": 0.85,
      "page": 1,
      "entity": "raster:mask",
-     "note": "run of 3 pieces"
+     "note": "a 0.055 m strip along one face over 0.81 m, where the leaf of door swing arc:27 rests (a leaf fused to the wall face in the wall mask), is not counted as wall: thickness 0.180 m as the rest of the run, not 0.240 m; run of 4 pieces"
     }
    ]
   },
   {
-   "id": "w_L0_015",
+   "id": "w_L0_014",
    "level_id": "L0",
    "start": [
     9.4439,
@@ -763,12 +732,13 @@
       848.1,
       1151.1,
       851.6
-     ]
+     ],
+     "note": "a 0.040 m piece (0.140 m thick) at the end of a 0.250 m wall is a frame or nub of that wall's end, not a wall end of its own (no gap is cast from or to it)"
     }
    ]
   },
   {
-   "id": "w_L0_016",
+   "id": "w_L0_015",
    "level_id": "L0",
    "start": [
     9.4977,
@@ -794,7 +764,7 @@
    ]
   },
   {
-   "id": "w_L0_017",
+   "id": "w_L0_016",
    "level_id": "L0",
    "start": [
     11.1289,
@@ -825,7 +795,7 @@
    ]
   },
   {
-   "id": "w_L0_018",
+   "id": "w_L0_017",
    "level_id": "L0",
    "start": [
     12.8474,
@@ -1283,36 +1253,7 @@
    "id": "o_L0_004",
    "type": "opening",
    "level_id": "L0",
-   "wall_id": "w_L0_014",
-   "center": [
-    5.0437,
-    2.145
-   ],
-   "width": 0.81,
-   "height": 2.1,
-   "sill_height": null,
-   "swing_side": null,
-   "status": "unverified",
-   "evidence": [
-    {
-     "file": "real01_scan.png",
-     "method": "derived",
-     "confidence": 0.5,
-     "page": 1,
-     "entity": "gap:raster:mask",
-     "note": "unclassified gap content: arc:27"
-    }
-   ],
-   "assumed": [
-    "height"
-   ],
-   "type_raw": "unclassified gap content"
-  },
-  {
-   "id": "o_L0_005",
-   "type": "opening",
-   "level_id": "L0",
-   "wall_id": "w_L0_014",
+   "wall_id": "w_L0_013",
    "center": [
     5.0437,
     3.6
@@ -1339,7 +1280,7 @@
    "id": "d_L0_003",
    "type": "door",
    "level_id": "L0",
-   "wall_id": "w_L0_016",
+   "wall_id": "w_L0_015",
    "center": [
     9.4977,
     0.855
@@ -1370,10 +1311,10 @@
    ]
   },
   {
-   "id": "o_L0_006",
+   "id": "o_L0_005",
    "type": "opening",
    "level_id": "L0",
-   "wall_id": "w_L0_016",
+   "wall_id": "w_L0_015",
    "center": [
     9.4977,
     3.525
@@ -1399,10 +1340,10 @@
    "type_raw": "unclassified gap content"
   },
   {
-   "id": "o_L0_007",
+   "id": "o_L0_006",
    "type": "opening",
    "level_id": "L0",
-   "wall_id": "w_L0_016",
+   "wall_id": "w_L0_015",
    "center": [
     9.4977,
     5.7
@@ -1429,7 +1370,7 @@
    "id": "win_L0_009",
    "type": "window",
    "level_id": "L0",
-   "wall_id": "w_L0_018",
+   "wall_id": "w_L0_017",
    "center": [
     12.8474,
     5.58
@@ -1465,10 +1406,10 @@
    "level_id": "L0",
    "wall_id": "w_L0_002",
    "center": [
-    4.5689,
+    4.5988,
     2.46
    ],
-   "width": 0.65,
+   "width": 0.7098,
    "height": 2.1,
    "sill_height": null,
    "swing_side": "r_L0_bath_toilet",
@@ -1483,8 +1424,8 @@
      "pixel_box": [
       704.0,
       741.5,
-      759.5,
-      757.6
+      764.6,
+      757.7
      ],
      "note": "swing arc without a drawn leaf"
     }
@@ -1528,7 +1469,7 @@
    ]
   },
   {
-   "id": "o_L0_008",
+   "id": "o_L0_007",
    "type": "opening",
    "level_id": "L0",
    "wall_id": null,
@@ -1702,14 +1643,6 @@
     ],
     [
      4.9537,
-     1.74
-    ],
-    [
-     4.8939,
-     1.74
-    ],
-    [
-     4.8939,
      2.37
     ],
     [
@@ -1717,7 +1650,7 @@
      2.37
     ]
    ],
-   "area_computed": 3.116,
+   "area_computed": 3.154,
    "area_label": null,
    "has_documented_furniture": false,
    "style_override": null,
@@ -1770,7 +1703,7 @@
      "method": "ai",
      "confidence": 0.85,
      "page": 1,
-     "entity": "recognition:lbl_L0_7",
+     "entity": "recognition:lbl_L0_6",
      "pixel_box": [
       617.5,
       739.5,
@@ -1786,11 +1719,11 @@
      "method": "ai",
      "confidence": 0.85,
      "page": 1,
-     "entity": "recognition:lbl_L0_7",
+     "entity": "recognition:lbl_L0_6",
      "pixel_box": [
       659.7,
       807.0,
-      734.8,
+      734.6,
       894.8
      ],
      "model": "zai-org/GLM-4.6V-Flash",
@@ -1801,7 +1734,7 @@
      "file": "real01_scan.png",
      "method": "derived",
      "confidence": 1.0,
-     "entity": "derived-from:w_L0_001,w_L0_002,w_L0_012,w_L0_013,w_L0_014"
+     "entity": "derived-from:w_L0_001,w_L0_002,w_L0_012,w_L0_013"
     }
    ],
    "label_size": {
@@ -1865,22 +1798,6 @@
     [
      5.1337,
      4.49
-    ],
-    [
-     5.1337,
-     2.55
-    ],
-    [
-     5.1339,
-     2.55
-    ],
-    [
-     5.1339,
-     1.74
-    ],
-    [
-     5.1337,
-     1.74
     ]
    ],
    "area_computed": 18.05,
@@ -1953,13 +1870,13 @@
      "file": "real01_scan.png",
      "method": "derived",
      "confidence": 1.0,
-     "entity": "derived-from:w_L0_001,w_L0_006,w_L0_007,w_L0_013,w_L0_014,w_L0_016"
+     "entity": "derived-from:w_L0_001,w_L0_006,w_L0_007,w_L0_013,w_L0_015"
     },
     {
      "file": "real01_scan.png",
      "method": "derived",
      "confidence": 0.8,
-     "entity": "separator:o_L0_008"
+     "entity": "separator:o_L0_007"
     }
    ],
    "label_size": {
@@ -2027,7 +1944,7 @@
      "file": "real01_scan.png",
      "method": "derived",
      "confidence": 1.0,
-     "entity": "derived-from:w_L0_002,w_L0_005,w_L0_008,w_L0_012,w_L0_013,w_L0_014"
+     "entity": "derived-from:w_L0_002,w_L0_005,w_L0_008,w_L0_012,w_L0_013"
     }
    ]
   },
@@ -2111,7 +2028,7 @@
      "file": "real01_scan.png",
      "method": "derived",
      "confidence": 1.0,
-     "entity": "derived-from:w_L0_003,w_L0_006,w_L0_016,w_L0_017"
+     "entity": "derived-from:w_L0_003,w_L0_006,w_L0_015,w_L0_016"
     }
    ],
    "label_size": {
@@ -2209,7 +2126,7 @@
      "file": "real01_scan.png",
      "method": "derived",
      "confidence": 1.0,
-     "entity": "derived-from:w_L0_003,w_L0_006,w_L0_017,w_L0_018"
+     "entity": "derived-from:w_L0_003,w_L0_006,w_L0_016,w_L0_017"
     }
    ],
    "label_size": {
@@ -2435,7 +2352,7 @@
      "file": "real01_scan.png",
      "method": "derived",
      "confidence": 1.0,
-     "entity": "derived-from:w_L0_006,w_L0_008,w_L0_016,w_L0_018"
+     "entity": "derived-from:w_L0_006,w_L0_008,w_L0_015,w_L0_017"
     }
    ],
    "label_size": {
@@ -2541,13 +2458,13 @@
      "file": "real01_scan.png",
      "method": "derived",
      "confidence": 1.0,
-     "entity": "derived-from:w_L0_007,w_L0_008,w_L0_014,w_L0_016"
+     "entity": "derived-from:w_L0_007,w_L0_008,w_L0_013,w_L0_015"
     },
     {
      "file": "real01_scan.png",
      "method": "derived",
      "confidence": 0.8,
-     "entity": "separator:o_L0_008"
+     "entity": "separator:o_L0_007"
     }
    ],
    "label_size": {
@@ -2958,12 +2875,12 @@
      1.3306
     ],
     "size": [
-     2.0356,
-     1.8452
+     1.8452,
+     2.0356
     ],
-    "rotation_deg": 90.0
+    "rotation_deg": 180.0
    },
-   "front_deg": null,
+   "front_deg": 90.0,
    "height": null,
    "asset": null,
    "status": "unverified",
@@ -3213,9 +3130,9 @@
      1.8932,
      0.719
     ],
-    "rotation_deg": 0.0
+    "rotation_deg": 180.0
    },
-   "front_deg": null,
+   "front_deg": 90.0,
    "height": null,
    "asset": null,
    "status": "verified",
@@ -3462,12 +3379,12 @@
      5.0814
     ],
     "size": [
-     0.4579,
-     0.3819
+     0.3819,
+     0.4579
     ],
-    "rotation_deg": 90.0
+    "rotation_deg": 180.0
    },
-   "front_deg": null,
+   "front_deg": 90.0,
    "height": null,
    "asset": null,
    "status": "verified",
@@ -3734,6 +3651,33 @@
    ],
    "description": "f_L0_014: sym_L0_007: the passes disagree: pass 1 (Qwen/Qwen3-VL-8B-Instruct) unknown, pass 2 (zai-org/GLM-4.6V-Flash) shower",
    "resolution": "unresolved: the drawn footprint is kept as unknown, unverified"
+  },
+  {
+   "id": "c_004",
+   "kind": "symbol_front_disagreement",
+   "element_ids": [
+    "f_L0_009"
+   ],
+   "description": "f_L0_009: sym_L0_002: AI front [90.0, 270.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) bottom, pass 2 (zai-org/GLM-4.6V-Flash) top) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back)",
+   "resolution": "the drawn front is kept (trust order: vector geometry > AI suggestions)"
+  },
+  {
+   "id": "c_005",
+   "kind": "symbol_front_disagreement",
+   "element_ids": [
+    "f_L0_012"
+   ],
+   "description": "f_L0_012: sym_L0_005: AI front [180.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) left, pass 2 (zai-org/GLM-4.6V-Flash) left) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back)",
+   "resolution": "the drawn front is kept (trust order: vector geometry > AI suggestions)"
+  },
+  {
+   "id": "c_006",
+   "kind": "symbol_front_disagreement",
+   "element_ids": [
+    "f_L0_015"
+   ],
+   "description": "f_L0_015: sym_L0_008: AI front [90.0, 270.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) bottom, pass 2 (zai-org/GLM-4.6V-Flash) top) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back)",
+   "resolution": "the drawn front is kept (trust order: vector geometry > AI suggestions)"
   }
  ],
  "unverified": [
@@ -3741,8 +3685,7 @@
   "o_L0_001",
   "o_L0_002",
   "o_L0_003",
-  "o_L0_004",
-  "o_L0_006",
+  "o_L0_005",
   "r_L0_room",
   "f_L0_001",
   "f_L0_002",
@@ -3762,12 +3705,10 @@
   "level title missing: assumed L0 Ground floor",
   "real01_scan.png p1: scale from one dimension, corroborated by 8 room sizes",
   "sym_L0_001: both passes say not_furniture: kept as an obstacle, not built",
-  "sym_L0_002: AI front [90.0, 270.0] disagrees with the drawn front 90: front unknown",
+  "sym_L0_002: AI front [90.0, 270.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) bottom, pass 2 (zai-org/GLM-4.6V-Flash) top) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back): the drawn front is kept (vector geometry > AI)",
   "sym_L0_003: stair named by both passes, but the stair rule found no treads there: flights unknown, unverified",
-  "sym_L0_005: AI front [180.0] disagrees with the drawn front 90: front unknown",
-  "sym_L0_005: sofa without an agreed front: front unknown: width and depth follow the sofa size convention; the side the builder faces is assumed",
-  "sym_L0_008: AI front [90.0, 270.0] disagrees with the drawn front 90: front unknown",
-  "sym_L0_008: chair without an agreed front: front unknown: width and depth follow the chair size convention; the side the builder faces is assumed",
+  "sym_L0_005: AI front [180.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) left, pass 2 (zai-org/GLM-4.6V-Flash) left) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back): the drawn front is kept (vector geometry > AI)",
+  "sym_L0_008: AI front [90.0, 270.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) bottom, pass 2 (zai-org/GLM-4.6V-Flash) top) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back): the drawn front is kept (vector geometry > AI)",
   "sym_L0_010: both passes say not_furniture: kept as an obstacle, not built",
   "Level L0: ceiling height assumed 2.70 m (no section drawing found)",
   "L0: room at (3.4589, 2.55) (6.78 m²) has no label: unlabelled face holding the stair",

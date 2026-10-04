@@ -1,0 +1,550 @@
+{
+ "schema_version": "0.1",
+ "kind": "prep_manifest",
+ "job": "20261004-023603-prep",
+ "git_commit": "dd3449d404b1b76954ea53c313ddfc155eec58bd",
+ "started_utc": "2026-10-04T02:41:14Z",
+ "finished_utc": "2026-10-04T02:50:49Z",
+ "final": true,
+ "deadline": 1791084115.0,
+ "exit_code": 0,
+ "gpu": {
+  "name": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+  "memory_mib": 97887,
+  "key": "RTX PRO 6000"
+ },
+ "steps": [
+  {
+   "name": "survey",
+   "status": "skipped",
+   "note": "not in --only",
+   "seconds": 0.0,
+   "commands": [],
+   "log": null,
+   "started_utc": "2026-10-04T02:41:14Z"
+  },
+  {
+   "name": "thumbnails",
+   "status": "skipped",
+   "note": "not in --only",
+   "seconds": 0.0,
+   "commands": [],
+   "log": null,
+   "started_utc": "2026-10-04T02:41:15Z"
+  },
+  {
+   "name": "judge_requests",
+   "status": "skipped",
+   "note": "not in --only",
+   "seconds": 0.0,
+   "commands": [],
+   "log": null,
+   "started_utc": "2026-10-04T02:41:15Z"
+  },
+  {
+   "name": "detect_calibrate",
+   "status": "ok",
+   "note": null,
+   "seconds": 58.8,
+   "commands": [
+    {
+     "what": null,
+     "cmd": "/opt/wenart/venv-polish/bin/python -m wenart.gate detect-calibrate --project-outs /workspace/repo/outputs/synthetic-01 /workspace/repo/outputs/synthetic-03 /workspace/repo/outputs/synthetic-04 /workspace/repo/outputs/synthetic-05 --out /workspace/jobs/20261004-023603-prep/results/detect --cache /workspace/prep/detect-cache --device cuda",
+     "rc": 0,
+     "seconds": 58.77
+    }
+   ],
+   "log": "/workspace/logs/prep-20261004-023603-prep/detect_calibrate.log",
+   "started_utc": "2026-10-04T02:41:15Z",
+   "project_outs": [
+    "/workspace/repo/outputs/synthetic-01",
+    "/workspace/repo/outputs/synthetic-03",
+    "/workspace/repo/outputs/synthetic-04",
+    "/workspace/repo/outputs/synthetic-05"
+   ],
+   "calibration": {
+    "usable": true,
+    "t_det": 0.08,
+    "t_strong": 0.1
+   }
+  },
+  {
+   "name": "timings",
+   "status": "skipped",
+   "note": "not in --only",
+   "seconds": 0.0,
+   "commands": [],
+   "log": null,
+   "started_utc": "2026-10-04T02:42:13Z"
+  },
+  {
+   "name": "pipelines",
+   "status": "ok",
+   "note": "4 project(s) with questions",
+   "seconds": 121.1,
+   "commands": [
+    {
+     "what": "real01",
+     "cmd": "/workspace/venv/bin/python -m wenart.ingest.pipeline projects/real01 --out /workspace/outputs-prep/real01",
+     "rc": 4,
+     "seconds": 12.61
+    },
+    {
+     "what": "synthetic-02",
+     "cmd": "/workspace/venv/bin/python -m wenart.ingest.pipeline projects/synthetic-02 --out /workspace/outputs-prep/synthetic-02",
+     "rc": 4,
+     "seconds": 47.63
+    },
+    {
+     "what": "synthetic-06",
+     "cmd": "/workspace/venv/bin/python -m wenart.ingest.pipeline projects/synthetic-06 --out /workspace/outputs-prep/synthetic-06",
+     "rc": 0,
+     "seconds": 7.12
+    },
+    {
+     "what": "real01-scan",
+     "cmd": "/workspace/venv/bin/python -m wenart.ingest.pipeline tests/fixtures/real01_raster/real01-scan --out /workspace/outputs-prep/real01-scan",
+     "rc": 4,
+     "seconds": 26.08
+    },
+    {
+     "what": "real01-photo",
+     "cmd": "/workspace/venv/bin/python -m wenart.ingest.pipeline tests/fixtures/real01_raster/real01-photo --out /workspace/outputs-prep/real01-photo",
+     "rc": 4,
+     "seconds": 24.58
+    }
+   ],
+   "log": "/workspace/logs/prep-20261004-023603-prep/pipeline-real01-photo.log",
+   "started_utc": "2026-10-04T02:42:14Z",
+   "projects": {
+    "real01": "pending",
+    "synthetic-02": "pending",
+    "synthetic-06": "ok",
+    "real01-scan": "pending",
+    "real01-photo": "pending"
+   },
+   "reused": []
+  },
+  {
+   "name": "session_qwen",
+   "status": "ok",
+   "note": "8 sequences; 2 project(s) asked",
+   "seconds": 158.3,
+   "commands": [
+    {
+     "what": "real01-scan",
+     "cmd": "/workspace/venv/bin/python -m wenart.recognition.answers ask /workspace/outputs-prep/real01-scan/recognition --model-key qwen --server http://127.0.0.1:8001/v1 --workers 8",
+     "rc": 0,
+     "seconds": 3.04
+    },
+    {
+     "what": "real01-photo",
+     "cmd": "/workspace/venv/bin/python -m wenart.recognition.answers ask /workspace/outputs-prep/real01-photo/recognition --model-key qwen --server http://127.0.0.1:8001/v1 --workers 8",
+     "rc": 0,
+     "seconds": 3.55
+    }
+   ],
+   "log": "/workspace/logs/prep-20261004-023603-prep/ask-qwen.log",
+   "started_utc": "2026-10-04T02:44:15Z",
+   "session": {
+    "key": "qwen",
+    "tier": 8,
+    "probe": true,
+    "tried": [
+     {
+      "seqs": 8,
+      "ok": true,
+      "seconds_to_ready": 150.0
+     }
+    ],
+    "max_seqs": 8,
+    "asks": [
+     {
+      "project": "real01-scan",
+      "rc": 0,
+      "items": 19,
+      "seconds": 3.04,
+      "seeded_from": null
+     },
+     {
+      "project": "real01-photo",
+      "rc": 0,
+      "items": 19,
+      "seconds": 3.55,
+      "seeded_from": null
+     }
+    ],
+    "judge": null,
+    "missing": {
+     "recognition": {
+      "real01": 0,
+      "synthetic-02": 0,
+      "real01-scan": 2,
+      "real01-photo": 12
+     },
+     "judge": 0
+    }
+   }
+  },
+  {
+   "name": "session_glm",
+   "status": "ok",
+   "note": "8 sequences; 2 project(s) asked",
+   "seconds": 88.1,
+   "commands": [
+    {
+     "what": "real01-scan",
+     "cmd": "/workspace/venv/bin/python -m wenart.recognition.answers ask /workspace/outputs-prep/real01-scan/recognition --model-key glm --server http://127.0.0.1:8001/v1 --workers 8",
+     "rc": 0,
+     "seconds": 3.29
+    },
+    {
+     "what": "real01-photo",
+     "cmd": "/workspace/venv/bin/python -m wenart.recognition.answers ask /workspace/outputs-prep/real01-photo/recognition --model-key glm --server http://127.0.0.1:8001/v1 --workers 8",
+     "rc": 0,
+     "seconds": 3.99
+    }
+   ],
+   "log": "/workspace/logs/prep-20261004-023603-prep/ask-glm.log",
+   "started_utc": "2026-10-04T02:46:53Z",
+   "session": {
+    "key": "glm",
+    "tier": 8,
+    "probe": true,
+    "tried": [
+     {
+      "seqs": 8,
+      "ok": true,
+      "seconds_to_ready": 80.0
+     }
+    ],
+    "max_seqs": 8,
+    "asks": [
+     {
+      "project": "real01-scan",
+      "rc": 0,
+      "items": 19,
+      "seconds": 3.29,
+      "seeded_from": null
+     },
+     {
+      "project": "real01-photo",
+      "rc": 0,
+      "items": 19,
+      "seconds": 3.99,
+      "seeded_from": null
+     }
+    ],
+    "judge": null,
+    "missing": {
+     "recognition": {
+      "real01": 0,
+      "synthetic-02": 0,
+      "real01-scan": 2,
+      "real01-photo": 12
+     },
+     "judge": 0
+    }
+   }
+  },
+  {
+   "name": "pipeline_final",
+   "status": "ok",
+   "note": null,
+   "seconds": 120.8,
+   "commands": [
+    {
+     "what": "real01 answers status",
+     "cmd": "/workspace/venv/bin/python -m wenart.recognition.answers status /workspace/outputs-prep/real01/recognition",
+     "rc": 0,
+     "seconds": 0.9
+    },
+    {
+     "what": "real01",
+     "cmd": "/workspace/venv/bin/python -m wenart.ingest.pipeline projects/real01 --out /workspace/outputs-prep/real01 --answers /workspace/outputs-prep/real01/recognition",
+     "rc": 0,
+     "seconds": 13.75
+    },
+    {
+     "what": "synthetic-02 answers status",
+     "cmd": "/workspace/venv/bin/python -m wenart.recognition.answers status /workspace/outputs-prep/synthetic-02/recognition",
+     "rc": 0,
+     "seconds": 0.85
+    },
+    {
+     "what": "synthetic-02",
+     "cmd": "/workspace/venv/bin/python -m wenart.ingest.pipeline projects/synthetic-02 --out /workspace/outputs-prep/synthetic-02 --answers /workspace/outputs-prep/synthetic-02/recognition",
+     "rc": 0,
+     "seconds": 47.8
+    },
+    {
+     "what": "real01-scan answers status",
+     "cmd": "/workspace/venv/bin/python -m wenart.recognition.answers status /workspace/outputs-prep/real01-scan/recognition",
+     "rc": 0,
+     "seconds": 0.79
+    },
+    {
+     "what": "real01-scan",
+     "cmd": "/workspace/venv/bin/python -m wenart.ingest.pipeline tests/fixtures/real01_raster/real01-scan --out /workspace/outputs-prep/real01-scan --answers /workspace/outputs-prep/real01-scan/recognition",
+     "rc": 0,
+     "seconds": 29.64
+    },
+    {
+     "what": "real01-photo answers status",
+     "cmd": "/workspace/venv/bin/python -m wenart.recognition.answers status /workspace/outputs-prep/real01-photo/recognition",
+     "rc": 0,
+     "seconds": 0.84
+    },
+    {
+     "what": "real01-photo",
+     "cmd": "/workspace/venv/bin/python -m wenart.ingest.pipeline tests/fixtures/real01_raster/real01-photo --out /workspace/outputs-prep/real01-photo --answers /workspace/outputs-prep/real01-photo/recognition",
+     "rc": 0,
+     "seconds": 26.03
+    }
+   ],
+   "log": "/workspace/logs/prep-20261004-023603-prep/pipeline_final-real01-photo.log",
+   "started_utc": "2026-10-04T02:48:21Z",
+   "projects": {
+    "real01": {
+     "rc": 0,
+     "answers_complete": true,
+     "second_round": false
+    },
+    "synthetic-02": {
+     "rc": 0,
+     "answers_complete": true,
+     "second_round": false
+    },
+    "real01-scan": {
+     "rc": 0,
+     "answers_complete": true,
+     "second_round": false
+    },
+    "real01-photo": {
+     "rc": 0,
+     "answers_complete": true,
+     "second_round": false
+    }
+   }
+  },
+  {
+   "name": "library",
+   "status": "skipped",
+   "note": "not in --only",
+   "seconds": 0.0,
+   "commands": [],
+   "log": null,
+   "started_utc": "2026-10-04T02:50:22Z"
+  },
+  {
+   "name": "copy",
+   "status": "ok",
+   "note": "176 project file(s), 236 library file(s)",
+   "seconds": 10.6,
+   "commands": [],
+   "log": null,
+   "started_utc": "2026-10-04T02:50:22Z",
+   "files": {
+    "real01": 42,
+    "synthetic-02": 50,
+    "synthetic-06": 4,
+    "real01-scan": 39,
+    "real01-photo": 41
+   },
+   "library_attribution": true,
+   "library_files": 236
+  },
+  {
+   "name": "tests",
+   "status": "ok",
+   "note": null,
+   "seconds": 16.1,
+   "commands": [
+    {
+     "what": "recognition",
+     "cmd": "/workspace/venv/bin/python -m pytest -m gpu tests/gpu/test_recognition.py -k m7 -v -ra -p no:cacheprovider --junitxml=/workspace/jobs/20261004-023603-prep/results/tests/junit-recognition.xml",
+     "rc": 0,
+     "seconds": 3.37
+    },
+    {
+     "what": "library",
+     "cmd": "/workspace/venv/bin/python -m pytest -m gpu tests/gpu/test_library.py -v -ra -p no:cacheprovider --junitxml=/workspace/jobs/20261004-023603-prep/results/tests/junit-library.xml",
+     "rc": 0,
+     "seconds": 6.3
+    },
+    {
+     "what": "detect",
+     "cmd": "/opt/wenart/venv-polish/bin/python -m pytest -m gpu tests/gpu/test_detect.py -v -ra -p no:cacheprovider --junitxml=/workspace/jobs/20261004-023603-prep/results/tests/junit-detect.xml",
+     "rc": 0,
+     "seconds": 6.4
+    }
+   ],
+   "log": "/workspace/logs/prep-20261004-023603-prep/pytest-detect.log",
+   "started_utc": "2026-10-04T02:50:33Z"
+  }
+ ],
+ "projects": [
+  {
+   "name": "real01",
+   "project_dir": "projects/real01",
+   "out_dir": "/workspace/outputs-prep/real01",
+   "pipeline_rc": 4,
+   "questions": 17,
+   "answers_complete": true,
+   "pipeline_final_rc": 0
+  },
+  {
+   "name": "synthetic-02",
+   "project_dir": "projects/synthetic-02",
+   "out_dir": "/workspace/outputs-prep/synthetic-02",
+   "pipeline_rc": 4,
+   "questions": 21,
+   "answers_complete": true,
+   "pipeline_final_rc": 0
+  },
+  {
+   "name": "synthetic-06",
+   "project_dir": "projects/synthetic-06",
+   "out_dir": "/workspace/outputs-prep/synthetic-06",
+   "pipeline_rc": 0,
+   "questions": 0,
+   "answers_complete": null,
+   "pipeline_final_rc": null
+  },
+  {
+   "name": "real01-scan",
+   "project_dir": "tests/fixtures/real01_raster/real01-scan",
+   "out_dir": "/workspace/outputs-prep/real01-scan",
+   "pipeline_rc": 4,
+   "questions": 19,
+   "answers_complete": true,
+   "pipeline_final_rc": 0
+  },
+  {
+   "name": "real01-photo",
+   "project_dir": "tests/fixtures/real01_raster/real01-photo",
+   "out_dir": "/workspace/outputs-prep/real01-photo",
+   "pipeline_rc": 4,
+   "questions": 19,
+   "answers_complete": true,
+   "pipeline_final_rc": 0
+  }
+ ],
+ "sessions": {
+  "qwen": {
+   "key": "qwen",
+   "tier": 8,
+   "probe": true,
+   "tried": [
+    {
+     "seqs": 8,
+     "ok": true,
+     "seconds_to_ready": 150.0
+    }
+   ],
+   "max_seqs": 8,
+   "asks": [
+    {
+     "project": "real01-scan",
+     "rc": 0,
+     "items": 19,
+     "seconds": 3.04,
+     "seeded_from": null
+    },
+    {
+     "project": "real01-photo",
+     "rc": 0,
+     "items": 19,
+     "seconds": 3.55,
+     "seeded_from": null
+    }
+   ],
+   "judge": null,
+   "missing": {
+    "recognition": {
+     "real01": 0,
+     "synthetic-02": 0,
+     "real01-scan": 2,
+     "real01-photo": 12
+    },
+    "judge": 0
+   }
+  },
+  "glm": {
+   "key": "glm",
+   "tier": 8,
+   "probe": true,
+   "tried": [
+    {
+     "seqs": 8,
+     "ok": true,
+     "seconds_to_ready": 80.0
+    }
+   ],
+   "max_seqs": 8,
+   "asks": [
+    {
+     "project": "real01-scan",
+     "rc": 0,
+     "items": 19,
+     "seconds": 3.29,
+     "seeded_from": null
+    },
+    {
+     "project": "real01-photo",
+     "rc": 0,
+     "items": 19,
+     "seconds": 3.99,
+     "seeded_from": null
+    }
+   ],
+   "judge": null,
+   "missing": {
+    "recognition": {
+     "real01": 0,
+     "synthetic-02": 0,
+     "real01-scan": 2,
+     "real01-photo": 12
+    },
+    "judge": 0
+   }
+  }
+ },
+ "timing": null,
+ "tests": [
+  {
+   "group": "recognition",
+   "rc": 0,
+   "status": "passed",
+   "junit": "tests/junit-recognition.xml"
+  },
+  {
+   "group": "library",
+   "rc": 0,
+   "status": "passed",
+   "junit": "tests/junit-library.xml"
+  },
+  {
+   "group": "detect",
+   "rc": 0,
+   "status": "passed",
+   "junit": "tests/junit-detect.xml"
+  }
+ ],
+ "proposals": {
+  "check_yaml_max_seqs": {
+   "qwen": 8,
+   "glm": 8
+  },
+  "plan_gpu_speed": null,
+  "detector": {
+   "usable": true,
+   "t_det": 0.08,
+   "t_strong": 0.1,
+   "file": "detect/detector_calibration.json"
+  },
+  "catalog_objaverse": "library/catalog_objaverse.json"
+ },
+ "outputs": "/workspace/outputs-prep",
+ "prep_root": "/workspace/prep"
+}

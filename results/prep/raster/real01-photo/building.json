@@ -3,8 +3,8 @@
  "project": {
   "id": "real01-photo",
   "source_folder": "tests/fixtures/real01_raster/real01-photo",
-  "created_utc": "2026-10-03T20:46:04Z",
-  "pipeline_commit": "d69054ba",
+  "created_utc": "2026-10-04T02:50:00Z",
+  "pipeline_commit": "dd3449d4",
   "unit_system": "imperial"
  },
  "status": "ok",
@@ -403,7 +403,7 @@
     2.4564
    ],
    "end": [
-    4.28,
+    4.968,
     2.4564
    ],
    "thickness": 0.19,
@@ -413,16 +413,11 @@
    "evidence": [
     {
      "file": "real01_photo.jpg",
-     "method": "raster",
+     "method": "derived",
      "confidence": 0.85,
      "page": 1,
-     "entity": "raster:mask",
-     "pixel_box": [
-      681.1,
-      737.0,
-      744.9,
-      752.5
-     ]
+     "entity": "raster:mask,arc:32",
+     "note": "extended to host the drawn door"
     }
    ]
   },
@@ -536,7 +531,8 @@
       608.9,
       1342.3,
       620.0
-     ]
+     ],
+     "note": "a 0.040 m piece (0.140 m thick) at the end of a 0.190 m wall is a frame or nub of that wall's end, not a wall end of its own (no gap is cast from or to it)"
     }
    ]
   },
@@ -548,7 +544,7 @@
     4.2164
    ],
    "end": [
-    11.86,
+    12.74,
     4.2164
    ],
    "thickness": 0.19,
@@ -558,16 +554,11 @@
    "evidence": [
     {
      "file": "real01_photo.jpg",
-     "method": "raster",
+     "method": "derived",
      "confidence": 0.85,
      "page": 1,
-     "entity": "raster:mask",
-     "pixel_box": [
-      1146.7,
-      603.0,
-      1339.3,
-      619.9
-     ]
+     "entity": "raster:mask,arc:20",
+     "note": "extended to host the drawn door"
     }
    ]
   },
@@ -777,37 +768,6 @@
    "id": "w_L0_015",
    "level_id": "L0",
    "start": [
-    5.03,
-    1.7414
-   ],
-   "end": [
-    5.03,
-    2.5514
-   ],
-   "thickness": 0.24,
-   "height": 2.7,
-   "exterior": false,
-   "status": "verified",
-   "evidence": [
-    {
-     "file": "real01_photo.jpg",
-     "method": "raster",
-     "confidence": 0.85,
-     "page": 1,
-     "entity": "raster:mask",
-     "pixel_box": [
-      794.0,
-      738.0,
-      813.2,
-      801.5
-     ]
-    }
-   ]
-  },
-  {
-   "id": "w_L0_016",
-   "level_id": "L0",
-   "start": [
     5.058,
     0.26
    ],
@@ -826,12 +786,12 @@
      "confidence": 0.85,
      "page": 1,
      "entity": "raster:mask",
-     "note": "run of 3 pieces"
+     "note": "a 0.050 m strip along one face over 0.81 m, where the leaf of door swing arc:32 rests (a leaf fused to the wall face in the wall mask), is not counted as wall: thickness 0.180 m as the rest of the run, not 0.240 m; run of 4 pieces"
     }
    ]
   },
   {
-   "id": "w_L0_017",
+   "id": "w_L0_016",
    "level_id": "L0",
    "start": [
     9.46,
@@ -857,12 +817,13 @@
       833.4,
       1152.9,
       835.8
-     ]
+     ],
+     "note": "a 0.030 m piece (0.140 m thick) at the end of a 0.250 m wall is a frame or nub of that wall's end, not a wall end of its own (no gap is cast from or to it)"
     }
    ]
   },
   {
-   "id": "w_L0_018",
+   "id": "w_L0_017",
    "level_id": "L0",
    "start": [
     9.475,
@@ -888,12 +849,13 @@
       908.9,
       1151.3,
       912.1
-     ]
+     ],
+     "note": "a 0.040 m piece (0.110 m thick) at the end of a 0.250 m wall is a frame or nub of that wall's end, not a wall end of its own (no gap is cast from or to it)"
     }
    ]
   },
   {
-   "id": "w_L0_019",
+   "id": "w_L0_018",
    "level_id": "L0",
    "start": [
     9.515,
@@ -919,7 +881,7 @@
    ]
   },
   {
-   "id": "w_L0_020",
+   "id": "w_L0_019",
    "level_id": "L0",
    "start": [
     11.15,
@@ -950,7 +912,7 @@
    ]
   },
   {
-   "id": "w_L0_021",
+   "id": "w_L0_020",
    "level_id": "L0",
    "start": [
     12.87,
@@ -1347,44 +1309,10 @@
    ]
   },
   {
-   "id": "d_L0_003",
-   "type": "door",
-   "level_id": "L0",
-   "wall_id": "w_L0_016",
-   "center": [
-    5.058,
-    2.1464
-   ],
-   "width": 0.81,
-   "height": 2.1,
-   "sill_height": null,
-   "swing_side": null,
-   "status": "unverified",
-   "evidence": [
-    {
-     "file": "real01_photo.jpg",
-     "method": "raster",
-     "confidence": 0.7,
-     "page": 1,
-     "entity": "arc:32",
-     "pixel_box": [
-      798.5,
-      738.0,
-      813.0,
-      801.5
-     ],
-     "note": "swing arc without a drawn leaf"
-    }
-   ],
-   "assumed": [
-    "height"
-   ]
-  },
-  {
    "id": "o_L0_002",
    "type": "opening",
    "level_id": "L0",
-   "wall_id": "w_L0_016",
+   "wall_id": "w_L0_015",
    "center": [
     5.058,
     3.6114
@@ -1408,10 +1336,10 @@
    ]
   },
   {
-   "id": "d_L0_004",
+   "id": "d_L0_003",
    "type": "door",
    "level_id": "L0",
-   "wall_id": "w_L0_019",
+   "wall_id": "w_L0_018",
    "center": [
     9.515,
     0.8514
@@ -1445,7 +1373,7 @@
    "id": "o_L0_003",
    "type": "opening",
    "level_id": "L0",
-   "wall_id": "w_L0_019",
+   "wall_id": "w_L0_018",
    "center": [
     9.515,
     3.5214
@@ -1472,7 +1400,7 @@
    "id": "o_L0_004",
    "type": "opening",
    "level_id": "L0",
-   "wall_id": "w_L0_019",
+   "wall_id": "w_L0_018",
    "center": [
     9.515,
     5.7014
@@ -1499,7 +1427,7 @@
    "id": "win_L0_009",
    "type": "window",
    "level_id": "L0",
-   "wall_id": "w_L0_021",
+   "wall_id": "w_L0_020",
    "center": [
     12.87,
     5.5814
@@ -1527,6 +1455,74 @@
    "assumed": [
     "height",
     "sill_height"
+   ]
+  },
+  {
+   "id": "d_L0_004",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_002",
+   "center": [
+    4.624,
+    2.4564
+   ],
+   "width": 0.688,
+   "height": 2.1,
+   "sill_height": null,
+   "swing_side": "r_L0_bath_toilet",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "arc:32",
+     "pixel_box": [
+      744.8,
+      737.6,
+      798.9,
+      752.9
+     ],
+     "note": "swing arc without a drawn leaf"
+    }
+   ],
+   "assumed": [
+    "height"
+   ]
+  },
+  {
+   "id": "d_L0_005",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_007",
+   "center": [
+    12.3,
+    4.2164
+   ],
+   "width": 0.88,
+   "height": 2.1,
+   "sill_height": null,
+   "swing_side": "r_L0_store",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "arc:20",
+     "pixel_box": [
+      1338.9,
+      605.0,
+      1407.6,
+      620.7
+     ],
+     "note": "swing arc without a drawn leaf"
+    }
+   ],
+   "assumed": [
+    "height"
    ]
   },
   {
@@ -1624,11 +1620,11 @@
      "method": "ai",
      "confidence": 0.85,
      "page": 1,
-     "entity": "recognition:lbl_L0_7",
+     "entity": "recognition:lbl_L0_9",
      "pixel_box": [
       474.1,
       675.3,
-      602.4,
+      599.2,
       734.6
      ],
      "model": "Qwen/Qwen3-VL-8B-Instruct",
@@ -1640,7 +1636,7 @@
      "method": "ai",
      "confidence": 0.85,
      "page": 1,
-     "entity": "recognition:lbl_L0_7",
+     "entity": "recognition:lbl_L0_9",
      "pixel_box": [
       475.9,
       669.1,
@@ -1690,38 +1686,6 @@
     ],
     [
      4.968,
-     1.7414
-    ],
-    [
-     4.91,
-     1.7414
-    ],
-    [
-     4.91,
-     2.5514
-    ],
-    [
-     4.968,
-     2.5514
-    ],
-    [
-     4.968,
-     7.1019
-    ],
-    [
-     3.47,
-     7.1019
-    ],
-    [
-     3.47,
-     2.5514
-    ],
-    [
-     4.28,
-     2.5514
-    ],
-    [
-     4.28,
      2.3614
     ],
     [
@@ -1729,11 +1693,11 @@
      2.3614
     ]
    ],
-   "area_computed": 10.048,
+   "area_computed": 3.148,
    "area_label": null,
-   "has_documented_furniture": true,
+   "has_documented_furniture": false,
    "style_override": null,
-   "status": "unverified",
+   "status": "verified",
    "evidence": [
     {
      "file": "real01_photo.jpg",
@@ -1768,12 +1732,12 @@
      "method": "ai",
      "confidence": 0.85,
      "page": 1,
-     "entity": "recognition:lbl_L0_5",
+     "entity": "recognition:lbl_L0_7",
      "pixel_box": [
-      670.9,
-      722.0,
-      809.0,
-      894.5
+      665.0,
+      785.1,
+      814.4,
+      907.1
      ],
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
@@ -1784,12 +1748,12 @@
      "method": "ai",
      "confidence": 0.85,
      "page": 1,
-     "entity": "recognition:lbl_L0_5",
+     "entity": "recognition:lbl_L0_7",
      "pixel_box": [
-      695.7,
-      790.6,
-      782.3,
-      861.5
+      703.5,
+      798.8,
+      772.4,
+      879.2
      ],
      "model": "zai-org/GLM-4.6V-Flash",
      "pass": 2,
@@ -1799,7 +1763,7 @@
      "file": "real01_photo.jpg",
      "method": "derived",
      "confidence": 1.0,
-     "entity": "derived-from:w_L0_001,w_L0_002,w_L0_009,w_L0_014,w_L0_015,w_L0_016"
+     "entity": "derived-from:w_L0_001,w_L0_002,w_L0_014,w_L0_015"
     }
    ],
    "label_size": {
@@ -1807,12 +1771,12 @@
     "width_m": 2.1336,
     "length_m": 1.524,
     "measured": [
-     6.842,
+     2.101,
      1.498
     ],
-    "status": "conflict",
+    "status": "ok",
     "off_pct": [
-     -68.8,
+     1.5,
      1.7
     ]
    }
@@ -1847,25 +1811,9 @@
     [
      5.148,
      4.5014
-    ],
-    [
-     5.148,
-     2.5514
-    ],
-    [
-     5.15,
-     2.5514
-    ],
-    [
-     5.15,
-     1.7414
-    ],
-    [
-     5.148,
-     1.7414
     ]
    ],
-   "area_computed": 18.109,
+   "area_computed": 18.111,
    "area_label": null,
    "has_documented_furniture": true,
    "style_override": null,
@@ -1890,7 +1838,7 @@
      "method": "ai",
      "confidence": 0.85,
      "page": 1,
-     "entity": "recognition:lbl_L0_3",
+     "entity": "recognition:lbl_L0_4",
      "pixel_box": [
       822.5,
       622.0,
@@ -1906,7 +1854,7 @@
      "method": "ai",
      "confidence": 0.85,
      "page": 1,
-     "entity": "recognition:lbl_L0_3",
+     "entity": "recognition:lbl_L0_4",
      "pixel_box": [
       824.2,
       619.5,
@@ -1921,7 +1869,7 @@
      "file": "real01_photo.jpg",
      "method": "derived",
      "confidence": 1.0,
-     "entity": "derived-from:w_L0_001,w_L0_008,w_L0_015,w_L0_016,w_L0_017,w_L0_019"
+     "entity": "derived-from:w_L0_001,w_L0_008,w_L0_015,w_L0_016,w_L0_018"
     },
     {
      "file": "real01_photo.jpg",
@@ -1944,6 +1892,44 @@
      0.6
     ]
    }
+  },
+  {
+   "id": "r_L0_room",
+   "level_id": "L0",
+   "label": "Room",
+   "label_raw": null,
+   "room_type": "hall",
+   "polygon": [
+    [
+     3.47,
+     2.5514
+    ],
+    [
+     4.968,
+     2.5514
+    ],
+    [
+     4.968,
+     7.1019
+    ],
+    [
+     3.47,
+     7.1019
+    ]
+   ],
+   "area_computed": 6.817,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "unverified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_002,w_L0_009,w_L0_014,w_L0_015"
+    }
+   ]
   },
   {
    "id": "r_L0_pooja",
@@ -2008,7 +1994,7 @@
      "method": "ai",
      "confidence": 0.85,
      "page": 1,
-     "entity": "recognition:lbl_L0_2",
+     "entity": "recognition:lbl_L0_3",
      "pixel_box": [
       1143.8,
       613.1,
@@ -2024,12 +2010,12 @@
      "method": "ai",
      "confidence": 0.85,
      "page": 1,
-     "entity": "recognition:lbl_L0_2",
+     "entity": "recognition:lbl_L0_3",
      "pixel_box": [
-      1169.9,
-      634.6,
+      1171.8,
+      634.5,
       1246.0,
-      687.1
+      687.3
      ],
      "model": "zai-org/GLM-4.6V-Flash",
      "pass": 2,
@@ -2039,7 +2025,7 @@
      "file": "real01_photo.jpg",
      "method": "derived",
      "confidence": 1.0,
-     "entity": "derived-from:w_L0_003,w_L0_007,w_L0_019,w_L0_020"
+     "entity": "derived-from:w_L0_003,w_L0_007,w_L0_018,w_L0_019"
     }
    ],
    "label_size": {
@@ -2054,6 +2040,118 @@
     "off_pct": [
      1.7,
      2.0
+    ]
+   }
+  },
+  {
+   "id": "r_L0_store",
+   "level_id": "L0",
+   "label": "Store",
+   "label_raw": "Store",
+   "room_type": "storage",
+   "polygon": [
+    [
+     11.24,
+     2.922
+    ],
+    [
+     12.74,
+     2.922
+    ],
+    [
+     12.74,
+     4.1214
+    ],
+    [
+     11.24,
+     4.1214
+    ]
+   ],
+   "area_computed": 1.799,
+   "area_label": null,
+   "has_documented_furniture": false,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "real01_photo.jpg",
+     "method": "ocr",
+     "confidence": 0.9682,
+     "page": 1,
+     "pixel_box": [
+      1295.0,
+      649.8,
+      1352.1,
+      669.3
+     ],
+     "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+     "text": "Store"
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ocr",
+     "confidence": 0.8232,
+     "page": 1,
+     "pixel_box": [
+      1291.2,
+      680.1,
+      1349.8,
+      699.5
+     ],
+     "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+     "text": "4'x5"
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ai",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "recognition:lbl_L0_2",
+     "pixel_box": [
+      1282.4,
+      631.9,
+      1387.7,
+      702.2
+     ],
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Store"
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "ai",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "recognition:lbl_L0_2",
+     "pixel_box": [
+      1291.7,
+      639.8,
+      1353.9,
+      697.0
+     ],
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "Store"
+    },
+    {
+     "file": "real01_photo.jpg",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_003,w_L0_006,w_L0_007,w_L0_019,w_L0_020"
+    }
+   ],
+   "label_size": {
+    "text": "4' x 5'",
+    "width_m": 1.2192,
+    "length_m": 1.524,
+    "measured": [
+     1.199,
+     1.5
+    ],
+    "status": "ok",
+    "off_pct": [
+     1.7,
+     1.6
     ]
    }
   },
@@ -2146,7 +2244,7 @@
      "method": "ai",
      "confidence": 0.85,
      "page": 1,
-     "entity": "recognition:lbl_L0_6",
+     "entity": "recognition:lbl_L0_8",
      "pixel_box": [
       463.3,
       550.8,
@@ -2162,12 +2260,12 @@
      "method": "ai",
      "confidence": 0.85,
      "page": 1,
-     "entity": "recognition:lbl_L0_6",
+     "entity": "recognition:lbl_L0_8",
      "pixel_box": [
       467.7,
       558.8,
       590.2,
-      609.4
+      609.7
      ],
      "model": "zai-org/GLM-4.6V-Flash",
      "pass": 2,
@@ -2207,32 +2305,8 @@
      4.3114
     ],
     [
-     11.86,
-     4.3114
-    ],
-    [
-     11.86,
-     4.2614
-    ],
-    [
-     11.9,
-     4.2614
-    ],
-    [
-     11.9,
-     4.1214
-    ],
-    [
-     11.24,
-     4.1214
-    ],
-    [
-     11.24,
-     2.922
-    ],
-    [
      12.74,
-     2.922
+     4.3114
     ],
     [
      12.74,
@@ -2243,7 +2317,7 @@
      7.1019
     ]
    ],
-   "area_computed": 10.611,
+   "area_computed": 8.651,
    "area_label": null,
    "has_documented_furniture": true,
    "style_override": null,
@@ -2270,10 +2344,10 @@
      "page": 1,
      "entity": "recognition:lbl_L0_1",
      "pixel_box": [
-      1208.5,
-      457.2,
-      1371.8,
-      550.0
+      1208.7,
+      468.9,
+      1371.4,
+      540.5
      ],
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
@@ -2286,10 +2360,10 @@
      "page": 1,
      "entity": "recognition:lbl_L0_1",
      "pixel_box": [
-      1229.0,
-      474.9,
-      1325.6,
-      527.3
+      1230.2,
+      474.6,
+      1319.9,
+      529.3
      ],
      "model": "zai-org/GLM-4.6V-Flash",
      "pass": 2,
@@ -2299,7 +2373,7 @@
      "file": "real01_photo.jpg",
      "method": "derived",
      "confidence": 1.0,
-     "entity": "derived-from:w_L0_003,w_L0_006,w_L0_007,w_L0_009,w_L0_019,w_L0_020,w_L0_021"
+     "entity": "derived-from:w_L0_007,w_L0_009,w_L0_018,w_L0_020"
     }
    ],
    "label_size": {
@@ -2307,12 +2381,13 @@
     "width_m": 2.8194,
     "length_m": 3.1242,
     "measured": [
-     3.1,
-     4.18
+     2.79,
+     3.1
     ],
-    "status": "conflict",
+    "status": "ok",
     "off_pct": [
-     -17.0
+     1.0,
+     0.8
     ]
    }
   },
@@ -2387,7 +2462,7 @@
      "method": "ai",
      "confidence": 0.85,
      "page": 1,
-     "entity": "recognition:lbl_L0_4",
+     "entity": "recognition:lbl_L0_5",
      "pixel_box": [
       1011.2,
       448.0,
@@ -2403,7 +2478,7 @@
      "method": "ai",
      "confidence": 0.85,
      "page": 1,
-     "entity": "recognition:lbl_L0_4",
+     "entity": "recognition:lbl_L0_5",
      "pixel_box": [
       1025.8,
       455.6,
@@ -2418,7 +2493,7 @@
      "file": "real01_photo.jpg",
      "method": "derived",
      "confidence": 1.0,
-     "entity": "derived-from:w_L0_008,w_L0_009,w_L0_016,w_L0_019"
+     "entity": "derived-from:w_L0_008,w_L0_009,w_L0_015,w_L0_018"
     },
     {
      "file": "real01_photo.jpg",
@@ -3077,7 +3152,7 @@
   {
    "id": "f_L0_014",
    "level_id": "L0",
-   "room_id": "r_L0_bath_toilet",
+   "room_id": "r_L0_room",
    "type": "stair",
    "type_raw": null,
    "source": "from_documents",
@@ -3342,9 +3417,9 @@
      1.8717,
      0.7126
     ],
-    "rotation_deg": 0.0
+    "rotation_deg": 180.0
    },
-   "front_deg": null,
+   "front_deg": 90.0,
    "height": null,
    "asset": null,
    "status": "verified",
@@ -3497,90 +3572,6 @@
   {
    "id": "f_L0_019",
    "level_id": "L0",
-   "room_id": "r_L0_kitchen",
-   "type": "unknown",
-   "type_raw": null,
-   "source": "from_documents",
-   "footprint": {
-    "center": [
-     12.2159,
-     3.6775
-    ],
-    "size": [
-     1.0784,
-     0.1944
-    ],
-    "rotation_deg": 138.348
-   },
-   "front_deg": null,
-   "height": null,
-   "asset": null,
-   "status": "unverified",
-   "evidence": [
-    {
-     "file": "real01_photo.jpg",
-     "method": "raster",
-     "confidence": 0.7,
-     "page": 1,
-     "entity": "arc:20",
-     "pixel_box": [
-      1328.3,
-      620.9,
-      1402.7,
-      689.1
-     ]
-    },
-    {
-     "file": "real01_photo.jpg",
-     "method": "ai",
-     "confidence": 0.95,
-     "page": 1,
-     "entity": "recognition:sym_L0_008",
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 1,
-     "text": "not_furniture",
-     "front": "none",
-     "reason": "The object is a curved line, likely a door swing or window line, not a furniture item."
-    },
-    {
-     "file": "real01_photo.jpg",
-     "method": "ai",
-     "confidence": 0.9,
-     "page": 1,
-     "entity": "recognition:sym_L0_008",
-     "model": "zai-org/GLM-4.6V-Flash",
-     "pass": 2,
-     "text": "not_furniture",
-     "front": "none",
-     "reason": "The object is a curved line, not a piece of furniture or a plant."
-    }
-   ],
-   "type_method": "none",
-   "type_candidates": [
-    {
-     "type": "not_furniture",
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "model_key": "qwen",
-     "pass": 1,
-     "confidence": 0.95,
-     "front": "none",
-     "reason": "The object is a curved line, likely a door swing or window line, not a furniture item."
-    },
-    {
-     "type": "not_furniture",
-     "model": "zai-org/GLM-4.6V-Flash",
-     "model_key": "glm",
-     "pass": 2,
-     "confidence": 0.9,
-     "front": "none",
-     "reason": "The object is a curved line, not a piece of furniture or a plant."
-    }
-   ],
-   "build": false
-  },
-  {
-   "id": "f_L0_020",
-   "level_id": "L0",
    "room_id": "r_L0_dining",
    "type": "unknown",
    "type_raw": null,
@@ -3596,7 +3587,7 @@
     ],
     "rotation_deg": 0.0
    },
-   "front_deg": null,
+   "front_deg": 270.0,
    "height": null,
    "asset": null,
    "status": "unverified",
@@ -3619,19 +3610,19 @@
      "method": "ai",
      "confidence": 0.95,
      "page": 1,
-     "entity": "recognition:sym_L0_009",
+     "entity": "recognition:sym_L0_008",
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
      "text": "side_table",
      "front": "none",
-     "reason": "The object is a small rectangular table with a jar on top, matching the size and shape of a side table."
+     "reason": "The object is a small rectangular table with a rounded top, typical of a side table beside a sofa or chair."
     },
     {
      "file": "real01_photo.jpg",
      "method": "ai",
      "confidence": 0.8,
      "page": 1,
-     "entity": "recognition:sym_L0_009",
+     "entity": "recognition:sym_L0_008",
      "model": "zai-org/GLM-4.6V-Flash",
      "pass": 2,
      "text": "potted_plant",
@@ -3648,7 +3639,7 @@
      "pass": 1,
      "confidence": 0.95,
      "front": "none",
-     "reason": "The object is a small rectangular table with a jar on top, matching the size and shape of a side table."
+     "reason": "The object is a small rectangular table with a rounded top, typical of a side table beside a sofa or chair."
     },
     {
      "type": "potted_plant",
@@ -3663,7 +3654,7 @@
    "build": true
   },
   {
-   "id": "f_L0_021",
+   "id": "f_L0_020",
    "level_id": "L0",
    "room_id": "r_L0_bed_room_2",
    "type": "unknown",
@@ -3703,7 +3694,7 @@
      "method": "ai",
      "confidence": 0.95,
      "page": 1,
-     "entity": "recognition:sym_L0_010",
+     "entity": "recognition:sym_L0_009",
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
      "text": "nightstand",
@@ -3715,7 +3706,7 @@
      "method": "ai",
      "confidence": 0.9,
      "page": 1,
-     "entity": "recognition:sym_L0_010",
+     "entity": "recognition:sym_L0_009",
      "model": "zai-org/GLM-4.6V-Flash",
      "pass": 2,
      "text": "floor_lamp",
@@ -3747,7 +3738,7 @@
    "build": true
   },
   {
-   "id": "f_L0_022",
+   "id": "f_L0_021",
    "level_id": "L0",
    "room_id": "r_L0_dining",
    "type": "chair",
@@ -3759,12 +3750,12 @@
      5.1106
     ],
     "size": [
-     0.4146,
-     0.3786
+     0.3786,
+     0.4146
     ],
-    "rotation_deg": 90.0
+    "rotation_deg": 180.0
    },
-   "front_deg": null,
+   "front_deg": 90.0,
    "height": null,
    "asset": null,
    "status": "verified",
@@ -3787,7 +3778,7 @@
      "method": "ai",
      "confidence": 0.95,
      "page": 1,
-     "entity": "recognition:sym_L0_011",
+     "entity": "recognition:sym_L0_010",
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
      "text": "chair",
@@ -3799,7 +3790,7 @@
      "method": "ai",
      "confidence": 0.9,
      "page": 1,
-     "entity": "recognition:sym_L0_011",
+     "entity": "recognition:sym_L0_010",
      "model": "zai-org/GLM-4.6V-Flash",
      "pass": 2,
      "text": "chair",
@@ -3834,24 +3825,6 @@
  "conflicts": [
   {
    "id": "c_001",
-   "kind": "label_size_mismatch",
-   "element_ids": [
-    "r_L0_bath_toilet"
-   ],
-   "description": "r_L0_bath_toilet: label size '7' x 5'' vs the room's clear size 22' 5\" x 4' 11\" (-68.8%, +1.7%)",
-   "resolution": "drawn walls kept; room marked unverified"
-  },
-  {
-   "id": "c_002",
-   "kind": "label_size_mismatch",
-   "element_ids": [
-    "r_L0_kitchen"
-   ],
-   "description": "r_L0_kitchen: label size '9' 3\" x 10' 3\"' vs the room's clear size 10' 2\" x 13' 9\" (-17.0%)",
-   "resolution": "drawn walls kept (within 10 %)"
-  },
-  {
-   "id": "c_003",
    "kind": "symbol_type_disagreement",
    "element_ids": [
     "f_L0_016"
@@ -3860,28 +3833,54 @@
    "resolution": "unresolved: the drawn footprint is kept as unknown, unverified"
   },
   {
-   "id": "c_004",
+   "id": "c_002",
+   "kind": "symbol_type_disagreement",
+   "element_ids": [
+    "f_L0_019"
+   ],
+   "description": "f_L0_019: sym_L0_008: the passes disagree: pass 1 (Qwen/Qwen3-VL-8B-Instruct) side_table, pass 2 (zai-org/GLM-4.6V-Flash) potted_plant",
+   "resolution": "unresolved: the drawn footprint is kept as unknown, unverified"
+  },
+  {
+   "id": "c_003",
    "kind": "symbol_type_disagreement",
    "element_ids": [
     "f_L0_020"
    ],
-   "description": "f_L0_020: sym_L0_009: the passes disagree: pass 1 (Qwen/Qwen3-VL-8B-Instruct) side_table, pass 2 (zai-org/GLM-4.6V-Flash) potted_plant",
+   "description": "f_L0_020: sym_L0_009: the passes disagree: pass 1 (Qwen/Qwen3-VL-8B-Instruct) nightstand, pass 2 (zai-org/GLM-4.6V-Flash) floor_lamp",
    "resolution": "unresolved: the drawn footprint is kept as unknown, unverified"
   },
   {
+   "id": "c_004",
+   "kind": "symbol_front_disagreement",
+   "element_ids": [
+    "f_L0_017"
+   ],
+   "description": "f_L0_017: sym_L0_006: AI front [180.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) left, pass 2 (zai-org/GLM-4.6V-Flash) left) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back)",
+   "resolution": "the drawn front is kept (trust order: vector geometry > AI suggestions)"
+  },
+  {
    "id": "c_005",
-   "kind": "symbol_type_disagreement",
+   "kind": "symbol_front_disagreement",
+   "element_ids": [
+    "f_L0_019"
+   ],
+   "description": "f_L0_019: sym_L0_008: AI front [90.0] (pass 2 (zai-org/GLM-4.6V-Flash) top) disagrees with the drawn front 270 deg (only side within 0.25 m of a wall is the back)",
+   "resolution": "the drawn front is kept (trust order: vector geometry > AI suggestions)"
+  },
+  {
+   "id": "c_006",
+   "kind": "symbol_front_disagreement",
    "element_ids": [
     "f_L0_021"
    ],
-   "description": "f_L0_021: sym_L0_010: the passes disagree: pass 1 (Qwen/Qwen3-VL-8B-Instruct) nightstand, pass 2 (zai-org/GLM-4.6V-Flash) floor_lamp",
-   "resolution": "unresolved: the drawn footprint is kept as unknown, unverified"
+   "description": "f_L0_021: sym_L0_010: AI front [90.0, 270.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) bottom, pass 2 (zai-org/GLM-4.6V-Flash) top) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back)",
+   "resolution": "the drawn front is kept (trust order: vector geometry > AI suggestions)"
   }
  ],
  "unverified": [
   "o_L0_001",
-  "d_L0_003",
-  "r_L0_bath_toilet",
+  "r_L0_room",
   "f_L0_001",
   "f_L0_002",
   "f_L0_003",
@@ -3898,31 +3897,24 @@
   "f_L0_016",
   "f_L0_018",
   "f_L0_019",
-  "f_L0_020",
-  "f_L0_021"
+  "f_L0_020"
  ],
  "warnings": [
   "level title missing: assumed L0 Ground floor",
   "real01_photo.jpg p1: wall component without room labels at (17.39, 0.28) m (0.48 x 0.10 m) is not part of the building: recorded in site, not built",
-  "real01_photo.jpg p1: scale from one dimension, corroborated by 5 room sizes",
-  "real01_photo.jpg p1: 1 of 6 room-size labels differ from the scale by more than 5%: Bath+ Toilet 7' x 5' vs 6.84 x 1.50 m (-68.8%, +1.7%)",
+  "real01_photo.jpg p1: scale from one dimension, corroborated by 8 room sizes",
   "sym_L0_001: bed_double without an agreed front: front unknown: width and depth follow the bed_double size convention; the side the builder faces is assumed",
   "sym_L0_002: both passes say not_furniture: kept as an obstacle, not built",
-  "sym_L0_003: stair is not a type allowed in a bathroom room: kept, unverified",
   "sym_L0_003: stair named by both passes, but the stair rule found no treads there: flights unknown, unverified",
   "sym_L0_003: stair without an agreed front: front unknown: width and depth follow the stair size convention (footprint turned 90 deg); the side the builder faces is assumed",
   "sym_L0_004: bed_double without an agreed front: front unknown: width and depth follow the bed_double size convention (footprint turned 90 deg); the side the builder faces is assumed",
-  "sym_L0_006: AI front [180.0] disagrees with the drawn front 90: front unknown",
-  "sym_L0_006: sofa without an agreed front: front unknown: width and depth follow the sofa size convention; the side the builder faces is assumed",
+  "sym_L0_006: AI front [180.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) left, pass 2 (zai-org/GLM-4.6V-Flash) left) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back): the drawn front is kept (vector geometry > AI)",
   "sym_L0_007: both passes say unknown: type left open",
-  "sym_L0_008: both passes say not_furniture: kept as an obstacle, not built",
-  "sym_L0_009: AI front [90.0] disagrees with the drawn front 270: front unknown",
-  "sym_L0_011: AI front [90.0, 270.0] disagrees with the drawn front 90: front unknown",
-  "sym_L0_011: chair without an agreed front: front unknown: width and depth follow the chair size convention; the side the builder faces is assumed",
+  "sym_L0_008: AI front [90.0] (pass 2 (zai-org/GLM-4.6V-Flash) top) disagrees with the drawn front 270 deg (only side within 0.25 m of a wall is the back): the drawn front is kept (vector geometry > AI)",
+  "sym_L0_010: AI front [90.0, 270.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) bottom, pass 2 (zai-org/GLM-4.6V-Flash) top) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back): the drawn front is kept (vector geometry > AI)",
   "real01_photo.jpg p1: photo aspect assumed: the page quad measures 1.4050 (width / height, side_ratio), snapped to the ISO (sqrt 2) sheet ratio 1.4142 (0.7 % off; no dimension groups to check it)",
   "Level L0: ceiling height assumed 2.70 m (no section drawing found)",
-  "r_L0_kitchen: Tesseract also read 'Store' in this room on real01_photo.jpg; replaced by the accepted label 'Kitchen' (§3.4)",
-  "d_L0_003: swing side (4.92, 2.15) lies in no room of L0"
+  "L0: room at (3.47, 2.5514) (6.82 m²) has no label: unlabelled face holding the stair"
  ],
  "site": {
   "boundary_walls": [
