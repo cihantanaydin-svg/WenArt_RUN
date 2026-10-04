@@ -45,5 +45,6 @@ runner could not write it). Costs are estimates from the on-demand price at star
 | 2026-10-04 12:25 | m3d6pc7kof1xcd | NVIDIA RTX PRO 6000 Blackwell Server Edition | 55 | 1.93 | M9 L1: wider ABO survey (40/type, table lamps, vases, mirrors), Objaverse fixtures, thumbnails, two-model judging, accept 20/type, catalogue | exit 1, stopped by runner after collect (watchdog and job-end stop armed) |
 | 2026-10-04 14:08 | o9a0wzqnb6u3xz | NVIDIA RTX PRO 6000 Blackwell Server Edition | 97 | 3.39 | M9 L2: TRELLIS.2 generation to 20 per type (two shards, 30 min reserve), thumbnails, two-model judging, accept, catalogue | exit 1, stopped by runner after collect (watchdog and job-end stop armed) |
 | 2026-10-04 14:35 | wz2540gyxmqyln | NVIDIA RTX PRO 6000 Blackwell Workstation Edition | 24 | 0.87 | M9 F1: full run of real01 (20-per-type library, AI decor in the rooms with drawn furniture, 3D files .blend/.glb) | ok, stopped by runner after collect (watchdog and job-end stop armed) |
+| 2026-10-04 14:39 | pending:20261004-143904-prep | RTX 5090 | 120 | 1.98 | M9 L3: rest of the TRELLIS.2 generation plan to 20 per type, thumbnails, two-model judging, accept, catalogue | creating (provisional, worst case) |
 
-**Total spent so far: $31.46** (budget: $100; limits: $5.00/GPU-hour, $30/day, 2 h/run)
+**Total spent so far: $33.44** (budget: $100; limits: $5.00/GPU-hour, $30/day, 2 h/run)
