@@ -274,6 +274,43 @@ part_preflight() {
   echo "hf_token_set=$hf" >> "$STATE_DIR/preflight.env"
   log "HF_TOKEN set: $hf; free on $FAST: $(df -h --output=avail "$FAST" 2>/dev/null | tail -1 | tr -d ' ')"
   log "wheel cache: $WHEELS_DIR"
+  # Gated models (generate.yaml `gated:`): probe one small file per repo before any build, so a pod whose token
+  # has no access stops in seconds, not after the CUDA builds. The token is never in curl's arguments or the log.
+  local row repo rev file code probe_py
+  probe_py=""
+  for probe_py in "${WENART_PY:-/workspace/venv/bin/python}" python3; do
+    if command -v "$probe_py" >/dev/null 2>&1 && "$probe_py" -c 'import yaml' 2>/dev/null; then break; fi
+    probe_py=""
+  done
+  if [ -z "$probe_py" ]; then log "no python with pyyaml for the gated-model probe: the models part checks access"; return 0; fi
+  while read -r row; do
+    [ -n "$row" ] || continue
+    read -r repo rev file <<< "$row"
+    if [ -n "${HF_TOKEN:-}" ]; then
+      # curl >= 8.3 reads the token from its own environment (--variable %NAME, --expand-header): the shell
+      # never expands it.
+      code=$(curl -s -o /dev/null -w '%{http_code}' --variable %HF_TOKEN \
+        --expand-header 'Authorization: Bearer {{HF_TOKEN}}' -I -L --max-time 30 \
+        "https://huggingface.co/$repo/resolve/$rev/$file" || echo 000)
+    else
+      code=401
+    fi
+    echo "gated_access_${repo//[^A-Za-z0-9]/_}=$code" >> "$STATE_DIR/preflight.env"
+    case "$code" in
+      200|302) log "gated model $repo: access ok (HTTP $code)" ;;
+      000) log "gated model $repo: probe failed (no answer); the models part will tell" ;;
+      *) fail "$repo is gated: the Hugging Face account of the RunPod secret hf_token has no access yet (HTTP $code; request it on https://huggingface.co/$repo and wait for the approval)"; return 1 ;;
+    esac
+  done < <("$probe_py" - "$GEN_YAML" <<'PY'
+import sys
+import yaml
+cfg = yaml.safe_load(open(sys.argv[1], encoding="utf-8"))
+for m in (cfg.get("models") or {}).values():
+    if m.get("gated"):
+        files = m.get("files") or ["config.json"]
+        print(m["repo"], m["revision"], files[0])
+PY
+)
 }
 
 # --- part venv ----------------------------------------------------------------------------

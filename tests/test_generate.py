@@ -409,10 +409,10 @@ def test_record_shape_equals_the_survey_shape_plus_the_new_fields(tmp_path):
     cand = survey(tmp_path)["candidates"][0]
     assert set(cand) == set(G.SURVEY_FIELDS) | set(G.NEW_FIELDS)
     real = ROOT / "results" / "library" / "survey.json"
-    if real.is_file():                       # the M7 Objaverse survey committed in the repo
+    if real.is_file():                       # the Objaverse survey committed in the repo (M8: with the new fields)
         objaverse = json.loads(real.read_text())["candidates"][0]
-        assert set(objaverse) == set(G.SURVEY_FIELDS)
-        assert set(cand) - set(objaverse) == set(G.NEW_FIELDS)
+        assert set(G.SURVEY_FIELDS) <= set(objaverse)        # every field the pipeline reads is in both
+        assert set(cand) - set(objaverse) <= set(G.NEW_FIELDS)
         for key in G.SURVEY_FIELDS:
             assert type(cand[key]) is type(objaverse[key]) or cand[key] is None, key
 
