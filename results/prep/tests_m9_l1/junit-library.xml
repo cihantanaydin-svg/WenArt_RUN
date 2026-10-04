@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="10" time="16.270" timestamp="2026-10-04T12:21:00.650666+00:00" hostname="dc30956652ac"><testcase classname="tests.gpu.test_library" name="test_both_real_sources_are_present" time="0.039" /><testcase classname="tests.gpu.test_library" name="test_objaverse_survey_found_lvis_categories_and_both_licence_spellings" time="0.034" /><testcase classname="tests.gpu.test_library" name="test_objaverse_candidates_are_credited_flagged_and_inside_the_prefilter" time="0.010" /><testcase classname="tests.gpu.test_library" name="test_abo_candidates_are_cc_by_with_known_units_and_the_documented_front" time="0.051" /><testcase classname="tests.gpu.test_library" name="test_thumbnails_were_rendered_on_the_gpu_with_decks_for_beds" time="7.145" /><testcase classname="tests.gpu.test_library" name="test_both_judges_answered_every_request" time="0.173" /><testcase classname="tests.gpu.test_library" name="test_accepted_follows_the_rules" time="0.141" /><testcase classname="tests.gpu.test_library" name="test_catalog_validates_merges_and_matches_the_cache" time="7.362"><failure message="AssertionError: objaverse_66878d980a364b2db1a5cc44c67bb45d&#10;assert (False or False)">cfg = {'dataset': {'repo': 'allenai/objaverse', 'repo_type': 'dataset', 'revision': '21e4e142159e2153706c23a3a02e55cec5591ce...ilter': {'face_count': [2000, 150000], 'max_glb_mb': 40, 'per_type_limit': 24, 'max_downloads_per_type': 48, ...}, ...}
+
+    def test_catalog_validates_merges_and_matches_the_cache(cfg):
+        need(OV.ACCEPTED_NAME)
+        cat = need(OV.CATALOG_NAME)
+        C.validate(cat, complete=False)
+        merged = C.Catalog(C.merge(OV.read_json(C.CATALOG_PATH), cat))
+        assert merged.merged["models_added"] == len(cat["entries"])
+        assert "abo" in cat["sources"], f"no ABO model in the catalogue (sources {cat['sources']})"
+        if "objaverse" not in cat["sources"]:
+            warnings.warn("no Objaverse model in the catalogue: see library_report.md")
+        frontless = {t for t, spec in cfg["types"].items() if spec["front"] == OV.FRONTLESS_RULE}
+        for e in cat["entries"] + cat.get("decor", []):
+            glb = ASSETS / e["glb"]
+            assert e["glb"] == f"models/{e['source']}/{e['uid']}.glb", e["id"]
+            assert glb.is_file(), f"{glb} not in the assets cache"
+            assert OV.sha256_file(glb) == e["sha256_glb"], e["id"]
+            info = OV.glb_info(glb)
+&gt;           assert info["textured"] or info["vertex_colours"], e["id"]
+E           AssertionError: objaverse_66878d980a364b2db1a5cc44c67bb45d
+E           assert (False or False)
+
+tests/gpu/test_library.py:208: AssertionError</failure></testcase><testcase classname="tests.gpu.test_library" name="test_bed_frames_have_decks" time="0.052" /><testcase classname="tests.gpu.test_library" name="test_attribution_is_complete" time="0.096" /></testsuite></testsuites>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="1" tests="4" time="4.064" timestamp="2026-10-04T12:21:18.062043+00:00" hostname="dc30956652ac"><testcase classname="tests.gpu.test_detect" name="test_owlv2_finds_the_salon_window_where_it_is" time="3.375" /><testcase classname="tests.gpu.test_detect" name="test_detection_is_deterministic" time="0.142" /><testcase classname="tests.gpu.test_detect" name="test_calibration_recorded" time="0.012"><failure message="AssertionError: /workspace/jobs/20261004-112959-prep/results/detect/detector_calibration.json missing: did detect-calibrate run?&#10;assert False&#10; +  where False = is_file()&#10; +    where is_file = PosixPath('/workspace/jobs/20261004-112959-prep/results/detect/detector_calibration.json').is_file">def test_calibration_recorded():
+        path = calibration_path()
+        if path is None:
+            pytest.skip("set DETECT_CALIBRATION or WENART_RESULTS (detect-calibrate writes $RESULTS/detect/)")
+&gt;       assert path.is_file(), f"{path} missing: did detect-calibrate run?"
+E       AssertionError: /workspace/jobs/20261004-112959-prep/results/detect/detector_calibration.json missing: did detect-calibrate run?
+E       assert False
+E        +  where False = is_file()
+E        +    where is_file = PosixPath('/workspace/jobs/20261004-112959-prep/results/detect/detector_calibration.json').is_file
+
+tests/gpu/test_detect.py:91: AssertionError</failure></testcase><testcase classname="tests.gpu.test_detect" name="test_detect_files_of_the_run[-]" time="0.024"><skipped type="pytest.skip" message="DETECT_TEST_PROJECTS is empty: no detect stage in this run">/workspace/repo/tests/gpu/test_detect.py:118: DETECT_TEST_PROJECTS is empty: no detect stage in this run</skipped></testcase></testsuite></testsuites>

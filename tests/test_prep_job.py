@@ -866,6 +866,23 @@ def test_a_failed_test_group_fails_the_job(tmp_path):
     assert [t["status"] for t in w.manifest()["tests"]] == ["passed", "failed", "passed"]
 
 
+def test_a_test_group_whose_step_the_job_does_not_run_is_skipped(tmp_path):
+    """The M9 L1 pod (PREP_ONLY without detect_calibrate) failed the detect group on the missing calibration: a group
+    is skipped when its step is not selected; the other groups run."""
+    w = World(tmp_path)
+    only = ("abo_survey", "survey", "thumbnails", "judge_requests", "session_qwen", "session_glm", "library", "copy",
+            "tests")
+    assert w.prep(only=only).run_all() == 0, w.lines
+    tests = {t["group"]: t for t in w.manifest()["tests"]}
+    assert tests["detect"] == {"group": "detect", "rc": None, "status": "skipped",
+                               "note": "detect_calibrate not in --only"}
+    assert tests["library"]["status"] == "passed" and tests["recognition"]["status"] == "passed"
+    assert "pytest tests/gpu/test_detect.py" not in w.labels()
+    w2 = World(tmp_path / "b")
+    assert w2.prep(skip=("library",)).run_all() == 0
+    assert {t["group"]: t["status"] for t in w2.manifest()["tests"]}["library"] == "skipped"
+
+
 def test_skip_only_and_no_tests(tmp_path):
     w = World(tmp_path)
     assert w.prep(only=("pipelines", "copy"), tests=False).run_all() == 0

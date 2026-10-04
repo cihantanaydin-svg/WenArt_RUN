@@ -199,13 +199,19 @@ def test_catalog_validates_merges_and_matches_the_cache(cfg):
     if "objaverse" not in cat["sources"]:
         warnings.warn("no Objaverse model in the catalogue: see library_report.md")
     frontless = {t for t, spec in cfg["types"].items() if spec["front"] == OV.FRONTLESS_RULE}
+    # Milestone 9 (docs/milestone9.md §2.2): an Objaverse fixture (toilet, sink, bathtub, refrigerator, stove) may have
+    # flat material colours only.
+    overrides = (cfg.get("prefilter") or {}).get("overrides") or {}
+    flat_ok = {t for cat_name, o in overrides.items() if o.get("allow_flat_colours")
+               for t in cfg["categories"][cat_name]["types"]}
     for e in cat["entries"] + cat.get("decor", []):
         glb = ASSETS / e["glb"]
         assert e["glb"] == f"models/{e['source']}/{e['uid']}.glb", e["id"]
         assert glb.is_file(), f"{glb} not in the assets cache"
         assert OV.sha256_file(glb) == e["sha256_glb"], e["id"]
         info = OV.glb_info(glb)
-        assert info["textured"] or info["vertex_colours"], e["id"]
+        flat = e["source"] == "objaverse" and e["type"] in flat_ok and info["materials"] > 0
+        assert info["textured"] or info["vertex_colours"] or flat, e["id"]
         assert e.get("licence_flag") == C.licence_flag_of(e["licence"]), e["id"]
         own = e.get("decor_type") or e["type"]
         assert e["front_axis_confidence"] == ("low" if own in frontless else "high"), e["id"]

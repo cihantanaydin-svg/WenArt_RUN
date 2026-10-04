@@ -6,6 +6,31 @@
  "slug": "qwen3-vl-8b",
  "incomplete": false,
  "calls": {
+  "lib_00b360de1846428eb5c23464824c5fc8": {
+   "task": "library_judge",
+   "input_sha256": "a5466f7b99f4fec4478c8b150e93f7e47c083ed564b40083be8b4d9b323b8564",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/00b360de1846428eb5c23464824c5fc8.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 4,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.396
+  },
   "lib_0102b2c1449f448687d62ea66ae2a26a": {
    "task": "library_judge",
    "input_sha256": "d923bb41f2bd3723fc3b2dc2ea9164e0e5f56793004f7cea881fda3709b7100b",
@@ -78,6 +103,30 @@
    "error": null,
    "attempts": 1,
    "latency_s": 0.962
+  },
+  "lib_01dac0f367544b28a32ef3e276e3106e": {
+   "task": "library_judge",
+   "input_sha256": "3d6e2864fda3c23d644aac78a9feff6c87d6ada0092bbb920e705cd3ed29fd8e",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/01dac0f367544b28a32ef3e276e3106e.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 3,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 3,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.346
   },
   "lib_01ff88bfc0034211b9f4996d620bc333": {
    "task": "library_judge",
@@ -930,6 +979,104 @@
    "attempts": 1,
    "latency_s": 1.203
   },
+  "lib_1b48a3d913474e6890b8b8163bb5407c": {
+   "task": "library_judge",
+   "input_sha256": "fd63d75b8363c9c51a31e0fbf535943b6f3ad6c5b3df8e66162a387a833487f7",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/1b48a3d913474e6890b8b8163bb5407c.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 3,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal"
+    ],
+    "front_view": 1
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 3,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\"\n  ],\n  \"front_view\": 1\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.347
+  },
+  "lib_1bd73c9a74d14ce29e45c277570990e6": {
+   "task": "library_judge",
+   "input_sha256": "27fb4dc40faf5e582898857a1ed562657dbd4cc6ad29d450a4543d94083bf6a7",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/1bd73c9a74d14ce29e45c277570990e6.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 4,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.396
+  },
+  "lib_1bf49e047db04dabab8a1665e88af5e6": {
+   "task": "library_judge",
+   "input_sha256": "c105084e09dca3daf684b75f5fd96b845c0d2f8b9acb9c47a867f1c0038fc359",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/1bf49e047db04dabab8a1665e88af5e6.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 3
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 4,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 3\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.396
+  },
+  "lib_1c74372d1aeb4bf2abb90358352d4282": {
+   "task": "library_judge",
+   "input_sha256": "bdc6b861e3b7e6a77000e3fd30e4847b7083cab77af2048c19700c398b80c0cc",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/1c74372d1aeb4bf2abb90358352d4282.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 3,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 3,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.346
+  },
   "lib_1d18955742df45e9875b28d382a33ef3": {
    "task": "library_judge",
    "input_sha256": "d999e712873be5f641202cac434c3ccdaa013b6f3e94a0e1ac6df9575ab237e9",
@@ -956,6 +1103,27 @@
    "error": null,
    "attempts": 1,
    "latency_s": 1.273
+  },
+  "lib_1d2f3157246e4eb3818a50a6732ca05e": {
+   "task": "library_judge",
+   "input_sha256": "0045fb64f80984d3e9e180e216f353d9fdcc98ce294abdbc98fb954716610b4b",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/1d2f3157246e4eb3818a50a6732ca05e.jpg"
+   ],
+   "data": {
+    "is_single_object": false,
+    "matches_type": false,
+    "photoreal_quality": 3,
+    "has_mattress": null,
+    "styles": [],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": false,\n  \"matches_type\": false,\n  \"photoreal_quality\": 3,\n  \"has_mattress\": null,\n  \"styles\": [],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.176
   },
   "lib_1d41e84fd76241e7a8929a314052269c": {
    "task": "library_judge",
@@ -1012,6 +1180,31 @@
    "attempts": 1,
    "latency_s": 1.014
   },
+  "lib_1fdb702ad88e41e2b90a5af4037bbfd3": {
+   "task": "library_judge",
+   "input_sha256": "8634776ec967b832a440bf343778f15f6f2540437673e674db25f8e74803e40f",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/1fdb702ad88e41e2b90a5af4037bbfd3.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 2
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 4,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 2\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.397
+  },
   "lib_2071bda681b642218b6829b82e4fd93b": {
    "task": "library_judge",
    "input_sha256": "9ef1378b7ad0ca6fd8b50fd1be3e7e9746c288cc53fb6fe3b7a69612fdea8e1e",
@@ -1062,6 +1255,31 @@
    "attempts": 1,
    "latency_s": 1.068
   },
+  "lib_240796c1b98b424381195e8b4c7f83e9": {
+   "task": "library_judge",
+   "input_sha256": "f6f3882c6b88e25f9a331139c3b55ceda071d059814aff2def92edda9d95daa8",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/240796c1b98b424381195e8b4c7f83e9.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 3,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 3,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.066
+  },
   "lib_24d1b493899d407780140688abae19bc": {
    "task": "library_judge",
    "input_sha256": "a73b40ec2d20b50a909b87f292ccb3bcd6c46150adb8a10d3e7ed1ada84f8a22",
@@ -1086,6 +1304,30 @@
    "error": null,
    "attempts": 1,
    "latency_s": 1.048
+  },
+  "lib_2556bb64f1414de7afb8a299097ef279": {
+   "task": "library_judge",
+   "input_sha256": "ed6634ee59ae72c8d17ec17cbfd316e787b6790d2dbec639a48cab3d7687edc6",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/2556bb64f1414de7afb8a299097ef279.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 3,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 3,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.991
   },
   "lib_257f44c12fa948deacca9995dbb70e7b": {
    "task": "library_judge",
@@ -1140,6 +1382,55 @@
    "error": null,
    "attempts": 1,
    "latency_s": 1.43
+  },
+  "lib_295384601e0d4f1985a919253330d59d": {
+   "task": "library_judge",
+   "input_sha256": "6377e4e2c21674b96ae5eb37e8cc04aae91764b9aeed2323f09147463186646d",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/295384601e0d4f1985a919253330d59d.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 4,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.163
+  },
+  "lib_2a725ae04a33493fad2ee6dad98a85af": {
+   "task": "library_judge",
+   "input_sha256": "572649db16aea1b7dbd583ed3a9b3ccf7ce6f01a0bc48d6186a573f5de208c70",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/2a725ae04a33493fad2ee6dad98a85af.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 3,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 3,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.004
   },
   "lib_2b14055dc8054ec79b4d0d7e8f00be1e": {
    "task": "library_judge",
@@ -1240,6 +1531,75 @@
    "attempts": 1,
    "latency_s": 0.981
   },
+  "lib_2dc08ab4103e43e3968ae45e59231c06": {
+   "task": "library_judge",
+   "input_sha256": "13f20d5c7a1cd8821e9cdd783a8221c4cc6d382856652625347c7e186456997a",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/2dc08ab4103e43e3968ae45e59231c06.jpg"
+   ],
+   "data": {
+    "is_single_object": false,
+    "matches_type": true,
+    "photoreal_quality": 3,
+    "has_mattress": null,
+    "styles": [],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": false,\n  \"matches_type\": true,\n  \"photoreal_quality\": 3,\n  \"has_mattress\": null,\n  \"styles\": [],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.811
+  },
+  "lib_2e0afa27358f4223b658e8351002d19f": {
+   "task": "library_judge",
+   "input_sha256": "17e045b57dab4f52d001abe1be9d2810ea980572232a70cd6ad14107e7f45243",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/2e0afa27358f4223b658e8351002d19f.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 3,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal"
+    ],
+    "front_view": 1
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 3,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\"\n  ],\n  \"front_view\": 1\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.995
+  },
+  "lib_2e762d68e7ae4ac1a49553c03c940c61": {
+   "task": "library_judge",
+   "input_sha256": "21cceb246c795431f1a945fccdfe0a7efbb52bc1add2652de6cc01845b3d6973",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/2e762d68e7ae4ac1a49553c03c940c61.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 3,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal"
+    ],
+    "front_view": 1
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 3,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\"\n  ],\n  \"front_view\": 1\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.963
+  },
   "lib_2f1706233a3248cf9a74586fc2e7120c": {
    "task": "library_judge",
    "input_sha256": "21c7bc9a1aa5c685ceb209fe712f7a575570f6cdcfb7c4f146379419a94af598",
@@ -1262,6 +1622,31 @@
    "error": null,
    "attempts": 1,
    "latency_s": 0.846
+  },
+  "lib_2fdaa56bbd85404cb4206dcaedc16658": {
+   "task": "library_judge",
+   "input_sha256": "4e36b74845ca4ceed2decc1400b2645fc2fa4e61f8f21a7e72fbeb6e04bcdcc0",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/2fdaa56bbd85404cb4206dcaedc16658.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 1
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 4,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 1\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.161
   },
   "lib_2ffb917efef043dbb7fe98f44d2d9b2b": {
    "task": "library_judge",
@@ -1356,6 +1741,31 @@
    "error": null,
    "attempts": 1,
    "latency_s": 0.827
+  },
+  "lib_30b975722e7e4d8694ee9628cd669177": {
+   "task": "library_judge",
+   "input_sha256": "949cb21735489dc19be2218a7fb246f31dff9ed136f906dbafe82c77958f44da",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/30b975722e7e4d8694ee9628cd669177.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 3,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 3,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.072
   },
   "lib_317dac94ec404bdbaa6d41a85e04f51c": {
    "task": "library_judge",
@@ -1498,6 +1908,30 @@
    "attempts": 1,
    "latency_s": 1.06
   },
+  "lib_34b12514108a4ffd897c9324a4a35858": {
+   "task": "library_judge",
+   "input_sha256": "6c2f36a9c610d65deed38e2bb86dc2ea18cab79f76a50ef07405c33184fed2b8",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/34b12514108a4ffd897c9324a4a35858.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 3,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 3,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.017
+  },
   "lib_351d798f9cc3451099200c5235aee352": {
    "task": "library_judge",
    "input_sha256": "047143c5706460896e4faa76a132fadce668b11ddd43bd11de7754ba561b697d",
@@ -1579,6 +2013,31 @@
    "error": null,
    "attempts": 1,
    "latency_s": 1.094
+  },
+  "lib_385c09d2ebb2483d96a78918c665db51": {
+   "task": "library_judge",
+   "input_sha256": "d541daab71447b61fd9399ec10b434368c0bb612c37678fcdfa1b815e0cb889c",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/385c09d2ebb2483d96a78918c665db51.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 4,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.039
   },
   "lib_39541d5daa7a4fba9614ad9847c992d5": {
    "task": "library_judge",
@@ -1863,6 +2322,55 @@
    "attempts": 1,
    "latency_s": 1.032
   },
+  "lib_4398bcb5976945b08f195816340247b8": {
+   "task": "library_judge",
+   "input_sha256": "5bb30df946fb47d5c5164395cf0cd732d220f58164e9513f8be3f99f1d943381",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/4398bcb5976945b08f195816340247b8.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 4,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.002
+  },
+  "lib_46e8f848735b496e8aeda829d0b96023": {
+   "task": "library_judge",
+   "input_sha256": "45af7a768801e3d939b6d41706fe0065924502f8d7db5b2f1c515ed3b6bfce4b",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/46e8f848735b496e8aeda829d0b96023.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 3,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal"
+    ],
+    "front_view": 2
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 3,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\"\n  ],\n  \"front_view\": 2\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.894
+  },
   "lib_47a690dcecf847fca99c4f89111db85b": {
    "task": "library_judge",
    "input_sha256": "14cac9c790fb2e14e5a73c665a6b10d219d7d518aa2ffe68b346327889a47a84",
@@ -1963,6 +2471,31 @@
    "error": null,
    "attempts": 1,
    "latency_s": 1.078
+  },
+  "lib_493b70a6177d4a1385b6b0ce041a93b0": {
+   "task": "library_judge",
+   "input_sha256": "04264c707a08e606ff6ad8d5af8033df501d039ea3a6679e3b1ad97e8ae5ffe5",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/493b70a6177d4a1385b6b0ce041a93b0.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "industrial"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 4,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"industrial\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.045
   },
   "lib_4a056ba4d1ec48e9b4d7f30646f71052": {
    "task": "library_judge",
@@ -2114,6 +2647,56 @@
    "attempts": 1,
    "latency_s": 1.291
   },
+  "lib_5248aa117842442980a2a2bbb5f3bfe6": {
+   "task": "library_judge",
+   "input_sha256": "f80a8509ffbae315df3fba0c476ee513096b1d520c01c0057da1de25d9cce8df",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/5248aa117842442980a2a2bbb5f3bfe6.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 4,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.002
+  },
+  "lib_531e32a371004849bd72a507aaf81643": {
+   "task": "library_judge",
+   "input_sha256": "88ca7a50239079e964451303715a8b8683dd1b2bb87b7ff44b2b8706fe70f003",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/531e32a371004849bd72a507aaf81643.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 3,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "industrial"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 3,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"industrial\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.079
+  },
   "lib_53409613b45b42b98b979f12ab8faa12": {
    "task": "library_judge",
    "input_sha256": "92626b5ac199ba79cab9c9d3ef29aedf6af961703ae7c12c0598d8e39ad34ff7",
@@ -2163,6 +2746,30 @@
    "error": null,
    "attempts": 1,
    "latency_s": 0.96
+  },
+  "lib_53ad8efeb5e9427a901fc669b440e3cf": {
+   "task": "library_judge",
+   "input_sha256": "3c6242eb2f4b3d174af50052a03fd5fe5655e8728eaa174d36c9819629250f3f",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/53ad8efeb5e9427a901fc669b440e3cf.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 3,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 3,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.025
   },
   "lib_55325e3b09ac48b2ae3803bccf804741": {
    "task": "library_judge",
@@ -2240,6 +2847,30 @@
    "error": null,
    "attempts": 1,
    "latency_s": 1.174
+  },
+  "lib_57d2004875be4878b25493723cf45469": {
+   "task": "library_judge",
+   "input_sha256": "3dec55a3f1e264836d3f9c165f7960a211ce56e75b535c99bf5a93a347f45906",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/57d2004875be4878b25493723cf45469.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 3,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 3,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.021
   },
   "lib_580ba3b412a24ee29c62a9ccf6bdc80c": {
    "task": "library_judge",
@@ -2344,6 +2975,30 @@
    "attempts": 1,
    "latency_s": 1.011
   },
+  "lib_5a0ba464174e4dbe94aecfe1a036ca6a": {
+   "task": "library_judge",
+   "input_sha256": "21109eaed4a9ecc7fce883cf4a8f8f41bfdea7060e12ea2dccca12b79ff86b08",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/5a0ba464174e4dbe94aecfe1a036ca6a.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 3,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 3,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.995
+  },
   "lib_5ab48fd4819745b596df3ea39908e2e7": {
    "task": "library_judge",
    "input_sha256": "90fc5e082d5503835253daef39db5e7c6e33d93216469bbc6f363abbd707affa",
@@ -2368,6 +3023,31 @@
    "error": null,
    "attempts": 1,
    "latency_s": 1.046
+  },
+  "lib_5b18711616054a44b025d9272b745a6a": {
+   "task": "library_judge",
+   "input_sha256": "f8d86a2a1d0cda67982d89cc2ec952905646cdfceed1a87241a4611795fe6613",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/5b18711616054a44b025d9272b745a6a.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 1
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 4,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 1\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.032
   },
   "lib_5b9e8ba19b1b454f82898ac4809f02b2": {
    "task": "library_judge",
@@ -2445,6 +3125,31 @@
    "error": null,
    "attempts": 1,
    "latency_s": 1.415
+  },
+  "lib_5e87752d56cd45bebaeac48ba934aaa4": {
+   "task": "library_judge",
+   "input_sha256": "ec318b949df26d1ab5aab37a0d4d7af87cb0a5a05505f97436c72e586b10db9e",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/5e87752d56cd45bebaeac48ba934aaa4.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 3,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 1
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 3,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 1\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.035
   },
   "lib_5ec9697d85654005b27fd29bd6df987e": {
    "task": "library_judge",
@@ -2569,6 +3274,31 @@
    "attempts": 1,
    "latency_s": 0.921
   },
+  "lib_6458ac945c14458a8e5f4a470495f042": {
+   "task": "library_judge",
+   "input_sha256": "56fe6f0143f3e0cdf225407dfa62c3b81c7d72dd846dd63941cb9217b4421d02",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/6458ac945c14458a8e5f4a470495f042.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 4,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.012
+  },
   "lib_653a622f383244ab9e7859f9aa2dcc8f": {
    "task": "library_judge",
    "input_sha256": "45f6be7ec0f109b6531093ce65eb3586d7527f8a5306d0251d33f21580547bf1",
@@ -2638,6 +3368,31 @@
    "attempts": 1,
    "latency_s": 0.806
   },
+  "lib_66878d980a364b2db1a5cc44c67bb45d": {
+   "task": "library_judge",
+   "input_sha256": "0bd42d43973cdbe9c4c073db3752576fa4396a6d6ea2dc8e705ce806200dd69f",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/66878d980a364b2db1a5cc44c67bb45d.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 4,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.0
+  },
   "lib_674b6c07743e4f569d4b745949d1a0f1": {
    "task": "library_judge",
    "input_sha256": "f21b6ba280081fae66a236226030674f546efcecf9b9695125c7ce9adb4190eb",
@@ -2660,6 +3415,31 @@
    "error": null,
    "attempts": 1,
    "latency_s": 0.889
+  },
+  "lib_67b04f8e125e4ae4adacb3fc42d0016f": {
+   "task": "library_judge",
+   "input_sha256": "5f79873769e5f0778c156e76f1745a864abc271b754f1a937e619545117d53c1",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/67b04f8e125e4ae4adacb3fc42d0016f.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 3,
+    "has_mattress": null,
+    "styles": [
+     "industrial",
+     "modern minimal",
+     "minimal"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 3,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"industrial\",\n    \"modern minimal\",\n    \"minimal\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.081
   },
   "lib_68baafb344b2445a8e7f4917b6fe8a63": {
    "task": "library_judge",
@@ -2708,6 +3488,55 @@
    "error": null,
    "attempts": 1,
    "latency_s": 1.086
+  },
+  "lib_68e164f1a9414c29820ac2eaf6d8ac04": {
+   "task": "library_judge",
+   "input_sha256": "5964dd4391d82956030b0a99a6e541632ae6eb8ee581dfe7f520416f666f848c",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/68e164f1a9414c29820ac2eaf6d8ac04.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 4,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.071
+  },
+  "lib_68ef91781477491e8a25dbe2c7877dbf": {
+   "task": "library_judge",
+   "input_sha256": "ceb5666b285377daefa986affbc1a14ca17167d6f96f63cbf3a3476c3434ac63",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/68ef91781477491e8a25dbe2c7877dbf.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 3,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 3,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.997
   },
   "lib_68f2b9fd83b349f9b285c360c447edbf": {
    "task": "library_judge",
@@ -2858,6 +3687,31 @@
    "error": null,
    "attempts": 1,
    "latency_s": 1.203
+  },
+  "lib_6ef03a9e81e74b7ab8e98baf512e7e64": {
+   "task": "library_judge",
+   "input_sha256": "e4b32757bbf8b0c6530bdf612fb9fc7e29f3dd9126d2330636ccc7daa38df419",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/6ef03a9e81e74b7ab8e98baf512e7e64.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 4,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.032
   },
   "lib_6f79223d321047059e1032c78b1b00a5": {
    "task": "library_judge",
@@ -3059,6 +3913,31 @@
    "attempts": 1,
    "latency_s": 1.002
   },
+  "lib_73bda35b6e7a499a80427fc1b049b192": {
+   "task": "library_judge",
+   "input_sha256": "b7562b264564576d1bd5434e0990fb5128fe7bade8429e389ef326c9d0e145a2",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/73bda35b6e7a499a80427fc1b049b192.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 1
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 4,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 1\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.026
+  },
   "lib_757961eb75a64dc689f2047ae8cdbd3b": {
    "task": "library_judge",
    "input_sha256": "6cf9e03c1535733c7c013fbe557f9efdaff2ef9be3a93243c6907e4fa2007285",
@@ -3129,6 +4008,31 @@
    "error": null,
    "attempts": 1,
    "latency_s": 0.914
+  },
+  "lib_75f663417e874f24b864348a5c9c3e68": {
+   "task": "library_judge",
+   "input_sha256": "303429f5dc398bd7142756866fd09de2baf3ecaa05396784bd04938b7b736c27",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/75f663417e874f24b864348a5c9c3e68.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 4,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.978
   },
   "lib_774971f63ea54cdba8119439f4ff09c5": {
    "task": "library_judge",
@@ -3412,6 +4316,31 @@
    "attempts": 1,
    "latency_s": 1.065
   },
+  "lib_8002b22408aa4247ba8827cb6df9e52f": {
+   "task": "library_judge",
+   "input_sha256": "7624c7c850a40176a547858de4dbbb1171f5bfe9f6abe7fbf3711349234318d4",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/8002b22408aa4247ba8827cb6df9e52f.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 3
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 4,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 3\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.947
+  },
   "lib_800d3c5569b94abfa2da7976504d589d": {
    "task": "library_judge",
    "input_sha256": "901dfb418d6348113d874354b377af97605fe733ff01c9dcc4c4bdebe538b1b1",
@@ -3612,6 +4541,31 @@
    "attempts": 1,
    "latency_s": 1.144
   },
+  "lib_84d5cdc68a674e12958f41500e988502": {
+   "task": "library_judge",
+   "input_sha256": "1f21b3489b4ca3458dc72fd0cefe98010faf42c258b2e3e9135318852108ea08",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/84d5cdc68a674e12958f41500e988502.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 5,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 2
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 5,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 2\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.974
+  },
   "lib_8580c4545d1649efb3503c6c2a012641": {
    "task": "library_judge",
    "input_sha256": "a1c17e7089329c570f1a73254f0ef1a0e82a0273ba344f60617bfe5f651b890d",
@@ -3717,6 +4671,30 @@
    "attempts": 1,
    "latency_s": 0.958
   },
+  "lib_8a983b17bc484fedbc1ead6eb61b55b5": {
+   "task": "library_judge",
+   "input_sha256": "16600ea9aafa4409339402bb3623dccc3b727961a5d39846e9aaaeb91600eaae",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/8a983b17bc484fedbc1ead6eb61b55b5.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 3,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal"
+    ],
+    "front_view": 1
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 3,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\"\n  ],\n  \"front_view\": 1\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.02
+  },
   "lib_8b099a2dfafc4436890eeaa7e928fd9b": {
    "task": "library_judge",
    "input_sha256": "83a817f81722c07792058112fee4005ad015311aaa98d3d66bcffe6d24b434eb",
@@ -3769,6 +4747,31 @@
    "error": null,
    "attempts": 1,
    "latency_s": 0.999
+  },
+  "lib_8d66a96bf8de4bb1b65c941b2bee65e4": {
+   "task": "library_judge",
+   "input_sha256": "426f198dd0b1aae3255f78dcb3e7cb3e1ef1d232fd1dca2f3f3a0d68d969a068",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/8d66a96bf8de4bb1b65c941b2bee65e4.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 1
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 4,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 1\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.063
   },
   "lib_8e1fddb38fa8400c9fcc784abe29aaaa": {
    "task": "library_judge",
@@ -3939,6 +4942,30 @@
    "attempts": 1,
    "latency_s": 0.896
   },
+  "lib_934716ccd00d4f6ba9555d1cea788488": {
+   "task": "library_judge",
+   "input_sha256": "a5a025535ae408378b72e123916ff14fa9f0e4a3336d2efac0dc70efac73c664",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/934716ccd00d4f6ba9555d1cea788488.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern",
+     "modern minimal"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 4,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern\",\n    \"modern minimal\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.001
+  },
   "lib_93ce115ac08d4365bc9a8d9e386bd166": {
    "task": "library_judge",
    "input_sha256": "a6ace821df4f0fa257f43aba80d4dc04cf8b7ea18874f0c88b58d5a819ebc9ff",
@@ -3965,6 +4992,55 @@
    "error": null,
    "attempts": 1,
    "latency_s": 1.273
+  },
+  "lib_948411a1c6d0453e96faa3dfe32936a0": {
+   "task": "library_judge",
+   "input_sha256": "2f40100ead3a75c391bf714dafb8272dfe47a450d2b48ba4b020322e47c6a51e",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/948411a1c6d0453e96faa3dfe32936a0.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 3,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal"
+    ],
+    "front_view": 3
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 3,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\"\n  ],\n  \"front_view\": 3\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.982
+  },
+  "lib_94e8a30e011a49a7a13910139d8daf8f": {
+   "task": "library_judge",
+   "input_sha256": "2b09c86e742357b1d66bb82a5076a00ff53f855eadfa3b551423c30076f239ae",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/94e8a30e011a49a7a13910139d8daf8f.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 4,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.028
   },
   "lib_955cf512b86c4a799aa3ef391d670e55": {
    "task": "library_judge",
@@ -4247,6 +5323,31 @@
    "attempts": 1,
    "latency_s": 1.038
   },
+  "lib_9f067b405463412883cf2cb5a478079c": {
+   "task": "library_judge",
+   "input_sha256": "3d93cbbc2b1998b86da5c85081c2675842a42d6ce5e9db3decf4eeb7f87fcb1c",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/9f067b405463412883cf2cb5a478079c.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 3,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 3,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.004
+  },
   "lib_a07501cd7f6c40fc9cf4cf438e41bac1": {
    "task": "library_judge",
    "input_sha256": "202ef358642faf9f5f10c259bbccac49f05a3d68cdf0ef19cefc564b9f49bf9d",
@@ -4344,6 +5445,56 @@
    "attempts": 1,
    "latency_s": 1.234
   },
+  "lib_a59b3dc728ff45d48a053758a153249b": {
+   "task": "library_judge",
+   "input_sha256": "788ed507481ee5a3401698dccd6a98761072b83e6c518a601523aca17db40439",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/a59b3dc728ff45d48a053758a153249b.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 3,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 1
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 3,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 1\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.975
+  },
+  "lib_a5e397b1cdf3457a99573683198bdcea": {
+   "task": "library_judge",
+   "input_sha256": "866e2493a60b3ee2c1b5616a4a175a4b1c097f4c215761ca0af0b3a7e0f3fa23",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/a5e397b1cdf3457a99573683198bdcea.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 3,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 1
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 3,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 1\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.998
+  },
   "lib_a5eea808dc20404cb5f9e05680f7362f": {
    "task": "library_judge",
    "input_sha256": "6c1c9c54435e1d1c4add4daa28e2b9adc14ab614a9f24ed949a624096f26851a",
@@ -4364,6 +5515,31 @@
    "error": null,
    "attempts": 1,
    "latency_s": 0.758
+  },
+  "lib_a63717d314ea41fd865669f58db82fce": {
+   "task": "library_judge",
+   "input_sha256": "c8ee38e8e1665e36eedec9e58514f2cccd9d952f3f76526a754615cdf3be3e71",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/a63717d314ea41fd865669f58db82fce.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 4,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.057
   },
   "lib_a755d424dd1d4a69a854ac02f7f86f83": {
    "task": "library_judge",
@@ -4482,6 +5658,30 @@
    "error": null,
    "attempts": 1,
    "latency_s": 0.956
+  },
+  "lib_ab89c948efab4b9eaf12d9f0e72acab7": {
+   "task": "library_judge",
+   "input_sha256": "f747f25fe491fe059de8df62d082f853eb790a1d862b0bb49b83455bbde08f29",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/ab89c948efab4b9eaf12d9f0e72acab7.jpg"
+   ],
+   "data": {
+    "is_single_object": false,
+    "matches_type": true,
+    "photoreal_quality": 3,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal"
+    ],
+    "front_view": 1
+   },
+   "raw_text": "{\n  \"is_single_object\": false,\n  \"matches_type\": true,\n  \"photoreal_quality\": 3,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\"\n  ],\n  \"front_view\": 1\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.004
   },
   "lib_abbf0e6901484c05a68d2c6c485bdd9e": {
    "task": "library_judge",
@@ -4636,6 +5836,30 @@
    "error": null,
    "attempts": 1,
    "latency_s": 1.204
+  },
+  "lib_abo_B00TOAN83I": {
+   "task": "library_judge",
+   "input_sha256": "f6608bd1fc88eba266751a007b6287c1fa095440f550fc00f99ea3b414c452fc",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B00TOAN83I.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 3,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 3,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.945
   },
   "lib_abo_B0154VUESC": {
    "task": "library_judge",
@@ -5122,6 +6346,30 @@
    "attempts": 1,
    "latency_s": 0.983
   },
+  "lib_abo_B0713T6T4D": {
+   "task": "library_judge",
+   "input_sha256": "ea5817dd5337f8177e626a74405d312c54d3d0f203bdee6855dcb8f9bdb24fa0",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B0713T6T4D.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 4,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 4,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.923
+  },
   "lib_abo_B0714MJKX2": {
    "task": "library_judge",
    "input_sha256": "f86c4de6816f43d8cefd6d1c5bd6affc2e98d9365c609d8442f6048a92c075b6",
@@ -5248,6 +6496,34 @@
    "attempts": 1,
    "latency_s": 1.206
   },
+  "lib_abo_B0718ZKQK8": {
+   "task": "library_judge",
+   "input_sha256": "8fe5872c6253a4dbf22139cfd7cf2a10858e26a870296bb166ac2595b0111e01",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B0718ZKQK8.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern",
+     "industrial",
+     "neutral"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"scandinavian\",\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\",\n    \"industrial\",\n    \"neutral\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.269
+  },
   "lib_abo_B0719STF79": {
    "task": "library_judge",
    "input_sha256": "4735e6feef3d902ac3ecdc4476059346867573f7a1e7e1102eebe616315629cc",
@@ -5326,6 +6602,30 @@
    "error": null,
    "attempts": 1,
    "latency_s": 1.0
+  },
+  "lib_abo_B071DQRXDR": {
+   "task": "library_judge",
+   "input_sha256": "b36cb0176a5191fc706d4df96a55437eaafc1edaa6552b3f782d32381d71a7f6",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B071DQRXDR.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 3,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 3,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.897
   },
   "lib_abo_B071DZHLXH": {
    "task": "library_judge",
@@ -5555,6 +6855,33 @@
    "attempts": 1,
    "latency_s": 1.214
   },
+  "lib_abo_B071HBBDZ1": {
+   "task": "library_judge",
+   "input_sha256": "86e5e1d0e9c53af0fbfa013ce829e714312411eacf30e63c5fa282aa59596dbb",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B071HBBDZ1.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern",
+     "industrial",
+     "neutral"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\",\n    \"industrial\",\n    \"neutral\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.164
+  },
   "lib_abo_B071J7Q3J4": {
    "task": "library_judge",
    "input_sha256": "bc93d619f9ec0638e4d2afa1d86fa96f477d88b77c46d9a4a31ec3698b2c02d3",
@@ -5657,6 +6984,60 @@
    "error": null,
    "attempts": 1,
    "latency_s": 1.052
+  },
+  "lib_abo_B071V8LJQJ": {
+   "task": "library_judge",
+   "input_sha256": "711370da5a1c036e0f3033ea363b6305063d5b8b75999e0b45985e1a53789e0b",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B071V8LJQJ.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern",
+     "industrial",
+     "neutral"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\",\n    \"industrial\",\n    \"neutral\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.156
+  },
+  "lib_abo_B071V8M937": {
+   "task": "library_judge",
+   "input_sha256": "a60962cd15ad71f6840b971b4d4b7fffc7814db0366ff64e8bd16e390f89e662",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B071V8M937.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern",
+     "neutral"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"scandinavian\",\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\",\n    \"neutral\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.149
   },
   "lib_abo_B071W2SCTJ": {
    "task": "library_judge",
@@ -6188,6 +7569,56 @@
    "attempts": 1,
    "latency_s": 1.096
   },
+  "lib_abo_B07374P6MR": {
+   "task": "library_judge",
+   "input_sha256": "2d49a947810b5fc7fd8a2dba293d6194b0fbd6510e9f127be3aa471fa13c37b6",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B07374P6MR.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"scandinavian\",\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.151
+  },
+  "lib_abo_B07374QFJ3": {
+   "task": "library_judge",
+   "input_sha256": "cc01c51df14ca7c43b08cdd1b98e08824d132db687d80c726b66a2ca984622b9",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B07374QFJ3.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 4,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 4,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.931
+  },
   "lib_abo_B07374SBFN": {
    "task": "library_judge",
    "input_sha256": "528d2d5a05885c30b3a1525c26335307ab09e6e15356e536ab5df5eed4db7acc",
@@ -6212,6 +7643,32 @@
    "error": null,
    "attempts": 1,
    "latency_s": 1.038
+  },
+  "lib_abo_B07374VCVN": {
+   "task": "library_judge",
+   "input_sha256": "2e42984201b4e4fdd454b38dc554cf4fddee6825aac6887c6c5fe8a8ec7970b7",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B07374VCVN.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 4,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 4,\n  \"styles\": [\n    \"scandinavian\",\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.119
   },
   "lib_abo_B073G7BVCT": {
    "task": "library_judge",
@@ -6652,6 +8109,30 @@
    "error": null,
    "attempts": 1,
    "latency_s": 0.983
+  },
+  "lib_abo_B073P3HHFS": {
+   "task": "library_judge",
+   "input_sha256": "676967887daa1b819d9e935a1dee09015007f9e473bdb795e30a0387f7f48520",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B073P3HHFS.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 4,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "industrial"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 4,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"industrial\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.921
   },
   "lib_abo_B073P3HHFT": {
    "task": "library_judge",
@@ -7160,6 +8641,33 @@
    "attempts": 1,
    "latency_s": 0.821
   },
+  "lib_abo_B075HR4ZDB": {
+   "task": "library_judge",
+   "input_sha256": "edb9522241dafc621bd15724e29dc8450edc0a349e7b0d57d3bcd95f6c9b1cd7",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B075HR4ZDB.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern",
+     "classic"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"scandinavian\",\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\",\n    \"classic\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.126
+  },
   "lib_abo_B075HR7KVR": {
    "task": "library_judge",
    "input_sha256": "bf9fd571b96e90148409eebf745facf645fd48fb5da08323d7cbd3812124ee5b",
@@ -7228,7 +8736,7 @@
   },
   "lib_abo_B075HWDSC6": {
    "task": "library_judge",
-   "input_sha256": "793fdfcbfef1ec080e04844d7689ee212786104825e1c0e0f901dbeb5986d407",
+   "input_sha256": "dcbcd713a13664adfd5cf01284ca3f6b5f5ba0ab77bb7d51d3baaff6b29e886f",
    "model": "Qwen/Qwen3-VL-8B-Instruct",
    "seed": 0,
    "images": [
@@ -7236,15 +8744,72 @@
    ],
    "data": {
     "is_single_object": true,
-    "is_decor_type": false,
-    "photoreal_quality": 4,
-    "styles": [],
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
     "front_view": null
    },
-   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": false,\n  \"photoreal_quality\": 4,\n  \"styles\": [],\n  \"front_view\": null\n}",
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"scandinavian\",\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": null\n}",
    "error": null,
    "attempts": 1,
-   "latency_s": 0.759
+   "latency_s": 1.085
+  },
+  "lib_abo_B075HWDSZY": {
+   "task": "library_judge",
+   "input_sha256": "6a2799444ee49c44cf63617901cc05240c73456bc35d7b332384543f9bf52aef",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B075HWDSZY.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"scandinavian\",\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.064
+  },
+  "lib_abo_B075HWDTHZ": {
+   "task": "library_judge",
+   "input_sha256": "c83cbd110f7983e8f790221e3b98b8cbba7db51d9f566cf7a6be9ae5ac09d10e",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B075HWDTHZ.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "scandinavian",
+     "japandi"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"scandinavian\",\n    \"japandi\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.034
   },
   "lib_abo_B075HWJ4K7": {
    "task": "library_judge",
@@ -7274,7 +8839,7 @@
   },
   "lib_abo_B075HWX45W": {
    "task": "library_judge",
-   "input_sha256": "2756ea03a5b56bce47ad636d7a12122512b56c539d539e1cffec8dad63cc22c9",
+   "input_sha256": "ce33b0582285b9bcbf3054895230244429a495bc15c9a4371289ba61df90c7d5",
    "model": "Qwen/Qwen3-VL-8B-Instruct",
    "seed": 0,
    "images": [
@@ -7282,9 +8847,10 @@
    ],
    "data": {
     "is_single_object": true,
-    "is_decor_type": false,
-    "photoreal_quality": 4,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
     "styles": [
+     "scandinavian",
      "japandi",
      "modern minimal",
      "minimal",
@@ -7292,10 +8858,10 @@
     ],
     "front_view": null
    },
-   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": false,\n  \"photoreal_quality\": 4,\n  \"styles\": [\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": null\n}",
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"scandinavian\",\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": null\n}",
    "error": null,
    "attempts": 1,
-   "latency_s": 1.06
+   "latency_s": 1.108
   },
   "lib_abo_B075HXHKZ4": {
    "task": "library_judge",
@@ -7415,6 +8981,81 @@
    "error": null,
    "attempts": 1,
    "latency_s": 1.057
+  },
+  "lib_abo_B075X12QV5": {
+   "task": "library_judge",
+   "input_sha256": "304bef3a28446f2e28b2c21d1e02457e36daf7f9d1a40d24a9e8f020b74f8864",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B075X12QV5.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 4,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 4,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.914
+  },
+  "lib_abo_B075X2FW6F": {
+   "task": "library_judge",
+   "input_sha256": "9343af499456e854d467dca0e06a4863bd12f665e5d147397517ebfa5b8a910d",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B075X2FW6F.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 4,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "industrial",
+     "neutral"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 4,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"industrial\",\n    \"neutral\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.962
+  },
+  "lib_abo_B075X2NLK5": {
+   "task": "library_judge",
+   "input_sha256": "9e310b6879cf1323e2c571b865dc4f6d8880c0e289d2d87c7124a1e9d49be5f6",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B075X2NLK5.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 4,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 4,\n  \"styles\": [\n    \"scandinavian\",\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.101
   },
   "lib_abo_B075X2WN36": {
    "task": "library_judge",
@@ -8127,6 +9768,30 @@
    "attempts": 1,
    "latency_s": 1.068
   },
+  "lib_abo_B0772KHYF7": {
+   "task": "library_judge",
+   "input_sha256": "f4828070cd2e95d41cd2cf29a0735599b311faf6ede777c48bd92de062aac650",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B0772KHYF7.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 4,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 4,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.943
+  },
   "lib_abo_B077NZFT6C": {
    "task": "library_judge",
    "input_sha256": "bc9296d2bfe2020fa2770f2354c085e17dfa466d4f054c79943e1f838babe425",
@@ -8153,6 +9818,32 @@
    "error": null,
    "attempts": 1,
    "latency_s": 1.254
+  },
+  "lib_abo_B078JFFX4L": {
+   "task": "library_judge",
+   "input_sha256": "f7f6da27d40bd02641e68c0152ce73c14ef126c432894e81e0037b1e4db268f0",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B078JFFX4L.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"scandinavian\",\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.113
   },
   "lib_abo_B078JG4N1G": {
    "task": "library_judge",
@@ -8193,6 +9884,136 @@
    "error": null,
    "attempts": 1,
    "latency_s": 0.664
+  },
+  "lib_abo_B078JGHZT3": {
+   "task": "library_judge",
+   "input_sha256": "df494f33b39ef91ed641e6c7f6259dfeb37249cbc8c03efd59aa8f484f1b06f2",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B078JGHZT3.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"scandinavian\",\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.098
+  },
+  "lib_abo_B078JGRLCJ": {
+   "task": "library_judge",
+   "input_sha256": "f8ce6275dd9dcd361656de1b7faa36bccec097e5a305d0a000313a1a15b2167d",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B078JGRLCJ.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"scandinavian\",\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.089
+  },
+  "lib_abo_B078JGYJTG": {
+   "task": "library_judge",
+   "input_sha256": "3c46be1a051aeeb5aaa76677737fd8938c0a1d30235b052a2947bca4e4d55ab9",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B078JGYJTG.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"scandinavian\",\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.078
+  },
+  "lib_abo_B078JJDPR2": {
+   "task": "library_judge",
+   "input_sha256": "99035f692ce519e829824bfc572f3247851354ec045a454c0f449fcebb5e2c9a",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B078JJDPR2.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"scandinavian\",\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.08
+  },
+  "lib_abo_B078JMJC49": {
+   "task": "library_judge",
+   "input_sha256": "234ad5ba17b38c06f01ab5e92c05143d8a642c87f8ee0b081092c0124e614508",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B078JMJC49.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"scandinavian\",\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.066
   },
   "lib_abo_B079TXCC1J": {
    "task": "library_judge",
@@ -8854,6 +10675,31 @@
    "attempts": 1,
    "latency_s": 1.169
   },
+  "lib_abo_B07B4VGZ9B": {
+   "task": "library_judge",
+   "input_sha256": "88c825c85cfaf4bb30310782c8927753ad6f949af72960aadc9a613dc7f66ce1",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B07B4VGZ9B.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern",
+     "industrial"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\",\n    \"industrial\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.934
+  },
   "lib_abo_B07B4VXZZC": {
    "task": "library_judge",
    "input_sha256": "66803b4f7b5fbe5e519ee81c05dc31f587c166758991d7cd0ddf91d0ce5e4943",
@@ -8876,6 +10722,32 @@
    "error": null,
    "attempts": 1,
    "latency_s": 0.876
+  },
+  "lib_abo_B07B4W5R8N": {
+   "task": "library_judge",
+   "input_sha256": "8cc960ffbd3d3ce3fe6704221830eed55002df236af91a86e8ac808a8bd12001",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B07B4W5R8N.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"scandinavian\",\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.122
   },
   "lib_abo_B07B4WGGZR": {
    "task": "library_judge",
@@ -9086,6 +10958,26 @@
    "error": null,
    "attempts": 1,
    "latency_s": 1.097
+  },
+  "lib_abo_B07B51946F": {
+   "task": "library_judge",
+   "input_sha256": "274cca4bfc5178c5576a24183f45738563ed438f0678e673b1282975239d1dce",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B07B51946F.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": false,
+    "photoreal_quality": 4,
+    "styles": [],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": false,\n  \"photoreal_quality\": 4,\n  \"styles\": [],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.727
   },
   "lib_abo_B07B7BGXN9": {
    "task": "library_judge",
@@ -9546,6 +11438,31 @@
    "error": null,
    "attempts": 1,
    "latency_s": 0.642
+  },
+  "lib_abo_B07B8NW6GG": {
+   "task": "library_judge",
+   "input_sha256": "0ea387d5d68f7514f34b7d6a2badf428640749c47515c0125d0f53e99bc92943",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B07B8NW6GG.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 4,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "industrial",
+     "neutral"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 4,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"industrial\",\n    \"neutral\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.042
   },
   "lib_abo_B07B8P1JGF": {
    "task": "library_judge",
@@ -10248,6 +12165,30 @@
    "attempts": 1,
    "latency_s": 0.917
   },
+  "lib_abo_B07DBDV67C": {
+   "task": "library_judge",
+   "input_sha256": "05a9b3c1fc4f811e1c3d60f34258b082f1afd4112604a7f15267b67370192362",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B07DBDV67C.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 4,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 4,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.911
+  },
   "lib_abo_B07DBDX1P2": {
    "task": "library_judge",
    "input_sha256": "1e14709f701f395c5740160b6954daefde2f39fd7884d051b7fb083f50759db7",
@@ -10374,6 +12315,28 @@
    "attempts": 1,
    "latency_s": 0.944
   },
+  "lib_abo_B07DBHCKKS": {
+   "task": "library_judge",
+   "input_sha256": "d0487dd469c9dd97ca7e3877dc14c48c1e79862c7627496f6f3ba02a2fa5f45a",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B07DBHCKKS.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 4,
+    "styles": [
+     "classic"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 4,\n  \"styles\": [\n    \"classic\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.83
+  },
   "lib_abo_B07DBHCKML": {
    "task": "library_judge",
    "input_sha256": "8eb69e28d4c73071ae82c7bd349436516b85721470eda7a00a909c1927008660",
@@ -10495,6 +12458,56 @@
    "error": null,
    "attempts": 1,
    "latency_s": 1.034
+  },
+  "lib_abo_B07DT4GY4W": {
+   "task": "library_judge",
+   "input_sha256": "520ce265682824c2e75625256550fb0aa3892469508913ee7df8afa8be232a34",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B07DT4GY4W.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 4,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 4,\n  \"styles\": [\n    \"scandinavian\",\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.112
+  },
+  "lib_abo_B07DTLKL7L": {
+   "task": "library_judge",
+   "input_sha256": "bf7f2062c8df736afe36a9700c465273ded3f70e2f92d5b7da46f496e1a764fe",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B07DTLKL7L.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 4,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "industrial"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 4,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"industrial\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.932
   },
   "lib_abo_B07DVRLW48": {
    "task": "library_judge",
@@ -11588,6 +13601,32 @@
    "attempts": 1,
    "latency_s": 0.907
   },
+  "lib_abo_B07HK3PNSK": {
+   "task": "library_judge",
+   "input_sha256": "e88cab315dec319620b08c0d84a062a97e350dbd24371c53db886a3544f84906",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B07HK3PNSK.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 4,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 4,\n  \"styles\": [\n    \"scandinavian\",\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.119
+  },
   "lib_abo_B07HK8NDXS": {
    "task": "library_judge",
    "input_sha256": "d5d525bb86249a773b3042cda91160a1e8e95d33d559368c93bb329c140232d2",
@@ -11611,6 +13650,30 @@
    "error": null,
    "attempts": 1,
    "latency_s": 0.941
+  },
+  "lib_abo_B07HK8YHB7": {
+   "task": "library_judge",
+   "input_sha256": "9675462e1895dc69c8748ceaa87fa8799d9c9410fa97d05397a844cbd1800446",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B07HK8YHB7.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 4,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 4,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.85
   },
   "lib_abo_B07HKF59YX": {
    "task": "library_judge",
@@ -11636,6 +13699,56 @@
    "error": null,
    "attempts": 1,
    "latency_s": 1.04
+  },
+  "lib_abo_B07HKGHSR7": {
+   "task": "library_judge",
+   "input_sha256": "2ad3a68c8256b3cbbbf52a0cc83ea9e257ff4f72c4756992336935d088a39ae1",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B07HKGHSR7.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 4,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 4,\n  \"styles\": [\n    \"scandinavian\",\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.076
+  },
+  "lib_abo_B07HKGHTGF": {
+   "task": "library_judge",
+   "input_sha256": "37a5b873bee883cf989b6e02f3f18aa30b379540ed839b8124206deca1163bcb",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B07HKGHTGF.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 4,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 4,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.904
   },
   "lib_abo_B07HSCJZQM": {
    "task": "library_judge",
@@ -11886,6 +13999,32 @@
    "attempts": 1,
    "latency_s": 1.043
   },
+  "lib_abo_B07HSK9SVW": {
+   "task": "library_judge",
+   "input_sha256": "236a6d9cd211108b074e29033015635621f344d0634fed26157600933fac5518",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B07HSK9SVW.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": false,
+    "photoreal_quality": 4,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": false,\n  \"photoreal_quality\": 4,\n  \"styles\": [\n    \"scandinavian\",\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.083
+  },
   "lib_abo_B07HSKBHBT": {
    "task": "library_judge",
    "input_sha256": "b3abb86c49ff860451f245e09a89bdd7bd2a3c0e17c74974ee269636b2bf6fe2",
@@ -11948,6 +14087,32 @@
    "error": null,
    "attempts": 1,
    "latency_s": 0.707
+  },
+  "lib_abo_B07HSLG6WR": {
+   "task": "library_judge",
+   "input_sha256": "7b8db873def5c508a8b371539a92100af425b3b54dcb5937c8d59c165dc2cef4",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B07HSLG6WR.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"scandinavian\",\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.085
   },
   "lib_abo_B07HZ1M12W": {
    "task": "library_judge",
@@ -12433,6 +14598,32 @@
    "attempts": 1,
    "latency_s": 1.146
   },
+  "lib_abo_B07JLBDT51": {
+   "task": "library_judge",
+   "input_sha256": "aa09740631970ccba0549bd71b187f1f5cac31d70debabfad659fd481b6c0dee",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B07JLBDT51.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"scandinavian\",\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.084
+  },
   "lib_abo_B07JM1H7RS": {
    "task": "library_judge",
    "input_sha256": "2d479c77b75b8b127b9f9fc66d6193ce6ecca19fb3b5328f36bdeff124f35b3e",
@@ -12455,6 +14646,32 @@
    "error": null,
    "attempts": 1,
    "latency_s": 0.871
+  },
+  "lib_abo_B07JM1K8VH": {
+   "task": "library_judge",
+   "input_sha256": "373ee80470264a307e5913fdbf378b3a69a5b285d95a4857434f9e07a5c55b46",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B07JM1K8VH.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"scandinavian\",\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.077
   },
   "lib_abo_B07JWP2Y5K": {
    "task": "library_judge",
@@ -13000,6 +15217,30 @@
    "attempts": 1,
    "latency_s": 0.851
   },
+  "lib_abo_B07MBFD6F9": {
+   "task": "library_judge",
+   "input_sha256": "e757ce5aaa7d538da611646dcc8a1c5e8a6c03f3a3977bbbe330c351eb5ebe7a",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B07MBFD6F9.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 4,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "industrial"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 4,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"industrial\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.884
+  },
   "lib_abo_B07MBFDHRY": {
    "task": "library_judge",
    "input_sha256": "7854ccca854023ab49995ae921c44dc5deb130f1b10f759e97e01c20e6a34e36",
@@ -13102,6 +15343,54 @@
    "attempts": 1,
    "latency_s": 1.04
   },
+  "lib_abo_B07MF1RNW1": {
+   "task": "library_judge",
+   "input_sha256": "da232065ff15c0cf9bde668e8fab66d67090d5c921114c5537180a65f90e753e",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B07MF1RNW1.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.849
+  },
+  "lib_abo_B07MF1S4SK": {
+   "task": "library_judge",
+   "input_sha256": "21ad1ca33686b2df6ac0e0f770f1d421c91fd30dcf98c124dfd9df7b72422d2f",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B07MF1S4SK.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 4,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "industrial"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 4,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"industrial\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.946
+  },
   "lib_abo_B07MF1TQYR": {
    "task": "library_judge",
    "input_sha256": "d22d7bfee56284536ec1c1cc3cee0f9f816d44faf1a7a01b163f71b6d15139b5",
@@ -13157,6 +15446,30 @@
    "error": null,
    "attempts": 1,
    "latency_s": 1.346
+  },
+  "lib_abo_B07MHMNK1L": {
+   "task": "library_judge",
+   "input_sha256": "329606f22a5f4e09cf6a6a627884ce3318ee614ea39ea2d29ff1b3c53c385078",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B07MHMNK1L.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 4,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 4,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.922
   },
   "lib_abo_B07ML7P94G": {
    "task": "library_judge",
@@ -13584,6 +15897,32 @@
    "attempts": 1,
    "latency_s": 1.151
   },
+  "lib_abo_B07QB8L3L5": {
+   "task": "library_judge",
+   "input_sha256": "b3ae1de6cee87099852256324bf8e1d9b9bd8268728a097d0a1b8523dd281708",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B07QB8L3L5.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"scandinavian\",\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.084
+  },
   "lib_abo_B07QB8L7YC": {
    "task": "library_judge",
    "input_sha256": "535f6f98ee348f01db10a12a8be989df6145ef7976aed1a527ffbfe7426886d3",
@@ -13656,6 +15995,85 @@
    "attempts": 1,
    "latency_s": 1.059
   },
+  "lib_abo_B07QC8C7Y4": {
+   "task": "library_judge",
+   "input_sha256": "1a1b06d8430fd57f988aefdbd7c5179dde9972c7c1738f6fa34d33aae8516036",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B07QC8C7Y4.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern",
+     "scandinavian",
+     "japandi"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\",\n    \"scandinavian\",\n    \"japandi\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.085
+  },
+  "lib_abo_B07QC8CB15": {
+   "task": "library_judge",
+   "input_sha256": "7e8f04a0e5c1142d0de5981ac3ec3dae13277c8ca1d6b4ad12d36da3cdd6a073",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B07QC8CB15.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern",
+     "neutral"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"scandinavian\",\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\",\n    \"neutral\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.133
+  },
+  "lib_abo_B07QC8CFCY": {
+   "task": "library_judge",
+   "input_sha256": "3730b2097ac2e8b83753411fa4f67c6847d83239ef03b6d379353562497a6d60",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B07QC8CFCY.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"scandinavian\",\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.048
+  },
   "lib_abo_B07QD6TXWS": {
    "task": "library_judge",
    "input_sha256": "a5634cb507ca6a2f9d11cae2520cef38c5ad15c2a7427b4bbdca54ad1e09b3c4",
@@ -13683,6 +16101,32 @@
    "attempts": 1,
    "latency_s": 1.223
   },
+  "lib_abo_B07QD6ZC1P": {
+   "task": "library_judge",
+   "input_sha256": "4553596aba27dd001516dfca20584999610b9e64a1372b93f281c5db2f7ff59f",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B07QD6ZC1P.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"scandinavian\",\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.043
+  },
   "lib_abo_B07QD6ZDDH": {
    "task": "library_judge",
    "input_sha256": "e3b983fee98e779b9c9955dc22df9ac92f7453b896781d6c704c72954b4e83b6",
@@ -13702,6 +16146,57 @@
    "error": null,
    "attempts": 1,
    "latency_s": 0.664
+  },
+  "lib_abo_B07QD6ZV84": {
+   "task": "library_judge",
+   "input_sha256": "250c4aa11176a9b04317b2929e4a0f05fc6a891fd0756a85b15601527f75084c",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B07QD6ZV84.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"scandinavian\",\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.01
+  },
+  "lib_abo_B07QD6ZV9Q": {
+   "task": "library_judge",
+   "input_sha256": "1d1bf922f02218b2243a49888888ba6fe3cad32b99d3af95a0aa408714cb7803",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B07QD6ZV9Q.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "japandi",
+     "scandinavian"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"japandi\",\n    \"scandinavian\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.031
   },
   "lib_abo_B07QF9QCZ1": {
    "task": "library_judge",
@@ -13820,6 +16315,59 @@
    "attempts": 1,
    "latency_s": 0.734
   },
+  "lib_abo_B07QFB5MW6": {
+   "task": "library_judge",
+   "input_sha256": "9157a9c1fdf7fc725ac2195b78b5d8882bf341fbced43496b4752b793d8605d1",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B07QFB5MW6.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern",
+     "japandi",
+     "scandinavian",
+     "neutral"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\",\n    \"japandi\",\n    \"scandinavian\",\n    \"neutral\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.139
+  },
+  "lib_abo_B07QFB5MXX": {
+   "task": "library_judge",
+   "input_sha256": "0799b659c6b3aa17d31b8c4f8ea334305b0103f54642caba6774d3550ffe09d5",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B07QFB5MXX.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern",
+     "neutral"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\",\n    \"neutral\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.087
+  },
   "lib_abo_B07QGFYLLM": {
    "task": "library_judge",
    "input_sha256": "9ed7cf4c888e217ce16acc87c311545e225db2f1a2ec0afde06c4054603da187",
@@ -13873,6 +16421,26 @@
    "attempts": 1,
    "latency_s": 1.113
   },
+  "lib_abo_B07QGG6C74": {
+   "task": "library_judge",
+   "input_sha256": "dc65cebefadacd9ce4602d5817afafb1b871afdf3b2bc080837d1cbe404c0496",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B07QGG6C74.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": false,
+    "photoreal_quality": 4,
+    "styles": [],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": false,\n  \"photoreal_quality\": 4,\n  \"styles\": [],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.7
+  },
   "lib_abo_B07QGWMTDY": {
    "task": "library_judge",
    "input_sha256": "20e3f0f3e5a8d242d4af321003033461ce8eb9bbd094cfee7f1400abc49c27ba",
@@ -13899,6 +16467,50 @@
    "error": null,
    "attempts": 1,
    "latency_s": 1.22
+  },
+  "lib_abo_B07QHKQMYL": {
+   "task": "library_judge",
+   "input_sha256": "58b61ebf48906dec75a4cb7efbeb1ed8dd15c385af87cad1495d85863c3af4d9",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B07QHKQMYL.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": false,
+    "photoreal_quality": 4,
+    "styles": [],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": false,\n  \"photoreal_quality\": 4,\n  \"styles\": [],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.731
+  },
+  "lib_abo_B07QHL2D4B": {
+   "task": "library_judge",
+   "input_sha256": "f62721c694633cb04d940da040d9ea9f70a00e65cc5b13ef27667b0fe5d2d49d",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B07QHL2D4B.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 4,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 4,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.969
   },
   "lib_abo_B07QJ24FSL": {
    "task": "library_judge",
@@ -14194,6 +16806,110 @@
    "error": null,
    "attempts": 1,
    "latency_s": 1.055
+  },
+  "lib_abo_B07RNMMYNR": {
+   "task": "library_judge",
+   "input_sha256": "0e2faa3178f0e39af8b9e2da4b36d0ce064bf88b36fe2d9efbd543f4c15ca6be",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B07RNMMYNR.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"scandinavian\",\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.124
+  },
+  "lib_abo_B07RNMMYPR": {
+   "task": "library_judge",
+   "input_sha256": "ab14188cb93585d63a2d8c239545ca810b312ef6e3150ef0280c41cd204b9c57",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B07RNMMYPR.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"scandinavian\",\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.131
+  },
+  "lib_abo_B07RNMNFQ5": {
+   "task": "library_judge",
+   "input_sha256": "5763c72d7c3857bc8a247dab65aff004efa7b92f6b07727d43ada130bad11055",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B07RNMNFQ5.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"scandinavian\",\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.094
+  },
+  "lib_abo_B07RNMNGYF": {
+   "task": "library_judge",
+   "input_sha256": "411f8b233a4e46b4aa409e74b2c2467ddf408979b6c3ff334f011e96eb4cc1c0",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B07RNMNGYF.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern",
+     "scandinavian",
+     "japandi"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\",\n    \"scandinavian\",\n    \"japandi\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.126
   },
   "lib_abo_B07RNZC4TJ": {
    "task": "library_judge",
@@ -14716,6 +17432,30 @@
    "attempts": 1,
    "latency_s": 1.007
   },
+  "lib_abo_B0824F6HZ4": {
+   "task": "library_judge",
+   "input_sha256": "f0b74f5259e49e445a9561489f9353946243bca50979206719a66102c48b8035",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B0824F6HZ4.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.883
+  },
   "lib_abo_B0824F7ZLF": {
    "task": "library_judge",
    "input_sha256": "14ca3195c99e332e9de942a5b9d96d09d7d78a10f6b73652c6a297309096716c",
@@ -14765,6 +17505,57 @@
    "error": null,
    "attempts": 1,
    "latency_s": 1.012
+  },
+  "lib_abo_B0825CP3NS": {
+   "task": "library_judge",
+   "input_sha256": "c461fb19c87ea339667879ee0764f4238fd825a89b4e22d66342af0537658699",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B0825CP3NS.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 4,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 4,\n  \"styles\": [\n    \"scandinavian\",\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.084
+  },
+  "lib_abo_B0825CXG81": {
+   "task": "library_judge",
+   "input_sha256": "66ef796d0ff35c7fc3596125e1b15c5279e343f26e69616191065b8035d8858c",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B0825CXG81.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 4,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "japandi",
+     "scandinavian"
+    ],
+    "front_view": null
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 4,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"japandi\",\n    \"scandinavian\"\n  ],\n  \"front_view\": null\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.028
   },
   "lib_abo_B0825D7RYW": {
    "task": "library_judge",
@@ -14995,6 +17786,235 @@
    "error": null,
    "attempts": 1,
    "latency_s": 0.705
+  },
+  "lib_abo_B084DQ4YVX": {
+   "task": "library_judge",
+   "input_sha256": "9378f41e59e3a2183a43f46505e72aaf02a7f910514b6f05f88150fb3b3ecd3a",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B084DQ4YVX.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern",
+     "neutral"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"scandinavian\",\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\",\n    \"neutral\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.137
+  },
+  "lib_abo_B084DQ9VWM": {
+   "task": "library_judge",
+   "input_sha256": "c66a2cd1368279e43d6b70004b1aad40eb546f8465bb4e40879641ba31c64b01",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B084DQ9VWM.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern",
+     "scandinavian"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\",\n    \"scandinavian\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.12
+  },
+  "lib_abo_B084HTY39G": {
+   "task": "library_judge",
+   "input_sha256": "3e7b4557a0b2b2f933fb625b49dd67bbae3b2308aa835fee81e6840955ed21c6",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B084HTY39G.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.899
+  },
+  "lib_abo_B084HTZ2C6": {
+   "task": "library_judge",
+   "input_sha256": "251b51f849b62fbc5ab1d242667420a2ee070eb4334a903cbe91ee37bd42db88",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B084HTZ2C6.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"scandinavian\",\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.1
+  },
+  "lib_abo_B084HV148L": {
+   "task": "library_judge",
+   "input_sha256": "d9e4263cb032ba61cb4fd158027ff5244e09630f6f71a81b98080da47d5ad79e",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B084HV148L.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"scandinavian\",\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.1
+  },
+  "lib_abo_B084HV5LK3": {
+   "task": "library_judge",
+   "input_sha256": "d013d5c2ac51573f14ae8dcca68104600c2f6a686e695b6833fafb846ea7a4d2",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B084HV5LK3.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"scandinavian\",\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.107
+  },
+  "lib_abo_B084HV67GW": {
+   "task": "library_judge",
+   "input_sha256": "2cc0de72efc68e418a381bccc2c4810956c556a9636f7911be37f2be2adda825",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B084HV67GW.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 5,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 5,\n  \"styles\": [\n    \"scandinavian\",\n    \"japandi\",\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.134
+  },
+  "lib_abo_B084HV6KDL": {
+   "task": "library_judge",
+   "input_sha256": "3d6af3d10d4053c4eefdfd725b913cac17f3ac104fd8c955cf5a20e423929786",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B084HV6KDL.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 4,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 4,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.962
+  },
+  "lib_abo_B084KD18YS": {
+   "task": "library_judge",
+   "input_sha256": "cd2050c360fb6742661a6b452b048c761e88b6c11b0695af1ec15b982e15a165",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/abo_B084KD18YS.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "is_decor_type": true,
+    "photoreal_quality": 4,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"is_decor_type\": true,\n  \"photoreal_quality\": 4,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.971
   },
   "lib_abo_B084MYDTKM": {
    "task": "library_judge",
@@ -15566,6 +18586,31 @@
    "attempts": 1,
    "latency_s": 1.427
   },
+  "lib_adf60e42de904d3abb1d45d3ae2c20ec": {
+   "task": "library_judge",
+   "input_sha256": "2c5df6c7578e43e0ccd092db963323db67b5784c36d000710ca70d49dc2af8b9",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/adf60e42de904d3abb1d45d3ae2c20ec.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 4,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.096
+  },
   "lib_aedb9509ef9347a5b055e02deeadeff7": {
    "task": "library_judge",
    "input_sha256": "4dddb7a7f7c81caf60c98b441da359f09d9d8e79a4a4fff8e1b7a4431c1e4610",
@@ -15639,6 +18684,31 @@
    "error": null,
    "attempts": 1,
    "latency_s": 1.136
+  },
+  "lib_b10785bcfc6e46a080614293c3ff6e1c": {
+   "task": "library_judge",
+   "input_sha256": "dd7667473389a43a1deaa8590bc2df00f0ed33ea61a79b091be2f24d41818f2a",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/b10785bcfc6e46a080614293c3ff6e1c.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 3,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 3,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.034
   },
   "lib_b1155b5ebd7c478bb0d35747c2211e5f": {
    "task": "library_judge",
@@ -15995,6 +19065,31 @@
    "attempts": 1,
    "latency_s": 1.144
   },
+  "lib_bcab82613d3844aaba5d7049cedc5104": {
+   "task": "library_judge",
+   "input_sha256": "f08871eeec289e632b3bc52877b408a7d6b9e8d87eab10a5ebb318de05c18bda",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/bcab82613d3844aaba5d7049cedc5104.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 3,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 3,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.06
+  },
   "lib_bcfae6acaa254778921933e9ca0f52b9": {
    "task": "library_judge",
    "input_sha256": "c4e158af87fada8de5f650dcc8f67d04128854bd8a20b1713f51339e2daed001",
@@ -16023,6 +19118,31 @@
    "error": null,
    "attempts": 1,
    "latency_s": 1.344
+  },
+  "lib_bd0f8d2bfba24376bec2b827a0cbbabe": {
+   "task": "library_judge",
+   "input_sha256": "ba40253522e956b00086afbfd1302258be63b772584cb814c688a166056d25dc",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/bd0f8d2bfba24376bec2b827a0cbbabe.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 1
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 4,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 1\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.064
   },
   "lib_bd384d46514548cf8c4202f1ae6ea551": {
    "task": "library_judge",
@@ -16077,6 +19197,31 @@
    "error": null,
    "attempts": 1,
    "latency_s": 1.3
+  },
+  "lib_be45901e180640f6881fdcf189994873": {
+   "task": "library_judge",
+   "input_sha256": "1027cc49dc19ee5add9169b1bcc7f670c4fb741ce0eb19caf6023525206b59f4",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/be45901e180640f6881fdcf189994873.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 3,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 3,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.031
   },
   "lib_bf122cd0854e422bb94704552c64810b": {
    "task": "library_judge",
@@ -16254,6 +19399,31 @@
    "error": null,
    "attempts": 1,
    "latency_s": 1.087
+  },
+  "lib_c46c5299740346a2b0a3c778cdcc140e": {
+   "task": "library_judge",
+   "input_sha256": "6a234dc5744cd26159fbcb3dbe4b5a0b3dacf6ecdfd45adb8123021290da4ab3",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/c46c5299740346a2b0a3c778cdcc140e.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 3,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 3,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.068
   },
   "lib_c4a92f9eafa64e03b8fe6e1c4ce462ab": {
    "task": "library_judge",
@@ -16484,6 +19654,31 @@
    "attempts": 1,
    "latency_s": 1.06
   },
+  "lib_c901dfa120a0487a9f5c9a2d241f70ab": {
+   "task": "library_judge",
+   "input_sha256": "8af070c27616a2d7ad9bead95047bf535a541d87130e1ad9ba7b67b105ceb398",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/c901dfa120a0487a9f5c9a2d241f70ab.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 1
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 4,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 1\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.062
+  },
   "lib_c9c4e705bf794cb88d5d8726095f4917": {
    "task": "library_judge",
    "input_sha256": "ac4c12cf4dcd724abd40c8896863cf00bc20ba26e2fe9cef8d37da644ef70243",
@@ -16640,6 +19835,31 @@
    "error": null,
    "attempts": 1,
    "latency_s": 1.237
+  },
+  "lib_d16f72508d29424d972da569a9551d11": {
+   "task": "library_judge",
+   "input_sha256": "aaa26fcfbc1d391adfa823346120f8a000067fe4121bf83251bfe0a0fb048b47",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/d16f72508d29424d972da569a9551d11.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 4,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.063
   },
   "lib_d1d7750af5144d1bb7d9fcc66b137c4c": {
    "task": "library_judge",
@@ -16868,6 +20088,56 @@
    "attempts": 1,
    "latency_s": 0.925
   },
+  "lib_db46661c8a714905853e38ca88e0e971": {
+   "task": "library_judge",
+   "input_sha256": "da726c9aaa97ed4b085720f8e59b13e88d8c336cb5fe3c50d18e0b1d2bc4dea5",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/db46661c8a714905853e38ca88e0e971.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 1
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 4,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 1\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.068
+  },
+  "lib_db56721845f441d9841c82b31cfb71f8": {
+   "task": "library_judge",
+   "input_sha256": "b39bff2a8e8b1e863e78abaabbb33c9f5da5737ccfa243b4db313c39135466eb",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/db56721845f441d9841c82b31cfb71f8.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 3,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 1
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 3,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 1\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.029
+  },
   "lib_dc16ef2fe078419fa8eae914c06d2080": {
    "task": "library_judge",
    "input_sha256": "bfbcafaf8fed9c1dc216a50fa8eda86e5b76ca6113fd74299179c6161657d05d",
@@ -16888,6 +20158,31 @@
    "error": null,
    "attempts": 1,
    "latency_s": 0.772
+  },
+  "lib_dcd691724f6b4d29a6d16def24d14e6e": {
+   "task": "library_judge",
+   "input_sha256": "ce7b38274a1892ccf758f5027eb207b7360b347becb595368587a69d69515e39",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/dcd691724f6b4d29a6d16def24d14e6e.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 4,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.068
   },
   "lib_dda2613eb5c04527a325a3b0bce9f79c": {
    "task": "library_judge",
@@ -16943,6 +20238,30 @@
    "attempts": 1,
    "latency_s": 1.277
   },
+  "lib_dfea434382554526b04635013a59f13e": {
+   "task": "library_judge",
+   "input_sha256": "897873289e38039c1a773a3539925a78e8ddfbd8557f8fe908ef7f57753ea4f3",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/dfea434382554526b04635013a59f13e.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 3,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal"
+    ],
+    "front_view": 1
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 3,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\"\n  ],\n  \"front_view\": 1\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.007
+  },
   "lib_e1ebf58bb90d4ea6b2a9643bfef9ecf8": {
    "task": "library_judge",
    "input_sha256": "6987b413d47e8bb230dbc2a49afc02d8b07231a66c7f1d70faef8b73c0f3d57a",
@@ -16965,6 +20284,31 @@
    "error": null,
    "attempts": 1,
    "latency_s": 0.901
+  },
+  "lib_e49d29f9a6f94a8cb62ca0a8e1cc1bfe": {
+   "task": "library_judge",
+   "input_sha256": "31543b542fdc2d3fbb0427d19cd34009f838eb34e07c7014f46ee3310d72c89e",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/e49d29f9a6f94a8cb62ca0a8e1cc1bfe.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 4,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.027
   },
   "lib_e4a1aafed0ec43a79c20f91dfcfe5670": {
    "task": "library_judge",
@@ -16990,6 +20334,31 @@
    "error": null,
    "attempts": 1,
    "latency_s": 1.058
+  },
+  "lib_e9edbd0c027c4f648e1405df96670cc1": {
+   "task": "library_judge",
+   "input_sha256": "e7a7aee31b74373c62fa9c2e1f4071faabf34435eb83342c858ab4057f2ff3ff",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/e9edbd0c027c4f648e1405df96670cc1.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 3,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 3,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.059
   },
   "lib_e9f40d803a874e84931192f09dedd58b": {
    "task": "library_judge",
@@ -17147,6 +20516,30 @@
    "attempts": 1,
    "latency_s": 1.135
   },
+  "lib_ebe62ed6dd9b446a9c9b7d7d6a8086e7": {
+   "task": "library_judge",
+   "input_sha256": "9eab948536bc3cd76d50d5579b6804ef0094a99f07e07539d465528d72e9ffa4",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/ebe62ed6dd9b446a9c9b7d7d6a8086e7.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 3,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 3,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.975
+  },
   "lib_ebed0a3af94242a6be6bf0f8ed6cd49d": {
    "task": "library_judge",
    "input_sha256": "7eb1827adb03a98cb1c3f5b4de0954ce4d8b9107506b813c8082820eca1f357e",
@@ -17244,6 +20637,31 @@
    "attempts": 1,
    "latency_s": 0.796
   },
+  "lib_f05a25da4b2c4e8d889db888cd3b2efe": {
+   "task": "library_judge",
+   "input_sha256": "0f0a73559e101f1c4dd3ab99b9d868e3ecc18508a039b1401036fd87b543abab",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/f05a25da4b2c4e8d889db888cd3b2efe.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 4,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.993
+  },
   "lib_f0ff385edd4f4a9ebac56d755c2f6634": {
    "task": "library_judge",
    "input_sha256": "cdc8cecb94420640174ca10aba305c99458b8707b63219aadb8e02124accd7c4",
@@ -17313,6 +20731,31 @@
    "error": null,
    "attempts": 1,
    "latency_s": 0.803
+  },
+  "lib_f32ec9229a8749d1b79245813fbd6c31": {
+   "task": "library_judge",
+   "input_sha256": "6f43f63eacb0041d5c8ae3f99639bd1fd69ab428fcda74a72825db2a56191279",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/f32ec9229a8749d1b79245813fbd6c31.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 1
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 4,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 1\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.961
   },
   "lib_f4031bb5f7e64ebca4c37d4fa5ba6e8d": {
    "task": "library_judge",
@@ -17385,6 +20828,31 @@
    "attempts": 1,
    "latency_s": 0.871
   },
+  "lib_f76c502218884914a27148f656a9b656": {
+   "task": "library_judge",
+   "input_sha256": "4fd09566a6f24d20e457a7f340e9ef6c0b2b187d5995ab7e77e9bf03eba5e6e8",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/f76c502218884914a27148f656a9b656.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 4,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.923
+  },
   "lib_f7f99449b896488fa6d468e70518b21d": {
    "task": "library_judge",
    "input_sha256": "16a9e592ca343038c53d14beb98912d947c2ef85579ce88f20851506e583aa17",
@@ -17410,6 +20878,31 @@
    "error": null,
    "attempts": 1,
    "latency_s": 1.004
+  },
+  "lib_f83cfd9e3edf4b4abab5ca14b0b28ec5": {
+   "task": "library_judge",
+   "input_sha256": "a48c525e099af61d16fee100ce556e8910300b5505c9e3398163ca02376a8ef8",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/f83cfd9e3edf4b4abab5ca14b0b28ec5.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 1
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 4,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 1\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.882
   },
   "lib_fd612e2ea8e94d80ac3b8097eb2e5bbe": {
    "task": "library_judge",
@@ -17457,6 +20950,31 @@
    "error": null,
    "attempts": 1,
    "latency_s": 0.77
+  },
+  "lib_fe63d70a5f5145788cb9b1e3c47ac3c2": {
+   "task": "library_judge",
+   "input_sha256": "91db4c7ac58d4b4201c89bbfda4947aa063d3efcf2733e3bdc082b0c201aca37",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/fe63d70a5f5145788cb9b1e3c47ac3c2.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 4,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "front_view": 2
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 4,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\",\n    \"modern\"\n  ],\n  \"front_view\": 2\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.859
   },
   "lib_gen_bathtub_japandi_2_c40f5efc": {
    "task": "library_judge",
@@ -18651,6 +22169,30 @@
    "error": null,
    "attempts": 1,
    "latency_s": 0.888
+  },
+  "lib_ikcAlbZ2YXxyKWW3r4iOMRW9qR2": {
+   "task": "library_judge",
+   "input_sha256": "c0b23f99cd3ea9e42f82d33a26dad82e5e212859ca7a2bea9def432164e322fe",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seed": 0,
+   "images": [
+    "sheets/ikcAlbZ2YXxyKWW3r4iOMRW9qR2.jpg"
+   ],
+   "data": {
+    "is_single_object": true,
+    "matches_type": true,
+    "photoreal_quality": 3,
+    "has_mattress": null,
+    "styles": [
+     "modern minimal",
+     "minimal"
+    ],
+    "front_view": 0
+   },
+   "raw_text": "{\n  \"is_single_object\": true,\n  \"matches_type\": true,\n  \"photoreal_quality\": 3,\n  \"has_mattress\": null,\n  \"styles\": [\n    \"modern minimal\",\n    \"minimal\"\n  ],\n  \"front_view\": 0\n}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.773
   }
  }
 }

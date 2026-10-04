@@ -172,6 +172,9 @@ TEST_GROUPS = (   # (group, interpreter attribute, pytest arguments)
     ("library", "py", ["tests/gpu/test_library.py"]),
     ("detect", "polish_py", ["tests/gpu/test_detect.py"]),
 )
+# A test group checks what its step wrote in this job: the group is skipped (not failed) when the job does not run
+# the step (--only / --skip; the M8 L3 and M9 L1 library pods failed `detect` without detect_calibrate).
+TEST_GROUP_STEPS = {"library": "library", "detect": "detect_calibrate"}
 LATE_S = 600.0                             # CPU steps and tests may run until the deadline + 10 min
 # Milestone 9: the generation stops this long before the job deadline when the same job thumbnails and judges (the
 # L1 pod: 871 sheets in about 22 min of thumbnails; two judge sessions and the library about 15 min for 300 models).
@@ -1295,6 +1298,11 @@ class Prep:
     def do_tests(self, entry: dict) -> tuple:
         failed = []
         for group, attr, args in TEST_GROUPS:
+            step = TEST_GROUP_STEPS.get(group)
+            why = self.selected(step) if step else None
+            if why is not None:
+                self.tests.append({"group": group, "rc": None, "status": "skipped", "note": f"{step} {why}"})
+                continue
             junit = Path(self.opts.results) / "tests" / f"junit-{group}.xml"
             junit.parent.mkdir(parents=True, exist_ok=True)
             cmd = [getattr(self.opts, attr), "-m", "pytest", "-m", "gpu", *args, "-v", "-ra", "-p",

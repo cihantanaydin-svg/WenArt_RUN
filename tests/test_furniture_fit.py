@@ -322,7 +322,10 @@ def test_cli_offline_falls_back_and_says_so(tmp_path, monkeypatch, capsys):
                         lambda a, d, size="1k", source="polyhaven", licence=None, meta=None: fetched.append(a))
     assert F.main([str(src), "--out", str(out), "--assets", str(tmp_path / "assets"), "--report", str(tmp_path / "r.md")]) == 0
     fitted = B.load(out)
-    assert {p["asset"]["method"] for p in fitted["furniture"]} == {"library", "parametric"}
+    # Milestone 9: the 20-per-type library has a model for every piece of synthetic-01 (M8: some parametric).
+    methods = {p["asset"]["method"] for p in fitted["furniture"]}
+    assert "library" in methods and methods <= {"library", "parametric"}
+    assert not any("download of" in (p["asset"].get("fallback_reason") or "") for p in fitted["furniture"])
     assert sorted(set(fetched)) == sorted({p["asset"]["asset_id"] for p in fitted["furniture"]
                                            if p["asset"]["method"] == "library"})
     assert (tmp_path / "r.md").is_file()
