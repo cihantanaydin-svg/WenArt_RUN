@@ -233,4 +233,20 @@ updated; no pod running.
 
 ## 9. As built
 
-(filled in while running)
+Pods (RTX PRO 6000; `docs/gpu-log.md`):
+
+| Pod | Minutes | Cost | What it did | Exit |
+|---|---|---|---|---|
+| L1 | 55 | $1.93 | ABO survey 828 candidates (40 per type, table lamps, vases, mirrors), Objaverse 396 (fixtures with flat colours), 871 sheets judged by both models, catalogue 343 + 114 decor | 1: two GPU test checks (fixed: flat-colour fixtures in `test_library.py`, a test group skipped when its step does not run) |
+| L2 | 97 | $3.39 | TRELLIS.2 in two shards for 67 min (126 new models), stopped 30 min before the deadline to judge them in the same pod (996 sheets), catalogue 419 + 133 decor | 1: the generation was cut by its own deadline as planned; GPU tests passed |
+
+Library after L2 (`wenart/furniture/catalog_library.json`): 419 furniture models (231 Amazon Berkeley Objects,
+77 Objaverse, 111 generated) and 133 decor models (114 ABO, 19 generated); 7 models carry a licence flag
+(4 non-commercial, 3 share-alike). 12 of 24 furniture types have 20 models; the rest of the generation plan
+(251 candidates for 13 short types) goes to pod L3.
+
+Changes found while running:
+- The full CPU suite needed the M9 entries in three word lists (`mirror` material, `no decor questions`) and a
+  fit test that expected a parametric piece the bigger library now covers.
+- Two M8 GPU test faults on real01 (detector files of an earlier run; a counter seen from another room) and the
+  M8 library pods' `detect` failure (a test group without its step) are fixed in the tests.
