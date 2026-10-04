@@ -1,0 +1,593 @@
+{
+ "schema_version": "0.1",
+ "kind": "run_manifest",
+ "run_id": "20261004-095244-full-20261004T095809Z",
+ "job": "20261004-095244-full",
+ "git_commit": "714dcc50e1a342a6b723451c219e22291d3d333f",
+ "profile": "full",
+ "deadline": 1791113620.0,
+ "started_utc": "2026-10-04T09:58:09Z",
+ "finished_utc": "2026-10-04T10:44:49Z",
+ "final": true,
+ "exit_code": 1,
+ "projects": [
+  {
+   "name": "real01",
+   "private": false,
+   "state": "ok",
+   "out_dir": "outputs/real01",
+   "stages": [
+    {
+     "stage": "intake",
+     "status": "skipped",
+     "seconds": 0.0,
+     "note": "private only"
+    },
+    {
+     "stage": "pipeline",
+     "status": "pending",
+     "seconds": 15.4,
+     "note": "17 recognition question(s) written (recognition/requests.json)"
+    },
+    {
+     "stage": "recognize",
+     "status": "reused",
+     "seconds": 1.9,
+     "note": null
+    },
+    {
+     "stage": "pipeline_final",
+     "status": "ok",
+     "seconds": 15.6,
+     "note": "answers applied"
+    },
+    {
+     "stage": "photos",
+     "status": "skipped",
+     "seconds": 0.0,
+     "note": "no style photos"
+    },
+    {
+     "stage": "style",
+     "status": "ok",
+     "seconds": 0.2,
+     "note": null
+    },
+    {
+     "stage": "assets",
+     "status": "ok",
+     "seconds": 1.0,
+     "note": null
+    },
+    {
+     "stage": "fit",
+     "status": "ok",
+     "seconds": 3.4,
+     "note": null
+    },
+    {
+     "stage": "layout",
+     "status": "ok",
+     "seconds": 10.8,
+     "note": null
+    },
+    {
+     "stage": "decor",
+     "status": "ok",
+     "seconds": 1.6,
+     "note": null
+    },
+    {
+     "stage": "refit",
+     "status": "ok",
+     "seconds": 4.8,
+     "note": null
+    },
+    {
+     "stage": "build",
+     "status": "ok",
+     "seconds": 58.2,
+     "note": null
+    },
+    {
+     "stage": "render",
+     "status": "ok",
+     "seconds": 132.6,
+     "note": null
+    },
+    {
+     "stage": "controls",
+     "status": "ok",
+     "seconds": 55.2,
+     "note": null
+    },
+    {
+     "stage": "gate",
+     "status": "ok",
+     "seconds": 116.8,
+     "note": "gate decision polish_disabled"
+    },
+    {
+     "stage": "polish",
+     "status": "skipped",
+     "seconds": 0.0,
+     "note": "gate not validated"
+    },
+    {
+     "stage": "detect",
+     "status": "skipped",
+     "seconds": 0.0,
+     "note": "gate not validated"
+    },
+    {
+     "stage": "expected",
+     "status": "ok",
+     "seconds": 27.8,
+     "note": null
+    },
+    {
+     "stage": "check",
+     "status": "ok",
+     "seconds": 75.0,
+     "note": null
+    },
+    {
+     "stage": "combine",
+     "status": "ok",
+     "seconds": 14.4,
+     "note": null
+    },
+    {
+     "stage": "report",
+     "status": "ok",
+     "seconds": 5.1,
+     "note": null
+    }
+   ],
+   "gate_decision": "polish_disabled",
+   "views": 20
+  },
+  {
+   "name": "synthetic-01",
+   "private": false,
+   "state": "ok",
+   "out_dir": "outputs/synthetic-01",
+   "stages": [
+    {
+     "stage": "intake",
+     "status": "skipped",
+     "seconds": 0.0,
+     "note": "private only"
+    },
+    {
+     "stage": "pipeline",
+     "status": "ok",
+     "seconds": 72.6,
+     "note": null
+    },
+    {
+     "stage": "recognize",
+     "status": "skipped",
+     "seconds": 0.0,
+     "note": "no questions"
+    },
+    {
+     "stage": "pipeline_final",
+     "status": "skipped",
+     "seconds": 0.0,
+     "note": "no questions"
+    },
+    {
+     "stage": "photos",
+     "status": "skipped",
+     "seconds": 0.0,
+     "note": "no style photos"
+    },
+    {
+     "stage": "style",
+     "status": "ok",
+     "seconds": 0.3,
+     "note": null
+    },
+    {
+     "stage": "assets",
+     "status": "ok",
+     "seconds": 0.5,
+     "note": null
+    },
+    {
+     "stage": "fit",
+     "status": "ok",
+     "seconds": 2.5,
+     "note": null
+    },
+    {
+     "stage": "layout",
+     "status": "ok",
+     "seconds": 61.7,
+     "note": null
+    },
+    {
+     "stage": "decor",
+     "status": "ok",
+     "seconds": 1.9,
+     "note": null
+    },
+    {
+     "stage": "refit",
+     "status": "ok",
+     "seconds": 2.3,
+     "note": null
+    },
+    {
+     "stage": "build",
+     "status": "ok",
+     "seconds": 66.7,
+     "note": null
+    },
+    {
+     "stage": "render",
+     "status": "ok",
+     "seconds": 226.4,
+     "note": null
+    },
+    {
+     "stage": "controls",
+     "status": "ok",
+     "seconds": 107.8,
+     "note": null
+    },
+    {
+     "stage": "gate",
+     "status": "ok",
+     "seconds": 84.8,
+     "note": "gate decision flagged"
+    },
+    {
+     "stage": "polish",
+     "status": "ok",
+     "seconds": 390.2,
+     "note": null
+    },
+    {
+     "stage": "detect",
+     "status": "ok",
+     "seconds": 18.8,
+     "note": null
+    },
+    {
+     "stage": "expected",
+     "status": "ok",
+     "seconds": 20.1,
+     "note": null
+    },
+    {
+     "stage": "check",
+     "status": "ok",
+     "seconds": 177.9,
+     "note": null
+    },
+    {
+     "stage": "combine",
+     "status": "ok",
+     "seconds": 23.7,
+     "note": null
+    },
+    {
+     "stage": "report",
+     "status": "ok",
+     "seconds": 10.1,
+     "note": null
+    }
+   ],
+   "gate_decision": "flagged",
+   "views": 29
+  },
+  {
+   "name": "synthetic-04",
+   "private": false,
+   "state": "ok",
+   "out_dir": "outputs/synthetic-04",
+   "stages": [
+    {
+     "stage": "intake",
+     "status": "skipped",
+     "seconds": 0.0,
+     "note": "private only"
+    },
+    {
+     "stage": "pipeline",
+     "status": "ok",
+     "seconds": 12.6,
+     "note": null
+    },
+    {
+     "stage": "recognize",
+     "status": "skipped",
+     "seconds": 0.0,
+     "note": "no questions"
+    },
+    {
+     "stage": "pipeline_final",
+     "status": "skipped",
+     "seconds": 0.0,
+     "note": "no questions"
+    },
+    {
+     "stage": "photos",
+     "status": "skipped",
+     "seconds": 0.0,
+     "note": "no style photos"
+    },
+    {
+     "stage": "style",
+     "status": "ok",
+     "seconds": 0.4,
+     "note": null
+    },
+    {
+     "stage": "assets",
+     "status": "ok",
+     "seconds": 0.7,
+     "note": null
+    },
+    {
+     "stage": "fit",
+     "status": "ok",
+     "seconds": 2.1,
+     "note": null
+    },
+    {
+     "stage": "layout",
+     "status": "ok",
+     "seconds": 17.6,
+     "note": null
+    },
+    {
+     "stage": "decor",
+     "status": "ok",
+     "seconds": 1.8,
+     "note": null
+    },
+    {
+     "stage": "refit",
+     "status": "ok",
+     "seconds": 1.8,
+     "note": null
+    },
+    {
+     "stage": "build",
+     "status": "ok",
+     "seconds": 81.5,
+     "note": null
+    },
+    {
+     "stage": "render",
+     "status": "ok",
+     "seconds": 86.6,
+     "note": null
+    },
+    {
+     "stage": "controls",
+     "status": "ok",
+     "seconds": 57.5,
+     "note": null
+    },
+    {
+     "stage": "gate",
+     "status": "ok",
+     "seconds": 59.0,
+     "note": "gate decision ok"
+    },
+    {
+     "stage": "polish",
+     "status": "ok",
+     "seconds": 186.9,
+     "note": null
+    },
+    {
+     "stage": "detect",
+     "status": "ok",
+     "seconds": 8.1,
+     "note": null
+    },
+    {
+     "stage": "expected",
+     "status": "ok",
+     "seconds": 15.3,
+     "note": null
+    },
+    {
+     "stage": "check",
+     "status": "ok",
+     "seconds": 86.1,
+     "note": null
+    },
+    {
+     "stage": "combine",
+     "status": "ok",
+     "seconds": 13.6,
+     "note": null
+    },
+    {
+     "stage": "report",
+     "status": "ok",
+     "seconds": 5.7,
+     "note": null
+    }
+   ],
+   "gate_decision": "ok",
+   "views": 14
+  }
+ ],
+ "totals": {
+  "ok": 3,
+  "needs_review": 0,
+  "failed": 0,
+  "incomplete": 0
+ },
+ "ab_phase": "all",
+ "ab_controls": null,
+ "ab": [],
+ "realism_summary": null,
+ "phases": [
+  {
+   "phase": 1,
+   "name": "cpu: intake, pipeline, fit, style",
+   "start_utc": "2026-10-04T09:58:09Z",
+   "end_utc": "2026-10-04T10:00:04Z",
+   "seconds": 114.9
+  },
+  {
+   "phase": 2,
+   "name": "vlm glm: recognition, style photos",
+   "start_utc": "2026-10-04T10:00:04Z",
+   "end_utc": "2026-10-04T10:00:04Z",
+   "seconds": 0.0
+  },
+  {
+   "phase": 3,
+   "name": "vlm qwen: recognition, pipeline_final, fit, style photos, layout",
+   "start_utc": "2026-10-04T10:00:04Z",
+   "end_utc": "2026-10-04T10:04:37Z",
+   "seconds": 272.8
+  },
+  {
+   "phase": 4,
+   "name": "cpu: assets, decor, refit, A/B prepare",
+   "start_utc": "2026-10-04T10:04:37Z",
+   "end_utc": "2026-10-04T10:04:54Z",
+   "seconds": 17.7
+  },
+  {
+   "phase": 5,
+   "name": "blender: build, render, controls, A/B control renders",
+   "start_utc": "2026-10-04T10:04:54Z",
+   "end_utc": "2026-10-04T10:19:27Z",
+   "seconds": 873.0
+  },
+  {
+   "phase": 6,
+   "name": "diffusion: gate, polish, detect",
+   "start_utc": "2026-10-04T10:19:27Z",
+   "end_utc": "2026-10-04T10:33:53Z",
+   "seconds": 866.2
+  },
+  {
+   "phase": 7,
+   "name": "cpu: expected, plan crops, A/B pairs",
+   "start_utc": "2026-10-04T10:33:53Z",
+   "end_utc": "2026-10-04T10:34:57Z",
+   "seconds": 63.4
+  },
+  {
+   "phase": 8,
+   "name": "vlm qwen: check, realism",
+   "start_utc": "2026-10-04T10:34:57Z",
+   "end_utc": "2026-10-04T10:38:25Z",
+   "seconds": 208.6
+  },
+  {
+   "phase": 9,
+   "name": "vlm glm: check, realism",
+   "start_utc": "2026-10-04T10:38:25Z",
+   "end_utc": "2026-10-04T10:42:28Z",
+   "seconds": 242.5
+  },
+  {
+   "phase": 10,
+   "name": "cpu: combine, realism summary, report",
+   "start_utc": "2026-10-04T10:42:28Z",
+   "end_utc": "2026-10-04T10:43:41Z",
+   "seconds": 72.7
+  },
+  {
+   "phase": 11,
+   "name": "gpu tests, run manifest",
+   "start_utc": "2026-10-04T10:43:41Z",
+   "end_utc": "2026-10-04T10:44:49Z",
+   "seconds": 67.9
+  }
+ ],
+ "servers": [
+  {
+   "key": "qwen",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seqs": 8,
+   "seconds_to_ready": 160.0,
+   "ok": true,
+   "phase": 3,
+   "started_utc": "2026-10-04T10:04:37Z"
+  },
+  {
+   "key": "qwen",
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "seqs": 8,
+   "seconds_to_ready": 30.0,
+   "ok": true,
+   "phase": 8,
+   "started_utc": "2026-10-04T10:38:25Z"
+  },
+  {
+   "key": "glm",
+   "model": "zai-org/GLM-4.6V-Flash",
+   "seqs": 8,
+   "seconds_to_ready": 80.0,
+   "ok": true,
+   "phase": 9,
+   "started_utc": "2026-10-04T10:42:28Z"
+  }
+ ],
+ "tests": [
+  {
+   "group": "full",
+   "files": [
+    "tests/gpu/test_full_run.py",
+    "tests/gpu/test_render.py",
+    "tests/gpu/test_look_m6.py",
+    "tests/gpu/test_furnish.py",
+    "tests/gpu/test_check.py"
+   ],
+   "rc": 1,
+   "status": "failed",
+   "junit": "junit-full.xml",
+   "seconds": 17.2
+  },
+  {
+   "group": "polish",
+   "files": [
+    "tests/gpu/test_polish.py",
+    "tests/gpu/test_polish_backend.py",
+    "tests/gpu/test_detect.py"
+   ],
+   "rc": 0,
+   "status": "passed",
+   "junit": "junit-polish.xml",
+   "seconds": 16.8
+  }
+ ],
+ "test_lists": {
+  "RUN_TEST_PROJECTS": "real01 synthetic-01 synthetic-04",
+  "NEEDS_REVIEW_TEST_PROJECTS": "",
+  "RENDER_TEST_PROJECTS": "real01 synthetic-01 synthetic-04",
+  "FURNISH_TEST_PROJECTS": "real01 synthetic-01 synthetic-04",
+  "CHECK_TEST_PROJECTS": "real01 synthetic-01 synthetic-04",
+  "POLISH_TEST_PROJECTS": "synthetic-01 synthetic-04",
+  "GATE_TEST_PROJECTS": "real01 synthetic-01 synthetic-04",
+  "DETECT_TEST_PROJECTS": "synthetic-01 synthetic-04",
+  "AB_TEST_PROJECTS": "",
+  "AB_CONTROL_PROJECT": "",
+  "SELFTEST_TEST_ALIAS": ""
+ },
+ "force": [],
+ "gpu": {
+  "name": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+  "memory_mib": 97887,
+  "speed": 1.634,
+  "speed_of": "RTX PRO 6000",
+  "seqs": {
+   "qwen": 8,
+   "glm": 8
+  }
+ }
+}

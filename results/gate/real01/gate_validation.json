@@ -2,26 +2,26 @@
  "schema_version": "0.1",
  "kind": "gate_validation",
  "project": "real01",
- "decision": "flagged",
- "benign_accept": 0.9464,
- "negative_reject": 0.9604,
+ "decision": "polish_disabled",
+ "benign_accept": 1.0,
+ "negative_reject": 0.8679,
  "n_benign": 56,
- "n_negative": 101,
- "pass_benign": false,
- "pass_negative": true,
+ "n_negative": 106,
+ "pass_benign": true,
+ "pass_negative": false,
  "reasons": [
-  "benign controls accepted 0.946 < 0.95 (56 comparisons): the gate also rejects harmless edits"
+  "negative controls rejected 0.868 < 0.90 (106 comparisons): the gate lets geometry changes through"
  ],
  "limits": {
   "benign_accept_min": 0.95,
   "negative_reject_min": 0.9
  },
- "polish_allowed": true,
+ "polish_allowed": false,
  "calibration": {
   "path": "gate_calibration.json",
-  "sha256": "e4102d6477ba3fdf8442df6c5547539ed051ba0dd0079165113824381804ee71",
+  "sha256": "00a6878445d15fb1c5532e13ef72ff5c2e130e1fb6a6059124e6cc2ee7b0dee8",
   "incomplete": false,
   "thresholds_match": true
  },
- "created_utc": "2026-10-04T00:41:08Z"
+ "created_utc": "2026-10-04T10:21:25Z"
 }

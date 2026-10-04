@@ -11,7 +11,7 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 1.896,
+     "latency_s": 1.881,
      "error": null,
      "pieces_proposed": 2,
      "pieces_placed": 1,
@@ -24,7 +24,7 @@
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 1.024,
+     "latency_s": 1.023,
      "error": null,
      "pieces_proposed": 1,
      "pieces_placed": 1,
@@ -36,7 +36,7 @@
     }
    ],
    "chosen_pass": 2,
-   "latency_s": 2.92,
+   "latency_s": 2.904,
    "skipped": null,
    "pieces": [
     {
@@ -62,7 +62,7 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 7.595,
+     "latency_s": 7.588,
      "error": null,
      "pieces_proposed": 9,
      "pieces_placed": 5,
@@ -75,7 +75,7 @@
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 5.244,
+     "latency_s": 5.245,
      "error": null,
      "pieces_proposed": 6,
      "pieces_placed": 5,
@@ -87,7 +87,7 @@
     }
    ],
    "chosen_pass": 2,
-   "latency_s": 12.839,
+   "latency_s": 12.833,
    "skipped": null,
    "pieces": [
     {
@@ -165,7 +165,7 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 5.067,
+     "latency_s": 5.068,
      "error": null,
      "pieces_proposed": 6,
      "pieces_placed": 4,
@@ -178,7 +178,7 @@
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 4.921,
+     "latency_s": 4.919,
      "error": null,
      "pieces_proposed": 6,
      "pieces_placed": 5,
@@ -268,7 +268,7 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 1.856,
+     "latency_s": 1.858,
      "error": null,
      "pieces_proposed": 2,
      "pieces_placed": 2,
@@ -293,7 +293,7 @@
     }
    ],
    "chosen_pass": 1,
-   "latency_s": 3.692,
+   "latency_s": 3.695,
    "skipped": null,
    "pieces": [
     {
@@ -332,7 +332,7 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 5.069,
+     "latency_s": 5.067,
      "error": null,
      "pieces_proposed": 6,
      "pieces_placed": 4,
@@ -345,7 +345,7 @@
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 5.199,
+     "latency_s": 5.196,
      "error": null,
      "pieces_proposed": 6,
      "pieces_placed": 4,
@@ -357,7 +357,7 @@
     }
    ],
    "chosen_pass": 1,
-   "latency_s": 10.268,
+   "latency_s": 10.262,
    "skipped": null,
    "pieces": [
     {
@@ -512,7 +512,7 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 5.13,
+     "latency_s": 5.125,
      "error": null,
      "pieces_proposed": 6,
      "pieces_placed": 5,
@@ -525,7 +525,7 @@
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 4.253,
+     "latency_s": 4.252,
      "error": null,
      "pieces_proposed": 5,
      "pieces_placed": 4,
@@ -537,7 +537,7 @@
     }
    ],
    "chosen_pass": 1,
-   "latency_s": 9.383,
+   "latency_s": 9.378,
    "skipped": null,
    "pieces": [
     {
@@ -609,5 +609,5 @@
   }
  ],
  "pieces_added": 26,
- "latency_s": 55.582
+ "latency_s": 55.551
 }

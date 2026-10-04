@@ -426,14 +426,18 @@
     "picture frame"
    ],
    "class": "decor",
-   "compatible": []
+   "compatible": [
+    "wall_art"
+   ]
   },
   "rug": {
    "texts": [
     "rug"
    ],
    "class": "decor",
-   "compatible": []
+   "compatible": [
+    "rug"
+   ]
   },
   "vase": {
    "texts": [
@@ -474,36 +478,7 @@
  },
  "polish_manifest": "../polish/polish_manifest.json",
  "views": {
-  "cam_r_L0_mutfak_1": {
-   "status": "skipped",
-   "reason": "final cycles (room)",
-   "file": "cam_r_L0_mutfak_1.json",
-   "polished": false,
-   "controls": [
-    "f_L0_018"
-   ]
-  },
-  "cam_r_L0_mutfak_2": {
-   "status": "skipped",
-   "reason": "final cycles (room)"
-  },
-  "cam_r_L0_mutfak_3": {
-   "status": "skipped",
-   "reason": "final cycles (room)"
-  },
-  "cam_r_L0_yatak_odasi_1": {
-   "status": "skipped",
-   "reason": "final cycles (room)"
-  },
-  "cam_r_L0_yatak_odasi_2": {
-   "status": "skipped",
-   "reason": "final cycles (room)"
-  },
-  "cam_r_L0_yatak_odasi_3": {
-   "status": "skipped",
-   "reason": "final cycles (room)"
-  },
-  "cam_r_L1_banyo_1": {
+  "cam_r_L1_banyo_3": {
    "status": "skipped",
    "reason": "final cycles (gate)"
   },
@@ -513,7 +488,8 @@
    "file": "cam_r_L1_cocuk_odasi_1.json",
    "polished": false,
    "controls": [
-    "d_L1_002"
+    "f_L1_018",
+    "win_L1_004"
    ]
   },
   "cam_r_L1_cocuk_odasi_2": {
@@ -528,7 +504,9 @@
    "status": "ok",
    "file": "cam_r_L0_banyo_1.json",
    "polished": true,
-   "controls": []
+   "controls": [
+    "win_L0_006"
+   ]
   },
   "cam_r_L0_banyo_2": {
    "status": "ok",
@@ -546,7 +524,9 @@
    "status": "ok",
    "file": "cam_r_L0_hol_1.json",
    "polished": true,
-   "controls": []
+   "controls": [
+    "d_L0_001"
+   ]
   },
   "cam_r_L0_hol_2": {
    "status": "ok",
@@ -554,25 +534,65 @@
    "polished": true,
    "controls": []
   },
+  "cam_r_L0_mutfak_1": {
+   "status": "ok",
+   "file": "cam_r_L0_mutfak_1.json",
+   "polished": true,
+   "controls": []
+  },
+  "cam_r_L0_mutfak_2": {
+   "status": "ok",
+   "file": "cam_r_L0_mutfak_2.json",
+   "polished": true,
+   "controls": []
+  },
+  "cam_r_L0_mutfak_3": {
+   "status": "ok",
+   "file": "cam_r_L0_mutfak_3.json",
+   "polished": true,
+   "controls": []
+  },
   "cam_r_L0_salon_1": {
    "status": "ok",
    "file": "cam_r_L0_salon_1.json",
    "polished": true,
-   "controls": [
-    "f_L0_001"
-   ]
+   "controls": []
   },
   "cam_r_L0_salon_2": {
    "status": "ok",
    "file": "cam_r_L0_salon_2.json",
    "polished": true,
-   "controls": [
-    "win_L0_001"
-   ]
+   "controls": []
   },
   "cam_r_L0_salon_3": {
    "status": "ok",
    "file": "cam_r_L0_salon_3.json",
+   "polished": true,
+   "controls": []
+  },
+  "cam_r_L0_yatak_odasi_1": {
+   "status": "ok",
+   "file": "cam_r_L0_yatak_odasi_1.json",
+   "polished": true,
+   "controls": [
+    "f_L0_006"
+   ]
+  },
+  "cam_r_L0_yatak_odasi_2": {
+   "status": "ok",
+   "file": "cam_r_L0_yatak_odasi_2.json",
+   "polished": true,
+   "controls": []
+  },
+  "cam_r_L0_yatak_odasi_3": {
+   "status": "ok",
+   "file": "cam_r_L0_yatak_odasi_3.json",
+   "polished": true,
+   "controls": []
+  },
+  "cam_r_L1_banyo_1": {
+   "status": "ok",
+   "file": "cam_r_L1_banyo_1.json",
    "polished": true,
    "controls": []
   },
@@ -582,31 +602,27 @@
    "polished": true,
    "controls": []
   },
-  "cam_r_L1_banyo_3": {
-   "status": "ok",
-   "file": "cam_r_L1_banyo_3.json",
-   "polished": true,
-   "controls": []
-  },
   "cam_r_L1_ebeveyn_yatak_odasi_1": {
    "status": "ok",
    "file": "cam_r_L1_ebeveyn_yatak_odasi_1.json",
    "polished": true,
-   "controls": []
+   "controls": [
+    "f_L1_001"
+   ]
   },
   "cam_r_L1_ebeveyn_yatak_odasi_2": {
    "status": "ok",
    "file": "cam_r_L1_ebeveyn_yatak_odasi_2.json",
    "polished": true,
-   "controls": [
-    "win_L1_003"
-   ]
+   "controls": []
   },
   "cam_r_L1_ebeveyn_yatak_odasi_3": {
    "status": "ok",
    "file": "cam_r_L1_ebeveyn_yatak_odasi_3.json",
    "polished": true,
-   "controls": []
+   "controls": [
+    "win_L1_001"
+   ]
   },
   "cam_r_L1_hol_1": {
    "status": "ok",
@@ -618,9 +634,7 @@
    "status": "ok",
    "file": "cam_r_L1_hol_2.json",
    "polished": true,
-   "controls": [
-    "f_L1_006"
-   ]
+   "controls": []
   },
   "cam_r_L1_hol_3": {
    "status": "ok",
@@ -644,12 +658,14 @@
    "status": "ok",
    "file": "cam_r_L1_yatak_odasi_3.json",
    "polished": true,
-   "controls": []
+   "controls": [
+    "d_L1_003"
+   ]
   }
  },
  "incomplete": false,
  "warnings": [],
- "detected_images": 46,
+ "detected_images": 59,
  "reused_images": 0,
- "seconds": 10.68
+ "seconds": 17.75
 }

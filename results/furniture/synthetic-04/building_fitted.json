@@ -3,8 +3,8 @@
  "project": {
   "id": "synthetic-04",
   "source_folder": "projects/synthetic-04",
-  "created_utc": "2026-10-04T00:06:34Z",
-  "pipeline_commit": "2be169d6",
+  "created_utc": "2026-10-04T09:59:57Z",
+  "pipeline_commit": "714dcc50e",
   "brief": {
    "style": "Japandi, walnut floor, cream walls, warm daylight, linen and paper lamps"
   }
@@ -1324,34 +1324,102 @@
    "front_deg": 270.0,
    "height": null,
    "asset": {
-    "library": "parametric",
-    "asset_id": "parametric:sink_kitchen",
-    "licence": "n/a",
-    "license": "n/a",
-    "method": "parametric",
+    "library": "generated",
+    "asset_id": "gen_sink_kitchen_scandinavian_2_470fa047",
+    "licence": "generated (TRELLIS.2-4B, MIT)",
+    "license": "generated (TRELLIS.2-4B, MIT)",
+    "method": "library",
     "fit_scale": [
-     1.0,
-     1.0,
-     1.0
+     0.9315,
+     0.8358,
+     0.8837
     ],
     "bbox_m": [
      0.8,
      0.5,
-     1.15
+     0.8854
     ],
-    "aspect_error": null,
+    "aspect_error": 0.1084,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
      0.0,
-     0.0,
-     0.0
+     -0.0001,
+     -0.501
     ],
-    "candidates": [],
-    "fallback_reason": "type sink_kitchen is parametric in the catalogue",
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "gen_sink_kitchen_scandinavian_2_470fa047",
+      "aspect_error": 0.1084,
+      "scale": [
+       0.9315,
+       0.8358,
+       0.8837
+      ],
+      "non_uniform": 1.1145,
+      "mean_scale": 0.8837,
+      "accepted": true,
+      "rank": 1,
+      "source": "generated",
+      "units_known": false,
+      "size_error": 0.1163,
+      "size_bucket": null,
+      "quality": 3.0
+     }
+    ],
     "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
     "style_family": null,
-    "excluded": []
+    "excluded": [],
+    "quality": [
+     5,
+     4
+    ],
+    "units_known": false,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "generated: no other library model passed the caps",
+      "units not known (normalised by type): ranked after the real-size models",
+      "quality 3",
+      "aspect error 0.108",
+      "source generated"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/generated/gen_sink_kitchen_scandinavian_2_470fa047.glb",
+    "sha256_glb": "470fa047a82308f7fa8bceefa23ebd273e131d4fc17eca9660d1e93492a63b16",
+    "uid": "gen_sink_kitchen_scandinavian_2_470fa047",
+    "title": "Generated scandinavian sink kitchen (2)",
+    "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+    "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+    "licence_url": "",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Generated scandinavian sink kitchen (2)\": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit",
+    "licence_flag": null,
+    "generated": {
+     "prompt": "a single scandinavian style kitchen sink base cabinet with a worktop and an inset sink, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+     "image_sha256": "2e6aee94d712c8d1a99174f36e6524963712ce19576ff9a072a28b03c3fa35f7",
+     "model": "microsoft/TRELLIS.2-4B",
+     "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+     "seed": 815159649
+    },
+    "style_hint": "scandinavian",
+    "name": "Generated scandinavian sink kitchen (2)",
+    "unit_scale": 1.0
    },
    "status": "verified",
    "evidence": [
@@ -1418,18 +1486,6 @@
     ],
     "candidates": [
      {
-      "id": "objaverse_7c5c9dec5c2e4ff998c386410b0e3686",
-      "aspect_error": 0.1821,
-      "scale": [
-       1.014,
-       0.8452,
-       0.9296
-      ],
-      "non_uniform": 1.1998,
-      "mean_scale": 0.9296,
-      "accepted": false
-     },
-     {
       "id": "electric_stove",
       "aspect_error": 0.2535,
       "scale": [
@@ -1439,7 +1495,31 @@
       ],
       "non_uniform": 1.2885,
       "mean_scale": 1.0601,
-      "accepted": false
+      "accepted": false,
+      "rank": 1,
+      "source": "polyhaven",
+      "units_known": true,
+      "size_error": 0.1091,
+      "size_bucket": 2,
+      "quality": 3.0
+     },
+     {
+      "id": "objaverse_7c5c9dec5c2e4ff998c386410b0e3686",
+      "aspect_error": 0.1821,
+      "scale": [
+       1.014,
+       0.8452,
+       0.9296
+      ],
+      "non_uniform": 1.1998,
+      "mean_scale": 0.9296,
+      "accepted": false,
+      "rank": 2,
+      "source": "objaverse",
+      "units_known": false,
+      "size_error": 0.0797,
+      "size_bucket": null,
+      "quality": 3.0
      }
     ],
     "fallback_reason": "no stove candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_7c5c9dec5c2e4ff998c386410b0e3686 at 20.0 % non-uniform, mean scale 0.9296)",
@@ -1523,7 +1603,13 @@
       ],
       "non_uniform": 1.0391,
       "mean_scale": 0.984,
-      "accepted": true
+      "accepted": true,
+      "rank": 1,
+      "source": "objaverse",
+      "units_known": false,
+      "size_error": 0.0179,
+      "size_bucket": null,
+      "quality": 3.0
      }
     ],
     "cap": 1.15,
@@ -1538,6 +1624,23 @@
     ],
     "style_family": null,
     "excluded": [],
+    "quality": [
+     4,
+     4
+    ],
+    "units_known": false,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "units not known (normalised by type): ranked after the real-size models",
+      "quality 3",
+      "aspect error 0.038",
+      "source objaverse"
+     ],
+     "passed_over": []
+    },
     "glb": "models/objaverse/68d69bbf7a454a09a2536ac0762532f3.glb",
     "sha256_glb": "8f80c749cbd00ea7007e102cda52309771a4f7bb567ba8cb110354caa2e9b7d9",
     "uid": "68d69bbf7a454a09a2536ac0762532f3",
@@ -1547,6 +1650,8 @@
     "licence_url": "https://creativecommons.org/licenses/by/4.0/",
     "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
     "attribution": "\"Old Fridge\" by golddog (https://sketchfab.com/3d-models/68d69bbf7a454a09a2536ac0762532f3), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "name": "Old Fridge",
     "unit_scale": 0.4196741214858973
    },
    "status": "verified",
@@ -1589,67 +1694,49 @@
    "front_deg": 270.0,
    "height": null,
    "asset": {
-    "library": "objaverse",
-    "asset_id": "objaverse_5f235f066a9a416fb7177496a9117ec7",
+    "library": "abo",
+    "asset_id": "abo_B07H93GTHW",
     "licence": "CC-BY-4.0",
     "license": "CC-BY-4.0",
     "method": "library",
     "fit_scale": [
-     0.9432,
-     0.8376,
-     0.8904
+     1.0133,
+     1.0216,
+     1.0174
     ],
     "bbox_m": [
      1.6,
      0.9,
-     0.5788
+     0.7489
     ],
-    "aspect_error": 0.1188,
+    "aspect_error": 0.0081,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     0.0066,
-     0.005,
-     -0.0161
+     0.0,
+     0.0004,
+     0.0
     ],
     "rotation_fix_deg": 0.0,
     "front_axis_confidence": "low",
     "candidates": [
      {
-      "id": "dining_table",
-      "aspect_error": 0.0913,
+      "id": "abo_B07H93GTHW",
+      "aspect_error": 0.0081,
       "scale": [
-       0.7093,
-       0.6474,
-       0.6783
+       1.0133,
+       1.0216,
+       1.0174
       ],
-      "non_uniform": 1.0956,
-      "mean_scale": 0.6783,
-      "accepted": false
-     },
-     {
-      "id": "wooden_table_02",
-      "aspect_error": 0.1011,
-      "scale": [
-       1.4104,
-       1.2748,
-       1.3426
-      ],
-      "non_uniform": 1.1064,
-      "mean_scale": 1.3426,
-      "accepted": false
-     },
-     {
-      "id": "objaverse_5f235f066a9a416fb7177496a9117ec7",
-      "aspect_error": 0.1188,
-      "scale": [
-       0.9432,
-       0.8376,
-       0.8904
-      ],
-      "non_uniform": 1.1261,
-      "mean_scale": 0.8904,
-      "accepted": true
+      "non_uniform": 1.0082,
+      "mean_scale": 1.0174,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.0174,
+      "size_bucket": 0,
+      "quality": 3.0
      }
     ],
     "cap": 1.15,
@@ -1659,20 +1746,40 @@
     ],
     "styles": [
      "modern minimal",
-     "modern"
+     "industrial"
     ],
     "style_family": null,
     "excluded": [],
-    "glb": "models/objaverse/5f235f066a9a416fb7177496a9117ec7.glb",
-    "sha256_glb": "24ecc9ca3ddef33b7899920c493eb837fce57f45917dbbcc3b2c925335eef96a",
-    "uid": "5f235f066a9a416fb7177496a9117ec7",
-    "title": "Low Poly - Chair and Table",
-    "author": "tadeus",
-    "source_url": "https://sketchfab.com/3d-models/5f235f066a9a416fb7177496a9117ec7",
+    "quality": [
+     5,
+     5
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.017 (step 0)",
+      "quality 3",
+      "aspect error 0.008",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B07H93GTHW.glb",
+    "sha256_glb": "a67cbc865976287d79f5d36ac0bbfc6f96bd88b3c0dfb2578e2e5b59f0ef1efb",
+    "uid": "abo_B07H93GTHW",
+    "title": "Amazon Brand - Movian Kuban Dining Table, 160 x 78 x 90cm, Brown Oak-Effect Table Top/Black Legs",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07H93GTHW",
     "licence_url": "https://creativecommons.org/licenses/by/4.0/",
-    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
-    "attribution": "\"Low Poly - Chair and Table\" by tadeus (https://sketchfab.com/3d-models/5f235f066a9a416fb7177496a9117ec7), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
-    "unit_scale": 0.003482351830475967
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand - Movian Kuban Dining Table, 160 x 78 x 90cm, Brown Oak-Effect Table Top/Black Legs\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Dining Table 160cm",
+    "name": "Amazon Brand - Movian Kuban Dining Table, 160 x 78 x 90cm, Brown Oak-Effect Table Top/Black Legs",
+    "unit_scale": 1.0
    },
    "status": "verified",
    "evidence": [
@@ -1714,43 +1821,67 @@
    "front_deg": 90.0,
    "height": null,
    "asset": {
-    "library": "objaverse",
-    "asset_id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+    "library": "abo",
+    "asset_id": "abo_B0857JM2NC",
     "licence": "CC-BY-4.0",
     "license": "CC-BY-4.0",
     "method": "library",
     "fit_scale": [
-     0.8707,
-     0.8946,
-     0.8827
+     0.8089,
+     0.9085,
+     0.8587
     ],
     "bbox_m": [
      0.45,
      0.45,
-     0.7319
+     0.6543
     ],
-    "aspect_error": 0.0271,
+    "aspect_error": 0.1161,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
      0.0,
-     0.0148,
-     -0.4159
+     0.0034,
+     0.0
     ],
     "rotation_fix_deg": 0.0,
     "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
-      "aspect_error": 0.0271,
+      "id": "abo_B0857JLP6K",
+      "aspect_error": 0.1941,
       "scale": [
-       0.8707,
-       0.8946,
-       0.8827
+       1.0009,
+       0.8243,
+       0.9126
       ],
-      "non_uniform": 1.0274,
-      "mean_scale": 0.8827,
-      "accepted": true
+      "non_uniform": 1.2142,
+      "mean_scale": 0.9126,
+      "accepted": false,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.088,
+      "size_bucket": 1,
+      "quality": 3.0
+     },
+     {
+      "id": "abo_B0857JM2NC",
+      "aspect_error": 0.1161,
+      "scale": [
+       0.8089,
+       0.9085,
+       0.8587
+      ],
+      "non_uniform": 1.1232,
+      "mean_scale": 0.8587,
+      "accepted": true,
+      "rank": 2,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.1413,
+      "size_bucket": 2,
+      "quality": 3.0
      }
     ],
     "cap": 1.15,
@@ -1767,16 +1898,41 @@
     ],
     "style_family": null,
     "excluded": [],
-    "glb": "models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
-    "sha256_glb": "3851bf0d21d98a40810ee7029dcf21589a6c5667ba56f0ae74a707536fead537",
-    "uid": "d2785b57e7da45858f2fe8bf4dedd68d",
-    "title": "Chair",
-    "author": "杭州维界科技有限公司",
-    "source_url": "https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d",
+    "quality": [
+     5,
+     4
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 2,
+     "tried": 2,
+     "reasons": [
+      "real size: mean |scale - 1| 0.141 (step 2)",
+      "quality 3",
+      "aspect error 0.116",
+      "source abo"
+     ],
+     "passed_over": [
+      {
+       "id": "abo_B0857JLP6K",
+       "why": "outside the caps (non-uniform 21.4 %, mean scale 0.9126)"
+      }
+     ]
+    },
+    "glb": "models/abo/abo_B0857JM2NC.glb",
+    "sha256_glb": "5542c99f25b55af987693befbbfd5e7ee8445d31209f4f5a9d7b371106164aff",
+    "uid": "abo_B0857JM2NC",
+    "title": "Amazon Brand – Stone & Beam Mid-Century Beech and Rattan Dining Chair with Arms, 21.9\"W, Natural",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B0857JM2NC",
     "licence_url": "https://creativecommons.org/licenses/by/4.0/",
-    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
-    "attribution": "\"Chair\" by 杭州维界科技有限公司 (https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
-    "unit_scale": 0.01
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Stone & Beam Mid-Century Beech and Rattan Dining Chair with Arms, 21.9\"W, Natural\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Firm",
+    "name": "Amazon Brand – Stone & Beam Mid-Century Beech and Rattan Dining Chair with Arms, 21.9\"W, Natural",
+    "unit_scale": 1.0
    },
    "status": "verified",
    "evidence": [
@@ -1818,43 +1974,67 @@
    "front_deg": 90.0,
    "height": null,
    "asset": {
-    "library": "objaverse",
-    "asset_id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+    "library": "abo",
+    "asset_id": "abo_B0857JM2NC",
     "licence": "CC-BY-4.0",
     "license": "CC-BY-4.0",
     "method": "library",
     "fit_scale": [
-     0.8707,
-     0.8946,
-     0.8827
+     0.8089,
+     0.9085,
+     0.8587
     ],
     "bbox_m": [
      0.45,
      0.45,
-     0.7319
+     0.6543
     ],
-    "aspect_error": 0.0271,
+    "aspect_error": 0.1161,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
      0.0,
-     0.0148,
-     -0.4159
+     0.0034,
+     0.0
     ],
     "rotation_fix_deg": 0.0,
     "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
-      "aspect_error": 0.0271,
+      "id": "abo_B0857JLP6K",
+      "aspect_error": 0.1941,
       "scale": [
-       0.8707,
-       0.8946,
-       0.8827
+       1.0009,
+       0.8243,
+       0.9126
       ],
-      "non_uniform": 1.0274,
-      "mean_scale": 0.8827,
-      "accepted": true
+      "non_uniform": 1.2142,
+      "mean_scale": 0.9126,
+      "accepted": false,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.088,
+      "size_bucket": 1,
+      "quality": 3.0
+     },
+     {
+      "id": "abo_B0857JM2NC",
+      "aspect_error": 0.1161,
+      "scale": [
+       0.8089,
+       0.9085,
+       0.8587
+      ],
+      "non_uniform": 1.1232,
+      "mean_scale": 0.8587,
+      "accepted": true,
+      "rank": 2,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.1413,
+      "size_bucket": 2,
+      "quality": 3.0
      }
     ],
     "cap": 1.15,
@@ -1871,16 +2051,41 @@
     ],
     "style_family": null,
     "excluded": [],
-    "glb": "models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
-    "sha256_glb": "3851bf0d21d98a40810ee7029dcf21589a6c5667ba56f0ae74a707536fead537",
-    "uid": "d2785b57e7da45858f2fe8bf4dedd68d",
-    "title": "Chair",
-    "author": "杭州维界科技有限公司",
-    "source_url": "https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d",
+    "quality": [
+     5,
+     4
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 2,
+     "tried": 2,
+     "reasons": [
+      "real size: mean |scale - 1| 0.141 (step 2)",
+      "quality 3",
+      "aspect error 0.116",
+      "source abo"
+     ],
+     "passed_over": [
+      {
+       "id": "abo_B0857JLP6K",
+       "why": "outside the caps (non-uniform 21.4 %, mean scale 0.9126)"
+      }
+     ]
+    },
+    "glb": "models/abo/abo_B0857JM2NC.glb",
+    "sha256_glb": "5542c99f25b55af987693befbbfd5e7ee8445d31209f4f5a9d7b371106164aff",
+    "uid": "abo_B0857JM2NC",
+    "title": "Amazon Brand – Stone & Beam Mid-Century Beech and Rattan Dining Chair with Arms, 21.9\"W, Natural",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B0857JM2NC",
     "licence_url": "https://creativecommons.org/licenses/by/4.0/",
-    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
-    "attribution": "\"Chair\" by 杭州维界科技有限公司 (https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
-    "unit_scale": 0.01
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Stone & Beam Mid-Century Beech and Rattan Dining Chair with Arms, 21.9\"W, Natural\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Firm",
+    "name": "Amazon Brand – Stone & Beam Mid-Century Beech and Rattan Dining Chair with Arms, 21.9\"W, Natural",
+    "unit_scale": 1.0
    },
    "status": "verified",
    "evidence": [
@@ -1922,43 +2127,67 @@
    "front_deg": 270.0,
    "height": null,
    "asset": {
-    "library": "objaverse",
-    "asset_id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+    "library": "abo",
+    "asset_id": "abo_B0857JM2NC",
     "licence": "CC-BY-4.0",
     "license": "CC-BY-4.0",
     "method": "library",
     "fit_scale": [
-     0.8707,
-     0.8946,
-     0.8827
+     0.8089,
+     0.9085,
+     0.8587
     ],
     "bbox_m": [
      0.45,
      0.45,
-     0.7319
+     0.6543
     ],
-    "aspect_error": 0.0271,
+    "aspect_error": 0.1161,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
      0.0,
-     0.0148,
-     -0.4159
+     0.0034,
+     0.0
     ],
     "rotation_fix_deg": 0.0,
     "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
-      "aspect_error": 0.0271,
+      "id": "abo_B0857JLP6K",
+      "aspect_error": 0.1941,
       "scale": [
-       0.8707,
-       0.8946,
-       0.8827
+       1.0009,
+       0.8243,
+       0.9126
       ],
-      "non_uniform": 1.0274,
-      "mean_scale": 0.8827,
-      "accepted": true
+      "non_uniform": 1.2142,
+      "mean_scale": 0.9126,
+      "accepted": false,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.088,
+      "size_bucket": 1,
+      "quality": 3.0
+     },
+     {
+      "id": "abo_B0857JM2NC",
+      "aspect_error": 0.1161,
+      "scale": [
+       0.8089,
+       0.9085,
+       0.8587
+      ],
+      "non_uniform": 1.1232,
+      "mean_scale": 0.8587,
+      "accepted": true,
+      "rank": 2,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.1413,
+      "size_bucket": 2,
+      "quality": 3.0
      }
     ],
     "cap": 1.15,
@@ -1975,16 +2204,41 @@
     ],
     "style_family": null,
     "excluded": [],
-    "glb": "models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
-    "sha256_glb": "3851bf0d21d98a40810ee7029dcf21589a6c5667ba56f0ae74a707536fead537",
-    "uid": "d2785b57e7da45858f2fe8bf4dedd68d",
-    "title": "Chair",
-    "author": "杭州维界科技有限公司",
-    "source_url": "https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d",
+    "quality": [
+     5,
+     4
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 2,
+     "tried": 2,
+     "reasons": [
+      "real size: mean |scale - 1| 0.141 (step 2)",
+      "quality 3",
+      "aspect error 0.116",
+      "source abo"
+     ],
+     "passed_over": [
+      {
+       "id": "abo_B0857JLP6K",
+       "why": "outside the caps (non-uniform 21.4 %, mean scale 0.9126)"
+      }
+     ]
+    },
+    "glb": "models/abo/abo_B0857JM2NC.glb",
+    "sha256_glb": "5542c99f25b55af987693befbbfd5e7ee8445d31209f4f5a9d7b371106164aff",
+    "uid": "abo_B0857JM2NC",
+    "title": "Amazon Brand – Stone & Beam Mid-Century Beech and Rattan Dining Chair with Arms, 21.9\"W, Natural",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B0857JM2NC",
     "licence_url": "https://creativecommons.org/licenses/by/4.0/",
-    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
-    "attribution": "\"Chair\" by 杭州维界科技有限公司 (https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
-    "unit_scale": 0.01
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Stone & Beam Mid-Century Beech and Rattan Dining Chair with Arms, 21.9\"W, Natural\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Firm",
+    "name": "Amazon Brand – Stone & Beam Mid-Century Beech and Rattan Dining Chair with Arms, 21.9\"W, Natural",
+    "unit_scale": 1.0
    },
    "status": "verified",
    "evidence": [
@@ -2026,43 +2280,67 @@
    "front_deg": 270.0,
    "height": null,
    "asset": {
-    "library": "objaverse",
-    "asset_id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
+    "library": "abo",
+    "asset_id": "abo_B0857JM2NC",
     "licence": "CC-BY-4.0",
     "license": "CC-BY-4.0",
     "method": "library",
     "fit_scale": [
-     0.8707,
-     0.8946,
-     0.8827
+     0.8089,
+     0.9085,
+     0.8587
     ],
     "bbox_m": [
      0.45,
      0.45,
-     0.7319
+     0.6543
     ],
-    "aspect_error": 0.0271,
+    "aspect_error": 0.1161,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
      0.0,
-     0.0148,
-     -0.4159
+     0.0034,
+     0.0
     ],
     "rotation_fix_deg": 0.0,
     "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
-      "aspect_error": 0.0271,
+      "id": "abo_B0857JLP6K",
+      "aspect_error": 0.1941,
       "scale": [
-       0.8707,
-       0.8946,
-       0.8827
+       1.0009,
+       0.8243,
+       0.9126
       ],
-      "non_uniform": 1.0274,
-      "mean_scale": 0.8827,
-      "accepted": true
+      "non_uniform": 1.2142,
+      "mean_scale": 0.9126,
+      "accepted": false,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.088,
+      "size_bucket": 1,
+      "quality": 3.0
+     },
+     {
+      "id": "abo_B0857JM2NC",
+      "aspect_error": 0.1161,
+      "scale": [
+       0.8089,
+       0.9085,
+       0.8587
+      ],
+      "non_uniform": 1.1232,
+      "mean_scale": 0.8587,
+      "accepted": true,
+      "rank": 2,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.1413,
+      "size_bucket": 2,
+      "quality": 3.0
      }
     ],
     "cap": 1.15,
@@ -2079,16 +2357,41 @@
     ],
     "style_family": null,
     "excluded": [],
-    "glb": "models/objaverse/d2785b57e7da45858f2fe8bf4dedd68d.glb",
-    "sha256_glb": "3851bf0d21d98a40810ee7029dcf21589a6c5667ba56f0ae74a707536fead537",
-    "uid": "d2785b57e7da45858f2fe8bf4dedd68d",
-    "title": "Chair",
-    "author": "杭州维界科技有限公司",
-    "source_url": "https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d",
+    "quality": [
+     5,
+     4
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 2,
+     "tried": 2,
+     "reasons": [
+      "real size: mean |scale - 1| 0.141 (step 2)",
+      "quality 3",
+      "aspect error 0.116",
+      "source abo"
+     ],
+     "passed_over": [
+      {
+       "id": "abo_B0857JLP6K",
+       "why": "outside the caps (non-uniform 21.4 %, mean scale 0.9126)"
+      }
+     ]
+    },
+    "glb": "models/abo/abo_B0857JM2NC.glb",
+    "sha256_glb": "5542c99f25b55af987693befbbfd5e7ee8445d31209f4f5a9d7b371106164aff",
+    "uid": "abo_B0857JM2NC",
+    "title": "Amazon Brand – Stone & Beam Mid-Century Beech and Rattan Dining Chair with Arms, 21.9\"W, Natural",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B0857JM2NC",
     "licence_url": "https://creativecommons.org/licenses/by/4.0/",
-    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
-    "attribution": "\"Chair\" by 杭州维界科技有限公司 (https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
-    "unit_scale": 0.01
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Stone & Beam Mid-Century Beech and Rattan Dining Chair with Arms, 21.9\"W, Natural\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Firm",
+    "name": "Amazon Brand – Stone & Beam Mid-Century Beech and Rattan Dining Chair with Arms, 21.9\"W, Natural",
+    "unit_scale": 1.0
    },
    "status": "verified",
    "evidence": [
@@ -2130,43 +2433,49 @@
    "front_deg": 0.0,
    "height": null,
    "asset": {
-    "library": "objaverse",
-    "asset_id": "objaverse_42da0122f2134a189767d0911b401c1c",
+    "library": "abo",
+    "asset_id": "abo_B072555T67",
     "licence": "CC-BY-4.0",
     "license": "CC-BY-4.0",
     "method": "library",
     "fit_scale": [
-     1.019,
-     1.0008,
-     1.0099
+     1.05,
+     1.0601,
+     1.055
     ],
     "bbox_m": [
      2.2,
      0.9,
-     0.7143
+     0.8385
     ],
-    "aspect_error": 0.0181,
+    "aspect_error": 0.0095,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     0.0037,
-     0.0481,
-     0.0077
+     0.0,
+     0.002,
+     0.0
     ],
     "rotation_fix_deg": 0.0,
     "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "objaverse_42da0122f2134a189767d0911b401c1c",
-      "aspect_error": 0.0181,
+      "id": "abo_B072555T67",
+      "aspect_error": 0.0095,
       "scale": [
-       1.019,
-       1.0008,
-       1.0099
+       1.05,
+       1.0601,
+       1.055
       ],
-      "non_uniform": 1.0182,
-      "mean_scale": 1.0099,
-      "accepted": true
+      "non_uniform": 1.0096,
+      "mean_scale": 1.055,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.055,
+      "size_bucket": 1,
+      "quality": 3.0
      }
     ],
     "cap": 1.15,
@@ -2180,15 +2489,35 @@
     ],
     "style_family": null,
     "excluded": [],
-    "glb": "models/objaverse/42da0122f2134a189767d0911b401c1c.glb",
-    "sha256_glb": "3c11c4750eca45c3c6f7d30b3a3505bc1512ce96ec70a71c99b30133e86a8e14",
-    "uid": "42da0122f2134a189767d0911b401c1c",
-    "title": "Couch Gameready",
-    "author": "elijahorama",
-    "source_url": "https://sketchfab.com/3d-models/42da0122f2134a189767d0911b401c1c",
+    "quality": [
+     4,
+     5
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.055 (step 1)",
+      "quality 3",
+      "aspect error 0.009",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B072555T67.glb",
+    "sha256_glb": "42a68c582aaff40ca0e36b67bd46a6651a06b9dce7e142fde388bc216ef37ccd",
+    "uid": "abo_B072555T67",
+    "title": "Marchio Amazon - Movian Ackan - Divano a 3 posti, 209 x 87 x 80 cm, grigio chiaro",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B072555T67",
     "licence_url": "https://creativecommons.org/licenses/by/4.0/",
-    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
-    "attribution": "\"Couch Gameready\" by elijahorama (https://sketchfab.com/3d-models/42da0122f2134a189767d0911b401c1c), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Marchio Amazon - Movian Ackan - Divano a 3 posti, 209 x 87 x 80 cm, grigio chiaro\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": null,
+    "name": "Marchio Amazon - Movian Ackan - Divano a 3 posti, 209 x 87 x 80 cm, grigio chiaro",
     "unit_scale": 1.0
    },
    "status": "verified",
@@ -2231,55 +2560,49 @@
    "front_deg": 0.0,
    "height": null,
    "asset": {
-    "library": "objaverse",
-    "asset_id": "objaverse_f4031bb5f7e64ebca4c37d4fa5ba6e8d",
+    "library": "abo",
+    "asset_id": "abo_B07L8DT2XT",
     "licence": "CC-BY-4.0",
     "license": "CC-BY-4.0",
     "method": "library",
     "fit_scale": [
-     0.8358,
-     0.8974,
-     0.8666
+     0.9374,
+     0.9843,
+     0.9608
     ],
     "bbox_m": [
      1.0,
      0.6,
-     0.3122
+     0.4393
     ],
-    "aspect_error": 0.0711,
+    "aspect_error": 0.0488,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
      0.0,
      0.0,
-     -0.2132
+     0.0
     ],
     "rotation_fix_deg": 0.0,
     "front_axis_confidence": "low",
     "candidates": [
      {
-      "id": "CoffeeTable_01",
-      "aspect_error": 0.0515,
+      "id": "abo_B07L8DT2XT",
+      "aspect_error": 0.0488,
       "scale": [
-       0.6494,
-       0.6168,
-       0.6331
+       0.9374,
+       0.9843,
+       0.9608
       ],
-      "non_uniform": 1.0528,
-      "mean_scale": 0.6331,
-      "accepted": false
-     },
-     {
-      "id": "objaverse_f4031bb5f7e64ebca4c37d4fa5ba6e8d",
-      "aspect_error": 0.0711,
-      "scale": [
-       0.8358,
-       0.8974,
-       0.8666
-      ],
-      "non_uniform": 1.0737,
-      "mean_scale": 0.8666,
-      "accepted": true
+      "non_uniform": 1.05,
+      "mean_scale": 0.9608,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.0392,
+      "size_bucket": 0,
+      "quality": 3.0
      }
     ],
     "cap": 1.15,
@@ -2288,21 +2611,44 @@
      1.3
     ],
     "styles": [
-     "classic",
-     "rustic"
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern",
+     "industrial"
     ],
     "style_family": null,
     "excluded": [],
-    "glb": "models/objaverse/f4031bb5f7e64ebca4c37d4fa5ba6e8d.glb",
-    "sha256_glb": "2bc22be99daf7683d44c72511d94ff01a90a3d79f817289942edcba3606cbe6f",
-    "uid": "f4031bb5f7e64ebca4c37d4fa5ba6e8d",
-    "title": "LP Table",
-    "author": "doplerato",
-    "source_url": "https://sketchfab.com/3d-models/f4031bb5f7e64ebca4c37d4fa5ba6e8d",
+    "quality": [
+     5,
+     4
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.039 (step 0)",
+      "quality 3",
+      "aspect error 0.049",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B07L8DT2XT.glb",
+    "sha256_glb": "94d8e0a09bd081d6aec8c23b2f0bc5af4436ca85b2571c4893d7bd5eeb7bbfc8",
+    "uid": "abo_B07L8DT2XT",
+    "title": "Phoenix Home Rustic Industrial Solid Wood and Steel Open Shelf Coffee Table, Brown",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07L8DT2XT",
     "licence_url": "https://creativecommons.org/licenses/by/4.0/",
-    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
-    "attribution": "\"LP Table\" by doplerato (https://sketchfab.com/3d-models/f4031bb5f7e64ebca4c37d4fa5ba6e8d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
-    "unit_scale": 8.325952670722103
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Phoenix Home Rustic Industrial Solid Wood and Steel Open Shelf Coffee Table, Brown\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Industrial",
+    "name": "Phoenix Home Rustic Industrial Solid Wood and Steel Open Shelf Coffee Table, Brown",
+    "unit_scale": 1.0
    },
    "status": "verified",
    "evidence": [
@@ -2344,59 +2690,92 @@
    "front_deg": 180.0,
    "height": null,
    "asset": {
-    "library": "parametric",
-    "asset_id": "parametric:tv_unit",
-    "licence": "n/a",
-    "license": "n/a",
-    "method": "parametric",
+    "library": "abo",
+    "asset_id": "abo_B07BVHKPFS",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
     "fit_scale": [
-     1.0,
-     1.0,
-     1.0
+     0.9839,
+     0.9365,
+     0.9602
     ],
     "bbox_m": [
      1.6,
      0.45,
-     0.5
+     0.5853
     ],
-    "aspect_error": null,
+    "aspect_error": 0.0493,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
      0.0,
-     0.0,
+     -0.0096,
      0.0
     ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "modern_wooden_cabinet",
-      "aspect_error": 0.2774,
+      "id": "abo_B07BVHKPFS",
+      "aspect_error": 0.0493,
       "scale": [
-       0.6557,
-       0.8654,
-       0.7606
+       0.9839,
+       0.9365,
+       0.9602
       ],
-      "non_uniform": 1.3197,
-      "mean_scale": 0.7606,
-      "accepted": false
-     },
-     {
-      "id": "WoodenTable_03",
-      "aspect_error": 0.4328,
-      "scale": [
-       1.2058,
-       0.7822,
-       0.994
-      ],
-      "non_uniform": 1.5416,
-      "mean_scale": 0.994,
-      "accepted": false
+      "non_uniform": 1.0506,
+      "mean_scale": 0.9602,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.0398,
+      "size_bucket": 0,
+      "quality": 3.0
      }
     ],
-    "fallback_reason": "no tv_unit candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: modern_wooden_cabinet at 32.0 % non-uniform, mean scale 0.7606)",
     "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "japandi",
+     "modern"
+    ],
     "style_family": null,
-    "excluded": []
+    "excluded": [],
+    "quality": [
+     5,
+     5
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.040 (step 0)",
+      "quality 3",
+      "aspect error 0.049",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B07BVHKPFS.glb",
+    "sha256_glb": "16a0ac966ecbd48dcda642cd77da4595a6f657e8e35808624a38eee1dc628801",
+    "uid": "abo_B07BVHKPFS",
+    "title": "Amazon Brand – Rivet Bowlyn Mid-Century Modern Wood TV Media Table Stand, 64\", Walnut",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07BVHKPFS",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Rivet Bowlyn Mid-Century Modern Wood TV Media Table Stand, 64\", Walnut\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "68\" Media Console",
+    "name": "Amazon Brand – Rivet Bowlyn Mid-Century Modern Wood TV Media Table Stand, 64\", Walnut",
+    "unit_scale": 1.0
    },
    "status": "verified",
    "evidence": [
@@ -2438,43 +2817,49 @@
    "front_deg": 225.0,
    "height": null,
    "asset": {
-    "library": "objaverse",
-    "asset_id": "objaverse_aedb9509ef9347a5b055e02deeadeff7",
+    "library": "abo",
+    "asset_id": "abo_B075X4N3GM",
     "licence": "CC-BY-4.0",
     "license": "CC-BY-4.0",
     "method": "library",
     "fit_scale": [
-     0.9978,
-     0.9984,
-     0.9981
+     0.9698,
+     1.0671,
+     1.0185
     ],
     "bbox_m": [
      0.9,
      0.9,
-     0.9412
+     0.7878
     ],
-    "aspect_error": 0.0007,
-    "front_axis": "+X",
+    "aspect_error": 0.0956,
+    "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     -0.0295,
-     -0.001,
-     0.0002
+     0.0,
+     -0.0253,
+     0.0
     ],
-    "rotation_fix_deg": 270.0,
+    "rotation_fix_deg": 0.0,
     "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "objaverse_aedb9509ef9347a5b055e02deeadeff7",
-      "aspect_error": 0.0007,
+      "id": "abo_B075X4N3GM",
+      "aspect_error": 0.0956,
       "scale": [
-       0.9978,
-       0.9984,
-       0.9981
+       0.9698,
+       1.0671,
+       1.0185
       ],
-      "non_uniform": 1.0007,
-      "mean_scale": 0.9981,
-      "accepted": true
+      "non_uniform": 1.1003,
+      "mean_scale": 1.0185,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.0386,
+      "size_bucket": 0,
+      "quality": 3.0
      }
     ],
     "cap": 1.15,
@@ -2483,20 +2868,41 @@
      1.3
     ],
     "styles": [
-     "classic"
+     "modern",
+     "neutral"
     ],
     "style_family": null,
     "excluded": [],
-    "glb": "models/objaverse/aedb9509ef9347a5b055e02deeadeff7.glb",
-    "sha256_glb": "f1e2aca421cebd2ba10178fc88899a41a06c27508609a639ba3c638be6788808",
-    "uid": "aedb9509ef9347a5b055e02deeadeff7",
-    "title": "Sofa",
-    "author": "mustafasahinfb",
-    "source_url": "https://sketchfab.com/3d-models/aedb9509ef9347a5b055e02deeadeff7",
+    "quality": [
+     5,
+     5
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.039 (step 0)",
+      "quality 3",
+      "aspect error 0.096",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B075X4N3GM.glb",
+    "sha256_glb": "aa989d8447bd125e461ae9578b562e2999afd4f5a8ae21fec64e245bff3a7892",
+    "uid": "abo_B075X4N3GM",
+    "title": "Amazon Brand – Rivet Aiden Tufted Mid-Century Modern Velvet Accent Chair, 35.4\"W, Otter Grey",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B075X4N3GM",
     "licence_url": "https://creativecommons.org/licenses/by/4.0/",
-    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
-    "attribution": "\"Sofa\" by mustafasahinfb (https://sketchfab.com/3d-models/aedb9509ef9347a5b055e02deeadeff7), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
-    "unit_scale": 0.01
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Rivet Aiden Tufted Mid-Century Modern Velvet Accent Chair, 35.4\"W, Otter Grey\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Mid-Century modern",
+    "name": "Amazon Brand – Rivet Aiden Tufted Mid-Century Modern Velvet Accent Chair, 35.4\"W, Otter Grey",
+    "unit_scale": 1.0
    },
    "status": "verified",
    "evidence": [
@@ -2538,43 +2944,49 @@
    "front_deg": 0.0,
    "height": null,
    "asset": {
-    "library": "objaverse",
-    "asset_id": "objaverse_51d928b33e5549898cc86cbdaf966d83",
-    "licence": "CC-BY-4.0",
-    "license": "CC-BY-4.0",
+    "library": "polyhaven",
+    "asset_id": "wooden_display_shelves_01",
+    "licence": "CC0",
+    "license": "CC0",
     "method": "library",
     "fit_scale": [
-     0.8363,
-     0.8355,
-     0.8359
+     0.9278,
+     0.9421,
+     0.935
     ],
     "bbox_m": [
      1.0,
      0.35,
-     1.6659
+     1.455
     ],
-    "aspect_error": 0.001,
-    "front_axis": "-Y",
+    "aspect_error": 0.0153,
+    "front_axis": "-X",
     "up_axis": "+Z",
     "origin_offset": [
      0.0,
-     -0.0101,
-     -0.0
+     0.0,
+     0.0004
     ],
-    "rotation_fix_deg": 0.0,
-    "front_axis_confidence": "high",
+    "rotation_fix_deg": 90.0,
+    "front_axis_confidence": "low",
     "candidates": [
      {
-      "id": "objaverse_51d928b33e5549898cc86cbdaf966d83",
-      "aspect_error": 0.001,
+      "id": "wooden_display_shelves_01",
+      "aspect_error": 0.0153,
       "scale": [
-       0.8363,
-       0.8355,
-       0.8359
+       0.9278,
+       0.9421,
+       0.935
       ],
-      "non_uniform": 1.001,
-      "mean_scale": 0.8359,
-      "accepted": true
+      "non_uniform": 1.0154,
+      "mean_scale": 0.935,
+      "accepted": true,
+      "rank": 1,
+      "source": "polyhaven",
+      "units_known": true,
+      "size_error": 0.065,
+      "size_bucket": 1,
+      "quality": 3.0
      }
     ],
     "cap": 1.15,
@@ -2583,21 +2995,29 @@
      1.3
     ],
     "styles": [
+     "scandinavian",
+     "japandi",
      "modern minimal",
-     "minimal"
+     "minimal",
+     "modern"
     ],
     "style_family": null,
     "excluded": [],
-    "glb": "models/objaverse/51d928b33e5549898cc86cbdaf966d83.glb",
-    "sha256_glb": "8876efd23bfdc64030a37788be6960c5cd318440e1da3e8ce945d936977510fa",
-    "uid": "51d928b33e5549898cc86cbdaf966d83",
-    "title": "Simple Book Shelf | [FREE] | Agustin Honnun",
-    "author": "Agustín Hönnun",
-    "source_url": "https://sketchfab.com/3d-models/51d928b33e5549898cc86cbdaf966d83",
-    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
-    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
-    "attribution": "\"Simple Book Shelf | [FREE] | Agustin Honnun\" by Agustín Hönnun (https://sketchfab.com/3d-models/51d928b33e5549898cc86cbdaf966d83), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
-    "unit_scale": 1.0
+    "quality": null,
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.065 (step 1)",
+      "quality 3",
+      "aspect error 0.015",
+      "source polyhaven"
+     ],
+     "passed_over": []
+    },
+    "gltf": "models/wooden_display_shelves_01/wooden_display_shelves_01_1k.gltf"
    },
    "status": "verified",
    "evidence": [
@@ -2639,43 +3059,49 @@
    "front_deg": 270.0,
    "height": null,
    "asset": {
-    "library": "polyhaven",
-    "asset_id": "GothicBed_01",
-    "licence": "CC0",
-    "license": "CC0",
+    "library": "abo",
+    "asset_id": "abo_B071FJR4FW",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
     "method": "library",
     "fit_scale": [
-     1.0711,
-     0.9804,
-     1.0257
+     0.9826,
+     0.9479,
+     0.9652
     ],
     "bbox_m": [
      1.6,
      2.0,
-     1.5732
+     1.3735
     ],
-    "aspect_error": 0.0885,
+    "aspect_error": 0.0359,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     0.0355,
-     0.0331,
-     -0.0
+     -0.0011,
+     0.0,
+     0.0
     ],
     "rotation_fix_deg": 0.0,
     "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "GothicBed_01",
-      "aspect_error": 0.0885,
+      "id": "abo_B071FJR4FW",
+      "aspect_error": 0.0359,
       "scale": [
-       1.0711,
-       0.9804,
-       1.0257
+       0.9826,
+       0.9479,
+       0.9652
       ],
-      "non_uniform": 1.0925,
-      "mean_scale": 1.0257,
-      "accepted": true
+      "non_uniform": 1.0366,
+      "mean_scale": 0.9652,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.0348,
+      "size_bucket": 0,
+      "quality": 3.0
      }
     ],
     "cap": 1.15,
@@ -2684,11 +3110,44 @@
      1.3
     ],
     "styles": [
-     "classic"
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
     ],
     "style_family": null,
     "excluded": [],
-    "gltf": "models/GothicBed_01/GothicBed_01_1k.gltf"
+    "quality": [
+     5,
+     4
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.035 (step 0)",
+      "quality 3",
+      "aspect error 0.036",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B071FJR4FW.glb",
+    "sha256_glb": "3e30deb1fbb74ca48e3458919c8b1346ea3676a09bc7489217a3b8ba6ebf7e03",
+    "uid": "abo_B071FJR4FW",
+    "title": "Amazon Brand – Stone & Beam Glenwood Industrial Metal Accent Bed, Queen, 84.5\"L, Oak",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B071FJR4FW",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Stone & Beam Glenwood Industrial Metal Accent Bed, Queen, 84.5\"L, Oak\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Queen Bed",
+    "name": "Amazon Brand – Stone & Beam Glenwood Industrial Metal Accent Bed, Queen, 84.5\"L, Oak",
+    "unit_scale": 1.0
    },
    "status": "verified",
    "evidence": [
@@ -2730,43 +3189,49 @@
    "front_deg": 270.0,
    "height": null,
    "asset": {
-    "library": "polyhaven",
-    "asset_id": "side_table_01",
-    "licence": "CC0",
-    "license": "CC0",
+    "library": "abo",
+    "asset_id": "abo_B084MYDTKM",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
     "method": "library",
     "fit_scale": [
-     0.9091,
-     0.8889,
-     0.899
+     1.0936,
+     0.9843,
+     1.0389
     ],
     "bbox_m": [
      0.5,
      0.4,
-     0.4951
+     0.5805
     ],
-    "aspect_error": 0.0225,
+    "aspect_error": 0.1054,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
      0.0,
-     0.0,
-     -0.0024
+     -0.0016,
+     0.0
     ],
     "rotation_fix_deg": 0.0,
-    "front_axis_confidence": "low",
+    "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "side_table_01",
-      "aspect_error": 0.0225,
+      "id": "abo_B084MYDTKM",
+      "aspect_error": 0.1054,
       "scale": [
-       0.9091,
-       0.8889,
-       0.899
+       1.0936,
+       0.9843,
+       1.0389
       ],
-      "non_uniform": 1.0227,
-      "mean_scale": 0.899,
-      "accepted": true
+      "non_uniform": 1.1111,
+      "mean_scale": 1.0389,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.0494,
+      "size_bucket": 0,
+      "quality": 3.0
      }
     ],
     "cap": 1.15,
@@ -2775,15 +3240,43 @@
      1.3
     ],
     "styles": [
-     "scandinavian",
      "japandi",
      "modern minimal",
      "minimal",
-     "modern"
+     "rustic"
     ],
     "style_family": null,
     "excluded": [],
-    "gltf": "models/side_table_01/side_table_01_1k.gltf"
+    "quality": [
+     5,
+     5
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.049 (step 0)",
+      "quality 3",
+      "aspect error 0.105",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B084MYDTKM.glb",
+    "sha256_glb": "0ffb75ec05453918ab9b1ad2a814782bccb12ad64b4c6009ac28405dec1a4ce0",
+    "uid": "abo_B084MYDTKM",
+    "title": "Amazon Brand - Rivet Mango Wood and Iron 3-Drawer Shutter Nightstand, 18\"W, Natural Finish",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B084MYDTKM",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand - Rivet Mango Wood and Iron 3-Drawer Shutter Nightstand, 18\"W, Natural Finish\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "midd Century modern",
+    "name": "Amazon Brand - Rivet Mango Wood and Iron 3-Drawer Shutter Nightstand, 18\"W, Natural Finish",
+    "unit_scale": 1.0
    },
    "status": "verified",
    "evidence": [
@@ -2825,43 +3318,49 @@
    "front_deg": 270.0,
    "height": null,
    "asset": {
-    "library": "polyhaven",
-    "asset_id": "side_table_01",
-    "licence": "CC0",
-    "license": "CC0",
+    "library": "abo",
+    "asset_id": "abo_B084MYDTKM",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
     "method": "library",
     "fit_scale": [
-     0.9091,
-     0.8889,
-     0.899
+     1.0936,
+     0.9843,
+     1.0389
     ],
     "bbox_m": [
      0.5,
      0.4,
-     0.4951
+     0.5805
     ],
-    "aspect_error": 0.0225,
+    "aspect_error": 0.1054,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
      0.0,
-     0.0,
-     -0.0024
+     -0.0016,
+     0.0
     ],
     "rotation_fix_deg": 0.0,
-    "front_axis_confidence": "low",
+    "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "side_table_01",
-      "aspect_error": 0.0225,
+      "id": "abo_B084MYDTKM",
+      "aspect_error": 0.1054,
       "scale": [
-       0.9091,
-       0.8889,
-       0.899
+       1.0936,
+       0.9843,
+       1.0389
       ],
-      "non_uniform": 1.0227,
-      "mean_scale": 0.899,
-      "accepted": true
+      "non_uniform": 1.1111,
+      "mean_scale": 1.0389,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.0494,
+      "size_bucket": 0,
+      "quality": 3.0
      }
     ],
     "cap": 1.15,
@@ -2870,15 +3369,43 @@
      1.3
     ],
     "styles": [
-     "scandinavian",
      "japandi",
      "modern minimal",
      "minimal",
-     "modern"
+     "rustic"
     ],
     "style_family": null,
     "excluded": [],
-    "gltf": "models/side_table_01/side_table_01_1k.gltf"
+    "quality": [
+     5,
+     5
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.049 (step 0)",
+      "quality 3",
+      "aspect error 0.105",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B084MYDTKM.glb",
+    "sha256_glb": "0ffb75ec05453918ab9b1ad2a814782bccb12ad64b4c6009ac28405dec1a4ce0",
+    "uid": "abo_B084MYDTKM",
+    "title": "Amazon Brand - Rivet Mango Wood and Iron 3-Drawer Shutter Nightstand, 18\"W, Natural Finish",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B084MYDTKM",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand - Rivet Mango Wood and Iron 3-Drawer Shutter Nightstand, 18\"W, Natural Finish\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "midd Century modern",
+    "name": "Amazon Brand - Rivet Mango Wood and Iron 3-Drawer Shutter Nightstand, 18\"W, Natural Finish",
+    "unit_scale": 1.0
    },
    "status": "verified",
    "evidence": [
@@ -2920,22 +3447,22 @@
    "front_deg": 0.0,
    "height": null,
    "asset": {
-    "library": "parametric",
-    "asset_id": "parametric:wardrobe",
-    "licence": "n/a",
-    "license": "n/a",
-    "method": "parametric",
+    "library": "abo",
+    "asset_id": "abo_B07JGPKZYT",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
     "fit_scale": [
-     1.0,
-     1.0,
-     1.0
+     0.9946,
+     1.0347,
+     1.0147
     ],
     "bbox_m": [
      1.8,
      0.6,
-     2.1
+     2.1002
     ],
-    "aspect_error": null,
+    "aspect_error": 0.0394,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
@@ -2943,48 +3470,71 @@
      0.0,
      0.0
     ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "objaverse_b3a99e956be64ab6958f7f5e1895f031",
-      "aspect_error": 0.2691,
+      "id": "abo_B07JGPKZYT",
+      "aspect_error": 0.0394,
       "scale": [
-       1.3923,
-       1.0638,
-       1.2281
+       0.9946,
+       1.0347,
+       1.0147
       ],
-      "non_uniform": 1.3088,
-      "mean_scale": 1.2281,
-      "accepted": false
-     },
-     {
-      "id": "objaverse_b46803ba0bc64e12b31f832fb761c4e0",
-      "aspect_error": 0.4784,
-      "scale": [
-       1.7202,
-       1.0661,
-       1.3931
-      ],
-      "non_uniform": 1.6135,
-      "mean_scale": 1.3931,
-      "accepted": false
-     },
-     {
-      "id": "objaverse_05a035c3347645b8a7ceb6d65f825ac3",
-      "aspect_error": 0.5003,
-      "scale": [
-       1.5848,
-       0.9609,
-       1.2729
-      ],
-      "non_uniform": 1.6492,
-      "mean_scale": 1.2729,
-      "accepted": false
+      "non_uniform": 1.0402,
+      "mean_scale": 1.0147,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.0183,
+      "size_bucket": 0,
+      "quality": 3.0
      }
     ],
-    "fallback_reason": "no wardrobe candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_b3a99e956be64ab6958f7f5e1895f031 at 30.9 % non-uniform, mean scale 1.2281)",
     "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
     "style_family": null,
-    "excluded": []
+    "excluded": [],
+    "quality": [
+     5,
+     4
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.018 (step 0)",
+      "quality 3",
+      "aspect error 0.039",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B07JGPKZYT.glb",
+    "sha256_glb": "c6f09aa32c6e20c1046c43339e3e271eb7da9732ab97e765c690c0a3dc4a72be",
+    "uid": "abo_B07JGPKZYT",
+    "title": "Amazon Brand - Movian Mira 4-Door Wardrobe with Mirrors, 181 x 207 x 58cm, Light Brown Oak-Effect",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07JGPKZYT",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand - Movian Mira 4-Door Wardrobe with Mirrors, 181 x 207 x 58cm, Light Brown Oak-Effect\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "4-Door Wardrobe With Mirror",
+    "name": "Amazon Brand - Movian Mira 4-Door Wardrobe with Mirrors, 181 x 207 x 58cm, Light Brown Oak-Effect",
+    "unit_scale": 1.0
    },
    "status": "verified",
    "evidence": [
@@ -3049,8 +3599,63 @@
      0.0,
      0.0
     ],
-    "candidates": [],
-    "fallback_reason": "type bathtub is parametric in the catalogue",
+    "candidates": [
+     {
+      "id": "gen_bathtub_scandinavian_2_6fde34a5",
+      "aspect_error": 0.2662,
+      "scale": [
+       1.2199,
+       0.9348,
+       1.0774
+      ],
+      "non_uniform": 1.305,
+      "mean_scale": 1.0774,
+      "accepted": false,
+      "rank": 1,
+      "source": "generated",
+      "units_known": false,
+      "size_error": 0.1208,
+      "size_bucket": null,
+      "quality": 3.0
+     },
+     {
+      "id": "gen_bathtub_modern_minimal_1_1a44f6ff",
+      "aspect_error": 0.3209,
+      "scale": [
+       1.2729,
+       0.9235,
+       1.0982
+      ],
+      "non_uniform": 1.3783,
+      "mean_scale": 1.0982,
+      "accepted": false,
+      "rank": 2,
+      "source": "generated",
+      "units_known": false,
+      "size_error": 0.1492,
+      "size_bucket": null,
+      "quality": 3.0
+     },
+     {
+      "id": "gen_bathtub_scandinavian_1_230fe403",
+      "aspect_error": 0.334,
+      "scale": [
+       1.3478,
+       0.9651,
+       1.1565
+      ],
+      "non_uniform": 1.3965,
+      "mean_scale": 1.1565,
+      "accepted": false,
+      "rank": 3,
+      "source": "generated",
+      "units_known": false,
+      "size_error": 0.1797,
+      "size_bucket": null,
+      "quality": 3.0
+     }
+    ],
+    "fallback_reason": "no bathtub candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: gen_bathtub_scandinavian_2_6fde34a5 at 30.5 % non-uniform, mean scale 1.0774)",
     "cap": 1.15,
     "style_family": null,
     "excluded": []
@@ -3129,7 +3734,13 @@
       ],
       "non_uniform": 1.2502,
       "mean_scale": 0.9941,
-      "accepted": false
+      "accepted": false,
+      "rank": 1,
+      "source": "objaverse",
+      "units_known": false,
+      "size_error": 0.0756,
+      "size_bucket": null,
+      "quality": 3.0
      },
      {
       "id": "objaverse_24d1b493899d407780140688abae19bc",
@@ -3141,7 +3752,13 @@
       ],
       "non_uniform": 1.2534,
       "mean_scale": 0.9942,
-      "accepted": false
+      "accepted": false,
+      "rank": 2,
+      "source": "objaverse",
+      "units_known": false,
+      "size_error": 0.0765,
+      "size_bucket": null,
+      "quality": 3.0
      },
      {
       "id": "objaverse_0b3325fad3e740b1ac86173c90b56afd",
@@ -3153,7 +3770,13 @@
       ],
       "non_uniform": 1.3033,
       "mean_scale": 0.9967,
-      "accepted": false
+      "accepted": false,
+      "rank": 3,
+      "source": "objaverse",
+      "units_known": false,
+      "size_error": 0.0886,
+      "size_bucket": null,
+      "quality": 3.0
      }
     ],
     "fallback_reason": "no toilet candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_3446229dce1f47528fa871cc7669136c at 25.0 % non-uniform, mean scale 0.9941)",
@@ -3237,7 +3860,13 @@
       ],
       "non_uniform": 1.022,
       "mean_scale": 0.9352,
-      "accepted": true
+      "accepted": true,
+      "rank": 1,
+      "source": "objaverse",
+      "units_known": false,
+      "size_error": 0.0648,
+      "size_bucket": null,
+      "quality": 3.0
      }
     ],
     "cap": 1.15,
@@ -3252,6 +3881,23 @@
     ],
     "style_family": null,
     "excluded": [],
+    "quality": [
+     4,
+     4
+    ],
+    "units_known": false,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "units not known (normalised by type): ranked after the real-size models",
+      "quality 3",
+      "aspect error 0.022",
+      "source objaverse"
+     ],
+     "passed_over": []
+    },
     "glb": "models/objaverse/ce1a06f7cbe1425099a145f851fc5dee.glb",
     "sha256_glb": "e1b99caba563b6c71d79eb960591d5e1049a3e7c086c6518aa83772a0621fbae",
     "uid": "ce1a06f7cbe1425099a145f851fc5dee",
@@ -3261,6 +3907,8 @@
     "licence_url": "https://creativecommons.org/licenses/by/4.0/",
     "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
     "attribution": "\"Sink\" by Shining Salt (https://sketchfab.com/3d-models/ce1a06f7cbe1425099a145f851fc5dee), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "name": "Sink",
     "unit_scale": 0.32432313118014205
    },
    "status": "verified",

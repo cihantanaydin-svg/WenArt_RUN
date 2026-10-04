@@ -5,40 +5,43 @@
  "stage": "gate",
  "rc": 0,
  "status": "ok",
- "seconds": 71.13,
- "fingerprint": "187891d0a5c7945f7ade33cbef1d13e492b19f20239bf42b1f5c956b83492c8b",
+ "seconds": 59.0,
+ "fingerprint": "6bec7312559c88de6be4ae36e2a4c3375d5b9079c85b06547da22a701e273e2d",
  "inputs": {
-  "outputs/synthetic-04/renders/render_manifest.json": "1ada4e31028c15a4ada5b5fea59d146a431ebecfa8cf325ecfdaa4dc2cba9dc4",
-  "outputs/synthetic-04/check/controls.json": "616defbd4773f5593d6c02dbe1d8dfc8238a1319cd886ad03943622037fd293e",
+  "outputs/synthetic-04/renders/render_manifest.json": "6538e9ea29fb7e2f059593a9a5ee589db9beaf457e7a81453c076b3b4bacedf8",
+  "outputs/synthetic-04/check/controls.json": "b72fb461451d22793f47f81619b4ff3317f4a1569933f54aa000a5fee65d97f0",
   "outputs/synthetic-04/polish/sweep/polish_manifest.json": null,
-  "outputs/synthetic-04/controls/hide_d_L3_002/render_manifest.json": "8d50c040ad363940760382db77c6927a53f38d9fff98853347e0e6a0d2e18346",
-  "outputs/synthetic-04/controls/hide_f_L3_010/render_manifest.json": "40ce6e150a96add95c67d9aae8e8d571827d7c09939140c5344b6b7096e7c6e0",
+  "outputs/synthetic-04/controls/hide_d_L3_002/render_manifest.json": "64ab0da78cf7b862a77ba6a80584b7ba9450b0d5e2e4d35800cf2defc3b642e1",
+  "outputs/synthetic-04/controls/hide_d_L3_004/render_manifest.json": "df3875031dc21c0e147f8a4e0a67c4b2789b492b3c8872222fcb9f7d00546b99",
+  "outputs/synthetic-04/controls/hide_f_L3_010/render_manifest.json": "9b3a770873c91d110c2dde5bc22db8f700ac04bf4de37a6fb421fa99ee904dd3",
+  "outputs/synthetic-04/controls/hide_f_L3_015/render_manifest.json": "4020a3bc09b70832153295b60185223cac71d277c3762c9a342b99dd545c5d57",
   "outputs/synthetic-04/controls/hide_f_L3_018/render_manifest.json": "0eddf9a43c5cab6b40b2bfad2724a5d285df14b612a3fa6acf7f82a0c6b53f5d",
+  "outputs/synthetic-04/controls/hide_f_L3_022/render_manifest.json": "d8cd51267d657811bac88ba0799430499c0ee806f82d99d8a1ff7afaf0115d88",
   "outputs/synthetic-04/controls/hide_f_L3_026/render_manifest.json": "bd13b5e4daeb3c7b3cc363640e9dfca7160f68b574313a017864034e2cf061d7",
   "outputs/synthetic-04/controls/hide_win_L3_001/render_manifest.json": "705dda208195be0ab2754a078fd31f1f7ef002ca9d3f9a55edbdf8b84b77ee05",
-  "outputs/synthetic-04/controls/hide_win_L3_008/render_manifest.json": "128ee0f82306c467cb99624ddf186ac0e9f05ec5fe4b3629c5bad2a51ae92f4e",
+  "outputs/synthetic-04/controls/hide_win_L3_008/render_manifest.json": "2ca5869b2b2421bd804685a74130afdbdf23387e3e53874577b8573d602d1654",
   "outputs/synthetic-04/controls/hide_win_L3_009/render_manifest.json": "c19efe46b73ab30e66095c393d04bad9509681c5edd67cd381f470c3fef83cad",
-  "outputs/synthetic-04/controls/hide_win_L3_010/render_manifest.json": "31b3bd15bfd67496d2f722319645c5a9e452cfd0c21cce5dce4b68d0e1b9fcb9"
+  "outputs/synthetic-04/controls/hide_win_L3_010/render_manifest.json": "3a0aca2e9a95d35a26457c6b41609d3fcc4aad30e6785f4ae2acf35a328aa2c1"
  },
  "outputs": [
   "gate/gate_calibration.json",
   "gate/gate_validation.json"
  ],
- "started_utc": "2026-10-04T01:00:58Z",
- "git_commit": "2be169d6342eed721324d995d3e380aecfc0b6b0",
+ "started_utc": "2026-10-04T10:30:38Z",
+ "git_commit": "714dcc50e1a342a6b723451c219e22291d3d333f",
  "log": "logs/gate.log",
  "note": "gate decision ok",
- "run_id": "20261004-000052-full-20261004T000516Z",
+ "run_id": "20261004-095244-full-20261004T095809Z",
  "steps": [
   {
    "name": "calibrate",
    "rc": 0,
-   "seconds": 69.73
+   "seconds": 57.77
   },
   {
    "name": "validate",
    "rc": 0,
-   "seconds": 1.4
+   "seconds": 1.23
   }
  ],
  "written": {}

@@ -3,8 +3,8 @@
  "project": {
   "id": "real01",
   "source_folder": "projects/real01",
-  "created_utc": "2026-10-04T00:08:04Z",
-  "pipeline_commit": "2be169d6",
+  "created_utc": "2026-10-04T10:00:12Z",
+  "pipeline_commit": "714dcc50e",
   "unit_system": "imperial"
  },
  "status": "ok",
@@ -1971,45 +1971,63 @@
    "front_deg": 270.0,
    "height": null,
    "asset": {
-    "library": "parametric",
-    "asset_id": "parametric:bed_double",
-    "licence": "n/a",
-    "license": "n/a",
-    "method": "parametric",
+    "library": "abo",
+    "asset_id": "abo_B071FJR4FW",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
     "fit_scale": [
-     1.0,
-     1.0,
-     1.0
+     1.0928,
+     0.9619,
+     1.0273
     ],
     "bbox_m": [
      1.7795,
      2.0295,
-     1.0
+     1.4618
     ],
-    "aspect_error": null,
+    "aspect_error": 0.1276,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     0.0,
+     -0.0011,
      0.0,
      0.0
     ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "objaverse_08f7f65edfea417b8ed9ca748381e507",
-      "aspect_error": 0.2657,
+      "id": "abo_B071FJR4FW",
+      "aspect_error": 0.1276,
       "scale": [
-       0.7328,
-       0.9559,
-       0.8443
+       1.0928,
+       0.9619,
+       1.0273
       ],
-      "non_uniform": 1.3044,
-      "mean_scale": 0.8443,
-      "accepted": false
+      "non_uniform": 1.1361,
+      "mean_scale": 1.0273,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.0527,
+      "size_bucket": 1,
+      "quality": 3.0
      }
     ],
-    "fallback_reason": "no bed_double candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_08f7f65edfea417b8ed9ca748381e507 at 30.4 % non-uniform, mean scale 0.8443)",
     "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
     "style_family": "scandinavian",
     "excluded": [
      {
@@ -2017,14 +2035,56 @@
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
      {
-      "id": "objaverse_2bd3fcc82c9f43cfb0c8cf26c7d0107c",
-      "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
+      "id": "abo_B071W2SCTJ",
+      "reason": "styles ['minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B075QDMWTP",
+      "reason": "styles ['modern minimal'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07B4Z9Q3S",
+      "reason": "styles ['modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B08FTN8KHY",
+      "reason": "styles ['modern minimal', 'industrial'] include neither scandinavian nor neutral"
      },
      {
       "id": "objaverse_5d3a99865ac84d8a8bf06b263aa5bb55",
       "reason": "styles ['industrial'] include neither scandinavian nor neutral"
      }
-    ]
+    ],
+    "quality": [
+     5,
+     4
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.053 (step 1)",
+      "quality 3",
+      "aspect error 0.128",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B071FJR4FW.glb",
+    "sha256_glb": "3e30deb1fbb74ca48e3458919c8b1346ea3676a09bc7489217a3b8ba6ebf7e03",
+    "uid": "abo_B071FJR4FW",
+    "title": "Amazon Brand – Stone & Beam Glenwood Industrial Metal Accent Bed, Queen, 84.5\"L, Oak",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B071FJR4FW",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Stone & Beam Glenwood Industrial Metal Accent Bed, Queen, 84.5\"L, Oak\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Queen Bed",
+    "name": "Amazon Brand – Stone & Beam Glenwood Industrial Metal Accent Bed, Queen, 84.5\"L, Oak",
+    "unit_scale": 1.0
    },
    "status": "verified",
    "evidence": [
@@ -2104,29 +2164,31 @@
    "front_deg": null,
    "height": null,
    "asset": {
-    "library": "parametric",
-    "asset_id": "parametric:nightstand",
-    "licence": "n/a",
-    "license": "n/a",
-    "method": "parametric",
+    "library": "abo",
+    "asset_id": "abo_B01D3C7Z4A",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
     "fit_scale": [
-     1.0,
-     1.0,
-     1.0
+     1.1588,
+     1.1643,
+     1.1615
     ],
     "bbox_m": [
      0.4956,
      0.4868,
-     0.5
+     0.7129
     ],
-    "aspect_error": null,
+    "aspect_error": 0.0048,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     0.0,
-     0.0,
+     0.0003,
+     0.0006,
      0.0
     ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
     "candidates": [
      {
       "id": "side_table_01",
@@ -2138,11 +2200,81 @@
       ],
       "non_uniform": 1.2005,
       "mean_scale": 0.9914,
-      "accepted": false
+      "accepted": false,
+      "rank": 1,
+      "source": "polyhaven",
+      "units_known": true,
+      "size_error": 0.0631,
+      "size_bucket": 1,
+      "quality": 3.0
+     },
+     {
+      "id": "abo_B07K7K7GTZ",
+      "aspect_error": 0.2231,
+      "scale": [
+       0.8853,
+       1.1066,
+       0.996
+      ],
+      "non_uniform": 1.25,
+      "mean_scale": 0.996,
+      "accepted": false,
+      "rank": 2,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.0751,
+      "size_bucket": 1,
+      "quality": 3.0
+     },
+     {
+      "id": "abo_B07VB7Q6W7",
+      "aspect_error": 0.3388,
+      "scale": [
+       0.826,
+       1.159,
+       0.9925
+      ],
+      "non_uniform": 1.4032,
+      "mean_scale": 0.9925,
+      "accepted": false,
+      "rank": 3,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.1135,
+      "size_bucket": 2,
+      "quality": 3.0
+     },
+     {
+      "id": "abo_B01D3C7Z4A",
+      "aspect_error": 0.0048,
+      "scale": [
+       1.1588,
+       1.1643,
+       1.1615
+      ],
+      "non_uniform": 1.0048,
+      "mean_scale": 1.1615,
+      "accepted": true,
+      "rank": 4,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.1615,
+      "size_bucket": 3,
+      "quality": 3.0
      }
     ],
-    "fallback_reason": "no nightstand candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: side_table_01 at 20.0 % non-uniform, mean scale 0.9914)",
     "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
     "style_family": "scandinavian",
     "excluded": [
      {
@@ -2152,8 +2284,59 @@
      {
       "id": "painted_wooden_nightstand",
       "reason": "styles ['rustic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B075X38PZ7",
+      "reason": "styles ['rustic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B084MYDTKM",
+      "reason": "styles ['japandi', 'modern minimal', 'minimal', 'rustic'] include neither scandinavian nor neutral"
      }
-    ]
+    ],
+    "quality": [
+     5,
+     5
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 4,
+     "tried": 4,
+     "reasons": [
+      "real size: mean |scale - 1| 0.162 (step 3)",
+      "quality 3",
+      "aspect error 0.005",
+      "source abo"
+     ],
+     "passed_over": [
+      {
+       "id": "side_table_01",
+       "why": "outside the caps (non-uniform 20.0 %, mean scale 0.9914)"
+      },
+      {
+       "id": "abo_B07K7K7GTZ",
+       "why": "outside the caps (non-uniform 25.0 %, mean scale 0.996)"
+      },
+      {
+       "id": "abo_B07VB7Q6W7",
+       "why": "outside the caps (non-uniform 40.3 %, mean scale 0.9925)"
+      }
+     ]
+    },
+    "glb": "models/abo/abo_B01D3C7Z4A.glb",
+    "sha256_glb": "75a62a3b9608fa546b44e8cd1ebf3d507bf64f0e5509ac4b59300ada8f350ba7",
+    "uid": "abo_B01D3C7Z4A",
+    "title": "Amazon Brand - Hallowood Waverly 1 Drawer Small Side Table in Light Oak Finish | Solid Wooden End/Lamp Stand/Bedside Cabinet/Nightstand, (WAV-LAM590)",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B01D3C7Z4A",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand - Hallowood Waverly 1 Drawer Small Side Table in Light Oak Finish | Solid Wooden End/Lamp Stand/Bedside Cabinet/Nightstand, (WAV-LAM590)\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Contemporary",
+    "name": "Amazon Brand - Hallowood Waverly 1 Drawer Small Side Table in Light Oak Finish | Solid Wooden End/Lamp Stand/Bedside Cabinet/Nightstand, (WAV-LAM590)",
+    "unit_scale": 1.0
    },
    "status": "verified",
    "evidence": [
@@ -2233,45 +2416,63 @@
    "front_deg": 180.0,
    "height": null,
    "asset": {
-    "library": "parametric",
-    "asset_id": "parametric:nightstand",
-    "licence": "n/a",
-    "license": "n/a",
-    "method": "parametric",
+    "library": "abo",
+    "asset_id": "abo_B01D3C7Z4A",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
     "fit_scale": [
-     1.0,
-     1.0,
-     1.0
+     1.0419,
+     1.1854,
+     1.1136
     ],
     "bbox_m": [
      0.4456,
      0.4956,
-     0.5
+     0.6835
     ],
-    "aspect_error": null,
+    "aspect_error": 0.129,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     0.0,
-     0.0,
+     0.0003,
+     0.0006,
      0.0
     ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "side_table_01",
-      "aspect_error": 0.307,
+      "id": "abo_B01D3C7Z4A",
+      "aspect_error": 0.129,
       "scale": [
-       0.8102,
-       1.1013,
-       0.9558
+       1.0419,
+       1.1854,
+       1.1136
       ],
-      "non_uniform": 1.3594,
-      "mean_scale": 0.9558,
-      "accepted": false
+      "non_uniform": 1.1377,
+      "mean_scale": 1.1136,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.1136,
+      "size_bucket": 2,
+      "quality": 3.0
      }
     ],
-    "fallback_reason": "no nightstand candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: side_table_01 at 35.9 % non-uniform, mean scale 0.9558)",
     "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
     "style_family": "scandinavian",
     "excluded": [
      {
@@ -2281,8 +2482,46 @@
      {
       "id": "painted_wooden_nightstand",
       "reason": "styles ['rustic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B075X38PZ7",
+      "reason": "styles ['rustic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B084MYDTKM",
+      "reason": "styles ['japandi', 'modern minimal', 'minimal', 'rustic'] include neither scandinavian nor neutral"
      }
-    ]
+    ],
+    "quality": [
+     5,
+     5
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.114 (step 2)",
+      "quality 3",
+      "aspect error 0.129",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B01D3C7Z4A.glb",
+    "sha256_glb": "75a62a3b9608fa546b44e8cd1ebf3d507bf64f0e5509ac4b59300ada8f350ba7",
+    "uid": "abo_B01D3C7Z4A",
+    "title": "Amazon Brand - Hallowood Waverly 1 Drawer Small Side Table in Light Oak Finish | Solid Wooden End/Lamp Stand/Bedside Cabinet/Nightstand, (WAV-LAM590)",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B01D3C7Z4A",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand - Hallowood Waverly 1 Drawer Small Side Table in Light Oak Finish | Solid Wooden End/Lamp Stand/Bedside Cabinet/Nightstand, (WAV-LAM590)\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Contemporary",
+    "name": "Amazon Brand - Hallowood Waverly 1 Drawer Small Side Table in Light Oak Finish | Solid Wooden End/Lamp Stand/Bedside Cabinet/Nightstand, (WAV-LAM590)",
+    "unit_scale": 1.0
    },
    "status": "verified",
    "evidence": [
@@ -2362,45 +2601,63 @@
    "front_deg": 90.0,
    "height": null,
    "asset": {
-    "library": "parametric",
-    "asset_id": "parametric:bed_double",
-    "licence": "n/a",
-    "license": "n/a",
-    "method": "parametric",
+    "library": "abo",
+    "asset_id": "abo_B071FJR4FW",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
     "fit_scale": [
-     1.0,
-     1.0,
-     1.0
+     1.0928,
+     0.9619,
+     1.0273
     ],
     "bbox_m": [
      1.7795,
      2.0295,
-     1.0
+     1.4618
     ],
-    "aspect_error": null,
+    "aspect_error": 0.1276,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     0.0,
+     -0.0011,
      0.0,
      0.0
     ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "objaverse_08f7f65edfea417b8ed9ca748381e507",
-      "aspect_error": 0.2657,
+      "id": "abo_B071FJR4FW",
+      "aspect_error": 0.1276,
       "scale": [
-       0.7328,
-       0.9559,
-       0.8443
+       1.0928,
+       0.9619,
+       1.0273
       ],
-      "non_uniform": 1.3044,
-      "mean_scale": 0.8443,
-      "accepted": false
+      "non_uniform": 1.1361,
+      "mean_scale": 1.0273,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.0527,
+      "size_bucket": 1,
+      "quality": 3.0
      }
     ],
-    "fallback_reason": "no bed_double candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_08f7f65edfea417b8ed9ca748381e507 at 30.4 % non-uniform, mean scale 0.8443)",
     "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
     "style_family": "scandinavian",
     "excluded": [
      {
@@ -2408,14 +2665,56 @@
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
      {
-      "id": "objaverse_2bd3fcc82c9f43cfb0c8cf26c7d0107c",
-      "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
+      "id": "abo_B071W2SCTJ",
+      "reason": "styles ['minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B075QDMWTP",
+      "reason": "styles ['modern minimal'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07B4Z9Q3S",
+      "reason": "styles ['modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B08FTN8KHY",
+      "reason": "styles ['modern minimal', 'industrial'] include neither scandinavian nor neutral"
      },
      {
       "id": "objaverse_5d3a99865ac84d8a8bf06b263aa5bb55",
       "reason": "styles ['industrial'] include neither scandinavian nor neutral"
      }
-    ]
+    ],
+    "quality": [
+     5,
+     4
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.053 (step 1)",
+      "quality 3",
+      "aspect error 0.128",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B071FJR4FW.glb",
+    "sha256_glb": "3e30deb1fbb74ca48e3458919c8b1346ea3676a09bc7489217a3b8ba6ebf7e03",
+    "uid": "abo_B071FJR4FW",
+    "title": "Amazon Brand – Stone & Beam Glenwood Industrial Metal Accent Bed, Queen, 84.5\"L, Oak",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B071FJR4FW",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Stone & Beam Glenwood Industrial Metal Accent Bed, Queen, 84.5\"L, Oak\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Queen Bed",
+    "name": "Amazon Brand – Stone & Beam Glenwood Industrial Metal Accent Bed, Queen, 84.5\"L, Oak",
+    "unit_scale": 1.0
    },
    "status": "verified",
    "evidence": [
@@ -2495,29 +2794,31 @@
    "front_deg": null,
    "height": null,
    "asset": {
-    "library": "parametric",
-    "asset_id": "parametric:nightstand",
-    "licence": "n/a",
-    "license": "n/a",
-    "method": "parametric",
+    "library": "abo",
+    "asset_id": "abo_B01D3C7Z4A",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
     "fit_scale": [
-     1.0,
-     1.0,
-     1.0
+     1.1588,
+     1.1607,
+     1.1597
     ],
     "bbox_m": [
      0.4956,
      0.4853,
-     0.5
+     0.7118
     ],
-    "aspect_error": null,
+    "aspect_error": 0.0017,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     0.0,
-     0.0,
+     0.0003,
+     0.0006,
      0.0
     ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
     "candidates": [
      {
       "id": "side_table_01",
@@ -2529,11 +2830,81 @@
       ],
       "non_uniform": 1.1968,
       "mean_scale": 0.9898,
-      "accepted": false
+      "accepted": false,
+      "rank": 1,
+      "source": "polyhaven",
+      "units_known": true,
+      "size_error": 0.0625,
+      "size_bucket": 1,
+      "quality": 3.0
+     },
+     {
+      "id": "abo_B07K7K7GTZ",
+      "aspect_error": 0.22,
+      "scale": [
+       0.8853,
+       1.1032,
+       0.9943
+      ],
+      "non_uniform": 1.2461,
+      "mean_scale": 0.9943,
+      "accepted": false,
+      "rank": 2,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.0745,
+      "size_bucket": 1,
+      "quality": 3.0
+     },
+     {
+      "id": "abo_B07VB7Q6W7",
+      "aspect_error": 0.3357,
+      "scale": [
+       0.826,
+       1.1555,
+       0.9907
+      ],
+      "non_uniform": 1.3989,
+      "mean_scale": 0.9907,
+      "accepted": false,
+      "rank": 3,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.1129,
+      "size_bucket": 2,
+      "quality": 3.0
+     },
+     {
+      "id": "abo_B01D3C7Z4A",
+      "aspect_error": 0.0017,
+      "scale": [
+       1.1588,
+       1.1607,
+       1.1597
+      ],
+      "non_uniform": 1.0017,
+      "mean_scale": 1.1597,
+      "accepted": true,
+      "rank": 4,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.1597,
+      "size_bucket": 3,
+      "quality": 3.0
      }
     ],
-    "fallback_reason": "no nightstand candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: side_table_01 at 19.7 % non-uniform, mean scale 0.9898)",
     "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
     "style_family": "scandinavian",
     "excluded": [
      {
@@ -2543,8 +2914,59 @@
      {
       "id": "painted_wooden_nightstand",
       "reason": "styles ['rustic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B075X38PZ7",
+      "reason": "styles ['rustic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B084MYDTKM",
+      "reason": "styles ['japandi', 'modern minimal', 'minimal', 'rustic'] include neither scandinavian nor neutral"
      }
-    ]
+    ],
+    "quality": [
+     5,
+     5
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 4,
+     "tried": 4,
+     "reasons": [
+      "real size: mean |scale - 1| 0.160 (step 3)",
+      "quality 3",
+      "aspect error 0.002",
+      "source abo"
+     ],
+     "passed_over": [
+      {
+       "id": "side_table_01",
+       "why": "outside the caps (non-uniform 19.7 %, mean scale 0.9898)"
+      },
+      {
+       "id": "abo_B07K7K7GTZ",
+       "why": "outside the caps (non-uniform 24.6 %, mean scale 0.9943)"
+      },
+      {
+       "id": "abo_B07VB7Q6W7",
+       "why": "outside the caps (non-uniform 39.9 %, mean scale 0.9907)"
+      }
+     ]
+    },
+    "glb": "models/abo/abo_B01D3C7Z4A.glb",
+    "sha256_glb": "75a62a3b9608fa546b44e8cd1ebf3d507bf64f0e5509ac4b59300ada8f350ba7",
+    "uid": "abo_B01D3C7Z4A",
+    "title": "Amazon Brand - Hallowood Waverly 1 Drawer Small Side Table in Light Oak Finish | Solid Wooden End/Lamp Stand/Bedside Cabinet/Nightstand, (WAV-LAM590)",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B01D3C7Z4A",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand - Hallowood Waverly 1 Drawer Small Side Table in Light Oak Finish | Solid Wooden End/Lamp Stand/Bedside Cabinet/Nightstand, (WAV-LAM590)\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Contemporary",
+    "name": "Amazon Brand - Hallowood Waverly 1 Drawer Small Side Table in Light Oak Finish | Solid Wooden End/Lamp Stand/Bedside Cabinet/Nightstand, (WAV-LAM590)",
+    "unit_scale": 1.0
    },
    "status": "verified",
    "evidence": [
@@ -2660,7 +3082,13 @@
       ],
       "non_uniform": 1.0989,
       "mean_scale": 0.9457,
-      "accepted": true
+      "accepted": true,
+      "rank": 1,
+      "source": "polyhaven",
+      "units_known": true,
+      "size_error": 0.0543,
+      "size_bucket": 1,
+      "quality": 3.0
      }
     ],
     "cap": 1.15,
@@ -2684,8 +3112,30 @@
      {
       "id": "painted_wooden_nightstand",
       "reason": "styles ['rustic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B075X38PZ7",
+      "reason": "styles ['rustic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B084MYDTKM",
+      "reason": "styles ['japandi', 'modern minimal', 'minimal', 'rustic'] include neither scandinavian nor neutral"
      }
     ],
+    "quality": null,
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.054 (step 1)",
+      "quality 3",
+      "aspect error 0.094",
+      "source polyhaven"
+     ],
+     "passed_over": []
+    },
     "gltf": "models/side_table_01/side_table_01_1k.gltf"
    },
    "status": "verified",
@@ -2766,57 +3216,61 @@
    "front_deg": null,
    "height": null,
    "asset": {
-    "library": "parametric",
-    "asset_id": "parametric:table_dining",
-    "licence": "n/a",
-    "license": "n/a",
-    "method": "parametric",
+    "library": "abo",
+    "asset_id": "abo_B07B82PXD8",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
     "fit_scale": [
-     1.0,
-     1.0,
-     1.0
+     0.8846,
+     0.9709,
+     0.9278
     ],
     "bbox_m": [
      1.2383,
      0.7353,
-     0.75
+     0.7053
     ],
-    "aspect_error": null,
+    "aspect_error": 0.0932,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     0.0,
-     0.0,
+     0.0118,
+     -0.0002,
      0.0
     ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "low",
     "candidates": [
      {
-      "id": "objaverse_3b4ee19c627e4fb4a3305621cf925aa2",
-      "aspect_error": 0.4618,
+      "id": "abo_B07B82PXD8",
+      "aspect_error": 0.0932,
       "scale": [
-       0.9459,
-       0.5961,
-       0.771
+       0.8846,
+       0.9709,
+       0.9278
       ],
-      "non_uniform": 1.5869,
-      "mean_scale": 0.771,
-      "accepted": false
-     },
-     {
-      "id": "objaverse_724d93a7f3644f96909e8c55909c6418",
-      "aspect_error": 0.5399,
-      "scale": [
-       1.0541,
-       0.6144,
-       0.8343
-      ],
-      "non_uniform": 1.7158,
-      "mean_scale": 0.8343,
-      "accepted": false
+      "non_uniform": 1.0977,
+      "mean_scale": 0.9278,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.0722,
+      "size_bucket": 1,
+      "quality": 3.0
      }
     ],
-    "fallback_reason": "no table_dining candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_3b4ee19c627e4fb4a3305621cf925aa2 at 58.7 % non-uniform, mean scale 0.771)",
     "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "minimal",
+     "modern"
+    ],
     "style_family": "scandinavian",
     "excluded": [
      {
@@ -2832,14 +3286,52 @@
       "reason": "styles ['rustic'] include neither scandinavian nor neutral"
      },
      {
-      "id": "objaverse_5847113c458f4a2483aedd663376c7de",
-      "reason": "styles ['minimal', 'modern'] include neither scandinavian nor neutral"
+      "id": "abo_B075Z9QB7N",
+      "reason": "styles ['industrial'] include neither scandinavian nor neutral"
      },
      {
-      "id": "objaverse_5f235f066a9a416fb7177496a9117ec7",
-      "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
+      "id": "abo_B07B7BGXN9",
+      "reason": "styles ['rustic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07H93GTHW",
+      "reason": "styles ['modern minimal', 'industrial'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07RT5JN33",
+      "reason": "styles ['modern minimal', 'industrial'] include neither scandinavian nor neutral"
      }
-    ]
+    ],
+    "quality": [
+     5,
+     5
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.072 (step 1)",
+      "quality 3",
+      "aspect error 0.093",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B07B82PXD8.glb",
+    "sha256_glb": "069d15e1b441e83355c8db5ff891ede7e15700c270b65f2e0888aa6d5068b221",
+    "uid": "abo_B07B82PXD8",
+    "title": "Amazon Brand – Rivet Ian Modern Medium Dining Kitchen Table, Expandable, 60-80\"L, Brown",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07B82PXD8",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Rivet Ian Modern Medium Dining Kitchen Table, Expandable, 60-80\"L, Brown\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "0",
+    "name": "Amazon Brand – Rivet Ian Modern Medium Dining Kitchen Table, Expandable, 60-80\"L, Brown",
+    "unit_scale": 1.0
    },
    "status": "verified",
    "evidence": [
@@ -2919,45 +3411,100 @@
    "front_deg": 90.0,
    "height": null,
    "asset": {
-    "library": "parametric",
-    "asset_id": "parametric:chair",
-    "licence": "n/a",
-    "license": "n/a",
-    "method": "parametric",
+    "library": "objaverse",
+    "asset_id": "objaverse_acf6497a3d274d90ad3750510348f07a",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
     "fit_scale": [
-     1.0,
-     1.0,
-     1.0
+     0.8399,
+     0.8789,
+     0.8594
     ],
     "bbox_m": [
      0.3824,
      0.4618,
-     0.9
+     0.8585
     ],
-    "aspect_error": null,
+    "aspect_error": 0.0455,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     0.0,
-     0.0,
+     -0.0359,
+     0.0378,
      0.0
     ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
-      "aspect_error": 0.2157,
+      "id": "abo_B0857JM2NC",
+      "aspect_error": 0.3048,
       "scale": [
-       0.7399,
-       0.9181,
-       0.829
+       0.6874,
+       0.9324,
+       0.8099
       ],
-      "non_uniform": 1.2408,
-      "mean_scale": 0.829,
-      "accepted": false
+      "non_uniform": 1.3564,
+      "mean_scale": 0.8099,
+      "accepted": false,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.1901,
+      "size_bucket": 3,
+      "quality": 3.0
+     },
+     {
+      "id": "abo_B07JK8CL2Z",
+      "aspect_error": 0.1887,
+      "scale": [
+       0.6709,
+       0.8102,
+       0.7405
+      ],
+      "non_uniform": 1.2076,
+      "mean_scale": 0.7405,
+      "accepted": false,
+      "rank": 2,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.2595,
+      "size_bucket": 5,
+      "quality": 3.0
+     },
+     {
+      "id": "objaverse_acf6497a3d274d90ad3750510348f07a",
+      "aspect_error": 0.0455,
+      "scale": [
+       0.8399,
+       0.8789,
+       0.8594
+      ],
+      "non_uniform": 1.0465,
+      "mean_scale": 0.8594,
+      "accepted": true,
+      "rank": 3,
+      "source": "objaverse",
+      "units_known": false,
+      "size_error": 0.1406,
+      "size_bucket": null,
+      "quality": 3.0
      }
     ],
-    "fallback_reason": "no chair candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_d2785b57e7da45858f2fe8bf4dedd68d at 24.1 % non-uniform, mean scale 0.829)",
     "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern",
+     "rustic"
+    ],
     "style_family": "scandinavian",
     "excluded": [
      {
@@ -2973,22 +3520,76 @@
       "reason": "styles ['modern'] include neither scandinavian nor neutral"
      },
      {
-      "id": "objaverse_039c6026571943d6ac45c6816bcc7ff1",
+      "id": "abo_B01MQJV7ID",
+      "reason": "styles ['modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B0728NW8FP",
+      "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07DBD9WHX",
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
      {
-      "id": "objaverse_0723b35415b0462eb5c01140b6b70340",
+      "id": "abo_B07DBHCKHY",
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
      {
-      "id": "objaverse_9234d8196b73434684bcbb8092cc9e2a",
+      "id": "abo_B07FY8PZBH",
+      "reason": "styles ['industrial'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07QJ24FSL",
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
      {
-      "id": "objaverse_cb43e2abac66494d81e1e7116eb47043",
-      "reason": "styles ['industrial', 'rustic'] include neither scandinavian nor neutral"
+      "id": "abo_B0857JLP6K",
+      "reason": "styles ['minimal', 'industrial'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_47a690dcecf847fca99c4f89111db85b",
+      "reason": "styles ['classic', 'rustic'] include neither scandinavian nor neutral"
      }
-    ]
+    ],
+    "quality": [
+     5,
+     5
+    ],
+    "units_known": false,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 3,
+     "tried": 3,
+     "reasons": [
+      "units not known (normalised by type): ranked after the real-size models",
+      "quality 3",
+      "aspect error 0.045",
+      "source objaverse"
+     ],
+     "passed_over": [
+      {
+       "id": "abo_B0857JM2NC",
+       "why": "outside the caps (non-uniform 35.6 %, mean scale 0.8099)"
+      },
+      {
+       "id": "abo_B07JK8CL2Z",
+       "why": "outside the caps (non-uniform 20.8 %, mean scale 0.7405)"
+      }
+     ]
+    },
+    "glb": "models/objaverse/acf6497a3d274d90ad3750510348f07a.glb",
+    "sha256_glb": "13809946b77ffc75dba30090cf6effcb42b87fa6b82a5d236d688562d92b829d",
+    "uid": "acf6497a3d274d90ad3750510348f07a",
+    "title": "chare",
+    "author": "DimaSP",
+    "source_url": "https://sketchfab.com/3d-models/acf6497a3d274d90ad3750510348f07a",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"chare\" by DimaSP (https://sketchfab.com/3d-models/acf6497a3d274d90ad3750510348f07a), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "name": "chare",
+    "unit_scale": 1.0
    },
    "status": "verified",
    "evidence": [
@@ -3068,45 +3669,100 @@
    "front_deg": 270.0,
    "height": null,
    "asset": {
-    "library": "parametric",
-    "asset_id": "parametric:chair",
-    "licence": "n/a",
-    "license": "n/a",
-    "method": "parametric",
+    "library": "objaverse",
+    "asset_id": "objaverse_acf6497a3d274d90ad3750510348f07a",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
     "fit_scale": [
-     1.0,
-     1.0,
-     1.0
+     0.8399,
+     0.8789,
+     0.8594
     ],
     "bbox_m": [
      0.3824,
      0.4618,
-     0.9
+     0.8585
     ],
-    "aspect_error": null,
+    "aspect_error": 0.0455,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     0.0,
-     0.0,
+     -0.0359,
+     0.0378,
      0.0
     ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
-      "aspect_error": 0.2157,
+      "id": "abo_B0857JM2NC",
+      "aspect_error": 0.3048,
       "scale": [
-       0.7399,
-       0.9181,
-       0.829
+       0.6874,
+       0.9324,
+       0.8099
       ],
-      "non_uniform": 1.2408,
-      "mean_scale": 0.829,
-      "accepted": false
+      "non_uniform": 1.3564,
+      "mean_scale": 0.8099,
+      "accepted": false,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.1901,
+      "size_bucket": 3,
+      "quality": 3.0
+     },
+     {
+      "id": "abo_B07JK8CL2Z",
+      "aspect_error": 0.1887,
+      "scale": [
+       0.6709,
+       0.8102,
+       0.7405
+      ],
+      "non_uniform": 1.2076,
+      "mean_scale": 0.7405,
+      "accepted": false,
+      "rank": 2,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.2595,
+      "size_bucket": 5,
+      "quality": 3.0
+     },
+     {
+      "id": "objaverse_acf6497a3d274d90ad3750510348f07a",
+      "aspect_error": 0.0455,
+      "scale": [
+       0.8399,
+       0.8789,
+       0.8594
+      ],
+      "non_uniform": 1.0465,
+      "mean_scale": 0.8594,
+      "accepted": true,
+      "rank": 3,
+      "source": "objaverse",
+      "units_known": false,
+      "size_error": 0.1406,
+      "size_bucket": null,
+      "quality": 3.0
      }
     ],
-    "fallback_reason": "no chair candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_d2785b57e7da45858f2fe8bf4dedd68d at 24.1 % non-uniform, mean scale 0.829)",
     "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern",
+     "rustic"
+    ],
     "style_family": "scandinavian",
     "excluded": [
      {
@@ -3122,22 +3778,76 @@
       "reason": "styles ['modern'] include neither scandinavian nor neutral"
      },
      {
-      "id": "objaverse_039c6026571943d6ac45c6816bcc7ff1",
+      "id": "abo_B01MQJV7ID",
+      "reason": "styles ['modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B0728NW8FP",
+      "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07DBD9WHX",
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
      {
-      "id": "objaverse_0723b35415b0462eb5c01140b6b70340",
+      "id": "abo_B07DBHCKHY",
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
      {
-      "id": "objaverse_9234d8196b73434684bcbb8092cc9e2a",
+      "id": "abo_B07FY8PZBH",
+      "reason": "styles ['industrial'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07QJ24FSL",
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
      {
-      "id": "objaverse_cb43e2abac66494d81e1e7116eb47043",
-      "reason": "styles ['industrial', 'rustic'] include neither scandinavian nor neutral"
+      "id": "abo_B0857JLP6K",
+      "reason": "styles ['minimal', 'industrial'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_47a690dcecf847fca99c4f89111db85b",
+      "reason": "styles ['classic', 'rustic'] include neither scandinavian nor neutral"
      }
-    ]
+    ],
+    "quality": [
+     5,
+     5
+    ],
+    "units_known": false,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 3,
+     "tried": 3,
+     "reasons": [
+      "units not known (normalised by type): ranked after the real-size models",
+      "quality 3",
+      "aspect error 0.045",
+      "source objaverse"
+     ],
+     "passed_over": [
+      {
+       "id": "abo_B0857JM2NC",
+       "why": "outside the caps (non-uniform 35.6 %, mean scale 0.8099)"
+      },
+      {
+       "id": "abo_B07JK8CL2Z",
+       "why": "outside the caps (non-uniform 20.8 %, mean scale 0.7405)"
+      }
+     ]
+    },
+    "glb": "models/objaverse/acf6497a3d274d90ad3750510348f07a.glb",
+    "sha256_glb": "13809946b77ffc75dba30090cf6effcb42b87fa6b82a5d236d688562d92b829d",
+    "uid": "acf6497a3d274d90ad3750510348f07a",
+    "title": "chare",
+    "author": "DimaSP",
+    "source_url": "https://sketchfab.com/3d-models/acf6497a3d274d90ad3750510348f07a",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"chare\" by DimaSP (https://sketchfab.com/3d-models/acf6497a3d274d90ad3750510348f07a), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "name": "chare",
+    "unit_scale": 1.0
    },
    "status": "verified",
    "evidence": [
@@ -3217,45 +3927,100 @@
    "front_deg": 0.0,
    "height": null,
    "asset": {
-    "library": "parametric",
-    "asset_id": "parametric:chair",
-    "licence": "n/a",
-    "license": "n/a",
-    "method": "parametric",
+    "library": "objaverse",
+    "asset_id": "objaverse_acf6497a3d274d90ad3750510348f07a",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
     "fit_scale": [
-     1.0,
-     1.0,
-     1.0
+     0.8399,
+     0.8789,
+     0.8594
     ],
     "bbox_m": [
      0.3824,
      0.4618,
-     0.9
+     0.8585
     ],
-    "aspect_error": null,
+    "aspect_error": 0.0455,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     0.0,
-     0.0,
+     -0.0359,
+     0.0378,
      0.0
     ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
-      "aspect_error": 0.2157,
+      "id": "abo_B0857JM2NC",
+      "aspect_error": 0.3048,
       "scale": [
-       0.7399,
-       0.9181,
-       0.829
+       0.6874,
+       0.9324,
+       0.8099
       ],
-      "non_uniform": 1.2408,
-      "mean_scale": 0.829,
-      "accepted": false
+      "non_uniform": 1.3564,
+      "mean_scale": 0.8099,
+      "accepted": false,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.1901,
+      "size_bucket": 3,
+      "quality": 3.0
+     },
+     {
+      "id": "abo_B07JK8CL2Z",
+      "aspect_error": 0.1887,
+      "scale": [
+       0.6709,
+       0.8102,
+       0.7405
+      ],
+      "non_uniform": 1.2076,
+      "mean_scale": 0.7405,
+      "accepted": false,
+      "rank": 2,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.2595,
+      "size_bucket": 5,
+      "quality": 3.0
+     },
+     {
+      "id": "objaverse_acf6497a3d274d90ad3750510348f07a",
+      "aspect_error": 0.0455,
+      "scale": [
+       0.8399,
+       0.8789,
+       0.8594
+      ],
+      "non_uniform": 1.0465,
+      "mean_scale": 0.8594,
+      "accepted": true,
+      "rank": 3,
+      "source": "objaverse",
+      "units_known": false,
+      "size_error": 0.1406,
+      "size_bucket": null,
+      "quality": 3.0
      }
     ],
-    "fallback_reason": "no chair candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_d2785b57e7da45858f2fe8bf4dedd68d at 24.1 % non-uniform, mean scale 0.829)",
     "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern",
+     "rustic"
+    ],
     "style_family": "scandinavian",
     "excluded": [
      {
@@ -3271,22 +4036,76 @@
       "reason": "styles ['modern'] include neither scandinavian nor neutral"
      },
      {
-      "id": "objaverse_039c6026571943d6ac45c6816bcc7ff1",
+      "id": "abo_B01MQJV7ID",
+      "reason": "styles ['modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B0728NW8FP",
+      "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07DBD9WHX",
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
      {
-      "id": "objaverse_0723b35415b0462eb5c01140b6b70340",
+      "id": "abo_B07DBHCKHY",
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
      {
-      "id": "objaverse_9234d8196b73434684bcbb8092cc9e2a",
+      "id": "abo_B07FY8PZBH",
+      "reason": "styles ['industrial'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07QJ24FSL",
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
      {
-      "id": "objaverse_cb43e2abac66494d81e1e7116eb47043",
-      "reason": "styles ['industrial', 'rustic'] include neither scandinavian nor neutral"
+      "id": "abo_B0857JLP6K",
+      "reason": "styles ['minimal', 'industrial'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_47a690dcecf847fca99c4f89111db85b",
+      "reason": "styles ['classic', 'rustic'] include neither scandinavian nor neutral"
      }
-    ]
+    ],
+    "quality": [
+     5,
+     5
+    ],
+    "units_known": false,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 3,
+     "tried": 3,
+     "reasons": [
+      "units not known (normalised by type): ranked after the real-size models",
+      "quality 3",
+      "aspect error 0.045",
+      "source objaverse"
+     ],
+     "passed_over": [
+      {
+       "id": "abo_B0857JM2NC",
+       "why": "outside the caps (non-uniform 35.6 %, mean scale 0.8099)"
+      },
+      {
+       "id": "abo_B07JK8CL2Z",
+       "why": "outside the caps (non-uniform 20.8 %, mean scale 0.7405)"
+      }
+     ]
+    },
+    "glb": "models/objaverse/acf6497a3d274d90ad3750510348f07a.glb",
+    "sha256_glb": "13809946b77ffc75dba30090cf6effcb42b87fa6b82a5d236d688562d92b829d",
+    "uid": "acf6497a3d274d90ad3750510348f07a",
+    "title": "chare",
+    "author": "DimaSP",
+    "source_url": "https://sketchfab.com/3d-models/acf6497a3d274d90ad3750510348f07a",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"chare\" by DimaSP (https://sketchfab.com/3d-models/acf6497a3d274d90ad3750510348f07a), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "name": "chare",
+    "unit_scale": 1.0
    },
    "status": "verified",
    "evidence": [
@@ -3366,45 +4185,100 @@
    "front_deg": 0.0,
    "height": null,
    "asset": {
-    "library": "parametric",
-    "asset_id": "parametric:chair",
-    "licence": "n/a",
-    "license": "n/a",
-    "method": "parametric",
+    "library": "objaverse",
+    "asset_id": "objaverse_acf6497a3d274d90ad3750510348f07a",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
     "fit_scale": [
-     1.0,
-     1.0,
-     1.0
+     0.8333,
+     0.8789,
+     0.8561
     ],
     "bbox_m": [
      0.3794,
      0.4618,
-     0.9
+     0.8552
     ],
-    "aspect_error": null,
+    "aspect_error": 0.0533,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     0.0,
-     0.0,
+     -0.0359,
+     0.0378,
      0.0
     ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
-      "aspect_error": 0.2236,
+      "id": "abo_B0857JM2NC",
+      "aspect_error": 0.3127,
       "scale": [
-       0.7341,
-       0.9181,
-       0.8261
+       0.682,
+       0.9324,
+       0.8072
       ],
-      "non_uniform": 1.2506,
-      "mean_scale": 0.8261,
-      "accepted": false
+      "non_uniform": 1.3671,
+      "mean_scale": 0.8072,
+      "accepted": false,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.1928,
+      "size_bucket": 3,
+      "quality": 3.0
+     },
+     {
+      "id": "abo_B07JK8CL2Z",
+      "aspect_error": 0.1965,
+      "scale": [
+       0.6656,
+       0.8102,
+       0.7379
+      ],
+      "non_uniform": 1.2172,
+      "mean_scale": 0.7379,
+      "accepted": false,
+      "rank": 2,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.2621,
+      "size_bucket": 5,
+      "quality": 3.0
+     },
+     {
+      "id": "objaverse_acf6497a3d274d90ad3750510348f07a",
+      "aspect_error": 0.0533,
+      "scale": [
+       0.8333,
+       0.8789,
+       0.8561
+      ],
+      "non_uniform": 1.0548,
+      "mean_scale": 0.8561,
+      "accepted": true,
+      "rank": 3,
+      "source": "objaverse",
+      "units_known": false,
+      "size_error": 0.1439,
+      "size_bucket": null,
+      "quality": 3.0
      }
     ],
-    "fallback_reason": "no chair candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_d2785b57e7da45858f2fe8bf4dedd68d at 25.1 % non-uniform, mean scale 0.8261)",
     "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern",
+     "rustic"
+    ],
     "style_family": "scandinavian",
     "excluded": [
      {
@@ -3420,22 +4294,76 @@
       "reason": "styles ['modern'] include neither scandinavian nor neutral"
      },
      {
-      "id": "objaverse_039c6026571943d6ac45c6816bcc7ff1",
+      "id": "abo_B01MQJV7ID",
+      "reason": "styles ['modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B0728NW8FP",
+      "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07DBD9WHX",
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
      {
-      "id": "objaverse_0723b35415b0462eb5c01140b6b70340",
+      "id": "abo_B07DBHCKHY",
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
      {
-      "id": "objaverse_9234d8196b73434684bcbb8092cc9e2a",
+      "id": "abo_B07FY8PZBH",
+      "reason": "styles ['industrial'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07QJ24FSL",
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
      {
-      "id": "objaverse_cb43e2abac66494d81e1e7116eb47043",
-      "reason": "styles ['industrial', 'rustic'] include neither scandinavian nor neutral"
+      "id": "abo_B0857JLP6K",
+      "reason": "styles ['minimal', 'industrial'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_47a690dcecf847fca99c4f89111db85b",
+      "reason": "styles ['classic', 'rustic'] include neither scandinavian nor neutral"
      }
-    ]
+    ],
+    "quality": [
+     5,
+     5
+    ],
+    "units_known": false,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 3,
+     "tried": 3,
+     "reasons": [
+      "units not known (normalised by type): ranked after the real-size models",
+      "quality 3",
+      "aspect error 0.053",
+      "source objaverse"
+     ],
+     "passed_over": [
+      {
+       "id": "abo_B0857JM2NC",
+       "why": "outside the caps (non-uniform 36.7 %, mean scale 0.8072)"
+      },
+      {
+       "id": "abo_B07JK8CL2Z",
+       "why": "outside the caps (non-uniform 21.7 %, mean scale 0.7379)"
+      }
+     ]
+    },
+    "glb": "models/objaverse/acf6497a3d274d90ad3750510348f07a.glb",
+    "sha256_glb": "13809946b77ffc75dba30090cf6effcb42b87fa6b82a5d236d688562d92b829d",
+    "uid": "acf6497a3d274d90ad3750510348f07a",
+    "title": "chare",
+    "author": "DimaSP",
+    "source_url": "https://sketchfab.com/3d-models/acf6497a3d274d90ad3750510348f07a",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"chare\" by DimaSP (https://sketchfab.com/3d-models/acf6497a3d274d90ad3750510348f07a), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "name": "chare",
+    "unit_scale": 1.0
    },
    "status": "verified",
    "evidence": [
@@ -3515,45 +4443,100 @@
    "front_deg": 180.0,
    "height": null,
    "asset": {
-    "library": "parametric",
-    "asset_id": "parametric:chair",
-    "licence": "n/a",
-    "license": "n/a",
-    "method": "parametric",
+    "library": "objaverse",
+    "asset_id": "objaverse_acf6497a3d274d90ad3750510348f07a",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
     "fit_scale": [
-     1.0,
-     1.0,
-     1.0
+     0.8399,
+     0.8845,
+     0.8622
     ],
     "bbox_m": [
      0.3824,
      0.4647,
-     0.9
+     0.8613
     ],
-    "aspect_error": null,
+    "aspect_error": 0.0517,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     0.0,
-     0.0,
+     -0.0359,
+     0.0378,
      0.0
     ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
-      "aspect_error": 0.222,
+      "id": "abo_B0857JM2NC",
+      "aspect_error": 0.3111,
       "scale": [
-       0.7399,
-       0.9239,
-       0.8319
+       0.6874,
+       0.9382,
+       0.8128
       ],
-      "non_uniform": 1.2486,
-      "mean_scale": 0.8319,
-      "accepted": false
+      "non_uniform": 1.3649,
+      "mean_scale": 0.8128,
+      "accepted": false,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.1872,
+      "size_bucket": 3,
+      "quality": 3.0
+     },
+     {
+      "id": "abo_B07JK8CL2Z",
+      "aspect_error": 0.1949,
+      "scale": [
+       0.6709,
+       0.8153,
+       0.7431
+      ],
+      "non_uniform": 1.2152,
+      "mean_scale": 0.7431,
+      "accepted": false,
+      "rank": 2,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.2569,
+      "size_bucket": 5,
+      "quality": 3.0
+     },
+     {
+      "id": "objaverse_acf6497a3d274d90ad3750510348f07a",
+      "aspect_error": 0.0517,
+      "scale": [
+       0.8399,
+       0.8845,
+       0.8622
+      ],
+      "non_uniform": 1.0531,
+      "mean_scale": 0.8622,
+      "accepted": true,
+      "rank": 3,
+      "source": "objaverse",
+      "units_known": false,
+      "size_error": 0.1378,
+      "size_bucket": null,
+      "quality": 3.0
      }
     ],
-    "fallback_reason": "no chair candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_d2785b57e7da45858f2fe8bf4dedd68d at 24.9 % non-uniform, mean scale 0.8319)",
     "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern",
+     "rustic"
+    ],
     "style_family": "scandinavian",
     "excluded": [
      {
@@ -3569,22 +4552,76 @@
       "reason": "styles ['modern'] include neither scandinavian nor neutral"
      },
      {
-      "id": "objaverse_039c6026571943d6ac45c6816bcc7ff1",
+      "id": "abo_B01MQJV7ID",
+      "reason": "styles ['modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B0728NW8FP",
+      "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07DBD9WHX",
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
      {
-      "id": "objaverse_0723b35415b0462eb5c01140b6b70340",
+      "id": "abo_B07DBHCKHY",
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
      {
-      "id": "objaverse_9234d8196b73434684bcbb8092cc9e2a",
+      "id": "abo_B07FY8PZBH",
+      "reason": "styles ['industrial'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07QJ24FSL",
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
      {
-      "id": "objaverse_cb43e2abac66494d81e1e7116eb47043",
-      "reason": "styles ['industrial', 'rustic'] include neither scandinavian nor neutral"
+      "id": "abo_B0857JLP6K",
+      "reason": "styles ['minimal', 'industrial'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_47a690dcecf847fca99c4f89111db85b",
+      "reason": "styles ['classic', 'rustic'] include neither scandinavian nor neutral"
      }
-    ]
+    ],
+    "quality": [
+     5,
+     5
+    ],
+    "units_known": false,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 3,
+     "tried": 3,
+     "reasons": [
+      "units not known (normalised by type): ranked after the real-size models",
+      "quality 3",
+      "aspect error 0.052",
+      "source objaverse"
+     ],
+     "passed_over": [
+      {
+       "id": "abo_B0857JM2NC",
+       "why": "outside the caps (non-uniform 36.5 %, mean scale 0.8128)"
+      },
+      {
+       "id": "abo_B07JK8CL2Z",
+       "why": "outside the caps (non-uniform 21.5 %, mean scale 0.7431)"
+      }
+     ]
+    },
+    "glb": "models/objaverse/acf6497a3d274d90ad3750510348f07a.glb",
+    "sha256_glb": "13809946b77ffc75dba30090cf6effcb42b87fa6b82a5d236d688562d92b829d",
+    "uid": "acf6497a3d274d90ad3750510348f07a",
+    "title": "chare",
+    "author": "DimaSP",
+    "source_url": "https://sketchfab.com/3d-models/acf6497a3d274d90ad3750510348f07a",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"chare\" by DimaSP (https://sketchfab.com/3d-models/acf6497a3d274d90ad3750510348f07a), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "name": "chare",
+    "unit_scale": 1.0
    },
    "status": "verified",
    "evidence": [
@@ -3664,45 +4701,100 @@
    "front_deg": 180.0,
    "height": null,
    "asset": {
-    "library": "parametric",
-    "asset_id": "parametric:chair",
-    "licence": "n/a",
-    "license": "n/a",
-    "method": "parametric",
+    "library": "objaverse",
+    "asset_id": "objaverse_acf6497a3d274d90ad3750510348f07a",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
     "fit_scale": [
-     1.0,
-     1.0,
-     1.0
+     0.8333,
+     0.8845,
+     0.8589
     ],
     "bbox_m": [
      0.3794,
      0.4647,
-     0.9
+     0.858
     ],
-    "aspect_error": null,
+    "aspect_error": 0.0596,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     0.0,
-     0.0,
+     -0.0359,
+     0.0378,
      0.0
     ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
     "candidates": [
      {
-      "id": "objaverse_d2785b57e7da45858f2fe8bf4dedd68d",
-      "aspect_error": 0.2299,
+      "id": "abo_B0857JM2NC",
+      "aspect_error": 0.3189,
       "scale": [
-       0.7341,
-       0.9239,
-       0.829
+       0.682,
+       0.9382,
+       0.8101
       ],
-      "non_uniform": 1.2584,
-      "mean_scale": 0.829,
-      "accepted": false
+      "non_uniform": 1.3757,
+      "mean_scale": 0.8101,
+      "accepted": false,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.1899,
+      "size_bucket": 3,
+      "quality": 3.0
+     },
+     {
+      "id": "abo_B07JK8CL2Z",
+      "aspect_error": 0.2028,
+      "scale": [
+       0.6656,
+       0.8153,
+       0.7404
+      ],
+      "non_uniform": 1.2248,
+      "mean_scale": 0.7404,
+      "accepted": false,
+      "rank": 2,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.2596,
+      "size_bucket": 5,
+      "quality": 3.0
+     },
+     {
+      "id": "objaverse_acf6497a3d274d90ad3750510348f07a",
+      "aspect_error": 0.0596,
+      "scale": [
+       0.8333,
+       0.8845,
+       0.8589
+      ],
+      "non_uniform": 1.0614,
+      "mean_scale": 0.8589,
+      "accepted": true,
+      "rank": 3,
+      "source": "objaverse",
+      "units_known": false,
+      "size_error": 0.1411,
+      "size_bucket": null,
+      "quality": 3.0
      }
     ],
-    "fallback_reason": "no chair candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_d2785b57e7da45858f2fe8bf4dedd68d at 25.8 % non-uniform, mean scale 0.829)",
     "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern",
+     "rustic"
+    ],
     "style_family": "scandinavian",
     "excluded": [
      {
@@ -3718,22 +4810,76 @@
       "reason": "styles ['modern'] include neither scandinavian nor neutral"
      },
      {
-      "id": "objaverse_039c6026571943d6ac45c6816bcc7ff1",
+      "id": "abo_B01MQJV7ID",
+      "reason": "styles ['modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B0728NW8FP",
+      "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07DBD9WHX",
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
      {
-      "id": "objaverse_0723b35415b0462eb5c01140b6b70340",
+      "id": "abo_B07DBHCKHY",
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
      {
-      "id": "objaverse_9234d8196b73434684bcbb8092cc9e2a",
+      "id": "abo_B07FY8PZBH",
+      "reason": "styles ['industrial'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07QJ24FSL",
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
      {
-      "id": "objaverse_cb43e2abac66494d81e1e7116eb47043",
-      "reason": "styles ['industrial', 'rustic'] include neither scandinavian nor neutral"
+      "id": "abo_B0857JLP6K",
+      "reason": "styles ['minimal', 'industrial'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_47a690dcecf847fca99c4f89111db85b",
+      "reason": "styles ['classic', 'rustic'] include neither scandinavian nor neutral"
      }
-    ]
+    ],
+    "quality": [
+     5,
+     5
+    ],
+    "units_known": false,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 3,
+     "tried": 3,
+     "reasons": [
+      "units not known (normalised by type): ranked after the real-size models",
+      "quality 3",
+      "aspect error 0.060",
+      "source objaverse"
+     ],
+     "passed_over": [
+      {
+       "id": "abo_B0857JM2NC",
+       "why": "outside the caps (non-uniform 37.6 %, mean scale 0.8101)"
+      },
+      {
+       "id": "abo_B07JK8CL2Z",
+       "why": "outside the caps (non-uniform 22.5 %, mean scale 0.7404)"
+      }
+     ]
+    },
+    "glb": "models/objaverse/acf6497a3d274d90ad3750510348f07a.glb",
+    "sha256_glb": "13809946b77ffc75dba30090cf6effcb42b87fa6b82a5d236d688562d92b829d",
+    "uid": "acf6497a3d274d90ad3750510348f07a",
+    "title": "chare",
+    "author": "DimaSP",
+    "source_url": "https://sketchfab.com/3d-models/acf6497a3d274d90ad3750510348f07a",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"chare\" by DimaSP (https://sketchfab.com/3d-models/acf6497a3d274d90ad3750510348f07a), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "name": "chare",
+    "unit_scale": 1.0
    },
    "status": "verified",
    "evidence": [
@@ -3813,22 +4959,22 @@
    "front_deg": 90.0,
    "height": null,
    "asset": {
-    "library": "parametric",
-    "asset_id": "parametric:sofa",
-    "licence": "n/a",
-    "license": "n/a",
-    "method": "parametric",
+    "library": "abo",
+    "asset_id": "abo_B07K9PMZJL",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
     "fit_scale": [
-     1.0,
-     1.0,
-     1.0
+     0.9616,
+     0.8503,
+     0.906
     ],
     "bbox_m": [
      1.8942,
      0.7056,
-     0.85
+     0.7518
     ],
-    "aspect_error": null,
+    "aspect_error": 0.123,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
@@ -3836,9 +4982,37 @@
      0.0,
      0.0
     ],
-    "candidates": [],
-    "fallback_reason": "no model for style scandinavian",
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "abo_B07K9PMZJL",
+      "aspect_error": 0.123,
+      "scale": [
+       0.9616,
+       0.8503,
+       0.906
+      ],
+      "non_uniform": 1.1309,
+      "mean_scale": 0.906,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.094,
+      "size_bucket": 1,
+      "quality": 3.0
+     }
+    ],
     "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "modern"
+    ],
     "style_family": "scandinavian",
     "excluded": [
      {
@@ -3854,26 +5028,76 @@
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
      {
-      "id": "objaverse_072d0468bb97447ab1ca7e3edea25f1f",
+      "id": "abo_B0714QGC72",
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
      {
-      "id": "objaverse_42da0122f2134a189767d0911b401c1c",
+      "id": "abo_B071J7Q3J4",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B072555T67",
       "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
      },
      {
-      "id": "objaverse_9b1e09abe5e34d6397937ebf59901898",
+      "id": "abo_B075X2X4GY",
       "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
      },
      {
-      "id": "objaverse_9c242421a7c1447f941f72b57e7473e5",
+      "id": "abo_B075X4JB3K",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07B4FW7H5",
       "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
      },
      {
-      "id": "objaverse_ef3832963ab24d129ec88fd4cac4818f",
+      "id": "abo_B07HZ5P7P9",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07HZ6GJC2",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07HZ6HHFF",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07HZ6X7ZF",
       "reason": "styles ['modern'] include neither scandinavian nor neutral"
      }
-    ]
+    ],
+    "quality": [
+     4,
+     4
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.094 (step 1)",
+      "quality 3",
+      "aspect error 0.123",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B07K9PMZJL.glb",
+    "sha256_glb": "da7a01448e5e71e145e840370790e332a51001a76b7dc73e6b9928ba1a1d415a",
+    "uid": "abo_B07K9PMZJL",
+    "title": "Amazon Brand - Movian Dyvran 3-Seater Upholstered Sofa, 197 x 83 x 83 cm, Stain-Resistant Polyester, Dust Blue",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07K9PMZJL",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand - Movian Dyvran 3-Seater Upholstered Sofa, 197 x 83 x 83 cm, Stain-Resistant Polyester, Dust Blue\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "3-Seater Corner Sofa",
+    "name": "Amazon Brand - Movian Dyvran 3-Seater Upholstered Sofa, 197 x 83 x 83 cm, Stain-Resistant Polyester, Dust Blue",
+    "unit_scale": 1.0
    },
    "status": "verified",
    "evidence": [
@@ -4060,22 +5284,22 @@
    "front_deg": null,
    "height": null,
    "asset": {
-    "library": "parametric",
-    "asset_id": "parametric:table_coffee",
-    "licence": "n/a",
-    "license": "n/a",
-    "method": "parametric",
+    "library": "abo",
+    "asset_id": "abo_B075Z8WD59",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
     "fit_scale": [
-     1.0,
-     1.0,
-     1.0
+     1.1256,
+     1.1227,
+     1.1242
     ],
     "bbox_m": [
      1.1265,
      1.1236,
-     0.45
+     0.4597
     ],
-    "aspect_error": null,
+    "aspect_error": 0.0026,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
@@ -4083,22 +5307,38 @@
      0.0,
      0.0
     ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "low",
     "candidates": [
      {
-      "id": "objaverse_1d41e84fd76241e7a8929a314052269c",
-      "aspect_error": 0.3506,
+      "id": "abo_B075Z8WD59",
+      "aspect_error": 0.0026,
       "scale": [
-       1.0843,
-       1.5396,
-       1.312
+       1.1256,
+       1.1227,
+       1.1242
       ],
-      "non_uniform": 1.4199,
-      "mean_scale": 1.312,
-      "accepted": false
+      "non_uniform": 1.0026,
+      "mean_scale": 1.1242,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.1242,
+      "size_bucket": 2,
+      "quality": 3.0
      }
     ],
-    "fallback_reason": "no table_coffee candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: objaverse_1d41e84fd76241e7a8929a314052269c at 42.0 % non-uniform, mean scale 1.312)",
     "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "neutral"
+    ],
     "style_family": "scandinavian",
     "excluded": [
      {
@@ -4114,22 +5354,56 @@
       "reason": "styles ['modern'] include neither scandinavian nor neutral"
      },
      {
-      "id": "objaverse_b0c0c9c65d06443c87391134a62e2287",
-      "reason": "styles ['japandi', 'modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+      "id": "abo_B075ZBVZPB",
+      "reason": "styles ['industrial'] include neither scandinavian nor neutral"
      },
      {
-      "id": "objaverse_c17577daa87849d09960669606c0ce27",
-      "reason": "styles ['japandi', 'modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+      "id": "abo_B07L8DT2XT",
+      "reason": "styles ['japandi', 'modern minimal', 'minimal', 'modern', 'industrial'] include neither scandinavian nor neutral"
      },
      {
-      "id": "objaverse_c42d069236174467a2fb536f7d42d7f0",
-      "reason": "styles ['japandi', 'modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+      "id": "abo_B07QF9Y71V",
+      "reason": "styles ['modern minimal', 'industrial'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_01ff88bfc0034211b9f4996d620bc333",
+      "reason": "styles ['japandi', 'modern minimal', 'minimal', 'modern', 'industrial', 'rustic'] include neither scandinavian nor neutral"
      },
      {
       "id": "objaverse_f4031bb5f7e64ebca4c37d4fa5ba6e8d",
       "reason": "styles ['classic', 'rustic'] include neither scandinavian nor neutral"
      }
-    ]
+    ],
+    "quality": [
+     4,
+     5
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.124 (step 2)",
+      "quality 3",
+      "aspect error 0.003",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B075Z8WD59.glb",
+    "sha256_glb": "c7a861e516b1c0d79de3fbb4eb2f6ab4817c4fe9bc08887c919f859e0653d87f",
+    "uid": "abo_B075Z8WD59",
+    "title": "Amazon Brand – Rivet Hillside Antiqued Round Coffee Table, 39.4\"D, Wood and Bronze",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B075Z8WD59",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Rivet Hillside Antiqued Round Coffee Table, 39.4\"D, Wood and Bronze\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": null,
+    "name": "Amazon Brand – Rivet Hillside Antiqued Round Coffee Table, 39.4\"D, Wood and Bronze",
+    "unit_scale": 1.0
    },
    "status": "verified",
    "evidence": [
@@ -4209,51 +5483,175 @@
    "front_deg": null,
    "height": null,
    "asset": {
-    "library": "parametric",
-    "asset_id": "parametric:floor_lamp",
-    "licence": "n/a",
-    "license": "n/a",
-    "method": "parametric",
+    "library": "objaverse",
+    "asset_id": "objaverse_53409613b45b42b98b979f12ab8faa12",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
     "fit_scale": [
-     1.0,
-     1.0,
-     1.0
+     0.8178,
+     0.8178,
+     0.8178
     ],
     "bbox_m": [
      0.4238,
      0.4238,
-     1.6
+     0.9814
     ],
-    "aspect_error": null,
+    "aspect_error": 0.0,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
      0.0,
      0.0,
-     0.0
+     -0.2533
     ],
-    "candidates": [],
-    "fallback_reason": "no model for style scandinavian",
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "low",
+    "candidates": [
+     {
+      "id": "abo_B07B4ZK8BR",
+      "aspect_error": 0.0,
+      "scale": [
+       0.7395,
+       0.7395,
+       0.7395
+      ],
+      "non_uniform": 1.0,
+      "mean_scale": 0.7395,
+      "accepted": false,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.2605,
+      "size_bucket": 5,
+      "quality": 3.0
+     },
+     {
+      "id": "abo_B073P3S1NX",
+      "aspect_error": 0.0078,
+      "scale": [
+       1.3667,
+       1.3773,
+       1.372
+      ],
+      "non_uniform": 1.0078,
+      "mean_scale": 1.372,
+      "accepted": false,
+      "rank": 2,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.372,
+      "size_bucket": 7,
+      "quality": 3.0
+     },
+     {
+      "id": "objaverse_53409613b45b42b98b979f12ab8faa12",
+      "aspect_error": 0.0,
+      "scale": [
+       0.8178,
+       0.8178,
+       0.8178
+      ],
+      "non_uniform": 1.0,
+      "mean_scale": 0.8178,
+      "accepted": true,
+      "rank": 3,
+      "source": "objaverse",
+      "units_known": false,
+      "size_error": 0.1822,
+      "size_bucket": null,
+      "quality": 3.0
+     }
+    ],
     "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
     "style_family": "scandinavian",
     "excluded": [
      {
-      "id": "objaverse_01c53767c1f84f55ad9f46eb89949cf9",
+      "id": "abo_B07374K536",
+      "reason": "styles ['modern', 'industrial'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07374SBFN",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B073P25SXR",
+      "reason": "styles ['industrial'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07DBHCKML",
+      "reason": "styles ['modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07DBK7KKZ",
       "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
      {
-      "id": "objaverse_33eb258d9873435690254cfbb0ea46ec",
-      "reason": "styles ['modern'] include neither scandinavian nor neutral"
+      "id": "abo_B07HKF59YX",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B0824FJCWG",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "objaverse_0eba4ad785674d3586aafc82854100fa",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
      },
      {
       "id": "objaverse_71853da424aa4b208e14f6cf430339ae",
       "reason": "styles ['industrial', 'classic'] include neither scandinavian nor neutral"
-     },
-     {
-      "id": "objaverse_8170cf1409924abc9c3fc8becccdd36e",
-      "reason": "styles ['modern'] include neither scandinavian nor neutral"
      }
-    ]
+    ],
+    "quality": [
+     4,
+     4
+    ],
+    "units_known": false,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 3,
+     "tried": 3,
+     "reasons": [
+      "units not known (normalised by type): ranked after the real-size models",
+      "quality 3",
+      "aspect error 0.000",
+      "source objaverse"
+     ],
+     "passed_over": [
+      {
+       "id": "abo_B07B4ZK8BR",
+       "why": "outside the caps (non-uniform 0.0 %, mean scale 0.7395)"
+      },
+      {
+       "id": "abo_B073P3S1NX",
+       "why": "outside the caps (non-uniform 0.8 %, mean scale 1.372)"
+      }
+     ]
+    },
+    "glb": "models/objaverse/53409613b45b42b98b979f12ab8faa12.glb",
+    "sha256_glb": "85dcf7463643f28476812d36e9c0f6c15023c21f8f164a1778b0abe706a2f9d3",
+    "uid": "53409613b45b42b98b979f12ab8faa12",
+    "title": "low poly Lamp 3d model",
+    "author": "mohamedvfx",
+    "source_url": "https://sketchfab.com/3d-models/53409613b45b42b98b979f12ab8faa12",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"low poly Lamp 3d model\" by mohamedvfx (https://sketchfab.com/3d-models/53409613b45b42b98b979f12ab8faa12), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "name": "low poly Lamp 3d model",
+    "unit_scale": 0.004274030573789207
    },
    "status": "verified",
    "evidence": [
@@ -4439,39 +5837,134 @@
    "front_deg": 0.0,
    "height": 0.85,
    "asset": {
-    "library": "parametric",
-    "asset_id": "parametric:washbasin",
-    "licence": "n/a",
-    "license": "n/a",
-    "method": "parametric",
+    "library": "generated",
+    "asset_id": "gen_washbasin_japandi_1_299a0eb2",
+    "licence": "generated (TRELLIS.2-4B, MIT)",
+    "license": "generated (TRELLIS.2-4B, MIT)",
+    "method": "library",
     "fit_scale": [
-     1.0,
-     1.0,
-     1.0
+     0.9473,
+     0.9233,
+     0.9353
     ],
     "bbox_m": [
      0.6,
      0.45,
-     1.0
+     0.5991
     ],
-    "aspect_error": null,
+    "aspect_error": 0.0257,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
      0.0,
-     0.0,
-     0.0
+     0.0007,
+     -0.3202
     ],
-    "candidates": [],
-    "fallback_reason": "no model for style scandinavian",
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_8580c4545d1649efb3503c6c2a012641",
+      "aspect_error": 0.5349,
+      "scale": [
+       0.7156,
+       1.2218,
+       0.9687
+      ],
+      "non_uniform": 1.7073,
+      "mean_scale": 0.9687,
+      "accepted": false,
+      "rank": 1,
+      "source": "objaverse",
+      "units_known": false,
+      "size_error": 0.1792,
+      "size_bucket": null,
+      "quality": 3.0
+     },
+     {
+      "id": "gen_washbasin_japandi_1_299a0eb2",
+      "aspect_error": 0.0257,
+      "scale": [
+       0.9473,
+       0.9233,
+       0.9353
+      ],
+      "non_uniform": 1.026,
+      "mean_scale": 0.9353,
+      "accepted": true,
+      "rank": 2,
+      "source": "generated",
+      "units_known": false,
+      "size_error": 0.0647,
+      "size_bucket": null,
+      "quality": 3.0
+     }
+    ],
     "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
     "style_family": "scandinavian",
     "excluded": [
+     {
+      "id": "objaverse_3eafb89804b54c8e8cbe35e4d456e0a9",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
      {
       "id": "objaverse_ce1a06f7cbe1425099a145f851fc5dee",
       "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
      }
-    ]
+    ],
+    "quality": [
+     5,
+     5
+    ],
+    "units_known": false,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 2,
+     "tried": 2,
+     "reasons": [
+      "generated: no other library model passed the caps",
+      "units not known (normalised by type): ranked after the real-size models",
+      "quality 3",
+      "aspect error 0.026",
+      "source generated"
+     ],
+     "passed_over": [
+      {
+       "id": "objaverse_8580c4545d1649efb3503c6c2a012641",
+       "why": "outside the caps (non-uniform 70.7 %, mean scale 0.9687)"
+      }
+     ]
+    },
+    "glb": "models/generated/gen_washbasin_japandi_1_299a0eb2.glb",
+    "sha256_glb": "299a0eb25e732fb3c6a4c3f93617fd62e08d5aabcb8fde5a21fcb9fd6138c5e2",
+    "uid": "gen_washbasin_japandi_1_299a0eb2",
+    "title": "Generated japandi washbasin (1)",
+    "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+    "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+    "licence_url": "",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Generated japandi washbasin (1)\": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit",
+    "licence_flag": null,
+    "generated": {
+     "prompt": "a single japandi style bathroom washbasin on a vanity unit, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+     "image_sha256": "d2c2bec58b1c9822270d1cfad07632c84bd55f2215ba259a999a7a26847eeb14",
+     "model": "microsoft/TRELLIS.2-4B",
+     "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+     "seed": 642631595
+    },
+    "style_hint": "japandi",
+    "name": "Generated japandi washbasin (1)",
+    "unit_scale": 0.6392787467403352
    },
    "status": "verified",
    "evidence": [
@@ -5008,7 +6501,74 @@
     0.5,
     0.3
    ],
-   "asset": null,
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B074VLRP5T",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "decor_type": "cushion",
+    "fit_scale": [
+     1.1585,
+     1.219,
+     1.1887
+    ],
+    "bbox_m": [
+     0.5,
+     0.3,
+     0.4919
+    ],
+    "aspect_error": 0.0509,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     -0.1231,
+     -0.2069
+    ],
+    "front_axis_confidence": "low",
+    "target": "size",
+    "turned_deg": 0.0,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern",
+     "neutral"
+    ],
+    "style_family": "scandinavian",
+    "quality": [
+     5,
+     5
+    ],
+    "pick": {
+     "key": "f_L0_007",
+     "index": 0,
+     "of": 1,
+     "ids": [
+      "abo_B074VLRP5T"
+     ],
+     "not_fitting": [
+      "abo_B079TXJV32",
+      "abo_B079V39VG5",
+      "abo_B079V3WDY9",
+      "abo_B079V3YG6X"
+     ],
+     "other_style": 0
+    },
+    "glb": "models/abo/abo_B074VLRP5T.glb",
+    "sha256_glb": "24db48794d1f166c06fa3965c6e0a62febfce63697c6b57a939a4b53476d79d8",
+    "uid": "abo_B074VLRP5T",
+    "title": "Amazon Brand – Rivet Velvet Texture Decorative Throw Pillow, 17\" x 17\", Midnight",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B074VLRP5T",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Rivet Velvet Texture Decorative Throw Pillow, 17\" x 17\", Midnight\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": null,
+    "name": "Amazon Brand – Rivet Velvet Texture Decorative Throw Pillow, 17\" x 17\", Midnight",
+    "unit_scale": 1.0
+   },
    "host_id": "f_L0_007",
    "source": "added_by_ai",
    "method": "rule",
@@ -5029,7 +6589,74 @@
     0.5,
     0.3
    ],
-   "asset": null,
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B074VLRP5T",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "decor_type": "cushion",
+    "fit_scale": [
+     1.1585,
+     1.219,
+     1.1887
+    ],
+    "bbox_m": [
+     0.5,
+     0.3,
+     0.4919
+    ],
+    "aspect_error": 0.0509,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     -0.1231,
+     -0.2069
+    ],
+    "front_axis_confidence": "low",
+    "target": "size",
+    "turned_deg": 0.0,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern",
+     "neutral"
+    ],
+    "style_family": "scandinavian",
+    "quality": [
+     5,
+     5
+    ],
+    "pick": {
+     "key": "f_L0_007",
+     "index": 0,
+     "of": 1,
+     "ids": [
+      "abo_B074VLRP5T"
+     ],
+     "not_fitting": [
+      "abo_B079TXJV32",
+      "abo_B079V39VG5",
+      "abo_B079V3WDY9",
+      "abo_B079V3YG6X"
+     ],
+     "other_style": 0
+    },
+    "glb": "models/abo/abo_B074VLRP5T.glb",
+    "sha256_glb": "24db48794d1f166c06fa3965c6e0a62febfce63697c6b57a939a4b53476d79d8",
+    "uid": "abo_B074VLRP5T",
+    "title": "Amazon Brand – Rivet Velvet Texture Decorative Throw Pillow, 17\" x 17\", Midnight",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B074VLRP5T",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Rivet Velvet Texture Decorative Throw Pillow, 17\" x 17\", Midnight\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": null,
+    "name": "Amazon Brand – Rivet Velvet Texture Decorative Throw Pillow, 17\" x 17\", Midnight",
+    "unit_scale": 1.0
+   },
    "host_id": "f_L0_007",
    "source": "added_by_ai",
    "method": "rule",
@@ -5037,6 +6664,100 @@
   },
   {
    "id": "dec_L0_003",
+   "kind": "decor",
+   "type": "rug",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room",
+   "center": [
+    1.749,
+    1.464
+   ],
+   "rotation_deg": 180.0,
+   "size": [
+    2.379,
+    1.614
+   ],
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B07B4WKQHJ",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "decor_type": "rug",
+    "fit_scale": [
+     0.7332,
+     0.6542,
+     0.6579
+    ],
+    "bbox_m": [
+     2.379,
+     1.614,
+     0.03
+    ],
+    "aspect_error": 0.1139,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0011,
+     -0.0003,
+     0.0
+    ],
+    "front_axis_confidence": "low",
+    "target": "rug",
+    "turned_deg": 0.0,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal"
+    ],
+    "style_family": "scandinavian",
+    "quality": [
+     5,
+     4
+    ],
+    "pick": {
+     "key": "f_L0_007",
+     "index": 4,
+     "of": 7,
+     "ids": [
+      "abo_B0714MJKX2",
+      "abo_B0719STF79",
+      "abo_B07B4SDLJM",
+      "abo_B07B4WH5LV",
+      "abo_B07B4WKQHJ",
+      "abo_B07B515Q7D",
+      "abo_B07TS7ZCVM"
+     ],
+     "not_fitting": [
+      "abo_B0735RHGTB"
+     ],
+     "other_style": 3
+    },
+    "glb": "models/abo/abo_B07B4WKQHJ.glb",
+    "sha256_glb": "83a20ef71167e28bb9595310ce56d089460b87254ae3871b21bbda0fd50f97ba",
+    "uid": "abo_B07B4WKQHJ",
+    "title": "Amazon Brand – Rivet Contemporary Striated Jute Area Rug, 10' 6\" x 8', Off White",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07B4WKQHJ",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Rivet Contemporary Striated Jute Area Rug, 10' 6\" x 8', Off White\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Vapor",
+    "name": "Amazon Brand – Rivet Contemporary Striated Jute Area Rug, 10' 6\" x 8', Off White",
+    "unit_scale": 1.0
+   },
+   "host_id": null,
+   "anchor_ids": [
+    "f_L0_007"
+   ],
+   "source": "added_by_ai",
+   "method": "rule",
+   "reason": "rug under the lower two thirds of the double bed; cut from 2.38 x 1.95 m to stay off walls, door swings and fixed pieces"
+  },
+  {
+   "id": "dec_L0_004",
    "kind": "decor",
    "type": "cushion",
    "level_id": "L0",
@@ -5050,14 +6771,81 @@
     0.45,
     0.15
    ],
-   "asset": null,
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B079V3YG6X",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "decor_type": "cushion",
+    "fit_scale": [
+     0.8707,
+     0.95,
+     0.9104
+    ],
+    "bbox_m": [
+     0.45,
+     0.15,
+     0.4622
+    ],
+    "aspect_error": 0.0871,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     -0.079,
+     -0.2538
+    ],
+    "front_axis_confidence": "low",
+    "target": "size",
+    "turned_deg": 0.0,
+    "styles": [
+     "scandinavian",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "scandinavian",
+    "quality": [
+     5,
+     4
+    ],
+    "pick": {
+     "key": "f_L0_017",
+     "index": 3,
+     "of": 4,
+     "ids": [
+      "abo_B079TXJV32",
+      "abo_B079V39VG5",
+      "abo_B079V3WDY9",
+      "abo_B079V3YG6X"
+     ],
+     "not_fitting": [
+      "abo_B074VLRP5T"
+     ],
+     "other_style": 0
+    },
+    "glb": "models/abo/abo_B079V3YG6X.glb",
+    "sha256_glb": "4580a67653d2f5cf8915b2cd87673c5fe52470f9cbde6ed9ae2931d027a3314e",
+    "uid": "abo_B079V3YG6X",
+    "title": "Amazon Brand – Rivet Modern Geometric Decorative Print Pillow Cover, 20\" x 20\", Black",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B079V3YG6X",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Rivet Modern Geometric Decorative Print Pillow Cover, 20\" x 20\", Black\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Cover Only",
+    "name": "Amazon Brand – Rivet Modern Geometric Decorative Print Pillow Cover, 20\" x 20\", Black",
+    "unit_scale": 1.0
+   },
    "host_id": "f_L0_017",
    "source": "added_by_ai",
    "method": "rule",
    "reason": "cushion against the sofa back"
   },
   {
-   "id": "dec_L0_004",
+   "id": "dec_L0_005",
    "kind": "decor",
    "type": "cushion",
    "level_id": "L0",
@@ -5071,14 +6859,81 @@
     0.45,
     0.15
    ],
-   "asset": null,
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B079V3YG6X",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "decor_type": "cushion",
+    "fit_scale": [
+     0.8707,
+     0.95,
+     0.9104
+    ],
+    "bbox_m": [
+     0.45,
+     0.15,
+     0.4622
+    ],
+    "aspect_error": 0.0871,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     -0.079,
+     -0.2538
+    ],
+    "front_axis_confidence": "low",
+    "target": "size",
+    "turned_deg": 0.0,
+    "styles": [
+     "scandinavian",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "scandinavian",
+    "quality": [
+     5,
+     4
+    ],
+    "pick": {
+     "key": "f_L0_017",
+     "index": 3,
+     "of": 4,
+     "ids": [
+      "abo_B079TXJV32",
+      "abo_B079V39VG5",
+      "abo_B079V3WDY9",
+      "abo_B079V3YG6X"
+     ],
+     "not_fitting": [
+      "abo_B074VLRP5T"
+     ],
+     "other_style": 0
+    },
+    "glb": "models/abo/abo_B079V3YG6X.glb",
+    "sha256_glb": "4580a67653d2f5cf8915b2cd87673c5fe52470f9cbde6ed9ae2931d027a3314e",
+    "uid": "abo_B079V3YG6X",
+    "title": "Amazon Brand – Rivet Modern Geometric Decorative Print Pillow Cover, 20\" x 20\", Black",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B079V3YG6X",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Rivet Modern Geometric Decorative Print Pillow Cover, 20\" x 20\", Black\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Cover Only",
+    "name": "Amazon Brand – Rivet Modern Geometric Decorative Print Pillow Cover, 20\" x 20\", Black",
+    "unit_scale": 1.0
+   },
    "host_id": "f_L0_017",
    "source": "added_by_ai",
    "method": "rule",
    "reason": "cushion against the sofa back"
   },
   {
-   "id": "dec_L0_005",
+   "id": "dec_L0_006",
    "kind": "decor",
    "type": "plant",
    "level_id": "L0",
@@ -5094,31 +6949,48 @@
    ],
    "asset": {
     "library": "polyhaven",
-    "asset_id": "potted_plant_02",
+    "asset_id": "potted_plant_04",
     "licence": "CC0",
     "license": "CC0",
     "method": "library",
+    "decor_type": "plant",
     "fit_scale": [
-     0.5705,
-     0.6085,
-     0.5895
+     2.3824,
+     2.1645,
+     2.2734
     ],
     "bbox_m": [
      0.4,
      0.4,
-     0.4958
+     0.6081
     ],
-    "aspect_error": 0.0645,
-    "gltf": "models/potted_plant_02/potted_plant_02_1k.gltf",
+    "aspect_error": 0.0959,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     -0.0461,
-     0.0916,
-     0.0001
+     0.0,
+     -0.0084,
+     0.0004
     ],
     "front_axis_confidence": "low",
-    "target": "size"
+    "target": "size",
+    "turned_deg": 0.0,
+    "styles": [],
+    "style_family": "scandinavian",
+    "quality": null,
+    "pick": {
+     "key": "dec_L0_006",
+     "index": 2,
+     "of": 3,
+     "ids": [
+      "potted_plant_01",
+      "potted_plant_02",
+      "potted_plant_04"
+     ],
+     "not_fitting": [],
+     "other_style": 0
+    },
+    "gltf": "models/potted_plant_04/potted_plant_04_1k.gltf"
    },
    "host_id": null,
    "source": "added_by_ai",
@@ -5126,7 +6998,103 @@
    "reason": "potted plant in a free corner"
   },
   {
-   "id": "dec_L0_006",
+   "id": "dec_L0_007",
+   "kind": "decor",
+   "type": "rug",
+   "level_id": "L0",
+   "room_id": "r_L0_drawing_room",
+   "center": [
+    6.517,
+    1.921
+   ],
+   "rotation_deg": 180.0,
+   "size": [
+    2.194,
+    2.782
+   ],
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B07B4SDLJM",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "decor_type": "rug",
+    "fit_scale": [
+     0.9014,
+     0.8689,
+     0.6667
+    ],
+    "bbox_m": [
+     2.194,
+     2.782,
+     0.03
+    ],
+    "aspect_error": 0.5115,
+    "front_axis": "-X",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0012,
+     -0.0003,
+     0.0
+    ],
+    "front_axis_confidence": "low",
+    "target": "rug",
+    "turned_deg": 90.0,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "scandinavian",
+    "quality": [
+     4,
+     4
+    ],
+    "pick": {
+     "key": "f_L0_017",
+     "index": 2,
+     "of": 7,
+     "ids": [
+      "abo_B0714MJKX2",
+      "abo_B0719STF79",
+      "abo_B07B4SDLJM",
+      "abo_B07B4WH5LV",
+      "abo_B07B4WKQHJ",
+      "abo_B07B515Q7D",
+      "abo_B07TS7ZCVM"
+     ],
+     "not_fitting": [
+      "abo_B0735RHGTB"
+     ],
+     "other_style": 3
+    },
+    "glb": "models/abo/abo_B07B4SDLJM.glb",
+    "sha256_glb": "6091f97b85e4a440842ba7a71b662dab877e642a78567043888d2588311801d3",
+    "uid": "abo_B07B4SDLJM",
+    "title": "Amazon Brand – Rivet Contemporary Striated Jute Area Rug, 10' 6\" x 8', Oatmeal",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07B4SDLJM",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Rivet Contemporary Striated Jute Area Rug, 10' 6\" x 8', Oatmeal\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Oatmeal",
+    "name": "Amazon Brand – Rivet Contemporary Striated Jute Area Rug, 10' 6\" x 8', Oatmeal",
+    "unit_scale": 1.0
+   },
+   "host_id": null,
+   "anchor_ids": [
+    "f_L0_017",
+    "f_L0_019"
+   ],
+   "source": "added_by_ai",
+   "method": "rule",
+   "reason": "rug under the sofa and coffee table group; cut from 2.49 x 3.20 m to stay off walls, door swings and fixed pieces"
+  },
+  {
+   "id": "dec_L0_008",
    "kind": "decor",
    "type": "cushion",
    "level_id": "L0",
@@ -5140,14 +7108,81 @@
     0.5,
     0.3
    ],
-   "asset": null,
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B074VLRP5T",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "decor_type": "cushion",
+    "fit_scale": [
+     1.1585,
+     1.219,
+     1.1887
+    ],
+    "bbox_m": [
+     0.5,
+     0.3,
+     0.4919
+    ],
+    "aspect_error": 0.0509,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     -0.1231,
+     -0.2069
+    ],
+    "front_axis_confidence": "low",
+    "target": "size",
+    "turned_deg": 0.0,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern",
+     "neutral"
+    ],
+    "style_family": "scandinavian",
+    "quality": [
+     5,
+     5
+    ],
+    "pick": {
+     "key": "f_L0_004",
+     "index": 0,
+     "of": 1,
+     "ids": [
+      "abo_B074VLRP5T"
+     ],
+     "not_fitting": [
+      "abo_B079TXJV32",
+      "abo_B079V39VG5",
+      "abo_B079V3WDY9",
+      "abo_B079V3YG6X"
+     ],
+     "other_style": 0
+    },
+    "glb": "models/abo/abo_B074VLRP5T.glb",
+    "sha256_glb": "24db48794d1f166c06fa3965c6e0a62febfce63697c6b57a939a4b53476d79d8",
+    "uid": "abo_B074VLRP5T",
+    "title": "Amazon Brand – Rivet Velvet Texture Decorative Throw Pillow, 17\" x 17\", Midnight",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B074VLRP5T",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Rivet Velvet Texture Decorative Throw Pillow, 17\" x 17\", Midnight\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": null,
+    "name": "Amazon Brand – Rivet Velvet Texture Decorative Throw Pillow, 17\" x 17\", Midnight",
+    "unit_scale": 1.0
+   },
    "host_id": "f_L0_004",
    "source": "added_by_ai",
    "method": "rule",
    "reason": "cushion at the head of the bed"
   },
   {
-   "id": "dec_L0_007",
+   "id": "dec_L0_009",
    "kind": "decor",
    "type": "cushion",
    "level_id": "L0",
@@ -5161,14 +7196,81 @@
     0.5,
     0.3
    ],
-   "asset": null,
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B074VLRP5T",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "decor_type": "cushion",
+    "fit_scale": [
+     1.1585,
+     1.219,
+     1.1887
+    ],
+    "bbox_m": [
+     0.5,
+     0.3,
+     0.4919
+    ],
+    "aspect_error": 0.0509,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     -0.1231,
+     -0.2069
+    ],
+    "front_axis_confidence": "low",
+    "target": "size",
+    "turned_deg": 0.0,
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern",
+     "neutral"
+    ],
+    "style_family": "scandinavian",
+    "quality": [
+     5,
+     5
+    ],
+    "pick": {
+     "key": "f_L0_004",
+     "index": 0,
+     "of": 1,
+     "ids": [
+      "abo_B074VLRP5T"
+     ],
+     "not_fitting": [
+      "abo_B079TXJV32",
+      "abo_B079V39VG5",
+      "abo_B079V3WDY9",
+      "abo_B079V3YG6X"
+     ],
+     "other_style": 0
+    },
+    "glb": "models/abo/abo_B074VLRP5T.glb",
+    "sha256_glb": "24db48794d1f166c06fa3965c6e0a62febfce63697c6b57a939a4b53476d79d8",
+    "uid": "abo_B074VLRP5T",
+    "title": "Amazon Brand – Rivet Velvet Texture Decorative Throw Pillow, 17\" x 17\", Midnight",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B074VLRP5T",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Rivet Velvet Texture Decorative Throw Pillow, 17\" x 17\", Midnight\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": null,
+    "name": "Amazon Brand – Rivet Velvet Texture Decorative Throw Pillow, 17\" x 17\", Midnight",
+    "unit_scale": 1.0
+   },
    "host_id": "f_L0_004",
    "source": "added_by_ai",
    "method": "rule",
    "reason": "cushion at the head of the bed"
   },
   {
-   "id": "dec_L0_008",
+   "id": "dec_L0_010",
    "kind": "decor",
    "type": "plant",
    "level_id": "L0",
@@ -5184,36 +7286,240 @@
    ],
    "asset": {
     "library": "polyhaven",
-    "asset_id": "potted_plant_02",
+    "asset_id": "potted_plant_01",
     "licence": "CC0",
     "license": "CC0",
     "method": "library",
+    "decor_type": "plant",
     "fit_scale": [
-     0.5705,
-     0.6085,
-     0.5895
+     0.681,
+     0.6313,
+     0.6561
     ],
     "bbox_m": [
      0.4,
      0.4,
-     0.4958
+     0.8859
     ],
-    "aspect_error": 0.0645,
-    "gltf": "models/potted_plant_02/potted_plant_02_1k.gltf",
+    "aspect_error": 0.0757,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
-     -0.0461,
-     0.0916,
-     0.0001
+     -0.0447,
+     0.0469,
+     -0.0137
     ],
     "front_axis_confidence": "low",
-    "target": "size"
+    "target": "size",
+    "turned_deg": 0.0,
+    "styles": [],
+    "style_family": "scandinavian",
+    "quality": null,
+    "pick": {
+     "key": "dec_L0_010",
+     "index": 0,
+     "of": 3,
+     "ids": [
+      "potted_plant_01",
+      "potted_plant_02",
+      "potted_plant_04"
+     ],
+     "not_fitting": [],
+     "other_style": 0
+    },
+    "gltf": "models/potted_plant_01/potted_plant_01_1k.gltf"
    },
    "host_id": null,
    "source": "added_by_ai",
    "method": "rule",
    "reason": "potted plant in a free corner"
+  },
+  {
+   "id": "dec_L0_011",
+   "kind": "decor",
+   "type": "rug",
+   "level_id": "L0",
+   "room_id": "r_L0_bed_room_2",
+   "center": [
+    1.776,
+    5.877
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    2.339,
+    1.654
+   ],
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B07B4SDLJM",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "decor_type": "rug",
+    "fit_scale": [
+     0.7306,
+     0.6795,
+     0.6667
+    ],
+    "bbox_m": [
+     2.339,
+     1.654,
+     0.03
+    ],
+    "aspect_error": 0.0725,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0012,
+     -0.0003,
+     0.0
+    ],
+    "front_axis_confidence": "low",
+    "target": "rug",
+    "turned_deg": 0.0,
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "scandinavian",
+    "quality": [
+     4,
+     4
+    ],
+    "pick": {
+     "key": "f_L0_004",
+     "index": 2,
+     "of": 7,
+     "ids": [
+      "abo_B0714MJKX2",
+      "abo_B0719STF79",
+      "abo_B07B4SDLJM",
+      "abo_B07B4WH5LV",
+      "abo_B07B4WKQHJ",
+      "abo_B07B515Q7D",
+      "abo_B07TS7ZCVM"
+     ],
+     "not_fitting": [
+      "abo_B0735RHGTB"
+     ],
+     "other_style": 3
+    },
+    "glb": "models/abo/abo_B07B4SDLJM.glb",
+    "sha256_glb": "6091f97b85e4a440842ba7a71b662dab877e642a78567043888d2588311801d3",
+    "uid": "abo_B07B4SDLJM",
+    "title": "Amazon Brand – Rivet Contemporary Striated Jute Area Rug, 10' 6\" x 8', Oatmeal",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07B4SDLJM",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Rivet Contemporary Striated Jute Area Rug, 10' 6\" x 8', Oatmeal\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Oatmeal",
+    "name": "Amazon Brand – Rivet Contemporary Striated Jute Area Rug, 10' 6\" x 8', Oatmeal",
+    "unit_scale": 1.0
+   },
+   "host_id": null,
+   "anchor_ids": [
+    "f_L0_004"
+   ],
+   "source": "added_by_ai",
+   "method": "rule",
+   "reason": "rug under the lower two thirds of the double bed; cut from 2.38 x 1.95 m to stay off walls, door swings and fixed pieces"
+  },
+  {
+   "id": "dec_L0_012",
+   "kind": "decor",
+   "type": "rug",
+   "level_id": "L0",
+   "room_id": "r_L0_dining",
+   "center": [
+    6.587,
+    5.881
+   ],
+   "rotation_deg": 90.0,
+   "size": [
+    1.818,
+    2.355
+   ],
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B0719STF79",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "decor_type": "rug",
+    "fit_scale": [
+     0.7761,
+     0.7312,
+     1.0
+    ],
+    "bbox_m": [
+     1.818,
+     2.355,
+     0.0262
+    ],
+    "aspect_error": 0.5772,
+    "front_axis": "-X",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0003,
+     0.0008,
+     0.0
+    ],
+    "front_axis_confidence": "low",
+    "target": "rug",
+    "turned_deg": 90.0,
+    "styles": [
+     "scandinavian",
+     "neutral"
+    ],
+    "style_family": "scandinavian",
+    "quality": [
+     4,
+     4
+    ],
+    "pick": {
+     "key": "f_L0_010",
+     "index": 1,
+     "of": 7,
+     "ids": [
+      "abo_B0714MJKX2",
+      "abo_B0719STF79",
+      "abo_B07B4SDLJM",
+      "abo_B07B4WH5LV",
+      "abo_B07B4WKQHJ",
+      "abo_B07B515Q7D",
+      "abo_B07TS7ZCVM"
+     ],
+     "not_fitting": [
+      "abo_B0735RHGTB"
+     ],
+     "other_style": 3
+    },
+    "glb": "models/abo/abo_B0719STF79.glb",
+    "sha256_glb": "205af80d556fda986fd0bced0fce74ba2e884ad5744c603d8df7c6646726b170",
+    "uid": "abo_B0719STF79",
+    "title": "Amazon Brand – Rivet Diamond Trellis Tassel Wool Rug, 7'6\" x 9'6\", Ivory",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B0719STF79",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Rivet Diamond Trellis Tassel Wool Rug, 7'6\" x 9'6\", Ivory\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Contemporary",
+    "name": "Amazon Brand – Rivet Diamond Trellis Tassel Wool Rug, 7'6\" x 9'6\", Ivory",
+    "unit_scale": 1.0
+   },
+   "host_id": null,
+   "anchor_ids": [
+    "f_L0_010"
+   ],
+   "source": "added_by_ai",
+   "method": "rule",
+   "reason": "rug under the dining table (+ 0.6 m each side for the chairs); cut from 3.04 x 2.54 m to stay off walls, door swings and fixed pieces"
   }
  ]
 }

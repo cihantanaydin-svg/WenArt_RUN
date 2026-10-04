@@ -427,14 +427,18 @@
     "picture frame"
    ],
    "class": "decor",
-   "compatible": []
+   "compatible": [
+    "wall_art"
+   ]
   },
   "rug": {
    "texts": [
     "rug"
    ],
    "class": "decor",
-   "compatible": []
+   "compatible": [
+    "rug"
+   ]
   },
   "vase": {
    "texts": [
@@ -476,8 +480,8 @@
  "images": {
   "cycles": {
    "file": "../renders/cam_r_L1_ebeveyn_yatak_odasi_1.png",
-   "sha256": "11317816cd714db6ccc3bd445f8261bfbd83ef64072123ef429c934f05ab62c6",
-   "key": "3b7e2308db61cc62",
+   "sha256": "ed6c130999a946bbd0908aaf40ab65743456fa5666b92427f084367c7a100710",
+   "key": "55bd1bebb7cb21e9",
    "size": [
     1920,
     1080
@@ -490,408 +494,708 @@
     {
      "group": "bed_single",
      "text": "single bed",
-     "score": 0.6171,
+     "score": 0.6682,
      "box_px": [
-      0.0,
-      489.8,
-      1015.4,
-      1078.8
+      975.2,
+      395.6,
+      1792.1,
+      984.9
      ],
      "class": "furniture"
     },
     {
      "group": "bed_single",
      "text": "single bed",
-     "score": 0.1773,
+     "score": 0.228,
      "box_px": [
-      0.0,
-      550.0,
-      236.6,
-      758.4
+      989.1,
+      506.3,
+      1736.8,
+      823.7
      ],
      "class": "furniture"
     },
     {
      "group": "bed_single",
      "text": "single bed",
-     "score": 0.1171,
+     "score": 0.06,
      "box_px": [
-      0.7,
-      517.5,
-      659.7,
-      770.8
+      980.0,
+      452.6,
+      1463.7,
+      736.1
      ],
      "class": "furniture"
     },
     {
      "group": "bed_single",
      "text": "single bed",
-     "score": 0.0771,
+     "score": 0.0574,
      "box_px": [
-      9.8,
-      1.5,
-      1912.3,
-      1080.0
+      1222.9,
+      475.7,
+      1452.2,
+      549.7
      ],
      "class": "furniture"
     },
     {
      "group": "bed_single",
      "text": "single bed",
-     "score": 0.0741,
+     "score": 0.053,
      "box_px": [
-      257.8,
-      519.9,
-      657.8,
-      711.9
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "bed_single",
-     "text": "single bed",
-     "score": 0.0535,
-     "box_px": [
-      0.0,
-      652.7,
-      735.8,
-      806.9
+      1226.3,
+      358.5,
+      1455.0,
+      548.1
      ],
      "class": "furniture"
     },
     {
      "group": "bed_double",
      "text": "double bed",
-     "score": 0.5969,
+     "score": 0.6472,
      "box_px": [
-      0.0,
-      489.8,
-      1015.4,
-      1078.8
+      975.2,
+      395.6,
+      1792.1,
+      984.9
      ],
      "class": "furniture"
     },
     {
      "group": "bed_double",
      "text": "double bed",
-     "score": 0.1954,
+     "score": 0.3377,
      "box_px": [
-      0.0,
-      550.0,
-      236.6,
-      758.4
+      989.1,
+      506.3,
+      1736.8,
+      823.7
      ],
      "class": "furniture"
     },
     {
      "group": "bed_double",
      "text": "double bed",
-     "score": 0.1874,
+     "score": 0.0795,
      "box_px": [
-      0.7,
-      517.5,
-      659.7,
-      770.8
+      1224.9,
+      476.5,
+      1734.9,
+      618.1
      ],
      "class": "furniture"
     },
     {
      "group": "bed_double",
      "text": "double bed",
-     "score": 0.0925,
+     "score": 0.0687,
      "box_px": [
-      261.9,
-      563.2,
-      666.2,
-      711.3
+      1222.9,
+      475.7,
+      1452.2,
+      549.7
      ],
      "class": "furniture"
     },
     {
      "group": "bed_double",
      "text": "double bed",
-     "score": 0.0792,
+     "score": 0.0675,
      "box_px": [
-      15.3,
-      449.8,
-      1908.4,
-      1077.0
+      980.0,
+      452.6,
+      1463.7,
+      736.1
      ],
      "class": "furniture"
     },
     {
      "group": "bed_double",
      "text": "double bed",
-     "score": 0.0769,
+     "score": 0.0572,
      "box_px": [
-      0.0,
-      652.7,
-      735.8,
-      806.9
+      1226.3,
+      358.5,
+      1455.0,
+      548.1
      ],
      "class": "furniture"
     },
     {
      "group": "sofa",
      "text": "sofa",
-     "score": 0.1026,
+     "score": 0.1216,
      "box_px": [
-      0.0,
-      489.8,
-      1015.4,
-      1078.8
+      975.2,
+      395.6,
+      1792.1,
+      984.9
      ],
      "class": "furniture"
     },
     {
-     "group": "sofa",
-     "text": "sofa",
-     "score": 0.0677,
+     "group": "armchair",
+     "text": "armchair",
+     "score": 0.0519,
      "box_px": [
-      0.0,
-      550.0,
-      236.6,
-      758.4
+      1226.3,
+      358.5,
+      1455.0,
+      548.1
      ],
      "class": "furniture"
     },
     {
-     "group": "sofa",
-     "text": "sofa",
-     "score": 0.0521,
+     "group": "table_coffee",
+     "text": "coffee table",
+     "score": 0.0849,
      "box_px": [
-      0.7,
-      517.5,
-      659.7,
-      770.8
+      878.6,
+      535.8,
+      979.0,
+      652.5
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "table_coffee",
+     "text": "coffee table",
+     "score": 0.0757,
+     "box_px": [
+      932.8,
+      958.9,
+      1248.0,
+      1079.7
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "table_coffee",
+     "text": "coffee table",
+     "score": 0.0534,
+     "box_px": [
+      973.8,
+      951.8,
+      1650.3,
+      1077.5
      ],
      "class": "furniture"
     },
     {
      "group": "desk",
      "text": "desk",
-     "score": 0.398,
+     "score": 0.1379,
      "box_px": [
-      942.7,
-      500.3,
-      1399.9,
-      914.5
+      878.6,
+      535.8,
+      979.0,
+      652.5
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "desk",
+     "text": "desk",
+     "score": 0.0909,
+     "box_px": [
+      932.8,
+      958.9,
+      1248.0,
+      1079.7
      ],
      "class": "furniture"
     },
     {
      "group": "wardrobe",
      "text": "wardrobe",
-     "score": 0.1036,
+     "score": 0.34,
      "box_px": [
-      1603.3,
-      0.3,
-      1920.0,
-      1080.0
+      283.8,
+      28.6,
+      740.4,
+      815.1
      ],
      "class": "furniture"
     },
     {
-     "group": "shower",
-     "text": "shower",
-     "score": 0.0582,
+     "group": "wardrobe",
+     "text": "wardrobe",
+     "score": 0.0911,
      "box_px": [
-      1603.3,
-      0.3,
-      1920.0,
-      1080.0
+      531.9,
+      71.0,
+      732.2,
+      758.3
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "kitchen_island",
+     "text": "kitchen island",
+     "score": 0.0698,
+     "box_px": [
+      283.8,
+      28.6,
+      740.4,
+      815.1
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "fridge",
+     "text": "refrigerator",
+     "score": 0.0762,
+     "box_px": [
+      283.8,
+      28.6,
+      740.4,
+      815.1
      ],
      "class": "furniture"
     },
     {
      "group": "bathtub",
      "text": "bathtub",
-     "score": 0.2613,
+     "score": 0.0673,
      "box_px": [
-      1394.2,
-      753.4,
-      1604.8,
-      943.2
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "bathtub",
-     "text": "bathtub",
-     "score": 0.0599,
-     "box_px": [
-      0.0,
-      670.9,
-      1020.0,
-      1078.2
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "bathtub",
-     "text": "bathtub",
-     "score": 0.0576,
-     "box_px": [
-      1190.6,
-      742.9,
-      1585.5,
-      942.9
+      989.1,
+      506.3,
+      1736.8,
+      823.7
      ],
      "class": "furniture"
     },
     {
      "group": "tv_unit",
      "text": "tv stand",
-     "score": 0.0656,
+     "score": 0.0671,
      "box_px": [
-      942.7,
-      500.3,
-      1399.9,
-      914.5
+      878.6,
+      535.8,
+      979.0,
+      652.5
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "bookshelf",
+     "text": "bookshelf",
+     "score": 0.2008,
+     "box_px": [
+      283.8,
+      28.6,
+      740.4,
+      815.1
      ],
      "class": "furniture"
     },
     {
      "group": "nightstand",
      "text": "nightstand",
-     "score": 0.0687,
+     "score": 0.3481,
      "box_px": [
-      231.3,
-      686.2,
-      266.8,
-      711.1
+      878.6,
+      535.8,
+      979.0,
+      652.5
      ],
      "class": "furniture"
     },
     {
      "group": "nightstand",
      "text": "nightstand",
-     "score": 0.0664,
+     "score": 0.1932,
      "box_px": [
-      942.7,
-      500.3,
-      1399.9,
-      914.5
+      1164.1,
+      508.9,
+      1229.6,
+      520.3
      ],
      "class": "furniture"
     },
     {
      "group": "dresser",
      "text": "chest of drawers",
-     "score": 0.0942,
+     "score": 0.1998,
      "box_px": [
-      1103.9,
-      566.3,
-      1358.5,
-      735.1
+      283.8,
+      28.6,
+      740.4,
+      815.1
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "dresser",
+     "text": "chest of drawers",
+     "score": 0.1611,
+     "box_px": [
+      878.6,
+      535.8,
+      979.0,
+      652.5
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "stair",
+     "text": "staircase",
+     "score": 0.0558,
+     "box_px": [
+      1515.2,
+      979.6,
+      1915.1,
+      1078.6
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "stair",
+     "text": "staircase",
+     "score": 0.0502,
+     "box_px": [
+      932.8,
+      958.9,
+      1248.0,
+      1079.7
      ],
      "class": "furniture"
     },
     {
      "group": "side_table",
      "text": "side table",
-     "score": 0.1889,
+     "score": 0.46,
      "box_px": [
-      942.7,
-      500.3,
-      1399.9,
-      914.5
+      878.6,
+      535.8,
+      979.0,
+      652.5
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "side_table",
+     "text": "side table",
+     "score": 0.0962,
+     "box_px": [
+      932.8,
+      958.9,
+      1248.0,
+      1079.7
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "side_table",
+     "text": "side table",
+     "score": 0.0589,
+     "box_px": [
+      1164.1,
+      508.9,
+      1229.6,
+      520.3
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "side_table",
+     "text": "side table",
+     "score": 0.0563,
+     "box_px": [
+      1515.2,
+      979.6,
+      1915.1,
+      1078.6
      ],
      "class": "furniture"
     },
     {
      "group": "door",
      "text": "door",
-     "score": 0.4246,
+     "score": 0.4397,
      "box_px": [
-      1603.3,
-      0.3,
-      1920.0,
-      1080.0
+      531.9,
+      71.0,
+      732.2,
+      758.3
      ],
      "class": "door"
     },
     {
      "group": "door",
      "text": "door",
-     "score": 0.0521,
+     "score": 0.3914,
      "box_px": [
-      1103.2,
-      570.4,
-      1196.9,
-      730.0
+      282.9,
+      28.2,
+      536.2,
+      808.8
      ],
      "class": "door"
     },
     {
-     "group": "cushion",
-     "text": "cushion",
-     "score": 0.2447,
-     "box_px": [
-      346.4,
-      518.5,
-      596.5,
-      601.4
-     ],
-     "class": "decor"
-    },
-    {
-     "group": "cushion",
-     "text": "cushion",
-     "score": 0.1924,
-     "box_px": [
-      261.9,
-      563.2,
-      666.2,
-      711.3
-     ],
-     "class": "decor"
-    },
-    {
-     "group": "cushion",
-     "text": "cushion",
-     "score": 0.1726,
-     "box_px": [
-      0.8,
-      547.2,
-      142.4,
-      636.4
-     ],
-     "class": "decor"
-    },
-    {
-     "group": "cushion",
-     "text": "cushion",
-     "score": 0.1538,
-     "box_px": [
-      1.0,
-      597.3,
-      241.2,
-      752.7
-     ],
-     "class": "decor"
-    },
-    {
-     "group": "cushion",
-     "text": "cushion",
-     "score": 0.0622,
+     "group": "door",
+     "text": "door",
+     "score": 0.0682,
      "box_px": [
       0.0,
-      652.7,
-      735.8,
-      806.9
+      5.7,
+      203.0,
+      703.4
+     ],
+     "class": "door"
+    },
+    {
+     "group": "door",
+     "text": "door",
+     "score": 0.0576,
+     "box_px": [
+      734.5,
+      139.5,
+      947.9,
+      431.0
+     ],
+     "class": "door"
+    },
+    {
+     "group": "window",
+     "text": "window",
+     "score": 0.4581,
+     "box_px": [
+      0.0,
+      5.7,
+      203.0,
+      703.4
+     ],
+     "class": "window"
+    },
+    {
+     "group": "window",
+     "text": "window",
+     "score": 0.4267,
+     "box_px": [
+      734.5,
+      139.5,
+      947.9,
+      431.0
+     ],
+     "class": "window"
+    },
+    {
+     "group": "window",
+     "text": "window",
+     "score": 0.2242,
+     "box_px": [
+      0.4,
+      2.8,
+      115.2,
+      611.4
+     ],
+     "class": "window"
+    },
+    {
+     "group": "picture_frame",
+     "text": "picture frame",
+     "score": 0.4172,
+     "box_px": [
+      1387.6,
+      3.2,
+      1633.3,
+      353.3
+     ],
+     "class": "decor"
+    },
+    {
+     "group": "picture_frame",
+     "text": "picture frame",
+     "score": 0.0872,
+     "box_px": [
+      734.5,
+      139.5,
+      947.9,
+      431.0
+     ],
+     "class": "decor"
+    },
+    {
+     "group": "rug",
+     "text": "rug",
+     "score": 0.3979,
+     "box_px": [
+      960.9,
+      666.1,
+      1883.4,
+      1075.0
+     ],
+     "class": "decor"
+    },
+    {
+     "group": "rug",
+     "text": "rug",
+     "score": 0.1354,
+     "box_px": [
+      1119.1,
+      949.3,
+      1639.6,
+      1078.8
+     ],
+     "class": "decor"
+    },
+    {
+     "group": "rug",
+     "text": "rug",
+     "score": 0.1017,
+     "box_px": [
+      1348.3,
+      791.9,
+      1869.3,
+      1000.3
+     ],
+     "class": "decor"
+    },
+    {
+     "group": "rug",
+     "text": "rug",
+     "score": 0.0694,
+     "box_px": [
+      958.4,
+      690.2,
+      1290.7,
+      965.4
+     ],
+     "class": "decor"
+    },
+    {
+     "group": "rug",
+     "text": "rug",
+     "score": 0.0598,
+     "box_px": [
+      1515.2,
+      979.6,
+      1915.1,
+      1078.6
      ],
      "class": "decor"
     },
     {
      "group": "cushion",
      "text": "cushion",
-     "score": 0.0571,
+     "score": 0.3061,
      "box_px": [
-      0.7,
-      517.5,
-      659.7,
-      770.8
+      1410.8,
+      500.2,
+      1733.9,
+      615.0
+     ],
+     "class": "decor"
+    },
+    {
+     "group": "cushion",
+     "text": "cushion",
+     "score": 0.2853,
+     "box_px": [
+      1298.6,
+      359.6,
+      1412.2,
+      488.9
+     ],
+     "class": "decor"
+    },
+    {
+     "group": "cushion",
+     "text": "cushion",
+     "score": 0.279,
+     "box_px": [
+      1222.9,
+      475.7,
+      1452.2,
+      549.7
+     ],
+     "class": "decor"
+    },
+    {
+     "group": "cushion",
+     "text": "cushion",
+     "score": 0.2529,
+     "box_px": [
+      1504.8,
+      363.2,
+      1675.6,
+      526.1
+     ],
+     "class": "decor"
+    },
+    {
+     "group": "cushion",
+     "text": "cushion",
+     "score": 0.0935,
+     "box_px": [
+      1674.6,
+      591.7,
+      1756.5,
+      702.3
+     ],
+     "class": "decor"
+    },
+    {
+     "group": "cushion",
+     "text": "cushion",
+     "score": 0.0702,
+     "box_px": [
+      1287.9,
+      357.8,
+      1686.9,
+      530.8
+     ],
+     "class": "decor"
+    },
+    {
+     "group": "cushion",
+     "text": "cushion",
+     "score": 0.0607,
+     "box_px": [
+      989.1,
+      506.3,
+      1736.8,
+      823.7
+     ],
+     "class": "decor"
+    },
+    {
+     "group": "mirror",
+     "text": "mirror",
+     "score": 0.2754,
+     "box_px": [
+      734.5,
+      139.5,
+      947.9,
+      431.0
+     ],
+     "class": "decor"
+    },
+    {
+     "group": "mirror",
+     "text": "mirror",
+     "score": 0.166,
+     "box_px": [
+      0.0,
+      5.7,
+      203.0,
+      703.4
+     ],
+     "class": "decor"
+    },
+    {
+     "group": "mirror",
+     "text": "mirror",
+     "score": 0.0751,
+     "box_px": [
+      0.4,
+      2.8,
+      115.2,
+      611.4
      ],
      "class": "decor"
     }
@@ -900,8 +1204,8 @@
   },
   "polished": {
    "file": "../polish/cam_r_L1_ebeveyn_yatak_odasi_1_a1.png",
-   "sha256": "36e967a84f2473bf22c7b9f76f0cd45fcd071185295ca290800da8d2c695c934",
-   "key": "b96ee498ddb2f37d",
+   "sha256": "d9acc022e0488314a0df4e060d15b79aa1144725b6f048a6941b20110838041d",
+   "key": "3a1fe23e5846f65e",
    "size": [
     1920,
     1080
@@ -914,324 +1218,372 @@
     {
      "group": "bed_single",
      "text": "single bed",
-     "score": 0.6385,
+     "score": 0.7201,
      "box_px": [
-      0.0,
-      445.1,
-      1027.3,
-      1077.1
+      965.0,
+      397.1,
+      1794.4,
+      987.4
      ],
      "class": "furniture"
     },
     {
      "group": "bed_single",
      "text": "single bed",
-     "score": 0.1582,
+     "score": 0.0817,
      "box_px": [
-      0.0,
-      548.1,
-      237.1,
-      748.4
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "bed_single",
-     "text": "single bed",
-     "score": 0.0993,
-     "box_px": [
-      2.1,
-      519.7,
-      651.8,
-      751.1
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "bed_single",
-     "text": "single bed",
-     "score": 0.0903,
-     "box_px": [
-      262.8,
-      523.1,
-      659.2,
-      710.9
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "bed_single",
-     "text": "single bed",
-     "score": 0.0714,
-     "box_px": [
-      8.8,
-      3.9,
-      1911.2,
-      1080.0
+      970.5,
+      411.5,
+      1535.5,
+      797.3
      ],
      "class": "furniture"
     },
     {
      "group": "bed_double",
      "text": "double bed",
-     "score": 0.6055,
+     "score": 0.7086,
      "box_px": [
-      0.0,
-      445.1,
-      1027.3,
-      1077.1
+      965.0,
+      397.1,
+      1794.4,
+      987.4
      ],
      "class": "furniture"
     },
     {
      "group": "bed_double",
      "text": "double bed",
-     "score": 0.1801,
+     "score": 0.0876,
      "box_px": [
-      0.0,
-      548.1,
-      237.1,
-      748.4
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "bed_double",
-     "text": "double bed",
-     "score": 0.1665,
-     "box_px": [
-      2.1,
-      519.7,
-      651.8,
-      751.1
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "bed_double",
-     "text": "double bed",
-     "score": 0.1121,
-     "box_px": [
-      262.8,
-      523.1,
-      659.2,
-      710.9
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "bed_double",
-     "text": "double bed",
-     "score": 0.0587,
-     "box_px": [
-      8.8,
-      3.9,
-      1911.2,
-      1080.0
+      970.5,
+      411.5,
+      1535.5,
+      797.3
      ],
      "class": "furniture"
     },
     {
      "group": "sofa",
      "text": "sofa",
-     "score": 0.057,
+     "score": 0.0623,
      "box_px": [
-      0.0,
-      445.1,
-      1027.3,
-      1077.1
+      965.0,
+      397.1,
+      1794.4,
+      987.4
      ],
      "class": "furniture"
     },
     {
-     "group": "sofa",
-     "text": "sofa",
-     "score": 0.0535,
+     "group": "table_coffee",
+     "text": "coffee table",
+     "score": 0.0528,
      "box_px": [
-      0.0,
-      548.1,
-      237.1,
-      748.4
+      875.3,
+      536.6,
+      985.1,
+      653.4
      ],
      "class": "furniture"
     },
     {
      "group": "desk",
      "text": "desk",
-     "score": 0.37,
+     "score": 0.0968,
      "box_px": [
-      945.5,
-      503.8,
-      1399.8,
-      916.8
+      875.3,
+      536.6,
+      985.1,
+      653.4
      ],
      "class": "furniture"
     },
     {
      "group": "wardrobe",
      "text": "wardrobe",
-     "score": 0.1745,
+     "score": 0.3415,
      "box_px": [
-      1600.5,
-      2.3,
-      1920.0,
-      1080.0
+      284.3,
+      27.8,
+      742.3,
+      817.7
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "wardrobe",
+     "text": "wardrobe",
+     "score": 0.0982,
+     "box_px": [
+      526.8,
+      66.6,
+      731.3,
+      759.7
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "kitchen_island",
+     "text": "kitchen island",
+     "score": 0.0538,
+     "box_px": [
+      284.3,
+      27.8,
+      742.3,
+      817.7
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "fridge",
+     "text": "refrigerator",
+     "score": 0.0542,
+     "box_px": [
+      284.3,
+      27.8,
+      742.3,
+      817.7
      ],
      "class": "furniture"
     },
     {
      "group": "bathtub",
      "text": "bathtub",
-     "score": 0.0676,
+     "score": 0.0598,
      "box_px": [
-      1120.0,
-      710.0,
-      1550.1,
-      913.9
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "bathtub",
-     "text": "bathtub",
-     "score": 0.0552,
-     "box_px": [
-      1409.4,
-      748.1,
-      1590.1,
-      937.0
+      0.7,
+      506.7,
+      283.4,
+      1070.6
      ],
      "class": "furniture"
     },
     {
      "group": "tv_unit",
      "text": "tv stand",
-     "score": 0.09,
+     "score": 0.0763,
      "box_px": [
-      945.5,
-      503.8,
-      1399.8,
-      916.8
+      875.3,
+      536.6,
+      985.1,
+      653.4
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "bookshelf",
+     "text": "bookshelf",
+     "score": 0.1813,
+     "box_px": [
+      284.3,
+      27.8,
+      742.3,
+      817.7
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "bookshelf",
+     "text": "bookshelf",
+     "score": 0.059,
+     "box_px": [
+      875.3,
+      536.6,
+      985.1,
+      653.4
      ],
      "class": "furniture"
     },
     {
      "group": "nightstand",
      "text": "nightstand",
-     "score": 0.0845,
+     "score": 0.5964,
      "box_px": [
-      945.5,
-      503.8,
-      1399.8,
-      916.8
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "nightstand",
-     "text": "nightstand",
-     "score": 0.0761,
-     "box_px": [
-      232.0,
-      687.6,
-      266.3,
-      711.1
+      875.3,
+      536.6,
+      985.1,
+      653.4
      ],
      "class": "furniture"
     },
     {
      "group": "dresser",
      "text": "chest of drawers",
-     "score": 0.128,
+     "score": 0.2972,
      "box_px": [
-      1101.1,
-      563.5,
-      1360.3,
-      738.0
+      875.3,
+      536.6,
+      985.1,
+      653.4
      ],
      "class": "furniture"
     },
     {
      "group": "dresser",
      "text": "chest of drawers",
-     "score": 0.0592,
+     "score": 0.1787,
      "box_px": [
-      945.5,
-      503.8,
-      1399.8,
-      916.8
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "dresser",
-     "text": "chest of drawers",
-     "score": 0.0525,
-     "box_px": [
-      1600.5,
-      2.3,
-      1920.0,
-      1080.0
+      284.3,
+      27.8,
+      742.3,
+      817.7
      ],
      "class": "furniture"
     },
     {
      "group": "side_table",
      "text": "side table",
-     "score": 0.2171,
+     "score": 0.3559,
      "box_px": [
-      945.5,
-      503.8,
-      1399.8,
-      916.8
+      875.3,
+      536.6,
+      985.1,
+      653.4
      ],
      "class": "furniture"
     },
     {
      "group": "door",
      "text": "door",
-     "score": 0.4475,
+     "score": 0.3823,
      "box_px": [
-      1600.5,
-      2.3,
-      1920.0,
-      1080.0
+      526.8,
+      66.6,
+      731.3,
+      759.7
      ],
      "class": "door"
     },
     {
      "group": "door",
      "text": "door",
-     "score": 0.0818,
+     "score": 0.3414,
      "box_px": [
-      1608.7,
-      13.6,
-      1716.5,
-      996.6
+      284.4,
+      29.3,
+      535.4,
+      811.1
      ],
      "class": "door"
     },
     {
-     "group": "cushion",
-     "text": "cushion",
-     "score": 0.2869,
+     "group": "door",
+     "text": "door",
+     "score": 0.0614,
      "box_px": [
-      348.0,
-      519.4,
-      595.4,
-      601.3
+      0.0,
+      4.5,
+      204.6,
+      702.5
+     ],
+     "class": "door"
+    },
+    {
+     "group": "window",
+     "text": "window",
+     "score": 0.4354,
+     "box_px": [
+      740.6,
+      136.7,
+      957.7,
+      428.8
+     ],
+     "class": "window"
+    },
+    {
+     "group": "window",
+     "text": "window",
+     "score": 0.4216,
+     "box_px": [
+      0.0,
+      4.5,
+      204.6,
+      702.5
+     ],
+     "class": "window"
+    },
+    {
+     "group": "window",
+     "text": "window",
+     "score": 0.2094,
+     "box_px": [
+      0.4,
+      3.2,
+      110.7,
+      599.9
+     ],
+     "class": "window"
+    },
+    {
+     "group": "picture_frame",
+     "text": "picture frame",
+     "score": 0.3084,
+     "box_px": [
+      1383.9,
+      0.0,
+      1631.1,
+      351.1
+     ],
+     "class": "decor"
+    },
+    {
+     "group": "rug",
+     "text": "rug",
+     "score": 0.406,
+     "box_px": [
+      917.9,
+      671.9,
+      1880.9,
+      1076.2
+     ],
+     "class": "decor"
+    },
+    {
+     "group": "rug",
+     "text": "rug",
+     "score": 0.0676,
+     "box_px": [
+      1366.4,
+      793.6,
+      1868.4,
+      1000.4
      ],
      "class": "decor"
     },
     {
      "group": "cushion",
      "text": "cushion",
-     "score": 0.2157,
+     "score": 0.2382,
      "box_px": [
-      263.1,
-      570.3,
-      663.1,
-      711.4
+      1299.8,
+      359.2,
+      1410.5,
+      488.8
+     ],
+     "class": "decor"
+    },
+    {
+     "group": "cushion",
+     "text": "cushion",
+     "score": 0.2275,
+     "box_px": [
+      1502.8,
+      361.3,
+      1676.7,
+      528.7
+     ],
+     "class": "decor"
+    },
+    {
+     "group": "cushion",
+     "text": "cushion",
+     "score": 0.2259,
+     "box_px": [
+      1229.5,
+      477.4,
+      1450.7,
+      551.0
      ],
      "class": "decor"
     },
@@ -1240,34 +1592,94 @@
      "text": "cushion",
      "score": 0.203,
      "box_px": [
-      0.6,
-      547.0,
-      142.2,
-      635.3
+      1413.7,
+      501.6,
+      1734.8,
+      612.4
      ],
      "class": "decor"
     },
     {
      "group": "cushion",
      "text": "cushion",
-     "score": 0.1897,
+     "score": 0.1107,
      "box_px": [
-      1.0,
-      600.5,
-      239.8,
-      747.2
+      1620.0,
+      592.3,
+      1758.2,
+      723.8
      ],
      "class": "decor"
     },
     {
      "group": "cushion",
      "text": "cushion",
-     "score": 0.0663,
+     "score": 0.0732,
      "box_px": [
-      2.1,
-      519.7,
-      651.8,
-      751.1
+      1386.1,
+      541.1,
+      1687.9,
+      627.5
+     ],
+     "class": "decor"
+    },
+    {
+     "group": "cushion",
+     "text": "cushion",
+     "score": 0.0632,
+     "box_px": [
+      1280.4,
+      357.8,
+      1700.6,
+      539.2
+     ],
+     "class": "decor"
+    },
+    {
+     "group": "cushion",
+     "text": "cushion",
+     "score": 0.0503,
+     "box_px": [
+      972.0,
+      507.9,
+      1747.8,
+      826.3
+     ],
+     "class": "decor"
+    },
+    {
+     "group": "mirror",
+     "text": "mirror",
+     "score": 0.172,
+     "box_px": [
+      740.6,
+      136.7,
+      957.7,
+      428.8
+     ],
+     "class": "decor"
+    },
+    {
+     "group": "mirror",
+     "text": "mirror",
+     "score": 0.1363,
+     "box_px": [
+      0.0,
+      4.5,
+      204.6,
+      702.5
+     ],
+     "class": "decor"
+    },
+    {
+     "group": "mirror",
+     "text": "mirror",
+     "score": 0.0569,
+     "box_px": [
+      0.4,
+      3.2,
+      110.7,
+      599.9
      ],
      "class": "decor"
     }
@@ -1276,5 +1688,445 @@
    "k": 1
   }
  },
- "controls": {}
+ "controls": {
+  "f_L1_001": {
+   "file": "../controls/hide_f_L1_001/cam_r_L1_ebeveyn_yatak_odasi_1.png",
+   "sha256": "3bfeda1060b44d69d03070d6d84a2c74d937ce09d973679434380bc80089c944",
+   "key": "e7dad4bb04745eef",
+   "size": [
+    1920,
+    1080
+   ],
+   "model_size": [
+    960,
+    540
+   ],
+   "boxes": [
+    {
+     "group": "table_coffee",
+     "text": "coffee table",
+     "score": 0.0958,
+     "box_px": [
+      1157.1,
+      510.0,
+      1291.5,
+      629.5
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "table_coffee",
+     "text": "coffee table",
+     "score": 0.0737,
+     "box_px": [
+      888.3,
+      535.0,
+      1019.2,
+      668.4
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "desk",
+     "text": "desk",
+     "score": 0.1347,
+     "box_px": [
+      1157.1,
+      510.0,
+      1291.5,
+      629.5
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "desk",
+     "text": "desk",
+     "score": 0.0861,
+     "box_px": [
+      888.3,
+      535.0,
+      1019.2,
+      668.4
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "desk",
+     "text": "desk",
+     "score": 0.0552,
+     "box_px": [
+      885.2,
+      959.3,
+      1267.7,
+      1078.9
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "wardrobe",
+     "text": "wardrobe",
+     "score": 0.3152,
+     "box_px": [
+      283.3,
+      28.5,
+      739.1,
+      815.3
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "wardrobe",
+     "text": "wardrobe",
+     "score": 0.0817,
+     "box_px": [
+      532.5,
+      71.0,
+      734.4,
+      760.2
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "kitchen_island",
+     "text": "kitchen island",
+     "score": 0.0795,
+     "box_px": [
+      283.3,
+      28.5,
+      739.1,
+      815.3
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "fridge",
+     "text": "refrigerator",
+     "score": 0.0773,
+     "box_px": [
+      283.3,
+      28.5,
+      739.1,
+      815.3
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "tv_unit",
+     "text": "tv stand",
+     "score": 0.0802,
+     "box_px": [
+      1157.1,
+      510.0,
+      1291.5,
+      629.5
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "tv_unit",
+     "text": "tv stand",
+     "score": 0.0596,
+     "box_px": [
+      888.3,
+      535.0,
+      1019.2,
+      668.4
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "bookshelf",
+     "text": "bookshelf",
+     "score": 0.1982,
+     "box_px": [
+      283.3,
+      28.5,
+      739.1,
+      815.3
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "nightstand",
+     "text": "nightstand",
+     "score": 0.0606,
+     "box_px": [
+      1157.1,
+      510.0,
+      1291.5,
+      629.5
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "nightstand",
+     "text": "nightstand",
+     "score": 0.0563,
+     "box_px": [
+      888.3,
+      535.0,
+      1019.2,
+      668.4
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "dresser",
+     "text": "chest of drawers",
+     "score": 0.1505,
+     "box_px": [
+      283.3,
+      28.5,
+      739.1,
+      815.3
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "side_table",
+     "text": "side table",
+     "score": 0.4417,
+     "box_px": [
+      888.3,
+      535.0,
+      1019.2,
+      668.4
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "side_table",
+     "text": "side table",
+     "score": 0.4001,
+     "box_px": [
+      1157.1,
+      510.0,
+      1291.5,
+      629.5
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "door",
+     "text": "door",
+     "score": 0.4372,
+     "box_px": [
+      532.5,
+      71.0,
+      734.4,
+      760.2
+     ],
+     "class": "door"
+    },
+    {
+     "group": "door",
+     "text": "door",
+     "score": 0.3887,
+     "box_px": [
+      285.1,
+      29.2,
+      538.4,
+      812.4
+     ],
+     "class": "door"
+    },
+    {
+     "group": "door",
+     "text": "door",
+     "score": 0.0746,
+     "box_px": [
+      0.0,
+      4.5,
+      205.7,
+      700.4
+     ],
+     "class": "door"
+    },
+    {
+     "group": "door",
+     "text": "door",
+     "score": 0.0647,
+     "box_px": [
+      733.8,
+      138.1,
+      955.8,
+      431.4
+     ],
+     "class": "door"
+    },
+    {
+     "group": "door",
+     "text": "door",
+     "score": 0.0607,
+     "box_px": [
+      0.1,
+      0.0,
+      269.8,
+      1074.3
+     ],
+     "class": "door"
+    },
+    {
+     "group": "window",
+     "text": "window",
+     "score": 0.4433,
+     "box_px": [
+      0.0,
+      4.5,
+      205.7,
+      700.4
+     ],
+     "class": "window"
+    },
+    {
+     "group": "window",
+     "text": "window",
+     "score": 0.4335,
+     "box_px": [
+      733.8,
+      138.1,
+      955.8,
+      431.4
+     ],
+     "class": "window"
+    },
+    {
+     "group": "window",
+     "text": "window",
+     "score": 0.0503,
+     "box_px": [
+      0.1,
+      0.0,
+      269.8,
+      1074.3
+     ],
+     "class": "window"
+    },
+    {
+     "group": "window",
+     "text": "window",
+     "score": 0.0502,
+     "box_px": [
+      1382.8,
+      0.0,
+      1629.1,
+      348.7
+     ],
+     "class": "window"
+    },
+    {
+     "group": "picture_frame",
+     "text": "picture frame",
+     "score": 0.3776,
+     "box_px": [
+      1382.8,
+      0.0,
+      1629.1,
+      348.7
+     ],
+     "class": "decor"
+    },
+    {
+     "group": "picture_frame",
+     "text": "picture frame",
+     "score": 0.0789,
+     "box_px": [
+      733.8,
+      138.1,
+      955.8,
+      431.4
+     ],
+     "class": "decor"
+    },
+    {
+     "group": "rug",
+     "text": "rug",
+     "score": 0.6245,
+     "box_px": [
+      898.7,
+      620.5,
+      1884.4,
+      1079.5
+     ],
+     "class": "decor"
+    },
+    {
+     "group": "rug",
+     "text": "rug",
+     "score": 0.2672,
+     "box_px": [
+      1105.7,
+      941.5,
+      1676.3,
+      1079.6
+     ],
+     "class": "decor"
+    },
+    {
+     "group": "rug",
+     "text": "rug",
+     "score": 0.1725,
+     "box_px": [
+      1154.6,
+      629.4,
+      1310.4,
+      654.2
+     ],
+     "class": "decor"
+    },
+    {
+     "group": "rug",
+     "text": "rug",
+     "score": 0.0911,
+     "box_px": [
+      885.2,
+      959.3,
+      1267.7,
+      1078.9
+     ],
+     "class": "decor"
+    },
+    {
+     "group": "mirror",
+     "text": "mirror",
+     "score": 0.282,
+     "box_px": [
+      733.8,
+      138.1,
+      955.8,
+      431.4
+     ],
+     "class": "decor"
+    },
+    {
+     "group": "mirror",
+     "text": "mirror",
+     "score": 0.1783,
+     "box_px": [
+      0.0,
+      4.5,
+      205.7,
+      700.4
+     ],
+     "class": "decor"
+    },
+    {
+     "group": "television",
+     "text": "television",
+     "score": 0.0544,
+     "box_px": [
+      0.0,
+      4.5,
+      205.7,
+      700.4
+     ],
+     "class": "decor"
+    }
+   ],
+   "seconds": 0.062,
+   "target": "f_L1_001",
+   "kind": "furniture",
+   "type": "bed_double"
+  }
+ }
 }

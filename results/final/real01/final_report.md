@@ -1,53 +1,55 @@
 # Final report: real01
 
-20 views: 10 polished, 10 Cycles (gate 1, room 9). Stages: render run, gate validation flagged, polish run, vision check run (calibration run). A polished image is final only when the gate accepted it and the vision check checked it without finding a lost or added element (§5.5). Mismatches are listed with their evidence and never auto-fixed.
+20 views: 0 polished, 20 Cycles (gate_validation 20). Stages: render run, gate validation polish_disabled, polish not_run, vision check run (calibration run). A polished image is final only when the gate accepted it and the vision check checked it without finding a lost or added element (§5.5). Mismatches are listed with their evidence and never auto-fixed.
 
 ## Summary
 
 | item | value |
 |---|---|
 | views | 20 |
-| polished | 10 |
-| Cycles | 10 (gate 1, room 9) |
+| polished | 0 |
+| Cycles | 20 (gate_validation 20) |
 | confirmed mismatches on the final image | 0 in 0 view(s) |
 | JSON cross-check findings (Cycles render) | 0 |
 | needs_review views | 0 |
 | unverified pieces in view (sum over views) | 3 |
-| rooms mixing polished and Cycles | 1 |
+| rooms mixing polished and Cycles | 0 |
 | advisory | yes |
-| advisory flags | 5 |
+| advisory flags | 7 |
 | exposure | -0.67 .. +4.50 EV (0 at a limit), modes auto |
-| window pull | 15 view(s), -1 .. -1 EV |
+| window pull | 15 view(s), -2 .. -1 EV |
 | camera policy | search 20 |
-| camera score (min / mean / max) | 1.77 / 3.44 / 4.41 |
+| camera score (min / mean / max) | 1.85 / 3.51 / 4.67 |
 | rooms by number of views | 2 with 0, 1 with 2, 6 with 3 |
-| gate validation | flagged |
-| seconds: build / render / metering | 10.9 s / 62.0 s / 5.0 s |
-| seconds: polish / gate / check | 3.3 min / 100.7 s / 7.2 min |
+| gate validation | polish_disabled |
+| seconds: build / render / metering | 48.3 s / 59.8 s / 8.6 s |
+| seconds: polish / gate / check | - / - / 9.5 min |
 | brief polish | yes (default, not in brief.yaml) |
 | unit system | imperial |
-| side-by-side sheets | 7 |
+| side-by-side sheets | 0 |
 
 ## Advisory flags and open items
 
-- vision check advisory: removal_confirmed 0.4 misses >= 0.6; insertion 0.0 misses >= 0.6
-- check target missed: removal_confirmed 0.400 (needs >= 0.6)
+- polish not run (every view is the Cycles render)
+- vision check advisory: removal_flagged 0.5714 misses >= 0.8; removal_confirmed 0.5714 misses >= 0.6; insertion 0.0 misses >= 0.6
+- check target missed: removal_flagged 0.571 (needs >= 0.8)
+- check target missed: removal_confirmed 0.571 (needs >= 0.6)
 - check target missed: insertion 0.000 (needs >= 0.6)
-- gate validation flagged: polish ran; flagged: the gate also rejects some harmless edits, so more views may stay Cycles (benign controls accepted 0.946 < 0.95 (56 comparisons): the gate also rejects harmless edits)
+- gate validation polish_disabled: no polish for this project: every final image is the Cycles render (negative controls rejected 0.868 < 0.90 (106 comparisons): the gate lets geometry changes through)
 - 1 drawn piece(s) not typed: the two AI passes disagree or did not answer (unknown, unverified; footprint kept): f_L0_018
 
 ## Gate validation
 
 | item | value |
 |---|---|
-| decision | flagged |
-| benign controls accepted | 94.6 % (limit 95 %), 56 comparisons |
-| negative controls rejected | 96.0 % (limit 90 %), 101 comparisons |
-| effect | polish ran; flagged: the gate also rejects some harmless edits, so more views may stay Cycles |
+| decision | polish_disabled |
+| benign controls accepted | 100.0 % (limit 95 %), 56 comparisons |
+| negative controls rejected | 86.8 % (limit 90 %), 106 comparisons |
+| effect | no polish for this project: every final image is the Cycles render |
 
 Reasons:
 
-- benign controls accepted 0.946 < 0.95 (56 comparisons): the gate also rejects harmless edits
+- negative controls rejected 0.868 < 0.90 (106 comparisons): the gate lets geometry changes through
 
 ## Contact sheets
 
@@ -57,69 +59,32 @@ Level L0: [contact_L0.jpg](contact_L0.jpg)
 
 ## Side-by-side sheets (Cycles | polished)
 
-Per room: the Cycles render (left) and the polish candidate (right; the chosen attempt, else the last attempt the gate saw) with the gate decision, both check verdicts and the final decision.
-
-- r_L0_bath_toilet: [contact_sbs_r_L0_bath_toilet.jpg](contact_sbs_r_L0_bath_toilet.jpg)
-
-- r_L0_bed_room: [contact_sbs_r_L0_bed_room.jpg](contact_sbs_r_L0_bed_room.jpg)
-
-- r_L0_bed_room_2: [contact_sbs_r_L0_bed_room_2.jpg](contact_sbs_r_L0_bed_room_2.jpg)
-
-- r_L0_dining: [contact_sbs_r_L0_dining.jpg](contact_sbs_r_L0_dining.jpg)
-
-- r_L0_drawing_room: [contact_sbs_r_L0_drawing_room.jpg](contact_sbs_r_L0_drawing_room.jpg)
-
-- r_L0_kitchen: [contact_sbs_r_L0_kitchen.jpg](contact_sbs_r_L0_kitchen.jpg)
-
-- r_L0_room: [contact_sbs_r_L0_room.jpg](contact_sbs_r_L0_room.jpg)
-
-| room | view | polish attempt | gate | check Cycles | check polished | detector | final |
-|---|---|---|---|---|---|---|---|
-| r_L0_bath_toilet | cam_r_L0_bath_toilet_1 | a1 s 0.375 geometry x0.8 | accept | ok | ok | calibrated | polished |
-| r_L0_bath_toilet | cam_r_L0_bath_toilet_2 | - | - | ok | - | - | cycles (gate) |
-| r_L0_bed_room | cam_r_L0_bed_room_1 | - | - | ok | - | - | cycles (room) |
-| r_L0_bed_room | cam_r_L0_bed_room_2 | - | - | info | - | - | cycles (room) |
-| r_L0_bed_room | cam_r_L0_bed_room_3 | - | - | ok | - | - | cycles (room) |
-| r_L0_bed_room_2 | cam_r_L0_bed_room_2_1 | - | - | info | - | - | cycles (room) |
-| r_L0_bed_room_2 | cam_r_L0_bed_room_2_2 | - | - | ok | - | - | cycles (room) |
-| r_L0_bed_room_2 | cam_r_L0_bed_room_2_3 | - | - | ok | - | - | cycles (room) |
-| r_L0_dining | cam_r_L0_dining_1 | a2 s 0.25 canny x0.8 | accept | ok | ok | calibrated | polished |
-| r_L0_dining | cam_r_L0_dining_2 | a1 s 0.375 geometry x0.8 | accept | info | info | calibrated | polished |
-| r_L0_dining | cam_r_L0_dining_3 | a1 s 0.375 geometry x0.8 | accept | ok | ok | calibrated | polished |
-| r_L0_drawing_room | cam_r_L0_drawing_room_1 | a2 s 0.25 canny x0.8 | accept | ok | ok | calibrated | polished |
-| r_L0_drawing_room | cam_r_L0_drawing_room_2 | a1 s 0.375 geometry x0.8 | accept | info | info | calibrated | polished |
-| r_L0_drawing_room | cam_r_L0_drawing_room_3 | a1 s 0.375 geometry x0.8 | accept | ok | ok | calibrated | polished |
-| r_L0_kitchen | cam_r_L0_kitchen_1 | a1 s 0.375 geometry x0.8 | accept | ok | info | calibrated | polished |
-| r_L0_kitchen | cam_r_L0_kitchen_2 | a1 s 0.375 geometry x0.8 | accept | ok | ok | calibrated | polished |
-| r_L0_kitchen | cam_r_L0_kitchen_3 | a1 s 0.375 geometry x0.8 | accept | ok | ok | calibrated | polished |
-| r_L0_room | cam_r_L0_room_1 | - | - | info | - | - | cycles (room) |
-| r_L0_room | cam_r_L0_room_2 | - | - | info | - | - | cycles (room) |
-| r_L0_room | cam_r_L0_room_3 | - | - | info | - | - | cycles (room) |
+None: gate validation polish_disabled: no polish for this project.
 
 ## Views
 
 | view | room | level | final | reason | polish attempt | gate | check Cycles | check polished | preference | EV | pull EV | camera | ids D/A/R | U | review | files |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| cam_r_L0_bath_toilet_1 | r_L0_bath_toilet | L0 | polished | - | a1 s 0.375 geometry x0.8 | accept | ok | ok | not preferred 2/4 | -0.67 | - | search 2.88 | D1 A2 | 0 | no | [preview](cam_r_L0_bath_toilet_1_final_preview.jpg) [plan](cam_r_L0_bath_toilet_1_plan.jpg) |
-| cam_r_L0_bath_toilet_2 | r_L0_bath_toilet | L0 | cycles | gate | - | - | ok | - | - | -0.67 | - | search 1.77 | D1 A1 | 0 | no | [preview](cam_r_L0_bath_toilet_2_final_preview.jpg) [plan](cam_r_L0_bath_toilet_2_plan.jpg) |
-| cam_r_L0_bed_room_1 | r_L0_bed_room | L0 | cycles | room | - | - | ok | - | - | +2.67 | -1 | search 3.61 | D4 | 0 | no | [preview](cam_r_L0_bed_room_1_final_preview.jpg) [plan](cam_r_L0_bed_room_1_plan.jpg) |
-| cam_r_L0_bed_room_2 | r_L0_bed_room | L0 | cycles | room | - | - | info | - | - | +3.17 | -1 | search 3.50 | D3 | 0 | no | [preview](cam_r_L0_bed_room_2_final_preview.jpg) [plan](cam_r_L0_bed_room_2_plan.jpg) |
-| cam_r_L0_bed_room_2_1 | r_L0_bed_room_2 | L0 | cycles | room | - | - | info | - | - | +3.17 | -1 | search 3.62 | D3 | 0 | no | [preview](cam_r_L0_bed_room_2_1_final_preview.jpg) [plan](cam_r_L0_bed_room_2_1_plan.jpg) |
-| cam_r_L0_bed_room_2_2 | r_L0_bed_room_2 | L0 | cycles | room | - | - | ok | - | - | +3.00 | -1 | search 3.50 | D5 | 0 | no | [preview](cam_r_L0_bed_room_2_2_final_preview.jpg) [plan](cam_r_L0_bed_room_2_2_plan.jpg) |
-| cam_r_L0_bed_room_2_3 | r_L0_bed_room_2 | L0 | cycles | room | - | - | ok | - | - | +3.17 | -1 | search 3.50 | D4 | 0 | no | [preview](cam_r_L0_bed_room_2_3_final_preview.jpg) [plan](cam_r_L0_bed_room_2_3_plan.jpg) |
-| cam_r_L0_bed_room_3 | r_L0_bed_room | L0 | cycles | room | - | - | ok | - | - | +2.50 | -1 | search 3.50 | D4 | 0 | no | [preview](cam_r_L0_bed_room_3_final_preview.jpg) [plan](cam_r_L0_bed_room_3_plan.jpg) |
-| cam_r_L0_dining_1 | r_L0_dining | L0 | polished | - | a2 s 0.25 canny x0.8 | accept | ok | ok | not preferred 0/4 | +4.17 | -1 | search 3.01 | D9 | 0 | no | [preview](cam_r_L0_dining_1_final_preview.jpg) [plan](cam_r_L0_dining_1_plan.jpg) |
-| cam_r_L0_dining_2 | r_L0_dining | L0 | polished | - | a1 s 0.375 geometry x0.8 | accept | info | info | not preferred 0/4 | +4.33 | -1 | search 2.57 | D8 | 0 | no | [preview](cam_r_L0_dining_2_final_preview.jpg) [plan](cam_r_L0_dining_2_plan.jpg) |
-| cam_r_L0_dining_3 | r_L0_dining | L0 | polished | - | a1 s 0.375 geometry x0.8 | accept | ok | ok | not preferred 0/4 | +4.33 | -1 | search 2.50 | D8 | 0 | no | [preview](cam_r_L0_dining_3_final_preview.jpg) [plan](cam_r_L0_dining_3_plan.jpg) |
-| cam_r_L0_drawing_room_1 | r_L0_drawing_room | L0 | polished | - | a2 s 0.25 canny x0.8 | accept | ok | ok | not preferred 0/4 | +2.50 | -1 | search 3.97 | D6 A1 | 1 | no | [preview](cam_r_L0_drawing_room_1_final_preview.jpg) [plan](cam_r_L0_drawing_room_1_plan.jpg) |
-| cam_r_L0_drawing_room_2 | r_L0_drawing_room | L0 | polished | - | a1 s 0.375 geometry x0.8 | accept | info | info | not preferred 0/4 | +2.67 | -1 | search 3.93 | D6 | 1 | no | [preview](cam_r_L0_drawing_room_2_final_preview.jpg) [plan](cam_r_L0_drawing_room_2_plan.jpg) |
-| cam_r_L0_drawing_room_3 | r_L0_drawing_room | L0 | polished | - | a1 s 0.375 geometry x0.8 | accept | ok | ok | not preferred 0/4 | +2.50 | -1 | search 3.46 | D5 | 1 | no | [preview](cam_r_L0_drawing_room_3_final_preview.jpg) [plan](cam_r_L0_drawing_room_3_plan.jpg) |
-| cam_r_L0_kitchen_1 | r_L0_kitchen | L0 | polished | - | a1 s 0.375 geometry x0.8 | accept | ok | info | not preferred 0/4 | +4.50 | -1 | search 3.94 | D5 | 0 | no | [preview](cam_r_L0_kitchen_1_final_preview.jpg) [plan](cam_r_L0_kitchen_1_plan.jpg) |
-| cam_r_L0_kitchen_2 | r_L0_kitchen | L0 | polished | - | a1 s 0.375 geometry x0.8 | accept | ok | ok | not preferred 0/4 | +4.17 | -1 | search 3.87 | D4 | 0 | no | [preview](cam_r_L0_kitchen_2_final_preview.jpg) [plan](cam_r_L0_kitchen_2_plan.jpg) |
-| cam_r_L0_kitchen_3 | r_L0_kitchen | L0 | polished | - | a1 s 0.375 geometry x0.8 | accept | ok | ok | not preferred 0/4 | +4.33 | -1 | search 3.78 | D4 | 0 | no | [preview](cam_r_L0_kitchen_3_final_preview.jpg) [plan](cam_r_L0_kitchen_3_plan.jpg) |
-| cam_r_L0_room_1 | r_L0_room | L0 | cycles | room | - | - | info | - | - | -0.50 | - | search 4.41 | D3 | 0 | no | [preview](cam_r_L0_room_1_final_preview.jpg) [plan](cam_r_L0_room_1_plan.jpg) |
-| cam_r_L0_room_2 | r_L0_room | L0 | cycles | room | - | - | info | - | - | +0.00 | - | search 4.06 | D2 | 0 | no | [preview](cam_r_L0_room_2_final_preview.jpg) [plan](cam_r_L0_room_2_plan.jpg) |
-| cam_r_L0_room_3 | r_L0_room | L0 | cycles | room | - | - | info | - | - | +0.17 | - | search 3.53 | D1 | 0 | no | [preview](cam_r_L0_room_3_final_preview.jpg) [plan](cam_r_L0_room_3_plan.jpg) |
+| cam_r_L0_bath_toilet_1 | r_L0_bath_toilet | L0 | cycles | gate_validation | - | - | info | - | - | -0.67 | - | search 2.78 | D1 A2 | 0 | no | [preview](cam_r_L0_bath_toilet_1_final_preview.jpg) [plan](cam_r_L0_bath_toilet_1_plan.jpg) |
+| cam_r_L0_bath_toilet_2 | r_L0_bath_toilet | L0 | cycles | gate_validation | - | - | info | - | - | -0.67 | - | search 1.85 | D1 A2 | 0 | no | [preview](cam_r_L0_bath_toilet_2_final_preview.jpg) [plan](cam_r_L0_bath_toilet_2_plan.jpg) |
+| cam_r_L0_bed_room_1 | r_L0_bed_room | L0 | cycles | gate_validation | - | - | info | - | - | +3.33 | -1 | search 3.76 | D3 A1 | 0 | no | [preview](cam_r_L0_bed_room_1_final_preview.jpg) [plan](cam_r_L0_bed_room_1_plan.jpg) |
+| cam_r_L0_bed_room_2 | r_L0_bed_room | L0 | cycles | gate_validation | - | - | ok | - | - | +3.67 | -2 | search 3.65 | D5 A1 | 0 | no | [preview](cam_r_L0_bed_room_2_final_preview.jpg) [plan](cam_r_L0_bed_room_2_plan.jpg) |
+| cam_r_L0_bed_room_2_1 | r_L0_bed_room_2 | L0 | cycles | gate_validation | - | - | ok | - | - | +3.67 | -1 | search 3.79 | D4 A1 | 0 | no | [preview](cam_r_L0_bed_room_2_1_final_preview.jpg) [plan](cam_r_L0_bed_room_2_1_plan.jpg) |
+| cam_r_L0_bed_room_2_2 | r_L0_bed_room_2 | L0 | cycles | gate_validation | - | - | ok | - | - | +4.00 | -1 | search 3.69 | D4 A1 | 0 | no | [preview](cam_r_L0_bed_room_2_2_final_preview.jpg) [plan](cam_r_L0_bed_room_2_2_plan.jpg) |
+| cam_r_L0_bed_room_2_3 | r_L0_bed_room_2 | L0 | cycles | gate_validation | - | - | ok | - | - | +3.83 | -1 | search 3.45 | D5 A1 | 0 | no | [preview](cam_r_L0_bed_room_2_3_final_preview.jpg) [plan](cam_r_L0_bed_room_2_3_plan.jpg) |
+| cam_r_L0_bed_room_3 | r_L0_bed_room | L0 | cycles | gate_validation | - | - | ok | - | - | +3.50 | -1 | search 3.44 | D4 | 0 | no | [preview](cam_r_L0_bed_room_3_final_preview.jpg) [plan](cam_r_L0_bed_room_3_plan.jpg) |
+| cam_r_L0_dining_1 | r_L0_dining | L0 | cycles | gate_validation | - | - | ok | - | - | +4.33 | -1 | search 3.03 | D9 A1 | 0 | no | [preview](cam_r_L0_dining_1_final_preview.jpg) [plan](cam_r_L0_dining_1_plan.jpg) |
+| cam_r_L0_dining_2 | r_L0_dining | L0 | cycles | gate_validation | - | - | ok | - | - | +4.50 | -1 | search 2.55 | D8 A1 | 0 | no | [preview](cam_r_L0_dining_2_final_preview.jpg) [plan](cam_r_L0_dining_2_plan.jpg) |
+| cam_r_L0_dining_3 | r_L0_dining | L0 | cycles | gate_validation | - | - | ok | - | - | +4.33 | -2 | search 2.49 | D6 | 0 | no | [preview](cam_r_L0_dining_3_final_preview.jpg) [plan](cam_r_L0_dining_3_plan.jpg) |
+| cam_r_L0_drawing_room_1 | r_L0_drawing_room | L0 | cycles | gate_validation | - | - | ok | - | - | +3.00 | -1 | search 3.77 | D6 A2 | 1 | no | [preview](cam_r_L0_drawing_room_1_final_preview.jpg) [plan](cam_r_L0_drawing_room_1_plan.jpg) |
+| cam_r_L0_drawing_room_2 | r_L0_drawing_room | L0 | cycles | gate_validation | - | - | ok | - | - | +2.83 | -1 | search 3.59 | D6 A2 | 1 | no | [preview](cam_r_L0_drawing_room_2_final_preview.jpg) [plan](cam_r_L0_drawing_room_2_plan.jpg) |
+| cam_r_L0_drawing_room_3 | r_L0_drawing_room | L0 | cycles | gate_validation | - | - | ok | - | - | +2.67 | -1 | search 3.48 | D6 A1 | 1 | no | [preview](cam_r_L0_drawing_room_3_final_preview.jpg) [plan](cam_r_L0_drawing_room_3_plan.jpg) |
+| cam_r_L0_kitchen_1 | r_L0_kitchen | L0 | cycles | gate_validation | - | - | ok | - | - | +4.33 | -1 | search 4.67 | D4 | 0 | no | [preview](cam_r_L0_kitchen_1_final_preview.jpg) [plan](cam_r_L0_kitchen_1_plan.jpg) |
+| cam_r_L0_kitchen_2 | r_L0_kitchen | L0 | cycles | gate_validation | - | - | ok | - | - | +4.50 | -1 | search 4.54 | D4 | 0 | no | [preview](cam_r_L0_kitchen_2_final_preview.jpg) [plan](cam_r_L0_kitchen_2_plan.jpg) |
+| cam_r_L0_kitchen_3 | r_L0_kitchen | L0 | cycles | gate_validation | - | - | ok | - | - | +4.17 | -1 | search 3.98 | D5 | 0 | no | [preview](cam_r_L0_kitchen_3_final_preview.jpg) [plan](cam_r_L0_kitchen_3_plan.jpg) |
+| cam_r_L0_room_1 | r_L0_room | L0 | cycles | gate_validation | - | - | info | - | - | +0.00 | - | search 4.19 | D2 | 0 | no | [preview](cam_r_L0_room_1_final_preview.jpg) [plan](cam_r_L0_room_1_plan.jpg) |
+| cam_r_L0_room_2 | r_L0_room | L0 | cycles | gate_validation | - | - | ok | - | - | -0.17 | - | search 3.92 | D2 | 0 | no | [preview](cam_r_L0_room_2_final_preview.jpg) [plan](cam_r_L0_room_2_plan.jpg) |
+| cam_r_L0_room_3 | r_L0_room | L0 | cycles | gate_validation | - | - | info | - | - | -0.50 | - | search 3.61 | D3 | 0 | no | [preview](cam_r_L0_room_3_final_preview.jpg) [plan](cam_r_L0_room_3_plan.jpg) |
 
 polish attempt: the polish candidate (used only when final is polished). pull EV: the window pull of the render (window panes darkened by that many EV, §5). camera: policy (`search` = ray-cast camera search, `m5` = the fixed rules) and score. ids: D from_documents, A added_by_ai, R rule (elements in view). check: verdict (confirmed mismatches). U: unverified pieces in view.
 
@@ -127,12 +92,12 @@ polish attempt: the polish candidate (used only when final is polished). pull EV
 
 | room | type | level | views | polished | Cycles | cameras |
 |---|---|---|---|---|---|---|
-| r_L0_bath_toilet | bathroom | L0 | 2 | 1 | 1 | cam_r_L0_bath_toilet_1, cam_r_L0_bath_toilet_2 |
+| r_L0_bath_toilet | bathroom | L0 | 2 | 0 | 2 | cam_r_L0_bath_toilet_1, cam_r_L0_bath_toilet_2 |
 | r_L0_bed_room | bedroom | L0 | 3 | 0 | 3 | cam_r_L0_bed_room_1, cam_r_L0_bed_room_2, cam_r_L0_bed_room_3 |
 | r_L0_bed_room_2 | bedroom | L0 | 3 | 0 | 3 | cam_r_L0_bed_room_2_1, cam_r_L0_bed_room_2_2, cam_r_L0_bed_room_2_3 |
-| r_L0_dining | dining | L0 | 3 | 3 | 0 | cam_r_L0_dining_1, cam_r_L0_dining_2, cam_r_L0_dining_3 |
-| r_L0_drawing_room | living | L0 | 3 | 3 | 0 | cam_r_L0_drawing_room_1, cam_r_L0_drawing_room_2, cam_r_L0_drawing_room_3 |
-| r_L0_kitchen | kitchen | L0 | 3 | 3 | 0 | cam_r_L0_kitchen_1, cam_r_L0_kitchen_2, cam_r_L0_kitchen_3 |
+| r_L0_dining | dining | L0 | 3 | 0 | 3 | cam_r_L0_dining_1, cam_r_L0_dining_2, cam_r_L0_dining_3 |
+| r_L0_drawing_room | living | L0 | 3 | 0 | 3 | cam_r_L0_drawing_room_1, cam_r_L0_drawing_room_2, cam_r_L0_drawing_room_3 |
+| r_L0_kitchen | kitchen | L0 | 3 | 0 | 3 | cam_r_L0_kitchen_1, cam_r_L0_kitchen_2, cam_r_L0_kitchen_3 |
 | r_L0_pooja | prayer | L0 | 0 | 0 | 0 | - |
 | r_L0_room | hall | L0 | 3 | 0 | 3 | cam_r_L0_room_1, cam_r_L0_room_2, cam_r_L0_room_3 |
 | r_L0_store | storage | L0 | 0 | 0 | 0 | - |
@@ -141,20 +106,33 @@ Rooms without a rendered view: r_L0_pooja, r_L0_store.
 
 ### Why Cycles
 
-- cam_r_L0_bath_toilet_2: gate: no ladder attempt passed the gate: a1 reject (depth); a2 reject (depth); a3 reject (depth)
-- cam_r_L0_bed_room_1: room: polish: room
-- cam_r_L0_bed_room_2: room: polish: room
-- cam_r_L0_bed_room_2_1: room: polish: room
-- cam_r_L0_bed_room_2_2: room: polish: room
-- cam_r_L0_bed_room_2_3: room: polish: room
-- cam_r_L0_bed_room_3: room: polish: room
-- cam_r_L0_room_1: room: polish: room
-- cam_r_L0_room_2: room: polish: room
-- cam_r_L0_room_3: room: polish: room
+- cam_r_L0_bath_toilet_1: gate_validation: gate validation polish_disabled: no polish for this project
+- cam_r_L0_bath_toilet_2: gate_validation: gate validation polish_disabled: no polish for this project
+- cam_r_L0_bed_room_1: gate_validation: gate validation polish_disabled: no polish for this project
+- cam_r_L0_bed_room_2: gate_validation: gate validation polish_disabled: no polish for this project
+- cam_r_L0_bed_room_2_1: gate_validation: gate validation polish_disabled: no polish for this project
+- cam_r_L0_bed_room_2_2: gate_validation: gate validation polish_disabled: no polish for this project
+- cam_r_L0_bed_room_2_3: gate_validation: gate validation polish_disabled: no polish for this project
+- cam_r_L0_bed_room_3: gate_validation: gate validation polish_disabled: no polish for this project
+- cam_r_L0_dining_1: gate_validation: gate validation polish_disabled: no polish for this project
+- cam_r_L0_dining_2: gate_validation: gate validation polish_disabled: no polish for this project
+- cam_r_L0_dining_3: gate_validation: gate validation polish_disabled: no polish for this project
+- cam_r_L0_drawing_room_1: gate_validation: gate validation polish_disabled: no polish for this project
+- cam_r_L0_drawing_room_2: gate_validation: gate validation polish_disabled: no polish for this project
+- cam_r_L0_drawing_room_3: gate_validation: gate validation polish_disabled: no polish for this project
+- cam_r_L0_kitchen_1: gate_validation: gate validation polish_disabled: no polish for this project
+- cam_r_L0_kitchen_2: gate_validation: gate validation polish_disabled: no polish for this project
+- cam_r_L0_kitchen_3: gate_validation: gate validation polish_disabled: no polish for this project
+- cam_r_L0_room_1: gate_validation: gate validation polish_disabled: no polish for this project
+- cam_r_L0_room_2: gate_validation: gate validation polish_disabled: no polish for this project
+- cam_r_L0_room_3: gate_validation: gate validation polish_disabled: no polish for this project
 
 ## Mismatches (never auto-fixed)
 
-None.
+| view | image | result | id | type | role | source | evidence | counted | notes |
+|---|---|---|---|---|---|---|---|---|---|
+| cam_r_L0_bath_toilet_1 | cycles | disputed | f_L0_022 | washbasin | optional | added_by_ai | building.json ai 0.60 | info | added_by_ai: render/polish issue, not a document conflict |
+| cam_r_L0_bath_toilet_2 | cycles | missing | f_L0_022 | washbasin | optional | added_by_ai | building.json ai 0.60 | info | added_by_ai: render/polish issue, not a document conflict |
 
 ## Needs review
 
@@ -256,6 +234,7 @@ Virtual lines that split an open-plan face where two room names share it (no geo
 - brief render.views_per_room: 3 (default, not in brief.yaml)
 - brief render.resolution: [1920, 1080] (default, not in brief.yaml)
 - brief render.samples: 256 (default, not in brief.yaml)
+- brief render.lens_mm: auto (default, not in brief.yaml)
 - L0: level 'Ground floor' assumed (no level title on the page)
 - L0: ceiling height 8' 10" (2.70 m) (assumed_default)
 - door height 6' 11" (2.10 m): 5 opening(s) (d_L0_001, d_L0_002, d_L0_003, d_L0_004, d_L0_005)
@@ -271,7 +250,6 @@ Scene (build) assumptions:
 | area_light | 1 | r_L0_bath_toilet: room has no window; soft ceiling light added (lighting mood, invisible to the camera) | light_r_L0_bath_toilet |
 | area_light | 1 | r_L0_room: room has no window; soft ceiling light added (lighting mood, invisible to the camera) | light_r_L0_room |
 | area_light | 1 | r_L0_store: room has no window; soft ceiling light added (lighting mood, invisible to the camera) | light_r_L0_store |
-| bedding | 2 | design detail of the bed (soft bedding inside the bed's own box); the documents show only the footprint | furn_f_L0_004, furn_f_L0_007 |
 | ceiling_height | 1 | building JSON: assumed_default | level_L0 |
 | counter_fronts | 2 | design detail of the counter (fronts and handles inside its own box); the documents show only the footprint | furn_f_L0_001, furn_f_L0_002 |
 | direction | 1 | no UP arrow, break line or riser text drawn: rise direction and flight order are assumed; two side-by-side flights read as a U-turn (dog-leg) stair | furn_f_L0_003 |
@@ -299,78 +277,69 @@ Scene (build) assumptions:
 
 ## Rooms mixing polished and Cycles views
 
-| room | polished | Cycles (reason) | polish room rule |
-|---|---|---|---|
-| r_L0_bath_toilet | cam_r_L0_bath_toilet_1 | cam_r_L0_bath_toilet_2 (gate) | ok |
-
-Polish room rule (wall colour within ΔE 5 per room) downgraded: r_L0_bed_room (rung None), r_L0_bed_room_2 (rung None), r_L0_room (rung None).
+None.
 
 ## Models and licences
 
 | role | model | revision | licence | from |
 |---|---|---|---|---|
-| polish base | Tongyi-MAI/Z-Image-Turbo | f332072aa78be7aecdf3ee76d5c247082da564a6 | Apache-2.0 | polish_manifest.json |
-| polish controlnet | alibaba-pai/Z-Image-Turbo-Fun-Controlnet-Union-2.1 | 5155fc56d17821007d6f62ac192c09e0f0e72016 | Apache-2.0 | polish_manifest.json |
-| gate depth | depth-anything/Depth-Anything-V2-Small-hf | 5426e4f0f36572d16453bbda7a8389317b1bef99 | Apache-2.0 | polish_manifest.json |
-| gate sam | facebook/sam2.1-hiera-large | 665f8e2ad61cf5f53d65644ff27c8ee525124610 | Apache-2.0 | polish_manifest.json |
-| gate dino | facebook/dinov2-base | f9e44c814b77203eaa57a6bdbbd535f21ede1415 | Apache-2.0 | polish_manifest.json |
 | check qwen | Qwen/Qwen3-VL-8B-Instruct | 0c351dd01ed87e9c1b53cbc748cba10e6187ff3b | Apache-2.0 | check_manifest.json |
 | check glm | zai-org/GLM-4.6V-Flash | 411bb4d77144a3f03accbf4b780f5acb8b7cde4e | MIT | check_manifest.json |
 | detector | google/owlv2-base-patch16-ensemble | cfd3195ba4ea9592eec887ded089f4c08eff231d | Apache-2.0 | check_manifest.json |
 
-Assets: textures CC0 x 7; furniture/decor models CC0 x 3 (parametric meshes need no licence).
+Assets: textures CC0 x 5; furniture/decor models CC-BY-4.0 x 25, CC0 x 3, generated (TRELLIS.2-4B, MIT) x 1 (parametric meshes need no licence).
 
 ## Attribution
 
-No CC BY or Objaverse model in this project (Poly Haven CC0 models and parametric meshes need no credit).
+3D models from Objaverse 1.0 used in these images (§7.3):
+
+- "low poly Lamp 3d model" by mohamedvfx (https://sketchfab.com/3d-models/53409613b45b42b98b979f12ab8faa12), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched (used for f_L0_020)
+- "chare" by DimaSP (https://sketchfab.com/3d-models/acf6497a3d274d90ad3750510348f07a), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched (used for f_L0_011, f_L0_012, f_L0_013, f_L0_014, f_L0_015, f_L0_016)
+
+Contains information from Objaverse 1.0 (https://huggingface.co/datasets/allenai/objaverse, revision 21e4e14), which is made available under the ODC Attribution License (ODC-By 1.0, https://opendatacommons.org/licenses/by/1-0/). Every object keeps its own licence, as declared by its uploader and not verified by WenArt_RUN (CC0 1.0 and CC BY 4.0 unflagged, every other licence flagged: docs/milestone8.md §2): check it before commercial use. This file is licensed ODC-By 1.0, not MIT.
 
 ## Added-object detector
 
 Calibrated: t_det 0.08, t_strong 0.11; a confirmed added non-decor object rejects the polished image (the Cycles render is final).
 Model: google/owlv2-base-patch16-ensemble @ cfd3195ba4ea (Apache-2.0).
 
-| view | detector | computed | added_by_polish | confirmed boxes |
-|---|---|---|---|---|
-| cam_r_L0_bath_toilet_1 | calibrated | yes | no | - |
-| cam_r_L0_dining_1 | calibrated | yes | no | - |
-| cam_r_L0_dining_2 | calibrated | yes | no | - |
-| cam_r_L0_dining_3 | calibrated | yes | no | - |
-| cam_r_L0_drawing_room_1 | calibrated | yes | no | - |
-| cam_r_L0_drawing_room_2 | calibrated | yes | no | - |
-| cam_r_L0_drawing_room_3 | calibrated | yes | no | - |
-| cam_r_L0_kitchen_1 | calibrated | yes | no | - |
-| cam_r_L0_kitchen_2 | calibrated | yes | no | - |
-| cam_r_L0_kitchen_3 | calibrated | yes | no | - |
-
 ## Stages
 
-This run (`20261004-000052-full-20261004T000516Z`):
+This run (`20261004-095244-full-20261004T095809Z`):
 
 | stage | status | seconds | note |
 |---|---|---|---|
 | intake | skipped | 0.0 s | private only |
-| pipeline | pending | 14.2 s | 17 recognition question(s) written (recognition/requests.json) |
+| pipeline | pending | 15.4 s | 17 recognition question(s) written (recognition/requests.json) |
 | recognize | reused | 1.9 s | - |
 | photos | skipped | 0.0 s | no style photos |
 | style | ok | 0.2 s | - |
-| pipeline_final | ok | 12.3 s | answers applied |
-| fit | ok | 1.3 s | - |
-| layout | ok | 10.6 s | - |
-| assets | ok | 0.8 s | - |
+| pipeline_final | ok | 15.6 s | answers applied |
+| fit | ok | 3.4 s | - |
+| layout | ok | 10.8 s | - |
+| assets | ok | 1.0 s | - |
 | decor | ok | 1.6 s | - |
-| refit | ok | 1.1 s | - |
-| build | ok | 20.6 s | - |
-| render | ok | 104.0 s | - |
-| controls | ok | 2.6 min | - |
-| gate | ok | 91.2 s | gate decision flagged |
-| polish | ok | 8.4 min | - |
-| detect | ok | 8.3 s | - |
-| expected | ok | 14.2 s | - |
-| check | ok | 98.5 s | - |
-| combine | ok | 20.6 s | - |
+| refit | ok | 4.8 s | - |
+| build | ok | 58.2 s | - |
+| render | ok | 2.2 min | - |
+| controls | ok | 55.2 s | - |
+| detect | skipped | 0.0 s | gate not validated |
+| gate | ok | 116.8 s | gate decision polish_disabled |
+| polish | skipped | 0.0 s | gate not validated |
+| expected | ok | 27.8 s | - |
+| check | ok | 75.0 s | - |
+| combine | ok | 14.4 s | - |
 
 The report stage itself is recorded after this report.
 
 ## Warnings
 
 - no brief.yaml in /workspace/repo/projects/real01: every brief value is a default
+- polish/polish_manifest.json not used: the gate validation says polish_disabled (no polish for this project; the manifest is from an earlier polish run)
+- final/contact_sbs_r_L0_bath_toilet.jpg is from an earlier run (not part of this report)
+- final/contact_sbs_r_L0_bed_room.jpg is from an earlier run (not part of this report)
+- final/contact_sbs_r_L0_bed_room_2.jpg is from an earlier run (not part of this report)
+- final/contact_sbs_r_L0_dining.jpg is from an earlier run (not part of this report)
+- final/contact_sbs_r_L0_drawing_room.jpg is from an earlier run (not part of this report)
+- final/contact_sbs_r_L0_kitchen.jpg is from an earlier run (not part of this report)
+- final/contact_sbs_r_L0_room.jpg is from an earlier run (not part of this report)

@@ -427,14 +427,18 @@
     "picture frame"
    ],
    "class": "decor",
-   "compatible": []
+   "compatible": [
+    "wall_art"
+   ]
   },
   "rug": {
    "texts": [
     "rug"
    ],
    "class": "decor",
-   "compatible": []
+   "compatible": [
+    "rug"
+   ]
   },
   "vase": {
    "texts": [
@@ -476,8 +480,8 @@
  "images": {
   "cycles": {
    "file": "../renders/cam_r_L3_banyo_1.png",
-   "sha256": "42e1ef094b1dcb40a808a40b7bc6bb73dd9856437bd9d5778b694689a34bbb6c",
-   "key": "bed11c01dec4cf40",
+   "sha256": "7aa668ca74ab548534263f1b95eedb66abe43e039da45b0f7e8f0d72352f6596",
+   "key": "658f4acbfc63af84",
    "size": [
     1920,
     1080
@@ -488,767 +492,755 @@
    ],
    "boxes": [
     {
+     "group": "kitchen_counter",
+     "text": "kitchen counter",
+     "score": 0.068,
+     "box_px": [
+      56.3,
+      615.4,
+      932.6,
+      1073.4
+     ],
+     "class": "furniture"
+    },
+    {
      "group": "kitchen_island",
      "text": "kitchen island",
-     "score": 0.0577,
+     "score": 0.0942,
      "box_px": [
-      510.0,
-      739.2,
-      1301.6,
-      1077.5
+      56.3,
+      615.4,
+      932.6,
+      1073.4
      ],
      "class": "furniture"
     },
     {
      "group": "sink_kitchen",
      "text": "kitchen sink",
-     "score": 0.0627,
+     "score": 0.0958,
      "box_px": [
-      760.8,
-      745.1,
-      1102.1,
-      1034.6
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "washbasin",
-     "text": "washbasin",
-     "score": 0.12,
-     "box_px": [
-      1475.9,
-      868.3,
-      1829.1,
-      1079.9
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "washbasin",
-     "text": "washbasin",
-     "score": 0.0862,
-     "box_px": [
-      769.1,
-      740.8,
-      1079.4,
-      764.1
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "washbasin",
-     "text": "washbasin",
-     "score": 0.073,
-     "box_px": [
-      510.0,
-      739.2,
-      1301.6,
-      1077.5
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "washbasin",
-     "text": "washbasin",
-     "score": 0.0704,
-     "box_px": [
-      1396.3,
-      603.9,
-      1837.7,
-      1080.0
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "washbasin",
-     "text": "washbasin",
-     "score": 0.0694,
-     "box_px": [
-      760.8,
-      745.1,
-      1102.1,
-      1034.6
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "washbasin",
-     "text": "washbasin",
-     "score": 0.0604,
-     "box_px": [
-      1091.6,
-      742.0,
-      1307.2,
-      1080.0
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "toilet",
-     "text": "toilet",
-     "score": 0.6398,
-     "box_px": [
-      1396.3,
-      603.9,
-      1837.7,
-      1080.0
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "toilet",
-     "text": "toilet",
-     "score": 0.4348,
-     "box_px": [
-      1475.9,
-      868.3,
-      1829.1,
-      1079.9
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "toilet",
-     "text": "toilet",
-     "score": 0.0724,
-     "box_px": [
-      747.8,
-      748.2,
-      1124.4,
-      1080.0
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "toilet",
-     "text": "toilet",
-     "score": 0.0664,
-     "box_px": [
-      510.0,
-      739.2,
-      1301.6,
-      1077.5
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "shower",
-     "text": "shower",
-     "score": 0.1425,
-     "box_px": [
-      97.8,
-      12.3,
-      419.4,
-      883.3
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "shower",
-     "text": "shower",
-     "score": 0.1335,
-     "box_px": [
-      715.6,
-      0.0,
-      1876.5,
-      1072.3
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "shower",
-     "text": "shower",
-     "score": 0.1079,
-     "box_px": [
-      510.0,
-      739.2,
-      1301.6,
-      1077.5
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "shower",
-     "text": "shower",
-     "score": 0.0775,
-     "box_px": [
-      63.1,
-      7.4,
-      602.7,
-      1074.6
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "shower",
-     "text": "shower",
-     "score": 0.0654,
-     "box_px": [
-      490.5,
-      1.3,
-      1343.0,
-      1074.1
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "shower",
-     "text": "shower",
-     "score": 0.0557,
-     "box_px": [
-      925.0,
-      660.3,
-      939.9,
-      752.1
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "bathtub",
-     "text": "bathtub",
-     "score": 0.6798,
-     "box_px": [
-      510.0,
-      739.2,
-      1301.6,
-      1077.5
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "bathtub",
-     "text": "bathtub",
-     "score": 0.2443,
-     "box_px": [
-      1091.6,
-      742.0,
-      1307.2,
-      1080.0
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "bathtub",
-     "text": "bathtub",
-     "score": 0.2317,
-     "box_px": [
-      502.9,
-      739.1,
-      764.3,
-      1080.0
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "bathtub",
-     "text": "bathtub",
-     "score": 0.124,
-     "box_px": [
-      1173.3,
-      869.7,
+      1818.2,
+      964.9,
       1920.0,
-      1075.9
+      1076.4
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "sink_kitchen",
+     "text": "kitchen sink",
+     "score": 0.0675,
+     "box_px": [
+      673.1,
+      620.2,
+      922.2,
+      816.6
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "sink_kitchen",
+     "text": "kitchen sink",
+     "score": 0.0645,
+     "box_px": [
+      677.2,
+      617.8,
+      853.3,
+      632.6
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "washbasin",
+     "text": "washbasin",
+     "score": 0.114,
+     "box_px": [
+      1818.2,
+      964.9,
+      1920.0,
+      1076.4
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "washbasin",
+     "text": "washbasin",
+     "score": 0.1135,
+     "box_px": [
+      677.2,
+      617.8,
+      853.3,
+      632.6
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "washbasin",
+     "text": "washbasin",
+     "score": 0.1092,
+     "box_px": [
+      673.1,
+      620.2,
+      922.2,
+      816.6
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "washbasin",
+     "text": "washbasin",
+     "score": 0.0937,
+     "box_px": [
+      1113.5,
+      524.2,
+      1369.1,
+      1057.1
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "washbasin",
+     "text": "washbasin",
+     "score": 0.0675,
+     "box_px": [
+      1112.1,
+      519.9,
+      1297.2,
+      790.7
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "washbasin",
+     "text": "washbasin",
+     "score": 0.0545,
+     "box_px": [
+      676.9,
+      618.9,
+      909.2,
+      640.7
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "washbasin",
+     "text": "washbasin",
+     "score": 0.0534,
+     "box_px": [
+      502.6,
+      619.8,
+      939.7,
+      1076.4
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "washbasin",
+     "text": "washbasin",
+     "score": 0.052,
+     "box_px": [
+      668.9,
+      612.6,
+      813.9,
+      628.1
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "toilet",
+     "text": "toilet",
+     "score": 0.5557,
+     "box_px": [
+      1113.5,
+      524.2,
+      1369.1,
+      1057.1
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "toilet",
+     "text": "toilet",
+     "score": 0.1448,
+     "box_px": [
+      1818.2,
+      964.9,
+      1920.0,
+      1076.4
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "shower",
+     "text": "shower",
+     "score": 0.1491,
+     "box_px": [
+      6.7,
+      12.1,
+      926.4,
+      1074.7
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "shower",
+     "text": "shower",
+     "score": 0.1389,
+     "box_px": [
+      657.0,
+      1.8,
+      1353.2,
+      829.7
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "shower",
+     "text": "shower",
+     "score": 0.1188,
+     "box_px": [
+      56.3,
+      615.4,
+      932.6,
+      1073.4
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "shower",
+     "text": "shower",
+     "score": 0.1032,
+     "box_px": [
+      663.7,
+      138.4,
+      872.8,
+      479.1
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "shower",
+     "text": "shower",
+     "score": 0.0906,
+     "box_px": [
+      786.3,
+      563.7,
+      798.6,
+      625.9
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "shower",
+     "text": "shower",
+     "score": 0.0779,
+     "box_px": [
+      3.3,
+      1.4,
+      1907.2,
+      1075.6
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "shower",
+     "text": "shower",
+     "score": 0.0774,
+     "box_px": [
+      745.0,
+      148.5,
+      768.6,
+      466.7
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "shower",
+     "text": "shower",
+     "score": 0.0744,
+     "box_px": [
+      1337.7,
+      2.2,
+      1920.0,
+      1073.1
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "shower",
+     "text": "shower",
+     "score": 0.0569,
+     "box_px": [
+      1818.2,
+      964.9,
+      1920.0,
+      1076.4
      ],
      "class": "furniture"
     },
     {
      "group": "bathtub",
      "text": "bathtub",
-     "score": 0.0901,
+     "score": 0.6655,
      "box_px": [
-      760.8,
-      745.1,
-      1102.1,
-      1034.6
+      56.3,
+      615.4,
+      932.6,
+      1073.4
      ],
      "class": "furniture"
     },
     {
      "group": "bathtub",
      "text": "bathtub",
-     "score": 0.0841,
+     "score": 0.2611,
      "box_px": [
-      1188.5,
-      876.4,
-      1485.3,
-      1057.7
+      502.6,
+      619.8,
+      939.7,
+      1076.4
      ],
      "class": "furniture"
     },
     {
      "group": "bathtub",
      "text": "bathtub",
-     "score": 0.0735,
+     "score": 0.1463,
      "box_px": [
-      82.1,
-      710.4,
-      521.2,
-      1077.4
+      673.1,
+      620.2,
+      922.2,
+      816.6
      ],
      "class": "furniture"
     },
     {
      "group": "bathtub",
      "text": "bathtub",
-     "score": 0.0668,
+     "score": 0.1411,
      "box_px": [
-      1080.0,
-      717.3,
-      1469.0,
-      1060.9
+      1818.2,
+      964.9,
+      1920.0,
+      1076.4
      ],
      "class": "furniture"
     },
     {
      "group": "bathtub",
      "text": "bathtub",
-     "score": 0.0579,
+     "score": 0.0777,
      "box_px": [
-      739.0,
-      1015.1,
-      1113.9,
-      1077.5
+      819.0,
+      618.5,
+      944.0,
+      1076.7
      ],
      "class": "furniture"
     },
     {
-     "group": "bathtub",
-     "text": "bathtub",
-     "score": 0.0556,
+     "group": "washing_machine",
+     "text": "washing machine",
+     "score": 0.0599,
      "box_px": [
-      723.0,
-      709.0,
-      1576.2,
-      1067.6
+      1818.2,
+      964.9,
+      1920.0,
+      1076.4
      ],
      "class": "furniture"
     },
     {
      "group": "stair",
      "text": "staircase",
-     "score": 0.1133,
+     "score": 0.1519,
      "box_px": [
-      510.0,
-      739.2,
-      1301.6,
-      1077.5
+      56.3,
+      615.4,
+      932.6,
+      1073.4
      ],
      "class": "furniture"
     },
     {
      "group": "stair",
      "text": "staircase",
-     "score": 0.0523,
+     "score": 0.0613,
      "box_px": [
-      1091.6,
-      742.0,
-      1307.2,
-      1080.0
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "stair",
-     "text": "staircase",
-     "score": 0.0505,
-     "box_px": [
-      502.9,
-      739.1,
-      764.3,
-      1080.0
+      502.6,
+      619.8,
+      939.7,
+      1076.4
      ],
      "class": "furniture"
     },
     {
      "group": "door",
      "text": "door",
-     "score": 0.0879,
+     "score": 0.058,
      "box_px": [
-      97.8,
-      12.3,
-      419.4,
-      883.3
+      5.5,
+      3.3,
+      311.8,
+      751.6
      ],
      "class": "door"
     },
     {
      "group": "window",
      "text": "window",
-     "score": 0.4189,
+     "score": 0.4051,
      "box_px": [
-      97.8,
-      12.3,
-      419.4,
-      883.3
+      5.5,
+      3.3,
+      311.8,
+      751.6
      ],
      "class": "window"
     },
     {
+     "group": "mirror",
+     "text": "mirror",
+     "score": 0.1527,
+     "box_px": [
+      5.5,
+      3.3,
+      311.8,
+      751.6
+     ],
+     "class": "decor"
+    },
+    {
+     "group": "mirror",
+     "text": "mirror",
+     "score": 0.0553,
+     "box_px": [
+      663.7,
+      138.4,
+      872.8,
+      479.1
+     ],
+     "class": "decor"
+    }
+   ],
+   "seconds": 3.112
+  },
+  "polished": {
+   "file": "../polish/cam_r_L3_banyo_1_a1.png",
+   "sha256": "321edef24f33b1cb4580607a192c48ecf630acc56f27763aa93c4b5dbfc612e4",
+   "key": "c4fdfff98a7a5b79",
+   "size": [
+    1920,
+    1080
+   ],
+   "model_size": [
+    960,
+    540
+   ],
+   "boxes": [
+    {
+     "group": "sink_kitchen",
+     "text": "kitchen sink",
+     "score": 0.0634,
+     "box_px": [
+      1818.3,
+      967.0,
+      1919.6,
+      1076.9
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "washbasin",
+     "text": "washbasin",
+     "score": 0.0995,
+     "box_px": [
+      1141.0,
+      715.1,
+      1370.7,
+      1056.4
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "washbasin",
+     "text": "washbasin",
+     "score": 0.0974,
+     "box_px": [
+      1818.3,
+      967.0,
+      1919.6,
+      1076.9
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "washbasin",
+     "text": "washbasin",
+     "score": 0.0919,
+     "box_px": [
+      668.0,
+      613.0,
+      865.9,
+      632.9
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "washbasin",
+     "text": "washbasin",
+     "score": 0.0818,
+     "box_px": [
+      672.6,
+      617.5,
+      920.3,
+      814.1
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "toilet",
+     "text": "toilet",
+     "score": 0.763,
+     "box_px": [
+      1111.0,
+      522.2,
+      1367.2,
+      1056.6
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "toilet",
+     "text": "toilet",
+     "score": 0.0897,
+     "box_px": [
+      1818.3,
+      967.0,
+      1919.6,
+      1076.9
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "shower",
+     "text": "shower",
+     "score": 0.1271,
+     "box_px": [
+      0.9,
+      9.5,
+      935.4,
+      1073.4
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "shower",
+     "text": "shower",
+     "score": 0.117,
+     "box_px": [
+      652.0,
+      3.1,
+      1348.8,
+      834.3
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "shower",
+     "text": "shower",
+     "score": 0.1091,
+     "box_px": [
+      58.8,
+      614.1,
+      940.0,
+      1075.2
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "shower",
+     "text": "shower",
+     "score": 0.0831,
+     "box_px": [
+      0.0,
+      4.3,
+      1894.9,
+      1075.0
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "shower",
+     "text": "shower",
+     "score": 0.0657,
+     "box_px": [
+      1339.9,
+      3.7,
+      1920.0,
+      1075.5
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "shower",
+     "text": "shower",
+     "score": 0.0533,
+     "box_px": [
+      786.7,
+      564.1,
+      798.3,
+      626.9
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "shower",
+     "text": "shower",
+     "score": 0.0504,
+     "box_px": [
+      5.0,
+      2.2,
+      308.9,
+      750.9
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "bathtub",
+     "text": "bathtub",
+     "score": 0.7248,
+     "box_px": [
+      58.8,
+      614.1,
+      940.0,
+      1075.2
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "bathtub",
+     "text": "bathtub",
+     "score": 0.1484,
+     "box_px": [
+      501.4,
+      616.7,
+      943.1,
+      1078.4
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "bathtub",
+     "text": "bathtub",
+     "score": 0.1466,
+     "box_px": [
+      1818.3,
+      967.0,
+      1919.6,
+      1076.9
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "bathtub",
+     "text": "bathtub",
+     "score": 0.1121,
+     "box_px": [
+      672.6,
+      617.5,
+      920.3,
+      814.1
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "bathtub",
+     "text": "bathtub",
+     "score": 0.0768,
+     "box_px": [
+      819.7,
+      619.5,
+      944.8,
+      1077.7
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "bathtub",
+     "text": "bathtub",
+     "score": 0.0614,
+     "box_px": [
+      1469.8,
+      953.0,
+      1910.3,
+      1079.8
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "stair",
+     "text": "staircase",
+     "score": 0.1105,
+     "box_px": [
+      58.8,
+      614.1,
+      940.0,
+      1075.2
+     ],
+     "class": "furniture"
+    },
+    {
+     "group": "door",
+     "text": "door",
+     "score": 0.0583,
+     "box_px": [
+      0.0,
+      11.4,
+      368.0,
+      1075.9
+     ],
+     "class": "door"
+    },
+    {
      "group": "window",
      "text": "window",
-     "score": 0.0715,
+     "score": 0.4232,
      "box_px": [
-      63.1,
-      7.4,
-      602.7,
-      1074.6
+      5.0,
+      2.2,
+      308.9,
+      750.9
      ],
      "class": "window"
     },
     {
      "group": "rug",
      "text": "rug",
-     "score": 0.0912,
+     "score": 0.0764,
      "box_px": [
-      1337.3,
-      1049.2,
-      1484.7,
-      1079.6
+      927.8,
+      834.1,
+      1529.6,
+      1078.3
      ],
      "class": "decor"
     },
     {
      "group": "mirror",
      "text": "mirror",
-     "score": 0.392,
+     "score": 0.1356,
      "box_px": [
-      97.8,
-      12.3,
-      419.4,
-      883.3
-     ],
-     "class": "decor"
-    },
-    {
-     "group": "mirror",
-     "text": "mirror",
-     "score": 0.0847,
-     "box_px": [
-      63.1,
-      7.4,
-      602.7,
-      1074.6
-     ],
-     "class": "decor"
-    },
-    {
-     "group": "mirror",
-     "text": "mirror",
-     "score": 0.0551,
-     "box_px": [
-      4.0,
-      0.5,
-      1904.6,
-      1077.1
+      5.0,
+      2.2,
+      308.9,
+      750.9
      ],
      "class": "decor"
     }
    ],
-   "seconds": 3.176
-  },
-  "polished": {
-   "file": "../polish/cam_r_L3_banyo_1_a1.png",
-   "sha256": "ab7de6553c87f6fab8c124b356c502585271eac8caf83a6ad65725cf94700341",
-   "key": "3f78dffab39e1d94",
-   "size": [
-    1920,
-    1080
-   ],
-   "model_size": [
-    960,
-    540
-   ],
-   "boxes": [
-    {
-     "group": "sink_kitchen",
-     "text": "kitchen sink",
-     "score": 0.0511,
-     "box_px": [
-      762.4,
-      747.9,
-      1103.4,
-      1024.9
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "washbasin",
-     "text": "washbasin",
-     "score": 0.0842,
-     "box_px": [
-      1463.8,
-      879.7,
-      1826.6,
-      1079.4
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "washbasin",
-     "text": "washbasin",
-     "score": 0.0685,
-     "box_px": [
-      762.4,
-      747.9,
-      1103.4,
-      1024.9
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "washbasin",
-     "text": "washbasin",
-     "score": 0.0628,
-     "box_px": [
-      515.0,
-      739.8,
-      1306.5,
-      1076.7
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "toilet",
-     "text": "toilet",
-     "score": 0.7515,
-     "box_px": [
-      1391.0,
-      601.9,
-      1831.2,
-      1080.0
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "toilet",
-     "text": "toilet",
-     "score": 0.1672,
-     "box_px": [
-      1463.8,
-      879.7,
-      1826.6,
-      1079.4
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "shower",
-     "text": "shower",
-     "score": 0.1599,
-     "box_px": [
-      97.2,
-      12.1,
-      421.6,
-      892.5
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "shower",
-     "text": "shower",
-     "score": 0.1212,
-     "box_px": [
-      61.2,
-      7.1,
-      604.8,
-      1074.1
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "shower",
-     "text": "shower",
-     "score": 0.1135,
-     "box_px": [
-      720.4,
-      0.0,
-      1774.0,
-      1057.5
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "shower",
-     "text": "shower",
-     "score": 0.0952,
-     "box_px": [
-      515.0,
-      739.8,
-      1306.5,
-      1076.7
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "bathtub",
-     "text": "bathtub",
-     "score": 0.811,
-     "box_px": [
-      515.0,
-      739.8,
-      1306.5,
-      1076.7
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "bathtub",
-     "text": "bathtub",
-     "score": 0.2218,
-     "box_px": [
-      509.3,
-      742.9,
-      764.5,
-      1080.0
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "bathtub",
-     "text": "bathtub",
-     "score": 0.1951,
-     "box_px": [
-      1092.4,
-      742.8,
-      1309.6,
-      1080.0
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "bathtub",
-     "text": "bathtub",
-     "score": 0.0691,
-     "box_px": [
-      1185.4,
-      877.5,
-      1488.6,
-      1055.5
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "bathtub",
-     "text": "bathtub",
-     "score": 0.0662,
-     "box_px": [
-      762.4,
-      747.9,
-      1103.4,
-      1024.9
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "bathtub",
-     "text": "bathtub",
-     "score": 0.0653,
-     "box_px": [
-      1185.1,
-      867.0,
-      1903.0,
-      1072.6
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "bathtub",
-     "text": "bathtub",
-     "score": 0.0555,
-     "box_px": [
-      746.5,
-      576.7,
-      1725.3,
-      1047.4
-     ],
-     "class": "furniture"
-    },
-    {
-     "group": "door",
-     "text": "door",
-     "score": 0.0988,
-     "box_px": [
-      97.2,
-      12.1,
-      421.6,
-      892.5
-     ],
-     "class": "door"
-    },
-    {
-     "group": "door",
-     "text": "door",
-     "score": 0.0556,
-     "box_px": [
-      61.2,
-      7.1,
-      604.8,
-      1074.1
-     ],
-     "class": "door"
-    },
-    {
-     "group": "window",
-     "text": "window",
-     "score": 0.4482,
-     "box_px": [
-      97.2,
-      12.1,
-      421.6,
-      892.5
-     ],
-     "class": "window"
-    },
-    {
-     "group": "window",
-     "text": "window",
-     "score": 0.0906,
-     "box_px": [
-      61.2,
-      7.1,
-      604.8,
-      1074.1
-     ],
-     "class": "window"
-    },
-    {
-     "group": "mirror",
-     "text": "mirror",
-     "score": 0.3855,
-     "box_px": [
-      97.2,
-      12.1,
-      421.6,
-      892.5
-     ],
-     "class": "decor"
-    },
-    {
-     "group": "mirror",
-     "text": "mirror",
-     "score": 0.1078,
-     "box_px": [
-      61.2,
-      7.1,
-      604.8,
-      1074.1
-     ],
-     "class": "decor"
-    },
-    {
-     "group": "mirror",
-     "text": "mirror",
-     "score": 0.0548,
-     "box_px": [
-      4.7,
-      1.5,
-      1906.3,
-      1078.1
-     ],
-     "class": "decor"
-    }
-   ],
-   "seconds": 0.06,
+   "seconds": 0.063,
    "k": 1
   }
  },

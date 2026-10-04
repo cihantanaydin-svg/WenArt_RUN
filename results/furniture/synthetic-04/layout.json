@@ -11,7 +11,7 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 1.882,
+     "latency_s": 1.883,
      "error": null,
      "pieces_proposed": 2,
      "pieces_placed": 1,
@@ -24,7 +24,7 @@
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 1.022,
+     "latency_s": 1.019,
      "error": null,
      "pieces_proposed": 1,
      "pieces_placed": 1,
@@ -36,7 +36,7 @@
     }
    ],
    "chosen_pass": 2,
-   "latency_s": 2.904,
+   "latency_s": 2.902,
    "skipped": null,
    "pieces": [
     {
@@ -62,7 +62,7 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 4.43,
+     "latency_s": 4.429,
      "error": null,
      "pieces_proposed": 5,
      "pieces_placed": 4,
@@ -75,7 +75,7 @@
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 5.34,
+     "latency_s": 5.337,
      "error": null,
      "pieces_proposed": 6,
      "pieces_placed": 4,
@@ -87,7 +87,7 @@
     }
    ],
    "chosen_pass": 1,
-   "latency_s": 9.77,
+   "latency_s": 9.767,
    "skipped": null,
    "pieces": [
     {
@@ -146,5 +146,5 @@
   }
  ],
  "pieces_added": 5,
- "latency_s": 12.674
+ "latency_s": 12.669
 }

@@ -426,14 +426,18 @@
     "picture frame"
    ],
    "class": "decor",
-   "compatible": []
+   "compatible": [
+    "wall_art"
+   ]
   },
   "rug": {
    "texts": [
     "rug"
    ],
    "class": "decor",
-   "compatible": []
+   "compatible": [
+    "rug"
+   ]
   },
   "vase": {
    "texts": [
@@ -489,11 +493,30 @@
   },
   "cam_r_L3_cocuk_odasi_3": {
    "status": "skipped",
-   "reason": "final cycles (room)"
+   "reason": "final cycles (gate)",
+   "file": "cam_r_L3_cocuk_odasi_3.json",
+   "polished": false,
+   "controls": [
+    "d_L3_004"
+   ]
+  },
+  "cam_r_L3_salon_mutfak_1": {
+   "status": "skipped",
+   "reason": "final cycles (gate)",
+   "file": "cam_r_L3_salon_mutfak_1.json",
+   "polished": false,
+   "controls": [
+    "d_L3_002"
+   ]
   },
   "cam_r_L3_yatak_odasi_1": {
    "status": "skipped",
-   "reason": "final cycles (room)"
+   "reason": "final cycles (room)",
+   "file": "cam_r_L3_yatak_odasi_1.json",
+   "polished": false,
+   "controls": [
+    "win_L3_010"
+   ]
   },
   "cam_r_L3_yatak_odasi_2": {
    "status": "skipped",
@@ -501,17 +524,12 @@
    "file": "cam_r_L3_yatak_odasi_2.json",
    "polished": false,
    "controls": [
-    "f_L3_018"
+    "f_L3_015"
    ]
   },
   "cam_r_L3_yatak_odasi_3": {
    "status": "skipped",
-   "reason": "final cycles (room)",
-   "file": "cam_r_L3_yatak_odasi_3.json",
-   "polished": false,
-   "controls": [
-    "win_L3_009"
-   ]
+   "reason": "final cycles (room)"
   },
   "cam_r_L3_banyo_1": {
    "status": "ok",
@@ -529,7 +547,9 @@
    "status": "ok",
    "file": "cam_r_L3_hol_1.json",
    "polished": true,
-   "controls": []
+   "controls": [
+    "f_L3_022"
+   ]
   },
   "cam_r_L3_hol_2": {
    "status": "ok",
@@ -543,34 +563,24 @@
    "polished": true,
    "controls": []
   },
-  "cam_r_L3_salon_mutfak_1": {
-   "status": "ok",
-   "file": "cam_r_L3_salon_mutfak_1.json",
-   "polished": true,
-   "controls": [
-    "win_L3_001"
-   ]
-  },
   "cam_r_L3_salon_mutfak_2": {
    "status": "ok",
    "file": "cam_r_L3_salon_mutfak_2.json",
    "polished": true,
    "controls": [
-    "d_L3_002"
+    "f_L3_010"
    ]
   },
   "cam_r_L3_salon_mutfak_3": {
    "status": "ok",
    "file": "cam_r_L3_salon_mutfak_3.json",
    "polished": true,
-   "controls": [
-    "f_L3_010"
-   ]
+   "controls": []
   }
  },
  "incomplete": false,
  "warnings": [],
- "detected_images": 25,
+ "detected_images": 26,
  "reused_images": 0,
- "seconds": 7.24
+ "seconds": 6.99
 }

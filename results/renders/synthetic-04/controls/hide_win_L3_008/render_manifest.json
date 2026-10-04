@@ -1,7 +1,7 @@
 {
  "schema_version": "0.1",
  "scene": "../../scene/scene.blend",
- "scene_sha256": "14deaf21929681bbb8010ab12698b3ed6448ba838943d883688a67f50911ab70",
+ "scene_sha256": "bbb69d4e11692d87ff790e00536ad7d7a2164da5f561888bbacd9c25d1a02cf9",
  "device": "OPTIX",
  "device_requested": "auto",
  "blender_version": "5.2.2 LTS",
@@ -75,14 +75,21 @@
   "f_L3_024": 39,
   "f_L3_025": 40,
   "f_L3_026": 41,
-  "dec_L3_006": 42,
-  "dec_L3_008": 43
+  "dec_L3_004": 42,
+  "dec_L3_005": 43,
+  "dec_L3_008": 44,
+  "dec_L3_009": 45,
+  "dec_L3_010": 46,
+  "dec_L3_012": 47,
+  "dec_L3_013": 48
  },
  "renders": [
   {
    "camera": "cam_r_L3_cocuk_odasi_1",
    "room_id": "r_L3_cocuk_odasi",
    "level_id": "L3",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
    "png": "cam_r_L3_cocuk_odasi_1.png",
    "exr": "cam_r_L3_cocuk_odasi_1_passes.exr",
    "preview": "cam_r_L3_cocuk_odasi_1_preview.jpg",
@@ -94,84 +101,94 @@
     "normal": "cam_r_L3_cocuk_odasi_1_normal.png",
     "depth": "cam_r_L3_cocuk_odasi_1_depth.png"
    },
-   "preview_bytes": 126727,
-   "seconds": 2.73,
+   "preview_bytes": 140951,
+   "seconds": 2.95,
    "samples": 128,
    "resolution": [
     1920,
     1080
    ],
    "depth": {
-    "min": 1.2970600128173828,
-    "max": 4.318933486938477,
-    "mean": 2.6836462020874023,
+    "min": 0.8785667419433594,
+    "max": 4.173145294189453,
+    "mean": 2.259324073791504,
     "coverage": 1.0
    },
    "index_values": [
     12,
     38,
+    39,
     40,
-    43
+    47
    ],
    "index_stats": {
     "12": {
-     "pixels": 205479,
+     "pixels": 211146,
      "box": [
+      69,
       0,
-      0,
-      407,
-      528
+      538,
+      507
      ]
     },
     "38": {
-     "pixels": 265215,
+     "pixels": 318691,
      "box": [
       0,
-      707,
-      837,
+      633,
+      880,
+      1080
+     ]
+    },
+    "39": {
+     "pixels": 12068,
+     "box": [
+      1519,
+      998,
+      1806,
       1080
      ]
     },
     "40": {
-     "pixels": 533520,
+     "pixels": 552772,
      "box": [
-      1426,
+      1368,
       0,
-      1920,
+      1891,
       1080
      ]
     },
-    "43": {
-     "pixels": 11248,
+    "47": {
+     "pixels": 6815,
      "box": [
-      700,
-      589,
-      840,
-      758
+      768,
+      535,
+      876,
+      667
      ]
     }
    },
    "skipped": false,
-   "scene_sha256": "14deaf21929681bbb8010ab12698b3ed6448ba838943d883688a67f50911ab70",
-   "render_key": "d911fc0a758b9dd0",
+   "scene_sha256": "bbb69d4e11692d87ff790e00536ad7d7a2164da5f561888bbacd9c25d1a02cf9",
+   "render_key": "f0b80f0e4a4560e6",
    "exposure": {
     "mode": "from",
-    "ev": 4.833333,
+    "ev": 5.0,
     "ev_raw": null,
     "at_limit": false,
     "target": null,
     "limits": null,
     "incident_p50": null,
     "whitepoint": [
-     0.940987,
-     1.009723,
-     1.077457
+     0.932423,
+     1.011021,
+     1.089816
     ],
     "wb_mode": "from",
-    "wb_temperature": 7091.1,
-    "wb_tint": 12.9,
+    "wb_temperature": 7188.7,
+    "wb_tint": 13.31,
     "residual": null,
-    "window_clip_frac": 0.0021,
+    "window_clip_frac": 0.0051,
     "meter_seconds": 0.0,
     "meter": null,
     "mood": "warm daylight",
@@ -188,22 +205,22 @@
    "window_pull": {
     "ev": -1.0,
     "k": 1,
-    "pane_ev": 3.833333,
-    "clip_before": 0.2968,
-    "clip_after": 0.0024,
-    "pane_px": 180913,
-    "pane_median": 0.9681,
-    "wall_median": 0.4956,
+    "pane_ev": 4.0,
+    "clip_before": 0.45,
+    "clip_after": 0.0058,
+    "pane_px": 178024,
+    "pane_median": 0.9768,
+    "wall_median": 0.4898,
     "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
     "tried": [
      {
       "k": 1,
-      "clip": 0.0024,
-      "median": 0.9185
+      "clip": 0.005,
+      "median": 0.9308
      }
     ],
-    "pane_median_after": 0.9188,
-    "seconds": 0.79
+    "pane_median_after": 0.9319,
+    "seconds": 0.308
    },
    "alt_preview": null,
    "alt_preview_bytes": null
@@ -212,6 +229,6 @@
  "dropped_stale": [],
  "incomplete": false,
  "not_rendered": [],
- "deadline": 1791078100.0,
+ "deadline": 1791113620.0,
  "warnings": []
 }

@@ -10,7 +10,7 @@
   "baseline": {
    "views": 20,
    "views_computed": 20,
-   "required_elements": 15,
+   "required_elements": 28,
    "fa_missing": 0.0,
    "fa_extra": 0.0,
    "count_error": 0.0,
@@ -37,81 +37,46 @@
   "fa_missing": 0.0,
   "fa_extra": 0.0,
   "count_error": 0.0,
-  "removal_flagged": 0.8,
-  "removal_confirmed": 0.4,
+  "removal_flagged": 0.5714,
+  "removal_confirmed": 0.5714,
   "insertion": 0.0,
-  "insertion_flagged": 0.6,
+  "insertion_flagged": 0.4286,
   "swap_flagged": 1.0,
-  "swap_confirmed": 1.0,
+  "swap_confirmed": 0.0,
   "detector_insertion": {
-   "n": 5,
-   "advisory": false,
-   "found": 0.8,
-   "flagged": 0.8,
-   "confirmed": 0.8,
-   "rows": [
-    {
-     "camera": "cam_r_L0_bed_room_2_2",
-     "kind": "insertion:f_L0_006",
-     "hit_score": 0.5711,
-     "hit_group": "nightstand",
-     "flagged": true,
-     "confirmed": true
-    },
-    {
-     "camera": "cam_r_L0_drawing_room_2",
-     "kind": "insertion:f_L0_017",
-     "hit_score": 0.6935,
-     "hit_group": "sofa",
-     "flagged": true,
-     "confirmed": true
-    },
-    {
-     "camera": "cam_r_L0_drawing_room_2",
-     "kind": "insertion:win_L0_002",
-     "hit_score": 0.2485,
-     "hit_group": "window",
-     "flagged": true,
-     "confirmed": true
-    },
-    {
-     "camera": "cam_r_L0_drawing_room_3",
-     "kind": "insertion:d_L0_003",
-     "hit_score": null,
-     "hit_group": null,
-     "flagged": false,
-     "confirmed": false
-    },
-    {
-     "camera": "cam_r_L0_kitchen_1",
-     "kind": "insertion:f_L0_001",
-     "hit_score": 0.2036,
-     "hit_group": "kitchen_island",
-     "flagged": true,
-     "confirmed": true
-    }
-   ]
+   "n": 0,
+   "advisory": null,
+   "found": null,
+   "flagged": null,
+   "confirmed": null,
+   "rows": []
   },
   "controls": {
    "removal": {
-    "n": 5,
-    "flagged": 0.8,
-    "confirmed": 0.4,
+    "n": 7,
+    "flagged": 0.5714,
+    "confirmed": 0.5714,
     "rows": [
      {
       "camera": "cam_r_L0_bed_room_2_2",
-      "kind": "removal:f_L0_006",
-      "flagged": true,
+      "kind": "removal:f_L0_005",
+      "flagged": false,
       "confirmed": false
      },
      {
-      "camera": "cam_r_L0_drawing_room_2",
+      "camera": "cam_r_L0_bed_room_2_3",
+      "kind": "removal:win_L0_004",
+      "flagged": true,
+      "confirmed": true
+     },
+     {
+      "camera": "cam_r_L0_drawing_room_1",
       "kind": "removal:f_L0_017",
       "flagged": true,
       "confirmed": true
      },
      {
-      "camera": "cam_r_L0_drawing_room_2",
+      "camera": "cam_r_L0_drawing_room_1",
       "kind": "removal:win_L0_002",
       "flagged": true,
       "confirmed": true
@@ -124,31 +89,43 @@
      },
      {
       "camera": "cam_r_L0_kitchen_1",
-      "kind": "removal:f_L0_001",
-      "flagged": true,
+      "kind": "removal:f_L0_002",
+      "flagged": false,
       "confirmed": false
+     },
+     {
+      "camera": "cam_r_L0_kitchen_1",
+      "kind": "removal:win_L0_006",
+      "flagged": true,
+      "confirmed": true
      }
     ]
    },
    "insertion": {
-    "n": 5,
-    "flagged": 0.6,
+    "n": 7,
+    "flagged": 0.4286,
     "confirmed": 0.0,
     "rows": [
      {
       "camera": "cam_r_L0_bed_room_2_2",
-      "kind": "insertion:f_L0_006",
+      "kind": "insertion:f_L0_005",
       "flagged": true,
       "confirmed": false
      },
      {
-      "camera": "cam_r_L0_drawing_room_2",
+      "camera": "cam_r_L0_bed_room_2_3",
+      "kind": "insertion:win_L0_004",
+      "flagged": false,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L0_drawing_room_1",
       "kind": "insertion:f_L0_017",
       "flagged": true,
       "confirmed": false
      },
      {
-      "camera": "cam_r_L0_drawing_room_2",
+      "camera": "cam_r_L0_drawing_room_1",
       "kind": "insertion:win_L0_002",
       "flagged": false,
       "confirmed": false
@@ -161,7 +138,13 @@
      },
      {
       "camera": "cam_r_L0_kitchen_1",
-      "kind": "insertion:f_L0_001",
+      "kind": "insertion:f_L0_002",
+      "flagged": false,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L0_kitchen_1",
+      "kind": "insertion:win_L0_006",
       "flagged": false,
       "confirmed": false
      }
@@ -170,13 +153,13 @@
    "swap": {
     "n": 1,
     "flagged": 1.0,
-    "confirmed": 1.0,
+    "confirmed": 0.0,
     "rows": [
      {
-      "camera": "cam_r_L0_drawing_room_2",
+      "camera": "cam_r_L0_drawing_room_1",
       "kind": "swap:f_L0_017",
       "flagged": true,
-      "confirmed": true
+      "confirmed": false
      }
     ]
    }
@@ -192,9 +175,16 @@
  },
  "missed": [
   {
+   "target": "removal_flagged_min",
+   "metric": "removal_flagged",
+   "value": 0.5714,
+   "threshold": 0.8,
+   "op": ">="
+  },
+  {
    "target": "removal_confirmed_min",
    "metric": "removal_confirmed",
-   "value": 0.4,
+   "value": 0.5714,
    "threshold": 0.6,
    "op": ">="
   },
@@ -208,7 +198,8 @@
  ],
  "advisory": true,
  "advisory_reasons": [
-  "removal_confirmed 0.4 misses >= 0.6",
+  "removal_flagged 0.5714 misses >= 0.8",
+  "removal_confirmed 0.5714 misses >= 0.6",
   "insertion 0.0 misses >= 0.6"
  ],
  "plan_ab": {

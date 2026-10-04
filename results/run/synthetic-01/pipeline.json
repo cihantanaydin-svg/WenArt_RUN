@@ -5,8 +5,8 @@
  "stage": "pipeline",
  "rc": 0,
  "status": "ok",
- "seconds": 46.6,
- "fingerprint": "475c8eaebaee29f27c86c12830f972d5ccfbf5d45d7a1d38e9b854971f520f8e",
+ "seconds": 72.56,
+ "fingerprint": "8560ad5af8fc36013d3ece9c5141fd96ccf61a96b81272fcfbef73c39587ed28",
  "inputs": {
   "projects/synthetic-01": "968a25c7f31c454a503b3d99bf086bf5d5a968549c9087975a1ba36370948ffe",
   "<LibreDWG VERSION>": "0.14 d9468ae"
@@ -15,16 +15,16 @@
   "building.json",
   "report.md"
  ],
- "started_utc": "2026-10-04T00:06:25Z",
- "git_commit": "2be169d6342eed721324d995d3e380aecfc0b6b0",
+ "started_utc": "2026-10-04T09:59:44Z",
+ "git_commit": "714dcc50e1a342a6b723451c219e22291d3d333f",
  "log": "logs/pipeline.log",
  "note": null,
- "run_id": "20261004-000052-full-20261004T000516Z",
+ "run_id": "20261004-095244-full-20261004T095809Z",
  "steps": [
   {
    "name": "pipeline",
    "rc": 0,
-   "seconds": 46.6
+   "seconds": 72.56
   }
  ],
  "written": {}

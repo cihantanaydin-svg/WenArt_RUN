@@ -1,7 +1,7 @@
 # Ingest report: real01
 
 Status: **ok**
-Source: `projects/real01`, pipeline commit `2be169d6`, created 2026-10-04T00:08:04Z
+Source: `projects/real01`, pipeline commit `714dcc50e`, created 2026-10-04T10:00:12Z
 
 ## Documents
 

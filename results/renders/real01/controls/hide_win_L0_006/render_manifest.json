@@ -1,0 +1,208 @@
+{
+ "schema_version": "0.1",
+ "scene": "../../scene/scene.blend",
+ "scene_sha256": "33d1897e9d521774b4b623ee36a12977ba1253fcb1a6d3c5038e993628820314",
+ "device": "OPTIX",
+ "device_requested": "auto",
+ "blender_version": "5.2.2 LTS",
+ "samples": 128,
+ "resolution": [
+  1920,
+  1080
+ ],
+ "denoiser": "OPENIMAGEDENOISE",
+ "render_code_version": "m7.1",
+ "view_transform": "AgX",
+ "look": "AgX - Punchy",
+ "exposure_mode": "from",
+ "exposure_target": 0.9,
+ "exposure_limits": [
+  -2.0,
+  8.0
+ ],
+ "white_balance_mode": "from",
+ "look_from": "../../renders/render_manifest.json",
+ "hidden": [
+  "win_L0_006"
+ ],
+ "plugged": [
+  "win_L0_006"
+ ],
+ "alt_look": null,
+ "max_bounces": null,
+ "bounces": null,
+ "ev_offset": 0.0,
+ "preview_quality": null,
+ "pass_index": {
+  "win_L0_001": 1,
+  "win_L0_002": 2,
+  "win_L0_003": 3,
+  "win_L0_004": 4,
+  "win_L0_005": 5,
+  "win_L0_006": 6,
+  "win_L0_007": 7,
+  "win_L0_008": 8,
+  "d_L0_001": 9,
+  "d_L0_002": 10,
+  "d_L0_003": 11,
+  "win_L0_009": 12,
+  "d_L0_004": 13,
+  "d_L0_005": 14,
+  "proxy:f_L0_018": 15,
+  "f_L0_001": 16,
+  "f_L0_002": 17,
+  "f_L0_004": 18,
+  "f_L0_005": 19,
+  "f_L0_006": 20,
+  "f_L0_007": 21,
+  "f_L0_008": 22,
+  "f_L0_009": 23,
+  "f_L0_010": 24,
+  "f_L0_011": 25,
+  "f_L0_012": 26,
+  "f_L0_013": 27,
+  "f_L0_014": 28,
+  "f_L0_015": 29,
+  "f_L0_016": 30,
+  "f_L0_017": 31,
+  "f_L0_019": 32,
+  "f_L0_020": 33,
+  "f_L0_021": 34,
+  "f_L0_022": 35,
+  "dec_L0_003": 36,
+  "dec_L0_006": 37,
+  "dec_L0_007": 38,
+  "dec_L0_010": 39,
+  "dec_L0_011": 40,
+  "dec_L0_012": 41,
+  "f_L0_003": 42
+ },
+ "renders": [
+  {
+   "camera": "cam_r_L0_kitchen_1",
+   "room_id": "r_L0_kitchen",
+   "level_id": "L0",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "png": "cam_r_L0_kitchen_1.png",
+   "exr": "cam_r_L0_kitchen_1_passes.exr",
+   "preview": "cam_r_L0_kitchen_1_preview.jpg",
+   "depth_png": "cam_r_L0_kitchen_1_depth.png",
+   "index_png": "cam_r_L0_kitchen_1_index.png",
+   "files": {
+    "index": "cam_r_L0_kitchen_1_index.png",
+    "depth_mm": "cam_r_L0_kitchen_1_depth_mm.png",
+    "normal": "cam_r_L0_kitchen_1_normal.png",
+    "depth": "cam_r_L0_kitchen_1_depth.png"
+   },
+   "preview_bytes": 98290,
+   "seconds": 2.99,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 0.7194995880126953,
+    "max": 2.3234996795654297,
+    "mean": 1.8159202337265015,
+    "coverage": 0.9999995177469135
+   },
+   "index_values": [
+    12,
+    16,
+    17
+   ],
+   "index_stats": {
+    "12": {
+     "pixels": 86884,
+     "box": [
+      1777,
+      0,
+      1920,
+      628
+     ]
+    },
+    "16": {
+     "pixels": 336048,
+     "box": [
+      1249,
+      545,
+      1920,
+      1080
+     ]
+    },
+    "17": {
+     "pixels": 590720,
+     "box": [
+      151,
+      493,
+      1588,
+      1025
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "33d1897e9d521774b4b623ee36a12977ba1253fcb1a6d3c5038e993628820314",
+   "render_key": "a5d6cb6b47c6a1b6",
+   "exposure": {
+    "mode": "from",
+    "ev": 4.333333,
+    "ev_raw": null,
+    "at_limit": false,
+    "target": null,
+    "limits": null,
+    "incident_p50": null,
+    "whitepoint": [
+     0.931142,
+     1.007101,
+     1.132422
+    ],
+    "wb_mode": "from",
+    "wb_temperature": 7425.4,
+    "wb_tint": 10.28,
+    "residual": null,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 0.0,
+    "meter": null,
+    "mood": "warm daylight",
+    "source": "../../renders/render_manifest.json",
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "hidden": [
+    "win_L0_006"
+   ],
+   "plugged": [
+    "win_L0_006"
+   ],
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": 3.333333,
+    "clip_before": 0.0123,
+    "clip_after": 0.0,
+    "pane_px": 49030,
+    "pane_median": 0.8802,
+    "wall_median": 0.5473,
+    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.8051
+     }
+    ],
+    "pane_median_after": 0.8051,
+    "seconds": 0.293
+   },
+   "alt_preview": null,
+   "alt_preview_bytes": null
+  }
+ ],
+ "dropped_stale": [],
+ "incomplete": false,
+ "not_rendered": [],
+ "deadline": 1791113620.0,
+ "warnings": []
+}
