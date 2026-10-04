@@ -41,4 +41,4 @@ runner could not write it). Costs are estimates from the on-demand price at star
 | 2026-10-04 09:04 | jyjxtmzemyj3cj | NVIDIA RTX PRO 4500 Blackwell | 114 | 1.37 | M8 pod L2: TRELLIS.2 setup (Blackwell wheels cached) + generated models for 25 style gaps, judging, catalogue merge | exit 1 (library GPU test: ABO cache path), self-stop ok; runner lost in a session restart, results collected after re-attach (1801 files, a few downloads failed) |
 | 2026-10-04 09:09 | pending:20261004-090924-prep | RTX PRO 4500 | 60 | 0.72 | M8 pod L3: library re-accept after the fixes (generated heights, ranking, fronts), judging of the newly ready generated models | creating (provisional, worst case) |
 
-**Total spent so far: $23.57** (budget: $100; limits: $5.00/GPU-hour, $20/day, 2 h/run)
+**Total spent so far: $23.57** (budget: $100; limits: $5.00/GPU-hour, $30/day, 2 h/run)

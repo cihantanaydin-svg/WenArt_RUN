@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """RunPod runner for WenArt_RUN. Every GPU job goes through here.
 
-Hard rules (CLAUDE.md): max $5.00/GPU-hour, max $20/day, max 2 h per run, one pod
+Hard rules (CLAUDE.md): max $5.00/GPU-hour, max $30/day, max 2 h per run, one pod
 at a time. Pods stop themselves (watchdog + end of job, see scripts/pod_entry.sh).
 The runner collects the results (results/ and, for private projects, results-private/
 into runs/<job>/), stops the pod right after a successful collection instead of
@@ -54,7 +54,7 @@ RUNS_DIR = ROOT / "runs"
 
 MAX_PRICE_PER_H = 5.00          # user decision of 3 Oct 2026 (was $1.00)
 MAX_ACTION_USD = 5.00           # CLAUDE.md: ask the user before any single action costing more than $5
-MAX_PER_DAY = 20.00                 # raised from $10 by the user on 4 Oct 2026
+MAX_PER_DAY = 30.00                 # raised from $10 to $20, then $30, by the user on 4 Oct 2026
 MAX_MINUTES = 120
 IMAGE = "runpod/pytorch:1.4.0-cu1281-torch291-ubuntu2404"
 DATACENTER = "EU-RO-1"
