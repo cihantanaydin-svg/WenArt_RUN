@@ -186,7 +186,8 @@ def test_status_vocabulary():
     assert ST.REUSABLE == ("ok", "warning", "reused", "pending")
     assert ST.SEVERITY["pending"] == ST.SEVERITY["ok"]                  # "severity ok" (M7 §9.1)
     assert set(ST.SKIP_REASONS) == {"private only", "no style photos", "polish off", "no empty room",
-                                    "smoke profile", "gate not validated", "not in this phase", "no questions"}
+                                    "smoke profile", "gate not validated", "not in this phase", "no questions",
+                                    "no decor questions"}                      # Milestone 9: decor_ask
     assert ST.worst(["ok", "incomplete", "warning"]) == "incomplete"
     assert ST.worst(["ok", "failed", "incomplete"]) == "failed" and ST.worst([]) is None
 

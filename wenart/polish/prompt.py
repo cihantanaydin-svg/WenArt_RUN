@@ -99,6 +99,7 @@ MATERIAL_WORDS: dict[str, str] = {
     "plant_green": "green plant",
     "wood_veneer_oak": "light oak veneer",
     "wood_veneer_walnut": "walnut veneer",
+    "mirror": "mirror glass",                    # Milestone 9: the mirror decor
 }
 
 # Lighting moods of vocabulary.LIGHTING, written to be followed by "light".
