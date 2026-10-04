@@ -340,12 +340,20 @@ def bed_frame_record(entry: dict, width: float, depth: float, z_scale: float) ->
 
 
 # Decor (docs/milestone8.md §4): types that may use a library decor model; book sets stay parametric.
-DECOR_LIBRARY_TYPES: tuple[str, ...] = ("cushion", "plant", "rug", "wall_art")
+DECOR_LIBRARY_TYPES: tuple[str, ...] = ("cushion", "plant", "rug", "wall_art",
+                                        "vase", "bowl", "plant_small", "table_lamp", "mirror")   # Milestone 9
+# Milestone 9 (docs/milestone9.md §3, §5): wall decor hangs like wall art (its width, the model's aspect); tabletop
+# decor keeps the model's proportions and real size, scaled down (never up) to fit the item's box ("within").
+WALL_DECOR_TYPES: tuple[str, ...] = ("wall_art", "mirror")
+SURFACE_DECOR_TYPES: tuple[str, ...] = ("vase", "bowl", "plant_small", "table_lamp")
+# Furniture models that serve a decor type too (the same object): a floor plant may be a potted_plant model.
+DECOR_FROM_FURNITURE: dict[str, tuple[str, ...]] = {"plant": ("potted_plant",)}
 # Decor models of catalog.json (Poly Haven, M4) by their old ``type``: the potted plants. The pillow model
 # (``decor_cushion``: two loose pillows lying flat) stays out: squashed to a standing cushion it looks wrong.
 LEGACY_DECOR_TYPES: dict[str, str] = {"decor_plant": "plant"}
 DECOR_NON_UNIFORM_CAP = 1.5      # cushion / plant / rug footprint stretch (max/min of the x, y scales) above: refused
 RUG_MAX_THICKNESS_M = 0.03       # a rug model is kept flat: its height is capped here
+SURFACE_DECOR_MIN_M = 0.04       # a tabletop model scaled below this footprint side is refused (Milestone 9)
 WALL_ART_MIN_WIDTH_M = 0.3       # a wall art model that would end narrower (ceiling room) is refused
 _TURN_90 = {"-Y": "-X", "-X": "+Y", "+Y": "+X", "+X": "-Y"}   # the claimed front that turns a model by +90 degrees
 
@@ -368,6 +376,10 @@ def decor_entries(catalog, dtype: str) -> list[dict]:
         found += [e for e in (method(dtype) or []) if isinstance(e, dict)]
     for e in list(getattr(catalog, "decor", None) or []) + list(getattr(catalog, "entries", None) or []):
         if isinstance(e, dict) and decor_type_of(e) == dtype:
+            found.append(e)
+    furniture_types = DECOR_FROM_FURNITURE.get(dtype, ())
+    for e in list(getattr(catalog, "entries", None) or []):    # Milestone 9: e.g. potted_plant models as plants
+        if isinstance(e, dict) and e.get("type") in furniture_types and e.get("source") in C.LIBRARY_SOURCES:
             found.append(e)
     out: dict[str, dict] = {}
     for e in found:
@@ -400,7 +412,15 @@ def _decor_fit(entry: dict, item: dict, dtype: str) -> Optional[dict]:
     width, depth = (float(v) for v in item["size"][:2])
     bw, bd, bh = (float(v) for v in entry["bbox_m"][:3])
     front = entry["front_axis"]
-    if dtype == "wall_art":                       # its width, the model's aspect; the height the wall allows
+    if dtype in SURFACE_DECOR_TYPES:              # Milestone 9: real size, scaled down to the item box, never up
+        height = float(item["size"][2]) if len(item["size"]) > 2 and item["size"][2] else None
+        limits = [width / bw, depth / bd] + ([height / bh] if height else [])
+        s = min([1.0] + limits)
+        if min(bw * s, bd * s) < SURFACE_DECOR_MIN_M - 1e-9:
+            return None
+        return {"fit_scale": [round(s, 4)] * 3, "bbox_m": [round(bw * s, 4), round(bd * s, 4), round(bh * s, 4)],
+                "front_axis": front, "turned_deg": 0.0, "target": "within", "non_uniform": 1.0}
+    if dtype in WALL_DECOR_TYPES:                 # its width, the model's aspect; the height the wall allows
         s = width / bw
         max_h = item.get("max_height_m")
         if isinstance(max_h, (int, float)) and max_h > 0 and bh * s > float(max_h):

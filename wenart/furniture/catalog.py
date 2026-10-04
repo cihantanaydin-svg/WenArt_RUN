@@ -137,7 +137,8 @@ CC_BY_FIELDS = ("title", "author", "source_url", "licence_url", "via", "attribut
 # The fields of a generated model's ``generated`` record (docs/milestone8.md §2).
 GENERATED_FIELDS = ("prompt", "image_sha256", "model", "revision", "seed")
 KINDS = ("furniture", "decor")
-DECOR_TYPES = ("cushion", "plant", "rug", "wall_art")    # library decor (docs/milestone8.md §4)
+DECOR_TYPES = ("cushion", "plant", "rug", "wall_art",    # library decor (docs/milestone8.md §4)
+               "vase", "bowl", "plant_small", "table_lamp", "mirror")   # Milestone 9 (docs/milestone9.md §3)
 # The unit factors of the prep pod's unit guess (docs/milestone7.md §7.2; wenart/assets/objaverse.yaml units).
 # An Objaverse entry's optional ``unit_scale`` is one of them, or any positive finite factor with a ``unit_note``
 # saying where it comes from (a model of unknown units normalised by type, wenart.assets.objaverse.normalise_unit).

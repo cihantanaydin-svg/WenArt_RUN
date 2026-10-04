@@ -144,7 +144,8 @@ SURVEY_FILES: dict[str, str] = {"objaverse": SURVEY_NAME, "abo": "survey_abo.jso
 SOURCES: tuple[str, ...] = tuple(SURVEY_FILES)
 REAL_SOURCES: tuple[str, ...] = ("abo", "objaverse")       # the generation plan follows their accepted models
 SOURCE_ORDER: tuple[str, ...] = ("abo", "polyhaven", "objaverse", "generated")   # rank order of docs/milestone8.md §2
-DECOR_TYPES: tuple[str, ...] = ("cushion", "plant", "rug", "wall_art")            # = catalog.DECOR_TYPES
+DECOR_TYPES: tuple[str, ...] = ("cushion", "plant", "rug", "wall_art",             # = catalog.DECOR_TYPES
+                                 "vase", "bowl", "plant_small", "table_lamp", "mirror")   # Milestone 9 (§3)
 BED_TYPES: tuple[str, ...] = ("bed_single", "bed_double")
 DOCUMENTED_RULE = "documented"                        # a front only the source's documented convention decides
 THUMBS_JSON = "thumbnails.json"
@@ -171,7 +172,7 @@ REASONS: dict[str, str] = {
     "bad_object_path": "object path not of the form glbs/<folder>/<uid>.glb",
     "no_metadata": "no metadata record",
     "no_credit": "credit field missing (title, author or link)",
-    "face_count": "face count outside 2k-150k",
+    "face_count": "face count outside 2k-150k (fixture categories: 800-400k, docs/milestone9.md §2.2)",
     "glb_size": "GLB larger than the source's limit (Objaverse 40 MB, ABO 60 MB)",
     "download_failed": "download failed",
     "glb_unreadable": "GLB header unreadable",
@@ -193,8 +194,8 @@ REASONS: dict[str, str] = {
     "front_not_agreed": "front not agreed (judges and geometry or the documented front)",
     "no_common_style": "no style both judges name",
     "over_candidate_limit": "over the candidates of its source and type after the bed split",
-    "over_type_limit": "over the per-type limit of the catalogue",
-    "over_style_limit": "every style family it fits already has 3 models of its type",
+    "over_type_limit": "over the per-type limit of the catalogue (20 per type, docs/milestone9.md §1)",
+    "over_style_limit": "every style family it fits already has its share of models of its type (no fill pass)",
     "glb_changed": "GLB sha256 differs from the survey (and no copy in the assets cache)",
 }
 
@@ -623,11 +624,11 @@ def survey(hub, out: Path, cfg: Optional[dict] = None, download: bool = True, wo
     licence_values: dict[str, int] = {}
     metadata_keys: set[str] = set()
     missing_fields: dict[str, int] = {}
-    face_lo, face_hi = (int(v) for v in pre["face_count"])
     max_bytes = float(pre["max_glb_mb"]) * 1024 * 1024
     for uid, opath, cats, types in staged:
         group = group_key(types)
         c = counts[group]
+        face_lo, face_hi = (int(v) for v in category_prefilter(pre, cats)["face_count"])
         meta = records.get(uid)
         if meta is None:
             refused.append(_refusal(uid, "no_metadata", "", categories=cats, group=group))
@@ -679,18 +680,28 @@ def survey(hub, out: Path, cfg: Optional[dict] = None, download: bool = True, wo
             "style_hint": None, "kind": "furniture", "decor_type": None, "units_known": False,
             "extents_raw": None,
         })
+        if category_prefilter(pre, cats).get("allow_flat_colours"):
+            pools[group][-1]["allow_flat_colours"] = True        # Milestone 9 fixtures (§2.2)
 
     candidates: list[dict] = []
-    per_type = int(pre["per_type_limit"])
-    max_dl = int(pre.get("max_downloads_per_type", 2 * per_type))
+    previous = previous_candidates(out)
+    if previous:
+        log(f"objaverse survey: {len(previous)} candidates of the earlier {SURVEY_NAME} come first in their types")
     for group in sorted(pools):
         pool = sorted(pools[group], key=lambda r: (not r["prefer_hit"], -r["likes"], -r["views"], r["uid"]))
+        limits = group_prefilter(pre, [cat for rec in pool for cat in rec["categories"]])
+        per_type = int(limits["per_type_limit"])
+        max_dl = int(limits.get("max_downloads_per_type", 2 * per_type))
         cap = per_type * len(pool[0]["types"])
         dl_cap = max_dl * len(pool[0]["types"])
         c = counts[group]
         chosen = 0
         for rank, rec in enumerate(pool, 1):
             rec["rank"] = rank
+        # Milestone 9: the candidates of the survey before this one come first (a wider prefilter must never push out
+        # a model that was judged and accepted), then the rest in rank order.
+        kept = [r for r in pool if r["uid"] in previous]
+        for rec in kept + [r for r in pool if r["uid"] not in previous]:
             if chosen >= cap or (download and c["tried"] >= dl_cap):
                 c["not_selected"] += 1
                 continue
@@ -741,9 +752,41 @@ def _fetch_candidate(hub, rec: dict, max_bytes: float) -> Optional[tuple[str, st
     except (ValueError, OSError, UnicodeDecodeError) as exc:
         return "glb_unreadable", str(exc)
     if not (info["textured"] or info["vertex_colours"]):
-        return "untextured", f"{info['images']} images, {info['textures']} textures, no COLOR_0"
+        if not (rec.get("allow_flat_colours") and info["materials"] > 0):
+            return "untextured", f"{info['images']} images, {info['textures']} textures, no COLOR_0"
+        info = dict(info, flat_colours=True)        # a fixture with material colours only (docs/milestone9.md §2.2)
     rec.update({"glb": str(local), "glb_sha256": sha256_file(local), "glb_bytes": size, "glb_info": info})
     return None
+
+
+def previous_candidates(out: Path) -> set:
+    """The uids of the candidates of an earlier ``survey.json`` in ``out`` (empty without one)."""
+    doc = read_json(Path(out) / SURVEY_NAME) if (Path(out) / SURVEY_NAME).is_file() else None
+    return {str(c["uid"]) for c in (doc or {}).get("candidates") or [] if isinstance(c, dict) and c.get("uid")}
+
+
+def category_prefilter(pre: dict, categories) -> dict:
+    """The prefilter of an object of ``categories``: ``objaverse.yaml prefilter`` with the ``overrides`` of the first
+    of its categories that has one (Milestone 9 fixtures: ``face_count``, ``allow_flat_colours``,
+    ``per_type_limit``, ``max_downloads_per_type``); without one the M8 values."""
+    base = {k: v for k, v in pre.items() if k != "overrides"}
+    overrides = pre.get("overrides") or {}
+    for cat in categories or ():
+        if isinstance(overrides.get(cat), dict):
+            return dict(base, **overrides[cat])
+    return base
+
+
+def group_prefilter(pre: dict, categories) -> dict:
+    """The candidate limits of a group: the largest ``per_type_limit`` / ``max_downloads_per_type`` of the categories
+    of its objects (their ``category_prefilter``); the M8 values when none has an override."""
+    out = {k: v for k, v in pre.items() if k != "overrides"}
+    for cat in sorted(set(categories or ())):
+        own = category_prefilter(pre, [cat])
+        for key in ("per_type_limit", "max_downloads_per_type"):
+            if key in own and int(own[key]) > int(out.get(key, 0)):
+                out[key] = int(own[key])
+    return out
 
 
 # --------------------------------------------------------------------------
@@ -1584,7 +1627,20 @@ DECOR_WORDS: dict[str, tuple[str, str, str]] = {
     "rug": ("rug", "a floor rug or carpet", "one flat floor rug or carpet (not a doormat, not a wall hanging)"),
     "wall_art": ("wall art", "a framed picture, print, canvas or mural for a wall",
                  "one picture, print, canvas or mural for a wall (not a mirror, not a shelf, not a clock)"),
+    # Milestone 9 decor types (docs/milestone9.md §3).
+    "vase": ("vase", "a decorative vase for a table, a sideboard or a shelf",
+             "one vase, empty or with flowers or branches (not a planter with soil, not a bowl, not a lamp)"),
+    "bowl": ("decorative bowl", "a decorative bowl or tray for a table or a sideboard",
+             "one bowl or tray, empty or with fruit (not a vase, not a pot, not a plate stack)"),
+    "plant_small": ("small potted plant", "a small indoor plant in a pot for a table or a shelf",
+                    "a small pot that holds a plant with leaves; an empty pot, planter or vase is not one"),
+    "table_lamp": ("table lamp", "a lamp that stands on a table, a desk or a nightstand",
+                   "one table or desk lamp with its shade or head (not a floor lamp, not a wall or ceiling light)"),
+    "mirror": ("wall mirror", "a mirror that hangs on a wall",
+               "one wall mirror with or without a frame (not a floor or leaner mirror, not a mirror cabinet)"),
 }
+# The side a front-facing decor type shows (the M8 wall art question keeps its words, so its answers stay current).
+DECOR_FRONT_WORDS: dict[str, str] = {"wall_art": "the picture side", "mirror": "the mirror side"}
 TYPE_WORDS.update({
     "side_table": ("side table", "a small table beside a sofa, an armchair or a bed"),
     "tv_unit": ("TV unit", "a low cabinet or stand for a television"),
@@ -1702,7 +1758,8 @@ def decor_prompt(decor_type: str, dims_m, has_front: bool, normalised: bool = Fa
     name, what, counts = DECOR_WORDS[decor_type]
     tiles, size = _tiles_and_size(dims_m, normalised, name)
     styles = "; ".join(f"{s} ({STYLE_HINTS.get(s, s)})" for s in style_values())
-    front = ("the number of the tile that looks straight at the picture side; null when you cannot tell" if has_front
+    side = DECOR_FRONT_WORDS.get(decor_type, "the picture side")
+    front = (f"the number of the tile that looks straight at {side}; null when you cannot tell" if has_front
              else "null (this decor has no front)")
     return "\n\n".join([
         "The image is a 2 x 2 sheet of four renders of one 3D model from an online model library, on a plain grey "
@@ -2161,7 +2218,9 @@ def accept(out: Path, cfg: Optional[dict] = None, models: Optional[dict] = None,
 
     In rank order (``_rank_key``) a model is kept while its type has room and one of its style families (``neutral``
     counts as one) has fewer than ``per_family_max`` kept models; it then counts for each of its families. Refused:
-    ``over_type_limit``, ``over_style_limit``.
+    ``over_type_limit``, ``over_style_limit``. Milestone 9 (``style_fill``, docs/milestone9.md §1): a fill pass then
+    keeps the models refused for their style, in rank order, until the type limit (``style_fill: true`` and a note in
+    the decision); the ones left are ``over_type_limit``.
 
     ``accepted.json`` (also the ``--catalog`` of ``wenart.assets.generate plan``, docs/milestone8.md §3, after the
     prep job's first accept with ``sources=["abo", "objaverse"]``): ``{"kind": "objaverse_accepted", "sources":
@@ -2186,6 +2245,7 @@ def accept(out: Path, cfg: Optional[dict] = None, models: Optional[dict] = None,
         decisions.append(decide(obj, answers.get(uid) or {}, cfg))
     acc_cfg = cfg["accept"]
     per_family = int(acc_cfg.get("per_family_max", 3))
+    style_fill = bool(acc_cfg.get("style_fill", False))
     accepted, refused = [], []
     groups: dict[tuple, list[dict]] = {}
     for dec in decisions:
@@ -2196,23 +2256,37 @@ def accept(out: Path, cfg: Optional[dict] = None, models: Optional[dict] = None,
     for kind, ftype in sorted(groups):
         limit = int(acc_cfg["decor_per_type_max"] if kind == "decor" else acc_cfg["per_type_max"])
         ranked = sorted(groups[(kind, ftype)], key=lambda d: _rank_key(d, cands.get(d["uid"], {}), cfg))
-        kept, families = 0, {}
+        kept, families, left = [], {}, []
         for n, dec in enumerate(ranked):
             full = [f for f in dec["styles"] if families.get(f, 0) >= per_family]
-            if kept >= limit:
+            if len(kept) >= limit:
                 refused.append(dict(dec, accepted=False, code="over_type_limit",
                                     detail=f"rank {n + 1} of {len(ranked)} accepted {ftype} models (keep {limit})",
                                     failed=[("over_type_limit", f"keep {limit}")]))
             elif len(full) == len(dec["styles"]):
+                left.append((n, dec, full))
+            else:
+                kept.append((n, dec))
+                for f in dec["styles"]:
+                    families[f] = families.get(f, 0) + 1
+        # Milestone 9 (docs/milestone9.md §1): the first pass spreads the styles; the fill pass then takes the models
+        # it left for their style, in rank order, until the type limit.
+        for n, dec, full in left:
+            if style_fill and len(kept) < limit:
+                kept.append((n, dict(dec, style_fill=True,
+                                     style_note=dec.get("style_note", "") + f"; kept by the fill pass ({ftype} had "
+                                     f"{per_family} models of each of its styles: {', '.join(full)})")))
+            elif style_fill:
+                refused.append(dict(dec, accepted=False, code="over_type_limit",
+                                    detail=f"rank {n + 1} of {len(ranked)} accepted {ftype} models (keep {limit}; "
+                                           f"its styles {', '.join(full)} had {per_family} each in the first pass)",
+                                    failed=[("over_type_limit", f"keep {limit}")]))
+            else:
                 refused.append(dict(dec, accepted=False, code="over_style_limit",
                                     detail=f"rank {n + 1}: {ftype} already has {per_family} models of each of its "
                                            f"styles ({', '.join(full)})",
                                     failed=[("over_style_limit", f"keep {per_family} per family")]))
-            else:
-                accepted.append(dec)
-                kept += 1
-                for f in dec["styles"]:
-                    families[f] = families.get(f, 0) + 1
+        accepted += [dec for _n, dec in sorted(kept, key=lambda item: item[0])]
     counts: dict[str, int] = {"accepted": len(accepted)}
     for dec in refused:
         counts[dec["code"]] = counts.get(dec["code"], 0) + 1
@@ -2223,7 +2297,8 @@ def accept(out: Path, cfg: Optional[dict] = None, models: Optional[dict] = None,
            "rules": "docs/milestone7.md §7.2, docs/milestone8.md §2",
            "sources": sorted(wanted) if wanted is not None else "all",
            "limits": {"per_type_max": int(acc_cfg["per_type_max"]),
-                      "decor_per_type_max": int(acc_cfg["decor_per_type_max"]), "per_family_max": per_family},
+                      "decor_per_type_max": int(acc_cfg["decor_per_type_max"]), "per_family_max": per_family,
+                      "style_fill": style_fill},
            "counts": counts, "accepted_by_source": dict(sorted(by_source.items())), "accepted": accepted,
            "refused": sorted(refused, key=lambda d: d["uid"])}
     write_json(out / ACCEPTED_NAME, doc)

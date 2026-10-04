@@ -88,6 +88,19 @@ trellis:
 images_per_pair: 2
 seed_base: 0          # image n of a pair: seed_base + sha256("<type>|<family>|<n>") mod 2^31 (stable, order-free)
 
+# Milestone 9 (docs/milestone9.md §2.3): `plan --target N` plans ceil(deficit / target_accept_rate) new candidates per
+# type (0.7: the M8 generated candidates that passed both judges, 35 of 50, before the type and style limits).
+target_accept_rate: 0.7
+# Decor types the generator makes (small tabletop objects; kind decor, the catalogue's decor section).
+decor_types: [vase, bowl, plant_small]
+# TRELLIS.2 settings of the decor items (small objects: the 512 pipeline of the pinned code, `run(pipeline_type=
+# '512')`, checked in trellis2/pipelines/trellis2_image_to_3d.py @ 75fbf01 on 4 Oct 2026; smaller textures and meshes).
+# Furniture keeps the settings above (and its M8 item keys).
+trellis_decor:
+  pipeline_type: "512"
+  decimation_target: 100000
+  texture_size: 1024
+
 # Fixed equipment never generated (docs/milestone8.md §3): stays parametric (or library) as drawn.
 exclude_types: [stair, kitchen_counter, kitchen_island, unknown]
 
@@ -125,36 +138,49 @@ type_words:
   side_table: small round side table
   floor_lamp: floor lamp with a fabric shade
   potted_plant: large indoor plant in a floor pot
+  # Milestone 9 decor types (docs/milestone9.md §3)
+  vase: decorative vase for a table or a sideboard
+  bowl: shallow decorative bowl for a coffee table
+  plant_small: small indoor plant in a pot for a table or a shelf
 
 # Material and form hints per style family (wenart.style.vocabulary.STYLE_FAMILIES).
 family_hints:
   scandinavian:
     furniture: light oak wood, white and soft grey, natural linen upholstery, slim tapered legs, simple clean lines
     fixtures: matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms
+    decor: matte white and pale grey ceramic, light oak, natural linen, simple soft forms
   japandi:
     furniture: light ash wood, black accents, natural linen and paper textures, low profile, calm minimal forms
     fixtures: matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms
+    decor: handmade matte stoneware in stone grey and charcoal, light ash wood, calm minimal forms
   modern minimal:
     furniture: matte white and warm grey surfaces, flush panels, thin black metal details, no ornament
     fixtures: matte white surfaces, flush handleless fronts, thin black fittings, crisp rectangular forms
+    decor: matte white and warm grey ceramic, thin black metal, crisp simple forms, no ornament
   minimal:
     furniture: plain matte surfaces in white, beige and grey, simple geometric forms, hidden handles
     fixtures: plain white ceramic and enamel, hidden fittings, simple geometric forms
+    decor: plain matte ceramic in white, beige and grey, simple geometric forms
   modern:
     furniture: walnut veneer, charcoal fabric, brushed steel details, crisp geometric lines
     fixtures: glossy white ceramic, stainless steel and chrome fittings, crisp geometric lines
+    decor: glossy ceramic and smoked glass, brushed brass and walnut accents, crisp geometric lines
   industrial:
     furniture: black powder-coated steel frame, reclaimed dark wood, cognac leather, exposed bolts
     fixtures: black steel and brushed stainless steel, concrete grey surfaces, exposed black fittings
+    decor: raw concrete, black steel and dark glazed ceramic, rough textures
   mediterranean:
     furniture: whitewashed wood, terracotta and sand tones, woven rattan, soft rounded forms
     fixtures: white glazed ceramic, warm terracotta and sand accents, aged brass fittings, soft rounded forms
+    decor: terracotta and white glazed ceramic, woven rattan, warm sand tones, soft rounded forms
   classic:
     furniture: carved dark walnut wood, tufted cream upholstery, turned legs, polished brass details
     fixtures: white porcelain, polished brass or chrome fittings, moulded classic details
+    decor: white porcelain with gold rims, polished brass, moulded classic details
   rustic:
     furniture: rough-sawn oak with visible grain, wrought iron, natural linen, sturdy chunky forms
     fixtures: cream enamel and stone, aged copper and wrought iron fittings, sturdy simple forms
+    decor: rough stoneware, aged wood and wrought iron, earthy colours, sturdy simple forms
 
 # A record's fixed fields (survey_generated.json; docs/milestone8.md §2, §3).
 record:

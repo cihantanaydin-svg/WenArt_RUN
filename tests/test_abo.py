@@ -46,7 +46,8 @@ def test_config_follows_the_spec():
     assert ds["listings"] == "listings/metadata/listings_{shard}.json.gz" and ds["shards"] == "0123456789abcdef"
     assert ds["licence"] == C.CC_BY and ds["credit_data"] == "Amazon.com" and ds["front_axis"] == "-Y"
     assert "Matthieu Guillaumin" in ds["credit_dataset"] and "Jitendra Malik" in ds["credit_dataset"]
-    assert CFG["survey"]["per_type_limit"] == 24 and CFG["survey"]["max_glb_mb"] == 60
+    assert CFG["survey"]["per_type_limit"] == 40 and CFG["survey"]["max_glb_mb"] == 60   # docs/milestone9.md §2.1
+    assert CFG["survey"]["max_downloads_per_type"] == 60
     assert len(A.metadata_names(CFG)) == 18                         # csv, README, 16 listings shards
     table, _ = OV.library_size_table(OCFG)
     heights = OV.heights_of(OCFG)
@@ -89,7 +90,14 @@ def mapped(ptype, name, dims):
     ("CABINET", "Media Cabinet", [1.6, 0.45, 0.6], "tv_unit"),
     ("CABINET", "File Cabinet", [0.55, 0.39, 0.6], None),
     ("LAMP", "Swing Arm Floor Lamp", [0.36, 0.36, 1.47], "floor_lamp"),
-    ("LAMP", "Faux Wood Table Lamp", [0.21, 0.21, 0.46], None),                  # extent_z (height) < 1.2 m
+    ("LAMP", "Faux Wood Table Lamp", [0.21, 0.21, 0.46], "table_lamp"),          # Milestone 9: height <= 0.95 m
+    ("LAMP", "Arc Reading Lamp", [0.30, 0.30, 1.05], None),                       # between table and floor lamp
+    ("LAMP", "Clamp Desk Lamp", [0.15, 0.15, 0.45], None),                        # not_words: clamp
+    ("VASE", "Modern Ceramic Flower Vase - 7 Inch, Teal", [0.12, 0.12, 0.18], "vase"),
+    ("VASE", "Triangular Wall Mount Vase, Grey", [0.10, 0.08, 0.22], None),      # not_words: wall mount
+    ("PLANTER", "Rustic Stoneware Flower Vase, 9 Inch", [0.17, 0.17, 0.24], "vase"),   # before the plant rules
+    ("HOME_MIRROR", "Rectangular Wall Mirror 24 x 36 - Black", [0.61, 0.04, 0.91], "mirror"),
+    ("HOME_MIRROR", "Full Length Floor Mirror, Gold", [0.50, 0.05, 1.60], None),  # not_words: floor, full length
     ("BED", "Tisbury Queen Bed", [1.71, 2.37, 1.44], "bed_double"),
     ("BED_FRAME", "Heavy Duty Bed Frame (Twin)", [1.02, 1.95, 0.66], "bed_single"),  # width <= 1.275 m
     ("BED", "Metal Twin Loft Bed", [1.39, 1.97, 1.29], None),                    # not_words
@@ -117,7 +125,7 @@ def mapped(ptype, name, dims):
     ("PILLOW", "Outdoor Patio Seat Cushion", [0.5, 0.5, 0.1], None),
     ("PLANTER", "Stoneware Planter", [0.22, 0.22, 0.2], "plant"),
     ("HOME", "Botanical Print in Gold Frame Wall Art", [0.45, 0.02, 0.55], "wall_art"),
-    ("HOME", "Iron Decorative Hanging Mirror Wall Art", [0.77, 0.03, 0.98], None),
+    ("HOME", "Iron Decorative Hanging Mirror Wall Art", [0.77, 0.03, 0.98], "mirror"),   # Milestone 9 mirror_named
     ("OTTOMAN", "Round Ottoman", [1.0, 1.0, 0.45], None),
 ])
 def test_mapping_table(ptype, name, dims, expect):
@@ -153,7 +161,8 @@ def test_survey_counts_dedup_and_refusals(surveyed):
     assert all(len(f["sha256"]) == 64 for f in doc["metadata"]["files"].values())
     # 38 listings, 37 models: one model (a mouse pad) is listed twice and counted once.
     assert doc["listings"] == {"listings_with_model": 38, "models": 37, "listed_twice": 1, "no_english_name": 1}
-    assert doc["unmapped_product_types"] == {"BED": 1, "CHAIR": 1, "LAMP": 1, "MOUSE_PAD": 1, "PILLOW": 1, "SHELF": 1}
+    # Milestone 9: the table lamp of the fixture maps to table_lamp (it was unmapped in M8).
+    assert doc["unmapped_product_types"] == {"BED": 1, "CHAIR": 1, "MOUSE_PAD": 1, "PILLOW": 1, "SHELF": 1}
     refused = {r["uid"]: r["code"] for r in doc["refused"]}
     assert refused == {"abo_B075X61WKJ": "no_model_row",              # the ottoman: its csv row is left out
                        "abo_B07BWK7JWZ": "size_range",                # an L-shape sectional, 2.98 x 1.94 m
@@ -161,11 +170,14 @@ def test_survey_counts_dedup_and_refusals(surveyed):
     counts = doc["counts"]
     assert counts["sofa"] == {"mapped": 3, "in_size": 2, "tried": 0, "candidates": 2, "not_selected": 0}
     assert counts["bed_double"]["candidates"] == 4 and counts["bed_single"]["candidates"] == 1
-    assert counts["rug"]["candidates"] == 4 and len(doc["candidates"]) == 28
+    assert counts["rug"]["candidates"] == 4 and len(doc["candidates"]) == 29
+    assert counts["table_lamp"]["candidates"] == 1
     types = {c["group"] for c in doc["candidates"]}
     assert types == {"armchair", "bed_double", "bed_single", "bookshelf", "chair", "cushion", "desk", "dresser",
                      "floor_lamp", "nightstand", "plant", "rug", "side_table", "sofa", "table_coffee",
-                     "table_dining", "tv_unit", "wall_art", "wardrobe"}
+                     "table_dining", "table_lamp", "tv_unit", "wall_art", "wardrobe"}
+    lamp = next(c for c in doc["candidates"] if c["group"] == "table_lamp")
+    assert lamp["kind"] == "decor" and lamp["decor_type"] == "table_lamp"
 
 
 def test_survey_records_have_the_shared_shape(surveyed, tmp_path):
@@ -287,7 +299,7 @@ def test_metadata_is_downloaded_into_the_cache_once(tmp_path):
         return dest
     meta = A.Metadata(CFG, cache=tmp_path / "cache", fetcher=fetcher)
     doc = A.survey(meta, tmp_path / "lib", CFG, OCFG, download_glbs=False, log=quiet)
-    assert len(doc["candidates"]) == 28 and len(got) == 18
+    assert len(doc["candidates"]) == 29 and len(got) == 18
     assert f"{CFG['dataset']['base_url']}/3dmodels/metadata/3dmodels.csv.gz" in got
     assert (tmp_path / "cache" / "metadata" / "listings_f.json.gz").is_file()
     A.survey(A.Metadata(CFG, cache=tmp_path / "cache", fetcher=fetcher), tmp_path / "lib", CFG, OCFG,
@@ -305,7 +317,7 @@ def test_no_download_needs_the_metadata(tmp_path, capsys):
     out = tmp_path / "lib2"
     assert A.main(["survey", "--out", str(out), "--metadata", str(FIXTURE), "--no-download"]) == A.EXIT_OK
     doc = json.loads((out / "survey_abo.json").read_text())
-    assert len(doc["candidates"]) == 28 and not any("glb" in c for c in doc["candidates"])
+    assert len(doc["candidates"]) == 29 and not any("glb" in c for c in doc["candidates"])
 
 
 def test_a_broken_csv_row_and_a_readme_without_the_licence_are_recorded(tmp_path):

@@ -52,6 +52,7 @@ import argparse
 import gc
 import hashlib
 import json
+import math
 import os
 import sys
 import tempfile
@@ -77,7 +78,7 @@ EXIT_OK, EXIT_FAIL, EXIT_USAGE, EXIT_DEADLINE = 0, 1, 2, 3
 SURVEY_FIELDS = ("uid", "group", "types", "categories", "title", "author", "source_url", "licence", "licence_raw",
                  "face_count", "glb_size_meta", "texture_count", "likes", "views", "prefer_hit", "object_path", "rank",
                  "glb", "glb_sha256", "glb_bytes", "glb_info")
-NEW_FIELDS = ("source", "licence_flag", "units_known", "kind", "style_hint", "generated", "generation")
+NEW_FIELDS = ("source", "licence_flag", "units_known", "kind", "decor_type", "style_hint", "generated", "generation")
 GENERATED_KEYS = ("prompt", "image_sha256", "model", "revision", "seed")
 ALLOC_CONF = "expandable_segments:True"
 TRELLIS_ENV_NAME = "trellis_env.json"  # written into venv-trellis by scripts/pod_setup_trellis.sh
@@ -111,6 +112,16 @@ def plan_types(cfg: dict) -> list[str]:
     from wenart.furniture import catalog as C
     excluded = set(cfg.get("exclude_types") or ())
     return [t for t in C.FURNITURE_TYPES if t not in excluded]
+
+
+def decor_types(cfg: dict) -> list[str]:
+    """The decor types the generator makes (Milestone 9, ``generate.yaml decor_types``: vase, bowl, plant_small)."""
+    return [str(t) for t in (cfg.get("decor_types") or ())]
+
+
+def target_types(cfg: dict) -> list[str]:
+    """The types of a target plan (docs/milestone9.md §2.3): every generated furniture type, then the decor types."""
+    return plan_types(cfg) + [t for t in decor_types(cfg) if t not in plan_types(cfg)]
 
 
 def family_slug(family: str) -> str:
@@ -148,8 +159,8 @@ def parse_families(values) -> list[str]:
     return fams
 
 
-def parse_types(values, cfg: dict) -> list[str]:
-    allowed = plan_types(cfg)
+def parse_types(values, cfg: dict, target: bool = False) -> list[str]:
+    allowed = target_types(cfg) if target else plan_types(cfg)
     types = split_list(values)
     if not types:
         return allowed
@@ -170,6 +181,8 @@ def prompt_for(ftype: str, family: str, cfg: dict) -> str:
     """The fixed prompt template filled with the type words and the family's hints (furniture or fixtures)."""
     words = cfg["type_words"][ftype]
     group = "fixtures" if ftype in (cfg.get("fixture_types") or ()) else "furniture"
+    if ftype in decor_types(cfg):
+        group = "decor"                                       # Milestone 9: the family's decor hints
     hints = cfg["family_hints"][family][group]
     text = cfg["prompt_template"].format(family=family, type_words=words, hints=hints)
     return " ".join(text.split())
@@ -293,6 +306,164 @@ def make_plan(catalogs: list[Path], families: list[str], out: Path, cfg: Optiona
 
 
 # --------------------------------------------------------------------------
+# Target plan (Milestone 9, docs/milestone9.md §2.3)
+# --------------------------------------------------------------------------
+
+def record_type(rec: dict) -> Optional[str]:
+    """The type a record counts for: ``decor_type`` of a decor record, else ``type``."""
+    if (rec.get("kind") or "furniture") == "decor":
+        return rec.get("decor_type") or (str(rec.get("type") or "")[len("decor_"):] or None)
+    return rec.get("type")
+
+
+def usable_for_target(rec: dict, fmt: str) -> tuple[bool, str]:
+    """``usable`` for furniture and decor alike: accepted, not parametric, with styles, a bed with a mattress or a
+    frame."""
+    from wenart.furniture import catalog as C
+    if fmt == "accepted" and rec.get("accepted") is not True:
+        return False, "not accepted"
+    if rec.get("parametric"):
+        return False, "parametric entry"
+    styles = rec.get("styles")
+    if not isinstance(styles, list) or not styles:
+        return False, "no styles"
+    if rec.get("type") in C.BED_TYPES and not (rec.get("has_mattress") is True or rec.get("bed_frame") is True):
+        return False, "bed without a mattress and not a bed frame"
+    return True, ""
+
+
+def existing_items(out: Path) -> dict[str, dict[int, dict]]:
+    """``{pair: {index: {type, family, prompt, seed}}}`` of every image an earlier run rendered (the image JSONs in
+    ``<out>/generate/<pair>/``): a target plan keeps them (their models stay in the survey) and numbers its new
+    images after them."""
+    found: dict[str, dict[int, dict]] = {}
+    gen = Path(out) / GEN_DIR
+    if not gen.is_dir():
+        return found
+    for folder in sorted(p for p in gen.iterdir() if p.is_dir()):
+        for f in sorted(folder.glob("img_*.json")):
+            meta = read_json(f)
+            if not isinstance(meta, dict) or meta.get("index") is None or not meta.get("type"):
+                continue
+            found.setdefault(folder.name, {})[int(meta["index"])] = {
+                "type": meta["type"], "family": meta.get("family"), "prompt": meta.get("prompt"),
+                "seed": meta.get("seed")}
+    return found
+
+
+def make_target_plan(catalogs: list[Path], families: list[str], out: Path, cfg: Optional[dict] = None,
+                     target: int = 20, types: Optional[list[str]] = None, rate: Optional[float] = None,
+                     log: Callable = log_print) -> dict:
+    """The new candidates that bring every type to ``target`` accepted models -> ``<out>/generate/plan.json``
+    (``mode: target``; docs/milestone9.md §2.3).
+
+    Per type: ``deficit = target - accepted`` (usable records of the catalogues, every source), ``ceil(deficit /
+    rate)`` new candidates (``rate``: ``generate.yaml target_accept_rate``, 0.7), round robin over ``families``
+    ordered by the type's fitting models (fewest first; a ``neutral`` model fits every family), each a new image
+    index of its (type, family) pair after the indexes earlier runs used. ``order``: round by round (the n-th new
+    candidate of every type; types with the larger deficit first), then the earlier runs' items (done: kept in the
+    survey, never redone)."""
+    from wenart.furniture import catalog as C
+    cfg = cfg or load_config()
+    out = Path(out)
+    target = int(target)
+    if target < 1:
+        raise UsageError("--target must be at least 1")
+    rate = float(rate or cfg.get("target_accept_rate") or 0.7)
+    if not 0.0 < rate <= 1.0:
+        raise UsageError("the acceptance rate must be in (0, 1]")
+    types = list(types) if types else target_types(cfg)
+    sources, models = [], {t: [] for t in types}
+    for path in catalogs:
+        fmt, records = read_catalog(path)
+        info = {"path": str(path), "format": fmt, "sha256": sha256_file(path), "records": len(records), "usable": 0,
+                "skipped": {}}
+        for rec in records:
+            ftype = record_type(rec)
+            if ftype not in models:
+                continue
+            ok, reason = usable_for_target(rec, fmt)
+            if not ok:
+                info["skipped"][reason] = info["skipped"].get(reason, 0) + 1
+                continue
+            info["usable"] += 1
+            models[ftype].append((record_id(rec), [str(s) for s in rec["styles"]]))
+        sources.append(info)
+    earlier = existing_items(out)
+    used = {pair: max(idx) for pair, idx in earlier.items() if idx}
+    per_type, deficits = {}, {}
+    for ftype in types:
+        have = models[ftype]
+        deficit = target - len(have)
+        fitting = {f: sum(1 for _m, st in have if f in st or C.NEUTRAL in st) for f in families}
+        entry = {"type": ftype, "accepted": len(have), "deficit": max(0, deficit), "new": 0,
+                 "fitting_by_family": fitting}
+        if deficit > 0:
+            n_new = int(math.ceil(deficit / rate))
+            order = sorted(families, key=lambda f: (fitting[f], families.index(f)))
+            entry["new"] = n_new
+            entry["families"] = [order[i % len(order)] for i in range(n_new)]
+            deficits[ftype] = deficit
+        per_type[ftype] = entry
+    pairs: dict[str, dict] = {}
+
+    def pair_entry(ftype: str, family: str) -> dict:
+        pid = pair_id(ftype, family)
+        if pid not in pairs:
+            pairs[pid] = {"pair": pid, "type": ftype, "family": family, "prompt": prompt_for(ftype, family, cfg),
+                          "items": [], "new": 0, "earlier": 0}
+        return pairs[pid]
+
+    order, new_by_type = [], {t: [] for t in deficits}
+    for ftype in sorted(deficits, key=lambda t: (-deficits[t], types.index(t))):
+        for family in per_type[ftype]["families"]:
+            p = pair_entry(ftype, family)
+            pid = p["pair"]
+            used[pid] = used.get(pid, 0) + 1
+            index = used[pid]
+            p["items"].append({"index": index, "seed": seed_for(ftype, family, index, cfg.get("seed_base", 0)),
+                               "prompt": p["prompt"]})
+            p["new"] += 1
+            new_by_type[ftype].append([pid, index])
+    for rnd in range(max((len(v) for v in new_by_type.values()), default=0)):
+        for ftype in sorted(deficits, key=lambda t: (-deficits[t], types.index(t))):
+            if rnd < len(new_by_type[ftype]):
+                order.append(new_by_type[ftype][rnd])
+    known = set(known_families())
+    for pid, idx in sorted(earlier.items()):
+        for index, meta in sorted(idx.items()):
+            ftype, family = meta["type"], meta.get("family")
+            if ftype not in (cfg.get("type_words") or {}) or family not in known or ftype not in target_types(cfg):
+                continue
+            p = pair_entry(ftype, family)
+            if any(int(it["index"]) == index for it in p["items"]):
+                continue
+            p["items"].append({"index": index, "seed": meta.get("seed"), "prompt": meta.get("prompt") or p["prompt"]})
+            p["earlier"] += 1
+            order.append([pid, index])
+    for p in pairs.values():
+        p["items"].sort(key=lambda it: int(it["index"]))
+        p["seeds"] = [it["seed"] for it in p["items"]]
+        p["reason"] = (f"{per_type[p['type']]['accepted']} accepted {p['type']} model(s), target {target}"
+                       if p["type"] in per_type else "earlier generated images")
+    n_new = sum(p["new"] for p in pairs.values())
+    doc = {
+        "schema_version": SCHEMA_VERSION, "kind": "generate_plan", "mode": "target", "generated_utc": now_utc(),
+        "rules": "docs/milestone9.md §2.3", "families": list(families), "types": types, "target": target,
+        "accept_rate": rate, "excluded_types": list(cfg.get("exclude_types") or []), "config_sha256": config_sha256(cfg),
+        "catalogs": sources, "per_type": per_type,
+        "counts": {"pairs": len(pairs), "new_items": n_new, "earlier_items": sum(p["earlier"] for p in pairs.values()),
+                   "types_short": len(deficits), "total_deficit": sum(deficits.values())},
+        "pairs": [pairs[k] for k in sorted(pairs)], "order": order,
+    }
+    path = write_json(out / GEN_DIR / PLAN_NAME, doc)
+    log(f"generate plan (target {target}): {len(deficits)} of {len(types)} types short by {sum(deficits.values())} "
+        f"model(s) in all; {n_new} new candidates at an acceptance rate of {rate:g}, "
+        f"{doc['counts']['earlier_items']} earlier items kept -> {path}")
+    return doc
+
+
+# --------------------------------------------------------------------------
 # Items, keys and records
 # --------------------------------------------------------------------------
 
@@ -304,7 +475,11 @@ def read_plan(path: Path) -> dict:
 
 
 def plan_items(plan: dict, cfg: dict, images_per_pair: Optional[int] = None) -> list[dict]:
-    """Every (pair, image index) of the plan, ordered index-major (image 1 of every pair first)."""
+    """Every (pair, image index) of the plan, ordered index-major (image 1 of every pair first). A target plan
+    (Milestone 9, ``mode: target``) lists its items per pair (``items``: index, seed, prompt) and their order
+    (``order``: [pair, index] pairs, the new items round by round, then the items of earlier runs)."""
+    if plan.get("mode") == "target":
+        return target_plan_items(plan, cfg)
     n_images = int(images_per_pair or plan.get("images_per_pair") or cfg.get("images_per_pair") or 2)
     if n_images < 1:
         raise UsageError("--images-per-pair must be at least 1")
@@ -320,6 +495,32 @@ def plan_items(plan: dict, cfg: dict, images_per_pair: Optional[int] = None) -> 
                                                                               cfg.get("seed_base", 0))
             items.append({"pair": p.get("pair") or pair_id(ftype, family), "type": ftype, "family": family,
                           "index": index, "prompt": p.get("prompt") or prompt_for(ftype, family, cfg), "seed": seed})
+    return items
+
+
+def target_plan_items(plan: dict, cfg: dict) -> list[dict]:
+    """The items of a target plan in its ``order`` (every listed item once; unknown types or families: UsageError)."""
+    known = set(known_families())
+    allowed = set(target_types(cfg))
+    by_key: dict[tuple, dict] = {}
+    for p in plan["pairs"]:
+        ftype, family = p.get("type"), p.get("family")
+        if ftype not in allowed or ftype not in (cfg.get("type_words") or {}) or family not in known:
+            raise UsageError(f"plan pair {p.get('pair')!r}: unknown type {ftype!r} or family {family!r}")
+        pair = p.get("pair") or pair_id(ftype, family)
+        for it in p.get("items") or []:
+            index = int(it["index"])
+            by_key[(pair, index)] = {"pair": pair, "type": ftype, "family": family, "index": index,
+                                     "prompt": it.get("prompt") or prompt_for(ftype, family, cfg),
+                                     "seed": int(it["seed"]) if it.get("seed") is not None else
+                                     seed_for(ftype, family, index, cfg.get("seed_base", 0))}
+    items, seen = [], set()
+    for pair, index in plan.get("order") or sorted(by_key):
+        key = (str(pair), int(index))
+        if key in by_key and key not in seen:
+            items.append(by_key[key])
+            seen.add(key)
+    items += [by_key[k] for k in sorted(by_key) if k not in seen]
     return items
 
 
@@ -340,16 +541,21 @@ def image_key(item: dict, cfg: dict) -> str:
                              "model": model_ref(cfg, "zimage"), "settings": cfg["image"]})
 
 
-def mesh_settings(cfg: dict) -> dict:
-    """The TRELLIS.2 settings that change the output (not the memory mode)."""
-    return {k: v for k, v in cfg["trellis"].items() if k != "resident_min_vram_gib"}
+def mesh_settings(cfg: dict, item: Optional[dict] = None) -> dict:
+    """The TRELLIS.2 settings that change the output (not the memory mode); a decor item (Milestone 9) takes the
+    ``trellis_decor`` overrides (small objects: the 512 pipeline, smaller textures). Furniture keeps the M8 settings
+    (and so its M8 keys)."""
+    out = {k: v for k, v in cfg["trellis"].items() if k != "resident_min_vram_gib"}
+    if item is not None and item.get("type") in decor_types(cfg):
+        out.update(cfg.get("trellis_decor") or {})
+    return out
 
 
 def mesh_key(item: dict, image_sha256: str, cfg: dict) -> str:
     return canonical_sha256({
         "code": CODE_VERSION, "step": "mesh", "image_sha256": image_sha256, "seed": item["seed"],
         "models": {k: model_ref(cfg, k) for k in ("trellis", "ss_decoder", "dinov3", "rembg")},
-        "trellis_code": cfg["trellis_code"]["commit"], "settings": mesh_settings(cfg)})
+        "trellis_code": cfg["trellis_code"]["commit"], "settings": mesh_settings(cfg, item)})
 
 
 def image_state(out: Path, item: dict, cfg: dict) -> Optional[str]:
@@ -413,14 +619,16 @@ def survey_record(out: Path, item: dict, meta: dict, cfg: dict, rank: int) -> di
         "object_path": p["glb"].relative_to(Path(out)).as_posix(), "rank": rank,
         "glb": str(p["glb"].resolve()), "glb_sha256": meta["glb_sha256"], "glb_bytes": int(meta["glb_bytes"]),
         "glb_info": info,
-        "source": SOURCE, "licence_flag": None, "units_known": False, "kind": "furniture",
+        "source": SOURCE, "licence_flag": None, "units_known": False,
+        "kind": "decor" if item["type"] in decor_types(cfg) else "furniture",
+        "decor_type": item["type"] if item["type"] in decor_types(cfg) else None,
         "style_hint": item["family"],
         "generated": {"prompt": item["prompt"], "image_sha256": meta["image_sha256"], "model": tr["repo"],
                       "revision": tr["revision"], "seed": item["seed"]},
         "generation": {"pair": item["pair"], "index": item["index"],
                        "image": p["png"].relative_to(Path(out)).as_posix(), "image_model": zi["repo"],
                        "image_revision": zi["revision"], "trellis_code": cfg["trellis_code"]["commit"],
-                       "settings": mesh_settings(cfg), "image_settings": cfg["image"],
+                       "settings": mesh_settings(cfg, item), "image_settings": cfg["image"],
                        "seconds": meta.get("seconds"), "versions": meta.get("versions")},
     }
 
@@ -433,11 +641,13 @@ def build_survey(out: Path, plan: dict, cfg: dict, images_per_pair: Optional[int
     family_order = {f: i for i, f in enumerate(plan.get("families") or known_families())}
     done, refused = [], []
     counts: dict[str, dict] = {}
+    seen_pairs: set = set()
     for item in items:
         c = counts.setdefault(item["type"], {"pairs": 0, "items": 0, "images": 0, "models": 0, "failed": 0,
                                              "not_generated": 0})
         c["items"] += 1
-        if item["index"] == 1:
+        if item["pair"] not in seen_pairs:
+            seen_pairs.add(item["pair"])
             c["pairs"] += 1
         sha = image_state(out, item, cfg)
         base = {"pair": item["pair"], "type": item["type"], "family": item["family"], "index": item["index"]}
@@ -467,7 +677,8 @@ def build_survey(out: Path, plan: dict, cfg: dict, images_per_pair: Optional[int
     models = {k: {f: m[f] for f in ("repo", "revision", "licence") if f in m} for k, m in cfg["models"].items()}
     doc = {
         "schema_version": SCHEMA_VERSION, "kind": "generated_survey", "generated_utc": now_utc(), "source": SOURCE,
-        "rules": "docs/milestone8.md §3", "models": models, "trellis_code": cfg["trellis_code"],
+        "rules": "docs/milestone8.md §3" + (", docs/milestone9.md §2.3" if plan.get("mode") == "target" else ""),
+        "models": models, "trellis_code": cfg["trellis_code"],
         "plan": {"path": str(plan_path) if plan_path else None,
                  "sha256": sha256_file(plan_path) if plan_path and Path(plan_path).is_file() else None,
                  "pairs": len(plan["pairs"]), "families": plan.get("families")},
@@ -646,11 +857,14 @@ def _one_mesh(out: Path, item: dict, image_sha: str, cfg: dict, backend, timer: 
             "family": item["family"], "index": item["index"], "seed": item["seed"], "prompt": item["prompt"],
             "image_sha256": image_sha, "models": {k: model_ref(cfg, k) for k in ("trellis", "ss_decoder", "dinov3",
                                                                                  "rembg")},
-            "trellis_code": cfg["trellis_code"]["commit"], "settings": mesh_settings(cfg),
+            "trellis_code": cfg["trellis_code"]["commit"], "settings": mesh_settings(cfg, item),
             "generated_utc": now_utc()}
     t0 = clock()
     try:
-        meta = backend.image_to_glb(p["png"], tmp, item["seed"]) or {}
+        extra = {}
+        if mesh_settings(cfg, item) != mesh_settings(cfg):
+            extra["settings"] = mesh_settings(cfg, item)          # Milestone 9 decor: the trellis_decor overrides
+        meta = backend.image_to_glb(p["png"], tmp, item["seed"], **extra) or {}
         info = glb_info(tmp)
         faces = glb_face_count(tmp)
         if faces < 1:
@@ -884,12 +1098,12 @@ class TrellisImageTo3D:
         pipe.cuda()
         self.pipe = pipe
 
-    def image_to_glb(self, image_path: Path, glb_path: Path, seed: int) -> dict:
+    def image_to_glb(self, image_path: Path, glb_path: Path, seed: int, settings: Optional[dict] = None) -> dict:
         import o_voxel
         import torch
         from PIL import Image
 
-        t = self.cfg["trellis"]
+        t = dict(self.cfg["trellis"], **(settings or {}))
         image = Image.open(image_path).convert("RGB")      # no alpha: TRELLIS.2 runs its background remover
         torch.cuda.reset_peak_memory_stats()
         t0 = time.time()
@@ -947,6 +1161,10 @@ def parse_args(argv) -> argparse.Namespace:
     p.add_argument("--types", default=None, help="comma list of types (default: every movable type)")
     p.add_argument("--images-per-pair", type=int, default=None)
     p.add_argument("--no-polyhaven", action="store_true", help="leave the Poly Haven catalog.json out")
+    p.add_argument("--target", type=int, default=None, help="Milestone 9: plan the candidates that bring every type "
+                   "(furniture and the generated decor types) to this many accepted models (default: the M8 gap plan)")
+    p.add_argument("--rate", type=float, default=None, help="expected share of generated candidates the judges "
+                   "accept (target plans; default generate.yaml target_accept_rate)")
     r = sub.add_parser("run", help="images (Z-Image-Turbo) and models (TRELLIS.2) of a plan (GPU)")
     r.add_argument("--out", required=True)
     r.add_argument("--plan", required=True)
@@ -971,6 +1189,10 @@ def main(argv=None, image_backend=None, mesh_backend=None) -> int:
             catalogs = [Path(c) for c in split_list(args.catalog)]
             if not args.no_polyhaven and POLYHAVEN_CATALOG.resolve() not in {c.resolve() for c in catalogs}:
                 catalogs.append(POLYHAVEN_CATALOG)
+            if args.target is not None:
+                make_target_plan(catalogs, parse_families(args.families), Path(args.out), cfg, target=args.target,
+                                 types=parse_types(args.types, cfg, target=True), rate=args.rate)
+                return EXIT_OK
             make_plan(catalogs, parse_families(args.families), Path(args.out), cfg,
                       types=parse_types(args.types, cfg), images_per_pair=args.images_per_pair)
             return EXIT_OK

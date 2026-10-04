@@ -37,6 +37,12 @@
 #                   the accepted GLBs live in its container-disk cache:
 #                   PREP_ONLY=survey,session_qwen,session_glm,library; with ABO models add abo_survey too, unless an
 #                   earlier write-catalog put them into /workspace/assets/models/<source>/)
+#   WENART_GENERATE_TARGET  Milestone 9 (docs/milestone9.md §2.3, §6): generate up to N accepted models per type
+#                   (accept over every source, `generate plan --target N --families all`); unset: the M8 gap plan.
+#                   M9 L1 = PREP_ONLY=abo_survey,survey,thumbnails,judge_requests,session_qwen,session_glm,library,
+#                   copy,tests; L2 = PREP_ONLY=trellis_setup,generate,thumbnails,judge_requests,session_qwen,
+#                   session_glm,library,copy,tests with WENART_GENERATE_TARGET=20 (the real GLBs come from the assets
+#                   copy L1's write-catalog made)
 #   WENART_ABO_CACHE  ABO metadata and GLBs (default $WENART_FAST/abo, container disk)
 #   WENART_TRELLIS_PY venv-trellis python (default $WENART_FAST/venv-trellis/bin/python, scripts/pod_setup_trellis.sh)
 #   CHECK_MODELS    check.yaml model keys of the setup (default "qwen glm")

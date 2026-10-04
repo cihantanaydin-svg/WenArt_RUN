@@ -121,8 +121,14 @@ def test_config_tables_follow_the_spec():
     assert pre["per_type_limit"] == 24                      # docs/milestone8.md §2 (M7: 8)
     assert CFG["units"] == [1.0, 0.01, 0.0254, 0.001]
     assert CFG["dataset"]["revision"] == "21e4e142159e2153706c23a3a02e55cec5591cea"
-    assert CFG["accept"] == {"min_quality": 4, "per_type_max": 12, "decor_per_type_max": 16, "per_family_max": 3,
-                             "source_order": ["abo", "polyhaven", "objaverse", "generated"]}
+    # docs/milestone9.md §1: 20 per type (decor 20), 5 per style family in the first pass, then the fill pass.
+    assert CFG["accept"] == {"min_quality": 4, "per_type_max": 20, "decor_per_type_max": 20, "per_family_max": 5,
+                             "style_fill": True, "source_order": ["abo", "polyhaven", "objaverse", "generated"]}
+    # docs/milestone9.md §2.2: the fixture categories take flat-coloured models, a wider face count, 40 candidates.
+    assert set(pre["overrides"]) == {"toilet", "sink", "bathtub", "refrigerator", "stove"}
+    for spec in pre["overrides"].values():
+        assert spec == {"face_count": [800, 400000], "allow_flat_colours": True, "per_type_limit": 40,
+                        "max_downloads_per_type": 80}
     assert CFG["survey_files"] == OV.SURVEY_FILES and OV.CATALOG_NAME == "catalog_library.json"
     assert CFG["bed_frame"] == {"ray_offset": 0.2, "min_hits": 3, "deck_range_m": [0.08, 0.90]}
     table, _tol = OV.load_size_table()
@@ -133,12 +139,14 @@ def test_config_tables_follow_the_spec():
         assert name not in mapped
     frontless = {t for t, spec in CFG["types"].items() if spec["front"] == "none"}
     assert frontless == {"table_dining", "table_coffee", "floor_lamp", "potted_plant", "side_table", "rug",
-                         "cushion", "plant", "shower"}       # shower: added after pod L2 (generated gaps)
+                         "cushion", "plant", "shower",       # shower: added after pod L2 (generated gaps)
+                         "vase", "bowl", "plant_small", "table_lamp"}   # Milestone 9 tabletop decor
     # Decor (docs/milestone8.md §4): a size range, a height range, a question each; wall art only by a documented front.
     full, _ = OV.library_size_table(CFG)
     for d in C.DECOR_TYPES:
         assert d in OV.DECOR_TYPES and d in CFG["types"] and d in full and d in OV.DECOR_WORDS
     assert CFG["types"]["wall_art"]["front"] == OV.DOCUMENTED_RULE
+    assert CFG["types"]["mirror"]["front"] == OV.DOCUMENTED_RULE     # Milestone 9: the mirror side (ABO glTF +Z)
     assert OV.geometric_front({}, OV.DOCUMENTED_RULE, CFG["front_rules"])[0] is None
     for t in ("side_table", "tv_unit"):                             # the ABO-only furniture types
         assert t in CFG["types"] and t in table and t in OV.TYPE_WORDS
@@ -333,15 +341,79 @@ def test_survey_lamp_ranks_floor_lamps_first(tmp_path):
 
 
 def test_survey_tries_the_next_rank_when_a_download_fails_the_file_checks(tmp_path):
+    # A furniture category (M8 rules; the fixture categories take flat colours since Milestone 9).
     m = Mirror(tmp_path / "mirror")
-    plain = [m.add("toilet", likes=100 + n, textured=False) for n in range(3)]
-    good = [m.add("toilet", likes=n) for n in range(25)]
+    plain = [m.add("sofa", likes=100 + n, textured=False) for n in range(3)]
+    good = [m.add("sofa", likes=n) for n in range(25)]
+    hub = m.write()
+    doc = OV.survey(hub, tmp_path / "lib", CFG, log=quiet)
+    chosen = [c["uid"] for c in doc["candidates"] if c["group"] == "sofa"]
+    assert len(chosen) == 24 and not set(chosen) & set(plain)
+    assert doc["counts"]["sofa"]["tried"] == 27 and doc["counts"]["sofa"]["not_selected"] == 1
+    assert sorted(good, reverse=True)[:24] == chosen
+
+
+def test_fixture_categories_take_flat_colours_a_wider_face_count_and_40_candidates(tmp_path):
+    """docs/milestone9.md §2.2: toilet, sink, bathtub, refrigerator, stove: a model without textures but with
+    material colours is a candidate (glb_info flat_colours), faces 800-400k, up to 40 candidates; a sofa keeps the
+    M8 rules (untextured refused, faces 2k-150k)."""
+    m = Mirror(tmp_path / "mirror")
+    flat = [m.add("toilet", likes=200 + n, textured=False) for n in range(3)]
+    low = m.add("toilet", likes=150, faces=1000)                     # inside 800-400k, outside 2k-150k
+    high = m.add("toilet", likes=140, faces=350000)
+    tiny = m.add("toilet", likes=130, faces=500)                     # still refused
+    rest = [m.add("toilet", likes=n) for n in range(45)]
+    sofa_low = m.add("sofa", faces=1000)
+    sofa_flat = m.add("sofa", textured=False)
     hub = m.write()
     doc = OV.survey(hub, tmp_path / "lib", CFG, log=quiet)
     chosen = [c["uid"] for c in doc["candidates"] if c["group"] == "toilet"]
-    assert len(chosen) == 24 and not set(chosen) & set(plain)
-    assert doc["counts"]["toilet"]["tried"] == 27 and doc["counts"]["toilet"]["not_selected"] == 1
-    assert sorted(good, reverse=True)[:24] == chosen
+    assert len(chosen) == 40
+    assert set(flat) | {low, high} <= set(chosen) and tiny not in chosen
+    assert chosen[:5] == list(reversed(flat)) + [low, high]          # rank order: likes
+    by_uid = {c["uid"]: c for c in doc["candidates"]}
+    assert all(by_uid[u]["glb_info"]["flat_colours"] is True for u in flat)
+    assert "flat_colours" not in by_uid[rest[-1]]["glb_info"]
+    codes = {r["uid"]: r["code"] for r in doc["refused"]}
+    assert codes[tiny] == "face_count" and codes[sofa_low] == "face_count" and codes[sofa_flat] == "untextured"
+    assert len([u for u in rest if u in chosen]) == 35
+
+
+def test_fixture_flat_colours_need_a_material(tmp_path):
+    m = Mirror(tmp_path / "mirror")
+    uid = m.add("toilet", textured=False)
+    hub = m.write()
+    glb = hub.path(m.paths[uid])
+    doc = OV.glb_json(glb)
+    doc.pop("materials")
+    for mesh in doc["meshes"]:
+        for prim in mesh["primitives"]:
+            prim.pop("material", None)
+    js = json.dumps(doc).encode("utf-8")
+    js += b" " * (-len(js) % 4)
+    data = struct.pack("<9f", 0, 0, 0, 1, 0, 0, 0, 1, 0)
+    total = 12 + 8 + len(js) + 8 + len(data)
+    Path(glb).write_bytes(struct.pack("<III", 0x46546C67, 2, total) + struct.pack("<II", len(js), 0x4E4F534A) + js
+                          + struct.pack("<II", len(data), 0x004E4942) + data)
+    doc = OV.survey(hub, tmp_path / "lib", CFG, log=quiet)
+    assert not doc["candidates"] and doc["refused"][0]["code"] == "untextured"
+
+
+def test_survey_keeps_the_candidates_of_the_survey_before_first(tmp_path):
+    """Milestone 9: a wider prefilter must never push out a model judged before: the candidates of the earlier
+    survey.json in the out folder come first in their type, the rest follow in rank order."""
+    m = Mirror(tmp_path / "mirror")
+    old = [m.add("sofa", likes=n) for n in range(24)]
+    hub = m.write()
+    out = tmp_path / "lib"
+    first = OV.survey(hub, out, CFG, log=quiet)
+    assert {c["uid"] for c in first["candidates"]} == set(old)
+    newer = [m.add("sofa", likes=1000 + n) for n in range(5)]       # better liked: they would rank first
+    hub = m.write()
+    second = OV.survey(hub, out, CFG, log=quiet)
+    chosen = [c["uid"] for c in second["candidates"]]
+    assert len(chosen) == 24 and set(chosen) == set(old) and not set(chosen) & set(newer)
+    assert {c["uid"]: c["rank"] for c in second["candidates"]}[old[-1]] == 6     # the rank stays the true rank
 
 
 def test_survey_without_download_lists_the_top_of_the_ranking(tmp_path):
@@ -890,15 +962,24 @@ def _canned_accept(tmp_path, monkeypatch, specs):
     return out
 
 
-def test_accept_keeps_12_per_type_and_3_per_style_family(tmp_path, monkeypatch):
-    """docs/milestone8.md §2: <= 12 per furniture type, <= 3 per (type, style family); rank by mean quality, then the
-    source order (abo, polyhaven, objaverse, generated), then the lower quality and likes."""
+def _m8_accept_cfg():
+    """The Milestone 8 acceptance limits (12 per type, decor 16, 3 per style family, no fill pass)."""
+    cfg = dict(CFG)
+    cfg["accept"] = dict(CFG["accept"], per_type_max=12, decor_per_type_max=16, per_family_max=3, style_fill=False)
+    return cfg
+
+
+def test_accept_m8_limits_keep_12_per_type_and_3_per_style_family(tmp_path, monkeypatch):
+    """docs/milestone8.md §2 (the rule without the fill pass): <= 12 per furniture type, <= 3 per (type, style
+    family); rank by mean quality, then the source order (abo, polyhaven, objaverse, generated), then the lower
+    quality and likes."""
+    m8 = _m8_accept_cfg()
     families = [s for s in OV.style_values() if s != C.NEUTRAL]
     specs = []
     for n in range(20):                                   # 20 sofas over 5 families, quality 5 / 4 alternating
         specs.append((f"o{n:02d}", "objaverse", "furniture", "sofa", [families[n % 5]], 5 if n % 2 else 4, n))
     out = _canned_accept(tmp_path, monkeypatch, specs)
-    doc = OV.accept(out, CFG)
+    doc = OV.accept(out, m8)
     kept = [d["uid"] for d in doc["accepted"]]
     per_family: dict = {}
     for d in doc["accepted"]:
@@ -909,7 +990,7 @@ def test_accept_keeps_12_per_type_and_3_per_style_family(tmp_path, monkeypatch):
     assert kept[0] == "o19"                               # then likes
     # 15 sofas of 3 families: 3 per family are kept, the type limit is not reached.
     specs = [(f"p{n:02d}", "objaverse", "furniture", "sofa", [families[n % 3]], 5, n) for n in range(15)]
-    doc = OV.accept(_canned_accept(tmp_path / "3", monkeypatch, specs), CFG)
+    doc = OV.accept(_canned_accept(tmp_path / "3", monkeypatch, specs), m8)
     assert len(doc["accepted"]) == 9 and doc["counts"]["over_style_limit"] == 6
     assert {d["uid"] for d in doc["accepted"]} == {f"p{n:02d}" for n in range(6, 15)}      # the most liked
     # A model listed in a full family and one with room is kept and counts for both.
@@ -917,34 +998,65 @@ def test_accept_keeps_12_per_type_and_3_per_style_family(tmp_path, monkeypatch):
     specs += [("b0", "objaverse", "furniture", "sofa", ["modern", "industrial"], 5, 0),
               ("b1", "objaverse", "furniture", "sofa", ["modern"], 5, 0)]
     out = _canned_accept(tmp_path / "2", monkeypatch, specs)
-    doc = OV.accept(out, CFG)
+    doc = OV.accept(out, m8)
     assert [d["uid"] for d in doc["accepted"]] == ["a0", "a1", "a2", "b0"]
     assert [(d["uid"], d["code"]) for d in doc["refused"]] == [("b1", "over_style_limit")]
 
 
-def test_accept_ranks_real_before_generated_then_by_quality_and_source_and_limits_decor_to_16(tmp_path, monkeypatch):
+def test_accept_spreads_styles_first_then_fills_to_20(tmp_path, monkeypatch):
+    """docs/milestone9.md §1: 20 per type; the first pass keeps <= 5 per style family in rank order, the fill pass
+    then takes the models it left for their style, in rank order, until the type limit (``style_fill``)."""
+    families = [s for s in OV.style_values() if s != C.NEUTRAL]
+    # 30 sofas of 3 families (10 each), likes = n: the first pass keeps the 5 most liked of each family (15), the
+    # fill pass the 5 most liked of the rest.
+    specs = [(f"s{n:02d}", "objaverse", "furniture", "sofa", [families[n % 3]], 5, n) for n in range(30)]
+    doc = OV.accept(_canned_accept(tmp_path, monkeypatch, specs), CFG)
+    kept = [d["uid"] for d in doc["accepted"]]
+    assert len(kept) == 20 and doc["counts"]["over_type_limit"] == 10 and "over_style_limit" not in doc["counts"]
+    first = {f"s{n:02d}" for n in range(15, 30)}                         # 5 per family, the most liked
+    fill = {f"s{n:02d}" for n in range(10, 15)}                          # then by rank, family full or not
+    assert set(kept) == first | fill
+    filled = {d["uid"] for d in doc["accepted"] if d.get("style_fill")}
+    assert filled == fill and all("fill pass" in d["style_note"] for d in doc["accepted"] if d.get("style_fill"))
+    assert kept == sorted(kept, key=lambda u: -int(u[1:]))              # rank order (likes)
+    refused = {d["uid"]: d for d in doc["refused"]}
+    assert set(refused) == {f"s{n:02d}" for n in range(10)}
+    assert all(d["code"] == "over_type_limit" for d in refused.values())
+    assert "had 5 each in the first pass" in refused["s00"]["detail"]
+    assert doc["limits"] == {"per_type_max": 20, "decor_per_type_max": 20, "per_family_max": 5, "style_fill": True}
+    # Fewer than the limit: every model is kept, the style spread only orders them.
+    specs = [(f"t{n:02d}", "objaverse", "furniture", "chair", ["modern"], 5, n) for n in range(8)]
+    doc = OV.accept(_canned_accept(tmp_path / "few", monkeypatch, specs), CFG)
+    assert len(doc["accepted"]) == 8 and sum(1 for d in doc["accepted"] if d.get("style_fill")) == 3
+
+
+def test_accept_ranks_real_before_generated_then_by_quality_and_source_and_limits_decor_to_20(tmp_path, monkeypatch):
     specs = [("gen_sofa", "generated", "furniture", "sofa", ["modern"], 5, 0),
              ("obj_sofa", "objaverse", "furniture", "sofa", ["modern"], 5, 99),
              ("abo_sofa", "abo", "furniture", "sofa", ["modern"], 5, 0),
              ("abo_low", "abo", "furniture", "sofa", ["modern"], 4, 0)]
+    specs += [(f"abo_more{n:02d}", "abo", "furniture", "sofa", ["modern"], 4, 0) for n in range(17)]
     specs += [(f"abo_rug{n:02d}", "abo", "decor", "rug", [OV.style_values()[n % 9]], 5, 0) for n in range(30)]
     out = _canned_accept(tmp_path, monkeypatch, specs)
     doc = OV.accept(out, CFG)
     sofas = [d["uid"] for d in doc["accepted"] if d["type"] == "sofa"]
     # Real models first (M8 pod L2: two generated Japandi sofas pushed real ones out), then mean quality, then abo,
-    # objaverse: the generated sofa only gets a slot that no real model needs (this assertion was ["abo_sofa",
-    # "obj_sofa", "gen_sofa"] with abo_low refused before; changed on purpose).
-    assert sofas == ["abo_sofa", "obj_sofa", "abo_low"]
-    assert next(d for d in doc["refused"] if d["uid"] == "gen_sofa")["code"] == "over_style_limit"
+    # objaverse: 21 real sofas fill the 20 places, the generated one never takes one of them.
+    assert sofas[:3] == ["abo_sofa", "obj_sofa", "abo_low"] and len(sofas) == 20 and "gen_sofa" not in sofas
+    assert next(d for d in doc["refused"] if d["uid"] == "gen_sofa")["code"] == "over_type_limit"
     rugs = [d for d in doc["accepted"] if d["type"] == "rug"]
-    assert len(rugs) == 16 and all(d["kind"] == "decor" and d["decor_type"] == "rug" for d in rugs)
-    assert doc["accepted_by_source"] == {"abo": 18, "objaverse": 1}
-    assert doc["limits"] == {"per_type_max": 12, "decor_per_type_max": 16, "per_family_max": 3}
+    assert len(rugs) == 20 and all(d["kind"] == "decor" and d["decor_type"] == "rug" for d in rugs)
+    assert doc["accepted_by_source"] == {"abo": 39, "objaverse": 1}
+    assert doc["limits"] == {"per_type_max": 20, "decor_per_type_max": 20, "per_family_max": 5, "style_fill": True}
     # --sources: the real sources only (the prep job's first accept before the generation).
     real = OV.accept(out, CFG, sources=["abo", "objaverse"])
     assert "gen_sofa" not in {d["uid"] for d in real["accepted"] + real["refused"]}
     assert real["sources"] == ["abo", "objaverse"]
     assert OV.main(["accept", "--out", str(out), "--sources", "abo,nowhere"]) == OV.EXIT_SERVER
+    # With room in the type, a generated model is kept after the real ones.
+    small = [s for s in specs if s[0] in ("gen_sofa", "obj_sofa", "abo_sofa")]
+    doc = OV.accept(_canned_accept(tmp_path / "room", monkeypatch, small), CFG)
+    assert [d["uid"] for d in doc["accepted"]] == ["abo_sofa", "obj_sofa", "gen_sofa"]
 
 
 # --------------------------------------------------------------------------
@@ -971,11 +1083,14 @@ def test_odc_by_notice():
 
 def test_write_catalog_validates_merges_and_fills_the_cache(library):
     run_judges(library)
-    acc = OV.accept(library.out, CFG)
-    # <= 3 per (type, style family) (docs/milestone8.md §2): four scandinavian sofas, the giant ranks last (likes).
+    acc = OV.accept(library.out, _m8_accept_cfg())
+    # M8 limits, <= 3 per (type, style family) (docs/milestone8.md §2): four scandinavian sofas, the giant ranks last.
     expected = {library.uids[k] for k in ("sofa_cm", "sofa_m", "sofa_tv", "bed", "table")}
     assert {d["uid"] for d in acc["accepted"]} == expected
     assert [(d["uid"], d["code"]) for d in acc["refused"]] == [(library.uids["giant"], "over_style_limit")]
+    # Milestone 9 limits (5 per family, then the fill pass): all four sofas are kept.
+    acc = OV.accept(library.out, CFG)
+    assert {d["uid"] for d in acc["accepted"]} == expected | {library.uids["giant"]} and not acc["refused"]
     # The giant judged industrial by both is kept (its family has room).
     styles = {library.uids["giant"]: ["industrial"]}
     run_judges(library, clients={k: (lambda key: lambda images, prompt: dict(
@@ -1336,7 +1451,8 @@ def test_load_candidates_merges_every_survey_file(mixed):
     for c in cands:
         by_source.setdefault(c["source"], []).append(c["uid"])
     assert set(by_source) == {"objaverse", "abo", "generated"}
-    assert by_source["generated"] == [GEN_UID] and len(by_source["abo"]) == 28 and len(by_source["objaverse"]) == 2
+    # 29 ABO candidates: the fixture's table lamp maps to table_lamp since Milestone 9 (28 before).
+    assert by_source["generated"] == [GEN_UID] and len(by_source["abo"]) == 29 and len(by_source["objaverse"]) == 2
     assert [c["source"] for c in cands] == sorted((c["source"] for c in cands), key=list(OV.SURVEY_FILES).index)
     gen = next(c for c in cands if c["source"] == "generated")
     assert gen["decor_type"] is None and gen["extents_raw"] is None and gen["categories"] == []
@@ -1548,7 +1664,7 @@ def test_report_of_every_source(mixed):
                     "## ABO mapping", "## Licence flags (catalogue)", "## Style coverage", "## Beds", "## Catalogue",
                     "## Attribution", "## Refused after judging"):
         assert heading in text, heading
-    assert "| abo | survey_abo.json | 28 | 28 |" in text and "| generated | survey_generated.json | 1 | 1 |" in text
+    assert "| abo | survey_abo.json | 29 | 29 |" in text and "| generated | survey_generated.json | 1 | 1 |" in text
     assert "| CC-BY-NC-4.0 | non_commercial | 1 |" in text and "(licence flag: non_commercial)" in text
     assert OV.odc_by_notice(CFG) in text and "Amazon Berkeley Objects" in text and OV.GENERATED_NOTICE in text
     assert "| accept | no_deck |" in text and "| thumbnails | size_range |" in text

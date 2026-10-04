@@ -42,8 +42,9 @@ dataset:
 
 # Survey limits (docs/milestone8.md §2).
 survey:
-  per_type_limit: 24          # <= 24 candidates per type
-  max_downloads_per_type: 36  # downloads tried in pick order until per_type_limit pass the file checks
+  per_type_limit: 40          # <= 40 candidates per type (docs/milestone9.md §2.1; M8: 24). The pick order does not
+                              # depend on the limit, so the first 24 of every type are the M8 candidates
+  max_downloads_per_type: 60  # downloads tried in pick order until per_type_limit pass the file checks (M8: 36)
   max_glb_mb: 60              # larger GLBs are refused (glb_size)
   workers: 8                  # parallel GLB downloads
   # Pick order inside a type: round robin over the listing's English `style` values (casefolded; no value is a
@@ -56,7 +57,7 @@ survey:
 # Mapping (docs/milestone8.md §2): the first rule that matches decides. A rule matches a listing when its product
 # type is in `product_types`, its English item_name holds one of `words` (when the rule has words: whole words,
 # case-insensitive, a plural s / es allowed), none of `not_words`, and the model's height (csv extent_y, metres) is
-# at least `min_height`. `types`: the first type whose size range holds the model's box (wenart/recognition/
+# at least `min_height` (and, Milestone 9, at most `max_height`). `types`: the first type whose size range holds the model's box (wenart/recognition/
 # size_table.yaml footprint + 15 %, objaverse.yaml height range; decor: objaverse.yaml decor_sizes); none holds it ->
 # refused size_range (named after the first type). `bed` = bed_single / bed_double by the width (the shorter footprint
 # side) at objaverse.yaml bed_split_width_m. Listings without an English item_name match only rules without words.
@@ -98,6 +99,17 @@ rules:
   - {name: bookshelf_named, product_types: [HOME_FURNITURE_AND_DECOR, FURNITURE],
      words: [bookcase, bookshelf, shelving unit], min_height: 1.0, types: [bookshelf]}
   - {name: floor_lamp, product_types: [LAMP], min_height: 1.2, types: [floor_lamp]}
+  # Milestone 9 decor (docs/milestone9.md §2.1): table lamps, vases, wall mirrors. The vase rules come before the
+  # planter rules (a PLANTER listing named "... Vase" is a vase).
+  - {name: table_lamp, product_types: [LAMP], max_height: 0.95,
+     not_words: [floor, standing, torchiere, clamp, clip, wall, ceiling, pendant], types: [table_lamp]}
+  - {name: vase, product_types: [VASE], not_words: [wall mount, hanging], types: [vase]}
+  - {name: vase_named, product_types: [PLANTER, HOME, HOME_FURNITURE_AND_DECOR], words: [vase],
+     not_words: [wall mount, hanging, planter], types: [vase]}
+  - {name: mirror, product_types: [HOME_MIRROR],
+     not_words: [floor, standing, full length, leaner, storage, jewelry, cabinet, vanity], types: [mirror]}
+  - {name: mirror_named, product_types: [HOME, HOME_FURNITURE_AND_DECOR], words: [mirror],
+     not_words: [floor, standing, full length, leaner, storage, jewelry, cabinet, vanity], types: [mirror]}
   # decor (kind decor; docs/milestone8.md §4)
   - {name: rug, product_types: [RUG], types: [rug]}
   - {name: rug_named, product_types: [HOME_FURNITURE_AND_DECOR, FURNITURE, HOME], words: [rug], types: [rug]}

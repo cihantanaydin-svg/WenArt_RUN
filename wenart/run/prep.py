@@ -313,6 +313,7 @@ class PrepOptions:
     only: tuple = ()
     tests: bool = True
     repo_root: Path = REPO_ROOT
+    generate_target: Optional[int] = None                    # Milestone 9: plan --target N (None: the M8 gap plan)
 
     @property
     def library(self) -> Path:
@@ -723,19 +724,33 @@ class Prep:
         if not judged:
             return "failed", (f"input missing: none of the {real} real model(s) in {lib / 'judge'} is judged by both "
                               "models: run the L1 prep (PREP_SKIP=trellis_setup,generate) first")
-        rc_acc = self.run(self.objaverse("accept", "--out", lib, "--sources", ",".join(REAL_SOURCES)), late=True,
-                          what="accept (real sources)")
-        if rc_acc not in (0, 1):
-            return "failed", f"first accept (real sources) exit {rc_acc}"
-        families = self.families()
+        target = self.opts.generate_target
+        if target:
+            # Milestone 9 (docs/milestone9.md §2.3): the plan counts the accepted models of every source (the
+            # generated ones of earlier pods too) and plans the candidates that bring each type to the target, over
+            # every style family.
+            rc_acc = self.run(self.objaverse("accept", "--out", lib), late=True, what="accept (every source)")
+            if rc_acc not in (0, 1):
+                return "failed", f"first accept (every source) exit {rc_acc}"
+            families = ["all"]
+            plan_args = ["--target", str(int(target))]
+        else:
+            rc_acc = self.run(self.objaverse("accept", "--out", lib, "--sources", ",".join(REAL_SOURCES)), late=True,
+                              what="accept (real sources)")
+            if rc_acc not in (0, 1):
+                return "failed", f"first accept (real sources) exit {rc_acc}"
+            families = self.families()
+            plan_args = []
         entry["families"] = families
         rc_plan = self.run(self.generate_cmd("plan", "--catalog", lib / "accepted.json", "--families",
-                                             ",".join(families), "--out", lib), what="plan")
+                                             ",".join(families), "--out", lib, *plan_args), what="plan")
         if rc_plan != 0:
             return "failed", f"generate plan exit {rc_plan}: the library is built from the real sources only"
         plan = read_json(lib / "generate" / "plan.json")
         pairs = (plan.get("pairs") or plan.get("items") or []) if isinstance(plan, dict) else (plan or [])
         entry["pairs"] = len(pairs) if isinstance(pairs, list) else None
+        if target and isinstance(plan, dict):
+            entry["plan_counts"] = plan.get("counts")
         rc_run = self.run(self.generate_cmd("run", "--out", lib, "--plan", lib / "generate" / "plan.json"),
                           what="run")
         surv = read_json(lib / "survey_generated.json")
@@ -1360,6 +1375,9 @@ def parse_args(argv) -> argparse.Namespace:
     p.add_argument("--only", default="", help="only these steps, comma separated")
     p.add_argument("--no-tests", action="store_true")
     p.add_argument("--copy-only", action="store_true", help="only copy the prep projects' files (prep.sh EXIT trap)")
+    p.add_argument("--generate-target", type=int, default=None,
+                   help="Milestone 9: generate up to N accepted models per type (default $WENART_GENERATE_TARGET; "
+                        "none: the M8 gap plan)")
     return p.parse_args(argv)
 
 
@@ -1395,7 +1413,23 @@ def options_from_args(args) -> PrepOptions:
         job_dir=Path(job_dir) if job_dir else None, job_id=os.environ.get("JOB_ID") or "prep",
         deadline=args.deadline if args.deadline is not None else env_deadline(), py=sys.executable,
         polish_py=args.polish_py or os.environ.get("WENART_POLISH_PY") or "/opt/wenart/venv-polish/bin/python",
-        render_samples=samples, skip=skip, only=only, tests=not args.no_tests)
+        render_samples=samples, skip=skip, only=only, tests=not args.no_tests,
+        generate_target=_generate_target(args.generate_target))
+
+
+def _generate_target(value: Optional[int]) -> Optional[int]:
+    """``--generate-target`` or ``$WENART_GENERATE_TARGET`` (a positive integer), else None."""
+    if value is None:
+        text = os.environ.get("WENART_GENERATE_TARGET", "").strip()
+        if not text:
+            return None
+        try:
+            value = int(text)
+        except ValueError:
+            raise ValueError(f"WENART_GENERATE_TARGET {text!r} is not an integer") from None
+    if int(value) < 1:
+        raise ValueError("the generate target must be at least 1")
+    return int(value)
 
 
 def main(argv=None, **kwargs) -> int:

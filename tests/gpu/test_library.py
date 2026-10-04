@@ -9,12 +9,13 @@ skip (other GPU jobs collect this folder too). No server is needed: the tests re
 
 - sources present: the ABO and Objaverse surveys found candidates (the generated survey is there when the L2 pod
   generated); ABO candidates are CC BY 4.0, units known, with the documented front and the credit line; Objaverse
-  candidates carry every licence with its flag and a full credit; <= 24 per type and source;
+  candidates carry every licence with its flag and a full credit; <= 40 per type and source (Objaverse: 24, the
+  fixture categories 40, docs/milestone9.md §2);
 - the thumbnails were rendered on the GPU; every candidate has a measurement or a reason; every bed has its deck
   measurement; every ready object its judging sheet and thumbnail;
 - both judges answered every request (current and schema-valid);
-- ``accepted.json`` follows from the stored answers by the rules (<= 12 per furniture type, <= 16 per decor type,
-  <= 3 per type and style family);
+- ``accepted.json`` follows from the stored answers by the rules (<= 20 per furniture type, <= 20 per decor type,
+  styles spread first: 5 per type and style family, then the fill pass; docs/milestone9.md §1);
 - ``catalog_library.json`` validates and merges with ``catalog.json``; every GLB in the assets cache has the
   catalogue's sha256; the catalogue holds ABO models; licences and flags agree; bed frames have decks;
 - attribution complete: every model's credit line is in ``ATTRIBUTION.md`` and the report, with the notices of
@@ -83,20 +84,26 @@ def test_objaverse_survey_found_lvis_categories_and_both_licence_spellings(cfg, 
 def test_objaverse_candidates_are_credited_flagged_and_inside_the_prefilter(cfg, surveys):
     surv = surveys.get("objaverse") or pytest.skip("no Objaverse survey")
     pre = cfg["prefilter"]
-    lo, hi = pre["face_count"]
     per_group: dict[str, int] = {}
+    group_cats: dict[str, list] = {}
     for c in surv["candidates"]:
         licence, flag, _ = OV.classify_licence(c["licence_raw"] if c["licence_raw"] != "(none)" else None, cfg)
         assert (c["licence"], c["licence_flag"]) == (licence, flag), c["uid"]
         assert C.licence_flag_of(c["licence"]) == c["licence_flag"], c["uid"]
         assert c["title"] and c["author"] and c["source_url"].startswith(("https://", "http://")), c["uid"]
         assert c["attribution"] == OV.attribution_line(c["title"], c["author"], c["source_url"], c["licence"], cfg)
+        own = OV.category_prefilter(pre, c["categories"])          # Milestone 9: the fixture overrides
+        lo, hi = own["face_count"]
         assert lo <= c["face_count"] <= hi, c["uid"]
         assert c["glb_bytes"] <= pre["max_glb_mb"] * 1024 * 1024, c["uid"]
-        assert c["glb_info"]["textured"] or c["glb_info"]["vertex_colours"], c["uid"]
+        info = c["glb_info"]
+        assert info["textured"] or info["vertex_colours"] or (own.get("allow_flat_colours") and info.get("flat_colours")
+                                                              and info["materials"] > 0), c["uid"]
         per_group[c["group"]] = per_group.get(c["group"], 0) + 1
+        group_cats.setdefault(c["group"], []).extend(c["categories"])
     for group, n in per_group.items():
-        assert n <= pre["per_type_limit"] * len(group.split("|")), group
+        limit = OV.group_prefilter(pre, group_cats[group])["per_type_limit"]
+        assert n <= limit * len(group.split("|")), group
 
 
 def test_abo_candidates_are_cc_by_with_known_units_and_the_documented_front(surveys):

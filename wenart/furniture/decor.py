@@ -73,8 +73,11 @@ from wenart import building as B
 from wenart import geometry as G
 from wenart.furniture import placer
 
-DECOR_TYPES: tuple[str, ...] = ("cushion", "book_set", "plant", "rug", "wall_art")
-LARGE_DECOR_TYPES: tuple[str, ...] = ("rug", "wall_art")       # not held to MAX_DECOR_M (Milestone 8)
+DECOR_TYPES: tuple[str, ...] = ("cushion", "book_set", "plant", "rug", "wall_art",
+                                 # Milestone 9 (docs/milestone9.md §3): tabletop decor and the wall mirror; the AI
+                                 # decorator (wenart/furniture/decor_ai.py) places them, the rules never do.
+                                 "vase", "bowl", "plant_small", "table_lamp", "mirror")
+LARGE_DECOR_TYPES: tuple[str, ...] = ("rug", "wall_art", "mirror")   # not held to MAX_DECOR_M (Milestone 8, 9)
 MAX_DECOR_M = 0.6
 CUSHION_SIZE = (0.45, 0.15)       # standing against a sofa back
 PILLOW_SIZE = (0.5, 0.3)          # lying at the head of a bed
@@ -405,8 +408,11 @@ def _nearest_wall_id(building: dict, level_id: str, point) -> Optional[str]:
     return best[1] if best else None
 
 
-def wall_art_for_host(host: dict, ctx: placer.RoomContext, building: dict, level: dict) -> tuple[Optional[dict], str]:
-    """Wall art above ``host`` (without id), or (None, why)."""
+def wall_art_for_host(host: dict, ctx: placer.RoomContext, building: dict, level: dict, dtype: str = "wall_art",
+                      width_share: float = WALL_ART_WIDTH_SHARE, max_w: float = WALL_ART_MAX_W,
+                      gap: float = WALL_ART_GAP_M, min_w: float = WALL_ART_MIN_W) -> tuple[Optional[dict], str]:
+    """Wall art above ``host`` (without id), or (None, why). Milestone 9: the same geometry hangs a ``mirror``
+    (``dtype``) with its own width share, maximum width, gap and minimum width (``decor_ai.MIRROR_*``)."""
     found = _wall_behind(host, ctx)
     if found is None:
         return None, f"{host['id']} has no wall behind it"
@@ -417,7 +423,7 @@ def wall_art_for_host(host: dict, ctx: placer.RoomContext, building: dict, level
     n = ctx.segment_normal(i)
     c = host["footprint"]["center"]
     s_c = (c[0] - a[0]) * u[0] + (c[1] - a[1]) * u[1]
-    width = min(WALL_ART_WIDTH_SHARE * float(host["footprint"]["size"][0]), WALL_ART_MAX_W)
+    width = min(width_share * float(host["footprint"]["size"][0]), max_w)
     half = min(width / 2.0, s_c - WALL_END_MARGIN_M, seg_len - WALL_END_MARGIN_M - s_c)
     narrowed = []
     if half < width / 2.0 - 1e-9:
@@ -436,11 +442,12 @@ def wall_art_for_host(host: dict, ctx: placer.RoomContext, building: dict, level
             half = free
             narrowed.append(f"{op['type']} {op['id']}")
     width_out = math.floor(2.0 * half * 1000.0 + 1e-6) / 1000.0
-    if width_out < WALL_ART_MIN_W - 1e-9:
+    what_item = "the picture" if dtype == "wall_art" else f"the {dtype.replace('_', ' ')}"
+    if width_out < min_w - 1e-9:
         return None, (f"above {host['id']}: {', '.join(narrowed) or 'the wall ends'} on the wall behind it "
-                      f"leave {max(0.0, width_out):.2f} m for the picture (min {WALL_ART_MIN_W} m)")
+                      f"leave {max(0.0, width_out):.2f} m for {what_item} (min {min_w} m)")
     top = float(placer_bbox_height(host))
-    bottom = round(top + WALL_ART_GAP_M, 3)
+    bottom = round(top + gap, 3)
     ceiling = float(level.get("ceiling_height") or 2.7)
     max_h = round(ceiling - WALL_ART_CEILING_M - bottom, 3)
     if max_h < WALL_ART_MIN_H - 1e-9:
@@ -449,14 +456,14 @@ def wall_art_for_host(host: dict, ctx: placer.RoomContext, building: dict, level
     center = (wall_point[0] + n[0] * WALL_ART_DEPTH_M / 2.0, wall_point[1] + n[1] * WALL_ART_DEPTH_M / 2.0)
     rotation = G.normalise_angle(math.degrees(math.atan2(n[0], -n[1])))    # local +Y = out of the room
     what = {"sofa": "a sofa", "bed_double": "a bed's headboard", "bed_single": "a bed's headboard",
-            "dresser": "a dresser"}[host["type"]]
-    reason = f"wall art centred above {what} on the wall behind it"
+            "dresser": "a dresser"}.get(host["type"], "a " + host["type"].replace("_", " "))
+    reason = f"{dtype.replace('_', ' ')} centred above {what} on the wall behind it"
     if narrowed:
         reason += f" (narrowed for {', '.join(narrowed)})"
-    return {"type": "wall_art", "center": [round(center[0], 3), round(center[1], 3)], "rotation_deg": round(rotation, 3),
+    return {"type": dtype, "center": [round(center[0], 3), round(center[1], 3)], "rotation_deg": round(rotation, 3),
             "size": [width_out, WALL_ART_DEPTH_M], "anchor_ids": [host["id"]],
             "wall_point": [round(wall_point[0], 3), round(wall_point[1], 3)],
-            "wall_id": _nearest_wall_id(building, host["level_id"], wall_point), "gap_m": WALL_ART_GAP_M,
+            "wall_id": _nearest_wall_id(building, host["level_id"], wall_point), "gap_m": gap,
             "bottom_m": bottom, "max_height_m": max_h, "reason": reason}, "ok"
 
 
@@ -502,56 +509,68 @@ def add_decor(building: dict) -> tuple[dict, list[dict]]:
         counters[level_id] = counters.get(level_id, 0) + 1
         return f"dec_{level_id}_{counters[level_id]:03d}"
 
-    furniture_by_room: dict[str, list[dict]] = {}
-    for f in out["furniture"]:
-        if f.get("room_id"):
-            furniture_by_room.setdefault(f["room_id"], []).append(f)
-    for room in out["rooms"]:
-        pieces = furniture_by_room.get(room["id"], [])
-        row = {"room_id": room["id"], "label": room["label"], "cushions": 0, "books": 0, "plant": "-", "rugs": 0,
-               "wall_art": "-", "note": ""}
-        if room.get("room_type") in NO_DECOR_ROOM_TYPES:
-            row["note"] = f"{room['room_type']} room: no decor (docs/milestone7.md §0)"
-            rows.append(row)
-            continue
-        for host in pieces:
-            if host.get("status") != "verified" or host["type"] not in HOST_TYPES or host.get("build", True) is False:
-                continue
-            for item in host_decor(host):
-                assert max(item["size"]) <= MAX_DECOR_M
-                out["decor"].append({"id": new_id(room["level_id"]), "kind": "decor", "type": item["type"],
-                                     "level_id": room["level_id"], "room_id": room["id"], "center": item["center"],
-                                     "rotation_deg": item["rotation_deg"], "size": item["size"], "asset": None,
-                                     "host_id": host["id"], "source": "added_by_ai", "method": "rule",
-                                     "reason": item["reason"]})
-                row["cushions" if item["type"] == "cushion" else "books"] += 1
-        if room.get("room_type") in PLANT_ROOM_TYPES and room.get("status") == "verified":
-            center, why = plant_position(room, pieces, out)
-            if center is not None:
-                out["decor"].append({"id": new_id(room["level_id"]), "kind": "decor", "type": "plant",
-                                     "level_id": room["level_id"], "room_id": room["id"], "center": list(center),
-                                     "rotation_deg": 0.0, "size": list(PLANT_SIZE), "asset": None, "host_id": None,
-                                     "source": "added_by_ai", "method": "rule", "reason": "potted plant in a free corner"})
-                row["plant"] = f"{center[0]}, {center[1]}"
-            else:
-                row["plant"] = "none"
-                row["note"] = why
-        if room.get("status") == "verified":
-            notes = [row["note"]] if row["note"] else []
-            rugs, rug_notes = rugs_for_room(room, pieces, out)
-            for item in rugs:
-                out["decor"].append(_large_item(new_id(room["level_id"]), room, item))
-            row["rugs"] = len(rugs)
-            art, why = wall_art_for_room(room, pieces, out)
-            if art is not None:
-                out["decor"].append(_large_item(new_id(room["level_id"]), room, art))
-                row["wall_art"] = f"over {art['anchor_ids'][0]} ({art['size'][0]:.2f} m wide)"
-            elif why != "-":
-                row["wall_art"] = "none"
-                rug_notes.append(f"no wall art: {why}")
-            row["note"] = "; ".join(notes + rug_notes)
+    for room, pieces in rooms_with_pieces(out):
+        items, row = rule_decor_room(out, room, pieces, new_id)
+        out["decor"].extend(items)
         rows.append(row)
     return out, rows
+
+
+def rooms_with_pieces(building: dict) -> list[tuple[dict, list[dict]]]:
+    """``(room, its furniture)`` for every room of the building, in building order."""
+    furniture_by_room: dict[str, list[dict]] = {}
+    for f in building["furniture"]:
+        if f.get("room_id"):
+            furniture_by_room.setdefault(f["room_id"], []).append(f)
+    return [(room, furniture_by_room.get(room["id"], [])) for room in building["rooms"]]
+
+
+def rule_decor_room(building: dict, room: dict, pieces: list[dict], new_id) -> tuple[list[dict], dict]:
+    """The rule decor of one room (the M4 cushions, books and plant, the M8 rugs and wall art) and its report row;
+    ``new_id(level_id)`` numbers the items. Milestone 9: also the fallback of the AI decorator per room."""
+    items: list[dict] = []
+    row = {"room_id": room["id"], "label": room["label"], "cushions": 0, "books": 0, "plant": "-", "rugs": 0,
+           "wall_art": "-", "note": ""}
+    if room.get("room_type") in NO_DECOR_ROOM_TYPES:
+        row["note"] = f"{room['room_type']} room: no decor (docs/milestone7.md §0)"
+        return items, row
+    for host in pieces:
+        if host.get("status") != "verified" or host["type"] not in HOST_TYPES or host.get("build", True) is False:
+            continue
+        for item in host_decor(host):
+            assert max(item["size"]) <= MAX_DECOR_M
+            items.append({"id": new_id(room["level_id"]), "kind": "decor", "type": item["type"],
+                          "level_id": room["level_id"], "room_id": room["id"], "center": item["center"],
+                          "rotation_deg": item["rotation_deg"], "size": item["size"], "asset": None,
+                          "host_id": host["id"], "source": "added_by_ai", "method": "rule",
+                          "reason": item["reason"]})
+            row["cushions" if item["type"] == "cushion" else "books"] += 1
+    if room.get("room_type") in PLANT_ROOM_TYPES and room.get("status") == "verified":
+        center, why = plant_position(room, pieces, building)
+        if center is not None:
+            items.append({"id": new_id(room["level_id"]), "kind": "decor", "type": "plant",
+                          "level_id": room["level_id"], "room_id": room["id"], "center": list(center),
+                          "rotation_deg": 0.0, "size": list(PLANT_SIZE), "asset": None, "host_id": None,
+                          "source": "added_by_ai", "method": "rule", "reason": "potted plant in a free corner"})
+            row["plant"] = f"{center[0]}, {center[1]}"
+        else:
+            row["plant"] = "none"
+            row["note"] = why
+    if room.get("status") == "verified":
+        notes = [row["note"]] if row["note"] else []
+        rugs, rug_notes = rugs_for_room(room, pieces, building)
+        for item in rugs:
+            items.append(_large_item(new_id(room["level_id"]), room, item))
+        row["rugs"] = len(rugs)
+        art, why = wall_art_for_room(room, pieces, building)
+        if art is not None:
+            items.append(_large_item(new_id(room["level_id"]), room, art))
+            row["wall_art"] = f"over {art['anchor_ids'][0]} ({art['size'][0]:.2f} m wide)"
+        elif why != "-":
+            row["wall_art"] = "none"
+            rug_notes.append(f"no wall art: {why}")
+        row["note"] = "; ".join(notes + rug_notes)
+    return items, row
 
 
 def _large_item(item_id: str, room: dict, item: dict) -> dict:

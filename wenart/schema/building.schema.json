@@ -26,7 +26,7 @@
     "openings": {"type": "array", "items": {"$ref": "#/$defs/opening"}},
     "rooms": {"type": "array", "items": {"$ref": "#/$defs/room"}},
     "furniture": {"type": "array", "items": {"$ref": "#/$defs/furniture"}},
-    "decor": {"type": "array", "items": {"$ref": "#/$defs/decor"}, "description": "Rule-based decor inside the building (wenart/furniture/decor.py): always added_by_ai, never furniture; absent before the decor stage"},
+    "decor": {"type": "array", "items": {"$ref": "#/$defs/decor"}, "description": "Decor inside the building (wenart/furniture/decor.py rules, wenart/furniture/decor_ai.py AI decor): always added_by_ai, never furniture; absent before the decor stage"},
     "conflicts": {"type": "array", "items": {"$ref": "#/$defs/conflict"}},
     "unverified": {"type": "array", "items": {"type": "string"}, "description": "IDs of elements with status=unverified (copied here for the report)"},
     "warnings": {"type": "array", "items": {"type": "string"}},
@@ -193,12 +193,12 @@
     },
     "decor": {
       "type": "object",
-      "description": "One decor item (docs/milestone4.md §4, docs/milestone8.md §4): added_by_ai by rule, labelled decor (not furniture). Cushions and book sets sit on their host piece (host_id); plants, rugs and wall art have no host (host_id null) and are their own decor element in the scene; rugs and wall art name the pieces they belong to in anchor_ids.",
+      "description": "One decor item (docs/milestone4.md §4, docs/milestone8.md §4, docs/milestone9.md §3-§4): added_by_ai by rule or by the AI decorator, labelled decor (not furniture). Cushions, book sets, vases, bowls, small plants and table lamps sit on their host piece (host_id); plants, rugs, wall art and mirrors have no host (host_id null) and are their own decor element in the scene; rugs, wall art and mirrors name the pieces they belong to in anchor_ids. AI decor (method ai) carries its slot, colour and the evidence of both agreeing passes.",
       "required": ["id", "kind", "type", "level_id", "room_id", "center", "size", "source"],
       "properties": {
         "id": {"type": "string", "description": "dec_<level>_<n>"},
         "kind": {"const": "decor"},
-        "type": {"enum": ["cushion", "book_set", "plant", "rug", "wall_art"]},
+        "type": {"enum": ["cushion", "book_set", "plant", "rug", "wall_art", "vase", "bowl", "plant_small", "table_lamp", "mirror"]},
         "level_id": {"type": "string"},
         "room_id": {"type": ["string", "null"]},
         "center": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 3, "description": "[x, y] in building coordinates (an optional third value is the rest height above the floor). Wall art: half its nominal depth in front of wall_point"},
@@ -208,7 +208,11 @@
         "host_id": {"type": ["string", "null"], "description": "The furniture piece a cushion or book set sits on; null for plants, rugs and wall art"},
         "anchor_ids": {"type": "array", "items": {"type": "string"}, "minItems": 1, "description": "Rug: the pieces of its group (sofa + coffee table, the double bed, the dining table). Wall art: the piece it hangs over"},
         "source": {"const": "added_by_ai"},
-        "method": {"type": "string", "description": "rule"},
+        "method": {"enum": ["rule", "ai"], "description": "rule: the decor rules (docs/milestone4.md §4, docs/milestone8.md §4); ai: the AI decorator, both passes agreeing (docs/milestone9.md §4)"},
+        "slot": {"type": "string", "description": "AI decor: the slot the item fills (docs/milestone9.md §4)"},
+        "colour": {"type": ["string", "null"], "description": "AI decor: the accent colour (a style vocabulary colour name) both passes chose, else pass 1's"},
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}, "description": "AI decor: one entry per agreeing pass (method ai, model, pass, confidence, the reason)"},
         "reason": {"type": "string"},
         "status": {"enum": ["verified", "unverified", "assumed"]},
         "wall_point": {"$ref": "#/$defs/point", "description": "Wall art: the centre of its back on the wall face"},
@@ -219,7 +223,8 @@
       },
       "allOf": [
         {"if": {"properties": {"type": {"const": "rug"}}}, "then": {"required": ["anchor_ids", "rotation_deg"], "properties": {"host_id": {"type": "null"}}}},
-        {"if": {"properties": {"type": {"const": "wall_art"}}}, "then": {"required": ["anchor_ids", "rotation_deg", "wall_point", "bottom_m", "max_height_m"], "properties": {"host_id": {"type": "null"}}}}
+        {"if": {"properties": {"type": {"const": "wall_art"}}}, "then": {"required": ["anchor_ids", "rotation_deg", "wall_point", "bottom_m", "max_height_m"], "properties": {"host_id": {"type": "null"}}}},
+        {"if": {"properties": {"type": {"const": "mirror"}}}, "then": {"required": ["anchor_ids", "rotation_deg", "wall_point", "bottom_m", "max_height_m"], "properties": {"host_id": {"type": "null"}}}}
       ]
     },
     "furniture": {

@@ -276,6 +276,8 @@ def match_rule(ptype: Optional[str], name_en: Optional[str], height: float, rule
             continue
         if rule.get("min_height") is not None and height < float(rule["min_height"]):
             continue
+        if rule.get("max_height") is not None and height > float(rule["max_height"]):     # Milestone 9
+            continue
         return rule
     return None
 

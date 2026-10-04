@@ -1322,6 +1322,38 @@ def test_l2_generates_after_a_first_accept_over_the_real_models(tmp_path):
     assert (w.results / "library" / "survey_generated.json").is_file()
 
 
+def test_m9_generation_targets_every_type_over_every_source(tmp_path):
+    """docs/milestone9.md §2.3: with a generate target the first accept is over every source (the generated models
+    of earlier pods count) and the plan is ``--target N --families all``."""
+    w = World(tmp_path)
+    w.generation_tools()
+    _judged_library(w)
+    assert w.prep(l2=True, generate_target=20).run_all() == 0, w.lines
+    lib = w.prep_root / "library"
+    labels = w.labels()
+    assert labels[:6] == ["abo survey", "objaverse survey", "bash scripts/pod_setup_trellis.sh", "objaverse accept",
+                          "generate plan", "generate run"]
+    assert w.calls[3]["cmd"] == ["/venv/python", "-m", "wenart.assets.objaverse", "accept", "--out", str(lib)]
+    py = str(w.trellis_py)
+    assert w.call("generate plan")["cmd"] == [py, "-m", "wenart.assets.generate", "plan", "--catalog",
+                                              str(lib / "accepted.json"), "--families", "all", "--out", str(lib),
+                                              "--target", "20"]
+    assert w.steps()["generate"]["families"] == ["all"]
+    assert P._generate_target(None) is None and P._generate_target(5) == 5
+    with pytest.raises(ValueError):
+        P._generate_target(0)
+
+
+def test_generate_target_from_the_environment(monkeypatch):
+    monkeypatch.setenv("WENART_GENERATE_TARGET", "20")
+    assert P._generate_target(None) == 20
+    monkeypatch.setenv("WENART_GENERATE_TARGET", "twenty")
+    with pytest.raises(ValueError, match="not an integer"):
+        P._generate_target(None)
+    monkeypatch.setenv("WENART_GENERATE_TARGET", "")
+    assert P._generate_target(None) is None
+
+
 def test_the_generation_needs_its_tools_and_the_judged_real_models(tmp_path):
     """Never silently: a missing generate.py, venv-trellis, setup script or judged real model fails its step with
     the reason, and the library is still built from the real sources."""

@@ -123,14 +123,19 @@ def test_config_covers_every_type_and_family():
     types = G.plan_types(CFG)
     assert set(CFG["exclude_types"]) == set(FIXED)
     assert set(types) == set(C.FURNITURE_TYPES) - set(FIXED)
-    assert set(CFG["type_words"]) == set(types), "type_words must name every generated type"
+    # Milestone 9 (docs/milestone9.md §2.3): the decor types the generator makes have words and hints too.
+    assert G.decor_types(CFG) == ["vase", "bowl", "plant_small"] and set(G.decor_types(CFG)) <= set(C.DECOR_TYPES)
+    assert G.target_types(CFG) == types + ["vase", "bowl", "plant_small"]
+    assert set(CFG["type_words"]) == set(G.target_types(CFG)), "type_words must name every generated type"
     assert set(CFG["fixture_types"]) <= set(types)
     families = G.known_families()
     assert C.NEUTRAL not in families and families == [s for s in C.style_values() if s != C.NEUTRAL]
     for fam in families:
         hints = CFG["family_hints"][fam]
-        assert hints["furniture"].strip() and hints["fixtures"].strip(), fam
+        assert hints["furniture"].strip() and hints["fixtures"].strip() and hints["decor"].strip(), fam
     assert set(CFG["family_hints"]) == set(families)
+    assert CFG["target_accept_rate"] == 0.7
+    assert CFG["trellis_decor"] == {"pipeline_type": "512", "decimation_target": 100000, "texture_size": 1024}
 
 
 def test_model_pins_follow_the_spec_and_the_polish():
@@ -698,3 +703,108 @@ def test_setup_rejects_unknown_parts(tmp_path):
                TRELLIS_SETUP_PARTS="venv build")
     out = subprocess.run(["bash", str(SCRIPT)], env=env, capture_output=True, text=True)
     assert out.returncode == 2 and "unknown part 'build'" in out.stderr
+
+
+# --------------------------------------------------------------------------
+# Milestone 9: target plans (docs/milestone9.md §2.3)
+# --------------------------------------------------------------------------
+
+def target_plan(tmp_path, records, families=("japandi", "modern"), target=4, types=None, rate=None):
+    tmp_path.mkdir(parents=True, exist_ok=True)
+    acc = accepted_list(tmp_path / "accepted.json", records)
+    return G.make_target_plan([acc], list(families), tmp_path / "lib", CFG, target=target, types=types, rate=rate,
+                              log=quiet)
+
+
+def test_target_plan_counts_every_source_and_plans_the_deficit(tmp_path):
+    """Per type: deficit = target - accepted (furniture and decor, generated models of earlier pods included),
+    ceil(deficit / rate) new candidates round robin over the families with the fewest fitting models first."""
+    records = [rec("s1", "sofa", ["modern"]), rec("s2", "sofa", ["neutral"]),
+               rec("g1", "sofa", ["modern"], source="generated"),
+               rec("v1", "decor_vase", ["japandi"], kind="decor", decor_type="vase"),
+               rec("c0", "chair", ["modern"], accepted=False),
+               rec("b1", "bed_single", ["modern"], has_mattress=False)]            # no mattress, no frame: not counted
+    doc = target_plan(tmp_path, records, types=["sofa", "chair", "bed_single", "vase"])
+    per = doc["per_type"]
+    assert per["sofa"]["accepted"] == 3 and per["sofa"]["deficit"] == 1 and per["sofa"]["new"] == 2   # ceil(1/0.7)
+    assert per["chair"]["accepted"] == 0 and per["chair"]["new"] == 6                                 # ceil(4/0.7)
+    assert per["bed_single"]["accepted"] == 0 and per["vase"]["accepted"] == 1 and per["vase"]["new"] == 5
+    # sofa: japandi has 1 fitting model (the neutral one), modern 3 -> japandi first.
+    assert per["sofa"]["families"] == ["japandi", "modern"]
+    assert per["vase"]["fitting_by_family"] == {"japandi": 1, "modern": 0} and per["vase"]["families"][0] == "modern"
+    assert doc["mode"] == "target" and doc["target"] == 4 and doc["accept_rate"] == 0.7
+    assert doc["counts"]["new_items"] == 2 + 6 + 6 + 5 and doc["counts"]["earlier_items"] == 0
+    vase = next(p for p in doc["pairs"] if p["type"] == "vase")
+    assert "decorative vase" in vase["prompt"] and CFG["family_hints"][vase["family"]]["decor"] in vase["prompt"]
+    # A type at the target is not planned; --rate changes the count.
+    full = target_plan(tmp_path / "full", records, target=3, types=["sofa"])
+    assert full["counts"]["new_items"] == 0 and full["per_type"]["sofa"]["deficit"] == 0
+    assert target_plan(tmp_path / "r", records, types=["chair"], rate=1.0)["per_type"]["chair"]["new"] == 4
+    with pytest.raises(G.UsageError):
+        target_plan(tmp_path / "bad", records, target=0)
+
+
+def test_target_plan_orders_rounds_and_numbers_after_earlier_images(tmp_path):
+    """Round by round (the n-th new candidate of every type; larger deficit first); new indexes after the images an
+    earlier run rendered, which stay in the plan (their models stay in the survey) but are never redone."""
+    lib = tmp_path / "lib"
+    early = {"pair": "chair__japandi", "type": "chair", "family": "japandi", "index": 2,
+             "prompt": "an earlier prompt", "seed": 7}
+    (lib / G.GEN_DIR / "chair__japandi").mkdir(parents=True)
+    (lib / G.GEN_DIR / "chair__japandi" / "img_2.json").write_text(json.dumps(early), encoding="utf-8")
+    doc = target_plan(tmp_path, [rec("s1", "sofa", ["modern"])], types=["sofa", "chair"], target=3)
+    order = [tuple(o) for o in doc["order"]]
+    # chair deficit 3 -> 5 new, sofa deficit 2 -> 3 new; chair first in every round.
+    assert order[:4] == [("chair__japandi", 3), ("sofa__japandi", 1), ("chair__modern", 1), ("sofa__modern", 1)]
+    assert order[-1] == ("chair__japandi", 2)                              # the earlier image, last
+    chair = next(p for p in doc["pairs"] if p["pair"] == "chair__japandi")
+    assert [it["index"] for it in chair["items"]] == [2, 3, 4, 5]
+    assert chair["items"][0]["prompt"] == "an earlier prompt" and chair["items"][0]["seed"] == 7
+    assert chair["items"][1]["seed"] == G.seed_for("chair", "japandi", 3) and chair["earlier"] == 1
+    items = G.plan_items(doc, CFG)
+    assert [(i["pair"], i["index"]) for i in items] == order
+    assert items[-1]["prompt"] == "an earlier prompt" and items[-1]["seed"] == 7
+
+
+def test_target_run_generates_new_items_keeps_earlier_ones_and_decor_settings(tmp_path):
+    """The run skips done items (an earlier pod's models stay in survey_generated.json), generates the new ones;
+    decor items get kind decor and the trellis_decor settings (a key of their own); furniture keeps its M8 key."""
+    first = small_plan(tmp_path, types=("chair",), families=("japandi",))
+    calls = []
+    assert run(tmp_path, first, FakeImages(calls), FakeMeshes(calls), images_per_pair=1) == 0
+    assert len(survey(tmp_path)["candidates"]) == 1
+    doc = target_plan(tmp_path, [rec("x", "sofa", ["japandi"])], families=("japandi",), types=["chair", "vase"],
+                      target=1)
+    plan = tmp_path / "lib" / G.GEN_DIR / G.PLAN_NAME
+    assert doc["counts"]["earlier_items"] == 1
+    calls = []
+
+    class DecorMeshes(FakeMeshes):
+        def image_to_glb(self, image_path, glb_path, seed, settings=None):
+            self.calls.append(("settings", settings))
+            return super().image_to_glb(image_path, glb_path, seed)
+    assert run(tmp_path, plan, FakeImages(calls), DecorMeshes(calls)) == 0
+    # Plan order: chair, vase, chair, vase (equal deficits: the type order); the earlier chair is not redone.
+    decor = G.mesh_settings(CFG, {"type": "vase"})
+    assert [c[1] for c in calls if c[0] == "settings"] == [None, decor, None, decor]
+    cands = survey(tmp_path)["candidates"]
+    assert len(cands) == 1 + 2 + 2                                 # the earlier chair, 2 vases, 2 new chairs
+    vases = [c for c in cands if c["group"] == "vase"]
+    assert all(c["kind"] == "decor" and c["decor_type"] == "vase" for c in vases)
+    assert all(c["generation"]["settings"]["pipeline_type"] == "512" for c in vases)
+    chairs = [c for c in cands if c["group"] == "chair"]
+    assert all(c["kind"] == "furniture" and c["decor_type"] is None for c in chairs)
+    assert all(c["generation"]["settings"] == G.mesh_settings(CFG) for c in chairs)
+    item = {"type": "chair", "seed": 1}
+    assert G.mesh_key(item, "a" * 64, CFG) != G.mesh_key(dict(item, type="vase"), "a" * 64, CFG)
+
+
+def test_target_plan_cli(tmp_path):
+    acc = accepted_list(tmp_path / "accepted.json", [rec("s1", "sofa", ["japandi"])])
+    out = tmp_path / "lib"
+    assert G.main(["plan", "--catalog", str(acc), "--families", "japandi", "--out", str(out), "--target", "2",
+                   "--types", "sofa,vase", "--no-polyhaven"]) == G.EXIT_OK
+    doc = json.loads((out / G.GEN_DIR / G.PLAN_NAME).read_text())
+    assert doc["mode"] == "target" and set(doc["per_type"]) == {"sofa", "vase"}
+    assert G.main(["plan", "--catalog", str(acc), "--families", "japandi", "--out", str(out), "--types", "vase",
+                   "--no-polyhaven"]) == G.EXIT_USAGE                  # decor types only in target plans

@@ -98,6 +98,18 @@ prefilter:
                                                # before the size split)
   max_downloads_per_type: 48                   # downloads tried in rank order until per_type_limit pass the file checks
   rank: [likes, views]                         # descending; ties by uid
+  # Milestone 9 (docs/milestone9.md §2.2): the fixture categories. The M8 survey refused most of them before any judge
+  # saw them (toilet: 35 of 48 tried `untextured`, 49 of 111 outside the face count). Plain sanitary ware and
+  # appliances look right with flat material colours, so a model of these categories without textures is taken when
+  # its materials have colours (`allow_flat_colours`), with a wider face count and more candidates. Every other
+  # category keeps the values above (its pick order and candidates stay the M8 ones).
+  overrides:
+    toilet: &fixture {face_count: [800, 400000], allow_flat_colours: true, per_type_limit: 40,
+                      max_downloads_per_type: 80}
+    sink: *fixture
+    bathtub: *fixture
+    refrigerator: *fixture
+    stove: *fixture
 
 # LVIS category -> furniture type(s) (§7.1 step 2). Checked on the 3 Oct 2026 prep pod against
 # lvis-annotations.json.gz: all found except `nightstand` and `chest_of_drawers_(furniture)` (kept: a missing name
@@ -181,6 +193,14 @@ types:
   wall_art:     {height: [0.15, 1.80], front: documented}
   cushion:      {height: [0.15, 0.75], front: none}
   plant:        {height: [0.15, 2.20], front: none}
+  # Milestone 9 decor types (docs/milestone9.md §3): tabletop decor and the wall mirror. Product sizes (vases 3 to
+  # 24 in, decorative bowls 5 to 20 in, small potted plants 4 to 24 in, table lamps 10 to 34 in, wall mirrors 12 x 16
+  # in to 36 x 48 in), widened; the ABO VASE, LAMP and HOME_MIRROR boxes of 4 Oct 2026 fit.
+  vase:         {height: [0.06, 0.75], front: none}
+  bowl:         {height: [0.02, 0.30], front: none}
+  plant_small:  {height: [0.10, 0.75], front: none}
+  table_lamp:   {height: [0.20, 0.95], front: none}
+  mirror:       {height: [0.25, 1.40], front: documented}
 
 # Footprints of the decor types (the size table format: width / depth in metres, either orientation, + the size
 # table's 15 % tolerance). Common product sizes (rugs 2 x 3 ft to 9 x 12 ft and runners; framed art 8 x 10 in to
@@ -191,6 +211,11 @@ decor_sizes:
   wall_art: {width: [0.15, 2.40], depth: [0.003, 0.15]}
   cushion:  {width: [0.25, 0.90], depth: [0.05, 0.40]}
   plant:    {width: [0.10, 1.00], depth: [0.10, 1.00]}
+  vase:        {width: [0.05, 0.45], depth: [0.05, 0.45]}       # Milestone 9 (docs/milestone9.md §3)
+  bowl:        {width: [0.10, 0.60], depth: [0.10, 0.60]}
+  plant_small: {width: [0.06, 0.50], depth: [0.06, 0.50]}
+  table_lamp:  {width: [0.10, 0.60], depth: [0.10, 0.60]}
+  mirror:      {width: [0.25, 1.50], depth: [0.004, 0.15]}      # wall mirrors only (floor and leaner mirrors are deeper)
 
 front_rules:
   top_fraction: 0.30            # back_taller: vertices in the top 30 % of the height (as models.measure_gltf)
@@ -230,10 +255,12 @@ bed_frame:
 
 accept:
   min_quality: 4                # both judges' photoreal_quality >= 4
-  per_type_max: 12              # catalog_library.json keeps <= 12 per furniture type (docs/milestone8.md §2; M7: 6)
-  decor_per_type_max: 16        # and <= 16 per decor type
-  per_family_max: 3             # at most 3 per (type, style family; `neutral` counts as a family): a model is kept
-                                # while one of its families still has room, and counts for each of them
+  per_type_max: 20              # catalog_library.json keeps <= 20 per furniture type (docs/milestone9.md §1; M8: 12)
+  decor_per_type_max: 20        # and <= 20 per decor type (M8: 16)
+  per_family_max: 5             # first pass (styles spread): a model is kept while one of its families (`neutral`
+                                # counts as one) has fewer than 5 kept models, and counts for each of them (M8: 3)
+  style_fill: true              # fill pass (docs/milestone9.md §1): then the models the first pass left for their
+                                # style, in rank order, until the type limit
   source_order: [abo, polyhaven, objaverse, generated]   # rank: mean quality, then this order, then the lower
                                                          # quality, likes, views, survey rank, uid
 
