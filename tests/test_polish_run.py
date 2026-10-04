@@ -48,9 +48,9 @@ def scene_manifest() -> dict:
     return {
         "schema_version": "0.1", "project": "toy", "building": "outputs/toy/building_final.json",
         "style_profile": profile,
-        "cameras": [{"name": "cam_a", "room_id": "r_salon", "level_id": "L0"},
-                    {"name": "cam_b", "room_id": "r_salon", "level_id": "L0"},
-                    {"name": "cam_c", "room_id": "r_hol", "level_id": "L0"}],
+        "cameras": [{"name": "cam_a", "room_id": "r_salon", "level_id": "L0", "lens_mm": 18.0},
+                    {"name": "cam_b", "room_id": "r_salon", "level_id": "L0", "lens_mm": 18.0},
+                    {"name": "cam_c", "room_id": "r_hol", "level_id": "L0", "lens_mm": 16.0}],
         "objects": [
             _obj("w_1", "wall", None),
             _obj("win_1", "window", 2, wall_id="w_1", room_ids=["r_salon"]),
@@ -320,6 +320,8 @@ def test_run_ladder_first_accepted_attempt_wins(tmp_path):
     assert a["prompt"].startswith("Photorealistic interior photograph of a living room in Scandinavian style. "
                                   "White plaster walls, light oak wood floor, sofa, armchair.")
     assert c["prompt"].startswith("Photorealistic interior photograph of a hallway")
+    # Milestone 8: the lens words are each view camera's own lens_mm (the scene manifest's plan).
+    assert a["prompt"].endswith("sharp focus, 18 mm lens.") and c["prompt"].endswith("sharp focus, 16 mm lens.")
     assert a["expected_source"] == "expected_view"
     report = (pol / REPORT_NAME).read_text(encoding="utf-8")
     assert "# Polish report: toy (run)" in report and "cam_c" in report and "delta:global" in report

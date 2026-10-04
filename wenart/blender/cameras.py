@@ -14,6 +14,21 @@ Milestone 7 (docs/milestone7.md §3.3): pieces with ``build: false`` (drawn
 symbols the scene does not build) are neither obstacles nor frustum entries
 for either policy: the scene has nothing there.
 
+Milestone 8 (docs/milestone8.md §5, user decision 6 of 4 Oct 2026: wider
+lenses): every camera plan carries its own ``lens_mm`` and every reader
+(camera search, frustum lists, expected elements, plan crops, polish prompt)
+uses it. ``room_lens`` picks the lens of a ``search`` room: ``LENS_MM`` =
+18 mm (90 degrees horizontal field of view on the 36 mm sensor; 24 mm gave
+73.7 degrees), ``NARROW_LENS_MM`` = 16 mm (96.7 degrees) when the room's
+width (``room_width``: twice the distance from its pole of inaccessibility,
+``lighting.polylabel``, to the nearest wall: the diameter of the largest
+circle inside the polygon, which is the shorter side of a rectangular room
+and the width of the widest part of an L-shaped or angled one) is below
+``NARROW_ROOM_M`` = 2.2 m, or the brief's ``render.lens_mm`` (14-35 mm,
+``LENS_RANGE_MM``) for every room when the brief sets it. The ``m5`` policy
+keeps ``M5_LENS_MM`` = 24 mm: it reproduces the committed M5 cameras byte for
+byte for the realism A/B, whose A images are the committed 24 mm M5 renders.
+
 Policy ``m5``, per room, at 1.4 m above the floor, 24 mm lens on a 36 mm sensor, 1920x1080:
 1. ``cam_<room>_1``: a point of the free area (room polygon shrunk by 0.5 m,
    minus the furniture boxes grown by 0.3 m) looking at the centre of the
@@ -49,7 +64,13 @@ from wenart.blender.parametric import obstacle_rect, piece_bbox
 
 CAMERA_HEIGHT = 1.4
 TARGET_HEIGHT = 1.3
-LENS_MM = 24.0
+# Milestone 8 (§5): the lens of a searched camera, 18 mm, or 16 mm in a room narrower than 2.2 m; the
+# brief's render.lens_mm (14-35 mm) replaces both. The m5 policy keeps the 24 mm of Milestones 3-7.
+LENS_MM = 18.0
+NARROW_LENS_MM = 16.0
+NARROW_ROOM_M = 2.2
+LENS_RANGE_MM = (14.0, 35.0)
+M5_LENS_MM = 24.0
 SENSOR_MM = 36.0
 RESOLUTION = (1920, 1080)
 DOOR_INSET = 0.4
@@ -75,23 +96,33 @@ OPENING_EDGE_TOLERANCE = 0.2
 CAMERA_POLICIES = ("search", "m5")
 
 
-def plan_cameras(building: dict, level_id: str, policy: str = "m5") -> list[dict]:
+def plan_cameras(building: dict, level_id: str, policy: str = "m5", lens_mm: float | None = None) -> list[dict]:
     """Camera plans for every room of ``level_id``.
 
     ``policy`` (docs/milestone6.md §1.3, §4): ``"m5"`` = the three fixed rules
     of Milestone 3-5 below (kept byte for byte: the realism A/B renders the
     M6 look from these cameras; the plans carry no ``shift``/``policy``
-    fields, readers treat them as shift 0 and policy ``m5``); ``"search"`` =
+    fields, readers treat them as shift 0 and policy ``m5``; their lens is
+    ``M5_LENS_MM``); ``"search"`` =
     the ray-cast camera search of ``camsearch.plan_level`` (1-3 views per
     room at 1.25 m, pitch 0, ``shift_y = -0.10``, with ``score`` and
-    ``search_seconds``).
+    ``search_seconds``) with the lens of ``room_lens`` per room.
+
+    ``lens_mm`` (Milestone 8): the brief's ``render.lens_mm`` for every
+    searched room (None: the 18 / 16 mm rule of ``room_lens``); the ``m5``
+    policy takes none (ValueError), its cameras are the committed M5 ones.
     """
     if policy not in CAMERA_POLICIES:
         raise ValueError(f"unknown camera policy {policy!r} (expected one of {CAMERA_POLICIES})")
+    if lens_mm is not None:
+        check_lens(lens_mm)
     if policy == "search":
         from wenart.blender import camsearch  # camsearch imports this module
 
-        return camsearch.plan_level(building, level_id)
+        return camsearch.plan_level(building, level_id, lens_mm=lens_mm)
+    if lens_mm is not None:
+        raise ValueError(f"the m5 camera policy keeps its {M5_LENS_MM:g} mm lens; lens_mm {lens_mm!r} is for the "
+                         f"search policy")
     level = next(lv for lv in building["levels"] if lv["id"] == level_id)
     floor_z = float(level["elevation"])
     plans = []
@@ -113,6 +144,42 @@ def rooms_without_view(building: dict, level_id: str, policy: str = "m5") -> lis
     from wenart.blender import camsearch  # camsearch imports this module
 
     return camsearch.rooms_without_view(building, level_id)
+
+
+def check_lens(lens_mm) -> float:
+    """``lens_mm`` as a float when it is a number in ``LENS_RANGE_MM`` (14-35 mm), else ValueError."""
+    lo, hi = LENS_RANGE_MM
+    if isinstance(lens_mm, bool) or not isinstance(lens_mm, (int, float)) or not math.isfinite(float(lens_mm)) \
+            or not lo <= float(lens_mm) <= hi:
+        raise ValueError(f"lens_mm must be a number from {lo:g} to {hi:g} mm, got {lens_mm!r}")
+    return float(lens_mm)
+
+
+def room_width(room: dict) -> float:
+    """The room's width (metres): the diameter of the largest circle inside its polygon (twice the
+    distance from ``lighting.polylabel``'s pole of inaccessibility to the nearest edge, to 1 cm; exact
+    for a rectangle, whose width is its shorter side). An L-shaped or angled room is as wide as its
+    widest part, not as its bounding rectangle: a narrow L hall is narrow."""
+    from wenart.blender import lighting  # lighting imports this module
+
+    polygon = [(float(p[0]), float(p[1])) for p in room["polygon"]]
+    if len(polygon) > 1 and G.distance(polygon[0], polygon[-1]) < 1e-9:
+        polygon = polygon[:-1]
+    if len(polygon) < 3:
+        return 0.0
+    return 2.0 * max(0.0, float(lighting.polylabel(polygon)[2]))
+
+
+def room_lens(room: dict, lens_mm: float | None = None) -> tuple[float, str]:
+    """``(lens_mm, rule)`` of the searched cameras of ``room`` (docs/milestone8.md §5): the brief's
+    ``lens_mm`` when given, else ``NARROW_LENS_MM`` (16 mm) for a room narrower than ``NARROW_ROOM_M``
+    (2.2 m, ``room_width``), else ``LENS_MM`` (18 mm). ``rule`` says which (the plan's ``lens_rule``)."""
+    if lens_mm is not None:
+        return check_lens(lens_mm), "brief render.lens_mm"
+    width = room_width(room)
+    if width < NARROW_ROOM_M - 1e-9:
+        return NARROW_LENS_MM, f"room width {width:.2f} m < {NARROW_ROOM_M:g} m"
+    return LENS_MM, f"room width {width:.2f} m >= {NARROW_ROOM_M:g} m"
 
 
 def plan_room_cameras(room: dict, building: dict, floor_z: float) -> list[dict]:
@@ -180,7 +247,7 @@ def plan_room_cameras(room: dict, building: dict, floor_z: float) -> list[dict]:
     # Frustum lists are limited to the camera's own room (its openings and its
     # furniture): walls hide everything else, so other rooms' pieces inside the
     # frustum would only mislead the final check.
-    tangents = geom2d.frustum_tangents(LENS_MM, SENSOR_MM, RESOLUTION)
+    tangents = geom2d.frustum_tangents(M5_LENS_MM, SENSOR_MM, RESOLUTION)
     for plan in plans:
         pos, tgt = plan["position"], plan["target"]
         plan["visible_openings"] = [
@@ -336,7 +403,7 @@ def _plan(room: dict, index: int, pos2, target2, floor_z: float, warning, how: s
         "room_id": room["id"], "level_id": room["level_id"], "index": index,
         "position": [float(pos2[0]), float(pos2[1]), floor_z + CAMERA_HEIGHT],
         "target": [float(target2[0]), float(target2[1]), floor_z + TARGET_HEIGHT],
-        "lens_mm": LENS_MM, "sensor_mm": SENSOR_MM, "resolution": list(RESOLUTION),
+        "lens_mm": M5_LENS_MM, "sensor_mm": SENSOR_MM, "resolution": list(RESOLUTION),
         "placement": how, "anchor": anchor, "warning": warning,
         "visible_openings": [], "visible_furniture": [],
     }

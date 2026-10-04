@@ -165,6 +165,8 @@ def test_full_run_then_idempotent_rerun_pass_the_gpu_test_logic(scene, tmp_path,
     gpu.test_passes_exist_and_depth_is_plausible(project)
     gpu.test_index_pass_contains_every_visible_proxy(project)
     gpu.test_no_blocked_searched_view(project)            # Milestone 6 §4.2 (m5 cameras: blocked views allowed)
+    gpu.test_cameras_render_with_their_own_lens(project)  # Milestone 8 §5 (m5 cameras: 24 mm, recorded per entry)
+    assert {(r["lens_mm"], r["sensor_mm"]) for r in again["renders"]} == {(24.0, 36.0)}
     gpu.test_render_matches_the_scene_build(project)
     # Milestone 5 checks of the same module.
     gpu.test_entries_are_m5_renders_with_helper_maps(project)

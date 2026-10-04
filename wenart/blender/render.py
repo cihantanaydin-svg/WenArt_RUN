@@ -20,7 +20,9 @@ mm, 0 = no surface), ``<cam>_normal.png`` (RGB8 world normal, (0, 0, 0) =
 no surface) and the legacy ``<cam>_depth.png`` (16-bit, per-view min..max,
 near = dark). ``render_manifest.json`` lists per camera the samples, device
 time, depth range, index values, ``index_stats`` (pixels and box per index),
-the exposure record and the ``render_key``; the pass index table keyed by
+the exposure record, the ``render_key`` and the camera's ``lens_mm`` /
+``sensor_mm`` as rendered (Milestone 8: 18 or 16 mm for searched cameras;
+a lens change is a scene change, so ``scene_sha256`` re-renders it); the pass index table keyed by
 wenart id (identical to the scene manifest's) and the scene fingerprint
 (``scene_sha256`` of ``scene.blend``).
 
@@ -457,6 +459,12 @@ def bounce_settings(max_bounces: int) -> dict:
     keep = max(n, MIN_GLASS_BOUNCES)
     return {"max_bounces": keep, "diffuse_bounces": n, "glossy_bounces": n, "volume_bounces": n,
             "transmission_bounces": keep}
+
+
+def camera_lens(cam) -> dict:
+    """``{"lens_mm", "sensor_mm"}`` of a Blender camera object as rendered (Milestone 8: every entry of the
+    render manifest records the lens its pixels were taken with; the scene manifest's plan has the same)."""
+    return {"lens_mm": round(float(cam.data.lens), 4), "sensor_mm": round(float(cam.data.sensor_width), 4)}
 
 
 def render_key(settings: dict) -> str:
@@ -1496,7 +1504,8 @@ class RenderRun:
                                  f"manifest")
         entry = dict(prev)
         entry.update(skipped=True, scene_sha256=self.ctx.fingerprint, render_key=key,
-                     preview_bytes=f["preview"].stat().st_size, hidden=self.hidden, plugged=self.plugged)
+                     preview_bytes=f["preview"].stat().st_size, hidden=self.hidden, plugged=self.plugged,
+                     **camera_lens(cam))
         if self.ctx.args.alt_look:
             entry["alt_preview_bytes"] = f["alt_preview"].stat().st_size
         if products is not None and products["depth"] is not None:
@@ -1553,6 +1562,7 @@ class RenderRun:
             self.warnings.append(f"{cam.name}: {note}")
         self.entries[cam.name] = {
             "camera": cam.name, "room_id": cam.get("wenart_room"), "level_id": cam.get("wenart_level"),
+            **camera_lens(cam),
             "png": f["png"].name, "exr": f["exr"].name, "preview": f["preview"].name,
             "depth_png": f["depth"].name if f["depth"].exists() else None, "index_png": f["index"].name,
             "files": {"index": f["index"].name, "depth_mm": f["depth_mm"].name, "normal": f["normal"].name,

@@ -18,9 +18,10 @@ How:
   JSON (the room polygon edge that carries the opening's wall,
   ``wenart.blender.cameras.room_openings``).
 - Visibility (furniture/decor): the ``box3d`` corners projected with the
-  pinhole formula of ``wenart/blender/cameras.py`` (24 mm lens on a 36 mm
-  sensor, horizontal sensor fit, look-at with world up +Z; the box is clipped
-  at the camera's near plane first): in-frame share of the projected hull x
+  pinhole formula of ``wenart/blender/cameras.py`` (the camera's own
+  ``lens_mm``: 18 or 16 mm for searched cameras since Milestone 8, 24 mm for
+  the m5 ones, on a 36 mm sensor, horizontal sensor fit, look-at with world
+  up +Z; the box is clipped at the camera's near plane first): in-frame share of the projected hull x
   ``min(1, pixels / in-frame hull area)``. Openings: None.
 - Roles (thresholds in ``check.yaml: roles``): ``ignore`` below 0.2 % of the
   frame; ``required`` for own-room doors, windows and furniture with
@@ -73,6 +74,8 @@ CONFIG_PATH = Path(__file__).resolve().parent / "check.yaml"
 REQUIRED_KINDS = ("door", "window", "furniture")
 TYPE_UNVERIFIED_TEXT = "furniture piece (type unverified)"
 NEAR_M = 0.05                 # camera clip_start of wenart/blender/cameras.py
+# Only for a camera dict without lens_mm / sensor_mm (every scene manifest camera has both; a camera
+# without them predates Milestone 8, when every camera had the 24 mm lens).
 DEFAULT_LENS_MM = 24.0
 DEFAULT_SENSOR_MM = 36.0
 SAMPLE_SPACING_M = 0.04       # grid of the cross-check samples on each face
@@ -118,7 +121,8 @@ def camera_basis(position, target) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
 
 
 def focal_px(camera: dict, width: int) -> float:
-    """Focal length in pixels (horizontal sensor fit: the sensor width spans the image width).
+    """Focal length in pixels of the camera's own lens (horizontal sensor fit: the sensor width spans the
+    image width).
 
     The lens shift (``shift_x``/``shift_y``) moves the principal point, never
     the focal length (docs/milestone6.md §1.3)."""

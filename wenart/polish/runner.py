@@ -509,7 +509,9 @@ class PolishRun:
             furniture = fallback_furniture(view, self.table)
             room_type = _room_types(self.building).get(view.room_id)
             job.expected_source = "index_pass"
-        job.prompt_info = PR.build_prompt(self.style_profile, room_type, furniture)
+        camera = next((c for c in (self.scene or {}).get("cameras") or [] if c.get("name") == view.camera), None)
+        job.prompt_info = PR.build_prompt(self.style_profile, room_type, furniture,
+                                          (camera or {}).get("lens_mm"))
         job.prompt = job.prompt_info["prompt"]
         for w in job.prompt_info["warnings"]:
             self._warn(f"{view.camera}: {w}")

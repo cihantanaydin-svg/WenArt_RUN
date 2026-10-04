@@ -693,6 +693,18 @@ def test_build_exit_2_is_failed_with_the_last_build_log_line(tmp_path):
     assert r.manifest()["projects"][0]["state"] == "failed"
 
 
+def test_the_brief_lens_reaches_the_build(tmp_path):
+    """Milestone 8 (docs/milestone8.md §5): a brief with ``render.lens_mm`` builds with ``--lens-mm``; a brief
+    without it (auto) or with a value outside 14-35 mm (reported by the brief loader, default used) builds
+    without, so the build's own 18 / 16 mm rule applies."""
+    r = Run(tmp_path, {"p1": {"brief": {"render": {"lens_mm": 20}}}, "p2": {},
+                       "p3": {"brief": {"render": {"lens_mm": 50}}}}, projects=["p1", "p2", "p3"])
+    assert r.run() == 0
+    (p1,), (p2,), (p3,) = (r.cli.find("build", p) for p in ("p1", "p2", "p3"))
+    assert opt(p1["cmd"], "--lens-mm") == "20" and p1["cmd"][-1] == "--reuse"
+    assert "--lens-mm" not in p2["cmd"] and "--lens-mm" not in p3["cmd"]
+
+
 def test_warnings_and_skips_keep_the_project_ok(tmp_path):
     r = Run(tmp_path, {"p1": {"brief": {"polish": False}}}, rc={"assets": 1, "control renders": 1},
             projects=["p1"])

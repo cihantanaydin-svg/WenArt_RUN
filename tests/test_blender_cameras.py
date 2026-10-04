@@ -241,12 +241,94 @@ def test_synthetic_search_cameras_are_inside_the_room_and_outside_every_proxy(na
                 assert _distance_to_piece(plan, piece) >= cameras.CAMERA_OBSTACLE_CLEARANCE - 1e-6, plan["name"]
 
 
+# --------------------------------------------------------------------------
+# Milestone 8 (docs/milestone8.md §5): the lens of every camera
+# --------------------------------------------------------------------------
+
+def test_lens_constants_and_fields_of_view():
+    assert (cameras.LENS_MM, cameras.NARROW_LENS_MM, cameras.NARROW_ROOM_M, cameras.M5_LENS_MM) == \
+        (18.0, 16.0, 2.2, 24.0)
+    assert cameras.LENS_RANGE_MM == (14.0, 35.0) and cameras.SENSOR_MM == 36.0
+    hfov = {lens: 2 * math.degrees(math.atan(cameras.SENSOR_MM / 2 / lens)) for lens in (24.0, 18.0, 16.0)}
+    assert hfov[24.0] == pytest.approx(73.74, abs=0.01) and hfov[18.0] == pytest.approx(90.0)
+    assert hfov[16.0] == pytest.approx(96.73, abs=0.01)
+    th, _ = geom2d.frustum_tangents(18.0, 36.0, (1920, 1080))
+    assert th == pytest.approx(1.0)                               # 45 degrees each side of the view axis
+
+
+def _poly_room(polygon) -> dict:
+    return {"id": "r", "level_id": "L0", "polygon": [list(p) for p in polygon]}
+
+
+@pytest.mark.parametrize("polygon, width, lens", [
+    ([(0, 0), (4, 0), (4, 3), (0, 3)], 3.0, 18.0),                          # bedroom
+    ([(0, 0), (2.2, 0), (2.2, 5), (0, 5), (0, 0)], 2.2, 18.0),              # exactly 2.2 m (closed ring): 18 mm
+    ([(0, 0), (2.19, 0), (2.19, 5), (0, 5)], 2.19, 16.0),                   # galley kitchen just under 2.2 m
+    ([(0, 0), (1.53, 0), (1.53, 4.57), (0, 4.57)], 1.53, 16.0),             # real01's hall
+    ([(1, 1), (2.5, 2.5), (1.8, 3.2), (0.3, 1.7)], 0.99, 16.0),             # a turned 2.12 x 0.99 m bath
+    # An L-shaped hall with 1.7 m arms: its minimum-area rectangle is 4.4 x 3.1 m, its width 1.7 m.
+    ([(0, 0), (4.4, 0), (4.4, 1.7), (1.7, 1.7), (1.7, 3.1), (0, 3.1)], None, 16.0),
+])
+def test_room_lens_by_the_room_width(polygon, width, lens):
+    room = _poly_room(polygon)
+    got, rule = cameras.room_lens(room)
+    assert got == lens
+    if width is not None:
+        assert cameras.room_width(room) == pytest.approx(width, abs=0.011)
+    w = cameras.room_width(room)
+    assert rule == (f"room width {w:.2f} m < 2.2 m" if lens == 16.0 else f"room width {w:.2f} m >= 2.2 m")
+    assert cameras.room_width(_poly_room([(0, 0), (1, 0)])) == 0.0
+
+
+def test_room_lens_of_the_l_shaped_hall_is_its_arm_not_its_bounding_box():
+    """Why the inscribed width (twice the polylabel distance) and not the minimum-area rectangle: synthetic-04's
+    L-shaped hall is 1.68 m wide in both arms; its rectangle is 3.10 x 4.40 m. It gets the 16 mm lens."""
+    building = json.loads((ROOT / "results" / "furniture" / "synthetic-04" / "building_final.json")
+                          .read_text(encoding="utf-8"))
+    hall = next(r for r in building["rooms"] if r["id"] == "r_L3_hol")
+    assert len(hall["polygon"]) >= 6
+    assert cameras.room_width(hall) == pytest.approx(1.68, abs=0.011) and cameras.room_lens(hall)[0] == 16.0
+
+
+@pytest.mark.parametrize("value", [14, 14.0, 22.5, 35])
+def test_brief_lens_replaces_the_rule_for_every_room(value):
+    for polygon in ([(0, 0), (4, 0), (4, 3), (0, 3)], [(0, 0), (1.5, 0), (1.5, 4), (0, 4)]):
+        assert cameras.room_lens(_poly_room(polygon), value) == (float(value), "brief render.lens_mm")
+    building = _room(0.25, furniture=[_piece("bed", "bed_double", center=[2.0, 3.0], size=[1.6, 2.0])])
+    plans = cameras.plan_cameras(building, "L0", policy="search", lens_mm=value)
+    assert plans and all(p["lens_mm"] == float(value) and p["lens_rule"] == "brief render.lens_mm" for p in plans)
+
+
+@pytest.mark.parametrize("value", [13.9, 35.5, 0, -18, float("nan"), "18", True, None])
+def test_lens_outside_14_to_35_mm_is_refused(value):
+    with pytest.raises(ValueError, match="14 to 35 mm"):
+        cameras.check_lens(value)
+    if value is not None:
+        with pytest.raises(ValueError, match="14 to 35 mm"):
+            cameras.room_lens(_poly_room([(0, 0), (4, 0), (4, 3), (0, 3)]), value)
+        with pytest.raises(ValueError, match="14 to 35 mm"):
+            cameras.plan_cameras(_room(), "L0", policy="search", lens_mm=value)
+
+
+def test_every_plan_carries_its_own_lens_and_m5_keeps_24_mm():
+    narrow = _room(0.25, size=2.0, furniture=[_piece("wb", "washbasin", center=[1.0, 1.75], size=[0.6, 0.4])])
+    wide = _room(0.25, furniture=[_piece("bed", "bed_double", center=[2.0, 3.0], size=[1.6, 2.0])])
+    assert {p["lens_mm"] for p in cameras.plan_cameras(narrow, "L0", policy="search")} == {16.0}
+    assert {p["lens_mm"] for p in cameras.plan_cameras(wide, "L0", policy="search")} == {18.0}
+    for b in (narrow, wide):
+        assert {p["lens_mm"] for p in cameras.plan_cameras(b, "L0")} == {24.0}   # m5: the committed M5 cameras
+    with pytest.raises(ValueError, match="m5 camera policy keeps its 24 mm lens"):
+        cameras.plan_cameras(wide, "L0", policy="m5", lens_mm=18.0)
+
+
 @pytest.mark.skipif(BLENDER is None, reason="no Blender binary")
 def test_create_cameras_sets_the_lens_shift_and_keeps_verticals_straight(tmp_path):
     """Blender: a searched plan gets shift_y -0.10 and a level camera (pitch 0: its view axis is
     horizontal and its up axis is world +Z); an M5 plan keeps shift 0 and its 1.4 -> 1.3 m tilt."""
     building = _room(0.25, furniture=[_piece("bed", "bed_double", center=[2.0, 3.0], size=[1.6, 2.0])])
-    plans = _search(building)[:2] + [dict(cameras.plan_cameras(building, "L0")[0], name="cam_m5_1")]
+    narrow = _room(0.25, size=2.0, furniture=[_piece("wb", "washbasin", center=[1.0, 1.75], size=[0.6, 0.4])])
+    plans = _search(building)[:2] + [dict(cameras.plan_cameras(building, "L0")[0], name="cam_m5_1")] + \
+        [dict(_search(narrow)[0], name="cam_narrow_1")]
     src, out = tmp_path / "plans.json", tmp_path / "cams.json"
     src.write_text(json.dumps(plans), encoding="utf-8")
     expr = (f"import sys, json; sys.path.insert(0, {str(ROOT)!r})\n"
@@ -271,9 +353,11 @@ def test_create_cameras_sets_the_lens_shift_and_keeps_verticals_straight(tmp_pat
     for plan in plans[:2]:
         cam = res[plan["name"]]
         assert cam["shift"] == pytest.approx([0.0, -0.10], abs=1e-6) and cam["fit"] == "HORIZONTAL"
-        assert cam["lens"] == pytest.approx(24.0) and cam["location"] == pytest.approx(plan["position"], abs=1e-6)
+        # Milestone 8: the plan's own lens (18 mm in this 4 x 4 m room; 24 mm before).
+        assert cam["lens"] == pytest.approx(18.0) and cam["location"] == pytest.approx(plan["position"], abs=1e-6)
         assert cam["forward"][2] == pytest.approx(0.0, abs=1e-6) and cam["up"] == pytest.approx([0, 0, 1], abs=1e-6)
         yaw = math.radians(plan["score"]["yaw_deg"])
         assert cam["forward"][:2] == pytest.approx([math.cos(yaw), math.sin(yaw)], abs=1e-5)
     m5 = res["cam_m5_1"]
-    assert m5["shift"] == [0.0, 0.0] and m5["forward"][2] < 0
+    assert m5["shift"] == [0.0, 0.0] and m5["forward"][2] < 0 and m5["lens"] == pytest.approx(24.0)
+    assert res["cam_narrow_1"]["lens"] == pytest.approx(16.0) and res["cam_narrow_1"]["fit"] == "HORIZONTAL"

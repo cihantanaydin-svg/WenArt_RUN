@@ -11,7 +11,7 @@ CLI::
 
     python -m wenart.blender.cli build --building outputs/p/building_final.json --style outputs/p/style.json \
         --assets assets --out outputs/p/scene [--level L0] [--no-textures] [--preview-samples N] [--reuse] \
-        [--proxies] [--camera-policy m5|search]
+        [--proxies] [--camera-policy m5|search] [--lens-mm L]
     python -m wenart.blender.cli render --scene outputs/p/scene/scene.blend --out outputs/p/renders \
         [--cameras all|cam_a,cam_b] [--samples N] [--res WxH] [--force] [--device auto|cpu] \
         [--exposure auto|off|<EV>] [--exposure-target T] [--white-balance auto|off|fixed:r,g,b] \
@@ -23,7 +23,9 @@ CLI::
 ``build_fingerprint`` equals the fingerprint of the current inputs, code
 and arguments (``build.build_fingerprint``, pure Python); it prints
 ``BUILD_REUSED <fingerprint>``. ``--camera-policy`` (docs/milestone6.md §4.2)
-defaults to ``m5``; the full-run orchestrator passes ``search``.
+defaults to ``m5``; the full-run orchestrator passes ``search``. ``--lens-mm``
+(Milestone 8, docs/milestone8.md §5): the brief's ``render.lens_mm`` for every
+searched camera (14-35); without it 18 mm, 16 mm in rooms narrower than 2.2 m.
 
 Render flags of docs/milestone6.md §5 rows 10-12 (render.py): ``--alt-look``
 also saves ``<cam>_alt_preview.jpg`` with that look and the same window pull;
@@ -107,28 +109,30 @@ def run_blender(script: Path, args: list[str], blend: str | None = None, log_pat
 
 def build_fingerprint(building: str, style: str | None = None, assets: str | None = None, level: str | None = None,
                       no_textures: bool = False, preview_samples: int | None = None, proxies: bool = False,
-                      camera_policy: str = "m5") -> str:
+                      camera_policy: str = "m5", lens_mm: float | None = None) -> str:
     """The fingerprint build.py writes for these arguments (computed without Blender)."""
     from wenart.blender import build as build_script
 
     args = build_script.fingerprint_args(building, style, assets, level, no_textures, preview_samples, False, False,
-                                         proxies, camera_policy)
+                                         proxies, camera_policy, lens_mm)
     return build_script.build_fingerprint(args)
 
 
 def build(building: str, out: str, style: str | None = None, assets: str | None = None, level: str | None = None,
           no_textures: bool = False, preview_samples: int | None = None, timeout: int = 3600,
-          proxies: bool = False, reuse: bool = False, camera_policy: str = "m5") -> Path:
+          proxies: bool = False, reuse: bool = False, camera_policy: str = "m5",
+          lens_mm: float | None = None) -> Path:
     """Build the scene; returns the path of ``scene_manifest.json``.
     ``proxies`` keeps the Milestone 3 proxy boxes for every furniture piece.
     ``camera_policy``: ``m5`` (default, the fixed rules) or ``search``
-    (docs/milestone6.md §4). ``reuse`` skips Blender when the finished build
+    (docs/milestone6.md §4); ``lens_mm``: the brief's lens of every searched
+    camera (None: 18 mm, 16 mm in narrow rooms). ``reuse`` skips Blender when the finished build
     in ``out`` has the fingerprint of these inputs (prints ``BUILD_REUSED <fp>``)."""
     if reuse:
         from wenart.blender import build as build_script
 
         fp = build_fingerprint(str(building), str(style) if style else None, str(assets) if assets else None, level,
-                               no_textures, preview_samples, proxies, camera_policy)
+                               no_textures, preview_samples, proxies, camera_policy, lens_mm)
         ok, why = build_script.reusable_build(Path(out), fp)
         if ok:
             print(f"BUILD_REUSED {fp}")
@@ -148,6 +152,8 @@ def build(building: str, out: str, style: str | None = None, assets: str | None 
     if proxies:
         args.append("--proxies")
     args += ["--camera-policy", str(camera_policy)]
+    if lens_mm is not None:
+        args += ["--lens-mm", f"{float(lens_mm):g}"]
     run_blender(BUILD_SCRIPT, args, log_path=Path(out) / "build.log", timeout=timeout)
     return Path(out) / "scene_manifest.json"
 
@@ -220,6 +226,9 @@ def main(argv: list[str] | None = None) -> int:
     b.add_argument("--reuse", action="store_true", help="skip Blender when the build fingerprint matches")
     b.add_argument("--camera-policy", default="m5", choices=["m5", "search"],
                    help="m5 = the fixed Milestone 3-5 camera rules (default); search = ray-cast camera search")
+    b.add_argument("--lens-mm", type=float, default=None,
+                   help="lens of every searched camera (the brief's render.lens_mm, 14-35 mm); default 18 mm, "
+                        "16 mm in rooms narrower than 2.2 m")
     r = sub.add_parser("render", help="render cameras of a built scene with Cycles")
     r.add_argument("--scene", required=True)
     r.add_argument("--out", required=True)
@@ -252,7 +261,7 @@ def main(argv: list[str] | None = None) -> int:
             return 0 if path else 1
         if ns.command == "build":
             path = build(ns.building, ns.out, ns.style, ns.assets, ns.level, ns.no_textures, ns.preview_samples,
-                         proxies=ns.proxies, reuse=ns.reuse, camera_policy=ns.camera_policy)
+                         proxies=ns.proxies, reuse=ns.reuse, camera_policy=ns.camera_policy, lens_mm=ns.lens_mm)
         else:
             path = render(ns.scene, ns.out, ns.cameras, ns.samples, ns.res, ns.force, ns.device, hide=ns.hide,
                           plug=ns.plug, hide_sets=ns.hide_sets, look_from=ns.look_from, exposure=ns.exposure,

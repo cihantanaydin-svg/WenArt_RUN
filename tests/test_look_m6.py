@@ -594,6 +594,27 @@ def test_cli_build_passes_the_camera_policy(monkeypatch, tmp_path):
     assert [a[a.index("--camera-policy") + 1] for a in seen] == ["m5", "search", "search"]
 
 
+def test_the_brief_lens_enters_the_fingerprint_and_the_build_command(monkeypatch, tmp_path):
+    """Milestone 8 (docs/milestone8.md §5): ``--lens-mm`` (the brief's render.lens_mm) is a build argument of the
+    fingerprint (a changed lens rebuilds the scene, so every view is rendered again: new scene_sha256); None =
+    the automatic 18 / 16 mm rule."""
+    args = _fp_files(tmp_path)
+    assert args["lens_mm"] is None
+    fp = B.build_fingerprint(args)
+    assert B.build_fingerprint(dict(args, lens_mm=20.0)) not in (fp, B.build_fingerprint(dict(args, lens_mm=22.0)))
+    assert cli.build_fingerprint(args["building"], args["style"], camera_policy="search", lens_mm=20) == \
+        B.build_fingerprint(dict(args, camera_policy="search", lens_mm=20.0))
+    assert B.parse_args(["--building", "b", "--out", "o"]).lens_mm is None
+    assert B.parse_args(["--building", "b", "--out", "o", "--lens-mm", "20"]).lens_mm == 20.0
+    seen = []
+    monkeypatch.setattr(cli, "run_blender", lambda script, args, **kw: seen.append(list(args)))
+    cli.build("b.json", str(tmp_path), camera_policy="search", lens_mm=20.0)
+    assert cli.main(["build", "--building", "b.json", "--out", str(tmp_path), "--camera-policy", "search",
+                     "--lens-mm", "22.5"]) == 0
+    cli.build("b.json", str(tmp_path), camera_policy="search")
+    assert [a[a.index("--lens-mm") + 1] if "--lens-mm" in a else None for a in seen] == ["20", "22.5", None]
+
+
 # ==========================================================================
 # Hand-made buildings
 # ==========================================================================

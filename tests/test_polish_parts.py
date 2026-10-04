@@ -238,13 +238,16 @@ def committed_profile(project="synthetic-01") -> dict:
 
 
 def test_prompt_of_the_synthetic_01_living_room():
-    out = PR.build_prompt(committed_profile(), "living", ["sofa", "armchair", "table_coffee"])
+    # Milestone 8: the lens words are the view camera's own lens (18 mm; the M5-M7 prompts said 24 mm).
+    out = PR.build_prompt(committed_profile(), "living", ["sofa", "armchair", "table_coffee"], 18.0)
     assert out["prompt"] == (
         "Photorealistic interior photograph of a living room in Scandinavian style. White plaster walls, light oak "
         "wood floor, sofa, armchair, coffee table. Warm daytime light through the windows, soft natural shadows, "
-        "realistic materials and textures, sharp focus, 24 mm lens.")
+        "realistic materials and textures, sharp focus, 18 mm lens.")
     assert out["family"] == "scandinavian" and out["walls"] == "plaster_white" and out["floor"] == "wood_oak_light"
-    assert out["mood"] == "warm daylight" and out["warnings"] == []
+    assert out["mood"] == "warm daylight" and out["warnings"] == [] and out["lens_mm"] == 18.0
+    for lens, words in ((16.0, "16 mm lens."), (24, "24 mm lens."), (22.5, "22.5 mm lens.")):
+        assert PR.build_prompt(committed_profile(), "living", [], lens)["prompt"].endswith("sharp focus, " + words)
 
 
 def test_prompt_uses_the_wet_room_slots_and_the_rendered_profile():
@@ -261,11 +264,12 @@ def test_prompt_fallbacks_are_listed_in_warnings():
     p = out["prompt"]
     assert p.startswith("Photorealistic interior photograph of a room. ")    # no family, unknown room type
     assert "Plaster new walls, carpet floor, sofa, robot." in p
+    # Milestone 8: no camera lens -> the prompt names none (it said 24 mm before) and a warning says so.
     assert p.endswith("Natural light through the windows, soft natural shadows, realistic materials and textures, "
-                      "sharp focus, 24 mm lens.")
-    assert out["furniture"] == ["sofa", "robot"]
+                      "sharp focus.")
+    assert out["furniture"] == ["sofa", "robot"] and out["lens_mm"] is None
     text = " ".join(out["warnings"])
-    for word in ("attic", "plaster_new", "robot", "style family", "light mood"):
+    for word in ("attic", "plaster_new", "robot", "style family", "light mood", "no camera lens"):
         assert word in text, word
     empty = PR.build_prompt({}, None, [])
     assert empty["prompt"].startswith("Photorealistic interior photograph of a room. Natural light")
@@ -280,7 +284,7 @@ def test_prompt_takes_the_profile_family_and_the_milestone_7_words():
     assert PR.build_prompt(dict(profile, family=None), "prayer", [])["family"] == "scandinavian"   # old derivation
     assert PR.build_prompt(profile, "prayer", [])["prompt"].startswith(
         "Photorealistic interior photograph of a prayer room in Japandi style.")
-    hall = PR.build_prompt(profile, "hall", ["stair", "potted_plant"])
+    hall = PR.build_prompt(profile, "hall", ["stair", "potted_plant"], 16.0)
     assert "staircase, potted plant." in hall["prompt"] and hall["warnings"] == []
 
 

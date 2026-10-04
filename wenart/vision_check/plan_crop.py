@@ -2,7 +2,8 @@
 
 What: ``check/<cam>_plan.jpg`` (<= 300 KB): the source page that the camera's
 room comes from, cropped to the room polygon + 0.5 m, with the camera, its
-view cone (24 mm lens, 36 mm sensor) and every expected element's box
+view cone (the camera's own lens on the 36 mm sensor: 18 or 16 mm since
+Milestone 8) and every expected element's box
 (``id type source``) drawn. It is always shown next to the render in the
 report; as a second VLM image only in the plan A/B of the calibration.
 
@@ -282,7 +283,7 @@ def render_plan_crop(raster, page: dict, room: dict, camera: Optional[dict], ele
         tgt_xy = tuple(camera["target"][:2])
         c = mapping.to_crop(cam_xy)
         heading = math.atan2(tgt_xy[1] - cam_xy[1], tgt_xy[0] - cam_xy[0])
-        half = math.atan((float(camera.get("sensor_mm") or 36.0) / 2.0) / float(camera.get("lens_mm") or 24.0))
+        half = view_half_angle(camera)
         reach = max(1.0, G.distance(G.bbox(polygon)[:2], G.bbox(polygon)[2:]))
         rays = [(cam_xy[0] + reach * math.cos(heading + s * half), cam_xy[1] + reach * math.sin(heading + s * half))
                 for s in (-1.0, 1.0)]
@@ -296,6 +297,16 @@ def render_plan_crop(raster, page: dict, room: dict, camera: Optional[dict], ele
         draw.rectangle([0, 0, base.width, 18], fill=(255, 255, 255, 210))
         draw.text((4, 3), note, fill=(0, 0, 0, 255), font=font)
     return Image.alpha_composite(base, overlay).convert("RGB"), mapping
+
+
+def view_half_angle(camera: dict) -> float:
+    """Half the horizontal field of view (radians) of the camera's own lens (``expected.focal_px``'s lens and
+    sensor; a camera dict without them predates Milestone 8: 24 mm on 36 mm)."""
+    from wenart.vision_check.expected import DEFAULT_LENS_MM, DEFAULT_SENSOR_MM
+
+    sensor = float(camera.get("sensor_mm") or DEFAULT_SENSOR_MM)
+    lens = float(camera.get("lens_mm") or DEFAULT_LENS_MM)
+    return math.atan((sensor / 2.0) / lens)
 
 
 def write_plan_crops(project, cameras=None, log=print) -> dict:

@@ -1466,7 +1466,8 @@ class Orchestrator:
         if not self.can_start(S.EST_BUILD_S):
             self.not_started(pr, "build")
             return
-        rc = self.run_step(pr, "build", "build", S.build(self.tools, pr.ref, force=self.forced("build")))
+        rc = self.run_step(pr, "build", "build", S.build(self.tools, pr.ref, force=self.forced("build"),
+                                                          lens_mm=self.brief_lens(pr)))
         if rc == 0:
             self.finish(pr, "build", "ok")
         elif rc == TIMEOUT_RC:
@@ -1605,6 +1606,14 @@ class Orchestrator:
         self.finish(pr, stage, "ok", f"{len(views)} control view(s)", outputs=[])
 
     # ----- phase 6: diffusion -------------------------------------------------
+
+    def brief_lens(self, pr: ProjectRun) -> Optional[float]:
+        """The brief's ``render.lens_mm`` for the build (Milestone 8), None for ``auto`` (18 / 16 mm by room)."""
+        from wenart.brief import lens_mm, load_brief
+        try:
+            return lens_mm(load_brief(pr.ref.project_dir))
+        except Exception:  # noqa: BLE001 - the style stage already reported a broken brief
+            return None
 
     def polish_on(self, pr: ProjectRun) -> bool:
         from wenart.brief import load_brief, value

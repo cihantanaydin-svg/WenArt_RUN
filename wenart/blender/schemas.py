@@ -27,6 +27,11 @@ pieces) and ``stairs``, the manifest's ``site`` (what the scene leaves
 out: plot walls, exterior areas, site decor, ``built: false``) and
 ``rooms_without_view`` (§6.2: rooms the camera search gives no view, with the
 reason).
+
+Milestone 8 (docs/milestone8.md §5), optional: camera ``lens_rule`` (why the
+searched camera has its 18 / 16 mm or brief lens; ``lens_mm`` stays required),
+the scene manifest's ``lens_mm`` (the brief's lens, null = automatic) and
+render entries' ``lens_mm`` / ``sensor_mm`` (the lens as rendered).
 """
 from __future__ import annotations
 
@@ -161,6 +166,8 @@ SCENE_CAMERA = {
         "shift_y": {"type": "number"},
         "policy": {"enum": ["search", "m5"]},
         "score": {"type": ["object", "null"]},
+        # Milestone 8 (docs/milestone8.md §5): why the camera has its lens (search policy; optional).
+        "lens_rule": {"type": ["string", "null"]},
     },
 }
 
@@ -190,6 +197,7 @@ SCENE_MANIFEST = {
         "pass_index": {"type": "object", "additionalProperties": {"type": "integer"}},
         "assumed": {"type": "array", "items": ASSUMED_ENTRY},
         "camera_policy": {"enum": ["search", "m5"]},
+        "lens_mm": {"type": ["number", "null"]},
         "search_seconds": {"type": ["number", "null"]},
         "warnings": {"type": "array", "items": {"type": "string"}},
         "checks": {"type": "object", "properties": {
@@ -250,6 +258,9 @@ RENDER_ENTRY = {
         "window_pull": WINDOW_PULL,
         "alt_preview": {"type": ["string", "null"]},
         "alt_preview_bytes": {"type": ["integer", "null"]},
+        # Milestone 8 (§5): the lens the camera was rendered with (optional: older manifests have none).
+        "lens_mm": {"type": "number", "exclusiveMinimum": 0},
+        "sensor_mm": {"type": "number", "exclusiveMinimum": 0},
     },
 }
 

@@ -317,10 +317,14 @@ def preview_samples(tools: Tools) -> str:
     return str(SMOKE_PREVIEW_SAMPLES if tools.smoke else PREVIEW_SAMPLES)
 
 
-def build(tools: Tools, ref: ProjectRef, force: bool = False) -> list[str]:
+def build(tools: Tools, ref: ProjectRef, force: bool = False, lens_mm: Optional[float] = None) -> list[str]:
+    """``lens_mm``: the brief's ``render.lens_mm`` (Milestone 8; ``wenart.brief.lens_mm``), None for the automatic
+    18 / 16 mm rule of the camera search."""
     cmd = [tools.py, "-m", "wenart.blender.cli", "build", "--building", _out(ref, "building_final.json"),
            "--style", _out(ref, "style.json"), "--assets", t(tools.assets), "--out", _out(ref, "scene"),
            "--preview-samples", preview_samples(tools), "--camera-policy", "search"]
+    if lens_mm is not None:
+        cmd += ["--lens-mm", f"{float(lens_mm):g}"]
     return cmd if force else cmd + ["--reuse"]
 
 

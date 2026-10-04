@@ -5,7 +5,7 @@ What: one English paragraph, no negative prompt (guidance 0 for Z-Image-Turbo):
     "Photorealistic interior photograph of a {room words} in {family} style.
     {wall words} walls, {floor words} floor{, furniture list}. {mood} light
     through the windows, soft natural shadows, realistic materials and
-    textures, sharp focus, 24 mm lens."
+    textures, sharp focus, {lens} mm lens."
 
 Where the words come from (nothing is guessed; every fallback is listed in
 ``warnings``):
@@ -19,6 +19,10 @@ Where the words come from (nothing is guessed; every fallback is listed in
   slots for bathrooms, WCs and kitchens (as the scene builder does), through
   ``MATERIAL_WORDS``;
 - mood: ``style_profile.lighting.mood`` through ``MOOD_WORDS``;
+- lens: the view's own camera ``lens_mm`` (Milestone 8: 18 or 16 mm for
+  searched cameras, the brief's ``render.lens_mm`` when it sets one; the
+  M5-M7 prompts said 24 mm); without a lens the prompt names none and a
+  warning says so;
 - furniture list: the own-room required and optional furniture of the view
   (``wenart.vision_check.expected.expected_view``), largest first,
   deduplicated types, at most 8. Pieces of type ``unknown`` or status
@@ -138,8 +142,7 @@ FURNITURE_WORDS: dict[str, str] = {
     "potted_plant": "potted plant",
 }
 
-PROMPT_TAIL = ("light through the windows, soft natural shadows, realistic materials and textures, "
-               "sharp focus, 24 mm lens.")
+PROMPT_TAIL = "light through the windows, soft natural shadows, realistic materials and textures, sharp focus"
 
 
 def _words(table: dict, key, what: str, warnings: list) -> Optional[str]:
@@ -208,11 +211,19 @@ def _article(word: str) -> str:
     return "an" if word[:1].lower() in "aeiou" else "a"
 
 
-def build_prompt(style_profile: dict, room_type: Optional[str], furniture: list[str]) -> dict:
-    """The prompt of one view and the words it was made from.
+def lens_words(lens_mm) -> Optional[str]:
+    """``"18 mm lens"`` for a camera lens in mm (None for none or a non-positive value)."""
+    if isinstance(lens_mm, bool) or not isinstance(lens_mm, (int, float)) or not float(lens_mm) > 0:
+        return None
+    return f"{float(lens_mm):g} mm lens"
+
+
+def build_prompt(style_profile: dict, room_type: Optional[str], furniture: list[str],
+                 lens_mm: Optional[float] = None) -> dict:
+    """The prompt of one view and the words it was made from; ``lens_mm``: the view camera's own lens.
 
     Returns ``{"prompt", "room_type", "room_words", "family", "walls", "floor", "mood",
-    "furniture": [types], "warnings": [...]}``.
+    "furniture": [types], "lens_mm", "warnings": [...]}``.
     """
     warnings: list[str] = []
     profile = style_profile or {}
@@ -248,7 +259,10 @@ def build_prompt(style_profile: dict, room_type: Optional[str], furniture: list[
     if parts:
         second = ", ".join(parts)
         sentences.append(second[:1].upper() + second[1:] + ".")
-    sentences.append(f"{mood_words} {PROMPT_TAIL}")
+    lens = lens_words(lens_mm)
+    if lens is None:
+        warnings.append("no camera lens for the view; prompt names no lens")
+    sentences.append(f"{mood_words} {PROMPT_TAIL}" + (f", {lens}." if lens else "."))
     return {"prompt": " ".join(sentences), "room_type": room_type, "room_words": room, "family": family,
             "walls": surf["walls"], "floor": surf["floor"], "mood": mood, "furniture": furniture,
-            "warnings": warnings}
+            "lens_mm": float(lens_mm) if lens else None, "warnings": warnings}

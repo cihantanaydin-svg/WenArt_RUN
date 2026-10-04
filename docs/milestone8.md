@@ -136,6 +136,38 @@ generated models (never silently).
 search ray grid, expected elements, plan crops, gate, detector); render keys change, so everything re-renders.
 The white-wall test limit becomes R/B ≤ 1.12 under AgX Punchy (decision 5).
 
+As built (4 Oct 2026):
+- "Shorter side" = the room's width `cameras.room_width`: the diameter of the largest circle inside the polygon
+  (2 × the `lighting.polylabel` distance; equal to the shorter side of every rectangular room). It differs from the
+  minimum-area rectangle only for non-rectangular rooms: synthetic-04's L-shaped hall is 1.68 m wide (16 mm), its
+  rectangle 3.10 × 4.40 m. Each plan records `lens_mm` and `lens_rule`; render entries record `lens_mm`/`sensor_mm`.
+- `render.lens_mm` in `wenart/defaults.yaml` is `auto` (listed as assumed); a number 14–35 goes to the build as
+  `--lens-mm` (fingerprinted) and sets every searched camera; anything else is a brief warning and `auto`.
+- The `m5` policy keeps 24 mm (it reproduces the committed M5 cameras for the realism A/B).
+- The polish prompt names the view's own lens ("18 mm lens"; it said 24 mm).
+- One score constant follows the lens: the near distance 0.9 m (set at 24 mm) × lens / 24 (0.675 m at 18 mm,
+  0.6 m at 16 mm; the GPU test's blocked rule too). Without it, on the committed buildings of real01 and
+  synthetic-01…06, 16 mm views of narrow rooms saw their side walls as "near": 2 views became
+  `blocked unavoidable` and 2 views were lost (157 instead of the area rule's 159). Weights, caps, penalties,
+  candidate distances and `shift_y` are unchanged (the shift keeps the horizon 32 % from the top at every lens).
+
+| Project | Views 24 → 18/16 mm (area rule) | 16 mm views | Mean score | Min score | Median furniture share | Cameras < 0.6 m from a piece |
+|---|---|---|---|---|---|---|
+| real01 | 20 → 20 (20) | 5 | 3.45 → 3.56 | 1.78 → 2.17 | 0.31 → 0.30 | 4 → 9 |
+| synthetic-01 | 29 → 29 (29) | 8 | 3.07 → 3.27 | 2.06 → 2.35 | 0.37 → 0.35 | 13 → 17 |
+| synthetic-02 | 11 → 12 (12) | 6 | 3.19 → 2.99 | 1.13 → 1.13 | 0.44 → 0.39 | 5 → 7 |
+| synthetic-03 | 44 → 44 (44) | 21 | 2.96 → 3.12 | 1.40 → 1.83 | 0.24 → 0.22 | 20 → 22 |
+| synthetic-04 | 14 → 14 (14) | 5 | 3.22 → 3.46 | 1.85 → 2.32 | 0.24 → 0.22 | 5 → 4 |
+| synthetic-05 | 23 → 23 (23) | 8 | 3.14 → 3.20 | 1.81 → 1.94 | 0.33 → 0.25 | 8 → 10 |
+| synthetic-06 | 17 → 17 (17) | 5 | 3.34 → 3.45 | 1.26 → 1.31 | 0.28 → 0.25 | 4 → 5 |
+
+Furniture share = the ray share of the room's furniture in the view (model, 64 × 36 rays). The visible floor area
+per view grows 1.05–1.8× (median 1.4×). The cameras stand as far back as before (median distance to the wall behind
+them 0.50 m over all 159 views, as at 24 mm). The cameras within 0.6 m of a piece (59 → 74) mostly have it beside
+or behind them: their mean near share falls 0.053 → 0.031 (each at its lens's near distance). The furniture comes
+closer in the frame only because the wider frame takes in nearer pieces: the 24 mm positions seen through the new
+lenses give a median furniture depth of 1.1–1.6 m per project, the new search 1.1–1.7 m (24 mm: 1.2–2.2 m).
+
 ## 6. Prep pods (library build)
 
 Prep job steps (new order): `abo_survey`, `survey` (Objaverse, all licences), `trellis_setup`, `generate`

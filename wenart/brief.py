@@ -16,6 +16,10 @@ fills every key the brief does not set from the ``brief:`` block of
 - ``warnings``: a brief value of the wrong type (``polish: "no"``) is not
   used: the default is taken, the key is listed as assumed and the warning
   says why. A missing ``brief.yaml`` gives the defaults and one warning.
+  Keys with a value rule of their own (``VALUE_RULES``) are checked by it
+  instead of by the default's type: ``render.lens_mm`` (Milestone 8) is
+  ``auto`` (the default: 18 mm, 16 mm in narrow rooms) or a number from 14
+  to 35 (mm); anything else is reported and the default is used.
 
 Why one loader: the brief stored in ``building.project.brief`` is the brief
 at ingest/layout time and can be stale (docs/milestone5.md §1.1), so the
@@ -57,6 +61,22 @@ def _kind(value: Any) -> str:
     return type(value).__name__
 
 
+def _lens_problem(value: Any) -> Optional[str]:
+    """``render.lens_mm``: ``auto`` or a number from 14 to 35 (mm, ``wenart.blender.cameras.LENS_RANGE_MM``)."""
+    from wenart.blender.cameras import LENS_RANGE_MM  # lazy: only a brief that sets the lens needs it
+
+    if value == "auto":
+        return None
+    lo, hi = LENS_RANGE_MM
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or not lo <= float(value) <= hi:
+        return f"expected auto or a lens from {lo:g} to {hi:g} mm, got {value!r}"
+    return None
+
+
+# Dotted keys whose value has a rule of its own (instead of the default's type): a problem text or None.
+VALUE_RULES = {"render.lens_mm": _lens_problem}
+
+
 def _merge(raw: dict, defaults: dict, prefix: str, assumed: list[str], warnings: list[str]) -> dict:
     """``raw`` over ``defaults``, recursively for dict defaults; records assumed keys and type problems."""
     values: dict = {}
@@ -72,6 +92,16 @@ def _merge(raw: dict, defaults: dict, prefix: str, assumed: list[str], warnings:
                 assumed.append(path)
             continue
         given = raw[key]
+        rule = VALUE_RULES.get(path)
+        if rule is not None:
+            problem = rule(given)
+            if problem:
+                warnings.append(f"brief.yaml {path}: {problem}; default {default!r} used")
+                values[key] = copy.deepcopy(default)
+                assumed.append(path)
+            else:
+                values[key] = copy.deepcopy(given)
+            continue
         want, got = _kind(default), _kind(given)
         if want == "dict" and got == "dict":
             values[key] = _merge(given, default, path + ".", assumed, warnings)
@@ -142,6 +172,15 @@ def value(brief: Optional[dict], key: str, default: Any = None) -> Any:
             return default
         cur = cur[part]
     return cur
+
+
+def lens_mm(brief: Optional[dict]) -> Optional[float]:
+    """The brief's ``render.lens_mm`` as a float (validated by ``load_brief``), or None for ``auto`` (the
+    camera rule of ``wenart.blender.cameras.room_lens``: 18 mm, 16 mm in rooms narrower than 2.2 m)."""
+    v = value(brief, "render.lens_mm", "auto")
+    if isinstance(v, bool) or not isinstance(v, (int, float)):
+        return None
+    return float(v)
 
 
 def is_assumed(brief: Optional[dict], key: str) -> bool:

@@ -23,7 +23,8 @@ Milestone 5 (docs/milestone5.md §2, §9), on the new renders only:
 - the uint16 index statistics agree with ``index_values`` and with the
   index map on disk;
 - synthetic-01's white plaster walls look white: wall pixels of the rooms
-  with plaster walls have a display R/B of at most 1.10.
+  with plaster walls have a display R/B of at most 1.12 (1.10 until
+  Milestone 8: the AgX Punchy warmth was accepted by the user on 4 Oct 2026).
 
 Milestone 6 (docs/milestone6.md §4.2), cameras by policy (a scene-manifest
 camera without ``policy`` is an M5 camera):
@@ -34,13 +35,19 @@ camera without ``policy`` is an M5 camera):
   manifest's ``rooms_without_view``) and every other room of the
   building at least one;
 - no searched view is blocked (index pass: one element over 0.55 of the
-  frame, or depth pass: over 0.35 of the pixels nearer than 0.9 m) unless its
+  frame, or depth pass: over 0.35 of the pixels nearer than 0.9 m, at 24 mm) unless its
   plan carries the warning ``blocked unavoidable`` (listed); the share of
   views with under 10 % object pixels is printed, with the correlation of the
   ray-cast model's object share against the index pass;
 - a piece planned inside a searched camera's frustum may be missing from the
   index pass only when the ray-cast model also sees none of it (hidden
   behind another piece; listed).
+
+Milestone 8 (docs/milestone8.md §5): every view is rendered with its plan's
+lens (searched: 18 mm, 16 mm in rooms narrower than 2.2 m, or the brief's
+lens; m5: 24 mm) and the render entry records it; the near distance of the
+blocked rule is 0.9 m x lens / 24 (camsearch.near_distance: 0.675 m at 18 mm,
+0.6 m at 16 mm).
 """
 import hashlib
 import json
@@ -55,10 +62,11 @@ pytestmark = pytest.mark.gpu
 OUTPUTS = Path(os.environ.get("WENART_OUTPUTS", "/workspace/repo/outputs"))
 PROJECTS = [p for p in os.environ.get("RENDER_TEST_PROJECTS", "synthetic-01 synthetic-03").split() if p]
 MAX_SECONDS_PER_VIEW = 240.0
-WHITE_WALL_MAX_RB = 1.10
+# AgX Punchy warmth accepted by the user, 4 Oct 2026 (docs/milestone8.md decision 5); pod B measured 1.104.
+WHITE_WALL_MAX_RB = 1.12
 BLOCKED_SINGLE = 0.55        # one element over this share of the frame (index pass)
-BLOCKED_NEAR = 0.35          # over this share of the pixels nearer than NEAR_MM (depth pass)
-NEAR_MM = 900
+BLOCKED_NEAR = 0.35          # over this share of the pixels nearer than the camera's near distance (depth pass)
+NEAR_MM = 900                # at 24 mm; Milestone 8: times lens / 24 (camsearch.near_distance), 675 mm at 18 mm
 LOW_OBJECT_SHARE = 0.10
 MODEL_HIDDEN_SHARE = 0.005   # a piece the ray-cast model sees on less than this share (192 x 108 rays) is hidden
 
@@ -138,15 +146,16 @@ def test_every_room_has_three_views(project):
         assert names == sorted(f"cam_{room_id}_{i}" for i in range(1, len(cams) + 1)), names
 
 
-def _blocked(render_entry: dict, out: Path) -> dict:
-    """Index/depth measures of one view: largest element share, near share, object share."""
+def _blocked(render_entry: dict, out: Path, lens_mm: float = 24.0) -> dict:
+    """Index/depth measures of one view: largest element share, near share (nearer than ``NEAR_MM`` x lens / 24,
+    the camera search's ``near_distance`` of the view's lens), object share."""
     from wenart import views
 
     W, H = render_entry["resolution"]
     total = float(W * H)
     shares = {int(k): v["pixels"] / total for k, v in render_entry["index_stats"].items() if int(k) != 0}
     depth = views.read_depth_mm(out / render_entry["files"]["depth_mm"])
-    near = float(((depth > 0) & (depth < NEAR_MM)).mean())
+    near = float(((depth > 0) & (depth < NEAR_MM * float(lens_mm) / 24.0)).mean())
     single = max(shares.values(), default=0.0)
     return {"single": single, "near": near, "objects": sum(shares.values()),
             "blocked": single > BLOCKED_SINGLE or near > BLOCKED_NEAR}
@@ -163,7 +172,7 @@ def test_no_blocked_searched_view(project):
         plan = plans.get(r["camera"])
         if plan is None:
             continue
-        m = _blocked(r, out)
+        m = _blocked(r, out, plan.get("lens_mm") or 24.0)
         measured.append((r["camera"], m, plan))
         if m["objects"] < LOW_OBJECT_SHARE:
             low.append(r["camera"])
@@ -200,6 +209,33 @@ def test_view_time_under_four_minutes(project):
                                    f"re-render them with FORCE_RENDER=1")
     slow = [(r["camera"], r["seconds"]) for r in timed if r["seconds"] > MAX_SECONDS_PER_VIEW]
     assert not slow, f"{name}: views over {MAX_SECONDS_PER_VIEW}s: {slow}"
+
+
+def test_cameras_render_with_their_own_lens(project):
+    """Milestone 8 (docs/milestone8.md §5): every render entry records the lens it was rendered with, the lens of
+    its scene plan; searched cameras have 18 mm, 16 mm in a room narrower than 2.2 m (``cameras.room_lens``), or
+    every one the brief's lens (the scene manifest's ``lens_mm``); m5 cameras keep 24 mm."""
+    from wenart.blender import cameras
+
+    name, scene, render = project
+    plans = {c["name"]: c for c in scene["cameras"]}
+    building = _building(name, scene) if any(_policy(c) == "search" for c in plans.values()) else None
+    rooms = {r["id"]: r for r in (building or {}).get("rooms") or []}
+    bad, lenses = [], {}
+    for r in render["renders"]:
+        plan = plans.get(r["camera"])
+        if plan is None:
+            continue
+        if _policy(plan) == "m5":
+            want = cameras.M5_LENS_MM
+        else:
+            want = cameras.room_lens(rooms[plan["room_id"]], scene.get("lens_mm"))[0]
+        lenses[want] = lenses.get(want, 0) + 1
+        if abs(float(plan["lens_mm"]) - want) > 1e-6 or r.get("lens_mm") is None \
+                or abs(float(r["lens_mm"]) - want) > 1e-3 or abs(float(r.get("sensor_mm") or 0) - 36.0) > 1e-3:
+            bad.append((r["camera"], plan.get("lens_mm"), r.get("lens_mm"), want))
+    print(f"{name}: views per lens (mm) {dict(sorted(lenses.items()))}")
+    assert not bad, f"{name}: (camera, plan lens, rendered lens, rule) that disagree: {bad}"
 
 
 def test_render_matches_the_scene_build(project):
@@ -314,7 +350,7 @@ def test_uint16_index_stats_match_the_index_maps(project):
 
 
 def test_white_plaster_walls_are_neutral(project):
-    """synthetic-01 (white plaster walls): display R/B of the wall pixels <= 1.10."""
+    """synthetic-01 (white plaster walls): display R/B of the wall pixels <= WHITE_WALL_MAX_RB (1.12)."""
     from wenart import views
 
     name, scene, render = project

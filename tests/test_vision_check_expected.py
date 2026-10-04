@@ -62,10 +62,13 @@ def test_camera_basis_is_a_look_at_with_world_up():
     assert abs(np.dot(f, r)) < 1e-12 and abs(np.dot(f, u)) < 1e-12 and u[2] > 0
 
 
-def test_projection_against_a_known_camera():
-    cam = {"position": [0.0, 0.0, 1.4], "target": [0.0, 5.0, 1.4], "lens_mm": 24.0, "sensor_mm": 36.0}
+@pytest.mark.parametrize("lens", [24.0, 18.0, 16.0])
+def test_projection_against_a_known_camera(lens):
+    # Milestone 8: the camera's own lens_mm (18 mm: f = 960 px, 16 mm: 853.3 px; m5 cameras 24 mm: 1280 px).
+    cam = {"position": [0.0, 0.0, 1.4], "target": [0.0, 5.0, 1.4], "lens_mm": lens, "sensor_mm": 36.0}
     W, H = 1920, 1080
-    fpx = 24.0 / 36.0 * W                           # 1280 px
+    fpx = lens / 36.0 * W
+    assert X.focal_px(cam, W) == pytest.approx(fpx)
     pts = [(0.0, 4.0, 1.4), (1.0, 2.0, 1.4), (0.0, 2.0, 2.4), (-0.5, 1.0, 0.9)]
     uv, z = X.project_points(pts, cam, (W, H))
     assert np.allclose(z, [4.0, 2.0, 2.0, 1.0])
@@ -136,6 +139,47 @@ def shifted_toy(tmp_path, shift_y: float = -0.10, record_shift: bool = True):
     return X.expected_view(view, scene, T.toy_building())
 
 
+def lens_toy(tmp_path, lens: float, record_lens: bool = True):
+    """The toy project rendered through a ``lens`` mm camera (Milestone 8); ``record_lens``: write the lens into
+    the scene manifest camera (else the manifest keeps the toy's 24 mm while the pixels are ``lens``)."""
+    out = T.write_toy_project(tmp_path)
+    camera = dict(T.CAMERA, lens_mm=lens)
+    index, depth, normal = T.raycast(T.default_boxes(), T.default_openings(), T.SIZE, camera=camera)
+    entry = T.write_render(out / "renders", CAM, index, depth, normal)
+    T.write_manifest(out / "renders", [entry])
+    scene_path = out / "scene" / "scene_manifest.json"
+    scene = json.loads(scene_path.read_text(encoding="utf-8"))
+    if record_lens:
+        scene["cameras"][0]["lens_mm"] = lens
+        scene_path.write_text(json.dumps(scene, indent=1), encoding="utf-8")
+    view = V.load_views(out / "renders")[CAM]
+    return X.expected_view(view, scene, T.toy_building()), scene["cameras"][0]
+
+
+@pytest.mark.parametrize("lens", [18.0, 16.0])
+def test_expected_elements_of_a_wide_lens_view(tmp_path, lens):
+    """Milestone 8: a view rendered through the 18 / 16 mm lens its scene camera records projects every
+    element where the render has it (no misplaced, no missing element), and each piece's pixel box lies in its
+    box projected through that lens; read with the old 24 mm the same render is misplaced."""
+    exp, camera = lens_toy(tmp_path / "wide", lens)
+    cc = exp["json_crosscheck"]
+    assert cc["error"] is None and cc["misplaced"] == [] and cc["in_json_not_rendered"] == []
+    in_view = {eid for eid, p in cc["projected"].items() if p["in_view"]}
+    assert {"win_1", "d_1", "f_sofa", "f_table", "f_arm"} <= in_view
+    by_id = {e["wenart_id"]: e for e in exp["elements"]}
+    for fid in ("f_sofa", "f_table"):
+        piece = next(f for f in T.toy_building()["furniture"] if f["id"] == fid)
+        box3d = X.furniture_box3d(piece, {"elevation": 0.0}, T.PIECES[fid][5])
+        hull = X.projected_hull(X.box_corners(box3d), camera, T.SIZE)
+        x0, y0 = hull.min(axis=0)
+        x1, y1 = hull.max(axis=0)
+        bx0, by0, bx1, by1 = by_id[fid]["box_px"]
+        assert bx0 >= x0 - 1.5 and by0 >= y0 - 1.5 and bx1 <= x1 + 1.5 and by1 <= y1 + 1.5, (fid, hull, by_id[fid])
+        assert by_id[fid]["visibility"] is not None and by_id[fid]["visibility"] > 0.5, by_id[fid]
+    wrong = lens_toy(tmp_path / "unrecorded", lens, record_lens=False)[0]["json_crosscheck"]
+    assert wrong["misplaced"] or wrong["in_json_not_rendered"]
+
+
 def test_crosscheck_of_a_shifted_view_reports_no_misplaced_element(tmp_path):
     exp = shifted_toy(tmp_path / "shifted")
     cc = exp["json_crosscheck"]
@@ -160,7 +204,14 @@ def test_projection_matches_blender_world_to_camera_view(tmp_path):
               "target": [2.0, 3.0, 1.25], "lens_mm": 24.0, "sensor_mm": 36.0, "resolution": [W, H],
               "shift_x": 0.0, "shift_y": -0.10},
              {"name": "cam_m_1", "room_id": "s", "level_id": "L0", "index": 1, "position": [0.0, 0.0, 1.4],
-              "target": [3.0, 1.0, 1.3], "lens_mm": 24.0, "sensor_mm": 36.0, "resolution": [W, H]}]
+              "target": [3.0, 1.0, 1.3], "lens_mm": 24.0, "sensor_mm": 36.0, "resolution": [W, H]},
+             # Milestone 8: the 18 mm and the 16 mm lens of searched cameras.
+             {"name": "cam_s_3", "room_id": "s", "level_id": "L0", "index": 3, "position": [1.0, 2.0, 1.25],
+              "target": [2.0, 3.0, 1.25], "lens_mm": 18.0, "sensor_mm": 36.0, "resolution": [W, H],
+              "shift_x": 0.0, "shift_y": -0.10},
+             {"name": "cam_n_1", "room_id": "n", "level_id": "L0", "index": 1, "position": [1.0, 2.0, 1.25],
+              "target": [2.0, 2.5, 1.25], "lens_mm": 16.0, "sensor_mm": 36.0, "resolution": [W, H],
+              "shift_x": 0.0, "shift_y": -0.10}]
     pts = [(3.0, 3.0, 0.2), (2.5, 1.0, 2.0), (4.0, 2.0, 1.25), (2.0, 4.0, 0.0), (0.2, 5.0, 2.4), (3.0, 0.5, 0.9)]
     src, out = tmp_path / "plans.json", tmp_path / "uv.json"
     src.write_text(json.dumps({"plans": plans, "points": pts}), encoding="utf-8")

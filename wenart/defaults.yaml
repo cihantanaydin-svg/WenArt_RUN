@@ -46,3 +46,6 @@ brief:
     views_per_room: 3
     resolution: [1920, 1080]
     samples: 256
+    # Camera lens in mm on the 36 mm sensor (Milestone 8, docs/milestone8.md §5): auto = 18 mm, 16 mm in rooms
+    # narrower than 2.2 m (wenart.blender.cameras.room_lens); a number from 14 to 35 sets every searched camera.
+    lens_mm: auto

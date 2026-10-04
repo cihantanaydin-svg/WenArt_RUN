@@ -478,7 +478,7 @@ def nearest_edge(p: Sequence[float], polygon: Sequence[Sequence[float]]
 
 
 # --------------------------------------------------------------------------
-# Camera frustum (24 mm on a 36 mm sensor, landscape)
+# Camera frustum (the camera's lens on a 36 mm sensor, landscape)
 # --------------------------------------------------------------------------
 
 def frustum_tangents(lens_mm: float, sensor_mm: float, resolution: Sequence[int]) -> tuple[float, float]:

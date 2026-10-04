@@ -51,7 +51,7 @@ How:
   tests/test_blender_build.py), which the door rectangle on the wall is.
   Pure numpy, no Blender, no shapely: build.py runs it inside Blender's
   Python.
-- Rays: a 64 x 36 grid over the 1920 x 1080 frame of a 24 mm lens on a
+- Rays: a 64 x 36 grid over the 1920 x 1080 frame of the room's lens on a
   36 mm sensor (horizontal sensor fit) with the lens shift of §1.3
   (``a = (col + 0.5 - W/2 + shift_x W) / f``, ``b = -(row + 0.5 - H/2 -
   shift_y W) / f``, direction ``forward + a right + b up``). The ray
@@ -104,9 +104,28 @@ still gets its walls, floor, ceiling and openings; only the camera is left
 out. ``room_view_count(room)`` without the building is the area rule alone
 (the pre-layout estimate).
 
+Milestone 8 (docs/milestone8.md §5, user decision 6): each room is searched
+with its own lens (``cameras.room_lens``: 18 mm, 16 mm in a room narrower
+than 2.2 m, or the brief's ``render.lens_mm``, the ``lens_mm`` argument of
+``plan_level``): the ray grid, the frustum lists and the plan's
+``lens_mm``/``lens_rule`` all use it. The score weights, caps, penalties,
+candidate distances and ``shift_y`` are unchanged (the shift is a fraction
+of the image width, so the horizon stays at the same image row, 32 % from
+the top, whatever the lens; pitch 0 keeps the verticals straight). One
+constant follows the lens: the near distance (``near_distance``: 0.9 m at
+the 24 mm lens it was set with, times lens / 24: 0.675 m at 18 mm, 0.6 m
+at 16 mm), because a surface d metres away through lens L is as large in
+the frame as at d x 24 / L through 24 mm. Measured on the committed
+buildings of real01 and synthetic-01..06 (159 views): with 0.9 m at every
+lens the side walls of narrow rooms seen through 16 mm made 2 views
+``blocked unavoidable`` (synthetic-02 bathroom, synthetic-05 hall) and cost
+2 views (157 instead of the area rule's 159), the mean near share tripled
+(0.03 -> 0.07); with the scaled distance no view is blocked and every room
+gets its area-rule views.
+
 CLI (inspection only; the build calls ``plan_level``): ``python -m
 wenart.blender.camsearch outputs/<p>/building_final.json --out cameras.json
-[--report cameras.md] [--level L0]``.
+[--report cameras.md] [--level L0] [--lens-mm 18]``.
 """
 from __future__ import annotations
 
@@ -138,7 +157,8 @@ SCORE = {
     "openings_cap": 0.12,             # min(open, 0.12) / 0.12
     "floor_cap": 0.25,                # min(floor, 0.25) / 0.25
     "depth_ref_m": 3.0,               # min(d_wall / 3 m, 1)
-    "near_m": 0.9,                    # near = share of rays with depth < 0.9 m
+    "near_m": 0.9,                    # near = share of rays with depth < 0.9 m (at the 24 mm reference lens)
+    "near_lens_mm": 24.0,             # Milestone 8: near_m scales with the lens (near_distance)
     # name: (factor, allowed share): score -= factor * max(0, share - allowed)
     "penalties": {
         "near": (3.0, 0.08),
@@ -164,7 +184,7 @@ SCORE = {
 CAMERA_HEIGHT = 1.25
 SHIFT_X = 0.0
 SHIFT_Y = -0.10
-LENS_MM = cameras.LENS_MM            # 24 mm
+LENS_MM = cameras.LENS_MM            # 18 mm (Milestone 8; 16 mm in narrow rooms: cameras.room_lens)
 SENSOR_MM = cameras.SENSOR_MM        # 36 mm
 RESOLUTION = cameras.RESOLUTION      # 1920 x 1080
 GRID_STEP = 0.5
@@ -299,6 +319,14 @@ def score_terms(m: dict) -> dict:
     total = furniture + openings + floor + depth - penalties
     return {"total": total, "furniture": furniture, "openings": openings, "floor": floor, "depth": depth,
             "penalties": penalties, "blocked": is_blocked(m)}
+
+
+def near_distance(lens_mm: float) -> float:
+    """The near distance of a ``lens_mm`` camera (Milestone 8): ``SCORE["near_m"]`` (0.9 m, set with the
+    24 mm lens of Milestone 6) times ``lens_mm / 24``: 0.675 m at 18 mm, 0.6 m at 16 mm. A surface at
+    distance d through a lens L is as large in the frame as at d x 24 / L through the 24 mm lens, so the
+    near share (and the blocked rule) means the same picture at every lens."""
+    return SCORE["near_m"] * float(lens_mm) / SCORE["near_lens_mm"]
 
 
 def is_blocked(m: dict) -> bool:
@@ -615,8 +643,12 @@ class RoomModel:
         return labels.reshape(shape), depth.reshape(shape)
 
     # ------------------------------------------------------------------
-    def measure(self, labels: np.ndarray, depth: np.ndarray, border: np.ndarray) -> list[dict]:
-        """Model shares (the ``score_terms`` input) of each row of ``labels``/``depth`` (C x P)."""
+    def measure(self, labels: np.ndarray, depth: np.ndarray, border: np.ndarray,
+                near_m: Optional[float] = None) -> list[dict]:
+        """Model shares (the ``score_terms`` input) of each row of ``labels``/``depth`` (C x P);
+        ``near_m``: the near distance of the camera's lens (``near_distance``; default ``SCORE["near_m"]``,
+        the 24 mm one)."""
+        near_m = SCORE["near_m"] if near_m is None else float(near_m)
         labels = np.asarray(labels).reshape(-1, labels.shape[-1])
         depth = np.asarray(depth).reshape(-1, depth.shape[-1])
         C, P = labels.shape
@@ -628,7 +660,7 @@ class RoomModel:
         shares = counts / float(P)
         elements = np.concatenate([self.piece_codes, self.opening_codes]).astype(int)
         max_single = shares[:, elements].max(axis=1) if len(elements) else np.zeros(C)
-        near = (depth < SCORE["near_m"]).mean(axis=1)
+        near = (depth < near_m).mean(axis=1)
         wall = labels == WALL
         d_wall = np.zeros(C)
         has_wall = wall.any(axis=1)
@@ -756,18 +788,21 @@ def select_views(candidates: Sequence[dict], n: int) -> tuple[list[dict], Option
 
 
 def score_candidates(model: RoomModel, positions, height: float = CAMERA_HEIGHT, yaws=None,
-                     shift_x: float = SHIFT_X, shift_y: float = SHIFT_Y, grid=None) -> list[dict]:
-    """Every (position, yaw) candidate of a room with its model shares and score terms."""
+                     shift_x: float = SHIFT_X, shift_y: float = SHIFT_Y, grid=None,
+                     lens_mm: float = LENS_MM) -> list[dict]:
+    """Every (position, yaw) candidate of a room with its model shares and score terms, seen through
+    ``lens_mm`` (the room's lens, ``cameras.room_lens``)."""
     grid = grid or SCORE["grid"]
     yaws = list(range(0, 360, YAW_STEP_DEG)) if yaws is None else list(yaws)
-    a, b = ray_grid(grid, shift_x=shift_x, shift_y=shift_y)
+    a, b = ray_grid(grid, lens_mm, shift_x=shift_x, shift_y=shift_y)
     dirs = yaw_directions(yaws, a, b)
     border = border_mask(grid)
     z = model.floor_z + float(height)
     out = []
+    near_m = near_distance(lens_mm)
     for x, y in positions:
         labels, depth = model.cast((x, y, z), dirs)
-        for yaw, m in zip(yaws, model.measure(labels, depth, border)):
+        for yaw, m in zip(yaws, model.measure(labels, depth, border, near_m)):
             terms = score_terms(m)
             out.append({"x": float(x), "y": float(y), "yaw": float(yaw), "total": terms["total"], "terms": terms,
                         "blocked": terms["blocked"], "shares": m})
@@ -775,15 +810,17 @@ def score_candidates(model: RoomModel, positions, height: float = CAMERA_HEIGHT,
 
 
 def score_camera(building: dict, camera: dict, grid=None) -> dict:
-    """Model shares and score terms of any camera plan (M5 or searched; pitch and shift as recorded)."""
+    """Model shares and score terms of any camera plan (M5 or searched; pitch, shift and lens as recorded, the
+    near distance of its lens)."""
     room = next(r for r in building["rooms"] if r["id"] == camera["room_id"])
     model = RoomModel(room, building)
     grid = grid or SCORE["grid"]
-    a, b = ray_grid(grid, camera.get("lens_mm") or LENS_MM, camera.get("sensor_mm") or SENSOR_MM,
+    lens = float(camera.get("lens_mm") or cameras.M5_LENS_MM)    # no lens_mm: a pre-Milestone 8 camera (24 mm)
+    a, b = ray_grid(grid, lens, camera.get("sensor_mm") or SENSOR_MM,
                     camera.get("resolution") or RESOLUTION, float(camera.get("shift_x") or 0.0),
                     float(camera.get("shift_y") or 0.0))
     labels, depth = model.cast(camera["position"], camera_directions(camera["position"], camera["target"], a, b))
-    m = model.measure(labels[None, :], depth[None, :], border_mask(grid))[0]
+    m = model.measure(labels[None, :], depth[None, :], border_mask(grid), near_distance(lens))[0]
     return {"shares": m, "terms": score_terms(m)}
 
 
@@ -796,12 +833,14 @@ def _round(v: float, nd: int = 4) -> float:
     return 0.0 if r == 0 else r
 
 
-def _frustum_lists(model: RoomModel, position, target, seen=None) -> tuple[list[str], list[str]]:
-    """The room's openings whose centre is inside the shifted frustum (as the M5 lists), and its pieces
-    whose centre is inside it or that the model's rays see (``seen``: ``{element id: ray share}`` of
-    this view, the ``elements`` of ``RoomModel.measure``). A long piece seen from the side (a 2.4 m stair
-    filling half the frame) can have its centre outside the frame (review dwgblender-2)."""
-    tangents = geom2d.frustum_tangents(LENS_MM, SENSOR_MM, RESOLUTION)
+def _frustum_lists(model: RoomModel, position, target, seen=None,
+                   lens_mm: float = LENS_MM) -> tuple[list[str], list[str]]:
+    """The room's openings whose centre is inside the shifted frustum of a ``lens_mm`` camera (as the
+    M5 lists), and its pieces whose centre is inside it or that the model's rays see (``seen``:
+    ``{element id: ray share}`` of this view, the ``elements`` of ``RoomModel.measure``). A long piece
+    seen from the side (a 2.4 m stair filling half the frame) can have its centre outside the frame
+    (review dwgblender-2)."""
+    tangents = geom2d.frustum_tangents(lens_mm, SENSOR_MM, RESOLUTION)
     fz = model.floor_z
     seen = seen or {}
     opens = [o["id"] for o in model.openings
@@ -815,7 +854,8 @@ def _frustum_lists(model: RoomModel, position, target, seen=None) -> tuple[list[
     return opens, pieces
 
 
-def _plan(model: RoomModel, index: int, pick: dict, warning: Optional[str]) -> dict:
+def _plan(model: RoomModel, index: int, pick: dict, warning: Optional[str], lens_mm: float = LENS_MM,
+          lens_rule: Optional[str] = None) -> dict:
     room = model.room
     z = model.floor_z + CAMERA_HEIGHT
     yaw = math.radians(pick["yaw"])
@@ -831,36 +871,40 @@ def _plan(model: RoomModel, index: int, pick: dict, warning: Optional[str]) -> d
     placement = (f"search: score {score['total']:.3f} = furniture {score['furniture']:.3f} + openings "
                  f"{score['openings']:.3f} + floor {score['floor']:.3f} + depth {score['depth']:.3f} - penalties "
                  f"{score['penalties']:.3f}; yaw {pick['yaw']:.0f} deg")
-    opens, pieces = _frustum_lists(model, position, target, m.get("elements"))
+    opens, pieces = _frustum_lists(model, position, target, m.get("elements"), lens_mm)
     return {
         "name": f"cam_{room['id']}_{index}",
         "room_id": room["id"], "level_id": room["level_id"], "index": index,
         "position": position, "target": target,
-        "lens_mm": LENS_MM, "sensor_mm": SENSOR_MM, "resolution": list(RESOLUTION),
+        "lens_mm": float(lens_mm), "lens_rule": lens_rule, "sensor_mm": SENSOR_MM, "resolution": list(RESOLUTION),
         "shift_x": SHIFT_X, "shift_y": SHIFT_Y, "policy": POLICY, "score": score,
         "placement": placement, "anchor": None, "warning": warning,
         "visible_openings": opens, "visible_furniture": pieces,
     }
 
 
-def plan_room(room: dict, building: dict, level: Optional[dict] = None) -> tuple[list[dict], int]:
+def plan_room(room: dict, building: dict, level: Optional[dict] = None,
+              lens_mm: Optional[float] = None) -> tuple[list[dict], int]:
     """``(plans, candidates scored)`` of one room; ``([], 0)`` for a room without a view
-    (``no_view_reason``)."""
+    (``no_view_reason``). The candidates are scored through the room's lens (``cameras.room_lens``:
+    ``lens_mm`` = the brief's ``render.lens_mm``, or None for the 18 / 16 mm rule)."""
     model = RoomModel(room, building, level)
     if len(model.polygon) < 3:
         raise ValueError(f"room {room['id']}: polygon with fewer than 3 vertices, no camera can be placed")
     n = room_view_count(room, building)
     if n == 0:
         return [], 0
+    lens, rule = cameras.room_lens(room, lens_mm)
     positions, fallback = candidate_positions(room, building)
-    cands = score_candidates(model, positions)
+    cands = score_candidates(model, positions, lens_mm=lens)
     picks, blocked = select_views(cands, n)
     warning = "; ".join(w for w in (fallback, blocked) if w) or None
-    return [_plan(model, i, p, warning) for i, p in enumerate(picks, start=1)], len(cands)
+    return [_plan(model, i, p, warning, lens, rule) for i, p in enumerate(picks, start=1)], len(cands)
 
 
-def plan_level(building: dict, level_id: str) -> list[dict]:
-    """Searched camera plans of every room of ``level_id`` (``cameras.plan_cameras(policy="search")``).
+def plan_level(building: dict, level_id: str, lens_mm: Optional[float] = None) -> list[dict]:
+    """Searched camera plans of every room of ``level_id`` (``cameras.plan_cameras(policy="search")``);
+    ``lens_mm``: the brief's ``render.lens_mm`` for every room, None for the 18 / 16 mm rule.
 
     Every plan carries ``search_seconds``: the wall time of this level's search."""
     level = next(lv for lv in building["levels"] if lv["id"] == level_id)
@@ -869,7 +913,7 @@ def plan_level(building: dict, level_id: str) -> list[dict]:
     for room in building["rooms"]:
         if room["level_id"] != level_id:
             continue
-        plans.extend(plan_room(room, building, level)[0])
+        plans.extend(plan_room(room, building, level, lens_mm)[0])
     seconds = round(time.perf_counter() - t0, 3)
     for plan in plans:
         plan["search_seconds"] = seconds
@@ -897,16 +941,19 @@ def model_shares(building: dict, camera: dict, grid=(192, 108)) -> dict[str, flo
 def report_md(building: dict, plans: Sequence[dict], without: Optional[Sequence[dict]] = None) -> str:
     """Markdown table of the views; ``without`` (``rooms_without_view`` rows) adds the rooms left without one."""
     rooms = {r["id"]: r for r in building["rooms"]}
+    lenses = sorted({float(p.get("lens_mm") or LENS_MM) for p in plans})
     lines = [f"# Camera search: {building.get('project', {}).get('id', '?')}", "",
-             f"Policy `search`: height {CAMERA_HEIGHT} m, pitch 0, shift_y {SHIFT_Y}, lens {LENS_MM:.0f} mm; "
+             f"Policy `search`: height {CAMERA_HEIGHT} m, pitch 0, shift_y {SHIFT_Y}, lens "
+             f"{', '.join(f'{v:g}' for v in lenses) or f'{LENS_MM:g}'} mm; "
              f"{len(plans)} views in {len({p['room_id'] for p in plans})} rooms; search "
              + ", ".join(f"{k} {v:.1f} s" for k, v in level_search_seconds(plans).items()) + ".", "",
-             "| Camera | Room | Area m2 | Score | Furniture | Openings | Floor | Depth | Penalties | Floor share | "
-             "Near | Warning |", "|---|---|---|---|---|---|---|---|---|---|---|---|"]
+             "| Camera | Room | Area m2 | Lens mm | Score | Furniture | Openings | Floor | Depth | Penalties | "
+             "Floor share | Near | Warning |", "|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
     for p in plans:
         s = p["score"]
         area = G.polygon_area(room_polygon(rooms[p["room_id"]]))
-        lines.append(f"| {p['name']} | {p['room_id']} | {area:.2f} | {s['total']:.3f} | {s['furniture']:.3f} | "
+        lines.append(f"| {p['name']} | {p['room_id']} | {area:.2f} | {float(p.get('lens_mm') or LENS_MM):g} | "
+                     f"{s['total']:.3f} | {s['furniture']:.3f} | "
                      f"{s['openings']:.3f} | {s['floor']:.3f} | {s['depth']:.3f} | {s['penalties']:.3f} | "
                      f"{s['shares']['floor']:.3f} | {s['shares']['near']:.3f} | {p['warning'] or ''} |")
     if without:
@@ -921,7 +968,16 @@ def main(argv=None) -> int:
     ap.add_argument("--level", default=None, help="one level id (default: every level)")
     ap.add_argument("--out", required=True, help="JSON with the plans")
     ap.add_argument("--report", default=None, help="optional markdown table of the views")
+    ap.add_argument("--lens-mm", type=float, default=None,
+                    help="lens of every room (the brief's render.lens_mm, 14-35); default: 18 mm, 16 mm in rooms "
+                         "narrower than 2.2 m")
     args = ap.parse_args(argv)
+    if args.lens_mm is not None:
+        try:
+            cameras.check_lens(args.lens_mm)
+        except ValueError as exc:
+            print(str(exc), file=sys.stderr)
+            return 2
     building = json.loads(Path(args.building).read_text(encoding="utf-8"))
     levels = [lv["id"] for lv in building["levels"] if args.level is None or lv["id"] == args.level]
     if not levels:
@@ -929,7 +985,7 @@ def main(argv=None) -> int:
         return 2
     plans: list[dict] = []
     for level_id in levels:
-        plans.extend(plan_level(building, level_id))
+        plans.extend(plan_level(building, level_id, args.lens_mm))
     out = {"schema_version": "0.1", "kind": "camera_search", "building": args.building, "policy": POLICY,
            "search_seconds": level_search_seconds(plans), "cameras": plans,
            "rooms_without_view": [r for level_id in levels for r in rooms_without_view(building, level_id)]}

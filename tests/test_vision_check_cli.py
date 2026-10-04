@@ -82,6 +82,38 @@ def test_plan_crop_maps_a_known_building_point_to_its_pixel(tmp_path):
     assert info["crop_origin_px"] == [50, 150]
 
 
+@pytest.mark.parametrize("lens", [24.0, 18.0, 16.0])
+def test_plan_crop_view_cone_is_the_cameras_own_lens(tmp_path, lens):
+    """Milestone 8: the view cone of the plan crop spans the camera's own field of view (half angle atan(18 /
+    lens): 36.9 degrees at 24 mm, 45 at 18 mm, 48.4 at 16 mm); a camera without a lens is a pre-M8 24 mm one."""
+    import math
+
+    out = T.write_toy_project(tmp_path)
+    project = Project(out)
+    doc = project.building["documents"][0]
+    page = doc["pages"][0]
+    raster = PC.load_raster(doc, page, project.project_dir / "plan.png")
+    camera = dict(T.CAMERA, lens_mm=lens)
+    half = math.atan(18.0 / lens)
+    assert PC.view_half_angle(camera) == pytest.approx(half)
+    assert PC.view_half_angle({k: v for k, v in camera.items() if k not in ("lens_mm", "sensor_mm")}) == \
+        pytest.approx(math.atan(18.0 / 24.0))
+    image, mapping = PC.render_plan_crop(raster, page, project.room("r_salon"), camera, [], project.building)
+    rgb = np.asarray(image.convert("RGB")).astype(int)
+    (cx, cy), (tx, ty) = camera["position"][:2], camera["target"][:2]
+    heading = math.atan2(ty - cy, tx - cx)
+
+    def cone_colour_near(angle: float) -> bool:
+        x, y = (int(round(v)) for v in mapping.to_crop((cx + 1.2 * math.cos(angle), cy + 1.2 * math.sin(angle))))
+        patch = rgb[y - 2:y + 3, x - 2:x + 3].reshape(-1, 3)
+        return any(r < 110 and g < 150 and b > 170 for r, g, b in patch)    # PC.CAMERA_COLOUR over the plan
+
+    assert cone_colour_near(heading - half) and cone_colour_near(heading + half)
+    if lens != 24.0:
+        old = math.atan(18.0 / 24.0)
+        assert not cone_colour_near(heading - old) and not cone_colour_near(heading + old)
+
+
 def test_a_raster_page_is_drawn_on_its_rectified_image_with_y_up(tmp_path):
     """Review cross-1: a scan/photo page's units are rectified pixel corners with y up, so the crop is drawn on
     ``<project_out>/<rectified_image>`` at (x, H - y), never on the original file at (x, y). Here the toy plan,

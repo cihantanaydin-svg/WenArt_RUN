@@ -789,3 +789,27 @@ def test_m7_search_policy_lists_rooms_without_view(tmp_path):
     assert {"r_L0_hall", "r_L0_din"} <= set(by_room)
     # The m5 policy (three cameras per room) lists no room.
     assert cameras.rooms_without_view(building, "L0", policy="m5") == []
+    # Milestone 8 (§5): no brief lens; every camera has its room's lens (16 mm in the 1.53 m hall; every room of
+    # this building is under 2.2 m wide) and the rule, as the plans of cameras.plan_cameras give them.
+    rooms_by_id = {r["id"]: r for r in rooms}
+    assert m["lens_mm"] is None and m["build_args"]["lens_mm"] is None
+    for c in m["cameras"]:
+        assert (c["lens_mm"], c["lens_rule"]) == cameras.room_lens(rooms_by_id[c["room_id"]]), c["name"]
+    assert {c["lens_mm"] for c in m["cameras"] if c["room_id"] == "r_L0_hall"} == {16.0}
+    # The brief's lens (--lens-mm) for every camera, recorded in the manifest and its build arguments.
+    lens_out = tmp_path / "scene_lens"
+    cli.run_blender(Path(cli.BUILD_SCRIPT), ["--building", str(path), "--style", str(STYLE), "--out", str(lens_out),
+                                             "--no-textures", "--no-preview", "--no-glb", "--camera-policy", "search",
+                                             "--lens-mm", "20"])
+    m20 = json.loads((lens_out / "scene_manifest.json").read_text(encoding="utf-8"))
+    schemas.validate_scene_manifest(m20)
+    assert m20["lens_mm"] == 20.0 and m20["build_args"]["lens_mm"] == 20.0
+    assert {(c["lens_mm"], c["lens_rule"]) for c in m20["cameras"]} == {(20.0, "brief render.lens_mm")}
+    assert m20["build_fingerprint"] != m["build_fingerprint"]
+    # A brief lens is refused with the m5 policy (its cameras keep 24 mm) and outside 14-35 mm: exit 2.
+    for extra in (["--camera-policy", "m5", "--lens-mm", "18"], ["--camera-policy", "search", "--lens-mm", "40"]):
+        with pytest.raises(cli.BlenderFailed) as err:
+            cli.run_blender(Path(cli.BUILD_SCRIPT), ["--building", str(path), "--style", str(STYLE), "--out",
+                                                     str(tmp_path / "refused"), "--no-textures", "--no-preview",
+                                                     "--no-glb"] + extra)
+        assert err.value.returncode == 2

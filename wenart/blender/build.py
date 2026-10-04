@@ -75,6 +75,14 @@ Milestone 7 (docs/milestone7.md §6.4):
   manifest's ``rooms_without_view`` with the reason and in ``warnings``;
 - ``load_style`` never fills the profile's ``family`` from the default (only
   refit's library style filter reads it).
+
+Milestone 8 (docs/milestone8.md §5): ``--lens-mm L`` (the brief's
+``render.lens_mm``, 14-35; the orchestrator passes it when the brief sets a
+number) gives every searched camera that lens; without it each room gets
+``cameras.room_lens`` (18 mm, 16 mm in rooms narrower than 2.2 m). Part of
+the fingerprint and recorded as ``lens_mm`` (null = the automatic rule);
+every camera plan carries its own ``lens_mm`` and ``lens_rule``. The ``m5``
+policy refuses it (its cameras keep the M5 24 mm lens).
 """
 from __future__ import annotations
 
@@ -139,6 +147,9 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
                         help="Milestone 3 proxy boxes for every furniture piece instead of assets")
     parser.add_argument("--camera-policy", default=DEFAULT_CAMERA_POLICY, choices=CAMERA_POLICIES,
                         help="m5 = the fixed camera rules of Milestones 3-5 (default); search = ray-cast search")
+    parser.add_argument("--lens-mm", type=float, default=None,
+                        help="lens of every searched camera (the brief's render.lens_mm, 14-35 mm); default: 18 mm, "
+                             "16 mm in rooms narrower than 2.2 m")
     return parser.parse_args(argv)
 
 
@@ -148,14 +159,17 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 
 def fingerprint_args(building: str, style: str | None = None, assets: str | None = None, level: str | None = None,
                      no_textures: bool = False, preview_samples: int | None = None, no_preview: bool = False,
-                     no_glb: bool = False, proxies: bool = False, camera_policy: str = DEFAULT_CAMERA_POLICY) -> dict:
+                     no_glb: bool = False, proxies: bool = False, camera_policy: str = DEFAULT_CAMERA_POLICY,
+                     lens_mm: float | None = None) -> dict:
     """The build arguments that enter the fingerprint, in one canonical form
-    (``--out`` is left out: where the scene is written does not change it)."""
+    (``--out`` is left out: where the scene is written does not change it).
+    ``lens_mm`` None = the automatic lens rule (Milestone 8)."""
     return {"building": str(building), "style": str(style) if style else None,
             "assets": str(assets) if assets else None, "level": level, "no_textures": bool(no_textures),
             "preview_samples": DEFAULT_PREVIEW_SAMPLES if preview_samples is None else int(preview_samples),
             "no_preview": bool(no_preview), "no_glb": bool(no_glb), "proxies": bool(proxies),
-            "camera_policy": str(camera_policy or DEFAULT_CAMERA_POLICY)}
+            "camera_policy": str(camera_policy or DEFAULT_CAMERA_POLICY),
+            "lens_mm": None if lens_mm is None else float(lens_mm)}
 
 
 def _sha256_file(path: Path) -> str | None:
@@ -429,8 +443,18 @@ def main(argv: list[str]) -> int:
     t0 = time.time()
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
+    if args.lens_mm is not None:
+        try:
+            cams.check_lens(args.lens_mm)
+            if args.camera_policy != "search":
+                raise ValueError(f"--lens-mm is for the search policy; the {args.camera_policy} cameras keep "
+                                 f"{cams.M5_LENS_MM:g} mm")
+        except ValueError as exc:
+            print(f"--lens-mm {args.lens_mm:g}: {exc}")
+            return 2
     fp_args = fingerprint_args(args.building, args.style, args.assets, args.level, args.no_textures,
-                               args.preview_samples, args.no_preview, args.no_glb, args.proxies, args.camera_policy)
+                               args.preview_samples, args.no_preview, args.no_glb, args.proxies, args.camera_policy,
+                               args.lens_mm)
     fingerprint = build_fingerprint(fp_args)
     building = json.loads(Path(args.building).read_text(encoding="utf-8"))
     if building.get("status") != "ok":
@@ -485,7 +509,7 @@ def main(argv: list[str]) -> int:
         add_furniture_summary(furniture_summary, summary)
         add_furniture_summary(furniture_summary, shell.build_stairs(building, level, col, library, style, pass_indices,
                                                                     manifest_objects, assumed, warnings, plans=stairs))
-        plans = cams.plan_cameras(building, level["id"], policy=args.camera_policy)
+        plans = cams.plan_cameras(building, level["id"], policy=args.camera_policy, lens_mm=args.lens_mm)
         no_view = cams.rooms_without_view(building, level["id"], policy=args.camera_policy)
         rooms_without_view.extend(no_view)
         warnings.extend(f"{r['room_id']}: no view ({r['reason']})" for r in no_view)
@@ -559,6 +583,7 @@ def main(argv: list[str]) -> int:
                    for lv in levels],
         "objects": manifest_objects,
         "camera_policy": args.camera_policy,
+        "lens_mm": args.lens_mm,                              # Milestone 8: the brief's lens, None = automatic
         "search_seconds": search_seconds(camera_plans, args.camera_policy),
         "cameras": camera_plans,
         "rooms_without_view": rooms_without_view,
