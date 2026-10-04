@@ -43,6 +43,8 @@
 #                   copy,tests; L2 = PREP_ONLY=trellis_setup,generate,thumbnails,judge_requests,session_qwen,
 #                   session_glm,library,copy,tests with WENART_GENERATE_TARGET=20 (the real GLBs come from the assets
 #                   copy L1's write-catalog made)
+#   WENART_GENERATE_RESERVE_MIN  minutes the generation stops before the job deadline (default 30 when the job also
+#                   thumbnails or judges, so the same pod judges what it generated; else 0)
 #   WENART_ABO_CACHE  ABO metadata and GLBs (default $WENART_FAST/abo, container disk)
 #   WENART_TRELLIS_PY venv-trellis python (default $WENART_FAST/venv-trellis/bin/python, scripts/pod_setup_trellis.sh)
 #   CHECK_MODELS    check.yaml model keys of the setup (default "qwen glm")

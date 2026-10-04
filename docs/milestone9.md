@@ -200,7 +200,7 @@ projects keep their 3D files in `/workspace/outputs-private/<alias>/export/` (th
 | Pod | Steps | Est. minutes | Est. cost |
 |---|---|---|---|
 | L1 | ABO survey (40 per type, new decor rules), Objaverse survey (fixtures), thumbnails, judging (2 models), accept (20 per type), catalogue | 60–70 | $2.1–2.5 |
-| L2 | TRELLIS.2 setup (cached wheels), accept over every source, generation plan `--target 20`, generation until the deadline, thumbnails, judging, catalogue | 110 | $3.9 |
+| L2 | TRELLIS.2 setup (cached wheels), accept over every source, generation plan `--target 20`, generation (two shards) until 30 min before the deadline (`WENART_GENERATE_RESERVE_MIN`), thumbnails, judging, catalogue | 120 | $4.2 |
 | L3 | the rest of the generation plan (if L2 is cut), judging, catalogue | ≤ 110 | ≤ $3.9 |
 | F1 | full runs real01, synthetic-01, synthetic-04 with the new library and AI decor | 60–75 | $2.1–2.6 |
 

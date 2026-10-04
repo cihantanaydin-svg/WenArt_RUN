@@ -21,6 +21,7 @@ import re
 import stat
 import subprocess
 import sys
+import threading
 import time
 from contextlib import contextmanager
 from pathlib import Path
@@ -369,6 +370,7 @@ class World:
         self.events: list = []
         self.calls: list = []
         self.lines: list = []
+        self.lock = threading.Lock()          # the generation shards call the runner from two threads
         self.pipeline_rc = {"real01": 4, "synthetic-02": 4, "synthetic-06": 0, "real01-scan": 4,
                             **(pipeline_rc or {})}
         self.status_rc = status_rc or {}
@@ -433,17 +435,18 @@ class World:
 
     # -- the fake runner
     def runner(self, cmd, env, cwd, timeout, log):
-        Path(log).parent.mkdir(parents=True, exist_ok=True)
-        with open(log, "a") as fh:
-            fh.write(" ".join(cmd) + "\n")
-        label = _label(cmd)
-        self.calls.append({"cmd": cmd, "env": env, "label": label, "timeout": timeout, "log": str(log),
-                           "t": self.clock.t})
-        self.events.append(("run", label))
-        self.env = env
-        rc = self.write(cmd, label)
-        self.clock.t += self.step_s
-        return self.rc.get(label, rc)
+        with self.lock:
+            Path(log).parent.mkdir(parents=True, exist_ok=True)
+            with open(log, "a") as fh:
+                fh.write(" ".join(cmd) + "\n")
+            label = _label(cmd)
+            self.calls.append({"cmd": cmd, "env": env, "label": label, "timeout": timeout, "log": str(log),
+                               "t": self.clock.t})
+            self.events.append(("run", label))
+            self.env = env
+            rc = self.write(cmd, label)
+            self.clock.t += self.step_s
+            return self.rc.get(label, rc)
 
     def write(self, cmd: list, label: str) -> int:
         env = self.env
@@ -1347,6 +1350,30 @@ def test_m9_generation_targets_every_type_over_every_source(tmp_path):
     assert P._generate_target(None) is None and P._generate_target(5) == 5
     with pytest.raises(ValueError):
         P._generate_target(0)
+
+
+def test_m9_generation_keeps_time_to_judge_what_it_made(tmp_path, monkeypatch):
+    """docs/milestone9.md §6: with thumbnails and judging in the same job the generation's own deadline is
+    GENERATE_RESERVE_MIN before the job's (``--deadline``); $WENART_GENERATE_RESERVE_MIN overrides it; a job that
+    only generates keeps the job deadline."""
+    monkeypatch.delenv("WENART_GENERATE_RESERVE_MIN", raising=False)
+    w = World(tmp_path)
+    w.generation_tools()
+    _judged_library(w)
+    deadline = w.clock.t + 6 * 3600.0
+    rc = w.prep(l2=True, generate_target=20, deadline=deadline).run_all()
+    assert rc == 0, {n: (st["status"], st.get("note")) for n, st in w.steps().items() if st["status"] != "ok"}
+    runs = [c["cmd"] for c in w.calls if c["label"] == "generate run"]
+    want = f"{deadline - 60.0 * P.GENERATE_RESERVE_MIN:.0f}"
+    assert len(runs) == 2 and all(cmd[-2:] == ["--deadline", want] for cmd in runs)
+    assert sorted(cmd[cmd.index("--shard") + 1] for cmd in runs) == ["0/2", "1/2"]
+    assert w.steps()["generate"]["reserve_min"] == P.GENERATE_RESERVE_MIN
+    prep = P.Prep(w.opts(deadline=deadline, only=("trellis_setup", "generate")), runner=w.runner, clock=w.clock,
+                  out=w.lines.append, gpu_query=lambda: dict(GPU_6000))
+    assert prep.generate_deadline() == deadline
+    monkeypatch.setenv("WENART_GENERATE_RESERVE_MIN", "45")
+    assert prep.generate_deadline() == deadline - 45 * 60.0
+    assert P.Prep(w.opts(), runner=w.runner, clock=w.clock, out=w.lines.append).generate_deadline() is None
 
 
 def test_generate_target_from_the_environment(monkeypatch):

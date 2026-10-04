@@ -173,6 +173,10 @@ TEST_GROUPS = (   # (group, interpreter attribute, pytest arguments)
     ("detect", "polish_py", ["tests/gpu/test_detect.py"]),
 )
 LATE_S = 600.0                             # CPU steps and tests may run until the deadline + 10 min
+# Milestone 9: the generation stops this long before the job deadline when the same job thumbnails and judges (the
+# L1 pod: 871 sheets in about 22 min of thumbnails; two judge sessions and the library about 15 min for 300 models).
+GENERATE_RESERVE_MIN = 30.0
+GENERATE_LATER_STEPS = ("thumbnails", "session_qwen", "session_glm")
 NO_DEADLINE_TIMEOUT_S = 4 * 3600.0
 MANIFEST = "prep_manifest.json"
 GPU_SPEED_JSON = "gpu_speed.json"
@@ -753,12 +757,16 @@ class Prep:
             entry["plan_counts"] = plan.get("counts")
         plan_path = lib / "generate" / "plan.json"
         workers = self.generate_workers()
+        gen_deadline = self.generate_deadline()
+        dl_args = [] if gen_deadline is None else ["--deadline", f"{gen_deadline:.0f}"]
+        if gen_deadline is not None and self.opts.deadline is not None:
+            entry["reserve_min"] = round((float(self.opts.deadline) - gen_deadline) / 60.0, 1)
         if workers > 1:
             # Milestone 9: several workers share the GPU (each every n-th item of the plan), then one survey.
             from concurrent.futures import ThreadPoolExecutor
             with ThreadPoolExecutor(max_workers=workers) as pool:
                 futures = [pool.submit(self.run, self.generate_cmd("run", "--out", lib, "--plan", plan_path,
-                                                                    "--shard", f"{k}/{workers}"),
+                                                                    "--shard", f"{k}/{workers}", *dl_args),
                                        what=f"run shard {k}/{workers}") for k in range(workers)]
                 rcs = [f.result() for f in futures]
             entry["workers"] = workers
@@ -767,7 +775,7 @@ class Prep:
             if rc_survey != 0 and rc_run == 0:
                 rc_run = rc_survey
         else:
-            rc_run = self.run(self.generate_cmd("run", "--out", lib, "--plan", plan_path), what="run")
+            rc_run = self.run(self.generate_cmd("run", "--out", lib, "--plan", plan_path, *dl_args), what="run")
         surv = read_json(lib / "survey_generated.json")
         n = len(surv.get("candidates") or []) if isinstance(surv, dict) else 0
         entry["candidates"] = n
@@ -781,6 +789,22 @@ class Prep:
             return "warning", (note + f"; {real - judged} of {real} real model(s) were not judged by both models "
                                "before the plan (their pairs may be generated needlessly)")
         return "ok", note
+
+    def generate_deadline(self) -> Optional[float]:
+        """Milestone 9: the generation's own deadline, ``$WENART_GENERATE_RESERVE_MIN`` minutes before the job's
+        (default GENERATE_RESERVE_MIN when this job also thumbnails or judges, so the same pod judges what it
+        generated; else 0); None without a job deadline."""
+        if self.opts.deadline is None:
+            return None
+        text = os.environ.get("WENART_GENERATE_RESERVE_MIN", "").strip()
+        try:
+            reserve = float(text) if text else None
+        except ValueError:
+            reserve = None
+        if reserve is None:
+            later = any(self.selected(step) is None for step in GENERATE_LATER_STEPS)
+            reserve = GENERATE_RESERVE_MIN if later else 0.0
+        return float(self.opts.deadline) - 60.0 * max(0.0, reserve)
 
     def generate_workers(self) -> int:
         """Generation workers on the pod's GPU (Milestone 9): ``$WENART_GENERATE_WORKERS`` (default 2 with a target
